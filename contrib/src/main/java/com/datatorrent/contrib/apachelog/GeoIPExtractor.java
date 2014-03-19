@@ -36,6 +36,9 @@ public class GeoIPExtractor implements InformationExtractor
 {
   private static final Logger LOG = LoggerFactory.getLogger(GeoIPExtractor.class);
   private transient LookupService reader;
+  /**
+   * The local path that contains the maxmind "legacy" GeoIP db
+   */
   @NotNull
   private String databasePath;
 

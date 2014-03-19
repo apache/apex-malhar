@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * This extractor extracts the time stamp in milliseconds from epoch from an arbitrary date string
  *
  * @since 0.9.4
  */
