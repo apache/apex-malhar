@@ -42,19 +42,11 @@ var LicenseRegisterView = BaseView.extend({
 
         this.licenseRequestModel = new LicenseRequestModel();
 
-        this.listenTo(this.licenseRequestModel, 'change', function (model) {
-            var valid = this.licenseRequestModel.isValid();
-
-            if (valid) {
-                this.$el.find('.register').removeClass('disabled');
-            } else {
-                this.$el.find('.register').addClass('disabled');
-            }
-        });
-
         this.subview('register-name', new Bbind.text({
             model: this.licenseRequestModel,
             attr: 'name',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -66,6 +58,8 @@ var LicenseRegisterView = BaseView.extend({
         this.subview('register-company', new Bbind.text({
             model: this.licenseRequestModel,
             attr: 'company',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -87,6 +81,8 @@ var LicenseRegisterView = BaseView.extend({
         this.subview('register-email', new Bbind.text({
             model: this.licenseRequestModel,
             attr: 'email',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -147,6 +143,14 @@ var LicenseRegisterView = BaseView.extend({
 
         //if (!this.licenseRequestModel.isValid()) {
         if (jQuery(event.target).hasClass('disabled')) {
+            return;
+        }
+
+        // validate fields
+        this.$el.find('.register-name').blur();
+        this.$el.find('.register-company').blur();
+        this.$el.find('.register-email').blur();
+        if (!this.licenseRequestModel.isValid()) {
             return;
         }
 
