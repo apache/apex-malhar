@@ -17,11 +17,8 @@ package com.datatorrent.demos.wordcount;
 
 import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 
-import java.io.BufferedReader;
-import java.io.DataInputStream;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,9 +32,7 @@ public class WordCountInputOperator extends SimpleSinglePortInputOperator<String
     private static final Logger logger = LoggerFactory.getLogger(WordCountInputOperator.class);
     protected long averageSleep = 300;
     protected long sleepPlusMinus = 100;
-    protected String fileName = "src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt";
-    private transient BufferedReader br;
-    private transient DataInputStream in;
+    protected String fileName = "com/datatorrent/demos/wordcount/samplefile.txt";
 
     public void setAverageSleep(long as) {
         averageSleep = as;
@@ -53,10 +48,14 @@ public class WordCountInputOperator extends SimpleSinglePortInputOperator<String
 
     @Override
     public void run() {
+        BufferedReader br = null;
+        DataInputStream in = null;
+        InputStream fstream = null;
+
         while (true) {
             try {
                 String line;
-                FileInputStream fstream = new FileInputStream(fileName);
+                fstream = this.getClass().getClassLoader().getResourceAsStream(fileName);
 
                 in = new DataInputStream(fstream);
                 br = new BufferedReader(new InputStreamReader(in));
@@ -73,15 +72,26 @@ public class WordCountInputOperator extends SimpleSinglePortInputOperator<String
                     try {
                         Thread.sleep(averageSleep + (new Double(sleepPlusMinus * (Math.random() * 2 - 1))).longValue());
                     } catch (InterruptedException ex) {
-                        
+                        // nothing
                     }
                 }
-                br.close();
-                in.close();
-                fstream.close();
 
             } catch (IOException ex) {
                 logger.debug(ex.toString());
+            } finally {
+                try {
+                    if (br != null) {
+                        br.close();
+                    }
+                    if (in != null) {
+                        in.close();
+                    }
+                    if (fstream != null) {
+                        fstream.close();
+                    }
+                } catch (IOException exc) {
+                    // nothing
+                }
             }
         }
     }
