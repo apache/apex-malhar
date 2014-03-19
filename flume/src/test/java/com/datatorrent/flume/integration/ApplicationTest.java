@@ -18,6 +18,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG.Locality;
 
 import com.datatorrent.flume.operator.AbstractFlumeInputOperator;
+import com.datatorrent.flume.storage.EventCodec;
 
 /**
  *
@@ -79,7 +80,8 @@ public class ApplicationTest implements StreamingApplication
   {
     dag.setAttribute(DAGContext.STREAMING_WINDOW_SIZE_MILLIS, 1000);
     FlumeInputOperator flume = dag.addOperator("FlumeOperator", new FlumeInputOperator());
-    flume.setConnectAddresses(new String[]{"127.0.0.1:8080"});
+    flume.setConnectAddresses(new String[]{"test:127.0.0.1:8080"});
+    flume.setCodec(new EventCodec());
     Counter counter = dag.addOperator("Counter", new Counter());
 
     dag.addStream("Slices", flume.output, counter.input).setLocality(Locality.CONTAINER_LOCAL);
