@@ -15,15 +15,12 @@
  */
 package com.datatorrent.lib.logs;
 
-import java.io.IOException;
 import java.text.ParseException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import javax.validation.constraints.NotNull;
-
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -45,56 +42,59 @@ import com.datatorrent.api.Context.OperatorContext;
  * <b>Properties</b>:<br>
  * <b>logRegex</b>: defines the regex <br>
  * <b>groupMap</b>: defines the mapping from the group ids to the names <br>
- * 
+ *
  */
 public class ApacheLogParseMapOutputOperator extends BaseOperator
 {
   /**
    * The apache log pattern regex
    */
-  private String logRegex;
+  private String logRegex = getDefaultAccessLogRegex();
   /**
    * This defines the mapping from group Ids to name
    */
-  @NotNull
-  private Map<String, Integer> groupMap;
+  private String[] regexGroups = getDefaultRegexGroups();
+  /**
+   * This is the list of extractors
+   */
+  private Map<String, InformationExtractor> infoExtractors = new HashMap<String, InformationExtractor>();
   private transient Pattern accessLogPattern;
-
   /**
    * Input log line port.
    */
-  public final transient DefaultInputPort<String> data = new DefaultInputPort<String>() {
+  public final transient DefaultInputPort<String> data = new DefaultInputPort<String>()
+  {
     @Override
     public void process(String s)
     {
       try {
         processTuple(s);
-      } catch (ParseException ex) {
+      }
+      catch (ParseException ex) {
         throw new RuntimeException("Could not parse the input string", ex);
       }
     }
-  };
 
+  };
   /**
    * Client IP address, output port.
    */
   public final transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
 
   /**
-   * @return the groupMap
+   * @return the groups
    */
-  public Map<String, Integer> getGroupMap()
+  public String[] getRegexGroups()
   {
-    return groupMap;
+    return Arrays.copyOf(regexGroups, regexGroups.length);
   }
 
   /**
-   * @param groupMap
-   *          the groupMap to set
+   * @param regexGroups the regex group list to set
    */
-  public void setGroupMap(Map<String, Integer> groupMap)
+  public void setRegexGroups(String[] regexGroups)
   {
-    this.groupMap = groupMap;
+    this.regexGroups = Arrays.copyOf(regexGroups, regexGroups.length);
   }
 
   /**
@@ -107,7 +107,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
 
   /**
    * @param logRegex
-   *          the logRegex to set
+   * the logRegex to set
    */
   public void setLogRegex(String logRegex)
   {
@@ -118,10 +118,10 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
 
   /**
    * Get apache log pattern regex.
-   * 
+   *
    * @return regex string.
    */
-  private String getAccessLogRegex()
+  private static String getDefaultAccessLogRegex()
   {
     String regex1 = "^([\\d\\.]+)"; // Client IP
     String regex2 = " (\\S+)"; // -
@@ -136,19 +136,34 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
     return regex1 + regex2 + regex3 + regex4 + regex5 + regex6 + regex7 + regex8 + regex9 + regex10;
   }
 
+  private static String[] getDefaultRegexGroups()
+  {
+    return new String[] {
+      null, "ip", null, "userid", "time", "url", "status", "bytes", "referer", "agent"
+    };
+  }
+
   /**
-   * 
+   *
    * @param context
    */
   @Override
   public void setup(OperatorContext context)
   {
-    if (logRegex == null) {
-      setLogRegex(getAccessLogRegex());
+    super.setup(context);
+    accessLogPattern = Pattern.compile(this.logRegex, Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+    for (Map.Entry<String, InformationExtractor> entry : infoExtractors.entrySet()) {
+      entry.getValue().setup();
     }
-    if (groupMap == null || groupMap.size() == 0) {
-      throw new RuntimeException("The mapping from group Ids to names can't be null");
+  }
+
+  @Override
+  public void teardown()
+  {
+    for (Map.Entry<String, InformationExtractor> entry : infoExtractors.entrySet()) {
+      entry.getValue().teardown();
     }
+    super.teardown();
   }
 
   /**
@@ -156,11 +171,9 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
    * 1. Requester IP <br>
    * 2. Date of Request <br>
    * 3. Requested Page Path
-   * 
-   * @param line
-   *          : tuple to parsee
+   *
+   * @param line tuple to parse
    * @throws ParseException
-   * @throws IOException
    */
   public void processTuple(String line) throws ParseException
   {
@@ -168,10 +181,26 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
     if (accessLogEntryMatcher.matches()) {
       Map<String, Object> outputMap = new HashMap<String, Object>();
 
-      for (Map.Entry<String, Integer> entry : groupMap.entrySet()) {
-        outputMap.put(entry.getKey(), accessLogEntryMatcher.group(entry.getValue().intValue()).trim());
+      for (int i = 0; i < regexGroups.length; i++) {
+        if (regexGroups[i] != null) {
+          String value = accessLogEntryMatcher.group(i).trim();
+          outputMap.put(regexGroups[i], value);
+          InformationExtractor extractor = infoExtractors.get(regexGroups[i]);
+          if (extractor != null) {
+            Map<String, Object> m = extractor.extractInformation(value);
+            if (m != null) {
+              outputMap.putAll(m);
+            }
+          }
+        }
       }
       output.emit(outputMap);
     }
   }
+
+  public void registerInformationExtractor(String group, InformationExtractor extractor)
+  {
+    infoExtractors.put(group, extractor);
+  }
+
 }
