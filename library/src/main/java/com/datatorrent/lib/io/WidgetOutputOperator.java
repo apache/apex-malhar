@@ -111,7 +111,7 @@ public class WidgetOutputOperator extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    String gatewayAddress = context.getValue(DAG.GATEWAY_ADDRESS);
+    String gatewayAddress = context.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if(!StringUtils.isEmpty(gatewayAddress)){
       wsoo.setUri(URI.create("ws://" + gatewayAddress + "/pubsub"));
       wsoo.setup(context);

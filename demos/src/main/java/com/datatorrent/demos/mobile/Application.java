@@ -180,7 +180,7 @@ public class Application implements StreamingApplication
     // done generating data
     LOG.info("Finished generating seed data.");
 
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       LOG.info("WebSocket with gateway at: {}", gatewayAddress);

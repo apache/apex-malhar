@@ -15,18 +15,17 @@
  */
 package com.datatorrent.contrib.adsdimension;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-
-import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
-
-import com.datatorrent.contrib.redis.RedisStore;
 import redis.clients.jedis.Jedis;
 
+import com.datatorrent.api.annotation.ShipContainingJars;
+
+import com.datatorrent.contrib.redis.RedisStore;
+import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
+
 /**
- *
- * @author Chetan Narsude <chetan@datatorrent.com>
+ * An {@link AbstractTransactionableStoreOutputOperator} that persists aggregated dimensions in the Redis store.<br/>
  */
 @ShipContainingJars(classes = {DateTimeFormatter.class, DateTimeFormat.class, Jedis.class})
 public class RedisAggregateOutputOperator extends AbstractTransactionableStoreOutputOperator<AdInfo, RedisStore>

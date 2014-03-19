@@ -181,7 +181,7 @@ public class Application implements StreamingApplication
   {
 
     try {
-      String gatewayAddress = dag.getValue(DAGContext.GATEWAY_ADDRESS);
+      String gatewayAddress = dag.getValue(DAGContext.GATEWAY_CONNECT_ADDRESS);
       if (gatewayAddress == null) {
         gatewayAddress = "localhost:9090";
       }

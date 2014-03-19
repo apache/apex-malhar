@@ -142,7 +142,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
 
   private InputPort<Object> consoleOutput(DAG dag, String operatorName)
   {
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       String topic = "demos.twitter." + operatorName;
