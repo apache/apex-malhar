@@ -6,6 +6,7 @@ package com.datatorrent.flume.source;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
@@ -25,6 +26,7 @@ import org.apache.flume.channel.ChannelProcessor;
  */
 public class TestSourceTest
 {
+  public static final String SOURCE_FILE = "src/test/resources/dt_spend";
   public static class MyChannelProcessor extends ChannelProcessor
   {
     private final BlockingQueue<Event> queue;
@@ -47,7 +49,7 @@ public class TestSourceTest
   public void testSource() throws InterruptedException
   {
     HashMap<String, String> map = new HashMap<String, String>();
-    map.put(TestSource.FILE_NAME, "src/test/resources/dt_spend");
+    map.put(TestSource.SOURCE_FILE, SOURCE_FILE);
     map.put(TestSource.RATE, "50000");
     TestSource ts = new TestSource();
     try {
@@ -68,11 +70,14 @@ public class TestSourceTest
     long start = System.currentTimeMillis();
     ts.start();
     try {
-      for (int i = ts.cache.size(); i-- > 0;) {
+      final int last = ts.cache.size();
+      for (int i = 0; i < last; i++) {
         Event event =  queue.poll(2, TimeUnit.SECONDS);
         String row = new String(event.getBody()) ;
         assertFalse("2013-11-07 should not be present", row.contains("2013-11-07"));
         assertFalse("2013-11-08 should not be present", row.contains("2013-11-08"));
+        Map<String, String> headers = event.getHeaders();
+        assertEquals("Source", SOURCE_FILE + i, headers.get(TestSource.SOURCE_FILE).concat(headers.get(TestSource.LINE_NUMBER)));
       }
     }
     finally {
