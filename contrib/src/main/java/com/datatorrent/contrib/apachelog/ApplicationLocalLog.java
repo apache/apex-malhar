@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import org.apache.hadoop.conf.Configuration;
 
 /**
+ * This application just reads from a local apache log file on the fly and dumps the parsed data to output
  *
  * @since 0.9.4
  */
