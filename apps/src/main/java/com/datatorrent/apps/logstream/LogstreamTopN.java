@@ -27,8 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.algo.TopN;
+import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.logs.DimensionObject;
-import com.datatorrent.lib.util.KryoSerializableStreamCodec;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
@@ -84,6 +84,7 @@ public class LogstreamTopN extends TopN<String, DimensionObject<String>> impleme
       randomKey = iterator.next().getKey();
     }
 
+    // what happens if randomKey is null?
     String[] split = randomKey.split("\\|");
     Number receivedFilter = new Integer(split[3]);
     Number expectedFilter = recordType.get(LogstreamUtil.FILTER);

@@ -1,4 +1,4 @@
-package com.datatorrent.lib.util;
+package com.datatorrent.lib.codec;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,7 +34,7 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
    *
    * @param clazz class to register with Kryo.
    */
-  public void register(Class clazz)
+  public void register(Class<?> clazz)
   {
     this.kryo.register(clazz);
   }
@@ -45,19 +45,18 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
    * @param clazz class to register with Kryo.
    * @param id    int ID of the class.
    */
-  public void register(Class clazz, int id)
+  public void register(Class<?> clazz, int id)
   {
     Preconditions.checkArgument(id > 0, "invalid id");
     this.kryo.register(clazz, id);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
-  public T fromByteArray(Slice fragment)
+  public Object fromByteArray(Slice fragment)
   {
     ByteArrayInputStream is = new ByteArrayInputStream(fragment.buffer, fragment.offset, fragment.length);
     Input input = new Input(is);
-    return (T) kryo.readClassAndObject(input);
+    return kryo.readClassAndObject(input);
   }
 
   @Override
