@@ -398,6 +398,7 @@ public abstract class AbstractFlumeInputOperator<T>
         for (int i = allConnectAddresses.size(); i-- > 0;) {
           @SuppressWarnings("unchecked")
           AbstractFlumeInputOperator<T> operator = getClass().newInstance();
+          operator.setCodec(codec);
 
           String connectAddress = allConnectAddresses.get(i);
           operator.connectionSpecs = new String[] {connectAddress};
