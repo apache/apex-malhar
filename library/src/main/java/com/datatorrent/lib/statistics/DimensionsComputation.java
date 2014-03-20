@@ -359,6 +359,7 @@ public class DimensionsComputation<EVENT> implements Operator
     DimensionsComputation<?> that = (DimensionsComputation<?>)o;
 
     return Arrays.equals(aggregatorMaps, that.aggregatorMaps);
+
   }
 
   @Override

@@ -30,7 +30,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  *
  * @since 0.9.3
  */
-@ApplicationAnnotation(name="Visual Data Application")
+@ApplicationAnnotation(name="VisualDataApplication")
 public class Application implements StreamingApplication {
     
   private final Locality locality = Locality.CONTAINER_LOCAL;

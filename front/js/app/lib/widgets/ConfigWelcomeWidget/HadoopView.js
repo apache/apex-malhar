@@ -56,6 +56,8 @@ var HadoopView = BaseView.extend({
         this.subview('hadoop-location', new Bbind.text({
             model: this.hadoopLocationModel,
             attr: 'value',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -67,7 +69,6 @@ var HadoopView = BaseView.extend({
 
         this.listenTo(this.hadoopLocationModel, 'change', function () {
             this.clearError('.hadoop-error');
-            this.inputChanged();
         });
     },
 
@@ -161,7 +162,6 @@ var HadoopView = BaseView.extend({
         this.$el.find('.hadoop-location').blur();
 
         if (!this.hadoopLocationModel.isValid()) {
-            this.$el.find('.continue').addClass('disabled');
             return;
         }
 

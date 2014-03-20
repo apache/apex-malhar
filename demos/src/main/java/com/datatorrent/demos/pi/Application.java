@@ -70,7 +70,7 @@ import com.datatorrent.api.StreamingApplication;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="Pi Calculator")
+@ApplicationAnnotation(name="PiCalculator")
 public class Application implements StreamingApplication
 {
   private final Locality locality = null;

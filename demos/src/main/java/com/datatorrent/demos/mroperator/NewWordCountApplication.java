@@ -27,7 +27,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 0.9.0
  */
-@ApplicationAnnotation(name="Map Reduce Application (New Word Count)")
+@ApplicationAnnotation(name="MapReduceApplicationOfWordCount")
 public class NewWordCountApplication extends MapReduceApplication<LongWritable, Text, Text, IntWritable> {
 
 	@Override
