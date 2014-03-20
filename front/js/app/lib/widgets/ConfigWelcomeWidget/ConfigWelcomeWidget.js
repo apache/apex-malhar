@@ -18,7 +18,6 @@ var _ = require('underscore');
 var Backbone = require('backbone');
 var kt = require('knights-templar');
 var WidgetView = DT.lib.WidgetView;
-var steps = require('./steps');
 var StepView = require('./StepView');
 var SystemView = require('./SystemView');
 var LicenseInfoView = require('./LicenseInfoView');
