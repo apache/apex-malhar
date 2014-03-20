@@ -38,8 +38,8 @@ import com.datatorrent.api.InputOperator;
  * <b>filePath</b> : Path for file to be read. <br>
  * <b>delay</b>: Thread sleep interval after emitting line.<br>
  * <b>numberOfTuples</b>: Number of tuples to be emitted in a single emit Tuple call.<br>
- * <b>ftpServer</b>: The ftp server where the file is hosted.<br> * 
- * <b>port</b>: Port of the ftp server.<br>
+ * <b>ftpServer</b>: The ftp server where the file is hosted.<br>
+ * * <b>port</b>: Port of the ftp server.<br>
  * <b>userName</b>: The user name used to login to ftp server. Default is anonymous.<br>
  * <b>password</b>: The password used to login to ftp server.<br>
  * 
@@ -78,6 +78,10 @@ public class FtpInputOperator implements InputOperator
    * The file that needs to be read
    */
   private String filePath;
+  /**
+   * If the file format is gzip
+   */
+  private boolean isGzip;
 
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
   private transient FTPClient ftp;
@@ -113,9 +117,14 @@ public class FtpInputOperator implements InputOperator
         ftp.enterLocalPassiveMode();
       }
       ftp.login(getUserName(), getPassword());
-      InputStream file = ftp.retrieveFileStream(filePath);
-      GZIPInputStream gzis = new GZIPInputStream(file);
-      InputStreamReader reader = new InputStreamReader(gzis);
+      InputStream is = ftp.retrieveFileStream(filePath);
+      InputStreamReader reader;
+      if (isGzip) {
+        GZIPInputStream gzis = new GZIPInputStream(is);
+        reader = new InputStreamReader(gzis);
+      } else {
+        reader = new InputStreamReader(is);
+      }
       in = new BufferedReader(reader);
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -308,6 +317,23 @@ public class FtpInputOperator implements InputOperator
   public void setFilePath(String filePath)
   {
     this.filePath = filePath;
+  }
+
+  /**
+   * @return the isGzip
+   */
+  public boolean isGzip()
+  {
+    return isGzip;
+  }
+
+  /**
+   * @param isGzip
+   *          the isGzip to set
+   */
+  public void setGzip(boolean isGzip)
+  {
+    this.isGzip = isGzip;
   }
 
 }

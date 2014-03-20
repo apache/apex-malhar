@@ -18,22 +18,26 @@ package com.datatorrent.lib.io;
 import junit.framework.Assert;
 
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- Functional test for {
- *
- * @linkcom.datatorrent.lib.io.FtpInputOperator }.
- *
+ * Functional test for {
+ * 
+ * @linkcom.datatorrent.lib.io.FtpInputOperator .
+ * 
  */
 public class FtpInputOperatorTest
 {
   @Test
-  public void TestFtpInputOperator(){
+  public void TestFtpInputOperator()
+  {
     FtpInputOperator oper = new FtpInputOperator();
     oper.setFtpServer("ita.ee.lbl.gov");
-    oper.setFilePath("/traces/NASA_access_log_Jul95.gz");
+    oper.setGzip(true);
+    oper.setFilePath("/traces/WorldCup/wc_day21_1.gz");
     oper.setLocalPassiveMode(true);
     oper.setNumberOfTuples(10);
     oper.setDelay(1);
@@ -44,6 +48,30 @@ public class FtpInputOperatorTest
     oper.emitTuples();
     oper.endWindow();
     oper.teardown();
-    Assert.assertEquals(oper.getNumberOfTuples(), sink.collectedTuples.size());    
+    Assert.assertEquals(oper.getNumberOfTuples(), sink.collectedTuples.size());
+    for (int i = 0; i < sink.collectedTuples.size(); i++) {
+      LOG.debug((String)sink.collectedTuples.get(i));
+    }
   }
+
+  @Test
+  public void TestNonGzipFtpInputOperator()
+  {
+    FtpInputOperator oper = new FtpInputOperator();
+    oper.setFtpServer("ita.ee.lbl.gov");
+    oper.setFilePath("traces/BC-Readme.txt");
+    oper.setLocalPassiveMode(true);
+    oper.setNumberOfTuples(5);
+    oper.setDelay(1);
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    oper.output.setSink(sink);
+    oper.setup(null);
+    oper.beginWindow(0);
+    oper.emitTuples();
+    oper.endWindow();
+    oper.teardown();
+    Assert.assertEquals(oper.getNumberOfTuples(), sink.collectedTuples.size());
+  }
+
+  private static final Logger LOG = LoggerFactory.getLogger(FtpInputOperatorTest.class);
 }
