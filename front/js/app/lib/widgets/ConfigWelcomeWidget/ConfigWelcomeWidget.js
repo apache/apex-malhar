@@ -91,7 +91,7 @@ var ConfigWelcomeWidget = WidgetView.extend({
     navStates: {
         WelcomeView: {
             view: StepView,
-            template: kt.make(__dirname+'/step_welcome.html')
+            template: kt.make(__dirname+'/WelcomeView.html')
         },
         LicenseInfoView: {
             view: LicenseInfoView,
