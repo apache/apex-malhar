@@ -18,7 +18,7 @@ package com.datatorrent.lib.bucket;
 /**
  * Events which have a notion of time. <br/>
  */
-public interface TimeEvent extends BucketEvent
+public interface Event
 {
   long getTime();
 }

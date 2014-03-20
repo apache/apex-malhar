@@ -41,7 +41,7 @@ public class TimeBasedBucketManagerTest
   private static TestBucketManager<DummyEvent> manager;
   private static String applicationPath;
 
-  private static class TestBucketManager<T extends TimeEvent> extends TimeBasedBucketManagerImpl<T>
+  private static class TestBucketManager<T extends Event & BucketEvent> extends TimeBasedBucketManagerImpl<T>
   {
     TestBucketManager(Builder<T> builder)
     {
