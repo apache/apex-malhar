@@ -15,14 +15,19 @@
  */
 package com.datatorrent.contrib.memcache_whalin;
 
-import com.datatorrent.lib.db.KeyValueStore;
-import com.whalin.MemCached.MemCachedClient;
-import com.whalin.MemCached.SockIOPool;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.whalin.MemCached.MemCachedClient;
+import com.whalin.MemCached.SockIOPool;
+
+import com.datatorrent.lib.db.KeyValueStore;
 
 /**
  * Provides the implementation of a Memcache store.
@@ -88,7 +93,7 @@ public class MemcacheStore implements KeyValueStore
   }
 
   @Override
-  public boolean isConnected()
+  public boolean connected()
   {
     throw new UnsupportedOperationException("Not supported yet.");
   }
