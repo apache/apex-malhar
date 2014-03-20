@@ -356,6 +356,16 @@ public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
     this.bucketManager = Preconditions.checkNotNull(bucketManager, "storage manager");
   }
 
+  public boolean getBypass()
+  {
+    return bypass;
+  }
+
+  public boolean isBypass()
+  {
+    return bypass;
+  }
+
   /**
    * Gets the {@link BucketStore} where events are persisted.
    *
