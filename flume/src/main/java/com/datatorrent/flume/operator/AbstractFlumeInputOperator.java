@@ -392,6 +392,15 @@ public abstract class AbstractFlumeInputOperator<T>
         /* return at least one of them; otherwise stram becomes grumpy */
         @SuppressWarnings("unchecked")
         AbstractFlumeInputOperator<T> operator = getClass().newInstance();
+        operator.setCodec(codec);
+        for (ArrayList<RecoveryAddress> lRecoveryAddresses : allRecoveryAddresses.values()) {
+          operator.recoveryAddresses.addAll(lRecoveryAddresses);
+        }
+        operator.connectionSpecs = new String[allConnectAddresses.size()];
+        for (int i = connectionSpecs.length; i-- > 0; ) {
+          connectionSpecs[i] = allConnectAddresses.get(i);
+        }
+
         partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
       }
       else {
