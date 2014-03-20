@@ -11,6 +11,9 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.flume.Event;
 import org.apache.flume.event.EventBuilder;
 
@@ -52,7 +55,8 @@ public class EventCodec implements StreamCodec<Event>
     kryo.writeObject(output, event.getHeaders());
     kryo.writeObject(output, event.getBody());
     output.flush();
-    return new Slice(os.toByteArray(), 0, os.toByteArray().length);
+    final byte[] bytes = os.toByteArray();
+    return new Slice(bytes, 0, bytes.length);
   }
 
   @Override
@@ -61,4 +65,5 @@ public class EventCodec implements StreamCodec<Event>
     return o.hashCode();
   }
 
+  private static final Logger logger = LoggerFactory.getLogger(EventCodec.class);
 }

@@ -14,6 +14,8 @@ import static java.lang.Thread.sleep;
 
 import javax.validation.constraints.NotNull;
 
+import com.esotericsoftware.kryo.Kryo;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,7 +42,7 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * @author Chetan Narsude <chetan@datatorrent.com>
  * @since 0.9.2
  */
-@ShipContainingJars(classes = {Event.class})
+@ShipContainingJars(classes = {Event.class, Kryo.class})
 public abstract class AbstractFlumeInputOperator<T>
         implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener,
         Partitioner<AbstractFlumeInputOperator<T>>
@@ -132,7 +134,7 @@ public abstract class AbstractFlumeInputOperator<T>
 
       final Slice slice = handoverBuffer.poll();
       slice.offset += 8;
-      slice.offset -= 8;
+      slice.length -= 8;
       T convert = convert((Event)codec.fromByteArray(slice));
       if (convert == null) {
         drop.emit(slice);
