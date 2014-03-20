@@ -77,6 +77,7 @@ public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
   protected final Map<Long, List<INPUT>> waitingEvents;
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
+  private boolean bypass;
   //Non check-pointed state
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long currentWindow;
@@ -95,6 +96,20 @@ public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
     @Override
     public final void process(INPUT tuple)
     {
+
+      if (bypass) {
+        OUTPUT convert = convert(tuple);
+
+        if (convert == null) {
+          logger.warn("Conversion of input even {} failed!", tuple);
+        }
+        else {
+          output.emit(convert);
+        }
+
+        return;
+      }
+
       long bucketKey = bucketManager.getBucketKeyFor(tuple);
       if (bucketKey < 0) {
         return;
@@ -169,6 +184,10 @@ public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
   public void endWindow()
   {
     try {
+      if (bypass) {
+        return;
+      }
+
       bucketManager.blockUntilAllRequestsServiced();
       handleIdleTime();
       Preconditions.checkArgument(waitingEvents.isEmpty(), waitingEvents.keySet());
@@ -280,6 +299,7 @@ public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
       try {
         @SuppressWarnings("unchecked")
         Deduper<INPUT, OUTPUT> deduper = this.getClass().newInstance();
+        deduper.bypass = this.bypass;
         DefaultPartition<Deduper<INPUT, OUTPUT>> partition = new DefaultPartition<Deduper<INPUT, OUTPUT>>(deduper);
         newPartitions.add(partition);
       }
@@ -384,6 +404,12 @@ public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
     result = 31 * result + (partitionKeys != null ? partitionKeys.hashCode() : 0);
     result = 31 * result + partitionMask;
     return result;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + ", bypass=" + bypass + '}';
   }
 
   private final static Logger logger = LoggerFactory.getLogger(Deduper.class);
