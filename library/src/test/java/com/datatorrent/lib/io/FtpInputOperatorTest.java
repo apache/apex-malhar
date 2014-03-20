@@ -37,7 +37,7 @@ public class FtpInputOperatorTest
     FtpInputOperator oper = new FtpInputOperator();
     oper.setFtpServer("ita.ee.lbl.gov");
     oper.setGzip(true);
-    oper.setFilePath("/traces/WorldCup/wc_day21_1.gz");
+    oper.setFilePath("/traces/NASA_access_log_Aug95.gz");
     oper.setLocalPassiveMode(true);
     oper.setNumberOfTuples(10);
     oper.setDelay(1);
