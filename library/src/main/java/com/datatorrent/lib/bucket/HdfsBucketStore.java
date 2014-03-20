@@ -45,7 +45,7 @@ import com.google.common.collect.Maps;
  *
  * @param <T> type of bucket event
  */
-public class HdfsBucketStore<T extends BucketEvent> implements BucketStore<T>
+public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 {
   public static transient String OPERATOR_ID = "operatorId";
   public static transient String APP_PATH = "applicationPath";

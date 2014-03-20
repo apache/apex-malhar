@@ -43,7 +43,7 @@ import com.datatorrent.lib.bucket.*;
  * <p>
  * Processing of an event involves:
  * <ol>
- * <li>Finding the bucket key of an event by calling {@link BucketManager#getBucketKeyFor(BucketEvent)}.</li>
+ * <li>Finding the bucket key of an event by calling {@link BucketManager#getBucketKeyFor(Bucketable)}.</li>
  * <li>Getting the bucket from {@link BucketManager} by calling {@link BucketManager#getBucket(long)}.</li>
  * <li>
  * If the bucket is not loaded:
@@ -66,7 +66,7 @@ import com.datatorrent.lib.bucket.*;
  * @param <INPUT>  type of input tuple
  * @param <OUTPUT> type of output tuple
  */
-public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
+public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
   //Check-pointed state

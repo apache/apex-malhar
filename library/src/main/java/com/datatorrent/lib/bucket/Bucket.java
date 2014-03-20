@@ -44,7 +44,7 @@ import com.google.common.collect.Maps;
  *
  * @param <T> type of bucket events
  */
-public class Bucket<T extends BucketEvent>
+public class Bucket<T extends Bucketable>
 {
   private Map<Object, T> unwrittenEvents;
   public final long bucketKey;
@@ -182,7 +182,7 @@ public class Bucket<T extends BucketEvent>
   /**
    * Finds whether the bucket contains the event.
    *
-   * @param event the {@link BucketEvent} to search for in the bucket.
+   * @param event the {@link Bucketable} to search for in the bucket.
    * @return true if bucket has the event; false otherwise.
    */
   public boolean containsEvent(T event)

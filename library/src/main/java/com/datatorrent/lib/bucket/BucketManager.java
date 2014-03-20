@@ -30,7 +30,7 @@ import javax.annotation.Nullable;
  * <p>
  * Loading of buckets and saving new bucket events to storage is triggered by the Operator. Typically an Operator would:
  * <ol>
- * <li>fetch the bucket key of an event by calling {@link #getBucketKeyFor(BucketEvent)}.</li>
+ * <li>fetch the bucket key of an event by calling {@link #getBucketKeyFor(Bucketable)}.</li>
  * <li>invoke {@link #getBucket(long)}. If this returns null or events from disk are not loaded then the operator can ask
  * the manager to load the bucket by calling {@link BucketManager#loadBucketData(long)}. This is not a blocking call.<br/>
  * </li>
@@ -40,7 +40,7 @@ import javax.annotation.Nullable;
  * callback is triggered.
  * </li>
  * <li>
- * The operator could then add new events to a bucket by invoking {@link #newEvent(long, BucketEvent)}. These events are
+ * The operator could then add new events to a bucket by invoking {@link #newEvent(long, Bucketable)}. These events are
  * maintained in a check-pointed state.
  * </li>
  * <li>
@@ -54,7 +54,7 @@ import javax.annotation.Nullable;
  *
  * @param <T> event type
  */
-public interface BucketManager<T extends BucketEvent>
+public interface BucketManager<T extends Bucketable>
 {
   /**
    * Starts the service.
@@ -150,7 +150,7 @@ public interface BucketManager<T extends BucketEvent>
   /**
    * Callback interface for {@link BucketManager} for load and off-load operations.
    */
-  public static interface Listener<T extends BucketEvent>
+  public static interface Listener<T extends Bucketable>
   {
     /**
      * Invoked when a bucket is loaded from store.

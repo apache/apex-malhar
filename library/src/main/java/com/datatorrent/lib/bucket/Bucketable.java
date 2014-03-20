@@ -19,7 +19,7 @@ package com.datatorrent.lib.bucket;
  * Type of events that can be bucketed.
  *
  */
-public interface BucketEvent
+public interface Bucketable
 {
   Object getEventKey();
 }

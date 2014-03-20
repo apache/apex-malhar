@@ -70,7 +70,7 @@ import com.datatorrent.common.util.DTThrowable;
  *
  * @param <T> event type
  */
-public class BucketManagerImpl<T extends BucketEvent> implements BucketManager<T>, Runnable
+public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>, Runnable
 {
   public static int DEF_NUM_BUCKETS_MEM = 100;
   public static long DEF_MILLIS_PREVENTING_EVICTION = 5 * 60000;
@@ -369,7 +369,7 @@ public class BucketManagerImpl<T extends BucketEvent> implements BucketManager<T
   {
   }
 
-  public static class Builder<T extends BucketEvent>
+  public static class Builder<T extends Bucketable>
   {
     protected int noOfBuckets;
     protected int noOfBucketsInMemory;

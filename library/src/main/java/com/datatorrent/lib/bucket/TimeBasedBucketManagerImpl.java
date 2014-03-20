@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  *
  * @param <T> event type
  */
-public class TimeBasedBucketManagerImpl<T extends Event & BucketEvent> extends BucketManagerImpl<T>
+public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends BucketManagerImpl<T>
 {
   @Min(1)
   protected long bucketSpanInMillis;
@@ -110,7 +110,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & BucketEvent> extends B
     super.shutdownService();
   }
 
-  public static class Builder<T extends Event & BucketEvent> extends BucketManagerImpl.Builder<T>
+  public static class Builder<T extends Event & Bucketable> extends BucketManagerImpl.Builder<T>
   {
     protected long bucketSpanInMillis;
     private long startOfBucketsInMillis;
