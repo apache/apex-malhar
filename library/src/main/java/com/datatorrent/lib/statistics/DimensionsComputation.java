@@ -40,7 +40,7 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  */
 @ShipContainingJars(classes = {TCustomHashMap.class, HashingStrategy.class})
-public class DimensionsComputation<EVENT> implements Operator, Partitioner<DimensionsComputation<EVENT>>
+public class DimensionsComputation<EVENT> implements Operator
 {
   public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>();
   public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
@@ -119,57 +119,6 @@ public class DimensionsComputation<EVENT> implements Operator, Partitioner<Dimen
   {
   }
 
-  @Override
-  public void partitioned(Map<Integer, Partition<DimensionsComputation<EVENT>>> partitions)
-  {
-  }
-
-  @Override
-  public Collection<Partition<DimensionsComputation<EVENT>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT>>> partitions, int incrementalCapacity)
-  {
-    if (incrementalCapacity == 0) {
-      return partitions;
-    }
-
-    int newPartitionsCount = partitions.size() + incrementalCapacity;
-
-    LinkedHashMap<Aggregator<EVENT>, DimensionsComputation<EVENT>> map = new LinkedHashMap<Aggregator<EVENT>, DimensionsComputation<EVENT>>(newPartitionsCount);
-    for (Partition<DimensionsComputation<EVENT>> partition : partitions) {
-      for (Aggregator<EVENT> dimension : partition.getPartitionedInstance().getAggregators()) {
-        map.put(dimension, partition.getPartitionedInstance());
-      }
-    }
-
-    int remainingDimensions = map.size();
-    if (newPartitionsCount > remainingDimensions) {
-      newPartitionsCount = remainingDimensions;
-    }
-
-    int dimensionsPerPartition[] = new int[newPartitionsCount];
-    while (remainingDimensions > 0) {
-      for (int i = 0; i < newPartitionsCount && remainingDimensions > 0; i++) {
-        dimensionsPerPartition[i]++;
-        remainingDimensions--;
-      }
-    }
-
-    ArrayList<Partition<DimensionsComputation<EVENT>>> returnValue = new ArrayList<Partition<DimensionsComputation<EVENT>>>(newPartitionsCount);
-
-    Iterator<Entry<Aggregator<EVENT>, DimensionsComputation<EVENT>>> iterator = map.entrySet().iterator();
-    for (int i = 0; i < newPartitionsCount; i++) {
-      DimensionsComputation<EVENT> dc = new DimensionsComputation<EVENT>();
-      for (int j = 0; j < dimensionsPerPartition[i]; j++) {
-        Entry<Aggregator<EVENT>, DimensionsComputation<EVENT>> next = iterator.next();
-        dc.transferDimension(next.getKey(), next.getValue());
-      }
-
-      DefaultPartition<DimensionsComputation<EVENT>> partition = new DefaultPartition<DimensionsComputation<EVENT>>(dc);
-      returnValue.add(partition);
-    }
-
-    return returnValue;
-  }
-
   public void transferDimension(Aggregator<EVENT> aggregator, DimensionsComputation<EVENT> other)
   {
     if (other.aggregatorMaps == null) {
@@ -218,12 +167,69 @@ public class DimensionsComputation<EVENT> implements Operator, Partitioner<Dimen
     }
   }
 
+  public static class PartitionerImpl<EVENT> implements Partitioner<DimensionsComputation<EVENT>>
+  {
+    @Override
+    public void partitioned(Map<Integer, Partition<DimensionsComputation<EVENT>>> partitions)
+    {
+    }
+
+    @Override
+    public Collection<Partition<DimensionsComputation<EVENT>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT>>> partitions, int incrementalCapacity)
+    {
+      if (incrementalCapacity == 0) {
+        return partitions;
+      }
+
+      int newPartitionsCount = partitions.size() + incrementalCapacity;
+
+      LinkedHashMap<Aggregator<EVENT>, DimensionsComputation<EVENT>> map = new LinkedHashMap<Aggregator<EVENT>, DimensionsComputation<EVENT>>(newPartitionsCount);
+      for (Partition<DimensionsComputation<EVENT>> partition : partitions) {
+        for (Aggregator<EVENT> dimension : partition.getPartitionedInstance().getAggregators()) {
+          map.put(dimension, partition.getPartitionedInstance());
+        }
+      }
+
+      int remainingDimensions = map.size();
+      if (newPartitionsCount > remainingDimensions) {
+        newPartitionsCount = remainingDimensions;
+      }
+
+      int dimensionsPerPartition[] = new int[newPartitionsCount];
+      while (remainingDimensions > 0) {
+        for (int i = 0; i < newPartitionsCount && remainingDimensions > 0; i++) {
+          dimensionsPerPartition[i]++;
+          remainingDimensions--;
+        }
+      }
+
+      ArrayList<Partition<DimensionsComputation<EVENT>>> returnValue = new ArrayList<Partition<DimensionsComputation<EVENT>>>(newPartitionsCount);
+
+      Iterator<Entry<Aggregator<EVENT>, DimensionsComputation<EVENT>>> iterator = map.entrySet().iterator();
+      for (int i = 0; i < newPartitionsCount; i++) {
+        DimensionsComputation<EVENT> dc = new DimensionsComputation<EVENT>();
+        for (int j = 0; j < dimensionsPerPartition[i]; j++) {
+          Entry<Aggregator<EVENT>, DimensionsComputation<EVENT>> next = iterator.next();
+          dc.transferDimension(next.getKey(), next.getValue());
+        }
+
+        DefaultPartition<DimensionsComputation<EVENT>> partition = new DefaultPartition<DimensionsComputation<EVENT>>(dc);
+        returnValue.add(partition);
+      }
+
+      return returnValue;
+    }
+
+  }
+
   /**
    * Kryo has an issue in prior to version 2.23 where it does not honor
    * KryoSerializer implementation.
    *
    * So we provide serializer in a different way. This code will not be
-   * needed after 2.23 is released.
+   * needed after 2.23 is released. It seems that a few things are still
+   * broken - hint: map vs externalizable interface which needs to be
+   * evaluated.
    *
    * @param <T>
    */
@@ -302,9 +308,61 @@ public class DimensionsComputation<EVENT> implements Operator, Partitioner<Dimen
       aggregator = (Aggregator<EVENT>)super.strategy;
     }
 
+    @Override
+    public boolean equals(Object o)
+    {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof AggregatorMap)) {
+        return false;
+      }
+      if (!super.equals(o)) {
+        return false;
+      }
+
+      AggregatorMap<?> that = (AggregatorMap<?>)o;
+
+      if (aggregator != null ? !aggregator.equals(that.aggregator) : that.aggregator != null) {
+        return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+      int result = super.hashCode();
+      result = 31 * result + (aggregator != null ? aggregator.hashCode() : 0);
+      return result;
+    }
+
     @SuppressWarnings("unused")
     private static final Logger logger = LoggerFactory.getLogger(AggregatorMap.class);
     private static final long serialVersionUID = 201311171410L;
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof DimensionsComputation)) {
+      return false;
+    }
+
+    DimensionsComputation<?> that = (DimensionsComputation<?>)o;
+
+    return Arrays.equals(aggregatorMaps, that.aggregatorMaps);
+
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return aggregatorMaps != null ? Arrays.hashCode(aggregatorMaps) : 0;
   }
 
 }
