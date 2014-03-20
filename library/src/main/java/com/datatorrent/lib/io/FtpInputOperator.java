@@ -39,9 +39,10 @@ import com.datatorrent.api.InputOperator;
  * <b>delay</b>: Thread sleep interval after emitting line.<br>
  * <b>numberOfTuples</b>: Number of tuples to be emitted in a single emit Tuple call.<br>
  * <b>ftpServer</b>: The ftp server where the file is hosted.<br>
- * * <b>port</b>: Port of the ftp server.<br>
+ * <b>port</b>: Port of the ftp server.<br>
  * <b>userName</b>: The user name used to login to ftp server. Default is anonymous.<br>
  * <b>password</b>: The password used to login to ftp server.<br>
+ * <b>isGzip</b>: If the format of the file is gzip.<br>
  * 
  */
 public class FtpInputOperator implements InputOperator
