@@ -16,31 +16,32 @@
 package com.datatorrent.contrib.redis;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Transaction;
+
+import com.google.common.collect.Maps;
+import com.lambdaworks.redis.RedisClient;
+import com.lambdaworks.redis.RedisConnection;
 
 import com.datatorrent.lib.db.TransactionableKeyValueStore;
 
 /**
- * Provides the implementation of a Redis store.
- *
- * @since 0.9.3
+ * Provides the implementation of a Redis store using Lettuce java client. <br/>
  */
-public class RedisStore implements TransactionableKeyValueStore
+public class LettuceStore implements TransactionableKeyValueStore
 {
-  private static final Logger LOG = LoggerFactory.getLogger(RedisStore.class);
-  protected transient Jedis jedis;
+  private static final Logger LOG = LoggerFactory.getLogger(LettuceStore.class);
   private String host = "localhost";
   private int port = 6379;
   private int dbIndex = 0;
   protected int keyExpiryTime = -1;
-  private transient Transaction transaction;
+
+  protected transient RedisClient client;
+  protected transient RedisConnection<String, String> connection;
+  private transient boolean inTransaction;
 
   /**
    * Gets the host.
@@ -125,47 +126,49 @@ public class RedisStore implements TransactionableKeyValueStore
   @Override
   public void connect() throws IOException
   {
-    jedis = new Jedis(host, port);
-    jedis.connect();
-    jedis.select(dbIndex);
+    client = new RedisClient(host, port);
+    connection = client.connect();
+    connection.select(dbIndex);
   }
 
   @Override
   public void disconnect() throws IOException
   {
-    jedis.disconnect();
+    client.shutdown();
+    connection = null;
   }
 
   @Override
   public boolean isConnected()
   {
-    return jedis.isConnected();
+    return connection != null;
   }
 
   @Override
   public void beginTransaction()
   {
-    transaction = jedis.multi();
+    connection.multi();
+    inTransaction = true;
   }
 
   @Override
   public void commitTransaction()
   {
-    transaction.exec();
-    transaction = null;
+    connection.exec();
+    inTransaction = false;
   }
 
   @Override
   public void rollbackTransaction()
   {
-    transaction.discard();
-    transaction = null;
+    connection.discard();
+    inTransaction = false;
   }
 
   @Override
   public boolean isInTransaction()
   {
-    return transaction != null;
+    return inTransaction;
   }
 
   /**
@@ -181,7 +184,7 @@ public class RedisStore implements TransactionableKeyValueStore
     if (isInTransaction()) {
       throw new RuntimeException("Cannot call get when in redis transaction");
     }
-    return jedis.get(key.toString());
+    return connection.get(key.toString());
   }
 
   /**
@@ -198,62 +201,39 @@ public class RedisStore implements TransactionableKeyValueStore
     if (isInTransaction()) {
       throw new RuntimeException("Cannot call get when in redis transaction");
     }
-    return (List<Object>)(List<?>)jedis.mget(keys.toArray(new String[] {}));
+    return (List<Object>) (List<?>) connection.mget(keys.toArray(new String[]{}));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Override
   public void put(Object key, Object value)
   {
-    if (isInTransaction()) {
-      if (value instanceof Map) {
-        transaction.hmset(key.toString(), (Map)value);
-      }
-      else {
-        transaction.set(key.toString(), value.toString());
-      }
-      if (keyExpiryTime != -1) {
-        transaction.expire(key.toString(), keyExpiryTime);
-      }
+    if (value instanceof Map) {
+      connection.hmset(key.toString(), (Map) value);
     }
     else {
-      if (value instanceof Map) {
-        jedis.hmset(key.toString(), (Map)value);
-      }
-      else {
-        jedis.set(key.toString(), value.toString());
-      }
-      if (keyExpiryTime != -1) {
-        jedis.expire(key.toString(), keyExpiryTime);
-      }
+      connection.set(key.toString(), value.toString());
+    }
+    if (keyExpiryTime != -1) {
+      connection.expire(key.toString(), keyExpiryTime);
     }
   }
 
   @Override
   public void putAll(Map<Object, Object> m)
   {
-    List<String> params = new ArrayList<String>();
+
+    Map<String, String> params = Maps.newHashMap();
     for (Map.Entry<Object, Object> entry : m.entrySet()) {
-      params.add(entry.getKey().toString());
-      params.add(entry.getValue().toString());
+      params.put(entry.getKey().toString(), entry.getValue().toString());
     }
-    if (isInTransaction()) {
-      transaction.mset(params.toArray(new String[] {}));
-    }
-    else {
-      jedis.mset(params.toArray(new String[] {}));
-    }
+    connection.mset(params);
   }
 
   @Override
   public void remove(Object key)
   {
-    if (isInTransaction()) {
-      transaction.del(key.toString());
-    }
-    else {
-      jedis.del(key.toString());
-    }
+    connection.del(key.toString());
   }
 
   /**
@@ -265,17 +245,9 @@ public class RedisStore implements TransactionableKeyValueStore
    */
   public void hincrByFloat(String key, String field, double doubleValue)
   {
-    if (isInTransaction()) {
-      transaction.hincrByFloat(key, field, doubleValue);
-      if (keyExpiryTime != -1) {
-        transaction.expire(key, keyExpiryTime);
-      }
-    }
-    else {
-      jedis.hincrByFloat(key, field, doubleValue);
-      if (keyExpiryTime != -1) {
-        jedis.expire(key, keyExpiryTime);
-      }
+    connection.hincrbyfloat(key, field, doubleValue);
+    if (keyExpiryTime != -1) {
+      connection.expire(key, keyExpiryTime);
     }
   }
 
@@ -287,17 +259,9 @@ public class RedisStore implements TransactionableKeyValueStore
    */
   public void incrByFloat(String key, double doubleValue)
   {
-    if (isInTransaction()) {
-      transaction.incrByFloat(key, doubleValue);
-      if (keyExpiryTime != -1) {
-        transaction.expire(key, keyExpiryTime);
-      }
-    }
-    else {
-      jedis.incrByFloat(key, doubleValue);
-      if (keyExpiryTime != -1) {
-        jedis.expire(key, keyExpiryTime);
-      }
+    connection.incrbyfloat(key, doubleValue);
+    if (keyExpiryTime != -1) {
+      connection.expire(key, keyExpiryTime);
     }
   }
 

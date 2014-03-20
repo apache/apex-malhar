@@ -15,6 +15,6 @@
  */
 
 /**
- * Ads dimension demo application, operators, and utilities.
+ * Apache log application, operators, and utilities.
  */
 package com.datatorrent.contrib.apachelog;

@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.wordcount;
+package com.datatorrent.contrib.apachelog.zmq;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.wordcount.Application;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
@@ -32,12 +31,13 @@ public class ApplicationTest
   @Test
   public void testSomeMethod() throws Exception
   {
+    Application app = new Application();
     LocalMode lma = LocalMode.newInstance();
-    new Application().populateDAG(lma.getDAG(), new Configuration(false));
-    LocalMode.Controller lc = lma.getController();
+    app.populateDAG(lma.getDAG(), new Configuration(false));
 
+    final LocalMode.Controller lc = lma.getController();
     long start = System.currentTimeMillis();
-    lc.run(300000);
+    lc.run();
     long end = System.currentTimeMillis();
     long time = end -start;
     System.out.println("Test used "+time+" ms");
