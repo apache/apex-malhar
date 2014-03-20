@@ -63,8 +63,8 @@ import com.datatorrent.lib.bucket.*;
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
  *
- * @param <INPUT>  type of input tuple</INPUT>
- * @param <OUTPUT> type of output tuple</OUTPUT>
+ * @param <INPUT>  type of input tuple
+ * @param <OUTPUT> type of output tuple
  */
 public abstract class Deduper<INPUT extends BucketEvent, OUTPUT>
   implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>

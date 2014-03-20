@@ -35,8 +35,8 @@ import javax.annotation.Nullable;
  * the manager to load the bucket by calling {@link BucketManager#loadBucketData(long)}. This is not a blocking call.<br/>
  * </li>
  * <li>
- * Once the manager loads a bucket, it informs {@link BucketManager.Listener} by calling {@link BucketManagerImpl.Listener#bucketLoaded(Bucket)}.<br/>
- * If there were some buckets that were off-loaded during the process {@link BucketManagerImpl.Listener#bucketOffLoaded(long)}
+ * Once the manager loads a bucket, it informs {@link BucketManager.Listener} by calling {@link BucketManager.Listener#bucketLoaded(Bucket)}.<br/>
+ * If there were some buckets that were off-loaded during the process {@link BucketManager.Listener#bucketOffLoaded(long)}
  * callback is triggered.
  * </li>
  * <li>
@@ -52,7 +52,7 @@ import javax.annotation.Nullable;
  * </ol>
  * </p>
  *
- * @param <T> event type </T>
+ * @param <T> event type
  */
 public interface BucketManager<T extends BucketEvent>
 {

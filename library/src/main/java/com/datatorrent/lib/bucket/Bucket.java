@@ -42,7 +42,7 @@ import com.google.common.collect.Maps;
  * Operators that work with buckets can only query it but not modify it.
  * </p>
  *
- * @param <T> type of bucket events</T>
+ * @param <T> type of bucket events
  */
 public class Bucket<T extends BucketEvent>
 {

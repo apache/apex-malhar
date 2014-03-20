@@ -68,7 +68,7 @@ import com.datatorrent.common.util.DTThrowable;
  * </ol>
  * </p>
  *
- * @param <T> event type </T>
+ * @param <T> event type
  */
 public class BucketManagerImpl<T extends BucketEvent> implements BucketManager<T>, Runnable
 {

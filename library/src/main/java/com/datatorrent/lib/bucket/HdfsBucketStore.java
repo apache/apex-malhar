@@ -43,7 +43,7 @@ import com.google.common.collect.Maps;
  * {@link BucketStore} which works with HDFS.<br/>
  * The path of buckets in hdfs is <code>{application-path}/buckets/{operatorId}/{windowId}</code>.
  *
- * @param <T> type of bucket event</T>
+ * @param <T> type of bucket event
  */
 public class HdfsBucketStore<T extends BucketEvent> implements BucketStore<T>
 {
