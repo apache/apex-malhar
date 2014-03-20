@@ -43,5 +43,5 @@ public interface Connectable
    * 
    * @return
    */
-  public boolean isConnected();
+  public boolean connected();
 }

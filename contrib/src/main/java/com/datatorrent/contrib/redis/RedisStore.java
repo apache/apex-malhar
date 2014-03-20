@@ -137,9 +137,9 @@ public class RedisStore implements TransactionableKeyValueStore
   }
 
   @Override
-  public boolean isConnected()
+  public boolean connected()
   {
-    return jedis.isConnected();
+    return jedis != null && jedis.isConnected();
   }
 
   @Override
@@ -198,7 +198,7 @@ public class RedisStore implements TransactionableKeyValueStore
     if (isInTransaction()) {
       throw new RuntimeException("Cannot call get when in redis transaction");
     }
-    return (List<Object>)(List<?>)jedis.mget(keys.toArray(new String[] {}));
+    return (List<Object>) (List<?>) jedis.mget(keys.toArray(new String[]{}));
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
@@ -207,7 +207,7 @@ public class RedisStore implements TransactionableKeyValueStore
   {
     if (isInTransaction()) {
       if (value instanceof Map) {
-        transaction.hmset(key.toString(), (Map)value);
+        transaction.hmset(key.toString(), (Map) value);
       }
       else {
         transaction.set(key.toString(), value.toString());
@@ -218,7 +218,7 @@ public class RedisStore implements TransactionableKeyValueStore
     }
     else {
       if (value instanceof Map) {
-        jedis.hmset(key.toString(), (Map)value);
+        jedis.hmset(key.toString(), (Map) value);
       }
       else {
         jedis.set(key.toString(), value.toString());
@@ -238,10 +238,10 @@ public class RedisStore implements TransactionableKeyValueStore
       params.add(entry.getValue().toString());
     }
     if (isInTransaction()) {
-      transaction.mset(params.toArray(new String[] {}));
+      transaction.mset(params.toArray(new String[]{}));
     }
     else {
-      jedis.mset(params.toArray(new String[] {}));
+      jedis.mset(params.toArray(new String[]{}));
     }
   }
 
