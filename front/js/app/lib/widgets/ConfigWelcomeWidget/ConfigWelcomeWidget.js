@@ -18,9 +18,7 @@ var _ = require('underscore');
 var Backbone = require('backbone');
 var kt = require('knights-templar');
 var WidgetView = DT.lib.WidgetView;
-var StepCollection = require('./StepCollection');
 var steps = require('./steps');
-var StepListView = require('./StepListView');
 var StepView = require('./StepView');
 var SystemView = require('./SystemView');
 var LicenseInfoView = require('./LicenseInfoView');
@@ -49,34 +47,6 @@ var ConfigWelcomeWidget = WidgetView.extend({
 
         this.dataSource = options.dataSource;
 
-        // installation issues, instantiated 
-        // and fetched on WelcomePageView
-        this.issues = options.issues;
-
-        // models for each step in this welcome
-        // process.
-        this.steps = new StepCollection(steps);
-        //this.steps.setActive('welcome');
-        //this.steps.setActive('system');
-
-        // this view contains the list of steps on the left
-        // side of the wizard. 
-        this.subview('step_list', new StepListView({
-            collection: this.steps
-        }));
-
-        // when active step changes, update the main 
-        // pane with the appropriate step template.
-        this.listenTo(this.steps, 'change:active', function(model, active) {
-            // this catches change events when steps
-            // get deactivated; we are only interested
-            // in steps becoming active
-            if (!active) {
-                return;
-            }
-            this.goToStep(model);
-        });
-
         this.activeStateId = 'WelcomeView';
         //this.activeStateId = 'LicenseInfoView';
         //this.activeStateId = 'LicenseRegisterView';
@@ -86,16 +56,11 @@ var ConfigWelcomeWidget = WidgetView.extend({
     },
 
     render: function() {
-        //this.mockState = window.mockState; //TODO
+        //this.mockState = window.mockState; //for dev testing only
 
         // Sets up the base markup for the wizard
         var html = this.template({});
         this.$el.html(html);
-
-        // Assigns the step_list to the <ol>
-        this.assign({
-            'ol.step-list': 'step_list'
-        });
 
         // Goes to active step.
         //this.goToStep(this.steps.getActive());
@@ -120,67 +85,14 @@ var ConfigWelcomeWidget = WidgetView.extend({
             this.go(step);
         }
     },
-
-    goToStep: function(step) {
-        if (true) {
-            this.go(step);
-            return;
-        }
-        // Retrieves template for the step
-        var stepId = step.get('id');
-        var StepView = this.stepViews[stepId];
-        var template = this.stepTemplates[stepId];
-            
-        if (!StepView) {
-            throw new Error('No view found for "' + step.get('id') + '" step!');
-        }
-
-        if (!template) {
-            throw new Error('No template found for "' + step.get('id') + '" step!');
-        }
-
-        // Remove old current view if present
-        if (this._currentView) {
-            this._currentView.remove();
-        }
-
-        // Injects the issues, properties, and step model
-        // into the new view.
-        this._currentView = new StepView({
-            dataSource: this.dataSource,
-            issues: this.issues,
-            properties: this.collection,
-            model: step,
-            template: template
-        });
-        this.$('.install-steps-pane .inner').html(this._currentView.render().el);
-    },
     
     // base markup for the wizard
     template: kt.make(__dirname+'/ConfigWelcomeWidget.html','_'),
 
-    // markup for each step
-    stepTemplates: {
-        welcome: kt.make(__dirname+'/step_welcome.html'),
-        system: kt.make(__dirname+'/SystemView.html'),
-        performance: kt.make(__dirname+'/step_performance.html'),
-        applications: kt.make(__dirname+'/step_applications.html'),
-        summary: kt.make(__dirname+'/step_summary.html')
-    },
-
-    // Views for each step
-    stepViews: {
-        welcome: StepView,
-        system: SystemView,
-        performance: StepView,
-        applications: StepView,
-        summary: StepView
-    },
-
     navStates: {
         WelcomeView: {
-            view: StepView, //TODO
-            template: kt.make(__dirname+'/step_welcome.html') //TODO
+            view: StepView,
+            template: kt.make(__dirname+'/step_welcome.html')
         },
         LicenseInfoView: {
             view: LicenseInfoView,
@@ -201,7 +113,7 @@ var ConfigWelcomeWidget = WidgetView.extend({
         },
         SystemView: {
             view: SystemView,
-            template: kt.make(__dirname+'/SystemView.html') // TODO
+            template: kt.make(__dirname+'/SystemView.html')
         },
         LicenseOfflineView: {
             view: LicenseOfflineView,
@@ -249,7 +161,8 @@ var ConfigWelcomeWidget = WidgetView.extend({
     
 });
 
-//TODO
+/*
+// for dev testing only
 window.mockState = {
     LicenseInfoView: {
         defaultLicense: true,
@@ -259,5 +172,6 @@ window.mockState = {
         registerResponse: 'offline' // success, failed, offline, input
     }
 };
+*/
 
 exports = module.exports = ConfigWelcomeWidget;
