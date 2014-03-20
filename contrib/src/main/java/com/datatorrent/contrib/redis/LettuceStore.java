@@ -139,7 +139,7 @@ public class LettuceStore implements TransactionableKeyValueStore
   }
 
   @Override
-  public boolean isConnected()
+  public boolean connected()
   {
     return connection != null;
   }
