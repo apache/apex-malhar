@@ -15,8 +15,8 @@
 
 <% } else { %>
 
-<p class="alert alert-success">
-    Configuration is complete. You can return to configuration wizard from <a href="#config">configuration page</a> at any time.
+<p class="alert alert-success welcome-text">
+    <i class="icon-ok-sign"></i> Configuration is complete. You can return to configuration wizard from <a href="#config">configuration page</a> at any time.
 </p>
 
 <p>
@@ -27,7 +27,7 @@
 <% if (issues.length) { %>
 <p>
     <h3>Identified Issues</h3>
-    <p>Below is a list of identified issues. Please refer to the installation guide in the Developer Center for more information.</p>
+    <p class="getting-started">Below is a list of identified issues. Please refer to the installation guide in the Developer Center for more information.</p>
 
     <div class="issue-list">
     <% issues.each(function (issue) { %>
@@ -44,7 +44,7 @@
     <i class="icon-circle-arrow-left"></i> back
 </a>
 
-<a href="#" class="btn btn-success pull-right btn-large">
+<a href="#" class="install-step-link btn btn-success pull-right btn-large">
     finish <i class="icon-circle-arrow-right icon-white"></i>
 </a>
 

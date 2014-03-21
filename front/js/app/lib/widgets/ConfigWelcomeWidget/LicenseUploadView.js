@@ -22,7 +22,8 @@ var Notifier = DT.lib.Notifier;
 var LicenseUploadView = BaseView.extend({
 
     events: {
-        'click .continue': 'continue'
+        'click .continue': 'continue',
+        'click .go-to-register': 'goToRegister'
     },
 
     initialize: function(options) {
@@ -68,6 +69,14 @@ var LicenseUploadView = BaseView.extend({
             this.assign(this.assignments);
         }
         return this;
+    },
+
+    goToRegister: function (event) {
+        event.preventDefault();
+
+        this.navFlow.go('LicenseRegisterView', {
+            prevStateId: 'LicenseInfoView'
+        });
     },
 
     assignments: {

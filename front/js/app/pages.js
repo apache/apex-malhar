@@ -48,7 +48,7 @@ exports = module.exports = [
                 href: '#config'
             },
             {
-                name: text('Welcome!')
+                name: text('Installation Wizard')
             }
         ]
     },

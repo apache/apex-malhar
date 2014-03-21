@@ -24,7 +24,8 @@ var ConfigIssueModel = BaseModel.extend({
     defaults: {
         key: '',
         value: '',
-        description: ''
+        description: '',
+        severity: ''
     },
 
     urlRoot: function() {
