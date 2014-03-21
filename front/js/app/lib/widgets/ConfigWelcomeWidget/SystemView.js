@@ -31,7 +31,8 @@ var DfsModel = require('./DfsModel');
 var SystemView = BaseView.extend({
 
     events: {
-        'click .continue': 'continue'
+        'click .continue': 'continue',
+        'click .dfs-reload': 'reload'
     },
 
     initialize: function(options) {
@@ -42,15 +43,17 @@ var SystemView = BaseView.extend({
         this.error = false; //TODO
         this.loading = true;
 
+        this.addressModel = new GatewayAddressModel();
+        this.dfsModel = new DfsModel();
+        this.dfsIssue = null;
+
         var ipListPromise = this.loadIPList();
         var defaultAddressPromise = this.loadDefaultAddress();
         var customAddressPromise = this.loadCustomAddress();
         var dfsPromise = this.loadDfsProperty();
+        var dfsIssuePromise = this.loadDFSIssue();
 
-        this.addressModel = new GatewayAddressModel();
-        this.dfsModel = new DfsModel();
-
-        var all = $.when(ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
+        var all = $.when(ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise, dfsIssuePromise);
         //var all = $.when(aboutPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         all.done(function () {
             var model;
@@ -177,6 +180,16 @@ var SystemView = BaseView.extend({
         return promise;
     },
 
+    loadDFSIssue: function () {
+        var issues = new ConfigIssueCollection([], { silentErrors: true });
+        var issuesPromise = issues.fetch();
+        this.dfsIssue = issues.findWhere({
+            key: 'DFS_PROBLEM'
+        });
+        //this.dfsIssue = { description: 'dfs issue' };
+        return issuesPromise;
+    },
+
     loadProperty: function (name) {
         var d = $.Deferred();
 
@@ -285,6 +298,10 @@ var SystemView = BaseView.extend({
         return ajax;
     },
 
+    reload: function () {
+        this.navFlow.go('SystemView');
+    },
+
     continue: function (event) {
         event.preventDefault();
 
@@ -380,11 +397,12 @@ var SystemView = BaseView.extend({
             this.$el.find('.address-ip-input').show();
         }
 
-        if (_.isString(this.dfsDirectory) && (this.dfsDirectory.length === 0)) {
+        if (this.dfsIssue) {
             _.defer(function () {
                 this.$el.find('.dfs-directory').attr('disabled', '');
                 this.$el.find('.continue').addClass('disabled');
-                this.showError('.dfs-directory-error', 'DFS is not configured. Please configure DFS using fs.defaultFS property in your Hadoop configuration and rerun this configuration wizard.');
+                this.showError('.dfs-directory-error', this.dfsIssue.description);
+                this.$el.find('.dfs-reload').show();
             }.bind(this));
         }
 
