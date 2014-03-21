@@ -1,5 +1,14 @@
-.main {
-    margin-top: 20px;
+#pagecontent .w-ConfigWelcome {
+    background: none;
+    box-shadow: none;
+}
+
+.install-wizard-main {
+    margin-top: 10px;
+}
+
+.config-props-wrapper {
+    padding: 10px;
 }
 
 .tos-textarea {
@@ -7,8 +16,58 @@
     height: 300px;
 }
 
+.license-register {
+    width: 550px;
+    margin: 0 auto;
+}
+
+.config-table() {
+    width:100%;
+    border: 1px solid #CCC;
+    margin-bottom:15px;
+    thead {
+        tr {
+            background-color: #AAA !important;
+            color: #000;
+
+            th {
+                text-align: left;
+                padding: 10px;
+                font-weight: normal;
+            }
+            &.filter-tr {
+                background-color: #DDD !important;
+            }
+        }
+    }
+    tr {
+        &.install-issue {
+            background-color: #FDD !important;
+        }
+
+        &:nth-child(odd) {
+            background-color: #F1F1F1;
+        }
+
+        td {
+            padding: 10px;
+        }
+
+        input, select {
+            margin-bottom: 0;
+        }
+    }
+}
+
+table.config-table {
+    .config-table();
+}
+
 .install-steps-pane {
-    border: 1px solid rgba(0,0,0,0.2);
+    position: relative;
+    padding-bottom: 54px;
+    border: 1px solid #BBB;
+    border-top: none;
     min-height: 250px;
     margin-left: -1px;
     margin-right: -1px;
@@ -16,11 +75,21 @@
     border-radius: 10px;
     font-size: 14px;
     line-height: 16px;
+    background-color: #FFF;
     select, input[type="text"] {
         font-size: 14px;
     }
     .welcome-text {
         font-size: 18px;
+        line-height: 1.5;
+        padding: 8px 35px 8px 14px;
+        .icon-info-sign, .icon-ok-sign {
+            vertical-align: baseline;
+        }
+    }
+    .cta-text {
+        font-size: 17px;
+        color: #AAA;
     }
     .action-link {
         color: blue;
@@ -32,53 +101,35 @@
       display: none;
       color: #b94a48;
     }
+    .install-step-link {
+        position: absolute;
+        bottom: 10px;
+        &.pull-right {
+            right: 10px;
+        }
+        &.pull-left {
+            left: 10px;
+        }
+    }
     .inner {
         overflow: auto;
         padding: 15px;
         h1 {
-            background: #11506D url('../../../../../img/welcome_hero.jpg');
-            margin-top:0;
+            background: #11506D;
+            margin: -15px -15px 20px;
             color: #FFF;
-            padding: 5px 10px 8px;
-            border-radius: 5px;
-            box-shadow: inset 0 0 20px rgba(0,0,0,0.4);
-            text-shadow: 0 2px 3px black;
+            padding: 10px 20px;
+            border-radius: 5px 5px 0 0;
+            box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.4);
+            text-shadow: 0 2px 3px #000;
+            font-weight: 100;
+            letter-spacing: 2px;
         }
 
-        table {
-            width:100%;
-            border: 1px solid #CCC;
-            margin-bottom:15px;
-            thead {
-                tr {
-                    background-color: #474747 !important;
-                    color: white;
-
-                    th {
-                        text-align: left;
-                        padding: 10px 5px;
-                    }
-                }
-            }
-            tr {
-                &.install-issue {
-                    background-color: #FDD !important;
-                }
-
-                &:nth-child(odd) {
-                    background-color: #DEDEDE;
-                }
-
-                td {
-                    padding: 10px;
-                }
-
-                input, select {
-                    margin-bottom: 0;
-                }
-            }
+        h3 {
+            text-align: center;
         }
-
+        
         .welcome-banner {
             background: #11506D url('../../../../../img/welcome_hero.jpg');
             color: white; text-shadow: 0 2px 3px black;
@@ -100,12 +151,12 @@
         }
 
         .section-license {
+
             .container-fluid {
                 padding: 0;
             }
             .additional-actions {
                 text-align: right;
-                margin-bottom: 20px;
             }
             .offline-textarea {
                 width: 100%;
@@ -132,6 +183,7 @@
             }
             .getting-started {
                 margin-bottom: 20px;
+                text-align: center;
             }
         }
 

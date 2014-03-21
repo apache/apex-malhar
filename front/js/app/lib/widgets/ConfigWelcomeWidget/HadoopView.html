@@ -1,6 +1,12 @@
 <span class="section-system">
 <h1>Hadoop</h1>
 
+<p class="welcome-text well">
+    <i class="icon-info-sign"></i>
+    A Hadoop installation is mandatory to use the DataTorrent platform.<br> 
+    You may need to provide details regarding your Hadoop installation below.
+</p>
+
 <% if (loading) {  %>
 
 <p class="alert">
@@ -21,11 +27,14 @@
     <span class="loading-spinner"></span> Updating...
 </p>
 
-<p class="well">
-    Hadoop installation is mandatory for DataTorrent platform. Please provide details below.
-</p>
-
-<table>
+<table class="config-table">
+    <thead>
+        <tr>
+            <th>property</th>
+            <th>description</th>
+            <th>value</th>
+        </tr>
+    </thead>
     <tbody>
     <tr>
         <td>hadoop installation location</td>
@@ -53,7 +62,7 @@
 <a href="#" class="install-step-link btn pull-left btn-large" data-action="LicenseInfoView">
     <i class="icon-circle-arrow-left"></i> back
 </a>
-<a href="#" class="continue btn btn-success pull-right btn-large">
+<a href="#" class="continue btn btn-success pull-right btn-large install-step-link">
     continue <i class="icon-circle-arrow-right icon-white"></i>
 </a>
 </span>

@@ -1,6 +1,11 @@
 <span class="section-system">
 <h1>System</h1>
 
+<p class="welcome-text well">
+    <i class="icon-info-sign"></i>
+    Use the following controls to change basic system settings regarding your DataTorrent installation.
+</p>
+
 <% if (hadoopError) {  %>
 
 <p class="alert alert-error">
@@ -34,11 +39,16 @@
     <span class="loading-spinner"></span> Updating...
 </p>
 
-<p class="well">
-    Use the following controls to change basic system settings regarding your DataTorrent installation.
-</p>
 
-<table>
+
+<table class="config-table">
+    <thead>
+        <tr>
+            <th>property</th>
+            <th>description</th>
+            <th>value</th>
+        </tr>
+    </thead>
     <tbody>
         <tr>
             <td>gateway connect address</td>
@@ -98,7 +108,7 @@
 <a href="#" class="install-step-link btn pull-left btn-large" data-action="HadoopView">
     <i class="icon-circle-arrow-left"></i> back
 </a>
-<a href="#" class="continue btn btn-success pull-right btn-large">
+<a href="#" class="install-step-link continue btn btn-success pull-right btn-large">
     continue <i class="icon-circle-arrow-right icon-white"></i>
 </a>
 </span>

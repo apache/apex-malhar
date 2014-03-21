@@ -51,7 +51,8 @@ var ConfigTableWidget = BaseView.extend({
     },
 
     render: function() {
-        BaseView.prototype.render.call(this);
+        var html = this.html();
+        this.$el.html(html);
         this.updateResults();
         return this;
     },
