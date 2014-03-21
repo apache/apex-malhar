@@ -82,7 +82,8 @@ var LogicalOpPageView = BasePageView.extend({
                     dataSource:this.dataSource, 
                     operators: this.model.physicalOperators, 
                     appId: pageParams.appId, 
-                    nav: this.app.nav
+                    nav: this.app.nav,
+                    noLogicalOperatorLinks: true
                 }
             },
             {

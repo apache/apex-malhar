@@ -20,7 +20,7 @@
 var ListWidget = DT.widgets.ListWidget;
 var Tabled = DT.lib.Tabled; 
 var Palette = require('./PhysOpListPalette');
-var list_columns = require('./columns');
+var default_columns = require('./columns');
 var PhysOplist = ListWidget.extend({
     
     initialize: function(options) {
@@ -29,14 +29,26 @@ var PhysOplist = ListWidget.extend({
         
         // Set the injected stuff
         this.dataSource = options.dataSource;
-        this.ops = options.operators;
+        this.operators = options.operators;
         this.appId = options.appId;
         this.nav = options.nav;
+
+        // Check if logical operator name should be shown in columns
+        var columns = default_columns.slice();
+        if (options.noLogicalOperatorLinks) {
+            // copy to ensure source array is unchanged
+            for (var i = columns.length - 1; i >= 0; i--) {
+                if (columns[i].id === 'name') {
+                    columns.splice(i,1);
+                    break;
+                }
+            };
+        }
         
         // Set up the table
         this.subview('tabled', new Tabled({
-            collection:this.ops,
-            columns:list_columns,
+            collection:this.operators,
+            columns:columns,
             id: 'ops.apps.app.ops'+this.compId(),
             save_state: true,
             row_sorts: ['id'],
@@ -46,14 +58,14 @@ var PhysOplist = ListWidget.extend({
         // Set up the palette
         this.subview('palette', new Palette({
             appId: this.appId,
-            collection: this.ops,
+            collection: this.operators,
             nav: this.nav,
             dataSource: this.dataSource
         }));
     },
     
     remove: function() {
-        this.ops.each(function(op){
+        this.operators.each(function(op){
             delete op.selected;
         });
         ListWidget.prototype.remove.call(this);
