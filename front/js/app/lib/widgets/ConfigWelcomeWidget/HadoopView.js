@@ -142,7 +142,7 @@ var HadoopView = BaseView.extend({
     loadAbout: function () {
         var d = $.Deferred();
 
-        this.about = new GatewayInfoModel({});
+        this.about = new GatewayInfoModel({}, { silentErrors: true });
         this.about.fetch(); //TODO error handling
 
         this.listenTo(this.about, 'sync', function () {
