@@ -20,7 +20,7 @@
 var ListWidget = DT.widgets.ListWidget;
 var Tabled = DT.lib.Tabled; 
 var Palette = require('./PhysOpListPalette');
-var list_columns = require('./columns');
+var columns = require('./columns');
 var PhysOplist = ListWidget.extend({
     
     initialize: function(options) {
@@ -32,11 +32,21 @@ var PhysOplist = ListWidget.extend({
         this.ops = options.operators;
         this.appId = options.appId;
         this.nav = options.nav;
+
+        // Check if logical operator name should be shown in columns
+        if (options.noLogicalOperatorLinks) {
+            for (var i = columns.length - 1; i >= 0; i--) {
+                if (columns[i].id === 'name') {
+                    columns.splice(i,1);
+                    break;
+                }
+            };
+        }
         
         // Set up the table
         this.subview('tabled', new Tabled({
             collection:this.ops,
-            columns:list_columns,
+            columns:columns,
             id: 'ops.apps.app.ops'+this.compId(),
             save_state: true,
             row_sorts: ['id'],
