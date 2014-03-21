@@ -20,35 +20,31 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 
-import gnu.trove.map.hash.TCustomHashMap;
-import gnu.trove.strategy.HashingStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import com.datatorrent.api.Context.OperatorContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import gnu.trove.map.hash.TCustomHashMap;
+import gnu.trove.strategy.HashingStrategy;
+
 import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
+ *
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  */
 @ShipContainingJars(classes = {TCustomHashMap.class, HashingStrategy.class})
-public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<EVENT>
+public class DimensionsComputation<EVENT> implements Operator
 {
-  public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>()
-  {
-    @Override
-    public Unifier<EVENT> getUnifier()
-    {
-      return DimensionsComputation.this;
-    }
-  };
+  public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>();
   public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
   {
     @Override
@@ -60,14 +56,6 @@ public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<
     }
 
   };
-
-  @Override
-  public void process(EVENT event)
-  {
-    for (AggregatorMap<EVENT> dimension : aggregatorMaps) {
-      dimension.add(event);
-    }
-  }
 
   public static interface Aggregator<EVENT> extends HashingStrategy<EVENT>
   {
@@ -90,9 +78,9 @@ public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<
   public void setAggregators(Aggregator<EVENT>[] aggregators)
   {
     @SuppressWarnings("unchecked")
-    AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, aggregators.length);
+    AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, aggregators.length);
     aggregatorMaps = newInstance;
-    for (int i = aggregators.length; i-- > 0; ) {
+    for (int i = aggregators.length; i-- > 0;) {
       aggregatorMaps[i] = new AggregatorMap<EVENT>(aggregators[i]);
     }
   }
@@ -100,8 +88,8 @@ public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<
   public Aggregator<EVENT>[] getAggregators()
   {
     @SuppressWarnings("unchecked")
-    Aggregator<EVENT>[] aggregators = (Aggregator<EVENT>[]) Array.newInstance(Aggregator.class, aggregatorMaps.length);
-    for (int i = aggregatorMaps.length; i-- > 0; ) {
+    Aggregator<EVENT>[] aggregators = (Aggregator<EVENT>[])Array.newInstance(Aggregator.class, aggregatorMaps.length);
+    for (int i = aggregatorMaps.length; i-- > 0;) {
       aggregators[i] = aggregatorMaps[i].aggregator;
     }
     return aggregators;
@@ -138,7 +126,7 @@ public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<
     if (other.aggregatorMaps == null) {
       if (this.aggregatorMaps == null) {
         @SuppressWarnings("unchecked")
-        AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, 1);
+        AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, 1);
         this.aggregatorMaps = newInstance;
       }
       else {
@@ -154,7 +142,7 @@ public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<
         if (aggregator.equals(otherMap.aggregator)) {
           other.aggregatorMaps[i] = null;
           @SuppressWarnings("unchecked")
-          AggregatorMap<EVENT>[] newArray = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, other.aggregatorMaps.length - 1);
+          AggregatorMap<EVENT>[] newArray = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, other.aggregatorMaps.length - 1);
 
           i = 0;
           for (AggregatorMap<EVENT> dimesion : other.aggregatorMaps) {
@@ -164,9 +152,10 @@ public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<
           }
           other.aggregatorMaps = newArray;
 
+
           if (this.aggregatorMaps == null) {
             @SuppressWarnings("unchecked")
-            AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, 1);
+            AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, 1);
             this.aggregatorMaps = newInstance;
           }
           else {
@@ -319,7 +308,7 @@ public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
     {
       super.readExternal(in);
-      aggregator = (Aggregator<EVENT>) super.strategy;
+      aggregator = (Aggregator<EVENT>)super.strategy;
     }
 
     @Override
@@ -335,7 +324,7 @@ public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<
         return false;
       }
 
-      AggregatorMap<?> that = (AggregatorMap<?>) o;
+      AggregatorMap<?> that = (AggregatorMap<?>)o;
 
       if (aggregator != null ? !aggregator.equals(that.aggregator) : that.aggregator != null) {
         return false;
@@ -367,7 +356,7 @@ public class DimensionsComputation<EVENT> implements Operator, Operator.Unifier<
       return false;
     }
 
-    DimensionsComputation<?> that = (DimensionsComputation<?>) o;
+    DimensionsComputation<?> that = (DimensionsComputation<?>)o;
 
     return Arrays.equals(aggregatorMaps, that.aggregatorMaps);
 
