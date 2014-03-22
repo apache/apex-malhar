@@ -183,10 +183,13 @@ var SystemView = BaseView.extend({
     loadDFSIssue: function () {
         var issues = new ConfigIssueCollection([], { silentErrors: true });
         var issuesPromise = issues.fetch();
-        this.dfsIssue = issues.findWhere({
-            key: 'DFS_PROBLEM'
-        });
-        //this.dfsIssue = { description: 'dfs issue' };
+
+        issuesPromise.done(function () {
+            this.dfsIssue = issues.findWhere({
+                key: 'DFS_PROBLEM'
+            });
+        }.bind(this));
+
         return issuesPromise;
     },
 
