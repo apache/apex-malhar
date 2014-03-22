@@ -93,20 +93,7 @@ var SummaryView = BaseView.extend({
         var html = this.template({
             errorMsg: this.errorMsg,
             loading: this.loading,
-            // issues: this.issues
-            issues: new ConfigIssueCollection([
-                {
-                    key: 'something',
-                    value: 'bad',
-                    description: 'is happening'   
-                },
-                {
-                    severity: 'error',
-                    key: 'shit',
-                    value: 'bad value',
-                    description: 'is seriously FUBAR'  
-                }
-            ])
+            issues: this.issues
         });
 
         this.$el.html(html);
