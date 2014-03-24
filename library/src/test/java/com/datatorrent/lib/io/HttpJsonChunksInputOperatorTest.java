@@ -36,9 +36,9 @@ import org.junit.Test;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Functional test for {@linkcom.datatorrent.lib.io.HttpInputOperator }.
+ * Functional test for {@linkcom.datatorrent.lib.io.HttpJsonChunksInputOperator }.
  */
-public class HttpInputOperatorTest
+public class HttpJsonChunksInputOperatorTest
 {
   @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
@@ -84,7 +84,7 @@ public class HttpInputOperatorTest
     String url = "http://localhost:" + server.getConnectors()[0].getLocalPort() + "/somecontext";
     System.out.println(url);
 
-    final HttpInputOperator operator = new HttpInputOperator();
+    final AbstractHttpInputOperator operator = new HttpJsonChunksInputOperator();
 
     CollectorTestSink sink = new CollectorTestSink();
 
@@ -102,7 +102,7 @@ public class HttpInputOperatorTest
       Thread.sleep(20);
     }
 
-    Assert.assertTrue("tuple emmitted", sink.collectedTuples.size() > 0);
+    Assert.assertTrue("tuple emitted", sink.collectedTuples.size() > 0);
 
     Map<String, String> tuple = (Map<String, String>)sink.collectedTuples.get(0);
     Assert.assertEquals("", tuple.get("responseId"), "response1");

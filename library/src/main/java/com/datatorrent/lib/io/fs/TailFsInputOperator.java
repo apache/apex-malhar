@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +32,7 @@ import com.datatorrent.api.InputOperator;
  * <p>
  * This operator implements "tail -f" command. If the operator has reached the end of the file, it will wait till more
  * data comes
- * 
+ *
  * <br>
  * <b>Ports</b>:<br>
  * <b>outport</b>: emits &lt;String&gt;<br>
@@ -43,7 +44,7 @@ import com.datatorrent.api.InputOperator;
  * <b>numberOfTuples</b>: number of tuples to be emitted in a single emit Tuple call.<br>
  * <b>end</b>: if the user wants to start tailing from end.<br>
  * <br>
- * 
+ *
  */
 
 public class TailFsInputOperator implements InputOperator, ActivationListener<OperatorContext>
@@ -77,6 +78,11 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
    * The delimiter used to identify tne end of the record
    */
   private char delimiter = '\n';
+
+  /**
+   * This is used to store the last access time of the file
+   */
+  private transient long accessTime;
 
   private transient RandomAccessFile reader;
   private transient File file;
@@ -217,6 +223,7 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
       reader = new RandomAccessFile(file, "r");
       position = end ? file.length() : position;
       reader.seek(position);
+      accessTime = System.currentTimeMillis();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }
@@ -241,7 +248,7 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
       while (localCounter >= 0) {
         String str = readLine();
         if (str == null) {
-          logger.debug("reached end of file");
+          //logger.debug("reached end of file");
         } else {
           output.emit(str);
         }
@@ -262,6 +269,16 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
     char readChar;
     int ch;
     long pos = reader.getFilePointer();
+    long length = file.length();
+    if ((length < pos) || (length == pos && FileUtils.isFileNewer(file, accessTime))) {
+      // file got rotated or truncated
+      reader.close();
+      reader = new RandomAccessFile(file, "r");
+      position = 0;
+      reader.seek(position);
+      pos = 0;
+    }
+    accessTime = System.currentTimeMillis();
     while ((ch = reader.read()) != -1) {
       readChar = (char) ch;
       if (readChar != delimiter) {

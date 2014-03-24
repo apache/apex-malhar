@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.apachelog;
 
-import com.datatorrent.contrib.apachelog.Application;
 import com.datatorrent.api.LocalMode;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
@@ -23,16 +22,16 @@ import org.junit.Test;
 /**
  *
  */
-public class ApplicationTest
+public class ApplicationLocalLogTest
 {
-  public ApplicationTest()
+  public ApplicationLocalLogTest()
   {
   }
 
   @Test
   public void testSomeMethod() throws Exception
   {
-    Application app = new Application();
+    ApplicationLocalLog app = new ApplicationLocalLog();
     LocalMode lma = LocalMode.newInstance();
     app.populateDAG(lma.getDAG(), new Configuration(false));
 
