@@ -18,29 +18,29 @@ package com.datatorrent.contrib.apachelog;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.logs.InformationExtractor;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+
 import java.util.concurrent.TimeUnit;
+
 import net.sf.uadetector.ReadableUserAgent;
 import net.sf.uadetector.service.UADetectorServiceFactory;
 import net.sf.uadetector.UserAgentStringParser;
 
 /**
  * This extractor extracts the browser and the OS from a user-agent string
- *
+ * 
  * @since 0.9.4
  */
+@ShipContainingJars(classes = { net.sf.uadetector.UserAgentStringParser.class })
 public class UserAgentExtractor implements InformationExtractor
 {
   public static class CachedUserAgentStringParser implements UserAgentStringParser
   {
     private final UserAgentStringParser parser = UADetectorServiceFactory.getCachingAndUpdatingParser();
-    private final Cache<String, ReadableUserAgent> cache = CacheBuilder.newBuilder()
-            .maximumSize(100)
-            .expireAfterWrite(2, TimeUnit.HOURS)
-            .build();
+    private final Cache<String, ReadableUserAgent> cache = CacheBuilder.newBuilder().maximumSize(100).expireAfterWrite(2, TimeUnit.HOURS).build();
 
     @Override
     public String getDataVersion()
