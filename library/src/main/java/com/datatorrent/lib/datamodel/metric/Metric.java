@@ -1,5 +1,5 @@
-/*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+package com.datatorrent.lib.datamodel.metric;/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.streamquery.index;
 
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
+import javax.annotation.Nullable;
 
 /**
- * Interface to define sql select statement indexes for column names/aggregate.
  *
- * @since 0.3.2
+ * @param <EVENT> event type.
  */
-public interface Index
+public interface Metric<EVENT>
 {
   /**
-   * Function can key/value hash map, does metric implemented by sub class.
+   * @param destination
+   * @param event
    */
-	public void filter(@NotNull Map<String,Object> row, @NotNull Map<String, Object> collect);  
+  void compute(@Nullable EVENT destination, @Nullable EVENT event);
 }

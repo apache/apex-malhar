@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
  * <b> Properties : </b> <br>
  * <b> leftCondition : </b> Left validate row condition . <br>
  * <b> rightCondition : </b> Right validate row condition. <br>
- * <b> logicalOr : </b> OR/AND logical operation flag. <br>
+ * <b> logicalOr : </b> OR/AND logical metric flag. <br>
  * <br>
  *
  * @since 0.3.4
@@ -47,12 +47,12 @@ public class CompoundCondition extends Condition
   private Condition rightCondition;
   
   /**
-   * AND/OR operation flag.
+   * AND/OR metric flag.
    */
   private boolean logicalOr = true;
   
   /**
-   * Constructor for logical or operation.
+   * Constructor for logical or metric.
    * @param leftCondition  Left validate row condition, must be non null. <br>
    * @param rightCondition  Right validate row condition, must be non null. <br>
    */
@@ -62,7 +62,7 @@ public class CompoundCondition extends Condition
   }
   
   /**
-   * Constructor for logical and operation if logical and parameter is true. 
+   * Constructor for logical and metric if logical and parameter is true.
    * <br>
    * @param leftCondition  Left validate row condition, must be non null. <br>
    * @param rightCondition  Right validate row condition, must be non null. <br>

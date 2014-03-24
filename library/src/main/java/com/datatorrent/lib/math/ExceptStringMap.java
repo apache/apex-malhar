@@ -25,7 +25,7 @@ import com.datatorrent.lib.util.UnifierHashMap;
 
 /**
  *
- * A compare operation is done on tuple sub-classed from Number based on the
+ * A compare metric is done on tuple sub-classed from Number based on the
  * property "key", "value", and "cmp", and not matched tuples are emitted. The
  * comparison is done by parsing double value from the String. Both output ports
  * are optional, but at least one has to be connected

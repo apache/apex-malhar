@@ -159,7 +159,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
   protected abstract void updateLastCommittedWindow(long window) throws Exception;
 
   /**
-   * Sets the size of a batch operation.
+   * Sets the size of a batch metric.
    *
    * @param batchSize size of a batch
    */

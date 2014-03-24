@@ -15,18 +15,21 @@
  */
 package com.datatorrent.contrib.adsdimension;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.lib.statistics.DimensionsComputation;
-
-import com.datatorrent.contrib.adsdimension.AdInfo.AdInfoAggregator;
+import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.contrib.adsdimension.AdInfo.AdInfoAggregator;
+import com.datatorrent.lib.datamodel.metric.Metric;
+import com.datatorrent.lib.statistics.DimensionsComputation;
 
 /**
  * <p>Application class.</p>
@@ -63,6 +66,10 @@ public class Application implements StreamingApplication
     }
 
     dimensions.setAggregators(aggregators);
+
+    List<Metric<AdInfo>> allMetrics = Lists.newArrayList();
+    allMetrics.add(new AdInfo.AdInfoMetric());
+    dimensions.setMetrics(allMetrics);
 
     RedisAggregateOutputOperator redis = dag.addOperator("Redis", new RedisAggregateOutputOperator());
 

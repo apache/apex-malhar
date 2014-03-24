@@ -16,7 +16,7 @@
 package com.datatorrent.lib.streamquery;
 
 /**
- * This operator provides sql left/right/full outer join operation semantic on
+ * This operator provides sql left/right/full outer join metric semantic on
  * live stream. <br>
  * Please refer to {@link com.datatorrent.lib.streamquery.InnerJoinOperator} for
  * details.

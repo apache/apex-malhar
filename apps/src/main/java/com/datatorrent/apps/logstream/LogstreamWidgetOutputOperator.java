@@ -94,12 +94,12 @@ public class LogstreamWidgetOutputOperator extends WidgetOutputOperator
         tupleMeta.put("dimension", registry.lookupValue(new Integer(keyInfo[4])));
         String[] val = keyInfo[5].split("\\.");
         tupleMeta.put("value", val[0]);
-        tupleMeta.put("operation", val[1]);
+        tupleMeta.put("metric", val[1]);
 
         schemaObj.put("tupleMeta", tupleMeta);
 
         String keyTitle = tupleMeta.get("dimension");
-        String valueTitle = tupleMeta.get("operation") + "(" + tupleMeta.get("value") + ")";
+        String valueTitle = tupleMeta.get("metric") + "(" + tupleMeta.get("value") + ")";
 
         schemaObj.put("keyTitle", keyTitle);
         schemaObj.put("valueTitle", valueTitle);

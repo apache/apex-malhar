@@ -24,7 +24,7 @@ import java.util.Map;
 
 /**
  *
- * A compare operation is done on String tuple based on the property "key", "value", and "cmp" both matching and non matching tuples on emitted on respective ports. If the tuple
+ * A compare metric is done on String tuple based on the property "key", "value", and "cmp" both matching and non matching tuples on emitted on respective ports. If the tuple
  * passed the test, it is emitted on the output port "compare". If the tuple fails it is emitted on port "except". The comparison is done parsing a double
  * value from the String. Both output ports are optional, but at least one has to be connected<p>
  *  * This module is a pass through<br>

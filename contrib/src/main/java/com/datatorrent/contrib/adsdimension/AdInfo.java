@@ -18,6 +18,7 @@ package com.datatorrent.contrib.adsdimension;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
+import com.datatorrent.lib.datamodel.metric.Metric;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 
 /**
@@ -124,6 +125,18 @@ public class AdInfo implements Serializable
     return "AdInfo{" + "publisherId=" + publisherId + ", advertiserId=" + advertiserId + ", adUnit=" + adUnit + ", timestamp=" + timestamp + ", cost=" + cost + ", revenue=" + revenue + ", impressions=" + impressions + ", clicks=" + clicks + '}';
   }
 
+  public static class AdInfoMetric implements Metric<AdInfo>
+  {
+    @Override
+    public void compute(AdInfo dest, AdInfo src)
+    {
+      dest.cost += src.cost;
+      dest.revenue += src.revenue;
+      dest.impressions += src.impressions;
+      dest.clicks += src.clicks;
+    }
+  }
+
   public static class AdInfoAggregator implements Aggregator<AdInfo>
   {
     String dimension;
@@ -221,15 +234,6 @@ public class AdInfo implements Serializable
       }
 
       return event;
-    }
-
-    @Override
-    public void aggregate(AdInfo dest, AdInfo src)
-    {
-      dest.cost += src.cost;
-      dest.revenue += src.revenue;
-      dest.impressions += src.impressions;
-      dest.clicks += src.clicks;
     }
 
     @Override

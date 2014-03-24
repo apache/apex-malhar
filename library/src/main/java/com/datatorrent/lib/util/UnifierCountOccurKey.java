@@ -41,7 +41,7 @@ public class UnifierCountOccurKey<K> implements Unifier<KeyValPair<K, Integer>>
 
   /**
    * combines the tuple into a single final tuple which is emitted in endWindow
-   * This is a merge operation for operators that use sticky key partition
+   * This is a merge metric for operators that use sticky key partition
    * @param tuple incoming tuple from a partition
    */
   @Override

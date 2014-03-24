@@ -372,7 +372,7 @@ public class DimensionOperator extends BaseOperator implements Partitioner<Dimen
    * type=logtype // input logtype for which the properties are to be set
    * timebucket= time bucket character //time bucket can be one of the following values s(for second)/m(for minute)/h(for hour)/D(for day)/W(for week)/M(for month)/Y(for year)
    * dimensions=a:b:c //colon separated dimension combination combination for which computations are expected
-   * values=value.operation[:value.operation] //list of dot concatenated value name and operation separated by colon
+   * values=value.metric[:value.metric] //list of dot concatenated value name and metric separated by colon
    * eg: type=apache,timebucket=m,timebucket=h,dimensions=a:b:c,dimensions=b:c,dimensions=b,dimensions=d,values=x.sum:y.sum:y.avg
    *
    * @param properties

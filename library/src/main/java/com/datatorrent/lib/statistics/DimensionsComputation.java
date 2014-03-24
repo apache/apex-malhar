@@ -20,22 +20,23 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 
+import gnu.trove.map.hash.TCustomHashMap;
+import gnu.trove.strategy.HashingStrategy;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.google.common.base.Preconditions;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import gnu.trove.map.hash.TCustomHashMap;
-import gnu.trove.strategy.HashingStrategy;
-
-import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Partitioner.Partition;
+import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.ShipContainingJars;
+
+import com.datatorrent.lib.datamodel.metric.Metric;
 
 /**
  *
@@ -60,12 +61,10 @@ public class DimensionsComputation<EVENT> implements Operator
   public static interface Aggregator<EVENT> extends HashingStrategy<EVENT>
   {
     EVENT getGroup(EVENT src);
-
-    void aggregate(EVENT dest, EVENT src);
-
   }
 
   private AggregatorMap<EVENT>[] aggregatorMaps;
+  private List<Metric<EVENT>> metrics;
 
   /**
    * Set the dimensions which should each get the tuples going forward.
@@ -81,8 +80,13 @@ public class DimensionsComputation<EVENT> implements Operator
     AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, aggregators.length);
     aggregatorMaps = newInstance;
     for (int i = aggregators.length; i-- > 0;) {
-      aggregatorMaps[i] = new AggregatorMap<EVENT>(aggregators[i]);
+      aggregatorMaps[i] = new AggregatorMap<EVENT>(aggregators[i], metrics);
     }
+  }
+
+  public void setMetrics(List<Metric<EVENT>> metrics)
+  {
+    this.metrics = Preconditions.checkNotNull(metrics);
   }
 
   public Aggregator<EVENT>[] getAggregators()
@@ -133,7 +137,7 @@ public class DimensionsComputation<EVENT> implements Operator
         this.aggregatorMaps = Arrays.copyOf(this.aggregatorMaps, this.aggregatorMaps.length + 1);
       }
 
-      this.aggregatorMaps[this.aggregatorMaps.length - 1] = new AggregatorMap<EVENT>(aggregator);
+      this.aggregatorMaps[this.aggregatorMaps.length - 1] = new AggregatorMap<EVENT>(aggregator, metrics);
     }
     else {
       int i = other.aggregatorMaps.length;
@@ -271,6 +275,7 @@ public class DimensionsComputation<EVENT> implements Operator
   static class AggregatorMap<EVENT> extends TCustomHashMap<EVENT, EVENT>
   {
     transient Aggregator<EVENT> aggregator;
+    transient List<Metric<EVENT>> metrics;
 
     @SuppressWarnings("PublicConstructorInNonPublicClass")
     public AggregatorMap()
@@ -280,10 +285,11 @@ public class DimensionsComputation<EVENT> implements Operator
       aggregator = null;
     }
 
-    AggregatorMap(Aggregator<EVENT> aggregator)
+    AggregatorMap(Aggregator<EVENT> aggregator, List<Metric<EVENT>> metrics)
     {
       super(aggregator);
       this.aggregator = aggregator;
+      this.metrics = metrics;
     }
 
     AggregatorMap(Aggregator<EVENT> aggregator, int initialCapacity)
@@ -300,7 +306,9 @@ public class DimensionsComputation<EVENT> implements Operator
         put(event, event);
       }
 
-      aggregator.aggregate(event, tuple);
+      for(Metric<EVENT> metric : this.metrics) {
+        metric.compute(event, tuple);
+      }
     }
 
     @Override
