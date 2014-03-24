@@ -404,7 +404,7 @@ var SystemView = BaseView.extend({
             _.defer(function () {
                 this.$el.find('.dfs-directory').attr('disabled', '');
                 this.$el.find('.continue').addClass('disabled');
-                this.showError('.dfs-directory-error', this.dfsIssue.description);
+                this.showError('.dfs-directory-error', this.dfsIssue.get('description'));
                 this.$el.find('.dfs-reload').show();
             }.bind(this));
         }
