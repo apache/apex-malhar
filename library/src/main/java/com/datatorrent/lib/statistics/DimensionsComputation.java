@@ -20,6 +20,8 @@ import java.lang.reflect.Array;
 import java.util.*;
 import java.util.Map.Entry;
 
+import javax.annotation.Nonnull;
+
 import gnu.trove.map.hash.TCustomHashMap;
 import gnu.trove.strategy.HashingStrategy;
 import org.slf4j.Logger;
@@ -31,6 +33,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
@@ -170,6 +173,51 @@ public class DimensionsComputation<EVENT> implements Operator
           break;
         }
       }
+    }
+  }
+
+  public class UnifierImpl<EVENT> extends BaseOperator implements Operator.Unifier<EVENT>
+  {
+    @Nonnull
+    final List<Metric<EVENT>> operations;
+    @Nonnull
+    final Map<EVENT, EVENT> aggregates;
+
+    public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>();
+
+    private UnifierImpl()
+    {
+      /** for kryo serialization */
+      operations = null;
+      aggregates = null;
+    }
+
+    UnifierImpl(List<Metric<EVENT>> operations)
+    {
+      this.operations = Preconditions.checkNotNull(operations, "operation list");
+      this.aggregates = Maps.newHashMap();
+    }
+
+    @Override
+    public void process(EVENT tuple)
+    {
+      EVENT destination = aggregates.get(tuple);
+      if (destination == null) {
+        aggregates.put(tuple, tuple);
+      }
+      else {
+        for (Metric<EVENT> operation : operations) {
+          operation.compute(destination, tuple);
+        }
+      }
+    }
+
+    public void endWindow()
+    {
+      for (EVENT value : aggregates.values()) {
+        output.emit(value);
+      }
+      aggregates.clear();
     }
   }
 
