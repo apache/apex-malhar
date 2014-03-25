@@ -314,9 +314,11 @@ var SystemView = BaseView.extend({
 
         this.$el.find('.address-ip-input').blur();
         this.$el.find('.address-port').blur();
-        this.$el.find('.dfs-directory').blur();
+        if (!this.dfsIssue) {
+            this.$el.find('.dfs-directory').blur();
+        }
 
-        if (!this.addressModel.isValid() || !this.dfsModel.isValid()) {
+        if (!this.addressModel.isValid() || (!this.dfsIssue && !this.dfsModel.isValid())) {
             return;
         }
 
@@ -349,7 +351,26 @@ var SystemView = BaseView.extend({
         var all = $.when(addressPromise, dfsPromise);
 
         all.done(function () {
-            this.navFlow.go('SummaryView');
+            if (this.dfsIssue) {
+                var dfsIssuePromise = this.loadDFSIssue();
+
+                dfsIssuePromise.done(function () {
+                    if (this.dfsIssue) {
+                        this.$el.find('.loading').hide();
+                        this.$el.find('.continue').removeClass('disabled');
+                        this.showDFSIssue();
+                    } else {
+                        this.navFlow.go('SummaryView');
+                    }
+                }.bind(this));
+
+                dfsIssuePromise.fail(function () {
+                    this.error = true;
+                    this.render();
+                }.bind(this));
+            } else {
+                this.navFlow.go('SummaryView');
+            }
         }.bind(this));
 
         all.fail(function () {
@@ -372,6 +393,16 @@ var SystemView = BaseView.extend({
 
     clearError: function (selector) {
         this.$el.find(selector).hide();
+    },
+
+    showDFSIssue: function () {
+        if (this.dfsIssue) {
+            _.defer(function () {
+                this.$el.find('.dfs-directory').attr('disabled', '');
+                this.showError('.dfs-directory-error', this.dfsIssue.get('description'));
+                this.$el.find('.dfs-reload').show();
+            }.bind(this));
+        }
     },
 
     render: function() {
@@ -402,10 +433,7 @@ var SystemView = BaseView.extend({
 
         if (this.dfsIssue) {
             _.defer(function () {
-                this.$el.find('.dfs-directory').attr('disabled', '');
-                this.$el.find('.continue').addClass('disabled');
-                this.showError('.dfs-directory-error', this.dfsIssue.get('description'));
-                this.$el.find('.dfs-reload').show();
+                this.showDFSIssue();
             }.bind(this));
         }
 
