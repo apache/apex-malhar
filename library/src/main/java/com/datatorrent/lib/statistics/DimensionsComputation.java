@@ -42,7 +42,27 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 @ShipContainingJars(classes = {TCustomHashMap.class, HashingStrategy.class})
 public class DimensionsComputation<EVENT> implements Operator
 {
-  public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>();
+  private Unifier<EVENT> unifier;
+
+  public void setUnifier(Unifier<EVENT> unifier)
+  {
+    this.unifier = unifier;
+  }
+
+  public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>()
+  {
+    @Override
+    public Unifier<EVENT> getUnifier()
+    {
+      if (DimensionsComputation.this.unifier == null) {
+        return super.getUnifier();
+      }
+      else {
+        return unifier;
+      }
+    }
+  };
+
   public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
   {
     @Override
