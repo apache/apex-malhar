@@ -1,4 +1,4 @@
-package com.datatorrent.apps.etl;/*
+/*
  * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,6 +13,7 @@ package com.datatorrent.apps.etl;/*
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.datatorrent.apps.etl;
 
 public interface Constants
 {
