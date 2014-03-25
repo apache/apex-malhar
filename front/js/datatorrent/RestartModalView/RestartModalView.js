@@ -41,6 +41,10 @@ var RestartModalView = BaseView.extend({
         this.restartCompleteCallback = options.restartCompleteCallback;
         this.restarting = false;
         this.poll = new GatewayPoll(10000);
+
+        if (options.prompt !== true) {
+            this.doRestart();
+        }
     },
 
     // Initiates gateway restart

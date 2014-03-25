@@ -12,7 +12,7 @@ describe('RestartModalView.js', function() {
 
         $.fn.modal = sandbox.spy();
 
-        _.each(['body','close','reset','restartFailed','restartSucceeded', 'render'], function(method) {
+        _.each(['body','close','reset','restartFailed','restartSucceeded', 'render', 'doRestart'], function(method) {
             sandbox.spy(M.prototype, method);
         });
 
@@ -28,7 +28,8 @@ describe('RestartModalView.js', function() {
         options = {
             dataSource: dataSource,
             message: 'Restarting the Gateway...',
-            restartCompleteCallback: sandbox.spy()
+            restartCompleteCallback: sandbox.spy(),
+            prompt: true
         };
 
         m = new M(options);
@@ -36,7 +37,7 @@ describe('RestartModalView.js', function() {
 
     afterEach(function() {
         sandbox.restore();
-        m = null;
+        m = options = null;
     });
 
     describe('initialize method', function() {
@@ -53,6 +54,16 @@ describe('RestartModalView.js', function() {
 
         it('should instantiate a GatewayPoll object', function() {
             expect(m.poll).to.be.instanceof(Poll);
+        });
+
+        it('should prompt the user for restart if prompt:true is passed in the options', function() {
+            expect(m.doRestart).not.to.have.been.called;
+        });
+
+        it('should NOT prompt the user if prompt:true is not passed in the options', function() {
+            options.prompt = undefined;
+            var m2 = new M(options);
+            expect(m2.doRestart).to.have.been.calledOnce;
         });
 
     });
