@@ -6,6 +6,10 @@ import junit.framework.Assert;
 
 import org.junit.Test;
 
+/**
+ * Test case for MetricAverage
+ * 
+ */
 public class MetricAverageTest
 {
 

@@ -10,10 +10,16 @@ public class MetricAverage implements Metric<Map<String, Object>, Map<String, Ob
   private final String metricKey;
   private final String countKey;
 
-  MetricAverage(String metricKey, String countKey)
+  public MetricAverage(String metricKey, String countKey)
   {
     this.metricKey = Preconditions.checkNotNull(metricKey, "metric key");
     this.countKey = Preconditions.checkNotNull(countKey, "count key");
+  }
+  
+  private MetricAverage(){
+    // used by kryo
+    this.metricKey = null;
+    this.countKey = null;
   }
 
   @Override
