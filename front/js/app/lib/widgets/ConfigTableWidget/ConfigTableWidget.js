@@ -126,7 +126,8 @@ var ConfigTableWidget = BaseView.extend({
         if (!this.restartModal) {
             this.restartModal = new RestartModal({
                 dataSource: this.dataSource,
-                message: 'Restarting the Gateway...'
+                message: 'Restarting the Gateway...',
+                prompt: true
             });
             this.restartModal.addToDOM();
         }
