@@ -19,7 +19,6 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.BaseOperator;
@@ -36,23 +35,27 @@ import com.datatorrent.api.Operator;
 public abstract class DimensionsComputationUnifierImpl<EVENT> extends BaseOperator implements Operator.Unifier<EVENT>
 {
   @Nonnull
-  private final DimensionsComputation.Aggregator<EVENT>[] aggregators;
+  private DimensionsComputation.Aggregator<EVENT>[] aggregators;
   @Nonnull
   private final Map<EVENT, EVENT> aggregates;
 
   public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>();
 
-  private DimensionsComputationUnifierImpl()
+  public DimensionsComputationUnifierImpl()
   {
     /** for kryo serialization */
     aggregators = null;
-    aggregates = null;
+    aggregates = Maps.newHashMap();
   }
 
-  DimensionsComputationUnifierImpl(DimensionsComputation.Aggregator<EVENT>[] aggregators)
+  /**
+   * Sets the aggregators.
+   *
+   * @param aggregators
+   */
+  public void setAggregators(@Nonnull DimensionsComputation.Aggregator<EVENT>[] aggregators)
   {
-    this.aggregators = Preconditions.checkNotNull(aggregators, "aggregators");
-    this.aggregates = Maps.newHashMap();
+    this.aggregators = aggregators;
   }
 
   @Override
