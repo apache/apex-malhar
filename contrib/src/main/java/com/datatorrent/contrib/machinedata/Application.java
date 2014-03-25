@@ -23,6 +23,7 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Operator.OutputPort;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.machinedata.data.MachineKey;
 import com.datatorrent.contrib.machinedata.operator.CalculatorOperator;
 import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingOperator;
@@ -32,6 +33,7 @@ import com.datatorrent.contrib.redis.RedisMapOutputOperator;
 import com.datatorrent.contrib.redis.RedisStore;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.SmtpOutputOperator;
+
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
@@ -45,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.5
  */
-
+@ApplicationAnnotation(name="MachineData")
 @SuppressWarnings("unused")
 public class Application implements StreamingApplication
 {

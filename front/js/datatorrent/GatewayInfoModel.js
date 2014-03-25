@@ -23,8 +23,9 @@ var GatewayInfoModel = BaseModel.extend({
 
 	url: function() {
 		return this.resourceURL('GatewayInfo');
-	}
+	},
 
+    debugName: 'Gateway Info'
 });
 
 exports = module.exports = GatewayInfoModel;

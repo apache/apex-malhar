@@ -15,50 +15,58 @@
  */
 package com.datatorrent.contrib.adsdimension;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Context.PortContext;
+import java.util.concurrent.TimeUnit;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.redis.RedisNumberSummationKeyValPairOutputOperator;
-import java.util.Map;
-import org.apache.commons.lang.mutable.MutableDouble;
-import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.contrib.adsdimension.AdInfo.AdInfoAggregator;
+import com.datatorrent.lib.statistics.DimensionsComputation;
 
 /**
  * <p>Application class.</p>
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="AdsDimension")
 public class Application implements StreamingApplication
 {
-
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimensionApplication");
+    dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimension");
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    dag.setOutputPortAttribute(input.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    dag.setAttribute(input, OperatorContext.INITIAL_PARTITION_COUNT, 8);
 
-    InputDimensionGenerator inputDimension = dag.addOperator("DimensionalDataGenerator", InputDimensionGenerator.class);
-    dag.setInputPortAttribute(inputDimension.inputPort, PortContext.PARTITION_PARALLEL, true);
-    dag.setInputPortAttribute(inputDimension.inputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    dag.setOutputPortAttribute(inputDimension.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
+    DimensionsComputation<AdInfo> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo>());
+    String[] dimensionSpecs = new String[] {
+      "time=" + TimeUnit.MINUTES,
+      "time=" + TimeUnit.MINUTES + ":adUnit",
+      "time=" + TimeUnit.MINUTES + ":advertiserId",
+      "time=" + TimeUnit.MINUTES + ":publisherId",
+      "time=" + TimeUnit.MINUTES + ":advertiserId:adUnit",
+      "time=" + TimeUnit.MINUTES + ":publisherId:adUnit",
+      "time=" + TimeUnit.MINUTES + ":publisherId:advertiserId",
+      "time=" + TimeUnit.MINUTES + ":publisherId:advertiserId:adUnit"
+    };
 
-    BucketOperator bucket = dag.addOperator("MinuteBucketAggregator", BucketOperator.class);
-    dag.setInputPortAttribute(bucket.inputPort, PortContext.PARTITION_PARALLEL, true);
-    dag.setInputPortAttribute(bucket.inputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    dag.setOutputPortAttribute(bucket.outputPort, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    dag.setAttribute(bucket, OperatorContext.APPLICATION_WINDOW_COUNT, 10);
+    AdInfoAggregator[] aggregators = new AdInfoAggregator[dimensionSpecs.length];
+    for (int i = dimensionSpecs.length; i-- > 0;) {
+      AdInfoAggregator aggregator = new AdInfoAggregator();
+      aggregator.init(dimensionSpecs[i]);
+      aggregators[i] = aggregator;
+    }
 
-    RedisNumberSummationKeyValPairOutputOperator<AggrKey, Map<String, MutableDouble>> redis = dag.addOperator("RedisAdapter", new RedisNumberSummationKeyValPairOutputOperator<AggrKey, Map<String, MutableDouble>>());
-    dag.setInputPortAttribute(redis.input, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    dag.setAttribute(redis, OperatorContext.INITIAL_PARTITION_COUNT, 2);
+    dimensions.setAggregators(aggregators);
 
-    dag.addStream("InputStream", input.outputPort, inputDimension.inputPort).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("DimensionalData", inputDimension.outputPort, bucket.inputPort).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("AggregateData", bucket.outputPort, redis.input);
+    RedisAggregateOutputOperator redis = dag.addOperator("Redis", new RedisAggregateOutputOperator());
+
+    dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("DimensionalData", dimensions.output, redis.input);
   }
+
 }

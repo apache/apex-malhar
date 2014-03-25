@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -36,6 +37,7 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
  *
  * @since 0.3.4
  */
+@ApplicationAnnotation(name="MapReduceMonitorApplication")
 public class MRMonitoringApplication implements StreamingApplication
 {
 
@@ -44,7 +46,7 @@ public class MRMonitoringApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    String daemonAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
+    String daemonAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (daemonAddress == null || StringUtils.isEmpty(daemonAddress)) {
       daemonAddress = "10.0.2.15:9790";
     }

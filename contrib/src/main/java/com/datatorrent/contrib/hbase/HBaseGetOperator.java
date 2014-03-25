@@ -26,7 +26,7 @@ import org.apache.hadoop.hbase.client.Result;
  * <br>
  * This class provides a HBase input operator that can be used to retrieve tuples from columns in a
  * HBase table. The class should be extended by the end-operator developer. The extending class should
- * implement operationGet and getTuple methods. The operationGet method should provide a HBase Get operation
+ * implement operationGet and getTuple methods. The operationGet method should provide a HBase Get metric
  * object that specifies where to retrieve tuples from a table. The getTuple method should map the contents
  * of a KeyValue from the Get result to a tuple.<br>
  *
@@ -57,11 +57,11 @@ public abstract class HBaseGetOperator<T> extends HBaseInputOperator<T>
   }
 
   /**
-   * Return a HBase Get operation to retrieve the tuple.
-   * The implementor should return a HBase Get operation that specifies where to retrieve the tuple from
+   * Return a HBase Get metric to retrieve the tuple.
+   * The implementor should return a HBase Get metric that specifies where to retrieve the tuple from
    * the table.
    *
-   * @return The HBase Get operation
+   * @return The HBase Get metric
    */
   protected abstract Get operationGet();
 

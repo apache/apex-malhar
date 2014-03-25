@@ -15,17 +15,15 @@
  */
 package com.datatorrent.contrib.adsdimension;
 
+import java.util.Random;
+
+import javax.validation.constraints.Min;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
-import java.util.Random;
-
-import javax.validation.constraints.Min;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * <p>InputItemGenerator class.</p>
@@ -34,8 +32,6 @@ import org.slf4j.LoggerFactory;
  */
 public class InputItemGenerator implements InputOperator
 {
-  @SuppressWarnings("unused")
-  private static final Logger LOG = LoggerFactory.getLogger(InputItemGenerator.class);
   @Min(1)
   private int numPublishers = 50;
   @Min(1)
@@ -46,7 +42,6 @@ public class InputItemGenerator implements InputOperator
   @Min(1)
   private int blastCount = 10000;
   private final Random random = new Random();
-
   @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
@@ -135,7 +130,7 @@ public class InputItemGenerator implements InputOperator
   {
     try {
       long timestamp;
-      for (int i = 0; i <blastCount; ++i) {
+      for (int i = 0; i < blastCount; ++i) {
         int advertiserId = nextRandomId(numAdvertisers);
         //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
         int publisherId = nextRandomId(numPublishers);
@@ -144,13 +139,14 @@ public class InputItemGenerator implements InputOperator
         double cost = 0.5 + 0.25 * random.nextDouble();
         timestamp = System.currentTimeMillis();
 
-        emitTuple(false, publisherId, advertiserId, adUnit, cost, timestamp);
+        /* 0 (zero) is used as the invalid value */
+        emitTuple(false, publisherId + 1, advertiserId + 1, adUnit + 1, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
           double revenue = 0.5 + 0.5 * random.nextDouble();
           timestamp = System.currentTimeMillis();
           // generate fake click
-          emitTuple(true, publisherId, advertiserId, adUnit, revenue, timestamp);
+          emitTuple(true, publisherId + 1, advertiserId + 1, adUnit + 1, revenue, timestamp);
         }
       }
     }
@@ -159,14 +155,22 @@ public class InputItemGenerator implements InputOperator
     }
   }
 
-  private void emitTuple(boolean click, int publisherId, int advertiserId, int adUnit, double value, long timestamp) {
-      AdInfo adInfo = new AdInfo();
-      adInfo.setPublisherId(publisherId);
-      adInfo.setAdvertiserId(advertiserId);
-      adInfo.setAdUnit(adUnit);
-      adInfo.setClick(click);
-      adInfo.setValue(value);
-      adInfo.setTimestamp(timestamp);
-      this.outputPort.emit(adInfo);
+  private void emitTuple(boolean click, int publisherId, int advertiserId, int adUnit, double value, long timestamp)
+  {
+    AdInfo adInfo = new AdInfo();
+    adInfo.setPublisherId(publisherId);
+    adInfo.setAdvertiserId(advertiserId);
+    adInfo.setAdUnit(adUnit);
+    if (click) {
+      adInfo.revenue = value;
+      adInfo.clicks = 1;
+    }
+    else {
+      adInfo.cost = value;
+      adInfo.impressions = 1;
+    }
+    adInfo.setTimestamp(timestamp);
+    this.outputPort.emit(adInfo);
   }
+
 }

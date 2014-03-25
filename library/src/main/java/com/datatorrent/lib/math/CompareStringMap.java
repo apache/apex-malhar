@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 /**
  *
- * A compare operation is done on String tuples based on the property "key", "value", and "cmp" and all matching tuples are emitted. If the tuple
+ * A compare metric is done on String tuples based on the property "key", "value", and "cmp" and all matching tuples are emitted. If the tuple
  * passed the test, it is emitted on the output port "compare". The comparison is done by parsing double value from the String.<p>
  * This module is a pass through<br>
  * <br>

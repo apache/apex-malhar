@@ -44,7 +44,7 @@ import com.datatorrent.common.util.DTThrowable;
  * Computes specified operators on specified values for specified dimension combinations.
  * Each partition works on a filtered tuple of a log type.
  */
-public class DimensionOperator extends BaseOperator implements Partitionable<DimensionOperator>
+public class DimensionOperator extends BaseOperator implements Partitioner<DimensionOperator>
 {
   /**
    * key: timebucket|timestamp|recordtype|filter|dimensionId|value.operationType
@@ -84,8 +84,8 @@ public class DimensionOperator extends BaseOperator implements Partitionable<Dim
   private transient TimeZone timeZone = TimeZone.getTimeZone("GMT");
   private transient Calendar calendar = new GregorianCalendar(timeZone);
   private int timeBucketFlags;
-  private Map<String, Map<String, Map<AggregateOperation, Number>>> cacheObject = new HashMap<String, Map<String, Map<AggregateOperation, Number>>>();
-  private HashMap<String, Number> recordType = new HashMap<String, Number>();
+  private final Map<String, Map<String, Map<AggregateOperation, Number>>> cacheObject = new HashMap<String, Map<String, Map<AggregateOperation, Number>>>();
+  private final HashMap<String, Number> recordType = new HashMap<String, Number>();
   private HashMap<Integer, HashMap<String, HashSet<AggregateOperation>>> valueOperations = new HashMap<Integer, HashMap<String, HashSet<AggregateOperation>>>();
   private HashMap<Integer, ArrayList<Integer>> dimensionCombinationList = new HashMap<Integer, ArrayList<Integer>>();
   private transient boolean firstTuple = true;
@@ -126,12 +126,12 @@ public class DimensionOperator extends BaseOperator implements Partitionable<Dim
       outTimeBuckets = new ArrayList<String>(timeBucketList);
 
       // create all dimension combinations if not specified by user
-      if (!dimensionCombinationList.containsKey((Integer)recordType.get(LogstreamUtil.LOG_TYPE))) {
+      if (!dimensionCombinationList.containsKey(recordType.get(LogstreamUtil.LOG_TYPE))) {
         createAllDimensionCombinations();
       }
 
-      dimensionCombinations = dimensionCombinationList.get((Integer)recordType.get(LogstreamUtil.LOG_TYPE));
-      valueOperationTypes = valueOperations.get((Integer)recordType.get(LogstreamUtil.LOG_TYPE));
+      dimensionCombinations = dimensionCombinationList.get(recordType.get(LogstreamUtil.LOG_TYPE));
+      valueOperationTypes = valueOperations.get(recordType.get(LogstreamUtil.LOG_TYPE));
       firstTuple = false;
     }
 
@@ -372,7 +372,7 @@ public class DimensionOperator extends BaseOperator implements Partitionable<Dim
    * type=logtype // input logtype for which the properties are to be set
    * timebucket= time bucket character //time bucket can be one of the following values s(for second)/m(for minute)/h(for hour)/D(for day)/W(for week)/M(for month)/Y(for year)
    * dimensions=a:b:c //colon separated dimension combination combination for which computations are expected
-   * values=value.operation[:value.operation] //list of dot concatenated value name and operation separated by colon
+   * values=value.metric[:value.metric] //list of dot concatenated value name and metric separated by colon
    * eg: type=apache,timebucket=m,timebucket=h,dimensions=a:b:c,dimensions=b:c,dimensions=b,dimensions=d,values=x.sum:y.sum:y.avg
    *
    * @param properties
@@ -510,6 +510,11 @@ public class DimensionOperator extends BaseOperator implements Partitionable<Dim
     }
 
     return newPartitions;
+  }
+
+  @Override
+  public void partitioned(Map<Integer, Partition<DimensionOperator>> partitions)
+  {
   }
 
   /**

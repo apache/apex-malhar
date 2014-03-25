@@ -20,11 +20,14 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.TextInputFormat;
 
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 /**
  * <p>NewWordCountApplication class.</p>
  *
  * @since 0.9.0
  */
+@ApplicationAnnotation(name="MapReduceApplicationOfWordCount")
 public class NewWordCountApplication extends MapReduceApplication<LongWritable, Text, Text, IntWritable> {
 
 	@Override

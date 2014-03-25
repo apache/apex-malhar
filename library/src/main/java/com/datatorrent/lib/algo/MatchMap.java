@@ -96,7 +96,7 @@ public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
   }
 
   /**
-   * No operation is done. Sub-classes can override and customize as needed
+   * No metric is done. Sub-classes can override and customize as needed
    * @param tuple
    */
   public void tupleNotMatched(Map<K, V> tuple)

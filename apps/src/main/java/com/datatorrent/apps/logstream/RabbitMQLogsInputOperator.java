@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.Partitionable;
-
+import com.datatorrent.api.Partitioner;
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQInputOperator;
@@ -34,7 +33,7 @@ import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQInputOperator;
  * Input operator to consume logs messages from RabbitMQ
  * This operator is partitionable, each partition will receive messages from the routing key its assigned.
  */
-public class RabbitMQLogsInputOperator extends AbstractSinglePortRabbitMQInputOperator<byte[]> implements Partitionable<RabbitMQLogsInputOperator>
+public class RabbitMQLogsInputOperator extends AbstractSinglePortRabbitMQInputOperator<byte[]> implements Partitioner<RabbitMQLogsInputOperator>
 {
   private static final Logger logger = LoggerFactory.getLogger(RabbitMQLogsInputOperator.class);
   private String[] routingKeys;
@@ -152,6 +151,11 @@ public class RabbitMQLogsInputOperator extends AbstractSinglePortRabbitMQInputOp
       }
     }
     return newPartitions;
+  }
+
+  @Override
+  public void partitioned(Map<Integer, com.datatorrent.api.Partitioner.Partition<RabbitMQLogsInputOperator>> partitions)
+  {
   }
 
 }

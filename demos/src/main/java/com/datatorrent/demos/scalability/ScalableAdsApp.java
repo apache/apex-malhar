@@ -19,6 +19,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.MapMultiConsoleOutputOperator;
@@ -33,6 +34,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="ScalableAdsApplication")
 public class ScalableAdsApp implements StreamingApplication
 {
   

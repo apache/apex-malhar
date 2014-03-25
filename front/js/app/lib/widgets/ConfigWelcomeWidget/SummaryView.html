@@ -1,9 +1,10 @@
+<span class="section-complete">
 <h1>Configuration Complete</h1>
 
-<% if (error) {  %>
+<% if (errorMsg) {  %>
 
 <p class="alert alert-error">
-    Error completing configuration.
+    <%= errorMsg %>
 </p>
 
 <% } else if (loading) {  %>
@@ -14,13 +15,28 @@
 
 <% } else { %>
 
-<p class="alert alert-success">
-    Configuration is complete. You can return to configuration wizard from <a href="#config">configuration page</a> at any time.
+<p class="alert alert-success welcome-text">
+    <i class="icon-ok-sign"></i> Configuration is complete. You can return to configuration wizard from <a href="#config">configuration page</a> at any time.
 </p>
 
-<% if (restartRequired) {  %>
-<p class="alert">
-    Restart is required for changes to take effect. Please restart the Gateway from <a href="#config">configuration page</a>.
+<p>
+    <h3>Getting Started</h3>
+    <p class="getting-started">To learn more and to get started with DataTorrent platform please visit our <a href="https://www.datatorrent.com/developers/" target="_blank">Developer Center</a></p>
+</p>
+
+<% if (issues.length) { %>
+<p>
+    <h3>Identified Issues</h3>
+    <p class="getting-started">Below is a list of identified issues. Please refer to the installation guide in the Developer Center for more information.</p>
+
+    <div class="issue-list">
+    <% issues.each(function (issue) { %>
+        <div class="alert <%= issue.get('severity') === 'error' ? 'alert-error': '' %>">
+            <h4><%= issue.get('key') %></h4>
+            <%= issue.get('description') %>
+        </div>
+    <% }) %>
+    </div>
 </p>
 <% } %>
 
@@ -28,8 +44,9 @@
     <i class="icon-circle-arrow-left"></i> back
 </a>
 
-<a href="#" class="btn btn-success pull-right btn-large">
+<a href="#" class="install-step-link btn btn-success pull-right btn-large">
     finish <i class="icon-circle-arrow-right icon-white"></i>
 </a>
 
 <% } %>
+</span>

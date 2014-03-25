@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 import kafka.javaapi.PartitionMetadata;
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.Partitionable;
+import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
@@ -75,7 +75,7 @@ import com.google.common.collect.Sets;
  *
  * @since 0.9.0
  */
-public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements Partitionable<AbstractPartitionableKafkaInputOperator>, CheckpointListener, StatsListener
+public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements Partitioner<AbstractPartitionableKafkaInputOperator>, CheckpointListener, StatsListener
 {
 
   // By default the partition policy is 1:1
@@ -108,6 +108,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   private transient long lastRepartitionTime = 0L;
 
   private transient List<Integer> newWaitingPartition = new LinkedList<Integer>();
+
+  @Override
+  public void partitioned(Map<Integer, Partition<AbstractPartitionableKafkaInputOperator>> partitions)
+  {
+  }
 
   @Override
   public Collection<Partition<AbstractPartitionableKafkaInputOperator>> definePartitions(Collection<Partition<AbstractPartitionableKafkaInputOperator>> partitions, int incrementalCapacity)

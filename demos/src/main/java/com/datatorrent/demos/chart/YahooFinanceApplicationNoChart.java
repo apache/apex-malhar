@@ -19,7 +19,7 @@ package com.datatorrent.demos.chart;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
-
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.demos.yahoofinance.StockTickInput;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
@@ -28,6 +28,7 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="YahooFinanceApplicationWithoutChart")
 public class YahooFinanceApplicationNoChart extends YahooFinanceApplication
 {
   @Override

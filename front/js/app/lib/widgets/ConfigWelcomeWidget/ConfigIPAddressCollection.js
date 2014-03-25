@@ -38,12 +38,7 @@ var ConfigIPAddressCollection = BaseCollection.extend({
         BaseCollection.prototype.fetch.call(this, options);
     },
 
-    fetchError: function() {
-        Notifier.error({
-            title: 'Could not get IP addresses',
-            text: 'An error occurred retrieving IP addresses.'
-        });
-    }
+    fetchError: null
 });
 
 exports = module.exports = ConfigIPAddressCollection;

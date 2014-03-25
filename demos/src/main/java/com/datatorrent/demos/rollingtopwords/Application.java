@@ -18,9 +18,11 @@ package com.datatorrent.demos.rollingtopwords;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
+
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -37,6 +39,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="TwitterRollingTopWordsApplication")
 public class Application implements StreamingApplication
 {
   private final Locality locality = null;

@@ -29,8 +29,8 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
-
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.math.MarginMap;
@@ -145,6 +145,7 @@ import com.datatorrent.lib.testbench.ThroughputCounter;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="AdsApplication")
 public class Application implements StreamingApplication
 {
   public static final int WINDOW_SIZE_MILLIS = 500;
@@ -209,7 +210,7 @@ public class Application implements StreamingApplication
   private InputPort<Object> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
-    String gatewayAddress = b.getValue(DAG.GATEWAY_ADDRESS);
+    String gatewayAddress = b.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       String topic = "demos.ads." + name;

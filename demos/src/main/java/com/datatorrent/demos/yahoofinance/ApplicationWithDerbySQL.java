@@ -17,6 +17,7 @@ package com.datatorrent.demos.yahoofinance;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.streamquery.AbstractSqlStreamOperator;
 import com.datatorrent.lib.streamquery.DerbySqlStreamOperator;
@@ -28,6 +29,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="YahooFinanceWithDerbySQL")
 public class ApplicationWithDerbySQL implements StreamingApplication
 {
   @Override

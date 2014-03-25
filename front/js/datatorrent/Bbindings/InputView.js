@@ -26,10 +26,10 @@ var InputView = Backbone.View.extend({
     default_events: ['change'],
     
     initialize:function(options) {
-        
         // Fill options with defaults
         _.defaults(options, {
-            events: this.default_events,
+            updateEvents: this.default_events,
+            clearErrorOnFocus: false,
             errorClass: 'validation-error',
             autoRevert: false,
             setAnyway: false,
@@ -42,7 +42,7 @@ var InputView = Backbone.View.extend({
             // to find the element.
             errorEl: false
         });
-        
+
         if (options.attr === undefined) {
             throw new Error('bbind.text requires an "attr" property in its options, which points to an attribute on the model');
         }
@@ -62,10 +62,25 @@ var InputView = Backbone.View.extend({
     
     events: function() {
         var eventHash = {};
-        for (var i = this.options.events.length - 1; i >= 0; i--){
-            eventHash[this.options.events[i]] = 'updateValue';
+        for (var i = this.options.updateEvents.length - 1; i >= 0; i--){
+            eventHash[this.options.updateEvents[i]] = 'updateValue';
         }
+
+        if (this.options.clearErrorOnFocus) {
+            eventHash['focus'] = 'clearError';
+        }
+
         return eventHash;
+    },
+
+    clearError: function () {
+        var $el = this.getClassElement();
+        var $err = this.getErrorElement();
+
+        $el.removeClass(this.options.errorClass);
+        if ($err) {
+            $err.html('');
+        }
     },
 
     getClassElement: function() {
@@ -134,13 +149,12 @@ var InputView = Backbone.View.extend({
                 return;
             }
         }
-        
+
+
         // If it made it to here, it is valid and has been set.
         // remove the error class and return;
-        $el.removeClass(this.options.errorClass);
-        if ($err) {
-            $err.html('');
-        }
+        this.clearError();
+
         return;
         
     }

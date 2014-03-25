@@ -17,7 +17,6 @@ package com.datatorrent.apps.logstream;
 
 import java.util.*;
 import java.util.Map.Entry;
-import java.util.logging.Level;
 
 import javax.validation.constraints.NotNull;
 
@@ -32,7 +31,7 @@ import com.datatorrent.lib.logs.DimensionObject;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.Partitionable;
+import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StreamCodec;
 
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
@@ -44,10 +43,10 @@ import com.datatorrent.common.util.DTThrowable;
  * Each partition serves specific filter as defined in the partition.
  *
  */
-public class LogstreamTopN extends TopN<String, DimensionObject<String>> implements Partitionable<LogstreamTopN>
+public class LogstreamTopN extends TopN<String, DimensionObject<String>> implements Partitioner<LogstreamTopN>
 {
   private transient boolean firstTuple = true;
-  private HashMap<String, Number> recordType = new HashMap<String, Number>();
+  private final HashMap<String, Number> recordType = new HashMap<String, Number>();
   private static final Logger logger = LoggerFactory.getLogger(LogstreamTopN.class);
   @NotNull
   private PropertyRegistry<String> registry;
@@ -154,6 +153,11 @@ public class LogstreamTopN extends TopN<String, DimensionObject<String>> impleme
 
     return newPartitions;
 
+  }
+
+  @Override
+  public void partitioned(Map<Integer, Partition<LogstreamTopN>> partitions)
+  {
   }
 
   /**

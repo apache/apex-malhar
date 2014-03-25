@@ -27,7 +27,7 @@ import com.datatorrent.lib.util.BaseMatchOperator;
 
 /**
  *
- * A compare operation on a tuple with value type String, based on the property "key", "value", and "cmp"; the first match is emitted. The comparison is done by getting double
+ * A compare metric on a tuple with value type String, based on the property "key", "value", and "cmp"; the first match is emitted. The comparison is done by getting double
  * value from the Number.<p>
  * This module is a pass through<br>
  * <br>

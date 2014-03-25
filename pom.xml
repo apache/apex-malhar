@@ -4,13 +4,14 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>dt-framework</artifactId>
-    <version>0.9.3</version>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-all</artifactId>
-  <packaging>pom</packaging>
   <version>0.9.4-SNAPSHOT</version>
+  <packaging>pom</packaging>
   <name>Malhar Open Source</name>
+  <url>https://www.datatorrent.com/</url>
 
   <!-- repository to provide the DataTorrent artifacts -->
   <repositories>
@@ -22,10 +23,10 @@
   </repositories>
 
   <properties> 
-    <maven.deploy.skip>false</maven.deploy.skip>
-    <dt.framework.version>0.9.3</dt.framework.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <netbeans.hint.license>malhar-inc</netbeans.hint.license>
+    <maven.deploy.skip>false</maven.deploy.skip>
+    <dt.framework.version>0.9.4-SNAPSHOT</dt.framework.version>
     <!-- the following properties match the properties defined in core/pom.xml -->
     <jackson.version>1.9.2</jackson.version>
     <jersey.version>1.9</jersey.version>
@@ -37,6 +38,7 @@
     <module>contrib</module>
     <module>demos</module>
     <module>samples</module>
+    <module>benchmark</module>
     <module>apps</module>
   </modules>
 </project>

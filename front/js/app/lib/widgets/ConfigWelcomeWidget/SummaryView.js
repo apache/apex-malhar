@@ -17,10 +17,10 @@
 var _ = require('underscore');
 var Backbone = require('backbone');
 var BaseView = require('./StepView');
-var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
 var Notifier = DT.lib.Notifier;
-var RestartModal = DT.lib.RestartModal;
 var ConfigPropertyModel = require('../../../../datatorrent/ConfigPropertyModel');
+var ConfigIssueModel = DT.lib.ConfigIssueModel;
+var ConfigIssueCollection = DT.lib.ConfigIssueCollection;
 
 var SummaryView = BaseView.extend({
 
@@ -33,47 +33,51 @@ var SummaryView = BaseView.extend({
         this.dataSource = options.dataSource;
         this.navFlow = options.navFlow;
 
-        this.error = false; //TODO
         this.loading = true;
 
-        this.issues = new ConfigIssueCollection([]);
+        this.issues = new ConfigIssueCollection([], { silentErrors: true });
 
         var issuesPromise = this.issues.fetch();
-        var configStatusPromise = this.saveConfigStatusProperty();
-        //var d = $.Deferred();
-        //setTimeout(function () {
-        //    d.reject();
-        //}, 3000);
-        //var ajax = d.promise();
 
-        var all = $.when(issuesPromise, configStatusPromise);
+        issuesPromise.done(function () {
+            var configStatusPromise = this.saveConfigStatusProperty();
 
-        all.done(function () {
-            this.loading = false;
+            configStatusPromise.done(function () {
+                this.loading = false;
+                /*
+                this.issues.add(new ConfigIssueModel({
+                    key: 'issue2',
+                    severity: 'warning',
+                    description: 'description2'
+                }));
+                this.issues.add(new ConfigIssueModel({
+                    key: 'issue3',
+                    severity: 'error',
+                    description: 'description3'
+                }));
+                this.issues.add(new ConfigIssueModel({
+                    key: 'issue4',
+                    severity: 'warning',
+                    description: 'description4'
+                }));
+                */
 
-            var restartRequiredIssue = this.issues.findWhere({
-                key: 'RESTART_NEEDED'
-            });
+                this.render();
+            }.bind(this));
 
-            var restartRequired = !!restartRequiredIssue;
-
-            //if (true) {
-            if (restartRequired) {
-                var restartModal = new RestartModal({
-                    dataSource: this.dataSource,
-                    message: 'Changes made require restart. Restarting the Gateway...'
-                });
-                restartModal.addToDOM();
-                restartModal.launch();
-            }
-
-            this.render();
+            configStatusPromise.fail(function () {
+                this.showError();
+            }.bind(this));
         }.bind(this));
 
-        all.fail(function () {
-            this.error = true;
-            this.render();
+        issuesPromise.fail(function () {
+            this.showError();
         }.bind(this));
+    },
+
+    showError: function () {
+        this.errorMsg = 'Error completing configuration. Please make sure DT Gateway is running.'
+        this.render();
     },
 
     saveConfigStatusProperty: function () {
@@ -87,9 +91,9 @@ var SummaryView = BaseView.extend({
 
     render: function() {
         var html = this.template({
-            error: this.error,
+            errorMsg: this.errorMsg,
             loading: this.loading,
-            restartRequired: this.restartRequired
+            issues: this.issues
         });
 
         this.$el.html(html);

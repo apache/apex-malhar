@@ -15,153 +15,113 @@
  */
 package com.datatorrent.lib.bucket;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.util.List;
+import java.lang.reflect.Array;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.PathFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * {@link BucketStore} which works with HDFS.
+ * {@link BucketStore} which works with HDFS.<br/>
+ * The path of buckets in hdfs is <code>{application-path}/buckets/{operatorId}/{windowId}</code>.
  *
- * @param <T> type of bucket event</T>
+ * @param <T> type of bucket event
  */
-public class HdfsBucketStore<T extends BucketEvent> implements BucketStore<T>
+public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 {
+  public static transient String OPERATOR_ID = "operatorId";
+  public static transient String APP_PATH = "applicationPath";
+  public static transient String PARTITION_KEYS = "partitionKeys";
+  public static transient String PARTITION_MASK = "partitionMask";
+
   static transient final String PATH_SEPARATOR = "/";
   static transient final String BUCKETS_SUBDIR = "buckets";
-  private transient final String bucketFileSystemPath;
+
+  //Check-pointed
+  private final boolean writeEventKeysOnly;
+  @Min(1)
+  protected int noOfBuckets;
+  private final Map<Long, Long>[] bucketPositions;
+
+  //Non check-pointed
+  private transient FileSystem fs;
+  private transient String bucketRoot;
   private transient Configuration configuration;
   private transient Kryo serde;
-  private transient Serializer<Map<Object, T>> bucketDataSerializer;
-  private transient int operatorId;
-  private transient final Set<Integer> partitionKeys;
+  private transient Set<Integer> partitionKeys;
   private transient int partitionMask;
-  private transient final int maxNoOfBucketsInDir;
-  private transient int divisor;
-  private transient int memoizedBucketIdx;
-  private transient String memoizedPath;
   private transient long committedWindowOfLastRun;
+  private transient Class<Object> eventKeyClass;
+  private transient Class<T> eventClass;
 
-  /**
-   * Constructs a hdfs store.
-   *
-   * @param applicationPath     application path.
-   * @param operatorId          operator id.
-   * @param maxNoOfBucketsInDir maximum no. of buckets (files) which are created in a directory. When the count of buckets
-   *                            is greater than this number there are sub-directories created.
-   * @param partitionKeys       partitions of the operator.
-   * @param partitionMask       partition mask.
-   */
-  public HdfsBucketStore(String applicationPath, int operatorId, int maxNoOfBucketsInDir, Set<Integer> partitionKeys,
-                         int partitionMask)
+  private HdfsBucketStore()
   {
-    this.bucketFileSystemPath = applicationPath + PATH_SEPARATOR + BUCKETS_SUBDIR;
-    this.operatorId = operatorId;
-    this.maxNoOfBucketsInDir = maxNoOfBucketsInDir;
-    this.partitionKeys = Preconditions.checkNotNull(partitionKeys, "partition keys");
-    this.partitionMask = partitionMask;
-    memoizedBucketIdx = -1;
-    memoizedPath = null;
-    divisor = 1;
-    committedWindowOfLastRun = -1;
+    //Used for kryo serialization
+    writeEventKeysOnly = false;
+    noOfBuckets = 0;
+    bucketPositions = null;
   }
 
-  private String getParentBucketPath(int bucketIdx)
+  /**
+   * Constructs an hdfs bucket store
+   *
+   * @param noOfBuckets        total no. of buckets
+   * @param writeEventKeysOnly true for writing only event keys in the store; false otherwise.
+   */
+  @SuppressWarnings("unchecked")
+  public HdfsBucketStore(int noOfBuckets, boolean writeEventKeysOnly)
   {
-    if (memoizedBucketIdx == bucketIdx) {
-      return memoizedPath;
-    }
-    StringBuilder pathBuilder = new StringBuilder();
-    int ldivisor = divisor;
-    while (ldivisor >= maxNoOfBucketsInDir) {
-      pathBuilder.append(bucketIdx / ldivisor).append(PATH_SEPARATOR);
-      ldivisor = ldivisor / maxNoOfBucketsInDir;
-    }
-    memoizedBucketIdx = bucketIdx;
-    return memoizedPath = pathBuilder.toString();
+    this.noOfBuckets = noOfBuckets;
+    this.writeEventKeysOnly = writeEventKeysOnly;
+    bucketPositions = (Map<Long, Long>[]) Array.newInstance(HashMap.class, noOfBuckets);
+
+    committedWindowOfLastRun = -1;
   }
 
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public void setup(int noOfBuckets, final long committedWindowOfLastRun, boolean writeEventKeysOnly) throws IOException
+  public void setup(Context context)
   {
-    this.committedWindowOfLastRun = committedWindowOfLastRun;
+    int operatorId = Preconditions.checkNotNull(context.getInt(OPERATOR_ID, null));
+    this.bucketRoot = Preconditions.checkNotNull(context.getString(APP_PATH, null), "app path") + PATH_SEPARATOR + BUCKETS_SUBDIR + PATH_SEPARATOR + operatorId;
+    this.partitionKeys = (Set<Integer>) Preconditions.checkNotNull(context.getObject(PARTITION_KEYS, null), "partition keys");
+    this.partitionMask = Preconditions.checkNotNull(context.getInt(PARTITION_MASK, null), "partition mask");
+    logger.debug("operator parameters {}, {}, {}, {}", operatorId, partitionKeys, partitionMask, committedWindowOfLastRun);
+
     this.configuration = new Configuration();
     this.serde = new Kryo();
     this.serde.setClassLoader(Thread.currentThread().getContextClassLoader());
-    this.serde.setReferences(false);
     try {
-      this.bucketDataSerializer = new BucketDataSerializer<T>(writeEventKeysOnly, partitionKeys, partitionMask);
+      this.fs = FileSystem.get(new Path(bucketRoot).toUri(), configuration);
     }
     catch (IOException e) {
       throw new RuntimeException(e);
     }
-    double temp = noOfBuckets;
-    while (temp > maxNoOfBucketsInDir) {
-      divisor = maxNoOfBucketsInDir * divisor;
-      temp = Math.ceil(temp / maxNoOfBucketsInDir);
-    }
-    logger.debug("operator parameters {}, {}, {}", operatorId, partitionKeys, partitionMask);
-    logger.debug("dir parameters {}", divisor);
-
-    String lParentPath = null;
-    Path rootBucketPath = new Path(bucketFileSystemPath);
-    FileSystem fs = FileSystem.get(rootBucketPath.toUri(), configuration);
-    if (fs.exists(rootBucketPath)) {
-      for (int bucketIdx = 0; bucketIdx < noOfBuckets; bucketIdx++) {
-        if (lParentPath == null) {
-          lParentPath = getParentBucketPath(bucketIdx);
-        }
-
-        //Delete bucket data which belongs to windows greater than committed window of last run
-        Path bucketPath = new Path(bucketFileSystemPath + PATH_SEPARATOR + lParentPath + bucketIdx);
-        if (fs.exists(bucketPath)) {
-          FileStatus[] statusForDeletion = fs.listStatus(bucketPath, new PathFilter()
-          {
-            @Override
-            public boolean accept(Path path)
-            {
-              try {
-                long window = Long.parseLong(path.getName());
-                return window > committedWindowOfLastRun;
-              }
-              catch (NumberFormatException nfe) {
-                logger.warn("invalid window {}", committedWindowOfLastRun, nfe);
-                return false;
-              }
-            }
-          });
-
-          for (FileStatus fileStatus : statusForDeletion) {
-            fs.delete(fileStatus.getPath(), true);
-          }
-
-          if (bucketIdx % maxNoOfBucketsInDir == maxNoOfBucketsInDir - 1) {
-            lParentPath = null;
-          }
+    if (logger.isDebugEnabled()) {
+      for (int i = 0; i < bucketPositions.length; i++) {
+        if (bucketPositions[i] != null) {
+          logger.debug("bucket idx {} position {}", i, bucketPositions[i]);
         }
       }
     }
@@ -179,15 +139,50 @@ public class HdfsBucketStore<T extends BucketEvent> implements BucketStore<T>
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings("unchecked")
   @Override
-  public void storeBucketData(int bucketIdx, long window, Map<Object, T> recentData) throws IOException
+  public void storeBucketData(long window, Map<Integer, Map<Object, T>> data) throws IOException
   {
-    OutputStream stream = getSaveStream(bucketIdx, window);
-    if (stream != null) {
-      Output output = new Output(stream);
-      serde.writeObject(output, recentData, bucketDataSerializer);
-      output.close();
+    Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
+    FSDataOutputStream dataStream = new FSDataOutputStream(fs.create(dataFilePath), null);
+
+    Output output = new Output(dataStream);
+    long offset = 0;
+    for (int bucketIdx : data.keySet()) {
+      if (bucketPositions[bucketIdx] == null) {
+        bucketPositions[bucketIdx] = Maps.newHashMap();
+      }
+      bucketPositions[bucketIdx].put(window, offset);
+
+      Map<Object, T> bucketData = data.get(bucketIdx);
+      if (eventKeyClass == null) {
+        Map.Entry<Object, T> eventEntry = bucketData.entrySet().iterator().next();
+        eventKeyClass = (Class<Object>) eventEntry.getKey().getClass();
+
+        if (!writeEventKeysOnly) {
+          eventClass = (Class<T>) eventEntry.getValue().getClass();
+        }
+      }
+      //Write the size of data and then data
+      dataStream.writeInt(bucketData.size());
+      for (Map.Entry<Object, T> entry : bucketData.entrySet()) {
+        serde.writeObject(output, entry.getKey());
+
+        if (!writeEventKeysOnly) {
+          int numValuePos = output.position();
+          output.writeInt(0); //temporary place holder
+          serde.writeObject(output, entry.getValue());
+          int valueLength = output.position() - numValuePos - 4;
+          output.setPosition(numValuePos);
+          output.writeInt(valueLength);
+        }
+      }
+      output.flush();
+      offset = dataStream.getPos();
+
     }
+    output.close();
+    dataStream.close();
   }
 
   /**
@@ -196,10 +191,7 @@ public class HdfsBucketStore<T extends BucketEvent> implements BucketStore<T>
   @Override
   public void deleteBucket(int bucketIdx) throws IOException
   {
-    Path bucketPath = new Path(bucketFileSystemPath + PATH_SEPARATOR + getParentBucketPath(bucketIdx) + bucketIdx);
-    FileSystem fs = FileSystem.get(bucketPath.toUri(), configuration);
-    fs.delete(bucketPath, true);
-
+    bucketPositions[bucketIdx] = null;
   }
 
   /**
@@ -211,126 +203,31 @@ public class HdfsBucketStore<T extends BucketEvent> implements BucketStore<T>
   {
     Map<Object, T> bucketData = Maps.newHashMap();
 
-    Path bucketPath = new Path(bucketFileSystemPath + PATH_SEPARATOR + getParentBucketPath(bucketIdx) + bucketIdx);
-    FileSystem fs = FileSystem.get(bucketPath.toUri(), configuration);
-    if (!fs.exists(bucketPath)) {
+    if (bucketPositions[bucketIdx] == null) {
       return bucketData;
     }
 
-    List<FileStatus> windowsOfPreviousRun = Lists.newArrayList();
-    List<FileStatus> windowsOfCurrentRun = Lists.newArrayList();
+    for (long window : bucketPositions[bucketIdx].keySet()) {
 
-    for (FileStatus windowDir : fs.listStatus(bucketPath)) {
-      long window = Long.parseLong(windowDir.getPath().getName());
+      //Read data only for the windows in which bucketIdx had events.
+      Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
+      FSDataInputStream stream = new FSDataInputStream(fs.open(dataFile));
+      stream.seek(bucketPositions[bucketIdx].get(window));
 
-      if (window > committedWindowOfLastRun) {
-        windowsOfCurrentRun.add(windowDir);
-      }
-      else {
-        windowsOfPreviousRun.add(windowDir);
-      }
-    }
-    for (FileStatus previousRunWindow : windowsOfPreviousRun) {
-      for (FileStatus operatorFiles : fs.listStatus(previousRunWindow.getPath())) {
-        InputStream bucketStream = getLoadStream(operatorFiles.getPath());
-        Input input = new Input(bucketStream);
-        @SuppressWarnings("unchecked")
-        Map<Object, T> bucketDataPerWindow = serde.readObject(input, bucketData.getClass(), bucketDataSerializer);
-        bucketData.putAll(bucketDataPerWindow);
-      }
-    }
-    for (FileStatus currentRunWindow : windowsOfCurrentRun) {
-      Path operatorFile = new Path(currentRunWindow.getPath().toString() + PATH_SEPARATOR + operatorId);
-      if (fs.exists(operatorFile)) {
-        InputStream bucketStream = getLoadStream(operatorFile);
-        Input input = new Input(bucketStream);
-        @SuppressWarnings("unchecked")
-        Map<Object, T> bucketDataPerWindow = serde.readObject(input, bucketData.getClass(), bucketDataSerializer);
-        bucketData.putAll(bucketDataPerWindow);
-      }
-    }
-
-    return bucketData;
-  }
-
-  private OutputStream getSaveStream(int bucketIdx, long window) throws IOException
-  {
-    Path path = new Path(bucketFileSystemPath + PATH_SEPARATOR + getParentBucketPath(bucketIdx) + bucketIdx +
-      PATH_SEPARATOR + window + PATH_SEPARATOR + operatorId);
-    FileSystem fs = FileSystem.get(path.toUri(), configuration);
-    return fs.create(path);
-  }
-
-  private InputStream getLoadStream(Path bucketWindowPath) throws IOException
-  {
-    FileSystem fs = FileSystem.get(bucketWindowPath.toUri(), configuration);
-    return fs.open(bucketWindowPath);
-  }
-
-  public static class BucketDataSerializer<T extends BucketEvent> extends Serializer<Map<Object, T>>
-  {
-    private final Output temporaryOutput;
-    private final boolean writeEventKeysOnly;
-    private final Set<Integer> partitionKeys;
-    private final int partitionMask;
-
-    public BucketDataSerializer(boolean writeEventKeysOnly, Set<Integer> partitionKeys, int partitionMask) throws IOException
-    {
-      ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
-      temporaryOutput = new Output(byteStream);
-      this.writeEventKeysOnly = writeEventKeysOnly;
-      this.partitionKeys = Preconditions.checkNotNull(partitionKeys, "partition keys");
-      this.partitionMask = partitionMask;
-    }
-
-    @Override
-    public void write(Kryo kryo, Output output, Map<Object, T> bucketData)
-    {
-      if (bucketData.isEmpty()) {
-        return;
-      }
-
-      kryo.writeClass(output, bucketData.entrySet().iterator().next().getKey().getClass());
-      if (!writeEventKeysOnly) {
-        kryo.writeClass(output, bucketData.entrySet().iterator().next().getValue().getClass());
-      }
-
-      output.writeInt(bucketData.size(), true);
-
-      for (Map.Entry<Object, T> entry : bucketData.entrySet()) {
-        kryo.writeObject(output, entry.getKey());
-        if (!writeEventKeysOnly) {
-          kryo.writeObject(temporaryOutput, entry.getValue());
-          byte[] valueInBytes = temporaryOutput.toBytes();
-          output.writeInt(valueInBytes.length, true);
-          output.writeBytes(valueInBytes);
-          temporaryOutput.clear();
-        }
-      }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public Map<Object, T> read(Kryo kryo, Input input, Class<Map<Object, T>> bucketDataClass)
-    {
-      Map<Object, T> bucketData = Maps.newHashMap();
-      Class<Object> keyClass = kryo.readClass(input).getType();
-      Class<T> valueClass = null;
-      if (!writeEventKeysOnly) {
-        valueClass = kryo.readClass(input).getType();
-      }
-
-      int length = input.readInt(true);
+      Input input = new Input(stream);
+      int length = stream.readInt();
 
       for (int i = 0; i < length; i++) {
-        Object key = kryo.readObject(input, keyClass);
+        Object key = serde.readObject(input, eventKeyClass);
+
         int partitionKey = key.hashCode() & partitionMask;
         boolean keyPasses = partitionKeys.contains(partitionKey);
+
         if (!writeEventKeysOnly) {
           //if key passes then read the value otherwise skip the value
-          int entrySize = input.readInt(true);
+          int entrySize = input.readInt();
           if (keyPasses) {
-            T entry = kryo.readObject(input, valueClass);
+            T entry = serde.readObject(input, eventClass);
             bucketData.put(key, entry);
           }
           else {
@@ -341,8 +238,41 @@ public class HdfsBucketStore<T extends BucketEvent> implements BucketStore<T>
           bucketData.put(key, null);
         }
       }
-      return bucketData;
+      input.close();
+      stream.close();
     }
+    return bucketData;
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof HdfsBucketStore)) {
+      return false;
+    }
+
+    HdfsBucketStore that = (HdfsBucketStore) o;
+
+    if (noOfBuckets != that.noOfBuckets) {
+      return false;
+    }
+    if (writeEventKeysOnly != that.writeEventKeysOnly) {
+      return false;
+    }
+    return Arrays.equals(bucketPositions, that.bucketPositions);
+
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = (writeEventKeysOnly ? 1 : 0);
+    result = 31 * result + noOfBuckets;
+    result = 31 * result + (bucketPositions != null ? Arrays.hashCode(bucketPositions) : 0);
+    return result;
   }
 
   private static transient final Logger logger = LoggerFactory.getLogger(HdfsBucketStore.class);

@@ -21,8 +21,8 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
-
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.math.SumKeyVal;
@@ -187,6 +187,7 @@ import com.datatorrent.lib.util.HighLow;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="YahooFinanceApplication")
 public class Application implements StreamingApplication
 {
   protected int streamingWindowSizeMilliSeconds = 1000; // 1 second

@@ -32,7 +32,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  *
  * Computes and emits distinct tuples of type K (i.e drops duplicates) at end of window<p>
  * <br>
- * This module is same as a "FirstOf" operation on any key, val pair
+ * This module is same as a "FirstOf" metric on any key, val pair
  * Even though this module produces continuous tuples, at end of window all data is flushed. Thus the data set is windowed
  * and no history is kept of previous windows<br>
  * <br>

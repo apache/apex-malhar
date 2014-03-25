@@ -17,6 +17,7 @@ package com.datatorrent.contrib.frauddetect;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -25,11 +26,9 @@ import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.contrib.frauddetect.operator.HdfsStringOutputOperator;
 import com.datatorrent.contrib.frauddetect.operator.MongoDBOutputOperator;
-
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.net.URI;
 
 /**
@@ -37,6 +36,7 @@ import java.net.URI;
  * 
  * @since 0.9.0
  */
+@ApplicationAnnotation(name="FraudDetect")
 public class Application implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
@@ -181,7 +181,7 @@ public class Application implements StreamingApplication
   {
 
     try {
-      String gatewayAddress = dag.getValue(DAGContext.GATEWAY_ADDRESS);
+      String gatewayAddress = dag.getValue(DAGContext.GATEWAY_CONNECT_ADDRESS);
       if (gatewayAddress == null) {
         gatewayAddress = "localhost:9090";
       }

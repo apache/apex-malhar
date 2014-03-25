@@ -22,9 +22,9 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.script.JavaScriptOperator;
 import com.datatorrent.lib.stream.RoundRobinHashMap;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * Monte Carlo PI estimation demo : <br>
@@ -75,6 +75,7 @@ import com.datatorrent.api.StreamingApplication;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="PiCalculatorWithJavascript")
 public class ApplicationWithScript implements StreamingApplication
 {
 

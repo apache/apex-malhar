@@ -31,7 +31,8 @@ var DfsModel = require('./DfsModel');
 var SystemView = BaseView.extend({
 
     events: {
-        'click .continue': 'continue'
+        'click .continue': 'continue',
+        'click .dfs-reload': 'reload'
     },
 
     initialize: function(options) {
@@ -42,17 +43,17 @@ var SystemView = BaseView.extend({
         this.error = false; //TODO
         this.loading = true;
 
-        var hadoopLocationPromise = this.loadHadoopLocation();
-        var aboutPromise = this.loadAbout();
+        this.addressModel = new GatewayAddressModel();
+        this.dfsModel = new DfsModel();
+        this.dfsIssue = null;
+
         var ipListPromise = this.loadIPList();
         var defaultAddressPromise = this.loadDefaultAddress();
         var customAddressPromise = this.loadCustomAddress();
         var dfsPromise = this.loadDfsProperty();
+        var dfsIssuePromise = this.loadDFSIssue();
 
-        this.addressModel = new GatewayAddressModel();
-        this.dfsModel = new DfsModel();
-
-        var all = $.when(hadoopLocationPromise, aboutPromise, ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
+        var all = $.when(ipListPromise, customAddressPromise, defaultAddressPromise, dfsPromise, dfsIssuePromise);
         //var all = $.when(aboutPromise, customAddressPromise, defaultAddressPromise, dfsPromise);
         all.done(function () {
             var model;
@@ -75,21 +76,11 @@ var SystemView = BaseView.extend({
             this.render();
         }.bind(this));
 
-        this.subview('hadoop-location', new Bbind.text({
-            model: this.hadoopLocationModel,
-            attr: 'value',
-            listenToModel: false,
-            setAnyway: true,
-            classElement: function($el) {
-                return $el.parent().parent();
-            },
-            errorEl: '.help-block',
-            errorClass: 'error'
-        }));
-
         this.subview('address-ip-input', new Bbind.text({
             model: this.addressModel,
             attr: 'ip',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -102,6 +93,8 @@ var SystemView = BaseView.extend({
         this.subview('address-port', new Bbind.text({
             model: this.addressModel,
             attr: 'port',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -141,6 +134,8 @@ var SystemView = BaseView.extend({
         this.subview('dfs-directory', new Bbind.text({
             model: this.dfsModel,
             attr: 'value',
+            updateEvents: ['blur'],
+            clearErrorOnFocus: true,
             listenToModel: false,
             setAnyway: true,
             classElement: function($el) {
@@ -150,17 +145,21 @@ var SystemView = BaseView.extend({
             errorClass: 'error'
         }));
 
-        this.listenTo(this.hadoopLocationModel, 'change', this.inputChanged);
-        this.listenTo(this.addressModel, 'change', this.inputChanged);
-        this.listenTo(this.dfsModel, 'change', this.inputChanged);
+        this.listenTo(this.addressModel, 'change', function () {
+            this.clearError('.address-error');
+            //this.inputChanged();
+        }) ;
+        this.listenTo(this.dfsModel, 'change', function () {
+            this.clearError('.dfs-directory-error');
+            //this.inputChanged();
+        }) ;
     },
 
     inputChanged: function () {
-        var hadoopLocationModelValid = this.hadoopLocationModel.isValid();
         var addressValid = this.addressModel.isValid();
         var dfsValid = this.dfsModel.isValid();
 
-        if (hadoopLocationModelValid && addressValid && dfsValid) {
+        if (addressValid && dfsValid) {
             this.$el.find('.continue').removeClass('disabled');
         } else {
             this.$el.find('.continue').addClass('disabled');
@@ -181,13 +180,25 @@ var SystemView = BaseView.extend({
         return promise;
     },
 
+    loadDFSIssue: function () {
+        var issues = new ConfigIssueCollection([], { silentErrors: true });
+        var issuesPromise = issues.fetch();
+
+        issuesPromise.done(function () {
+            this.dfsIssue = issues.findWhere({
+                key: 'DFS_PROBLEM'
+            });
+        }.bind(this));
+
+        return issuesPromise;
+    },
+
     loadProperty: function (name) {
         var d = $.Deferred();
 
         var model = new ConfigPropertyModel({
             name: name
         });
-        //TODO override fetchError: util.fetchError,
 
         var ajax = model.fetch();
 
@@ -221,71 +232,23 @@ var SystemView = BaseView.extend({
         });
 
         var ajax = model.save();
+        //var ajax = function () { var df = $.Deferred();df.rejectWith(null, [{status: 500}]);return df.promise() }();
 
         ajax.done(function () {
             d.resolve();
         });
 
         ajax.fail(function (jqXHR) {
-            if (jqXHR.status = 412) {
+            var msg;
+            if (jqXHR.status === 412) {
                 var response = JSON.parse(jqXHR.responseText);
-                this.errorMsg = response.message;
+                msg = response.message;
             } else {
-                this.errorMsg = 'Failed to update property ' + propName;
+                msg = 'Failed to update property ' + name;
             }
 
-            d.rejectWith(null, [
-                name,
-                jqXHR
-            ]);
+            d.rejectWith(null, [msg]);
         }.bind(this));
-
-        return d.promise();
-    },
-
-    saveHadoopLocation: function () {
-        var ajax = this.hadoopLocationModel.save();
-
-        ajax.fail(function (jqXHR) {
-            this.errorMsg = 'Failed to update hadoop location';
-        }.bind(this));
-
-        return ajax;
-    },
-
-    loadHadoopLocation: function () {
-        var d = $.Deferred();
-
-        this.hadoopLocationModel = new HadoopLocationModel();
-        var ajax = this.hadoopLocationModel.fetch();
-
-        ajax.done(function () {
-            // save default value
-            this.hadoopLocationModel.init(this.hadoopLocationModel.get('value'));
-            d.resolve();
-        }.bind(this));
-
-        ajax.fail(function (jqXHR) {
-            if (jqXHR.status === 404) { //TODO
-                this.hadoopLocationModel.init('');
-                d.resolve();
-            } else {
-                d.reject();
-            }
-        }.bind(this));
-
-        return d.promise();
-    },
-
-    loadAbout: function () {
-        var d = $.Deferred();
-
-        this.about = new GatewayInfoModel({});
-        this.about.fetch(); //TODO error handling
-
-        this.listenTo(this.about, 'sync', function () {
-            d.resolve();
-        });
 
         return d.promise();
     },
@@ -295,7 +258,7 @@ var SystemView = BaseView.extend({
             ip: '',
             port: ''
         });
-        var promise = this.loadProperty('dt.attr.GATEWAY_ADDRESS');
+        var promise = this.loadProperty('dt.attr.GATEWAY_CONNECT_ADDRESS');
 
         promise.then(function (data) {
             if (data && data.value) {
@@ -314,7 +277,7 @@ var SystemView = BaseView.extend({
             ip: '',
             port: ''
         });
-        var promise = this.loadProperty('dt.gateway.address');
+        var promise = this.loadProperty('dt.gateway.listenAddress');
 
         promise.then(function (data) {
             if (data && data.value) {
@@ -338,6 +301,10 @@ var SystemView = BaseView.extend({
         return ajax;
     },
 
+    reload: function () {
+        this.navFlow.go('SystemView');
+    },
+
     continue: function (event) {
         event.preventDefault();
 
@@ -347,26 +314,27 @@ var SystemView = BaseView.extend({
 
         this.$el.find('.address-ip-input').blur();
         this.$el.find('.address-port').blur();
-        this.$el.find('.dfs-directory').blur();
+        if (!this.dfsIssue) {
+            this.$el.find('.dfs-directory').blur();
+        }
 
-        if (!this.hadoopLocationModel.isValid() || !this.addressModel.isValid() || !this.dfsModel.isValid()) {
-            this.$el.find('.continue').addClass('disabled');
+        if (!this.addressModel.isValid() || (!this.dfsIssue && !this.dfsModel.isValid())) {
             return;
         }
 
-        var hadoopLocationPromise;
-        if (this.hadoopLocationModel.isChanged()) {
-            hadoopLocationPromise = this.saveHadoopLocation();
-        } else {
-            hadoopLocationPromise = this.createResolvedPromise();
-        }
+        this.$el.find('.loading').show();
+        this.$el.find('.continue').addClass('disabled');
 
         var addressPromise;
         if (this.addressModel.isChanged()) {
-            addressPromise = this.saveProperty('dt.attr.GATEWAY_ADDRESS', this.addressModel.getValue());
+            addressPromise = this.saveProperty('dt.attr.GATEWAY_CONNECT_ADDRESS', this.addressModel.getValue());
         } else {
             addressPromise = this.createResolvedPromise();
         }
+
+        addressPromise.fail(function (msg) {
+            this.showError('.address-error', msg);
+        }.bind(this));
 
         // example values: /user/hadoop/DataTorrent, /user/hadoop/Stram
         var dfsPromise;
@@ -376,17 +344,39 @@ var SystemView = BaseView.extend({
             dfsPromise = this.createResolvedPromise();
         }
 
-        var all = $.when(hadoopLocationPromise, addressPromise, dfsPromise);
+        dfsPromise.fail(function (msg) {
+            this.showError('.dfs-directory-error', msg);
+        }.bind(this));
+
+        var all = $.when(addressPromise, dfsPromise);
 
         all.done(function () {
-            this.navFlow.go('SummaryView');
+            if (this.dfsIssue) {
+                var dfsIssuePromise = this.loadDFSIssue();
+
+                dfsIssuePromise.done(function () {
+                    if (this.dfsIssue) {
+                        this.$el.find('.loading').hide();
+                        this.$el.find('.continue').removeClass('disabled');
+                        this.showDFSIssue();
+                    } else {
+                        this.navFlow.go('SummaryView');
+                    }
+                }.bind(this));
+
+                dfsIssuePromise.fail(function () {
+                    this.error = true;
+                    this.render();
+                }.bind(this));
+            } else {
+                this.navFlow.go('SummaryView');
+            }
         }.bind(this));
 
-        all.fail(function (propName) {
-            this.render();
+        all.fail(function () {
+            this.$el.find('.loading').hide();
+            this.$el.find('.continue').removeClass('disabled');
         }.bind(this));
-
-        //jQuery(event.target).addClass('disabled');
     },
 
     createResolvedPromise: function () {
@@ -395,14 +385,32 @@ var SystemView = BaseView.extend({
         return d.promise();
     },
 
+    showError: function (selector, msg) {
+        var el = this.$el.find(selector);
+        el.text(msg);
+        el.show();
+    },
+
+    clearError: function (selector) {
+        this.$el.find(selector).hide();
+    },
+
+    showDFSIssue: function () {
+        if (this.dfsIssue) {
+            _.defer(function () {
+                this.$el.find('.dfs-directory').attr('disabled', '');
+                this.showError('.dfs-directory-error', this.dfsIssue.get('description'));
+                this.$el.find('.dfs-reload').show();
+            }.bind(this));
+        }
+    },
+
     render: function() {
         var html = this.template({
             hadoopError: this.hadoopError,
             error: this.error,
             errorMsg: this.errorMsg,
             loading: this.loading,
-            hadoopLocationModel: this.hadoopLocationModel,
-            about: this.about,
             addressModel: this.addressModel,
             dfsModel: this.dfsModel,
             ipAddresses: this.ipAddresses
@@ -423,15 +431,18 @@ var SystemView = BaseView.extend({
             this.$el.find('.address-ip-input').show();
         }
 
+        if (this.dfsIssue) {
+            _.defer(function () {
+                this.showDFSIssue();
+            }.bind(this));
+        }
+
         return this;
-        //dt.attr.GATEWAY_ADDRESS ip:9090
-        //dt.gateway.address
     },
 
     assignments: {
-        '.hadoop-location': 'hadoop-location',
-        '.address-ip-select': 'address-ip-select',
         '.address-ip-input': 'address-ip-input',
+        '.address-ip-select': 'address-ip-select',
         '.address-port': 'address-port',
         '.dfs-directory': 'dfs-directory'
     }

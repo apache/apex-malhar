@@ -25,7 +25,7 @@ import java.util.HashMap;
 
 /**
  *
- * All key.val pairs with val sub-classed from Number are emitted till the first match;  A compare operation is done based on the property "key",
+ * All key.val pairs with val sub-classed from Number are emitted till the first match;  A compare metric is done based on the property "key",
  * "value", and "cmp". Then on no tuple is emitted in that window. The comparison is done by getting double value of the Number.<p>
  * This module is a pass through<br>
  * <br>

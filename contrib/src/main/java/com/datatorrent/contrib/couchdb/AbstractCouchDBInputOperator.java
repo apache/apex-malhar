@@ -15,15 +15,19 @@
  */
 package com.datatorrent.contrib.couchdb;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
+import java.io.IOException;
+import java.util.List;
+
+import javax.validation.constraints.Min;
+
 import com.google.common.base.Throwables;
+
 import org.ektorp.ViewQuery;
 import org.ektorp.ViewResult;
 
-import javax.validation.constraints.Min;
-import java.io.IOException;
-import java.util.List;
+import com.datatorrent.lib.db.AbstractStoreInputOperator;
+
+import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  * Base class for CouchDb input adaptor.<br/>
@@ -33,7 +37,7 @@ import java.util.List;
  * </p>
  *
  * <p>
- * Subclasses  of this operator provide the ViewQuery which corresponds to a database view.<br/>
+ * Subclasses of this operator provide the ViewQuery which corresponds to a database view.<br/>
  * In this base implementation, if the ViewQuery doesn't change, then the same view results are emitted
  * at the end of every streaming window.
  * </p>
@@ -45,16 +49,14 @@ import java.util.List;
  * Also the {@link #getViewQuery()} method should return the same view stored in CouchDb every time.<br/>
  * </p>
  *
- * @param <T>Type of tuples which are generated</T>
+ * @param <T> Type of tuples which are generated</T>
  * @since 0.3.5
  */
 @ShipContainingJars(classes = {ViewQuery.class})
 public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInputOperator<T, CouchDbStore>
 {
-
   @Min(0)
   private int pageSize;
-
   private String nextPageKey = null;
   private boolean started = false;
 
@@ -110,7 +112,6 @@ public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInput
   /**
    * @return view-query that specifies the couch-db view whose results will be fetched.
    */
-
   public abstract ViewQuery getViewQuery();
 
   /**
@@ -119,6 +120,7 @@ public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInput
    *
    * @param value a row of ViewResult that should be converted to a tuple.
    * @return emitted tuple.
+   * @throws IOException 
    */
   public abstract T getTuple(ViewResult.Row value) throws IOException;
 
@@ -131,4 +133,5 @@ public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInput
   {
     this.pageSize = pageSize;
   }
+
 }

@@ -15,24 +15,19 @@
  */
 package com.datatorrent.demos.mroperator;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Partitionable;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.annotation.ShipContainingJars;
-import com.datatorrent.demos.mroperator.ReporterImpl.ReporterType;
-import com.datatorrent.lib.io.fs.AbstractHDFSInputOperator;
-import com.datatorrent.lib.util.KeyHashValPair;
-
-import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -52,10 +47,17 @@ import org.apache.hadoop.mapred.RecordReader;
 import org.apache.hadoop.mapred.Reducer;
 import org.apache.hadoop.mapred.Reporter;
 import org.apache.hadoop.mapred.TextInputFormat;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
+import com.datatorrent.lib.io.fs.AbstractHDFSInputOperator;
+import com.datatorrent.lib.util.KeyHashValPair;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.annotation.ShipContainingJars;
+
+import com.datatorrent.demos.mroperator.ReporterImpl.ReporterType;
 
 /**
  * <p>MapOperator class.</p>
@@ -64,7 +66,7 @@ import java.util.Collection;
  */
 @ShipContainingJars(classes = { org.apache.hadoop.mapred.Reporter.class })
 @SuppressWarnings({ "unchecked", "deprecation" })
-public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator implements Partitionable<MapOperator<K1, V1, K2, V2>>
+public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator implements Partitioner<MapOperator<K1, V1, K2, V2>>
 {
 
   private static final Logger logger = LoggerFactory.getLogger(MapOperator.class);
@@ -294,6 +296,11 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   }
 
   @Override
+  public void partitioned(Map<Integer, Partition<MapOperator<K1, V1, K2, V2>>> partitions)
+  {
+  }
+
+  @Override
   public Collection<Partition<MapOperator<K1, V1, K2, V2>>> definePartitions(Collection<Partition<MapOperator<K1, V1, K2, V2>>> partitions, int incrementalCapacity)
   {
 
@@ -318,7 +325,7 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
       }
       // logger.info("created splits");
 
-      Collection<Partition<MapOperator<K1, V1, K2, V2>>> operList = new ArrayList<Partitionable.Partition<MapOperator<K1, V1, K2, V2>>>();
+      Collection<Partition<MapOperator<K1, V1, K2, V2>>> operList = new ArrayList<Partition<MapOperator<K1, V1, K2, V2>>>();
 
       itr = operatorPartitions.iterator();
       int size = splits.length;

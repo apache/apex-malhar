@@ -107,10 +107,11 @@ public class WidgetOutputOperator extends BaseOperator
   public final transient PiechartInputPort pieChartInput = new PiechartInputPort(this);
 
   protected transient boolean isWebSocketConnected = true;
+
   @Override
   public void setup(OperatorContext context)
   {
-    String gatewayAddress = context.getValue(DAG.GATEWAY_ADDRESS);
+    String gatewayAddress = context.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if(!StringUtils.isEmpty(gatewayAddress)){
       wsoo.setUri(URI.create("ws://" + gatewayAddress + "/pubsub"));
       wsoo.setup(context);
@@ -133,7 +134,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   public static class TimeseriesInputPort extends DefaultInputPort<TimeSeriesData[]> {
 
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public TimeseriesInputPort(WidgetOutputOperator woo)
     {
@@ -184,7 +185,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   public static class TopNInputPort extends DefaultInputPort<HashMap<String, Number>>{
 
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public TopNInputPort(WidgetOutputOperator oper)
     {
@@ -227,7 +228,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   public static class SimpleInputPort extends DefaultInputPort<Object>{
 
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public SimpleInputPort(WidgetOutputOperator oper)
     {
@@ -255,7 +256,7 @@ public class WidgetOutputOperator extends BaseOperator
 
   public static class PercentageInputPort extends DefaultInputPort<Integer>
   {
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public PercentageInputPort(WidgetOutputOperator oper)
     {
@@ -283,7 +284,7 @@ public class WidgetOutputOperator extends BaseOperator
 
 public static class PiechartInputPort extends DefaultInputPort<HashMap<String, Number>>{
 
-    private WidgetOutputOperator operator;
+    private final WidgetOutputOperator operator;
 
     public PiechartInputPort(WidgetOutputOperator oper)
     {

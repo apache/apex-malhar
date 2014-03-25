@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
 public interface Index
 {
   /**
-   * Function can key/value hash map, does operation implemented by sub class.
+   * Function can key/value hash map, does metric implemented by sub class.
    */
 	public void filter(@NotNull Map<String,Object> row, @NotNull Map<String, Object> collect);  
 }

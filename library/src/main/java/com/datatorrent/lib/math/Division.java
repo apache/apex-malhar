@@ -24,7 +24,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  *
- * A division operation is done on consecutive tuples on ports numerator and denominator. The operator is idempotent as the division is done
+ * A division metric is done on consecutive tuples on ports numerator and denominator. The operator is idempotent as the division is done
  * in order, i.e. the first number on denominator port would divide the first number on the numerator port.<p>
  * This is a pass through operator<br>
  * <br>

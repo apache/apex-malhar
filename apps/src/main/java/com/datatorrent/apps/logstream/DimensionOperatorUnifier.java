@@ -54,7 +54,7 @@ public class DimensionOperatorUnifier implements Unifier<Map<String, DimensionOb
       firstTuple = false;
     }
 
-    // tuple will have one record each per operation type. currently 3 record one for each of SUM, COUNT, AVERAGE
+    // tuple will have one record each per metric type. currently 3 record one for each of SUM, COUNT, AVERAGE
     Iterator<Entry<String, DimensionObject<String>>> iterator = tuple.entrySet().iterator();
     String randomKey = null;
     String key = null;

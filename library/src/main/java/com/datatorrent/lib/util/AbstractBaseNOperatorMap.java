@@ -16,7 +16,6 @@
 package com.datatorrent.lib.util;
 
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Partitionable;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 

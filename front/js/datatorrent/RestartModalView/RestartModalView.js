@@ -30,8 +30,15 @@ var RestartModalView = BaseView.extend({
     closeBtn: false,
 
     initialize: function(options) {
+        BaseView.prototype.initialize.call(this, {
+            launchOptions: {
+                backdrop: 'static'
+            }
+        });
+
         this.dataSource = options.dataSource;
         this.message = options.message;
+        this.restartCompleteCallback = options.restartCompleteCallback;
 
         var poll = new GatewayPoll(10000);
 
@@ -45,10 +52,13 @@ var RestartModalView = BaseView.extend({
 
                 promise.done(function () {
                     Notifier.success({
-                        title: 'Gateway',
+                        title: 'Restart Successful',
                         text: 'Gateway has been successfully restarted.'
                     });
                     this.dataSource.connect();
+                    if (this.restartCompleteCallback) {
+                        this.restartCompleteCallback.call();
+                    }
                     this.close();
                 }.bind(this));
 
@@ -69,8 +79,9 @@ var RestartModalView = BaseView.extend({
 
     restartFailed: function () {
         Notifier.error({
-            title: 'Error',
-            text: 'Failed to restart the Gateway.',
+            title: 'Restart Failed',
+            text: 'Please issue the following to your command line terminal to force the DT Gateway to start: '
+                + '<br/><span style="font-family:Consolas,Courier,monospace;">service dtgateway start</span>',
             hide: false
         });
 

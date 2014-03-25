@@ -1,0 +1,68 @@
+<span class="section-system">
+<h1>Hadoop</h1>
+
+<p class="welcome-text well">
+    <i class="icon-info-sign"></i>
+    A Hadoop installation is mandatory to use the DataTorrent platform.<br> 
+    You may need to provide details regarding your Hadoop installation below.
+</p>
+
+<% if (loading) {  %>
+
+<p class="alert">
+    <%= DT.text('Loading...') %>
+</p>
+
+<% } else { %>
+
+<% if (errorMsg) {  %>
+
+<p class="alert alert-error">
+    <%= errorMsg %>
+</p>
+
+<% } %>
+
+<p class="alert loading">
+    <span class="loading-spinner"></span> Updating...
+</p>
+
+<table class="config-table">
+    <thead>
+        <tr>
+            <th>property</th>
+            <th>description</th>
+            <th>value</th>
+        </tr>
+    </thead>
+    <tbody>
+    <tr>
+        <td>hadoop installation location</td>
+        <td>This is the absolute path to the location of your hadoop installation.</td>
+        <td>
+            <div class="control-group">
+                <div class="controls">
+                    <input class="hadoop-location" type="text" value="<%= hadoopLocationModel.get('value') %>" />
+                    <span class="help-block"></span>
+                </div>
+            </div>
+            <div class="server-error hadoop-error"></div>
+        </td>
+    </tr>
+    <tr>
+        <td>java version</td>
+        <td>Version of the Java Runtime Environment.</td>
+        <td><input type="text" value="<%= about.get('javaVersion') %>" disabled />  </td>
+    </tr>
+    </tbody>
+</table>
+
+<% } %>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="LicenseInfoView">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+<a href="#" class="continue btn btn-success pull-right btn-large install-step-link">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>
+</span>

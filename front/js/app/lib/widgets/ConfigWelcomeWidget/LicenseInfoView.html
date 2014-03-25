@@ -1,5 +1,11 @@
-<span class="section-license">
+<div class="section-license">
 <h1>License</h1>
+
+<p class="welcome-text well">
+    <i class="icon-info-sign"></i>
+    Every DataTorrent cluster installation reqires a license file to run.<br>
+    To change your current license, you may <a href="#" class="go-to-upload action-link">upload</a> a new license file or <a href="#" class="go-to-register action-link">register</a>.
+</p>
 
 <% if (error) {  %>
 
@@ -22,12 +28,10 @@
 <% } %>
 
 <div>
-    <h4>Current License</h4>
-    <p><strong>license ID:</strong> <%= license.get('id') %> <a href="#" class="displayLicenseInfo action-link">More Info</a></p>
-</div>
-
-<div style="text-align: right;">
-    <p>To change the license please <a href="#" class="go-to-upload action-link">upload</a> new license file or <a href="#" class="go-to-register action-link">register</a>.</p>
+    <h3>Current License</h3>
+    <div class="well">
+        <p><strong>license ID:</strong> <%= license.get('id') %> <a href="#" class="displayLicenseInfo action-link">More Info</a></p>
+    </div>
 </div>
 
 <% } else { %>
@@ -43,7 +47,7 @@
 </a>
 
 
-<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="SystemView">
+<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="HadoopView">
     continue <i class="icon-circle-arrow-right icon-white"></i>
 </a>
-</span>
+</div>

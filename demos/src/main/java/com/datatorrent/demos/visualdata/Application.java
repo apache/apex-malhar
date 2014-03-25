@@ -19,6 +19,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.demos.pi.PiCalculateOperator;
 import com.datatorrent.lib.io.WidgetOutputOperator;
@@ -29,6 +30,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  *
  * @since 0.9.3
  */
+@ApplicationAnnotation(name="VisualDataApplication")
 public class Application implements StreamingApplication {
     
   private final Locality locality = Locality.CONTAINER_LOCAL;
