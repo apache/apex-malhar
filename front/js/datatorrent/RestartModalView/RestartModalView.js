@@ -25,7 +25,7 @@ var Notifier = require('../Notifier');
  */
 var RestartModalView = BaseView.extend({
 
-    title: 'Restarting',
+    title: 'Restart the Gateway',
 
     closeBtn: false,
 
@@ -39,27 +39,29 @@ var RestartModalView = BaseView.extend({
         this.dataSource = options.dataSource;
         this.message = options.message;
         this.restartCompleteCallback = options.restartCompleteCallback;
+        this.restarting = false;
 
-        var poll = new GatewayPoll(10000);
+        this.poll = new GatewayPoll(10000);
+    },
 
-        var initPromise = poll.initId(); // get current jvnName with PID
+    // Initiates gateway restart
+    doRestart: function(e) {
+        if (e && typeof e.preventDefault === 'function') {
+            e.preventDefault();
+        }
+        this.restarting = true;
+        this.confirmText = this.cancelText = false;
+        this.render();
+        var initPromise = this.poll.initId(); // get current jvmName with PID
         initPromise.done(function () {
             // trigger restart
             this.dataSource.disconnect();
-            var restartRequestPromise = poll.restartRequest();
+            var restartRequestPromise = this.poll.restartRequest();
             restartRequestPromise.done(function () {
-                var promise = poll.start(); // poll for jvnName change
+                var promise = this.poll.start(); // poll for jvmName change
 
                 promise.done(function () {
-                    Notifier.success({
-                        title: 'Restart Successful',
-                        text: 'Gateway has been successfully restarted.'
-                    });
-                    this.dataSource.connect();
-                    if (this.restartCompleteCallback) {
-                        this.restartCompleteCallback.call();
-                    }
-                    this.close();
+                    this.restartSucceeded();
                 }.bind(this));
 
                 promise.fail(function () {
@@ -77,6 +79,19 @@ var RestartModalView = BaseView.extend({
         }.bind(this));
     },
 
+    restartSucceeded: function() {
+        Notifier.success({
+            title: 'Restart Successful',
+            text: 'Gateway has been successfully restarted.'
+        });
+        this.dataSource.connect();
+        if (this.restartCompleteCallback) {
+            this.restartCompleteCallback.call();
+        }
+        this.close();
+        this.reset();
+    },
+
     restartFailed: function () {
         Notifier.error({
             title: 'Restart Failed',
@@ -84,28 +99,35 @@ var RestartModalView = BaseView.extend({
                 + '<br/><span style="font-family:Consolas,Courier,monospace;">service dtgateway start</span>',
             hide: false
         });
-
         this.close();
+        this.reset();
+    },
+
+    reset: function() {
+        this.restarting = false;
+        this.cancelText = text('no');
+        this.confirmText = text('yes');
+        this.render();
     },
 
     body: function() {
         var json = {
-            message: this.message
+            message: this.message,
+            restarting: this.restarting,
+            confirm_message: text('Are you sure you want to restart the gateway?')
         };
         var html = this.template(json);
         return html;
     },
 
     events: {
-        'click .cancelBtn': 'onCancel',
-        'click .confirmBtn': 'onConfirm'
+        'click .cancelBtn': 'close',
+        'click .confirmBtn': 'doRestart'
     },
 
-    confirmText: text('close'),
+    cancelText: text('no'),
 
-    cancelText: false,
-
-    confirmText: false,
+    confirmText: text('yes'),
 
     template: kt.make(__dirname + '/RestartModalView.html', '_')
 
