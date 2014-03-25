@@ -14,10 +14,9 @@ package com.datatorrent.lib.datamodel.metric;/*
  * limitations under the License.
  */
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 /**
- *
  * @param <EVENT> event type.
  */
 public interface Metric<EVENT>
@@ -26,5 +25,5 @@ public interface Metric<EVENT>
    * @param destination
    * @param event
    */
-  void compute(@Nullable EVENT destination, @Nullable EVENT event);
+  void aggregate(@Nonnull EVENT destination, @Nonnull EVENT event);
 }
