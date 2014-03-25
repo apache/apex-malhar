@@ -28,15 +28,15 @@ import com.datatorrent.api.Operator;
 
 /**
  * A {@link Unifier} implementation for {@link DimensionsComputation}.<br/>
- * The events to the unifier should contain the dimension key which is why this class is abstract
- * and any concrete implementations should provide {@link #getDimensionKey(Object)} implementation.
+ * The events to the unifier should contain the aggregator index which is why this class is abstract
+ * and any concrete implementations should provide {@link #getDKey(Object)} implementation.
  *
  * @param <EVENT>
  */
 public abstract class DimensionsComputationUnifierImpl<EVENT> extends BaseOperator implements Operator.Unifier<EVENT>
 {
   @Nonnull
-  private final Map<Integer,DimensionsComputation.Aggregator<EVENT>> aggregators;
+  private final DimensionsComputation.Aggregator<EVENT>[] aggregators;
   @Nonnull
   private final Map<EVENT, EVENT> aggregates;
 
@@ -49,7 +49,7 @@ public abstract class DimensionsComputationUnifierImpl<EVENT> extends BaseOperat
     aggregates = null;
   }
 
-  DimensionsComputationUnifierImpl(Map<Integer, DimensionsComputation.Aggregator<EVENT>> aggregators)
+  DimensionsComputationUnifierImpl(DimensionsComputation.Aggregator<EVENT>[] aggregators)
   {
     this.aggregators = Preconditions.checkNotNull(aggregators, "aggregators");
     this.aggregates = Maps.newHashMap();
@@ -63,8 +63,8 @@ public abstract class DimensionsComputationUnifierImpl<EVENT> extends BaseOperat
       aggregates.put(tuple, tuple);
     }
     else {
-      int dimensionKey = getDimensionKey(tuple);
-      aggregators.get(dimensionKey).aggregate(destination, tuple);
+      int aggregatorIndex = getAggregatorIndex(tuple);
+      aggregators[aggregatorIndex].aggregate(destination, tuple);
     }
   }
 
@@ -76,5 +76,5 @@ public abstract class DimensionsComputationUnifierImpl<EVENT> extends BaseOperat
     aggregates.clear();
   }
 
-  protected abstract int getDimensionKey(EVENT tuple);
+  protected abstract int getAggregatorIndex(EVENT tuple);
 }
