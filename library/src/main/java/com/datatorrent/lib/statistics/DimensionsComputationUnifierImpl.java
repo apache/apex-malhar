@@ -29,7 +29,7 @@ import com.datatorrent.api.Operator;
 /**
  * A {@link Unifier} implementation for {@link DimensionsComputation}.<br/>
  * The events to the unifier should contain the aggregator index which is why this class is abstract
- * and any concrete implementations should provide {@link #getDKey(Object)} implementation.
+ * and any concrete implementations should provide {@link #getAggregatorIndex(Object)} implementation.
  *
  * @param <EVENT>
  */
