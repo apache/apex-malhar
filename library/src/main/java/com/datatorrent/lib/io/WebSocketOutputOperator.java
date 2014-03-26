@@ -153,7 +153,7 @@ public class WebSocketOutputOperator<T> extends BaseOperator
       int countTries = 0;
       while (true) {
         try {
-          if (!connection.isOpen()) {
+          if (connection == null || !connection.isOpen()) {
             LOG.warn("Connection is closed. Reconnecting...");
             client.close();
             openConnection();
@@ -240,8 +240,8 @@ public class WebSocketOutputOperator<T> extends BaseOperator
     try {
       openConnection();
     }
-    catch (Exception ex1) {
-      throw new RuntimeException(ex1);
+    catch (Exception ex) {
+      LOG.warn("Cannot establish connection:", ex);
     }
   }
 
