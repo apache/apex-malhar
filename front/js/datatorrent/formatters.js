@@ -105,6 +105,16 @@ function byteFormatter(bytes, level) {
     }
 }
 
+function cpusFormatter(percent, isNumerator) {
+    if (isNumerator) {
+        percent /= 100;
+    } else {
+        percent *= 1;
+    }
+    percent = percent.toFixed(2);
+    return percent + '';
+}
+
 exports.containerFormatter = containerFormatter;
 exports.windowFormatter = windowFormatter;
 exports.windowOffsetFormatter = windowOffsetFormatter;
@@ -114,3 +124,4 @@ exports.percentageFormatter = percentageFormatter;
 exports.commaGroups = bormat.commaGroups;
 exports.timeSince = bormat.timeSince;
 exports.byteFormatter = byteFormatter;
+exports.cpusFormatter = cpusFormatter;
