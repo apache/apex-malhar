@@ -1,0 +1,5 @@
+#<url> ; <bytes>
+"GET /maven/content/repositories/thirdparty/com/datatorrent/dt-stram/0.9.4-SNAPSHOT/maven-metadata.xml HTTP/1.1" ; 432
+"GET /favicon.ico HTTP/1.1" ; 300
+"GET /docs/apidocs/com/datatorrent/lib/multiwindow/class-use/MultiWindowSumKeyVal.html HTTP/1.1" ; 1001
+"GET /maven/content/repositories/releases/com/datatorrent/dt-netlet/0.9.4-SNAPSHOT/maven-metadata.xml HTTP/1.1" ; 1561
