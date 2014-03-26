@@ -165,7 +165,9 @@ public class WebSocketOutputOperator<T> extends BaseOperator
           if (++countTries < numRetries) {
             LOG.debug("Caught exception", ex);
             LOG.warn("Send message failed ({}). Retrying ({}).", ex.getMessage(), countTries);
-            connection.close();
+            if (connection != null) {
+              connection.close();
+            }
             if (waitMillisRetry > 0) {
               try {
                 Thread.sleep(waitMillisRetry);
