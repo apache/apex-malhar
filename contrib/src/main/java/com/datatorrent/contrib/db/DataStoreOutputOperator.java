@@ -15,18 +15,13 @@
  */
 package com.datatorrent.contrib.db;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.validation.constraints.NotNull;
-
-import com.datatorrent.lib.db.DataStoreWriter;
 import com.datatorrent.lib.datamodel.converter.Converter;
+import com.datatorrent.lib.db.AbstractStoreOutputOperator;
+import com.datatorrent.lib.db.DataStoreWriter;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
 
 /**
  * Output operator to write tuples to given data store
@@ -35,13 +30,8 @@ import com.datatorrent.api.DefaultInputPort;
  * @param <INPUT> input type
  * @param <OUTPUT> output type
  */
-public class DataStoreOutputOperator<INPUT, OUTPUT> extends BaseOperator
+public class DataStoreOutputOperator<INPUT, OUTPUT> extends AbstractStoreOutputOperator<INPUT, DataStoreWriter<OUTPUT>>
 {
-  /*
-   * data store used to write the output
-   */
-  @NotNull
-  DataStoreWriter<OUTPUT> dataStoreWriter;
   /*
    * cache tuples to insert in end window
    */
@@ -52,47 +42,13 @@ public class DataStoreOutputOperator<INPUT, OUTPUT> extends BaseOperator
    */
   private Converter<INPUT, OUTPUT> converter;
 
-  /*
-   * input port
-   */
-  public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
-  {
-    @Override
-    public void process(INPUT t)
-    {
-      processTuple(t);
-    }
-
-  };
-
-  @Override
-  public void setup(OperatorContext context)
-  {
-    try {
-      dataStoreWriter.connect();
-    }
-    catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
-  @Override
-  public void teardown()
-  {
-    try {
-      dataStoreWriter.disconnect();
-    }
-    catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
   /**
    * converts input tuple type to output tuple type and caches them
    *
    * @param t input tuple
    */
-  private void processTuple(INPUT t)
+  @Override
+  public void processTuple(INPUT t)
   {
     cache.add(converter.convert(t));
   }
@@ -108,18 +64,8 @@ public class DataStoreOutputOperator<INPUT, OUTPUT> extends BaseOperator
   public void endWindow()
   {
     // write to db
-    dataStoreWriter.batchInsert(cache, currentWindowId);
+    store.batchInsert(cache, currentWindowId);
     cache.clear();
-  }
-
-  /**
-   * Supply the writer to write the data to the db
-   *
-   * @param dataStoreWriter
-   */
-  public void setDataStoreWriter(DataStoreWriter<OUTPUT> dataStoreWriter)
-  {
-    this.dataStoreWriter = dataStoreWriter;
   }
 
   /**

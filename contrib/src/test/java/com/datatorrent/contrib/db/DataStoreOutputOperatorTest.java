@@ -38,14 +38,14 @@ public class DataStoreOutputOperatorTest
   {
     final String tableName = "aggregates2";
     MongoDBMapWriter<String, Object> dataStore = new MongoDBMapWriter<String, Object>();
-    dataStore.setHostName("localhost");
-    dataStore.setDataBase("testComputations");
+    dataStore.setHost("localhost");
+    dataStore.setDatabase("testComputations");
     dataStore.setTable(tableName);
 
     PassthroughConverter<Map<String, Object>> converter = new PassthroughConverter<Map<String, Object>>();
     DataStoreOutputOperator<Map<String, Object>, Map<String, Object>> oper = new DataStoreOutputOperator<Map<String, Object>, Map<String, Object>>();
 
-    oper.setDataStoreWriter(dataStore);
+    oper.setStore(dataStore);
     oper.setConverter(converter);
 
     oper.setup(null);

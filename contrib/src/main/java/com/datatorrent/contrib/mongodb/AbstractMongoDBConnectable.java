@@ -31,8 +31,9 @@ import com.datatorrent.lib.db.Connectable;
 public abstract class AbstractMongoDBConnectable implements Connectable
 {
   @NotNull
-  protected String hostName;
-  protected String dataBase;
+  protected String host;
+  protected int port;
+  protected String database;
   protected String userName;
   protected String password;
   protected transient MongoClient mongoClient;
@@ -42,8 +43,13 @@ public abstract class AbstractMongoDBConnectable implements Connectable
   public void connect() throws IOException
   {
     try {
-      mongoClient = new MongoClient(hostName);
-      db = mongoClient.getDB(dataBase);
+      if (port > 0) {
+        mongoClient = new MongoClient(host + ":" + port);
+      } else {
+        // default port
+        mongoClient = new MongoClient(host);
+      }
+      db = mongoClient.getDB(database);
       if (userName != null && password != null) {
         db.authenticate(userName, password.toCharArray());
       }
@@ -79,37 +85,56 @@ public abstract class AbstractMongoDBConnectable implements Connectable
    */
   public String getHostName()
   {
-    return hostName;
+    return host;
   }
 
   /**
    * host name of MongoDB
    *
-   * @param hostName host name
+   * @param host host name
    */
-  public void setHostName(String hostName)
+  public void setHost(String host)
   {
-    this.hostName = hostName;
+    this.host = host;
   }
+
+  /**
+   * port for MongoDB server
+   * @return port
+   */
+  public int getPort()
+  {
+    return port;
+  }
+
+  /**
+   * port for MongoDB server
+   * @param port port
+   */
+  public void setPort(int port)
+  {
+    this.port = port;
+  }
+
 
   /**
    * name of the database
    *
    * @return database
    */
-  public String getDataBase()
+  public String getDatabase()
   {
-    return dataBase;
+    return database;
   }
 
   /**
    * name of the database
    *
-   * @param dataBase database
+   * @param database database
    */
-  public void setDataBase(String dataBase)
+  public void setDatabase(String database)
   {
-    this.dataBase = dataBase;
+    this.database = database;
   }
 
   /**
