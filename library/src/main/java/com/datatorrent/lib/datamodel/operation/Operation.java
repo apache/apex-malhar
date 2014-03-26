@@ -1,6 +1,4 @@
-package com.datatorrent.lib.datamodel.metric;
-
-/*
+package com.datatorrent.lib.datamodel.operation;/*
  * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,14 +17,12 @@ package com.datatorrent.lib.datamodel.metric;
 import javax.annotation.Nonnull;
 
 /**
- * @param <INPUT> input type
- * @param <OUTPUT> output type
+ * @param <OUTPUT> output value type
+ * @param <INPUT>  input value type
  */
-public interface Metric<INPUT,OUTPUT>
+public interface Operation<OUTPUT, INPUT>
 {
-  /**
-   * @param destination
-   * @param event
-   */
-  void aggregate(@Nonnull OUTPUT destination, @Nonnull INPUT event);
+
+  OUTPUT compute(@Nonnull OUTPUT last, @Nonnull INPUT value);
 }
+

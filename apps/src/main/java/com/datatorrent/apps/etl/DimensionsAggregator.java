@@ -27,7 +27,6 @@ import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.lib.datamodel.metric.Metric;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 
 public class DimensionsAggregator implements DimensionsComputation.Aggregator<Map<String, Object>>
