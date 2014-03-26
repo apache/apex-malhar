@@ -84,7 +84,7 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
     for (String aDimension : dimensions) {
       Object srcDimension = src.get(aDimension);
       if (srcDimension != null) {
-        event.put(aDimension, srcDimension);
+        event.put(aDimension, srcDi=-0-mension);
       }
     }
 
