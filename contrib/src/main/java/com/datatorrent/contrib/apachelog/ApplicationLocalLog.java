@@ -40,6 +40,8 @@ public class ApplicationLocalLog implements StreamingApplication
 
     ApacheLogParseMapOutputOperator parse = dag.addOperator("parse", new ApacheLogParseMapOutputOperator());
     GeoIPExtractor geoIPExtractor = new GeoIPExtractor();
+
+    // Can't put this file in resources until licensing issue is straightened out
     geoIPExtractor.setDatabasePath("/home/david/GeoLiteCity.dat");
     parse.registerInformationExtractor("ip", geoIPExtractor);
     parse.registerInformationExtractor("agent", new UserAgentExtractor());

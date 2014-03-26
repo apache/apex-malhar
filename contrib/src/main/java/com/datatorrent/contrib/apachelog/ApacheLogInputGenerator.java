@@ -32,13 +32,13 @@ import com.datatorrent.api.InputOperator;
 
 /**
  * This operator simulates the apache logs
- * 
+ *
  */
 public class ApacheLogInputGenerator implements InputOperator
 {
-  private static String[] referer = { "\"-\"" };
-  private static String delimiter = ";";
-  
+  private final static String[] referer = {"\"-\""};
+  private final static String delimiter = ";";
+
   private transient Random random;
   private transient int ipAddressCount;
   private transient int agentsCount;
@@ -50,12 +50,10 @@ public class ApacheLogInputGenerator implements InputOperator
   private transient SimpleDateFormat sdf;
   private transient List<String> ipAddress;
   private transient List<String> url;
-  private transient List<String> urlBytes;
+  private transient List<String> urlByteStatus;
   private transient List<String> agents;
   private transient List<Integer> bytes;
   private transient List<Integer> status;
-  private transient List<Integer> weights;
-  private transient List<String> statusWeights;
   /**
    * The file from which to read IP Addresses
    */
@@ -68,10 +66,6 @@ public class ApacheLogInputGenerator implements InputOperator
    * The file from which to read Agents
    */
   private String agentFile;
-  /**
-   * The file from which to read Status
-   */
-  private String statusFile;
   /**
    * The amount of time to wait for the file to be updated.
    */
@@ -92,45 +86,19 @@ public class ApacheLogInputGenerator implements InputOperator
   public void endWindow()
   {
   }
-  
-  private void populateUrlAndBytes(){
+
+  private void populateUrlAndBytes()
+  {
     url = new ArrayList<String>();
     bytes = new ArrayList<Integer>();
+    status = new ArrayList<Integer>();
     StringTokenizer token;
-    for(String str: urlBytes){
-      token = new StringTokenizer(str,delimiter);
+    for (String str : urlByteStatus) {
+      token = new StringTokenizer(str, delimiter);
       url.add(token.nextToken().trim());
       bytes.add(Integer.parseInt(token.nextToken().trim()));
-    }    
-  }
-  
-  private void populateStatusAndWeights()
-  {
-   status = new ArrayList<Integer>();
-   weights = new ArrayList<Integer>();
-   int currentWeight = 0;
-   StringTokenizer token;
-   for(String str: statusWeights){
-     token = new StringTokenizer(str,delimiter);
-     status.add(Integer.parseInt(token.nextToken().trim()));
-     if(token.hasMoreTokens()){
-       currentWeight += Integer.parseInt(token.nextToken().trim()); 
-     }else{
-       currentWeight++;
-     }
-     weights.add(currentWeight);
-   }
-   statusCount = currentWeight;
-  }
-  
-  private int getNextStatus(){
-    int weight = random.nextInt(statusCount);
-    for(int i = 0; i< weights.size(); i++){
-      if(weights.get(i) >= weight){
-        return status.get(i);
-      }
+      status.add(Integer.parseInt(token.nextToken().trim()));
     }
-    return status.get(0);
   }
 
   @Override
@@ -138,24 +106,18 @@ public class ApacheLogInputGenerator implements InputOperator
   {
     try {
       ipAddress = FileUtils.readLines(new File(ipAddressFile));
-      urlBytes = FileUtils.readLines(new File(urlFile));
+      urlByteStatus = FileUtils.readLines(new File(urlFile));
       agents = FileUtils.readLines(new File(agentFile));
-      statusWeights = FileUtils.readLines(new File(statusFile));
-    //removing the first url if it starts with #
-      if(urlBytes.get(0).startsWith("#")){
-        urlBytes.remove(0);
-      }     
-      populateUrlAndBytes();
-    //removing the first status if it starts with #
-      if(statusWeights.get(0).startsWith("#")){
-        statusWeights.remove(0);
+      //removing the first url if it starts with #
+      if (urlByteStatus.get(0).startsWith("#")) {
+        urlByteStatus.remove(0);
       }
-      populateStatusAndWeights();
-    } catch (IOException e) {
+      populateUrlAndBytes();
+    }
+    catch (IOException e) {
       throw new RuntimeException(e);
     }
-    
-  
+
     random = new Random();
     ipAddressCount = ipAddress.size();
     agentsCount = agents.size();
@@ -163,7 +125,7 @@ public class ApacheLogInputGenerator implements InputOperator
     bytesCount = bytes.size();
     refererCount = referer.length;
     cal = Calendar.getInstance();
-    sdf  = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z");
+    sdf = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z");
   }
 
   @Override
@@ -180,15 +142,17 @@ public class ApacheLogInputGenerator implements InputOperator
       builder.append(ipAddress.get(random.nextInt(ipAddressCount))); // url
       builder.append(" - - ");
       builder.append("[").append(sdf.format(cal.getTime())).append("] "); // timestamp
-      builder.append(url.get(random.nextInt(urlCount))).append(" "); // url
-      builder.append(getNextStatus()).append(" "); // status
-      builder.append(bytes.get(random.nextInt(bytesCount))).append(" "); // bytes
+      int urlIndex = random.nextInt(urlCount);
+      builder.append(url.get(urlIndex)).append(" "); // url
+      builder.append(status.get(urlIndex)).append(" "); // status
+      builder.append(bytes.get(urlIndex)).append(" "); // bytes
       builder.append(referer[random.nextInt(refererCount)]).append(" "); // referer
       builder.append(agents.get(random.nextInt(agentsCount))).append(" "); // agent
       output.emit(builder.toString());
       try {
         Thread.sleep(delay);
-      } catch (InterruptedException e) {
+      }
+      catch (InterruptedException e) {
       }
       --localCounter;
     }
@@ -205,7 +169,7 @@ public class ApacheLogInputGenerator implements InputOperator
 
   /**
    * @param delay
-   *          the delay to set
+   * the delay to set
    */
   public void setDelay(long delay)
   {
@@ -222,13 +186,13 @@ public class ApacheLogInputGenerator implements InputOperator
 
   /**
    * @param numberOfTuples
-   *          the numberOfTuples to set
+   * the numberOfTuples to set
    */
   public void setNumberOfTuples(int numberOfTuples)
   {
     this.numberOfTuples = numberOfTuples;
   }
-  
+
   /**
    * @return the ipAddressFile
    */
@@ -260,7 +224,7 @@ public class ApacheLogInputGenerator implements InputOperator
   {
     this.urlFile = urlFile;
   }
-  
+
   /**
    * @return the agentFile
    */
@@ -275,22 +239,6 @@ public class ApacheLogInputGenerator implements InputOperator
   public void setAgentFile(String agentFile)
   {
     this.agentFile = agentFile;
-  }
-  
-  /**
-   * @return the statusFile
-   */
-  public String getStatusFile()
-  {
-    return statusFile;
-  }
-
-  /**
-   * @param statusFile the statusFile to set
-   */
-  public void setStatusFile(String statusFile)
-  {
-    this.statusFile = statusFile;
   }
 
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
