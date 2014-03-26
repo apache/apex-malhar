@@ -22,13 +22,14 @@ import redis.clients.jedis.Jedis;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 import com.datatorrent.contrib.redis.RedisStore;
+import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
 import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
 
 /**
  * An {@link AbstractTransactionableStoreOutputOperator} that persists aggregated dimensions in the Redis store.<br/>
  */
 @ShipContainingJars(classes = {DateTimeFormatter.class, DateTimeFormat.class, Jedis.class})
-public class RedisAggregateOutputOperator extends AbstractTransactionableStoreOutputOperator<AdInfo, RedisStore>
+public class RedisAggregateOutputOperator extends AbstractPassThruTransactionableStoreOutputOperator<AdInfo, RedisStore>
 {
   public RedisAggregateOutputOperator()
   {
