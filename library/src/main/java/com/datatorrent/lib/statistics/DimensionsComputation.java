@@ -36,23 +36,22 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
- *
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  */
 @ShipContainingJars(classes = {TCustomHashMap.class, HashingStrategy.class})
 public class DimensionsComputation<EVENT> implements Operator
 {
-  private Unifier<EVENT> unifier;
+  private Unifier<AggregateEvent> unifier;
 
-  public void setUnifier(Unifier<EVENT> unifier)
+  public void setUnifier(Unifier<AggregateEvent> unifier)
   {
     this.unifier = unifier;
   }
 
-  public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>()
+  public final transient DefaultOutputPort<AggregateEvent> output = new DefaultOutputPort<AggregateEvent>()
   {
     @Override
-    public Unifier<EVENT> getUnifier()
+    public Unifier<AggregateEvent> getUnifier()
     {
       if (DimensionsComputation.this.unifier == null) {
         return super.getUnifier();
@@ -68,18 +67,25 @@ public class DimensionsComputation<EVENT> implements Operator
     @Override
     public void process(EVENT tuple)
     {
-      for (AggregatorMap<EVENT> dimension : aggregatorMaps) {
-        dimension.add(tuple);
+      for (int i = 0; i < aggregatorMaps.length; i++) {
+        aggregatorMaps[i].add(tuple, i);
       }
     }
 
   };
 
+  public static interface AggregateEvent
+  {
+    int getAggregatorIndex();
+  }
+
   public static interface Aggregator<EVENT> extends HashingStrategy<EVENT>
   {
-    EVENT getGroup(EVENT src);
+    AggregateEvent getGroup(EVENT src, int aggregatorIndex);
 
-    void aggregate(EVENT dest, EVENT src);
+    void aggregate(AggregateEvent dest, EVENT src);
+
+    void aggregate(AggregateEvent dest, AggregateEvent src);
 
   }
 
@@ -96,9 +102,9 @@ public class DimensionsComputation<EVENT> implements Operator
   public void setAggregators(Aggregator<EVENT>[] aggregators)
   {
     @SuppressWarnings("unchecked")
-    AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, aggregators.length);
+    AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, aggregators.length);
     aggregatorMaps = newInstance;
-    for (int i = aggregators.length; i-- > 0;) {
+    for (int i = aggregators.length; i-- > 0; ) {
       aggregatorMaps[i] = new AggregatorMap<EVENT>(aggregators[i]);
     }
   }
@@ -106,8 +112,8 @@ public class DimensionsComputation<EVENT> implements Operator
   public Aggregator<EVENT>[] getAggregators()
   {
     @SuppressWarnings("unchecked")
-    Aggregator<EVENT>[] aggregators = (Aggregator<EVENT>[])Array.newInstance(Aggregator.class, aggregatorMaps.length);
-    for (int i = aggregatorMaps.length; i-- > 0;) {
+    Aggregator<EVENT>[] aggregators = (Aggregator<EVENT>[]) Array.newInstance(Aggregator.class, aggregatorMaps.length);
+    for (int i = aggregatorMaps.length; i-- > 0; ) {
       aggregators[i] = aggregatorMaps[i].aggregator;
     }
     return aggregators;
@@ -122,7 +128,7 @@ public class DimensionsComputation<EVENT> implements Operator
   public void endWindow()
   {
     for (AggregatorMap<EVENT> dimension : aggregatorMaps) {
-      for (EVENT value : dimension.values()) {
+      for (AggregateEvent value : dimension.values()) {
         output.emit(value);
       }
       dimension.clear();
@@ -144,7 +150,7 @@ public class DimensionsComputation<EVENT> implements Operator
     if (other.aggregatorMaps == null) {
       if (this.aggregatorMaps == null) {
         @SuppressWarnings("unchecked")
-        AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, 1);
+        AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, 1);
         this.aggregatorMaps = newInstance;
       }
       else {
@@ -160,7 +166,7 @@ public class DimensionsComputation<EVENT> implements Operator
         if (aggregator.equals(otherMap.aggregator)) {
           other.aggregatorMaps[i] = null;
           @SuppressWarnings("unchecked")
-          AggregatorMap<EVENT>[] newArray = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, other.aggregatorMaps.length - 1);
+          AggregatorMap<EVENT>[] newArray = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, other.aggregatorMaps.length - 1);
 
           i = 0;
           for (AggregatorMap<EVENT> dimesion : other.aggregatorMaps) {
@@ -170,10 +176,9 @@ public class DimensionsComputation<EVENT> implements Operator
           }
           other.aggregatorMaps = newArray;
 
-
           if (this.aggregatorMaps == null) {
             @SuppressWarnings("unchecked")
-            AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[])Array.newInstance(AggregatorMap.class, 1);
+            AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, 1);
             this.aggregatorMaps = newInstance;
           }
           else {
@@ -286,7 +291,7 @@ public class DimensionsComputation<EVENT> implements Operator
   }
 
   @DefaultSerializer(ExternalizableSerializer.class)
-  static class AggregatorMap<EVENT> extends TCustomHashMap<EVENT, EVENT>
+  static class AggregatorMap<EVENT> extends TCustomHashMap<EVENT, AggregateEvent>
   {
     transient Aggregator<EVENT> aggregator;
 
@@ -310,15 +315,15 @@ public class DimensionsComputation<EVENT> implements Operator
       this.aggregator = aggregator;
     }
 
-    public void add(EVENT tuple)
+    public void add(EVENT tuple, int aggregatorIdx)
     {
-      EVENT event = get(tuple);
-      if (event == null) {
-        event = aggregator.getGroup(tuple);
-        put(event, event);
+      AggregateEvent aggregateEvent = get(tuple);
+      if (aggregateEvent == null) {
+        aggregateEvent = aggregator.getGroup(tuple, aggregatorIdx);
+        put(tuple, aggregateEvent);
       }
 
-      aggregator.aggregate(event, tuple);
+      aggregator.aggregate(aggregateEvent, tuple);
     }
 
     @Override
@@ -326,7 +331,7 @@ public class DimensionsComputation<EVENT> implements Operator
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
     {
       super.readExternal(in);
-      aggregator = (Aggregator<EVENT>)super.strategy;
+      aggregator = (Aggregator<EVENT>) super.strategy;
     }
 
     @Override
@@ -342,7 +347,7 @@ public class DimensionsComputation<EVENT> implements Operator
         return false;
       }
 
-      AggregatorMap<?> that = (AggregatorMap<?>)o;
+      AggregatorMap<?> that = (AggregatorMap<?>) o;
 
       if (aggregator != null ? !aggregator.equals(that.aggregator) : that.aggregator != null) {
         return false;
@@ -374,7 +379,7 @@ public class DimensionsComputation<EVENT> implements Operator
       return false;
     }
 
-    DimensionsComputation<?> that = (DimensionsComputation<?>)o;
+    DimensionsComputation<?> that = (DimensionsComputation<?>) o;
 
     return Arrays.equals(aggregatorMaps, that.aggregatorMaps);
 
