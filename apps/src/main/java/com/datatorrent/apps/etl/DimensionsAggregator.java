@@ -29,15 +29,13 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.statistics.DimensionsComputation;
 
-public class DimensionsAggregator implements DimensionsComputation.Aggregator<Map<String, Object>>
+public class DimensionsAggregator implements DimensionsComputation.Aggregator<Map<String, Object>, DimensionsAggregator.AggregateMap>
 {
 
   private final int aggregatorIndex;
-  private String dimensionStr;
-  private String logType;
   private TimeUnit time;
   private Set<String> dimensions;
-  List<Metric<Map<String, Object>, Map<String, Object>>> metrics;
+  List<Metric> metrics;
 
   private DimensionsAggregator()
   {
@@ -51,9 +49,8 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
     this.aggregatorIndex = aggregatorIndex;
   }
 
-  public void init(String dimension, String logType, List<Metric<Map<String, Object>, Map<String, Object>>> operations)
+  public void init(String dimension, List<Metric> operations)
   {
-    this.logType = Preconditions.checkNotNull(logType, "log type");
     this.metrics = Preconditions.checkNotNull(operations, "aggregations");
     String[] attributes = dimension.split(":");
 
@@ -66,15 +63,15 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
       else {
         dimensions.add(key);
       }
-      dimensionStr = dimension;
     }
+
+    dimensions.add(Constants.LOG_TYPE);
   }
 
   @Override
   public Map<String, Object> getGroup(Map<String, Object> src)
   {
-    Map<String, Object> event = new Aggregate(dimensions, aggregatorIndex, logType);
-    event.put(Constants.LOG_TYPE, logType);
+    Map<String, Object> event = new Aggregate(dimensions, aggregatorIndex);
 
     if (time != null) {
       Long srcTime = (Long) src.get(Constants.TIME_ATTR);
@@ -84,7 +81,7 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
     for (String aDimension : dimensions) {
       Object srcDimension = src.get(aDimension);
       if (srcDimension != null) {
-        event.put(aDimension, srcDi=-0-mension);
+        event.put(aDimension, srcDimension);
       }
     }
 
@@ -92,10 +89,11 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
   }
 
   @Override
-  public void aggregate(Map<String, Object> dest, Map<String, Object> src)
+  public void aggregate(AggregateMap dest, Map<String, Object> src)
   {
-    for (Metric<Map<String, Object>, Map<String, Object>> operation : metrics) {
-      operation.aggregate(dest, src);
+    for (Metric metric : metrics) {
+      Object result = metric.operation.compute(dest.get(metric.destinationKey), src.get(metric.sourceKey));
+      dest.put(metric.destinationKey, result);
     }
 
     if (time != null) {
@@ -159,43 +157,43 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
     return true;
   }
 
-  public static class Aggregate extends HashMap<String, Object>
-  {
-    @Nonnull
-    Set<String> dimensions;
-    int aggregatorIndex;
-    String logType;
 
-    private Aggregate()
+  public static class AggregateMap extends HashMap<String, Object> implements DimensionsComputation.AggregateEvent
+  {
+    int hash;
+    int aggregatorIndex;
+
+    private AggregateMap()
     {
       //Used for kryo serialization
     }
 
-    Aggregate(Set<String> dimensions, int aggregatorIndex, String logType)
+    AggregateMap(int aggregatorIndex, int hash)
     {
-      this.dimensions = Preconditions.checkNotNull(dimensions, "dimensions");
       this.aggregatorIndex = aggregatorIndex;
-      this.logType = logType;
+      this.hash = hash;
     }
 
     @Override
     public boolean equals(Object o)
     {
-      if (null == o || o.getClass() != this.getClass()) {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof AggregateMap)) {
         return false;
       }
-      Aggregate other = (Aggregate) o;
-      if (!logType.equals(other.logType)) {
+      if (!super.equals(o)) {
         return false;
       }
 
-      if (!Objects.equal(dimensions, ((Aggregate) o).dimensions)) {
+      AggregateMap that = (AggregateMap) o;
+
+      if (aggregatorIndex != that.aggregatorIndex) {
         return false;
       }
-      for (String aDimension : dimensions) {
-        if (!Objects.equal(get(aDimension), other.get(aDimension))) {
-          return false;
-        }
+      if (hash != that.hash) {
+        return false;
       }
 
       return true;
@@ -204,13 +202,16 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
     @Override
     public int hashCode()
     {
-      int hash = 5 ^ dimensions.hashCode() ^ Aggregate.class.hashCode();
-      hash = 61 * hash + logType.hashCode();
-      for (String aDimension : dimensions) {
-        Object dimensionVal = get(aDimension);
-        hash = 61 * hash + (dimensionVal != null ? dimensionVal.hashCode() : 0);
-      }
-      return hash;
+      int result = super.hashCode();
+      result = 31 * result + hash;
+      result = 31 * result + aggregatorIndex;
+      return result;
+    }
+
+    @Override
+    public int getAggregatorIndex()
+    {
+      return aggregatorIndex;
     }
   }
 }
