@@ -21,8 +21,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import javax.annotation.Nonnull;
-
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
@@ -32,26 +30,14 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
 public class DimensionsAggregator implements DimensionsComputation.Aggregator<Map<String, Object>, DimensionsAggregator.AggregateMap>
 {
 
-  private final int aggregatorIndex;
   private TimeUnit time;
   private Set<String> dimensions;
   List<Metric> metrics;
 
-  private DimensionsAggregator()
-  {
-    //Used for kryo serialization.
-    aggregatorIndex = -1;
-  }
-
-  public DimensionsAggregator(int aggregatorIndex)
-  {
-    dimensions = Sets.newHashSet();
-    this.aggregatorIndex = aggregatorIndex;
-  }
-
   public void init(String dimension, List<Metric> operations)
   {
     this.metrics = Preconditions.checkNotNull(operations, "aggregations");
+    this.dimensions = Sets.newHashSet();
     String[] attributes = dimension.split(":");
 
     for (String attribute : attributes) {
@@ -69,9 +55,9 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
   }
 
   @Override
-  public Map<String, Object> getGroup(Map<String, Object> src)
+  public AggregateMap getGroup(Map<String, Object> src, int aggregatorIndex)
   {
-    Map<String, Object> event = new Aggregate(dimensions, aggregatorIndex);
+    AggregateMap event = new AggregateMap(aggregatorIndex, computeHashCode(src));
 
     if (time != null) {
       Long srcTime = (Long) src.get(Constants.TIME_ATTR);
@@ -88,6 +74,7 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
     return event;
   }
 
+
   @Override
   public void aggregate(AggregateMap dest, Map<String, Object> src)
   {
@@ -103,6 +90,12 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
         dest.put(Constants.TIME_ATTR, srcTime);
       }
     }
+  }
+
+  @Override
+  public void aggregate(AggregateMap dest, AggregateMap src)
+  {
+
   }
 
   @Override
@@ -192,11 +185,8 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
       if (aggregatorIndex != that.aggregatorIndex) {
         return false;
       }
-      if (hash != that.hash) {
-        return false;
-      }
+      return hash == that.hash;
 
-      return true;
     }
 
     @Override

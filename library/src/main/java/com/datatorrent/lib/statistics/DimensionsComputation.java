@@ -39,7 +39,7 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  */
 @ShipContainingJars(classes = {TCustomHashMap.class, HashingStrategy.class})
-public class DimensionsComputation<EVENT> implements Operator
+public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputation.AggregateEvent> implements Operator
 {
   private Unifier<AggregateEvent> unifier;
 
@@ -79,17 +79,17 @@ public class DimensionsComputation<EVENT> implements Operator
     int getAggregatorIndex();
   }
 
-  public static interface Aggregator<EVENT> extends HashingStrategy<EVENT>
+  public static interface Aggregator<EVENT, AGGREGATE extends AggregateEvent> extends HashingStrategy<EVENT>
   {
-    AggregateEvent getGroup(EVENT src, int aggregatorIndex);
+    AGGREGATE getGroup(EVENT src, int aggregatorIndex);
 
-    void aggregate(AggregateEvent dest, EVENT src);
+    void aggregate(AGGREGATE dest, EVENT src);
 
-    void aggregate(AggregateEvent dest, AggregateEvent src);
+    void aggregate(AGGREGATE dest, AGGREGATE src);
 
   }
 
-  private AggregatorMap<EVENT>[] aggregatorMaps;
+  private AggregatorMap<EVENT, AGGREGATE>[] aggregatorMaps;
 
   /**
    * Set the dimensions which should each get the tuples going forward.
@@ -99,20 +99,20 @@ public class DimensionsComputation<EVENT> implements Operator
    *
    * @param aggregators
    */
-  public void setAggregators(Aggregator<EVENT>[] aggregators)
+  public void setAggregators(Aggregator<EVENT, AGGREGATE>[] aggregators)
   {
     @SuppressWarnings("unchecked")
-    AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, aggregators.length);
+    AggregatorMap<EVENT, AGGREGATE>[] newInstance = (AggregatorMap<EVENT, AGGREGATE>[]) Array.newInstance(AggregatorMap.class, aggregators.length);
     aggregatorMaps = newInstance;
     for (int i = aggregators.length; i-- > 0; ) {
-      aggregatorMaps[i] = new AggregatorMap<EVENT>(aggregators[i]);
+      aggregatorMaps[i] = new AggregatorMap<EVENT, AGGREGATE>(aggregators[i]);
     }
   }
 
-  public Aggregator<EVENT>[] getAggregators()
+  public Aggregator<EVENT, AGGREGATE>[] getAggregators()
   {
     @SuppressWarnings("unchecked")
-    Aggregator<EVENT>[] aggregators = (Aggregator<EVENT>[]) Array.newInstance(Aggregator.class, aggregatorMaps.length);
+    Aggregator<EVENT, AGGREGATE>[] aggregators = (Aggregator<EVENT, AGGREGATE>[]) Array.newInstance(Aggregator.class, aggregatorMaps.length);
     for (int i = aggregatorMaps.length; i-- > 0; ) {
       aggregators[i] = aggregatorMaps[i].aggregator;
     }
@@ -127,8 +127,8 @@ public class DimensionsComputation<EVENT> implements Operator
   @Override
   public void endWindow()
   {
-    for (AggregatorMap<EVENT> dimension : aggregatorMaps) {
-      for (AggregateEvent value : dimension.values()) {
+    for (AggregatorMap<EVENT, AGGREGATE> dimension : aggregatorMaps) {
+      for (AGGREGATE value : dimension.values()) {
         output.emit(value);
       }
       dimension.clear();
@@ -145,31 +145,31 @@ public class DimensionsComputation<EVENT> implements Operator
   {
   }
 
-  public void transferDimension(Aggregator<EVENT> aggregator, DimensionsComputation<EVENT> other)
+  public void transferDimension(Aggregator<EVENT, AGGREGATE> aggregator, DimensionsComputation<EVENT, AGGREGATE> other)
   {
     if (other.aggregatorMaps == null) {
       if (this.aggregatorMaps == null) {
         @SuppressWarnings("unchecked")
-        AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, 1);
+        AggregatorMap<EVENT, AGGREGATE>[] newInstance = (AggregatorMap<EVENT, AGGREGATE>[]) Array.newInstance(AggregatorMap.class, 1);
         this.aggregatorMaps = newInstance;
       }
       else {
         this.aggregatorMaps = Arrays.copyOf(this.aggregatorMaps, this.aggregatorMaps.length + 1);
       }
 
-      this.aggregatorMaps[this.aggregatorMaps.length - 1] = new AggregatorMap<EVENT>(aggregator);
+      this.aggregatorMaps[this.aggregatorMaps.length - 1] = new AggregatorMap<EVENT, AGGREGATE>(aggregator);
     }
     else {
       int i = other.aggregatorMaps.length;
       while (i-- > 0) {
-        AggregatorMap<EVENT> otherMap = other.aggregatorMaps[i];
+        AggregatorMap<EVENT, AGGREGATE> otherMap = other.aggregatorMaps[i];
         if (aggregator.equals(otherMap.aggregator)) {
           other.aggregatorMaps[i] = null;
           @SuppressWarnings("unchecked")
-          AggregatorMap<EVENT>[] newArray = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, other.aggregatorMaps.length - 1);
+          AggregatorMap<EVENT, AGGREGATE>[] newArray = (AggregatorMap<EVENT, AGGREGATE>[]) Array.newInstance(AggregatorMap.class, other.aggregatorMaps.length - 1);
 
           i = 0;
-          for (AggregatorMap<EVENT> dimesion : other.aggregatorMaps) {
+          for (AggregatorMap<EVENT, AGGREGATE> dimesion : other.aggregatorMaps) {
             if (dimesion != null) {
               newArray[i++] = dimesion;
             }
@@ -178,7 +178,7 @@ public class DimensionsComputation<EVENT> implements Operator
 
           if (this.aggregatorMaps == null) {
             @SuppressWarnings("unchecked")
-            AggregatorMap<EVENT>[] newInstance = (AggregatorMap<EVENT>[]) Array.newInstance(AggregatorMap.class, 1);
+            AggregatorMap<EVENT, AGGREGATE>[] newInstance = (AggregatorMap<EVENT, AGGREGATE>[]) Array.newInstance(AggregatorMap.class, 1);
             this.aggregatorMaps = newInstance;
           }
           else {
@@ -192,15 +192,15 @@ public class DimensionsComputation<EVENT> implements Operator
     }
   }
 
-  public static class PartitionerImpl<EVENT> implements Partitioner<DimensionsComputation<EVENT>>
+  public static class PartitionerImpl<EVENT,AGGREGATE extends AggregateEvent> implements Partitioner<DimensionsComputation<EVENT, AGGREGATE>>
   {
     @Override
-    public void partitioned(Map<Integer, Partition<DimensionsComputation<EVENT>>> partitions)
+    public void partitioned(Map<Integer, Partition<DimensionsComputation<EVENT, AGGREGATE>>> partitions)
     {
     }
 
     @Override
-    public Collection<Partition<DimensionsComputation<EVENT>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT>>> partitions, int incrementalCapacity)
+    public Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> partitions, int incrementalCapacity)
     {
       if (incrementalCapacity == 0) {
         return partitions;
@@ -208,9 +208,9 @@ public class DimensionsComputation<EVENT> implements Operator
 
       int newPartitionsCount = partitions.size() + incrementalCapacity;
 
-      LinkedHashMap<Aggregator<EVENT>, DimensionsComputation<EVENT>> map = new LinkedHashMap<Aggregator<EVENT>, DimensionsComputation<EVENT>>(newPartitionsCount);
-      for (Partition<DimensionsComputation<EVENT>> partition : partitions) {
-        for (Aggregator<EVENT> dimension : partition.getPartitionedInstance().getAggregators()) {
+      LinkedHashMap<Aggregator<EVENT, AGGREGATE>, DimensionsComputation<EVENT, AGGREGATE>> map = new LinkedHashMap<Aggregator<EVENT, AGGREGATE>, DimensionsComputation<EVENT, AGGREGATE>>(newPartitionsCount);
+      for (Partition<DimensionsComputation<EVENT, AGGREGATE>> partition : partitions) {
+        for (Aggregator<EVENT, AGGREGATE> dimension : partition.getPartitionedInstance().getAggregators()) {
           map.put(dimension, partition.getPartitionedInstance());
         }
       }
@@ -228,17 +228,17 @@ public class DimensionsComputation<EVENT> implements Operator
         }
       }
 
-      ArrayList<Partition<DimensionsComputation<EVENT>>> returnValue = new ArrayList<Partition<DimensionsComputation<EVENT>>>(newPartitionsCount);
+      ArrayList<Partition<DimensionsComputation<EVENT, AGGREGATE>>> returnValue = new ArrayList<Partition<DimensionsComputation<EVENT, AGGREGATE>>>(newPartitionsCount);
 
-      Iterator<Entry<Aggregator<EVENT>, DimensionsComputation<EVENT>>> iterator = map.entrySet().iterator();
+      Iterator<Entry<Aggregator<EVENT, AGGREGATE>, DimensionsComputation<EVENT, AGGREGATE>>> iterator = map.entrySet().iterator();
       for (int i = 0; i < newPartitionsCount; i++) {
-        DimensionsComputation<EVENT> dc = new DimensionsComputation<EVENT>();
+        DimensionsComputation<EVENT, AGGREGATE> dc = new DimensionsComputation<EVENT, AGGREGATE>();
         for (int j = 0; j < dimensionsPerPartition[i]; j++) {
-          Entry<Aggregator<EVENT>, DimensionsComputation<EVENT>> next = iterator.next();
+          Entry<Aggregator<EVENT,AGGREGATE>, DimensionsComputation<EVENT, AGGREGATE>> next = iterator.next();
           dc.transferDimension(next.getKey(), next.getValue());
         }
 
-        DefaultPartition<DimensionsComputation<EVENT>> partition = new DefaultPartition<DimensionsComputation<EVENT>>(dc);
+        DefaultPartition<DimensionsComputation<EVENT, AGGREGATE>> partition = new DefaultPartition<DimensionsComputation<EVENT, AGGREGATE>>(dc);
         returnValue.add(partition);
       }
 
@@ -291,9 +291,9 @@ public class DimensionsComputation<EVENT> implements Operator
   }
 
   @DefaultSerializer(ExternalizableSerializer.class)
-  static class AggregatorMap<EVENT> extends TCustomHashMap<EVENT, AggregateEvent>
+  static class AggregatorMap<EVENT, AGGREGATE extends AggregateEvent> extends TCustomHashMap<EVENT, AGGREGATE>
   {
-    transient Aggregator<EVENT> aggregator;
+    transient Aggregator<EVENT, AGGREGATE> aggregator;
 
     @SuppressWarnings("PublicConstructorInNonPublicClass")
     public AggregatorMap()
@@ -303,13 +303,13 @@ public class DimensionsComputation<EVENT> implements Operator
       aggregator = null;
     }
 
-    AggregatorMap(Aggregator<EVENT> aggregator)
+    AggregatorMap(Aggregator<EVENT, AGGREGATE> aggregator)
     {
       super(aggregator);
       this.aggregator = aggregator;
     }
 
-    AggregatorMap(Aggregator<EVENT> aggregator, int initialCapacity)
+    AggregatorMap(Aggregator<EVENT, AGGREGATE> aggregator, int initialCapacity)
     {
       super(aggregator, initialCapacity);
       this.aggregator = aggregator;
@@ -317,7 +317,7 @@ public class DimensionsComputation<EVENT> implements Operator
 
     public void add(EVENT tuple, int aggregatorIdx)
     {
-      AggregateEvent aggregateEvent = get(tuple);
+      AGGREGATE aggregateEvent = get(tuple);
       if (aggregateEvent == null) {
         aggregateEvent = aggregator.getGroup(tuple, aggregatorIdx);
         put(tuple, aggregateEvent);
@@ -331,7 +331,7 @@ public class DimensionsComputation<EVENT> implements Operator
     public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
     {
       super.readExternal(in);
-      aggregator = (Aggregator<EVENT>) super.strategy;
+      aggregator = (Aggregator<EVENT, AGGREGATE>) super.strategy;
     }
 
     @Override
@@ -347,7 +347,7 @@ public class DimensionsComputation<EVENT> implements Operator
         return false;
       }
 
-      AggregatorMap<?> that = (AggregatorMap<?>) o;
+      AggregatorMap<?, ?> that = (AggregatorMap<?, ?>) o;
 
       if (aggregator != null ? !aggregator.equals(that.aggregator) : that.aggregator != null) {
         return false;
@@ -379,7 +379,7 @@ public class DimensionsComputation<EVENT> implements Operator
       return false;
     }
 
-    DimensionsComputation<?> that = (DimensionsComputation<?>) o;
+    DimensionsComputation<?, ?> that = (DimensionsComputation<?, ?>) o;
 
     return Arrays.equals(aggregatorMaps, that.aggregatorMaps);
 
