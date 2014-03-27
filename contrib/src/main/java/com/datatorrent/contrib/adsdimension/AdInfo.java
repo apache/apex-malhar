@@ -113,10 +113,7 @@ public class AdInfo implements Serializable
     if (this.adUnit != other.adUnit) {
       return false;
     }
-    if (this.timestamp != other.timestamp) {
-      return false;
-    }
-    return true;
+    return this.timestamp == other.timestamp;
   }
 
   @Override
@@ -195,16 +192,13 @@ public class AdInfo implements Serializable
       if (this.advertiserId != other.advertiserId) {
         return false;
       }
-      if (this.adUnit != other.adUnit) {
-        return false;
-      }
-      return true;
+      return this.adUnit == other.adUnit;
     }
 
     @Override
     public AdInfoAggregateEvent getGroup(AdInfo src, int aggregatorIndex)
     {
-      AdInfoAggregateEvent event = new AdInfoAggregateEvent(aggregatorIndex, computeHashCode(src));
+      AdInfoAggregateEvent event = new AdInfoAggregateEvent(aggregatorIndex);
       if (time != null) {
         event.timestamp = TimeUnit.MILLISECONDS.convert(time.convert(src.timestamp, TimeUnit.MILLISECONDS), time);
       }
@@ -308,54 +302,21 @@ public class AdInfo implements Serializable
   public static class AdInfoAggregateEvent extends AdInfo implements DimensionsComputation.AggregateEvent
   {
     int aggregatorIndex;
-    int hash;
 
     private AdInfoAggregateEvent()
     {
       //Used for kryo serialization
     }
 
-    public AdInfoAggregateEvent(int aggregatorIndex, int hash)
+    public AdInfoAggregateEvent(int aggregatorIndex)
     {
       this.aggregatorIndex = aggregatorIndex;
-      this.hash = hash;
     }
 
     @Override
     public int getAggregatorIndex()
     {
       return aggregatorIndex;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-      if (this == o) {
-        return true;
-      }
-      if (!(o instanceof AdInfoAggregateEvent)) {
-        return false;
-      }
-      if (!super.equals(o)) {
-        return false;
-      }
-
-      AdInfoAggregateEvent that = (AdInfoAggregateEvent) o;
-
-      if (aggregatorIndex != that.aggregatorIndex) {
-        return false;
-      }
-      return hash == that.hash;
-
-    }
-
-    @Override
-    public int hashCode()
-    {
-      int result = super.hashCode();
-      result = 31 * result + aggregatorIndex;
-      result = 31 * result + hash;
-      return result;
     }
   }
 
