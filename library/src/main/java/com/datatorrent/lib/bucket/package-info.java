@@ -33,7 +33,7 @@
  *
  * <p>
  *   Usage example:
- *   {@link com.datatorrent.lib.dedup.Deduper}
+ *   {@link com.datatorrent.lib.sift.Deduper}
  * </p>
  */
 package com.datatorrent.lib.bucket;

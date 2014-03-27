@@ -16,8 +16,8 @@
 
 /**
  * This package contains operator which drops duplicate events.<br/>
- * {@link com.datatorrent.lib.dedup.Deduper} group events in buckets and use
+ * {@link com.datatorrent.lib.sift.Deduper} group events in buckets and use
  * {@link com.datatorrent.lib.bucket.BucketManager} for better memory management.
  *
  */
-package com.datatorrent.lib.dedup;
+package com.datatorrent.lib.sift;
