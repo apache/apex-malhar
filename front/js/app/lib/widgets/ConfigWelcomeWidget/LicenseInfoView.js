@@ -61,7 +61,8 @@ var LicenseInfoView = BaseView.extend({
                 }
             }
 
-            if (this.license.isDefault()) {
+            //if (this.license.isDefault()) {
+            if (false) {
                 var ajax;
 
                 if (this.navFlow.mockState && this.navFlow.mockState.LicenseInfoView) {
