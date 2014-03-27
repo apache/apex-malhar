@@ -26,7 +26,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * Drops events which satisfy a predicate.
+ * Drops events which satisfy any predicate of a list of predicates.
  *
  * @param <INPUT> type of input event.
  */
