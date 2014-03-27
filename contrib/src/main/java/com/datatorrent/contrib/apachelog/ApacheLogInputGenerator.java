@@ -15,26 +15,23 @@
  */
 package com.datatorrent.contrib.apachelog;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
-import java.util.Random;
-import java.util.StringTokenizer;
-
+import java.util.*;
+import java.util.concurrent.ArrayBlockingQueue;
 import org.apache.commons.io.FileUtils;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This operator simulates the apache logs
  *
  */
-public class ApacheLogInputGenerator implements InputOperator
+public class ApacheLogInputGenerator implements InputOperator, ActivationListener<OperatorContext>
 {
   private final static String[] referer = {"\"-\""};
   private final static String delimiter = ";";
@@ -43,8 +40,6 @@ public class ApacheLogInputGenerator implements InputOperator
   private transient int ipAddressCount;
   private transient int agentsCount;
   private transient int urlCount;
-  private transient int statusCount;
-  private transient int bytesCount;
   private transient int refererCount;
   private transient Calendar cal;
   private transient SimpleDateFormat sdf;
@@ -67,14 +62,18 @@ public class ApacheLogInputGenerator implements InputOperator
    */
   private String agentFile;
   /**
-   * The amount of time to wait for the file to be updated.
+   * The max amount of time between log entries
    */
-  private long delay = 1;
+  private int maxDelay = 1000;
 
   /**
-   * The number of lines to emit in a single window
+   * The number of lines to emit
    */
-  private int numberOfTuples = 1000;
+  private long numberOfTuples = Long.MAX_VALUE;
+  private int bufferSize = 1024 * 1024;
+
+  protected transient ArrayBlockingQueue<String> holdingBuffer;
+  protected transient Thread thread;
 
   @Override
   public void beginWindow(long arg0)
@@ -104,6 +103,7 @@ public class ApacheLogInputGenerator implements InputOperator
   @Override
   public void setup(OperatorContext arg0)
   {
+    holdingBuffer = new ArrayBlockingQueue<String>(bufferSize);
     try {
       ipAddress = FileUtils.readLines(new File(ipAddressFile));
       urlByteStatus = FileUtils.readLines(new File(urlFile));
@@ -122,7 +122,6 @@ public class ApacheLogInputGenerator implements InputOperator
     ipAddressCount = ipAddress.size();
     agentsCount = agents.size();
     urlCount = url.size();
-    bytesCount = bytes.size();
     refererCount = referer.length;
     cal = Calendar.getInstance();
     sdf = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z");
@@ -136,50 +135,93 @@ public class ApacheLogInputGenerator implements InputOperator
   @Override
   public void emitTuples()
   {
-    int localCounter = numberOfTuples;
-    while (localCounter > 0) {
-      StringBuilder builder = new StringBuilder();
-      builder.append(ipAddress.get(random.nextInt(ipAddressCount))); // url
-      builder.append(" - - ");
-      builder.append("[").append(sdf.format(cal.getTime())).append("] "); // timestamp
-      int urlIndex = random.nextInt(urlCount);
-      builder.append(url.get(urlIndex)).append(" "); // url
-      builder.append(status.get(urlIndex)).append(" "); // status
-      builder.append(bytes.get(urlIndex)).append(" "); // bytes
-      builder.append(referer[random.nextInt(refererCount)]).append(" "); // referer
-      builder.append(agents.get(random.nextInt(agentsCount))).append(" "); // agent
-      output.emit(builder.toString());
-      try {
-        Thread.sleep(delay);
-      }
-      catch (InterruptedException e) {
-      }
-      --localCounter;
+    long ntuples = numberOfTuples;
+    if (ntuples > holdingBuffer.size()) {
+      ntuples = holdingBuffer.size();
     }
+    for (long i = ntuples; i-- > 0;) {
+      String entry = holdingBuffer.poll();
+      if (entry == null) {
+        break;
+      }
+      //LOG.debug("Emitting {}", entry);
+      output.emit(entry);
+    }
+  }
 
+  @Override
+  public void activate(OperatorContext context)
+  {
+    thread = new Thread(new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        int i = 0;
+        while (true) {
+          if (i++ > numberOfTuples) {
+            return;
+          }
+          StringBuilder builder = new StringBuilder();
+          builder.append(ipAddress.get(random.nextInt(ipAddressCount))); // url
+          builder.append(" - - ");
+          builder.append("[").append(sdf.format(cal.getTime())).append("] "); // timestamp
+          int urlIndex = random.nextInt(urlCount);
+          builder.append(url.get(urlIndex)).append(" "); // url
+          builder.append(status.get(urlIndex)).append(" "); // status
+          builder.append(bytes.get(urlIndex)).append(" "); // bytes
+          builder.append(referer[random.nextInt(refererCount)]).append(" "); // referer
+          builder.append(agents.get(random.nextInt(agentsCount))).append(" "); // agent
+          //LOG.debug("Adding {}", builder.toString());
+          holdingBuffer.add(builder.toString());
+
+          if (maxDelay > 0) {
+            try {
+              Thread.sleep(random.nextInt(maxDelay));
+            }
+            catch (InterruptedException e) {
+              return;
+            }
+          }
+        }
+      }
+
+    });
+    thread.start();
+  }
+
+  @Override
+  public void deactivate()
+  {
+    try {
+      thread.interrupt();
+      thread.join();
+    }
+    catch (InterruptedException ex) {
+    }
   }
 
   /**
    * @return the delay
    */
-  public long getDelay()
+  public long getMaxDelay()
   {
-    return delay;
+    return maxDelay;
   }
 
   /**
-   * @param delay
+   * @param maxDelay
    * the delay to set
    */
-  public void setDelay(long delay)
+  public void setMaxDelay(int maxDelay)
   {
-    this.delay = delay;
+    this.maxDelay = maxDelay;
   }
 
   /**
    * @return the numberOfTuples
    */
-  public int getNumberOfTuples()
+  public long getNumberOfTuples()
   {
     return numberOfTuples;
   }
@@ -191,6 +233,16 @@ public class ApacheLogInputGenerator implements InputOperator
   public void setNumberOfTuples(int numberOfTuples)
   {
     this.numberOfTuples = numberOfTuples;
+  }
+
+  public int getBufferSize()
+  {
+    return bufferSize;
+  }
+
+  public void setBufferSize(int bufferSize)
+  {
+    this.bufferSize = bufferSize;
   }
 
   /**
@@ -242,5 +294,5 @@ public class ApacheLogInputGenerator implements InputOperator
   }
 
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
-
+  private static final Logger LOG = LoggerFactory.getLogger(ApacheLogInputGenerator.class);
 }
