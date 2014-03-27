@@ -74,7 +74,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-public abstract class MongoDBOutputOperator<T> extends MongoDBOperatorBase implements Operator
+public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(MongoDBOutputOperator.class);
   protected static final int DEFAULT_BATCH_SIZE = 1000;
