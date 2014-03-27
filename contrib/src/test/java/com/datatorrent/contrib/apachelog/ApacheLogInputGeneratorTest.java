@@ -26,11 +26,10 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 /**
  * Functional tests for {@link com.datatorrent.contrib.apachelog.ApacheLogInputGenerator}.
  */
-
 public class ApacheLogInputGeneratorTest
 {
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testInputGenerator() throws InterruptedException
   {
@@ -42,6 +41,7 @@ public class ApacheLogInputGeneratorTest
     oper.setIpAddressFile("src/test/resources/com/datatorrent/contrib/apachelog/ipaddress.txt");
     oper.setUrlFile("src/test/resources/com/datatorrent/contrib/apachelog/urls.txt");
     oper.setAgentFile("src/test/resources/com/datatorrent/contrib/apachelog/agents.txt");
+    oper.setRefererFile("src/test/resources/com/datatorrent/contrib/apachelog/referers.txt");
     oper.setup(null);
     oper.activate(null);
     Thread.sleep(100);

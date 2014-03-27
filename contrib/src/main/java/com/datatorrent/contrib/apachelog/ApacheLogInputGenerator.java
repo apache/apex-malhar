@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.apachelog;
 
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import java.io.File;
@@ -23,6 +22,7 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  */
 public class ApacheLogInputGenerator implements InputOperator, ActivationListener<OperatorContext>
 {
-  private final static String[] referer = {"\"-\""};
   private final static String delimiter = ";";
 
   private transient Random random;
@@ -41,26 +40,33 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
   private transient int agentsCount;
   private transient int urlCount;
   private transient int refererCount;
-  private transient Calendar cal;
   private transient SimpleDateFormat sdf;
   private transient List<String> ipAddress;
   private transient List<String> url;
-  private transient List<String> urlByteStatus;
   private transient List<String> agents;
   private transient List<Integer> bytes;
   private transient List<Integer> status;
+  private transient List<String> referers;
   /**
    * The file from which to read IP Addresses
    */
+  @NotNull
   private String ipAddressFile;
   /**
    * The file from which to read URLs
    */
+  @NotNull
   private String urlFile;
   /**
    * The file from which to read Agents
    */
+  @NotNull
   private String agentFile;
+  /**
+   * The file from which to read Referers
+   */
+  @NotNull
+  private String refererFile;
   /**
    * The max amount of time between log entries
    */
@@ -86,33 +92,29 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
   {
   }
 
-  private void populateUrlAndBytes()
-  {
-    url = new ArrayList<String>();
-    bytes = new ArrayList<Integer>();
-    status = new ArrayList<Integer>();
-    StringTokenizer token;
-    for (String str : urlByteStatus) {
-      token = new StringTokenizer(str, delimiter);
-      url.add(token.nextToken().trim());
-      bytes.add(Integer.parseInt(token.nextToken().trim()));
-      status.add(Integer.parseInt(token.nextToken().trim()));
-    }
-  }
-
   @Override
   public void setup(OperatorContext arg0)
   {
     holdingBuffer = new ArrayBlockingQueue<String>(bufferSize);
     try {
       ipAddress = FileUtils.readLines(new File(ipAddressFile));
-      urlByteStatus = FileUtils.readLines(new File(urlFile));
+      List<String> urlByteStatus = FileUtils.readLines(new File(urlFile));
+      referers = FileUtils.readLines(new File(refererFile));
       agents = FileUtils.readLines(new File(agentFile));
       //removing the first url if it starts with #
       if (urlByteStatus.get(0).startsWith("#")) {
         urlByteStatus.remove(0);
       }
-      populateUrlAndBytes();
+      url = new ArrayList<String>();
+      bytes = new ArrayList<Integer>();
+      status = new ArrayList<Integer>();
+      StringTokenizer token;
+      for (String str : urlByteStatus) {
+        token = new StringTokenizer(str, delimiter);
+        url.add(token.nextToken().trim());
+        bytes.add(Integer.parseInt(token.nextToken().trim()));
+        status.add(Integer.parseInt(token.nextToken().trim()));
+      }
     }
     catch (IOException e) {
       throw new RuntimeException(e);
@@ -122,8 +124,7 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
     ipAddressCount = ipAddress.size();
     agentsCount = agents.size();
     urlCount = url.size();
-    refererCount = referer.length;
-    cal = Calendar.getInstance();
+    refererCount = referers.size();
     sdf = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z");
   }
 
@@ -165,12 +166,12 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
           StringBuilder builder = new StringBuilder();
           builder.append(ipAddress.get(random.nextInt(ipAddressCount))); // url
           builder.append(" - - ");
-          builder.append("[").append(sdf.format(cal.getTime())).append("] "); // timestamp
+          builder.append("[").append(sdf.format(new Date())).append("] "); // timestamp
           int urlIndex = random.nextInt(urlCount);
           builder.append(url.get(urlIndex)).append(" "); // url
           builder.append(status.get(urlIndex)).append(" "); // status
           builder.append(bytes.get(urlIndex)).append(" "); // bytes
-          builder.append(referer[random.nextInt(refererCount)]).append(" "); // referer
+          builder.append(referers.get(random.nextInt(refererCount))).append(" "); // referer
           builder.append(agents.get(random.nextInt(agentsCount))).append(" "); // agent
           //LOG.debug("Adding {}", builder.toString());
           holdingBuffer.add(builder.toString());
@@ -291,6 +292,22 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
   public void setAgentFile(String agentFile)
   {
     this.agentFile = agentFile;
+  }
+
+  /**
+   * @return the referer files
+   */
+  public String getRefererFile()
+  {
+    return refererFile;
+  }
+
+  /**
+   * @param refererFile the refererFile to set
+   */
+  public void setRefererFile(String refererFile)
+  {
+    this.refererFile = refererFile;
   }
 
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
