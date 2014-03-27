@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.apachelog;
 
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import java.io.File;
@@ -41,7 +40,6 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
   private transient int agentsCount;
   private transient int urlCount;
   private transient int refererCount;
-  private transient Calendar cal;
   private transient SimpleDateFormat sdf;
   private transient List<String> ipAddress;
   private transient List<String> url;
@@ -123,7 +121,6 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
     agentsCount = agents.size();
     urlCount = url.size();
     refererCount = referer.length;
-    cal = Calendar.getInstance();
     sdf = new SimpleDateFormat("dd/MMM/yyyy:HH:mm:ss Z");
   }
 
@@ -165,7 +162,7 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
           StringBuilder builder = new StringBuilder();
           builder.append(ipAddress.get(random.nextInt(ipAddressCount))); // url
           builder.append(" - - ");
-          builder.append("[").append(sdf.format(cal.getTime())).append("] "); // timestamp
+          builder.append("[").append(sdf.format(new Date())).append("] "); // timestamp
           int urlIndex = random.nextInt(urlCount);
           builder.append(url.get(urlIndex)).append(" "); // url
           builder.append(status.get(urlIndex)).append(" "); // status
