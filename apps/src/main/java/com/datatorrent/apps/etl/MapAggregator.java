@@ -27,17 +27,17 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.statistics.DimensionsComputation;
 
-public class DimensionsAggregator implements DimensionsComputation.Aggregator<Map<String, Object>, DimensionsAggregator.AggregateMap>
+public class MapAggregator implements DimensionsComputation.Aggregator<Map<String, Object>, MapAggregator.MapAggregateEvent>
 {
 
   private TimeUnit time;
-  private Set<String> dimensions;
+  private Set<String> dimensionKeys;
   List<Metric> metrics;
 
   public void init(String dimension, List<Metric> operations)
   {
-    this.metrics = Preconditions.checkNotNull(operations, "aggregations");
-    this.dimensions = Sets.newHashSet();
+    this.metrics = Preconditions.checkNotNull(operations, "metrics");
+    this.dimensionKeys = Sets.newHashSet();
     String[] attributes = dimension.split(":");
 
     for (String attribute : attributes) {
@@ -47,24 +47,24 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
         time = TimeUnit.valueOf(keyval[1]);
       }
       else {
-        dimensions.add(key);
+        dimensionKeys.add(key);
       }
     }
 
-    dimensions.add(Constants.LOG_TYPE);
+    dimensionKeys.add(Constants.LOG_TYPE);
   }
 
   @Override
-  public AggregateMap getGroup(Map<String, Object> src, int aggregatorIndex)
+  public MapAggregateEvent getGroup(Map<String, Object> src, int aggregatorIndex)
   {
-    AggregateMap event = new AggregateMap(aggregatorIndex, computeHashCode(src));
+    MapAggregateEvent event = new MapAggregateEvent(aggregatorIndex, computeHashCode(src));
 
     if (time != null) {
       Long srcTime = (Long) src.get(Constants.TIME_ATTR);
       event.put(Constants.TIME_ATTR, TimeUnit.MILLISECONDS.convert(time.convert(srcTime, TimeUnit.MILLISECONDS), time));
 
     }
-    for (String aDimension : dimensions) {
+    for (String aDimension : dimensionKeys) {
       Object srcDimension = src.get(aDimension);
       if (srcDimension != null) {
         event.put(aDimension, srcDimension);
@@ -74,9 +74,8 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
     return event;
   }
 
-
   @Override
-  public void aggregate(AggregateMap dest, Map<String, Object> src)
+  public void aggregate(MapAggregateEvent dest, Map<String, Object> src)
   {
     for (Metric metric : metrics) {
       Object result = metric.operation.compute(dest.get(metric.destinationKey), src.get(metric.sourceKey));
@@ -93,9 +92,20 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
   }
 
   @Override
-  public void aggregate(AggregateMap dest, AggregateMap src)
+  public void aggregate(MapAggregateEvent dest, MapAggregateEvent src)
   {
+    for (Metric metric : metrics) {
+      Object result = metric.operation.compute(dest.get(metric.destinationKey), src.get(metric.sourceKey));
+      dest.put(metric.destinationKey, result);
+    }
 
+    if (time != null) {
+      Long destTime = (Long) dest.get(Constants.TIME_ATTR);
+      Long srcTime = (Long) src.get(Constants.TIME_ATTR);
+      if (destTime < srcTime) {
+        dest.put(Constants.TIME_ATTR, srcTime);
+      }
+    }
   }
 
   @Override
@@ -107,9 +117,7 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
       hash = 43 * hash + (int) (ltime ^ (ltime >>> 32));
     }
 
-    hash = 43 * hash + event.get(Constants.LOG_TYPE).hashCode();
-
-    for (String aDimension : dimensions) {
+    for (String aDimension : dimensionKeys) {
       Object dimensionVal = event.get(aDimension);
       hash = 43 * hash + (dimensionVal != null ? dimensionVal.hashCode() : 0);
     }
@@ -135,11 +143,7 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
       return false;
     }
 
-    if (!event1.get(Constants.LOG_TYPE).equals(event2.get(Constants.LOG_TYPE))) {
-      return false;
-    }
-
-    for (String aDimension : dimensions) {
+    for (String aDimension : dimensionKeys) {
       Object event1Dimension = event1.get(aDimension);
       Object event2Dimension = event2.get(aDimension);
 
@@ -150,18 +154,17 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
     return true;
   }
 
-
-  public static class AggregateMap extends HashMap<String, Object> implements DimensionsComputation.AggregateEvent
+  public static class MapAggregateEvent extends HashMap<String, Object> implements DimensionsComputation.AggregateEvent
   {
     int hash;
     int aggregatorIndex;
 
-    private AggregateMap()
+    private MapAggregateEvent()
     {
       //Used for kryo serialization
     }
 
-    AggregateMap(int aggregatorIndex, int hash)
+    MapAggregateEvent(int aggregatorIndex, int hash)
     {
       this.aggregatorIndex = aggregatorIndex;
       this.hash = hash;
@@ -173,19 +176,16 @@ public class DimensionsAggregator implements DimensionsComputation.Aggregator<Ma
       if (this == o) {
         return true;
       }
-      if (!(o instanceof AggregateMap)) {
+      if (!(o instanceof MapAggregateEvent)) {
         return false;
       }
       if (!super.equals(o)) {
         return false;
       }
 
-      AggregateMap that = (AggregateMap) o;
+      MapAggregateEvent that = (MapAggregateEvent) o;
 
-      if (aggregatorIndex != that.aggregatorIndex) {
-        return false;
-      }
-      return hash == that.hash;
+      return aggregatorIndex == that.aggregatorIndex && hash == that.hash;
 
     }
 

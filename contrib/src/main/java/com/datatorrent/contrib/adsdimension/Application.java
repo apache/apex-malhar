@@ -42,7 +42,7 @@ public class Application implements StreamingApplication
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
 
-    DimensionsComputation<AdInfo> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo>());
+    DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent>());
     String[] dimensionSpecs = new String[] {
       "time=" + TimeUnit.MINUTES,
       "time=" + TimeUnit.MINUTES + ":adUnit",

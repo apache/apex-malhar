@@ -86,7 +86,6 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
     void aggregate(AGGREGATE dest, EVENT src);
 
     void aggregate(AGGREGATE dest, AGGREGATE src);
-
   }
 
   private AggregatorMap<EVENT, AGGREGATE>[] aggregatorMaps;

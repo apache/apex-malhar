@@ -32,6 +32,7 @@ import com.datatorrent.apps.logstream.LogstreamWidgetOutputOperator;
 import com.datatorrent.lib.datamodel.converter.JsonToFlatMapConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.statistics.DimensionsComputation;
+import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 
 /**
  * New logstream application.
@@ -85,11 +86,11 @@ public class ApplicationETL implements StreamingApplication
     //syslog metrics
     metrics.put("syslog", "pid:count");
     //TODO: create MetricOperation  instances
-    //TODO: create DimensionsAggregator instances using metric metrics
-    ComputationsUnifier unifier = new ComputationsUnifier();
+    //TODO: create MapAggregator instances using metric metrics
+    DimensionsComputationUnifierImpl<Map<String, Object>, MapAggregator.MapAggregateEvent> unifier = new DimensionsComputationUnifierImpl<Map<String, Object>, MapAggregator.MapAggregateEvent>();
     //TODO : set aggregations on unifier
 
-    DimensionsComputation<Map<String, Object>> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<Map<String, Object>>());
+    DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent>());
     dimensions.setUnifier(unifier);
 
     int topNtupleCount = 10;

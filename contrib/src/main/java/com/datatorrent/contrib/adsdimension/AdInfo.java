@@ -18,6 +18,7 @@ package com.datatorrent.contrib.adsdimension;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
+import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 
 /**
@@ -89,7 +90,7 @@ public class AdInfo implements Serializable
     hash = 71 * hash + this.publisherId;
     hash = 71 * hash + this.advertiserId;
     hash = 71 * hash + this.adUnit;
-    hash = 71 * hash + (int)(this.timestamp ^ (this.timestamp >>> 32));
+    hash = 71 * hash + (int) (this.timestamp ^ (this.timestamp >>> 32));
     return hash;
   }
 
@@ -102,7 +103,7 @@ public class AdInfo implements Serializable
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final AdInfo other = (AdInfo)obj;
+    final AdInfo other = (AdInfo) obj;
     if (this.publisherId != other.publisherId) {
       return false;
     }
@@ -124,7 +125,7 @@ public class AdInfo implements Serializable
     return "AdInfo{" + "publisherId=" + publisherId + ", advertiserId=" + advertiserId + ", adUnit=" + adUnit + ", timestamp=" + timestamp + ", cost=" + cost + ", revenue=" + revenue + ", impressions=" + impressions + ", clicks=" + clicks + '}';
   }
 
-  public static class AdInfoAggregator implements Aggregator<AdInfo>
+  public static class AdInfoAggregator implements Aggregator<AdInfo, AdInfoAggregateEvent>
   {
     String dimension;
     TimeUnit time;
@@ -184,7 +185,7 @@ public class AdInfo implements Serializable
       if (getClass() != obj.getClass()) {
         return false;
       }
-      final AdInfoAggregator other = (AdInfoAggregator)obj;
+      final AdInfoAggregator other = (AdInfoAggregator) obj;
       if (this.time != other.time) {
         return false;
       }
@@ -201,9 +202,9 @@ public class AdInfo implements Serializable
     }
 
     @Override
-    public AdInfo getGroup(AdInfo src)
+    public AdInfoAggregateEvent getGroup(AdInfo src, int aggregatorIndex)
     {
-      AdInfo event = new AdInfo();
+      AdInfoAggregateEvent event = new AdInfoAggregateEvent(aggregatorIndex, computeHashCode(src));
       if (time != null) {
         event.timestamp = TimeUnit.MILLISECONDS.convert(time.convert(src.timestamp, TimeUnit.MILLISECONDS), time);
       }
@@ -224,7 +225,16 @@ public class AdInfo implements Serializable
     }
 
     @Override
-    public void aggregate(AdInfo dest, AdInfo src)
+    public void aggregate(AdInfoAggregateEvent dest, AdInfo src)
+    {
+      dest.cost += src.cost;
+      dest.revenue += src.revenue;
+      dest.impressions += src.impressions;
+      dest.clicks += src.clicks;
+    }
+
+    @Override
+    public void aggregate(AdInfoAggregateEvent dest, AdInfoAggregateEvent src)
     {
       dest.cost += src.cost;
       dest.revenue += src.revenue;
@@ -251,7 +261,7 @@ public class AdInfo implements Serializable
 
       if (time != null) {
         long ltime = time.convert(event.timestamp, TimeUnit.MILLISECONDS);
-        hash = 71 * hash + (int)(ltime ^ (ltime >>> 32));
+        hash = 71 * hash + (int) (ltime ^ (ltime >>> 32));
       }
 
       return hash;
@@ -293,6 +303,60 @@ public class AdInfo implements Serializable
 
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
     private static final long serialVersionUID = 201402211829L;
+  }
+
+  public static class AdInfoAggregateEvent extends AdInfo implements DimensionsComputation.AggregateEvent
+  {
+    int aggregatorIndex;
+    int hash;
+
+    private AdInfoAggregateEvent()
+    {
+      //Used for kryo serialization
+    }
+
+    public AdInfoAggregateEvent(int aggregatorIndex, int hash)
+    {
+      this.aggregatorIndex = aggregatorIndex;
+      this.hash = hash;
+    }
+
+    @Override
+    public int getAggregatorIndex()
+    {
+      return aggregatorIndex;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof AdInfoAggregateEvent)) {
+        return false;
+      }
+      if (!super.equals(o)) {
+        return false;
+      }
+
+      AdInfoAggregateEvent that = (AdInfoAggregateEvent) o;
+
+      if (aggregatorIndex != that.aggregatorIndex) {
+        return false;
+      }
+      return hash == that.hash;
+
+    }
+
+    @Override
+    public int hashCode()
+    {
+      int result = super.hashCode();
+      result = 31 * result + aggregatorIndex;
+      result = 31 * result + hash;
+      return result;
+    }
   }
 
   private static final long serialVersionUID = 201402211825L;
