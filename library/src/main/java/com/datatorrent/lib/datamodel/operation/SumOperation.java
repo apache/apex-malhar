@@ -17,8 +17,7 @@
 package com.datatorrent.lib.datamodel.operation;
 
 /**
- * 
- * @param <OUTPUT> 
+ * @param <OUTPUT>
  * @param <INPUT>
  */
 public class SumOperation<OUTPUT extends Number, INPUT extends Number> implements Operation<OUTPUT, INPUT>
@@ -28,18 +27,7 @@ public class SumOperation<OUTPUT extends Number, INPUT extends Number> implement
   @Override
   public OUTPUT compute(OUTPUT last, INPUT value)
   {
-    if (last instanceof Double) {
-      return (OUTPUT) (new Double(last.doubleValue() + value.doubleValue()));
-    }
-    else if (last instanceof Float) {
-      return (OUTPUT) (new Float(last.floatValue() + value.floatValue()));
-    }
-    else if (last instanceof Long) {
-      return (OUTPUT) (new Long(last.longValue() + value.longValue()));
-    }
-    else {
-      return (OUTPUT) (new Integer(last.intValue() + value.intValue()));
-    }
+    Double sum = last.doubleValue() + value.doubleValue();
+    return (OUTPUT) sum;
   }
-
 }
