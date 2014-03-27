@@ -15,13 +15,13 @@
  */
 package com.datatorrent.lib.db;
 
+import java.io.IOException;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import java.io.IOException;
-import javax.validation.constraints.NotNull;
 
 /**
  * This abstract class is intended to be an output adapter for a TransactionStore with "transactional exactly once" feature
@@ -79,16 +79,9 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   {
     try {
       store.connect();
-      if (context == null) {
-        appId = "test_appid";
-        operatorId = 0;
-        store.removeCommittedWindowId(appId, operatorId);
-      }
-      else {
-        appId = context.getValue(DAG.APPLICATION_ID);
-        operatorId = context.getId();
-        committedWindowId = store.getCommittedWindowId(appId, operatorId);
-      }
+      appId = context.getValue(DAG.APPLICATION_ID);
+      operatorId = context.getId();
+      committedWindowId = store.getCommittedWindowId(appId, operatorId);
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
