@@ -15,29 +15,28 @@
  */
 package com.datatorrent.apps.etl;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.google.common.base.Predicate;
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
-import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 
-import com.datatorrent.apps.logstream.LogstreamTopN;
-import com.datatorrent.apps.logstream.LogstreamWidgetOutputOperator;
 import com.datatorrent.lib.datamodel.converter.JsonToFlatMapConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.sift.Sifter;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 
 /**
- * New logstream application.
- * Takes inputs for log types, filters, dimensions and other properties from configuration file and creates multiple
- * operator partitions to cater to those user inputs. It sends the final computation results through the widget output.
+ * ETL Application
  */
 public class ApplicationETL implements StreamingApplication
 {
@@ -52,18 +51,17 @@ public class ApplicationETL implements StreamingApplication
     input.setLogTypes("apache:mysql:syslog:system");
     input.setConverter(new JsonToFlatMapConverter());
 
-    //Create filters
+    //Create Predicates for the filters
     Multimap<String, String> filters = ArrayListMultimap.create();
     //apache filters
     filters.put("apache", "response:response.equals(\"404\")");
     filters.put("apache", "agentinfo_name:agentinfo_name.equals(\"Firefox\")");
-    filters.put("apache", Constants.DEFAULT_FILTER);
-    //mysql filters
-    filters.put("mysql", Constants.DEFAULT_FILTER);
-    //syslog filters
-    filters.put("syslog", Constants.DEFAULT_FILTER);
-    //system filters
-    filters.put("system", Constants.DEFAULT_FILTER);
+    //TODO: create Predicates with the above info
+
+    List<Predicate<Map<String, Object>>> predicates = Lists.newArrayList();
+
+    Sifter<Map<String, Object>> sifter = new Sifter<Map<String, Object>>();
+    sifter.setPredicates(predicates);
 
     //Create dimensions specs
     Multimap<String, String> dimensionSpecs = ArrayListMultimap.create();
@@ -93,20 +91,10 @@ public class ApplicationETL implements StreamingApplication
     DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent>());
     dimensions.setUnifier(unifier);
 
-    int topNtupleCount = 10;
+    ConsoleOutputOperator console = dag.addOperator("Console", new ConsoleOutputOperator());
 
-    LogstreamTopN topN = dag.addOperator("TopN", new LogstreamTopN());
-    topN.setN(topNtupleCount);
-
-    LogstreamWidgetOutputOperator widgetOut = dag.addOperator("WidgetOut", new LogstreamWidgetOutputOperator());
-    widgetOut.logstreamTopNInput.setN(topNtupleCount);
-
-    ConsoleOutputOperator consoleOut = dag.addOperator("ConsoleOut", new ConsoleOutputOperator());
-
-    dag.addStream("Events", input.outputPort, dimensions.data);
-//    dag.addStream("Aggregates", dimensions.output, topN.data);
-    dag.addStream("toWS", topN.top, widgetOut.logstreamTopNInput, consoleOut.input);
-
-    dag.setInputPortAttribute(consoleOut.input, PortContext.PARTITION_PARALLEL, true);
+    dag.addStream("Events", input.outputPort, sifter.input);
+    dag.addStream("FilteredEvents", sifter.output, dimensions.data);
+    dag.addStream("Aggregates", dimensions.output, console.input);
   }
 }
