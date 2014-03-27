@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
@@ -30,9 +29,9 @@ public class SumOperationTest
   public void testIntType()
   {
     Integer sumV = new Integer(0);
-    SumOperation<Integer, Integer> sum = new SumOperation<Integer,Integer>();
-    sumV = sum.compute(sumV,1);
-    sumV = sum.compute(sumV,2);
+    SumOperation<Integer, Integer> sum = new SumOperation<Integer, Integer>();
+    sumV = sum.compute(sumV, 1);
+    sumV = sum.compute(sumV, 2);
     Assert.assertEquals(3, sumV.intValue());
   }
 
@@ -40,9 +39,9 @@ public class SumOperationTest
   public void testLongType()
   {
     Long sumV = new Long(0);
-    SumOperation<Long, Integer> sum = new SumOperation<Long,Integer>();
-    sumV = sum.compute(sumV,1);
-    sumV = sum.compute(sumV,2);
+    SumOperation<Long, Integer> sum = new SumOperation<Long, Integer>();
+    sumV = sum.compute(sumV, 1);
+    sumV = sum.compute(sumV, 2);
     Assert.assertEquals(3l, sumV.longValue());
   }
 
@@ -51,8 +50,8 @@ public class SumOperationTest
   {
     Double sumV = new Double(0);
     SumOperation<Double, Double> sum = new SumOperation<Double, Double>();
-    sumV = sum.compute(sumV,1.0);
-    sumV = sum.compute(sumV,2.3);
+    sumV = sum.compute(sumV, 1.0);
+    sumV = sum.compute(sumV, 2.3);
     Assert.assertEquals(3.3, sumV.doubleValue());
   }
 
@@ -61,8 +60,8 @@ public class SumOperationTest
   {
     Float sumV = new Float(0);
     SumOperation<Float, Double> sum = new SumOperation<Float, Double>();
-    sumV = sum.compute(sumV,1.0);
-    sumV = sum.compute(sumV,2.3);
+    sumV = sum.compute(sumV, 1.0);
+    sumV = sum.compute(sumV, 2.3);
     Assert.assertEquals(3.3f, sumV.floatValue());
   }
 }
