@@ -18,10 +18,15 @@ package com.datatorrent.lib.db;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Assert;
 
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.DAG;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+
 /**
- *
  * @param <S>
  * @since 0.9.4
  */
@@ -38,7 +43,7 @@ public class TransactionableKeyValueStoreOperatorTest<S extends TransactionableK
     @SuppressWarnings("unchecked")
     public void processTuple(Map<String, String> tuple)
     {
-      store.putAll((Map<Object, Object>)(Map<?, ?>)tuple);
+      store.putAll((Map<Object, Object>) (Map<?, ?>) tuple);
     }
 
   }
@@ -46,10 +51,17 @@ public class TransactionableKeyValueStoreOperatorTest<S extends TransactionableK
   public void testTransactionOutputOperator() throws IOException
   {
     TransactionableKeyValueStoreOperatorTest.TransactionOutputOperator<S> outputOperator = new TransactionableKeyValueStoreOperatorTest.TransactionOutputOperator<S>();
+    String appId = "test_appid";
+    int operatorId = 0;
+    operatorStore.removeCommittedWindowId(appId, operatorId);
+
+    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, appId);
+
     try {
       testStore.connect();
       outputOperator.setStore(operatorStore);
-      outputOperator.setup(null);
+      outputOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(operatorId, attributes));
       outputOperator.beginWindow(100);
       Map<String, String> m = new HashMap<String, String>();
       m.put("test_abc", "123");

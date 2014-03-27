@@ -21,13 +21,11 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.*;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 /**
- *
  * @param <S>
  * @since 0.9.3
  */
@@ -52,7 +50,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
       public void process(T t)
       {
         @SuppressWarnings("unchecked")
-        Map<String, String> map = (Map<String, String>)t;
+        Map<String, String> map = (Map<String, String>) t;
         resultMap.putAll(map);
         resultCount++;
       }
@@ -66,7 +64,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
     @SuppressWarnings("unchecked")
     public Map<String, String> convertToTuple(Map<Object, Object> o)
     {
-      return (Map<String, String>)(Map<?, ?>)o;
+      return (Map<String, String>) (Map<?, ?>) o;
     }
 
   }
@@ -77,7 +75,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
     @SuppressWarnings("unchecked")
     public void processTuple(Map<String, String> tuple)
     {
-      store.putAll((Map<Object, Object>)(Map<?, ?>)tuple);
+      store.putAll((Map<Object, Object>) (Map<?, ?>) tuple);
     }
 
   }
@@ -119,8 +117,10 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
   {
     OutputOperator<S> outputOperator = new OutputOperator<S>();
     try {
+      AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+      attributes.put(DAG.APPLICATION_ID, "test_appid");
       outputOperator.setStore(operatorStore);
-      outputOperator.setup(null);
+      outputOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
       outputOperator.beginWindow(100);
       Map<String, String> m = new HashMap<String, String>();
       m.put("test_abc", "123");

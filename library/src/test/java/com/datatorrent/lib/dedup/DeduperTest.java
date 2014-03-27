@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.lib.bucket.*;
@@ -109,7 +110,11 @@ public class DeduperTest
     }
     events.add(new DummyEvent(5, calendar.getTimeInMillis()));
 
-    deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(APP_ID, applicationPath, OPERATOR_ID));
+    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, APP_ID);
+    attributes.put(DAG.APPLICATION_PATH, applicationPath);
+
+    deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes));
     CollectorTestSink collectorTestSink = new CollectorTestSink<DummyEvent>();
     deduper.output.setSink(collectorTestSink);
 
@@ -174,8 +179,12 @@ public class DeduperTest
   @Test
   public void testDeduperRedeploy() throws Exception
   {
+    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, APP_ID);
+    attributes.put(DAG.APPLICATION_PATH, applicationPath);
+
     deduper.addEventManuallyToWaiting(new DummyEvent(100, System.currentTimeMillis()));
-    deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(APP_ID, applicationPath, 0));
+    deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
     eventBucketExchanger.exchange(null, 500, TimeUnit.MILLISECONDS);
     deduper.endWindow();
     deduper.teardown();
