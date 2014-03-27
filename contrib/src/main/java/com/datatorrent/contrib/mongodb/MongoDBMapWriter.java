@@ -104,4 +104,10 @@ public class MongoDBMapWriter<K, V> extends AbstractMongoDBConnectable implement
   }
 
   private static final Logger logger = LoggerFactory.getLogger(MongoDBMapWriter.class);
+
+  @Override
+  public void batchUpsert(List<Map<K, V>> tupleList, List<String> upsertKey, long windowId)
+  {
+    //TODO: implement
+  }
 }

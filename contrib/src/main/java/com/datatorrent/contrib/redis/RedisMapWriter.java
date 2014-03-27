@@ -21,4 +21,10 @@ public class RedisMapWriter extends RedisStore implements TransactionalDataStore
       putAll(map);
     }
   }
+
+  @Override
+  public void batchUpsert(List<Map<Object, Object>> tupleList, List<String> upsertKey, long windowId)
+  {
+    // TODO: implement
+  }
 }

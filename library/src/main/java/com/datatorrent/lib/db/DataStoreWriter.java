@@ -26,10 +26,18 @@ import com.datatorrent.lib.db.Connectable;
 public interface DataStoreWriter<T> extends Connectable
 {
   /**
-   * Performs one batch insert per windowId
-   * @param tupleList batch of tuples
+   * For each window id, performs batch insert of the list of tuples
+   * @param tupleList list of tuples
    * @param windowId windowId for the batch
    */
   public void batchInsert(List<T> tupleList, long windowId);
+
+  /**
+   * For each windowId, performs batch insert and updates existing tuples on the upsert key
+   * @param tupleList list of tuples
+   * @param upsertKey upsert key for updates
+   * @param windowId windowId of the batch
+   */
+  public void batchUpsert(List<T> tupleList, List<String> upsertKey, long windowId);
 
 }
