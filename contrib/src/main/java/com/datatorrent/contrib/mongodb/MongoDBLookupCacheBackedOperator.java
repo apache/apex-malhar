@@ -14,12 +14,12 @@ import com.datatorrent.lib.database.DBConnector;
  */
 public abstract class MongoDBLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T>
 {
-  private final MongoDBOperatorBase mongoDbConnector;
+  private final MongoDBConnectable mongoDbConnector;
 
   public MongoDBLookupCacheBackedOperator()
   {
     super();
-    mongoDbConnector = new MongoDBOperatorBase();
+    mongoDbConnector = new MongoDBConnectable();
   }
 
   @Nonnull

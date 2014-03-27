@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-public abstract class MongoDBInputOperator<T> extends MongoDBOperatorBase implements InputOperator, ActivationListener<OperatorContext>
+public abstract class MongoDBInputOperator<T> extends MongoDBConnectable implements InputOperator, ActivationListener<OperatorContext>
 {
   private static final org.slf4j.Logger logger = LoggerFactory.getLogger(MongoDBInputOperator.class);
   private String table;
