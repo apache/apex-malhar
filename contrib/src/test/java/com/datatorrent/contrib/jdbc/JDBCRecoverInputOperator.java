@@ -52,7 +52,11 @@ public class JDBCRecoverInputOperator implements InputOperator, CheckpointListen
 //      logger.debug("generating tuple {}", Codec.getStringWindowId(windowId));
 //      output.emit(windowId);
     if (first) {
-      output.emit(holdingBuffer.poll());
+      HashMap<String, Object> map = holdingBuffer.poll();
+      if (map == null) {
+        return;
+      }
+      output.emit(map);
       first = false;
       if (--maximumTuples == 0) {
         throw new RuntimeException(new InterruptedException("Just want to stop!"));
