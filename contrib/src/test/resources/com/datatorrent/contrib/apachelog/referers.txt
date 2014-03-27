@@ -19,7 +19,7 @@
 "http://news.yahoo.com/"
 "http://news.yahoo.com/"
 "http://news.yahoo.com/"
-https://www.google.com/search?q=news&oq=news&aqs=chrome..69i57j0j69i60l2j69i61l2.796j0j4&sourceid=chrome&espv=2&es_sm=125&ie=UTF-8
+"https://www.google.com/search?q=news&oq=news&aqs=chrome..69i57j0j69i60l2j69i61l2.796j0j4&sourceid=chrome&espv=2&es_sm=125&ie=UTF-8"
 "http://www.google.com/search?hl=en&site=webhp&q=news"
 "http://www.google.com/search?hl=en&site=webhp&q=news"
 "http://www.google.com/search?hl=en&site=webhp&q=news"
