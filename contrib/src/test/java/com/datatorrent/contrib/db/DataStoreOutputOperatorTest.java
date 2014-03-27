@@ -23,6 +23,9 @@ import org.junit.Test;
 import com.datatorrent.lib.datamodel.converter.Converter;
 
 import com.datatorrent.contrib.mongodb.MongoDBMapWriter;
+import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Test class to test {@link DataStoreOutputOperator}
@@ -36,52 +39,65 @@ public class DataStoreOutputOperatorTest
   @SuppressWarnings("unchecked")
   public void testMongoDbOutput()
   {
-    final String tableName = "aggregates2";
+    final String tableName = "testAggr";
     MongoDBMapWriter<String, Object> dataStore = new MongoDBMapWriter<String, Object>();
     dataStore.setHost("localhost");
     dataStore.setDatabase("testComputations");
     dataStore.setTable(tableName);
 
-    PassthroughConverter<Map<String, Object>> converter = new PassthroughConverter<Map<String, Object>>();
-    DataStoreOutputOperator<Map<String, Object>, Map<String, Object>> oper = new DataStoreOutputOperator<Map<String, Object>, Map<String, Object>>();
+    try {
+      PassthroughConverter<Map<String, Object>> converter = new PassthroughConverter<Map<String, Object>>();
+      DataStoreOutputOperator<Map<String, Object>, Map<String, Object>> oper = new DataStoreOutputOperator<Map<String, Object>, Map<String, Object>>();
 
-    oper.setStore(dataStore);
-    oper.setConverter(converter);
+      oper.setStore(dataStore);
+      oper.setConverter(converter);
 
-    oper.setup(null);
-    dataStore.dropTable(tableName);
+      oper.setup(null);
+      dataStore.dropTable(tableName);
 
-    oper.beginWindow(1);
+      oper.beginWindow(1);
 
-    HashMap<String, Object> map = new HashMap<String, Object>();
-    map.put("dim1", "dim11val");
-    map.put("dim2", "dim21val");
-    map.put("aggr1", "aggr1val");
-    oper.input.process(map);
+      HashMap<String, Object> map = new HashMap<String, Object>();
+      map.put("dim1", "dim11val");
+      map.put("dim2", "dim21val");
+      map.put("aggr1", "aggr1val");
+      oper.input.process(map);
 
-    map = new HashMap<String, Object>();
-    map.put("dim1", "dim12val");
-    map.put("aggr1", "aggr12val");
-    map.put("aggr2", "aggr22val");
-    map.put("aggr3", "aggr32val");
-    oper.input.process(map);
+      map = new HashMap<String, Object>();
+      map.put("dim1", "dim12val");
+      map.put("aggr1", "aggr12val");
+      map.put("aggr2", "aggr22val");
+      map.put("aggr3", "aggr32val");
+      oper.input.process(map);
 
-    oper.endWindow();
+      oper.endWindow();
 
-    @SuppressWarnings("unchecked")
-    List<Map> list = dataStore.find(tableName);
+      @SuppressWarnings("unchecked")
+      List<Map> list = dataStore.find(tableName);
 
-    Assert.assertEquals("result tuple count", 2, list.size());
-    Map map1 = list.get(0);
-    Assert.assertEquals("first tuple size", 4, map1.size());
-    Assert.assertEquals("first tuple dimension", "dim11val", map1.get("dim1"));
-    Assert.assertEquals("first tuple aggregate", "aggr1val", map1.get("aggr1"));
-    Map map2 = list.get(1);
-    Assert.assertEquals("second tuple size", 5, map2.size());
-    Assert.assertEquals("second tuple dimension", "dim12val", map2.get("dim1"));
-    Assert.assertEquals("second tuple aggregate", "aggr22val", map2.get("aggr2"));
+      Assert.assertEquals("result tuple count", 2, list.size());
+      Map map1 = list.get(0);
+      Assert.assertEquals("first tuple size", 4, map1.size());
+      Assert.assertEquals("first tuple dimension", "dim11val", map1.get("dim1"));
+      Assert.assertEquals("first tuple aggregate", "aggr1val", map1.get("aggr1"));
+      Map map2 = list.get(1);
+      Assert.assertEquals("second tuple size", 5, map2.size());
+      Assert.assertEquals("second tuple dimension", "dim12val", map2.get("dim1"));
+      Assert.assertEquals("second tuple aggregate", "aggr22val", map2.get("aggr2"));
+      oper.teardown();
 
-    oper.teardown();
+
+    }
+    finally {
+      try {
+        dataStore.connect();
+        dataStore.dropTable(tableName);
+        dataStore.disconnect();
+      }
+      catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
 
   }
 

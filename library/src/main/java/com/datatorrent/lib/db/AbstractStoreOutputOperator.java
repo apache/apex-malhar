@@ -45,7 +45,6 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
     {
       processTuple(t);
     }
-
   };
 
   /**
@@ -89,6 +88,7 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
       store.disconnect();
     }
     catch (IOException ex) {
+      throw new RuntimeException(ex);
     }
   }
 
