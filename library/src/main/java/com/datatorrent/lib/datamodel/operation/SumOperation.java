@@ -27,7 +27,21 @@ public class SumOperation<OUTPUT extends Number, INPUT extends Number> implement
   @Override
   public OUTPUT compute(OUTPUT last, INPUT value)
   {
-    Double sum = last.doubleValue() + value.doubleValue();
-    return (OUTPUT) sum;
+    if (last instanceof Double) {
+      Double sum = last.doubleValue() + value.doubleValue();
+      return (OUTPUT) sum;
+    }
+    else if (last instanceof Float) {
+      Float sum = last.floatValue() + value.floatValue();
+      return (OUTPUT) sum;
+    }
+    else if (last instanceof Long) {
+      Long sum = last.longValue() + value.longValue();
+      return (OUTPUT) sum;
+    }
+    else {
+      Integer sum = last.intValue() + value.intValue();
+      return (OUTPUT) sum;
+    }
   }
 }
