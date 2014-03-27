@@ -15,6 +15,7 @@ package com.datatorrent.lib.datamodel.operation;/*
  */
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 /**
  * @param <OUTPUT> output value type
@@ -23,6 +24,6 @@ import javax.annotation.Nonnull;
 public interface Operation<OUTPUT, INPUT>
 {
 
-  OUTPUT compute(@Nonnull OUTPUT last, @Nonnull INPUT value);
+  OUTPUT compute(@Nonnull OUTPUT last, @Nullable INPUT value);
 }
 
