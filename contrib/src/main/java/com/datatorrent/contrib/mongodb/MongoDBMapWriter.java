@@ -34,7 +34,7 @@ import com.datatorrent.lib.db.DataStoreWriter;
  * @param <K> map key
  * @param <V> map value
  */
-public class MongoDBMapWriter<K, V> extends AbstractMongoDBConnectable implements DataStoreWriter<Map<K, V>>
+public class MongoDBMapWriter<K, V> extends MongoDBConnectable implements DataStoreWriter<Map<K, V>>
 {
   /*
    * table in which data is inserted

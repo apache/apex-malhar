@@ -41,8 +41,8 @@ public class DataStoreOutputOperatorTest
   {
     final String tableName = "testAggr";
     MongoDBMapWriter<String, Object> dataStore = new MongoDBMapWriter<String, Object>();
-    dataStore.setHost("localhost");
-    dataStore.setDatabase("testComputations");
+    dataStore.setHostName("localhost");
+    dataStore.setDataBase("testComputations");
     dataStore.setTable(tableName);
 
     try {
@@ -89,14 +89,9 @@ public class DataStoreOutputOperatorTest
 
     }
     finally {
-      try {
-        dataStore.connect();
-        dataStore.dropTable(tableName);
-        dataStore.disconnect();
-      }
-      catch (IOException ex) {
-        throw new RuntimeException(ex);
-      }
+      dataStore.connect();
+      dataStore.dropTable(tableName);
+      dataStore.disconnect();
     }
 
   }
