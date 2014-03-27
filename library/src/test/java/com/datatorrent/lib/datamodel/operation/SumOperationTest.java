@@ -28,7 +28,7 @@ public class SumOperationTest
   @Test
   public void testIntType()
   {
-    Integer sumV = new Integer(0);
+    Integer sumV = 0;
     SumOperation<Integer, Integer> sum = new SumOperation<Integer, Integer>();
     sumV = sum.compute(sumV, 1);
     sumV = sum.compute(sumV, 2);
@@ -38,7 +38,7 @@ public class SumOperationTest
   @Test
   public void testLongType()
   {
-    Long sumV = new Long(0);
+    Long sumV = (long) 0;
     SumOperation<Long, Integer> sum = new SumOperation<Long, Integer>();
     sumV = sum.compute(sumV, 1);
     sumV = sum.compute(sumV, 2);
@@ -48,20 +48,20 @@ public class SumOperationTest
   @Test
   public void testDoubleType()
   {
-    Double sumV = new Double(0);
+    Double sumV = (double) 0;
     SumOperation<Double, Double> sum = new SumOperation<Double, Double>();
     sumV = sum.compute(sumV, 1.0);
     sumV = sum.compute(sumV, 2.3);
-    Assert.assertEquals(3.3, sumV.doubleValue());
+    Assert.assertEquals(3.3, sumV);
   }
 
   @Test
   public void testFloatType()
   {
-    Float sumV = new Float(0);
+    Float sumV = (float) 0;
     SumOperation<Float, Double> sum = new SumOperation<Float, Double>();
     sumV = sum.compute(sumV, 1.0);
     sumV = sum.compute(sumV, 2.3);
-    Assert.assertEquals(3.3f, sumV.floatValue());
+    Assert.assertEquals(3.3f, sumV);
   }
 }
