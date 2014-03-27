@@ -25,11 +25,11 @@ public class CountOperationTest
   @Test
   public void test()
   {
-    long countV = 0;
+    Object countV = null;
     CountOperation count = new CountOperation();
     countV = count.compute(countV, null);
-    Assert.assertEquals(1, countV);
+    Assert.assertEquals(1l, countV);
     countV = count.compute(countV, null);
-    Assert.assertEquals(2, countV);
+    Assert.assertEquals(2l, countV);
   }
 }

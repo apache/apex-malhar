@@ -21,47 +21,28 @@ import org.junit.Test;
 
 /**
  * Test case for SumOperation
- * 
  */
 public class SumOperationTest
 {
   @Test
-  public void testIntType()
+  public void test()
   {
-    Integer sumV = 0;
-    SumOperation<Integer, Integer> sum = new SumOperation<Integer, Integer>();
+    Object sumV = 0.0;
+    SumOperation sum = new SumOperation();
     sumV = sum.compute(sumV, 1);
     sumV = sum.compute(sumV, 2);
-    Assert.assertEquals(3, sumV.intValue());
+    Assert.assertEquals(3.0, sumV);
   }
 
   @Test
-  public void testLongType()
+  public void testNulls()
   {
-    Long sumV = (long) 0;
-    SumOperation<Long, Integer> sum = new SumOperation<Long, Integer>();
+    Object sumV = null;
+    SumOperation sum = new SumOperation();
     sumV = sum.compute(sumV, 1);
-    sumV = sum.compute(sumV, 2);
-    Assert.assertEquals(3l, sumV.longValue());
+    sumV = sum.compute(sumV, null);
+    Assert.assertEquals(1.0, sumV);
   }
 
-  @Test
-  public void testDoubleType()
-  {
-    Double sumV = (double) 0;
-    SumOperation<Double, Double> sum = new SumOperation<Double, Double>();
-    sumV = sum.compute(sumV, 1.0);
-    sumV = sum.compute(sumV, 2.3);
-    Assert.assertEquals(3.3, sumV);
-  }
-
-  @Test
-  public void testFloatType()
-  {
-    Float sumV = (float) 0;
-    SumOperation<Float, Double> sum = new SumOperation<Float, Double>();
-    sumV = sum.compute(sumV, 1.0);
-    sumV = sum.compute(sumV, 2.3);
-    Assert.assertEquals(3.3f, sumV);
-  }
 }
+

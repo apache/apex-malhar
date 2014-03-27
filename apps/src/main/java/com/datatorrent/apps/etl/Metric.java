@@ -24,9 +24,9 @@ public class Metric
   @Nonnull
   final String sourceKey;
   final String destinationKey;
-  final Operation<Object, Object> operation;
+  final Operation operation;
 
-  public  Metric(@Nonnull String sourceKey, @Nonnull String destinationKey, @Nonnull Operation<Object, Object> operation)
+  public  Metric(@Nonnull String sourceKey, @Nonnull String destinationKey, @Nonnull Operation operation)
   {
     this.sourceKey = sourceKey;
     this.destinationKey = destinationKey;

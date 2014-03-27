@@ -16,32 +16,16 @@
 
 package com.datatorrent.lib.datamodel.operation;
 
-/**
- * @param <OUTPUT>
- * @param <INPUT>
- */
-public class SumOperation<OUTPUT extends Number, INPUT extends Number> implements Operation<OUTPUT, INPUT>
-{
+import javax.annotation.Nullable;
 
-  @SuppressWarnings("unchecked")
+public class SumOperation implements Operation
+{
   @Override
-  public OUTPUT compute(OUTPUT last, INPUT value)
+  public Object compute(@Nullable Object last, @Nullable Object value)
   {
-    if (last instanceof Double) {
-      Double sum = last.doubleValue() + value.doubleValue();
-      return (OUTPUT) sum;
-    }
-    else if (last instanceof Float) {
-      Float sum = last.floatValue() + value.floatValue();
-      return (OUTPUT) sum;
-    }
-    else if (last instanceof Long) {
-      Long sum = last.longValue() + value.longValue();
-      return (OUTPUT) sum;
-    }
-    else {
-      Integer sum = last.intValue() + value.intValue();
-      return (OUTPUT) sum;
-    }
+    Double lastDouble = (Double) last;
+    Number valueNumber = (Number) value;
+
+    return (lastDouble == null ? 0.0 : lastDouble.doubleValue()) + (valueNumber == null ? 0.0 : valueNumber.doubleValue());
   }
 }

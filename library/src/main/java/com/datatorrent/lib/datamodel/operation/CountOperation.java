@@ -16,14 +16,16 @@
 
 package com.datatorrent.lib.datamodel.operation;
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-public class CountOperation implements Operation<Long, Long>
+public class CountOperation implements Operation
 {
   @Override
-  public Long compute(@Nonnull Long last, @Nullable Long value)
+  public Object compute(@Nullable Object last, @Nullable Object value)
   {
-    return last + 1;
+    if (last == null) {
+      return 1L;
+    }
+    return ((Long) last) + 1;
   }
 }

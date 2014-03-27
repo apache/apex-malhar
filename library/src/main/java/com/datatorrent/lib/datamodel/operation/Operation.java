@@ -14,16 +14,12 @@ package com.datatorrent.lib.datamodel.operation;/*
  * limitations under the License.
  */
 
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-/**
- * @param <OUTPUT> output value type
- * @param <INPUT>  input value type
- */
-public interface Operation<OUTPUT, INPUT>
+
+public interface Operation
 {
 
-  OUTPUT compute(@Nonnull OUTPUT last, @Nullable INPUT value);
+  Object compute(@Nullable Object last, @Nullable Object value);
 }
 

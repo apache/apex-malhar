@@ -57,21 +57,24 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   @Override
   public MapAggregateEvent getGroup(Map<String, Object> src, int aggregatorIndex)
   {
-    MapAggregateEvent event = new MapAggregateEvent(aggregatorIndex, computeHashCode(src));
+    MapAggregateEvent aggregateEvent = new MapAggregateEvent(aggregatorIndex, computeHashCode(src));
 
     if (time != null) {
       Long srcTime = (Long) src.get(Constants.TIME_ATTR);
-      event.put(Constants.TIME_ATTR, TimeUnit.MILLISECONDS.convert(time.convert(srcTime, TimeUnit.MILLISECONDS), time));
+      aggregateEvent.put(Constants.TIME_ATTR, TimeUnit.MILLISECONDS.convert(time.convert(srcTime, TimeUnit.MILLISECONDS), time));
 
     }
     for (String aDimension : dimensionKeys) {
       Object srcDimension = src.get(aDimension);
-      if (srcDimension != null) {
-        event.put(aDimension, srcDimension);
+      if (srcDimension == null) {
+        aggregateEvent.put(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT);
+      }
+      else {
+        aggregateEvent.put(aDimension, srcDimension);
       }
     }
 
-    return event;
+    return aggregateEvent;
   }
 
   @Override

@@ -20,4 +20,7 @@ public interface Constants
   static String LOG_TYPE = "logType";
   static String DEFAULT_FILTER = "default";
   static String TIME_ATTR = "time";
+  static enum RESERVED_DIMENSION {
+    NOT_PRESENT
+  };
 }
