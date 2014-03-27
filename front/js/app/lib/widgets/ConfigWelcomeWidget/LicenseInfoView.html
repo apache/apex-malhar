@@ -4,7 +4,9 @@
 <p class="welcome-text well">
     <i class="icon-info-sign"></i>
     DataTorrent installation requires a license file to run.<br/>
+    <% if (license.isDefault()) { %>
     You have been given 25 GB license for one year.<br/>
+    <% } %>
     You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of the license any time.<br/>
     If you already have a license file, you can <a href="#" class="go-to-upload action-link">upload it</a>.
 </p>
