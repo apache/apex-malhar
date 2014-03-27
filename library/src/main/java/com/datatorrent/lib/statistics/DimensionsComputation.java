@@ -41,17 +41,17 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 @ShipContainingJars(classes = {TCustomHashMap.class, HashingStrategy.class})
 public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputation.AggregateEvent> implements Operator
 {
-  private Unifier<AggregateEvent> unifier;
+  private Unifier<AGGREGATE> unifier;
 
-  public void setUnifier(Unifier<AggregateEvent> unifier)
+  public void setUnifier(Unifier<AGGREGATE> unifier)
   {
     this.unifier = unifier;
   }
 
-  public final transient DefaultOutputPort<AggregateEvent> output = new DefaultOutputPort<AggregateEvent>()
+  public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>()
   {
     @Override
-    public Unifier<AggregateEvent> getUnifier()
+    public Unifier<AGGREGATE> getUnifier()
     {
       if (DimensionsComputation.this.unifier == null) {
         return super.getUnifier();

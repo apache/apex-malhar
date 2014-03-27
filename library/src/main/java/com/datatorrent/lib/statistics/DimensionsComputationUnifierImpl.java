@@ -30,14 +30,14 @@ import com.datatorrent.api.Operator;
  *
  * @param <EVENT>
  */
-public class DimensionsComputationUnifierImpl<EVENT> extends BaseOperator implements Operator.Unifier<DimensionsComputation.AggregateEvent>
+public class DimensionsComputationUnifierImpl<EVENT, AGGREGATE extends DimensionsComputation.AggregateEvent> extends BaseOperator implements Operator.Unifier<AGGREGATE>
 {
   @Nonnull
-  private DimensionsComputation.Aggregator<EVENT>[] aggregators;
+  private DimensionsComputation.Aggregator<EVENT, AGGREGATE>[] aggregators;
   @Nonnull
-  private final Map<DimensionsComputation.AggregateEvent, DimensionsComputation.AggregateEvent> aggregates;
+  private final Map<AGGREGATE, AGGREGATE> aggregates;
 
-  public final transient DefaultOutputPort<DimensionsComputation.AggregateEvent> output = new DefaultOutputPort<DimensionsComputation.AggregateEvent>();
+  public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>();
 
   public DimensionsComputationUnifierImpl()
   {
@@ -51,15 +51,15 @@ public class DimensionsComputationUnifierImpl<EVENT> extends BaseOperator implem
    *
    * @param aggregators
    */
-  public void setAggregators(@Nonnull DimensionsComputation.Aggregator<EVENT>[] aggregators)
+  public void setAggregators(@Nonnull DimensionsComputation.Aggregator<EVENT, AGGREGATE>[] aggregators)
   {
     this.aggregators = aggregators;
   }
 
   @Override
-  public void process(DimensionsComputation.AggregateEvent tuple)
+  public void process(AGGREGATE tuple)
   {
-    DimensionsComputation.AggregateEvent destination = aggregates.get(tuple);
+    AGGREGATE destination = aggregates.get(tuple);
     if (destination == null) {
       aggregates.put(tuple, tuple);
     }
@@ -71,7 +71,7 @@ public class DimensionsComputationUnifierImpl<EVENT> extends BaseOperator implem
 
   public void endWindow()
   {
-    for (DimensionsComputation.AggregateEvent value : aggregates.values()) {
+    for (AGGREGATE value : aggregates.values()) {
       output.emit(value);
     }
     aggregates.clear();
