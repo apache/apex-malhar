@@ -85,6 +85,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     startOfBucketsInMillis = calendar.getTimeInMillis();
     expiryTime.set(startOfBucketsInMillis);
     noOfBuckets = (int) Math.ceil((now - startOfBucketsInMillis) / (bucketSpanInMillis * 1.0));
+    bucketStore.setNoOfBuckets(noOfBuckets);
   }
 
   @Override
