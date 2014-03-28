@@ -50,7 +50,9 @@ public class HdfsBucketStoreTest
   public static void setUp()
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
-    hdfsBucketStore = new HdfsBucketStore<DummyEvent>(TOTAL_BUCKETS, true);
+    hdfsBucketStore = new HdfsBucketStore<DummyEvent>();
+    hdfsBucketStore.setNoOfBuckets(TOTAL_BUCKETS);
+    hdfsBucketStore.setWriteEventKeysOnly(true);
 
     Map<String, Object> parameters = Maps.newHashMap();
     parameters.put(HdfsBucketStore.APP_PATH, applicationPath);

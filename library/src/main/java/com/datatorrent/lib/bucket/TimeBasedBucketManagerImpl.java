@@ -32,6 +32,10 @@ import org.slf4j.LoggerFactory;
  */
 public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends BucketManagerImpl<T>
 {
+  public static int DEF_DAYS_SPAN = 2;
+  public static long DEF_BUCKET_SPAN_MILLIS = 60000;
+
+  private int daysSpan;
   @Min(1)
   protected long bucketSpanInMillis;
   @Min(0)
@@ -41,25 +45,54 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   private transient AtomicLong endOBucketsInMillis;
   private transient Timer bucketSlidingTimer;
 
-  TimeBasedBucketManagerImpl()
+  public TimeBasedBucketManagerImpl()
   {
     super();
+    daysSpan = DEF_DAYS_SPAN;
+    bucketSpanInMillis = DEF_BUCKET_SPAN_MILLIS;
+    expiryTime = new AtomicLong();
+    recomputeNumberOfBuckets();
   }
 
-  protected TimeBasedBucketManagerImpl(Builder<T> builder)
+  /**
+   * Number of past days for which events are processed.
+   *
+   * @param daysSpan
+   */
+  public void setDaysSpan(int daysSpan)
   {
-    super(builder);
-    this.bucketSpanInMillis = builder.bucketSpanInMillis;
-    this.startOfBucketsInMillis = builder.startOfBucketsInMillis;
-    this.expiryTime = new AtomicLong();
+    this.daysSpan = daysSpan;
+    recomputeNumberOfBuckets();
+  }
+
+  /**
+   * Sets the number of milliseconds a bucket spans.
+   *
+   * @param bucketSpanInMillis
+   */
+  public void setBucketSpanInMillis(long bucketSpanInMillis)
+  {
+    this.bucketSpanInMillis = bucketSpanInMillis;
+    recomputeNumberOfBuckets();
+  }
+
+  private void recomputeNumberOfBuckets()
+  {
+    Calendar calendar = Calendar.getInstance();
+    long now = calendar.getTimeInMillis();
+
+    calendar.add(Calendar.DATE, -daysSpan);
+    startOfBucketsInMillis = calendar.getTimeInMillis();
     expiryTime.set(startOfBucketsInMillis);
+    noOfBuckets = (int) Math.ceil((now - startOfBucketsInMillis) / (bucketSpanInMillis * 1.0));
   }
 
   @Override
   public TimeBasedBucketManagerImpl<T> cloneWithProperties()
   {
-    TimeBasedBucketManagerImpl<T> clone = this.newBuilder().build();
-    clone.committedWindow = committedWindow;
+    TimeBasedBucketManagerImpl<T> clone = new TimeBasedBucketManagerImpl<T>();
+    copyPropertiesTo(clone);
+    clone.bucketSpanInMillis = bucketSpanInMillis;
     clone.startOfBucketsInMillis = startOfBucketsInMillis;
     clone.expiryTime = expiryTime;
     return clone;
@@ -71,6 +104,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     bucketSlidingTimer = new Timer();
     endOBucketsInMillis = new AtomicLong();
     endOBucketsInMillis.set(startOfBucketsInMillis + noOfBuckets * bucketSpanInMillis);
+    logger.debug("bucket properties {}, {}", daysSpan, bucketSpanInMillis);
     logger.debug("bucket time params: start {}, expiry {}, end {}", startOfBucketsInMillis, expiryTime, endOBucketsInMillis);
 
     bucketSlidingTimer.scheduleAtFixedRate(new TimerTask()
@@ -108,78 +142,6 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   {
     bucketSlidingTimer.cancel();
     super.shutdownService();
-  }
-
-  public static class Builder<T extends Event & Bucketable> extends BucketManagerImpl.Builder<T>
-  {
-    protected long bucketSpanInMillis;
-    private long startOfBucketsInMillis;
-
-    /**
-     * Creates a TimeBasedBucketManagerImpl builder with following default values:<br/>
-     * <ul>
-     * <li>
-     * {@link #noOfBucketsInMemory} =  if {m@link #noOfBuckets} > {@value #DEF_NUM_BUCKETS_MEM} then {@value #DEF_NUM_BUCKETS_MEM};
-     * otherwise {@link #noOfBuckets}
-     * </li>
-     *
-     * <li>
-     * {@link #maxNoOfBucketsInMemory} = {@link #noOfBucketsInMemory} * 2
-     * </li>
-     *
-     * <li>
-     * {@link #millisPreventingBucketEviction} = {@value #DEF_MILLIS_PREVENTING_EVICTION}
-     * </li>
-     *
-     * <li>
-     * {@link #bucketStore} = {@link HdfsBucketStore}
-     * </li>
-     * </ul>
-     *
-     * @param writeEventKeysOnly true for keeping only event keys in memory and store; false otherwise.
-     * @param numberOfDays       number of past days for which events are processed.
-     * @param bucketSpanInMillis number of milliseconds a bucket spans.
-     */
-    public Builder(boolean writeEventKeysOnly, int numberOfDays, long bucketSpanInMillis)
-    {
-      super(writeEventKeysOnly);
-      this.bucketSpanInMillis = bucketSpanInMillis;
-
-      Calendar calendar = Calendar.getInstance();
-      long now = calendar.getTimeInMillis();
-
-      calendar.add(Calendar.DATE, -numberOfDays);
-      this.startOfBucketsInMillis = calendar.getTimeInMillis();
-
-      this.noOfBuckets = (int) Math.ceil((now - startOfBucketsInMillis) / (bucketSpanInMillis * 1.0));
-      this.bucketStore = new HdfsBucketStore<T>(noOfBuckets, writeEventKeysOnly);
-      this.noOfBucketsInMemory = noOfBuckets > DEF_NUM_BUCKETS_MEM ? DEF_NUM_BUCKETS_MEM : noOfBuckets;
-      this.maxNoOfBucketsInMemory = noOfBucketsInMemory * 2;
-      this.millisPreventingBucketEviction = DEF_MILLIS_PREVENTING_EVICTION;
-    }
-
-    private Builder(boolean writeEventKeysOnly, int noOfBuckets, long startOfBucketsInMillis, long bucketSpanInMillis)
-    {
-      super(writeEventKeysOnly, noOfBuckets);
-      this.bucketSpanInMillis = bucketSpanInMillis;
-      this.startOfBucketsInMillis = startOfBucketsInMillis;
-    }
-
-    @Override
-    public TimeBasedBucketManagerImpl<T> build()
-    {
-      return new TimeBasedBucketManagerImpl<T>(this);
-    }
-  }
-
-  @Override
-  protected Builder<T> newBuilder()
-  {
-    return (Builder<T>) new Builder<T>(writeEventKeysOnly, noOfBuckets, startOfBucketsInMillis, bucketSpanInMillis)
-      .noOfBucketsInMemory(noOfBucketsInMemory)
-      .maxNoOfBucketsInMemory(maxNoOfBucketsInMemory)
-      .millisPreventingBucketEviction(millisPreventingBucketEviction)
-      .bucketStore(bucketStore);
   }
 
   @Override

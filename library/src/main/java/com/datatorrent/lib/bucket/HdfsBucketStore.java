@@ -56,10 +56,10 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   static transient final String BUCKETS_SUBDIR = "buckets";
 
   //Check-pointed
-  private final boolean writeEventKeysOnly;
+  private boolean writeEventKeysOnly;
   @Min(1)
   protected int noOfBuckets;
-  private final Map<Long, Long>[] bucketPositions;
+  private Map<Long, Long>[] bucketPositions;
   private Class<Object> eventKeyClass;
   private Class<T> eventClass;
 
@@ -72,28 +72,24 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   private transient int partitionMask;
   private transient long committedWindowOfLastRun;
 
-  private HdfsBucketStore()
+  public HdfsBucketStore()
   {
     //Used for kryo serialization
-    writeEventKeysOnly = false;
-    noOfBuckets = 0;
-    bucketPositions = null;
+    committedWindowOfLastRun = -1;
   }
 
-  /**
-   * Constructs an hdfs bucket store
-   *
-   * @param noOfBuckets        total no. of buckets
-   * @param writeEventKeysOnly true for writing only event keys in the store; false otherwise.
-   */
   @SuppressWarnings("unchecked")
-  public HdfsBucketStore(int noOfBuckets, boolean writeEventKeysOnly)
+  @Override
+  public void setNoOfBuckets(int noOfBuckets)
   {
     this.noOfBuckets = noOfBuckets;
-    this.writeEventKeysOnly = writeEventKeysOnly;
     bucketPositions = (Map<Long, Long>[]) Array.newInstance(HashMap.class, noOfBuckets);
+  }
 
-    committedWindowOfLastRun = -1;
+  @Override
+  public void setWriteEventKeysOnly(boolean writeEventKeysOnly)
+  {
+    this.writeEventKeysOnly = writeEventKeysOnly;
   }
 
   /**

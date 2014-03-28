@@ -356,6 +356,11 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     this.bucketManager = Preconditions.checkNotNull(bucketManager, "storage manager");
   }
 
+  public BucketManager<INPUT> getBucketManager()
+  {
+    return this.bucketManager;
+  }
+
   public boolean getBypass()
   {
     return bypass;
@@ -370,7 +375,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
    * Gets the {@link BucketStore} where events are persisted.
    *
    * @param context operator context.
-   * @return {@link BucketStore} for persisting events.
+   * @return
    */
   protected abstract com.datatorrent.lib.bucket.Context getBucketContext(OperatorContext context);
 
