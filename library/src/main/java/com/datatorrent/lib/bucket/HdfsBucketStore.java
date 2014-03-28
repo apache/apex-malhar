@@ -60,6 +60,8 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Min(1)
   protected int noOfBuckets;
   private final Map<Long, Long>[] bucketPositions;
+  private Class<Object> eventKeyClass;
+  private Class<T> eventClass;
 
   //Non check-pointed
   private transient FileSystem fs;
@@ -69,8 +71,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   private transient Set<Integer> partitionKeys;
   private transient int partitionMask;
   private transient long committedWindowOfLastRun;
-  private transient Class<Object> eventKeyClass;
-  private transient Class<T> eventClass;
 
   private HdfsBucketStore()
   {
