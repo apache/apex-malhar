@@ -37,6 +37,7 @@ var textHash = {
     'buffer_server_bps_label'    :  'buffer server bytes/s',
     'container_id_label'         :  'container id',
     'container_label'            :  'container',
+    'cores_label'                :  'cores',
     'cpu_percentage_label'       :  'cpu %',
     'current_wid_label'          :  'current wID',
     'ended_at_label'             :  'ended at',

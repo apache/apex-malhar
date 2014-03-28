@@ -88,7 +88,10 @@ var ModalView = BaseView.extend({
 		this.delegateEvents();
 	},
 
-	close: function() {
+	close: function(e) {
+		if (e && typeof e.preventDefault === 'function') {
+            e.preventDefault();
+        }
 		this.$el.modal('hide');
 	},
 
