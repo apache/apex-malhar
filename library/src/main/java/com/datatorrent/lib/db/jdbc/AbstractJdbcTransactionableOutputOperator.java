@@ -83,6 +83,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
       processBatch();
     }
     super.endWindow();
+    tuples.clear();
   }
 
   @Override
