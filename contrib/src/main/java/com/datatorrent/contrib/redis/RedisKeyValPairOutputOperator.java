@@ -35,6 +35,13 @@ public class RedisKeyValPairOutputOperator<K, V> extends AbstractRedisAggregateO
   protected final Map<Object, Object> map = new HashMap<Object, Object>();
 
   @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+    map.clear();
+  }
+
+  @Override
   public void processTuple(KeyValPair<K, V> t)
   {
     map.put(t.getKey(), t.getValue());

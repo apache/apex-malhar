@@ -34,6 +34,13 @@ public class RedisMapOutputOperator<K, V> extends AbstractRedisAggregateOutputOp
   protected final Map<Object, Object> map = new HashMap<Object, Object>();
 
   @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+    map.clear();
+  }
+
+  @Override
   public void processTuple(Map<K, V> t)
   {
     map.putAll(t);
