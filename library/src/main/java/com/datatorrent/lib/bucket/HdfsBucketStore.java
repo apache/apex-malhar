@@ -64,7 +64,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   private Class<T> eventClass;
 
   //Non check-pointed
-//  private transient FileSystem fs;
   private transient String bucketRoot;
   private transient Configuration configuration;
   private transient Kryo serde;
@@ -108,12 +107,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     this.configuration = new Configuration();
     this.serde = new Kryo();
     this.serde.setClassLoader(Thread.currentThread().getContextClassLoader());
-//    try {
-//      this.fs = FileSystem.get(new Path(bucketRoot).toUri(), configuration);
-//    }
-//    catch (IOException e) {
-//      throw new RuntimeException(e);
-//    }
     if (logger.isDebugEnabled()) {
       for (int i = 0; i < bucketPositions.length; i++) {
         if (bucketPositions[i] != null) {
@@ -140,8 +133,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   public void storeBucketData(long window, Map<Integer, Map<Object, T>> data) throws IOException
   {
     Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
-    FileSystem fs = FileSystem.get(dataFilePath.toUri(), configuration);
-
+    FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration);
     FSDataOutputStream dataStream = new FSDataOutputStream(fs.create(dataFilePath), null);
 
     Output output = new Output(dataStream);
@@ -209,7 +201,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 
       //Read data only for the windows in which bucketIdx had events.
       Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
-      FileSystem fs = FileSystem.get(dataFile.toUri(), configuration);
+      FileSystem fs = FileSystem.newInstance(dataFile.toUri(), configuration);
 
       FSDataInputStream stream = new FSDataInputStream(fs.open(dataFile));
       stream.seek(bucketPositions[bucketIdx].get(window));
