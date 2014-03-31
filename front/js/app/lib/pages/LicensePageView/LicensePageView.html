@@ -7,6 +7,9 @@
     .license-page-main .inner {
         padding: 10px;
     }
+    .license-page-main .file_upload_target {
+        margin-left: 0;
+    }
 </style>
 <div class="container license-page-main">
     <div class="inner">
@@ -42,12 +45,8 @@
             <% } %>
 
             <h4>Upload License</h4>
-            <p>Use the area below to upload an existing license file.</p>
+            <p>Use the area below to upload an existing license file. This will replace your current license.</p>
             <div class="file-upload-target"></div>
-
-            <p>
-                You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of the license any time.
-            </p>
 
         <% } else { %>
             

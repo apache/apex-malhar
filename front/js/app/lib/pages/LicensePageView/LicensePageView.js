@@ -1,4 +1,5 @@
 var _ = require('underscore');
+var Notifier = DT.lib.Notifier;
 var kt = require('knights-templar');
 var BaseView = require('bassview');
 
@@ -18,11 +19,17 @@ var LicensePageView = BaseView.extend({
         }));
 
         this.listenTo(this.filesToUpload, 'upload_success', function() {
-            console.log('success');
+            Notifier.success({
+                title: 'License File Successfully Uploaded',
+                text: 'The information on the license page should updated. If it does not, try refreshing the page'
+            });
         });
 
         this.listenTo(this.filesToUpload, 'upload_error', function (jqXHR) {
-            console.log('failure');
+            Notifier.error({
+                title: 'Error Uploading License',
+                text: 'Something went wrong while trying to upload that license file. Ensure it is a valid file and try again. If the problem persists, please contact <a href="mailto:support@datatorrent.com">support@datatorrent.com</a>'
+            })
         });
 
         this.license = options.app.license;
