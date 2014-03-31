@@ -86,7 +86,7 @@ public class TimeBasedBucketManagerTest
   {
     manager.shutdownService();
     Path root = new Path(applicationPath);
-    FileSystem fs = FileSystem.get(root.toUri(), new Configuration());
+    FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
     fs.delete(root, true);
   }
 }

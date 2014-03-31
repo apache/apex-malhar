@@ -206,7 +206,7 @@ public class DeduperTest
   {
     Path root = new Path(applicationPath);
     try {
-      FileSystem fs = FileSystem.get(root.toUri(), new Configuration());
+      FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
       fs.delete(root, true);
     }
     catch (IOException e) {

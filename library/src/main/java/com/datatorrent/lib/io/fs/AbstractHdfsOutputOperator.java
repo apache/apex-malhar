@@ -200,7 +200,7 @@ public abstract class AbstractHdfsOutputOperator<T> extends BaseOperator
   public void setup(OperatorContext context)
   {
     try {
-      fs = FileSystem.get(new Configuration());
+      fs = FileSystem.newInstance(new Configuration());
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }

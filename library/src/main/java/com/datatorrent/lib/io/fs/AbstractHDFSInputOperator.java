@@ -36,7 +36,7 @@ public abstract class AbstractHDFSInputOperator extends AbstractFileInputOperato
   {
     try {
       Path _filePath = new Path(filePath);
-      fs = FileSystem.get(_filePath.toUri(), new Configuration());
+      fs = FileSystem.newInstance(_filePath.toUri(), new Configuration());
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
