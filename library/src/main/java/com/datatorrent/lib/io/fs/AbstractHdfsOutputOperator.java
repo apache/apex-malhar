@@ -211,8 +211,11 @@ public abstract class AbstractHdfsOutputOperator<T> extends BaseOperator
   {
     try {
       closeFile();
+      if(fs != null){
+        fs.close();
+      }
     } catch (IOException ex) {
-      throw new RuntimeException("Failed to close file. ", ex);
+      throw new RuntimeException(ex);
     }
     fs = null;
     filePathPattern = null;
