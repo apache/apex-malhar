@@ -688,7 +688,6 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public void setup(com.datatorrent.api.Context context)
   {
-    // offset = ctx.getInteger(OFFSET_KEY, 4);
     Configuration conf = new Configuration();
     if (baseDir == null) {
       baseDir = conf.get("hadoop.tmp.dir");
@@ -701,7 +700,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     skipFile = -1;
 
     try {
-      fs = FileSystem.get(conf);
+      fs = FileSystem.newInstance(conf);
       Path path = new Path(baseDir);
 
       if (!fs.exists(path)) {
