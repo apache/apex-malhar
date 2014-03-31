@@ -229,6 +229,8 @@ public class RedisStore implements TransactionableKeyValueStore
     }
   }
 
+  // This method does not work if value in the map contains hash values
+  // Use individual puts instead
   @Override
   public void putAll(Map<Object, Object> m)
   {
