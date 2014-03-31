@@ -22,6 +22,7 @@ import com.datatorrent.lib.streamquery.AbstractSqlStreamOperator.InputSchema.Col
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -33,9 +34,15 @@ import java.util.Map;
 public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
 {
   protected transient ArrayList<PreparedStatement> insertStatements = new ArrayList<PreparedStatement>(5);
-  protected transient PreparedStatement execStatement;
+    protected List<String> execStmtStringList = new ArrayList<String>();
+  protected transient ArrayList<PreparedStatement> execStatements = new ArrayList<PreparedStatement>(5);
   protected transient ArrayList<PreparedStatement> deleteStatements = new ArrayList<PreparedStatement>(5);
   protected transient Connection db;
+
+  public void addExecStatementString(String stmt) {
+       this.execStmtStringList.add(stmt);
+  }
+
 
   @Override
   public void setup(OperatorContext context)
@@ -86,7 +93,9 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
         insertStatements.add(i, db.prepareStatement(insertStmt));
         deleteStatements.add(i, db.prepareStatement("DELETE FROM SESSION." + inputSchema.name));
       }
-      execStatement = db.prepareStatement(statement);
+        for (String stmtStr: execStmtStringList) {
+            execStatements.add(db.prepareStatement(stmtStr));
+        }
     }
     catch (SQLException ex) {
       throw new RuntimeException(ex);
@@ -134,21 +143,16 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
       db.commit();
       if (bindings != null) {
         for (int i = 0; i < bindings.size(); i++) {
-          execStatement.setString(i, bindings.get(i).toString());
+            for (PreparedStatement stmt: execStatements) {
+                stmt.setString(i, bindings.get(i).toString());
+            }
         }
       }
-      ResultSet res = execStatement.executeQuery();
-      ResultSetMetaData resmeta = res.getMetaData();
-      int columnCount = resmeta.getColumnCount();
-      while (res.next()) {
-        HashMap<String, Object> resultRow = new HashMap<String, Object>();
-        for (int i = 1; i <= columnCount; i++) {
-          resultRow.put(resmeta.getColumnName(i), res.getObject(i));
-        }
-        this.result.emit(resultRow);
-      }
-      execStatement.clearParameters();
 
+
+     for (PreparedStatement stmt: execStatements) {
+          executePreparedStatement(stmt);
+      }
       for (PreparedStatement st: deleteStatements) {
         st.executeUpdate();
         st.clearParameters();
@@ -159,6 +163,20 @@ public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
     }
     bindings = null;
   }
+
+    private void executePreparedStatement(PreparedStatement statement) throws SQLException {
+        ResultSet res = statement.executeQuery();
+        ResultSetMetaData resmeta = res.getMetaData();
+        int columnCount = resmeta.getColumnCount();
+        while (res.next()) {
+            HashMap<String, Object> resultRow = new HashMap<String, Object>();
+            for (int i = 1; i <= columnCount; i++) {
+                resultRow.put(resmeta.getColumnName(i), res.getObject(i));
+            }
+            this.result.emit(resultRow);
+        }
+        statement.clearParameters();
+    }
 
   @Override
   public void teardown()

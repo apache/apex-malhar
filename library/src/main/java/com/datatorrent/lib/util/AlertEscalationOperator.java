@@ -43,15 +43,7 @@ public class AlertEscalationOperator extends BaseOperator implements Partitionab
     @Override
     public void process(Object tuple)
     {
-      long now = System.currentTimeMillis();
-      if (inAlertSince < 0) {
-        inAlertSince = now;
-      }
-      lastTupleTimeStamp = now;
-      if (activated && (lastAlertTimeStamp < 0 || lastAlertTimeStamp + alertInterval < now)) {
-        processTuple(tuple);
-        lastAlertTimeStamp = now;
-      }
+      processTuple(tuple);
     }
 
   };
@@ -60,7 +52,16 @@ public class AlertEscalationOperator extends BaseOperator implements Partitionab
 
   public void processTuple(Object tuple)
   {
-    alert.emit(tuple);
+      long now = System.currentTimeMillis();
+      if (inAlertSince < 0) {
+          inAlertSince = now;
+      }
+      lastTupleTimeStamp = now;
+      if (activated && (lastAlertTimeStamp < 0 || lastAlertTimeStamp + alertInterval < now)) {
+          alert.emit(tuple);
+          lastAlertTimeStamp = now;
+      }
+
   }
 
   public long getTimeout()
