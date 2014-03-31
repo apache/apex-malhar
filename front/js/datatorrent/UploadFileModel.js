@@ -85,7 +85,7 @@ var UploadFileModel = BaseModel.extend({
         xhr.addEventListener('readystatechange', function() {
             if (this.readyState == 4)  {
                 if (this.status != 200 && this.status != 301 && this.status != 302) {
-                    self.trigger('upload_error', this.status, this.statusText);
+                    self.trigger('upload_error', this.status, this.statusText, this);
                 } else {
                     self.trigger('upload_success', self);
                 }

@@ -18,18 +18,34 @@ var LicensePageView = BaseView.extend({
             collection: this.filesToUpload
         }));
 
-        this.listenTo(this.filesToUpload, 'upload_success', function() {
+        this.listenTo(this.filesToUpload, 'upload_success', _.bind(function() {
             Notifier.success({
                 title: 'License File Successfully Uploaded',
                 text: 'The information on the license page should updated. If it does not, try refreshing the page'
             });
-        });
+            this.license.fetch();
+        },this));
 
-        this.listenTo(this.filesToUpload, 'upload_error', function (jqXHR) {
+        this.listenTo(this.filesToUpload, 'upload_error', function (status, statusText, xhr) {
+
+            var errtitle = 'Error Uploading License (' + xhr.status + ')';
+            var errtext  = 'Ensure it is a valid file and try again. If the problem persists, please contact <a href="mailto:support@datatorrent.com">support@datatorrent.com</a>';
+            var response = { message: 'An unknown error occurred'};
+
+            if (xhr.status === 400) {
+                try {
+                    response = JSON.parse(xhr.response);
+                } catch (e) {
+                    // no parseable response
+                }
+            }
+
+            errtext = response.message + '. ' + errtext;
+
             Notifier.error({
-                title: 'Error Uploading License',
-                text: 'Something went wrong while trying to upload that license file. Ensure it is a valid file and try again. If the problem persists, please contact <a href="mailto:support@datatorrent.com">support@datatorrent.com</a>'
-            })
+                title: errtitle,
+                text: errtext
+            });
         });
 
         this.license = options.app.license;
