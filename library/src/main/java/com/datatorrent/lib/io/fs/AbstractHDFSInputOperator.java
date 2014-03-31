@@ -64,6 +64,7 @@ public abstract class AbstractHDFSInputOperator extends AbstractFileInputOperato
     if(fs != null){
       try {
         fs.close();
+	fs = null;
       }
       catch (IOException e) {
         throw new RuntimeException(e);
