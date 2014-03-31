@@ -15,57 +15,33 @@
  */
 package com.datatorrent.contrib.db;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import com.datatorrent.lib.datamodel.converter.Converter;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 import com.datatorrent.lib.db.DataStoreWriter;
 
-
 /**
  * Output operator to write tuples to given data store
- * Tuples are written in batches at each endwindow
  *
  * @param <INPUT> input type
- * @param <OUTPUT> output type
+ * @param <OUTPUT> type expected by store writer
  */
 public class DataStoreOutputOperator<INPUT, OUTPUT> extends AbstractStoreOutputOperator<INPUT, DataStoreWriter<OUTPUT>>
 {
-  /*
-   * cache tuples to insert in end window
-   */
-  private List<OUTPUT> cache = new ArrayList<OUTPUT>();
-  private long currentWindowId;
   /*
    * converter used to convert input type to output type
    */
   private Converter<INPUT, OUTPUT> converter;
 
   /**
-   * converts input tuple type to output tuple type and caches them
+   * Process tuple
    *
-   * @param t input tuple
+   * @param tuple input tuple
    */
   @Override
-  public void processTuple(INPUT t)
+  public void processTuple(INPUT tuple)
   {
-    cache.add(converter.convert(t));
-  }
-
-  @Override
-  public void beginWindow(long windowId)
-  {
-    currentWindowId = windowId;
-    super.beginWindow(windowId);
-  }
-
-  @Override
-  public void endWindow()
-  {
-    // write to db
-    store.batchInsert(cache, currentWindowId);
-    cache.clear();
+    OUTPUT outTuple = converter.convert(tuple);
+    store.process(outTuple);
   }
 
   /**

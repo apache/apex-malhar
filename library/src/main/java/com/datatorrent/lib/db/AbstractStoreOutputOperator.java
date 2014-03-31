@@ -77,11 +77,6 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
   }
 
   @Override
-  public void beginWindow(long windowId)
-  {
-  }
-
-  @Override
   public void teardown()
   {
     try {

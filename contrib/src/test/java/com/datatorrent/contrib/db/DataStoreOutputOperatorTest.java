@@ -16,16 +16,20 @@
 package com.datatorrent.contrib.db;
 
 import java.util.*;
-import junit.framework.Assert;
 
+import javax.validation.constraints.NotNull;
+
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.datamodel.converter.Converter;
+import com.datatorrent.lib.db.DataStoreWriter;
 
-import com.datatorrent.contrib.mongodb.MongoDBMapWriter;
-import java.io.IOException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import com.datatorrent.contrib.mongodb.MongoDBConnectable;
 
 /**
  * Test class to test {@link DataStoreOutputOperator}
@@ -33,14 +37,77 @@ import java.util.logging.Logger;
 public class DataStoreOutputOperatorTest
 {
   /**
-   * Test the {@link DataStoreOutputOperator} using the mongoDG writer {@link MongoDBMapWriter}
+   * Test writer to write to mongo db
+   */
+  public class TestMongoDBMapWriter extends MongoDBConnectable implements DataStoreWriter<Map<String, Object>>
+  {
+    /*
+     * table in which data is inserted
+     */
+    @NotNull
+    protected String table;
+
+    @Override
+    public void process(Map<String, Object> tuple)
+    {
+      BasicDBObject doc = new BasicDBObject();
+      Object dt_id = tuple.get("dt_id");
+      BasicDBObject query = new BasicDBObject();
+      query.put("dt_id", dt_id);
+      doc.putAll(tuple);
+      db.getCollection(table).update(query, doc, true, false);
+    }
+
+    /**
+     * Returns list of all tuples from the specified table
+     *
+     * @param table table to query from
+     * @return
+     */
+    @SuppressWarnings("rawtypes")
+    public List<Map> find(String table)
+    {
+      DBCursor cursor = db.getCollection(table).find();
+      DBObject next;
+      ArrayList<Map> result = new ArrayList<Map>();
+      while (cursor.hasNext()) {
+        next = cursor.next();
+        result.add(next.toMap());
+      }
+      return result;
+    }
+
+    /**
+     * Drops the specified table from the database
+     *
+     * @param table table to drop
+     */
+    public void dropTable(String table)
+    {
+      db.getCollection(table).drop();
+    }
+
+    /**
+     * setter for table to write to
+     *
+     * @param table table
+     */
+    public void setTable(String table)
+    {
+      this.table = table;
+    }
+
+  }
+
+  /**
+   * Test the {@link DataStoreOutputOperator} using the mongoDG writer {@link TestMongoDBMapWriter}
    */
   @Test
   @SuppressWarnings("unchecked")
   public void testMongoDbOutput()
   {
     final String tableName = "testAggr";
-    MongoDBMapWriter<String, Object> dataStore = new MongoDBMapWriter<String, Object>();
+    TestMongoDBMapWriter dataStore = new TestMongoDBMapWriter();
     dataStore.setHostName("localhost");
     dataStore.setDataBase("testComputations");
     dataStore.setTable(tableName);
@@ -58,12 +125,21 @@ public class DataStoreOutputOperatorTest
       oper.beginWindow(1);
 
       HashMap<String, Object> map = new HashMap<String, Object>();
+      map.put("dt_id", 1);
       map.put("dim1", "dim11val");
       map.put("dim2", "dim21val");
       map.put("aggr1", "aggr1val");
       oper.input.process(map);
 
       map = new HashMap<String, Object>();
+      map.put("dt_id", 1);
+      map.put("dim1", "dim11val");
+      map.put("dim2", "dim21val");
+      map.put("aggr1", "aggr1val_updated");
+      oper.input.process(map);
+
+      map = new HashMap<String, Object>();
+      map.put("dt_id", 2);
       map.put("dim1", "dim12val");
       map.put("aggr1", "aggr12val");
       map.put("aggr2", "aggr22val");
@@ -76,17 +152,17 @@ public class DataStoreOutputOperatorTest
       List<Map> list = dataStore.find(tableName);
 
       Assert.assertEquals("result tuple count", 2, list.size());
+
       Map map1 = list.get(0);
-      Assert.assertEquals("first tuple size", 4, map1.size());
+      Assert.assertEquals("first tuple size", 5, map1.size());
       Assert.assertEquals("first tuple dimension", "dim11val", map1.get("dim1"));
-      Assert.assertEquals("first tuple aggregate", "aggr1val", map1.get("aggr1"));
+      Assert.assertEquals("first tuple aggregate", "aggr1val_updated", map1.get("aggr1"));
+
       Map map2 = list.get(1);
-      Assert.assertEquals("second tuple size", 5, map2.size());
+      Assert.assertEquals("second tuple size", 6, map2.size());
       Assert.assertEquals("second tuple dimension", "dim12val", map2.get("dim1"));
       Assert.assertEquals("second tuple aggregate", "aggr22val", map2.get("aggr2"));
       oper.teardown();
-
-
     }
     finally {
       dataStore.connect();

@@ -1,25 +1,57 @@
 /*
- *  Copyright (c) 2012-2014 Malhar, Inc.
- *  All Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package com.datatorrent.contrib.db;
 
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAGContext;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.datamodel.converter.Converter;
+import com.datatorrent.lib.db.TransactionableDataStoreWriter;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
-import com.datatorrent.contrib.redis.RedisMapWriter;
+import com.datatorrent.contrib.redis.RedisStore;
 
 /**
- *
- * @author Ashwin Chandra Putta <ashwin@datatorrent.com>
+ * Test operator to test {@link TransactionableDataStoreOutputOperator}
  */
-public class TransactionalDataStoreOutputOperatorTest
+public class TransactionableDataStoreOutputOperatorTest
 {
+  /**
+   * Test redis writer
+   */
+  public static class TestRedisMapWriter extends RedisStore implements TransactionableDataStoreWriter<Map<Object, Object>>
+  {
+    @Override
+    public void process(Map<Object, Object> tuple)
+    {
+      putAll(tuple);
+    }
+
+  }
+
+  /**
+   * Test {@link TransactionableDataStoreOutputOperator} using {@link TestRedisMapWriter}
+   */
   @Test
   @SuppressWarnings("unchecked")
   public void testTransactionalRedisOutput()
@@ -34,12 +66,14 @@ public class TransactionalDataStoreOutputOperatorTest
 
     };
 
-    RedisMapWriter dataStore = new RedisMapWriter();
+    TestRedisMapWriter dataStore = new TestRedisMapWriter();
     try {
       TransactionableDataStoreOutputOperator<Map<String, Object>, Map<Object, Object>> oper = new TransactionableDataStoreOutputOperator<Map<String, Object>, Map<Object, Object>>();
       oper.setStore(dataStore);
       oper.setConverter(converter);
-      oper.setup(null);
+      AttributeMap attrs = new DefaultAttributeMap();
+      attrs.put(DAG.APPLICATION_ID, "test_appid");
+      oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attrs));
 
       oper.beginWindow(1);
 
@@ -57,7 +91,6 @@ public class TransactionalDataStoreOutputOperatorTest
       oper.input.process(map);
 
       oper.endWindow();
-
 
       Assert.assertEquals("first tuple dimension", "dim11val", dataStore.get("t1_dim1"));
       Assert.assertEquals("first tuple aggregate", "aggr1val", dataStore.get("t1_aggr1"));

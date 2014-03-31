@@ -16,14 +16,9 @@
 package com.datatorrent.lib.db;
 
 /**
- * Interface for writing tuples to the data store
+ * Interface for writing tuples to the data store in transactions
  * @param <T>
  */
-public interface DataStoreWriter<T> extends Connectable
+public interface TransactionableDataStoreWriter<T> extends DataStoreWriter<T>, TransactionableStore
 {
-  /**
-   * Write the tuple to the data store
-   * @param tuple 
-   */
-  public void process(T tuple);
 }
