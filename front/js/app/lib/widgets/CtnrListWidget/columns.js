@@ -66,6 +66,9 @@ function nodeSorter(row1, row2) {
 }
 
 function heartbeatFormatter(value, row) {
+    if (value + '' === '-1') {
+        return '-';
+    }
     return new Date(value*1).toLocaleTimeString();
 }
 
