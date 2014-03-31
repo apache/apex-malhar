@@ -256,6 +256,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         return fileOffset;
       } catch (IOException ex) {
         logger.warn("Error while storing the bytes {}", ex.getMessage());
+        closeFs();
         throw new RuntimeException(ex);
       }
     }
@@ -302,6 +303,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       long cleanedFile = byteArrayToLong(cleanedOffset, offset);
       if (retrievalFile < cleanedFile || (retrievalFile == cleanedFile && retrievalOffset < byteArrayToLong(cleanedOffset, 0))) {
         logger.warn("The address asked has been deleted");
+        closeFs();
         throw new IllegalArgumentException(String.format("The data for address %s has already been deleted", Arrays.toString(identifier)));
       }
     }
@@ -332,6 +334,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       Path path = new Path(basePath, String.valueOf(retrievalFile));
       if (!fs.exists(path)) {
         retrievalFile = -1;
+        closeFs();
         throw new RuntimeException(String.format("File %s does not exist", path.toString()));
       }
 
@@ -393,6 +396,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   {
     // logger.debug("retrieveNext");
     if (retrievalFile == -1) {
+      closeFs();
       throw new RuntimeException("Call retrieve first");
     }
 
@@ -473,6 +477,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
     } catch (IOException e) {
       logger.warn("not able to close the streams {}", e.getMessage());
+      closeFs();
       throw new RuntimeException(e);
     } finally {
 
@@ -524,6 +529,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       flushedLong = 0;
 
     } catch (IOException e) {
+      closeFs();
       throw new RuntimeException(e);
     }
   }
@@ -550,6 +556,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         flushedFileWriteOffset = fileWriteOffset;
       } catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
+        closeFs();
         throw new RuntimeException(ex);
       }
     }
@@ -569,13 +576,13 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     } catch (IOException e) {
       try {
         if (!Arrays.equals(readData(file), lastStoredOffset)) {
+          closeFs();
           throw new RuntimeException(e);
         }
-      } catch (NumberFormatException e1) {
+      } catch (Exception e1) {
+        closeFs();
         throw new RuntimeException(e1);
-      } catch (IOException e1) {
-        throw new RuntimeException(e1);
-      }
+      }      
     }
   }
 
@@ -670,6 +677,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
           updateFlushedOffset(new Path(basePath, fileName + BOOK_KEEPING_FILE_OFFSET), dataOffset);
         } catch (IOException ex) {
           logger.warn("not able to close the stream {}", ex.getMessage());
+          closeFs();
           throw new RuntimeException(ex);
         }
       }
@@ -701,18 +709,17 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     skipFile = -1;
 
     try {
-      fs = FileSystem.get(conf);
       Path path = new Path(baseDir);
-
+      basePath = new Path(path, id);
+      fs = FileSystem.newInstance(conf);
       if (!fs.exists(path)) {
+        closeFs();
         throw new RuntimeException(String.format("baseDir passed (%s) doesn't exist.", baseDir));
       }
       if (!fs.isDirectory(path)) {
+        closeFs();
         throw new RuntimeException(String.format("baseDir passed (%s) is not a directory.", baseDir));
       }
-
-      basePath = new Path(path, id);
-
       if (!restore) {
         fs.delete(basePath, true);
       }
@@ -766,9 +773,21 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       }
 
     } catch (IOException io) {
+      closeFs();
       throw new RuntimeException(io);
     }
-
+  }
+  
+  private void closeFs(){
+    if(fs != null){
+      try {
+        fs.close();
+        fs = null;
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   private long getFlushedFileWriteOffset(Path filePath) throws IOException
