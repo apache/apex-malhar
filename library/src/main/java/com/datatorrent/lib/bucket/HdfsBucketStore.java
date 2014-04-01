@@ -70,6 +70,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   private transient Set<Integer> partitionKeys;
   private transient int partitionMask;
   private transient long committedWindowOfLastRun;
+  private transient FileSystem fs;
 
   public HdfsBucketStore()
   {
@@ -114,6 +115,12 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
         }
       }
     }
+    try {
+      this.fs = FileSystem.newInstance(new Path(bucketRoot).toUri(), configuration);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -122,6 +129,12 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Override
   public void teardown()
   {
+    try {
+      fs.close();
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     configuration.clear();
   }
 
@@ -133,7 +146,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   public void storeBucketData(long window, Map<Integer, Map<Object, T>> data) throws IOException
   {
     Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
-    FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration);
     FSDataOutputStream dataStream = new FSDataOutputStream(fs.create(dataFilePath), null);
 
     Output output = new Output(dataStream);
@@ -202,8 +214,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 
       //Read data only for the windows in which bucketIdx had events.
       Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
-      FileSystem fs = FileSystem.newInstance(dataFile.toUri(), configuration);
-
       FSDataInputStream stream = new FSDataInputStream(fs.open(dataFile));
       stream.seek(bucketPositions[bucketIdx].get(window));
 
