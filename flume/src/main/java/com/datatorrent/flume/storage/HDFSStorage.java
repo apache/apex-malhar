@@ -37,7 +37,7 @@ import com.datatorrent.flume.sink.Server;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- *
+ * 
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  * @since 0.9.3
  */
@@ -128,7 +128,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This stores the Identifier information identified in the last store function call
-   *
+   * 
    * @param ctx
    */
   @Override
@@ -139,7 +139,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if (id == null) {
         throw new IllegalArgumentException("id can't be  null.");
       }
-    } else {
+    }
+    else {
       id = tempId;
     }
 
@@ -158,7 +159,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   *
+   * 
    * @param path
    *          - the location of the file
    * @return
@@ -175,7 +176,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function writes the bytes to a file specified by the path
-   *
+   * 
    * @param path
    *          the file location
    * @param data
@@ -189,7 +190,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     if (fs.getScheme().equals("file")) {
       // local FS does not support hflush and does not flush native stream
       fsOutputStream = new FSDataOutputStream(new FileOutputStream(Path.getPathWithoutSchemeAndAuthority(path).toString()), null);
-    } else {
+    }
+    else {
       fsOutputStream = fs.create(path);
     }
     fsOutputStream.write(data);
@@ -213,12 +215,14 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         currentWrittenFile++;
         if (fileWriteOffset > bookKeepingFileOffset) {
           fileWriteOffset = bytesToWrite;
-        } else {
+        }
+        else {
           fileWriteOffset = 0;
         }
         try {
           bookKeepingFileOffset = getFlushedFileWriteOffset(new Path(basePath, currentWrittenFile + BOOK_KEEPING_FILE_OFFSET));
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
           bookKeepingFileOffset = 0;
         }
       }
@@ -241,7 +245,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
           // writeData(flushedCounterFile, String.valueOf(currentWrittenFile).getBytes()).close();
           dataStream = writeData(new Path(basePath, String.valueOf(currentWrittenFile)), Ints.toByteArray(slice.length));
           dataStream.write(slice.buffer, slice.offset, slice.length);
-        } else {
+        }
+        else {
           dataStream.write(Ints.toByteArray(slice.length));
           dataStream.write(slice.buffer, slice.offset, slice.length);
         }
@@ -254,7 +259,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
           Server.writeLong(fileOffset, 0, calculateOffset(fileWriteOffset, currentWrittenFile));
         }
         return fileOffset;
-      } catch (IOException ex) {
+      }
+      catch (IOException ex) {
         logger.warn("Error while storing the bytes {}", ex.getMessage());
         closeFs();
         throw new RuntimeException(ex);
@@ -269,7 +275,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   /**
-   *
+   * 
    * @param b
    * @param size
    * @param startIndex
@@ -356,7 +362,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       readStream = new FSDataInputStream(fs.open(path));
       readStream.seek(retrievalOffset);
       return retrieveHelper();
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       logger.warn(e.getMessage());
       resetRetrieval();
       return null;
@@ -369,9 +376,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if (readStream != null) {
         readStream.close();
       }
-    } catch (IOException io) {
+    }
+    catch (IOException io) {
       logger.warn("Failed Close", io);
-    } finally {
+    }
+    finally {
       retrievalFile = -1;
       readStream = null;
     }
@@ -385,7 +394,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     retrievalOffset += length + DATA_LENGTH_BYTE_SIZE;
     if (retrievalOffset >= flushedLong) {
       Server.writeLong(data, 0, calculateOffset(0, retrievalFile + 1));
-    } else {
+    }
+    else {
       Server.writeLong(data, 0, calculateOffset(retrievalOffset, retrievalFile));
     }
     return data;
@@ -428,7 +438,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       }
       readStream.seek(retrievalOffset);
       return retrieveHelper();
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       logger.warn(" error while retrieving {}", e.getMessage());
       return null;
     }
@@ -475,11 +486,13 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       } while (cleanedFileCounter < cleanFileIndex);
       // writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
 
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       logger.warn("not able to close the streams {}", e.getMessage());
       closeFs();
       throw new RuntimeException(e);
-    } finally {
+    }
+    finally {
 
     }
   }
@@ -491,7 +504,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   {
     try {
       fs.delete(basePath, true);
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       logger.warn(e.getMessage());
     }
   }
@@ -521,14 +535,16 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if (flushedFileCounter != -1) {
         currentWrittenFile = flushedFileCounter;
         fileWriteOffset = flushedFileWriteOffset;
-      } else {
+      }
+      else {
         currentWrittenFile = 0;
         fileWriteOffset = 0;
       }
 
       flushedLong = 0;
 
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       closeFs();
       throw new RuntimeException(e);
     }
@@ -554,7 +570,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         writeData(flushedCounterFile, String.valueOf(currentWrittenFile).getBytes()).close();
         updateFlushedOffset(new Path(basePath, currentWrittenFile + OFFSET_SUFFIX), fileWriteOffset);
         flushedFileWriteOffset = fileWriteOffset;
-      } catch (IOException ex) {
+      }
+      catch (IOException ex) {
         logger.warn("not able to close the stream {}", ex.getMessage());
         closeFs();
         throw new RuntimeException(ex);
@@ -573,16 +590,18 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     Server.writeLong(lastStoredOffset, 0, bytesWritten);
     try {
       writeData(file, lastStoredOffset).close();
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       try {
         if (!Arrays.equals(readData(file), lastStoredOffset)) {
           closeFs();
           throw new RuntimeException(e);
         }
-      } catch (Exception e1) {
+      }
+      catch (Exception e1) {
         closeFs();
         throw new RuntimeException(e1);
-      }      
+      }
     }
   }
 
@@ -675,7 +694,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         try {
           dataStream.close();
           updateFlushedOffset(new Path(basePath, fileName + BOOK_KEEPING_FILE_OFFSET), dataOffset);
-        } catch (IOException ex) {
+        }
+        catch (IOException ex) {
           logger.warn("not able to close the stream {}", ex.getMessage());
           closeFs();
           throw new RuntimeException(ex);
@@ -696,7 +716,6 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public void setup(com.datatorrent.api.Context context)
   {
-    // offset = ctx.getInteger(OFFSET_KEY, 4);
     Configuration conf = new Configuration();
     if (baseDir == null) {
       baseDir = conf.get("hadoop.tmp.dir");
@@ -756,7 +775,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
           String strFlushedFileCounter = new String(readData(flushedCounterFile));
           if (strFlushedFileCounter.isEmpty()) {
             logger.warn("empty flushed file");
-          } else {
+          }
+          else {
             flushedFileCounter = Long.valueOf(strFlushedFileCounter);
             flushedFileWriteOffset = getFlushedFileWriteOffset(new Path(basePath, flushedFileCounter + OFFSET_SUFFIX));
             bookKeepingFileOffset = getFlushedFileWriteOffset(new Path(basePath, flushedFileCounter + BOOK_KEEPING_FILE_OFFSET));
@@ -772,14 +792,16 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         fileWriteOffset = 0;
       }
 
-    } catch (IOException io) {
+    }
+    catch (IOException io) {
       closeFs();
       throw new RuntimeException(io);
     }
   }
-  
-  private void closeFs(){
-    if(fs != null){
+
+  private void closeFs()
+  {
+    if (fs != null) {
       try {
         fs.close();
         fs = null;
@@ -809,9 +831,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if (readStream != null) {
         readStream.close();
       }
-    } catch (IOException e) {
+    }
+    catch (IOException e) {
       throw new RuntimeException(e);
-    } finally {
+    }
+    finally {
       closeUnflushedFiles();
     }
 
