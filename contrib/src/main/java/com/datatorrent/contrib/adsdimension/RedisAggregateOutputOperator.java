@@ -15,25 +15,37 @@
  */
 package com.datatorrent.contrib.adsdimension;
 
+import java.util.Map;
+
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 import redis.clients.jedis.Jedis;
 
+import com.google.common.collect.Maps;
+
 import com.datatorrent.api.annotation.ShipContainingJars;
 
-import com.datatorrent.contrib.redis.RedisStore;
-import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
+import com.datatorrent.contrib.redis.AbstractRedisAggregateOutputOperator;
 import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
 
 /**
  * An {@link AbstractTransactionableStoreOutputOperator} that persists aggregated dimensions in the Redis store.<br/>
  */
 @ShipContainingJars(classes = {DateTimeFormatter.class, DateTimeFormat.class, Jedis.class})
-public class RedisAggregateOutputOperator extends AbstractPassThruTransactionableStoreOutputOperator<AdInfo, RedisStore>
+public class RedisAggregateOutputOperator extends AbstractRedisAggregateOutputOperator<AdInfo>
 {
+  private final Map<String, AdInfo> cache;
+
   public RedisAggregateOutputOperator()
   {
-    store = new RedisStore();
+    cache = Maps.newHashMap();
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+    cache.clear();
   }
 
   @Override
@@ -52,12 +64,22 @@ public class RedisAggregateOutputOperator extends AbstractPassThruTransactionabl
     }
 
     String key = keyBuilder.toString();
-    store.hincrByFloat(key, "0", event.impressions + event.clicks);
-    store.hincrByFloat(key, "1", event.cost);
-    store.hincrByFloat(key, "2", event.revenue);
-    store.hincrByFloat(key, "3", event.impressions);
-    store.hincrByFloat(key, "4", event.clicks);
+    cache.put(key, event);
+  }
+
+  @Override
+  public void storeAggregate()
+  {
+    for (String key : cache.keySet()) {
+      AdInfo value = cache.get(key);
+      store.hincrByFloat(key, "0", value.impressions + value.clicks);
+      store.hincrByFloat(key, "1", value.cost);
+      store.hincrByFloat(key, "2", value.revenue);
+      store.hincrByFloat(key, "3", value.impressions);
+      store.hincrByFloat(key, "4", value.clicks);
+    }
   }
 
   public static final DateTimeFormatter formatter = DateTimeFormat.forPattern("'m|'yyyyMMddHHmm");
+
 }
