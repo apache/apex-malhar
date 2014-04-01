@@ -794,7 +794,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
     }
     catch (IOException io) {
-      closeFs();
+
       throw new RuntimeException(io);
     }
   }
@@ -807,7 +807,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         fs = null;
       }
       catch (IOException e) {
-        throw new RuntimeException(e);
+        logger.debug(e.getMessage());
       }
     }
   }
