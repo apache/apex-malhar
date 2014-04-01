@@ -19,6 +19,7 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
@@ -43,6 +44,8 @@ public class Application implements StreamingApplication
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
 
     DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent>());
+    dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 60);
+
     String[] dimensionSpecs = new String[] {
       "time=" + TimeUnit.MINUTES,
       "time=" + TimeUnit.MINUTES + ":adUnit",

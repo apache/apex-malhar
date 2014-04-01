@@ -62,4 +62,18 @@ public interface BucketStore<T extends Bucketable>
    */
   @Nonnull
   Map<Object, T> fetchBucket(int bucketIdx) throws Exception;
+
+  /**
+   * Sets the total number of buckets.
+   *
+   * @param noOfBuckets
+   */
+  void setNoOfBuckets(int noOfBuckets);
+
+  /**
+   * Set true for keeping only event keys in memory and store; false otherwise.
+   *
+   * @param writeEventKeysOnly
+   */
+  void setWriteEventKeysOnly(boolean writeEventKeysOnly);
 }

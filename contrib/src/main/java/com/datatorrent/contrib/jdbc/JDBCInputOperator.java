@@ -15,15 +15,19 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
+import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
 
 /**
  * JDBC input adapter operator, which reads data from persistence database through JAVA DataBase Connectivity (JDBC) API
@@ -45,13 +49,11 @@ import org.slf4j.LoggerFactory;
  * tableName: If this adapter is writing only to a single table, table name has to be set here unless it is mentioned in column mapping.<br>
  * For writing to multiple table this field is ignored as the table names have to be specified in column mapping. See Column mapping field below for details.<br>
  * batchSize: This has to be at least 1 or more. If not specified the default batch size is 1000.<br>
- * <br>
- * Benchmarks:<br>
- * TBD<br>
- * <br>
  *
  * @since 0.3.2
+ * @deprecated use {@link AbstractJdbcInputOperator}
  */
+@Deprecated
 public abstract class JDBCInputOperator<T> extends JDBCOperatorBase implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCInputOperator.class);

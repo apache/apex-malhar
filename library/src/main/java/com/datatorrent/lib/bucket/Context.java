@@ -72,6 +72,16 @@ public class Context
   }
 
   @Nullable
+  public Boolean getBoolean(String name, Boolean defaultValue)
+  {
+    Boolean value = (Boolean) parameters.get(name);
+    if (value != null) {
+      return value;
+    }
+    return defaultValue;
+  }
+
+  @Nullable
   public Object getObject(String name, Object defaultValue)
   {
     Object value = parameters.get(name);

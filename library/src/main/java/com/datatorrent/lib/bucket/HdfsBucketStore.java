@@ -56,44 +56,40 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   static transient final String BUCKETS_SUBDIR = "buckets";
 
   //Check-pointed
-  private final boolean writeEventKeysOnly;
+  private boolean writeEventKeysOnly;
   @Min(1)
   protected int noOfBuckets;
-  private final Map<Long, Long>[] bucketPositions;
+  private Map<Long, Long>[] bucketPositions;
+  private Class<Object> eventKeyClass;
+  private Class<T> eventClass;
 
   //Non check-pointed
-  private transient FileSystem fs;
   private transient String bucketRoot;
   private transient Configuration configuration;
   private transient Kryo serde;
   private transient Set<Integer> partitionKeys;
   private transient int partitionMask;
   private transient long committedWindowOfLastRun;
-  private transient Class<Object> eventKeyClass;
-  private transient Class<T> eventClass;
+  private transient FileSystem fs;
 
-  private HdfsBucketStore()
+  public HdfsBucketStore()
   {
     //Used for kryo serialization
-    writeEventKeysOnly = false;
-    noOfBuckets = 0;
-    bucketPositions = null;
+    committedWindowOfLastRun = -1;
   }
 
-  /**
-   * Constructs an hdfs bucket store
-   *
-   * @param noOfBuckets        total no. of buckets
-   * @param writeEventKeysOnly true for writing only event keys in the store; false otherwise.
-   */
   @SuppressWarnings("unchecked")
-  public HdfsBucketStore(int noOfBuckets, boolean writeEventKeysOnly)
+  @Override
+  public void setNoOfBuckets(int noOfBuckets)
   {
     this.noOfBuckets = noOfBuckets;
-    this.writeEventKeysOnly = writeEventKeysOnly;
     bucketPositions = (Map<Long, Long>[]) Array.newInstance(HashMap.class, noOfBuckets);
+  }
 
-    committedWindowOfLastRun = -1;
+  @Override
+  public void setWriteEventKeysOnly(boolean writeEventKeysOnly)
+  {
+    this.writeEventKeysOnly = writeEventKeysOnly;
   }
 
   /**
@@ -112,18 +108,18 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     this.configuration = new Configuration();
     this.serde = new Kryo();
     this.serde.setClassLoader(Thread.currentThread().getContextClassLoader());
-    try {
-      this.fs = FileSystem.get(new Path(bucketRoot).toUri(), configuration);
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }
     if (logger.isDebugEnabled()) {
       for (int i = 0; i < bucketPositions.length; i++) {
         if (bucketPositions[i] != null) {
           logger.debug("bucket idx {} position {}", i, bucketPositions[i]);
         }
       }
+    }
+    try {
+      this.fs = FileSystem.newInstance(new Path(bucketRoot).toUri(), configuration);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -133,6 +129,12 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Override
   public void teardown()
   {
+    try {
+      fs.close();
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
     configuration.clear();
   }
 
@@ -183,6 +185,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     }
     output.close();
     dataStream.close();
+    fs.close();
   }
 
   /**
@@ -240,6 +243,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       }
       input.close();
       stream.close();
+      fs.close();
     }
     return bucketData;
   }

@@ -50,7 +50,9 @@ public class HdfsBucketStoreTest
   public static void setUp()
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
-    hdfsBucketStore = new HdfsBucketStore<DummyEvent>(TOTAL_BUCKETS, true);
+    hdfsBucketStore = new HdfsBucketStore<DummyEvent>();
+    hdfsBucketStore.setNoOfBuckets(TOTAL_BUCKETS);
+    hdfsBucketStore.setWriteEventKeysOnly(true);
 
     Map<String, Object> parameters = Maps.newHashMap();
     parameters.put(HdfsBucketStore.APP_PATH, applicationPath);
@@ -77,7 +79,7 @@ public class HdfsBucketStoreTest
   public static void tearDown() throws Exception
   {
     Path root = new Path(applicationPath);
-    FileSystem fs = FileSystem.get(root.toUri(), new Configuration());
+    FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
     fs.delete(root, true);
   }
 
@@ -85,7 +87,7 @@ public class HdfsBucketStoreTest
   public void testStoreBucketData() throws Exception
   {
     hdfsBucketStore.storeBucketData(0, data);
-    FileSystem fileSystem = FileSystem.get(rootBucketPath.toUri(), new Configuration());
+    FileSystem fileSystem = FileSystem.newInstance(rootBucketPath.toUri(), new Configuration());
     Assert.assertTrue(fileSystem.exists(rootBucketPath));
     deleteFsPath(rootBucketPath);
   }
@@ -121,7 +123,7 @@ public class HdfsBucketStoreTest
 
   private void deleteFsPath(Path path) throws IOException
   {
-    FileSystem fileSystem = FileSystem.get(path.toUri(), new Configuration());
+    FileSystem fileSystem = FileSystem.newInstance(path.toUri(), new Configuration());
     fileSystem.delete(path, true);
   }
 

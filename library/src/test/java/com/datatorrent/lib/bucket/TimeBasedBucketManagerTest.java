@@ -43,9 +43,9 @@ public class TimeBasedBucketManagerTest
 
   private static class TestBucketManager<T extends Event & Bucketable> extends TimeBasedBucketManagerImpl<T>
   {
-    TestBucketManager(Builder<T> builder)
+    TestBucketManager()
     {
-      super(builder);
+      super();
     }
   }
 
@@ -76,7 +76,8 @@ public class TimeBasedBucketManagerTest
     parameters.put(HdfsBucketStore.PARTITION_KEYS, Sets.newHashSet(0));
     parameters.put(HdfsBucketStore.PARTITION_MASK, 0);
 
-    manager = new TestBucketManager<DummyEvent>(new TimeBasedBucketManagerImpl.Builder<DummyEvent>(true, 2, BUCKET_SPAN));
+    manager = new TestBucketManager<DummyEvent>();
+    manager.setBucketSpanInMillis(BUCKET_SPAN);
     manager.startService(new Context(parameters), new BucketManagerTest.TestStorageManagerListener());
   }
 
@@ -85,7 +86,7 @@ public class TimeBasedBucketManagerTest
   {
     manager.shutdownService();
     Path root = new Path(applicationPath);
-    FileSystem fs = FileSystem.get(root.toUri(), new Configuration());
+    FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
     fs.delete(root, true);
   }
 }

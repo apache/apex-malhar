@@ -40,7 +40,7 @@ public class BucketManagerTest
   private static final String APPLICATION_PATH_PREFIX = "target/BucketManagerTest";
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
-  private static BucketManager<DummyEvent> manager;
+  private static BucketManagerImpl<DummyEvent> manager;
   private static String applicationPath;
   private static int bucket1 = 2875;
   private static int bucket2 = 2876;
@@ -130,8 +130,11 @@ public class BucketManagerTest
     parameters.put(HdfsBucketStore.PARTITION_KEYS, Sets.newHashSet(0));
     parameters.put(HdfsBucketStore.PARTITION_MASK, 0);
 
-    manager = new BucketManagerImpl.Builder<DummyEvent>(true, 2880).noOfBucketsInMemory(1)
-      .maxNoOfBucketsInMemory(1).millisPreventingBucketEviction(1).build();
+    manager = new BucketManagerImpl<DummyEvent>();
+    manager.setNoOfBuckets(2880);
+    manager.setNoOfBucketsInMemory(1);
+    manager.setMaxNoOfBucketsInMemory(1);
+    manager.setMillisPreventingBucketEviction(1);
     manager.startService(new Context(parameters), new TestStorageManagerListener());
   }
 
@@ -140,7 +143,7 @@ public class BucketManagerTest
   {
     manager.shutdownService();
     Path root = new Path(applicationPath);
-    FileSystem fs = FileSystem.get(root.toUri(), new Configuration());
+    FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
     fs.delete(root, true);
   }
 }

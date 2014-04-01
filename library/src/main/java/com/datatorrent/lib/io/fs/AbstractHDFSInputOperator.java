@@ -26,7 +26,7 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * Input Adapter for reading from HDFS File
- *
+ * 
  * @since 0.3.2
  */
 public abstract class AbstractHDFSInputOperator extends AbstractFileInputOperator<FSDataInputStream>
@@ -34,14 +34,6 @@ public abstract class AbstractHDFSInputOperator extends AbstractFileInputOperato
   @Override
   public FSDataInputStream openFile(String filePath)
   {
-    try {
-      Path _filePath = new Path(filePath);
-      fs = FileSystem.get(_filePath.toUri(), new Configuration());
-    }
-    catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-
     try {
       return fs.open(new Path(filePath));
     }
@@ -58,11 +50,26 @@ public abstract class AbstractHDFSInputOperator extends AbstractFileInputOperato
   @Override
   public void setup(OperatorContext context)
   {
+    try {
+      fs = FileSystem.newInstance(new Configuration());
+    }
+    catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   @Override
   public void teardown()
   {
+    if(fs != null){
+      try {
+        fs.close();
+	fs = null;
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
   }
 
   @Override

@@ -72,8 +72,9 @@ import com.datatorrent.common.util.DTThrowable;
  */
 public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>, Runnable
 {
-  public static int DEF_NUM_BUCKETS_MEM = 100;
-  public static long DEF_MILLIS_PREVENTING_EVICTION = 5 * 60000;
+  public static int DEF_NUM_BUCKETS = 1000;
+  public static int DEF_NUM_BUCKETS_MEM = 120;
+  public static long DEF_MILLIS_PREVENTING_EVICTION = 10 * 60000;
   private static long RESERVED_BUCKET_KEY = -2;
   //Check-pointed
   @Min(1)
@@ -127,17 +128,72 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     }).create();
     lock = new Lock();
     committedWindow = -1;
+
+    noOfBuckets = DEF_NUM_BUCKETS;
+    noOfBucketsInMemory = DEF_NUM_BUCKETS_MEM;
+    maxNoOfBucketsInMemory = DEF_NUM_BUCKETS_MEM + 100;
+    millisPreventingBucketEviction = DEF_MILLIS_PREVENTING_EVICTION;
+    writeEventKeysOnly = true;
+
+    bucketStore = new HdfsBucketStore<T>();
+    bucketStore.setNoOfBuckets(noOfBuckets);
+    bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
   }
 
-  protected BucketManagerImpl(Builder<T> builder)
+  /**
+   * Sets the total number of buckets.
+   *
+   * @param noOfBuckets
+   */
+  public void setNoOfBuckets(int noOfBuckets)
   {
-    this();
-    this.writeEventKeysOnly = builder.writeEventKeysOnly;
-    this.noOfBuckets = builder.noOfBuckets;
-    this.noOfBucketsInMemory = builder.noOfBucketsInMemory;
-    this.millisPreventingBucketEviction = builder.millisPreventingBucketEviction;
-    this.maxNoOfBucketsInMemory = builder.maxNoOfBucketsInMemory;
-    this.bucketStore = builder.bucketStore;
+    this.noOfBuckets = noOfBuckets;
+    this.bucketStore.setNoOfBuckets(noOfBuckets);
+  }
+
+  /**
+   * Sets the number of buckets which will be kept in memory.
+   */
+  public void setNoOfBucketsInMemory(int noOfBucketsInMemory)
+  {
+    this.noOfBucketsInMemory = noOfBucketsInMemory;
+  }
+
+  /**
+   * Sets the hard limit on no. of buckets in memory.
+   */
+  public void setMaxNoOfBucketsInMemory(int maxNoOfBucketsInMemory)
+  {
+    this.maxNoOfBucketsInMemory = maxNoOfBucketsInMemory;
+  }
+
+  /**
+   * Sets the duration in millis that prevent a bucket from being off-loaded.
+   */
+  public void setMillisPreventingBucketEviction(long millisPreventingBucketEviction)
+  {
+    this.millisPreventingBucketEviction = millisPreventingBucketEviction;
+  }
+
+  /**
+   * Set true for keeping only event keys in memory and store; false otherwise.
+   *
+   * @param writeEventKeysOnly
+   */
+  public void setWriteEventKeysOnly(boolean writeEventKeysOnly)
+  {
+    this.writeEventKeysOnly = writeEventKeysOnly;
+    this.bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
+  }
+
+  /**
+   * Sets the bucket store.
+   *
+   * @param bucketStore
+   */
+  public void setBucketStore(@Nonnull BucketStore<T> bucketStore)
+  {
+    this.bucketStore = bucketStore;
   }
 
   @Override
@@ -186,8 +242,8 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
 
             //Delete the least recently used bucket in memory if the noOfBucketsInMemory threshold is reached.
             if (evictionCandidates.size() + 1 > noOfBucketsInMemory) {
+
               for (int anIndex : evictionCandidates) {
-                Preconditions.checkNotNull(buckets[anIndex], anIndex);
                 bucketHeap.add(buckets[anIndex]);
               }
               int overFlow = evictionCandidates.size() + 1 - noOfBucketsInMemory;
@@ -208,21 +264,18 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
                 evictionCandidates.remove(lruIdx);
                 buckets[lruIdx] = null;
                 listener.bucketOffLoaded(lruBucket.bucketKey);
-//                logger.debug("evicted bucket {} {}", lruBucket.bucketKey, lruIdx);
+                logger.debug("evicted bucket {} {}", lruBucket.bucketKey, lruIdx);
               }
             }
 
             Bucket<T> bucket = buckets[bucketIdx];
             if (bucket == null || bucket.bucketKey != requestedKey) {
-//              logger.debug("create bucket main {}", requestedKey);
               bucket = new Bucket<T>(requestedKey);
               buckets[bucketIdx] = bucket;
             }
             bucket.setWrittenEvents(bucketDataInStore);
             evictionCandidates.add(bucketIdx);
             listener.bucketLoaded(bucket);
-//            logger.debug("bucket resp {} {}", requestedKey, bucketIdx);
-
             bucketHeap.clear();
           }
         }
@@ -238,6 +291,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @SuppressWarnings("unchecked")
   public void startService(Context context, Listener<T> listener)
   {
+    logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
     buckets = (Bucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
     this.bucketStore.setup(context);
@@ -273,7 +327,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     Bucket<T> bucket = buckets[bucketIdx];
 
     if (bucket == null || bucket.bucketKey != bucketKey) {
-//      logger.debug("creating bucket {}", bucketKey);
       bucket = new Bucket<T>(bucketKey);
       buckets[bucketIdx] = bucket;
       dirtyBuckets.put(bucketIdx, bucket);
@@ -359,111 +412,25 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Override
   public BucketManagerImpl<T> cloneWithProperties()
   {
-    BucketManagerImpl<T> clone = this.newBuilder().build();
-    clone.committedWindow = committedWindow;
+    BucketManagerImpl<T> clone = new BucketManagerImpl<T>();
+    copyPropertiesTo(clone);
     return clone;
+  }
+
+  protected void copyPropertiesTo(BucketManagerImpl<T> other)
+  {
+    other.writeEventKeysOnly = writeEventKeysOnly;
+    other.noOfBuckets = noOfBuckets;
+    other.noOfBucketsInMemory = noOfBucketsInMemory;
+    other.maxNoOfBucketsInMemory = maxNoOfBucketsInMemory;
+    other.millisPreventingBucketEviction = millisPreventingBucketEviction;
+    other.bucketStore = bucketStore;
+    other.committedWindow = committedWindow;
   }
 
   @SuppressWarnings("ClassMayBeInterface")
   private static class Lock
   {
-  }
-
-  public static class Builder<T extends Bucketable>
-  {
-    protected int noOfBuckets;
-    protected int noOfBucketsInMemory;
-    protected int maxNoOfBucketsInMemory;
-    protected long millisPreventingBucketEviction;
-    protected boolean writeEventKeysOnly;
-    protected BucketStore<T> bucketStore;
-
-    protected Builder(boolean writeEventKeysOnly)
-    {
-      this.writeEventKeysOnly = writeEventKeysOnly;
-    }
-
-    /**
-     * Creates a BucketManagerImpl builder with following default values:<br/>
-     * <ul>
-     * <li>
-     * {@link #noOfBucketsInMemory} =  if {@link #noOfBuckets} > {@value #DEF_NUM_BUCKETS_MEM} then {@value #DEF_NUM_BUCKETS_MEM};
-     * otherwise {@link #noOfBuckets}
-     * </li>
-     *
-     * <li>
-     * {@link #maxNoOfBucketsInMemory} = {@link #noOfBucketsInMemory} * 2
-     * </li>
-     *
-     * <li>
-     * {@link #millisPreventingBucketEviction} = {@value #DEF_MILLIS_PREVENTING_EVICTION}
-     * </li>
-     *
-     * <li>
-     * {@link #bucketStore} = {@link HdfsBucketStore}
-     * </li>
-     * </ul>
-     *
-     * @param writeEventKeysOnly true for keeping only event keys in memory and store; false otherwise.
-     * @param noOfBuckets        total no. of buckets.
-     */
-    public Builder(boolean writeEventKeysOnly, int noOfBuckets)
-    {
-      this.writeEventKeysOnly = writeEventKeysOnly;
-      this.bucketStore = new HdfsBucketStore<T>(noOfBuckets, writeEventKeysOnly);
-      this.noOfBucketsInMemory = noOfBuckets > DEF_NUM_BUCKETS_MEM ? DEF_NUM_BUCKETS_MEM : noOfBuckets;
-      this.maxNoOfBucketsInMemory = noOfBucketsInMemory * 2;
-      this.millisPreventingBucketEviction = DEF_MILLIS_PREVENTING_EVICTION;
-      this.noOfBuckets = noOfBuckets;
-    }
-
-    public Builder<T> bucketStore(@Nonnull BucketStore<T> store)
-    {
-      this.bucketStore = store;
-      return this;
-    }
-
-    /**
-     * Sets the number of buckets which will be kept in memory.
-     */
-    public Builder<T> noOfBucketsInMemory(int noOfBucketsInMemory)
-    {
-      this.noOfBucketsInMemory = noOfBucketsInMemory;
-      return this;
-    }
-
-    /**
-     * Sets the hard limit on no. of buckets in memory.
-     */
-    public Builder<T> maxNoOfBucketsInMemory(int maxNoOfBucketsInMemory)
-    {
-      this.maxNoOfBucketsInMemory = maxNoOfBucketsInMemory;
-      return this;
-    }
-
-    /**
-     * Sets the duration in millis that prevent a bucket from being off-loaded.
-     */
-    public Builder<T> millisPreventingBucketEviction(long millisPreventingBucketEviction)
-    {
-      this.millisPreventingBucketEviction = millisPreventingBucketEviction;
-      return this;
-    }
-
-    public BucketManagerImpl<T> build()
-    {
-      return new BucketManagerImpl<T>(this);
-    }
-
-  }
-
-  protected Builder<T> newBuilder()
-  {
-    return new Builder<T>(writeEventKeysOnly, noOfBuckets)
-      .noOfBucketsInMemory(noOfBucketsInMemory)
-      .maxNoOfBucketsInMemory(maxNoOfBucketsInMemory)
-      .millisPreventingBucketEviction(millisPreventingBucketEviction)
-      .bucketStore(bucketStore);
   }
 
   @Override

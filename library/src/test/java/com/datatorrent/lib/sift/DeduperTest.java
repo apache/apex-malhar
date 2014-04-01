@@ -97,7 +97,7 @@ public class DeduperTest
 
   private static DummyDeduper deduper;
   private static String applicationPath;
-  private static BucketManager<DummyEvent> storageManager;
+  private static TimeBasedBucketManagerImpl<DummyEvent> storageManager;
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
@@ -195,8 +195,9 @@ public class DeduperTest
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     deduper = new DummyDeduper();
-    storageManager = new TimeBasedBucketManagerImpl.Builder<DummyEvent>(true, 2, 1000 /*1 second */)
-      .millisPreventingBucketEviction(60000).build();
+    storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
+    storageManager.setBucketSpanInMillis(1000);
+    storageManager.setMillisPreventingBucketEviction(60000);
     deduper.setBucketManager(storageManager);
   }
 
@@ -205,7 +206,7 @@ public class DeduperTest
   {
     Path root = new Path(applicationPath);
     try {
-      FileSystem fs = FileSystem.get(root.toUri(), new Configuration());
+      FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
       fs.delete(root, true);
     }
     catch (IOException e) {
