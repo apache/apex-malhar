@@ -173,6 +173,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     }
     output.close();
     dataStream.close();
+    fs.close();
   }
 
   /**
@@ -232,6 +233,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       }
       input.close();
       stream.close();
+      fs.close();
     }
     return bucketData;
   }
