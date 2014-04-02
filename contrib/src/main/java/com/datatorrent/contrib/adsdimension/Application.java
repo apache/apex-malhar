@@ -27,6 +27,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.contrib.adsdimension.AdInfo.AdInfoAggregator;
 import com.datatorrent.lib.statistics.DimensionsComputation;
+import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 
 /**
  * <p>Application class.</p>
@@ -65,6 +66,9 @@ public class Application implements StreamingApplication
     }
 
     dimensions.setAggregators(aggregators);
+    DimensionsComputationUnifierImpl unifier = new DimensionsComputationUnifierImpl();
+    unifier.setAggregators(aggregators);
+    dimensions.setUnifier(unifier);
 
     RedisAggregateOutputOperator redis = dag.addOperator("Redis", new RedisAggregateOutputOperator());
 
