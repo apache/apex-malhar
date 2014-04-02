@@ -41,6 +41,7 @@ public class RedisStore implements TransactionableKeyValueStore
   private int dbIndex = 0;
   protected int keyExpiryTime = -1;
   private transient Transaction transaction;
+  private transient int timeOut = 3000;
 
   /**
    * Gets the host.
@@ -125,7 +126,7 @@ public class RedisStore implements TransactionableKeyValueStore
   @Override
   public void connect() throws IOException
   {
-    jedis = new Jedis(host, port);
+    jedis = new Jedis(host, port,timeOut);
     jedis.connect();
     jedis.select(dbIndex);
   }
@@ -301,6 +302,24 @@ public class RedisStore implements TransactionableKeyValueStore
         jedis.expire(key, keyExpiryTime);
       }
     }
+  }
+  
+  
+
+  /**
+   * @return the timeOut
+   */
+  public int getTimeOut()
+  {
+    return timeOut;
+  }
+
+  /**
+   * @param timeOut the timeOut to set
+   */
+  public void setTimeOut(int timeOut)
+  {
+    this.timeOut = timeOut;
   }
 
   @Override
