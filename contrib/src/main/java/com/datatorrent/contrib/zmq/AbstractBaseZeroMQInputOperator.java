@@ -166,7 +166,11 @@ public void activate(OperatorContext ctx)
       ntuples = holdingBuffer.size();
     }
     for (int i = ntuples; i-- > 0;) {
-      emitTuple(holdingBuffer.poll());
+      byte[] msg = holdingBuffer.poll();
+      if (msg == null) {
+        break;
+      }
+      emitTuple(msg);
     }
   }
 }

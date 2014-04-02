@@ -15,11 +15,13 @@
  */
 package com.datatorrent.contrib.mongodb;
 
-import com.mongodb.*;
-
 import java.net.UnknownHostException;
 
 import javax.validation.constraints.NotNull;
+
+import com.mongodb.*;
+
+import com.datatorrent.lib.db.Connectable;
 
 /**
  * MongoDB base operator, which has basic information for an i/o operator.<p><br>
@@ -46,7 +48,7 @@ import javax.validation.constraints.NotNull;
  *
  * @since 0.3.2
  */
-public class MongoDBOperatorBase implements com.datatorrent.lib.database.DBConnector
+public class MongoDBConnectable implements com.datatorrent.lib.database.DBConnector, Connectable
 {
   @NotNull
   protected String hostName;
@@ -100,7 +102,7 @@ public class MongoDBOperatorBase implements com.datatorrent.lib.database.DBConne
   }
 
   @Override
-  public void setupDbConnection()
+  public void connect()
   {
     try {
       mongoClient = new MongoClient(hostName);
@@ -115,8 +117,33 @@ public class MongoDBOperatorBase implements com.datatorrent.lib.database.DBConne
   }
 
   @Override
-  public void teardownDbConnection()
+  public void disconnect()
   {
     mongoClient.close();
   }
+
+  @Override
+  public boolean connected()
+  {
+    try {
+      mongoClient.getConnector().getDBPortPool(mongoClient.getAddress()).get().ensureOpen();
+    }
+    catch (Exception ex) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public void setupDbConnection()
+  {
+    connect();
+  }
+
+  @Override
+  public void teardownDbConnection()
+  {
+    disconnect();
+  }
+
 }
