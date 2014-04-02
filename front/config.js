@@ -3,7 +3,7 @@ config.web = {};
 config.gateway = {};
 
 config.web.port = process.env.PORT || 3333;
-config.gateway.host = 'node0-cdh.aws.datatorrent.com';
-config.gateway.port = 9090;
+config.gateway.host = process.env.GATEWAY_HOST || 'localhost';
+config.gateway.port = process.env.GATEWAY_PORT || 3390;
 
 module.exports = config
