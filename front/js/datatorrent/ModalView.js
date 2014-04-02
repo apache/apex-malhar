@@ -19,6 +19,13 @@ var kt = require('knights-templar');
 var BaseView = require('bassview');
 var ModalView = BaseView.extend({
 
+	initialize: function(options) {
+		options = options || {};
+		if (options.hasOwnProperty('launchOptions')) {
+			this.launchOptions = options.launchOptions;
+		}
+	},
+
 	title: 'No title',
 
 	confirmText: text('save'),
@@ -27,13 +34,16 @@ var ModalView = BaseView.extend({
 
 	className: 'modal',
 
+    closeBtn: true,
+
 	render: function() {
 
 		var html = this.BASE_MODAL_TEMPLATE({
 			title: this.title,
 			body: this.body(),
 			confirmText: this.confirmText,
-			cancelText: this.cancelText
+			cancelText: this.cancelText,
+            closeBtn: this.closeBtn
 		});
 
 		this.$el.html(html);
@@ -67,14 +77,21 @@ var ModalView = BaseView.extend({
 		'click .confirmBtn': 'onConfirm'
 	},
 
-	launch: function() {
-		this.$el.modal({
-			show: true
-		});
+	launchOptions: {
+		show: true
+	},
+
+	launch: function(options) {
+		options = options || {};
+		options = _.defaults(options, this.launchOptions);
+		this.$el.modal(options);
 		this.delegateEvents();
 	},
 
-	close: function() {
+	close: function(e) {
+		if (e && typeof e.preventDefault === 'function') {
+            e.preventDefault();
+        }
 		this.$el.modal('hide');
 	},
 

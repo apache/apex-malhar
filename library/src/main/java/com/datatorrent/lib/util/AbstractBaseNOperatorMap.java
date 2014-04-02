@@ -16,6 +16,7 @@
 package com.datatorrent.lib.util;
 
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 import java.util.Map;
@@ -54,6 +55,19 @@ abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator
     {
       processTuple(tuple);
     }
+
+    @Override
+    public Class<? extends StreamCodec<Map<K, V>>> getStreamCodec()
+    {
+      Class<? extends StreamCodec<Map<K, V>>> streamCodec = AbstractBaseNOperatorMap.this.getStreamCodec();
+      if (streamCodec == null) {
+        return super.getStreamCodec();
+      } else {
+        return streamCodec;
+      }
+    }
+
+
   };
   @Min(1)
   int n = 1;
@@ -82,5 +96,13 @@ abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator
   public int getN()
   {
     return n;
+  }
+
+  /*
+   * Provides ability for implemented operators to provide their own stream codec
+   */
+  protected Class<? extends StreamCodec<Map<K, V>>> getStreamCodec()
+  {
+    return null;
   }
 }

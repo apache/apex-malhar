@@ -38,7 +38,7 @@ var Header = BaseView.extend({
         
         this.license = options.license;
 
-        this.listenTo(this.model, "change:mode", this.render );
+        this.listenTo(this.model.modes, "change:active", this.render );
         this.listenTo(this.license.get('agent'), 'sync', this.render);
     },
     
@@ -77,7 +77,7 @@ var Header = BaseView.extend({
     
     render: function() {
         var markup = this.template({
-            modes: this.model.serializeModes(),
+            modes: this.model.modes.toJSON(),
             client_logo: "client_logo_hadoop.jpg",
             license: this.license.toJSON()
         });

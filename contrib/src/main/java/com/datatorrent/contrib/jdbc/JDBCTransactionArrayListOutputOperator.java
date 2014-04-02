@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
+
 /**
  * JDBC output adapter operator, for ArrayList column mapping and transaction type database write. <p><br>
  * Each tuple contains an array of java object. <br>
@@ -42,7 +44,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.2
+ * @deprecated use {@link AbstractJdbcTransactionableOutputOperator}
  */
+@Deprecated
 public class JDBCTransactionArrayListOutputOperator extends JDBCTransactionOutputOperator<ArrayList<Object>>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCTransactionArrayListOutputOperator.class);

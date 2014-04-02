@@ -28,7 +28,7 @@ import org.apache.hadoop.hbase.client.ResultScanner;
  * This class provides a HBase input operator that can be used to retrieve tuples from rows in a
  * HBase table. The class should be extended by the end-operator developer. The extending class should
  * implement operationScan and getTuple methods. The operationScan method should provide a HBase Scan
- * operation object that specifies where to retrieve the tuple information from the table. The getTuple method
+ * metric object that specifies where to retrieve the tuple information from the table. The getTuple method
  * should map the contents of a Result from the Scan result to a tuple.<br>
  *
  * <br>
@@ -57,11 +57,11 @@ public abstract class HBaseScanOperator<T> extends HBaseInputOperator<T>
   }
 
   /**
-   * Return a HBase Scan operation to retrieve the tuple.
-   * The implementor should return a HBase Scan operation that specifies where to retrieve the tuple from
+   * Return a HBase Scan metric to retrieve the tuple.
+   * The implementor should return a HBase Scan metric that specifies where to retrieve the tuple from
    * the table.
    *
-   * @return The HBase Get operation
+   * @return The HBase Get metric
    */
   protected abstract Scan operationScan();
 

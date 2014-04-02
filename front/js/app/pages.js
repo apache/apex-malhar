@@ -34,6 +34,55 @@ var text = DT.text;
 exports = module.exports = [
 
     /**
+     * CONFIGURATION MODE
+     */
+    {
+        'name': 'WelcomePageView',
+        'routes': ['welcome'],
+        'view': require('./lib/pages/WelcomePageView'),
+        'paramList': [],
+        'mode': 'config',
+        'breadcrumbs': [
+            {
+                name: text('configuration'),
+                href: '#config'
+            },
+            {
+                name: text('Installation Wizard')
+            }
+        ]
+    },
+
+    {
+        'name': 'ConfigurationPageView',
+        'routes': ['config', '/config', '/configuration'],
+        'view': require('./lib/pages/ConfigPageView'),
+        'paramList': [],
+        'mode': 'config',
+        'breadcrumbs': [
+            {
+                name: text('configuration')
+            }
+        ]
+    },
+
+    {
+        name: 'LicensePageView',
+        routes: ['config/license'],
+        view: require('./lib/pages/LicensePageView'),
+        mode: 'config',
+        breadcrumbs: [
+            {
+                name: text('configuration'),
+                href: '#config'
+            },
+            {
+                name: text('License Information')
+            }
+        ]
+    },
+
+    /**
      * OPERATIONS MODE
      * 
     */

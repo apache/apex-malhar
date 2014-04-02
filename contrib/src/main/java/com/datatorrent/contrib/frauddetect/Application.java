@@ -17,32 +17,33 @@ package com.datatorrent.contrib.frauddetect;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.util.KeyValPair;
+import com.datatorrent.contrib.frauddetect.operator.HdfsStringOutputOperator;
 import com.datatorrent.contrib.frauddetect.operator.MongoDBOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.net.URI;
 
 /**
  * Fraud detection application
- *
+ * 
  * @since 0.9.0
  */
+@ApplicationAnnotation(name="FraudDetect")
 public class Application implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-  protected int appWindowCount = 1;   // 1 seconds
-  protected int aggrWindowCount = 1;   // 1 seconds
-  protected int amountSamplerWindowCount = 1;   // 30 seconds
-  protected int binSamplerWindowCount = 1;   // 30 seconds
+  protected int appWindowCount = 1; // 1 seconds
+  protected int aggrWindowCount = 1; // 1 seconds
+  protected int amountSamplerWindowCount = 1; // 30 seconds
+  protected int binSamplerWindowCount = 1; // 30 seconds
   public static final String BIN_THRESHOLD_PROPERTY = "demo.frauddetect.bin.threshold";
   public static final String AVG_THRESHOLD_PROPERTY = "demo.frauddetect.avg.threshold";
   public static final String CC_THRESHOLD_PROPERTY = "demo.frauddetect.cc.threshold";
@@ -54,7 +55,7 @@ public class Application implements StreamingApplication
   public MerchantTransactionGenerator getMerchantTransactionGenerator(String name, DAG dag)
   {
     MerchantTransactionGenerator oper = dag.addOperator(name, MerchantTransactionGenerator.class);
-//        dag.setAttribute(oper, OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCount);
+    // dag.setAttribute(oper, OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCount);
     return oper;
   }
 
@@ -84,7 +85,7 @@ public class Application implements StreamingApplication
   {
     BankIdNumberSamplerOperator oper = dag.addOperator(name, BankIdNumberSamplerOperator.class);
     oper.setThreshold(conf.getInt(BIN_THRESHOLD_PROPERTY, 20));
-    //dag.setAttribute(oper, OperatorContext.APPLICATION_WINDOW_COUNT, binSamplerWindowCount);
+    // dag.setAttribute(oper, OperatorContext.APPLICATION_WINDOW_COUNT, binSamplerWindowCount);
     dag.setAttribute(oper, OperatorContext.APPLICATION_WINDOW_COUNT, 10);
     return oper;
   }
@@ -114,7 +115,7 @@ public class Application implements StreamingApplication
   {
     SlidingWindowSumKeyVal<KeyValPair<MerchantKey, String>, Integer> oper = dag.addOperator(name, SlidingWindowSumKeyVal.class);
     oper.setWindowSize(3);
-    //dag.setAttribute(oper, OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCount);
+    // dag.setAttribute(oper, OperatorContext.APPLICATION_WINDOW_COUNT, appWindowCount);
     dag.setAttribute(oper, OperatorContext.APPLICATION_WINDOW_COUNT, 10);
     return oper;
   }
@@ -149,17 +150,17 @@ public class Application implements StreamingApplication
     oper.setHostName(conf.get(MONGO_HOST_PROPERTY, "localhost"));
     oper.setDataBase(conf.get(MONGO_DATABASE_PROPERTY, "frauddetect"));
 
-//        oper.setUserName("fraudadmin");
-//        oper.setPassWord("1234");
+    // oper.setUserName("fraudadmin");
+    // oper.setPassWord("1234");
     oper.setCollection(collection);
 
     return oper;
   }
 
-  public HdfsOutputOperator getHdfsOutputOperator(String name, DAG dag, String folderName)
+  public HdfsStringOutputOperator getHdfsOutputOperator(String name, DAG dag, String folderName)
   {
-    HdfsOutputOperator oper = dag.addOperator("hdfs", HdfsOutputOperator.class);
-    oper.setFilePath(folderName + "/%(contextId)/transactions.out.part%(partIndex)");
+    HdfsStringOutputOperator oper = dag.addOperator("hdfs", HdfsStringOutputOperator.class);
+    oper.setFilePathPattern(folderName + "/%(contextId)/transactions.out.part%(partIndex)");
     oper.setBytesPerFile(1024 * 1024 * 1024);
     return oper;
   }
@@ -167,7 +168,7 @@ public class Application implements StreamingApplication
   public ConsoleOutputOperator getConsoleOperator(String name, DAG dag, String prefix, String format)
   {
     ConsoleOutputOperator oper = dag.addOperator(name, ConsoleOutputOperator.class);
-    //oper.setStringFormat(prefix + ": " + format);
+    // oper.setStringFormat(prefix + ": " + format);
     return oper;
   }
 
@@ -180,7 +181,7 @@ public class Application implements StreamingApplication
   {
 
     try {
-      String gatewayAddress = dag.getValue(DAGContext.GATEWAY_ADDRESS);
+      String gatewayAddress = dag.getValue(DAGContext.GATEWAY_CONNECT_ADDRESS);
       if (gatewayAddress == null) {
         gatewayAddress = "localhost:9090";
       }
@@ -190,16 +191,11 @@ public class Application implements StreamingApplication
       dag.setAttribute(DAG.DEBUG, false);
       dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, 1000);
 
-      PubSubWebSocketInputOperator userTxWsInput =
-              getPubSubWebSocketInputOperator("userTxInput", dag, duri, "demos.app.frauddetect.submitTransaction");
-      PubSubWebSocketOutputOperator ccUserAlertWsOutput =
-              getPubSubWebSocketOutputOperator("ccUserAlertQueryOutput", dag, duri, "demos.app.frauddetect.fraudAlert");
-      PubSubWebSocketOutputOperator avgUserAlertwsOutput =
-              getPubSubWebSocketOutputOperator("avgUserAlertQueryOutput", dag, duri, "demos.app.frauddetect.fraudAlert");
-      PubSubWebSocketOutputOperator binUserAlertwsOutput =
-              getPubSubWebSocketOutputOperator("binUserAlertOutput", dag, duri, "demos.app.frauddetect.fraudAlert");
-      PubSubWebSocketOutputOperator txSummaryWsOutput =
-              getPubSubWebSocketOutputOperator("txSummaryWsOutput", dag, duri, "demos.app.frauddetect.txSummary");
+      PubSubWebSocketInputOperator userTxWsInput = getPubSubWebSocketInputOperator("userTxInput", dag, duri, "demos.app.frauddetect.submitTransaction");
+      PubSubWebSocketOutputOperator ccUserAlertWsOutput = getPubSubWebSocketOutputOperator("ccUserAlertQueryOutput", dag, duri, "demos.app.frauddetect.fraudAlert");
+      PubSubWebSocketOutputOperator avgUserAlertwsOutput = getPubSubWebSocketOutputOperator("avgUserAlertQueryOutput", dag, duri, "demos.app.frauddetect.fraudAlert");
+      PubSubWebSocketOutputOperator binUserAlertwsOutput = getPubSubWebSocketOutputOperator("binUserAlertOutput", dag, duri, "demos.app.frauddetect.fraudAlert");
+      PubSubWebSocketOutputOperator txSummaryWsOutput = getPubSubWebSocketOutputOperator("txSummaryWsOutput", dag, duri, "demos.app.frauddetect.txSummary");
 
       SlidingWindowSumKeyVal<KeyValPair<MerchantKey, String>, Integer> smsOperator = getSlidingWindowSumOperator("movingSum", dag);
       dag.setInputPortAttribute(smsOperator.data, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
@@ -208,10 +204,10 @@ public class Application implements StreamingApplication
       MerchantTransactionGenerator txReceiver = getMerchantTransactionGenerator("txReceiver", dag);
       MerchantTransactionInputHandler txInputHandler = getMerchantTransactionInputHandler("txInputHandler", dag);
       BankIdNumberSamplerOperator binSampler = getBankIdNumberSamplerOperator("bankInfoFraudDetector", dag, conf);
-//            dag.setAttribute(binSampler, OperatorContext.INITIAL_PARTITION_COUNT, 1);
-//            dag.setAttribute(binSampler, OperatorContext.PARTITION_TPS_MIN, 3000);
-//            dag.setAttribute(binSampler, OperatorContext.PARTITION_TPS_MAX, 6000);
-      //dag.setInputPortAttribute(binSampler.txInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
+      // dag.setAttribute(binSampler, OperatorContext.INITIAL_PARTITION_COUNT, 1);
+      // dag.setAttribute(binSampler, OperatorContext.PARTITION_TPS_MIN, 3000);
+      // dag.setAttribute(binSampler, OperatorContext.PARTITION_TPS_MAX, 6000);
+      // dag.setInputPortAttribute(binSampler.txInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
       dag.setInputPortAttribute(binSampler.txCountInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
 
       MerchantTransactionBucketOperator txBucketOperator = getMerchantTransactionBucketOperator("txFilter", dag);
@@ -221,37 +217,38 @@ public class Application implements StreamingApplication
       dag.setOutputPortAttribute(txBucketOperator.summaryTxnOutputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
 
       RangeKeyVal<MerchantKey, Long> rangeOperator = getRangeKeyValOperator("rangePerMerchant", dag);
-//            dag.setAttribute(rangeOperator, OperatorContext.INITIAL_PARTITION_COUNT, 1);
-//            dag.setAttribute(rangeOperator, OperatorContext.PARTITION_TPS_MIN, 5000);
-//            dag.setAttribute(rangeOperator, OperatorContext.PARTITION_TPS_MAX, 8000);
+      // dag.setAttribute(rangeOperator, OperatorContext.INITIAL_PARTITION_COUNT, 1);
+      // dag.setAttribute(rangeOperator, OperatorContext.PARTITION_TPS_MIN, 5000);
+      // dag.setAttribute(rangeOperator, OperatorContext.PARTITION_TPS_MAX, 8000);
       dag.setInputPortAttribute(rangeOperator.data, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
-//            StandardDeviationKeyValFilter<MerchantKey, Long> stdDevOperator = getStandardDeviationKeyValFilterOperator("stdDev", dag);
+      // StandardDeviationKeyValFilter<MerchantKey, Long> stdDevOperator =
+      // getStandardDeviationKeyValFilterOperator("stdDev", dag);
       SimpleMovingAverage<MerchantKey, Long> smaOperator = getSimpleMovingAverageOpertor("smaPerMerchant", dag);
-//            dag.setAttribute(smaOperator, OperatorContext.INITIAL_PARTITION_COUNT, 1);
-//            dag.setAttribute(smaOperator, OperatorContext.PARTITION_TPS_MIN, 3000);
-//            dag.setAttribute(smaOperator, OperatorContext.PARTITION_TPS_MAX, 6000);
+      // dag.setAttribute(smaOperator, OperatorContext.INITIAL_PARTITION_COUNT, 1);
+      // dag.setAttribute(smaOperator, OperatorContext.PARTITION_TPS_MIN, 3000);
+      // dag.setAttribute(smaOperator, OperatorContext.PARTITION_TPS_MAX, 6000);
       dag.setInputPortAttribute(smaOperator.data, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
 
       TransactionStatsAggregator txStatsAggregator = getTransactionStatsAggregator("txStatsAggregator", dag);
-      //dag.setInputPortAttribute(txStatsAggregator.minInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
-      //dag.setInputPortAttribute(txStatsAggregator.maxInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
+      // dag.setInputPortAttribute(txStatsAggregator.minInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
+      // dag.setInputPortAttribute(txStatsAggregator.maxInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
       dag.setInputPortAttribute(txStatsAggregator.rangeInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
       dag.setInputPortAttribute(txStatsAggregator.smaInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
 
       AverageAlertingOperator avgAlertingOperator = getAverageAlertingOperator("avgAlerter", dag, conf);
-//            dag.setAttribute(avgAlertingOperator, OperatorContext.INITIAL_PARTITION_COUNT, 1);
-//            dag.setAttribute(avgAlertingOperator, OperatorContext.PARTITION_TPS_MIN, 3000);
-//            dag.setAttribute(avgAlertingOperator, OperatorContext.PARTITION_TPS_MAX, 6000);
+      // dag.setAttribute(avgAlertingOperator, OperatorContext.INITIAL_PARTITION_COUNT, 1);
+      // dag.setAttribute(avgAlertingOperator, OperatorContext.PARTITION_TPS_MIN, 3000);
+      // dag.setAttribute(avgAlertingOperator, OperatorContext.PARTITION_TPS_MAX, 6000);
       dag.setInputPortAttribute(avgAlertingOperator.smaInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
-//            dag.setInputPortAttribute(avgAlertingOperator.txInputPort, Context.PortContext.PARTITION_PARALLEL, true);
+      // dag.setInputPortAttribute(avgAlertingOperator.txInputPort, Context.PortContext.PARTITION_PARALLEL, true);
       dag.setInputPortAttribute(avgAlertingOperator.txInputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
       CreditCardAmountSamplerOperator ccSamplerOperator = getTransactionAmountSamplerOperator("amountFraudDetector", dag, conf);
       dag.setInputPortAttribute(ccSamplerOperator.inputPort, Context.PortContext.QUEUE_CAPACITY, 32 * 1024);
-//            dag.setAttribute(ccSamplerOperator, OperatorContext.INITIAL_PARTITION_COUNT, 1);
-//            dag.setAttribute(ccSamplerOperator, OperatorContext.PARTITION_TPS_MIN, 3000);
-//            dag.setAttribute(ccSamplerOperator, OperatorContext.PARTITION_TPS_MAX, 6000);
+      // dag.setAttribute(ccSamplerOperator, OperatorContext.INITIAL_PARTITION_COUNT, 1);
+      // dag.setAttribute(ccSamplerOperator, OperatorContext.PARTITION_TPS_MIN, 3000);
+      // dag.setAttribute(ccSamplerOperator, OperatorContext.PARTITION_TPS_MAX, 6000);
 
-      HdfsOutputOperator hdfsOutputOperator = getHdfsOutputOperator("hdfsOutput", dag, "fraud");
+      HdfsStringOutputOperator hdfsOutputOperator = getHdfsOutputOperator("hdfsOutput", dag, "fraud");
 
       MongoDBOutputOperator mongoTxStatsOperator = getMongoDBOutputOperator("mongoTxStatsOutput", dag, "txStats", conf);
       MongoDBOutputOperator mongoBinAlertsOperator = getMongoDBOutputOperator("mongoBinAlertsOutput", dag, "binAlerts", conf);
@@ -263,7 +260,7 @@ public class Application implements StreamingApplication
       dag.addStream("txData", txReceiver.txDataOutputPort, hdfsOutputOperator.input); // dump all tx into Hdfs
       dag.addStream("userTransactions", txInputHandler.txOutputPort, txBucketOperator.txUserInputPort);
 
-      //dag.addStream("bankInfoData", txBucketOperator.binOutputPort, binSampler.txInputPort);
+      // dag.addStream("bankInfoData", txBucketOperator.binOutputPort, binSampler.txInputPort);
       dag.addStream("bankInfoData", txBucketOperator.binCountOutputPort, smsOperator.data);
       dag.addStream("bankInfoCount", smsOperator.integerSum, binSampler.txCountInputPort);
 
@@ -286,8 +283,7 @@ public class Application implements StreamingApplication
       dag.addStream("ccAlerts", ccSamplerOperator.ccAlertOutputPort, mongoCcAlertsOperator.inputPort);
       dag.addStream("ccAlertsNotification", ccSamplerOperator.ccAlertNotificationPort, ccUserAlertWsOutput.input);
 
-    }
-    catch (Exception exc) {
+    } catch (Exception exc) {
       exc.printStackTrace();
     }
   }

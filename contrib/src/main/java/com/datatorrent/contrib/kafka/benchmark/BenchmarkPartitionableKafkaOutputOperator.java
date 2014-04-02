@@ -26,8 +26,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Partitionable;
+import com.datatorrent.api.Partitioner;
 import com.yammer.metrics.Metrics;
+import java.util.Map;
 
 /**
  * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads
@@ -39,7 +40,7 @@ import com.yammer.metrics.Metrics;
  * @since 0.9.3
  */
 @ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class, Metrics.class})
-public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>
+public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>
 {
 
   private String topic = "benchmark";
@@ -52,7 +53,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
 
   //define constant message
   private byte[] constantMsg = null;
-  
+
   private int msgSize = 1024;
 
   @Override
@@ -91,10 +92,15 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
   }
 
   @Override
+  public void partitioned(Map<Integer, Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions)
+  {
+  }
+
+  @Override
   public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, int pNum)
   {
 
-    ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitionable.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionNum);
+    ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitioner.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionNum);
 
     for (int i = 0; i < partitionNum; i++) {
       BenchmarkPartitionableKafkaOutputOperator bpkoo = new BenchmarkPartitionableKafkaOutputOperator();
@@ -115,7 +121,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
     for (int i = 0; i < constantMsg.length; i++) {
       constantMsg[i] = (byte) ('a' + i%26);
     }
-    
+
     for (int i = 0; i < threadNum; i++) {
       new Thread(new Runnable() {
         @Override
@@ -192,12 +198,12 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitionable<
   {
     this.threadNum = threadNum;
   }
-  
+
   public void setMsgSize(int msgSize)
   {
     this.msgSize = msgSize;
   }
-  
+
   public int getMsgSize()
   {
     return msgSize;

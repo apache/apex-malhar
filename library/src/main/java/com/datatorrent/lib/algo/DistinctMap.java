@@ -29,7 +29,7 @@ import java.util.Map;
  * Computes and emits distinct key,val pairs (i.e drops duplicates)<p>
  * This is a pass through operator<br>
  * <br>
- * This module is same as a "FirstOf" operation on any key,val pair. At end of window all data is flushed.<br>
+ * This module is same as a "FirstOf" metric on any key,val pair. At end of window all data is flushed.<br>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
  * <b>Partitions : Yes, </b> distinct output is unified by unifier hash map operator. <br>

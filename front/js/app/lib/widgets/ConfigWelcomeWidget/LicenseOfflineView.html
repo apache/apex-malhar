@@ -1,0 +1,36 @@
+<span class="section-license">
+<h1>License</h1>
+
+<% if (loading) {  %>
+
+<p class="alert">
+    <%= DT.text('Loading...') %>
+</p>
+
+<% } else if (errorMsg) { %>
+
+<p class="alert alert-error">
+    <%= errorMsg %>
+</p>
+
+<% } else { %>
+
+<p class="alert">
+    DT Gateway has not been able to request evaluation license from <a href="https://www.datatorrent.com/">datatorrent.com</a>.
+    Please email the following request id to <a href="mailto:support@datatorrent.com?subject=License%20Request&body=<%= mailtoText %>">support@datatorrent.com</a>
+    (click on the link to open request in your email client).
+</p>
+
+<textarea readonly class="offline-textarea"><%= requestText %></textarea>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="<%= prevStateId %>">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+
+<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="LicenseInfoView">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>
+
+<% } %>
+
+</span>

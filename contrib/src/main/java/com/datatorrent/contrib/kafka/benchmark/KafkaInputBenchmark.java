@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
@@ -27,6 +28,7 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.kafka.HighlevelKafkaConsumer;
 import com.datatorrent.contrib.kafka.KafkaConsumer;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
@@ -38,6 +40,7 @@ import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
  *
  * @since 0.9.3
  */
+@ApplicationAnnotation(name="KafkaInputBenchmark")
 public class KafkaInputBenchmark implements StreamingApplication
 {
   

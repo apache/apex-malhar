@@ -21,7 +21,7 @@ import javax.validation.constraints.Null;
 
 
 /**
- * Index class to implement negate operation sql semantic on column value.
+ * Index class to implement negate metric sql semantic on column value.
  *
  * @since 0.3.4
  */

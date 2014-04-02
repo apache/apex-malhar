@@ -18,6 +18,7 @@ package com.datatorrent.lib.dedup;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -33,8 +34,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
-import com.datatorrent.api.Context;
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.DAG;
 
 import com.datatorrent.lib.bucket.*;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
@@ -49,18 +52,19 @@ public class DeduperTest
 
   private final static String APPLICATION_PATH_PREFIX = "target/DeduperTest";
   private final static String APP_ID = "DeduperTest";
+  private final static int OPERATOR_ID = 0;
 
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
-  private static class DummyDeduper extends DeduperWithTimeBuckets<DummyEvent, DummyEvent>
+  private static class DummyDeduper extends Deduper<DummyEvent, DummyEvent>
   {
 
     @Override
-    public void bucketLoaded(long bucketKey)
+    public void bucketLoaded(Bucket<DummyEvent> bucket)
     {
       try {
-        super.bucketLoaded(bucketKey);
-        eventBucketExchanger.exchange(bucketKey);
+        super.bucketLoaded(bucket);
+        eventBucketExchanger.exchange(bucket.bucketKey);
       }
       catch (InterruptedException e) {
         throw new RuntimeException(e);
@@ -68,9 +72,15 @@ public class DeduperTest
     }
 
     @Override
-    protected BucketStore<DummyEvent> getBucketStore(Context.OperatorContext context)
+    protected com.datatorrent.lib.bucket.Context getBucketContext(com.datatorrent.api.Context.OperatorContext context)
     {
-      return new HdfsBucketStore<DummyEvent>(applicationPath, 0, maxNoOfBucketsInDir, partitionKeys, partitionMask);
+      Map<String, Object> parameters = Maps.newHashMap();
+      parameters.put(HdfsBucketStore.APP_PATH, context.getValue(DAG.APPLICATION_PATH));
+      parameters.put(HdfsBucketStore.OPERATOR_ID, OPERATOR_ID);
+      parameters.put(HdfsBucketStore.PARTITION_KEYS, partitionKeys);
+      parameters.put(HdfsBucketStore.PARTITION_MASK, partitionMask);
+
+      return new com.datatorrent.lib.bucket.Context(parameters);
     }
 
     @Override
@@ -78,17 +88,33 @@ public class DeduperTest
     {
       return dummyEvent;
     }
+
+    public void addEventManuallyToWaiting(DummyEvent event)
+    {
+      waitingEvents.put(bucketManager.getBucketKeyFor(event), Lists.newArrayList(event));
+    }
   }
 
-  private static DeduperWithTimeBuckets<DummyEvent, DummyEvent> deduper;
+  private static DummyDeduper deduper;
   private static String applicationPath;
-  private static BucketManager<DummyEvent> storageManager;
-  private static List<DummyEvent> events = Lists.newArrayList();
+  private static TimeBasedBucketManagerImpl<DummyEvent> storageManager;
 
   @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testDedup()
   {
+    List<DummyEvent> events = Lists.newArrayList();
+    Calendar calendar = Calendar.getInstance();
+    for (int i = 0; i < 10; i++) {
+      events.add(new DummyEvent(i, calendar.getTimeInMillis()));
+    }
+    events.add(new DummyEvent(5, calendar.getTimeInMillis()));
+
+    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, APP_ID);
+    attributes.put(DAG.APPLICATION_PATH, applicationPath);
+
+    deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes));
     CollectorTestSink collectorTestSink = new CollectorTestSink<DummyEvent>();
     deduper.output.setSink(collectorTestSink);
 
@@ -131,6 +157,7 @@ public class DeduperTest
     Assert.assertEquals("output tuples", 5, collectorTestSink.collectedTuples.size());
     collectorTestSink.clear();
     logger.debug("end round 2");
+    deduper.teardown();
   }
 
   private void testRound(List<DummyEvent> events)
@@ -149,42 +176,37 @@ public class DeduperTest
     }
   }
 
+  @Test
+  public void testDeduperRedeploy() throws Exception
+  {
+    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, APP_ID);
+    attributes.put(DAG.APPLICATION_PATH, applicationPath);
+
+    deduper.addEventManuallyToWaiting(new DummyEvent(100, System.currentTimeMillis()));
+    deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
+    eventBucketExchanger.exchange(null, 500, TimeUnit.MILLISECONDS);
+    deduper.endWindow();
+    deduper.teardown();
+  }
+
   @BeforeClass
   public static void setup()
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     deduper = new DummyDeduper();
-    Calendar calendar = Calendar.getInstance();
-    long now = calendar.getTimeInMillis();
-
-    calendar.add(Calendar.DATE, -2);
-    long bucketStart = calendar.getTimeInMillis();
-
-    deduper.setStartOfBucketsInMillis(bucketStart);
-    deduper.setBucketSpanInMillis(1000); //1 second
-
-    int totalNumberOfBuckets = (int) ((now - deduper.getStartOfBucketsInMillis())
-      / deduper.getBucketSpanInMillis());
-
-    storageManager = new BucketManager<DummyEvent>(true, totalNumberOfBuckets, 100, 60000);
+    storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
+    storageManager.setBucketSpanInMillis(1000);
+    storageManager.setMillisPreventingBucketEviction(60000);
     deduper.setBucketManager(storageManager);
-
-    for (int i = 0; i < 10; i++) {
-      events.add(new DummyEvent(i, now));
-    }
-    events.add(new DummyEvent(5, now));
-
-    deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(APP_ID, applicationPath, 0));
   }
-
 
   @AfterClass
   public static void teardown()
   {
-    storageManager.shutdownService();
     Path root = new Path(applicationPath);
     try {
-      FileSystem fs = FileSystem.get(root.toUri(), new Configuration());
+      FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
       fs.delete(root, true);
     }
     catch (IOException e) {

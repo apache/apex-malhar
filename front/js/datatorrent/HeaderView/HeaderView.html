@@ -1,4 +1,4 @@
-<a href="#" class="brand">DataTorrent</a> <!-- platform logo -->
+<a href="#ops" class="brand">DataTorrent</a> <!-- platform logo -->
 
 <!-- <div class="nav-divider-line"></div> -->
 
@@ -12,7 +12,7 @@
         <a href="#" class="dropdown-toggle info-link" data-toggle="dropdown"><i class="icon-info-sign icon-white"></i></a>
         <ul class="dropdown-menu">
             <li class="nav-header">cluster info</li>
-            <li><a href="#" class="displayLicenseInfo">License Info</a></li>
+            <li><a href="#config/license">License Info</a></li>
             <li><a href="#" class="displayGatewayInfo">Gateway Info</a></li>
             <li><a href="#" class="displayConsoleInfo">Console Info</a></li>
             <li class="divider"></li>
@@ -25,7 +25,7 @@
     </li>
     <% _.each(modes, function(mode) { %>
     <li>
-        <a href="<%= mode.href %>" class="<%= mode.class %>"><%= mode.name %></a>
+        <a href="<%= mode.href %>" class="<%= mode.id %> <% if (mode.active) { print('active') } %>"><%= mode.name %></a>
     </li
     ><% }) %>
 </ul>
@@ -36,6 +36,6 @@
     <!-- <img src="img/<%= client_logo %>"> -->
 <!-- </div> -->
 
-<div class="header-license-usage" title="<%= DT.text('licensed_mem_bar_title')(license.agent.percentUsedLicenseMB) %>">
-    <%= DT.templates.licensed_mem_bar({agent: license.agent}) %>
+<div class="header-license-usage" title="<%= DT.text('licensed_mem_bar_title')(license.agent) %>">
+    <%= DT.templates.licensed_mem_bar({agent: license.agent, pagelink: true }) %>
 </div>

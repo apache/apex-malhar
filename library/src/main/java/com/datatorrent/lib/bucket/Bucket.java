@@ -42,20 +42,27 @@ import com.google.common.collect.Maps;
  * Operators that work with buckets can only query it but not modify it.
  * </p>
  *
- * @param <T> type of bucket events</T>
+ * @param <T> type of bucket events
  */
-public class Bucket<T extends BucketEvent>
+public class Bucket<T extends Bucketable>
 {
-  private transient Map<Object, T> unwrittenEvents;
+  private Map<Object, T> unwrittenEvents;
+  public final long bucketKey;
+
   private transient Map<Object, T> writtenEvents;
-  public final transient long bucketKey;
   private transient long lastUpdateTime;
   private transient boolean isDataOnDiskLoaded;
+
+  private Bucket()
+  {
+    bucketKey = -1;
+  }
 
   Bucket(long bucketKey)
   {
     this.bucketKey = Preconditions.checkNotNull(bucketKey, "bucket key");
     this.isDataOnDiskLoaded = false;
+    this.lastUpdateTime = System.currentTimeMillis();
   }
 
   void setWrittenEvents(@Nonnull Map<Object, T> writtenEvents)
@@ -81,6 +88,14 @@ public class Bucket<T extends BucketEvent>
   void updateAccessTime()
   {
     lastUpdateTime = System.currentTimeMillis();
+  }
+
+  void addNewEvent(Object eventKey, T event)
+  {
+    if (unwrittenEvents == null) {
+      unwrittenEvents = Maps.newHashMap();
+    }
+    unwrittenEvents.put(eventKey, event);
   }
 
   Map<Object, T> getWrittenEvents()
@@ -167,8 +182,8 @@ public class Bucket<T extends BucketEvent>
   /**
    * Finds whether the bucket contains the event.
    *
-   * @param event the {@link BucketEvent} to search for in the bucket.
-   * @return  true if bucket has the event; false otherwise.
+   * @param event the {@link Bucketable} to search for in the bucket.
+   * @return true if bucket has the event; false otherwise.
    */
   public boolean containsEvent(T event)
   {
@@ -176,5 +191,33 @@ public class Bucket<T extends BucketEvent>
       return true;
     }
     return writtenEvents != null && writtenEvents.containsKey(event.getEventKey());
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Bucket {" + bucketKey + "}";
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof Bucket)) {
+      return false;
+    }
+
+    Bucket bucket = (Bucket) o;
+
+    return bucketKey == bucket.bucketKey;
+
+  }
+
+  @Override
+  public int hashCode()
+  {
+    return (int) (bucketKey ^ (bucketKey >>> 32));
   }
 }

@@ -1,0 +1,28 @@
+<div class="section-license">
+<h1>License</h1>
+
+<p class="welcome-text well">
+    <i class="icon-info-sign"></i>
+    Use the area below to upload an existing license file.
+</p>
+
+<h3>Upload License File</h3>
+
+<% if (error) {  %>
+
+<p class="alert alert-error">
+    License file upload failed. Please upload valid license file.
+</p>
+
+<% }  %>
+
+<div class="file-upload-target"></div>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="<%= prevStateId %>">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+
+<a href="#" class="install-step-link continue btn btn-success pull-right btn-large disabled">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>
+</div>

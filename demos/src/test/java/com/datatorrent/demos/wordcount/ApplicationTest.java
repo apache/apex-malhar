@@ -37,7 +37,7 @@ public class ApplicationTest
     LocalMode.Controller lc = lma.getController();
 
     long start = System.currentTimeMillis();
-    lc.run();
+    lc.run(300000);
     long end = System.currentTimeMillis();
     long time = end -start;
     System.out.println("Test used "+time+" ms");

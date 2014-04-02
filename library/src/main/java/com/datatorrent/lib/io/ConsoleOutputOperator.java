@@ -17,6 +17,7 @@ package com.datatorrent.lib.io;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.Stateless;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
+@Stateless
 public class ConsoleOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(ConsoleOutputOperator.class);
@@ -55,6 +57,23 @@ public class ConsoleOutputOperator extends BaseOperator
     }
   };
   public boolean silent = false;
+  
+  /**
+   * @return the silent
+   */
+  public boolean isSilent()
+  {
+    return silent;
+  }
+
+  /**
+   * @param silent the silent to set
+   */
+  public void setSilent(boolean silent)
+  {
+    this.silent = silent;
+  }
+
   /**
    * When set to true, tuples are also logged at INFO level.
    */

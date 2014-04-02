@@ -67,7 +67,7 @@ public interface Store
     Set<Object> getKeys();
 
     /**
-     * Bulk set operation.
+     * Bulk set metric.
      *
      * @param data mapping of keys to values which will be saved.
      */

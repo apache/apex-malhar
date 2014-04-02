@@ -65,31 +65,31 @@ var ClusterOverviewWidget = BaseView.extend({
     },
 
     overview_items: [
-        
-        {
-            label: DT.text('avg_app_age_label'),
-            key: 'averageAge',
-            value: function(averageAge) {
-                return formatters.timeSince({ timeChunk: averageAge }) || '-'
-            }
-        },
 
         {
-            label: DT.text('cpu_percentage_label'),
+            label: DT.text('cores_label'),
             key: 'cpuPercentage',
             value: function(cpuPercentage) {
                 if (!cpuPercentage) {
                     return '-';
                 }
-                return formatters.percentageFormatter(cpuPercentage, true);
+                return formatters.cpusFormatter(cpuPercentage, true);
             }
         },
 
         {
-            label: DT.text('current/max allocated mem (MB)'),
+            label: DT.text('current alloc mem'),
             key: 'currentMemoryAllocatedMB',
             value: function(currentMemoryAllocatedMB, attrs) {
-                return formatters.commaGroups(currentMemoryAllocatedMB) + ' / ' + DT.formatters.commaGroups(attrs.maxMemoryAllocatedMB);
+                return formatters.byteFormatter(currentMemoryAllocatedMB, 'mb');
+            }
+        },
+
+        {
+            label: DT.text('peak alloc mem'),
+            key: 'maxMemoryAllocatedMB',
+            value: function(maxMemoryAllocatedMB) {
+                return formatters.byteFormatter(maxMemoryAllocatedMB, 'mb');
             }
         },
 

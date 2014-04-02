@@ -19,7 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.lib.util.JavaSerializationStreamCodec;
+import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
 
 /**
  * Base class for operators that allows cloneValue and cloneKey for enabling users to use mutable objects<p>

@@ -26,12 +26,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.database.DBConnector;
+import com.datatorrent.lib.db.jdbc.JdbcStore;
 
 /**
  * Handles JDBC connection parameters and driver.
  *
  * @since 0.3.2
+ * @deprecated use {@link JdbcStore}
  */
+@Deprecated
 public class JDBCOperatorBase implements DBConnector
 {
   @NotNull
@@ -129,6 +132,44 @@ public class JDBCOperatorBase implements DBConnector
     catch (SQLException ex) {
       throw new RuntimeException("Error while closing database resource", ex);
     }
+  }
+
+  @Override
+  public boolean equals(Object o)
+  {
+    if (this == o) {
+      return true;
+    }
+    if (!(o instanceof JDBCOperatorBase)) {
+      return false;
+    }
+
+    JDBCOperatorBase that = (JDBCOperatorBase) o;
+
+    if (dbDriver != null ? !dbDriver.equals(that.dbDriver) : that.dbDriver != null) {
+      return false;
+    }
+    if (dbUrl != null ? !dbUrl.equals(that.dbUrl) : that.dbUrl != null) {
+      return false;
+    }
+    if (password != null ? !password.equals(that.password) : that.password != null) {
+      return false;
+    }
+    if (userName != null ? !userName.equals(that.userName) : that.userName != null) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int result = dbUrl != null ? dbUrl.hashCode() : 0;
+    result = 31 * result + (dbDriver != null ? dbDriver.hashCode() : 0);
+    result = 31 * result + (userName != null ? userName.hashCode() : 0);
+    result = 31 * result + (password != null ? password.hashCode() : 0);
+    return result;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(JDBCOperatorBase.class);

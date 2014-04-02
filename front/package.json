@@ -17,13 +17,13 @@
     "websocket-stream": "~0.0.5",
     "optimist": "~0.6.0",
     "http-proxy": "~0.10.3",
-    "graceful-fs": "~2.0.1"
+    "graceful-fs": "~2.0.1",
+    "less-middleware": "~0.1.15"
   },
   "dependencies": {
     "mocha": "~1.13.0",
     "mock": "~0.1.1",
     "chai": "~1.7.2",
-    "beefy": "~0.4.0",
     "sinon": "~1.7.3",
     "mocha-phantomjs": "~3.1.3",
     "phantomjs": "~1.9.2",
@@ -42,6 +42,6 @@
     "mrcolor": "~0.0.1",
     "knights-templar": "~0.2.2",
     "ejs": "~0.8.5",
-    "dagre-d3": "git://github.com/nickholub/dagre-d3.git"
+    "dagre-d3": "0.1.5"
   }
 }

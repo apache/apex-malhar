@@ -2,11 +2,13 @@
 	<p class="general-license-info">
 		<strong>license ID:</strong> <%= id %><br>
         <!-- <strong>appId:</strong> <%= agent.appId %><br> -->
+        <% if (!agent.fetchFailed) { %>
         <strong>started at:</strong> <%= (new Date(agent.startedTime * 1)).toLocaleString() %><br>
         <strong>user:</strong> <%= agent.user %><br>
         <strong>remaining memory:</strong> <%= DT.formatters.byteFormatter(agent.remainingLicensedMB, 'mb') %><br>
         <strong>total memory:</strong> <%= DT.formatters.byteFormatter(agent.totalLicensedMB, 'mb') %><br>
         <%= DT.templates.licensed_mem_bar({agent: agent}) %>
+        <% } %>
     </p>
 
 	<% if (sections.length) { %>
@@ -19,8 +21,11 @@
 			<strong>comment:</strong> <%= section.comment %><br>
 		</p>
 		<% }) %>
-
 	<% } %>
+
+    <p>
+        You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of the license any time.
+    </p>
 
 <% } else { %>
 	

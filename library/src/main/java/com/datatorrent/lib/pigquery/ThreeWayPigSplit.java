@@ -30,7 +30,7 @@ import java.util.Map;
  * For instream tuples (1,2,3) would produce (1,2,3) on X, (1,2,3) on Z (4,5,6)
  * would produce (4,5,6) on X, (4,5,6) on Y (7,8,9) would produce (7,8,9) on Z
  *
- * This would match to split into operation for Pig
+ * This would match to split into metric for Pig
  * </pre>
  *
  * @since 0.3.4

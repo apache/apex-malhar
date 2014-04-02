@@ -18,6 +18,7 @@ package com.datatorrent.demos.samplestream;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 import org.apache.hadoop.conf.Configuration;
@@ -71,6 +72,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="YahooFinanceWithCSVSampleFile)")
 public class Application implements StreamingApplication
 {
   @Override

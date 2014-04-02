@@ -24,7 +24,7 @@ import org.apache.hadoop.hbase.client.Append;
  *<br>
  * This class provides a HBase output operator that can be used to store tuples in columns in a
  * HBase table. It should be extended by the end-operator developer. The extending class should implement
- * operationAppend method and provide a HBase Append operation object that specifies where and what to
+ * operationAppend method and provide a HBase Append metric object that specifies where and what to
  * store for the tuple in the table.<br>
  *
  * <br>
@@ -37,7 +37,7 @@ public abstract class HBaseAppendOperator<T> extends HBaseOutputOperator<T>
 
   /**
    * Process the tuple.
-   * Store the tuple in HBase. The method gets a HBase Append operation from the concrete implementation
+   * Store the tuple in HBase. The method gets a HBase Append metric from the concrete implementation
    * and uses it to store the tuple.
    *
    * @param t The tuple
@@ -50,12 +50,12 @@ public abstract class HBaseAppendOperator<T> extends HBaseOutputOperator<T>
   }
 
   /**
-   * Return the HBase Append operation to store the tuple.
-   * The implementor should return a HBase Append operation that specifies where and what to store for the tuple
+   * Return the HBase Append metric to store the tuple.
+   * The implementor should return a HBase Append metric that specifies where and what to store for the tuple
    * in the table.
    *
    * @param t The tuple
-   * @return The HBase Append operation
+   * @return The HBase Append metric
    */
   public abstract Append operationAppend(T t);
 }

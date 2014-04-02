@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!-- Put this in $HOME/.dt/dt-site.xml -->
+<configuration>
+
+  <property>
+     <name>dt.attr.CONTAINERS_MAX_COUNT</name>
+     <value>7</value>
+     </property>
+
+  <property>
+     <name>dt.attr.MASTER_MEMORY_MB</name>
+     <value>1024</value>
+  </property>
+
+  <property>
+     <name>dt.attr.CONTAINER_MEMORY_MB</name>
+     <value>512</value>
+  </property>
+
+  <property>
+     <name>dt.attr.HEARTBEAT_TIMEOUT_MILLIS</name>
+     <value>300000</value>
+  </property>
+
+<!-- daemon -->
+
+  <property>
+    <name>dt.gateway.address</name>
+    <value>0.0.0.0:9090</value>
+  </property>
+<property>
+  <name>dt.gateway.staticResourceDirectory</name>
+  <value>/home/user/.dt/htdocs</value>
+</property>
+
+<!-- Log Input from logstash -->
+  <!-- apache access logs -->
+  <property>
+    <name>dt.operator.ApacheLogInput.host</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>dt.operator.ApacheLogInput.exchange</name>
+    <value>logstash</value>
+  </property>
+  <property>
+    <name>dt.operator.ApacheLogInput.exchangeType</name>
+    <value>direct</value>
+  </property>
+  <property>
+    <name>dt.operator.ApacheLogInput.routingKey</name>
+    <value>apache</value>
+  </property>
+  <property>
+    <name>dt.operator.ApacheLogInput.queueName</name>
+    <value>apacheLogQueue</value>
+  </property>
+
+  <!-- mysql logs -->
+  <property>
+    <name>dt.operator.MysqlLogInput.host</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>dt.operator.MysqlLogInput.exchange</name>
+    <value>logstash</value>
+  </property>
+  <property>
+    <name>dt.operator.MysqlLogInput.exchangeType</name>
+    <value>direct</value>
+  </property>
+  <property>
+    <name>dt.operator.MysqlLogInput.routingKey</name>
+    <value>mysql</value>
+  </property>
+  <property>
+    <name>dt.operator.MysqlLogInput.queueName</name>
+    <value>mysqlLogQueue</value>
+  </property>
+
+  <!-- syslog logs -->
+  <property>
+    <name>dt.operator.SyslogLogInput.host</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>dt.operator.SyslogLogInput.exchange</name>
+    <value>logstash</value>
+  </property>
+  <property>
+    <name>dt.operator.SyslogLogInput.exchangeType</name>
+    <value>direct</value>
+  </property>
+  <property>
+    <name>dt.operator.SyslogLogInput.routingKey</name>
+    <value>syslog</value>
+  </property>
+  <property>
+    <name>dt.operator.SyslogLogInput.queueName</name>
+    <value>syslogQueue</value>
+  </property>
+
+  <!-- system info logs -->
+  <property>
+    <name>dt.operator.SystemLogInput.host</name>
+    <value>localhost</value>
+  </property>
+  <property>
+    <name>dt.operator.SystemLogInput.exchange</name>
+    <value>logstash</value>
+  </property>
+  <property>
+    <name>dt.operator.SystemLogInput.exchangeType</name>
+    <value>direct</value>
+  </property>
+  <property>
+    <name>dt.operator.SystemLogInput.routingKey</name>
+    <value>system</value>
+  </property>
+  <property>
+    <name>dt.operator.SystemLogInput.queueName</name>
+    <value>systemQueue</value>
+  </property>
+</configuration>
+

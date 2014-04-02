@@ -18,7 +18,7 @@ package com.datatorrent.contrib.redis;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.lib.db.KeyValueStoreOperatorTest;
+import com.datatorrent.lib.db.TransactionableKeyValueStoreOperatorTest;
 
 /**
  *
@@ -26,14 +26,18 @@ import com.datatorrent.lib.db.KeyValueStoreOperatorTest;
  */
 public class RedisOperatorTest
 {
-  RedisStore store;
-  KeyValueStoreOperatorTest<RedisStore> testFramework;
+  TransactionableKeyValueStoreOperatorTest<RedisStore> testFramework;
 
   @Before
   public void setup()
   {
-    store = new RedisStore();
-    testFramework = new KeyValueStoreOperatorTest<RedisStore>(store);
+    testFramework = new TransactionableKeyValueStoreOperatorTest<RedisStore>(new RedisStore(), new RedisStore());
+  }
+
+  @Test
+  public void testTransactionOutputOperator() throws Exception
+  {
+    testFramework.testTransactionOutputOperator();
   }
 
   @Test

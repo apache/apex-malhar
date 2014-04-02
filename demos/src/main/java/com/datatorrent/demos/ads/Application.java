@@ -29,11 +29,10 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
-
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 import com.datatorrent.lib.math.MarginMap;
 import com.datatorrent.lib.math.QuotientMap;
 import com.datatorrent.lib.math.SumCountMap;
@@ -146,6 +145,7 @@ import com.datatorrent.lib.testbench.ThroughputCounter;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="AdsApplication")
 public class Application implements StreamingApplication
 {
   public static final int WINDOW_SIZE_MILLIS = 500;
@@ -210,7 +210,7 @@ public class Application implements StreamingApplication
   private InputPort<Object> getConsolePort(DAG b, String name, boolean silent)
   {
     // output to HTTP server when specified in environment setting
-    String gatewayAddress = b.getValue(DAG.GATEWAY_ADDRESS);
+    String gatewayAddress = b.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       String topic = "demos.ads." + name;
@@ -353,9 +353,10 @@ public class Application implements StreamingApplication
     DAG.StreamMeta viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setLocality(Locality.CONTAINER_LOCAL);
 
     if (conf.getBoolean(P_enableHdfs, false)) {
-      HdfsOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsOutputOperator());
+      HdfsHashMapOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsHashMapOutputOperator());
       viewsToHdfs.setAppend(false);
-      viewsToHdfs.setFilePath("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
+      viewsToHdfs.setCloseCurrentFile(true);
+      viewsToHdfs.setFilePathPattern("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
       dag.setInputPortAttribute(viewsToHdfs.input, PortContext.PARTITION_PARALLEL, true);
       viewsAggStream.addSink(viewsToHdfs.input);
     }

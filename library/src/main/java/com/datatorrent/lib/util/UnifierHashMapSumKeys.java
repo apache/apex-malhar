@@ -25,7 +25,7 @@ import java.util.Map;
 /**
  *
  * Combiner for an output port that emits object with Map<K,V> interface and has the processing done
- * with round robin partition for a Sum operation, i.e. key,vals pairs need to be combined back together
+ * with round robin partition for a Sum metric, i.e. key,vals pairs need to be combined back together
  *
  * @since 0.3.2
  */

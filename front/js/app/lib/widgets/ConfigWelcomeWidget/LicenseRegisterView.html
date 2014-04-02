@@ -1,0 +1,88 @@
+<div class="section-license">
+<h1>License</h1>
+
+<p class="welcome-text well">
+    <i class="icon-info-sign"></i>
+    Every DataTorrent installation requires a license.
+    Fill out and submit the form below to obtain an evaluation license, or if you have a valid existing license file for this machine you can  <a href="#" class="upload action-link">upload it here</a>.
+</p>
+
+<% if (error) {  %>
+
+<p class="alert alert-error">
+    Error Loading License Information
+</p>
+
+<% } else {  %>
+
+<p class="alert loading">
+    <span class="loading-spinner"></span> Submitting license request...
+</p>
+
+<% if (registrationErrorMsg) {  %>
+<p class="alert alert-error registration-error">
+    Registration request failed: <%= registrationErrorMsg %>
+</p>
+<% } %>
+
+<div class="form-horizontal license-register">
+    <h3>Register for a free one-year evaluation license</h3>
+
+    <div class="control-group">
+        <label class="control-label">Name</label>
+        <div class="controls">
+            <input type="text" class="register-name" />
+            <span class="help-block"></span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Company</label>
+        <div class="controls">
+            <input type="text" class="register-company" />
+            <span class="help-block"></span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Country</label>
+        <div class="controls">
+            <select id="country" class="register-country">
+                <% _.each(countries, function(country) { %>
+                <option value="<%= country['alpha-2'] %>"><%= country.name %></option>
+                <% }) %>
+            </select>
+            <span class="help-block"></span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Email</label>
+        <div class="controls">
+            <input type="text" placeholder="Email" id="email" class="register-email" />
+            <span class="help-block"></span>
+        </div>
+    </div>
+    <div class="control-group">
+        <label class="control-label">Phone</label>
+        <div class="controls">
+            <input type="text" id="phone" class="register-phone" />
+            <span class="help-block"></span>
+        </div>
+    </div>
+</div>
+
+<div class="additional-actions">
+    <p>By clicking "continue", I agree to the <a href="#" class="show-license-text action-link">Terms of Service</a></p>
+</div>
+
+</div>
+<% } %>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="<%= prevStateId %>">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+
+
+<a href="#" class="install-step-link register btn btn-success pull-right btn-large">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>
+
+</div>

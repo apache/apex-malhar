@@ -20,12 +20,14 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * An stream app to produce msg to cluster
  *
  * @since 0.9.3
  */
+@ApplicationAnnotation(name="KafkaOutputBenchmark")
 public class KafkaOutputBenchmark implements StreamingApplication
 {
 

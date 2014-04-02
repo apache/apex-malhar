@@ -1,0 +1,114 @@
+<span class="section-system">
+<h1>System</h1>
+
+<p class="welcome-text well">
+    <i class="icon-info-sign"></i>
+    Use the following controls to change basic system settings regarding your DataTorrent installation.
+</p>
+
+<% if (hadoopError) {  %>
+
+<p class="alert alert-error">
+    Hadoop is not found. Please install Hadoop first and restart the DT Gateway.
+    Restart is available from <a href="#config">configuration page</a>.
+</p>
+
+<% } else if (error) {  %>
+
+<p class="alert alert-error">
+    Error loading system properties.
+</p>
+
+<% } else if (loading) {  %>
+
+<p class="alert">
+    <%= DT.text('Loading System Properties...') %>
+</p>
+
+<% } else { %>
+
+<% if (errorMsg) {  %>
+
+<p class="alert alert-error">
+    <%= errorMsg %>
+</p>
+
+<% } %>
+
+<p class="alert loading">
+    <span class="loading-spinner"></span> Updating...
+</p>
+
+
+
+<table class="config-table">
+    <thead>
+        <tr>
+            <th>property</th>
+            <th>description</th>
+            <th>value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>gateway connect address</td>
+            <td>
+                IP address and port that other nodes in the cluster should use to reach the DT Gateway.
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">IP Address</label>
+                    <div class="controls">
+                        <select class="address-ip-select">
+                            <option value="">&lt;Custom&gt;</option>
+                            <% _.each(ipAddresses, function(ip) { %>
+                                <option value="<%= ip %>"><%= ip %></option>
+                            <% }) %>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" class="address-ip-input" value="<%= addressModel.get('ip') %>" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Port</label>
+                    <div class="controls">
+                        <input type="text" class="address-port" value="<%= addressModel.get('port') %>" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+
+                <div class="server-error address-error"></div>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <!--<i class="install-issue" title="There is something wrong with this value!">!</i>-->
+                DFS directory</td>
+            <td>In the distributed file system (e.g. HDFS) configured in your Hadoop installation, the directory where all datatorrent stuff will go, including checkpointed data, recordings, etc</td>
+            <td>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" class="dfs-directory" value="<%= dfsModel.get('value') %>" />
+                        <span class="help-block"></span>
+                    </div>
+                    <div class="server-error dfs-directory-error"></div>
+                </div>
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<% } %>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="HadoopView">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+<a href="#" class="install-step-link continue btn btn-success pull-right btn-large">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>
+</span>

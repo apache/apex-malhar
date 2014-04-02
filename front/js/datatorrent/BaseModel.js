@@ -30,6 +30,9 @@ var BaseModel = Backbone.Model.extend({
         if (options.hasOwnProperty('dataSource')) {
             this.dataSource = options.dataSource;
         }
+        if (options.silentErrors) {
+            this.fetchError = util.quietFetchError;
+        }
     },
     
     settings: settings,
@@ -41,6 +44,10 @@ var BaseModel = Backbone.Model.extend({
     resourceAction: util.resourceAction,
     
     subscribeToTopic: util.subscribeToTopic,
+
+    fetchError: util.fetchError,
+    
+    responseFormatError: util.responseFormatError,
     
     checkForDataSource: function() {
         if (!this.dataSource) {
@@ -63,25 +70,17 @@ var BaseModel = Backbone.Model.extend({
             options.error = _.bind(function(collection, response, options) {
                 var obj;
                 if (typeof this.fetchError === 'function') {
-                    obj = this.fetchError.call(this, collection, response, options);
-                } else {
-                    obj = this.fetchError;
+                    this.fetchError.call(this, collection, response, options);
                 }
-
-                Notifier.error(obj);
             }, this);
         }
         
         LOG(1, 'fetching ' + this.debugName, ['options: ', options]);
         
         // Call super
-        Backbone.Collection.prototype.fetch.call(this, options);
+        return Backbone.Model.prototype.fetch.call(this, options);
     },
     
-    fetchError: util.fetchError,
-    
-    responseFormatError: util.responseFormatError,
-
     set: function(key, val, options) {
 
         var attrs, windowUpdates = {}, changesToWindowAttrs = [], setResult;
@@ -93,14 +92,12 @@ var BaseModel = Backbone.Model.extend({
             (attrs = {})[key] = val;
         }
 
-        options || (options = {});
+        options = options || {};
 
         // Remove window properties from attrs
         _.each(this.windowIdProperties, function(windowKey) {
             if (attrs.hasOwnProperty(windowKey)) {
-                windowUpdates[windowKey] = attrs[windowKey] instanceof WindowId 
-                    ? attrs[windowKey].value 
-                    : attrs[windowKey];
+                windowUpdates[windowKey] = attrs[windowKey] instanceof WindowId ? attrs[windowKey].value : attrs[windowKey];
 
                 delete attrs[windowKey];
             }
@@ -116,7 +113,7 @@ var BaseModel = Backbone.Model.extend({
                 // Update current WindowId object if there
                 if ( (current = this.get(k)) instanceof WindowId && current.value !== w ) {
                     current.set(w);
-                } 
+                }
 
                 // Otherwise create WindowId object
                 else {
@@ -177,11 +174,8 @@ var BaseModel = Backbone.Model.extend({
                 if ( typeof transformedResponse !== 'object' && this.responseFormatError) {
                     var obj;
                     if (typeof this.responseFormatError === 'function') {
-                        obj = this.responseFormatError.call(this, resp, transformedResponse);
-                    } else {
-                        obj = this.responseFormatError;
+                        this.responseFormatError.call(this, resp, transformedResponse);
                     }
-                    Notifier.error(obj);
                 }
         
                 // Call original success function with transformed response.

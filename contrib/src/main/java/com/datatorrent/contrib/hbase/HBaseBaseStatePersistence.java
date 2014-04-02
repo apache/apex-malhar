@@ -29,10 +29,10 @@ import org.apache.hadoop.hbase.util.Bytes;
  *
  * <br>
  * The concrete persistence class that extends this class can specify how to retrieve state using
- * a HBase Get operation and save state using a HBase Put operation. The class should specifically
- * implement the operationStateGet method and return a Get operation and the operationStatePut
- * method and return a Put operation. The Get operation specifies where to retrieve the state from
- * the table and Put operation specifies where to store the state in the table.<br>
+ * a HBase Get metric and save state using a HBase Put metric. The class should specifically
+ * implement the operationStateGet method and return a Get metric and the operationStatePut
+ * method and return a Put metric. The Get metric specifies where to retrieve the state from
+ * the table and Put metric specifies where to store the state in the table.<br>
  *
  * <br>
  *
@@ -76,23 +76,23 @@ public abstract class HBaseBaseStatePersistence implements HBaseStatePersistence
   }
 
   /**
-   * Return a HBase Get operation to specify where to retrieve the state of a
+   * Return a HBase Get metric to specify where to retrieve the state of a
    * parameter from.
-   * The parameter name is specified. The implementor should return a Get operation
+   * The parameter name is specified. The implementor should return a Get metric
    * that specifies where to get the last saved value of the parameter from the table.
    * @param name The parameter name
-   * @return The Get operation
+   * @return The Get metric
    */
   public abstract Get operationStateGet(byte[] name);
 
   /**
-   * Return a HBase Put operation to specify where to save the state of a
+   * Return a HBase Put metric to specify where to save the state of a
    * parameter to.
    * The parameter name and value are specified. The implementor should return a Put
-   * operation that specifies where to save the name and value of the parameter in the table.
+   * metric that specifies where to save the name and value of the parameter in the table.
    * @param name The parameter name
    * @param value The parameter value
-   * @return The Put operation
+   * @return The Put metric
    */
   public abstract Put operationStatePut(byte[] name, byte[] value);
 

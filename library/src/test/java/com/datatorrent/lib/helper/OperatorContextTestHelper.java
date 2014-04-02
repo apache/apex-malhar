@@ -8,11 +8,12 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
+import javax.annotation.Nonnull;
+
 import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.AttributeMap.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
 /**
@@ -35,17 +36,17 @@ public class OperatorContextTestHelper
     int id;
     String applicationPath;
     String applicationId;
+    AttributeMap attributes;
 
     public TestIdOperatorContext(int id)
     {
       this.id = id;
     }
 
-    public TestIdOperatorContext(String applicationId, String applicationPath, int operatorId)
+    public TestIdOperatorContext(int id, @Nonnull AttributeMap map)
     {
-      this.id = operatorId;
-      this.applicationId = applicationId;
-      this.applicationPath = applicationPath;
+      this.id = id;
+      this.attributes = map;
     }
 
     @Override
@@ -63,11 +64,9 @@ public class OperatorContextTestHelper
     @SuppressWarnings("unchecked")
     public <T> T getValue(Attribute<T> key)
     {
-      if (key == DAG.APPLICATION_PATH) {
-        return (T) applicationPath;
-      }
-      if (key == DAG.APPLICATION_ID) {
-        return (T) applicationId;
+      T value = attributes.get(key);
+      if (value != null) {
+        return value;
       }
       return super.getValue(key);
     }

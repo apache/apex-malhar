@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-all</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-contrib</artifactId>
@@ -105,6 +105,18 @@
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>5.1.22</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.uadetector</groupId>
+      <artifactId>uadetector-resources</artifactId>
+      <version>2014.01</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.maxmind.geoip</groupId>
+      <artifactId>geoip-api</artifactId>
+      <version>1.2.12</version>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -259,6 +271,12 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>com.lambdaworks</groupId>
+      <artifactId>lettuce</artifactId>
+      <version>2.3.3</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>2.3.1</version>
@@ -273,7 +291,7 @@
     <dependency>
       <groupId>com.esotericsoftware.kryo</groupId>
       <artifactId>kryo</artifactId>
-      <version>2.21</version>
+      <version>2.23.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
@@ -286,7 +304,7 @@
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
-      <type>test-jar</type>
+      <classifier>tests</classifier>
     </dependency>
     <dependency>
       <!-- required by twitter -->
@@ -299,6 +317,11 @@
       <groupId>org.twitter4j</groupId>
       <artifactId>twitter4j-stream</artifactId>
       <version>2.2.6</version>
+    </dependency>
+    <dependency>
+      <groupId>joda-time</groupId>
+      <artifactId>joda-time</artifactId>
+      <version>2.1</version>
     </dependency>
   </dependencies>
 </project>

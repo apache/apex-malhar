@@ -1,0 +1,57 @@
+<div class="section-license">
+<h1>License</h1>
+
+<p class="welcome-text well">
+    <i class="icon-info-sign"></i>
+    DataTorrent installation requires a license file to run.<br/>
+    <% if (license.isDefault()) { %>
+    You have been given 25 GB license for one year.<br/>
+    <% } %>
+    You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of the license any time.<br/>
+    If you already have a license file, you can <a href="#" class="go-to-upload action-link">upload it</a>.
+</p>
+
+<% if (error) {  %>
+
+<p class="alert alert-error">
+    Error Loading License Information
+</p>
+
+<% } else if (license.get('id')) {  %>
+
+<% if (message) {  %>
+<p class="alert alert-success">
+    <%= message %>
+</p>
+<% } %>
+
+<% if (licenseRequestBlob) {  %>
+<p class="alert">
+    You are using embedded license. See details of your evaluation license request <a href="#" class="go-to-offline">here</a>.
+</p>
+<% } %>
+
+<div>
+    <h3>Current License</h3>
+    <div class="well">
+        <p><strong>license ID:</strong> <%= license.get('id') %> <a href="#" class="displayLicenseInfo action-link">More Info</a></p>
+    </div>
+</div>
+
+<% } else { %>
+
+<p class="alert">
+    <%= DT.text('Loading license information...') %>
+</p>
+
+<% } %>
+
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="WelcomeView">
+    <i class="icon-circle-arrow-left"></i> back
+</a>
+
+
+<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="HadoopView">
+    continue <i class="icon-circle-arrow-right icon-white"></i>
+</a>
+</div>

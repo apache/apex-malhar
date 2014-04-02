@@ -26,10 +26,10 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.lib.io.fs.HdfsOutputOperator;
 
 /**
  * <p>
@@ -39,6 +39,7 @@ import com.datatorrent.lib.io.fs.HdfsOutputOperator;
  * @since 0.9.0
  */
 @SuppressWarnings({ "deprecation" })
+@ApplicationAnnotation(name="MapReduceApplication")
 public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingApplication
 {
 
@@ -121,8 +122,8 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
     reduceOpr.setConfigFile(configFileName);
     dag.setAttribute(reduceOpr, Context.OperatorContext.INITIAL_PARTITION_COUNT, numberOfReducers);
 
-    HdfsOutputOperator console = dag.addOperator("console", new HdfsOutputOperator());
-    console.setFilePath(outputDirName);
+    HdfsKeyValOutputOperator<K2,V2> console = dag.addOperator("console", new HdfsKeyValOutputOperator<K2,V2>());
+    console.setFilePathPattern(outputDirName);
     // ConsoleOutputOperator console = dag.addOperator("console", new
     // ConsoleOutputOperator());
 

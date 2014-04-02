@@ -6,7 +6,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-all</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>0.9.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-library</artifactId>
@@ -33,12 +33,14 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
+        <version>2.4</version>
         <executions>
           <execution>
             <goals>
               <goal>test-jar</goal>
             </goals>
-            <phase>package</phase> </execution>
+            <phase>package</phase>
+          </execution>
         </executions>
       </plugin>
     </plugins>
@@ -148,14 +150,14 @@
       <version>1.1-rev-1</version>
     </dependency>
     <dependency>
-    	<groupId>org.python</groupId>
-    	<artifactId>jython</artifactId>
-    	<version>2.5.3</version>
+      <groupId>org.python</groupId>
+      <artifactId>jython</artifactId>
+      <version>2.5.3</version>
     </dependency>
     <dependency>
-    	<groupId>org.beanshell</groupId>
-    	<artifactId>bsh</artifactId>
-    	<version>2.0b5</version>
+      <groupId>org.beanshell</groupId>
+      <artifactId>bsh</artifactId>
+      <version>2.0b5</version>
     </dependency>
     <dependency>
       <groupId>org.apache.activemq</groupId>
@@ -187,13 +189,28 @@
     <dependency>
       <groupId>com.esotericsoftware.kryo</groupId>
       <artifactId>kryo</artifactId>
-      <version>2.21</version>
+      <version>2.23.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>org.apache.commons</groupId>
       <artifactId>commons-lang3</artifactId>
       <version>3.1</version>
+    </dependency>
+    <dependency>
+      <groupId>com.ning</groupId>
+      <artifactId>async-http-client</artifactId>
+      <version>1.7.20</version>
+    </dependency>
+    <dependency>
+      <groupId>net.sf.trove4j</groupId>
+      <artifactId>trove4j</artifactId>
+      <version>3.0.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.hsqldb</groupId>
+      <artifactId>hsqldb</artifactId>
+      <version>2.3.1</version>
     </dependency>
   </dependencies>
 

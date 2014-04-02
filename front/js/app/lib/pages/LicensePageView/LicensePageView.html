@@ -1,0 +1,58 @@
+<style>
+    .license-page-main {
+        background-color: #FFF;
+        margin: 10px auto;
+
+    }
+    .license-page-main .inner {
+        padding: 10px;
+    }
+    .license-page-main .file_upload_target {
+        margin-left: 0;
+    }
+</style>
+<div class="container license-page-main">
+    <div class="inner">
+        <h1>License Information</h1>
+        <p class="well">
+            DataTorrent installation requires a license file to run. You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of your license any time.<br/>
+            If you have a license file that you would like to activate with this cluster, you can upload it below</a>.
+        </p>
+        <% if (agent.id && typeof id !== 'undefined' && id) {  %>
+            <h4>Basic Info</h4>
+            <p class="general-license-info">
+                <strong>license ID:</strong> <%= id %><br>
+                <!-- <strong>appId:</strong> <%= agent.appId %><br> -->
+                <% if (!agent.fetchFailed) { %>
+                <strong>started at:</strong> <%= (new Date(agent.startedTime * 1)).toLocaleString() %><br>
+                <strong>user:</strong> <%= agent.user %><br>
+                <strong>remaining memory:</strong> <%= DT.formatters.byteFormatter(agent.remainingLicensedMB, 'mb') %><br>
+                <strong>total memory:</strong> <%= DT.formatters.byteFormatter(agent.totalLicensedMB, 'mb') %><br>
+                <%= DT.templates.licensed_mem_bar({agent: agent, pagelink: false}) %>
+                <% } %>
+            </p>
+
+            <% if (sections.length) { %>
+                <h4>License Sections</h4>
+                <% _.each( sections, function(section) { %>
+                <p class="license-info-block">
+                    <strong>start date:</strong> <%= section.startDate %><br>
+                    <strong>end date:</strong> <%= section.endDate %><br>
+                    <strong>constraint:</strong> <%= section.constraint %><br>
+                    <strong>comment:</strong> <%= section.comment %><br>
+                </p>
+                <% }) %>
+            <% } %>
+
+            <h4>Upload License</h4>
+            <p>Use the area below to upload an existing license file. This will replace your current license.</p>
+            <div class="file-upload-target"></div>
+
+        <% } else { %>
+            
+            <%= DT.text('Loading license information...') %>
+
+        <% } %>    
+    </div>
+    
+</div>

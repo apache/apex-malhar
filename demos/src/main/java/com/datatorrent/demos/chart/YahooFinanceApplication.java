@@ -20,8 +20,8 @@ import java.util.Map;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.DAG;
-
 import com.datatorrent.demos.yahoofinance.StockTickInput;
 import com.datatorrent.lib.chart.CandleStick;
 import com.datatorrent.lib.chart.TimeSeriesAverageChartOperator;
@@ -46,6 +46,7 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="YahooFinanceApplication")
 public class YahooFinanceApplication extends com.datatorrent.demos.yahoofinance.Application
 {
   public static class YahooFinanceTimeSeriesAverageChartOperator extends TimeSeriesAverageChartOperator<String>

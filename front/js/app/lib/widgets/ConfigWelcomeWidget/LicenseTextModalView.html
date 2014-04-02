@@ -1,0 +1,19 @@
+<% if (error) {  %>
+
+<p class="alert alert-error">
+    Error Loading License Information
+</p>
+
+<% } else if (licenseText) {  %>
+
+<textarea readonly class="tos-textarea">
+    <%= licenseText %>
+</textarea>
+
+<% } else { %>
+
+<p class="alert">
+    <%= DT.text('Loading license information...') %>
+</p>
+
+<% } %>

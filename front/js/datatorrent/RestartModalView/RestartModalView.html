@@ -1,0 +1,11 @@
+<% if (restarting) { %>
+
+<p class="alert">
+    <span class="loading-spinner"></span> <%= message %>
+</p>
+
+<% } else { %>
+
+<%= confirm_message %>
+
+<% } %>

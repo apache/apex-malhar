@@ -20,6 +20,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -28,6 +29,7 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 import com.google.common.collect.Range;
 import com.google.common.collect.Ranges;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -102,6 +104,7 @@ import java.util.Random;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="MobileApplication")
 public class Application implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
@@ -177,7 +180,7 @@ public class Application implements StreamingApplication
     // done generating data
     LOG.info("Finished generating seed data.");
 
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_ADDRESS);
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       LOG.info("WebSocket with gateway at: {}", gatewayAddress);

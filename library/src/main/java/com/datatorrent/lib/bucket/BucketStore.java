@@ -23,19 +23,15 @@ import javax.annotation.Nonnull;
 /**
  * Bucket store API.<br/>
  */
-public interface BucketStore<T extends BucketEvent>
+public interface BucketStore<T extends Bucketable>
 {
   /**
    * Performs setup operations eg. crate database connections, delete events of windows greater than last committed
    * window, etc.
    *
-   * @param noOfBuckets              total number of buckets.
-   * @param committedWindowOfLastRun the last committed window; events of windows after the would be deleted from the
-   *                                 store.
-   * @param writeEventKeysOnly       write only event keys not the complete events.
-   * @throws Exception
+   * @param context parameters needed by the store for setup.
    */
-  void setup(int noOfBuckets, long committedWindowOfLastRun, boolean writeEventKeysOnly) throws Exception;
+  void setup(Context context);
 
   /**
    * Performs teardown operations eg. close database connections.
@@ -45,11 +41,10 @@ public interface BucketStore<T extends BucketEvent>
   /**
    * Stores the un-written bucket data collected in the given window.
    *
-   * @param bucketIdx  index of bucket.
-   * @param window     window in which data was collected.
-   * @param bucketData bucket events to be persisted.
+   * @param window window in which data was collected.
+   * @param data   bucket events to be persisted.
    */
-  void storeBucketData(int bucketIdx, long window, Map<Object, T> bucketData) throws Exception;
+  void storeBucketData(long window, Map<Integer, Map<Object, T>> data) throws IOException;
 
   /**
    * Deletes bucket corresponding to the bucket index from the persistent store.
@@ -67,4 +62,18 @@ public interface BucketStore<T extends BucketEvent>
    */
   @Nonnull
   Map<Object, T> fetchBucket(int bucketIdx) throws Exception;
+
+  /**
+   * Sets the total number of buckets.
+   *
+   * @param noOfBuckets
+   */
+  void setNoOfBuckets(int noOfBuckets);
+
+  /**
+   * Set true for keeping only event keys in memory and store; false otherwise.
+   *
+   * @param writeEventKeysOnly
+   */
+  void setWriteEventKeysOnly(boolean writeEventKeysOnly);
 }

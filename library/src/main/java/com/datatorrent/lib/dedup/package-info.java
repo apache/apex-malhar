@@ -15,18 +15,9 @@
  */
 
 /**
- * This package contains operators which drop duplicate events. They group events in buckets and use
+ * This package contains operator which drops duplicate events.<br/>
+ * {@link com.datatorrent.lib.dedup.Deduper} group events in buckets and use
  * {@link com.datatorrent.lib.bucket.BucketManager} for better memory management.
- *
- * <p>
- *  <ul>
- *   <li>{@link com.datatorrent.lib.dedup.Deduper}: base de-duplication operator.</li>
- *   <li>{@link com.datatorrent.lib.dedup.DeduperWithTimeBuckets}: this operator works with events which can be grouped
- *   in buckets according to their time.</li>
- *   <li>{@link com.datatorrent.lib.dedup.HDFSBasedDeduper}: a {@link com.datatorrent.lib.dedup.DeduperWithTimeBuckets}
- *    that uses {@link com.datatorrent.lib.bucket.HdfsBucketStore}.</li>
- *   </ul>
- * </p>
  *
  */
 package com.datatorrent.lib.dedup;

@@ -19,6 +19,7 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.demos.pi.PiCalculateOperator;
 import com.datatorrent.lib.io.WidgetOutputOperator;
@@ -29,6 +30,7 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  *
  * @since 0.9.3
  */
+@ApplicationAnnotation(name="VisualDataApplication")
 public class Application implements StreamingApplication {
     
   private final Locality locality = Locality.CONTAINER_LOCAL;
@@ -36,7 +38,11 @@ public class Application implements StreamingApplication {
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "VisualDataDemo");
+    String appName = conf.get("appName");
+    if(appName == null){
+      appName = "VisualDataDemo";
+    }
+    dag.setAttribute(DAG.APPLICATION_NAME, appName);
     int maxValue = 30000;
 
     RandomEventGenerator rand = dag.addOperator("random", new RandomEventGenerator());
@@ -55,22 +61,26 @@ public class Application implements StreamingApplication {
     WidgetOutputOperator wooa = dag.addOperator("widget output operator2", new WidgetOutputOperator());
 
     // wire to simple input gadget
-    dag.addStream("ws_pi_data", calc.output, woo.simpleInput.setTopic("app.visualdata.piValue")).setLocality(locality);
+    dag.addStream("ws_pi_data", calc.output, woo.simpleInput.setTopic("app." + appName + ".piValue")).setLocality(locality);
 
     // wire to time series chart gadget
-    dag.addStream("ws_chart_data", demo.simpleOutput, woo.timeSeriesInput.setTopic("app.visualdata.chartValue").setMin(0).setMax(100)).setLocality(locality);
+    dag.addStream("ws_chart_data", demo.simpleOutput, woo.timeSeriesInput.setTopic("app." + appName + ".chartValue").setMin(0).setMax(100)).setLocality(locality);
 
     // wire to another time series chart gadget
-    dag.addStream("ws_chart_data2", demo.simpleOutput2, wooa.timeSeriesInput.setTopic("app.visualdata.chartValue2")).setLocality(locality);
+    dag.addStream("ws_chart_data2", demo.simpleOutput2, wooa.timeSeriesInput.setTopic("app." + appName + ".chartValue2")).setLocality(locality);
 
     // wire to percentage chart gadget
-    dag.addStream("ws_percentage_data", demo.percentageOutput, woo.percentageInput.setTopic("app.visualdata.percentage")).setLocality(locality);
+    dag.addStream("ws_percentage_data", demo.percentageOutput, woo.percentageInput.setTopic("app." + appName + ".percentage")).setLocality(locality);
 
     // wire to top N chart gadget
-    dag.addStream("ws_topn_data", demo.top10Output, woo.topNInput.setN(10).setTopic("app.visualdata.topn")).setLocality(locality);
+    dag.addStream("ws_topn_data", demo.top10Output, woo.topNInput.setN(10).setTopic("app." + appName + ".topn")).setLocality(locality);
 
     // wire to progress bar chart gadget
-    dag.addStream("ws_progress_data", demo.progressOutput, wooa.percentageInput.setTopic("app.visualdata.progress")).setLocality(locality);
+    dag.addStream("ws_progress_data", demo.progressOutput, wooa.percentageInput.setTopic("app." + appName + ".progress")).setLocality(locality);
+    
+    // wire to piechart gadget
+    dag.addStream("ws_piechart_data", demo.pieChartOutput, wooa.pieChartInput.setTopic("app." + appName + ".piechart")).setLocality(locality);
+    
   }
 
 }

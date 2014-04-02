@@ -9,7 +9,8 @@
  */
 
 // Core variables and mixins
-@import "bootstrap/variables.less"; // Modify this for custom colors, font-sizes, etc
+@import "bootstrap/variables.less";
+@import "variables";
 @import "bootstrap/mixins.less";
 
 // CSS Reset
@@ -17,8 +18,8 @@
 
 // Grid system and page structure
 @import "bootstrap/scaffolding.less";
-/*@import "bootstrap/grid.less";*/
-/*@import "bootstrap/layouts.less";*/
+@import "bootstrap/grid.less";
+@import "bootstrap/layouts.less";
 
 // Base CSS
 @import "bootstrap/type.less";
@@ -57,7 +58,7 @@
 @import "bootstrap/progress-bars.less";
 /*@import "bootstrap/accordion.less";*/
 /*@import "bootstrap/carousel.less";*/
-/*@import "bootstrap/hero-unit.less";*/
+@import "bootstrap/hero-unit.less";
 
 // Utility classes
 @import "bootstrap/utilities.less"; // Has to be last to override when necessary

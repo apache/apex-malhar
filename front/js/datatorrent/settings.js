@@ -24,6 +24,8 @@ exports = module.exports = {
         
         Application              :'/ws/:v/applications',
         ClusterMetrics           :'/ws/:v/cluster/metrics',
+        ConfigProperty           :'/ws/:v/config/properties',
+        ConfigIssue              :'/ws/:v/config/issues',
         LogicalPlan              :'/ws/:v/applications/:appId/logicalPlan',
         PhysicalPlan             :'/ws/:v/applications/:appId/physicalPlan',
         Operator                 :'/ws/:v/applications/:appId/physicalPlan/operators',
@@ -39,9 +41,14 @@ exports = module.exports = {
         JarApps                  :'/ws/:v/jars/:fileName/applications',
         JarDependencies          :'/ws/:v/jars/:fileName/dependencyJars',
         DependencyJar            :'/ws/:v/dependencyJars',
-        License                  :'/ws/:v/licenses/files/default',
+        License                  :'/ws/:v/licenses/files/current',
         LicenseAgent             :'/ws/:v/licenses/agents',
-        GatewayInfo              :'/ws/:v/about'
+        LicenseFiles             :'/ws/:v/licenses/files',
+        LicenseRequest           :'/ws/:v/licenses/request',
+        LicenseLastRequest       :'/ws/:v/licenses/lastRequest',
+        ConfigIPAddresses        :'/ws/:v/config/ipAddresses',
+        GatewayInfo              :'/ws/:v/about',
+        HadoopLocation           :'/ws/:v/config/hadoopInstallDirectory'
         
     },
     
@@ -52,8 +59,10 @@ exports = module.exports = {
         stopPortRecording        :'/ws/:v/applications/:appId/physicalPlan/operators/:operatorId/ports/:portName/recordings/stop',
         shutdownApp              :'/ws/:v/applications/:appId/shutdown',
         killApp                  :'/ws/:v/applications/:appId/kill',
+        killContainer            :'/ws/:v/applications/:appId/physicalPlan/containers/:containerId/kill',
         launchApp                :'/ws/:v/jars/:fileName/applications/:appName/launch',
-        specifyDepJars           :'/ws/:v/jars/:fileName/dependencyJars'
+        specifyDepJars           :'/ws/:v/jars/:fileName/dependencyJars',
+        restartGateway           :'/ws/:v/config/restart'
     },
     
     topics: {
