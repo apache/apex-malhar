@@ -525,7 +525,7 @@ var DagWidget = BaseView.extend({
     updateStreams: function (graph, root) {
         var streamLocality = this.createStreamLocalityMap();
 
-        root.selectAll("g .edge > path").each(function (d) {
+        root.selectAll("g .edgePath > path").each(function (d) {
             var value = graph.edge(d);
             var streamName = value.label;
 
