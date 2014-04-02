@@ -41,7 +41,7 @@ public class RedisStore implements TransactionableKeyValueStore
   private int dbIndex = 0;
   protected int keyExpiryTime = -1;
   private transient Transaction transaction;
-  private transient int timeOut = 3000;
+  private transient int timeOut = 30000;
 
   /**
    * Gets the host.
