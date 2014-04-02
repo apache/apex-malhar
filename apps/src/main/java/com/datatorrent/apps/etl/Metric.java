@@ -18,13 +18,20 @@ package com.datatorrent.apps.etl;
 import javax.annotation.Nonnull;
 
 import com.datatorrent.lib.datamodel.operation.Operation;
+import java.io.Serializable;
 
-public class Metric
+public class Metric implements Serializable
 {
   @Nonnull
-  final String sourceKey;
-  final String destinationKey;
-  final Operation operation;
+  String sourceKey;
+  String destinationKey;
+  Operation operation;
+
+  public Metric()
+  {
+    // for serialization
+  }
+
 
   public  Metric(@Nonnull String sourceKey, @Nonnull String destinationKey, @Nonnull Operation operation)
   {
