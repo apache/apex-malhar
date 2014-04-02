@@ -87,7 +87,7 @@ var PhysicalDagWidget = BaseView.extend({
         var nodeMap = this.nodeMap;
         var colors = d3.scale.category20(); //TODO do not limit to 20 colors
 
-        root.selectAll('.node > g > rect').style('stroke', function(key, index) {
+        root.selectAll('.node > rect').style('stroke', function(key, index) {
             var node = nodeMap[key];
             var color = colors(node.containerIndex % 20);
             return color;

@@ -42,6 +42,6 @@
     "mrcolor": "~0.0.1",
     "knights-templar": "~0.2.2",
     "ejs": "~0.8.5",
-    "dagre-d3": "git://github.com/nickholub/dagre-d3.git"
+    "dagre-d3": "0.1.5"
   }
 }
