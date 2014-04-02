@@ -39,11 +39,17 @@ var DagWidget = BaseView.extend({
      * @return {void}
      */
     displayGraph: function(data) {
+        // Does not necessarily do anything, only if implemented
         this.renderLegend();
+
+        // Implemented in child class
         var graph = this.buildGraph(data);
+
+        // Renders the main graph
         this.renderGraph(graph, this.$('.app-dag > .svg-main')[0]);
     },
 
+    
     buildGraph: forceImplement('buildGraph'),
 
     /**
