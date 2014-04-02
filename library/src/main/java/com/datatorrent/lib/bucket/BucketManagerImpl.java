@@ -94,7 +94,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
 
   //Not check-pointed
   //Indexed by bucketKey keys.
-  protected transient volatile Bucket<T>[] buckets;
+  protected transient Bucket<T>[] buckets;
   @Nonnull
   protected transient Set<Integer> evictionCandidates;
   protected transient Listener<T> listener;
