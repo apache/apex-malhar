@@ -66,6 +66,22 @@ exports = module.exports = [
         ]
     },
 
+    {
+        name: 'LicensePageView',
+        routes: ['config/license'],
+        view: require('./lib/pages/LicensePageView'),
+        mode: 'config',
+        breadcrumbs: [
+            {
+                name: text('configuration'),
+                href: '#config'
+            },
+            {
+                name: text('License Information')
+            }
+        ]
+    },
+
     /**
      * OPERATIONS MODE
      * 

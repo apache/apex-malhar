@@ -225,7 +225,7 @@ describe('RestartModalView.js', function() {
 
         _.each(['Notifier.success','dataSource.connect','options.restartCompleteCallback','m.close','m.reset'], function(method) {
             it('should call ' + method, function() {
-                expect(eval(method)).to.have.been.calledOnce;
+                expect(eval(method)).to.have.been.called;
             });
         });
 
