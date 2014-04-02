@@ -16,22 +16,44 @@
 package com.datatorrent.contrib.redis;
 
 import com.datatorrent.lib.util.KeyValPair;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * <p>RedisMapOutputOperator class.</p>
  *
  * This output adapter takes key value pairs as tuples and just writes to the redis store with the keys and the values in the key value pair
+ * Note: Redis output operator should never use the passthrough method because it begins a transaction at beginWindow and commits a transaction at
+ * endWindow, and a transaction in Redis blocks all other clients.
  *
  * @param <K> The key type.
  * @param <V> The value type.
  * @since 0.3.2
  */
-public class RedisKeyValPairOutputOperator<K, V> extends AbstractRedisPassThruOutputOperator<KeyValPair<K, V>>
+public class RedisKeyValPairOutputOperator<K, V> extends AbstractRedisAggregateOutputOperator<KeyValPair<K, V>>
 {
+  protected final Map<Object, Object> map = new HashMap<Object, Object>();
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    super.beginWindow(windowId);
+    map.clear();
+  }
+
   @Override
   public void processTuple(KeyValPair<K, V> t)
   {
-    store.put(t.getKey(), t.getValue());
+    map.put(t.getKey(), t.getValue());
+  }
+
+  @Override
+  public void storeAggregate()
+  {
+    // RedisStore.putAll does not work for hash values
+    for (Map.Entry<Object, Object> entry : map.entrySet()) {
+      store.put(entry.getKey(), entry.getValue());
+    }
   }
 
 }

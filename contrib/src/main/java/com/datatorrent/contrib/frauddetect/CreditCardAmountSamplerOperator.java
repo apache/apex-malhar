@@ -172,7 +172,7 @@ public class CreditCardAmountSamplerOperator extends BaseOperator
     //userAlerts.clear();
   }
 
-  private class CreditCardInfo
+  private static class CreditCardInfo
   {
     MutableLong lowAmount = new MutableLong();
     Long time;

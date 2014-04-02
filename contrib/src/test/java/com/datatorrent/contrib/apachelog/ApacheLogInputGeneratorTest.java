@@ -26,32 +26,35 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 /**
  * Functional tests for {@link com.datatorrent.contrib.apachelog.ApacheLogInputGenerator}.
  */
-
 public class ApacheLogInputGeneratorTest
 {
 
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
-  public void testInputGenerator()
+  public void testInputGenerator() throws InterruptedException
   {
     ApacheLogInputGenerator oper = new ApacheLogInputGenerator();
     CollectorTestSink sink = new CollectorTestSink();
     oper.output.setSink(sink);
     oper.setNumberOfTuples(10);
+    oper.setMaxDelay(0);
     oper.setIpAddressFile("src/test/resources/com/datatorrent/contrib/apachelog/ipaddress.txt");
     oper.setUrlFile("src/test/resources/com/datatorrent/contrib/apachelog/urls.txt");
     oper.setAgentFile("src/test/resources/com/datatorrent/contrib/apachelog/agents.txt");
-    oper.setStatusFile("src/test/resources/com/datatorrent/contrib/apachelog/status.txt");
+    oper.setRefererFile("src/test/resources/com/datatorrent/contrib/apachelog/referers.txt");
     oper.setup(null);
+    oper.activate(null);
+    Thread.sleep(100);
     oper.beginWindow(0);
     oper.emitTuples();
     oper.endWindow();
+    oper.deactivate();
     oper.teardown();
     Assert.assertEquals(oper.getNumberOfTuples(), sink.collectedTuples.size());
-    for (int i = 0; i < sink.collectedTuples.size(); i++) {
-      log.debug((String) sink.collectedTuples.get(i));
+    for (Object collectedTuple : sink.collectedTuples) {
+      LOG.debug((String)collectedTuple);
     }
   }
 
-  private static Logger log = LoggerFactory.getLogger(ApacheLogInputGeneratorTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ApacheLogInputGeneratorTest.class);
 }

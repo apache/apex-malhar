@@ -19,6 +19,7 @@ var Backbone = require('backbone');
 var kt = require('knights-templar');
 var WidgetView = DT.lib.WidgetView;
 var StepView = require('./StepView');
+var WelcomeView = require('./WelcomeView');
 var SystemView = require('./SystemView');
 var LicenseInfoView = require('./LicenseInfoView');
 var LicenseRegisterView = require('./LicenseRegisterView');
@@ -52,6 +53,7 @@ var ConfigWelcomeWidget = WidgetView.extend({
         //this.activeStateId = 'LicenseOfflineView';
         //this.activeStateId = 'LicenseUploadView';
         //this.activeStateId = 'SystemView';
+        //this.activeStateId = 'SummaryView';
     },
 
     render: function() {
@@ -90,7 +92,7 @@ var ConfigWelcomeWidget = WidgetView.extend({
 
     navStates: {
         WelcomeView: {
-            view: StepView,
+            view: WelcomeView,
             template: kt.make(__dirname+'/WelcomeView.html')
         },
         LicenseInfoView: {

@@ -1,5 +1,31 @@
-#<url> ; <bytes>
-"GET /maven/content/repositories/thirdparty/com/datatorrent/dt-stram/0.9.4-SNAPSHOT/maven-metadata.xml HTTP/1.1" ; 432
-"GET /favicon.ico HTTP/1.1" ; 300
-"GET /docs/apidocs/com/datatorrent/lib/multiwindow/class-use/MultiWindowSumKeyVal.html HTTP/1.1" ; 1001
-"GET /maven/content/repositories/releases/com/datatorrent/dt-netlet/0.9.4-SNAPSHOT/maven-metadata.xml HTTP/1.1" ; 1561
+#<url> ; <bytes> ; <status>
+"GET /" ; 327931 ; 200
+"GET /" ; 327931 ; 200
+"GET /" ; 327931 ; 200
+"GET /" ; 327931 ; 200
+"GET /" ; 327931 ; 200
+"GET /" ; 327931 ; 200
+"GET /" ; 327931 ; 200
+"GET /" ; 327931 ; 200
+"GET /favicon.ico HTTP/1.1" ; 96333 ; 404
+"GET /favicon.ico HTTP/1.1" ; 96333 ; 404
+"GET /favicon.ico HTTP/1.1" ; 96333 ; 404
+"GET /favicon.ico HTTP/1.1" ; 96333 ; 404
+"GET /favicon.ico HTTP/1.1" ; 96333 ; 404
+"GET /favicon.ico HTTP/1.1" ; 96333 ; 404
+"GET /favicon.ico HTTP/1.1" ; 96333 ; 404
+"GET /favicon.ico HTTP/1.1" ; 96333 ; 404
+"GET /report-ny-schools-most-racially-segregated-150513204.html HTTP/1.1" ; 230896 ; 200
+"GET /us/ HTTP/1.1" ; 252221 ; 200
+"GET /us/ HTTP/1.1" ; 252221 ; 200
+"GET /us/ HTTP/1.1" ; 252221 ; 200
+"GET /world/ HTTP/1.1" ; 267094 ; 200
+"GET /world/ HTTP/1.1" ; 267094 ; 200
+"GET /politics/ HTTP/1.1" ; 267981 ; 200
+"GET /local/ HTTP/1.1" ; 120872 ; 200
+"GET /health/ HTTP/1.1" ; 293594 ; 200
+"GET /science/ HTTP/1.1" ; 289550 ; 200
+"GET /tech/ HTTP/1.1" ; 541847 ; 200
+"GET /conventional-wisdom-wrong-obamacare-isnt-dooming-democrats-november-135247067.html HTTP/1.1" ; 239890 ; 200
+"GET /air-pollution-linked-1-8-deaths-worldwide-214423778.html HTTP/1.1" ; 213053 ; 200
+"GET /march-madness ; 13495 ; 302
