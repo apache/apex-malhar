@@ -19,11 +19,19 @@ var LicensePageView = BaseView.extend({
         }));
 
         this.listenTo(this.filesToUpload, 'upload_success', _.bind(function() {
+            // notify user
             Notifier.success({
                 title: 'License File Successfully Uploaded',
-                text: 'The information on the license page should updated. If it does not, try refreshing the page'
+                text: 'The information on the license page should be updated. If it does not, wait a few moments for the license agent to restart, then refresh the page.'
             });
-            this.license.fetch();
+
+            // clear out license id
+            this.license.unset('id');
+
+            // queue up a fetch on license
+            setTimeout(_.bind(function() {
+                this.license.fetch();
+            }, this), 4000);
         },this));
 
         this.listenTo(this.filesToUpload, 'upload_error', function (status, statusText, xhr) {

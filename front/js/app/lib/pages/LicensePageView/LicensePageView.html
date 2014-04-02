@@ -15,10 +15,10 @@
     <div class="inner">
         <h1>License Information</h1>
         <p class="well">
-            DataTorrent installation requires a license file to run. You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of the license any time.<br/>
-            If you already have a license file, you can upload it below</a>.
+            DataTorrent installation requires a license file to run. You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of your license any time.<br/>
+            If you have a license file that you would like to activate with this cluster, you can upload it below</a>.
         </p>
-        <% if (agent.id && typeof id !== 'undefined') {  %>
+        <% if (agent.id && typeof id !== 'undefined' && id) {  %>
             <h4>Basic Info</h4>
             <p class="general-license-info">
                 <strong>license ID:</strong> <%= id %><br>
