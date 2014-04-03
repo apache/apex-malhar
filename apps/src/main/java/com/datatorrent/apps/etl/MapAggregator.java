@@ -75,7 +75,7 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
     for (String aDimension : dimensionKeys) {
       Object srcDimension = src.get(aDimension);
       if (srcDimension == null) {
-        aggregateEvent.putDimension(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT);
+        aggregateEvent.putDimension(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT.name());
       }
       else {
         aggregateEvent.putDimension(aDimension, srcDimension);
@@ -90,7 +90,13 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   {
     for (Metric metric : metrics) {
       try {
-        Number sourceVal = NumberFormat.getInstance().parse(src.get(metric.sourceKey).toString());
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        Object value;
+        Number sourceVal = 0; // initialize to 0 in case where source does not contain the source key of the metric
+        if((value = src.get(metric.sourceKey)) != null) {
+          sourceVal = numberFormat.parse(value.toString());
+      }
+
         Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), sourceVal);
         dest.putMetric(metric.destinationKey, result);
       }
@@ -212,16 +218,14 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
       }
 
       MapAggregateEvent that = (MapAggregateEvent) o;
-
       return aggregatorIndex == that.aggregatorIndex && dimensions.equals(that.dimensions);
     }
 
     @Override
     public int hashCode()
     {
-      int result = super.hashCode();
-      result = 31 * result + dimensions.hashCode();
-      result = 31 * result + aggregatorIndex;
+      int result = aggregatorIndex;
+      result = 31 * result + (dimensions != null ? dimensions.hashCode() : 0);
       return result;
     }
 
