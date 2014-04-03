@@ -61,16 +61,16 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
 
     if (time != null) {
       Long srcTime = (Long) src.get(Constants.TIME_ATTR);
-      aggregateEvent.put(Constants.TIME_ATTR, TimeUnit.MILLISECONDS.convert(time.convert(srcTime, TimeUnit.MILLISECONDS), time), true);
+      aggregateEvent.putDimension(Constants.TIME_ATTR, TimeUnit.MILLISECONDS.convert(time.convert(srcTime, TimeUnit.MILLISECONDS), time));
 
     }
     for (String aDimension : dimensionKeys) {
       Object srcDimension = src.get(aDimension);
       if (srcDimension == null) {
-        aggregateEvent.put(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT, true);
+        aggregateEvent.putDimension(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT);
       }
       else {
-        aggregateEvent.put(aDimension, srcDimension, true);
+        aggregateEvent.putDimension(aDimension, srcDimension);
       }
     }
 
@@ -81,15 +81,15 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   public void aggregate(MapAggregateEvent dest, Map<String, Object> src)
   {
     for (Metric metric : metrics) {
-      Object result = metric.operation.compute(dest.get(metric.destinationKey, false), src.get(metric.sourceKey));
-      dest.put(metric.destinationKey, result, false);
+      Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), src.get(metric.sourceKey));
+      dest.putMetric(metric.destinationKey, result);
     }
 
     if (time != null) {
-      Long destTime = (Long) dest.get(Constants.TIME_ATTR, true);
+      Long destTime = (Long) dest.getDimension(Constants.TIME_ATTR);
       Long srcTime = (Long) src.get(Constants.TIME_ATTR);
       if (destTime < srcTime) {
-        dest.put(Constants.TIME_ATTR, srcTime, true);
+        dest.putDimension(Constants.TIME_ATTR, srcTime);
       }
     }
   }
@@ -98,15 +98,15 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   public void aggregate(MapAggregateEvent dest, MapAggregateEvent src)
   {
     for (Metric metric : metrics) {
-      Object result = metric.operation.compute(dest.get(metric.destinationKey, false), src.get(metric.sourceKey, false));
-      dest.put(metric.destinationKey, result, false);
+      Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), src.getMetric(metric.sourceKey));
+      dest.putMetric(metric.destinationKey, result);
     }
 
     if (time != null) {
-      Long destTime = (Long) dest.get(Constants.TIME_ATTR, true);
-      Long srcTime = (Long) src.get(Constants.TIME_ATTR, true);
+      Long destTime = (Long) dest.getDimension(Constants.TIME_ATTR);
+      Long srcTime = (Long) src.getDimension(Constants.TIME_ATTR);
       if (destTime < srcTime) {
-        dest.put(Constants.TIME_ATTR, srcTime, true);
+        dest.putDimension(Constants.TIME_ATTR, srcTime);
       }
     }
   }
@@ -191,24 +191,24 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
       return aggregatorIndex == that.aggregatorIndex && dimensions.equals(that.dimensions);
     }
 
-    public void put(String key, Object value, boolean isDimension)
+    public void putDimension(String key, Object value)
     {
-      if (isDimension) {
-        dimensions.put(key, value);
-      }
-      else {
-        metrics.put(key, value);
-      }
+      dimensions.put(key, value);
     }
 
-    public Object get(String key, boolean isDimension)
+    public void putMetric(String key, Object value)
     {
-      if (isDimension) {
-        return dimensions.get(key);
-      }
-      else {
-        return metrics.get(key);
-      }
+      metrics.put(key, value);
+    }
+
+    public Object getDimension(String key)
+    {
+      return dimensions.get(key);
+    }
+
+    public Object getMetric(String key)
+    {
+      return metrics.get(key);
     }
 
     @Override
