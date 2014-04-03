@@ -187,16 +187,14 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
       }
 
       MapAggregateEvent that = (MapAggregateEvent) o;
-
       return aggregatorIndex == that.aggregatorIndex && dimensions.equals(that.dimensions);
     }
 
     @Override
     public int hashCode()
     {
-      int result = super.hashCode();
-      result = 31 * result + dimensions.hashCode();
-      result = 31 * result + aggregatorIndex;
+      int result = aggregatorIndex;
+      result = 31 * result + (dimensions != null ? dimensions.hashCode() : 0);
       return result;
     }
 
