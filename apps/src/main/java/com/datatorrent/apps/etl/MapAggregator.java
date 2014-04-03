@@ -191,6 +191,15 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
       return aggregatorIndex == that.aggregatorIndex && dimensions.equals(that.dimensions);
     }
 
+    @Override
+    public int hashCode()
+    {
+      int result = super.hashCode();
+      result = 31 * result + dimensions.hashCode();
+      result = 31 * result + aggregatorIndex;
+      return result;
+    }
+
     public void putDimension(String key, Object value)
     {
       dimensions.put(key, value);
@@ -209,15 +218,6 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
     public Object getMetric(String key)
     {
       return metrics.get(key);
-    }
-
-    @Override
-    public int hashCode()
-    {
-      int result = super.hashCode();
-      result = 31 * result + dimensions.hashCode();
-      result = 31 * result + aggregatorIndex;
-      return result;
     }
 
     @Override
