@@ -25,6 +25,8 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Parse Apache log lines one line at a time. logRegex is used as a parser. The fields extracted are defined as a
@@ -57,7 +59,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
   /**
    * This is the list of extractors
    */
-  private Map<String, InformationExtractor> infoExtractors = new HashMap<String, InformationExtractor>();
+  private final Map<String, InformationExtractor> infoExtractors = new HashMap<String, InformationExtractor>();
   private transient Pattern accessLogPattern;
   /**
    * Input log line port.
@@ -202,5 +204,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
   {
     infoExtractors.put(group, extractor);
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(ApacheLogParseMapOutputOperator.class);
 
 }

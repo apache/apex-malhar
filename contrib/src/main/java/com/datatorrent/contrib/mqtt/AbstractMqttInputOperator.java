@@ -112,7 +112,11 @@ public abstract class AbstractMqttInputOperator implements InputOperator, Activa
       ntuples = holdingBuffer.size();
     }
     for (int i = ntuples; i-- > 0;) {
-      emitTuple(holdingBuffer.poll());
+      Message msg = holdingBuffer.poll();
+      if (msg == null) {
+        break;
+      }
+      emitTuple(msg);
     }
   }
 

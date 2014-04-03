@@ -55,7 +55,7 @@ public abstract class AbstractHdfsOutputOperator<T> extends BaseOperator
   private int bufferSize = 0;
   private int bytesPerFile = 0;
   private int replication = 0;
-  private Path currentFilePath;
+  private transient Path currentFilePath;
   /**
    * This variable specifies if the operator needs to close the file at every end window
    */

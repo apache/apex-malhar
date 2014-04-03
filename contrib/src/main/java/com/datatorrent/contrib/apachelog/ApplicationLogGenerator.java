@@ -25,18 +25,20 @@ import java.text.SimpleDateFormat;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * This application just reads from a local apache log file on the fly and dumps the parsed data to output
+ * This application just generates apache log file on the fly and dumps the parsed data to output
  *
  * @since 0.9.4
  */
-public class ApplicationLocalLog implements StreamingApplication
+public class ApplicationLogGenerator implements StreamingApplication
 {
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    TailFsInputOperator log = dag.addOperator("log", new TailFsInputOperator());
-    log.setDelimiter('\n');
-    log.setFilePath("/var/log/apache2/access.log");
+    ApacheLogInputGenerator log = dag.addOperator("log", new ApacheLogInputGenerator());
+    log.setIpAddressFile("src/test/resources/com/datatorrent/contrib/apachelog/ipaddress.txt");
+    log.setUrlFile("src/test/resources/com/datatorrent/contrib/apachelog/urls.txt");
+    log.setAgentFile("src/test/resources/com/datatorrent/contrib/apachelog/agents.txt");
+    log.setRefererFile("src/test/resources/com/datatorrent/contrib/apachelog/referers.txt");
 
     ApacheLogParseMapOutputOperator parse = dag.addOperator("parse", new ApacheLogParseMapOutputOperator());
     GeoIPExtractor geoIPExtractor = new GeoIPExtractor();
