@@ -70,11 +70,13 @@ var Appmetrics = BaseView.extend({
         }, {
             key: 'inputBufferServerBytesPS',
             color: '#AE08CE',
-            label: DT.text('buffer_server_reads_label')
+            label: DT.text('buffer_server_reads_label'),
+            visible: false
         }, {
            key: 'outputBufferServerBytesPS',
            color: '#f2be20',
-           label: DT.text('buffer_server_writes_label')
+           label: DT.text('buffer_server_writes_label'),
+           visible: false
         }];
 
         this.plotSeries(series);

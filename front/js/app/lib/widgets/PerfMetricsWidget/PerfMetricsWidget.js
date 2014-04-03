@@ -55,7 +55,8 @@ var PerfMetricsWidget = BaseView.extend({
 
     plotSeries: function(series) {
         _.each(series, function(plot) {
-            plot.visible = this.widgetDef.get(plot.key);
+            var stored = this.widgetDef.get(plot.key);
+            if (stored !== undefined) plot.visible = stored;
             this.chart.plot(plot);
         }, this);
     },
