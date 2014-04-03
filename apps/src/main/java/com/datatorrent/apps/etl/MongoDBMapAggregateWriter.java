@@ -27,6 +27,8 @@ import com.datatorrent.apps.etl.MapAggregator.MapAggregateEvent;
 import com.datatorrent.contrib.mongodb.MongoDBConnectable;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
+import java.util.Arrays;
+import org.python.constantine.ConstantSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +39,7 @@ import org.slf4j.LoggerFactory;
  */
 public class MongoDBMapAggregateWriter extends MongoDBConnectable implements DataStoreWriter<MapAggregateEvent>
 {
-  private final String DT_HASH = "dt_hash";
+  private final String DT_IDENTIFIER = "dt_id";
   @Nonnull
   private String table;
   @Nonnull
@@ -48,54 +50,30 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
   {
     int aggregatorIndex = tuple.getAggregatorIndex();
     Set<String> dimensionKeys = aggregators[aggregatorIndex].getDimensionKeys();
-    MapAggregateEvent group = aggregators[aggregatorIndex].getGroup(tuple, aggregatorIndex);
 
-    BasicDBObject query = new BasicDBObject();
-    Object dt_hash = group.hash;
-    query.put(DT_HASH, dt_hash);
+    Object dt_hash = getIdentifier(tuple);
 
-    DBCursor find = db.getCollection(table).find(query);
-    int count = find.count();
-
-    BasicDBObject doc = new BasicDBObject();
-    doc.put(DT_HASH, dt_hash);
-
+    BasicDBObject newTuple = new BasicDBObject();
+    newTuple.put(DT_IDENTIFIER, dt_hash);
     BasicDBObject dimension = new BasicDBObject();
     for (String key : dimensionKeys) {
-      dimension.put(key, tuple.get(key));
+      dimension.put(key, tuple.getDimension(key));
     }
+    newTuple.put(Constants.DIMENSIONS, dimension);
 
-    doc.put("dimension", dimension);
+    DBObject existingTuple = getExistingTuple(tuple, dimensionKeys);
 
-    logger.info("tuple count = {}", count);
-
-    if (find.hasNext()) {
-      while (find.hasNext()) {
-        DBObject dbObj = find.next();
-        BasicDBObject dbObjDimensionKeys = (BasicDBObject)dbObj.get("dimension");
-        if (dbObjDimensionKeys.size() != dimensionKeys.size()) {
-          continue;
-        }
-        for (String key : dimensionKeys) {
-          if (!dbObjDimensionKeys.get(key).equals(tuple.get(key))) {
-            dbObj = null;
-            break;
-          }
-        }
-
-        if (dbObj != null) {
-          BasicDBObject metrics = computeMetrics(dbObj,tuple);
-          doc.put("metrics", metrics);
-          db.getCollection(table).update(dbObj, doc);
-          break;
-        }
-      }
+    if (existingTuple == null) {
+      // insert tuple
+      BasicDBObject metrics = getMetrics(tuple);
+      newTuple.put(Constants.METRICS, metrics);
+      db.getCollection(table).insert(newTuple);
     }
     else {
-      //insert tuple
-      BasicDBObject metrics = getMetrics(tuple);
-      doc.put("metrics", metrics);
-      db.getCollection(table).insert(doc);
+      // update tuple
+      BasicDBObject metrics = computeMetrics(existingTuple, tuple);
+      newTuple.put(Constants.METRICS, metrics);
+      db.getCollection(table).update(existingTuple, newTuple);
     }
   }
 
@@ -103,7 +81,7 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
   {
     BasicDBObject metrics = new BasicDBObject();
     for (Metric metric : aggregators[tuple.getAggregatorIndex()].metrics) {
-      Object metricValue = tuple.get(metric.destinationKey);
+      Object metricValue = tuple.getMetric(metric.destinationKey);
       metrics.put(metric.destinationKey, metricValue);
     }
 
@@ -115,7 +93,7 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
     BasicDBObject oldMetrics = (BasicDBObject)oldObj.get("metrics");
     BasicDBObject newMetrics = new BasicDBObject();
     for (Metric metric : aggregators[tuple.getAggregatorIndex()].metrics) {
-      Object metricValue = metric.operation.compute(oldMetrics.get(metric.destinationKey), tuple.get(metric.destinationKey));
+      Object metricValue = metric.operation.compute(oldMetrics.get(metric.destinationKey), tuple.getMetric(metric.destinationKey));
       newMetrics.put(metric.destinationKey, metricValue);
     }
 
@@ -133,4 +111,41 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
   }
 
   private static final Logger logger = LoggerFactory.getLogger(MongoDBMapAggregateWriter.class);
+
+  private Object getIdentifier(MapAggregateEvent tuple)
+  {
+    return tuple.hashCode();
+  }
+
+  private DBObject getExistingTuple(MapAggregateEvent tuple, Set<String> dimensionKeys)
+  {
+    BasicDBObject query = new BasicDBObject();
+    query.put(DT_IDENTIFIER, getIdentifier(tuple));
+    DBCursor find = db.getCollection(table).find(query);
+
+    logger.info("tuple count = {}", find.count());
+
+    if (find.hasNext()) {
+      while (find.hasNext()) {
+        DBObject dbObj = find.next();
+        BasicDBObject dbObjDimensionKeys = (BasicDBObject)dbObj.get(Constants.DIMENSIONS);
+        if (dbObjDimensionKeys.size() != dimensionKeys.size()) {
+          continue;
+        }
+        for (String key : dimensionKeys) {
+          if (!dbObjDimensionKeys.get(key).equals(tuple.getDimension(key))) {
+            dbObj = null;
+            break;
+          }
+        }
+
+        if (dbObj != null) {
+          return dbObj;
+        }
+      }
+    }
+
+    return null;
+  }
+
 }
