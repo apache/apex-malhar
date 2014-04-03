@@ -25,6 +25,8 @@ import com.datatorrent.lib.db.DataStoreWriter;
 
 import com.datatorrent.apps.etl.MapAggregator.MapAggregateEvent;
 import com.datatorrent.contrib.mongodb.MongoDBConnectable;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -45,29 +47,79 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
   public void process(MapAggregateEvent tuple)
   {
     int aggregatorIndex = tuple.getAggregatorIndex();
-    logger.info("aggregator index = {} aggregators = {}", aggregatorIndex, aggregators);
     Set<String> dimensionKeys = aggregators[aggregatorIndex].getDimensionKeys();
     MapAggregateEvent group = aggregators[aggregatorIndex].getGroup(tuple, aggregatorIndex);
 
-    BasicDBObject doc = new BasicDBObject();
     BasicDBObject query = new BasicDBObject();
+    Object dt_hash = group.hash;
+    query.put(DT_HASH, dt_hash);
 
-    int dt_id = group.hash;
-    doc.put(DT_HASH, dt_id);
-    query.put(DT_HASH, dt_id);
+    DBCursor find = db.getCollection(table).find(query);
+    int count = find.count();
 
+    BasicDBObject doc = new BasicDBObject();
+    doc.put(DT_HASH, dt_hash);
+
+    BasicDBObject dimension = new BasicDBObject();
     for (String key : dimensionKeys) {
-      doc.put(key, group.get(key));
+      dimension.put(key, tuple.get(key));
     }
 
-    for (Metric metric : aggregators[aggregatorIndex].metrics) {
+    doc.put("dimension", dimension);
+
+    logger.info("tuple count = {}", count);
+
+    if (find.hasNext()) {
+      while (find.hasNext()) {
+        DBObject dbObj = find.next();
+        BasicDBObject dbObjDimensionKeys = (BasicDBObject)dbObj.get("dimension");
+        if (dbObjDimensionKeys.size() != dimensionKeys.size()) {
+          continue;
+        }
+        for (String key : dimensionKeys) {
+          if (!dbObjDimensionKeys.get(key).equals(tuple.get(key))) {
+            dbObj = null;
+            break;
+          }
+        }
+
+        if (dbObj != null) {
+          BasicDBObject metrics = computeMetrics(dbObj,tuple);
+          doc.put("metrics", metrics);
+          db.getCollection(table).update(dbObj, doc);
+          break;
+        }
+      }
+    }
+    else {
+      //insert tuple
+      BasicDBObject metrics = getMetrics(tuple);
+      doc.put("metrics", metrics);
+      db.getCollection(table).insert(doc);
+    }
+  }
+
+  private BasicDBObject getMetrics(MapAggregateEvent tuple)
+  {
+    BasicDBObject metrics = new BasicDBObject();
+    for (Metric metric : aggregators[tuple.getAggregatorIndex()].metrics) {
       Object metricValue = tuple.get(metric.destinationKey);
-      doc.put(metric.destinationKey, metricValue);
+      metrics.put(metric.destinationKey, metricValue);
     }
 
-    // overwrite document if DT_HASH value found in collection, else insert
-    db.getCollection(table).update(query, doc, true, false);
-    System.out.println("wrote tuple..." + doc.toString());
+    return metrics;
+  }
+
+  private BasicDBObject computeMetrics(DBObject oldObj, MapAggregateEvent tuple)
+  {
+    BasicDBObject oldMetrics = (BasicDBObject)oldObj.get("metrics");
+    BasicDBObject newMetrics = new BasicDBObject();
+    for (Metric metric : aggregators[tuple.getAggregatorIndex()].metrics) {
+      Object metricValue = metric.operation.compute(oldMetrics.get(metric.destinationKey), tuple.get(metric.destinationKey));
+      newMetrics.put(metric.destinationKey, metricValue);
+    }
+
+    return newMetrics;
   }
 
   public void setTable(String table)
