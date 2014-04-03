@@ -39,7 +39,7 @@ Web Application for DataTorrent Demos:
 
 ## Demos configuration
  Please use ```config.js``` or environment variables for configuration (DT Gateway, Redis, MongoDB, etc.).
- See ```prod_start.sh``` and ```dev_start.sh```.
+ See ```dist_start.sh``` and ```dev_start.sh```.
 
  Applications are automatically discovered by name (to show stats like "Events/sec"). See the following settings in ```config.js```:
  - settings.twitter.appName
