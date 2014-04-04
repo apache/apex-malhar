@@ -24,7 +24,6 @@ var Backbone = require('backbone');
 Backbone.$ = $;
 
 // Set the datatorrent library to DT, global object.
-localStorage.clear();
 window.DT = require('./datatorrent');
 
 // Set up the options for the dashboard
