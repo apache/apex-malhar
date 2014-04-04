@@ -32,9 +32,9 @@ var DashMgr = BaseView.extend({
         
         if (storedVisibility !== null) {
             // gets stored as a string
-            this.visible = storedVisibility === 'false' ? false : true ;
+            this.visible = storedVisibility === 'true' ? true : false ;
         } else {
-            this.visible = true;
+            this.visible = false;
         }
     },
     
@@ -49,10 +49,14 @@ var DashMgr = BaseView.extend({
     },
     
     events: {
-        "click .collapser-container": "toggle"
+        "click .collapser-container": "toggle",
+        "click .widget-manager-tab a": "toggle"
     },
     
     toggle: function(evt){
+        if (evt.preventDefault) {
+            evt.preventDefault();
+        }
         this.visible = !this.visible;
         var newWidth, toggleMethod, curDash;
         if ( this.visible ) {
