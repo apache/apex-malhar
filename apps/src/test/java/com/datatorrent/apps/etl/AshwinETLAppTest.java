@@ -15,28 +15,22 @@
  */
 package com.datatorrent.apps.etl;
 
-import javax.annotation.Nonnull;
 
-import com.datatorrent.lib.datamodel.operation.Operation;
-import java.io.Serializable;
+import org.junit.Ignore;
+import org.junit.Test;
 
-public class Metric implements Serializable
+import com.datatorrent.api.LocalMode;
+
+/**
+ *
+ * @author Ashwin Chandra Putta <ashwin@datatorrent.com>
+ */
+public class AshwinETLAppTest
 {
-  @Nonnull
-  String sourceKey;
-  String destinationKey;
-  Operation operation;
-
-  public Metric()
+  @Test
+  public void testSomeMethod() throws Exception
   {
-    // for serialization
+    LocalMode.runApp(new AshwinETLApp(), 600000);
   }
 
-
-  public  Metric(@Nonnull String sourceKey, @Nonnull String destinationKey, @Nonnull Operation operation)
-  {
-    this.sourceKey = sourceKey;
-    this.destinationKey = destinationKey;
-    this.operation = operation;
-  }
 }

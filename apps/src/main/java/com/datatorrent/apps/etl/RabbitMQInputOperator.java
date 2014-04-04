@@ -81,6 +81,7 @@ public class RabbitMQInputOperator<T> extends AbstractSinglePortRabbitMQInputOpe
       oper.routingKey = type;
       oper.queueName = type;
       oper.logTypes = logTypes;
+      oper.converter = converter;
 
       DefaultPartition<RabbitMQInputOperator<T>> partition = new DefaultPartition<RabbitMQInputOperator<T>>(oper);
       newPartitions.add(partition);

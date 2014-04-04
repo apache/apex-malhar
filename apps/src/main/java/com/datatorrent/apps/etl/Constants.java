@@ -23,4 +23,6 @@ public interface Constants
   static enum RESERVED_DIMENSION {
     NOT_PRESENT
   };
+  static String METRICS = "metrics";
+  static String DIMENSIONS = "dimensions";
 }

@@ -26,6 +26,9 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.statistics.DimensionsComputation;
+import java.text.NumberFormat;
+import java.text.ParseException;
+import java.util.*;
 
 public class MapAggregator implements DimensionsComputation.Aggregator<Map<String, Object>, MapAggregator.MapAggregateEvent>
 {
@@ -33,6 +36,11 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   private TimeUnit time;
   private Set<String> dimensionKeys;
   List<Metric> metrics;
+
+  public MapAggregator()
+  {
+    // for kryo
+  }
 
   public void init(String dimension, List<Metric> operations)
   {
@@ -67,7 +75,7 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
     for (String aDimension : dimensionKeys) {
       Object srcDimension = src.get(aDimension);
       if (srcDimension == null) {
-        aggregateEvent.putDimension(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT);
+        aggregateEvent.putDimension(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT.name());
       }
       else {
         aggregateEvent.putDimension(aDimension, srcDimension);
@@ -81,8 +89,20 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   public void aggregate(MapAggregateEvent dest, Map<String, Object> src)
   {
     for (Metric metric : metrics) {
-      Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), src.get(metric.sourceKey));
-      dest.putMetric(metric.destinationKey, result);
+      try {
+        NumberFormat numberFormat = NumberFormat.getInstance();
+        Object value;
+        Number sourceVal = 0; // initialize to 0 in case where source does not contain the source key of the metric
+        if((value = src.get(metric.sourceKey)) != null) {
+          sourceVal = numberFormat.parse(value.toString());
+      }
+
+        Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), sourceVal);
+        dest.putMetric(metric.destinationKey, result);
+      }
+      catch (ParseException ex) {
+        throw new RuntimeException(ex);
+      }
     }
 
     if (time != null) {
@@ -98,8 +118,14 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   public void aggregate(MapAggregateEvent dest, MapAggregateEvent src)
   {
     for (Metric metric : metrics) {
-      Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), src.getMetric(metric.sourceKey));
-      dest.putMetric(metric.destinationKey, result);
+      try {
+        Number sourceVal = NumberFormat.getInstance().parse(src.getMetric(metric.sourceKey).toString());
+        Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), sourceVal);
+        dest.putMetric(metric.destinationKey, result);
+      }
+      catch (ParseException ex) {
+        throw new RuntimeException(ex);
+      }
     }
 
     if (time != null) {
@@ -155,6 +181,11 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
       }
     }
     return true;
+  }
+
+  public Set<String> getDimensionKeys()
+  {
+    return Collections.unmodifiableSet(dimensionKeys);
   }
 
   public static class MapAggregateEvent implements DimensionsComputation.AggregateEvent
