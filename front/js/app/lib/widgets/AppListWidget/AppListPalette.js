@@ -23,7 +23,8 @@ var Palette = ListPalette.extend({
         'click .killApp': 'killApp',
         'click .shutdownApp': 'shutdownApp',
         'click .killApps': 'killApps',
-        'click .shutdownApps': 'shutdownApps'
+        'click .shutdownApps': 'shutdownApps',
+        'click .getAllApps': 'retrieveAllApps'
     },
     
     killApp: function() {
@@ -61,6 +62,12 @@ var Palette = ListPalette.extend({
     goToApp: function() {
         var id = this.getSelected()[0].get('id');
         this.nav.go('ops/apps/'+id, { trigger: true});
+    },
+
+    retrieveAllApps: function() {
+        this.collection.fetch({
+            data: {}
+        });
     },
     
     template: kt.make(__dirname+'/AppListPalette.html', '_'),
