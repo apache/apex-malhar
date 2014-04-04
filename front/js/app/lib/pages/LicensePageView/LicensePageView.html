@@ -1,11 +1,3 @@
-<style>
-    .license-page-main .config-page-pane .inner h3 {
-        text-align: left;
-    }
-    .file-upload-target {
-        margin-bottom: 10px;
-    }
-</style>
 <div class="container license-page-main config-page-main">
     <div class="config-page-pane">
         <div class="inner">
@@ -19,6 +11,8 @@
                 <section id="license-current" class="span6">
                     <h2>Current License</h2>
                     <hr>
+                    <h3>Memory Usage</h3>
+                    <%= DT.templates.licensed_mem_bar({agent: agent, pagelink: false}) %>
                     <h3>Basic Info</h3>
                     <p class="general-license-info">
                         <strong>license ID:</strong> <%= id %><br>
@@ -28,7 +22,7 @@
                         <strong>user:</strong> <%= agent.user %><br>
                         <strong>remaining memory:</strong> <%= DT.formatters.byteFormatter(agent.remainingLicensedMB, 'mb') %><br>
                         <strong>total memory:</strong> <%= DT.formatters.byteFormatter(agent.totalLicensedMB, 'mb') %><br>
-                        <%= DT.templates.licensed_mem_bar({agent: agent, pagelink: false}) %>
+                        
                         <% } %>
                     </p>
 
@@ -45,13 +39,14 @@
                     <% } %>
                 </section>
                 <section id="license-upload" class="span6">
-                    <h2>Upload/Upgrade License</h2>
+                    <h2>Upgrade License</h2>
                     <hr>
-                    <h3>Upload</h3>
+                    <p>You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of your license any time.</p>
+                    <h2>Upload License</h2>
+                    <hr>
                     <p>Use the area below to upload an existing license file. This will replace your current license.</p>
                     <div class="file-upload-target"></div>
-                    <h3>Upgrade</h3>
-                    <p>You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of your license any time.</p>
+                    
                 </section>
             </div>
 
