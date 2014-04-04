@@ -78,5 +78,11 @@
       <artifactId>jedis</artifactId>
       <version>2.2.1</version>
     </dependency>
+    <dependency>
+      <groupId>com.esotericsoftware.kryo</groupId>
+      <artifactId>kryo</artifactId>
+      <version>2.23.0</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 </project>
