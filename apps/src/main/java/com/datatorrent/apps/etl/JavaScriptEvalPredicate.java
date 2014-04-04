@@ -15,30 +15,77 @@
  */
 package com.datatorrent.apps.etl;
 
+import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.script.*;
 
+import com.esotericsoftware.kryo.DefaultSerializer;
 import com.google.common.base.Predicate;
+
+import com.datatorrent.lib.script.JavaScriptOperator;
 
 public class JavaScriptEvalPredicate implements Predicate<Map<String, Object>>
 {
   @Nonnull
   private String expression;
+  @Nonnull
+  protected List<String> expressionKeys;
+  protected EvaluatorBindings scriptBindings = new EvaluatorBindings();
+
+  protected transient ScriptEngineManager sem;
+  protected transient ScriptEngine engine;
+  protected transient SimpleScriptContext scriptContext;
+
+  @DefaultSerializer(value = JavaScriptOperator.BindingsSerializer.class)
+  protected static class EvaluatorBindings extends SimpleBindings
+  {
+  }
+
+  public JavaScriptEvalPredicate()
+  {
+    sem = new ScriptEngineManager();
+    engine = sem.getEngineByName("JavaScript");
+    scriptContext = new SimpleScriptContext();
+  }
 
   public void setExpression(@Nonnull String expression)
   {
     this.expression = expression;
   }
 
+  public void setExpressionKeys(@Nonnull List<String> expressionKeys)
+  {
+    this.expressionKeys = expressionKeys;
+  }
+
   public void init()
   {
-
+    scriptContext.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
+    engine.setContext(this.scriptContext);
   }
+
   @Override
   public boolean apply(@Nullable Map<String, Object> input)
   {
-    return false;
+    if (input == null) {
+      return false;
+    }
+    for (String expressionKey : expressionKeys) {
+      Object value = input.get(expressionKey);
+      if (value != null) {
+        scriptContext.getBindings(ScriptContext.ENGINE_SCOPE).put(expressionKey, value);
+      }
+    }
+    boolean evalResult;
+    try {
+      evalResult = (Boolean) engine.eval(expression, scriptContext);
+    }
+    catch (ScriptException e) {
+      throw new RuntimeException(e);
+    }
+    return evalResult;
   }
 }
