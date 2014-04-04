@@ -1,6 +1,6 @@
 <style>
-    .license-page-main {
-        text-align: center;
+    .license-page-main .config-page-pane .inner h3 {
+        text-align: left;
     }
     .file-upload-target {
         margin-bottom: 10px;
@@ -15,10 +15,11 @@
                 If you have a license file that you would like to activate with this cluster, you can upload it below</a>.
             </p>
             <% if (agent.id && typeof id !== 'undefined' && id) {  %>
-                <hr>
-                <section id="license-current">
+            <div class="row-fluid">
+                <section id="license-current" class="span6">
                     <h2>Current License</h2>
-                    <h3>Basic Info</h4>
+                    <hr>
+                    <h3>Basic Info</h3>
                     <p class="general-license-info">
                         <strong>license ID:</strong> <%= id %><br>
                         <!-- <strong>appId:</strong> <%= agent.appId %><br> -->
@@ -32,7 +33,7 @@
                     </p>
 
                     <% if (sections.length) { %>
-                        <h3>License Sections</h4>
+                        <h3>License Sections</h3>
                         <% _.each( sections, function(section) { %>
                         <p class="license-info-block">
                             <strong>start date:</strong> <%= section.startDate %><br>
@@ -43,13 +44,16 @@
                         <% }) %>
                     <% } %>
                 </section>
-                <hr>
-                <section id="license-upload">
-                    <h2>Upload License</h2>
+                <section id="license-upload" class="span6">
+                    <h2>Upload/Upgrade License</h2>
+                    <hr>
+                    <h3>Upload</h3>
                     <p>Use the area below to upload an existing license file. This will replace your current license.</p>
                     <div class="file-upload-target"></div>
-                    <a href="http://datatorrent.com/license-upgrade" class="btn btn-success" target="_blank">Upgrade License</a>
+                    <h3>Upgrade</h3>
+                    <p>You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of your license any time.</p>
                 </section>
+            </div>
 
             <% } else { %>
                 
