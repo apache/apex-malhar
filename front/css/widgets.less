@@ -1,4 +1,3 @@
-
 #pagecontent {
     position:relative;
     overflow:hidden;
@@ -109,9 +108,17 @@
             margin-top: -3px;
             float: left;
             margin-left: 3px;
-            background-color: #DEDEDE;
             border-radius: 4px 4px 0 0;
+            background-color: #DEDEDE;
             border: 1px solid #AAA;
+            &.selected {
+                background: #EFEFEF;
+                text-shadow: 0 2px 1px #FFF;
+                border-bottom-color: #EFEFEF;
+            }
+            &:first-child {
+                margin-left: @dash_mgr_tab_width;
+            }
             label {
                 font:inherit;
                 padding: 4px 10px;
@@ -122,11 +129,7 @@
             input[type="text"] {
                 margin:0;
             }
-            &.selected {
-                background: #EFEFEF;
-                text-shadow: 0 2px 1px #FFF;
-                border-bottom-color: #EFEFEF;
-            }
+            
             i {
                 opacity: 0.5;
                 &:hover {
@@ -171,7 +174,27 @@
         background:white;
         position:relative;
         z-index: 1;
-        
+        .widget-manager-tab {
+            position: absolute;
+            right:-@dash_mgr_tab_width;
+            z-index: 1;
+            width: @dash_mgr_tab_width + 2;
+            height: @dash_mgr_tab_width;
+            a {
+                border-bottom-color: #EFEFEF;
+                background-color: #FFF;
+                display: block;
+                width: 25px;
+                height: 25px;
+                border-radius: 0 4px 4px 0;
+                position: relative;
+                top: 2px;
+                text-align: center;
+                line-height: 23px;
+                border: 1px solid #AAA;
+                border-left: 2px solid #FFF;
+            }
+        }
         .inner {
             padding:5px 10px 10px 5px;
             min-height: 600px;
