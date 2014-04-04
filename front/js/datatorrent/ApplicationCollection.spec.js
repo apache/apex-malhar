@@ -50,4 +50,45 @@ describe('ApplicationCollection.js', function() {
 	    expect(Collection.prototype.fetch).to.have.been.calledOnce;
 	});
 
+	describe('the fetch method', function() {
+
+		var dataSource, c;
+
+		beforeEach(function() {
+		    dataSource = {};
+	    	c = new Collection([], { dataSource: dataSource });
+		});
+
+	    it('should pass the option data.states=RUNNING by default', function() {
+	   		sandbox.stub($, 'ajax', function(options) {
+	   			expect(options).to.have.property('data');
+	   			expect(options.data).to.eql({ states: 'RUNNING' });
+	   		});
+	   		c.fetch();
+	    });
+
+	    it('should add the option data.states=RUNNING to an existing options that gets passed', function() {
+	    	sandbox.stub($, 'ajax', function(options) {
+	   			expect(options).to.have.property('data');
+	   			expect(options.data).to.eql({ states: 'RUNNING' });
+	   			expect(options.async).to.equal(false);
+	   		});
+	   		c.fetch({
+	   			async: false
+	   		});
+	    });
+
+	    it('should not add the option data.states=RUNNING to an existing options that gets passed if data is already set', function() {
+	    	sandbox.stub($, 'ajax', function(options) {
+	   			expect(options).to.have.property('data');
+	   			expect(options.data).to.eql({ param: 'value' });
+	   		});
+	   		c.fetch({
+	   			data: {
+	   				param: 'value'
+	   			}
+	   		});
+	    });
+	});
+
 });
