@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Logstream implementation of property registry
  * Properties are added to the registry during dag setup and are accessible to all operators.
+ *
+ * @since 0.9.4
  */
 public class LogstreamPropertyRegistry implements PropertyRegistry<String>
 {

@@ -32,6 +32,8 @@ import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQInputOperator;
  *
  * Input operator to consume logs messages from RabbitMQ
  * This operator is partitionable, each partition will receive messages from the routing key its assigned.
+ *
+ * @since 0.9.4
  */
 public class RabbitMQLogsInputOperator extends AbstractSinglePortRabbitMQInputOperator<byte[]> implements Partitioner<RabbitMQLogsInputOperator>
 {

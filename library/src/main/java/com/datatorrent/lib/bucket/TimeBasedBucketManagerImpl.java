@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * A {@link BucketManager} that creates buckets based on time.<br/>
  *
  * @param <T> event type
+ * @since 0.9.4
  */
 public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends BucketManagerImpl<T>
 {

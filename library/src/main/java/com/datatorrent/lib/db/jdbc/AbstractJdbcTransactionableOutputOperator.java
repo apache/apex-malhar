@@ -47,8 +47,8 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * </p>
  *
  * @param <T>type of tuple</T>
+ * @since 0.9.4
  */
-
 public abstract class AbstractJdbcTransactionableOutputOperator<T> extends AbstractPassThruTransactionableStoreOutputOperator<T, JdbcTransactionalStore>
 {
   protected static int DEFAULT_BATCH_SIZE = 1000;

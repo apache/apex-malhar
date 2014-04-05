@@ -60,7 +60,7 @@ import com.datatorrent.demos.mroperator.ReporterImpl.ReporterType;
  * <p>
  * MapOperator class.
  * </p>
- * 
+ *
  * @since 0.9.0
  */
 @ShipContainingJars(classes = { org.apache.hadoop.mapred.Reporter.class })

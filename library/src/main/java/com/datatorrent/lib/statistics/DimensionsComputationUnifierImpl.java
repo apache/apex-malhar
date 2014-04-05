@@ -31,6 +31,7 @@ import com.datatorrent.api.Operator;
  * and any concrete implementations should provide {@link #getAggregatorIndex(Object)} implementation.
  *
  * @param <EVENT>
+ * @since 0.9.4
  */
 public abstract class DimensionsComputationUnifierImpl<EVENT> extends BaseOperator implements Operator.Unifier<EVENT>
 {

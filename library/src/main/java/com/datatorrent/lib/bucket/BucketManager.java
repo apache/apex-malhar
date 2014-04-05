@@ -53,6 +53,7 @@ import javax.annotation.Nullable;
  * </p>
  *
  * @param <T> event type
+ * @since 0.9.4
  */
 public interface BucketManager<T extends Bucketable>
 {

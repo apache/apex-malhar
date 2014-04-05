@@ -33,6 +33,11 @@ import java.util.Map;
  *
  */
 
+/**
+ * <p>YahooFinanceAlertEscalationOperator class.</p>
+ *
+ * @since 0.9.4
+ */
 public class YahooFinanceAlertEscalationOperator extends AlertEscalationOperator {
 
     protected String lastTicker = "";

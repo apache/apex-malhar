@@ -42,6 +42,7 @@ import com.datatorrent.common.util.DTThrowable;
  * Partitionable topN operator.
  * Each partition serves specific filter as defined in the partition.
  *
+ * @since 0.9.4
  */
 public class LogstreamTopN extends TopN<String, DimensionObject<String>> implements Partitioner<LogstreamTopN>
 {
