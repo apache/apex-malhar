@@ -26,6 +26,11 @@ import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
 
+/**
+ * <p>TestSource class.</p>
+ *
+ * @since 0.9.4
+ */
 public class TestSource extends AbstractSource implements EventDrivenSource, Configurable
 {
   public static final String SOURCE_FILE = "sourceFile";

@@ -13,8 +13,10 @@ import com.datatorrent.api.Component;
 import com.datatorrent.common.util.Slice;
 
 /**
+ * <p>DebugWrapper class.</p>
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
+ * @since 0.9.4
  */
 public class DebugWrapper implements Storage, Configurable, Component<com.datatorrent.api.Context>
 {

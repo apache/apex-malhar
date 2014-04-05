@@ -22,8 +22,10 @@ import com.datatorrent.api.StreamCodec;
 import com.datatorrent.common.util.Slice;
 
 /**
+ * <p>EventCodec class.</p>
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
+ * @since 0.9.4
  */
 public class EventCodec implements StreamCodec<Event>
 {
