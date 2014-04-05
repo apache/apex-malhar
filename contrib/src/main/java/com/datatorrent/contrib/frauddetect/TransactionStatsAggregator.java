@@ -46,8 +46,8 @@ public class TransactionStatsAggregator extends BaseOperator
     {
       TransactionStatsData data = getDataObjectFromMap(tuple.getKey());
       // HighLow is not currently typed, casting till it is fixed
-      data.min = (Long)tuple.getValue().getLow();
-      data.max = (Long)tuple.getValue().getHigh();
+      data.min = tuple.getValue().getLow();
+      data.max = tuple.getValue().getHigh();
     }
 
   };
