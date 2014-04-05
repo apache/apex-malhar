@@ -24,7 +24,10 @@ import static com.datatorrent.flume.interceptor.ColumnFilteringFormattingInterce
 import static com.datatorrent.flume.interceptor.ColumnFilteringFormattingInterceptor.Constants.SRC_SEPARATOR_DFLT;
 
 /**
+ * <p>ColumnFilteringFormattingInterceptor class.</p>
+ *
  * @author Chandni Singh <chandni@datatorrent.com>
+ * @since 0.9.4
  */
 public class ColumnFilteringFormattingInterceptor implements Interceptor
 {

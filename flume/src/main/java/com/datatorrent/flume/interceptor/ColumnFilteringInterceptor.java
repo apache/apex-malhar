@@ -17,8 +17,10 @@ import org.apache.flume.interceptor.Interceptor;
 import static com.datatorrent.flume.interceptor.ColumnFilteringInterceptor.Constants.*;
 
 /**
+ * <p>ColumnFilteringInterceptor class.</p>
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
+ * @since 0.9.4
  */
 public class ColumnFilteringInterceptor implements Interceptor
 {

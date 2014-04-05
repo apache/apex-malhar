@@ -37,7 +37,7 @@ import com.datatorrent.flume.sink.Server;
  * baseDir - The base directory where the data is going to be stored <br />
  * restore - This is used to restore the application from previous failure <br />
  * blockSize - The maximum size of the each file to created. <br />
- * 
+ *
  * @author Gaurav Gupta <gaurav@datatorrent.com>
  * @since 0.9.3
  */
