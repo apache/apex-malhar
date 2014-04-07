@@ -14,10 +14,17 @@
 * limitations under the License.
 */
 var _ = require('underscore'), Backbone = require('backbone');
-var User = Backbone.Model.extend({
+var BaseModel = require('../BaseModel');
+var User = BaseModel.extend({
     
+    debugName: 'User',
+
     defaults: {
-        stramroot: ""
+        
+    },
+
+    url: function() {
+        return this.resourceURL('User');
     }
     
 });

@@ -67,6 +67,7 @@ var App = BaseView.extend({
         
         // Holds the state of the user
         this.user = new UserModel();
+        this.user.fetch();
 
         // Has licensing information
         this.license = new LicenseModel({});
@@ -106,6 +107,7 @@ var App = BaseView.extend({
         
         // Start history and pickup initial url
         this.nav.start();
+        
         
     },
     

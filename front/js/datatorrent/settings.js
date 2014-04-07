@@ -48,8 +48,9 @@ exports = module.exports = {
         LicenseLastRequest       :'/ws/:v/licenses/lastRequest',
         ConfigIPAddresses        :'/ws/:v/config/ipAddresses',
         GatewayInfo              :'/ws/:v/about',
-        HadoopLocation           :'/ws/:v/config/hadoopInstallDirectory'
-        
+        HadoopLocation           :'/ws/:v/config/hadoopInstallDirectory',
+        GatewayRestart           :'/ws/:v/config/restart',
+        User                     :'/ws/:v/profile/user'
     },
     
     actions: {
@@ -63,6 +64,8 @@ exports = module.exports = {
         launchApp                :'/ws/:v/jars/:fileName/applications/:appName/launch',
         specifyDepJars           :'/ws/:v/jars/:fileName/dependencyJars',
         restartGateway           :'/ws/:v/config/restart'
+        loginUser                :'/ws/:v/login',
+        logoutUser               :'/ws/:v/logout'
     },
     
     topics: {
