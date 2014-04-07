@@ -63,7 +63,7 @@ exports = module.exports = {
         killContainer            :'/ws/:v/applications/:appId/physicalPlan/containers/:containerId/kill',
         launchApp                :'/ws/:v/jars/:fileName/applications/:appName/launch',
         specifyDepJars           :'/ws/:v/jars/:fileName/dependencyJars',
-        restartGateway           :'/ws/:v/config/restart'
+        restartGateway           :'/ws/:v/config/restart',
         loginUser                :'/ws/:v/login',
         logoutUser               :'/ws/:v/logout'
     },
