@@ -43,6 +43,7 @@ import com.google.common.collect.Maps;
  * </p>
  *
  * @param <T> type of bucket events
+ * @since 0.9.4
  */
 public class Bucket<T extends Bucketable>
 {

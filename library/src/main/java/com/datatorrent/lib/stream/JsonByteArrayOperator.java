@@ -44,6 +44,7 @@ import com.datatorrent.common.util.DTThrowable;
  * &nbsp&nbsp eg: key: "agentinfo.os.name", value: "Ubuntu" <br>
  * <br>
  *
+ * @since 0.9.4
  */
 public class JsonByteArrayOperator extends BaseOperator
 {

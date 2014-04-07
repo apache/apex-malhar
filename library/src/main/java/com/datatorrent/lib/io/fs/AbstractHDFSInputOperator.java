@@ -26,7 +26,7 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * Input Adapter for reading from HDFS File
- * 
+ *
  * @since 0.3.2
  */
 public abstract class AbstractHDFSInputOperator extends AbstractFileInputOperator<FSDataInputStream>

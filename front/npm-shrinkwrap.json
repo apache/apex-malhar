@@ -568,7 +568,8 @@
                 },
                 "uglify-to-browserify": {
                   "version": "1.0.2",
-                  "from": "uglify-to-browserify@~1.0.0"
+                  "from": "uglify-to-browserify@~1.0.0",
+                  "resolved": "http://registry.npmjs.org/uglify-to-browserify/-/uglify-to-browserify-1.0.2.tgz"
                 }
               }
             }
@@ -728,7 +729,8 @@
                 },
                 "forever-agent": {
                   "version": "0.5.2",
-                  "from": "forever-agent@~0.5.0"
+                  "from": "forever-agent@~0.5.0",
+                  "resolved": "http://registry.npmjs.org/forever-agent/-/forever-agent-0.5.2.tgz"
                 },
                 "node-uuid": {
                   "version": "1.4.1",

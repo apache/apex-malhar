@@ -45,6 +45,7 @@ import com.datatorrent.lib.database.DBConnector;
  * only when all the updates are executed, the transaction is commited in the end window call.</br>
  *
  * @param <T> type of tuples </T>
+ * @since 0.9.4
  */
 @ShipContainingJars(classes = {JDBCOperatorBase.class, DBConnector.class})
 public abstract class JDBCOutputOperator<T> implements Operator

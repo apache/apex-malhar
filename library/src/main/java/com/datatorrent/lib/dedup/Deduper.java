@@ -65,6 +65,7 @@ import com.datatorrent.lib.bucket.*;
  *
  * @param <INPUT>  type of input tuple
  * @param <OUTPUT> type of output tuple
+ * @since 0.9.4
  */
 public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>

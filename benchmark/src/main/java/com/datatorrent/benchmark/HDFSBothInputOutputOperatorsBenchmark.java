@@ -25,7 +25,7 @@ import com.datatorrent.lib.io.fs.HdfsWordInputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * Application used to benchmark both HDFS input and HDFS output operators 
+ * Application used to benchmark both HDFS input and HDFS output operators
  * connected in a DAG<p>
  *
  * @since 0.3.2

@@ -22,6 +22,7 @@ import java.text.ParseException;
 /**
  * Utility class for common final values and methods used in logstream application
  *
+ * @since 0.9.4
  */
 public class LogstreamUtil
 {

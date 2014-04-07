@@ -19,7 +19,9 @@ package com.datatorrent.apps.logstream.PropertyRegistry;
  * Interface for property registry which can be implemented and shared across the dag
  * Properties can be added to the registry during dag setup and then be accessible in all
  * interested operators to look them up.
+ *
  * @param <T>
+ * @since 0.9.4
  */
 public interface PropertyRegistry<T>
 {

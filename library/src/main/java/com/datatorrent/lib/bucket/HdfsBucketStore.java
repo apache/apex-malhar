@@ -44,6 +44,7 @@ import com.google.common.collect.Maps;
  * The path of buckets in hdfs is <code>{application-path}/buckets/{operatorId}/{windowId}</code>.
  *
  * @param <T> type of bucket event
+ * @since 0.9.4
  */
 public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 {

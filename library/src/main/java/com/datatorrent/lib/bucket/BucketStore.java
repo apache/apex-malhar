@@ -22,6 +22,8 @@ import javax.annotation.Nonnull;
 
 /**
  * Bucket store API.<br/>
+ *
+ * @since 0.9.4
  */
 public interface BucketStore<T extends Bucketable>
 {

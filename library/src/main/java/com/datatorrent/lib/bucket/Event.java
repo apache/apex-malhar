@@ -17,6 +17,8 @@ package com.datatorrent.lib.bucket;
 
 /**
  * Events which have a notion of time. <br/>
+ *
+ * @since 0.9.4
  */
 public interface Event
 {

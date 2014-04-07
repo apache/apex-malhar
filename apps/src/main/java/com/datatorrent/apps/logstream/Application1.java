@@ -32,6 +32,7 @@ import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry
  * Takes inputs for log types, filters, dimensions and other properties from configuration file and creates multiple
  * operator partitions to cater to those user inputs. It sends the final computation results through the widget output.
  *
+ * @since 0.9.4
  */
 public class Application1 implements StreamingApplication
 {

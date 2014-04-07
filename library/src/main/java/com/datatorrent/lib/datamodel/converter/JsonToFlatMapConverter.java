@@ -25,6 +25,8 @@ import com.google.common.collect.Maps;
 
 /**
  * A {@link Converter} implementation that converts {@link JSONObject} to a {@link Map}
+ *
+ * @since 0.9.4
  */
 public class JsonToFlatMapConverter implements Converter<JSONObject, Map<String, Object>>
 {

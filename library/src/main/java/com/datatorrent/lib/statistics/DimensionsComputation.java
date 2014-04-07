@@ -36,8 +36,10 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
+ * <p>DimensionsComputation class.</p>
  *
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
+ * @since 0.9.4
  */
 @ShipContainingJars(classes = {TCustomHashMap.class, HashingStrategy.class})
 public class DimensionsComputation<EVENT> implements Operator

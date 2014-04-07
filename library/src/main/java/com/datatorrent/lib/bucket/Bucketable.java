@@ -18,6 +18,7 @@ package com.datatorrent.lib.bucket;
 /**
  * Type of events that can be bucketed.
  *
+ * @since 0.9.4
  */
 public interface Bucketable
 {

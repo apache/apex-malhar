@@ -30,6 +30,8 @@ import com.datatorrent.lib.db.TransactionableKeyValueStore;
 
 /**
  * Provides the implementation of a Redis store using Lettuce java client. <br/>
+ *
+ * @since 0.9.4
  */
 public class LettuceStore implements TransactionableKeyValueStore
 {

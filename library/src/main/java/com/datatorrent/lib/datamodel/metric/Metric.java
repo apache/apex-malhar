@@ -19,8 +19,11 @@ package com.datatorrent.lib.datamodel.metric;
 import javax.annotation.Nonnull;
 
 /**
+ * <p>Metric interface.</p>
+ *
  * @param <INPUT> input type
  * @param <OUTPUT> output type
+ * @since 0.9.4
  */
 public interface Metric<INPUT,OUTPUT>
 {
