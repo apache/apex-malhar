@@ -62,7 +62,7 @@
                         <select class="address-ip-select">
                             <option value="">&lt;Custom&gt;</option>
                             <% _.each(ipAddresses, function(ip) { %>
-                                <option value="<%= ip %>"><%= ip %></option>
+                                <option value="<%= ip %>" <% if (customAddress.ip === ip) { print('selected="selected"'); } %>><%= ip %></option>
                             <% }) %>
                         </select>
                     </div>
@@ -77,7 +77,7 @@
                 <div class="control-group">
                     <label class="control-label">Port</label>
                     <div class="controls">
-                        <input type="text" class="address-port" value="<%= addressModel.get('port') %>" />
+                        <input type="text" class="address-port" value="<%= customAddress.port || addressModel.get('port') %>" />
                         <span class="help-block"></span>
                     </div>
                 </div>

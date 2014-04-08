@@ -406,15 +406,18 @@ var SystemView = BaseView.extend({
     },
 
     render: function() {
-        var html = this.template({
+        var json = {
             hadoopError: this.hadoopError,
             error: this.error,
             errorMsg: this.errorMsg,
             loading: this.loading,
             addressModel: this.addressModel,
             dfsModel: this.dfsModel,
-            ipAddresses: this.ipAddresses
-        });
+            ipAddresses: this.ipAddresses,
+            customAddress: this.customAddressModel.toJSON()
+        };
+        console.log('json.customAddress: ', json.customAddress);
+        var html = this.template(json);
 
         this.$el.html(html);
 
