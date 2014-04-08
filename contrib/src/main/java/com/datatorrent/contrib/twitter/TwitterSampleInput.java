@@ -167,6 +167,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   public void onException(Exception ex)
   {
     logger.error("Sampling Error", ex);
+    logger.debug("reconnect: {}",reConnect);
     if (reConnect) {
       setUpTwitterConnection();
     }
