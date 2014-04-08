@@ -63,12 +63,12 @@ import com.datatorrent.lib.bucket.*;
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
  *
- * @param <INPUT>  type of input tuple
+ * @param <INPUT> type of input tuple
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
 public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
-  implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
+        implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
   //Check-pointed state
   @Nonnull
@@ -78,7 +78,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected final Map<Long, List<INPUT>> waitingEvents;
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
-  private boolean bypass;
   //Non check-pointed state
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long currentWindow;
@@ -97,20 +96,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     @Override
     public final void process(INPUT tuple)
     {
-
-      if (bypass) {
-        OUTPUT convert = convert(tuple);
-
-        if (convert == null) {
-          logger.warn("Conversion of input even {} failed!", tuple);
-        }
-        else {
-          output.emit(convert);
-        }
-
-        return;
-      }
-
       long bucketKey = bucketManager.getBucketKeyFor(tuple);
       if (bucketKey < 0) {
         return;
@@ -155,14 +140,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   public void setup(OperatorContext context)
   {
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
-    com.datatorrent.lib.bucket.Context bucketContext = getBucketContext(context);
 
-    try {
-      bucketManager.startService(bucketContext, this);
-    }
-    catch (Throwable cause) {
-      DTThrowable.rethrow(cause);
-    }
+    bucketManager.startService(getBucketContext(context), this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
     for (long bucketKey : waitingEvents.keySet()) {
       bucketManager.loadBucketData(bucketKey);
@@ -185,10 +164,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   public void endWindow()
   {
     try {
-      if (bypass) {
-        return;
-      }
-
       bucketManager.blockUntilAllRequestsServiced();
       handleIdleTime();
       Preconditions.checkArgument(waitingEvents.isEmpty(), waitingEvents.keySet());
@@ -300,7 +275,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       try {
         @SuppressWarnings("unchecked")
         Deduper<INPUT, OUTPUT> deduper = this.getClass().newInstance();
-        deduper.bypass = this.bypass;
         DefaultPartition<Deduper<INPUT, OUTPUT>> partition = new DefaultPartition<Deduper<INPUT, OUTPUT>>(deduper);
         newPartitions.add(partition);
       }
@@ -326,7 +300,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
       //distribute waiting events
       for (long bucketKey : allWaitingEvents.keySet()) {
-        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext(); ) {
+        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext();) {
           INPUT event = iterator.next();
           int partitionKey = event.getEventKey().hashCode() & lPartitionMask;
 
@@ -362,16 +336,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     return this.bucketManager;
   }
 
-  public boolean getBypass()
-  {
-    return bypass;
-  }
-
-  public boolean isBypass()
-  {
-    return bypass;
-  }
-
   /**
    * Gets the {@link BucketStore} where events are persisted.
    *
@@ -398,7 +362,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       return false;
     }
 
-    Deduper<?, ?> deduper = (Deduper<?, ?>) o;
+    Deduper<?, ?> deduper = (Deduper<?, ?>)o;
 
     if (partitionMask != deduper.partitionMask) {
       return false;
@@ -425,7 +389,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   @Override
   public String toString()
   {
-    return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + ", bypass=" + bypass + '}';
+    return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
 
   private final static Logger logger = LoggerFactory.getLogger(Deduper.class);
