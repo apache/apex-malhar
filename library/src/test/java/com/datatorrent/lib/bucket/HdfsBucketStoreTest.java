@@ -71,8 +71,7 @@ public class HdfsBucketStoreTest
         bucketData.put(event.getEventKey(), event);
       }
     }
-    rootBucketPath = new Path(applicationPath + HdfsBucketStore.PATH_SEPARATOR + HdfsBucketStore.BUCKETS_SUBDIR
-      + HdfsBucketStore.PATH_SEPARATOR + 7);
+    rootBucketPath = new Path(applicationPath + HdfsBucketStore.PATH_SEPARATOR + 7);
   }
 
   @AfterClass
