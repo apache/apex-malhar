@@ -64,19 +64,18 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   private Class<Object> eventKeyClass;
   private Class<T> eventClass;
 
+
   //Non check-pointed
   private transient String bucketRoot;
   private transient Configuration configuration;
   private transient Kryo serde;
   private transient Set<Integer> partitionKeys;
   private transient int partitionMask;
-  private transient long committedWindowOfLastRun;
   private transient FileSystem fs;
 
   public HdfsBucketStore()
   {
     //Used for kryo serialization
-    committedWindowOfLastRun = -1;
   }
 
   @SuppressWarnings("unchecked")
@@ -104,7 +103,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     this.bucketRoot = Preconditions.checkNotNull(context.getString(APP_PATH, null), "app path") + PATH_SEPARATOR + BUCKETS_SUBDIR + PATH_SEPARATOR + operatorId;
     this.partitionKeys = (Set<Integer>) Preconditions.checkNotNull(context.getObject(PARTITION_KEYS, null), "partition keys");
     this.partitionMask = Preconditions.checkNotNull(context.getInt(PARTITION_MASK, null), "partition mask");
-    logger.debug("operator parameters {}, {}, {}, {}", operatorId, partitionKeys, partitionMask, committedWindowOfLastRun);
+    logger.debug("operator parameters {}, {}, {}", operatorId, partitionKeys, partitionMask);
 
     this.configuration = new Configuration();
     this.serde = new Kryo();
