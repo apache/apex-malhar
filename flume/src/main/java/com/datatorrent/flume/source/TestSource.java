@@ -132,15 +132,20 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     }
 
     Calendar calendar = Calendar.getInstance();
-    calendar.add(Calendar.DATE, -1);
+    long high = calendar.getTimeInMillis();
+    calendar.add(Calendar.DATE, -2);
+    long low = calendar.getTimeInMillis();
 
-    byte[] pastDateField = dateFormat.format(calendar.getTime()).getBytes();
-    byte[] pastTimeField = dateFormat.format(calendar.getTime()).getBytes();
+
 
     List<Event> events = Lists.newArrayList();
     for (int i = 0; i < rows.size(); i++) {
       Row eventRow = rows.get(i);
       if (pastIndices.contains(i)) {
+        long pastTime = (long) ((Math.random() * (high - low)) + low);
+        byte[] pastDateField = dateFormat.format(pastTime).getBytes();
+        byte[] pastTimeField = timeFormat.format(pastTime).getBytes();
+
         System.arraycopy(pastDateField, 0, eventRow.bytes, eventRow.dateFieldStart, pastDateField.length);
         System.arraycopy(pastTimeField, 0, eventRow.bytes, eventRow.timeFieldStart, pastTimeField.length);
       }
