@@ -92,7 +92,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Nonnull
   private final Map<Integer, Bucket<T>> dirtyBuckets;
   protected long committedWindow;
-
   //Not check-pointed
   //Indexed by bucketKey keys.
   protected transient Bucket<T>[] buckets;
@@ -101,7 +100,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   protected transient Listener<T> listener;
   @Nonnull
   private transient final BlockingQueue<Long> eventQueue;
-
   private transient volatile boolean running;
   @Nonnull
   private transient final Lock lock;
@@ -126,6 +124,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
         }
         return 0;
       }
+
     }).create();
     lock = new Lock();
     committedWindow = -1;
@@ -225,7 +224,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
             }
           }
           else {
-            int bucketIdx = (int) requestedKey % noOfBuckets;
+            int bucketIdx = (int)(requestedKey % noOfBuckets);
 
             if (buckets[bucketIdx] != null && buckets[bucketIdx].bucketKey != requestedKey) {
               //Delete the old bucket in memory at that index.
@@ -254,13 +253,13 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
                 if (lruBucket == null) {
                   break;
                 }
-                int lruIdx = (int) lruBucket.bucketKey % noOfBuckets;
+                int lruIdx = (int)(lruBucket.bucketKey % noOfBuckets);
 
                 if (dirtyBuckets.containsKey(lruIdx)) {
                   break;
                 }
-                if (((System.currentTimeMillis() - lruBucket.lastUpdateTime()) < millisPreventingBucketEviction) &&
-                  ((evictionCandidates.size() + 1) <= maxNoOfBucketsInMemory)) {
+                if (((System.currentTimeMillis() - lruBucket.lastUpdateTime()) < millisPreventingBucketEviction)
+                    && ((evictionCandidates.size() + 1) <= maxNoOfBucketsInMemory)) {
                   break;
                 }
                 evictionCandidates.remove(lruIdx);
@@ -294,7 +293,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   public void startService(Context context, Listener<T> listener)
   {
     logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
-    buckets = (Bucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
+    buckets = (Bucket<T>[])Array.newInstance(Bucket.class, noOfBuckets);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
     this.bucketStore.setup(context);
 
@@ -309,7 +308,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Override
   public Bucket<T> getBucket(long bucketKey)
   {
-    int bucketIdx = (int) bucketKey % noOfBuckets;
+    int bucketIdx = (int)(bucketKey % noOfBuckets);
     Bucket<T> bucket = buckets[bucketIdx];
     if (bucket == null) {
       return null;
@@ -324,7 +323,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Override
   public void newEvent(long bucketKey, T event)
   {
-    int bucketIdx = (int) bucketKey % noOfBuckets;
+    int bucketIdx = (int)(bucketKey % noOfBuckets);
 
     Bucket<T> bucket = buckets[bucketIdx];
 
@@ -333,16 +332,14 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       buckets[bucketIdx] = bucket;
       dirtyBuckets.put(bucketIdx, bucket);
     }
-    if (dirtyBuckets.get(bucketIdx) == null) {
+    else if (dirtyBuckets.get(bucketIdx) == null) {
       dirtyBuckets.put(bucketIdx, bucket);
     }
-    if (writeEventKeysOnly) {
-      bucket.addNewEvent(event.getEventKey(), null);
-    }
-    else {
-      bucket.addNewEvent(event.getEventKey(), event);
-    }
+
+    bucket.addNewEvent(event.getEventKey(), writeEventKeysOnly? null: event);
   }
+
+
 
   @Override
   public void endWindow(long window)
@@ -390,7 +387,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   public void definePartitions(List<BucketManager<T>> oldManagers, Map<Integer, BucketManager<T>> partitionKeysToManagers, int partitionMask)
   {
     for (BucketManager<T> manager : oldManagers) {
-      BucketManagerImpl<T> managerImpl = (BucketManagerImpl<T>) manager;
+      BucketManagerImpl<T> managerImpl = (BucketManagerImpl<T>)manager;
 
       for (Map.Entry<Integer, Bucket<T>> bucketEntry : managerImpl.dirtyBuckets.entrySet()) {
         Bucket<T> sourceBucket = bucketEntry.getValue();
@@ -398,7 +395,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
 
         for (Map.Entry<Object, T> eventEntry : sourceBucket.getUnwrittenEvents().entrySet()) {
           int partition = eventEntry.getKey().hashCode() & partitionMask;
-          BucketManagerImpl<T> newManagerImpl = (BucketManagerImpl<T>) partitionKeysToManagers.get(partition);
+          BucketManagerImpl<T> newManagerImpl = (BucketManagerImpl<T>)partitionKeysToManagers.get(partition);
 
           Bucket<T> destBucket = newManagerImpl.dirtyBuckets.get(sourceBucketIdx);
           if (destBucket == null) {
@@ -445,7 +442,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       return false;
     }
 
-    BucketManagerImpl that = (BucketManagerImpl) o;
+    BucketManagerImpl that = (BucketManagerImpl)o;
 
     if (committedWindow != that.committedWindow) {
       return false;
@@ -478,11 +475,11 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     int result = noOfBuckets;
     result = 31 * result + noOfBucketsInMemory;
     result = 31 * result + maxNoOfBucketsInMemory;
-    result = 31 * result + (int) (millisPreventingBucketEviction ^ (millisPreventingBucketEviction >>> 32));
+    result = 31 * result + (int)(millisPreventingBucketEviction ^ (millisPreventingBucketEviction >>> 32));
     result = 31 * result + (writeEventKeysOnly ? 1 : 0);
     result = 31 * result + (bucketStore.hashCode());
     result = 31 * result + (dirtyBuckets.hashCode());
-    result = 31 * result + (int) (committedWindow ^ (committedWindow >>> 32));
+    result = 31 * result + (int)(committedWindow ^ (committedWindow >>> 32));
     return result;
   }
 

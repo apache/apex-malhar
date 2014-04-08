@@ -86,9 +86,10 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   public Deduper()
   {
     waitingEvents = Maps.newHashMap();
-    fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
-    partitionMask = 0;
     partitionKeys = Sets.newHashSet(0);
+    partitionMask = 0;
+    
+    fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
   }
 
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()

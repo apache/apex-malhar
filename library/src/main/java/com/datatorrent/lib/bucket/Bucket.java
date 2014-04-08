@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.bucket;
 
+import java.util.Collections;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
@@ -47,21 +48,20 @@ import com.google.common.collect.Maps;
  */
 public class Bucket<T extends Bucketable>
 {
-  private Map<Object, T> unwrittenEvents;
   public final long bucketKey;
-
+  private Map<Object, T> unwrittenEvents;
   private transient Map<Object, T> writtenEvents;
   private transient long lastUpdateTime;
   private transient boolean isDataOnDiskLoaded;
 
   private Bucket()
   {
-    bucketKey = -1;
+    bucketKey = -1L;
   }
 
   Bucket(long bucketKey)
   {
-    this.bucketKey = Preconditions.checkNotNull(bucketKey, "bucket key");
+    this.bucketKey = bucketKey;
     this.isDataOnDiskLoaded = false;
     this.lastUpdateTime = System.currentTimeMillis();
   }
@@ -80,9 +80,12 @@ public class Bucket<T extends Bucketable>
   void transferDataFromMemoryToStore()
   {
     if (writtenEvents == null) {
-      writtenEvents = Maps.newHashMap();
+      writtenEvents = unwrittenEvents;
     }
-    writtenEvents.putAll(unwrittenEvents);
+    else {
+      writtenEvents.putAll(unwrittenEvents);
+    }
+
     unwrittenEvents = null;
   }
 
@@ -101,12 +104,12 @@ public class Bucket<T extends Bucketable>
 
   Map<Object, T> getWrittenEvents()
   {
-    return writtenEvents;
+    return Collections.unmodifiableMap(writtenEvents);
   }
 
   Map<Object, T> getUnwrittenEvents()
   {
-    return unwrittenEvents;
+    return Collections.unmodifiableMap(unwrittenEvents);
   }
 
   long lastUpdateTime()
@@ -210,15 +213,13 @@ public class Bucket<T extends Bucketable>
       return false;
     }
 
-    Bucket bucket = (Bucket) o;
-
-    return bucketKey == bucket.bucketKey;
-
+    return bucketKey == ((Bucket<?>)o).bucketKey;
   }
 
   @Override
   public int hashCode()
   {
-    return (int) (bucketKey ^ (bucketKey >>> 32));
+    return (int)(bucketKey ^ (bucketKey >>> 32));
   }
+
 }

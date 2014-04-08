@@ -61,7 +61,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Min(1)
   protected int noOfBuckets;
   private Map<Long, Long>[] bucketPositions;
-  private Class<Object> eventKeyClass;
+  private Class<?> eventKeyClass;
   private Class<T> eventClass;
 
 
@@ -141,7 +141,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   /**
    * {@inheritDoc}
    */
-  @SuppressWarnings("unchecked")
   @Override
   public void storeBucketData(long window, Map<Integer, Map<Object, T>> data) throws IOException
   {
@@ -157,12 +156,15 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       bucketPositions[bucketIdx].put(window, offset);
 
       Map<Object, T> bucketData = data.get(bucketIdx);
+
+
       if (eventKeyClass == null) {
         Map.Entry<Object, T> eventEntry = bucketData.entrySet().iterator().next();
-        eventKeyClass = (Class<Object>) eventEntry.getKey().getClass();
-
+        eventKeyClass =  eventEntry.getKey().getClass();
         if (!writeEventKeysOnly) {
-          eventClass = (Class<T>) eventEntry.getValue().getClass();
+          @SuppressWarnings("unchecked")
+          Class<T> lEventClass = (Class<T>) eventEntry.getValue().getClass();
+          eventClass = lEventClass;
         }
       }
       //Write the size of data and then data
@@ -181,7 +183,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       }
       output.flush();
       offset = dataStream.getPos();
-
     }
     output.close();
     dataStream.close();
