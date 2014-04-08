@@ -10,14 +10,6 @@ import java.util.*;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.flume.Context;
 import org.apache.flume.Event;
 import org.apache.flume.EventDrivenSource;
@@ -25,6 +17,13 @@ import org.apache.flume.channel.ChannelProcessor;
 import org.apache.flume.conf.Configurable;
 import org.apache.flume.event.EventBuilder;
 import org.apache.flume.source.AbstractSource;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 /**
  * <p>TestSource class.</p>
@@ -83,7 +82,7 @@ public class TestSource extends AbstractSource implements EventDrivenSource, Con
     }
 
     if (DEF_PERCENT_PAST_EVENTS != percentPastEvents) {
-      numberOfPastEvents = percentPastEvents / 100 * cache.size();
+      numberOfPastEvents = (int)(percentPastEvents / 100.0 * cache.size());
     }
   }
 
