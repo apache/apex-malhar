@@ -167,8 +167,14 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   public void onException(Exception ex)
   {
     logger.error("Sampling Error", ex);
-    logger.debug("reconnect: {}",reConnect);
+    logger.debug("reconnect: {}", reConnect);
+    ts.shutdown();
     if (reConnect) {
+      try {
+        Thread.sleep(1000);
+      }
+      catch (Exception e) {
+      }
       setUpTwitterConnection();
     }
     else {
@@ -186,7 +192,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
       setOAuthAccessTokenSecret(accessTokenSecret);
 
     ts = new TwitterStreamFactory(cb.build()).getInstance();
-    ts.addListener(this);
+    ts.addListener(TwitterSampleInput.this);
     // we can only listen to tweets containing links by callng ts.links().
     // it seems it requires prior signed agreement with twitter.
     ts.sample();
