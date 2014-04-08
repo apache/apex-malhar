@@ -125,7 +125,7 @@ public class BucketManagerTest
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
 
     Map<String, Object> parameters = Maps.newHashMap();
-    parameters.put(HdfsBucketStore.APP_PATH, applicationPath);
+    parameters.put(HdfsBucketStore.STORE_ROOT, applicationPath);
     parameters.put(HdfsBucketStore.OPERATOR_ID, 0);
     parameters.put(HdfsBucketStore.PARTITION_KEYS, Sets.newHashSet(0));
     parameters.put(HdfsBucketStore.PARTITION_MASK, 0);

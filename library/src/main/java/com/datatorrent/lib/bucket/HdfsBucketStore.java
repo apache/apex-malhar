@@ -49,7 +49,7 @@ import com.google.common.collect.Maps;
 public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 {
   public static transient String OPERATOR_ID = "operatorId";
-  public static transient String APP_PATH = "applicationPath";
+  public static transient String STORE_ROOT = "storeRoot";
   public static transient String PARTITION_KEYS = "partitionKeys";
   public static transient String PARTITION_MASK = "partitionMask";
 
@@ -99,7 +99,8 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   public void setup(Context context)
   {
     int operatorId = Preconditions.checkNotNull(context.getInt(OPERATOR_ID, null));
-    this.bucketRoot = Preconditions.checkNotNull(context.getString(APP_PATH, null), "app path") + PATH_SEPARATOR + BUCKETS_SUBDIR + PATH_SEPARATOR + operatorId;
+    String rootPath = context.getString(STORE_ROOT, null);
+    this.bucketRoot = rootPath == null ? "" : rootPath + PATH_SEPARATOR + BUCKETS_SUBDIR + PATH_SEPARATOR + operatorId;
     this.partitionKeys = (Set<Integer>) Preconditions.checkNotNull(context.getObject(PARTITION_KEYS, null), "partition keys");
     this.partitionMask = Preconditions.checkNotNull(context.getInt(PARTITION_MASK, null), "partition mask");
     logger.debug("operator parameters {}, {}, {}", operatorId, partitionKeys, partitionMask);

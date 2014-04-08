@@ -75,7 +75,7 @@ public class DeduperTest
     protected com.datatorrent.lib.bucket.Context getBucketContext(com.datatorrent.api.Context.OperatorContext context)
     {
       Map<String, Object> parameters = Maps.newHashMap();
-      parameters.put(HdfsBucketStore.APP_PATH, context.getValue(DAG.APPLICATION_PATH));
+      parameters.put(HdfsBucketStore.STORE_ROOT, context.getValue(DAG.APPLICATION_PATH));
       parameters.put(HdfsBucketStore.OPERATOR_ID, OPERATOR_ID);
       parameters.put(HdfsBucketStore.PARTITION_KEYS, partitionKeys);
       parameters.put(HdfsBucketStore.PARTITION_MASK, partitionMask);
