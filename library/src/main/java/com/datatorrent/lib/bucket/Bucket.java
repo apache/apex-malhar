@@ -21,7 +21,6 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 
 /**
@@ -68,13 +67,13 @@ public class Bucket<T extends Bucketable>
 
   void setWrittenEvents(@Nonnull Map<Object, T> writtenEvents)
   {
-    this.writtenEvents = Preconditions.checkNotNull(writtenEvents, "written data");
+    this.writtenEvents = writtenEvents;
     isDataOnDiskLoaded = true;
   }
 
   void setUnwrittenEvents(@Nonnull Map<Object, T> unwrittenEvents)
   {
-    this.unwrittenEvents = Preconditions.checkNotNull(unwrittenEvents, "unwritten data");
+    this.unwrittenEvents = unwrittenEvents;
   }
 
   void transferDataFromMemoryToStore()

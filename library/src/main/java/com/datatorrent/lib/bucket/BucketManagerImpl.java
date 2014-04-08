@@ -373,7 +373,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       loadBucketData(RESERVED_BUCKET_KEY);
       lock.wait();
     }
-    Preconditions.checkArgument(eventQueue.size() == 0, eventQueue);
   }
 
   @Override

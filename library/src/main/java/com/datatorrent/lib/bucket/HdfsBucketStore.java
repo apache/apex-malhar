@@ -64,7 +64,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   private Class<?> eventKeyClass;
   private Class<T> eventClass;
 
-
   //Non check-pointed
   private transient String bucketRoot;
   private transient Configuration configuration;
@@ -157,10 +156,9 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 
       Map<Object, T> bucketData = data.get(bucketIdx);
 
-
       if (eventKeyClass == null) {
         Map.Entry<Object, T> eventEntry = bucketData.entrySet().iterator().next();
-        eventKeyClass =  eventEntry.getKey().getClass();
+        eventKeyClass = eventEntry.getKey().getClass();
         if (!writeEventKeysOnly) {
           @SuppressWarnings("unchecked")
           Class<T> lEventClass = (Class<T>) eventEntry.getValue().getClass();
@@ -173,12 +171,14 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
         serde.writeObject(output, entry.getKey());
 
         if (!writeEventKeysOnly) {
-          int numValuePos = output.position();
+          int posLength = output.position();
           output.writeInt(0); //temporary place holder
           serde.writeObject(output, entry.getValue());
-          int valueLength = output.position() - numValuePos - 4;
-          output.setPosition(numValuePos);
+          int posValue = output.position();
+          int valueLength = posValue - posLength - 4;
+          output.setPosition(posLength);
           output.writeInt(valueLength);
+          output.setPosition(posValue);
         }
       }
       output.flush();
