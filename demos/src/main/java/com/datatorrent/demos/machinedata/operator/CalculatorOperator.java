@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata.operator;
+package com.datatorrent.demos.machinedata.operator;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
-import com.datatorrent.contrib.machinedata.data.*;
-import com.datatorrent.contrib.machinedata.util.DataTable;
+import com.datatorrent.demos.machinedata.data.*;
+import com.datatorrent.demos.machinedata.util.DataTable;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 

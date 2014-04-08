@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata.data;
+package com.datatorrent.demos.machinedata.data;
 
 /**
  * This class stores the information about various softwares, deviceIds, OS of the device

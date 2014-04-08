@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata.operator;
+package com.datatorrent.demos.machinedata.operator;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.contrib.machinedata.data.MachineInfo;
-import com.datatorrent.contrib.machinedata.data.MachineKey;
-import com.datatorrent.contrib.machinedata.data.AverageData;
-import com.datatorrent.contrib.machinedata.data.ResourceType;
+import com.datatorrent.demos.machinedata.data.MachineInfo;
+import com.datatorrent.demos.machinedata.data.MachineKey;
+import com.datatorrent.demos.machinedata.data.AverageData;
+import com.datatorrent.demos.machinedata.data.ResourceType;
 import com.datatorrent.lib.util.KeyHashValPair;
 import com.datatorrent.lib.util.KeyValPair;
 import com.google.common.collect.Maps;

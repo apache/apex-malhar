@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.adsdimension;
+package com.datatorrent.demos.adsdimension;
 
 import java.util.concurrent.TimeUnit;
 
@@ -25,7 +25,7 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
-import com.datatorrent.contrib.adsdimension.AdInfo.AdInfoAggregator;
+import com.datatorrent.demos.adsdimension.AdInfo.AdInfoAggregator;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 
 /**

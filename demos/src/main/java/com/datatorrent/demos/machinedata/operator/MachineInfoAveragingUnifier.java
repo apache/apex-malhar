@@ -1,4 +1,4 @@
-package com.datatorrent.contrib.machinedata.operator;
+package com.datatorrent.demos.machinedata.operator;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -6,8 +6,8 @@ import java.util.Map;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
-import com.datatorrent.contrib.machinedata.data.AverageData;
-import com.datatorrent.contrib.machinedata.data.MachineKey;
+import com.datatorrent.demos.machinedata.data.AverageData;
+import com.datatorrent.demos.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyHashValPair;
 
 

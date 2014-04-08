@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.frauddetect.util;
+package com.datatorrent.demos.frauddetect.util;
 
 import org.codehaus.jackson.map.ObjectMapper;
 

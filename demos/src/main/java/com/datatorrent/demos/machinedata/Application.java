@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata;
+package com.datatorrent.demos.machinedata;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
@@ -24,10 +24,10 @@ import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Operator.OutputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.machinedata.data.MachineKey;
-import com.datatorrent.contrib.machinedata.operator.CalculatorOperator;
-import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingOperator;
-import com.datatorrent.contrib.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
+import com.datatorrent.demos.machinedata.data.MachineKey;
+import com.datatorrent.demos.machinedata.operator.CalculatorOperator;
+import com.datatorrent.demos.machinedata.operator.MachineInfoAveragingOperator;
+import com.datatorrent.demos.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
 import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
 import com.datatorrent.contrib.redis.RedisMapOutputOperator;
 import com.datatorrent.contrib.redis.RedisStore;

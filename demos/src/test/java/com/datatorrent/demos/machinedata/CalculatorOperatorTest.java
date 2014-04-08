@@ -1,9 +1,9 @@
-package com.datatorrent.contrib.machinedata;
+package com.datatorrent.demos.machinedata;
 
-import com.datatorrent.contrib.machinedata.data.MachineInfo;
-import com.datatorrent.contrib.machinedata.data.MachineKey;
-import com.datatorrent.contrib.machinedata.data.ResourceType;
-import com.datatorrent.contrib.machinedata.operator.CalculatorOperator;
+import com.datatorrent.demos.machinedata.data.MachineInfo;
+import com.datatorrent.demos.machinedata.data.MachineKey;
+import com.datatorrent.demos.machinedata.data.ResourceType;
+import com.datatorrent.demos.machinedata.operator.CalculatorOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TimeBucketKey;

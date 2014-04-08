@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.frauddetect;
+package com.datatorrent.demos.frauddetect;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
@@ -24,8 +24,8 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.contrib.frauddetect.operator.HdfsStringOutputOperator;
-import com.datatorrent.contrib.frauddetect.operator.MongoDBOutputOperator;
+import com.datatorrent.demos.frauddetect.operator.HdfsStringOutputOperator;
+import com.datatorrent.demos.frauddetect.operator.MongoDBOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -287,5 +287,4 @@ public class Application implements StreamingApplication
       exc.printStackTrace();
     }
   }
-
 }

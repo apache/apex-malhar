@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.frauddetect;
+package com.datatorrent.demos.frauddetect;
 
 import com.datatorrent.api.*;
-import com.datatorrent.contrib.frauddetect.util.JsonUtils;
+import com.datatorrent.demos.frauddetect.util.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

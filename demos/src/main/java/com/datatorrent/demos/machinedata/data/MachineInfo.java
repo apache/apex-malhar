@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.machinedata.data;
+package com.datatorrent.demos.machinedata.data;
 
 /**
  * This class stores the cpu% usage, ram% usage, hdd% usage and key information about a particular machine

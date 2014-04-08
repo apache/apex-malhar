@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.frauddetect;
+package com.datatorrent.demos.frauddetect;
 
 import com.datatorrent.lib.util.TimeBucketKey;
 
