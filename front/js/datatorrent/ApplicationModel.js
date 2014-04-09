@@ -76,7 +76,7 @@ var ApplicationModel = BaseModel.extend({
         'progress': '',
         'queue': '',
         'startedTime': false,
-        'state': '',
+        'state': 'UNKNOWN',
         'trackingUI': '',
         'trackingUrl': '',
         'logicalPlan': undefined
@@ -117,7 +117,7 @@ var ApplicationModel = BaseModel.extend({
                 }, model);
             }
         };
-        BaseModel.prototype.fetch.call(this, options);
+        return BaseModel.prototype.fetch.call(this, options);
     },
     
     serialize: function(noFormat){
@@ -140,7 +140,11 @@ var ApplicationModel = BaseModel.extend({
         if ( ! noFormat ) {
             
             // Additional data
-            obj.as_of = (+new Date() - lastHeartbeat) < 24 * 60 * 60 * 1000 ? lastHeartbeat.toLocaleTimeString() : lastHeartbeat.toLocaleString();
+            if (obj.lastHeartbeat !== 0) {
+                obj.as_of = (+new Date() - lastHeartbeat) < 24 * 60 * 60 * 1000 ? lastHeartbeat.toLocaleTimeString() : lastHeartbeat.toLocaleString();
+            } else {
+                obj.as_of = '-';
+            }
             obj.up_for = bormat.timeSince(undefined, { timeChunk: obj.elapsedTime*1, unixUptime: true });
             obj.idShorthand = obj.id.split('_')[2];
             
