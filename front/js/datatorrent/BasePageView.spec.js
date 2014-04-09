@@ -199,6 +199,19 @@ describe('BasePageView.js', function() {
             expect(pageInstance.retrieveDashes()).to.eql(dashSave.dashboards);
         });
 
+        it('should return false and clear localStorage item if the version is different', function() {
+            window.UI_VERSION = '0.9';
+            var dashSave = {
+                version: '0.8',
+                dashboards: [
+                    { test: 'test' }
+                ]
+            };
+            localStorage.setItem(key, JSON.stringify(dashSave));
+            expect(pageInstance.retrieveDashes()).to.equal(false);
+            expect(localStorage.getItem(key)).to.equal(null);
+        });
+
     });
     
     describe('the saveDashes function', function() {
