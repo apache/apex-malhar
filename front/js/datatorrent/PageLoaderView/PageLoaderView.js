@@ -123,6 +123,8 @@ var PageLoaderView = BaseView.extend({
         var loadedDash, widgets;
         
         if (!this.loaded_page) return;
+
+        if (!this.loaded_page.__wDashes) return;
         
         loadedDash = this.loaded_page.__wDashes.find(function(dash) {
             return dash.get('selected');

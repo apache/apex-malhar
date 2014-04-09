@@ -16,11 +16,12 @@
 var _ = require('underscore');
 var Backbone = require('backbone');
 var NavModel = require('./NavModel');
+var UserModel = require('../UserModel');
 var util = require('./util');
 
 describe('NavModel.js', function() {
     
-    var sandbox, navModel, opts, PageOne, pages, modes;
+    var sandbox, navModel, opts, PageOne, pages, modes, user;
     
     beforeEach(function() {
         
@@ -87,7 +88,9 @@ describe('NavModel.js', function() {
             'id': 'ops'
         }];
         
-        navModel = new NavModel({},{ pages: pages });
+        user = new UserModel({});
+
+        navModel = new NavModel({},{ pages: pages, user: user });
     });
 
     afterEach(function() {
@@ -104,7 +107,7 @@ describe('NavModel.js', function() {
             it('should call util.extractRoutesFrom with pages', function() {
         
                 sandbox.spy(util, 'extractRoutesFrom');
-                new NavModel({}, { pages: pages });
+                new NavModel({}, { pages: pages, user: user });
                 expect(util.extractRoutesFrom).to.have.been.calledOnce;
                 expect(util.extractRoutesFrom.getCall(0).args[0]).to.equal(pages);
         
@@ -115,7 +118,7 @@ describe('NavModel.js', function() {
             });
 
             it('should create a modes collection', function() {
-                var m = new NavModel({}, { pages: pages, modes: modes });
+                var m = new NavModel({}, { pages: pages, modes: modes, user: user });
                 expect(m.modes).to.be.instanceof(Backbone.Collection);
             });
         });
@@ -124,7 +127,7 @@ describe('NavModel.js', function() {
         
             it('should be triggered when the "route" event occurs on the router', function() {
                 sandbox.stub(NavModel.prototype, 'onRouteChange');
-                var nav = new NavModel({}, { pages: pages });
+                var nav = new NavModel({}, { pages: pages, user: user });
                 nav.router.trigger('route', 'pageOne', []);
                 expect(nav.onRouteChange).to.have.been.calledOnce;
             });
@@ -133,7 +136,7 @@ describe('NavModel.js', function() {
 
                 sandbox.spy(NavModel.prototype, 'onRouteChange');
 
-                var nav = new NavModel({}, { pages: pages });
+                var nav = new NavModel({}, { pages: pages, user: user });
                 var listener = _.extend({}, Backbone.Events), pageSpy, urlSpy;
         
                 listener.listenTo(nav, 'change:current_page', pageSpy = sandbox.spy() );

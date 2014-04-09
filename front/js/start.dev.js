@@ -36,5 +36,5 @@ var appOptions = {
 // Start the app in the #wrapper element on load
 $(window).ready(function() {
     appOptions.el = document.getElementById('wrapper');
-    var app = new DT.lib.App(appOptions);
+    var app = window.app = new DT.lib.App(appOptions);
 });
