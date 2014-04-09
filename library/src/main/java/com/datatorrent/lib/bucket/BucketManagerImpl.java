@@ -105,6 +105,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   private transient final Lock lock;
   @Nonnull
   private transient final MinMaxPriorityQueue<Bucket<T>> bucketHeap;
+  protected transient BucketCounters bucketCounters;
 
   BucketManagerImpl()
   {
@@ -196,6 +197,12 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     this.bucketStore = bucketStore;
   }
 
+  @Nonnull
+  public void setBucketCounters(@Nonnull BucketCounters bucketCounters)
+  {
+    this.bucketCounters = bucketCounters;
+  }
+
   @Override
   public void shutdownService()
   {
@@ -224,7 +231,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
             }
           }
           else {
-            int bucketIdx = (int)(requestedKey % noOfBuckets);
+            int bucketIdx = (int) (requestedKey % noOfBuckets);
 
             if (buckets[bucketIdx] != null && buckets[bucketIdx].bucketKey != requestedKey) {
               //Delete the old bucket in memory at that index.
@@ -236,6 +243,9 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
 
               listener.bucketOffLoaded(oldBucket.bucketKey);
               bucketStore.deleteBucket(bucketIdx);
+              if (bucketCounters != null) {
+                bucketCounters.numDeletedBuckets++;
+              }
               logger.debug("deleted bucket {} {}", oldBucket.bucketKey, bucketIdx);
             }
 
@@ -253,18 +263,21 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
                 if (lruBucket == null) {
                   break;
                 }
-                int lruIdx = (int)(lruBucket.bucketKey % noOfBuckets);
+                int lruIdx = (int) (lruBucket.bucketKey % noOfBuckets);
 
                 if (dirtyBuckets.containsKey(lruIdx)) {
                   break;
                 }
                 if (((System.currentTimeMillis() - lruBucket.lastUpdateTime()) < millisPreventingBucketEviction)
-                    && ((evictionCandidates.size() + 1) <= maxNoOfBucketsInMemory)) {
+                  && ((evictionCandidates.size() + 1) <= maxNoOfBucketsInMemory)) {
                   break;
                 }
                 evictionCandidates.remove(lruIdx);
                 buckets[lruIdx] = null;
                 listener.bucketOffLoaded(lruBucket.bucketKey);
+                if (bucketCounters != null) {
+                  bucketCounters.numEvictedBuckets++;
+                }
                 logger.debug("evicted bucket {} {}", lruBucket.bucketKey, lruIdx);
               }
             }
@@ -277,6 +290,12 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
             bucket.setWrittenEvents(bucketDataInStore);
             evictionCandidates.add(bucketIdx);
             listener.bucketLoaded(bucket);
+            if (bucketCounters != null) {
+              synchronized (bucketCounters) {
+                bucketCounters.numBucketsInMemory++;
+                bucketCounters.numEventsInMemory += bucketDataInStore.size();
+              }
+            }
             bucketHeap.clear();
           }
         }
@@ -293,7 +312,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   public void startService(Context context, Listener<T> listener)
   {
     logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
-    buckets = (Bucket<T>[])Array.newInstance(Bucket.class, noOfBuckets);
+    buckets = (Bucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
     this.bucketStore.setup(context);
 
@@ -308,7 +327,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Override
   public Bucket<T> getBucket(long bucketKey)
   {
-    int bucketIdx = (int)(bucketKey % noOfBuckets);
+    int bucketIdx = (int) (bucketKey % noOfBuckets);
     Bucket<T> bucket = buckets[bucketIdx];
     if (bucket == null) {
       return null;
@@ -323,7 +342,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Override
   public void newEvent(long bucketKey, T event)
   {
-    int bucketIdx = (int)(bucketKey % noOfBuckets);
+    int bucketIdx = (int) (bucketKey % noOfBuckets);
 
     Bucket<T> bucket = buckets[bucketIdx];
 
@@ -336,23 +355,29 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       dirtyBuckets.put(bucketIdx, bucket);
     }
 
-    bucket.addNewEvent(event.getEventKey(), writeEventKeysOnly? null: event);
+    bucket.addNewEvent(event.getEventKey(), writeEventKeysOnly ? null : event);
+    if (bucketCounters != null) {
+      synchronized (bucketCounters) {
+        bucketCounters.numEventsInMemory++;
+      }
+    }
   }
-
-
 
   @Override
   public void endWindow(long window)
   {
     Map<Integer, Map<Object, T>> dataToStore = Maps.newHashMap();
-
+    long eventsCount = 0;
     for (Map.Entry<Integer, Bucket<T>> entry : dirtyBuckets.entrySet()) {
       Bucket<T> bucket = entry.getValue();
       dataToStore.put(entry.getKey(), bucket.getUnwrittenEvents());
+      eventsCount += bucket.countOfUnwrittenEvents();
       bucket.transferDataFromMemoryToStore();
       evictionCandidates.add(entry.getKey());
     }
-
+    if (bucketCounters != null) {
+      bucketCounters.numEventsCommittedPerWindow = eventsCount;
+    }
     long start = System.currentTimeMillis();
     try {
       bucketStore.storeBucketData(window, dataToStore);
@@ -386,7 +411,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   public void definePartitions(List<BucketManager<T>> oldManagers, Map<Integer, BucketManager<T>> partitionKeysToManagers, int partitionMask)
   {
     for (BucketManager<T> manager : oldManagers) {
-      BucketManagerImpl<T> managerImpl = (BucketManagerImpl<T>)manager;
+      BucketManagerImpl<T> managerImpl = (BucketManagerImpl<T>) manager;
 
       for (Map.Entry<Integer, Bucket<T>> bucketEntry : managerImpl.dirtyBuckets.entrySet()) {
         Bucket<T> sourceBucket = bucketEntry.getValue();
@@ -394,7 +419,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
 
         for (Map.Entry<Object, T> eventEntry : sourceBucket.getUnwrittenEvents().entrySet()) {
           int partition = eventEntry.getKey().hashCode() & partitionMask;
-          BucketManagerImpl<T> newManagerImpl = (BucketManagerImpl<T>)partitionKeysToManagers.get(partition);
+          BucketManagerImpl<T> newManagerImpl = (BucketManagerImpl<T>) partitionKeysToManagers.get(partition);
 
           Bucket<T> destBucket = newManagerImpl.dirtyBuckets.get(sourceBucketIdx);
           if (destBucket == null) {
@@ -441,7 +466,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       return false;
     }
 
-    BucketManagerImpl that = (BucketManagerImpl)o;
+    BucketManagerImpl that = (BucketManagerImpl) o;
 
     if (committedWindow != that.committedWindow) {
       return false;
@@ -474,11 +499,11 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     int result = noOfBuckets;
     result = 31 * result + noOfBucketsInMemory;
     result = 31 * result + maxNoOfBucketsInMemory;
-    result = 31 * result + (int)(millisPreventingBucketEviction ^ (millisPreventingBucketEviction >>> 32));
+    result = 31 * result + (int) (millisPreventingBucketEviction ^ (millisPreventingBucketEviction >>> 32));
     result = 31 * result + (writeEventKeysOnly ? 1 : 0);
     result = 31 * result + (bucketStore.hashCode());
     result = 31 * result + (dirtyBuckets.hashCode());
-    result = 31 * result + (int)(committedWindow ^ (committedWindow >>> 32));
+    result = 31 * result + (int) (committedWindow ^ (committedWindow >>> 32));
     return result;
   }
 

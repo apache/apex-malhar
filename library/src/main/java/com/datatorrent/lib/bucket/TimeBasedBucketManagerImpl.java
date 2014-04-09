@@ -127,6 +127,9 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   {
     long eventTime = event.getTime();
     if (eventTime < expiryTime.get()) {
+      if (bucketCounters != null) {
+        bucketCounters.numIgnoredEvents++;
+      }
       return -1;
     }
     long diffFromStart = event.getTime() - startOfBucketsInMillis;

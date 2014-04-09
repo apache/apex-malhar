@@ -18,7 +18,10 @@ package com.datatorrent.lib.bucket;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import com.datatorrent.api.Stats;
 
 /**
  * <p>
@@ -136,6 +139,8 @@ public interface BucketManager<T extends Bucketable>
    */
   BucketManager<T> cloneWithProperties();
 
+  void setBucketCounters(@Nonnull BucketCounters stats);
+
   /**
    * Collects the un-written events of all the old managers and distributes the data to the new managers.<br/>
    * The partition to which an event belongs to depends on the event key.
@@ -168,5 +173,46 @@ public interface BucketManager<T extends Bucketable>
      */
     void bucketOffLoaded(long bucketKey);
 
+  }
+
+  public static class BucketCounters implements Stats.OperatorStats.CustomStats
+  {
+    protected int numBucketsInMemory;
+    protected int numEvictedBuckets;
+    protected int numDeletedBuckets;
+
+    protected long numEventsCommittedPerWindow;
+    protected long numEventsInMemory;
+    protected long numIgnoredEvents;
+
+    public int getNumBucketsInMemory()
+    {
+      return numBucketsInMemory;
+    }
+
+    public int getNumEvictedBuckets()
+    {
+      return numEvictedBuckets;
+    }
+
+    public int getNumDeletedBuckets()
+    {
+      return numDeletedBuckets;
+    }
+
+    public long getNumEventsCommittedPerWindow()
+    {
+      return numEventsCommittedPerWindow;
+    }
+
+    public long getNumEventsInMemory()
+    {
+      return numEventsInMemory;
+    }
+
+    public long getNumIgnoredEvents()
+    {
+      return numIgnoredEvents;
+    }
   }
 }
