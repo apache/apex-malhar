@@ -61,29 +61,30 @@ var App = BaseView.extend({
     
     initialize: function(options) {
         
+        var app = this;
+
         // Get the pages from options
         var pages = options.pages;
         var modes = options.modes;
-        
-        // Holds the state of the user
-        this.user = new UserModel();
-        this.user.fetch();
 
-        // Has licensing information
+        // Set up user
+        var user = this.user = new UserModel();
+
+        // Retrieve licensing information
         this.license = new LicenseModel({});
         this.license.fetch();
 
-        // Create dataSource instance.
-        this.dataSource = new DataSource(options.host, this.user);
-        this.dataSource.connect();
+        // Create dataSource instance
+        var dataSource = this.dataSource = new DataSource(options.host, this.user);
         this.listenTo(this.dataSource, 'error', function(res) {
             LOG(4, 'DataSource triggered an error: ', [res]);
         });
         
         // Create the Navigation model
-        this.nav = new NavModel({},{
+        var nav = this.nav = new NavModel({},{
             pages: pages,
-            modes: modes
+            modes: modes,
+            user: this.user
         });
         
         // Top bar with logo, mode switch, and 
@@ -101,14 +102,29 @@ var App = BaseView.extend({
             app: this,        // Pass the app itself
             model: this.nav   // The loader listens to the nav object
         });
-        
-        // Render initial markup
-        this.render();
-        
-        // Start history and pickup initial url
-        this.nav.start();
-        
-        
+
+        // Try to retrieve user info
+        // =========================
+        // 
+        // User is fetched. If a 403 Forbidden
+        // error occurs, authorization is enabled
+        // and the user model must be updated. This
+        // call must be completed before the app
+        // navigation starts.
+        var userPromise = this.user.fetch();
+        userPromise.fail(function(xhr, errorThrown, responseText) {
+            if (xhr.status === 403) {
+                // Not logged in
+                user.set('authEnabled', true);
+            }
+        });
+        userPromise.done(function() {
+            dataSource.connect();
+        })
+        userPromise.always(function(){
+            app.render();
+            nav.start();
+        });
     },
     
     render: function() {
