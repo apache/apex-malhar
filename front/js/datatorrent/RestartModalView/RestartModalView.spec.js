@@ -258,7 +258,7 @@ describe('RestartModalView.js', function() {
         });
 
         it('should call render', function() {
-            expect(m.render).to.have.been.calledOnce;
+            expect(m.render).to.have.been.called;
         });
     });
 
