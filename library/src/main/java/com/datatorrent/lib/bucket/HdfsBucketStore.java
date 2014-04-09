@@ -144,7 +144,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   public void storeBucketData(long window, Map<Integer, Map<Object, T>> data) throws IOException
   {
     Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
-    FSDataOutputStream dataStream = new FSDataOutputStream(fs.create(dataFilePath), null);
+    FSDataOutputStream dataStream = fs.create(dataFilePath);
 
     Output output = new Output(dataStream);
     long offset = 0;
@@ -214,7 +214,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 
       //Read data only for the windows in which bucketIdx had events.
       Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
-      FSDataInputStream stream = new FSDataInputStream(fs.open(dataFile));
+      FSDataInputStream stream = fs.open(dataFile);
       stream.seek(bucketPositions[bucketIdx].get(window));
 
       Input input = new Input(stream);
