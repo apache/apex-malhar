@@ -92,10 +92,32 @@ var BasePageView = BaseView.extend({
         });
         
         // saving all dashboards (including defaults)
-        var json = this.__wDashes.serialize();
+        var dashboards = this.__wDashes.serialize();
         
         // storing in localStorage
-        localStorage.setItem(this.__lsPrefix+'.dashboards',JSON.stringify(json));
+        localStorage.setItem(this.__lsPrefix+'.dashboards',JSON.stringify({
+            dashboards: dashboards,
+            version: window.UI_VERSION
+        }));
+    },
+
+    retrieveDashes: function() {
+        var itemKey = this.__lsPrefix+'.dashboards';
+        var item = localStorage.getItem(itemKey);
+        try {
+            var json = JSON.parse(item);
+            var dashboards = json.dashboards;
+            if (dashboards instanceof Array && json.version === window.UI_VERSION) {
+                return dashboards;
+            } else {
+                localStorage.removeItem(itemKey);
+                return false;
+            }
+        } catch(e) {
+            LOG(3, 'Stored dashboard info was malformed JSON');
+            localStorage.removeItem(itemKey);
+            return false;
+        }
     },
     
     // Defines the widgets that can be used on this page
@@ -129,56 +151,41 @@ var BasePageView = BaseView.extend({
         }
         
         // look for saved dashboards
-        var stored = localStorage.getItem(this.__lsPrefix+'.dashboards');
-        if (stored) {
-            try {
-                
-                // to parse the stored value
-                var otherDashes = JSON.parse(stored);
-                
-                // Make sure its an array
-                if (otherDashes instanceof Array) {
-                    // Check for outdated default dashes to remove
-                    var default_ids = _.pluck(dashboards, 'dash_id');
-                    otherDashes = _.filter(otherDashes, function(dash){
-                        
-                        // ensure all widgets are available to instantiate
-                        dash.widgets = _.filter(dash.widgets, function(w) {
-                            return !! this.__wClasses.get(w.widget);
-                        }, this);
-                        
-                        // if there are no widgets left, remove it
-                        if (dash.widgets.length === 0) {
-                            return false;
-                        }
-                        
-                        return true;
-                        
-                    }, this);
-                    
-                    // Pluck dash_ids from saved
-                    var otherDashIds = _.pluck(otherDashes, 'dash_id');
+        var otherDashes = this.retrieveDashes();
 
-                    // Filter defaults that have custom options in storage
-                    dashboards = _.filter(dashboards, function(dash){
-                        return otherDashIds.indexOf(dash.dash_id) === -1 ;
-                    });
-
-                    // Concat to dashboards
-                    dashboards = dashboards.concat(otherDashes);
-                    
-                } else {
-                    
-                    throw new Error('invalid localStorage value');
-                    
+        // Make sure its an array
+        if (otherDashes instanceof Array) {
+            // Check for outdated default dashes to remove
+            var default_ids = _.pluck(dashboards, 'dash_id');
+            otherDashes = _.filter(otherDashes, function(dash){
+                
+                // ensure all widgets are available to instantiate
+                dash.widgets = _.filter(dash.widgets, function(w) {
+                    return !! this.__wClasses.get(w.widget);
+                }, this);
+                
+                // if there are no widgets left, remove it
+                if (dash.widgets.length === 0) {
+                    return false;
                 }
                 
-            } catch (e) {
-                LOG(5, 'Problems loading dashboards', e.stack);
-                // clear out bad value
-                localStorage.removeItem(this.__lsPrefix+'.dashboards');
-            }
+                return true;
+                
+            }, this);
+            
+            // Pluck dash_ids from saved
+            var otherDashIds = _.pluck(otherDashes, 'dash_id');
+
+            // Filter defaults that have custom options in storage
+            dashboards = _.filter(dashboards, function(dash){
+                return otherDashIds.indexOf(dash.dash_id) === -1 ;
+            });
+
+            // Concat to dashboards
+            dashboards = dashboards.concat(otherDashes);
+            
         }
+
         // Reset the dashboard collection
         this.__wDashes.reset(dashboards);
         
