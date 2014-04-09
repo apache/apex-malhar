@@ -104,6 +104,9 @@ var BasePageView = BaseView.extend({
     retrieveDashes: function() {
         var itemKey = this.__lsPrefix+'.dashboards';
         var item = localStorage.getItem(itemKey);
+        if (!item) {
+            return false;
+        }
         try {
             var json = JSON.parse(item);
             var dashboards = json.dashboards;
@@ -154,7 +157,7 @@ var BasePageView = BaseView.extend({
         var otherDashes = this.retrieveDashes();
 
         // Make sure its an array
-        if (otherDashes instanceof Array) {
+        if (otherDashes) {
             // Check for outdated default dashes to remove
             var default_ids = _.pluck(dashboards, 'dash_id');
             otherDashes = _.filter(otherDashes, function(dash){

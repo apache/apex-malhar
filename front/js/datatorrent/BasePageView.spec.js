@@ -153,6 +153,53 @@ describe('BasePageView.js', function() {
         });
         
     });
+
+    describe('the retrieveDashes method', function() {
+        
+        var key;
+
+        beforeEach(function(){
+            
+            // sandbox.stub(ChildPage.prototype, "retrieveDashes");
+            
+            pageInstance = new ChildPage({
+                app: mockApp,
+                dataSource: mockDataSource
+            });
+        
+            pageInstance2 = new ChildPageWithMgr({
+                app: mockApp,
+                dataSource: mockDataSource
+            });
+
+            pageInstance.__lsPrefix = 'testingPrefixForDashboards';
+            key = pageInstance.__lsPrefix + '.dashboards';
+            localStorage.removeItem(key);
+        });
+
+        it('should return false if no item is present in localStorage', function() {
+            expect(pageInstance.retrieveDashes()).to.equal(false);
+        });
+
+        it('should return false and clear the localStorage item if it is present but it is invalid json', function() {
+            localStorage.setItem(key, '{"bad":"json"');
+            expect(pageInstance.retrieveDashes()).to.equal(false);
+            expect(localStorage.getItem(key)).to.equal(null);
+        });
+
+        it('should return the array located at item.dashboards', function() {
+            window.UI_VERSION = '0.9';
+            var dashSave = {
+                version: window.UI_VERSION,
+                dashboards: [
+                    { test: 'test' }
+                ]
+            };
+            localStorage.setItem(key, JSON.stringify(dashSave));
+            expect(pageInstance.retrieveDashes()).to.eql(dashSave.dashboards);
+        });
+
+    });
     
     describe('the saveDashes function', function() {
         
