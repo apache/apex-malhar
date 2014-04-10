@@ -86,6 +86,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long currentWindow;
   private transient long sleepTimeMillis;
+  private transient OperatorContext context;
   protected transient Counters counters;
 
   public Deduper()
@@ -146,9 +147,9 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   @Override
   public void setup(OperatorContext context)
   {
+    this.context = context;
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
     counters = new Counters();
-    context.setCustomStats(counters);
     bucketManager.setBucketCounters(counters);
     bucketManager.startService(getBucketContext(context), this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
@@ -181,6 +182,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     catch (Throwable cause) {
       DTThrowable.rethrow(cause);
     }
+    context.setCustomStats(counters);
   }
 
   @Override
