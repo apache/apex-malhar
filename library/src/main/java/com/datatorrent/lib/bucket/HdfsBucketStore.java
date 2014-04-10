@@ -206,13 +206,15 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   public void deleteBucket(int bucketIdx) throws IOException
   {
     Map<Long, Long> windowToOffsetMap = bucketPositions[bucketIdx];
-    for (Long window : windowToOffsetMap.keySet()) {
-      Collection<Integer> indices = windowToBuckets.get(window);
-      indices.remove(bucketIdx);
-      if (indices.isEmpty()) {
-        logger.debug("deleting file {}", window);
-        Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
-        fs.delete(dataFilePath, true);
+    if (windowToOffsetMap != null) {
+      for (Long window : windowToOffsetMap.keySet()) {
+        Collection<Integer> indices = windowToBuckets.get(window);
+        indices.remove(bucketIdx);
+        if (indices.isEmpty()) {
+          logger.debug("deleting file {}", window);
+          Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
+          fs.delete(dataFilePath, true);
+        }
       }
     }
     bucketPositions[bucketIdx] = null;
