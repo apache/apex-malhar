@@ -90,5 +90,22 @@
       <version>2.23.0</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-server</artifactId>
+      <version>${jetty.version}</version>
+      <exclusions>
+        <exclusion>
+          <!--artifactId>javax.servlet</artifactId-->
+          <!--groupId>org.eclipse.jetty.orbit</groupId-->
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-websocket</artifactId>
+      <version>${jetty.version}</version>
+    </dependency>
+
   </dependencies>
 </project>
