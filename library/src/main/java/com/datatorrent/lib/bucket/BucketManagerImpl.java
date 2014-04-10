@@ -232,7 +232,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
           }
           else {
             int bucketIdx = (int) (requestedKey % noOfBuckets);
-
+            long numEventsRemoved = 0;
             if (buckets[bucketIdx] != null && buckets[bucketIdx].bucketKey != requestedKey) {
               //Delete the old bucket in memory at that index.
               Bucket<T> oldBucket = buckets[bucketIdx];
@@ -246,6 +246,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
               if (bucketCounters != null) {
                 bucketCounters.numDeletedBuckets++;
                 bucketCounters.numBucketsInMemory--;
+                numEventsRemoved += oldBucket.countOfUnwrittenEvents() + oldBucket.countOfWrittenEvents();
               }
               logger.debug("deleted bucket {} {}", oldBucket.bucketKey, bucketIdx);
             }
@@ -279,6 +280,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
                 if (bucketCounters != null) {
                   bucketCounters.numEvictedBuckets++;
                   bucketCounters.numBucketsInMemory--;
+                  numEventsRemoved += lruBucket.countOfUnwrittenEvents() + lruBucket.countOfWrittenEvents();
                 }
                 logger.debug("evicted bucket {} {}", lruBucket.bucketKey, lruIdx);
               }
@@ -295,6 +297,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
             if (bucketCounters != null) {
               synchronized (bucketCounters) {
                 bucketCounters.numBucketsInMemory++;
+                bucketCounters.numEventsInMemory -= numEventsRemoved;
                 bucketCounters.numEventsInMemory += bucketDataInStore.size();
               }
             }
