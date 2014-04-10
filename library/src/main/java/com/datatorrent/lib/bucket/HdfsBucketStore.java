@@ -17,10 +17,7 @@ package com.datatorrent.lib.bucket;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
@@ -37,7 +34,9 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 /**
  * {@link BucketStore} which works with HDFS.<br/>
@@ -64,6 +63,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   private Class<T> eventClass;
 
   //Non check-pointed
+  private transient Multimap<Long, Integer> windowToBuckets;
   private transient String bucketRoot;
   private transient Configuration configuration;
   private transient Kryo serde;
@@ -119,6 +119,14 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     }
     catch (IOException e) {
       throw new RuntimeException(e);
+    }
+    windowToBuckets = ArrayListMultimap.create();
+    for (int i = 0; i < bucketPositions.length; i++) {
+      if (bucketPositions[i] != null) {
+        for (Long window : bucketPositions[i].keySet()) {
+          windowToBuckets.put(window, i);
+        }
+      }
     }
   }
 
@@ -197,6 +205,16 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Override
   public void deleteBucket(int bucketIdx) throws IOException
   {
+    Map<Long, Long> windowToOffsetMap = bucketPositions[bucketIdx];
+    for (Long window : windowToOffsetMap.keySet()) {
+      Collection<Integer> indices = windowToBuckets.get(window);
+      indices.remove(bucketIdx);
+      if (indices.isEmpty()) {
+        logger.debug("deleting file {}", window);
+        Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
+        fs.delete(dataFilePath, true);
+      }
+    }
     bucketPositions[bucketIdx] = null;
   }
 
