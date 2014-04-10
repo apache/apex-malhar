@@ -245,6 +245,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
               bucketStore.deleteBucket(bucketIdx);
               if (bucketCounters != null) {
                 bucketCounters.numDeletedBuckets++;
+                bucketCounters.numBucketsInMemory--;
               }
               logger.debug("deleted bucket {} {}", oldBucket.bucketKey, bucketIdx);
             }
@@ -277,6 +278,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
                 listener.bucketOffLoaded(lruBucket.bucketKey);
                 if (bucketCounters != null) {
                   bucketCounters.numEvictedBuckets++;
+                  bucketCounters.numBucketsInMemory--;
                 }
                 logger.debug("evicted bucket {} {}", lruBucket.bucketKey, lruIdx);
               }
