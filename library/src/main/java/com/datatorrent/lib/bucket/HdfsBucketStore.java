@@ -129,7 +129,10 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   public void teardown()
   {
     try {
-      fs.close();
+      if (fs != null) {
+        logger.debug("Closed dfs file system {}", fs.getUri());
+        fs.close();
+      }
     }
     catch (IOException e) {
       throw new RuntimeException(e);
