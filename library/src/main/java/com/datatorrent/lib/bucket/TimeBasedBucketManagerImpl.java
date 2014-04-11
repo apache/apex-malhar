@@ -84,6 +84,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     clone.bucketSpanInMillis = bucketSpanInMillis;
     clone.startOfBucketsInMillis = startOfBucketsInMillis;
     clone.expiryTime = expiryTime;
+    clone.maxTimesPerBuckets = maxTimesPerBuckets;
     return clone;
   }
 
