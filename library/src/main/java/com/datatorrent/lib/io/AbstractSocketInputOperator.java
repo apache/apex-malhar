@@ -130,7 +130,7 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
       channel = SocketChannel.open();
       channel.configureBlocking(false);
       channel.connect(new InetSocketAddress(hostname, port));
-      channel.register(selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ | SelectionKey.OP_WRITE);
+      channel.register(selector, SelectionKey.OP_CONNECT | SelectionKey.OP_READ);
     }
     catch (Exception ex) {
       throw new RuntimeException(ex);
