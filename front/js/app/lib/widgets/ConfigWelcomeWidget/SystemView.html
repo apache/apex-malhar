@@ -44,9 +44,9 @@
 <table class="config-table">
     <thead>
         <tr>
-            <th>property</th>
-            <th>description</th>
-            <th>value</th>
+            <th scope="col" style="width: 33%;">property</th>
+            <th scope="col" style="width: 33%;">description</th>
+            <th scope="col" style="width: 33%;">value</th>
         </tr>
     </thead>
     <tbody>
@@ -56,7 +56,7 @@
                 IP address and port that other nodes in the cluster should use to reach the DT Gateway.
             </td>
             <td>
-                <div class="control-group">
+                <div class="control-group ip-address">
                     <label class="control-label">IP Address</label>
                     <div class="controls">
                         <select class="address-ip-select">
@@ -67,17 +67,17 @@
                         </select>
                     </div>
                 </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <input type="text" class="address-ip-input" value="<%= addressModel.get('ip') %>" />
-                        <span class="help-block"></span>
-                    </div>
-                </div>
-
-                <div class="control-group">
+                <div class="port-colon">:</div>
+                <div class="control-group ip-port">
                     <label class="control-label">Port</label>
                     <div class="controls">
                         <input type="text" class="address-port" value="<%= addressModel.get('port') %>" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" class="address-ip-input" value="<%= addressModel.get('ip') %>" />
                         <span class="help-block"></span>
                     </div>
                 </div>
