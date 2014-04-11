@@ -90,7 +90,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Nonnull
   protected BucketStore<T> bucketStore;
   @Nonnull
-  private final Map<Integer, Bucket<T>> dirtyBuckets;
+  protected final Map<Integer, Bucket<T>> dirtyBuckets;
   protected long committedWindow;
   //Not check-pointed
   //Indexed by bucketKey keys.
@@ -135,10 +135,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     maxNoOfBucketsInMemory = DEF_NUM_BUCKETS_MEM + 100;
     millisPreventingBucketEviction = DEF_MILLIS_PREVENTING_EVICTION;
     writeEventKeysOnly = true;
-
-    bucketStore = new HdfsBucketStore<T>();
-    bucketStore.setNoOfBuckets(noOfBuckets);
-    bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
   }
 
   /**
@@ -149,7 +145,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   public void setNoOfBuckets(int noOfBuckets)
   {
     this.noOfBuckets = noOfBuckets;
-    this.bucketStore.setNoOfBuckets(noOfBuckets);
   }
 
   /**
@@ -184,7 +179,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   public void setWriteEventKeysOnly(boolean writeEventKeysOnly)
   {
     this.writeEventKeysOnly = writeEventKeysOnly;
-    this.bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
   }
 
   /**
@@ -313,14 +307,24 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   }
 
   @Override
-  @SuppressWarnings("unchecked")
+  public void initialize()
+  {
+    if (bucketStore == null) {
+      bucketStore = new HdfsBucketStore<T>();
+    }
+    bucketStore.setNoOfBuckets(noOfBuckets);
+    bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
+  }
+
+  @Override
   public void startService(Context context, Listener<T> listener)
   {
     logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
-    buckets = (Bucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
     this.bucketStore.setup(context);
-
+    @SuppressWarnings("unchecked")
+    Bucket<T>[] freshBuckets = (Bucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
+    buckets = freshBuckets;
     //Create buckets for unwritten events which were check-pointed
     for (Map.Entry<Integer, Bucket<T>> bucketEntry : dirtyBuckets.entrySet()) {
       buckets[bucketEntry.getKey()] = bucketEntry.getValue();
@@ -383,15 +387,16 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     if (bucketCounters != null) {
       bucketCounters.numEventsCommittedPerWindow = eventsCount;
     }
-    long start = System.currentTimeMillis();
     try {
-      bucketStore.storeBucketData(window, dataToStore);
+      if (!dataToStore.isEmpty()) {
+        long start = System.currentTimeMillis();
+        bucketStore.storeBucketData(window, dataToStore);
+        logger.debug("store time {}", System.currentTimeMillis() - start);
+      }
     }
     catch (IOException e) {
       throw new RuntimeException(e);
     }
-    logger.debug("store time {}", System.currentTimeMillis() - start);
-
     dirtyBuckets.clear();
     committedWindow = window;
   }

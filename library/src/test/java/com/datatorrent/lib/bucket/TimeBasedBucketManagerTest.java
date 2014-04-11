@@ -78,6 +78,7 @@ public class TimeBasedBucketManagerTest
 
     manager = new TestBucketManager<DummyEvent>();
     manager.setBucketSpanInMillis(BUCKET_SPAN);
+    manager.initialize();
     manager.startService(new Context(parameters), new BucketManagerTest.TestStorageManagerListener());
   }
 

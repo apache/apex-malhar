@@ -198,6 +198,7 @@ public class DeduperTest
     storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
     storageManager.setBucketSpanInMillis(1000);
     storageManager.setMillisPreventingBucketEviction(60000);
+    storageManager.initialize();
     deduper.setBucketManager(storageManager);
   }
 

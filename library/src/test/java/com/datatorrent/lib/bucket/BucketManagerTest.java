@@ -135,6 +135,7 @@ public class BucketManagerTest
     manager.setNoOfBucketsInMemory(1);
     manager.setMaxNoOfBucketsInMemory(1);
     manager.setMillisPreventingBucketEviction(1);
+    manager.initialize();
     manager.startService(new Context(parameters), new TestStorageManagerListener());
   }
 

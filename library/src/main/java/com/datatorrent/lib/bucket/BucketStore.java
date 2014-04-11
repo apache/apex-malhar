@@ -43,10 +43,10 @@ public interface BucketStore<T extends Bucketable>
   /**
    * Stores the un-written bucket data collected in the given window.
    *
-   * @param window window in which data was collected.
-   * @param data   bucket events to be persisted.
+   * @param id   id corresponding to which data would be saved.
+   * @param data bucket events to be persisted.
    */
-  void storeBucketData(long window, Map<Integer, Map<Object, T>> data) throws IOException;
+  void storeBucketData(long id, Map<Integer, Map<Object, T>> data) throws IOException;
 
   /**
    * Deletes bucket corresponding to the bucket index from the persistent store.
@@ -78,4 +78,9 @@ public interface BucketStore<T extends Bucketable>
    * @param writeEventKeysOnly
    */
   void setWriteEventKeysOnly(boolean writeEventKeysOnly);
+
+  public interface ExpirableBucketStore<T extends Bucketable & Event> extends BucketStore<T>
+  {
+    void deleteExpiredBuckets(long time) throws IOException;
+  }
 }

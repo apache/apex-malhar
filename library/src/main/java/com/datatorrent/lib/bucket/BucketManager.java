@@ -61,6 +61,10 @@ import com.datatorrent.api.Stats;
 public interface BucketManager<T extends Bucketable>
 {
   /**
+   * initialize the bucket manager.
+   */
+  void initialize();
+  /**
    * Starts the service.
    *
    * @param context  {@link Context} which contains parameters needed for setup.
