@@ -1,10 +1,8 @@
 <span class="section-system">
-<h1>Hadoop</h1>
+<h1>Hadoop Configuration</h1>
 
-<p class="welcome-text well">
-    <i class="icon-info-sign"></i>
-    A Hadoop installation is mandatory to use the DataTorrent platform.<br> 
-    You may need to provide details regarding your Hadoop installation below.
+<p class="welcome-text">
+    A Hadoop installation (version 2.2.0 or greater) is required to use DataTorrent.  Please provide the details regarding the location of your Hadoop installation below.
 </p>
 
 <% if (loading) {  %>
@@ -37,8 +35,8 @@
     </thead>
     <tbody>
     <tr>
-        <td>hadoop installation location</td>
-        <td>This is the absolute path to the location of your hadoop installation.</td>
+        <td>Hadoop Installation Location</td>
+        <td>The absolute path to the location of your Hadoop installation</td>
         <td>
             <div class="control-group">
                 <div class="controls">
@@ -50,8 +48,8 @@
         </td>
     </tr>
     <tr>
-        <td>java version</td>
-        <td>Version of the Java Runtime Environment.</td>
+        <td>Detected Java Version</td>
+        <td>Version of the Java Runtime Environment</td>
         <td><input type="text" value="<%= about.get('javaVersion') %>" disabled />  </td>
     </tr>
     </tbody>

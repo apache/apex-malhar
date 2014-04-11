@@ -30,9 +30,9 @@ var UploadLicenseView = BaseView.extend({
 
     uploadBtnCancel: 'cancel',
 
-    uploadTitle: 'drag and drop license file here',
+    uploadTitle: 'Drag and drop the License file here',
 
-    uploadText: '(or click to choose)',
+    uploadText: '(or click to select it)',
 
     fileChangeCheck: function(file) {
         return true;
