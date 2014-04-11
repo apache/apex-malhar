@@ -165,6 +165,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
         bucketPositions[bucketIdx] = Maps.newHashMap();
       }
       bucketPositions[bucketIdx].put(window, offset);
+      windowToBuckets.put(window, bucketIdx);
 
       Map<Object, T> bucketData = data.get(bucketIdx);
 
