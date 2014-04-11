@@ -64,6 +64,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void setDaysSpan(int daysSpan)
   {
     this.daysSpan = daysSpan;
+    initialize();
   }
 
   /**
@@ -74,6 +75,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void setBucketSpanInMillis(long bucketSpanInMillis)
   {
     this.bucketSpanInMillis = bucketSpanInMillis;
+    initialize();
   }
 
   @Override
