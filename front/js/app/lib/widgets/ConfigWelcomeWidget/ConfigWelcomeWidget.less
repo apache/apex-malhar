@@ -51,6 +51,7 @@
 
         td {
             padding: 10px;
+            vertical-align: middle;
         }
 
         input, select {
@@ -210,6 +211,20 @@ table.config-table {
 
 }
 
+.control-group.ip-address, .control-group.ip-port, .port-colon {
+
+    display: inline-block;
+    width: 70%;
+}
+.control-group.ip-port {
+    width: 25%;   
+    input {
+        max-width: 95%;
+    }
+}
+.port-colon {
+    width: auto;
+}
 
 i.install-issue {
    display: inline-block;
