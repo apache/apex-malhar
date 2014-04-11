@@ -70,6 +70,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   private transient Set<Integer> partitionKeys;
   private transient int partitionMask;
   private transient FileSystem fs;
+  private transient int operatorId;
 
   public HdfsBucketStore()
   {
@@ -97,7 +98,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Override
   public void setup(Context context)
   {
-    int operatorId = Preconditions.checkNotNull(context.getInt(OPERATOR_ID, null));
+    operatorId = Preconditions.checkNotNull(context.getInt(OPERATOR_ID, null));
     String rootPath = context.getString(STORE_ROOT, null);
     this.bucketRoot = (rootPath == null ? "buckets" : rootPath) + PATH_SEPARATOR + operatorId;
     this.partitionKeys = (Set<Integer>) Preconditions.checkNotNull(context.getObject(PARTITION_KEYS, null), "partition keys");
@@ -209,9 +210,9 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     if (windowToOffsetMap != null) {
       for (Long window : windowToOffsetMap.keySet()) {
         Collection<Integer> indices = windowToBuckets.get(window);
-        indices.remove(bucketIdx);
-        if (indices.isEmpty()) {
-          logger.debug("deleting file {}", window);
+        boolean elementRemoved = indices.remove(bucketIdx);
+        if (indices.isEmpty() && elementRemoved) {
+          logger.debug("{} deleted file {}", operatorId, window);
           Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
           fs.delete(dataFilePath, true);
         }
