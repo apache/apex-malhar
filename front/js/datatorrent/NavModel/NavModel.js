@@ -67,6 +67,11 @@ var Nav = Backbone.Model.extend({
     },
 
     go: function(route, options) {
+        if (!options) {
+            options = { trigger: true };
+        } else if (!options.hasOwnProperty('trigger')) {
+            options.trigger = true;
+        } 
         this.router.navigate(route, options);
     },
 
