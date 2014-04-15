@@ -61,7 +61,7 @@ var WidgetCtrl = BaseView.extend({
     },
     
     deleteWithAlert: function(evt) {
-        var c = confirm('Are you sure you want to delete this widget from the dashboard? Note: double-click the trash can to suppress this warning.');
+        var c = confirm('Are you sure you want to delete this widget from the dashboard? Note: double-click the "x" icon to suppress this warning.');
         if (c) {
             this.deleteNoAlert();
         }
