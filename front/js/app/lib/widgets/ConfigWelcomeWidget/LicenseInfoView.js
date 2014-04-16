@@ -47,12 +47,13 @@ var LicenseInfoView = BaseView.extend({
 
         var that = this; //TODO make subview
 
-        this.license = new LicenseModel({});
+        this.license = options.license;
         this.license.fetch({
             error: function () {
                 that.error = true;
                 that.render();
-            }
+            },
+            agentMaxTries: 10
         });
         this.listenTo(this.license, 'sync', function () {
             if (this.navFlow.mockState && this.navFlow.mockState.LicenseInfoView) {

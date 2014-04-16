@@ -47,6 +47,8 @@ var ConfigWelcomeWidget = WidgetView.extend({
 
         this.dataSource = options.dataSource;
 
+        this.license = options.app.license;
+
         this.activeStateId = 'WelcomeView';
         //this.activeStateId = 'LicenseInfoView';
         //this.activeStateId = 'LicenseRegisterView';
@@ -143,12 +145,12 @@ var ConfigWelcomeWidget = WidgetView.extend({
         }
 
         // Create and render new view.
-        var that = this;
         this._currentView = new state.view({
             dataSource: this.dataSource,
-            navFlow: that,
+            navFlow: this,
             stateOptions: stateOptions,
-            template: state.template
+            template: state.template,
+            license: this.license
         });
         this.$('.install-steps-pane .inner').html(this._currentView.render().el);
     },
