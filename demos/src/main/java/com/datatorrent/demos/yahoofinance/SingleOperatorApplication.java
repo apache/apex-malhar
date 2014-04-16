@@ -17,6 +17,7 @@ package com.datatorrent.demos.yahoofinance;
 
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.SmtpOutputOperator;
 import com.datatorrent.lib.streamquery.DerbySqlStreamOperator;
 import com.datatorrent.lib.util.AlertEscalationOperator;
@@ -28,6 +29,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
+@ApplicationAnnotation(name="YahooFinanceApplicationWithSingleOperator")
 public class SingleOperatorApplication implements StreamingApplication
 {
   @Override
