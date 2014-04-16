@@ -4,8 +4,10 @@
         <button class="btn" disabled><%= DT.text('select an item') %></button>
     <% } else if (selected.length === 1) {%>
         <button class="inspectApp btn btn-primary"><i class="icon-eye-open icon-white"></i> <%= DT.text('inspect') %></button>
-        <% if (selected[0]['state'] === 'RUNNING') {%>
+        <% if (selected[0]['state'] === 'RUNNING') { %>
             <button class="shutdownApp btn btn-warning"><i class="icon-white icon-remove"></i> shutdown</button>
+            <button class="killApp btn btn-danger"><i class="icon-white icon-ban-circle"></i> kill</button>
+        <% } else if (selected[0]['state'] === 'ACCEPTED') { %>
             <button class="killApp btn btn-danger"><i class="icon-white icon-ban-circle"></i> kill</button>
         <% } else { %>
             <!-- <button class="btn">relaunch</button> -->
