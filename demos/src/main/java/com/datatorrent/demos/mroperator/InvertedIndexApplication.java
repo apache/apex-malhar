@@ -27,7 +27,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 0.9.0
  */
-@ApplicationAnnotation(name="Map Reduce Application (Inverted Index)")
+@ApplicationAnnotation(name="MapReduceApplicationOfInvertedIndex")
 public class InvertedIndexApplication extends MapReduceApplication<LongWritable, Text, Text, Text>
 {
 
