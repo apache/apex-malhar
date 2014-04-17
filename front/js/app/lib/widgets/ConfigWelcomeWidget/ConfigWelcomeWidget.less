@@ -243,3 +243,60 @@ i.install-issue {
     font-style: normal;
     font-weight: bolder;
 }
+
+
+// Progress indicator
+.install-steps-progress {
+    position: relative;
+    top: -10px;
+    .install-step {
+        position: relative;
+        text-align: center;
+        margin-left: 0;
+        
+        .step-name {
+            font-weight: normal;
+            font-size: 16px;
+        }
+        .step-indicator {
+            display: block;
+            background-color: #707070;
+            height: 16px;
+            width: 16px;
+            border-radius: 50%;
+            margin: 3px auto;
+            border: 1px solid #646464;
+            box-shadow: 0 0 0 2px #a7a7a7;
+            position: relative;
+            z-index: 1;
+        }
+        .step-track {
+            background-color: #ababab;
+            position: absolute;
+            width: 100%;
+            bottom: 10px;
+            left: 0;
+            height: 5px;
+        }
+        &.active {
+            .step-name {
+                font-weight: bold;
+                font-size: 18px;
+            }
+            .step-indicator {
+                background-color: #26a033;
+            }
+        }
+        &:first-child {
+            .step-track {
+                width: 50%;
+                left: 50%;
+            }
+        }
+        &:last-child {
+            .step-track {
+                width: 50%;
+            }
+        }
+    }
+}

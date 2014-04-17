@@ -95,40 +95,44 @@ var ConfigWelcomeWidget = WidgetView.extend({
     navStates: {
         WelcomeView: {
             view: WelcomeView,
-            template: kt.make(__dirname+'/WelcomeView.html')
+            template: kt.make(__dirname+'/WelcomeView.html'),
+            indicator: 'welcome'
         },
         LicenseInfoView: {
             view: LicenseInfoView,
-            template: kt.make(__dirname+'/LicenseInfoView.html')
+            template: kt.make(__dirname+'/LicenseInfoView.html'),
+            indicator: 'license'
         },
-        LicenseRegisterView: {
-            view: LicenseRegisterView,
-            template: kt.make(__dirname+'/LicenseRegisterView.html')
-        },
+        // LicenseRegisterView: {
+        //     view: LicenseRegisterView,
+        //     template: kt.make(__dirname+'/LicenseRegisterView.html'),
+        //     indicator: 'license'
+        // },
         LicenseUploadView: {
             view: LicenseUploadView,
-            template: kt.make(__dirname+'/LicenseUploadView.html')
+            template: kt.make(__dirname+'/LicenseUploadView.html'),
+            indicator: 'license'
         },
 
-        LicenseOfflineView: {
-            view: LicenseOfflineView,
-            template: kt.make(__dirname+'/LicenseOfflineView.html')
-        },
-        SystemView: {
-            view: SystemView,
-            template: kt.make(__dirname+'/SystemView.html')
-        },
-        LicenseOfflineView: {
-            view: LicenseOfflineView,
-            template: kt.make(__dirname+'/LicenseOfflineView.html')
-        },
+        // LicenseOfflineView: {
+        //     view: LicenseOfflineView,
+        //     template: kt.make(__dirname+'/LicenseOfflineView.html'),
+        //     indicator: 'license'
+        // },
+        // SystemView: {
+        //     view: SystemView,
+        //     template: kt.make(__dirname+'/SystemView.html'),
+        //     indicator: 'welcome'
+        // },
         HadoopView: {
             view: HadoopView,
-            template: kt.make(__dirname+'/HadoopView.html')
+            template: kt.make(__dirname+'/HadoopView.html'),
+            indicator: 'hadoop'
         },
         SummaryView: {
             view: SummaryView,
-            template: kt.make(__dirname+'/SummaryView.html')
+            template: kt.make(__dirname+'/SummaryView.html'),
+            indicator: 'summary'
         }
     },
 
@@ -153,6 +157,10 @@ var ConfigWelcomeWidget = WidgetView.extend({
             license: this.license
         });
         this.$('.install-steps-pane .inner').html(this._currentView.render().el);
+
+        // highlight progress bar
+        this.$('.install-steps-progress .install-step').removeClass('active');
+        this.$('.install-steps-progress .install-step[data-step="' + state.indicator + '"]').addClass('active');
     },
 
     remove: function() {
