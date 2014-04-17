@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.validation.constraints.Min;
 
@@ -42,18 +41,19 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   protected long bucketSpanInMillis;
   @Min(0)
   protected long startOfBucketsInMillis;
-  private AtomicLong expiryTime;
+  private long expiryTime;
   private Long[] maxTimesPerBuckets;
 
-  private transient AtomicLong endOBucketsInMillis;
+  private transient long endOBucketsInMillis;
   private transient Timer bucketSlidingTimer;
+  private final transient Lock lock;
 
   public TimeBasedBucketManagerImpl()
   {
     super();
     daysSpan = DEF_DAYS_SPAN;
     bucketSpanInMillis = DEF_BUCKET_SPAN_MILLIS;
-    expiryTime = new AtomicLong();
+    lock = new Lock();
   }
 
   /**
@@ -98,7 +98,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
 
     calendar.add(Calendar.DATE, -daysSpan);
     startOfBucketsInMillis = calendar.getTimeInMillis();
-    expiryTime.set(startOfBucketsInMillis);
+    expiryTime = startOfBucketsInMillis;
     noOfBuckets = (int) Math.ceil((now - startOfBucketsInMillis) / (bucketSpanInMillis * 1.0));
     if (bucketStore == null) {
       bucketStore = new ExpirableHdfsBucketStore<T>();
@@ -112,8 +112,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void startService(Context context, Listener<T> listener)
   {
     bucketSlidingTimer = new Timer();
-    endOBucketsInMillis = new AtomicLong();
-    endOBucketsInMillis.set(startOfBucketsInMillis + noOfBuckets * bucketSpanInMillis);
+    endOBucketsInMillis = startOfBucketsInMillis + (noOfBuckets * bucketSpanInMillis);
     logger.debug("bucket properties {}, {}", daysSpan, bucketSpanInMillis);
     logger.debug("bucket time params: start {}, expiry {}, end {}", startOfBucketsInMillis, expiryTime, endOBucketsInMillis);
 
@@ -122,7 +121,15 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
       @Override
       public void run()
       {
-        long time = expiryTime.addAndGet(bucketSpanInMillis);
+        long time;
+        synchronized (lock) {
+          time = (expiryTime += bucketSpanInMillis);
+          endOBucketsInMillis += bucketSpanInMillis;
+          if (bucketCounters != null) {
+            bucketCounters.high = endOBucketsInMillis;
+            bucketCounters.low = expiryTime;
+          }
+        }
         try {
           ((BucketStore.ExpirableBucketStore<T>) bucketStore).deleteExpiredBuckets(time);
         }
@@ -139,7 +146,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public long getBucketKeyFor(T event)
   {
     long eventTime = event.getTime();
-    if (eventTime < expiryTime.get()) {
+    if (eventTime < expiryTime) {
       if (bucketCounters != null) {
         bucketCounters.numIgnoredEvents++;
       }
@@ -147,10 +154,16 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     }
     long diffFromStart = event.getTime() - startOfBucketsInMillis;
     long key = diffFromStart / bucketSpanInMillis;
-    if (eventTime > endOBucketsInMillis.get()) {
-      long move = ((eventTime - endOBucketsInMillis.get()) / bucketSpanInMillis + 1) * bucketSpanInMillis;
-      expiryTime.addAndGet(move);
-      endOBucketsInMillis.addAndGet(move);
+    synchronized (lock) {
+      if (eventTime > endOBucketsInMillis) {
+        long move = ((eventTime - endOBucketsInMillis) / bucketSpanInMillis + 1) * bucketSpanInMillis;
+        expiryTime += move;
+        endOBucketsInMillis += move;
+        if (bucketCounters != null) {
+          bucketCounters.high = endOBucketsInMillis;
+          bucketCounters.low = expiryTime;
+        }
+      }
     }
     return key;
   }
@@ -183,11 +196,8 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     if (startOfBucketsInMillis != that.startOfBucketsInMillis) {
       return false;
     }
-    if (expiryTime != null ? (that.expiryTime == null || expiryTime.get() != that.expiryTime.get()) : that.expiryTime != null) {
-      return false;
-    }
+    return expiryTime == that.expiryTime;
 
-    return true;
   }
 
   @Override
@@ -196,7 +206,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     int result = super.hashCode();
     result = 31 * result + (int) (bucketSpanInMillis ^ (bucketSpanInMillis >>> 32));
     result = 31 * result + (int) (startOfBucketsInMillis ^ (startOfBucketsInMillis >>> 32));
-    result = 31 * result + (expiryTime != null ? expiryTime.hashCode() : 0);
+    result = 31 * result + (int) (expiryTime ^ (expiryTime >>> 32));
     return result;
   }
 
@@ -242,6 +252,10 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     if (maxTime > -1) {
       super.endWindow(maxTime);
     }
+  }
+
+  private static class Lock
+  {
   }
 
   private static transient final Logger logger = LoggerFactory.getLogger(TimeBasedBucketManagerImpl.class);

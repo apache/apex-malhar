@@ -189,6 +189,9 @@ public interface BucketManager<T extends Bucketable>
     protected long numEventsInMemory;
     protected long numIgnoredEvents;
 
+    protected long low;
+    protected long high;
+
     public int getNumBucketsInMemory()
     {
       return numBucketsInMemory;
@@ -217,6 +220,16 @@ public interface BucketManager<T extends Bucketable>
     public long getNumIgnoredEvents()
     {
       return numIgnoredEvents;
+    }
+
+    public long getLow()
+    {
+      return low;
+    }
+
+    public long getHigh()
+    {
+      return high;
     }
   }
 }
