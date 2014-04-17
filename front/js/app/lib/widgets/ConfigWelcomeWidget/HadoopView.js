@@ -43,10 +43,9 @@ var HadoopView = BaseView.extend({
         this.dfsModel = new DfsModel();
 
         var hadoopLocationPromise = this.loadHadoopLocation();
-        var aboutPromise = this.loadAbout();
         var dfsPromise = this.loadDfsProperty();
 
-        var all = $.when(hadoopLocationPromise, aboutPromise, dfsPromise);
+        var all = $.when(hadoopLocationPromise, dfsPromise);
         all.done(function () {
             this.loading = false;
             
@@ -94,18 +93,7 @@ var HadoopView = BaseView.extend({
 
         this.listenTo(this.dfsModel, 'change', function () {
             this.clearError('.dfs-directory-error');
-            //this.inputChanged();
         });
-    },
-
-    inputChanged: function () {
-        var hadoopLocationModelValid = this.hadoopLocationModel.isValid();
-
-        if (hadoopLocationModelValid) {
-            this.$('.continue').removeClass('disabled');
-        } else {
-            this.$('.continue').addClass('disabled');
-        }
     },
 
     loadDfsProperty: function () {
@@ -248,19 +236,6 @@ var HadoopView = BaseView.extend({
         return d.promise();
     },
 
-    loadAbout: function () {
-        var d = $.Deferred();
-
-        this.about = new GatewayInfoModel({}, { silentErrors: true });
-        this.about.fetch(); //TODO error handling
-
-        this.listenTo(this.about, 'sync', function () {
-            d.resolve();
-        });
-
-        return d.promise();
-    },
-
     continue: function (event) {
         event.preventDefault();
 
@@ -395,7 +370,6 @@ var HadoopView = BaseView.extend({
             errorMsg: this.errorMsg,
             loading: this.loading,
             hadoopLocationModel: this.hadoopLocationModel,
-            about: this.about,
             dfsModel: this.dfsModel
         });
 
