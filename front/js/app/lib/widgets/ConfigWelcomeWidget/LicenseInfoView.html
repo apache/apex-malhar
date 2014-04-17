@@ -2,14 +2,10 @@
 <h1>DataTorrent License Confirmation</h1>
 
 <p class="welcome-text">
-    DataTorrent requires a License file to run.
-    <% if (license.isDefault()) { %>
-    An Evaluation license is included with this installations, and can be used in any non-production environment for development and testing purposes for up to 1 year.  Up to 25GB of memory is available for your applications.
-    <% } %>
-    You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of this license any time.
+    DataTorrent requires a valid License file to run.  An Evaluation license is included with this installations, and can be used in any non-production environment for development and testing purposes for up to 4 months.  Up to 25GB of memory is available for your DataTorrent applications.
 </p>
 <p class="welcome-text">
-    If you already have a License file, you can <a href="#" class="go-to-upload action-link">upload it</a>.  Otherwise click "continue" to use the Current License.
+    If you have a different License file you would like to use, you can <a href="#" class="go-to-upload action-link">upload it</a>.  Otherwise click "continue" to use the Current License.
 </p>
 
 <% if (error) {  %>
@@ -46,12 +42,12 @@
 
 <% } %>
 
-<a href="#" class="install-step-link btn pull-left btn-large" data-action="WelcomeView">
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="HadoopView">
     <i class="icon-circle-arrow-left"></i> back
 </a>
 
 
-<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="HadoopView">
+<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="SummaryView">
     continue <i class="icon-circle-arrow-right icon-white"></i>
 </a>
 </div>

@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var _ = require('underscore');
 var BaseModel = require('./BaseModel');
 var BaseUtil = require('./BaseUtil');
 var LicenseAgentModel = BaseModel.extend({
@@ -28,6 +29,23 @@ var LicenseAgentModel = BaseModel.extend({
         totalLicensedMB: ''
     },
 
+    initialize: function(attrs, options) {
+        this.on('error', function() {
+            if (this.agentMaxTries && this.agentMaxTries > 0) {
+                this.agentMaxTries--;
+                setTimeout(_.bind(function() {
+                    this.fetch();
+                }, this), 1000);
+            } else {
+                this.set('fetchFailed', true);    
+            }
+        });
+        this.on('sync', function() {
+            this.set('fetchFailed', false);
+            this.agentMaxTries = 0;
+        });
+    },
+
     toJSON: function() {
         var json = BaseModel.prototype.toJSON.call(this);
         json.usedLicensedMB = json.totalLicensedMB * 1 - json.remainingLicensedMB * 1;
@@ -39,8 +57,14 @@ var LicenseAgentModel = BaseModel.extend({
         return this.resourceURL('LicenseAgent')
     },
 
+    fetch: function(options) {
+        if (options && options.agentMaxTries) {
+            this.agentMaxTries = options.agentMaxTries;
+        }
+        BaseModel.prototype.fetch.call(this, options);
+    },
+
     fetchError: function (object, response, options) {
-        this.set('fetchFailed', true);
         BaseUtil.quietFetchError(object, response, options);
     }
 

@@ -29,9 +29,9 @@ var LicensePageView = BaseView.extend({
             this.license.unset('id');
 
             // queue up a fetch on license
-            setTimeout(_.bind(function() {
-                this.license.fetch();
-            }, this), 4000);
+            this.license.fetch({
+                agentMaxTries: 10
+            });
         },this));
 
         this.listenTo(this.filesToUpload, 'upload_error', function (status, statusText, xhr) {

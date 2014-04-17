@@ -7,7 +7,7 @@
         } else if (agent.percentUsedLicenseMB > 30) {
             print('progress-success');
         } %>">
-        <span class="bar" style="width:<%= Math.max(agent.percentUsedLicenseMB, 2) %>%"></span>
+        <span class="bar" style="width:<%= agent.percentUsedLicenseMB %>%"></span>
     </a>
     <a href="#config/license" class="license-agent-usage-label"><%= agent.percentUsedLicenseMB ? agent.percentUsedLicenseMB + '% memory used' : '' %></a>
 <% } %>

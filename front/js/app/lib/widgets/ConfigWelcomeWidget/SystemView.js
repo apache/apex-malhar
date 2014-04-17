@@ -152,7 +152,7 @@ var SystemView = BaseView.extend({
         this.listenTo(this.dfsModel, 'change', function () {
             this.clearError('.dfs-directory-error');
             //this.inputChanged();
-        }) ;
+        });
     },
 
     inputChanged: function () {
