@@ -1,9 +1,8 @@
 <span class="section-system">
-<h1>System</h1>
+<h1>DataTorrent System Configuration</h1>
 
-<p class="welcome-text well">
-    <i class="icon-info-sign"></i>
-    Use the following controls to change basic system settings regarding your DataTorrent installation.
+<p class="welcome-text">
+    DataTorrent needs to be able to connect with the running apps via Gateway Connect Address, and store application information in a Distributed File System such as HDFS.  We have attempted to auto-discover your Hadoop cluster IP and DFS settings and display them below. If these are blank or incorrect, please provide the correct values below.    
 </p>
 
 <% if (hadoopError) {  %>
@@ -44,19 +43,19 @@
 <table class="config-table">
     <thead>
         <tr>
-            <th>property</th>
-            <th>description</th>
-            <th>value</th>
+            <th scope="col" style="width: 33%;">item</th>
+            <th scope="col" style="width: 33%;">description</th>
+            <th scope="col" style="width: 33%;">value</th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td>gateway connect address</td>
+            <td>Gateway Connect Address</td>
             <td>
-                IP address and port that other nodes in the cluster should use to reach the DT Gateway.
+                IP address and port with which all nodes in the Hadoop cluster can reach this Gateway.  Used for communication with DataTorrent applications.
             </td>
             <td>
-                <div class="control-group">
+                <div class="control-group ip-address">
                     <label class="control-label">IP Address</label>
                     <div class="controls">
                         <select class="address-ip-select">
@@ -67,17 +66,17 @@
                         </select>
                     </div>
                 </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <input type="text" class="address-ip-input" value="<%= addressModel.get('ip') %>" />
-                        <span class="help-block"></span>
-                    </div>
-                </div>
-
-                <div class="control-group">
+                <div class="port-colon">:</div>
+                <div class="control-group ip-port">
                     <label class="control-label">Port</label>
                     <div class="controls">
                         <input type="text" class="address-port" value="<%= addressModel.get('port') %>" />
+                        <span class="help-block"></span>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <input type="text" class="address-ip-input" value="<%= addressModel.get('ip') %>" />
                         <span class="help-block"></span>
                     </div>
                 </div>
@@ -88,8 +87,9 @@
         <tr>
             <td>
                 <!--<i class="install-issue" title="There is something wrong with this value!">!</i>-->
-                DFS directory</td>
-            <td>Directory in a distributed file system (e.g. HDFS) configured in your Hadoop installation, where all datatorrent artifacts will be stored, including checkpoints, recordings, etc.</td>
+                DFS Directory</td>
+            <td>
+                Directory in a Distributed File System (e.g. HDFS) where all datatorrent artifacts will be stored, including checkpoints, recordings, etc.  This directory must be accessible and writable by the DataTorrent Gateway and DataTorrent applications.</td>
             <td>
                 <div class="control-group">
                     <div class="controls">

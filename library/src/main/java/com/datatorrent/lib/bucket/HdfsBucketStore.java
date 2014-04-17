@@ -17,10 +17,7 @@ package com.datatorrent.lib.bucket;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
@@ -37,7 +34,9 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Multimap;
 
 /**
  * {@link BucketStore} which works with HDFS.<br/>
@@ -59,21 +58,24 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   private boolean writeEventKeysOnly;
   @Min(1)
   protected int noOfBuckets;
-  private Map<Long, Long>[] bucketPositions;
-  private Class<?> eventKeyClass;
-  private Class<T> eventClass;
+  protected Map<Long, Long>[] bucketPositions;
+  protected Class<?> eventKeyClass;
+  protected Class<T> eventClass;
 
   //Non check-pointed
-  private transient String bucketRoot;
-  private transient Configuration configuration;
-  private transient Kryo serde;
-  private transient Set<Integer> partitionKeys;
-  private transient int partitionMask;
-  private transient FileSystem fs;
+  protected transient Multimap<Long, Integer> idToBuckets;
+  protected transient String bucketRoot;
+  protected transient Configuration configuration;
+  protected transient Kryo serde;
+  protected transient Set<Integer> partitionKeys;
+  protected transient int partitionMask;
+  protected transient FileSystem fs;
+  protected transient int operatorId;
+  protected final transient Lock deleteLock;
 
   public HdfsBucketStore()
   {
-    //Used for kryo serialization
+    deleteLock = new Lock();
   }
 
   @SuppressWarnings("unchecked")
@@ -97,7 +99,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Override
   public void setup(Context context)
   {
-    int operatorId = Preconditions.checkNotNull(context.getInt(OPERATOR_ID, null));
+    operatorId = Preconditions.checkNotNull(context.getInt(OPERATOR_ID, null));
     String rootPath = context.getString(STORE_ROOT, null);
     this.bucketRoot = (rootPath == null ? "buckets" : rootPath) + PATH_SEPARATOR + operatorId;
     this.partitionKeys = (Set<Integer>) Preconditions.checkNotNull(context.getObject(PARTITION_KEYS, null), "partition keys");
@@ -120,6 +122,14 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     catch (IOException e) {
       throw new RuntimeException(e);
     }
+    idToBuckets = ArrayListMultimap.create();
+    for (int i = 0; i < bucketPositions.length; i++) {
+      if (bucketPositions[i] != null) {
+        for (Long id : bucketPositions[i].keySet()) {
+          idToBuckets.put(id, i);
+        }
+      }
+    }
   }
 
   /**
@@ -128,12 +138,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Override
   public void teardown()
   {
-    try {
-      fs.close();
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+    //Not closing the filesystem.
     configuration.clear();
   }
 
@@ -141,9 +146,9 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
    * {@inheritDoc}
    */
   @Override
-  public void storeBucketData(long window, Map<Integer, Map<Object, T>> data) throws IOException
+  public void storeBucketData(long id, Map<Integer, Map<Object, T>> data) throws IOException
   {
-    Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
+    Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + id);
     FSDataOutputStream dataStream = fs.create(dataFilePath);
 
     Output output = new Output(dataStream);
@@ -152,7 +157,10 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       if (bucketPositions[bucketIdx] == null) {
         bucketPositions[bucketIdx] = Maps.newHashMap();
       }
-      bucketPositions[bucketIdx].put(window, offset);
+      synchronized (bucketPositions[bucketIdx]) {
+        bucketPositions[bucketIdx].put(id, offset);
+      }
+      idToBuckets.put(id, bucketIdx);
 
       Map<Object, T> bucketData = data.get(bucketIdx);
 
@@ -194,6 +202,23 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Override
   public void deleteBucket(int bucketIdx) throws IOException
   {
+    Map<Long, Long> idToOffsetMap = bucketPositions[bucketIdx];
+    if (idToOffsetMap != null) {
+      for (Long id : idToOffsetMap.keySet()) {
+        Collection<Integer> indices = idToBuckets.get(id);
+        synchronized (indices) {
+          boolean elementRemoved = indices.remove(bucketIdx);
+          if (indices.isEmpty() && elementRemoved) {
+            Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + id);
+            if (fs.exists(dataFilePath)) {
+              fs.delete(dataFilePath, true);
+              logger.debug("{} deleted file {}", operatorId, id);
+            }
+            idToBuckets.removeAll(id);
+          }
+        }
+      }
+    }
     bucketPositions[bucketIdx] = null;
   }
 
@@ -210,12 +235,12 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       return bucketData;
     }
 
-    for (long window : bucketPositions[bucketIdx].keySet()) {
+    for (long fileId : bucketPositions[bucketIdx].keySet()) {
 
-      //Read data only for the windows in which bucketIdx had events.
-      Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
+      //Read data only for the fileIds in which bucketIdx had events.
+      Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + fileId);
       FSDataInputStream stream = fs.open(dataFile);
-      stream.seek(bucketPositions[bucketIdx].get(window));
+      stream.seek(bucketPositions[bucketIdx].get(fileId));
 
       Input input = new Input(stream);
       int length = stream.readInt();
@@ -276,6 +301,11 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     result = 31 * result + noOfBuckets;
     result = 31 * result + (bucketPositions != null ? Arrays.hashCode(bucketPositions) : 0);
     return result;
+  }
+
+  @SuppressWarnings("ClassMayBeInterface")
+  private static class Lock
+  {
   }
 
   private static transient final Logger logger = LoggerFactory.getLogger(HdfsBucketStore.class);

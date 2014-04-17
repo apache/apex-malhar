@@ -39,11 +39,13 @@ var LicenseModel = BaseModel.extend({
 		return this.resourceURL('License');
 	},
 
-    fetch: function() {
+    fetch: function(options) {
         this.once('sync', function(model) {
             var agent = this.get('agent');
             agent.set('id', model.get('id'));
-            agent.fetch();
+            agent.fetch({
+                agentMaxTries: typeof options === 'object' ? options.agentMaxTries : 0
+            });
         });
         return BaseModel.prototype.fetch.apply(this, arguments);
     },

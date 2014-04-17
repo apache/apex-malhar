@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+var BasePageView = DT.lib.BasePageView;
 var Page = require('./AppInstancePageView');
 var _ = require('underscore'), Backbone = require('backbone');
 var AppModel = DT.lib.ApplicationModel;
@@ -21,7 +22,7 @@ var Notifier = DT.lib.Notifier;
 
 describe('AppInstancePageView.js', function() {
     
-	var sandbox, p, app, appFetch, dataSource;
+	var sandbox, p, app, appFetch, dataSource, promise, deferred;
 
 	beforeEach(function() {
 
@@ -35,6 +36,9 @@ describe('AppInstancePageView.js', function() {
 	    		state: 'RUNNING',
 	    		finalStatus: 'UNDEFINED'
 	    	});
+	    	deferred = $.Deferred();
+	    	promise = deferred.promise();
+	    	return promise;
 	    }
 
 	    // create mock datasource
@@ -48,6 +52,9 @@ describe('AppInstancePageView.js', function() {
 	    sandbox.spy(Page.prototype, 'defineWidgets');
 	    sandbox.spy(Page.prototype, 'loadDashboards');
 
+	    // stub the base page render
+	    sandbox.stub(BasePageView.prototype, 'render');
+
 	    // stub notifier
 	    sandbox.stub(Notifier, 'warning');
 
@@ -56,7 +63,7 @@ describe('AppInstancePageView.js', function() {
 	    sandbox.spy(AppModel.prototype, 'setContainers');
 	    sandbox.spy(AppModel.prototype, 'fetch');
 	    sandbox.stub($, 'ajax', function(options) {
-	    	appFetch(options);
+	    	return appFetch(options);
 	    });
 	    sandbox.stub(AppModel.prototype, 'subscribe');
 
@@ -68,12 +75,12 @@ describe('AppInstancePageView.js', function() {
 	    	}
 	    });
 
-
+	    deferred.resolve();
 	});
 
 	afterEach(function() {
 	    sandbox.restore();
-	    p = app = null;
+	    p = app = deferred = promise = null;
 	});
 
 	it('should create an application model as its model', function() {
@@ -91,11 +98,6 @@ describe('AppInstancePageView.js', function() {
 	it('should call setOperators and setContainers', function() {
 	    expect(p.model.setOperators).to.have.been.calledOnce;
 	    expect(p.model.setContainers).to.have.been.calledOnce;
-	});
-
-	it('should call a synchronous fetch on the application', function() {
-	    var args = p.model.fetch.getCall(0).args;
-	    expect(args[0]).to.have.property('async', false);
 	});
 
 	it('should call subscribe on the application model', function() {
@@ -129,6 +131,9 @@ describe('AppInstancePageView.js', function() {
 		    		state: 'ACCEPTED',
 		    		finalStatus: 'UNDEFINED'
 		    	});
+		    	deferred = $.Deferred();
+		    	promise = deferred.promise();
+		    	return promise;
 			}
 			p2 = new Page({
 		    	app: app,
@@ -136,6 +141,7 @@ describe('AppInstancePageView.js', function() {
 		    		appId: 'application_0001'
 		    	}
 		    });
+		    deferred.resolve();
 			expect(p2.setLocalKey).to.have.been.calledWith(':RUNNING');
 	    });
 
@@ -191,7 +197,11 @@ describe('AppInstancePageView.js', function() {
 		    		'state': 'ACCEPTED',
 		    		'finalStatus': 'UNDEFINED'
 		    	});
+		    	deferred = $.Deferred();
+		    	promise = deferred.promise();
+		    	return promise;
 		    }
+		    deferred.resolve();
 		    var p3 = new Page({
 		    	app: app,
 		    	pageParams: {

@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.dedup;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -33,7 +34,10 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
 
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.bucket.*;
+import com.datatorrent.lib.bucket.Bucket;
+import com.datatorrent.lib.bucket.BucketManager;
+import com.datatorrent.lib.bucket.BucketStore;
+import com.datatorrent.lib.bucket.Bucketable;
 
 /**
  * <p>
@@ -63,12 +67,12 @@ import com.datatorrent.lib.bucket.*;
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
  *
- * @param <INPUT> type of input tuple
+ * @param <INPUT>  type of input tuple
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
 public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
-        implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
+  implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
   //Check-pointed state
   @Nonnull
@@ -82,13 +86,15 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long currentWindow;
   private transient long sleepTimeMillis;
+  private transient OperatorContext context;
+  protected transient Counters counters;
 
   public Deduper()
   {
     waitingEvents = Maps.newHashMap();
     partitionKeys = Sets.newHashSet(0);
     partitionMask = 0;
-    
+
     fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
   }
 
@@ -105,6 +111,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       Bucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
 
       if (bucket != null && bucket.containsEvent(tuple)) {
+        counters.numDuplicateEvents++;
         return;
       } //ignore event
 
@@ -140,8 +147,10 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   @Override
   public void setup(OperatorContext context)
   {
+    this.context = context;
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
-
+    counters = new Counters();
+    bucketManager.setBucketCounters(counters);
     bucketManager.startService(getBucketContext(context), this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
     for (long bucketKey : waitingEvents.keySet()) {
@@ -173,6 +182,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     catch (Throwable cause) {
       DTThrowable.rethrow(cause);
     }
+    context.setCustomStats(counters);
   }
 
   @Override
@@ -200,6 +210,9 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
             if (!bucket.containsEvent(event)) {
               bucketManager.newEvent(bucket.bucketKey, event);
               output.emit(convert(event));
+            }
+            else {
+              counters.numDuplicateEvents++;
             }
           }
         }
@@ -301,7 +314,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
       //distribute waiting events
       for (long bucketKey : allWaitingEvents.keySet()) {
-        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext();) {
+        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext(); ) {
           INPUT event = iterator.next();
           int partitionKey = event.getEventKey().hashCode() & lPartitionMask;
 
@@ -363,7 +376,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       return false;
     }
 
-    Deduper<?, ?> deduper = (Deduper<?, ?>)o;
+    Deduper<?, ?> deduper = (Deduper<?, ?>) o;
 
     if (partitionMask != deduper.partitionMask) {
       return false;
@@ -391,6 +404,40 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   public String toString()
   {
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
+  }
+
+  public static class Counters extends BucketManager.BucketCounters
+  {
+    protected long numDuplicateEvents;
+
+    public long getNumDuplicateEvents()
+    {
+      return numDuplicateEvents;
+    }
+  }
+
+  public static class CountersListener implements StatsListener, Serializable
+  {
+    @Override
+    public Response processStats(BatchedOperatorStats batchedOperatorStats)
+    {
+      List<Stats.OperatorStats> lastWindowedStats = batchedOperatorStats.getLastWindowedStats();
+      for (Stats.OperatorStats os : lastWindowedStats) {
+        if (os.customStats != null) {
+          if (os.customStats instanceof Counters) {
+            Counters cs = (Counters) os.customStats;
+            logger.debug("bucketStats {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
+              cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
+              cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents());
+          }
+        }
+      }
+      return null;
+    }
+
+    private static final long serialVersionUID = 201404082336L;
+    protected static transient final Logger logger = LoggerFactory.getLogger(CountersListener.class);
+
   }
 
   private final static Logger logger = LoggerFactory.getLogger(Deduper.class);
