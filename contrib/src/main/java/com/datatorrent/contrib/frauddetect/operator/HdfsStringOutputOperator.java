@@ -22,6 +22,8 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAGContext;
+
 import com.datatorrent.lib.io.fs.AbstractHdfsOutputOperator;
 
 /**
@@ -45,7 +47,7 @@ public class HdfsStringOutputOperator extends AbstractHdfsOutputOperator<String>
    */
   public static final String FNAME_SUB_PART_INDEX = "partIndex";
 
-  private int contextId;
+  private String contextId;
   private int index = 0;
 
   @Override
@@ -53,7 +55,7 @@ public class HdfsStringOutputOperator extends AbstractHdfsOutputOperator<String>
   {
     Map<String, String> params = new HashMap<String, String>();
     params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
-    params.put(FNAME_SUB_CONTEXT_ID, Integer.toString(contextId));
+    params.put(FNAME_SUB_CONTEXT_ID, contextId);
     StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
     index++;
     return new Path(sub.replace(getFilePathPattern().toString()));
@@ -62,7 +64,7 @@ public class HdfsStringOutputOperator extends AbstractHdfsOutputOperator<String>
   @Override
   public void setup(OperatorContext context)
   {
-    contextId = context.getId();
+    contextId = context.getValue(DAGContext.APPLICATION_NAME);
     super.setup(context);
   }
   
