@@ -29,7 +29,7 @@ import java.util.HashMap;
  * and "cmp". Then on no tuple is emitted in that window. The comparison is done by getting double value of the Number.<p>
  * This module is a pass through<br>
  * <br>
- * <b>StateFull : No, </b> tuple are processed in current window. <br>
+ * <b>StateFull : Yes, </b> tuple are processed in current window. <br>
  * <b>Partitions : No, </b>will yield wrong results. <br>
  * <br>
  * <b>Ports</b>:<br>

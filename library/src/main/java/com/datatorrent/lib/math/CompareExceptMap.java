@@ -17,6 +17,7 @@ package com.datatorrent.lib.math;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.algo.MatchMap;
 import com.datatorrent.lib.util.UnifierHashMap;
 import java.util.HashMap;
@@ -72,6 +73,7 @@ import java.util.Map;
  *
  * @since 0.3.2
  */
+@Stateless
 public class CompareExceptMap<K, V extends Number> extends MatchMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "compare", optional=true)

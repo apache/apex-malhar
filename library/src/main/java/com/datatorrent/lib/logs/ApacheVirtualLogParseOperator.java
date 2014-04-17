@@ -18,6 +18,7 @@ package com.datatorrent.lib.logs;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.Stateless;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -32,6 +33,7 @@ import java.util.regex.Pattern;
  *
  * @since 0.3.2
  */
+@Stateless
 public class ApacheVirtualLogParseOperator extends BaseOperator {
 
     // default date format

@@ -31,7 +31,7 @@ import com.datatorrent.lib.util.BaseMatchOperator;
  * value from the Number.<p>
  * This module is a pass through<br>
  * <br>
- * <b>StateFull : No, </b> tuple are processed in current window. <br>
+ * <b>StateFull : Yes, </b> tuple are processed in current window. <br>
  * <b>Partitions : No, </b>will yield wrong results. <br>
  * <br>
  * <b>Ports</b>:<br>

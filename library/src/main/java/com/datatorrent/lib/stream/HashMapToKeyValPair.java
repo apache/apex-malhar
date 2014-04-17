@@ -19,6 +19,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import java.util.Map;
  *
  * @since 0.3.3
  */
+@Stateless
 public class HashMapToKeyValPair<K, V> extends BaseKeyValueOperator<K, V>
 {
 	/**

@@ -18,6 +18,7 @@ package com.datatorrent.lib.math;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.Stateless;
 
 /**
  * Compare the constant to the incoming tuple emit it on one or more of the
@@ -46,6 +47,7 @@ import com.datatorrent.api.DefaultOutputPort;
  *      <br>
  * @since 0.3.3
  */
+@Stateless
 public class LogicalCompareToConstant<T extends Comparable<? super T>> extends
 		BaseOperator
 {

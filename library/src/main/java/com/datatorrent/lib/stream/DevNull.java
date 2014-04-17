@@ -18,6 +18,7 @@ package com.datatorrent.lib.stream;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 
 /**
  * Terminates a stream; does nothing to the tuple. Useful if you want to have a
@@ -30,6 +31,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  *
  * @since 0.3.3
  */
+@Stateless
 public class DevNull<K> extends BaseOperator
 {
 	/**
