@@ -112,7 +112,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void startService(Context context, Listener<T> listener)
   {
     bucketSlidingTimer = new Timer();
-    endOBucketsInMillis = startOfBucketsInMillis + (noOfBuckets * bucketSpanInMillis);
+    endOBucketsInMillis = expiryTime + (noOfBuckets * bucketSpanInMillis);
     logger.debug("bucket properties {}, {}", daysSpan, bucketSpanInMillis);
     logger.debug("bucket time params: start {}, expiry {}, end {}", startOfBucketsInMillis, expiryTime, endOBucketsInMillis);
 
