@@ -37,18 +37,24 @@ public class SocketInputOperatorTest
 
   public class Server implements Runnable
   {
+    private int serverPort;
+
+    Server(int port)
+    {
+      this.serverPort = port;
+    }
+
     @Override
     public void run()
     {
 
       try {
         ServerSocketChannel serverChannel = ServerSocketChannel.open();
-        SocketAddress port = new InetSocketAddress(7899);
+        SocketAddress port = new InetSocketAddress(serverPort);
         serverChannel.socket().bind(port);
         while (true) {
           SocketChannel clientChannel = serverChannel.accept();
           String response = "This is " + serverChannel.socket() + " on port " + serverChannel.socket().getLocalPort();
-          System.out.println(response);
           byte[] data = response.getBytes("UTF-8");
           ByteBuffer buffer = ByteBuffer.wrap(data);
           while (buffer.hasRemaining()) {
@@ -67,12 +73,12 @@ public class SocketInputOperatorTest
   public void Test()
   {
     try {
-      Thread server = new Thread(new Server());
+      Thread server = new Thread(new Server(7898));
       server.start();
-      //server.join();
+      // server.join();
       TestSocketInputOperator operator = new TestSocketInputOperator();
       operator.setHostname("localhost");
-      operator.setPort(7899);
+      operator.setPort(7898);
       operator.setScanIntervalInMilliSeconds(10);
       CollectorTestSink sink = new CollectorTestSink();
       operator.outputPort.setSink(sink);
@@ -84,8 +90,46 @@ public class SocketInputOperatorTest
       operator.endWindow();
       operator.deactivate();
       operator.teardown();
-      LOG.debug(sink.collectedTuples.get(0).toString());
-      Assert.assertEquals("This is ServerSocket[addr=/0:0:0:0:0:0:0:0,localport=7899] on port 7899", sink.collectedTuples.get(0));
+      Assert.assertEquals("This is ServerSocket[addr=/0:0:0:0:0:0:0:0,localport=7898] on port 7898", sink.collectedTuples.get(0));
+      server.interrupt();
+      server.join();
+    }
+    catch (Exception e) {
+      LOG.debug("exception", e);
+    }
+  }
+
+  @Test
+  public void TestWithSmallerBufferSize()
+  {
+    try {
+      Thread server = new Thread(new Server(7899));
+      server.start();
+      // server.join();
+      TestSocketInputOperator operator = new TestSocketInputOperator();
+      operator.setHostname("localhost");
+      operator.setPort(7899);
+      operator.setScanIntervalInMilliSeconds(10);
+      operator.setByteBufferSize(10);
+      CollectorTestSink sink = new CollectorTestSink();
+      operator.outputPort.setSink(sink);
+      operator.setup(null);
+      operator.activate(null);
+      operator.beginWindow(0);
+      Thread.sleep(1000);
+      operator.emitTuples();
+      operator.endWindow();
+      operator.deactivate();
+      operator.teardown();
+      Assert.assertEquals(8, sink.collectedTuples.size());
+      Assert.assertEquals("This is Se", sink.collectedTuples.get(0));
+      Assert.assertEquals("rverSocket", sink.collectedTuples.get(1));
+      Assert.assertEquals("[addr=/0:0", sink.collectedTuples.get(2));
+      Assert.assertEquals(":0:0:0:0:0", sink.collectedTuples.get(3));
+      Assert.assertEquals(":0,localpo", sink.collectedTuples.get(4));
+      Assert.assertEquals("rt=7899] o", sink.collectedTuples.get(5));
+      Assert.assertEquals("n port 789", sink.collectedTuples.get(6));
+      Assert.assertEquals("9", sink.collectedTuples.get(7));
       server.interrupt();
       server.join();
     }
