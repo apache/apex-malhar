@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by Pramod Immaneni <pramod@datatorrent.com> on 4/19/14.
+ * Test for XmlKeyValueStringCartesianProduct
  */
 public class XmlKeyValueStringCartesianProductTest
 {
