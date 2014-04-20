@@ -148,7 +148,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Override
   public void storeBucketData(long window, long timestamp, Map<Integer, Map<Object, T>> data) throws IOException
   {
-    Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window + PATH_SEPARATOR + timestamp);
+    Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
     FSDataOutputStream dataStream = fs.create(dataFilePath);
 
     Output output = new Output(dataStream);
@@ -240,7 +240,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     for (long window : bucketPositions[bucketIdx].keySet()) {
 
       //Read data only for the fileIds in which bucketIdx had events.
-      Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window + PATH_SEPARATOR + windowToTimestamp.get(window));
+      Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
       FSDataInputStream stream = fs.open(dataFile);
       stream.seek(bucketPositions[bucketIdx].get(window));
 
