@@ -21,6 +21,8 @@ import javax.annotation.Nonnull;
 
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.DAG;
+
 import com.datatorrent.lib.bucket.Bucketable;
 import com.datatorrent.lib.bucket.Context;
 import com.datatorrent.lib.bucket.HdfsBucketStore;
@@ -48,7 +50,7 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable, OUTPUT> ext
   protected Context getBucketContext(com.datatorrent.api.Context.OperatorContext context)
   {
     Map<String, Object> parameters = Maps.newHashMap();
-    parameters.put(HdfsBucketStore.STORE_ROOT, bucketsPath);
+    parameters.put(HdfsBucketStore.STORE_ROOT, context.getValue(DAG.APPLICATION_PATH) + "/" + bucketsPath);
     parameters.put(HdfsBucketStore.OPERATOR_ID, context.getId());
     parameters.put(HdfsBucketStore.PARTITION_KEYS, partitionKeys);
     parameters.put(HdfsBucketStore.PARTITION_MASK, partitionMask);

@@ -391,7 +391,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       if (!dataToStore.isEmpty()) {
         long start = System.currentTimeMillis();
         bucketStore.storeBucketData(window, dataToStore);
-        logger.debug("store time {}", System.currentTimeMillis() - start);
+        logger.debug("took {} to store {}", System.currentTimeMillis() - start, window);
       }
     }
     catch (IOException e) {
