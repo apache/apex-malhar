@@ -157,9 +157,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       if (bucketPositions[bucketIdx] == null) {
         bucketPositions[bucketIdx] = Maps.newHashMap();
       }
-      synchronized (bucketPositions[bucketIdx]) {
-        bucketPositions[bucketIdx].put(id, offset);
-      }
       idToBuckets.put(id, bucketIdx);
 
       Map<Object, T> bucketData = data.get(bucketIdx);
@@ -190,6 +187,9 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
         }
       }
       output.flush();
+      synchronized (bucketPositions[bucketIdx]) {
+        bucketPositions[bucketIdx].put(id, offset);
+      }
       offset = dataStream.getPos();
     }
     output.close();
