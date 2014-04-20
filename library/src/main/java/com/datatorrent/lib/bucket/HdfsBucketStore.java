@@ -235,6 +235,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       return bucketData;
     }
 
+    logger.debug("fetching bucket {}", bucketIdx);
     for (long fileId : bucketPositions[bucketIdx].keySet()) {
 
       //Read data only for the fileIds in which bucketIdx had events.
