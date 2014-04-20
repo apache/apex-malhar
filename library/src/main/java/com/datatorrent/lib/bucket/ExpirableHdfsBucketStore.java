@@ -30,27 +30,29 @@ public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends Hdfs
   @Override
   public void deleteExpiredBuckets(long time) throws IOException
   {
-    Iterator<Long> iterator = idToBuckets.keySet().iterator();
+    Iterator<Long> iterator = windowToBuckets.keySet().iterator();
     for (; iterator.hasNext(); ) {
-      long id = iterator.next();
-      if (id < time) {
-        Collection<Integer> indices = idToBuckets.get(id);
+      long window = iterator.next();
+      long timestamp= windowToTimestamp.get(window);
+      if (timestamp < time) {
+        Collection<Integer> indices = windowToBuckets.get(window);
         synchronized (indices) {
           if (indices.size() > 0) {
-            Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + id);
+            Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
             if (fs.exists(dataFilePath)) {
               fs.delete(dataFilePath, true);
-              logger.debug("{} deleted file {}", operatorId, id);
+              logger.debug("{} deleted file {}", operatorId, window);
             }
             for (int bucketIdx : indices) {
-              Map<Long, Long> idToOffset = bucketPositions[bucketIdx];
-              if (idToOffset != null) {
-                synchronized (idToOffset) {
-                  idToOffset.remove(id);
+              Map<Long, Long> offsetMap = bucketPositions[bucketIdx];
+              if (offsetMap != null) {
+                synchronized (offsetMap) {
+                  offsetMap.remove(window);
                 }
               }
             }
           }
+          windowToTimestamp.remove(window);
           iterator.remove();
         }
       }

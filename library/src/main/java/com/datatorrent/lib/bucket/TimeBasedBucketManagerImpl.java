@@ -250,7 +250,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
       maxTimesPerBuckets[bucketIdx] = null;
     }
     if (maxTime > -1) {
-      super.endWindow(maxTime);
+      saveData(window, maxTime);
     }
   }
 

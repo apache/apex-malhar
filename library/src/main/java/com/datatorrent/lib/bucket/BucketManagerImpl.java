@@ -375,6 +375,11 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Override
   public void endWindow(long window)
   {
+    saveData(window, window);
+  }
+
+  protected void saveData(long window, long id)
+  {
     Map<Integer, Map<Object, T>> dataToStore = Maps.newHashMap();
     long eventsCount = 0;
     for (Map.Entry<Integer, Bucket<T>> entry : dirtyBuckets.entrySet()) {
@@ -390,7 +395,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     try {
       if (!dataToStore.isEmpty()) {
         long start = System.currentTimeMillis();
-        bucketStore.storeBucketData(window, dataToStore);
+        bucketStore.storeBucketData(window, id, dataToStore);
         logger.debug("took {} to store {}", System.currentTimeMillis() - start, window);
       }
     }

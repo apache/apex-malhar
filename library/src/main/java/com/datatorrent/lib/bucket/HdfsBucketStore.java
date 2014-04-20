@@ -59,11 +59,12 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Min(1)
   protected int noOfBuckets;
   protected Map<Long, Long>[] bucketPositions;
+  protected Map<Long, Long> windowToTimestamp;
   protected Class<?> eventKeyClass;
   protected Class<T> eventClass;
 
   //Non check-pointed
-  protected transient Multimap<Long, Integer> idToBuckets;
+  protected transient Multimap<Long, Integer> windowToBuckets;
   protected transient String bucketRoot;
   protected transient Configuration configuration;
   protected transient Kryo serde;
@@ -71,11 +72,10 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   protected transient int partitionMask;
   protected transient FileSystem fs;
   protected transient int operatorId;
-  protected final transient Lock deleteLock;
 
   public HdfsBucketStore()
   {
-    deleteLock = new Lock();
+    windowToTimestamp = Maps.newHashMap();
   }
 
   @SuppressWarnings("unchecked")
@@ -122,11 +122,11 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     catch (IOException e) {
       throw new RuntimeException(e);
     }
-    idToBuckets = ArrayListMultimap.create();
+    windowToBuckets = ArrayListMultimap.create();
     for (int i = 0; i < bucketPositions.length; i++) {
       if (bucketPositions[i] != null) {
-        for (Long id : bucketPositions[i].keySet()) {
-          idToBuckets.put(id, i);
+        for (Long window : bucketPositions[i].keySet()) {
+          windowToBuckets.put(window, i);
         }
       }
     }
@@ -146,19 +146,14 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
    * {@inheritDoc}
    */
   @Override
-  public void storeBucketData(long id, Map<Integer, Map<Object, T>> data) throws IOException
+  public void storeBucketData(long window, long timestamp, Map<Integer, Map<Object, T>> data) throws IOException
   {
-    Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + id);
+    Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window + PATH_SEPARATOR + timestamp);
     FSDataOutputStream dataStream = fs.create(dataFilePath);
 
     Output output = new Output(dataStream);
     long offset = 0;
     for (int bucketIdx : data.keySet()) {
-      if (bucketPositions[bucketIdx] == null) {
-        bucketPositions[bucketIdx] = Maps.newHashMap();
-      }
-      idToBuckets.put(id, bucketIdx);
-
       Map<Object, T> bucketData = data.get(bucketIdx);
 
       if (eventKeyClass == null) {
@@ -187,8 +182,13 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
         }
       }
       output.flush();
+      if (bucketPositions[bucketIdx] == null) {
+        bucketPositions[bucketIdx] = Maps.newHashMap();
+      }
+      windowToBuckets.put(window, bucketIdx);
+      windowToTimestamp.put(window, timestamp);
       synchronized (bucketPositions[bucketIdx]) {
-        bucketPositions[bucketIdx].put(id, offset);
+        bucketPositions[bucketIdx].put(window, offset);
       }
       offset = dataStream.getPos();
     }
@@ -202,19 +202,20 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   @Override
   public void deleteBucket(int bucketIdx) throws IOException
   {
-    Map<Long, Long> idToOffsetMap = bucketPositions[bucketIdx];
-    if (idToOffsetMap != null) {
-      for (Long id : idToOffsetMap.keySet()) {
-        Collection<Integer> indices = idToBuckets.get(id);
+    Map<Long, Long> offsetMap = bucketPositions[bucketIdx];
+    if (offsetMap != null) {
+      for (Long window : offsetMap.keySet()) {
+        Collection<Integer> indices = windowToBuckets.get(window);
         synchronized (indices) {
           boolean elementRemoved = indices.remove(bucketIdx);
           if (indices.isEmpty() && elementRemoved) {
-            Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + id);
+            Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
             if (fs.exists(dataFilePath)) {
               fs.delete(dataFilePath, true);
-              logger.debug("{} deleted file {}", operatorId, id);
+              logger.debug("{} deleted file {}", operatorId, window);
             }
-            idToBuckets.removeAll(id);
+            windowToBuckets.removeAll(window);
+            windowToTimestamp.remove(window);
           }
         }
       }
@@ -236,12 +237,12 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     }
 
     logger.debug("fetching bucket {}", bucketIdx);
-    for (long fileId : bucketPositions[bucketIdx].keySet()) {
+    for (long window : bucketPositions[bucketIdx].keySet()) {
 
       //Read data only for the fileIds in which bucketIdx had events.
-      Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + fileId);
+      Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window + PATH_SEPARATOR + windowToTimestamp.get(window));
       FSDataInputStream stream = fs.open(dataFile);
-      stream.seek(bucketPositions[bucketIdx].get(fileId));
+      stream.seek(bucketPositions[bucketIdx].get(window));
 
       Input input = new Input(stream);
       int length = stream.readInt();
@@ -303,11 +304,5 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     result = 31 * result + (bucketPositions != null ? Arrays.hashCode(bucketPositions) : 0);
     return result;
   }
-
-  @SuppressWarnings("ClassMayBeInterface")
-  private static class Lock
-  {
-  }
-
   private static transient final Logger logger = LoggerFactory.getLogger(HdfsBucketStore.class);
 }

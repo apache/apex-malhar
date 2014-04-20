@@ -89,13 +89,13 @@ public class BucketStoreTests
 
   void testStoreBucketData() throws Exception
   {
-    bucketStore.storeBucketData(0, data);
+    bucketStore.storeBucketData(0, 0, data);
     Assert.assertTrue(fs.exists(rootBucketPath));
   }
 
   void testFetchBucket() throws Exception
   {
-    bucketStore.storeBucketData(0, data);
+    bucketStore.storeBucketData(0, 0, data);
     Map<Object, DummyEvent> fetchedData = bucketStore.fetchBucket(0);
 
     for (Map.Entry<Object, DummyEvent> entry : fetchedData.entrySet()) {
@@ -112,7 +112,7 @@ public class BucketStoreTests
 
   void testDeleteBucket() throws Exception
   {
-    bucketStore.storeBucketData(0, data);
+    bucketStore.storeBucketData(0, 0, data);
     bucketStore.deleteBucket(1);
     Map<Object, DummyEvent> fetchedData = bucketStore.fetchBucket(1);
     Assert.assertNotNull(fetchedData);
