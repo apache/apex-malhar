@@ -82,9 +82,10 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected final Map<Long, List<INPUT>> waitingEvents;
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
+  private long currentWindow;
+
   //Non check-pointed state
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
-  private transient long currentWindow;
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
   protected transient Counters counters;
