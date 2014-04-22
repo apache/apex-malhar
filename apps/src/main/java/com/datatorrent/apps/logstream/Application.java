@@ -592,16 +592,16 @@ public class Application implements StreamingApplication
      * Convert incoming JSON structures to flattened map objects
      */
     JsonByteArrayOperator apacheLogJsonToMap = dag.addOperator("ApacheLogJsonToMap", JsonByteArrayOperator.class);
-    dag.addStream("apache_convert_type", apacheLogInput.outputPort, apacheLogJsonToMap.input);
+    dag.addStream("apache_convert_type", apacheLogInput.output, apacheLogJsonToMap.input);
 
     JsonByteArrayOperator mysqlLogJsonToMap = dag.addOperator("MysqlLogJsonToMap", JsonByteArrayOperator.class);
-    dag.addStream("mysql_convert_type", mysqlLogInput.outputPort, mysqlLogJsonToMap.input);
+    dag.addStream("mysql_convert_type", mysqlLogInput.output, mysqlLogJsonToMap.input);
 
     JsonByteArrayOperator syslogLogJsonToMap = dag.addOperator("SyslogLogJsonToMap", JsonByteArrayOperator.class);
-    dag.addStream("syslog_convert_type", syslogLogInput.outputPort, syslogLogJsonToMap.input);
+    dag.addStream("syslog_convert_type", syslogLogInput.output, syslogLogJsonToMap.input);
 
     JsonByteArrayOperator systemLogJsonToMap = dag.addOperator("SystemLogJsonToMap", JsonByteArrayOperator.class);
-    dag.addStream("system_convert_type", systemLogInput.outputPort, systemLogJsonToMap.input);
+    dag.addStream("system_convert_type", systemLogInput.output, systemLogJsonToMap.input);
 
     // operator for tuple counter
     Counter apacheLogCounter = dag.addOperator("ApacheLogCounter", new Counter());

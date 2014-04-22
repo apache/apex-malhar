@@ -151,7 +151,7 @@ public class RabbitMQInputOperatorTest
     publisher.setup();
 //    publisher.generateMessages(testNum);
 
-    dag.addStream("Stream", generator.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("Stream", generator.output, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
