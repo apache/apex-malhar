@@ -82,13 +82,13 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected final Map<Long, List<INPUT>> waitingEvents;
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
-  private long currentWindow;
 
   //Non check-pointed state
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
   protected transient Counters counters;
+  private transient long currentWindow;
 
   public Deduper()
   {
@@ -149,6 +149,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   public void setup(OperatorContext context)
   {
     this.context = context;
+    this.currentWindow = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
     counters = new Counters();
     bucketManager.setBucketCounters(counters);
