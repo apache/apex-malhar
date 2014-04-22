@@ -32,6 +32,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  *
  * @param <K> Key of aggregation
  * @param <V> Value of aggregation
+ * @since 0.9.4
  */
 public class AggregationsToRedisOperator<K, V> extends BaseOperator
 {

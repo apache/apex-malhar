@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.twitter;
 
 import java.util.concurrent.ArrayBlockingQueue;
+
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
@@ -82,6 +83,8 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   private String accessToken;
   @NotNull
   private String accessTokenSecret;
+  /* If twitter connection breaks then do we need to reconnect or exit */
+  private boolean reConnect;
 
   @Override
   public void setup(OperatorContext context)
@@ -94,10 +97,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
 
     ConfigurationBuilder cb = new ConfigurationBuilder();
     cb.setDebugEnabled(debug).
-            setOAuthConsumerKey(consumerKey).
-            setOAuthConsumerSecret(consumerSecret).
-            setOAuthAccessToken(accessToken).
-            setOAuthAccessTokenSecret(accessTokenSecret);
+      setOAuthConsumerKey(consumerKey).
+      setOAuthConsumerSecret(consumerSecret).
+      setOAuthAccessToken(accessToken).
+      setOAuthAccessTokenSecret(accessTokenSecret);
 
     ts = new TwitterStreamFactory(cb.build()).getInstance();
   }
@@ -120,10 +123,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
       }
 
       int max = multiplier + multiplierVariance;
-      randomMultiplier = min + (int)(Math.random() * ((max - min) + 1));
+      randomMultiplier = min + (int) (Math.random() * ((max - min) + 1));
     }
     try {
-      for (int i = randomMultiplier; i-- > 0;) {
+      for (int i = randomMultiplier; i-- > 0; ) {
         statuses.put(status);
         count++;
       }
@@ -164,7 +167,35 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   public void onException(Exception ex)
   {
     logger.error("Sampling Error", ex);
-    operatorThread.interrupt();
+    logger.debug("reconnect: {}", reConnect);
+    ts.shutdown();
+    if (reConnect) {
+      try {
+        Thread.sleep(1000);
+      }
+      catch (Exception e) {
+      }
+      setUpTwitterConnection();
+    }
+    else {
+      operatorThread.interrupt();
+    }
+  }
+
+  private void setUpTwitterConnection()
+  {
+    ConfigurationBuilder cb = new ConfigurationBuilder();
+    cb.setDebugEnabled(debug).
+      setOAuthConsumerKey(consumerKey).
+      setOAuthConsumerSecret(consumerSecret).
+      setOAuthAccessToken(accessToken).
+      setOAuthAccessTokenSecret(accessTokenSecret);
+
+    ts = new TwitterStreamFactory(cb.build()).getInstance();
+    ts.addListener(TwitterSampleInput.this);
+    // we can only listen to tweets containing links by callng ts.links().
+    // it seems it requires prior signed agreement with twitter.
+    ts.sample();
   }
 
   @Override
@@ -200,7 +231,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   @Override
   public void emitTuples()
   {
-    for (int size = statuses.size(); size-- > 0;) {
+    for (int size = statuses.size(); size-- > 0; ) {
       Status s = statuses.poll();
       if (status.isConnected()) {
         status.emit(s);
@@ -262,6 +293,16 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     this.accessTokenSecret = accessTokenSecret;
   }
 
+  public boolean isReConnect()
+  {
+    return reConnect;
+  }
+
+  public void setReConnect(boolean reConnect)
+  {
+    this.reConnect = reConnect;
+  }
+
   @Override
   @SuppressWarnings({"null", "ConstantConditions"})
   public int hashCode()
@@ -297,7 +338,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final TwitterSampleInput other = (TwitterSampleInput)obj;
+    final TwitterSampleInput other = (TwitterSampleInput) obj;
     if (this.status != other.status && (this.status == null || !this.status.equals(other.status))) {
       return false;
     }
@@ -357,7 +398,6 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   {
     return "TwitterSampleInput{" + "status=" + status + ", text=" + text + ", url=" + url + ", userMention=" + userMention + ", hashtag=" + hashtag + ", media=" + media + ", debug=" + debug + ", operatorThread=" + operatorThread + ", ts=" + ts + ", statuses=" + statuses + ", count=" + count + ", multiplier=" + multiplier + ", multiplierVariance=" + multiplierVariance + ", consumerKey=" + consumerKey + ", consumerSecret=" + consumerSecret + ", accessToken=" + accessToken + ", accessTokenSecret=" + accessTokenSecret + '}';
   }
-
 
   private static final Logger logger = LoggerFactory.getLogger(TwitterSampleInput.class);
 }

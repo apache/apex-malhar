@@ -28,6 +28,7 @@ import com.datatorrent.api.DefaultOutputPort;
  *
  * @param <K> dimension to select from map
  * @param <V> value to be summed
+ * @since 0.9.4
  */
 public class SumItemFromMapOperator<K, V> extends BaseOperator
 {

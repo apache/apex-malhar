@@ -27,7 +27,17 @@ var ApplicationCollection = BaseCollection.extend({
     url: function() {
         return this.resourceURL('Application');
     },
-    
+
+    fetch: function(options) {
+        // when data is not supplied, assume we should only
+        // retrieve running applications
+        options = options || {};
+        if (!options.data) {
+            options.data = { states: 'RUNNING' };
+        }
+        BaseCollection.prototype.fetch.call(this, options);
+    },
+
     responseTransform: 'apps',
     
     initialize: function(models, options) {

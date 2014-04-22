@@ -72,7 +72,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="YahooFinanceWithCSVSampleFile)")
+@ApplicationAnnotation(name="YahooFinanceWithCSVSampleFile")
 public class Application implements StreamingApplication
 {
   @Override

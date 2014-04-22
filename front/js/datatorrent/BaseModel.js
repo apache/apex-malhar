@@ -144,6 +144,11 @@ var BaseModel = Backbone.Model.extend({
             
             // Holds the original success function
             var success = options.success;
+
+            // Send cookies with request
+            options.xhrFields = {
+                withCredentials: true
+            }
     
             // Wrap the success function:
             options.success = _.bind(function(resp) {

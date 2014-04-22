@@ -1,0 +1,56 @@
+<div class="container license-page-main config-page-main">
+    <div class="config-page-pane">
+        <div class="inner">
+            <h1>License Information</h1>
+            <p class="well">
+                DataTorrent requires a license file to run. You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> this License any time.  If you have a License file that you would like to activate and use, you can upload it below</a>.
+            </p>
+            <% if (agent.id && typeof id !== 'undefined' && id) {  %>
+            <div class="row-fluid">
+                <section id="license-current" class="span6">
+                    <h2>Current License</h2>
+                    <h3>Memory Usage</h3>
+                    <%= DT.templates.licensed_mem_bar({agent: agent, pagelink: false}) %>
+                    <h3>Basic Info</h3>
+                    <p class="general-license-info">
+                        <strong>license ID:</strong> <%= id %><br>
+                        <!-- <strong>appId:</strong> <%= agent.appId %><br> -->
+                        <% if (!agent.fetchFailed) { %>
+                        <strong>started at:</strong> <%= (new Date(agent.startedTime * 1)).toLocaleString() %><br>
+                        <strong>user:</strong> <%= agent.user %><br>
+                        <strong>remaining memory:</strong> <%= DT.formatters.byteFormatter(agent.remainingLicensedMB, 'mb') %><br>
+                        <strong>total memory:</strong> <%= DT.formatters.byteFormatter(agent.totalLicensedMB, 'mb') %><br>
+                        
+                        <% } %>
+                    </p>
+
+                    <% if (sections.length) { %>
+                        <h3>License Sections</h3>
+                        <% _.each( sections, function(section) { %>
+                        <p class="license-info-block">
+                            <strong>start date:</strong> <%= section.startDate %><br>
+                            <strong>end date:</strong> <%= section.endDate %><br>
+                            <strong>constraint:</strong> <%= section.constraint %><br>
+                            <strong>comment:</strong> <%= section.comment %><br>
+                        </p>
+                        <% }) %>
+                    <% } %>
+                </section>
+                <section id="license-upload" class="span6">
+                    <h2>Upgrade License</h2>
+                    <p>You can <a href="https://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of your license any time.</p>
+                    <h2>Upload License</h2>
+                    <p>Use the area below to upload an existing license file. This will replace your current license.</p>
+                    <div class="file-upload-target"></div>
+                    
+                </section>
+            </div>
+
+            <% } else { %>
+                
+                <%= DT.text('Loading license information...') %>
+
+            <% } %>    
+        </div>
+    </div>
+</div>

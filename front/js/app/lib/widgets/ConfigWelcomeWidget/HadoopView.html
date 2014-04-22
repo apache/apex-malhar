@@ -1,10 +1,8 @@
 <span class="section-system">
-<h1>Hadoop</h1>
+<h1>Hadoop Configuration</h1>
 
-<p class="welcome-text well">
-    <i class="icon-info-sign"></i>
-    A Hadoop installation is mandatory to use the DataTorrent platform.<br> 
-    You may need to provide details regarding your Hadoop installation below.
+<p class="welcome-text">
+    A Hadoop installation (version 2.2.0 or greater) is required to use DataTorrent.  Please provide the details regarding the location of your Hadoop installation below.
 </p>
 
 <% if (loading) {  %>
@@ -30,15 +28,15 @@
 <table class="config-table">
     <thead>
         <tr>
-            <th>property</th>
-            <th>description</th>
-            <th>value</th>
+            <th scope="col" style="width: 33%;">item</th>
+            <th scope="col" style="width: 33%;">description</th>
+            <th scope="col" style="width: 33%;">value</th>
         </tr>
     </thead>
     <tbody>
     <tr>
-        <td>hadoop installation location</td>
-        <td>This is the absolute path to the location of your hadoop installation.</td>
+        <td>Hadoop Installation Location</td>
+        <td>The absolute path to the location of your Hadoop installation</td>
         <td>
             <div class="control-group">
                 <div class="controls">
@@ -50,16 +48,24 @@
         </td>
     </tr>
     <tr>
-        <td>java version</td>
-        <td>Version of the Java Runtime Environment.</td>
-        <td><input type="text" value="<%= about.get('javaVersion') %>" disabled />  </td>
+        <td>DFS Location</td>
+        <td>Directory in a Distributed File System (e.g. HDFS) where all datatorrent artifacts will be stored, including checkpoints, recordings, etc.  This directory must be accessible and writable by the DataTorrent Gateway and DataTorrent applications.</td>
+        <td>
+            <div class="control-group" style="overflow: auto;">
+                <div class="controls">
+                    <input type="text" class="dfs-directory" value="<%= dfsModel.get('value') %>" />
+                    <span class="help-block"></span>
+                </div>
+                <div class="server-error dfs-directory-error"></div>
+            </div>
+        </td>
     </tr>
     </tbody>
 </table>
 
 <% } %>
 
-<a href="#" class="install-step-link btn pull-left btn-large" data-action="LicenseInfoView">
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="WelcomeView">
     <i class="icon-circle-arrow-left"></i> back
 </a>
 <a href="#" class="continue btn btn-success pull-right btn-large install-step-link">

@@ -61,6 +61,8 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * UNIQUE (dt_application_id, dt_operator_id, dt_window_id)
  * )  ENGINE=MyISAM DEFAULT CHARSET=latin1;
  * </pre>
+ *
+ * @since 0.9.4
  */
 @ApplicationAnnotation(name="TwitterTopCounterApplicationWithDB")
 public class TwitterDumpApplication implements StreamingApplication

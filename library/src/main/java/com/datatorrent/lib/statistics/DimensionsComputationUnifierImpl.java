@@ -29,6 +29,7 @@ import com.datatorrent.api.Operator;
  * A {@link Unifier} implementation for {@link DimensionsComputation}.<br/>
  *
  * @param <EVENT>
+ * @since 0.9.4
  */
 public class DimensionsComputationUnifierImpl<EVENT, AGGREGATE extends DimensionsComputation.AggregateEvent> extends BaseOperator implements Operator.Unifier<AGGREGATE>
 {

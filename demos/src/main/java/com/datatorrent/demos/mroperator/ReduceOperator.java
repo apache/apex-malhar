@@ -107,8 +107,9 @@ public class ReduceOperator<K1, V1, K2, V2> implements Operator {
 	@Override
 	public void setup(OperatorContext context) {
 		reporter = new ReporterImpl(ReporterType.Reducer, new Counters());
-		if(context != null)
+		if(context != null){
 			operatorId = context.getId();
+		}
 		cacheObject = new HashMap<K1, List<V1>>();
 		outputCollector = new OutputCollectorImpl<K2, V2>();
 		if (reduceClass != null) {
@@ -116,20 +117,18 @@ public class ReduceOperator<K1, V1, K2, V2> implements Operator {
 				reduceObj = reduceClass.newInstance();
 			} catch (Exception e) {
 				logger.info("can't instantiate object {}", e.getMessage());
+				throw new RuntimeException(e);
 			}
 			Configuration conf = new Configuration();
 			InputStream stream = null;
 			if (configFile != null && configFile.length() > 0) {
 				logger.info("system /{}", configFile);
 				stream = ClassLoader.getSystemResourceAsStream("/" + configFile);
-
 				if (stream == null) {
 					logger.info("system {}", configFile);
 					stream = ClassLoader.getSystemResourceAsStream(configFile);
-
 				}
 			}
-
 			if (stream != null) {
 				logger.info("found our stream... so adding it");
 				conf.addResource(stream);
@@ -157,20 +156,17 @@ public class ReduceOperator<K1, V1, K2, V2> implements Operator {
 					reduceObj.reduce(e.getKey(), e.getValue().iterator(), outputCollector, reporter);
 				} catch (IOException e1) {
 					logger.info(e1.getMessage());
+					throw new RuntimeException(e1);
 				}
 			}
 			List<KeyHashValPair<K2, V2>> list = ((OutputCollectorImpl<K2, V2>) outputCollector).getList();
-
 			for (KeyHashValPair<K2, V2> e : list) {
-				// logger.info("emitting tupple {}",e);
-				output.emit(e);
-				// logger.info("done emitting tupple {}",e);
+				output.emit(e);				
 			}
 			list.clear();
 			cacheObject.clear();
 			numberOfMappersRunning = -1;
 		}
-
 	}
 
 }

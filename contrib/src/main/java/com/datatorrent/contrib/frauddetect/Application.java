@@ -33,7 +33,7 @@ import java.net.URI;
 
 /**
  * Fraud detection application
- * 
+ *
  * @since 0.9.0
  */
 @ApplicationAnnotation(name="FraudDetect")

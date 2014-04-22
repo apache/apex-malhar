@@ -17,7 +17,8 @@ package com.datatorrent.lib.io.fs;
 
 /**
  * The tuples that need to be serialized to HDFS should implement this interface.
- * 
+ *
+ * @since 0.9.4
  */
 public interface HdfsOutputTupleInterface
 {

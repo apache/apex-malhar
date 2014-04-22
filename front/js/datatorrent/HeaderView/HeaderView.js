@@ -17,6 +17,7 @@
 var _ = require('underscore');
 var kt = require('knights-templar');
 var BaseView = require('bassview');
+var Notifier = require('../Notifier');
 
 // modals
 var LicenseModal = require('../LicenseModalView');
@@ -37,15 +38,17 @@ var Header = BaseView.extend({
     initialize: function(options) {
         
         this.license = options.license;
-
+        this.user = options.user;
         this.listenTo(this.model.modes, "change:active", this.render );
         this.listenTo(this.license.get('agent'), 'sync', this.render);
+        this.listenTo(this.user, 'sync', this.render);
     },
     
     events: {
         'click .displayLicenseInfo': 'displayLicenseInfo',
         'click .displayGatewayInfo': 'displayGatewayInfo',
-        'click .displayConsoleInfo': 'displayConsoleInfo'
+        'click .displayConsoleInfo': 'displayConsoleInfo',
+        'click .logoutUser'        : 'logoutUser'
     },
 
     displayGatewayInfo: function(e) {
@@ -74,12 +77,27 @@ var Header = BaseView.extend({
         }
         this.consoleModal.launch();  
     },
+
+    logoutUser: function(e) {
+        e.preventDefault();
+        var promise = this.user.logout();
+        promise.done(function() {
+            window.location.reload();
+        })
+        .fail(function(xhr, errorThrown, responseText) {
+            Notifier.error({
+                title: 'An error occurred logging out',
+                text: 'Response from server: (' + xhr.status + ') ' + responseText
+            });
+        });
+    },
     
     render: function() {
         var markup = this.template({
             modes: this.model.modes.toJSON(),
             client_logo: "client_logo_hadoop.jpg",
-            license: this.license.toJSON()
+            license: this.license.toJSON(),
+            user: this.user.toJSON()
         });
         this.$el.html(markup);
         this.$el.addClass('navbar-fixed-top').addClass('navbar');

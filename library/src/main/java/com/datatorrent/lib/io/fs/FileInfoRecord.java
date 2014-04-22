@@ -21,7 +21,6 @@ package com.datatorrent.lib.io.fs;
  *
  * @since 0.9.3
  */
-
 public class FileInfoRecord
 {
   private String filePathName;

@@ -20,6 +20,7 @@ package com.datatorrent.lib.datamodel.converter;
  *
  * @param <INPUT>  input type
  * @param <OUTPUT> output type
+ * @since 0.9.4
  */
 public interface Converter<INPUT, OUTPUT>
 {

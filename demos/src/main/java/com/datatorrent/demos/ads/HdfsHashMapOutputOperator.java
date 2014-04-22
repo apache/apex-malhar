@@ -29,8 +29,8 @@ import com.datatorrent.lib.io.fs.AbstractHdfsOutputOperator;
  * <p>
  * Serializes tuples into a HDFS file.<br/>
  * </p>
- * 
- * 
+ *
+ * @since 0.9.4
  */
 public class HdfsHashMapOutputOperator extends AbstractHdfsOutputOperator<HashMap<Object, Object>>
 {

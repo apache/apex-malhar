@@ -36,6 +36,8 @@ import com.datatorrent.common.util.DTThrowable;
 /**
  *
  * Filters an input tuple and emits a filter stamped tuple for each satisfied filter
+ *
+ * @since 0.9.4
  */
 @ShipContainingJars(classes = {org.codehaus.janino.ExpressionEvaluator.class})
 public class FilterOperator extends BaseOperator

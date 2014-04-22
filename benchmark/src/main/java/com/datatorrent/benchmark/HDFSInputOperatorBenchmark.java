@@ -26,7 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 
 /**
  * Application used to benchmark HDFS input operator<p>
- * 
+ *
  * The DAG consists of HDFS input operator that is connected to word count operator.
  *
  * @since 0.9.4

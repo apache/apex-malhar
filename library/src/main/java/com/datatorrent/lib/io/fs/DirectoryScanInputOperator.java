@@ -34,10 +34,12 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
  *
 /**
  * Input Adapter that scans for files in the specified local directory.
- * Since the operator can be deployed anywhere in the cluster the directory 
+ * Since the operator can be deployed anywhere in the cluster the directory
  * to be scanned should be available on all nodes of the cluster.
- * Not to be used for HDFS. 
+ * Not to be used for HDFS.
  * <p>
+ *
+ * @since 0.9.4
  */
 public class DirectoryScanInputOperator extends BaseOperator implements InputOperator, ActivationListener<OperatorContext>
 {

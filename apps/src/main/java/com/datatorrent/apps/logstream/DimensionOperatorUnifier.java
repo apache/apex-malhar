@@ -35,6 +35,8 @@ import com.datatorrent.apps.logstream.LogstreamUtil.AggregateOperation;
 
 /**
  * Unifies the output of dimension operator for every window.
+ *
+ * @since 0.9.4
  */
 public class DimensionOperatorUnifier implements Unifier<Map<String, DimensionObject<String>>>
 {

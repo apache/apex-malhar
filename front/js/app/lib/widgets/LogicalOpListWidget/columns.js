@@ -47,7 +47,7 @@ function logicalNameFormatter(value, row) {
 
 exports = module.exports = [
 	{ id: 'selector', key: 'selected', label: '', select: true, width: 40, lock_width: true },
-	{ id: 'logicalName', key: 'logicalName', label: 'name', sort: 'string', filter: 'like', format: logicalNameFormatter, width: 100 },
+	{ id: 'logicalName', key: 'logicalName', label: 'name', sort: 'string', sort_value: 'a', filter: 'like', format: logicalNameFormatter, width: 100 },
     { id: 'className', key: 'className', label: 'class', sort: 'string', filter: 'like', width: 300 },
     { id: 'cpuPercentageMA', key: 'cpuPercentageMA', label: DT.text('cpu_percentage_label'), sort: 'number', filter: 'number', format: cpuFormatter },
     { id: 'currentWindowId', key: 'currentWindowId', label: DT.text('current_wid_label'), sort: 'string', filter: 'like', format: windowFormatter },

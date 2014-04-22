@@ -28,7 +28,7 @@ var PhysOpOverviewWidget = BaseView.extend({
         {
             key: 'status',
             label: DT.text('status_label'),
-            value: function() {
+            value: function(status) {
                 return '<span class="' + formatters.statusClassFormatter(status) + '">' + status + '</span>';
             }
         },

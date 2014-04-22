@@ -25,7 +25,7 @@ import org.apache.hadoop.conf.Configuration;
 
 /**
  * Application used to benchmark HDFS output operator
- * The DAG consists of random word generator operator that is 
+ * The DAG consists of random word generator operator that is
  * connected to HDFS output operator that writes to a file on HDFS.<p>
  *
  * @since 0.9.4
