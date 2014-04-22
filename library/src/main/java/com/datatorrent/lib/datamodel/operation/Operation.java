@@ -21,5 +21,4 @@ import javax.annotation.Nullable;
 public interface Operation extends Serializable
 {
   Object compute(@Nullable Object last, @Nullable Object value);
-
 }

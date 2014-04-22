@@ -35,9 +35,8 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   private Set<String> dimensionKeys;
   List<Metric> metrics;
 
-  public MapAggregator()
-  {
-    // for kryo
+  public MapAggregator(){
+    //Needed for kryo serialization
   }
 
   public void init(String dimension, List<Metric> operations)
@@ -73,7 +72,7 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
     for (String aDimension : dimensionKeys) {
       Object srcDimension = src.get(aDimension);
       if (srcDimension == null) {
-        aggregateEvent.putDimension(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT.name());
+        aggregateEvent.putDimension(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT);
       }
       else {
         aggregateEvent.putDimension(aDimension, srcDimension);
