@@ -29,17 +29,43 @@ import com.google.common.collect.Multimap;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 
+import com.datatorrent.contrib.apachelog.GeoIPExtractor;
+import com.datatorrent.contrib.apachelog.TimestampExtractor;
+import com.datatorrent.contrib.apachelog.UserAgentExtractor;
 import com.datatorrent.lib.datamodel.converter.JsonToFlatMapConverter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.fs.TailFsInputOperator;
+import com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator;
 import com.datatorrent.lib.sift.Sifter;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
+
 
 /**
  * ETL Application
  */
 public class ApplicationETL implements StreamingApplication
 {
+  private ApacheLogParseMapOutputOperator getParserOperator(DAG dag){
+    ApacheLogParseMapOutputOperator parser =dag.addOperator("LogParser",new ApacheLogParseMapOutputOperator());
+    GeoIPExtractor geoIPExtractor = new GeoIPExtractor();
+    geoIPExtractor.setDatabasePath("/home/hadoop/GeoLiteCity.dat");
+    parser.registerInformationExtractor("ip", geoIPExtractor);
+    parser.registerInformationExtractor("agent", new UserAgentExtractor());
+    TimestampExtractor timestampExtractor = new TimestampExtractor();
+    timestampExtractor.setDateFormatString("dd/MMM/yyyy:HH:mm:ss Z");
+    parser.registerInformationExtractor("time", timestampExtractor);
+    return parser;
+  }
+
+  private TailFsInputOperator getTailFSOperator(DAG dag){
+    TailFsInputOperator operator = dag.addOperator("TailInput", new TailFsInputOperator());
+    operator.setFilePath(filePath);
+    operator.setDelimiter('|');
+    oper.setDelay(1);
+    oper.setNumberOfTuples(10);
+    return operator;
+  }
   @Override
   public void populateDAG(DAG dag, Configuration c)
   {
