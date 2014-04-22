@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,17 +40,23 @@ public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends Hdfs
         synchronized (indices) {
           if (indices.size() > 0) {
             Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
-            if (fs.exists(dataFilePath)) {
-              fs.delete(dataFilePath, true);
-              logger.debug("{} deleted file {}", operatorId, window);
-            }
-            for (int bucketIdx : indices) {
-              Map<Long, Long> offsetMap = bucketPositions[bucketIdx];
-              if (offsetMap != null) {
-                synchronized (offsetMap) {
-                  offsetMap.remove(window);
+            FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration);
+            try {
+              if (fs.exists(dataFilePath)) {
+                fs.delete(dataFilePath, true);
+                logger.debug("{} deleted file {}", operatorId, window);
+              }
+              for (int bucketIdx : indices) {
+                Map<Long, Long> offsetMap = bucketPositions[bucketIdx];
+                if (offsetMap != null) {
+                  synchronized (offsetMap) {
+                    offsetMap.remove(window);
+                  }
                 }
               }
+            }
+            finally {
+              fs.close();
             }
           }
           windowToTimestamp.remove(window);

@@ -70,7 +70,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   protected transient Kryo serde;
   protected transient Set<Integer> partitionKeys;
   protected transient int partitionMask;
-  protected transient FileSystem fs;
   protected transient int operatorId;
 
   public HdfsBucketStore()
@@ -116,12 +115,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
         }
       }
     }
-    try {
-      this.fs = FileSystem.newInstance(new Path(bucketRoot).toUri(), configuration);
-    }
-    catch (IOException e) {
-      throw new RuntimeException(e);
-    }
     windowToBuckets = ArrayListMultimap.create();
     for (int i = 0; i < bucketPositions.length; i++) {
       if (bucketPositions[i] != null) {
@@ -149,51 +142,57 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   public void storeBucketData(long window, long timestamp, Map<Integer, Map<Object, T>> data) throws IOException
   {
     Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
+    FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration);
     FSDataOutputStream dataStream = fs.create(dataFilePath);
 
     Output output = new Output(dataStream);
-    long offset = 0;
-    for (int bucketIdx : data.keySet()) {
-      Map<Object, T> bucketData = data.get(bucketIdx);
+    try {
+      long offset = 0;
+      for (int bucketIdx : data.keySet()) {
+        Map<Object, T> bucketData = data.get(bucketIdx);
 
-      if (eventKeyClass == null) {
-        Map.Entry<Object, T> eventEntry = bucketData.entrySet().iterator().next();
-        eventKeyClass = eventEntry.getKey().getClass();
-        if (!writeEventKeysOnly) {
-          @SuppressWarnings("unchecked")
-          Class<T> lEventClass = (Class<T>) eventEntry.getValue().getClass();
-          eventClass = lEventClass;
+        if (eventKeyClass == null) {
+          Map.Entry<Object, T> eventEntry = bucketData.entrySet().iterator().next();
+          eventKeyClass = eventEntry.getKey().getClass();
+          if (!writeEventKeysOnly) {
+            @SuppressWarnings("unchecked")
+            Class<T> lEventClass = (Class<T>) eventEntry.getValue().getClass();
+            eventClass = lEventClass;
+          }
         }
-      }
-      //Write the size of data and then data
-      dataStream.writeInt(bucketData.size());
-      for (Map.Entry<Object, T> entry : bucketData.entrySet()) {
-        serde.writeObject(output, entry.getKey());
+        //Write the size of data and then data
+        dataStream.writeInt(bucketData.size());
+        for (Map.Entry<Object, T> entry : bucketData.entrySet()) {
+          serde.writeObject(output, entry.getKey());
 
-        if (!writeEventKeysOnly) {
-          int posLength = output.position();
-          output.writeInt(0); //temporary place holder
-          serde.writeObject(output, entry.getValue());
-          int posValue = output.position();
-          int valueLength = posValue - posLength - 4;
-          output.setPosition(posLength);
-          output.writeInt(valueLength);
-          output.setPosition(posValue);
+          if (!writeEventKeysOnly) {
+            int posLength = output.position();
+            output.writeInt(0); //temporary place holder
+            serde.writeObject(output, entry.getValue());
+            int posValue = output.position();
+            int valueLength = posValue - posLength - 4;
+            output.setPosition(posLength);
+            output.writeInt(valueLength);
+            output.setPosition(posValue);
+          }
         }
+        output.flush();
+        if (bucketPositions[bucketIdx] == null) {
+          bucketPositions[bucketIdx] = Maps.newHashMap();
+        }
+        windowToBuckets.put(window, bucketIdx);
+        windowToTimestamp.put(window, timestamp);
+        synchronized (bucketPositions[bucketIdx]) {
+          bucketPositions[bucketIdx].put(window, offset);
+        }
+        offset = dataStream.getPos();
       }
-      output.flush();
-      if (bucketPositions[bucketIdx] == null) {
-        bucketPositions[bucketIdx] = Maps.newHashMap();
-      }
-      windowToBuckets.put(window, bucketIdx);
-      windowToTimestamp.put(window, timestamp);
-      synchronized (bucketPositions[bucketIdx]) {
-        bucketPositions[bucketIdx].put(window, offset);
-      }
-      offset = dataStream.getPos();
     }
-    output.close();
-    dataStream.close();
+    finally {
+      output.close();
+      dataStream.close();
+      fs.close();
+    }
   }
 
   /**
@@ -210,12 +209,18 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
           boolean elementRemoved = indices.remove(bucketIdx);
           if (indices.isEmpty() && elementRemoved) {
             Path dataFilePath = new Path(bucketRoot + PATH_SEPARATOR + window);
-            if (fs.exists(dataFilePath)) {
-              fs.delete(dataFilePath, true);
-              logger.debug("{} deleted file {}", operatorId, window);
+            FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration);
+            try {
+              if (fs.exists(dataFilePath)) {
+                fs.delete(dataFilePath, true);
+                logger.debug("{} deleted file {}", operatorId, window);
+              }
+              windowToBuckets.removeAll(window);
+              windowToTimestamp.remove(window);
             }
-            windowToBuckets.removeAll(window);
-            windowToTimestamp.remove(window);
+            finally {
+              fs.close();
+            }
           }
         }
       }
@@ -241,35 +246,40 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 
       //Read data only for the fileIds in which bucketIdx had events.
       Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
+      FileSystem fs = FileSystem.newInstance(dataFile.toUri(), configuration);
       FSDataInputStream stream = fs.open(dataFile);
       stream.seek(bucketPositions[bucketIdx].get(window));
-
       Input input = new Input(stream);
-      int length = stream.readInt();
+      try {
+        int length = stream.readInt();
 
-      for (int i = 0; i < length; i++) {
-        Object key = serde.readObject(input, eventKeyClass);
+        for (int i = 0; i < length; i++) {
+          Object key = serde.readObject(input, eventKeyClass);
 
-        int partitionKey = key.hashCode() & partitionMask;
-        boolean keyPasses = partitionKeys.contains(partitionKey);
+          int partitionKey = key.hashCode() & partitionMask;
+          boolean keyPasses = partitionKeys.contains(partitionKey);
 
-        if (!writeEventKeysOnly) {
-          //if key passes then read the value otherwise skip the value
-          int entrySize = input.readInt();
-          if (keyPasses) {
-            T entry = serde.readObject(input, eventClass);
-            bucketData.put(key, entry);
+          if (!writeEventKeysOnly) {
+            //if key passes then read the value otherwise skip the value
+            int entrySize = input.readInt();
+            if (keyPasses) {
+              T entry = serde.readObject(input, eventClass);
+              bucketData.put(key, entry);
+            }
+            else {
+              input.skip(entrySize);
+            }
           }
-          else {
-            input.skip(entrySize);
+          else if (keyPasses) {
+            bucketData.put(key, null);
           }
-        }
-        else if (keyPasses) {
-          bucketData.put(key, null);
         }
       }
-      input.close();
-      stream.close();
+      finally {
+        input.close();
+        stream.close();
+        fs.close();
+      }
     }
     return bucketData;
   }
@@ -304,5 +314,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     result = 31 * result + (bucketPositions != null ? Arrays.hashCode(bucketPositions) : 0);
     return result;
   }
+
   private static transient final Logger logger = LoggerFactory.getLogger(HdfsBucketStore.class);
 }
