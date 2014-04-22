@@ -32,17 +32,9 @@ var InstanceActionWidget = BaseView.extend({
     },
 
     html: function() {
-        var template, html, json = this.model.toJSON();
-        switch(json.state) {
-            case 'RUNNING':
-                template = this.template_running;
-            break;
-            
-            default:
-                template = this.template_default;
-            break;
-        }
-        return template(json);
+        var html, json = this.model.toJSON();
+        var html = this.template(json);
+        return html;
     },
     
     events: {
@@ -58,9 +50,7 @@ var InstanceActionWidget = BaseView.extend({
         this.model.shutdown(this.dataSource);
     },
     
-    template_running: kt.make(__dirname+'/running.html','_'),
-    
-    template_default: kt.make(__dirname+'/default.html','_')
+    template: kt.make(__dirname+'/InstanceActionWidget.html','_')
     
 });
 exports = module.exports = InstanceActionWidget;

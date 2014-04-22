@@ -31,7 +31,7 @@ var ListPalette = BaseView.extend({
         }
         
         // look for things to attach directly to this instance
-        _.each(['dataSource', 'nav'], function(prop) {
+        _.each(['dataSource', 'nav', 'appId'], function(prop) {
             if (options[prop]) {
                 this[prop] = options[prop];
             }

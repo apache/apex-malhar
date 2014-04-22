@@ -15,13 +15,17 @@
  */
 package com.datatorrent.demos.pi;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * This operator implements Monte Carlo estimation of pi. For points randomly distributed points on
- * square circle. pi ~= Number of poiints i  circle/Total number of points.
+ * square circle. pi ~= Number of points in circle/Total number of points * 4.
  *
  * @since 0.3.2
  */
@@ -30,7 +34,6 @@ public class PiCalculateOperator extends BaseOperator
   private transient int x = -1;
   private transient int y = -1;
   private int base;
-  private transient double pi;
   private long inArea = 0;
   private long totalArea = 0;
   public final transient DefaultInputPort<Integer> input = new DefaultInputPort<Integer>()
@@ -54,6 +57,13 @@ public class PiCalculateOperator extends BaseOperator
   };
   public final transient DefaultOutputPort<Double> output = new DefaultOutputPort<Double>();
 
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    logger.info("inArea {} totalArea {}", inArea, totalArea);
+  }
+
   @Override
   public void beginWindow(long windowId)
   {
@@ -62,8 +72,7 @@ public class PiCalculateOperator extends BaseOperator
   @Override
   public void endWindow()
   {
-    pi = (double)inArea / totalArea * 4;
-    output.emit(pi);
+    output.emit((double)inArea / totalArea * 4);
   }
 
   public void setBase(int num)
@@ -75,5 +84,7 @@ public class PiCalculateOperator extends BaseOperator
   {
     return base;
   }
+
+  private static Logger logger = LoggerFactory.getLogger(PiCalculateOperator.class);
 
 }

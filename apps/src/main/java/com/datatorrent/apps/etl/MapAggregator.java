@@ -15,6 +15,7 @@
  */
 package com.datatorrent.apps.etl;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -26,9 +27,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.statistics.DimensionsComputation;
-import java.text.NumberFormat;
-import java.text.ParseException;
-import java.util.*;
 
 public class MapAggregator implements DimensionsComputation.Aggregator<Map<String, Object>, MapAggregator.MapAggregateEvent>
 {
@@ -89,28 +87,8 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   public void aggregate(MapAggregateEvent dest, Map<String, Object> src)
   {
     for (Metric metric : metrics) {
-      try {
-        NumberFormat numberFormat = NumberFormat.getInstance();
-        Object value;
-        Number sourceVal = 0; // initialize to 0 in case where source does not contain the source key of the metric
-        if((value = src.get(metric.sourceKey)) != null) {
-          sourceVal = numberFormat.parse(value.toString());
-      }
-
-        Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), sourceVal);
-        dest.putMetric(metric.destinationKey, result);
-      }
-      catch (ParseException ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-
-    if (time != null) {
-      Long destTime = (Long) dest.getDimension(Constants.TIME_ATTR);
-      Long srcTime = (Long) src.get(Constants.TIME_ATTR);
-      if (destTime < srcTime) {
-        dest.putDimension(Constants.TIME_ATTR, srcTime);
-      }
+      Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), src.get(metric.sourceKey));
+      dest.putMetric(metric.destinationKey, result);
     }
   }
 
@@ -118,22 +96,8 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   public void aggregate(MapAggregateEvent dest, MapAggregateEvent src)
   {
     for (Metric metric : metrics) {
-      try {
-        Number sourceVal = NumberFormat.getInstance().parse(src.getMetric(metric.sourceKey).toString());
-        Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), sourceVal);
-        dest.putMetric(metric.destinationKey, result);
-      }
-      catch (ParseException ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-
-    if (time != null) {
-      Long destTime = (Long) dest.getDimension(Constants.TIME_ATTR);
-      Long srcTime = (Long) src.getDimension(Constants.TIME_ATTR);
-      if (destTime < srcTime) {
-        dest.putDimension(Constants.TIME_ATTR, srcTime);
-      }
+      Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), src.getMetric(metric.destinationKey));
+      dest.putMetric(metric.destinationKey, result);
     }
   }
 

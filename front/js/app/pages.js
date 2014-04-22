@@ -37,6 +37,18 @@ exports = module.exports = [
      * CONFIGURATION MODE
      */
     {
+        name: 'LoginPageView',
+        routes: ['login','config/login','signin'],
+        view: require('./lib/pages/LoginPageView'),
+        paramList: [],
+        mode: 'config',
+        breadcrumbs: [
+            {
+                name: text('Log In')
+            }
+        ]
+    },
+    {
         'name': 'WelcomePageView',
         'routes': ['welcome'],
         'view': require('./lib/pages/WelcomePageView'),
@@ -62,6 +74,22 @@ exports = module.exports = [
         'breadcrumbs': [
             {
                 name: text('configuration')
+            }
+        ]
+    },
+
+    {
+        name: 'LicensePageView',
+        routes: ['config/license'],
+        view: require('./lib/pages/LicensePageView'),
+        mode: 'config',
+        breadcrumbs: [
+            {
+                name: text('configuration'),
+                href: '#config'
+            },
+            {
+                name: text('License Information')
             }
         ]
     },

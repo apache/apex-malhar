@@ -183,7 +183,7 @@ var LogicalDagWidget = BaseView.extend({
             .data(data)
             .enter()
             .append('g')
-            .classed('edge', true)
+            .classed('edgePath', true)
             .append('path')
             .attr('marker-end', 'url(#arrowhead)')
             .attr('stroke-dasharray', function (d) {

@@ -15,10 +15,10 @@
  */
 package com.datatorrent.lib.bucket;
 
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicLong;
 
 import javax.validation.constraints.Min;
 
@@ -29,6 +29,7 @@ import org.slf4j.LoggerFactory;
  * A {@link BucketManager} that creates buckets based on time.<br/>
  *
  * @param <T> event type
+ * @since 0.9.4
  */
 public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends BucketManagerImpl<T>
 {
@@ -40,18 +41,19 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   protected long bucketSpanInMillis;
   @Min(0)
   protected long startOfBucketsInMillis;
-  private AtomicLong expiryTime;
+  private long expiryTime;
+  private Long[] maxTimesPerBuckets;
 
-  private transient AtomicLong endOBucketsInMillis;
+  private transient long endOBucketsInMillis;
   private transient Timer bucketSlidingTimer;
+  private final transient Lock lock;
 
   public TimeBasedBucketManagerImpl()
   {
     super();
     daysSpan = DEF_DAYS_SPAN;
     bucketSpanInMillis = DEF_BUCKET_SPAN_MILLIS;
-    expiryTime = new AtomicLong();
-    recomputeNumberOfBuckets();
+    lock = new Lock();
   }
 
   /**
@@ -62,7 +64,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void setDaysSpan(int daysSpan)
   {
     this.daysSpan = daysSpan;
-    recomputeNumberOfBuckets();
+    initialize();
   }
 
   /**
@@ -73,19 +75,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void setBucketSpanInMillis(long bucketSpanInMillis)
   {
     this.bucketSpanInMillis = bucketSpanInMillis;
-    recomputeNumberOfBuckets();
-  }
-
-  private void recomputeNumberOfBuckets()
-  {
-    Calendar calendar = Calendar.getInstance();
-    long now = calendar.getTimeInMillis();
-
-    calendar.add(Calendar.DATE, -daysSpan);
-    startOfBucketsInMillis = calendar.getTimeInMillis();
-    expiryTime.set(startOfBucketsInMillis);
-    noOfBuckets = (int) Math.ceil((now - startOfBucketsInMillis) / (bucketSpanInMillis * 1.0));
-    bucketStore.setNoOfBuckets(noOfBuckets);
+    initialize();
   }
 
   @Override
@@ -96,15 +86,33 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     clone.bucketSpanInMillis = bucketSpanInMillis;
     clone.startOfBucketsInMillis = startOfBucketsInMillis;
     clone.expiryTime = expiryTime;
+    clone.maxTimesPerBuckets = maxTimesPerBuckets;
     return clone;
+  }
+
+  @Override
+  public void initialize()
+  {
+    Calendar calendar = Calendar.getInstance();
+    long now = calendar.getTimeInMillis();
+
+    calendar.add(Calendar.DATE, -daysSpan);
+    startOfBucketsInMillis = calendar.getTimeInMillis();
+    expiryTime = startOfBucketsInMillis;
+    noOfBuckets = (int) Math.ceil((now - startOfBucketsInMillis) / (bucketSpanInMillis * 1.0));
+    if (bucketStore == null) {
+      bucketStore = new ExpirableHdfsBucketStore<T>();
+    }
+    bucketStore.setNoOfBuckets(noOfBuckets);
+    bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
+    maxTimesPerBuckets = new Long[noOfBuckets];
   }
 
   @Override
   public void startService(Context context, Listener<T> listener)
   {
     bucketSlidingTimer = new Timer();
-    endOBucketsInMillis = new AtomicLong();
-    endOBucketsInMillis.set(startOfBucketsInMillis + noOfBuckets * bucketSpanInMillis);
+    endOBucketsInMillis = expiryTime + (noOfBuckets * bucketSpanInMillis);
     logger.debug("bucket properties {}, {}", daysSpan, bucketSpanInMillis);
     logger.debug("bucket time params: start {}, expiry {}, end {}", startOfBucketsInMillis, expiryTime, endOBucketsInMillis);
 
@@ -113,11 +121,24 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
       @Override
       public void run()
       {
-        expiryTime.addAndGet(bucketSpanInMillis);
+        long time;
+        synchronized (lock) {
+          time = (expiryTime += bucketSpanInMillis);
+          endOBucketsInMillis += bucketSpanInMillis;
+          if (bucketCounters != null) {
+            bucketCounters.high = endOBucketsInMillis;
+            bucketCounters.low = expiryTime;
+          }
+        }
+        try {
+          ((BucketStore.ExpirableBucketStore<T>) bucketStore).deleteExpiredBuckets(time);
+        }
+        catch (IOException e) {
+          throw new RuntimeException(e);
+        }
       }
 
     }, bucketSpanInMillis, bucketSpanInMillis);
-
     super.startService(context, listener);
   }
 
@@ -125,15 +146,24 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public long getBucketKeyFor(T event)
   {
     long eventTime = event.getTime();
-    if (eventTime < expiryTime.get()) {
+    if (eventTime < expiryTime) {
+      if (bucketCounters != null) {
+        bucketCounters.numIgnoredEvents++;
+      }
       return -1;
     }
     long diffFromStart = event.getTime() - startOfBucketsInMillis;
     long key = diffFromStart / bucketSpanInMillis;
-    if (eventTime > endOBucketsInMillis.get()) {
-      long move = ((eventTime - endOBucketsInMillis.get()) / bucketSpanInMillis + 1) * bucketSpanInMillis;
-      expiryTime.addAndGet(move);
-      endOBucketsInMillis.addAndGet(move);
+    synchronized (lock) {
+      if (eventTime > endOBucketsInMillis) {
+        long move = ((eventTime - endOBucketsInMillis) / bucketSpanInMillis + 1) * bucketSpanInMillis;
+        expiryTime += move;
+        endOBucketsInMillis += move;
+        if (bucketCounters != null) {
+          bucketCounters.high = endOBucketsInMillis;
+          bucketCounters.low = expiryTime;
+        }
+      }
     }
     return key;
   }
@@ -166,11 +196,8 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     if (startOfBucketsInMillis != that.startOfBucketsInMillis) {
       return false;
     }
-    if (expiryTime != null ? (that.expiryTime == null || expiryTime.get() != that.expiryTime.get()) : that.expiryTime != null) {
-      return false;
-    }
+    return expiryTime == that.expiryTime;
 
-    return true;
   }
 
   @Override
@@ -179,8 +206,56 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     int result = super.hashCode();
     result = 31 * result + (int) (bucketSpanInMillis ^ (bucketSpanInMillis >>> 32));
     result = 31 * result + (int) (startOfBucketsInMillis ^ (startOfBucketsInMillis >>> 32));
-    result = 31 * result + (expiryTime != null ? expiryTime.hashCode() : 0);
+    result = 31 * result + (int) (expiryTime ^ (expiryTime >>> 32));
     return result;
+  }
+
+  @Override
+  public void newEvent(long bucketKey, T event)
+  {
+    int bucketIdx = (int) (bucketKey % noOfBuckets);
+
+    Bucket<T> bucket = buckets[bucketIdx];
+
+    if (bucket == null || bucket.bucketKey != bucketKey) {
+      bucket = new Bucket<T>(bucketKey);
+      buckets[bucketIdx] = bucket;
+      dirtyBuckets.put(bucketIdx, bucket);
+    }
+    else if (dirtyBuckets.get(bucketIdx) == null) {
+      dirtyBuckets.put(bucketIdx, bucket);
+    }
+
+    bucket.addNewEvent(event.getEventKey(), writeEventKeysOnly ? null : event);
+    if (bucketCounters != null) {
+      synchronized (bucketCounters) {
+        bucketCounters.numEventsInMemory++;
+      }
+    }
+
+    Long max = maxTimesPerBuckets[bucketIdx];
+    if (max == null || event.getTime() > max) {
+      maxTimesPerBuckets[bucketIdx] = event.getTime();
+    }
+  }
+
+  @Override
+  public void endWindow(long window)
+  {
+    long maxTime = -1;
+    for (int bucketIdx : dirtyBuckets.keySet()) {
+      if (maxTimesPerBuckets[bucketIdx] > maxTime) {
+        maxTime = maxTimesPerBuckets[bucketIdx];
+      }
+      maxTimesPerBuckets[bucketIdx] = null;
+    }
+    if (maxTime > -1) {
+      saveData(window, maxTime);
+    }
+  }
+
+  private static class Lock
+  {
   }
 
   private static transient final Logger logger = LoggerFactory.getLogger(TimeBasedBucketManagerImpl.class);

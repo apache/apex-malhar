@@ -23,6 +23,11 @@ import javax.annotation.Nonnull;
 
 import com.datatorrent.lib.db.TransactionableStore;
 
+/**
+ * <p>JdbcTransactionalStore class.</p>
+ *
+ * @since 0.9.4
+ */
 public class JdbcTransactionalStore extends JdbcStore implements TransactionableStore
 {
   public static String DEFAULT_APP_ID_COL = "dt_app_id";

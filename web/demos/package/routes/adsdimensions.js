@@ -76,7 +76,7 @@ function getMinutes(query, resCallback) {
   var minuteKeys = [];
   for (var i = lookback - 1; i >= 0; i--) {
     var time = endTime - (i * minute);
-    var date = dateFormat(time, 'UTC:yyyymmddHHMM');
+    var date = dateFormat(time, 'yyyymmddHHMM');
     var key = minuteKeyTemplate.replace('$date', date);
     minuteKeys.push({
       timestamp: time,

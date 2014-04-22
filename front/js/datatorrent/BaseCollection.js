@@ -55,6 +55,11 @@ var BaseCollection = Backbone.Collection.extend({
 
         // Ensure options is an object
         options = options || {};
+
+        // Send cookies with request
+        options.xhrFields = {
+            withCredentials: true
+        }
         
         // For jsonp testing purposes
         if (settings.wsRoot && options.url) {

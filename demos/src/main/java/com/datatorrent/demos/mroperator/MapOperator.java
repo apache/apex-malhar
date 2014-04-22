@@ -28,7 +28,6 @@ import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.Path;
@@ -50,22 +49,22 @@ import org.apache.hadoop.mapred.TextInputFormat;
 
 import com.datatorrent.lib.io.fs.AbstractHDFSInputOperator;
 import com.datatorrent.lib.util.KeyHashValPair;
-
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.annotation.ShipContainingJars;
-
 import com.datatorrent.demos.mroperator.ReporterImpl.ReporterType;
 
 /**
- * <p>MapOperator class.</p>
+ * <p>
+ * MapOperator class.
+ * </p>
  *
  * @since 0.9.0
  */
 @ShipContainingJars(classes = { org.apache.hadoop.mapred.Reporter.class })
-@SuppressWarnings({ "unchecked", "deprecation" })
+@SuppressWarnings({ "unchecked"})
 public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator implements Partitioner<MapOperator<K1, V1, K2, V2>>
 {
 
@@ -128,7 +127,8 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
     if (reader == null) {
       try {
         reader = inputFormat.getRecordReader(inputSplit, new JobConf(new Configuration()), reporter);
-      } catch (IOException e) {
+      }
+      catch (IOException e) {
         logger.info("error getting record reader {}", e.getMessage());
       }
     }
@@ -138,9 +138,9 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   @Override
   public void setup(OperatorContext context)
   {
-    // logger.info("setup");
-    if (context != null)
+    if (context != null) {
       operatorId = context.getId();
+    }
     reporter = new ReporterImpl(ReporterType.Mapper, new Counters());
     outputCollector = new OutputCollectorImpl<K2, V2>();
     Configuration conf = new Configuration();
@@ -152,31 +152,27 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
       inputSplit = (InputSplit) keyDesiralizer.deserialize(null);
       ((ReporterImpl) reporter).setInputSplit(inputSplit);
       reader = inputFormat.getRecordReader(inputSplit, new JobConf(conf), reporter);
-
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       logger.info("failed to initialize inputformat obj {}", inputFormat);
+      throw new RuntimeException(e);
     }
     InputStream stream = null;
     if (configFile != null && configFile.length() > 0) {
-      // logger.info("system /{}", configFile);
       stream = ClassLoader.getSystemResourceAsStream("/" + configFile);
-
       if (stream == null) {
-        // logger.info("system {}", configFile);
         stream = ClassLoader.getSystemResourceAsStream(configFile);
-
       }
     }
     if (stream != null) {
-      // logger.info("dumping stream {}",getStringFromInputStream(stream));
-      // logger.info("found our stream... so adding it");
       conf.addResource(stream);
     }
     jobConf = new JobConf(conf);
     if (mapClass != null) {
       try {
         mapObject = mapClass.newInstance();
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
         logger.info("can't instantiate object {}", e.getMessage());
       }
 
@@ -185,7 +181,8 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
     if (combineClass != null) {
       try {
         combineObject = combineClass.newInstance();
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
         logger.info("can't instantiate object {}", e.getMessage());
       }
       combineObject.configure(jobConf);
@@ -205,7 +202,6 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   @Override
   public void emitTuples(FSDataInputStream stream)
   {
-
     if (!emittedAll) {
       try {
 
@@ -223,8 +219,10 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
             list.clear();
           }
         }
-      } catch (IOException ex) {
+      }
+      catch (IOException ex) {
         logger.debug(ex.toString());
+        throw new RuntimeException(ex);
       }
     }
   }
@@ -232,10 +230,7 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   @Override
   public void endWindow()
   {
-
     List<KeyHashValPair<K2, V2>> list = ((OutputCollectorImpl<K2, V2>) outputCollector).getList();
-
-    // logger.info("in end window {}",list);
     if (combineObject != null) {
       Map<K2, List<V2>> cacheObject = new HashMap<K2, List<V2>>();
       for (KeyHashValPair<K2, V2> tuple : list) {
@@ -244,7 +239,8 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
           cacheList = new ArrayList<V2>();
           cacheList.add(tuple.getValue());
           cacheObject.put(tuple.getKey(), cacheList);
-        } else {
+        }
+        else {
           cacheList.add(tuple.getValue());
         }
       }
@@ -253,43 +249,36 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
       for (Map.Entry<K2, List<V2>> e : cacheObject.entrySet()) {
         try {
           combineObject.reduce(e.getKey(), e.getValue().iterator(), tempOutputCollector, reporter);
-        } catch (IOException e1) {
+        }
+        catch (IOException e1) {
           logger.info(e1.getMessage());
         }
       }
       list = ((OutputCollectorImpl<K2, V2>) tempOutputCollector).getList();
-      // logger.info("combiner output {}",list);
       for (KeyHashValPair<K2, V2> e : list) {
-        // logger.info("combiner output {}",list.get(0));
         output.emit(e);
       }
     }
-
     if (!emitLastCountOnce && emittedAll) {
       outputCount.emit(new KeyHashValPair<Integer, Integer>(operatorId, -1));
       logger.info("emitting end of file {}", new KeyHashValPair<Integer, Integer>(operatorId, -1));
       emitLastCountOnce = true;
     }
-
     list.clear();
   }
 
-  private InputSplit[] getSplits(JobConf conf, int numSplits, String path) throws IOException
+  private InputSplit[] getSplits(JobConf conf, int numSplits, String path) throws Exception
   {
     FileInputFormat.setInputPaths(conf, new Path(path));
-    if (inputFormat == null) {
-      try {
+    if (inputFormat == null) {      
         inputFormat = inputFormatClass.newInstance();
         String inputFormatClassName = inputFormatClass.getName();
         if (inputFormatClassName.equals("org.apache.hadoop.mapred.TextInputFormat")) {
           ((TextInputFormat) inputFormat).configure(conf);
-        } else if (inputFormatClassName.equals("org.apache.hadoop.mapred.KeyValueTextInputFormat")) {
-          ((KeyValueTextInputFormat) inputFormat).configure(conf);
         }
-
-      } catch (InstantiationException e) {
-      } catch (IllegalAccessException e) {
-      }
+        else if (inputFormatClassName.equals("org.apache.hadoop.mapred.KeyValueTextInputFormat")) {
+          ((KeyValueTextInputFormat) inputFormat).configure(conf);
+        }      
     }
     return inputFormat.getSplits(conf, numSplits);
     // return null;
@@ -300,11 +289,10 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   {
   }
 
+  @SuppressWarnings("rawtypes")
   @Override
   public Collection<Partition<MapOperator<K1, V1, K2, V2>>> definePartitions(Collection<Partition<MapOperator<K1, V1, K2, V2>>> partitions, int incrementalCapacity)
-  {
-
-    @SuppressWarnings("rawtypes")
+  {   
     Collection c = partitions;
     Collection<Partition<MapOperator<K1, V1, K2, V2>>> operatorPartitions = c;
     Partition<MapOperator<K1, V1, K2, V2>> template = null;
@@ -312,26 +300,19 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
     template = itr.next();
     Configuration conf = new Configuration();
     SerializationFactory serializationFactory = new SerializationFactory(conf);
-    // logger.info("inside partionfunction ");
-
     if (outstream.size() == 0) {
       InputSplit[] splits;
-      // logger.info("creating splits");
       try {
         splits = getSplits(new JobConf(conf), incrementalCapacity + 1, template.getPartitionedInstance().getDirName());
-      } catch (IOException e1) {
-        logger.info(" can't get splits {}", e1.getMessage());
-        return null;
       }
-      // logger.info("created splits");
-
+      catch (Exception e1) {
+        logger.info(" can't get splits {}", e1.getMessage());
+        throw new RuntimeException(e1);
+      }
       Collection<Partition<MapOperator<K1, V1, K2, V2>>> operList = new ArrayList<Partition<MapOperator<K1, V1, K2, V2>>>();
-
       itr = operatorPartitions.iterator();
       int size = splits.length;
       Serializer keySerializer = serializationFactory.getSerializer(splits[0].getClass());
-
-      // logger.info(" size of splits {}", size);
       while (size > 0 && itr.hasNext()) {
         Partition<MapOperator<K1, V1, K2, V2>> p = itr.next();
         MapOperator<K1, V1, K2, V2> opr = p.getPartitionedInstance();
@@ -339,19 +320,18 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
         opr.setMapClass(mapClass);
         opr.setCombineClass(combineClass);
         opr.setConfigFile(configFile);
-        // logger.info(" size of splits {}", size);
         try {
           keySerializer.open(opr.getOutstream());
           keySerializer.serialize(splits[size - 1]);
           opr.setInputSplitClass(splits[size - 1].getClass());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
           logger.info("error while serializing {}", e.getMessage());
         }
         size--;
         operList.add(p);
       }
       while (size > 0) {
-        // logger.info(" size of splits {}", size);
         MapOperator<K1, V1, K2, V2> opr = new MapOperator<K1, V1, K2, V2>();
         opr.setInputFormatClass(inputFormatClass);
         opr.setMapClass(mapClass);
@@ -361,24 +341,22 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
           keySerializer.open(opr.getOutstream());
           keySerializer.serialize(splits[size - 1]);
           opr.setInputSplitClass(splits[size - 1].getClass());
-        } catch (IOException e) {
+        }
+        catch (IOException e) {
           logger.info("error while serializing {}", e.getMessage());
         }
-
         size--;
         operList.add(new DefaultPartition<MapOperator<K1, V1, K2, V2>>(opr));
       }
       try {
         keySerializer.close();
-      } catch (IOException e) {
-        e.printStackTrace();
       }
-
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
       return operList;
     }
-
     return null;
-
   }
 
   public ByteArrayOutputStream getOutstream()

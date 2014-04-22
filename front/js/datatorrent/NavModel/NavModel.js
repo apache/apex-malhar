@@ -33,11 +33,21 @@ var Nav = Backbone.Model.extend({
 
         this.modes = new Modes(options.modes);
 
+        this.user = options.user;
+
         // Listen for routes
         this.listenTo(this.router, "route", this.onRouteChange);
     },
 
     onRouteChange: function(route, params) {
+        // Check for auth
+        var user = this.user;
+        if (user.get('authEnabled') && !user.get('authenticated') && route !== 'LoginPageView') {
+            this._authRedirectUrl = this.getHash();
+            route = 'LoginPageView';
+            this.go('login');
+        }
+
         var args = params.slice();
 
         // If the page is changing, dont trigger the url change
@@ -57,7 +67,21 @@ var Nav = Backbone.Model.extend({
     },
 
     go: function(route, options) {
+        if (!options) {
+            options = { trigger: true };
+        } else if (!options.hasOwnProperty('trigger')) {
+            options.trigger = true;
+        } 
         this.router.navigate(route, options);
+    },
+
+    getHash: function() {
+        return Backbone.history.getHash(window);
+    },
+
+    redirectAuthenticatedUser: function() {
+        this.go(this._authRedirectUrl || 'ops');
+        window.location.reload();
     }
 
 });

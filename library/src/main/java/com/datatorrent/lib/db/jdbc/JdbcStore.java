@@ -31,6 +31,8 @@ import com.datatorrent.lib.db.Connectable;
 
 /**
  * A {@link Connectable} that uses jdbc to connect to stores.
+ *
+ * @since 0.9.4
  */
 public class JdbcStore implements Connectable, DBConnector
 {

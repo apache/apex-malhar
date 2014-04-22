@@ -4,5 +4,6 @@
 .metadata/
 .idea/
 target/
+/front/dist_tmp
 *.iml
 npm-debug.log

@@ -25,8 +25,8 @@ import com.datatorrent.lib.util.KeyHashValPair;
  * <p>
  * Serializes tuples into a HDFS file.<br/>
  * </p>
- * 
- * 
+ *
+ * @since 0.9.4
  */
 public class HdfsKeyValOutputOperator<K,V> extends AbstractHdfsOutputOperator<KeyHashValPair<K,V>>
 {
@@ -45,7 +45,7 @@ public class HdfsKeyValOutputOperator<K,V> extends AbstractHdfsOutputOperator<Ke
   @Override
   public byte[] getBytesForTuple(KeyHashValPair<K,V> t)
   {
-    return t.toString().getBytes();
+    return (t.toString()+"\n").getBytes();
   }
 
 }

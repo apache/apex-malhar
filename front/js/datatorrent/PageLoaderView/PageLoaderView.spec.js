@@ -53,6 +53,9 @@ describe('PageLoaderView.js', function() {
                     ]
                 }
             ];
+            this.user = new Backbone.Model({
+                authenticated: true
+            });
         });
 
         beforeEach(function() {
@@ -106,7 +109,8 @@ describe('PageLoaderView.js', function() {
             this.sandbox = sinon.sandbox.create();
 
             var navModel = new NavModel({}, {
-                pages: pages
+                pages: pages,
+                user: this.user
             });
 
             var pageLoaderView = new PageLoaderView({

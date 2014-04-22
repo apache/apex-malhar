@@ -39,11 +39,17 @@ var DagWidget = BaseView.extend({
      * @return {void}
      */
     displayGraph: function(data) {
+        // Does not necessarily do anything, only if implemented
         this.renderLegend();
+
+        // Implemented in child class
         var graph = this.buildGraph(data);
+
+        // Renders the main graph
         this.renderGraph(graph, this.$('.app-dag > .svg-main')[0]);
     },
 
+    
     buildGraph: forceImplement('buildGraph'),
 
     /**
@@ -519,7 +525,7 @@ var DagWidget = BaseView.extend({
     updateStreams: function (graph, root) {
         var streamLocality = this.createStreamLocalityMap();
 
-        root.selectAll("g .edge > path").each(function (d) {
+        root.selectAll("g .edgePath > path").each(function (d) {
             var value = graph.edge(d);
             var streamName = value.label;
 

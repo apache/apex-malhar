@@ -32,6 +32,7 @@ import com.esotericsoftware.kryo.serializers.JavaSerializer;
  * <br>
  *
  * @param <T> - Type of the object which you would like to serialize using KryoJdkSerializer.
+ * @since 0.9.4
  */
 @DefaultSerializer(JavaSerializer.class)
 public class KryoJdkContainer<T> implements Serializable

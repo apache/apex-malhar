@@ -49,7 +49,7 @@ DataSource.prototype = {
 
     connect: function() {
         // Pointer to this instance
-        var self = this, isHidden = visibly.hidden(), visibleTimer;
+        var self = this, isHidden = visibly.hidden(), visibleTimer, user = this.user;
 
         visibly.onHidden(function() {
             visibleTimer = setTimeout(function() {
@@ -73,10 +73,10 @@ DataSource.prototype = {
             LOG('2', 'WebSocket connection established');
             self.__wsCxn.resolveWith( self, [self.ws] );
         }
-        this.supressOnClose = false;
+        this.suppressOnClose = false;
         this.ws.onclose = function() {
             LOG('3', 'WebSocket connection has closed');
-            if (!self.supressOnClose) {
+            if (!self.suppressOnClose) {
                 Notifier.warning({
                     'title': 'WebSocket connection closed',
                     'text': 'The WebSocket connection to the Gateway has been closed. You may have left the network or the server itself may be down. Try <a href="Javascript:window.location.reload(true)">refreshing the page</a>.',
@@ -103,8 +103,6 @@ DataSource.prototype = {
                     trace: e.trace,
                     data: msg.data
                 });
-                
-                
 
             }
             
@@ -157,7 +155,7 @@ DataSource.prototype = {
     },
     disconnect: function () {
         this.__wsCxn.done(function () {
-            this.supressOnClose = true;
+            this.suppressOnClose = true;
             this.ws.close();
         })
     },
