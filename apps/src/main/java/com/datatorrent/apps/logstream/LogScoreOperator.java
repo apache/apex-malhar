@@ -22,6 +22,8 @@ import java.util.Map;
 
 /**
  * Log Score
+ *
+ * @since 0.9.4
  */
 public class LogScoreOperator extends BaseOperator
 {

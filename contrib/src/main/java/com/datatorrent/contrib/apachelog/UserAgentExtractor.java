@@ -31,7 +31,7 @@ import net.sf.uadetector.UserAgentStringParser;
 
 /**
  * This extractor extracts the browser and the OS from a user-agent string
- * 
+ *
  * @since 0.9.4
  */
 @ShipContainingJars(classes = { net.sf.uadetector.UserAgentStringParser.class })

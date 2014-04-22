@@ -30,6 +30,8 @@ import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
 
 /**
  * An {@link AbstractTransactionableStoreOutputOperator} that persists aggregated dimensions in the Redis store.<br/>
+ *
+ * @since 0.9.4
  */
 @ShipContainingJars(classes = {DateTimeFormatter.class, DateTimeFormat.class, Jedis.class})
 public class RedisAggregateOutputOperator extends AbstractRedisAggregateOutputOperator<AdInfo>

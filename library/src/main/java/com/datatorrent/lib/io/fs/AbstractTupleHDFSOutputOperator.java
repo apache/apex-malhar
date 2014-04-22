@@ -20,8 +20,9 @@ package com.datatorrent.lib.io.fs;
  * <p>
  * Serializes tuples into a HDFS file.<br/>
  * </p>
+ *
+ * @since 0.9.4
  */
-
 public abstract class AbstractTupleHDFSOutputOperator<T extends HdfsOutputTupleInterface> extends AbstractHdfsOutputOperator<T>
 {
   @Override

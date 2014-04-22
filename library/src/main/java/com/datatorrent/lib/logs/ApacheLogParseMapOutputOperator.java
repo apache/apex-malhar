@@ -45,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * <b>logRegex</b>: defines the regex <br>
  * <b>groupMap</b>: defines the mapping from the group ids to the names <br>
  *
+ * @since 0.9.4
  */
 public class ApacheLogParseMapOutputOperator extends BaseOperator
 {

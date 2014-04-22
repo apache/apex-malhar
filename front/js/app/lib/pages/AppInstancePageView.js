@@ -63,31 +63,39 @@ var AppInstancePageView = BasePageView.extend({
         // Explicitly set operator and container collections
         this.model.setOperators([]);
         this.model.setContainers([]);
-        
-        // Load the model
-        this.model.fetch({
-            // Ensures that it loads before the page does.
-            // This is required because a running application has a 
-            // completely different page than non-running applications.
-            async: false 
-        });
         this.model.subscribe();
-        this.onAppFetch(options.pageParams);
-        
-        // Listen for state change on model.
-        this.listenTo(this.model, 'change:state', function(model, value) {
 
-            // State has changed while looking at this page, issue a message.
-            Notify.warning({
-                'title': 'Application state changed',
-                'text': 'This application\'s state has changed to \''+value+'\'. Please refresh the page to see changes.'
+        // Load the model
+        var promise = this.model.fetch();
+        // Set flag: true when app has been loaded, false otherwise
+        this.appHasLoaded = false;
+        this.userDashMgr = false;
+
+        promise.always(_.bind(function() {
+            this.appHasLoaded = true;            
+            this.onAppFetch(options.pageParams);
+            this.userDashMgr = true;
+            this.render();
+            // Listen for state change on model.
+            this.listenTo(this.model, 'change:state', function(model, value) {
+                // State has changed while looking at this page, issue a message.
+                Notify.warning({
+                    'title': 'Application state changed',
+                    'text': 'This application\'s state has changed to \''+value+'\'. Please refresh the page to see changes.'
+                });
             });
-            
-        });
-
-        
+        }, this));
     },
     
+    render: function() {
+        if (!this.appHasLoaded) {
+            var html = '<div class="well" style="margin-bottom:0px">Application Loading...</div>';
+            this.$el.html(html);
+            return this;
+        }
+        return BasePageView.prototype.render.apply(this, arguments);
+    },
+
     onAppFetch: function(pageParams) {
 
         // Define widgets and dashboard group based

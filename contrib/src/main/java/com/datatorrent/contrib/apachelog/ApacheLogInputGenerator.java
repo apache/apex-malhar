@@ -30,6 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This operator simulates the apache logs
  *
+ * @since 0.9.4
  */
 public class ApacheLogInputGenerator implements InputOperator, ActivationListener<OperatorContext>
 {

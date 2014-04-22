@@ -37,8 +37,8 @@ import com.datatorrent.api.DefaultInputPort;
  * Example file path pattern : file:///mydir/adviews.out.%(operatorId).part-%(partIndex). where operatorId and partIndex
  * are place holders.
  * </p>
- * 
- * 
+ *
+ * @since 0.9.4
  */
 public abstract class AbstractHdfsOutputOperator<T> extends BaseOperator
 {

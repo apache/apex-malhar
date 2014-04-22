@@ -43,6 +43,8 @@ import com.datatorrent.common.util.DTThrowable;
  * Partitionable dimension operator.
  * Computes specified operators on specified values for specified dimension combinations.
  * Each partition works on a filtered tuple of a log type.
+ *
+ * @since 0.9.4
  */
 public class DimensionOperator extends BaseOperator implements Partitioner<DimensionOperator>
 {

@@ -45,7 +45,8 @@ var WelcomePageView = BasePageView.extend({
                 view: ConfigWelcomeWidget,
                 limit: 1,
                 inject: {
-                    dataSource: this.dataSource
+                    dataSource: this.dataSource,
+                    app: options.app
                 }
             }
         ]);

@@ -38,6 +38,7 @@ import java.lang.reflect.Array;
 /**
  * Output operator to send outputs to websocket to display on UI widgets.
  *
+ * @since 0.9.4
  */
 public class LogstreamWidgetOutputOperator extends WidgetOutputOperator
 {

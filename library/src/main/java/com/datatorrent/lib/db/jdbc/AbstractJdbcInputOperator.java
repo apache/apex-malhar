@@ -35,8 +35,9 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(ResultSet)}.
  * </p>
+ *
+ * @since 0.9.4
  */
-
 public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOperator<T, JdbcStore>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcInputOperator.class);

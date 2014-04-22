@@ -1,14 +1,11 @@
 <div class="section-license">
-<h1>License</h1>
+<h1>DataTorrent License Confirmation</h1>
 
-<p class="welcome-text well">
-    <i class="icon-info-sign"></i>
-    DataTorrent installation requires a license file to run.<br/>
-    <% if (license.isDefault()) { %>
-    You have been given 25 GB license for one year.<br/>
-    <% } %>
-    You can <a href="http://datatorrent.com/license-upgrade" class="action-link" target="_blank">upgrade</a> the capacity of the license any time.<br/>
-    If you already have a license file, you can <a href="#" class="go-to-upload action-link">upload it</a>.
+<p class="welcome-text">
+    DataTorrent requires a valid License file to run.  An Evaluation license is included with this installations, and can be used in any non-production environment for development and testing purposes for up to 4 months.  Up to 25GB of memory is available for your DataTorrent applications.
+</p>
+<p class="welcome-text">
+    If you have a different License file you would like to use, you can <a href="#" class="go-to-upload action-link">upload it</a>.  Otherwise click "continue" to use the Current License.
 </p>
 
 <% if (error) {  %>
@@ -32,9 +29,8 @@
 <% } %>
 
 <div>
-    <h3>Current License</h3>
     <div class="well">
-        <p><strong>license ID:</strong> <%= license.get('id') %> <a href="#" class="displayLicenseInfo action-link">More Info</a></p>
+        <p><strong>Current License:</strong> <%= license.get('id') %> <a href="#" class="displayLicenseInfo action-link">More Info</a></p>
     </div>
 </div>
 
@@ -46,12 +42,12 @@
 
 <% } %>
 
-<a href="#" class="install-step-link btn pull-left btn-large" data-action="WelcomeView">
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="HadoopView">
     <i class="icon-circle-arrow-left"></i> back
 </a>
 
 
-<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="HadoopView">
+<a href="#" class="install-step-link btn btn-success pull-right btn-large" data-action="SummaryView">
     continue <i class="icon-circle-arrow-right icon-white"></i>
 </a>
 </div>

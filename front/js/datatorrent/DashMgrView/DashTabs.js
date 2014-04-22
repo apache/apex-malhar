@@ -53,7 +53,6 @@ var DashTab = BaseView.extend({
     },
     
     editDashId: function(evt) {
-        console.log('editDashId');
         evt.preventDefault();
         
         if (this.model.get("isDefault")) {

@@ -27,6 +27,9 @@ function statusFormatter(value,row) {
 }
 
 function nameFormatter(value, row) {
+    if (row.get('unifierClass')) {
+        return value;
+    }
     value = templates.logical_op_link({
         appId: row.collection.appId,
         logicalName: value

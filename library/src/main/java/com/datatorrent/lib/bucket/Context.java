@@ -22,6 +22,11 @@ import javax.annotation.Nullable;
 
 import com.google.common.collect.Maps;
 
+/**
+ * <p>Context class.</p>
+ *
+ * @since 0.9.4
+ */
 public class Context
 {
   private final Map<String, Object> parameters;

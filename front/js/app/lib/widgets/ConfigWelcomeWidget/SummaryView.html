@@ -16,18 +16,18 @@
 <% } else { %>
 
 <p class="alert alert-success welcome-text">
-    <i class="icon-ok-sign"></i> Configuration is complete. You can return to configuration wizard from <a href="#config">configuration page</a> at any time.
+    Your DataTorrent Configuration is complete. You can return to this Configuration Wizard at any time by going to the <a href="#config">Configuration Page</a> from the DataTorrent Console.
 </p>
 
 <p>
     <h3>Getting Started</h3>
-    <p class="getting-started">To learn more and to get started with DataTorrent platform please visit our <a href="https://www.datatorrent.com/developers/" target="_blank">Developer Center</a></p>
+    <p class="welcome-text">To learn more about DataTorrent and getting started, please visit our <a href="https://www.datatorrent.com/developers/" target="_blank">Developer Center</a> on our website at <a href="https://www.datatorrent.com/developers/" target="_blank">www.datatorrent.com/developers/</a>.</p>
 </p>
 
 <% if (issues.length) { %>
 <p>
     <h3>Identified Issues</h3>
-    <p class="getting-started">Below is a list of identified issues. Please refer to the installation guide in the Developer Center for more information.</p>
+    <p class="welcome-text">Below is a list of identified issues. Please refer to the installation guide in the Developer Center for more information.</p>
 
     <div class="issue-list">
     <% issues.each(function (issue) { %>
@@ -40,7 +40,7 @@
 </p>
 <% } %>
 
-<a href="#" class="install-step-link btn pull-left btn-large" data-action="SystemView">
+<a href="#" class="install-step-link btn pull-left btn-large" data-action="LicenseInfoView">
     <i class="icon-circle-arrow-left"></i> back
 </a>
 

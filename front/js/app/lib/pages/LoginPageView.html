@@ -1,0 +1,29 @@
+<div class="container login-page-main config-page-main">
+    <div class="config-page-pane">
+        <div class="inner">
+            <h1>Login</h1>
+
+            <form id="login-form" action="#">
+                <% if (error) { %>
+                    <p class="alert alert-error"><%= error %></p>
+                <% } %>
+                <div class="control-group">
+                    <label class="control-label" for="userName">userName</label>
+                    <div class="controls">
+                        <input type="text" id="userName" placeholder="username" value="<%= user.userName %>">
+                        <p class="help-block"></p>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label" for="password">Password</label>
+                    <div class="controls">
+                        <input type="password" id="password" placeholder="password">
+                        <p class="help-block"></p>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary">Sign in</button>
+            </form>
+
+        </div>
+    </div>
+</div>

@@ -24,6 +24,7 @@ var _ = require('underscore');
 var Tabled = DT.lib.Tabled; 
 var kt = require('knights-templar');
 var BaseView = DT.widgets.ListWidget;
+var Palette = require('./LogicalOpListPalette');
 var columns = require('./columns');
 var LogicalOperatorCollection = DT.lib.LogicalOperatorCollection;
 
@@ -55,6 +56,12 @@ var LogicalOpListWidget = BaseView.extend({
             id: this.compId() + '.logicalOpList',
             save_state: true,
             row_sorts: ['logicalName']
+        }));
+
+        this.subview('palette', new Palette({
+            collection: this.collection,
+            nav: this.nav,
+            appId: options.pageParams.appId
         }));
     },
 
