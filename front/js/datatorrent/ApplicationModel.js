@@ -238,7 +238,6 @@ var ApplicationModel = BaseModel.extend({
         
         // Only subscribe to operators and containers if this app is running
         var subscribeToOpsAndCtnrs = _.bind(function() {
-            LOG(0, 'SUBSCRIBING TO OPS AND CTNRS');
             if (this.operators) {
                 this.operators.subscribe();
             }
@@ -253,7 +252,6 @@ var ApplicationModel = BaseModel.extend({
         if (state === 'RUNNING') {
             subscribeToOpsAndCtnrs();
         } else {
-            LOG(0, 'STATE WAS NOT RUNNING');
             this.once('change:state', function() {
                 if (this.get('state') === 'RUNNING') {
                     subscribeToOpsAndCtnrs();
