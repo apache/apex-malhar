@@ -1,11 +1,7 @@
 #pagecontent {
     position:relative;
     overflow:hidden;
-    background-color: #DEDEDE;
-    
-    &.with-dash-manager {
-        box-shadow: inset @dash_mgr_width 0 0 #FFF;
-    }
+    background-color: @background_color;
 	
     .widget {
         margin:(@space_between_widgets/2) 0;
@@ -172,6 +168,9 @@
         float:left;
         width:@dash_mgr_width - 1px;
         background:white;
+        border: 1px solid #AAA;
+        border-top: none;
+        min-height: 37px;
         position:relative;
         z-index: 1;
         .widget-manager-tab {
@@ -197,8 +196,6 @@
         }
         .inner {
             padding:5px 10px 10px 5px;
-            min-height: 600px;
-			
             .title {
                 .thin_title();
                 
@@ -279,37 +276,6 @@
             }
             .actions {
                 margin-bottom:20px;
-            }
-        }
-        .collapser-container {
-            border-right: 1px solid #AAA;
-            position:absolute;
-            width:7px;
-            height:2000px;
-            right:0px;
-            top:0px;
-            background:#FFF;
-            /*			box-shadow: inset 0 0 3px rgba(0, 0, 0, 0.4);*/
-            cursor:col-resize;
-			
-            &:hover {
-                background-color:#AAA;
-            }
-			
-            .collapser {
-                width:100%;
-                text-align: center;
-                line-height:6px;
-                margin-top:10px;
-                .collapse-dot {
-                    height:3px;
-                    width:3px;
-                    border-radius:50%;
-                    background:#FFF;
-                    /*					display:inline-block;*/
-                    display:none;
-                    box-shadow:inset -1px -1px 3px -1px rgba(0,0,0,0.3); 
-                }
             }
         }
     }
