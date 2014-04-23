@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 public class TimestampExtractor implements InformationExtractor
 {
   private static final Logger LOG = LoggerFactory.getLogger(GeoIPExtractor.class);
+  private static final long serialVersionUID = 201404221817L;
   @NotNull
   private String dateFormatString;
   private transient DateFormat dateFormat;  // date format is not serializable
