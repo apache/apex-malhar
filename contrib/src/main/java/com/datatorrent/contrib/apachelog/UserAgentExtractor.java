@@ -18,7 +18,6 @@ package com.datatorrent.contrib.apachelog;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.logs.InformationExtractor;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -30,13 +29,20 @@ import net.sf.uadetector.service.UADetectorServiceFactory;
 import net.sf.uadetector.UserAgentStringParser;
 
 /**
- * This extractor extracts the browser and the OS from a user-agent string
+ * This extractor extracts the browser and the OS from a user-agent string.
+ *
+ * The user of this extractor needs to include the jars which contain these classes in DAGContext.LIBRARY_JARS
+ *
+ * net.sf.uadetector.UserAgentStringParser.class
+ * net.sf.uadetector.service.UADetectorServiceFactory.class
+ * net.sf.qualitycheck.Check.class
  *
  * @since 0.9.4
  */
-@ShipContainingJars(classes = { net.sf.uadetector.UserAgentStringParser.class })
 public class UserAgentExtractor implements InformationExtractor
 {
+  private static final long serialVersionUID = 201404221817L;
+
   public static class CachedUserAgentStringParser implements UserAgentStringParser
   {
     private final UserAgentStringParser parser = UADetectorServiceFactory.getCachingAndUpdatingParser();
