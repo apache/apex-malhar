@@ -28,9 +28,6 @@ var ContainerCollection = Base.extend({
 
     initialize: function() {
         Base.prototype.initialize.apply(this, arguments);
-        this.on('remove', function(model) {
-            console.log('removal from container collection');
-        });
     },
     
     url: function() {
