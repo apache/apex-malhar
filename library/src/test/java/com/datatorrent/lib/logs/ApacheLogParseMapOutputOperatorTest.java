@@ -48,7 +48,7 @@ public class ApacheLogParseMapOutputOperatorTest
     String token = "127.0.0.1 - - [04/Apr/2013:17:17:21 -0700] \"GET /favicon.ico HTTP/1.1\" 404 498 \"-\" \"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.31 (KHTML, like Gecko) Chrome/26.0.1410.43 Safari/537.31\"";
     oper.setup(null);
     oper.beginWindow(0);
-    oper.data.process(token);
+    oper.input.process(token);
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
     Map<String, Object> map = (Map<String, Object>)sink.collectedTuples.get(0);
@@ -79,7 +79,7 @@ public class ApacheLogParseMapOutputOperatorTest
     oper.setLogRegex("^([\\d\\.]+) (\\S+) (\\S+) \\[([\\w:/]+\\s[+\\-]\\d{4})\\] \"[A-Z]+ (.+?) HTTP/\\S+\" (\\d{3})(.*)");
     oper.setup(null);
     oper.beginWindow(0);
-    oper.data.process(token);
+    oper.input.process(token);
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
     Map<String, Object> map = (Map<String, Object>)sink.collectedTuples.get(0);

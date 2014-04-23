@@ -99,7 +99,7 @@ public class ApplicationETL implements StreamingApplication
     if (inputType.equalsIgnoreCase("file")) {
       TailFsInputOperator input = getTailFSOperator(dag);
       ApacheLogParseMapOutputOperator parser = getParserOperator(dag);
-      dag.addStream("Generator", input.output, parser.data);
+      dag.addStream("Generator", input.output, parser.input);
       return parser.output;
     }
     else if (inputType.equalsIgnoreCase("rabbitMQ")) {
@@ -109,7 +109,7 @@ public class ApplicationETL implements StreamingApplication
     else {
       ApacheLogInputGenerator input = getLogGenerator(dag);
       ApacheLogParseMapOutputOperator parser = getParserOperator(dag);
-      dag.addStream("Generator", input.output, parser.data);
+      dag.addStream("Generator", input.output, parser.input);
       return parser.output;
     }
   }
@@ -156,7 +156,7 @@ public class ApplicationETL implements StreamingApplication
 
     DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent>());
     dimensions.setUnifier(unifier);
-    
+
 
     ConsoleOutputOperator console = dag.addOperator("Console", new ConsoleOutputOperator());
 

@@ -53,7 +53,7 @@ public class ApplicationLogGenerator implements StreamingApplication
 
     ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
 
-    dag.addStream("log-parse", log.output, parse.data);
+    dag.addStream("log-parse", log.output, parse.input);
     dag.addStream("parse-console", parse.output, console.input).setLocality(Locality.CONTAINER_LOCAL);
 
   }
