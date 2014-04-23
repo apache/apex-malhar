@@ -62,7 +62,7 @@ public class AshwinETLApp implements StreamingApplication
     storeWriter.setAggregators(aggrs);
     storeOutputOperator.setStore(storeWriter);
 
-    dag.addStream("Events", input.outputPort, dimensions.data);
+    dag.addStream("Events", input.output, dimensions.data);
     dag.addStream("Aggregates", dimensions.output, storeOutputOperator.input, console.input);
 
     dag.setInputPortAttribute(console.input, PortContext.PARTITION_PARALLEL, true);

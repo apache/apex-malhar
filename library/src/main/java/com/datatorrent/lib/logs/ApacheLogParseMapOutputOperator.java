@@ -65,7 +65,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
   /**
    * Input log line port.
    */
-  public final transient DefaultInputPort<String> data = new DefaultInputPort<String>()
+  public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
   {
     @Override
     public void process(String s)

@@ -27,6 +27,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamingApplication;
 
 import com.datatorrent.contrib.apachelog.ApacheLogInputGenerator;
@@ -73,10 +74,10 @@ public class ApplicationETL implements StreamingApplication
     ApacheLogInputGenerator generator = dag.addOperator("LogGenerator", new ApacheLogInputGenerator());
     generator.setNumberOfTuples(100);
     generator.setMaxDelay(1);
-    generator.setIpAddressFile("src/test/resources/generator/apachelog/ipaddress.txt");
-    generator.setUrlFile("src/test/resources/generator/apachelog/urls.txt");
-    generator.setAgentFile("src/test/resources/generator/apachelog/agents.txt");
-    generator.setRefererFile("src/test/resources/generator/apachelog/referers.txt");
+    generator.setIpAddressFile("/home/hadoop/generator/apachelog/ipaddress.txt");
+    generator.setUrlFile("/home/hadoop/generator/apachelog/urls.txt");
+    generator.setAgentFile("/home/hadoop/generator/apachelog/agents.txt");
+    generator.setRefererFile("/home/hadoop/generator/apachelog/referers.txt");
     return generator;
   }
 
@@ -92,6 +93,27 @@ public class ApplicationETL implements StreamingApplication
     return input;
   }
 
+  private DefaultOutputPort<Map<String, Object>> getInputOperatorPort(DAG dag, Configuration configuration)
+  {
+    String inputType = configuration.get("ETL.Input", "generator");
+    if (inputType.equalsIgnoreCase("file")) {
+      TailFsInputOperator input = getTailFSOperator(dag);
+      ApacheLogParseMapOutputOperator parser = getParserOperator(dag);
+      dag.addStream("Generator", input.output, parser.input);
+      return parser.output;
+    }
+    else if (inputType.equalsIgnoreCase("rabbitMQ")) {
+      RabbitMQInputOperator<Map<String, Object>> input = getRabbitMQInputOperator(dag);
+      return input.output;
+    }
+    else {
+      ApacheLogInputGenerator input = getLogGenerator(dag);
+      ApacheLogParseMapOutputOperator parser = getParserOperator(dag);
+      dag.addStream("Generator", input.output, parser.input);
+      return parser.output;
+    }
+  }
+
   @Override
   public void populateDAG(DAG dag, Configuration c)
   {
@@ -104,7 +126,7 @@ public class ApplicationETL implements StreamingApplication
 
     List<Predicate<Map<String, Object>>> predicates = Lists.newArrayList();
 
-    Sifter<Map<String, Object>> sifter = dag.addOperator("Sifter",new Sifter<Map<String, Object>>());
+    Sifter<Map<String, Object>> sifter = dag.addOperator("Sifter", new Sifter<Map<String, Object>>());
     sifter.setPredicates(predicates);
 
     //Create dimensions specs
@@ -135,26 +157,10 @@ public class ApplicationETL implements StreamingApplication
     DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent>());
     dimensions.setUnifier(unifier);
 
+
     ConsoleOutputOperator console = dag.addOperator("Console", new ConsoleOutputOperator());
 
-    String inputType = c.get("Application.ETL", "generator");
-    if (inputType.equalsIgnoreCase("file")) {
-      TailFsInputOperator input = getTailFSOperator(dag);
-      ApacheLogParseMapOutputOperator parser = getParserOperator(dag);
-      dag.addStream("Generator", input.output, parser.data);
-      dag.addStream("Events", parser.output, sifter.input);
-    }
-    else if (inputType.equalsIgnoreCase("rabbitMQ")) {
-      RabbitMQInputOperator<Map<String, Object>> input = getRabbitMQInputOperator(dag);
-      dag.addStream("Events", input.outputPort, sifter.input);
-    }
-    else {
-      ApacheLogInputGenerator input = getLogGenerator(dag);
-      ApacheLogParseMapOutputOperator parser = getParserOperator(dag);
-      dag.addStream("Generator", input.output, parser.data);
-      dag.addStream("Events", parser.output, sifter.input);
-    }
-
+    dag.addStream("Events", getInputOperatorPort(dag, c), sifter.input);
     dag.addStream("FilteredEvents", sifter.output, dimensions.data);
     dag.addStream("Aggregates", dimensions.output, console.input);
   }
