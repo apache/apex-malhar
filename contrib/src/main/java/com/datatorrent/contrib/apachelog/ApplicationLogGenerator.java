@@ -37,7 +37,13 @@ public class ApplicationLogGenerator implements StreamingApplication
     containingJars.add(net.sf.uadetector.UserAgentStringParser.class);
     containingJars.add(net.sf.uadetector.service.UADetectorServiceFactory.class);
     containingJars.add(net.sf.qualitycheck.Check.class);
-    StringBuilder libjars = new StringBuilder();
+
+    String oldlibjar = dag.getValue(DAGContext.LIBRARY_JARS);
+    if (oldlibjar == null) {
+      oldlibjar = "";
+    }
+
+    StringBuilder libjars = new StringBuilder(oldlibjar);
     for (Class<?> clazz : containingJars) {
       if (libjars.length() != 0) {
         libjars.append(",");
