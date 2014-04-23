@@ -15,22 +15,20 @@
  */
 package com.datatorrent.apps.etl;
 
+import java.util.Map;
+
+import org.apache.hadoop.conf.Configuration;
+
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.apps.etl.MapAggregator.MapAggregateEvent;
 import com.datatorrent.contrib.db.DataStoreOutputOperator;
 import com.datatorrent.lib.datamodel.converter.JsonToFlatMapConverter;
-import com.datatorrent.lib.datamodel.operation.CountOperation;
-import com.datatorrent.lib.datamodel.operation.SumOperation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-import org.apache.hadoop.conf.Configuration;
 
 public class AshwinETLApp implements StreamingApplication
 {
@@ -71,80 +69,81 @@ public class AshwinETLApp implements StreamingApplication
   }
 
   private MapAggregator[] getAggregators() {
-    Metric count = new Metric("bytes", "bytesCount", new CountOperation());
-    Metric bytesSum = new Metric("bytes", "bytesSum", new SumOperation());
-
-    List<Metric> countAndSumOps = new ArrayList<Metric>();
-    countAndSumOps.add(count);
-    countAndSumOps.add(bytesSum);
-
-    List<Metric> countOps = new ArrayList<Metric>();
-    countOps.add(count);
-
-    MapAggregator apacheDimension1 = new MapAggregator();
-    apacheDimension1.init("geoip_country_name", countOps);
-
-    MapAggregator apacheDimension2 = new MapAggregator();
-    apacheDimension2.init("geoip_city_name", countOps);
-
-    MapAggregator apacheDimension3 = new MapAggregator();
-    apacheDimension3.init("geoip_region_name", countOps);
-
-    MapAggregator apacheDimension4 = new MapAggregator();
-    apacheDimension4.init("agentinfo_name", countOps); // browser
-
-    MapAggregator apacheDimension5 = new MapAggregator();
-    apacheDimension5.init("agentinfo_os", countOps);
-
-    MapAggregator apacheDimension6 = new MapAggregator();
-    apacheDimension6.init("agentinfo_device", countOps);
-
-    MapAggregator apacheDimension7 = new MapAggregator();
-    apacheDimension7.init("request", countOps);
-
-    MapAggregator apacheDimension8 = new MapAggregator();
-    apacheDimension8.init("clientip", countAndSumOps);
-
-    MapAggregator apacheDimension9 = new MapAggregator();
-    apacheDimension9.init("geoip_country_name:request", countOps);
-
-    MapAggregator apacheDimension10 = new MapAggregator();
-    apacheDimension10.init("agentinfo_name:request", countOps);
-
-    MapAggregator apacheDimension11 = new MapAggregator();
-    apacheDimension11.init("agentinfo_device:request", countOps);
-
-    MapAggregator apacheDimension12 = new MapAggregator();
-    apacheDimension12.init("geoip_country_name:request", countOps);
-
-    MapAggregator apacheDimension13 = new MapAggregator();
-    apacheDimension13.init("clientip:geoip_country_name", countOps);
-
-    MapAggregator apacheDimension14 = new MapAggregator();
-    apacheDimension14.init("timestamp=" + TimeUnit.DAYS, countOps);
-
-    MapAggregator apacheDimension15 = new MapAggregator();
-    apacheDimension15.init("timestamp=" + TimeUnit.DAYS + ":agentinfo_device", countOps);
-
-    MapAggregator[] aggrs = new MapAggregator[]
-    {
-      apacheDimension1,
-      apacheDimension2,
-      apacheDimension3,
-      apacheDimension4,
-      apacheDimension5,
-      apacheDimension6,
-      apacheDimension7,
-      apacheDimension8,
-      apacheDimension9,
-      apacheDimension10,
-      apacheDimension11,
-      apacheDimension12,
-      apacheDimension13,
-      apacheDimension14,
-      apacheDimension15
-    };
-
-    return aggrs;
+//    Metric count = new Metric("bytes", "bytesCount", new CountOperation());
+//    Metric bytesSum = new Metric("bytes", "bytesSum", new SumOperation());
+//
+//    List<Metric> countAndSumOps = new ArrayList<Metric>();
+//    countAndSumOps.add(count);
+//    countAndSumOps.add(bytesSum);
+//
+//    List<Metric> countOps = new ArrayList<Metric>();
+//    countOps.add(count);
+//
+//    MapAggregator apacheDimension1 = new MapAggregator();
+//    apacheDimension1.init("geoip_country_name", countOps);
+//
+//    MapAggregator apacheDimension2 = new MapAggregator();
+//    apacheDimension2.init("geoip_city_name", countOps);
+//
+//    MapAggregator apacheDimension3 = new MapAggregator();
+//    apacheDimension3.init("geoip_region_name", countOps);
+//
+//    MapAggregator apacheDimension4 = new MapAggregator();
+//    apacheDimension4.init("agentinfo_name", countOps); // browser
+//
+//    MapAggregator apacheDimension5 = new MapAggregator();
+//    apacheDimension5.init("agentinfo_os", countOps);
+//
+//    MapAggregator apacheDimension6 = new MapAggregator();
+//    apacheDimension6.init("agentinfo_device", countOps);
+//
+//    MapAggregator apacheDimension7 = new MapAggregator();
+//    apacheDimension7.init("request", countOps);
+//
+//    MapAggregator apacheDimension8 = new MapAggregator();
+//    apacheDimension8.init("clientip", countAndSumOps);
+//
+//    MapAggregator apacheDimension9 = new MapAggregator();
+//    apacheDimension9.init("geoip_country_name:request", countOps);
+//
+//    MapAggregator apacheDimension10 = new MapAggregator();
+//    apacheDimension10.init("agentinfo_name:request", countOps);
+//
+//    MapAggregator apacheDimension11 = new MapAggregator();
+//    apacheDimension11.init("agentinfo_device:request", countOps);
+//
+//    MapAggregator apacheDimension12 = new MapAggregator();
+//    apacheDimension12.init("geoip_country_name:request", countOps);
+//
+//    MapAggregator apacheDimension13 = new MapAggregator();
+//    apacheDimension13.init("clientip:geoip_country_name", countOps);
+//
+//    MapAggregator apacheDimension14 = new MapAggregator();
+//    apacheDimension14.init("timestamp=" + TimeUnit.DAYS, countOps);
+//
+//    MapAggregator apacheDimension15 = new MapAggregator();
+//    apacheDimension15.init("timestamp=" + TimeUnit.DAYS + ":agentinfo_device", countOps);
+//
+//    MapAggregator[] aggrs = new MapAggregator[]
+//    {
+//      apacheDimension1,
+//      apacheDimension2,
+//      apacheDimension3,
+//      apacheDimension4,
+//      apacheDimension5,
+//      apacheDimension6,
+//      apacheDimension7,
+//      apacheDimension8,
+//      apacheDimension9,
+//      apacheDimension10,
+//      apacheDimension11,
+//      apacheDimension12,
+//      apacheDimension13,
+//      apacheDimension14,
+//      apacheDimension15
+//    };
+//
+//    return aggrs;
+    return null;
   }
 }

@@ -48,7 +48,6 @@ public class RabbitMQInputOperator<T> extends AbstractSinglePortRabbitMQInputOpe
   {
     try {
       JSONObject jsonObj = new JSONObject(new String(message));
-      jsonObj.put(Constants.LOG_TYPE, routingKey);
       return converter.convert(jsonObj);
     }
     catch (JSONException e) {
