@@ -1,6 +1,6 @@
 {
   "name": "datatorrent-ui",
-  "version": "0.9.3",
+  "version": "0.9.5",
   "description": "Web-based UI for use with DataTorrent, a stream-processing platform for developing real-time, big data applications in Hadoop.",
   "main": "js/start.js",
   "scripts": {
