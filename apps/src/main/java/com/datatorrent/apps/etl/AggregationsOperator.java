@@ -7,12 +7,16 @@ package com.datatorrent.apps.etl;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.apps.etl.MapAggregator.MapAggregateEvent;
 import com.datatorrent.lib.db.DataStoreWriter;
+import javax.annotation.Nonnull;
 
 /**
- *
+ * MapAggregateEvent aggregations operator
  */
 public class AggregationsOperator extends AggregationsOperatorBase<MapAggregateEvent, DataStoreWriter<MapAggregateEvent>>
 {
+  @Nonnull
+  protected MapAggregator[] aggregators;
+
   @Override
   protected void processTuple(MapAggregateEvent event)
   {
@@ -23,11 +27,11 @@ public class AggregationsOperator extends AggregationsOperatorBase<MapAggregateE
         aggregateEvent = event;
       }
       else {
-        computeMetrics(aggregateEvent, event);
+        aggregators[event.aggregatorIndex].aggregate(aggregateEvent, event);
       }
     }
     else {
-      computeMetrics(aggregateEvent, event);
+      aggregators[event.aggregatorIndex].aggregate(aggregateEvent, event);
     }
 
     cache.setValueFor(aggregateEvent, aggregateEvent);
@@ -36,11 +40,14 @@ public class AggregationsOperator extends AggregationsOperatorBase<MapAggregateE
     output.emit(aggregateEvent);
   }
 
-  private void computeMetrics(MapAggregateEvent aggregateEvent, MapAggregateEvent event)
+  public void setAggregators(MapAggregator[] aggregators)
   {
-    for (Metric metric : aggregators[event.getAggregatorIndex()].metrics) {
-      Object result = metric.operation.compute(aggregateEvent.getMetric(metric.destinationKey), event.getMetric(metric.destinationKey));
-      aggregateEvent.putMetric(metric.destinationKey, result);
-    }
+    this.aggregators = aggregators;
   }
+
+  public MapAggregator[] getAggregators()
+  {
+    return aggregators;
+  }
+
 }
