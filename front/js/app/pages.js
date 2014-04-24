@@ -50,7 +50,7 @@ exports = module.exports = [
     },
     {
         'name': 'WelcomePageView',
-        'routes': ['welcome'],
+        'routes': ['welcome', 'config/install-wizard'],
         'view': require('./lib/pages/WelcomePageView'),
         'paramList': [],
         'mode': 'config',
@@ -93,6 +93,22 @@ exports = module.exports = [
             }
         ]
     },
+
+    // {
+    //     name: 'ConfigPropertiesPageView',
+    //     routes: ['config/properties'],
+    //     view: require('./lib/pages/ConfigPropertiesPageView'),
+    //     mode: 'config',
+    //     breadcrumbs: [
+    //         {
+    //             name: text('configuration'),
+    //             href: '#config'
+    //         },
+    //         {
+    //             name: text('Properties')
+    //         }
+    //     ]
+    // },
 
     /**
      * OPERATIONS MODE
