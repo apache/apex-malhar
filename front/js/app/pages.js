@@ -94,21 +94,21 @@ exports = module.exports = [
         ]
     },
 
-    {
-        name: 'ConfigPropertiesPageView',
-        routes: ['config/properties'],
-        view: require('./lib/pages/ConfigPropertiesPageView'),
-        mode: 'config',
-        breadcrumbs: [
-            {
-                name: text('configuration'),
-                href: '#config'
-            },
-            {
-                name: text('Properties')
-            }
-        ]
-    },
+    // {
+    //     name: 'ConfigPropertiesPageView',
+    //     routes: ['config/properties'],
+    //     view: require('./lib/pages/ConfigPropertiesPageView'),
+    //     mode: 'config',
+    //     breadcrumbs: [
+    //         {
+    //             name: text('configuration'),
+    //             href: '#config'
+    //         },
+    //         {
+    //             name: text('Properties')
+    //         }
+    //     ]
+    // },
 
     /**
      * OPERATIONS MODE
