@@ -202,6 +202,29 @@ var DagWidget = BaseView.extend({
                 'width': minimapWidth
             });
 
+        // edges
+        graph.eachEdge(function(stream_id, source_name, sink_name, info) {
+            minimap.append('path')
+                .attr('class', 'minimap-stream')
+                .attr('d', function() {
+                    
+                    var points;
+                    // var points = info.points; // uncomment if cpettit ever fixes this
+
+                    // HACK: points no longer contain endpoints on nodes
+                    var src = graph.node(source_name);
+                    var dest = graph.node(sink_name);
+                    points = [{x: src.x, y: src.y}].concat(info.points);
+                    points = points.concat({x: dest.x, y: dest.y});
+
+                    var point_strings = _.map(points, function(point) { 
+                        return (point.x * mapMultiplier + halfMapPadding) + 
+                        ',' + 
+                        (point.y * mapMultiplier + halfMapPadding)
+                    });
+                    return 'M' + point_strings.join('L');
+                });
+        });
 
         // nodes
         graph.eachNode(function(nodeName, info) {
@@ -213,20 +236,6 @@ var DagWidget = BaseView.extend({
                     'height': height = info.height * mapMultiplier,
                     'x': info.x * mapMultiplier - width/2 + halfMapPadding,
                     'y': info.y * mapMultiplier - height/2 + halfMapPadding
-                });
-        });
-
-        // edges
-        graph.eachEdge(function(stream_id, source_name, sink_name, info) {
-            minimap.append('path')
-                .attr('class', 'minimap-stream')
-                .attr('d', function() {
-                    var point_strings = _.map(info.points, function(point) { 
-                        return (point.x * mapMultiplier + halfMapPadding) + 
-                        ',' + 
-                        (point.y * mapMultiplier + halfMapPadding)
-                    });
-                    return 'M' + point_strings.join('L');
                 });
         });
 
