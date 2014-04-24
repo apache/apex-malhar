@@ -4,26 +4,49 @@
  */
 package com.datatorrent.apps.etl;
 
-import com.datatorrent.api.Component;
-import com.datatorrent.api.Context;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
+
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.nio.SelectChannelConnector;
 import org.eclipse.jetty.websocket.WebSocket;
 import org.eclipse.jetty.websocket.WebSocketHandler;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Component;
+import com.datatorrent.api.Context;
+import javax.validation.constraints.NotNull;
+import org.codehaus.jackson.JsonFactory;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
 
 /**
  *
  * @author Ashwin Chandra Putta <ashwin@datatorrent.com>
  */
-public class EmbeddedWebSocketServer<TUPLE,CONTEXT extends Context> extends Server implements Component<Context>
+public class EmbeddedWebSocketServer<DATA, CONTEXT extends Context> extends Server implements Component<Context>
 {
-  private SelectChannelConnector connector;
-  private WebSocketHandler webSocketHandler;
+  private transient final JsonFactory jsonFactory = new JsonFactory();
+  protected transient final ObjectMapper mapper = new ObjectMapper(jsonFactory);
+
+  protected SelectChannelConnector connector;
+  protected WebSocketHandler webSocketHandler;
   List<EmbeddedWebSocket> clients = new ArrayList<EmbeddedWebSocket>();
+  @NotNull
+  protected WebSocketCallBackBase callBackBase;
+
+  public WebSocketCallBackBase getCallBackBase()
+  {
+    return callBackBase;
+  }
+
+  public void setCallBackBase(WebSocketCallBackBase callBackBase)
+  {
+    this.callBackBase = callBackBase;
+  }
   int port;
 
   @Override
@@ -37,7 +60,8 @@ public class EmbeddedWebSocketServer<TUPLE,CONTEXT extends Context> extends Serv
     setHandler(webSocketHandler);
   }
 
-  public void process(TUPLE t) {
+  public void process(DATA t)
+  {
     String data = "hello world";
     for (EmbeddedWebSocket client : clients) {
       try {
@@ -49,14 +73,29 @@ public class EmbeddedWebSocketServer<TUPLE,CONTEXT extends Context> extends Serv
     }
   }
 
+  protected void sendMessage(EmbeddedWebSocket client, String out)
+  {
+    try {
+      client.getConnection().sendMessage(out);
+    }
+    catch (IOException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  protected void processMessage(EmbeddedWebSocket client, String message)
+  {
+      String response = callBackBase.onQuery(message);
+      sendMessage(client, response);
+  }
+
   @Override
   public void teardown()
   {
-
   }
 
-  public class EmbeddedWebSocket implements WebSocket, WebSocket.OnTextMessage {
-
+  public class EmbeddedWebSocket implements WebSocket, WebSocket.OnTextMessage
+  {
     private Connection connection;
 
     @Override
@@ -65,7 +104,6 @@ public class EmbeddedWebSocketServer<TUPLE,CONTEXT extends Context> extends Serv
       this.connection = connection;
       // add to subscribers
       clients.add(this);
-      // send object schema
     }
 
     @Override
@@ -79,21 +117,23 @@ public class EmbeddedWebSocketServer<TUPLE,CONTEXT extends Context> extends Serv
     public void onMessage(String data)
     {
       // received message from client
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      processMessage(this, data);
     }
 
     public Connection getConnection()
     {
       return connection;
     }
+
   }
 
-  public class EmbeddedWebSocketHandler extends WebSocketHandler {
-
+  public class EmbeddedWebSocketHandler extends WebSocketHandler
+  {
     @Override
     public WebSocket doWebSocketConnect(HttpServletRequest request, String protocol)
     {
       return new EmbeddedWebSocket();
     }
+
   }
 }
