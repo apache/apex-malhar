@@ -118,7 +118,7 @@ public abstract class JDBCInputOperator<T> extends JDBCOperatorBase implements I
       }
     }
     catch (SQLException ex) {
-      teardownDbConnection();
+      teardown();
       throw new RuntimeException(String.format("Error while running query: %s", query), ex);
     }
   }
@@ -138,12 +138,12 @@ public abstract class JDBCInputOperator<T> extends JDBCOperatorBase implements I
    */
   public void setup(OperatorContext context)
   {
-    setupDbConnection();
+    connect();
     try {
       queryStatement = connection.createStatement();
     }
     catch (SQLException ex) {
-      teardownDbConnection();
+      disconnect();
       throw new RuntimeException("Error while creating select statement", ex);
     }
   }
@@ -153,7 +153,7 @@ public abstract class JDBCInputOperator<T> extends JDBCOperatorBase implements I
    */
   public void teardown()
   {
-    teardownDbConnection();
+    disconnect();
   }
 
 }

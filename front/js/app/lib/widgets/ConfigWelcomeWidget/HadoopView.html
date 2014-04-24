@@ -2,7 +2,7 @@
 <h1>Hadoop Configuration</h1>
 
 <p class="welcome-text">
-    A Hadoop installation (version 2.2.0 or greater) is required to use DataTorrent.  Please provide the details regarding the location of your Hadoop installation below.
+    DataTorrent requires a Hadoop installation (version 2.2.0 or greater) and a writeable location on a Distributed File System (typically HDFS). A restart may be required if the Hadoop Installation Location is changed.
 </p>
 
 <% if (loading) {  %>
@@ -49,7 +49,7 @@
     </tr>
     <tr>
         <td>DFS Location</td>
-        <td>Directory in a Distributed File System (e.g. HDFS) where all datatorrent artifacts will be stored, including checkpoints, recordings, etc.  This directory must be accessible and writable by the DataTorrent Gateway and DataTorrent applications.</td>
+        <td>Directory in a Distributed File System (e.g. HDFS) where all datatorrent artifacts will be stored, including checkpoints, recordings, etc.  This directory must be accessible and writable by the DataTorrent Gateway and DataTorrent applications running in Hadoop.</td>
         <td>
             <div class="control-group" style="overflow: auto;">
                 <div class="controls">

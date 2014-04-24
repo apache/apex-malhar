@@ -161,7 +161,7 @@ public class RabbitMQInputOperatorBenchmark
     publisher.setup();
 //    publisher.generateMessages(testNum);
 
-    dag.addStream("Stream", subscriber.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("Stream", subscriber.output, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     final LocalMode.Controller lc = lma.getController();
 

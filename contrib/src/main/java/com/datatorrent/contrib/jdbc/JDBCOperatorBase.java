@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.database.DBConnector;
+import com.datatorrent.lib.db.Connectable;
 import com.datatorrent.lib.db.jdbc.JdbcStore;
 
 /**
@@ -35,7 +35,7 @@ import com.datatorrent.lib.db.jdbc.JdbcStore;
  * @deprecated use {@link JdbcStore}
  */
 @Deprecated
-public class JDBCOperatorBase implements DBConnector
+public class JDBCOperatorBase implements Connectable
 {
   @NotNull
   private String dbUrl;
@@ -96,7 +96,7 @@ public class JDBCOperatorBase implements DBConnector
    * Create connection with database using JDBC.
    */
   @Override
-  public void setupDbConnection()
+  public void connect()
   {
     try {
       // This will load the JDBC driver, each DB has its own driver
@@ -124,13 +124,24 @@ public class JDBCOperatorBase implements DBConnector
    * Close JDBC connection.
    */
   @Override
-  public void teardownDbConnection()
+  public void disconnect()
   {
     try {
       connection.close();
     }
     catch (SQLException ex) {
       throw new RuntimeException("Error while closing database resource", ex);
+    }
+  }
+
+  @Override
+  public boolean connected()
+  {
+    try {
+      return !connection.isClosed();
+    }
+    catch (SQLException e) {
+      throw new RuntimeException(e);
     }
   }
 

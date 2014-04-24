@@ -47,8 +47,8 @@ import com.datatorrent.api.DefaultOutputPort;
  */
 public abstract class AbstractSinglePortRabbitMQInputOperator<T> extends AbstractRabbitMQInputOperator
 {
-    @OutputPortFieldAnnotation(name = "outputPort")
-  final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
+    @OutputPortFieldAnnotation(name = "output")
+  final public transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
 
   /**
    * Any concrete class derived from AbstractSinglePortRabbitMQInputOperator has to implement this method
@@ -62,6 +62,6 @@ public abstract class AbstractSinglePortRabbitMQInputOperator<T> extends Abstrac
 
     @Override
     public void emitTuple(byte[] message) {
-      outputPort.emit(getTuple(message));
+      output.emit(getTuple(message));
     }
 }

@@ -13,12 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.database;
+package com.datatorrent.lib.db.cache;
 
 import javax.validation.constraints.Min;
 
 /**
- * <br>Properties and their default values which is used by {@link CacheStore} to create the cache.</br>
+ * Properties and their default values which is used by {@link CacheStore} to create the cache.<br/>
  *
  * @since 0.9.1
  */

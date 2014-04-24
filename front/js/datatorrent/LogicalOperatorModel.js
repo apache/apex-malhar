@@ -192,7 +192,7 @@ var LogicalOperatorModel = OperatorModel.extend({
                 // min
                 "lastHeartbeat": null, 
                 // max
-                "latencyMA": 26, 
+                "latencyMA": group[0]["latencyMA"],
                 // same
                 "logicalName": group[0]["logicalName"],
                 // map of status => array of ids

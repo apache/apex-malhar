@@ -19,18 +19,16 @@ import java.util.Set;
 
 import javax.annotation.Nonnull;
 
-import com.mongodb.BasicDBObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.db.DataStoreWriter;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 
 import com.datatorrent.apps.etl.MapAggregator.MapAggregateEvent;
 import com.datatorrent.contrib.mongodb.MongoDBConnectable;
-import com.mongodb.DBCursor;
-import com.mongodb.DBObject;
-import java.util.Arrays;
-import org.python.constantine.ConstantSet;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.datatorrent.lib.db.DataStoreWriter;
 
 /**
  * Writes dimension aggregates tuples from {@link MapAggregateEvent} to mongo db,
@@ -80,10 +78,10 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
   private BasicDBObject getMetrics(MapAggregateEvent tuple)
   {
     BasicDBObject metrics = new BasicDBObject();
-    for (Metric metric : aggregators[tuple.getAggregatorIndex()].metrics) {
-      Object metricValue = tuple.getMetric(metric.destinationKey);
-      metrics.put(metric.destinationKey, metricValue);
-    }
+//    for (Metric metric : aggregators[tuple.getAggregatorIndex()].metrics) {
+//      Object metricValue = tuple.getMetric(metric.destinationKey);
+//      metrics.put(metric.destinationKey, metricValue);
+//    }
 
     return metrics;
   }
@@ -92,10 +90,10 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
   {
     BasicDBObject oldMetrics = (BasicDBObject)oldObj.get("metrics");
     BasicDBObject newMetrics = new BasicDBObject();
-    for (Metric metric : aggregators[tuple.getAggregatorIndex()].metrics) {
-      Object metricValue = metric.operation.compute(oldMetrics.get(metric.destinationKey), tuple.getMetric(metric.destinationKey));
-      newMetrics.put(metric.destinationKey, metricValue);
-    }
+//    for (Metric metric : aggregators[tuple.getAggregatorIndex()].metrics) {
+//      Object metricValue = metric.operation.compute(oldMetrics.get(metric.destinationKey), tuple.getMetric(metric.destinationKey));
+//      newMetrics.put(metric.destinationKey, metricValue);
+//    }
 
     return newMetrics;
   }

@@ -48,7 +48,7 @@ import com.datatorrent.lib.db.Connectable;
  *
  * @since 0.3.2
  */
-public class MongoDBConnectable implements com.datatorrent.lib.database.DBConnector, Connectable
+public class MongoDBConnectable implements Connectable
 {
   @NotNull
   protected String hostName;
@@ -58,7 +58,6 @@ public class MongoDBConnectable implements com.datatorrent.lib.database.DBConnec
   protected String passWord;
   protected transient MongoClient mongoClient;
   protected transient DB db;
-
 
   public String getUserName()
   {
@@ -79,7 +78,6 @@ public class MongoDBConnectable implements com.datatorrent.lib.database.DBConnec
   {
     this.passWord = passWord;
   }
-
 
   public String getDataBase()
   {
@@ -133,17 +131,4 @@ public class MongoDBConnectable implements com.datatorrent.lib.database.DBConnec
     }
     return true;
   }
-
-  @Override
-  public void setupDbConnection()
-  {
-    connect();
-  }
-
-  @Override
-  public void teardownDbConnection()
-  {
-    disconnect();
-  }
-
 }

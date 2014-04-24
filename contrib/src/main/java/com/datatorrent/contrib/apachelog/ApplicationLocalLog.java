@@ -21,7 +21,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.fs.TailFsInputOperator;
 import com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator;
-import java.text.SimpleDateFormat;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -51,7 +50,7 @@ public class ApplicationLocalLog implements StreamingApplication
 
     ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
 
-    dag.addStream("log-parse", log.output, parse.data);
+    dag.addStream("log-parse", log.output, parse.input);
     dag.addStream("parse-console", parse.output, console.input).setLocality(Locality.CONTAINER_LOCAL);
 
   }

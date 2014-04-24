@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.jdbc;
+package com.datatorrent.lib.db.jdbc;
 
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
 
@@ -47,9 +46,10 @@ public class JDBCLookupCacheBackedOperatorTest
   private static final String INMEM_DB_DRIVER = "org.hsqldb.jdbcDriver";
   protected static final String TABLE_NAME = "Test_Lookup_Cache";
 
-  protected static TestJDBCLookupCacheBackedOperator lookupCacheBaceOpertor = new TestJDBCLookupCacheBackedOperator();
+  protected static TestJDBCLookupCacheBackedOperator lookupCacheBackedOperator = new TestJDBCLookupCacheBackedOperator();
   protected static CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
   protected static final Map<Integer, String> mapping = Maps.newHashMap();
+
   static {
     mapping.put(1, "one");
     mapping.put(2, "two");
@@ -72,12 +72,12 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     @Override
-    public Object fetchValueFromDatabase(Object key)
+    public Object getValueFor(Object key)
     {
       String query = "select col2 from " + TABLE_NAME + " where col1 = " + key;
       Statement stmt;
       try {
-        stmt = jdbcConnector.connection.createStatement();
+        stmt = store.connection.createStatement();
         ResultSet resultSet = stmt.executeQuery(query);
         resultSet.next();
         Object value = resultSet.getString(1);
@@ -91,7 +91,7 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     @Override
-    public Map<Object, Object> fetchValuesFromDatabase(Set<Object> keys)
+    public Map<Object, Object> bulkGet(Set<Object> keys)
     {
       StringBuilder builder = new StringBuilder("(");
       for (Object k : keys) {
@@ -103,7 +103,7 @@ public class JDBCLookupCacheBackedOperatorTest
       String query = "select col1, col2 from " + TABLE_NAME + " where col1 in " + builder.toString();
 
       try {
-        Statement statement = jdbcConnector.connection.createStatement();
+        Statement statement = store.connection.createStatement();
         ResultSet resultSet = statement.executeQuery(query);
 
         Map<Object, Object> values = Maps.newHashMap();
@@ -122,7 +122,7 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     @Override
-    public Map<Object, Object> fetchStartupDataFromDatabase()
+    public Map<Object, Object> fetchStartupData()
     {
       return null;
     }
@@ -132,10 +132,10 @@ public class JDBCLookupCacheBackedOperatorTest
   @Test
   public void test() throws Exception
   {
-    lookupCacheBaceOpertor.beginWindow(0);
-    lookupCacheBaceOpertor.input.process("1");
-    lookupCacheBaceOpertor.input.process("2");
-    lookupCacheBaceOpertor.endWindow();
+    lookupCacheBackedOperator.beginWindow(0);
+    lookupCacheBackedOperator.input.process("1");
+    lookupCacheBackedOperator.input.process("2");
+    lookupCacheBackedOperator.endWindow();
 
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", 2, sink.collectedTuples.size());
@@ -165,20 +165,19 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     //Setup the operator
-    lookupCacheBaceOpertor.setDbUrl(INMEM_DB_URL);
-    lookupCacheBaceOpertor.setDbDriver(INMEM_DB_DRIVER);
+    lookupCacheBackedOperator.store.setDbUrl(INMEM_DB_URL);
+    lookupCacheBackedOperator.store.setDbDriver(INMEM_DB_DRIVER);
 
-    Calendar now = Calendar.getInstance(TimeZone.getTimeZone("PST"));
-    now.add(Calendar.SECOND, 15);
+    Calendar now = Calendar.getInstance();
+    now.add(Calendar.SECOND, 5);
 
-    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss z");
-    lookupCacheBaceOpertor.setCacheRefreshTime(format.format(now.getTime()));
+    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    lookupCacheBackedOperator.setCacheRefreshTime(format.format(now.getTime()));
 
-    lookupCacheBaceOpertor.output.setSink(sink);
+    lookupCacheBackedOperator.output.setSink(sink);
 
     Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(7);
-    lookupCacheBaceOpertor.setup(context);
-    lookupCacheBaceOpertor.activate(context);
+    lookupCacheBackedOperator.setup(context);
   }
 
   @AfterClass

@@ -81,7 +81,7 @@ public class Application1 implements StreamingApplication
 
     ConsoleOutputOperator consoleOut = dag.addOperator("ConsoleOut", new ConsoleOutputOperator());
 
-    dag.addStream("inputJSonToMap", logInput.outputPort, jsonToMap.input);
+    dag.addStream("inputJSonToMap", logInput.output, jsonToMap.input);
     dag.addStream("toFilterOper", jsonToMap.outputFlatMap, filterOperator.input);
     dag.addStream("toDimensionOper", filterOperator.outputMap, dimensionOperator.in);
     dag.addStream("toTopN", dimensionOperator.aggregationsOutput, topN.data);

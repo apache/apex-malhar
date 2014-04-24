@@ -13,24 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.database;
+package com.datatorrent.lib.db.cache;
 
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 
 /**
- * <br>Manages primary and secondary stores.</br>
- * <br>It firsts checks the primary store for a key. If the primary store doesn't have the key, it queries the backup store and retrieves the value.</br>
- * <br>If the key was present in the backup store, its value is returned and also saved in the primary store.</br>
- * <br>Typically primary store is faster but has limited size like memory and backup store is slower but unlimited like databases.</br>
- * <br></br>
- * <br>Store Manager can also refresh the values of keys at a specified time every day. This time is in format HH:mm:ss Z.</br>
- * <br>This is non-threadsafe.</br>
+ * Manages primary and secondary stores.<br/>
+ * <p>
+ * It firsts checks the primary store for a key. If the primary store doesn't have the key, it queries the backup store and retrieves the value.<br/>
+ * If the key was present in the backup store, its value is returned and also saved in the primary store.
+ * </p>
+ * <p>
+ * Typically primary store is faster but has limited size like memory and backup store is slower but unlimited like databases.<br/>
+ * Store Manager can also refresh the values of keys at a specified time every day. This time is in format HH:mm:ss Z.<br/>
+ * This is not thread-safe.
+ * </p>
  *
  * @since 0.9.2
  */
@@ -46,7 +53,7 @@ public class StoreManager
     this.backup = Preconditions.checkNotNull(backup, "backup store");
   }
 
-  public void initialize(@Nullable String refreshTime/*HH:mm:ss Z*/)
+  public void initialize(@Nullable String refreshTime/*HH:mm:ss*/)
   {
     Map<Object, Object> initialEntries = backup.fetchStartupData();
     if (initialEntries != null) {
@@ -57,28 +64,18 @@ public class StoreManager
 
       String[] parts = refreshTime.split("[:\\s]");
 
-      TimeZone zone = TimeZone.getTimeZone("GMT");
-      if (parts.length == 4) {
-        zone = TimeZone.getTimeZone(parts[3]);
-      }
-
-      Calendar timeToRefresh = Calendar.getInstance(zone);
-      if (parts.length >= 3) {
-        timeToRefresh.set(Calendar.SECOND, Integer.parseInt(parts[2]));
-      }
+      SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss z");
+      Calendar timeToRefresh = Calendar.getInstance();
+      timeToRefresh.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
       if (parts.length >= 2) {
         timeToRefresh.set(Calendar.MINUTE, Integer.parseInt(parts[1]));
       }
-      timeToRefresh.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
-
-      long initialDelay = timeToRefresh.getTimeInMillis() - Calendar.getInstance(zone).getTimeInMillis();
-      if (initialDelay < 0) {
-        timeToRefresh.add(Calendar.DAY_OF_MONTH, 1);
-        initialDelay = timeToRefresh.getTimeInMillis();
+      if (parts.length >= 3) {
+        timeToRefresh.set(Calendar.SECOND, Integer.parseInt(parts[2]));
       }
+      long initialDelay = timeToRefresh.getTimeInMillis() - Calendar.getInstance().getTimeInMillis();
 
-      refresher = new Timer();
-      refresher.scheduleAtFixedRate(new TimerTask()
+      TimerTask task = new TimerTask()
       {
         @Override
         public void run()
@@ -91,15 +88,23 @@ public class StoreManager
             }
           }
         }
-      }, initialDelay, 86400000);
+      };
+
+      refresher = new Timer();
+      if (initialDelay < 0) {
+        refresher.schedule(task, 0);
+        timeToRefresh.add(Calendar.DAY_OF_MONTH, 1);
+        initialDelay = timeToRefresh.getTimeInMillis();
+      }
+      refresher.scheduleAtFixedRate(task, initialDelay, 86400000);
     }
   }
 
   public void shutdown()
   {
     refresher.cancel();
-    primary.shutdownStore();
-    backup.shutdownStore();
+    primary.teardown();
+    backup.teardown();
   }
 
   @Nullable
@@ -117,4 +122,7 @@ public class StoreManager
     }
     return null;
   }
+
+  private final static Logger logger = LoggerFactory.getLogger(StoreManager.class);
+
 }

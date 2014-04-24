@@ -58,7 +58,7 @@ var Info = BaseView.extend({
     		);
     	} else {
     		result.push(
-				{ key: 'as_of', label: DT.text('ended_at_label'), value: function(as_of) { console.log(typeof as_of, as_of); return as_of; } }
+				{ key: 'as_of', label: DT.text('ended_at_label') }
     		);
     	}
 

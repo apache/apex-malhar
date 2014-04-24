@@ -16,33 +16,41 @@
 package com.datatorrent.apps.etl;
 
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import javax.annotation.Nullable;
+
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.statistics.DimensionsComputation;
 
+/**
+ * For apache logs the default metrics for each combinations are:
+ * <ul>
+ * <li>Sum of bytes.</li>
+ * <li>Count of hits.</li>
+ * <li>Average response time.</li>
+ * </ul>
+ *
+ * @return
+ */
 public class MapAggregator implements DimensionsComputation.Aggregator<Map<String, Object>, MapAggregator.MapAggregateEvent>
 {
 
   private TimeUnit time;
   private Set<String> dimensionKeys;
-  List<Metric> metrics;
 
   public MapAggregator()
   {
-    // for kryo
+    //Needed for kryo serialization
   }
 
-  public void init(String dimension, List<Metric> operations)
+  public void init(String dimension)
   {
-    this.metrics = Preconditions.checkNotNull(operations, "metrics");
     this.dimensionKeys = Sets.newHashSet();
     String[] attributes = dimension.split(":");
 
@@ -56,8 +64,6 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
         dimensionKeys.add(key);
       }
     }
-
-    dimensionKeys.add(Constants.LOG_TYPE);
   }
 
   @Override
@@ -73,7 +79,7 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
     for (String aDimension : dimensionKeys) {
       Object srcDimension = src.get(aDimension);
       if (srcDimension == null) {
-        aggregateEvent.putDimension(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT.name());
+        aggregateEvent.putDimension(aDimension, Constants.RESERVED_DIMENSION.NOT_PRESENT);
       }
       else {
         aggregateEvent.putDimension(aDimension, srcDimension);
@@ -86,19 +92,43 @@ public class MapAggregator implements DimensionsComputation.Aggregator<Map<Strin
   @Override
   public void aggregate(MapAggregateEvent dest, Map<String, Object> src)
   {
-    for (Metric metric : metrics) {
-      Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), src.get(metric.sourceKey));
-      dest.putMetric(metric.destinationKey, result);
-    }
+    //sum of bytes
+    double sumBytes = computeSumOf((Double) dest.getMetric(Constants.BYTES_SUM_DEST), (Double) src.get(Constants.BYTES_SRC));
+    dest.putMetric(Constants.BYTES_SUM_DEST, sumBytes);
+
+    //count of hits
+    Long lastCount = (Long) dest.getMetric(Constants.COUNT_DEST);
+    long newCount = lastCount == null ? 1 : lastCount + 1;
+    dest.putMetric(Constants.COUNT_DEST, newCount);
+
+    //average responseTime
+    double sumResponseTime = computeSumOf((Double) dest.getMetric(Constants.RESPONSE_TIME_SUM_DEST), (Double) src.get(Constants.RESPONSE_TIME_SRC));
+    dest.putMetric(Constants.RESPONSE_TIME_SUM_DEST, sumResponseTime);
+    dest.putMetric(Constants.RESPONSE_TIME_AVG_DEST, sumResponseTime / newCount);
   }
 
   @Override
   public void aggregate(MapAggregateEvent dest, MapAggregateEvent src)
   {
-    for (Metric metric : metrics) {
-      Object result = metric.operation.compute(dest.getMetric(metric.destinationKey), src.getMetric(metric.destinationKey));
-      dest.putMetric(metric.destinationKey, result);
-    }
+    //sum of bytes
+    double sumBytes = computeSumOf((Double) dest.getMetric(Constants.BYTES_SUM_DEST), (Double) src.getMetric(Constants.BYTES_SUM_DEST));
+    dest.putMetric(Constants.BYTES_SUM_DEST, sumBytes);
+
+    //count of hits
+    Long targetCount = (Long) dest.getMetric(Constants.COUNT_DEST);
+    long more = (Long) src.getMetric(Constants.COUNT_DEST);
+    long newCount = (targetCount == null ? more : (targetCount + more));
+    dest.putMetric(Constants.COUNT_DEST, newCount);
+
+    //average responseTime
+    double sumResponseTime = computeSumOf((Double) dest.getMetric(Constants.RESPONSE_TIME_SUM_DEST), (Double) src.getMetric(Constants.RESPONSE_TIME_SUM_DEST));
+    dest.putMetric(Constants.RESPONSE_TIME_SUM_DEST, sumResponseTime);
+    dest.putMetric(Constants.RESPONSE_TIME_AVG_DEST, sumResponseTime / newCount);
+  }
+
+  private double computeSumOf(@Nullable Double lastSum, @Nullable Double val)
+  {
+    return lastSum == null ? (val == null ? 0.0 : val) : (val == null ? lastSum : lastSum + val);
   }
 
   @Override

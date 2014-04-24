@@ -15,14 +15,22 @@
  */
 package com.datatorrent.apps.etl;
 
-public interface Constants
+public class Constants
 {
-  static String LOG_TYPE = "logType";
-  static String DEFAULT_FILTER = "default";
-  static String TIME_ATTR = "time";
-  static enum RESERVED_DIMENSION {
+  public static final String DEFAULT_FILTER = "default";
+  public static final String TIME_ATTR = "time";
+
+  public static enum RESERVED_DIMENSION
+  {
     NOT_PRESENT
-  };
-  static String METRICS = "metrics";
-  static String DIMENSIONS = "dimensions";
+  }
+
+  public static final String BYTES_SUM_DEST = "bytesSum";
+  public static final String BYTES_SRC = "bytes";
+  public static final String COUNT_DEST = "count";
+  public static final String RESPONSE_TIME_SUM_DEST = "responseTimeSum";
+  public static final String RESPONSE_TIME_AVG_DEST = "responseTimeAvg";
+  public static final String RESPONSE_TIME_SRC = "responseTime";
+  public static final String METRICS = "metrics";
+  public static final String DIMENSIONS = "dimensions";
 }
