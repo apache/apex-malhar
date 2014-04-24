@@ -76,7 +76,27 @@ var MetricModelFactory = {
             }
         },
 
-        cpuPercentageMA: {
+        cpuMin: {
+            showMetric: function (id, map) {
+                return map.hasOwnProperty(id);
+            },
+
+            valueToString: function (value) {
+                return formatters.percentageFormatter(value, true);
+            }
+        },
+
+        cpuMax: {
+            showMetric: function (id, map) {
+                return map.hasOwnProperty(id);
+            },
+
+            valueToString: function (value) {
+                return formatters.percentageFormatter(value, true);
+            }
+        },
+
+        cpuAvg: {
             showMetric: function (id, map) {
                 return map.hasOwnProperty(id);
             },

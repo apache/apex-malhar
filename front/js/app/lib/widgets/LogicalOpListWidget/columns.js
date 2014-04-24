@@ -48,8 +48,10 @@ function logicalNameFormatter(value, row) {
 exports = module.exports = [
 	{ id: 'selector', key: 'selected', label: '', select: true, width: 40, lock_width: true },
 	{ id: 'logicalName', key: 'logicalName', label: 'name', sort: 'string', sort_value: 'a', filter: 'like', format: logicalNameFormatter, width: 100 },
-    { id: 'className', key: 'className', label: 'class', sort: 'string', filter: 'like', width: 300 },
-    { id: 'cpuPercentageMA', key: 'cpuPercentageMA', label: DT.text('cpu_percentage_label'), sort: 'number', filter: 'number', format: cpuFormatter },
+    { id: 'className', key: 'className', label: 'class', sort: 'string', filter: 'like', width: 250 },
+    { id: 'cpuMin', key: 'cpuMin', label: DT.text('cpu_min_label'), sort: 'number', filter: 'number', format: cpuFormatter },
+    { id: 'cpuMax', key: 'cpuMax', label: DT.text('cpu_max_label'), sort: 'number', filter: 'number', format: cpuFormatter },
+    { id: 'cpuAvg', key: 'cpuAvg', label: DT.text('cpu_avg_label'), sort: 'number', filter: 'number', format: cpuFormatter },
     { id: 'currentWindowId', key: 'currentWindowId', label: DT.text('current_wid_label'), sort: 'string', filter: 'like', format: windowFormatter },
     { id: 'recoveryWindowId', key: 'recoveryWindowId', label: DT.text('recovery_wid_label'), sort: 'string', filter: 'like', format: windowFormatter },
     { id: 'failureCount', key: 'failureCount', label: DT.text('failure_count_label'), sort: 'string', filter: 'like' },
