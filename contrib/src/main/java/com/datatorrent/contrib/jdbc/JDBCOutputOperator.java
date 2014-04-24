@@ -545,7 +545,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   public void setup(OperatorContext context)
   {
     buildMapping();
-    setupDbConnection();
+    connect();
     prepareInsertStatement();
     setOperatorId(context.getId());
     applicationId = context.getAttributes().get(DAG.APPLICATION_ID);
@@ -565,7 +565,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
     catch (SQLException ex) {
       throw new RuntimeException("Error while closing database resource", ex);
     }
-    teardownDbConnection();
+    disconnect();
   }
 
   /**

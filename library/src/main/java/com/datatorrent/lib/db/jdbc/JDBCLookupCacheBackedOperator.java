@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.jdbc;
+package com.datatorrent.lib.db.jdbc;
 
-import javax.annotation.Nonnull;
+import com.datatorrent.api.Context;
 
-import com.datatorrent.lib.database.AbstractDBLookupCacheBackedOperator;
-import com.datatorrent.lib.database.DBConnector;
+import com.datatorrent.lib.db.cache.AbstractDBLookupCacheBackedOperator;
 
 /**
- * <br>This is {@link AbstractDBLookupCacheBackedOperator} which uses JDBC to fetch the value of a key from the database
+ * This is {@link AbstractDBLookupCacheBackedOperator} which uses JDBC to fetch the value of a key from the database
  * when the key is not present in cache. </br>
  *
  * @param <T> type of input tuples </T>
@@ -29,38 +28,30 @@ import com.datatorrent.lib.database.DBConnector;
  */
 public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T>
 {
-  protected final JDBCOperatorBase jdbcConnector;
+  protected final JdbcStore store;
 
   public JDBCLookupCacheBackedOperator()
   {
     super();
-    jdbcConnector = new JDBCOperatorBase();
+    store = new JdbcStore();
   }
 
-  @Nonnull
   @Override
-  public DBConnector getDbConnector()
+  public void setup(Context.OperatorContext context)
   {
-    return jdbcConnector;
+    store.connect();
+    super.setup(context);
   }
 
-  /**
-   * Sets the database url.
-   *
-   * @param dbUrl url of the database.
-   */
-  public void setDbUrl(String dbUrl)
+  @Override
+  public void teardown()
   {
-    jdbcConnector.setDbUrl(dbUrl);
+    store.disconnect();
+    super.teardown();
   }
 
-  /**
-   * Sets the database driver.
-   *
-   * @param dbDriver database driver.
-   */
-  public void setDbDriver(String dbDriver)
+  public JdbcStore getStore()
   {
-    jdbcConnector.setDbDriver(dbDriver);
+    return store;
   }
 }

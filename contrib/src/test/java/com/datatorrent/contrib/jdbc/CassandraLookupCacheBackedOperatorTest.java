@@ -14,6 +14,7 @@ import org.junit.BeforeClass;
 
 import com.datatorrent.api.Context;
 
+import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperatorTest;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 /**
@@ -63,20 +64,19 @@ public class CassandraLookupCacheBackedOperatorTest extends JDBCLookupCacheBacke
       }
 
       //Setup the operator
-      lookupCacheBaceOpertor.setDbUrl(CASSANDRA_DB_URL + "/" + KEYSPACE_NAME);
-      lookupCacheBaceOpertor.setDbDriver(CASSANDRA_DB_DRIVER);
+      lookupCacheBackedOperator.getStore().setDbUrl(CASSANDRA_DB_URL + "/" + KEYSPACE_NAME);
+      lookupCacheBackedOperator.getStore().setDbDriver(CASSANDRA_DB_DRIVER);
 
       Calendar now = Calendar.getInstance(TimeZone.getTimeZone("PST"));
       now.add(Calendar.SECOND, 15);
 
       SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss z");
-      lookupCacheBaceOpertor.setCacheRefreshTime(format.format(now.getTime()));
+      lookupCacheBackedOperator.setCacheRefreshTime(format.format(now.getTime()));
 
-      lookupCacheBaceOpertor.output.setSink(sink);
+      lookupCacheBackedOperator.output.setSink(sink);
 
       Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(7);
-      lookupCacheBaceOpertor.setup(context);
-      lookupCacheBaceOpertor.activate(context);
+      lookupCacheBackedOperator.setup(context);
     }
     catch (Exception ex) {
       logger.error("cassandra setup", ex);
