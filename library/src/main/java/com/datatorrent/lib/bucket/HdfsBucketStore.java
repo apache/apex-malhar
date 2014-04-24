@@ -212,8 +212,9 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
             FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration);
             try {
               if (fs.exists(dataFilePath)) {
+                logger.debug("start delete {}", window);
                 fs.delete(dataFilePath, true);
-                logger.debug("{} deleted file {}", operatorId, window);
+                logger.debug("end delete {}", window);
               }
               windowToBuckets.removeAll(window);
               windowToTimestamp.remove(window);
@@ -241,7 +242,8 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       return bucketData;
     }
 
-    logger.debug("fetching bucket {}", bucketIdx);
+    logger.debug("start fetch bucket {}", bucketIdx);
+    long startTime = System.currentTimeMillis();
     for (long window : bucketPositions[bucketIdx].keySet()) {
 
       //Read data only for the fileIds in which bucketIdx had events.
@@ -274,6 +276,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
             bucketData.put(key, null);
           }
         }
+        logger.debug("end fetch bucket {} took {}", bucketIdx, System.currentTimeMillis() - startTime);
       }
       finally {
         input.close();

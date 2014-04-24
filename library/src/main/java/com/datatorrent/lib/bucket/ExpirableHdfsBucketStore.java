@@ -43,8 +43,9 @@ public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends Hdfs
             FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration);
             try {
               if (fs.exists(dataFilePath)) {
+                logger.debug("start delete {}", window);
                 fs.delete(dataFilePath, true);
-                logger.debug("{} deleted file {}", operatorId, window);
+                logger.debug("end delete {}", window);
               }
               for (int bucketIdx : indices) {
                 Map<Long, Long> offsetMap = bucketPositions[bucketIdx];
