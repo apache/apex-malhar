@@ -15,13 +15,12 @@
  */
 package com.datatorrent.contrib.apachelog;
 
-import com.datatorrent.api.DAG;
+import com.datatorrent.api.*;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.fs.TailFsInputOperator;
 import com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator;
-import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -31,20 +30,45 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ApplicationLogGenerator implements StreamingApplication
 {
+  private void setLibraryJars(DAG dag)
+  {
+    List<Class<?>> containingJars = new ArrayList<Class<?>>();
+    containingJars.add(com.maxmind.geoip.LookupService.class);
+    containingJars.add(net.sf.uadetector.UserAgentStringParser.class);
+    containingJars.add(net.sf.uadetector.service.UADetectorServiceFactory.class);
+    containingJars.add(net.sf.qualitycheck.Check.class);
+
+    String oldlibjar = dag.getValue(DAGContext.LIBRARY_JARS);
+    if (oldlibjar == null) {
+      oldlibjar = "";
+    }
+
+    StringBuilder libjars = new StringBuilder(oldlibjar);
+    for (Class<?> clazz : containingJars) {
+      if (libjars.length() != 0) {
+        libjars.append(",");
+      }
+      libjars.append(clazz.getProtectionDomain().getCodeSource().getLocation().toString());
+    }
+    dag.setAttribute(DAGContext.LIBRARY_JARS, libjars.toString());
+  }
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
+    setLibraryJars(dag);
     ApacheLogInputGenerator log = dag.addOperator("log", new ApacheLogInputGenerator());
-    log.setIpAddressFile("src/test/resources/com/datatorrent/contrib/apachelog/ipaddress.txt");
-    log.setUrlFile("src/test/resources/com/datatorrent/contrib/apachelog/urls.txt");
-    log.setAgentFile("src/test/resources/com/datatorrent/contrib/apachelog/agents.txt");
-    log.setRefererFile("src/test/resources/com/datatorrent/contrib/apachelog/referers.txt");
+    log.setIpAddressFile("/com/datatorrent/contrib/apachelog/ipaddress.txt");
+    log.setUrlFile("/com/datatorrent/contrib/apachelog/urls.txt");
+    log.setAgentFile("/com/datatorrent/contrib/apachelog/agents.txt");
+    log.setRefererFile("/com/datatorrent/contrib/apachelog/referers.txt");
 
     ApacheLogParseMapOutputOperator parse = dag.addOperator("parse", new ApacheLogParseMapOutputOperator());
     GeoIPExtractor geoIPExtractor = new GeoIPExtractor();
 
     // Can't put this file in resources until licensing issue is straightened out
     geoIPExtractor.setDatabasePath("/home/david/GeoLiteCity.dat");
+
     parse.registerInformationExtractor("ip", geoIPExtractor);
     parse.registerInformationExtractor("agent", new UserAgentExtractor());
     TimestampExtractor timestampExtractor = new TimestampExtractor();

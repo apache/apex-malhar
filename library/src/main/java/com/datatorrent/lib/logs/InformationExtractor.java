@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.logs;
 
+import java.io.Serializable;
 import java.util.Map;
 
 /**
@@ -23,7 +24,7 @@ import java.util.Map;
  *
  * @since 0.9.4
  */
-public interface InformationExtractor
+public interface InformationExtractor extends Serializable
 {
   /**
    * Implementor should provide code that needs to be run for this extractor to be set up
