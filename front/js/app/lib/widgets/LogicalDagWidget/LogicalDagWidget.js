@@ -52,23 +52,31 @@ var LogicalDagWidget = BaseView.extend({
             },
             {
                 value: 'latencyMA',
-                label: 'Max Latency (ms)'
+                label: DT.text('max_latency_label')
             },
             {
                 value: 'partitionCount',
-                label: 'Partition Count'
+                label: DT.text('partitions_label')
             },
             {
                 value: 'containerCount',
-                label: 'Container Count'
+                label: DT.text('containers_label')
             },
             {
-                value: 'cpuPercentageMA',
-                label: 'CPU (%)'
+                value: 'cpuMin',
+                label: DT.text('cpu_min_label')
+            },
+            {
+                value: 'cpuMax',
+                label: DT.text('cpu_max_label')
+            },
+            {
+                value: 'cpuAvg',
+                label: DT.text('cpu_avg_label')
             },
             {
                 value: 'lastHeartbeat',
-                label: 'Last Heartbeat'
+                label: DT.text('last_heartbeat_label')
             },
             {
                 value: 'currentWindowId',
