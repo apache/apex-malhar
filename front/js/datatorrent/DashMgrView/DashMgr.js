@@ -49,7 +49,6 @@ var DashMgr = BaseView.extend({
     },
     
     events: {
-        "click .collapser-container": "toggle",
         "click .widget-manager-tab a": "toggle"
     },
     
@@ -88,7 +87,7 @@ var DashMgr = BaseView.extend({
     
     width: 220,
     
-    collapsedWidth: 7,
+    collapsedWidth: 3,
     
     template: kt.make(__dirname+'/DashMgr.html','_')
     

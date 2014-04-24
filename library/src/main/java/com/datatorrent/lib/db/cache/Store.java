@@ -13,13 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.database;
+package com.datatorrent.lib.db.cache;
 
 import java.util.Map;
 import java.util.Set;
 
 /**
- * <br>A store which could be a memory store or a database store.</br>
+ * A store which could be a memory store or a database store.
  *
  * @since 0.9.2
  */
@@ -42,12 +42,12 @@ public interface Store
   Map<Object, Object> bulkGet(Set<Object> keys);
 
   /**
-   * Perform shutdown.
+   * teardown store.
    */
-  void shutdownStore();
+  void teardown();
 
   /**
-   * <br>A primary store should also provide setting the value for a key.</br>
+   * A primary store should also provide setting the value for a key.
    */
   public static interface Primary extends Store
   {
@@ -75,8 +75,8 @@ public interface Store
   }
 
   /**
-   * <br>Backup store is queried when {@link Primary} doesn't contain a key.</br>
-   * <br>It also provides data needed at startup.</br>
+   * Backup store is queried when {@link Primary} doesn't contain a key.<br/>
+   * It also provides data needed at startup.<br/>
    */
   public static interface Backup extends Store
   {

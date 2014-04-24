@@ -236,7 +236,7 @@ describe('LogicalOperatorCollection.js', function() {
 
 	it('should take the max of latency', function() {
 		expect(response[0].latencyMA).to.equal(26);
-	    expect(response[1].latencyMA).to.equal(26); 
+	    expect(response[1].latencyMA).to.equal(24); 
 	});
 
 	it('should keep the logicalName the same', function() {

@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.database;
+package com.datatorrent.lib.db.cache;
 
 import java.util.Map;
 import java.util.Set;
@@ -82,7 +82,7 @@ public class StoreManagerTest
     }
 
     @Override
-    public void shutdownStore()
+    public void teardown()
     {
       //Do nothing
     }

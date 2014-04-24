@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.database;
+package com.datatorrent.lib.db.cache;
 
 import java.util.Map;
 import java.util.Set;
@@ -26,16 +26,16 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 
 /**
- * <br>A {@link Store.Primary} that keeps key/value pairs in memory.</br>
- * <br></br>
- * <br>The cache storage is defined by:</br>
+ * A {@link Store.Primary} which keeps key/value pairs in memory.<br/>
+ *
+ * Properties of the cache store:<br/>
  * <ul>
  * <li>Transient: It is not checkpointed.</li>
  * <li>Max Cache Size: it starts evicting entries before this limit is exceeded.</li>
- * <li>Entry expirty time: the entries epire after the specified duration.</li>
+ * <li>Entry expiry time: the entries epire after the specified duration.</li>
  * <li>Cache cleanup interval: the interval at which the cache is cleaned up of expired entries periodically.</li>
  * </ul>
- * <br>These properties of the cache are encapsulated in {@link CacheProperties}</br>
+ * These properties of the cache are encapsulated in {@link CacheProperties}.<br/>
  *
  * @since 0.9.2
  */
@@ -98,7 +98,7 @@ public class CacheStore implements Store.Primary
   }
 
   @Override
-  public void shutdownStore()
+  public void teardown()
   {
     cleanupScheduler.shutdown();
   }

@@ -238,7 +238,6 @@ var ApplicationModel = BaseModel.extend({
         
         // Only subscribe to operators and containers if this app is running
         var subscribeToOpsAndCtnrs = _.bind(function() {
-            
             if (this.operators) {
                 this.operators.subscribe();
             }

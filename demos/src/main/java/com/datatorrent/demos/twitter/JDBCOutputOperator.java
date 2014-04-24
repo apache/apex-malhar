@@ -30,7 +30,7 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 import com.datatorrent.contrib.jdbc.JDBCOperatorBase;
-import com.datatorrent.lib.database.DBConnector;
+import com.datatorrent.lib.db.Connectable;
 
 /**
  * <br>Generic JDBC Output Adaptor which creates a transaction at the start of window.
@@ -47,7 +47,7 @@ import com.datatorrent.lib.database.DBConnector;
  * @param <T> type of tuples </T>
  * @since 0.9.4
  */
-@ShipContainingJars(classes = {JDBCOperatorBase.class, DBConnector.class})
+@ShipContainingJars(classes = {JDBCOperatorBase.class, Connectable.class})
 public abstract class JDBCOutputOperator<T> implements Operator
 {
   public static int DEFAULT_BATCH_SIZE = 1000;
@@ -126,7 +126,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
   @Override
   public void setup(Context.OperatorContext context)
   {
-    jdbcConnector.setupDbConnection();
+    jdbcConnector.connect();
     try {
       jdbcConnector.getConnection().setAutoCommit(false);
       lastPersistedWindow = getLastPersistedWindow(context);
@@ -139,12 +139,7 @@ public abstract class JDBCOutputOperator<T> implements Operator
   @Override
   public void teardown()
   {
-    try {
-      jdbcConnector.getConnection().close();
-    }
-    catch (SQLException ex) {
-      throw new RuntimeException("while closing connection", ex);
-    }
+    jdbcConnector.disconnect();
   }
 
   public void setJdbcStore(@Nonnull JDBCOperatorBase operatorBase)

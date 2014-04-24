@@ -1,6 +1,6 @@
 body {
     font-family: "Helvetica Neue", helvetica, arial, sans-serif;
-    background: #ececec;
+    background-color:@background_color;
     min-width:747px;
     font-size: 12px;
 }
@@ -37,7 +37,6 @@ p {
 }
 #main {
     background-color:@active_pane;
-    border:thin solid #ccc;
     overflow:auto;
     width:auto;
 }
@@ -79,11 +78,11 @@ p {
         background-image: url('../img/status_killed.svg');
         color: @status_killed;
     }
-    .status-finishing {
+    .status-finishing, .status-pending-undeploy {
         background-image: url('../img/status_finishing.svg');
         color: @status_finishing;
     }
-    .status-finished, .status-ended {
+    .status-finished, .status-ended{
         background-image: url('../img/status_inactive.svg');
         color: @status_finished;
     }

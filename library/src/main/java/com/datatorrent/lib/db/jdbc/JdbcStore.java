@@ -26,7 +26,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.database.DBConnector;
 import com.datatorrent.lib.db.Connectable;
 
 /**
@@ -34,7 +33,7 @@ import com.datatorrent.lib.db.Connectable;
  *
  * @since 0.9.4
  */
-public class JdbcStore implements Connectable, DBConnector
+public class JdbcStore implements Connectable
 {
   protected static final Logger logger = LoggerFactory.getLogger(JdbcStore.class);
 
@@ -142,17 +141,5 @@ public class JdbcStore implements Connectable, DBConnector
     catch (SQLException e) {
       throw new RuntimeException("is connected", e);
     }
-  }
-
-  @Override
-  public void setupDbConnection()
-  {
-    connect();
-  }
-
-  @Override
-  public void teardownDbConnection()
-  {
-    disconnect();
   }
 }
