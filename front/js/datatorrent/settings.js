@@ -73,7 +73,7 @@ exports = module.exports = {
         ClusterMetrics           :'cluster.metrics',
         Applications             :'applications',
         Application              :'applications.:appId',
-        Operators                :'applications.:appId.operators',
+        Operators                :'applications.:appId.physicalOperators',
         Containers               :'applications.:appId.containers',
         TupleRecorder            :'tupleRecorder.:startTime'
 
