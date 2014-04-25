@@ -19,12 +19,14 @@ var kt = require('knights-templar');
 var BaseView = require('bassview');
 
 var IssuesSubView = require('./IssuesSubView');
+var InfoSubView = require('./InfoSubView');
 
 var DiagnosticsPageView = BaseView.extend({
 
     initialize: function(options) {
         
         this.subview('issues', new IssuesSubView({}));
+        this.subview('info', new InfoSubView({}));
     },
 
     render: function() {
@@ -32,7 +34,8 @@ var DiagnosticsPageView = BaseView.extend({
         var html = this.template(json);
         this.$el.html(html);
         this.assign({
-            '.diagnostic-issues': 'issues'
+            '.diagnostic-issues': 'issues',
+            '.diagnostic-info': 'info'
         });
         return this;
     },

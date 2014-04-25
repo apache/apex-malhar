@@ -1,0 +1,39 @@
+<% if (fetchState === 'pending') { %>
+<div class="alert">
+    Loading information...
+</div>
+<% } else if (fetchState === 'resolved'){ %>
+<table class="config-table">
+    <thead>
+        <tr>
+            <th scope="col">item</th>
+            <th scope="col">value</th>
+            <th scope="col">description</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>Hadoop Install Directory</td>
+            <td><%= about.hadoopLocation %></td>
+            <td>The location of the hadoop install directory.</td>
+        </tr>
+        <tr>
+            <td>DFS Root Directory</td>
+            <td><%= dfsRootDirectory.value %></td>
+            <td><%= dfsRootDirectory.description %></td>
+        </tr>
+        <tr>
+            <td>DataTorrent Config Directory</td>
+            <td><%= about.configDirectory %></td>
+            <td>The location of DataTorrent configuration files.</td>
+        </tr>
+        <tr>
+            <td>Gateway Connect Address</td>
+            <td><%= gatewayConnectAddress.value %></td>
+            <td><%= gatewayConnectAddress.description %></td>
+        </tr>
+    </tbody>
+</table>
+<% } else { %>
+<div class="alert alert-error">An error occurred retrieving information about this DataTorrent installation.</div>
+<% } %>
