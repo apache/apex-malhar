@@ -49,6 +49,18 @@ exports = module.exports = [
         ]
     },
     {
+        'name': 'ConfigurationPageView',
+        'routes': ['config', '/config', '/configuration'],
+        'view': require('./lib/pages/ConfigPageView'),
+        'paramList': [],
+        'mode': 'config',
+        'breadcrumbs': [
+            {
+                name: text('configuration')
+            }
+        ]
+    },
+    {
         'name': 'InstallWizardPageView',
         'routes': ['welcome', 'config/install-wizard'],
         'view': require('./lib/pages/InstallWizardPageView'),
@@ -64,7 +76,6 @@ exports = module.exports = [
             }
         ]
     },
-
     {
         name: 'DiagnosticsPageView',
         routes: ['config/diagnostics'],
@@ -82,18 +93,7 @@ exports = module.exports = [
         ]
     },
 
-    {
-        'name': 'ConfigurationPageView',
-        'routes': ['config', '/config', '/configuration'],
-        'view': require('./lib/pages/ConfigPageView'),
-        'paramList': [],
-        'mode': 'config',
-        'breadcrumbs': [
-            {
-                name: text('configuration')
-            }
-        ]
-    },
+    
 
     {
         name: 'LicensePageView',
