@@ -301,14 +301,15 @@ var DagWidget = BaseView.extend({
         var viewbox = this.minimap.select('.minimap-viewbox');
         var viewboxWidth = $svg.width() * this.minimapMultiplier / scale;
         var viewboxHeight = $svg.height() * this.minimapMultiplier / scale;
+        var offset = $svg.position().top;
         var x = translate[0];
         var y = translate[1];
-        // console.log('');
+        
         viewbox.attr({
             'width': viewboxWidth,
             'height': viewboxHeight,
             'x': -x * this.minimapMultiplier / scale,
-            'y': -y * this.minimapMultiplier / scale
+            'y': (-y - offset) * this.minimapMultiplier / scale
         });
     },
 
