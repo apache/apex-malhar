@@ -50,7 +50,9 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable, OUTPUT> ext
   {
     super.partitioned(partitions);
     for (Partition<Deduper<INPUT, OUTPUT>> partition : partitions.values()) {
-      ((DeduperWithHdfsStore<INPUT, OUTPUT>) partition.getPartitionedInstance()).bucketsDir = this.bucketsDir;
+      DeduperWithHdfsStore<INPUT, OUTPUT> deduperWithHdfsStore = (DeduperWithHdfsStore<INPUT, OUTPUT>) partition.getPartitionedInstance();
+      deduperWithHdfsStore.bucketsDir = this.bucketsDir;
+      deduperWithHdfsStore.bucketStore = this.bucketStore;
     }
   }
 
