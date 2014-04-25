@@ -376,11 +376,10 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       readSerde.setClassLoader(classLoader);
 
       Map<Object, T> bucketDataPerWindow = Maps.newHashMap();
-      FileSystem fs = null;
+      Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
+      FileSystem fs = FileSystem.newInstance(dataFile.toUri(), configuration);
       try {
         //Read data only for the fileIds in which bucketIdx had events.
-        Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
-        fs = FileSystem.newInstance(dataFile.toUri(), configuration);
         FSDataInputStream stream = fs.open(dataFile);
         stream.seek(bucketPositions[bucketIdx].get(window));
         Input input = new Input(stream);
@@ -411,13 +410,8 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
         input.close();
         stream.close();
       }
-      catch (IOException e) {
-        throw new RuntimeException(e);
-      }
       finally {
-        if (fs != null) {
-          fs.close();
-        }
+        fs.close();
       }
       return bucketDataPerWindow;
     }
