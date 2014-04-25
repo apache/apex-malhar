@@ -88,7 +88,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   protected long millisPreventingBucketEviction;
   protected boolean writeEventKeysOnly;
   @Nonnull
-  protected transient BucketStore<T> store;
+  protected BucketStore<T> store;
   @Nonnull
   protected final Map<Integer, Bucket<T>> dirtyBuckets;
   protected long committedWindow;
