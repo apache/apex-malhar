@@ -49,9 +49,9 @@ exports = module.exports = [
         ]
     },
     {
-        'name': 'WelcomePageView',
+        'name': 'InstallWizardPageView',
         'routes': ['welcome', 'config/install-wizard'],
-        'view': require('./lib/pages/WelcomePageView'),
+        'view': require('./lib/pages/InstallWizardPageView'),
         'paramList': [],
         'mode': 'config',
         'breadcrumbs': [

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-var BaseCollection = require('../../../../datatorrent/UploadFileCollection');
+var BaseCollection = require('./UploadFileCollection');
 var LicenseFileModel = require('./LicenseFileModel');
 
 /**

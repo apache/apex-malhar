@@ -17,7 +17,7 @@
 var _ = require('underscore');
 var Backbone = require('backbone');
 var kt = require('knights-templar');
-var WidgetView = DT.lib.WidgetView;
+var BaseView = require('bassview');
 var StepView = require('./StepView');
 var WelcomeView = require('./WelcomeView');
 var SystemView = require('./SystemView');
@@ -29,21 +29,20 @@ var SummaryView = require('./SummaryView');
 var HadoopView = require('./HadoopView');
 
 /**
- * ConfigWelcomeWidget
+ * InstallWizardPageView
  * 
  * Welcomes the user to the datadorrent console.
  * Takes the form of a "install wizard" with 
  * sequential steps that show potential issues and
  * offer ways of fixing those issues.
 */
-var ConfigWelcomeWidget = WidgetView.extend({
+var InstallWizardPageView = BaseView.extend({
 
     events: {
         'click .install-step-link[data-action]': 'onStepLinkClick'
     },
 
     initialize: function(options) {
-        WidgetView.prototype.initialize.call(this, options);
 
         this.dataSource = options.dataSource;
 
@@ -90,7 +89,7 @@ var ConfigWelcomeWidget = WidgetView.extend({
     },
     
     // base markup for the wizard
-    template: kt.make(__dirname+'/ConfigWelcomeWidget.html','_'),
+    template: kt.make(__dirname+'/InstallWizardPageView.html','_'),
 
     navStates: {
         WelcomeView: {
@@ -185,4 +184,4 @@ window.mockState = {
 };
 */
 
-exports = module.exports = ConfigWelcomeWidget;
+exports = module.exports = InstallWizardPageView;

@@ -13,31 +13,4 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var BaseView = DT.lib.UploadFilesView;
-var Notifier = DT.lib.Notifier;
-
-/**
- * UploadLicenseView
- *
- * View in License Step for uploading license file.
- *
- */
-var UploadLicenseView = BaseView.extend({
-
-    multiple: false,
-
-    uploadBtnConfirm: 'upload',
-
-    uploadBtnCancel: 'cancel',
-
-    uploadTitle: 'Drag and drop the License file here',
-
-    uploadText: '(or click to select it)',
-
-    fileChangeCheck: function(file) {
-        return true;
-    }
-
-});
-
-exports = module.exports = UploadLicenseView;
+exports = module.exports = require('./InstallWizardPageView');
