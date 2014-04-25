@@ -31,6 +31,7 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable, OUTPUT> ext
 {
   @Nonnull
   private String bucketsDir;
+  @Nonnull
   private HdfsBucketStore<INPUT> bucketStore;
 
   public DeduperWithHdfsStore()
@@ -68,7 +69,7 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable, OUTPUT> ext
     bucketStore.teardown();
   }
 
-  public void setBucketStore(HdfsBucketStore<INPUT> bucketStore)
+  public void setBucketStore(@Nonnull HdfsBucketStore<INPUT> bucketStore)
   {
     this.bucketStore = bucketStore;
   }
