@@ -73,6 +73,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   protected int maximumPoolSize;
   protected int keepAliveSeconds;
   protected int hardLimitOnPoolSize;
+  protected int interpolatedPoolSize;
 
   //Non check-pointed
   protected transient boolean isReady;
@@ -85,7 +86,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   protected transient int partitionMask;
   protected transient int operatorId;
   protected transient ThreadPoolExecutor threadPoolExecutor;
-  protected transient int interpolatedPoolSize;
 
   public HdfsBucketStore()
   {
