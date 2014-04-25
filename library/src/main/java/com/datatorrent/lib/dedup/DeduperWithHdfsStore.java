@@ -75,4 +75,9 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable, OUTPUT> ext
   {
     this.bucketStore = bucketStore;
   }
+
+  public HdfsBucketStore<INPUT> getBucketStore()
+  {
+    return this.bucketStore;
+  }
 }
