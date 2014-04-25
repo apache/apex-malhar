@@ -370,23 +370,20 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     }
 
     @Override
-    public Map<Object, T> call() throws Exception
+    public Map<Object, T> call() throws IOException
     {
       Kryo readSerde = new Kryo();
       readSerde.setClassLoader(classLoader);
 
       Map<Object, T> bucketDataPerWindow = Maps.newHashMap();
-      Input input = null;
-      FSDataInputStream stream = null;
       FileSystem fs = null;
       try {
-        long startTime = System.currentTimeMillis();
         //Read data only for the fileIds in which bucketIdx had events.
         Path dataFile = new Path(bucketRoot + PATH_SEPARATOR + window);
         fs = FileSystem.newInstance(dataFile.toUri(), configuration);
-        stream = fs.open(dataFile);
+        FSDataInputStream stream = fs.open(dataFile);
         stream.seek(bucketPositions[bucketIdx].get(window));
-        input = new Input(stream);
+        Input input = new Input(stream);
 
         int length = stream.readInt();
 
@@ -411,14 +408,16 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
             bucketDataPerWindow.put(key, null);
           }
         }
+        input.close();
+        stream.close();
       }
       catch (IOException e) {
         throw new RuntimeException(e);
       }
       finally {
-        input.close();
-        stream.close();
-        fs.close();
+        if (fs != null) {
+          fs.close();
+        }
       }
       return bucketDataPerWindow;
     }
