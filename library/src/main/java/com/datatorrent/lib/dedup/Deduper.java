@@ -30,13 +30,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.bucket.Bucket;
 import com.datatorrent.lib.bucket.BucketManager;
-import com.datatorrent.lib.bucket.BucketStore;
 import com.datatorrent.lib.bucket.Bucketable;
 
 /**
@@ -89,6 +88,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   private transient OperatorContext context;
   protected transient Counters counters;
   private transient long currentWindow;
+
 
   public Deduper()
   {
@@ -153,7 +153,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
     counters = new Counters();
     bucketManager.setBucketCounters(counters);
-    bucketManager.startService(getBucketContext(context), this);
+    bucketManager.startService(this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
     for (long bucketKey : waitingEvents.keySet()) {
       bucketManager.loadBucketData(bucketKey);
@@ -351,14 +351,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   {
     return this.bucketManager;
   }
-
-  /**
-   * Gets the {@link BucketStore} where events are persisted.
-   *
-   * @param context operator context.
-   * @return
-   */
-  protected abstract com.datatorrent.lib.bucket.Context getBucketContext(OperatorContext context);
 
   /**
    * Converts the input tuple to output tuple.

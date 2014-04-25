@@ -16,7 +16,6 @@
 package com.datatorrent.lib.bucket;
 
 import java.io.IOException;
-import java.util.Map;
 import java.util.concurrent.Exchanger;
 
 import org.apache.hadoop.conf.Configuration;
@@ -27,7 +26,6 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
@@ -69,17 +67,13 @@ public class TimeBasedBucketManagerTest
   public static void setup() throws Exception
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
-
-    Map<String, Object> parameters = Maps.newHashMap();
-    parameters.put(HdfsBucketStore.STORE_ROOT, applicationPath);
-    parameters.put(HdfsBucketStore.OPERATOR_ID, 0);
-    parameters.put(HdfsBucketStore.PARTITION_KEYS, Sets.newHashSet(0));
-    parameters.put(HdfsBucketStore.PARTITION_MASK, 0);
-
     manager = new TestBucketManager<DummyEvent>();
     manager.setBucketSpanInMillis(BUCKET_SPAN);
-    manager.initialize();
-    manager.startService(new Context(parameters), new BucketManagerTest.TestStorageManagerListener());
+    ExpirableHdfsBucketStore<DummyEvent> bucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
+    manager.initialize(bucketStore);
+    bucketStore.setConfiguration(0, applicationPath, Sets.newHashSet(0), 0);
+    bucketStore.setup();
+    manager.startService(new BucketManagerTest.TestStorageManagerListener());
   }
 
   @AfterClass

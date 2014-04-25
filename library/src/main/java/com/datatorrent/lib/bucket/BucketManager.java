@@ -63,14 +63,14 @@ public interface BucketManager<T extends Bucketable>
   /**
    * initialize the bucket manager.
    */
-  void initialize();
+  void initialize(@Nonnull BucketStore<T> bucketStore);
+
   /**
    * Starts the service.
    *
-   * @param context  {@link Context} which contains parameters needed for setup.
    * @param listener {@link Listener} which will be informed when bucket are loaded and off-loaded.
    */
-  void startService(Context context, Listener<T> listener);
+  void startService(Listener<T> listener);
 
   /**
    * Shuts down the service.
@@ -93,7 +93,7 @@ public interface BucketManager<T extends Bucketable>
    * A bucket is created:
    * <ul>
    * <li> When the operator requests to load a bucket from store.</li>
-   * <li>In {@link #startService(Context, Listener)} if there were un-written bucket events which were
+   * <li>In {@link #startService(Listener)} if there were un-written bucket events which were
    * check-pointed by the engine.</li>
    * </ul>
    * </p>

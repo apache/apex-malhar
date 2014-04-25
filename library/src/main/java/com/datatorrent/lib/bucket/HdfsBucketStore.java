@@ -75,6 +75,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   protected int hardLimitOnPoolSize;
 
   //Non check-pointed
+  protected transient boolean isReady;
   protected transient Multimap<Long, Integer> windowToBuckets;
   protected transient String bucketRoot;
   protected transient Configuration configuration;
@@ -91,7 +92,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     windowToTimestamp = Maps.newHashMap();
     corePoolSize = DEF_CORE_POOL_SIZE;
     maximumPoolSize = -1;
-    interpolatedPoolSize =-1;
+    interpolatedPoolSize = -1;
     keepAliveSeconds = DEF_KEEP_ALIVE_SECONDS;
   }
 
@@ -129,20 +130,18 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     this.hardLimitOnPoolSize = hardLimitOnPoolSize;
   }
 
-  /**
-   * {@inheritDoc}
-   */
-  @SuppressWarnings("unchecked")
-  @Override
-  public void setup(Context context)
+  public void setConfiguration(int operatorId, String bucketDir, Set<Integer> partitionKeys, int partitionMask)
   {
-    operatorId = Preconditions.checkNotNull(context.getInt(OPERATOR_ID, null));
-    String rootPath = context.getString(STORE_ROOT, null);
-    this.bucketRoot = (rootPath == null ? "buckets" : rootPath) + PATH_SEPARATOR + operatorId;
-    this.partitionKeys = (Set<Integer>) Preconditions.checkNotNull(context.getObject(PARTITION_KEYS, null), "partition keys");
-    this.partitionMask = Preconditions.checkNotNull(context.getInt(PARTITION_MASK, null), "partition mask");
+    this.operatorId = operatorId;
+    this.bucketRoot = (bucketDir == null ? "buckets" : bucketDir) + PATH_SEPARATOR + operatorId;
+    this.partitionKeys = Preconditions.checkNotNull(partitionKeys, "partition keys");
+    this.partitionMask = partitionMask;
     logger.debug("operator parameters {}, {}, {}", operatorId, partitionKeys, partitionMask);
+  }
 
+  @Override
+  public void setup()
+  {
     this.configuration = new Configuration();
     this.writeSerde = new Kryo();
     classLoader = Thread.currentThread().getContextClassLoader();
@@ -172,6 +171,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveSeconds, TimeUnit.SECONDS, queue, threadFactory);
     }
     logger.debug("threadpool settings {} {} {}", threadPoolExecutor.getCorePoolSize(), threadPoolExecutor.getMaximumPoolSize(), keepAliveSeconds);
+    isReady = true;
   }
 
   /**
@@ -183,6 +183,12 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     //Not closing the filesystem.
     threadPoolExecutor.shutdown();
     configuration.clear();
+  }
+
+  @Override
+  public boolean isReady()
+  {
+    return isReady;
   }
 
   /**
@@ -313,7 +319,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     for (long window : windows) {
       futures.add(threadPoolExecutor.submit(new BucketFetchCallable(bucketIdx, window)));
     }
-    for(Future<Map<Object, T>> future : futures){
+    for (Future<Map<Object, T>> future : futures) {
       bucketData.putAll(future.get());
     }
     logger.debug("end fetch bucket {} took {}", bucketIdx, System.currentTimeMillis() - startTime);
@@ -417,7 +423,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       return bucketDataPerWindow;
     }
   }
-
 
   private static transient final Logger logger = LoggerFactory.getLogger(HdfsBucketStore.class);
 }

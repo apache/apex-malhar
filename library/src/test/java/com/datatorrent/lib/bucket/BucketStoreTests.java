@@ -37,7 +37,7 @@ public class BucketStoreTests
   private final int TOTAL_BUCKETS = 1000;
   private String applicationPath;
   private Path rootBucketPath;
-  private BucketStore<DummyEvent> bucketStore;
+  private HdfsBucketStore<DummyEvent> bucketStore;
   private Map<Integer, Map<Object, DummyEvent>> data = Maps.newHashMap();
   private FileSystem fs;
 
@@ -45,20 +45,14 @@ public class BucketStoreTests
   {
   }
 
-  void setup(BucketStore<DummyEvent> store)
+  void setup(HdfsBucketStore<DummyEvent> store)
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     bucketStore = store;
     bucketStore.setNoOfBuckets(TOTAL_BUCKETS);
     bucketStore.setWriteEventKeysOnly(true);
-
-    Map<String, Object> parameters = Maps.newHashMap();
-    parameters.put(HdfsBucketStore.STORE_ROOT, applicationPath);
-    parameters.put(HdfsBucketStore.OPERATOR_ID, 7);
-    parameters.put(HdfsBucketStore.PARTITION_KEYS, Sets.newHashSet(0));
-    parameters.put(HdfsBucketStore.PARTITION_MASK, 0);
-
-    bucketStore.setup(new Context(parameters));
+    bucketStore.setConfiguration(7, applicationPath, Sets.newHashSet(0), 0);
+    bucketStore.setup();
 
     for (int bucketIdx = 0; bucketIdx < 2; bucketIdx++) {
       Map<Object, DummyEvent> bucketData = Maps.newHashMap();
