@@ -15,8 +15,8 @@
  */
 
 var BaseView = require('./StepView');
-var UploadLicenseView = require('./UploadLicenseView');
-var LicenseFileCollection = require('./LicenseFileCollection');
+var UploadLicenseView = DT.lib.UploadLicenseView;
+var LicenseFileCollection = DT.lib.LicenseFileCollection;
 var Notifier = DT.lib.Notifier;
 
 var LicenseUploadView = BaseView.extend({

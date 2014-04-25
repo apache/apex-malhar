@@ -19,7 +19,7 @@
  * Models a jar file that should contain application plans.
  */
 
-var BaseModel = require('../../../../datatorrent/UploadFileModel');
+var BaseModel = require('./UploadFileModel');
 
 // abstract class definition
 var LicenseFileModel = BaseModel.extend({

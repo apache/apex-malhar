@@ -13,4 +13,31 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-exports = module.exports = require('./ConfigWelcomeWidget');
+var BaseView = require('./UploadFilesView');
+var Notifier = require('./Notifier');
+
+/**
+ * UploadLicenseView
+ *
+ * View in License Step for uploading license file.
+ *
+ */
+var UploadLicenseView = BaseView.extend({
+
+    multiple: false,
+
+    uploadBtnConfirm: 'upload',
+
+    uploadBtnCancel: 'cancel',
+
+    uploadTitle: 'Drag and drop the License file here',
+
+    uploadText: '(or click to select it)',
+
+    fileChangeCheck: function(file) {
+        return true;
+    }
+
+});
+
+exports = module.exports = UploadLicenseView;

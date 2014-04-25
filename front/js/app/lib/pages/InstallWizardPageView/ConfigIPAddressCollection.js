@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-var Backbone = require('backbone');
-var BaseCollection = require('../../../../datatorrent/BaseCollection');
 var path = require('path');
+var Backbone = require('backbone');
+var BaseCollection = DT.lib.BaseCollection;
 var Notifier = DT.lib.Notifier;
 
 var ConfigIPAddressCollection = BaseCollection.extend({

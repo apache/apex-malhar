@@ -18,8 +18,8 @@ var Notifier = DT.lib.Notifier;
 var kt = require('knights-templar');
 var BaseView = require('bassview');
 
-var LicenseFileCollection = require('../../widgets/ConfigWelcomeWidget/LicenseFileCollection');
-var UploadLicenseView = require('../../widgets/ConfigWelcomeWidget/UploadLicenseView');
+var LicenseFileCollection = DT.lib.LicenseFileCollection;
+var UploadLicenseView = DT.lib.UploadLicenseView;
 
 var LicensePageView = BaseView.extend({
 
