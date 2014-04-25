@@ -82,6 +82,8 @@ var WidgetView = BaseView.extend({
         if (newWidth <= 80) {
             newWidth -= 0.3;
             changes['margin-right'] = '0.3%';
+        } else {
+            changes['margin-right'] = '0%';
         }
         
         // adjust real width
