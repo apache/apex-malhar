@@ -23,7 +23,9 @@ public interface DataStoreWriter<T> extends Connectable
 {
   /**
    * Write the tuple to the data store
-   * @param tuple 
+   * @param tuple
    */
   public void process(T tuple);
+
+  public T retreive(T tuple);
 }

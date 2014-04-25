@@ -40,8 +40,13 @@ public class DataStoreOutputOperator<INPUT, OUTPUT> extends AbstractStoreOutputO
   @Override
   public void processTuple(INPUT tuple)
   {
-    OUTPUT outTuple = converter.convert(tuple);
-    store.process(outTuple);
+    if (converter == null) {
+      store.process((OUTPUT)tuple);
+    }
+    else {
+      store.process(converter.convert(tuple));
+    }
+
   }
 
   /**

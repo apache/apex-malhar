@@ -47,6 +47,12 @@ public class TransactionableDataStoreOutputOperatorTest
       putAll(tuple);
     }
 
+    @Override
+    public Map<Object, Object> retreive(Map<Object, Object> tuple)
+    {
+      return null;
+    }
+
   }
 
   /**

@@ -97,6 +97,12 @@ public class DataStoreOutputOperatorTest
       this.table = table;
     }
 
+    @Override
+    public Map<String, Object> retreive(Map<String, Object> tuple)
+    {
+      return null;
+    }
+
   }
 
   /**
