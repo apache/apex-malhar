@@ -44,7 +44,7 @@ var InstallWizardPageView = BaseView.extend({
 
     initialize: function(options) {
 
-        this.dataSource = options.dataSource;
+        this.dataSource = options.app.dataSource;
 
         this.license = options.app.license;
 
