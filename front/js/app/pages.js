@@ -66,6 +66,23 @@ exports = module.exports = [
     },
 
     {
+        name: 'DiagnosticsPageView',
+        routes: ['config/diagnostics'],
+        view: require('./lib/pages/DiagnosticsPageView'),
+        paramList: [],
+        mode: 'config',
+        breadcrumbs: [
+            {
+                name: text('configuration'),
+                href: '#config'
+            },
+            {
+                name: text('System Diagnostics')
+            }
+        ]
+    },
+
+    {
         'name': 'ConfigurationPageView',
         'routes': ['config', '/config', '/configuration'],
         'view': require('./lib/pages/ConfigPageView'),

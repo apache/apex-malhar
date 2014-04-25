@@ -51,6 +51,8 @@ var datatorrent = {
         DataSource                   : require('./DataSource'),
         DepJarFileModel              : require('./DepJarFileModel'),
         DepJarFileCollection         : require('./DepJarFileCollection'),
+        GatewayInfoModel             : require('./GatewayInfoModel'),
+        HadoopLocationModel          : require('./HadoopLocationModel'),
         HeaderView                   : require('./HeaderView'),
         JarAppCollection             : require('./JarAppCollection'),
         JarAppModel                  : require('./JarAppModel'),

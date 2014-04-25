@@ -1,0 +1,33 @@
+<% if (fetchState === 'resolved') {
+    _.each( issues, function(issue) { %>
+        <div class="issue-item alert alert-<%= (issue.severity + '').toLowerCase() %>">
+            <p>
+                <strong>Issue: </strong>
+                <span><%= issue.key %></span>
+            </p>
+            <% if (issue.hasOwnProperty('property')) { %>
+            <p>
+                <strong>Property: </strong>
+                <span><%= issue.property %></span>
+            </p> 
+            <% } %>
+            <p>
+                <strong>Description: </strong>
+                <span><%= issue.description || 'No description available.' %></span>
+            </p>
+            <p>
+                <strong>Severity: </strong>
+                <span class="severity-<%= (issue.severity + '').toLowerCase() %>"><%= issue.severity %></span>
+            </p>
+        </div>
+    <% });
+    if (issues.length === 0) { %>
+        <div class="alert alert-success">No issues detected on this DataTorrent installation.</div>
+    <% }
+} else if (fetchState === 'rejected') { %>
+<div class="alert alert-error">
+    An error occurred retrieving system issues.
+</div>
+<% } else if (fetchState === 'pending') { %>
+<div class="alert">Loading System Issues...</div>
+<% } %>
