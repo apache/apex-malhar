@@ -5,7 +5,6 @@ import java.net.SocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.util.List;
 
 import junit.framework.Assert;
 
@@ -23,15 +22,11 @@ public class SocketInputOperatorTest
   public class TestSocketInputOperator extends AbstractSocketInputOperator<String>
   {
     @Override
-    public void processBytes(List<ByteBuffer> byteBufferList)
+    public void processBytes(ByteBuffer byteBuffer)
     {
-      for (int i = 0; i < byteBufferList.size(); i++) {
-        ByteBuffer buffer = byteBufferList.get(i);
-        final byte[] bytes = new byte[buffer.remaining()];
-        buffer.duplicate().get(bytes);
+      final byte[] bytes = new byte[byteBuffer.remaining()];
+        byteBuffer.duplicate().get(bytes);
         outputPort.emit(new String(bytes));
-      }
-      byteBufferList.clear();
     }
   }
 
@@ -54,9 +49,14 @@ public class SocketInputOperatorTest
         serverChannel.socket().bind(port);
         while (true) {
           SocketChannel clientChannel = serverChannel.accept();
-          String response = "This is " + serverChannel.socket() + " on port " + serverChannel.socket().getLocalPort();
+          String response = "This is " + serverChannel.socket() + " on port " + serverChannel.socket().getLocalPort()+".";
           byte[] data = response.getBytes("UTF-8");
           ByteBuffer buffer = ByteBuffer.wrap(data);
+          while (buffer.hasRemaining()) {
+            clientChannel.write(buffer);
+          }
+          data =" This is server reporting".getBytes();
+          buffer = ByteBuffer.wrap(data);
           while (buffer.hasRemaining()) {
             clientChannel.write(buffer);
           }
@@ -85,12 +85,17 @@ public class SocketInputOperatorTest
       operator.setup(null);
       operator.activate(null);
       operator.beginWindow(0);
-      Thread.sleep(1000);
+      Thread.sleep(100);
+      operator.emitTuples();
+      Thread.sleep(100);
+      operator.emitTuples();
+      Thread.sleep(100);
       operator.emitTuples();
       operator.endWindow();
       operator.deactivate();
       operator.teardown();
-      Assert.assertEquals("This is ServerSocket[addr=/0:0:0:0:0:0:0:0,localport=7898] on port 7898", sink.collectedTuples.get(0));
+      Assert.assertEquals("This is ServerSocket[addr=/0:0:0:0:0:0:0:0,localport=7898] on port 7898. This is server reportin", sink.collectedTuples.get(0));
+      Assert.assertEquals("g", sink.collectedTuples.get(1));
       server.interrupt();
       server.join();
     }
@@ -116,12 +121,15 @@ public class SocketInputOperatorTest
       operator.setup(null);
       operator.activate(null);
       operator.beginWindow(0);
-      Thread.sleep(1000);
-      operator.emitTuples();
+      Thread.sleep(100);
+      for(int i = 0;i < 10; i++) {
+        operator.emitTuples();
+        Thread.sleep(100);
+      }
       operator.endWindow();
       operator.deactivate();
       operator.teardown();
-      Assert.assertEquals(8, sink.collectedTuples.size());
+      Assert.assertEquals(10, sink.collectedTuples.size());
       Assert.assertEquals("This is Se", sink.collectedTuples.get(0));
       Assert.assertEquals("rverSocket", sink.collectedTuples.get(1));
       Assert.assertEquals("[addr=/0:0", sink.collectedTuples.get(2));
@@ -129,7 +137,9 @@ public class SocketInputOperatorTest
       Assert.assertEquals(":0,localpo", sink.collectedTuples.get(4));
       Assert.assertEquals("rt=7899] o", sink.collectedTuples.get(5));
       Assert.assertEquals("n port 789", sink.collectedTuples.get(6));
-      Assert.assertEquals("9", sink.collectedTuples.get(7));
+      Assert.assertEquals("9. This is", sink.collectedTuples.get(7));
+      Assert.assertEquals(" server re", sink.collectedTuples.get(8));
+      Assert.assertEquals("porting", sink.collectedTuples.get(9));
       server.interrupt();
       server.join();
     }

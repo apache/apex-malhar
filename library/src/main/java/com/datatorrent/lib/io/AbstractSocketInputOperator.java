@@ -43,7 +43,7 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
   private transient SocketChannel channel;
   private transient SelectionKey key;
   private transient Thread scanThread = new Thread(new SelectorScanner());
-  private transient List<ByteBuffer> byteBufferList;
+  private transient ByteBuffer byteBuffer;
   private transient Lock lock;
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
@@ -91,12 +91,15 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
   public void emitTuples()
   {
     lock.lock();
-    processBytes(byteBufferList);
+    byteBuffer.flip();
+    processBytes(byteBuffer);
+    byteBuffer.flip();
+    byteBuffer.clear();
     lock.unlock();
 
   }
 
-  public abstract void processBytes(List<ByteBuffer> byteBufferList);
+  public abstract void processBytes(ByteBuffer byteBuffer);
 
   @Override
   public void beginWindow(long l)
@@ -137,7 +140,7 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
     }
     lock = new ReentrantLock();
     scanThread.start();
-    byteBufferList = new ArrayList<ByteBuffer>();
+    byteBuffer = ByteBuffer.allocate(byteBufferSize);
   }
 
   @Override
@@ -148,7 +151,6 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
       selector.close();
       scanThread.interrupt();
       scanThread.join();
-      byteBufferList.clear();
     }
     catch (Exception ex) {
       throw new RuntimeException(ex);
@@ -179,17 +181,10 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
             if (nextKey.isReadable()) {
               SocketChannel sChannel = (SocketChannel) nextKey.channel();
               lock.lock();
-              ByteBuffer buffer = ByteBuffer.allocate(byteBufferSize);
-              int bytesRead = sChannel.read(buffer);
               acquiredLock = true;
-              while (bytesRead > -1) {
-                buffer.flip();
-                byteBufferList.add(buffer);
-                buffer = ByteBuffer.allocate(byteBufferSize);
-                bytesRead = sChannel.read(buffer);
-              }
-              acquiredLock = false;
+              sChannel.read(byteBuffer);
               lock.unlock();
+              acquiredLock = false;
             }
           }
           // Sleep for Scan interval
