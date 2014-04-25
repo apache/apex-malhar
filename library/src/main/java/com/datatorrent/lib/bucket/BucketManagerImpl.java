@@ -88,7 +88,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   protected long millisPreventingBucketEviction;
   protected boolean writeEventKeysOnly;
   @Nonnull
-  protected BucketStore<T> bucketStore;
+  protected transient BucketStore<T> store;
   @Nonnull
   protected final Map<Integer, Bucket<T>> dirtyBuckets;
   protected long committedWindow;
@@ -181,16 +181,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     this.writeEventKeysOnly = writeEventKeysOnly;
   }
 
-  /**
-   * Sets the bucket store.
-   *
-   * @param bucketStore
-   */
-  public void setBucketStore(@Nonnull BucketStore<T> bucketStore)
-  {
-    this.bucketStore = bucketStore;
-  }
-
   @Nonnull
   public void setBucketCounters(@Nonnull BucketCounters bucketCounters)
   {
@@ -201,7 +191,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   public void shutdownService()
   {
     running = false;
-    bucketStore.teardown();
   }
 
   @Override
@@ -236,7 +225,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
               buckets[bucketIdx] = null;
 
               listener.bucketOffLoaded(oldBucket.bucketKey);
-              bucketStore.deleteBucket(bucketIdx);
+              store.deleteBucket(bucketIdx);
               if (bucketCounters != null) {
                 bucketCounters.numDeletedBuckets++;
                 bucketCounters.numBucketsInMemory--;
@@ -245,7 +234,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
               logger.debug("deleted bucket {} {}", oldBucket.bucketKey, bucketIdx);
             }
 
-            Map<Object, T> bucketDataInStore = bucketStore.fetchBucket(bucketIdx);
+            Map<Object, T> bucketDataInStore = store.fetchBucket(bucketIdx);
 
             //Delete the least recently used bucket in memory if the noOfBucketsInMemory threshold is reached.
             if (evictionCandidates.size() + 1 > noOfBucketsInMemory) {
@@ -307,21 +296,19 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   }
 
   @Override
-  public void initialize()
+  public void initialize(@Nonnull BucketStore<T> store)
   {
-    if (bucketStore == null) {
-      bucketStore = new HdfsBucketStore<T>();
-    }
-    bucketStore.setNoOfBuckets(noOfBuckets);
-    bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
+    this.store = store;
+    store.setNoOfBuckets(noOfBuckets);
+    store.setWriteEventKeysOnly(writeEventKeysOnly);
   }
 
   @Override
-  public void startService(Context context, Listener<T> listener)
+  public void startService(Listener<T> listener)
   {
+    Preconditions.checkArgument(store.isReady(), "store is not ready");
     logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
-    this.bucketStore.setup(context);
     @SuppressWarnings("unchecked")
     Bucket<T>[] freshBuckets = (Bucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
     buckets = freshBuckets;
@@ -396,7 +383,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       if (!dataToStore.isEmpty()) {
         long start = System.currentTimeMillis();
         logger.debug("start store {}", window);
-        bucketStore.storeBucketData(window, id, dataToStore);
+        store.storeBucketData(window, id, dataToStore);
         logger.debug("end store {} took {}", window, System.currentTimeMillis() - start);
       }
     }
@@ -463,7 +450,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     other.noOfBucketsInMemory = noOfBucketsInMemory;
     other.maxNoOfBucketsInMemory = maxNoOfBucketsInMemory;
     other.millisPreventingBucketEviction = millisPreventingBucketEviction;
-    other.bucketStore = bucketStore;
+    other.store = store;
     other.committedWindow = committedWindow;
   }
 
@@ -502,7 +489,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     if (writeEventKeysOnly != that.writeEventKeysOnly) {
       return false;
     }
-    if (!bucketStore.equals(that.bucketStore)) {
+    if (!store.equals(that.store)) {
       return false;
     }
     return dirtyBuckets.equals(that.dirtyBuckets);
@@ -517,7 +504,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     result = 31 * result + maxNoOfBucketsInMemory;
     result = 31 * result + (int) (millisPreventingBucketEviction ^ (millisPreventingBucketEviction >>> 32));
     result = 31 * result + (writeEventKeysOnly ? 1 : 0);
-    result = 31 * result + (bucketStore.hashCode());
+    result = 31 * result + (store.hashCode());
     result = 31 * result + (dirtyBuckets.hashCode());
     result = 31 * result + (int) (committedWindow ^ (committedWindow >>> 32));
     return result;

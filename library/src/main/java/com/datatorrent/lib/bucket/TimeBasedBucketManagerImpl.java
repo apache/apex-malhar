@@ -20,10 +20,13 @@ import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
 
 /**
  * A {@link BucketManager} that creates buckets based on time.<br/>
@@ -64,7 +67,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void setDaysSpan(int daysSpan)
   {
     this.daysSpan = daysSpan;
-    initialize();
+    recomputeNumBuckets();
   }
 
   /**
@@ -75,7 +78,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void setBucketSpanInMillis(long bucketSpanInMillis)
   {
     this.bucketSpanInMillis = bucketSpanInMillis;
-    initialize();
+    recomputeNumBuckets();
   }
 
   @Override
@@ -91,25 +94,29 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   }
 
   @Override
-  public void initialize()
+  public void initialize(@Nonnull BucketStore<T> store)
   {
+    Preconditions.checkArgument(store instanceof BucketStore.ExpirableBucketStore);
+    this.store = store;
+    recomputeNumBuckets();
+  }
+
+  private void recomputeNumBuckets(){
     Calendar calendar = Calendar.getInstance();
     long now = calendar.getTimeInMillis();
-
     calendar.add(Calendar.DATE, -daysSpan);
     startOfBucketsInMillis = calendar.getTimeInMillis();
     expiryTime = startOfBucketsInMillis;
     noOfBuckets = (int) Math.ceil((now - startOfBucketsInMillis) / (bucketSpanInMillis * 1.0));
-    if (bucketStore == null) {
-      bucketStore = new ExpirableHdfsBucketStore<T>();
+    if (store != null) {
+      store.setNoOfBuckets(noOfBuckets);
+      store.setWriteEventKeysOnly(writeEventKeysOnly);
     }
-    bucketStore.setNoOfBuckets(noOfBuckets);
-    bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
     maxTimesPerBuckets = new Long[noOfBuckets];
   }
 
   @Override
-  public void startService(Context context, Listener<T> listener)
+  public void startService(Listener<T> listener)
   {
     bucketSlidingTimer = new Timer();
     endOBucketsInMillis = expiryTime + (noOfBuckets * bucketSpanInMillis);
@@ -131,7 +138,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
           }
         }
         try {
-          ((BucketStore.ExpirableBucketStore<T>) bucketStore).deleteExpiredBuckets(time);
+          ((BucketStore.ExpirableBucketStore<T>) store).deleteExpiredBuckets(time);
         }
         catch (IOException e) {
           throw new RuntimeException(e);
@@ -139,7 +146,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
       }
 
     }, bucketSpanInMillis, bucketSpanInMillis);
-    super.startService(context, listener);
+    super.startService(listener);
   }
 
   @Override

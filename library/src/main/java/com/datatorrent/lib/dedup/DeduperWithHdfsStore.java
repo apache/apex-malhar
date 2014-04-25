@@ -19,12 +19,9 @@ import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import com.google.common.collect.Maps;
-
-import com.datatorrent.api.DAG;
+import com.datatorrent.api.Context;
 
 import com.datatorrent.lib.bucket.Bucketable;
-import com.datatorrent.lib.bucket.Context;
 import com.datatorrent.lib.bucket.HdfsBucketStore;
 
 /**
@@ -33,29 +30,18 @@ import com.datatorrent.lib.bucket.HdfsBucketStore;
 public abstract class DeduperWithHdfsStore<INPUT extends Bucketable, OUTPUT> extends Deduper<INPUT, OUTPUT>
 {
   @Nonnull
-  private String bucketsPath;
+  private String bucketsDir;
+  private HdfsBucketStore<INPUT> bucketStore;
 
   public DeduperWithHdfsStore()
   {
     super();
-    bucketsPath = "buckets";
+    bucketsDir = "buckets";
   }
 
-  public void setBucketsPath(@Nonnull String bucketsPath)
+  public void setBucketsDir(@Nonnull String bucketsDir)
   {
-    this.bucketsPath = bucketsPath;
-  }
-
-  @Override
-  protected Context getBucketContext(com.datatorrent.api.Context.OperatorContext context)
-  {
-    Map<String, Object> parameters = Maps.newHashMap();
-    parameters.put(HdfsBucketStore.STORE_ROOT, context.getValue(DAG.APPLICATION_PATH) + "/" + bucketsPath);
-    parameters.put(HdfsBucketStore.OPERATOR_ID, context.getId());
-    parameters.put(HdfsBucketStore.PARTITION_KEYS, partitionKeys);
-    parameters.put(HdfsBucketStore.PARTITION_MASK, partitionMask);
-
-    return new com.datatorrent.lib.bucket.Context(parameters);
+    this.bucketsDir = bucketsDir;
   }
 
   @Override
@@ -63,7 +49,27 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable, OUTPUT> ext
   {
     super.partitioned(partitions);
     for (Partition<Deduper<INPUT, OUTPUT>> partition : partitions.values()) {
-      ((DeduperWithHdfsStore<INPUT, OUTPUT>) partition.getPartitionedInstance()).bucketsPath = this.bucketsPath;
+      ((DeduperWithHdfsStore<INPUT, OUTPUT>) partition.getPartitionedInstance()).bucketsDir = this.bucketsDir;
     }
+  }
+
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    bucketStore.setConfiguration(context.getId(), bucketsDir, partitionKeys, partitionMask);
+    bucketStore.setup();
+    super.setup(context);
+  }
+
+  @Override
+  public void teardown()
+  {
+    super.teardown();
+    bucketStore.teardown();
+  }
+
+  public void setBucketStore(HdfsBucketStore<INPUT> bucketStore)
+  {
+    this.bucketStore = bucketStore;
   }
 }

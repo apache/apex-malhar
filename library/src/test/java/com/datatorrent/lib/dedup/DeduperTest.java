@@ -18,7 +18,6 @@ package com.datatorrent.lib.dedup;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -34,12 +33,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 
 import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.DAG;
 
-import com.datatorrent.lib.bucket.*;
+import com.datatorrent.lib.bucket.Bucket;
+import com.datatorrent.lib.bucket.DummyEvent;
+import com.datatorrent.lib.bucket.ExpirableHdfsBucketStore;
+import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -56,7 +57,7 @@ public class DeduperTest
 
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
-  private static class DummyDeduper extends Deduper<DummyEvent, DummyEvent>
+  private static class DummyDeduper extends DeduperWithHdfsStore<DummyEvent, DummyEvent>
   {
 
     @Override
@@ -69,18 +70,6 @@ public class DeduperTest
       catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
-    }
-
-    @Override
-    protected com.datatorrent.lib.bucket.Context getBucketContext(com.datatorrent.api.Context.OperatorContext context)
-    {
-      Map<String, Object> parameters = Maps.newHashMap();
-      parameters.put(HdfsBucketStore.STORE_ROOT, context.getValue(DAG.APPLICATION_PATH));
-      parameters.put(HdfsBucketStore.OPERATOR_ID, OPERATOR_ID);
-      parameters.put(HdfsBucketStore.PARTITION_KEYS, partitionKeys);
-      parameters.put(HdfsBucketStore.PARTITION_MASK, partitionMask);
-
-      return new com.datatorrent.lib.bucket.Context(parameters);
     }
 
     @Override
@@ -194,11 +183,13 @@ public class DeduperTest
   public static void setup()
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
+    ExpirableHdfsBucketStore<DummyEvent>  bucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
     deduper = new DummyDeduper();
+    deduper.setBucketStore(bucketStore);
     storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
     storageManager.setBucketSpanInMillis(1000);
     storageManager.setMillisPreventingBucketEviction(60000);
-    storageManager.initialize();
+    storageManager.initialize(bucketStore);
     deduper.setBucketManager(storageManager);
   }
 

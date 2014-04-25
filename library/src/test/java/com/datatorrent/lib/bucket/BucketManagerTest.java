@@ -135,8 +135,11 @@ public class BucketManagerTest
     manager.setNoOfBucketsInMemory(1);
     manager.setMaxNoOfBucketsInMemory(1);
     manager.setMillisPreventingBucketEviction(1);
-    manager.initialize();
-    manager.startService(new Context(parameters), new TestStorageManagerListener());
+    HdfsBucketStore<DummyEvent> bucketStore = new HdfsBucketStore<DummyEvent>();
+    manager.initialize(bucketStore);
+    bucketStore.setConfiguration(0, applicationPath, Sets.newHashSet(0), 0);
+    bucketStore.setup();
+    manager.startService(new TestStorageManagerListener());
   }
 
   @AfterClass
