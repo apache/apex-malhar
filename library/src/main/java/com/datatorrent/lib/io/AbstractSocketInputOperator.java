@@ -16,16 +16,12 @@ import com.datatorrent.api.InputOperator;
 
 /**
  * This is abstract class for socket input operator.</br>
- *
- * <b>Ports</b>:</br>
- * <b>outputPort</b>: emits &lt;<T></T>&gt;<br>
+ * 
+ * <b>Ports</b>:</br> <b>outputPort</b>: emits &lt;<T></T>&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
- * <b>hostname</b></br>
- * <b>port</b></br>
- * <b>byteBufferSize</b></br>
- * <b>scanIntervalInMilliSeconds</b></br>
- *
+ * <b>hostname</b></br> <b>port</b></br> <b>byteBufferSize</b></br> <b>scanIntervalInMilliSeconds</b></br>
+ * 
  * @param <T>
  */
 public abstract class AbstractSocketInputOperator<T> implements InputOperator, ActivationListener<OperatorContext>
@@ -37,7 +33,7 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
   /* the time interval for periodically scanning, Default is 1 sec = 1000ms */
   private int scanIntervalInMilliSeconds = 1000;
   /* the size of the ByteBuffer */
-  private int byteBufferSize = 96;
+  private int byteBufferSize = 1024;
 
   private transient Selector selector;
   private transient SocketChannel channel;
