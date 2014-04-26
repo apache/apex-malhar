@@ -416,13 +416,15 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     public Response processStats(BatchedOperatorStats batchedOperatorStats)
     {
       List<Stats.OperatorStats> lastWindowedStats = batchedOperatorStats.getLastWindowedStats();
-      for (Stats.OperatorStats os : lastWindowedStats) {
-        if (os.customStats != null) {
-          if (os.customStats instanceof Counters) {
-            Counters cs = (Counters) os.customStats;
-            logger.debug("bucketStats {} {} {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
-              cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
-              cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
+      if (lastWindowedStats != null) {
+        for (Stats.OperatorStats os : lastWindowedStats) {
+          if (os.customStats != null) {
+            if (os.customStats instanceof Counters) {
+              Counters cs = (Counters) os.customStats;
+              logger.debug("bucketStats {} {} {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
+                cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
+                cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
+            }
           }
         }
       }
