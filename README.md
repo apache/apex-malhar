@@ -4,6 +4,28 @@ Malhar repository contains open source operator and codec library that can be us
 
 [![Build Status](https://travis-ci.org/DataTorrent/Malhar.png?branch=master)](https://travis-ci.org/DataTorrent/Malhar)
 
+Contributing
+------------
+
+This project welcomes new contributors.
+
+You acknowledge that your submissions to DataTorrent on this repository are made pursuant the terms of the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html) and constitute "Contributions," as defined therein, and you represent and warrant that you have the right and authority to do so.
+
+When **adding new files**, please prepend the Apache v2.0 license header, which can be found in [CONTRIBUTING.md](CONTRIBUTING.md).
+
+If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, here is how to do it.
+
+  * Fork Malhar into your own GitHub repository
+  * Create a topic branch with an appropriate name
+  * Write code, comments, tests in your repository
+  * Create a GitHub pull request from your repository, providing as many details about your changes as possible
+  * After we review and accept your request we’ll commit your code to the DataTorrent/Malhar repository
+
+The submitted code must follow certain prescribed conventions and it is also recommended that it follow the prescribed style. The conventions and style are described in the [Coding Conventions and Style](docs/CodingConventionsAndStyle.md) document.
+
+Thanks for contributing!
+
+
 Documentation
 -------------
 
@@ -66,22 +88,6 @@ When working with JIRA to submit pull requests, please use [smart commits](https
     git commit -am "MLHR-12345 #comment Task completed ahead of schedule #resolve"
 
 
-
-
-Contributing
---------------------
-
-If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, here is how to do it.
-
-  * Fork Malhar into your own GitHub repository
-  * Create a topic branch with an appropriate name
-  * Write code, comments, tests in your repository
-  * Create a GitHub pull request from your repository, providing as many details about your changes as possible
-  * After we review and accept your request we’ll commit your code to the DataTorrent/Malhar repository
-
-The submitted code must follow certain prescribed conventions and it is also recommended that it follow the prescribed style. The conventions and style are described in the [Coding Conventions and Style](docs/CodingConventionsAndStyle.md) document.
-
-Thanks for contributing!
 
 License
 --------------------
