@@ -63,7 +63,7 @@ public class BucketStoreTests
         bucketData.put(event.getEventKey(), event);
       }
     }
-    rootBucketPath = new Path(applicationPath + HdfsBucketStore.PATH_SEPARATOR + 7);
+    rootBucketPath = new Path(bucketStore.bucketRoot);
     try {
       fs = FileSystem.newInstance(rootBucketPath.toUri(), new Configuration());
     }
