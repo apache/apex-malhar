@@ -36,11 +36,11 @@
     <tbody>
     <tr>
         <td>Hadoop Installation Location</td>
-        <td>The absolute path to the location of your Hadoop installation</td>
+        <td>The absolute path to the location of your Hadoop installation, typically specified by <code>$HADOOP_PREFIX</code>.</td>
         <td>
             <div class="control-group">
                 <div class="controls">
-                    <input class="hadoop-location" type="text" value="<%= hadoopLocationModel.get('value') %>" />
+                    <input class="hadoop-location" type="text" value="<%= hadoopLocationModel.get('value') %>" placeholder="e.g. /my/hadoop/dir" />
                     <span class="help-block"></span>
                 </div>
             </div>
@@ -49,11 +49,18 @@
     </tr>
     <tr>
         <td>DFS Location</td>
-        <td>Directory in a Distributed File System (e.g. HDFS) where all datatorrent artifacts will be stored, including checkpoints, recordings, etc.  This directory must be accessible and writable by the DataTorrent Gateway and DataTorrent applications running in Hadoop.</td>
+        <td>
+            Directory in a Distributed File System (e.g. HDFS) where all datatorrent artifacts will be stored, including checkpoints, recordings, etc.  This directory must be accessible and writable by the DataTorrent Gateway and DataTorrent applications running in Hadoop.<br><br>
+
+            This can be an DFS path like<br>
+            <code>/home/USER/datatorrent</code><br>
+            or a URL like <br>
+            <code>hdfs://localhost:9000/home/USER/datatorrent</code>
+        </td>
         <td>
             <div class="control-group" style="overflow: auto;">
                 <div class="controls">
-                    <input type="text" class="dfs-directory" value="<%= dfsModel.get('value') %>" />
+                    <input type="text" class="dfs-directory" value="<%= dfsModel.get('value') %>" placeholder="e.g. /home/USER/datatorrent" />
                     <span class="help-block"></span>
                 </div>
                 <div class="server-error dfs-directory-error"></div>
