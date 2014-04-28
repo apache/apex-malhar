@@ -130,10 +130,11 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     this.hardLimitOnPoolSize = hardLimitOnPoolSize;
   }
 
-  public void setConfiguration(int operatorId, String bucketDir, Set<Integer> partitionKeys, int partitionMask)
+  public void setConfiguration(int operatorId, String applicationPath, String bucketDir, Set<Integer> partitionKeys, int partitionMask)
   {
+    Preconditions.checkNotNull(applicationPath);
     this.operatorId = operatorId;
-    this.bucketRoot = (bucketDir == null ? "buckets" : bucketDir) + PATH_SEPARATOR + operatorId;
+    this.bucketRoot = applicationPath + PATH_SEPARATOR + (bucketDir == null ? "buckets" : bucketDir) + PATH_SEPARATOR + operatorId;
     this.partitionKeys = Preconditions.checkNotNull(partitionKeys, "partition keys");
     this.partitionMask = partitionMask;
     logger.debug("operator parameters {}, {}, {}", operatorId, partitionKeys, partitionMask);

@@ -20,6 +20,7 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
 
 import com.datatorrent.lib.bucket.Bucketable;
 import com.datatorrent.lib.bucket.HdfsBucketStore;
@@ -59,7 +60,7 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable, OUTPUT> ext
   @Override
   public void setup(Context.OperatorContext context)
   {
-    bucketStore.setConfiguration(context.getId(), bucketsDir, partitionKeys, partitionMask);
+    bucketStore.setConfiguration(context.getId(), context.getValue(DAG.APPLICATION_PATH), bucketsDir, partitionKeys, partitionMask);
     bucketStore.setup();
     super.setup(context);
   }
