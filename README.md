@@ -7,13 +7,11 @@ Malhar repository contains open source operator and codec library that can be us
 Contributing
 ------------
 
-This project welcomes new contributors.
+This project welcomes new contributors.  If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, here is how to do it.
 
 You acknowledge that your submissions to DataTorrent on this repository are made pursuant the terms of the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html) and constitute "Contributions," as defined therein, and you represent and warrant that you have the right and authority to do so.
 
 When **adding new files**, please prepend the Apache v2.0 license header, which can be found in [CONTRIBUTING.md](CONTRIBUTING.md).
-
-If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, here is how to do it.
 
   * Fork Malhar into your own GitHub repository
   * Create a topic branch with an appropriate name
