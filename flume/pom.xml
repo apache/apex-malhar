@@ -104,8 +104,44 @@
                   <artifact></artifact>
                   <dependency>
                     <excludes>
+                      <!-- begin CDH5 dependency -->
                       <exclude>asm:asm:4.0</exclude>
                       <exclude>com.datatorrent:dt-netlet</exclude>
+                      <exclude>org.apache.avro:avro</exclude>
+                      <exclude>org.apache.avro:avro-ipc</exclude>
+                      <exclude>commons-cli:commons-cli</exclude>
+                      <exclude>commons-codec:commons-codec</exclude>
+                      <exclude>commons-collections</exclude>
+                      <exclude>commons-compress</exclude>
+                      <exclude>commons-io</exclude>
+                      <exclude>commons-lang</exclude>
+                      <exclude>commons-logging</exclude>
+                      <exclude>flume-ng-configuration</exclude>
+                      <exclude>flume-ng-core</exclude>
+                      <exclude>flume-ng-sdk</exclude>
+                      <exclude>gson</exclude>
+                      <exclude>guava</exclude>
+                      <exclude>httpclient</exclude>
+                      <exclude>httpcore</exclude>
+                      <exclude>jackson-core-asl</exclude>
+                      <exclude>jackson-mapper-asl</exclude>
+                      <exclude>jetty</exclude>
+                      <exclude>jetty</exclude>
+                      <exclude>joda-time</exclude>
+                      <exclude>jsr305</exclude>
+                      <exclude>libthrift</exclude>
+                      <exclude>log4j</exclude>
+                      <exclude>mina-core</exclude>
+                      <exclude>netty</exclude>
+                      <exclude>paranamer</exclude>
+                      <exclude>protobuf-java</exclude>
+                      <exclude>servlet-api</exclude>
+                      <exclude>snappy-java</exclude>
+                      <exclude>stax-api</exclude>
+                      <exclude>velocity</exclude>
+                      <exclude>xz</exclude>
+                      <exclude>zookeeper</exclude>
+                      <!-- end CDH5 dependency -->
                     </excludes>
                   </dependency>
                 </mapping>
