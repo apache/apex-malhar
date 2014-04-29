@@ -111,7 +111,7 @@
                       <exclude>org.apache.avro:avro-ipc</exclude>
                       <exclude>commons-cli:commons-cli</exclude>
                       <exclude>commons-codec:commons-codec</exclude>
-                      <exclude>commons-collections</exclude>
+                      <!-- exclude>commons-collections</exclude>
                       <exclude>commons-compress</exclude>
                       <exclude>commons-io</exclude>
                       <exclude>commons-lang</exclude>
@@ -140,7 +140,7 @@
                       <exclude>stax-api</exclude>
                       <exclude>velocity</exclude>
                       <exclude>xz</exclude>
-                      <exclude>zookeeper</exclude>
+                      <exclude>zookeeper</exclude -->
                       <!-- end CDH5 dependency -->
                     </excludes>
                   </dependency>
