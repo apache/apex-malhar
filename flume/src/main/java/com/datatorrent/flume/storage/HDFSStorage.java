@@ -10,6 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.validation.constraints.NotNull;
 
@@ -27,6 +29,8 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.Component;
+
+import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.sink.Server;
 
@@ -47,6 +51,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   public static final String BASE_DIR_KEY = "baseDir";
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
+  public static final String BLOCK_SIZE_MULTIPLE = "blockSizeMultiple";
   private static final String IDENTITY_FILE = "counter";
   // private static final String CLEAN_FILE = "clean-counter";
   private static final String OFFSET_SUFFIX = "-offsetFile";
@@ -56,6 +61,11 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   public static final String OFFSET_KEY = "offset";
   private static final int IDENTIFIER_SIZE = 8;
   private static final int DATA_LENGTH_BYTE_SIZE = 4;
+
+  /**
+   * The multiple of block size
+   */
+  private int blockSizeMultiple = 1;
   /**
    * Identifier for this storage.
    */
@@ -120,6 +130,12 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   private long skipOffset;
   private long skipFile;
   private transient Path basePath;
+  private ExecutorService storageExecutor;
+  private byte[] currentData;
+  private FSDataInputStream nextReadStream;
+  private long nextFlushedLong;
+  private long nextRetrievalFile;
+  private byte[] nextRetrievalData;
 
   public HDFSStorage()
   {
@@ -128,7 +144,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This stores the Identifier information identified in the last store function call
-   * 
+   *
    * @param ctx
    */
   @Override
@@ -154,14 +170,13 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     if (tempBlockSize != null) {
       blockSize = tempBlockSize;
     }
-
+    blockSizeMultiple = ctx.getInteger(BLOCK_SIZE_MULTIPLE, blockSizeMultiple);
   }
 
   /**
    * This function reads the file at a location and return the bytes stored in the file "
-   * 
-   * @param path
-   *          - the location of the file
+   *
+   * @param path - the location of the file
    * @return
    * @throws IOException
    */
@@ -176,11 +191,9 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
   /**
    * This function writes the bytes to a file specified by the path
-   * 
-   * @param path
-   *          the file location
-   * @param data
-   *          the data to be written to the file
+   *
+   * @param path the file location
+   * @param data the data to be written to the file
    * @return
    * @throws IOException
    */
@@ -275,9 +288,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   /**
-   * 
    * @param b
-   * @param size
    * @param startIndex
    * @return
    */
@@ -336,6 +347,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     try {
       if (readStream != null) {
         readStream.close();
+        readStream = null;
       }
       Path path = new Path(basePath, String.valueOf(retrievalFile));
       if (!fs.exists(path)) {
@@ -350,7 +362,6 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         retrievalOffset -= flushedLong;
         retrievalFile++;
         flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
-        path = new Path(basePath, String.valueOf(retrievalFile));
         flushedLong = Server.readLong(flushedOffset, 0);
       }
 
@@ -359,8 +370,18 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         retrievalFile = -1;
         return null;
       }
-      readStream = new FSDataInputStream(fs.open(path));
-      readStream.seek(retrievalOffset);
+      synchronized (HDFSStorage.this) {
+        if (nextReadStream != null) {
+          nextReadStream.close();
+          nextReadStream = null;
+        }
+      }
+      currentData = null;
+      path = new Path(basePath, String.valueOf(retrievalFile));
+      //readStream = new FSDataInputStream(fs.open(path));
+      currentData = readData(path);
+      //readStream.seek(retrievalOffset);
+      storageExecutor.submit(getNextStream());
       return retrieveHelper();
     }
     catch (IOException e) {
@@ -376,6 +397,9 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if (readStream != null) {
         readStream.close();
       }
+      if (nextReadStream != null) {
+        nextReadStream.close();
+      }
     }
     catch (IOException io) {
       logger.warn("Failed Close", io);
@@ -383,14 +407,16 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     finally {
       retrievalFile = -1;
       readStream = null;
+      nextReadStream = null;
     }
   }
 
   private byte[] retrieveHelper() throws IOException
   {
-    int length = readStream.readInt();
+    int tempRetrievalOffset = (int) retrievalOffset;
+    int length = Ints.fromBytes(currentData[tempRetrievalOffset], currentData[tempRetrievalOffset + 1], currentData[tempRetrievalOffset + 2], currentData[tempRetrievalOffset + 3]);
     byte[] data = new byte[length + IDENTIFIER_SIZE];
-    readStream.readFully(retrievalOffset + 4, data, IDENTIFIER_SIZE, length);
+    System.arraycopy(currentData, tempRetrievalOffset + 4, data, IDENTIFIER_SIZE, length);
     retrievalOffset += length + DATA_LENGTH_BYTE_SIZE;
     if (retrievalOffset >= flushedLong) {
       Server.writeLong(data, 0, calculateOffset(0, retrievalFile + 1));
@@ -404,7 +430,6 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public byte[] retrieveNext()
   {
-    // logger.debug("retrieveNext");
     if (retrievalFile == -1) {
       closeFs();
       throw new RuntimeException("Call retrieve first");
@@ -416,10 +441,21 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     }
 
     try {
-      if (readStream == null) {
-        readStream = new FSDataInputStream(fs.open(new Path(basePath, String.valueOf(retrievalFile))));
-        byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
-        flushedLong = Server.readLong(flushedOffset, 0);
+      if (currentData == null) {
+        synchronized (HDFSStorage.this) {
+          if (nextRetrievalData != null && (retrievalFile == nextRetrievalFile)) {
+            currentData = nextRetrievalData;
+            flushedLong = nextFlushedLong;
+            nextRetrievalData = null;
+          }
+          else {
+            currentData = null;
+            currentData = readData(new Path(basePath, String.valueOf(retrievalFile)));
+            byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
+            flushedLong = Server.readLong(flushedOffset, 0);
+          }
+        }
+        storageExecutor.submit(getNextStream());
       }
 
       if (retrievalOffset >= flushedLong) {
@@ -431,12 +467,27 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
           return null;
         }
 
-        readStream.close();
-        readStream = new FSDataInputStream(fs.open(new Path(basePath, String.valueOf(retrievalFile))));
-        byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
-        flushedLong = Server.readLong(flushedOffset, 0);
+        //readStream.close();
+        // readStream = new FSDataInputStream(fs.open(new Path(basePath, String.valueOf(retrievalFile))));
+        // byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
+        // flushedLong = Server.readLong(flushedOffset, 0);
+
+        synchronized (HDFSStorage.this) {
+          if (nextRetrievalData != null && (retrievalFile == nextRetrievalFile)) {
+            currentData = nextRetrievalData;
+            flushedLong = nextFlushedLong;
+            nextRetrievalData = null;
+          }
+          else {
+            currentData = null;
+            currentData = readData(new Path(basePath, String.valueOf(retrievalFile)));
+            byte[] flushedOffset = readData(new Path(basePath, retrievalFile + OFFSET_SUFFIX));
+            flushedLong = Server.readLong(flushedOffset, 0);
+          }
+        }
+        storageExecutor.submit(getNextStream());
       }
-      readStream.seek(retrievalOffset);
+      //readStream.seek(retrievalOffset);
       return retrieveHelper();
     }
     catch (IOException e) {
@@ -553,6 +604,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   @Override
   public void flush()
   {
+    nextReadStream = null;
     StringBuilder builder = new StringBuilder(currentWrittenFile + "");
     Iterator<DataBlock> itr = files2Commit.iterator();
     DataBlock db;
@@ -605,6 +657,16 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     }
   }
 
+  public int getBlockSizeMultiple()
+  {
+    return blockSizeMultiple;
+  }
+
+  public void setBlockSizeMultiple(int blockSizeMultiple)
+  {
+    this.blockSizeMultiple = blockSizeMultiple;
+  }
+
   /**
    * @return the baseDir
    */
@@ -614,8 +676,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   /**
-   * @param baseDir
-   *          the baseDir to set
+   * @param baseDir the baseDir to set
    */
   public void setBaseDir(String baseDir)
   {
@@ -631,8 +692,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   /**
-   * @param id
-   *          the id to set
+   * @param id the id to set
    */
   public void setId(String id)
   {
@@ -648,8 +708,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   /**
-   * @param blockSize
-   *          the blockSize to set
+   * @param blockSize the blockSize to set
    */
   public void setBlockSize(long blockSize)
   {
@@ -665,8 +724,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   }
 
   /**
-   * @param restore
-   *          the restore to set
+   * @param restore the restore to set
    */
   public void setRestore(boolean restore)
   {
@@ -753,6 +811,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         blockSize = DEFAULT_BLOCK_SIZE;
       }
 
+      blockSize = blockSizeMultiple * blockSize;
+
       currentWrittenFile = 0;
       cleanedFileCounter = -1;
       retrievalFile = -1;
@@ -797,6 +857,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
       throw new RuntimeException(io);
     }
+    storageExecutor = Executors.newSingleThreadExecutor(new NameableThreadFactory("StorageHelper"));
   }
 
   private void closeFs()
@@ -831,14 +892,49 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       if (readStream != null) {
         readStream.close();
       }
+      synchronized (HDFSStorage.this) {
+        if (nextReadStream != null) {
+          nextReadStream.close();
+        }
+      }
+
     }
     catch (IOException e) {
       throw new RuntimeException(e);
     }
     finally {
       closeUnflushedFiles();
+      storageExecutor.shutdown();
     }
 
   }
 
+  private Runnable getNextStream()
+  {
+    return new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        try {
+          synchronized (HDFSStorage.this) {
+            nextRetrievalFile = retrievalFile + 1;
+            Path path = new Path(basePath, String.valueOf(nextRetrievalFile));
+            if (!fs.exists(path)) {
+              return;
+            }
+            nextRetrievalData = null;
+            nextRetrievalData = readData(path);
+            byte[] flushedOffset = readData(new Path(basePath, nextRetrievalFile + OFFSET_SUFFIX));
+            nextFlushedLong = Server.readLong(flushedOffset, 0);
+          }
+        }
+        catch (Throwable e) {
+          logger.warn("in storage executor ", e);
+        }
+      }
+    };
+  }
+
 }
+
