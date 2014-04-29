@@ -17,7 +17,6 @@ package com.datatorrent.apps.etl;
 
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.hadoop.conf.Configuration;
 
@@ -130,33 +129,14 @@ public class ApplicationETL implements StreamingApplication
     sifter.setPredicates(predicates);
 
     //Create dimensions specs
-    Multimap<String, String> dimensionSpecs = ArrayListMultimap.create();
-    //apache dimensions
-    dimensionSpecs.put("apache", "time=" + TimeUnit.SECONDS + ":url");
-    dimensionSpecs.put("apache", "time=" + TimeUnit.SECONDS + ":ip");
-    dimensionSpecs.put("apache", "time=" + TimeUnit.SECONDS + ":ip:url");
-    //system dimensions
-    dimensionSpecs.put("system", "time=" + TimeUnit.SECONDS + ":disk");
-    //syslog dimensions
-    dimensionSpecs.put("syslog", "time=" + TimeUnit.SECONDS + ":program");
-
-    //Create metrics
-    Multimap<String, String> metrics = ArrayListMultimap.create();
-    //apache metrics
-    metrics.put("apache", "bytes:sum");
-    metrics.put("apache", "bytes:avg");
-    //system metrics
-    metrics.put("system", "writes:avg");
-    //syslog metrics
-    metrics.put("syslog", "pid:count");
-    //TODO: create MetricOperation  instances
-    //TODO: create MapAggregator instances using metric metrics
+    MapAggregator[] defaultAggregators = ApacheUtil.getDefaultAggregators();
     DimensionsComputationUnifierImpl<Map<String, Object>, MapAggregator.MapAggregateEvent> unifier = new DimensionsComputationUnifierImpl<Map<String, Object>, MapAggregator.MapAggregateEvent>();
-    //TODO : set aggregations on unifier
+    unifier.setAggregators(defaultAggregators);
 
-    DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent>());
+    DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent> dimensions = dag.addOperator("DimensionsComputation",
+      new DimensionsComputation<Map<String, Object>, MapAggregator.MapAggregateEvent>());
+    dimensions.setAggregators(defaultAggregators);
     dimensions.setUnifier(unifier);
-
 
     ConsoleOutputOperator console = dag.addOperator("Console", new ConsoleOutputOperator());
 
