@@ -107,6 +107,7 @@
           });
 
           visibly.onVisible(function () {
+            /*
             if (stopUpdates && !webSocketError) {
               jQuery.pnotify({
                 title: 'Warning',
@@ -118,6 +119,7 @@
                 history: false
               });
             }
+            */
 
             stopUpdates = false;
 

@@ -17,8 +17,7 @@ package com.datatorrent.contrib.apachelog;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -93,19 +92,49 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
   {
   }
 
+  private List<String> readLines(String file) throws IOException
+  {
+    List<String> lines = new ArrayList<String>();
+    InputStream in;
+    File f = new File(file);
+    if (f.exists()) {
+      in = new FileInputStream(f);
+    }
+    else {
+      in = getClass().getResourceAsStream(file);
+    }
+    BufferedReader br = new BufferedReader(new InputStreamReader(in));
+    try {
+      String line;
+      while ((line = br.readLine()) != null) {
+        lines.add(line);
+      }
+    }
+    finally {
+      br.close();
+    }
+    return lines;
+  }
+
+
   @Override
   public void setup(OperatorContext arg0)
   {
     holdingBuffer = new ArrayBlockingQueue<String>(bufferSize);
     try {
-      ipAddress = FileUtils.readLines(new File(ipAddressFile));
-      List<String> urlByteStatus = FileUtils.readLines(new File(urlFile));
-      referers = FileUtils.readLines(new File(refererFile));
-      agents = FileUtils.readLines(new File(agentFile));
+      ipAddress = readLines(ipAddressFile);
+      List<String> urlByteStatus = readLines(urlFile);
+      referers = readLines(refererFile);
+      agents = readLines(agentFile);
       //removing the first url if it starts with #
       if (urlByteStatus.get(0).startsWith("#")) {
         urlByteStatus.remove(0);
       }
+
+      LOG.info("Number of IP Addresses: {}", ipAddress.size());
+      LOG.info("Number of URLs: {}", urlByteStatus.size());
+      LOG.info("Number of Referers: {}", referers.size());
+      LOG.info("Number of User Agents: {}", agents.size());
       url = new ArrayList<String>();
       bytes = new ArrayList<Integer>();
       status = new ArrayList<Integer>();

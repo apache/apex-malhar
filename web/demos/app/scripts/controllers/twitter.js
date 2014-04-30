@@ -20,12 +20,9 @@
 
 angular.module('twitter')
     .controller('TwitterController', ['$scope', 'rest', function ($scope, rest) {
-        $scope.app = rest.getApp(settings.twitter.appName);
-
-        $scope.$watch('app', function (app) {
-            if (app) {
-                $scope.appURL = settings.appsURL + app.id;
-            }
+        rest.getApp(settings.twitter.appName).then(function (app) {
+            $scope.app = app;
+            $scope.appURL = settings.appsURL + app.id;
         });
     }])
     .controller('TwitterGridControlller', ['$scope', 'socket', function ($scope, socket) {

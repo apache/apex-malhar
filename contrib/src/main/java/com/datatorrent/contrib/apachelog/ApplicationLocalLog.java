@@ -21,7 +21,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.fs.TailFsInputOperator;
 import com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator;
-import java.text.SimpleDateFormat;
 import org.apache.hadoop.conf.Configuration;
 
 /**
