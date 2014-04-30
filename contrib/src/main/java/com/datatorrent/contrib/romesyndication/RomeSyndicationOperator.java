@@ -122,16 +122,25 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
     return streamProvider;
   }
 
+  /**
+   * Set ordered update
+   */
   public void setOrderedUpdate(boolean orderedUpdate)
   {
     this.orderedUpdate = orderedUpdate;
   }
-
+  
+  /**
+   * Check if ordered update is set
+   */
   public boolean isOrderedUpdate()
   {
     return orderedUpdate;
   }
 
+  /**
+   * Get feed input stream
+   */
   private InputStream getFeedInputStream() throws IOException
   {
     InputStream is;
@@ -145,10 +154,10 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
     return is;
   }
 
-  @Override
   /**
    * Thread processing of the syndication feeds
    */
+  @Override
   public void run()
   {
     try {

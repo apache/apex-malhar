@@ -27,6 +27,8 @@ import com.datatorrent.lib.bucket.HdfsBucketStore;
 
 /**
  * {@link Deduper} that uses hdfs to store buckets.
+ *
+ * @since 0.9.5
  */
 public abstract class DeduperWithHdfsStore<INPUT extends Bucketable, OUTPUT> extends Deduper<INPUT, OUTPUT>
 {

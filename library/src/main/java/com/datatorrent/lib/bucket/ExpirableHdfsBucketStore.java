@@ -25,6 +25,11 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>ExpirableHdfsBucketStore class.</p>
+ *
+ * @since 0.9.5
+ */
 public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends HdfsBucketStore<T> implements BucketStore.ExpirableBucketStore<T>
 {
 
