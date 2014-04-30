@@ -66,6 +66,8 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private double throughputAdjustmentFactor;
   private int minimumEventsPerTransaction;
   private int maximumEventsPerTransaction;
+  private long commitEventTimeoutMillis;
+  private transient long lastCommitEventTimeMillis;
   private Storage storage;
   Discovery<byte[]> discovery;
   StreamCodec<Event> codec;
@@ -81,12 +83,14 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         logger.debug("found {}", r);
         switch (r.type) {
           case SEEK:
+            lastCommitEventTimeMillis = System.currentTimeMillis();
             slice = r.getAddress();
             playback = storage.retrieve(Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + slice.length));
             client = r.client;
             break;
 
           case COMMITTED:
+            lastCommitEventTimeMillis = System.currentTimeMillis();
             slice = r.getAddress();
             storage.clean(Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + slice.length));
             break;
@@ -121,7 +125,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     }
 
     if (client == null) {
-      logger.debug("No client expressed interest yet to consume the events");
+      logger.info("No client expressed interest yet to consume the events.");
+      return Status.BACKOFF;
+    }
+    else if (System.currentTimeMillis() - lastCommitEventTimeMillis > commitEventTimeoutMillis) {
+      logger.info("Client has not processsed the workload given for the last {} milliseconds, so backing off.", System.currentTimeMillis() - lastCommitEventTimeMillis);
       return Status.BACKOFF;
     }
 
@@ -341,6 +349,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     throughputAdjustmentFactor = context.getInteger("throughputAdjustmentPercent", 5) / 100.0;
     maximumEventsPerTransaction = context.getInteger("maximumEventsPerTransaction", 10000);
     minimumEventsPerTransaction = context.getInteger("minimumEventsPerTransaction", 100);
+    commitEventTimeoutMillis = context.getLong("commitEventTimeoutMillis", Long.MAX_VALUE);
 
     @SuppressWarnings("unchecked")
     Discovery<byte[]> ldiscovery = configure("discovery", Discovery.class, context);
