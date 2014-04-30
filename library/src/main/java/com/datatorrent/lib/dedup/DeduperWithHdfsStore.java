@@ -35,7 +35,7 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable & Event, OUT
   {
     boolean stateless = context.getValue(Context.OperatorContext.STATELESS);
     if (stateless) {
-      bucketManager.initialize(new NonOperationalBucketStore<INPUT>());
+      bucketManager.setBucketStore(new NonOperationalBucketStore<INPUT>());
     }
     else {
       ((HdfsBucketStore<INPUT>) bucketManager.getBucketStore()).setConfiguration(context.getId(), context.getValue(DAG.APPLICATION_PATH), partitionKeys, partitionMask);

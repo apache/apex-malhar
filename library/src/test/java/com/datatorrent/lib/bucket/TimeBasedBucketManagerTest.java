@@ -70,7 +70,7 @@ public class TimeBasedBucketManagerTest
     manager = new TestBucketManager<DummyEvent>();
     manager.setBucketSpanInMillis(BUCKET_SPAN);
     ExpirableHdfsBucketStore<DummyEvent> bucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
-    manager.initialize(bucketStore);
+    manager.setBucketStore(bucketStore);
     bucketStore.setConfiguration(0, applicationPath, Sets.newHashSet(0), 0);
     bucketStore.setup();
     manager.startService(new BucketManagerTest.TestStorageManagerListener());

@@ -297,11 +297,11 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   }
 
   @Override
-  public void initialize(@Nonnull BucketStore<T> store)
+  public void setBucketStore(@Nonnull BucketStore<T> bucketStore)
   {
-    this.bucketStore = store;
-    store.setNoOfBuckets(noOfBuckets);
-    store.setWriteEventKeysOnly(writeEventKeysOnly);
+    this.bucketStore = bucketStore;
+    bucketStore.setNoOfBuckets(noOfBuckets);
+    bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
   }
 
   @Override

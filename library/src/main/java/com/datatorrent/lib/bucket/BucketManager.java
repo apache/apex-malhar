@@ -60,10 +60,7 @@ import com.datatorrent.api.Stats;
  */
 public interface BucketManager<T extends Bucketable>
 {
-  /**
-   * initialize the bucket manager.
-   */
-  void initialize(@Nonnull BucketStore<T> bucketStore);
+  void setBucketStore(@Nonnull BucketStore<T> bucketStore);
 
   BucketStore<T> getBucketStore();
 

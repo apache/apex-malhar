@@ -94,7 +94,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   }
 
   @Override
-  public void initialize(@Nonnull BucketStore<T> store)
+  public void setBucketStore(@Nonnull BucketStore<T> store)
   {
     Preconditions.checkArgument(store instanceof BucketStore.ExpirableBucketStore);
     this.bucketStore = store;
