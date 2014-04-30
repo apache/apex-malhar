@@ -185,7 +185,6 @@ public class DeduperTest
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     ExpirableHdfsBucketStore<DummyEvent>  bucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
     deduper = new DummyDeduper();
-    deduper.setBucketStore(bucketStore);
     storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
     storageManager.setBucketSpanInMillis(1000);
     storageManager.setMillisPreventingBucketEviction(60000);

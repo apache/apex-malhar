@@ -25,17 +25,17 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 
+import com.datatorrent.api.annotation.Stateless;
+
 /**
  * {@link BucketStore} which doesn't keep any state.<br/>
  *
  * @param <T> type of bucket event
  */
-public class StatelessBucketStore<T extends Bucketable & Event> implements BucketStore.ExpirableBucketStore<T>
+@Stateless
+public class NonOperationalBucketStore<T extends Bucketable & Event> implements BucketStore.ExpirableBucketStore<T>
 {
-  //Non check-pointed
-  protected transient boolean isReady;
-
-  public StatelessBucketStore()
+  public NonOperationalBucketStore()
   {
   }
 
@@ -53,7 +53,6 @@ public class StatelessBucketStore<T extends Bucketable & Event> implements Bucke
   @Override
   public void setup()
   {
-    isReady = true;
   }
 
   /**
@@ -62,12 +61,6 @@ public class StatelessBucketStore<T extends Bucketable & Event> implements Bucke
   @Override
   public void teardown()
   {
-  }
-
-  @Override
-  public boolean isReady()
-  {
-    return isReady;
   }
 
   /**
@@ -96,10 +89,10 @@ public class StatelessBucketStore<T extends Bucketable & Event> implements Bucke
     return Maps.newHashMap();
   }
 
-  private static transient final Logger logger = LoggerFactory.getLogger(StatelessBucketStore.class);
-
   @Override
   public void deleteExpiredBuckets(long time) throws IOException
   {
   }
+
+  private static transient final Logger logger = LoggerFactory.getLogger(NonOperationalBucketStore.class);
 }

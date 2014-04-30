@@ -97,7 +97,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void initialize(@Nonnull BucketStore<T> store)
   {
     Preconditions.checkArgument(store instanceof BucketStore.ExpirableBucketStore);
-    this.store = store;
+    this.bucketStore = store;
     recomputeNumBuckets();
   }
 
@@ -108,9 +108,9 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     startOfBucketsInMillis = calendar.getTimeInMillis();
     expiryTime = startOfBucketsInMillis;
     noOfBuckets = (int) Math.ceil((now - startOfBucketsInMillis) / (bucketSpanInMillis * 1.0));
-    if (store != null) {
-      store.setNoOfBuckets(noOfBuckets);
-      store.setWriteEventKeysOnly(writeEventKeysOnly);
+    if (bucketStore != null) {
+      bucketStore.setNoOfBuckets(noOfBuckets);
+      bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
     }
     maxTimesPerBuckets = new Long[noOfBuckets];
   }
@@ -138,7 +138,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
           }
         }
         try {
-          ((BucketStore.ExpirableBucketStore<T>) store).deleteExpiredBuckets(time);
+          ((BucketStore.ExpirableBucketStore<T>) bucketStore).deleteExpiredBuckets(time);
         }
         catch (IOException e) {
           throw new RuntimeException(e);

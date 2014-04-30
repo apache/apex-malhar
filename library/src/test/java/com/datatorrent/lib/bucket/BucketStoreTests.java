@@ -51,7 +51,7 @@ public class BucketStoreTests
     bucketStore = store;
     bucketStore.setNoOfBuckets(TOTAL_BUCKETS);
     bucketStore.setWriteEventKeysOnly(true);
-    bucketStore.setConfiguration(7, applicationPath, null, Sets.newHashSet(0), 0);
+    bucketStore.setConfiguration(7, applicationPath, Sets.newHashSet(0), 0);
     bucketStore.setup();
 
     for (int bucketIdx = 0; bucketIdx < 2; bucketIdx++) {

@@ -74,9 +74,10 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   protected int keepAliveSeconds;
   protected int hardLimitOnPoolSize;
   protected int interpolatedPoolSize;
+  @Nonnull
+  private String bucketsDir;
 
   //Non check-pointed
-  protected transient boolean isReady;
   protected transient Multimap<Long, Integer> windowToBuckets;
   protected transient String bucketRoot;
   protected transient Configuration configuration;
@@ -94,6 +95,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     maximumPoolSize = -1;
     interpolatedPoolSize = -1;
     keepAliveSeconds = DEF_KEEP_ALIVE_SECONDS;
+    bucketsDir = "buckets";
   }
 
   @SuppressWarnings("unchecked")
@@ -130,11 +132,16 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     this.hardLimitOnPoolSize = hardLimitOnPoolSize;
   }
 
-  public void setConfiguration(int operatorId, String applicationPath, String bucketDir, Set<Integer> partitionKeys, int partitionMask)
+  public void setBucketsDir(@Nonnull String bucketsDir)
+  {
+    this.bucketsDir = bucketsDir;
+  }
+
+  public void setConfiguration(int operatorId, String applicationPath, Set<Integer> partitionKeys, int partitionMask)
   {
     Preconditions.checkNotNull(applicationPath);
     this.operatorId = operatorId;
-    this.bucketRoot = applicationPath + PATH_SEPARATOR + (bucketDir == null ? "buckets" : bucketDir) + PATH_SEPARATOR + operatorId;
+    this.bucketRoot = applicationPath + PATH_SEPARATOR + bucketsDir + PATH_SEPARATOR + operatorId;
     this.partitionKeys = Preconditions.checkNotNull(partitionKeys, "partition keys");
     this.partitionMask = partitionMask;
     logger.debug("operator parameters {}, {}, {}", operatorId, partitionKeys, partitionMask);
@@ -172,7 +179,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       threadPoolExecutor = new ThreadPoolExecutor(corePoolSize, maximumPoolSize, keepAliveSeconds, TimeUnit.SECONDS, queue, threadFactory);
     }
     logger.debug("threadpool settings {} {} {}", threadPoolExecutor.getCorePoolSize(), threadPoolExecutor.getMaximumPoolSize(), keepAliveSeconds);
-    isReady = true;
   }
 
   /**
@@ -184,12 +190,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     //Not closing the filesystem.
     threadPoolExecutor.shutdown();
     configuration.clear();
-  }
-
-  @Override
-  public boolean isReady()
-  {
-    return isReady;
   }
 
   /**

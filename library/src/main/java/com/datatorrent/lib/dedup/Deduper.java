@@ -76,6 +76,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   //Check-pointed state
   @Nonnull
   protected BucketManager<INPUT> bucketManager;
+
   //bucketKey -> list of bucketData which belong to that bucket and are waiting for the bucket to be loaded.
   @Nonnull
   protected final Map<Long, List<INPUT>> waitingEvents;
@@ -88,7 +89,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   private transient OperatorContext context;
   protected transient Counters counters;
   private transient long currentWindow;
-
 
   public Deduper()
   {
@@ -310,6 +310,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       deduperInstance.partitionMask = lPartitionMask;
       logger.debug("partitions {},{}", deduperInstance.partitionKeys, deduperInstance.partitionMask);
       deduperInstance.bucketManager = bucketManager.cloneWithProperties();
+
       for (int partitionKey : deduperInstance.partitionKeys) {
         partitionKeyToStorageManagers.put(partitionKey, deduperInstance.bucketManager);
       }
@@ -433,7 +434,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
     private static final long serialVersionUID = 201404082336L;
     protected static transient final Logger logger = LoggerFactory.getLogger(CountersListener.class);
-
   }
 
   private final static Logger logger = LoggerFactory.getLogger(Deduper.class);

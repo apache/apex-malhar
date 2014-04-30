@@ -39,12 +39,6 @@ public interface BucketStore<T extends Bucketable>
   void teardown();
 
   /**
-   * Returns if the bucket store is ready to perform fetch/store.
-   * @return
-   */
-  boolean isReady();
-
-  /**
    * Stores the un-written bucket data collected in the given window.
    *
    * @param window    window for which data is saved.

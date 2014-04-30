@@ -65,6 +65,8 @@ public interface BucketManager<T extends Bucketable>
    */
   void initialize(@Nonnull BucketStore<T> bucketStore);
 
+  BucketStore<T> getBucketStore();
+
   /**
    * Starts the service.
    *

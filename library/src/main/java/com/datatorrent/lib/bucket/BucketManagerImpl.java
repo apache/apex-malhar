@@ -88,7 +88,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   protected long millisPreventingBucketEviction;
   protected boolean writeEventKeysOnly;
   @Nonnull
-  protected BucketStore<T> store;
+  protected BucketStore<T> bucketStore;
   @Nonnull
   protected final Map<Integer, Bucket<T>> dirtyBuckets;
   protected long committedWindow;
@@ -191,6 +191,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   public void shutdownService()
   {
     running = false;
+    bucketStore.teardown();
   }
 
   @Override
@@ -225,7 +226,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
               buckets[bucketIdx] = null;
 
               listener.bucketOffLoaded(oldBucket.bucketKey);
-              store.deleteBucket(bucketIdx);
+              bucketStore.deleteBucket(bucketIdx);
               if (bucketCounters != null) {
                 bucketCounters.numDeletedBuckets++;
                 bucketCounters.numBucketsInMemory--;
@@ -234,7 +235,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
               logger.debug("deleted bucket {} {}", oldBucket.bucketKey, bucketIdx);
             }
 
-            Map<Object, T> bucketDataInStore = store.fetchBucket(bucketIdx);
+            Map<Object, T> bucketDataInStore = bucketStore.fetchBucket(bucketIdx);
 
             //Delete the least recently used bucket in memory if the noOfBucketsInMemory threshold is reached.
             if (evictionCandidates.size() + 1 > noOfBucketsInMemory) {
@@ -298,15 +299,21 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Override
   public void initialize(@Nonnull BucketStore<T> store)
   {
-    this.store = store;
+    this.bucketStore = store;
     store.setNoOfBuckets(noOfBuckets);
     store.setWriteEventKeysOnly(writeEventKeysOnly);
   }
 
   @Override
+  public BucketStore<T> getBucketStore()
+  {
+    return bucketStore;
+  }
+
+  @Override
   public void startService(Listener<T> listener)
   {
-    Preconditions.checkArgument(store.isReady(), "store is not ready");
+    bucketStore.setup();
     logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
     @SuppressWarnings("unchecked")
@@ -383,7 +390,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       if (!dataToStore.isEmpty()) {
         long start = System.currentTimeMillis();
         logger.debug("start store {}", window);
-        store.storeBucketData(window, id, dataToStore);
+        bucketStore.storeBucketData(window, id, dataToStore);
         logger.debug("end store {} took {}", window, System.currentTimeMillis() - start);
       }
     }
@@ -450,7 +457,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     other.noOfBucketsInMemory = noOfBucketsInMemory;
     other.maxNoOfBucketsInMemory = maxNoOfBucketsInMemory;
     other.millisPreventingBucketEviction = millisPreventingBucketEviction;
-    other.store = store;
+    other.bucketStore = bucketStore;
     other.committedWindow = committedWindow;
   }
 
@@ -489,7 +496,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     if (writeEventKeysOnly != that.writeEventKeysOnly) {
       return false;
     }
-    if (!store.equals(that.store)) {
+    if (!bucketStore.equals(that.bucketStore)) {
       return false;
     }
     return dirtyBuckets.equals(that.dirtyBuckets);
@@ -504,7 +511,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     result = 31 * result + maxNoOfBucketsInMemory;
     result = 31 * result + (int) (millisPreventingBucketEviction ^ (millisPreventingBucketEviction >>> 32));
     result = 31 * result + (writeEventKeysOnly ? 1 : 0);
-    result = 31 * result + (store.hashCode());
+    result = 31 * result + (bucketStore.hashCode());
     result = 31 * result + (dirtyBuckets.hashCode());
     result = 31 * result + (int) (committedWindow ^ (committedWindow >>> 32));
     return result;
