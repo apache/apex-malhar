@@ -1,8 +1,0 @@
-node_modules/*
-!node_modules/datatorrent
-.DS_Store
-.idea
-/dist
-test/suite.bundle.js
-/js/precompiled-templates.js
-*.css
