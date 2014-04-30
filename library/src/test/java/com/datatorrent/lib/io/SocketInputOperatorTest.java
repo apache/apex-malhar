@@ -74,7 +74,7 @@ public class SocketInputOperatorTest
         }
       }
       catch (Exception e) {
-        //LOG.debug("server ", e);
+        // LOG.debug("server ", e);
       }
     }
   }
@@ -85,7 +85,7 @@ public class SocketInputOperatorTest
     try {
       Thread server = new Thread(new Server(7898));
       server.start();
-      Thread.sleep(10000);
+      Thread.sleep(1000);
       // server.join();
       TestSocketInputOperator operator = new TestSocketInputOperator();
       operator.setHostname("localhost");
@@ -110,7 +110,7 @@ public class SocketInputOperatorTest
       Assert.assertEquals(strBuffer.substring(length, length + outputString.length()), sink.collectedTuples.get(1));
       server.interrupt();
       server.join();
-      Thread.sleep(10000);
+      Thread.sleep(1000);
     }
     catch (Exception e) {
       LOG.debug("exception", e);
@@ -123,7 +123,7 @@ public class SocketInputOperatorTest
     try {
       Thread server = new Thread(new Server(7899));
       server.start();
-      Thread.sleep(10000);
+      Thread.sleep(1000);
       TestSocketInputOperator operator = new TestSocketInputOperator();
       operator.setHostname("localhost");
       operator.setPort(7899);
@@ -143,12 +143,16 @@ public class SocketInputOperatorTest
       operator.deactivate();
       operator.teardown();
       Assert.assertEquals(10, sink.collectedTuples.size());
+      int endIndex = 0;
+      int start = 0;
       for (int i = 0; i < 10; i++) {
-        Assert.assertEquals(strBuffer.substring(i * 10, (i + 1) * 10), sink.collectedTuples.get(i));
+        endIndex += ((String) sink.collectedTuples.get(i)).length();
+        Assert.assertEquals(strBuffer.substring(start, endIndex), sink.collectedTuples.get(i));
+        start = endIndex;
       }
       server.interrupt();
       server.join();
-      Thread.sleep(10000);
+      Thread.sleep(1000);
     }
     catch (Exception e) {
       LOG.debug("exception", e);
