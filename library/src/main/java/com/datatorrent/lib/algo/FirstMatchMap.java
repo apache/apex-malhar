@@ -32,7 +32,7 @@ import com.datatorrent.lib.util.BaseMatchOperator;
  * This module is a pass through<br>
  * The operators by default assumes immutable keys. If the key is mutable, use cloneKey to make a copy<br>
  * <br>
- * <b>StateFull : No, </b> tuple are processed in current window. <br>
+ * <b>StateFull : Yes, </b> tuple are processed in current window. <br>
  * <b>Partitions : No, </b>will yield wrong results. <br>
  * <br>
  * <br>

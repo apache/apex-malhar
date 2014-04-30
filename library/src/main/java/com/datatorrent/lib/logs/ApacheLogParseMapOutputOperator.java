@@ -25,6 +25,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.Stateless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.9.4
  */
+@Stateless
 public class ApacheLogParseMapOutputOperator extends BaseOperator
 {
   /**
