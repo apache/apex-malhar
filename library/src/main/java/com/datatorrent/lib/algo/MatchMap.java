@@ -19,6 +19,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseMatchOperator;
 import com.datatorrent.lib.util.UnifierHashMap;
 import java.util.HashMap;
@@ -51,6 +52,7 @@ import java.util.Map;
  *
  * @since 0.3.2
  */
+@Stateless
 public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")
