@@ -391,7 +391,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
         long start = System.currentTimeMillis();
         logger.debug("start store {}", window);
         bucketStore.storeBucketData(window, id, dataToStore);
-        logger.debug("end store {} took {}", window, System.currentTimeMillis() - start);
+        logger.debug("end store {} num {} took {}", window, eventsCount, System.currentTimeMillis() - start);
       }
     }
     catch (IOException e) {

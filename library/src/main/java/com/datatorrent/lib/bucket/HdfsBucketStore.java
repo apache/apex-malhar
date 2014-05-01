@@ -323,7 +323,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     for (Future<Map<Object, T>> future : futures) {
       bucketData.putAll(future.get());
     }
-    logger.debug("end fetch bucket {} took {}", bucketIdx, System.currentTimeMillis() - startTime);
+    logger.debug("end fetch bucket {} num {} took {}", bucketIdx, bucketData.size(), System.currentTimeMillis() - startTime);
     return bucketData;
   }
 
