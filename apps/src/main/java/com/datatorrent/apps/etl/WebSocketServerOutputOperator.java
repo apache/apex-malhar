@@ -21,7 +21,7 @@ import java.util.Map;
  *
  * @author Ashwin Chandra Putta <ashwin@datatorrent.com>
  */
-public class WebSocketOutputOperator<K, V> extends WebSocketServerOperatorBase<Map<K, V>>
+public class WebSocketServerOutputOperator<K, V> extends WebSocketServerOperatorBase<Map<K, V>>
 {
   @Override
   protected void processTuple(Map<K, V> t)
