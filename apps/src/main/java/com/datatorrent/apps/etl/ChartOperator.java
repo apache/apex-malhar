@@ -30,12 +30,8 @@ import com.datatorrent.api.DefaultInputPort;
  * @param <CHART>
  * @author Ashwin Chandra Putta <ashwin@datatorrent.com>
  */
-public abstract class ChartOperator<TUPLE, CHART> extends BaseOperator
+public abstract class ChartOperator<TUPLE, CHART extends Chart> extends BaseOperator
 {
-  public enum CHART_TYPE
-  {
-    LINE, LIST, TOP
-  }
 
   @Nonnull
   protected List<CHART> chartParamsList;
@@ -54,6 +50,11 @@ public abstract class ChartOperator<TUPLE, CHART> extends BaseOperator
   public void setChartParamsList(CHART[] params)
   {
     chartParamsList = Lists.newArrayList(params);
+  }
+
+  public List<CHART> getChartParamsList()
+  {
+    return chartParamsList;
   }
 
 }
