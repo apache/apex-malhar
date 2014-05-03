@@ -16,23 +16,16 @@
 package com.datatorrent.apps.etl;
 
 import java.util.*;
-
 import javax.annotation.Nonnull;
-
-import org.python.google.common.collect.Lists;
-
+import com.google.common.collect.Lists;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- *
- * @param <TUPLE>
- * @param <CHART>
- * @author Ashwin Chandra Putta <ashwin@datatorrent.com>
+ * Abstract chart operator used to implement various chart types
  */
 public abstract class ChartOperator<TUPLE, CHART extends Chart> extends BaseOperator
 {
-
   @Nonnull
   protected List<CHART> chartParamsList;
   public final transient DefaultInputPort<TUPLE> input = new DefaultInputPort<TUPLE>()

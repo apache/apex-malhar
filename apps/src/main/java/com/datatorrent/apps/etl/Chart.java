@@ -15,24 +15,26 @@
  */
 package com.datatorrent.apps.etl;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import javax.validation.constraints.NotNull;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import org.python.google.common.collect.Lists;
 
 /**
- *
- * @author Ashwin Chandra Putta <ashwin@datatorrent.com>
+ * Abstract chart class used to define various charts
  */
 public abstract class Chart
 {
   public enum CHART_TYPE
   {
-    LINE, LIST, TOP
+    LINE, MAP, TOP
   }
 
   public String name;
@@ -53,7 +55,6 @@ public abstract class Chart
     public Set<String> dimensions; // eg: bucket, country
     public Map<String, String> filters; // eg: bucket = MINUTE, country = US
     public String[] params;
-
     public final String X_KEY = "xKey";
     public final String X_UNIT = "xUnit";
     public final String FILTERS = "filters";
@@ -124,20 +125,6 @@ public abstract class Chart
       meta.put(SCHEMA, schema);
 
       return meta;
-    }
-
-  }
-
-  public static class TopChartParams extends Chart
-  {
-    Set<String> dimensions;
-    List<String> metrics;
-    String sortMetric;
-
-    @Override
-    public Object getMeta()
-    {
-      return null;
     }
 
   }

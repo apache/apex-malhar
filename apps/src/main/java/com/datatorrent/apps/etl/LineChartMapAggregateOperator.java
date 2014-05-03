@@ -27,9 +27,10 @@ import com.datatorrent.apps.etl.Chart.LineChartParams;
 import com.datatorrent.apps.etl.MapAggregator.MapAggregateEvent;
 
 /**
- *
+ * Line chart operator that accepts {@link MapAggregateEvent} as input and emits tuples for
+ * the list of {@link LineChartParams} configured
  */
-public class XYLineChartMapAggregateOperator extends ChartOperator<MapAggregateEvent, LineChartParams>
+public class LineChartMapAggregateOperator extends ChartOperator<MapAggregateEvent, LineChartParams>
 {
   private long currentTimeStamp;
   @Nonnull
