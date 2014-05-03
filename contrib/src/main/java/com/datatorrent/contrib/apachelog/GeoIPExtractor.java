@@ -28,13 +28,18 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This extractor uses maxmind API to extract Geo information from an IP address
+ * This extractor uses maxmind API to extract Geo information from an IP address.
+ *
+ * IMPORTANT: The user of this extractor needs to include the jars which contain these classes in DAGContext.LIBRARY_JARS
+ *
+ * com.maxmind.geoip.LookupService.class
  *
  * @since 0.9.4
  */
 public class GeoIPExtractor implements InformationExtractor
 {
   private static final Logger LOG = LoggerFactory.getLogger(GeoIPExtractor.class);
+  private static final long serialVersionUID = 201404221817L;
   private transient LookupService reader;
   /**
    * The local path that contains the maxmind "legacy" GeoIP db

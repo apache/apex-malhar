@@ -20,6 +20,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 
 /**
  * Merges two streams with identical schema and emits the tuples to the output port in order<p>
@@ -32,6 +33,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *
  * @since 0.3.3
  */
+@Stateless
 public class StreamMerger<K> extends BaseOperator
 {
 	/**

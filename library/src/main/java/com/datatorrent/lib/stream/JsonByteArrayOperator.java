@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import com.datatorrent.api.annotation.Stateless;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -46,6 +47,7 @@ import com.datatorrent.common.util.DTThrowable;
  *
  * @since 0.9.4
  */
+@Stateless
 public class JsonByteArrayOperator extends BaseOperator
 {
   private Character CONCAT_CHAR = '_';

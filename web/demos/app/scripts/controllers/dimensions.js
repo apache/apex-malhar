@@ -153,11 +153,9 @@
       var queryParams = new URI(window.location.href).query(true);
       var emptyChartOptionsFn = getEmptyChartOptionsFn($scope);
 
-      $scope.app = rest.getApp(settings.dimensions.appName);
-      $scope.$watch('app', function (app) {
-        if (app) {
+      rest.getApp(settings.dimensions.appName).then(function (app) {
+          $scope.app = app;
           $scope.appURL = settings.appsURL + app.id;
-        }
       });
 
       $scope.pollInterval = settings.dimensions.pollInterval;
