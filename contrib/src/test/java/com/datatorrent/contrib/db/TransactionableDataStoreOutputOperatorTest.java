@@ -30,6 +30,7 @@ import com.datatorrent.lib.db.TransactionableDataStoreWriter;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
 import com.datatorrent.contrib.redis.RedisStore;
+import java.util.Collection;
 
 /**
  * Test operator to test {@link TransactionableDataStoreOutputOperator}
@@ -51,6 +52,18 @@ public class TransactionableDataStoreOutputOperatorTest
     public Map<Object, Object> retreive(Map<Object, Object> tuple)
     {
       return null;
+    }
+
+    @Override
+    public void processBulk(Collection<Map<Object, Object>> tuple, long windowId)
+    {
+
+    }
+
+    @Override
+    public long retreiveLastUpdatedWindowId()
+    {
+      return -1;
     }
 
   }

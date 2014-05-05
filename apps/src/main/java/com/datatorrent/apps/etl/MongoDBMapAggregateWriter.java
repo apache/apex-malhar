@@ -15,6 +15,7 @@
  */
 package com.datatorrent.apps.etl;
 
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map.Entry;
@@ -23,15 +24,16 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 
 import com.mongodb.BasicDBObject;
+import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.hadoop.metrics2.annotation.Metric;
-
 import com.datatorrent.lib.db.DataStoreWriter;
+
+import com.datatorrent.api.StringCodec;
 
 import com.datatorrent.apps.etl.MapAggregator.MapAggregateEvent;
 import com.datatorrent.contrib.mongodb.MongoDBConnectable;
@@ -47,43 +49,97 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
   private String table;
   @Nonnull
   private MapAggregator[] aggregators;
-  HashMap<MapAggregateEvent, MapAggregateEvent> cache = new HashMap<MapAggregateEvent, MapAggregateEvent>();
-  int batchSize = 1000;
+  private HashMap<MapAggregateEvent, MapAggregateEvent> cache = new HashMap<MapAggregateEvent, MapAggregateEvent>();
+  private int batchSize = 1000;
+  private final String WINDOW_TABLE = "lastWindowTable";
+  private final String LAST_WINDOW_ID = "lastWindowId";
 
   @Override
   public void process(MapAggregateEvent tuple)
   {
     cache.put(tuple, tuple);
-    if (batchSize > 0) {
-      batchSize--;
-    }
-    else {
-      batchSize = 1000;
 
+    if (cache.size() >= batchSize) {
       for (Entry<MapAggregateEvent, MapAggregateEvent> entry : cache.entrySet()) {
         tuple = entry.getValue();
-        int aggregatorIndex = tuple.getAggregatorIndex();
-        Set<String> dimensionKeys = aggregators[aggregatorIndex].getDimensionKeys();
-
-        BasicDBObject newTuple = new BasicDBObject();
-
-        BasicDBObject dimensions = getDimensions(tuple, dimensionKeys);
-        newTuple.put("dimension_size", dimensions.size());
-        newTuple.put(Constants.DIMENSIONS, getDimensions(tuple, dimensionKeys));
-
-        DBObject existingTuple = getExistingTuple(tuple, dimensionKeys);
-
-        newTuple.put(Constants.METRICS, getMetricsFromTuple(tuple));
-        if (existingTuple == null) {
-          // insert tuple
-          db.getCollection(table).insert(newTuple);
-        }
-        else {
-          // update tuple
-          db.getCollection(table).update(existingTuple, newTuple);
-        }
-
+        upsertTuple(tuple);
       }
+      cache.clear();
+    }
+  }
+
+  @Override
+  public void processBulk(Collection<MapAggregateEvent> tuple, long windowId)
+  {
+    for (MapAggregateEvent mapAggregateEvent : tuple) {
+      upsertTuple(mapAggregateEvent);
+    }
+    BasicDBObject windowIdObj = new BasicDBObject();
+    windowIdObj.put(LAST_WINDOW_ID, windowId);
+    DBCollection coll = db.getCollection(WINDOW_TABLE);
+    DBCursor find = coll.find();
+    if (find.hasNext()) {
+      coll.update(find.next(), windowIdObj);
+    }
+    else {
+      coll.insert(windowIdObj);
+    }
+  }
+
+  @Override
+  public MapAggregateEvent retreive(MapAggregateEvent tuple)
+  {
+    int aggregatorIndex = tuple.getAggregatorIndex();
+    Set<String> dimensionKeys = aggregators[aggregatorIndex].getDimensionKeys();
+    DBObject existingTuple = getExistingTuple(tuple, dimensionKeys);
+    if (existingTuple == null) {
+      return null;
+    }
+    DBObject dbMetrics = (BasicDBObject)existingTuple.get(Constants.METRICS);
+
+    Object metricValue1 = dbMetrics.get(Constants.COUNT_DEST);
+    tuple.putMetric(Constants.COUNT_DEST, metricValue1);
+
+    Object metricValue2 = dbMetrics.get(Constants.BYTES_SRC);
+    tuple.putMetric(Constants.BYTES_SRC, metricValue2);
+
+    return tuple;
+  }
+
+  @Override
+  public long retreiveLastUpdatedWindowId()
+  {
+    DBCursor find = db.getCollection(WINDOW_TABLE).find();
+    if (find.hasNext()) {
+      DBObject next = find.next();
+      return (Long)next.get(LAST_WINDOW_ID);
+    }
+    else {
+      return -1;
+    }
+  }
+
+  private void upsertTuple(MapAggregateEvent tuple)
+  {
+    int aggregatorIndex = tuple.getAggregatorIndex();
+    Set<String> dimensionKeys = aggregators[aggregatorIndex].getDimensionKeys();
+
+    BasicDBObject newTuple = new BasicDBObject();
+
+    BasicDBObject dimensions = getDimensions(tuple, dimensionKeys);
+    newTuple.put("dimension_size", dimensions.size());
+    newTuple.put(Constants.DIMENSIONS, getDimensions(tuple, dimensionKeys));
+    newTuple.put(Constants.METRICS, getMetricsFromTuple(tuple));
+
+    DBObject existingTuple = getExistingTuple(tuple, dimensionKeys);
+
+    if (existingTuple == null) {
+      // insert tuple
+      db.getCollection(table).insert(newTuple);
+    }
+    else {
+      // update tuple
+      db.getCollection(table).update(existingTuple, newTuple);
     }
   }
 
@@ -105,9 +161,19 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
     this.table = table;
   }
 
+  public String getTable()
+  {
+    return table;
+  }
+
   public void setAggregators(MapAggregator[] aggregators)
   {
     this.aggregators = aggregators;
+  }
+
+  public MapAggregator[] getAggregators()
+  {
+    return aggregators;
   }
 
   private DBObject getExistingTuple(MapAggregateEvent tuple, Set<String> dimensionKeys)
@@ -118,9 +184,6 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
     query.put("dimension_size", dimensions.size());
     query.put(Constants.DIMENSIONS, getDimensions(tuple, dimensionKeys));
     DBCursor find = db.getCollection(table).find(query);
-    if (find.size() > 1) {
-      logger.info("#ashwin find size = {}", find.size());
-    }
 
     if (find.hasNext()) {
       return find.next();
@@ -147,26 +210,15 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
 
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(MongoDBMapAggregateWriter.class);
-
-  @Override
-  public MapAggregateEvent retreive(MapAggregateEvent tuple)
+  public int getBatchSize()
   {
-    int aggregatorIndex = tuple.getAggregatorIndex();
-    Set<String> dimensionKeys = aggregators[aggregatorIndex].getDimensionKeys();
-    DBObject existingTuple = getExistingTuple(tuple, dimensionKeys);
-    if (existingTuple == null) {
-      return null;
-    }
-    DBObject dbMetrics = (BasicDBObject)existingTuple.get(Constants.METRICS);
-
-    Object metricValue1 = dbMetrics.get(Constants.COUNT_DEST);
-    tuple.putMetric(Constants.COUNT_DEST, metricValue1);
-
-    Object metricValue2 = dbMetrics.get(Constants.BYTES_SRC);
-    tuple.putMetric(Constants.BYTES_SRC, metricValue2);
-
-    return tuple;
+    return batchSize;
   }
 
+  public void setBatchSize(int batchSize)
+  {
+    this.batchSize = batchSize;
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(MongoDBMapAggregateWriter.class);
 }

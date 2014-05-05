@@ -103,6 +103,18 @@ public class DataStoreOutputOperatorTest
       return null;
     }
 
+    @Override
+    public void processBulk(Collection<Map<String, Object>> tuple, long windowId)
+    {
+
+    }
+
+    @Override
+    public long retreiveLastUpdatedWindowId()
+    {
+      return -1;
+    }
+
   }
 
   /**

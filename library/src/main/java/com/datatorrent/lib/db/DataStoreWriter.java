@@ -15,6 +15,9 @@
  */
 package com.datatorrent.lib.db;
 
+import java.util.Collection;
+import java.util.List;
+
 /**
  * Interface for writing tuples to the data store
  * @param <T>
@@ -27,5 +30,23 @@ public interface DataStoreWriter<T> extends Connectable
    */
   public void process(T tuple);
 
+  /**
+   * Bulk write/update tuples to the data store once per window
+   * @param tuples tuples in the window
+   * @param windowId windowId of the window
+   */
+  public void processBulk(Collection<T> tuples, long windowId);
+
+  /**
+   * retreive if tuple exists in the data store
+   * @param tuple tuple to look for
+   * @return tuple
+   */
   public T retreive(T tuple);
+
+  /**
+   * returns the last updated windowId
+   * @return
+   */
+  public long retreiveLastUpdatedWindowId();
 }
