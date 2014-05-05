@@ -19,10 +19,15 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.apps.etl.MapAggregator.MapAggregateEvent;
 import com.datatorrent.lib.db.DataStoreWriter;
 import com.datatorrent.lib.db.cache.CacheProperties;
 import com.datatorrent.lib.db.cache.CacheStore;
+import com.datatorrent.lib.db.cache.StoreManager;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
 import javax.annotation.Nonnull;
 
 /**
@@ -30,6 +35,7 @@ import javax.annotation.Nonnull;
  * Aggregations operator, performs the following functions.
  * 1. Aggregates the incoming tuple over its dimension combination and emits the aggregated tuple
  * 2. Persists the the dimension to the supplied store
+ *
  * @param <T> type of tuple
  * @param <S> an implementation of {@link DataStoreWriter}
  */
@@ -39,13 +45,18 @@ public abstract class AggregationsOperatorBase<T, S extends DataStoreWriter<T>> 
   protected CacheStore cache;
   @Nonnull
   protected S store;
+  protected transient HashSet<T> storeEventsCache;
+  protected long lastUpdatedWindowId = -1;
+  protected transient long currentWindowId = -1;
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override
     public void process(T event)
     {
-      processTuple(event);
+      if (lastUpdatedWindowId < currentWindowId) {
+        processTuple(event);
+      }
     }
   };
 
@@ -55,8 +66,10 @@ public abstract class AggregationsOperatorBase<T, S extends DataStoreWriter<T>> 
     cacheProps = new CacheProperties();
     cacheProps.setCacheCleanupInMillis(10000);
     cache = new CacheStore(cacheProps);
+    storeEventsCache = new HashSet<T>();
     try {
       store.connect();
+      lastUpdatedWindowId = store.retreiveLastUpdatedWindowId();
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -65,9 +78,20 @@ public abstract class AggregationsOperatorBase<T, S extends DataStoreWriter<T>> 
 
   protected abstract void processTuple(T event);
 
-  protected void updateStore(T event)
+  @Override
+  public void beginWindow(long windowId)
   {
-    store.process(event);
+    currentWindowId = windowId;
+  }
+
+  @Override
+  public void endWindow()
+  {
+    if (lastUpdatedWindowId < currentWindowId)
+    {
+      store.processBulk(storeEventsCache, currentWindowId);
+      lastUpdatedWindowId = currentWindowId;
+    }
   }
 
   protected T retreiveFromStore(T event)
@@ -84,4 +108,5 @@ public abstract class AggregationsOperatorBase<T, S extends DataStoreWriter<T>> 
   {
     return store;
   }
+
 }
