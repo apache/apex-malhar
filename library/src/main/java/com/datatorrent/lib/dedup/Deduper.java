@@ -409,6 +409,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       return numDuplicateEvents;
     }
 
+    private static final long serialVersionUID = 201405061055L;
   }
 
   public static class CountersListener implements StatsListener, Serializable
