@@ -21,35 +21,62 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 import java.util.HashMap;
-import java.util.Map;
+import java.util.Random;
 
 /**
- *
+ * Generate random Key value pairs.
+ * key is string and value is int, it emits the pair as KeyValPair on outPort,
  */
 public class RandomDataGenerator implements InputOperator
 {
   public final transient DefaultOutputPort<KeyValPair<String, Object>> outPort = new DefaultOutputPort<KeyValPair<String, Object>>();
   private HashMap<String, Integer> dataInfo;
+  private int count;
+  private int sleepMs = 10;
+  private int keyRange = 100;
+  private int valueRange = 100;
+  private long tupleBlast = 10000;
+  private Random random;
 
   public RandomDataGenerator()
   {
-    this.dataInfo = new HashMap<String, Integer>();
-    this.dataInfo.put("a", 1000);
-    this.dataInfo.put("b", 1000);
-    this.dataInfo.put("c", 1000);
-    this.dataInfo.put("d", 1000);
+    random = new Random();
   }
 
   @Override
   public void emitTuples()
   {
-    for (Map.Entry<String, Integer> e : dataInfo.entrySet()) {
-      String key = e.getKey();
-      int count = e.getValue();
-      for (int i = 0; i < count; ++i) {
-        outPort.emit(new KeyValPair<String, Object>(key, i));
-      }
+    for(int i = 0 ; i < tupleBlast; i++) {
+      String key = String.valueOf(random.nextInt(keyRange));
+      int val = random.nextInt(valueRange);
+      outPort.emit(new KeyValPair<String, Object>(key, val));
     }
+    try {
+      Thread.sleep(sleepMs);
+    } catch(Exception ex) {
+      System.out.println(ex.getMessage());
+    }
+    count++;
+  }
+
+  public int getSleepMs()
+  {
+    return sleepMs;
+  }
+
+  public void setSleepMs(int sleepMs)
+  {
+    this.sleepMs = sleepMs;
+  }
+
+  public long getTupleBlast()
+  {
+    return tupleBlast;
+  }
+
+  public void setTupleBlast(long tupleBlast)
+  {
+    this.tupleBlast = tupleBlast;
   }
 
   @Override
@@ -61,7 +88,8 @@ public class RandomDataGenerator implements InputOperator
   @Override
   public void endWindow()
   {
-
+    System.out.println("emitTuples called  " + count + " times in this window");
+    count = 0;
   }
 
   @Override
