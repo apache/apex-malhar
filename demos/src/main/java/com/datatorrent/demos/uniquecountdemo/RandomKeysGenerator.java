@@ -26,66 +26,73 @@ import java.util.*;
 /*
     Generate random keys.
  */
-public class RandomKeysGenerator implements InputOperator {
+public class RandomKeysGenerator implements InputOperator
+{
 
-    protected int numKeys = 100;
-    protected int tuppleBlast = 1000;
-    protected long sleepTime = 10;
-    protected Map<Integer, MutableInt> history = new HashMap<Integer, MutableInt>();
-    private Random random = new Random();
-    private Date date = new Date();
-    private long start;
+  protected int numKeys = 100;
+  protected int tuppleBlast = 1000;
+  protected long sleepTime = 10;
+  protected Map<Integer, MutableInt> history = new HashMap<Integer, MutableInt>();
+  private Random random = new Random();
+  private Date date = new Date();
+  private long start;
 
-    public transient DefaultOutputPort<Integer> outPort = new DefaultOutputPort<Integer>();
-    public transient DefaultOutputPort<KeyHashValPair<Integer, Integer>> verificationPort =
-            new DefaultOutputPort<KeyHashValPair<Integer, Integer>>();
+  public transient DefaultOutputPort<Integer> outPort = new DefaultOutputPort<Integer>();
+  public transient DefaultOutputPort<KeyHashValPair<Integer, Integer>> verificationPort =
+      new DefaultOutputPort<KeyHashValPair<Integer, Integer>>();
 
-    @Override
-    public void emitTuples() {
-        for(int i = 0; i < tuppleBlast; i++) {
-            int key = random.nextInt(numKeys);
+  @Override
+  public void emitTuples()
+  {
+    for (int i = 0; i < tuppleBlast; i++) {
+      int key = random.nextInt(numKeys);
 
-            // maintain history for later verification.
-            MutableInt count = history.get(key);
-            if (count == null) {
-                count = new MutableInt(0);
-                history.put(key, count);
-            }
-            count.increment();
+      // maintain history for later verification.
+      MutableInt count = history.get(key);
+      if (count == null) {
+        count = new MutableInt(0);
+        history.put(key, count);
+      }
+      count.increment();
 
-            outPort.emit(key);
-        }
-        try {
-            Thread.sleep(sleepTime);
-        } catch (Exception ex) {
-
-        }
+      outPort.emit(key);
     }
-
-    public RandomKeysGenerator() {
-        start = date.getTime();
-    }
-
-    @Override
-    public void beginWindow(long l) {
+    try {
+      Thread.sleep(sleepTime);
+    } catch (Exception ex) {
 
     }
+  }
 
-    @Override
-    public void endWindow() {
-        for (Map.Entry<Integer, MutableInt> e : history.entrySet()) {
-            verificationPort.emit(new KeyHashValPair<Integer, Integer>(e.getKey(), e.getValue().toInteger()));
-        }
-        history.clear();
+  public RandomKeysGenerator()
+  {
+    start = date.getTime();
+  }
+
+  @Override
+  public void beginWindow(long l)
+  {
+
+  }
+
+  @Override
+  public void endWindow()
+  {
+    for (Map.Entry<Integer, MutableInt> e : history.entrySet()) {
+      verificationPort.emit(new KeyHashValPair<Integer, Integer>(e.getKey(), e.getValue().toInteger()));
     }
+    history.clear();
+  }
 
-    @Override
-    public void setup(Context.OperatorContext operatorContext) {
+  @Override
+  public void setup(Context.OperatorContext operatorContext)
+  {
 
-    }
+  }
 
-    @Override
-    public void teardown() {
+  @Override
+  public void teardown()
+  {
 
-    }
+  }
 }

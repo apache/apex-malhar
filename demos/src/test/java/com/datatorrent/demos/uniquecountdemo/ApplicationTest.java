@@ -24,12 +24,12 @@ import org.junit.Test;
  */
 public class ApplicationTest
 {
-    @Test
-    public void testApplication() throws Exception
-    {
-        LocalMode lma = LocalMode.newInstance();
-        new Application().populateDAG(lma.getDAG(), new Configuration(false));
-        LocalMode.Controller lc = lma.getController();
-        lc.run(10000);
-    }
+  @Test
+  public void testApplication() throws Exception
+  {
+    LocalMode lma = LocalMode.newInstance();
+    new Application().populateDAG(lma.getDAG(), new Configuration(false));
+    LocalMode.Controller lc = lma.getController();
+    lc.run(10000);
+  }
 }

@@ -25,93 +25,111 @@ import org.apache.commons.lang.mutable.MutableInt;
 import java.util.HashMap;
 import java.util.Map;
 
-public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K> {
+public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
+{
 
-    protected boolean cumulative = false;
+  protected boolean cumulative = false;
 
-    @InputPortFieldAnnotation(name="data")
-    public transient final DefaultInputPort<K> data = new DefaultInputPort<K>() {
-        @Override
-        public void process(K k) {
-            processTuple(k);
-        }
-    };
-
-    @InputPortFieldAnnotation(name="data1", optional = true)
-    public transient final DefaultInputPort<K> data1 = new DefaultInputPort<K>() {
-        @Override
-        public void process(K k) {
-            processTuple(k);
-        }
-    };
-
-    @OutputPortFieldAnnotation(name="count")
-    public final transient DefaultOutputPort<KeyHashValPair<K, Integer>> count
-            = new DefaultOutputPort<KeyHashValPair<K, Integer>>()
+  @InputPortFieldAnnotation(name = "data")
+  public transient final DefaultInputPort<K> data = new DefaultInputPort<K>()
+  {
+    @Override
+    public void process(K k)
     {
-        @Override
-        public Unifier<KeyHashValPair<K, Integer>> getUnifier() {
-            return new UniqueCountUnifier<K>();
-        }
-    };
+      processTuple(k);
+    }
+  };
+
+  @InputPortFieldAnnotation(name = "data1", optional = true)
+  public transient final DefaultInputPort<K> data1 = new DefaultInputPort<K>()
+  {
+    @Override
+    public void process(K k)
+    {
+      processTuple(k);
+    }
+  };
+
+  @OutputPortFieldAnnotation(name = "count")
+  public final transient DefaultOutputPort<KeyHashValPair<K, Integer>> count
+      = new DefaultOutputPort<KeyHashValPair<K, Integer>>()
+  {
+    @Override
+    public Unifier<KeyHashValPair<K, Integer>> getUnifier()
+    {
+      return new UniqueCountUnifier<K>();
+    }
+  };
+
+  @Override
+  public void endWindow()
+  {
+    for (Map.Entry<K, MutableInt> e : map.entrySet()) {
+      K key = e.getKey();
+      count.emit(new KeyHashValPair<K, Integer>(key, e.getValue().toInteger()));
+    }
+
+    if (!cumulative) {
+      map.clear();
+    }
+  }
+
+  public void setCumulative(boolean c)
+  {
+    cumulative = c;
+  }
+
+  public boolean getCumulative()
+  {
+    return cumulative;
+  }
+
+  // Use of unifier is required only when, operator is partitioned with non sticky partition.
+  public static class UniqueCountUnifier<K> implements Unifier<KeyHashValPair<K, Integer>>
+  {
+
+    public final transient DefaultOutputPort<KeyHashValPair<K, Integer>> mergedport =
+        new DefaultOutputPort<KeyHashValPair<K, Integer>>();
+
+    private Map<K, MutableInt> map = new HashMap<K, MutableInt>();
 
     @Override
-    public void endWindow() {
-        for(Map.Entry<K, MutableInt> e : map.entrySet()) {
-            K key = e.getKey();
-            count.emit(new KeyHashValPair<K, Integer>(key, e.getValue().toInteger()));
-        }
-
-        if (!cumulative) {
-            map.clear();
-        }
+    public void process(KeyHashValPair<K, Integer> tupple)
+    {
+      MutableInt count = map.get(tupple.getKey());
+      if (count == null) {
+        count = new MutableInt(0);
+        map.put(tupple.getKey(), count);
+      }
+      count.add(tupple.getValue());
     }
 
-    public void setCumulative(boolean c) {
-        cumulative = c;
+    @Override
+    public void beginWindow(long l)
+    {
+
     }
-    public boolean getCumulative() { return cumulative; }
 
-    // Use of unifier is required only when, operator is partitioned with non sticky partition.
-    public static class UniqueCountUnifier<K> implements Unifier<KeyHashValPair<K, Integer>> {
-
-        public final transient DefaultOutputPort<KeyHashValPair<K, Integer>> mergedport =
-                new DefaultOutputPort<KeyHashValPair<K, Integer>>();
-
-        private Map<K, MutableInt> map = new HashMap<K, MutableInt>();
-
-        @Override
-        public void process(KeyHashValPair<K, Integer> tupple) {
-            MutableInt count = map.get(tupple.getKey());
-            if (count == null) {
-                count = new MutableInt(0);
-                map.put(tupple.getKey(), count);
-            }
-            count.add(tupple.getValue());
-        }
-
-        @Override
-        public void beginWindow(long l) {
-
-        }
-
-        @Override
-        public void endWindow() {
-            for(Map.Entry<K,MutableInt> e : map.entrySet()) {
-                K key = e.getKey();
-                mergedport.emit(new KeyHashValPair<K, Integer>(key, e.getValue().toInteger()));
-            }
-            map.clear();
-        }
-
-        @Override
-        public void setup(Context.OperatorContext operatorContext) {
-
-        }
-
-        @Override
-        public void teardown() {
-
-        }
+    @Override
+    public void endWindow()
+    {
+      for (Map.Entry<K, MutableInt> e : map.entrySet()) {
+        K key = e.getKey();
+        mergedport.emit(new KeyHashValPair<K, Integer>(key, e.getValue().toInteger()));
+      }
+      map.clear();
     }
+
+    @Override
+    public void setup(Context.OperatorContext operatorContext)
+    {
+
+    }
+
+    @Override
+    public void teardown()
+    {
+
+    }
+  }
 }
