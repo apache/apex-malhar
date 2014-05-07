@@ -19,6 +19,7 @@ public class Constants
 {
   public static final String DEFAULT_FILTER = "default";
   public static final String TIME_ATTR = "time";
+  public static final String TIME_BUCKET  = "bucket";
 
   public static enum RESERVED_DIMENSION
   {

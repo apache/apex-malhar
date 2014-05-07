@@ -54,14 +54,13 @@ public abstract class Chart
     public List<String> metrics; // eg: sum, count, avg
     public Set<String> dimensions; // eg: bucket, country
     public Map<String, String> filters; // eg: bucket = MINUTE, country = US
-    public String[] params;
-    public final String X_KEY = "xKey";
-    public final String X_UNIT = "xUnit";
-    public final String FILTERS = "filters";
-    public final String NAME = "name";
-    public final String TYPE = "type";
-    public final String Y_KEYS = "yKeys";
-    public final String SCHEMA = "schema";
+    private final String X_KEY = "xKey";
+    private final String X_UNIT = "xUnit";
+    private final String FILTERS = "filters";
+    private final String NAME = "name";
+    private final String TYPE = "type";
+    private final String Y_KEYS = "yKeys";
+    private final String SCHEMA = "schema";
 
     public LineChartParams()
     {
@@ -69,7 +68,6 @@ public abstract class Chart
 
     public void init(String[] params)
     {
-      this.params = params;
       //eg: line, timestamp, MINUTE:30, country=US:url=/home, sum:count:avg:avgRespTime
       //eg: line, numUsers, 100:20,  country=US:url=/home, avgRespTime
       dimensions = Sets.newTreeSet();
@@ -82,7 +80,7 @@ public abstract class Chart
       xDimensionKey = params[1];
       dimensions.add(xDimensionKey);
       if (xDimensionKey.equalsIgnoreCase(Constants.TIME_ATTR)) {
-        dimensions.add("bucket");
+        dimensions.add(Constants.TIME_BUCKET);
       }
       String[] x = params[2].split(":");
       xDimensionUnit = x[0];
