@@ -29,7 +29,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="YahooFinanceApplicationWithSingleOperator")
+@ApplicationAnnotation(name="YahooFinanceWithSingleOperatorDemo")
 public class SingleOperatorApplication implements StreamingApplication
 {
   @Override

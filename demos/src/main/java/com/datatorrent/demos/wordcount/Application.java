@@ -91,7 +91,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="WordCountApplication")
+@ApplicationAnnotation(name="WordCountDemo")
 public class Application implements StreamingApplication
 {
   protected String fileName = "com/datatorrent/demos/wordcount/samplefile.txt";

@@ -28,7 +28,7 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="YahooFinanceApplicationWithoutChart")
+@ApplicationAnnotation(name="YahooFinanceWithoutChartDemo")
 public class YahooFinanceApplicationNoChart extends YahooFinanceApplication
 {
   @Override
