@@ -17,4 +17,4 @@
 /**
  * Ads dimension demo application, operators, and utilities.
  */
-package com.datatorrent.contrib.adsdimension;
+package com.datatorrent.demos.adsdimension;
