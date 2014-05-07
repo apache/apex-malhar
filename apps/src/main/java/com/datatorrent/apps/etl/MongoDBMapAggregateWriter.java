@@ -53,6 +53,7 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
   private int batchSize = 1000;
   private final String WINDOW_TABLE = "lastWindowTable";
   private final String LAST_WINDOW_ID = "lastWindowId";
+  private final String DIMENSION_SIZE = "dimension_size";
 
   @Override
   public void process(MapAggregateEvent tuple)
@@ -181,7 +182,7 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
     BasicDBObject query = new BasicDBObject();
 
     BasicDBObject dimensions = getDimensions(tuple, dimensionKeys);
-    query.put("dimension_size", dimensions.size());
+    query.put(DIMENSION_SIZE, dimensions.size());
     query.put(Constants.DIMENSIONS, getDimensions(tuple, dimensionKeys));
     DBCursor find = db.getCollection(table).find(query);
 
@@ -201,9 +202,9 @@ public class MongoDBMapAggregateWriter extends MongoDBConnectable implements Dat
     Object timeVal;
     if ((timeVal = tuple.getDimension(Constants.TIME_ATTR)) != null) {
       Date date = new Date((Long)timeVal);
-      Object bucket = tuple.getDimension("bucket");
+      Object bucket = tuple.getDimension(Constants.TIME_BUCKET);
       dimensions.put(Constants.TIME_ATTR, date);
-      dimensions.put("bucket", bucket);
+      dimensions.put(Constants.TIME_BUCKET, bucket);
     }
 
     return dimensions;

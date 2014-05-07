@@ -167,7 +167,8 @@ public class RealTimeChartOutputOperator extends BaseOperator
     if (params == null || params.isEmpty()) {
       return null;
     }
-    Chart[] paramArr = (Chart[])params.toArray();
+    Chart[] paramArr = new Chart[params.size()];
+    params.toArray(paramArr);
     return paramArr;
   }
 
@@ -183,7 +184,8 @@ public class RealTimeChartOutputOperator extends BaseOperator
     if (params == null || params.isEmpty()) {
       return null;
     }
-    Chart[] paramArr = (Chart[])params.toArray();
+    Chart[] paramArr = new Chart[params.size()];
+    params.toArray(paramArr);
     return paramArr;
   }
 
@@ -199,7 +201,8 @@ public class RealTimeChartOutputOperator extends BaseOperator
     if (params == null || params.isEmpty()) {
       return null;
     }
-    Chart[] paramArr = (Chart[])params.toArray();
+    Chart[] paramArr = new Chart[params.size()];
+    params.toArray(paramArr);
     return paramArr;
   }
 
