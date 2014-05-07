@@ -34,7 +34,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="ScalableAdsApplication")
+@ApplicationAnnotation(name="ScalableAdsDemo")
 public class ScalableAdsApp implements StreamingApplication
 {
   

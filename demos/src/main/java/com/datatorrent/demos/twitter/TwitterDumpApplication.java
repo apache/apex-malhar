@@ -64,7 +64,7 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  *
  * @since 0.9.4
  */
-@ApplicationAnnotation(name="TwitterTopCounterApplicationWithDB")
+@ApplicationAnnotation(name="TwitterDumpDemo")
 public class TwitterDumpApplication implements StreamingApplication
 {
   @ShipContainingJars(classes = {com.mysql.jdbc.Driver.class})

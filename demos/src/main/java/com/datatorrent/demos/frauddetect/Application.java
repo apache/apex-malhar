@@ -36,7 +36,7 @@ import java.net.URI;
  *
  * @since 0.9.0
  */
-@ApplicationAnnotation(name="FraudDetect")
+@ApplicationAnnotation(name="FraudDetectDemo")
 public class Application implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);

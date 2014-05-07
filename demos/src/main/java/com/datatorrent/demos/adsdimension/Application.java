@@ -33,7 +33,7 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="AdsDimension")
+@ApplicationAnnotation(name="AdsDimensionsDemo")
 public class Application implements StreamingApplication
 {
   @Override
