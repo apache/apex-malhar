@@ -116,7 +116,7 @@ public class Application implements StreamingApplication
   private void configure(DAG dag, Configuration conf)
   {
     //dag.setAttribute(DAG.CONTAINERS_MAX_COUNT, 1);
-    if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
+    if (StreamingApplication.Environment.CLUSTER == conf.getEnum(StreamingApplication.ENVIRONMENT, StreamingApplication.Environment.LOCAL)) {
       // settings only affect distributed mode
       AttributeMap attributes = dag.getAttributes();
       if (attributes.get(DAGContext.CONTAINER_MEMORY_MB) == null) {
@@ -126,7 +126,7 @@ public class Application implements StreamingApplication
         attributes.put(DAGContext.MASTER_MEMORY_MB, 1024);
       }
     }
-    else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
+    else if (StreamingApplication.Environment.LOCAL == conf.getEnum(StreamingApplication.ENVIRONMENT, StreamingApplication.Environment.CLUSTER)) {
     }
 
     String phoneRange = conf.get(P_phoneRange, null);

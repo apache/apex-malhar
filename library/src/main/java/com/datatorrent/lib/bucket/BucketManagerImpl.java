@@ -181,16 +181,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     this.writeEventKeysOnly = writeEventKeysOnly;
   }
 
-  /**
-   * Sets the bucket store.
-   *
-   * @param bucketStore
-   */
-  public void setBucketStore(@Nonnull BucketStore<T> bucketStore)
-  {
-    this.bucketStore = bucketStore;
-  }
-
   @Nonnull
   public void setBucketCounters(@Nonnull BucketCounters bucketCounters)
   {
@@ -307,21 +297,25 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   }
 
   @Override
-  public void initialize()
+  public void setBucketStore(@Nonnull BucketStore<T> bucketStore)
   {
-    if (bucketStore == null) {
-      bucketStore = new HdfsBucketStore<T>();
-    }
+    this.bucketStore = bucketStore;
     bucketStore.setNoOfBuckets(noOfBuckets);
     bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
   }
 
   @Override
-  public void startService(Context context, Listener<T> listener)
+  public BucketStore<T> getBucketStore()
   {
+    return bucketStore;
+  }
+
+  @Override
+  public void startService(Listener<T> listener)
+  {
+    bucketStore.setup();
     logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
-    this.bucketStore.setup(context);
     @SuppressWarnings("unchecked")
     Bucket<T>[] freshBuckets = (Bucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
     buckets = freshBuckets;
@@ -395,9 +389,9 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     try {
       if (!dataToStore.isEmpty()) {
         long start = System.currentTimeMillis();
-        logger.debug("start store for {}", window);
+        logger.debug("start store {}", window);
         bucketStore.storeBucketData(window, id, dataToStore);
-        logger.debug("took {} to store {}", System.currentTimeMillis() - start, window);
+        logger.debug("end store {} num {} took {}", window, eventsCount, System.currentTimeMillis() - start);
       }
     }
     catch (IOException e) {

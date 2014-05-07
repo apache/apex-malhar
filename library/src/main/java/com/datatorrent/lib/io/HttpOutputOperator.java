@@ -18,6 +18,7 @@ package com.datatorrent.lib.io;
 import java.net.URI;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
 import javax.ws.rs.core.MediaType;
 
 import com.sun.jersey.api.client.Client;
@@ -64,6 +65,7 @@ public class HttpOutputOperator<T> extends BaseOperator
   /**
    * The URL of the web service resource for the POST request.
    */
+  @NotNull
   private URI resourceUrl;
   private transient Client wsClient;
   private transient WebResource resource;

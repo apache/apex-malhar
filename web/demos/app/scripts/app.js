@@ -26,7 +26,7 @@ angular.module('machine', ['ng', 'rest', 'widgets']);
 angular.module('dimensions', ['ng', 'rest', 'widgets']);
 angular.module('fraud', ['rest', 'widgets']);
 
-angular.module('app', ['socket', 'twitter', 'mobile', 'machine', 'dimensions', 'fraud']);
+angular.module('app', ['ngRoute', 'socket', 'twitter', 'mobile', 'machine', 'dimensions', 'fraud']);
 
 angular.module('app')
   .config(function ($routeProvider, socketProvider) {

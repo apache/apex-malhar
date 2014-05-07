@@ -19,6 +19,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyOperator;
 import java.util.Random;
 import javax.validation.constraints.Min;
@@ -50,6 +51,7 @@ import javax.validation.constraints.Min;
  *
  * @since 0.3.2
  */
+@Stateless
 public class Sampler<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")

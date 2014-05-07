@@ -25,6 +25,11 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>ExpirableHdfsBucketStore class.</p>
+ *
+ * @since 0.9.5
+ */
 public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends HdfsBucketStore<T> implements BucketStore.ExpirableBucketStore<T>
 {
 
@@ -43,8 +48,9 @@ public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends Hdfs
             FileSystem fs = FileSystem.newInstance(dataFilePath.toUri(), configuration);
             try {
               if (fs.exists(dataFilePath)) {
+                logger.debug("start delete {}", window);
                 fs.delete(dataFilePath, true);
-                logger.debug("{} deleted file {}", operatorId, window);
+                logger.debug("end delete {}", window);
               }
               for (int bucketIdx : indices) {
                 Map<Long, Long> offsetMap = bucketPositions[bucketIdx];

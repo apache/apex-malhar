@@ -30,13 +30,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.bucket.Bucket;
 import com.datatorrent.lib.bucket.BucketManager;
-import com.datatorrent.lib.bucket.BucketStore;
 import com.datatorrent.lib.bucket.Bucketable;
 
 /**
@@ -77,6 +76,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   //Check-pointed state
   @Nonnull
   protected BucketManager<INPUT> bucketManager;
+
   //bucketKey -> list of bucketData which belong to that bucket and are waiting for the bucket to be loaded.
   @Nonnull
   protected final Map<Long, List<INPUT>> waitingEvents;
@@ -153,7 +153,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
     counters = new Counters();
     bucketManager.setBucketCounters(counters);
-    bucketManager.startService(getBucketContext(context), this);
+    bucketManager.startService(this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
     for (long bucketKey : waitingEvents.keySet()) {
       bucketManager.loadBucketData(bucketKey);
@@ -310,6 +310,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       deduperInstance.partitionMask = lPartitionMask;
       logger.debug("partitions {},{}", deduperInstance.partitionKeys, deduperInstance.partitionMask);
       deduperInstance.bucketManager = bucketManager.cloneWithProperties();
+
       for (int partitionKey : deduperInstance.partitionKeys) {
         partitionKeyToStorageManagers.put(partitionKey, deduperInstance.bucketManager);
       }
@@ -351,14 +352,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   {
     return this.bucketManager;
   }
-
-  /**
-   * Gets the {@link BucketStore} where events are persisted.
-   *
-   * @param context operator context.
-   * @return
-   */
-  protected abstract com.datatorrent.lib.bucket.Context getBucketContext(OperatorContext context);
 
   /**
    * Converts the input tuple to output tuple.
@@ -424,13 +417,15 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     public Response processStats(BatchedOperatorStats batchedOperatorStats)
     {
       List<Stats.OperatorStats> lastWindowedStats = batchedOperatorStats.getLastWindowedStats();
-      for (Stats.OperatorStats os : lastWindowedStats) {
-        if (os.customStats != null) {
-          if (os.customStats instanceof Counters) {
-            Counters cs = (Counters) os.customStats;
-            logger.debug("bucketStats {} {} {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
-              cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
-              cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
+      if (lastWindowedStats != null) {
+        for (Stats.OperatorStats os : lastWindowedStats) {
+          if (os.customStats != null) {
+            if (os.customStats instanceof Counters) {
+              Counters cs = (Counters) os.customStats;
+              logger.debug("bucketStats {} {} {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
+                cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
+                cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
+            }
           }
         }
       }
@@ -439,7 +434,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
     private static final long serialVersionUID = 201404082336L;
     protected static transient final Logger logger = LoggerFactory.getLogger(CountersListener.class);
-
   }
 
   private final static Logger logger = LoggerFactory.getLogger(Deduper.class);

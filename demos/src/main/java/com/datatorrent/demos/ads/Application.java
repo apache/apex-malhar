@@ -182,7 +182,7 @@ public class Application implements StreamingApplication
   private void configure(DAG dag, Configuration conf)
   {
 
-    if (LAUNCHMODE_YARN.equals(conf.get(DAG.LAUNCH_MODE))) {
+    if (StreamingApplication.Environment.CLUSTER == conf.getEnum(StreamingApplication.ENVIRONMENT, StreamingApplication.Environment.LOCAL)) {
       setLocalMode();
       // settings only affect distributed mode
       AttributeMap attributes = dag.getAttributes();
@@ -196,7 +196,7 @@ public class Application implements StreamingApplication
         attributes.put(DAGContext.CONTAINERS_MAX_COUNT, 1);
       }
     }
-    else if (LAUNCHMODE_LOCAL.equals(conf.get(DAG.LAUNCH_MODE))) {
+    else if (StreamingApplication.Environment.LOCAL == conf.getEnum(StreamingApplication.ENVIRONMENT, StreamingApplication.Environment.CLUSTER)) {
       setLocalMode();
     }
 

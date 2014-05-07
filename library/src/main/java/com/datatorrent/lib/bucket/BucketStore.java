@@ -30,10 +30,8 @@ public interface BucketStore<T extends Bucketable>
   /**
    * Performs setup operations eg. crate database connections, delete events of windows greater than last committed
    * window, etc.
-   *
-   * @param context parameters needed by the store for setup.
    */
-  void setup(Context context);
+  void setup();
 
   /**
    * Performs teardown operations eg. close database connections.

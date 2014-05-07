@@ -15,6 +15,8 @@
  */
 package com.datatorrent.lib.math;
 
+import com.datatorrent.api.annotation.Stateless;
+
 /**
  *
  * Emits the result of square of the input tuple (Number).<br>
@@ -31,6 +33,7 @@ package com.datatorrent.lib.math;
  *
  * @since 0.3.3
  */
+@Stateless
 public class SquareCalculus extends SingleVariableAbstractCalculus
 {
   @Override

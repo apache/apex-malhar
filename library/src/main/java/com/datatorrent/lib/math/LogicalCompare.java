@@ -18,6 +18,7 @@ package com.datatorrent.lib.math;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.Pair;
 
 /**
@@ -47,6 +48,7 @@ import com.datatorrent.common.util.Pair;
  *
  * @since 0.3.3
  */
+@Stateless
 public abstract class LogicalCompare<T extends Comparable<? super T>> extends
 		BaseOperator
 {

@@ -18,6 +18,7 @@ package com.datatorrent.lib.math;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.Stateless;
 
 /**
  * Multiplies input tuple (Number) by the value of property \"multiplier\".
@@ -40,6 +41,7 @@ import com.datatorrent.api.DefaultOutputPort;
  *
  * @since 0.3.2
  */
+@Stateless
 public class MultiplyByConstant extends BaseOperator
 {
 	/**

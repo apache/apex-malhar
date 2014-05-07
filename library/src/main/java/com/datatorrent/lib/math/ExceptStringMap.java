@@ -20,6 +20,7 @@ import java.util.Map;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.algo.MatchStringMap;
 import com.datatorrent.lib.util.UnifierHashMap;
 
@@ -58,6 +59,7 @@ import com.datatorrent.lib.util.UnifierHashMap;
  *
  * @since 0.3.3
  */
+@Stateless
 public class ExceptStringMap<K> extends MatchStringMap<K>
 {
 	@OutputPortFieldAnnotation(name = "except")

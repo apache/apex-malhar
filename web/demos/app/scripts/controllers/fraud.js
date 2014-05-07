@@ -24,15 +24,13 @@ angular.module('fraud')
         
         // topic for publishing transactions
         var txTopic = 'demos.app.frauddetect.submitTransaction';
-        $scope.app = rest.getApp(settings.fraud.appName);
-
-        $scope.$watch('app', function (app) {
-            if (app) {
-                $scope.appURL = settings.appsURL + app.id;
-                $scope.startedTime = app.startedTime;
-            }
+        var appPromise = rest.getApp(settings.fraud.appName);
+        appPromise.then(function (app) {
+            $scope.app = app;
+            $scope.appURL = settings.appsURL + app.id;
+            $scope.startedTime = app.startedTime;
         });
-        
+
         // Options for merchant, terminal, zip, card, bin
         $scope.alertTypeTitles = {
             "smallThenLarge": "Suspicious Transaction Sequence",
@@ -209,7 +207,7 @@ angular.module('fraud')
         ];
         
         // subscribe to appropriate topics for alerts and stats
-        $scope.app.then(function(app) {
+        appPromise.then(function(app) {
             socket.subscribe('demos.app.frauddetect.fraudAlert', function(res) {
                 // console.log('received fraudAlert: ', res);
                 // console.log(res.data.alertType, res.data.alertData ? res.data.alertData.fullCcNum : '');

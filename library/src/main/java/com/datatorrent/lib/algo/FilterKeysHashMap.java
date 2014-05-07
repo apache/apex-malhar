@@ -19,6 +19,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyOperator;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +47,7 @@ import javax.validation.constraints.NotNull;
  *
  * @since 0.3.2
  */
+@Stateless
 public class FilterKeysHashMap<K, V> extends BaseKeyOperator<K>
 {
   /**

@@ -4,6 +4,42 @@ Malhar repository contains open source operator and codec library that can be us
 
 [![Build Status](https://travis-ci.org/DataTorrent/Malhar.png?branch=master)](https://travis-ci.org/DataTorrent/Malhar)
 
+Contributing
+------------
+
+This project welcomes new contributors.  If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, here is how to do it.
+
+You acknowledge that your submissions to DataTorrent on this repository are made pursuant the terms of the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html) and constitute "Contributions," as defined therein, and you represent and warrant that you have the right and authority to do so.
+
+  * Fork Malhar into your own GitHub repository
+  * Create a topic branch with an appropriate name
+  * Write code, comments, tests in your repository
+  * Create a GitHub pull request from your repository, providing as many details about your changes as possible
+  * After we review and accept your request we’ll commit your code to the DataTorrent/Malhar repository
+
+The submitted code must follow certain prescribed conventions and it is also recommended that it follow the prescribed style. The conventions and style are described in the [Coding Conventions and Style](docs/CodingConventionsAndStyle.md) document.
+
+When adding **new files**, please include the following Apache v2.0 license header at the top of the file, with the fields enclosed by brackets "[]" replaced with your own identifying information. **(Don't include the brackets!)**:
+
+    /*
+     * Copyright (c) [XXXX] [NAME OF COPYRIGHT OWNER]
+     *
+     * Licensed under the Apache License, Version 2.0 (the "License");
+     * you may not use this file except in compliance with the License.
+     * You may obtain a copy of the License at
+     *
+     *   http://www.apache.org/licenses/LICENSE-2.0
+     *
+     * Unless required by applicable law or agreed to in writing, software
+     * distributed under the License is distributed on an "AS IS" BASIS,
+     * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     * See the License for the specific language governing permissions and
+     * limitations under the License.
+     */
+
+Thanks for contributing!
+
+
 Documentation
 -------------
 
@@ -66,22 +102,6 @@ When working with JIRA to submit pull requests, please use [smart commits](https
     git commit -am "MLHR-12345 #comment Task completed ahead of schedule #resolve"
 
 
-
-
-Contributing
---------------------
-
-If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, here is how to do it.
-
-  * Fork Malhar into your own GitHub repository
-  * Create a topic branch with an appropriate name
-  * Write code, comments, tests in your repository
-  * Create a GitHub pull request from your repository, providing as many details about your changes as possible
-  * After we review and accept your request we’ll commit your code to the DataTorrent/Malhar repository
-
-The submitted code must follow certain prescribed conventions and it is also recommended that it follow the prescribed style. The conventions and style are described in the [Coding Conventions and Style](docs/CodingConventionsAndStyle.md) document.
-
-Thanks for contributing!
 
 License
 --------------------
