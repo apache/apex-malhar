@@ -18,6 +18,7 @@ package com.datatorrent.demos.uniquecountdemo;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.PartitionableUniqueCount;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.stream.StreamDuplicater;
@@ -31,6 +32,7 @@ import org.apache.hadoop.conf.Configuration;
  * test unifier functionality, and output of the operator is sent to verifier to verify
  * that it generates correct result.
  */
+@ApplicationAnnotation(name="UniqueValueCountDemo")
 public class Application implements StreamingApplication
 {
 
