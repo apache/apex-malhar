@@ -17,7 +17,9 @@ package com.datatorrent.demos.uniquecountdemo;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyHashValPair;
 
 import java.util.HashMap;
@@ -56,6 +58,11 @@ public class CountVerifier<K> implements Operator
     map.put(tuple.getKey(), tuple.getValue());
   }
 
+  @OutputPortFieldAnnotation(name = "success", optional=true)
+  public transient final DefaultOutputPort<Integer> successPort = new DefaultOutputPort<Integer>();
+  @OutputPortFieldAnnotation(name = "failure", optional=true)
+  public transient final DefaultOutputPort<Integer> failurePort = new DefaultOutputPort<Integer>();
+
   @Override
   public void beginWindow(long l)
   {
@@ -65,17 +72,18 @@ public class CountVerifier<K> implements Operator
   @Override
   public void endWindow()
   {
-    boolean failure = false;
+    int failureCount = 0;
     for (Map.Entry<K, Integer> e : map1.entrySet()) {
       K key = e.getKey();
       int val = map2.get(key);
       if (val != e.getValue()) {
-        System.out.println("Verification failed key " + key + " val " + e.getValue() + " actual " + "actual " + val);
-        failure = true;
+        failureCount++;
       }
     }
-    if (!failure) {
-      System.out.println("No error in this iteration.");
+    if (failureCount != 0) {
+      failurePort.emit(failureCount);
+    } else {
+      successPort.emit(map1.size());
     }
   }
 

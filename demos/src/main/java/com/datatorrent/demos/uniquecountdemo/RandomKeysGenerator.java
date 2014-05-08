@@ -30,8 +30,8 @@ public class RandomKeysGenerator implements InputOperator
 {
 
   protected int numKeys = 100;
-  protected int tuppleBlast = 1000;
-  protected long sleepTime = 10;
+  protected int tuppleBlast = 15000;
+  protected long sleepTime = 0;
   protected Map<Integer, MutableInt> history = new HashMap<Integer, MutableInt>();
   private Random random = new Random();
   private Date date = new Date();
@@ -58,7 +58,8 @@ public class RandomKeysGenerator implements InputOperator
       outPort.emit(key);
     }
     try {
-      Thread.sleep(sleepTime);
+      if (sleepTime != 0)
+        Thread.sleep(sleepTime);
     } catch (Exception ex) {
 
     }
