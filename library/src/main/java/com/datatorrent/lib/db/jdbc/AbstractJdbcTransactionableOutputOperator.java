@@ -68,7 +68,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
     tuples = Lists.newArrayList();
     batchSize = DEFAULT_BATCH_SIZE;
     batchStartIdx = 0;
-    store = new   JdbcTransactionalStore();
+    store = new JdbcTransactionalStore();
   }
 
   @Override
@@ -87,6 +87,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
     }
     super.endWindow();
     tuples.clear();
+    batchStartIdx = 0;
   }
 
   @Override
@@ -101,7 +102,6 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
   private void processBatch()
   {
     logger.debug("start {} end {}", batchStartIdx, tuples.size());
-    int numEvents = tuples.size() - batchStartIdx;
     try {
       for (int i = batchStartIdx; i < tuples.size(); i++) {
         setStatementParameters(updateCommand, tuples.get(i));
@@ -114,7 +114,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
       throw new RuntimeException("processing batch", e);
     }
     finally {
-      batchStartIdx += numEvents;
+      batchStartIdx += batchSize;
     }
   }
 
@@ -140,8 +140,8 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
   /**
    * Sets the parameter of the insert/update statement with values from the tuple.
    *
-   * @param statement     update statement which was returned by {@link #getUpdateCommand()}
-   * @param tuple         tuple
+   * @param statement update statement which was returned by {@link #getUpdateCommand()}
+   * @param tuple     tuple
    * @throws SQLException
    */
   protected abstract void setStatementParameters(PreparedStatement statement, T tuple) throws SQLException;
