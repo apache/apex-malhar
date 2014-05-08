@@ -22,6 +22,9 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
@@ -97,6 +100,8 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
 
   private void processBatch()
   {
+    logger.debug("start {} end {}", batchStartIdx, tuples.size());
+    int numEvents = tuples.size() - batchStartIdx;
     try {
       for (int i = batchStartIdx; i < tuples.size(); i++) {
         setStatementParameters(updateCommand, tuples.get(i));
@@ -109,7 +114,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
       throw new RuntimeException("processing batch", e);
     }
     finally {
-      batchStartIdx += batchSize;
+      batchStartIdx += numEvents;
     }
   }
 
@@ -140,4 +145,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
    * @throws SQLException
    */
   protected abstract void setStatementParameters(PreparedStatement statement, T tuple) throws SQLException;
+
+  private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcTransactionableOutputOperator.class);
+
 }
