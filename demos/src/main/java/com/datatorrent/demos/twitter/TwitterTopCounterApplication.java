@@ -43,9 +43,8 @@ import com.datatorrent.demos.rollingtopwords.WindowedTopCounter;
  * This application calculates top 10 url mentioned in tweets in last 5
  * minutes across a 1% random tweet sampling on a rolling window basis.<br>
  * <br>
- * Before running this application, you need to create a Twitter API account
- * and configure the Twitter authentication.
- * For the CLI, those go into ~/.dt/dt-site.xml:
+ * Before running this application, you need to have a <a href="https://dev.twitter.com/apps">Twitter API account</a>
+ * and configure the authentication. For launch from CLI, those go into ~/.dt/dt-site.xml:
  * <pre>
  * {@code
  * <?xml version="1.0" encoding="UTF-8"?>
