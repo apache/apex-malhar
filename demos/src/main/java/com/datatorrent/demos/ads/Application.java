@@ -145,7 +145,7 @@ import com.datatorrent.lib.testbench.ThroughputCounter;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="AdsApplication")
+@ApplicationAnnotation(name="AdsDemo")
 public class Application implements StreamingApplication
 {
   public static final int WINDOW_SIZE_MILLIS = 500;

@@ -46,7 +46,7 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="YahooFinanceApplication")
+@ApplicationAnnotation(name="YahooFinanceWithChartDemo")
 public class YahooFinanceApplication extends com.datatorrent.demos.yahoofinance.Application
 {
   public static class YahooFinanceTimeSeriesAverageChartOperator extends TimeSeriesAverageChartOperator<String>

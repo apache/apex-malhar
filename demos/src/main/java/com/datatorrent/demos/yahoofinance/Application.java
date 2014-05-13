@@ -187,7 +187,7 @@ import com.datatorrent.lib.util.HighLow;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="YahooFinanceApplication")
+@ApplicationAnnotation(name="YahooFinanceDemo")
 public class Application implements StreamingApplication
 {
   protected int streamingWindowSizeMilliSeconds = 1000; // 1 second

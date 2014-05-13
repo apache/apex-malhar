@@ -29,7 +29,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="YahooFinanceWithAlert")
+@ApplicationAnnotation(name="YahooFinanceWithAlertDemo")
 public class ApplicationWithAlert implements StreamingApplication
 {
   @Override

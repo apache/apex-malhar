@@ -17,16 +17,22 @@ package com.datatorrent.contrib.kafka;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
+
 import com.yammer.metrics.Metrics;
+
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
+
 import kafka.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  * Kafka input adapter consumer, which consume data from Kafka message bus.<p><br>
  *
@@ -45,30 +51,29 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * Shipped jars with this operator:<br>
- *  <b>kafka.javaapi.consumer.SimpleConsumer.class</b> Official kafka consumer client <br>
- *  <b>org.I0Itec.zkclient.ZkClient.class</b>  Kafka client depends on this <br>
- *  <b>scala.ScalaObject.class</b>  Kafka client depends on this <br>
- *  <b>com.yammer.matrics.Metrics.class</b>   Kafka client depends on this <br> <br>
+ * <b>kafka.javaapi.consumer.SimpleConsumer.class</b> Official kafka consumer client <br>
+ * <b>org.I0Itec.zkclient.ZkClient.class</b>  Kafka client depends on this <br>
+ * <b>scala.ScalaObject.class</b>  Kafka client depends on this <br>
+ * <b>com.yammer.matrics.Metrics.class</b>   Kafka client depends on this <br> <br>
  *
  * Each operator can only consume 1 topic<br>
  * If you want partitionable operator refer to {@link AbstractPartitionableKafkaInputOperator}
- *  <br>
+ * <br>
  *
  * @since 0.3.2
  */
 //SimpleConsumer is kafka consumer client used by this operator, zkclient is used by high-level kafka consumer
-@ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class, Metrics.class})
-public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>
+@ShipContainingJars(classes = {kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class, Metrics.class})
+public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>, CheckpointListener
 {
   @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
-  
+
   private int tuplesBlast = 1024 * 1024;
-  
+
   @NotNull
   @Valid
   protected K consumer = null;
-
 
   /**
    * Any concrete class derived from KafkaInputOperator has to implement this method
@@ -124,6 +129,18 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   {
   }
 
+  @Override
+  public void checkpointed(long windowId)
+  {
+    // commit the kafka consumer offset
+    getConsumer().commitOffset();
+  }
+
+  @Override
+  public void committed(long windowId)
+  {
+  }
+
   /**
    * Implement ActivationListener Interface.
    */
@@ -151,21 +168,21 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void emitTuples()
   {
     int bufferLength = consumer.messageSize();
-    for (int i = tuplesBlast < bufferLength ? tuplesBlast : bufferLength; i-- > 0;) {
+    for (int i = tuplesBlast < bufferLength ? tuplesBlast : bufferLength; i-- > 0; ) {
       emitTuple(consumer.pollMessage());
     }
   }
-  
+
   public void setConsumer(K consumer)
   {
     this.consumer = consumer;
   }
-  
+
   public K getConsumer()
   {
     return consumer;
   }
-  
+
   //add topic as operator property 
   public void setTopic(String topic)
   {
@@ -181,5 +198,5 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     }
     this.consumer.setBrokerSet(brokerSet);
   }
-  
+
 }

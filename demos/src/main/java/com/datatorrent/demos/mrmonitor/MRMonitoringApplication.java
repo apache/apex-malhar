@@ -37,7 +37,7 @@ import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
  *
  * @since 0.3.4
  */
-@ApplicationAnnotation(name="MapReduceMonitorApplication")
+@ApplicationAnnotation(name="MRMonitoringDemo")
 public class MRMonitoringApplication implements StreamingApplication
 {
 
