@@ -263,9 +263,20 @@ public abstract class AbstractXmlCartesianProduct<T, O> extends BaseOperator
     public void parse(String spec)
     {
       String estr = spec;
-      if ((spec.length() > 2) && (spec.charAt(0) == '(') && (spec.charAt(spec.length() - 1) == ')')) {
-        estr = spec.substring(1, spec.length() - 1);
-        unified = true;
+      if (spec.length() >= 2) {
+        // Check if it is a unified element, it can have nested elements inside
+        if (spec.charAt(0) == '(') {
+          int balance = 1;
+          int i;
+          for (i = 1; (i < spec.length()) && (balance > 0); ++i) {
+            if (spec.charAt(i) == ')') balance--;
+            else if (spec.charAt(i) == '(') balance++;
+          }
+          if (i == spec.length()) {
+            estr = spec.substring(1, spec.length() - 1);
+            unified = true;
+          }
+        }
       }
       String[] selements = estr.split(",");
       pathElements = new PathElement[selements.length];
