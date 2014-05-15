@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.pi;
 
+import com.datatorrent.api.Context.OperatorContext;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -70,7 +71,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="PiDemo")
+@ApplicationAnnotation(name="PiCalculatorUsingCustomOperatorDemo")
 public class Application implements StreamingApplication
 {
   private final Locality locality = null;

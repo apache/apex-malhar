@@ -57,7 +57,6 @@ public class PiCalculateOperator extends BaseOperator
   };
   public final transient DefaultOutputPort<Double> output = new DefaultOutputPort<Double>();
 
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -86,5 +85,5 @@ public class PiCalculateOperator extends BaseOperator
   }
 
   private static Logger logger = LoggerFactory.getLogger(PiCalculateOperator.class);
-
+  private static final long serialVersionUID = 201405141605L;
 }
