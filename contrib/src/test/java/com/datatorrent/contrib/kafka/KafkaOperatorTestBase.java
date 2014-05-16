@@ -30,18 +30,18 @@ import org.junit.Before;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is a base class setup/clean Kafka testing environment for all the input/output test 
+ * This is a base class setup/clean Kafka testing environment for all the input/output test
  * If it's a multipartition test, this class creates 2 kafka partitions
  */
 public class KafkaOperatorTestBase
 {
-  
+
   public static final String END_TUPLE = "END_TUPLE";
   public static final int TEST_ZOOKEEPER_PORT =  2182;
   public static final int TEST_KAFKA_BROKER1_PORT =  9092;
   public static final int TEST_KAFKA_BROKER2_PORT =  9093;
   public static final String TEST_TOPIC = "test_topic";
-  
+
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaOperatorTestBase.class);
   // since Kafka 0.8 use KafkaServerStatble instead of KafkaServer
   private KafkaServerStartable kserver;
@@ -51,19 +51,19 @@ public class KafkaOperatorTestBase
   private final String zklogdir = "/tmp/zookeeper-server-data";
   private final String kafkalogdir = "/tmp/kafka-server-data";
   private final String kafkalogdir2 = "/tmp/kafka-server-data2";
-  protected boolean hasMultiPartition = false; 
-  
-  
+  protected boolean hasMultiPartition = false;
+
+
   public void startZookeeper()
   {
-  
+
     try {
       int clientPort = TEST_ZOOKEEPER_PORT;
       int numConnections = 10;
       int tickTime = 2000;
       File dir = new File(zklogdir);
-        
-  
+
+
       ZooKeeperServer kserver = new ZooKeeperServer(dir, dir, tickTime);
       standaloneServerFactory = new NIOServerCnxnFactory();
       standaloneServerFactory.configure(new InetSocketAddress(clientPort), numConnections);
@@ -110,7 +110,7 @@ public class KafkaOperatorTestBase
       kserver2 = new KafkaServerStartable(new KafkaConfig(props));
       kserver2.startup();
     }
-    
+
   }
 
   public void stopKafkaServer()
@@ -131,14 +131,14 @@ public class KafkaOperatorTestBase
     try {
       startZookeeper();
       startKafkaServer();
-      createTestTopic();
+      createTopic(TEST_TOPIC);
     }
     catch (java.nio.channels.CancelledKeyException ex) {
       logger.debug("LSHIL {}", ex.getLocalizedMessage());
     }
   }
 
-  private void createTestTopic()
+  public void createTopic(String topicName)
   {
     String[] args = new String[8];
     args[0] = "--zookeeper";
@@ -152,7 +152,7 @@ public class KafkaOperatorTestBase
       args[5] = "1";
     }
     args[6] = "--topic";
-    args[7] = TEST_TOPIC;
+    args[7] = topicName;
     CreateTopicCommand.main(args);
     //Right now, there is no programmatic synchronized way to create the topic. have to wait 2 sec to make sure the topic is created
     // So the tests will not hit any bizarre failure
@@ -174,7 +174,7 @@ public class KafkaOperatorTestBase
       logger.debug("LSHIL {}", ex.getLocalizedMessage());
     }
   }
-  
+
   public void setHasMultiPartition(boolean hasMultiPartition)
   {
     this.hasMultiPartition = hasMultiPartition;
