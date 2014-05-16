@@ -27,20 +27,18 @@ import com.datatorrent.api.Operator;
 
 /**
  * A {@link Unifier} implementation for {@link DimensionsComputation}.<br/>
- * The events to the unifier should contain the aggregator index which is why this class is abstract
- * and any concrete implementations should provide {@link #getAggregatorIndex(Object)} implementation.
  *
  * @param <EVENT>
  * @since 0.9.4
  */
-public abstract class DimensionsComputationUnifierImpl<EVENT> extends BaseOperator implements Operator.Unifier<EVENT>
+public class DimensionsComputationUnifierImpl<EVENT, AGGREGATE extends DimensionsComputation.AggregateEvent> extends BaseOperator implements Operator.Unifier<AGGREGATE>
 {
   @Nonnull
-  private DimensionsComputation.Aggregator<EVENT>[] aggregators;
+  private DimensionsComputation.Aggregator<EVENT, AGGREGATE>[] aggregators;
   @Nonnull
-  private final Map<EVENT, EVENT> aggregates;
+  private final Map<AGGREGATE, AGGREGATE> aggregates;
 
-  public final transient DefaultOutputPort<EVENT> output = new DefaultOutputPort<EVENT>();
+  public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>();
 
   public DimensionsComputationUnifierImpl()
   {
@@ -54,31 +52,29 @@ public abstract class DimensionsComputationUnifierImpl<EVENT> extends BaseOperat
    *
    * @param aggregators
    */
-  public void setAggregators(@Nonnull DimensionsComputation.Aggregator<EVENT>[] aggregators)
+  public void setAggregators(@Nonnull DimensionsComputation.Aggregator<EVENT, AGGREGATE>[] aggregators)
   {
     this.aggregators = aggregators;
   }
 
   @Override
-  public void process(EVENT tuple)
+  public void process(AGGREGATE tuple)
   {
-    EVENT destination = aggregates.get(tuple);
+    AGGREGATE destination = aggregates.get(tuple);
     if (destination == null) {
       aggregates.put(tuple, tuple);
     }
     else {
-      int aggregatorIndex = getAggregatorIndex(tuple);
+      int aggregatorIndex = tuple.getAggregatorIndex();
       aggregators[aggregatorIndex].aggregate(destination, tuple);
     }
   }
 
   public void endWindow()
   {
-    for (EVENT value : aggregates.values()) {
+    for (AGGREGATE value : aggregates.values()) {
       output.emit(value);
     }
     aggregates.clear();
   }
-
-  protected abstract int getAggregatorIndex(EVENT tuple);
 }
