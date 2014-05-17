@@ -39,7 +39,7 @@ public class KafkaTestConsumer implements Runnable
   private final transient ConsumerConnector consumer;
   protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
   // Config parameters that user can set.
-  private int bufferSize = BUFFER_SIZE_DEFAULT;
+  private final int bufferSize = BUFFER_SIZE_DEFAULT;
   public transient ArrayBlockingQueue<Message> holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);;
   private final String topic;
   private boolean isAlive = true;
@@ -96,8 +96,10 @@ public class KafkaTestConsumer implements Runnable
     logger.debug("Inside consumer::run receiveCount= {}", receiveCount);
     while (it.hasNext() & isAlive) {
       Message msg = new Message(it.next().message());
-      if(getMessage(msg).equals(KafkaOperatorTestBase.END_TUPLE) && latch != null){
+      if (latch != null) {
         latch.countDown();
+      }
+      if(getMessage(msg).equals(KafkaOperatorTestBase.END_TUPLE)){
         return;
       }
       holdingBuffer.add(msg);

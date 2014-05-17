@@ -15,8 +15,10 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.util.List;
 import java.util.Properties;
 import java.util.Random;
+
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
@@ -30,8 +32,9 @@ public class KafkaTestProducer implements Runnable
   private final String topic;
   private int sendCount = 20;
   // to generate a random int as a key for partition
-  private Random rand = new Random();
+  private final Random rand = new Random();
   private boolean hasPartition = false;
+  private List<String> messages;
 
   public int getSendCount()
   {
@@ -41,6 +44,10 @@ public class KafkaTestProducer implements Runnable
   public void setSendCount(int sendCount)
   {
     this.sendCount = sendCount;
+  }
+
+  public void setMessages(List<String> messages) {
+    this.messages = messages;
   }
 
   private ProducerConfig createProducerConfig()
@@ -58,7 +65,7 @@ public class KafkaTestProducer implements Runnable
     props.setProperty("topic.metadata.refresh.interval.ms", "20000");
 
     props.setProperty("producer.type", "async");
-    
+
     return new ProducerConfig(props);
   }
 
@@ -66,8 +73,6 @@ public class KafkaTestProducer implements Runnable
   {
     this(topic, false);
   }
-  
-  
 
   public KafkaTestProducer(String topic, boolean hasPartition)
   {
@@ -78,8 +83,7 @@ public class KafkaTestProducer implements Runnable
     producer = new Producer<String, String>(createProducerConfig());
   }
 
-  @Override
-  public void run()
+  private void generateMessages()
   {
     // Create dummy message
     int messageNo = 1;
@@ -95,6 +99,18 @@ public class KafkaTestProducer implements Runnable
     if(hasPartition){
       // Send end_tuple to other partition if it exist
       producer.send(new KeyedMessage<String, String>(topic, "" + 1, KafkaOperatorTestBase.END_TUPLE));
+    }
+  }
+
+  @Override
+  public void run()
+  {
+    if (messages == null) {
+      generateMessages();
+    } else {
+      for (String msg : messages) {
+        producer.send(new KeyedMessage<String, String>(topic, "", msg));
+      }
     }
   }
 
