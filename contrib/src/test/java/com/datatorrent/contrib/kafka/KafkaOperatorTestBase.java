@@ -48,9 +48,12 @@ public class KafkaOperatorTestBase
   // it wont be initialized unless hasMultiPartition is set to true
   private KafkaServerStartable kserver2;
   private NIOServerCnxnFactory standaloneServerFactory;
-  private final String zklogdir = "/tmp/zookeeper-server-data";
-  private final String kafkalogdir = "/tmp/kafka-server-data";
-  private final String kafkalogdir2 = "/tmp/kafka-server-data2";
+
+  public String baseDir = "/tmp";
+
+  private final String zkdir = "zookeeper-server-data";
+  private final String kafkadir1 = "kafka-server-data1";
+  private final String kafkadir2 = "kafka-server-data2";
   protected boolean hasMultiPartition = false;
 
 
@@ -61,8 +64,7 @@ public class KafkaOperatorTestBase
       int clientPort = TEST_ZOOKEEPER_PORT;
       int numConnections = 10;
       int tickTime = 2000;
-      File dir = new File(zklogdir);
-
+      File dir = new File(baseDir, zkdir);
 
       ZooKeeperServer kserver = new ZooKeeperServer(dir, dir, tickTime);
       standaloneServerFactory = new NIOServerCnxnFactory();
@@ -81,14 +83,14 @@ public class KafkaOperatorTestBase
   public void stopZookeeper()
   {
     standaloneServerFactory.shutdown();
-    Utils.rm(zklogdir);
+    Utils.rm(new File(baseDir, zkdir));
   }
 
   public void startKafkaServer()
   {
     Properties props = new Properties();
     props.setProperty("broker.id", "0");
-    props.setProperty("log.dirs", kafkalogdir);
+    props.setProperty("log.dirs", new File(baseDir, kafkadir1).toString());
     props.setProperty("zookeeper.connect", "localhost:"+TEST_ZOOKEEPER_PORT);
     props.setProperty("port", ""+TEST_KAFKA_BROKER1_PORT);
     if(hasMultiPartition){
@@ -103,7 +105,7 @@ public class KafkaOperatorTestBase
     kserver.startup();
     if(hasMultiPartition){
       props.setProperty("broker.id", "1");
-      props.setProperty("log.dirs", kafkalogdir2);
+      props.setProperty("log.dirs", new File(baseDir, kafkadir2).toString());
       props.setProperty("port", "" + TEST_KAFKA_BROKER2_PORT);
       props.setProperty("num.partitions", "2");
       props.setProperty("default.replication.factor", "2");
@@ -118,11 +120,11 @@ public class KafkaOperatorTestBase
     if(hasMultiPartition){
       kserver2.shutdown();
       kserver2.awaitShutdown();
-      Utils.rm(kafkalogdir2);
+      Utils.rm(new File(baseDir, kafkadir2));
     }
     kserver.shutdown();
     kserver.awaitShutdown();
-    Utils.rm(kafkalogdir);
+    Utils.rm(new File(baseDir, kafkadir1));
   }
 
   @Before
