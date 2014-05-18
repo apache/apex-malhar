@@ -27,7 +27,7 @@ import java.util.*;
 /*
     Generate random keys.
  */
-public class RandomKeysGenerator implements InputOperator
+public class RandKeyGen implements InputOperator
 {
 
   protected int numKeys = 100;
@@ -41,29 +41,12 @@ public class RandomKeysGenerator implements InputOperator
   @OutputPortFieldAnnotation(name="keys", optional = false)
   public transient DefaultOutputPort<Integer> outPort = new DefaultOutputPort<Integer>();
 
-  @OutputPortFieldAnnotation(name="verification", optional = true)
-  public transient DefaultOutputPort<KeyHashValPair<Integer, Integer>> verificationPort =
-      new DefaultOutputPort<KeyHashValPair<Integer, Integer>>();
-
   @Override
   public void emitTuples()
   {
     for (int i = 0; i < tuppleBlast; i++) {
       int key = random.nextInt(numKeys);
       outPort.emit(key);
-
-
-      if (verificationPort.isConnected())
-      {
-        // maintain history for later verification.
-        MutableInt count = history.get(key);
-        if (count == null) {
-          count = new MutableInt(0);
-          history.put(key, count);
-        }
-        count.increment();
-      }
-
     }
     try {
       if (sleepTime != 0)
@@ -73,7 +56,7 @@ public class RandomKeysGenerator implements InputOperator
     }
   }
 
-  public RandomKeysGenerator()
+  public RandKeyGen()
   {
     start = date.getTime();
   }
@@ -87,14 +70,6 @@ public class RandomKeysGenerator implements InputOperator
   @Override
   public void endWindow()
   {
-
-    if (verificationPort.isConnected()) {
-      for (Map.Entry<Integer, MutableInt> e : history.entrySet()) {
-        verificationPort.emit(new KeyHashValPair<Integer, Integer>(e.getKey(), e.getValue().toInteger()));
-      }
-      history.clear();
-    }
-
   }
 
   @Override
@@ -139,3 +114,4 @@ public class RandomKeysGenerator implements InputOperator
     this.sleepTime = sleepTime;
   }
 }
+
