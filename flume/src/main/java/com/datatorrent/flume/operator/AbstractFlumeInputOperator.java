@@ -22,9 +22,9 @@ import org.slf4j.LoggerFactory;
 import org.apache.flume.Event;
 
 import com.datatorrent.api.*;
+import com.datatorrent.api.Context.Counters;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
-import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 import com.datatorrent.common.util.Slice;
@@ -512,7 +512,7 @@ public abstract class AbstractFlumeInputOperator<T>
       OperatorContext ctx = context;
       synchronized (ctx) {
         logger.debug("{} Submitting ConnectionStatus = {}", AbstractFlumeInputOperator.this, connectionStatus);
-        context.setCustomStats(connectionStatus);
+        context.setCounters(connectionStatus);
       }
     }
 
@@ -527,7 +527,7 @@ public abstract class AbstractFlumeInputOperator<T>
       OperatorContext ctx = context;
       synchronized (ctx) {
         logger.debug("{} Submitting ConnectionStatus = {}", AbstractFlumeInputOperator.this, connectionStatus);
-        context.setCustomStats(connectionStatus);
+        context.setCounters(connectionStatus);
       }
       super.disconnected();
     }
@@ -561,11 +561,11 @@ public abstract class AbstractFlumeInputOperator<T>
       final HashMap<Integer, ConnectionStatus> map = partitionedInstanceStatus.get();
       response.repartitionRequired = false;
 
-      CustomStats lastStat = null;
+      Counters lastStat = null;
       List<OperatorStats> lastWindowedStats = stats.getLastWindowedStats();
       for (OperatorStats os : lastWindowedStats) {
-        if (os.customStats != null) {
-          lastStat = os.customStats;
+        if (os.counters != null) {
+          lastStat = os.counters;
           logger.debug("Received custom stats = {}", lastStat);
         }
       }
@@ -646,7 +646,7 @@ public abstract class AbstractFlumeInputOperator<T>
     private static final long serialVersionUID = 201312241646L;
   }
 
-  public static class ConnectionStatus implements CustomStats
+  public static class ConnectionStatus implements Counters, Serializable
   {
     int id;
     String spec;
