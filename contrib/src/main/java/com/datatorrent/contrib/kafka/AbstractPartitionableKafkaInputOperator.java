@@ -243,8 +243,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
             offsetTrack.putAll(partition.getPartitionedInstance().consumer.getCurrentOffsets());
             // Get the latest stats
             OperatorStats stat = partition.getStats().getLastWindowedStats().get(partition.getStats().getLastWindowedStats().size() - 1);
-            if (stat.customStats instanceof KafkaMeterStats) {
-              KafkaMeterStats kms = (KafkaMeterStats) stat.customStats;
+            if (stat.counters instanceof KafkaMeterStats) {
+              KafkaMeterStats kms = (KafkaMeterStats) stat.counters;
               for (Integer kParId : kms.get_1minMovingAvgPerPartition().keySet()) {
                 kPIntakeRate.put(kParId, kms.get_1minMovingAvgPerPartition().get(kParId));
               }
@@ -355,8 +355,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     //preprocess the stats
     List<KafkaMeterStats> kmss = new LinkedList<KafkaConsumer.KafkaMeterStats>();
     for (OperatorStats os : stats.getLastWindowedStats()) {
-      if (os != null && os.customStats instanceof KafkaMeterStats) {
-        kmss.add((KafkaMeterStats) os.customStats);
+      if (os != null && os.counters instanceof KafkaMeterStats) {
+        kmss.add((KafkaMeterStats) os.counters);
       }
     }
     kafkaStatsHolder.put(stats.getOperatorId(), kmss);
@@ -505,7 +505,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
     if (strategy == PartitionStrategy.ONE_TO_MANY) {
       //send the stats to AppMaster and let the AppMaster decide if it wants to repartition
-      context.setCustomStats(getConsumer().getConsumerStats());
+      context.setCounters(getConsumer().getConsumerStats());
     }
   }
 

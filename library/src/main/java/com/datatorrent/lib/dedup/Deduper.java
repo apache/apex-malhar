@@ -183,7 +183,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     catch (Throwable cause) {
       DTThrowable.rethrow(cause);
     }
-    context.setCustomStats(counters);
+    context.setCounters(counters);
   }
 
   @Override
@@ -420,9 +420,9 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       List<Stats.OperatorStats> lastWindowedStats = batchedOperatorStats.getLastWindowedStats();
       if (lastWindowedStats != null) {
         for (Stats.OperatorStats os : lastWindowedStats) {
-          if (os.customStats != null) {
-            if (os.customStats instanceof Counters) {
-              Counters cs = (Counters)os.customStats;
+          if (os.counters != null) {
+            if (os.counters instanceof Counters) {
+              Counters cs = (Counters)os.counters;
               logger.debug("bucketStats {} {} {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
                            cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
                            cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
