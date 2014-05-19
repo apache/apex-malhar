@@ -15,19 +15,22 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import kafka.message.Message;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
-import com.datatorrent.api.Stats.OperatorStats.CustomStats;
-import kafka.message.Message;
+
+import com.datatorrent.api.Context.Counters;
 
 
 /**
@@ -38,20 +41,20 @@ import kafka.message.Message;
 public abstract class KafkaConsumer
 {
   protected final static String HIGHLEVEL_CONSUMER_ID_SUFFIX = "_stream_";
-  
+
   protected final static String SIMPLE_CONSUMER_ID_SUFFIX = "_partition_";
 
-  
+
   public KafkaConsumer()
   {
   }
-  
+
   public KafkaConsumer(String topic)
   {
     this();
     this.topic = topic;
   }
-  
+
   public KafkaConsumer(Set<String> brokerSet, String topic)
   {
     this.topic = topic;
@@ -59,26 +62,26 @@ public abstract class KafkaConsumer
   }
 
   private int consumerBuffer = 1024 * 1024;
-  
+
   protected transient boolean isAlive = false;
-  
+
   private transient ArrayBlockingQueue<Message> holdingBuffer;
-  
+
   /**
    * The topic that this consumer consumes
    */
   @NotNull
   protected String topic = "default_topic";
-  
+
   /**
    * A broker list to retrieve the metadata for the consumer
    * This property could be null
-   * But it's mandatory for dynamic partition and fail-over 
+   * But it's mandatory for dynamic partition and fail-over
    */
   @NotNull
   protected Set<String> brokerSet;
-  
-  
+
+
   /**
    * The initialOffset could be either earliest or latest
    * Earliest means the beginning the queue
@@ -91,7 +94,7 @@ public abstract class KafkaConsumer
 
 
   protected transient SnapShot statsSnapShot = new SnapShot();
-  
+
   /**
    * This method is called in setup method of the operator
    */
@@ -116,7 +119,7 @@ public abstract class KafkaConsumer
     holdingBuffer.clear();
     _stop();
   };
-  
+
   abstract protected void _stop();
 
   /**
@@ -126,12 +129,12 @@ public abstract class KafkaConsumer
   {
     holdingBuffer.clear();
   }
-  
+
   public boolean isAlive()
   {
     return isAlive;
   }
-  
+
   public void setAlive(boolean isAlive)
   {
     this.isAlive = isAlive;
@@ -141,7 +144,7 @@ public abstract class KafkaConsumer
   {
     this.topic = topic;
   }
-  
+
   public String getTopic()
   {
     return topic;
@@ -156,49 +159,49 @@ public abstract class KafkaConsumer
   {
     return holdingBuffer.size();
   }
-  
+
   public void setBrokerSet(Set<String> brokerSet)
   {
     this.brokerSet = brokerSet;
   }
-  
+
   public Set<String> getBrokerSet()
   {
     return brokerSet;
   }
-  
+
   public void setInitialOffset(String initialOffset)
   {
     this.initialOffset = initialOffset;
   }
-  
+
   public String getInitialOffset()
   {
     return initialOffset;
   }
-  
-  
+
+
   final protected void putMessage(int partition, Message msg) throws InterruptedException{
     // block from receiving more message
     holdingBuffer.put(msg);
     statsSnapShot.mark(partition, msg.payloadSize());
   };
-  
+
 
   protected abstract KafkaConsumer cloneConsumer(Set<Integer> partitionIds);
-  
+
   protected abstract KafkaConsumer cloneConsumer(Set<Integer> partitionIds, Map<Integer, Long> startOffset);
 
   protected abstract void commitOffset();
 
   protected abstract Map<Integer, Long> getCurrentOffsets();
-  
+
   public final KafkaMeterStats getConsumerStats()
   {
     return statsSnapShot.getStats();
   }
-  
-  static class KafkaMeterStats implements CustomStats
+
+  static class KafkaMeterStats implements Counters, Serializable
   {
 
     private static final long serialVersionUID = -2867402654990209006L;
@@ -206,10 +209,10 @@ public abstract class KafkaConsumer
     private Map<Integer, double[]> _1minMovingAvgPerPartition = new HashMap<Integer, double[]>();
 
     private double[] _1minMovingAvg = new double[]{0,0};
-    
+
     public KafkaMeterStats()
     {
-      
+
     }
 
     public KafkaMeterStats(Map<Integer, double[]> _1minMovingAvgPerPartition, double[] _1minMovingRate)
@@ -241,39 +244,39 @@ public abstract class KafkaConsumer
 
 }
 
-  
-  
+
+
   /**
    * A snapshot of consuming rate within 1 min
    */
   static class SnapShot {
-    
+
     // msgs/s and bytes/s for each partition
-    
+
     /**
-     * 1 min total msg number for each partition 
+     * 1 min total msg number for each partition
      */
     private final Map<Integer, long[]> _1_min_msg_sum_par = new HashMap<Integer, long[]>();
-    
+
     /**
      * 1 min total byte number for each partition
      */
     private final Map<Integer, long[]> _1_min_byte_sum_par = new HashMap<Integer, long[]>();
-    
+
     private static int cursor = 0;
-    
+
     /**
      * total msg for each sec, msgSec[60] is total msg for a min
      */
     private long[] msgSec = new long[61];
-    
+
     /**
      * total bytes for each sec, bytesSec[60] is total bytes for a min
      */
     private long[] bytesSec = new long[61];
-    
+
     private short last = 0;
-    
+
     private ScheduledExecutorService service;
 
     public synchronized void moveNext()
@@ -291,10 +294,10 @@ public abstract class KafkaConsumer
         msgv[cursor] = 0;
         bytesv[cursor] = 0;
       }
-      
+
     }
-    
-    
+
+
     public void start(){
       if(service==null){
         service = Executors.newScheduledThreadPool(1);
@@ -307,15 +310,15 @@ public abstract class KafkaConsumer
           if(last<60)last++;
         }
       }, 1, 1, TimeUnit.SECONDS);
-      
+
     }
-    
+
     public void stop(){
       if(service!=null){
         service.shutdown();
       }
     }
-    
+
     public synchronized void mark(int partition, long bytes){
       msgSec[cursor]++;
       msgSec[60]++;
@@ -327,14 +330,14 @@ public abstract class KafkaConsumer
         msgv = new long[61];
         bytev = new long[61];
         _1_min_msg_sum_par.put(partition, msgv);
-        _1_min_byte_sum_par.put(partition, bytev); 
+        _1_min_byte_sum_par.put(partition, bytev);
       }
       msgv[cursor]++;
       msgv[60]++;
       bytev[cursor] += bytes;
       bytev[60] += bytes;
     };
-    
+
     public synchronized KafkaMeterStats getStats(){
       double[] _1minAvg = {(double)msgSec[60]/(double)last, (double)bytesSec[60]/(double)last};
       Map<Integer, double[]> _1minAvgPartition = new HashMap<Integer, double[]>();

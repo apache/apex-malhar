@@ -15,31 +15,27 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import kafka.javaapi.PartitionMetadata;
-import com.datatorrent.api.CheckpointListener;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Stats.OperatorStats;
-import com.datatorrent.api.StatsListener;
-import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.StringUtils;
+
+import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
+
+import com.datatorrent.api.CheckpointListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.Stats.OperatorStats;
+import com.datatorrent.api.StatsListener;
 
 /**
  *
@@ -154,7 +150,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           currentPartitionInfo.add(pif);
           newPartitions.add(p);
         }
-      } else if (newWaitingPartition.size() != 0) {
+      } else if (!newWaitingPartition.isEmpty()) {
         // add partition for new kafka partition
         for (int pid : newWaitingPartition) {
           logger.info("[ONE_TO_ONE]: Add operator partition for kafka partition " + pid);
@@ -191,7 +187,9 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
         newPartitions = new ArrayList<Partition<AbstractPartitionableKafkaInputOperator>>(size);
         for (int i = 0; i < kafkaPartitionList.size(); i++) {
           PartitionMetadata pm = kafkaPartitionList.get(i);
-          if(pIds[i%size] == null) pIds[i%size] = new HashSet<Integer>();
+          if(pIds[i%size] == null) {
+            pIds[i%size] = new HashSet<Integer>();
+          }
           pIds[i%size].add(pm.partitionId());
         }
         for (int i = 0; i < pIds.length; i++) {
@@ -205,7 +203,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           currentPartitionInfo.add(pif);
         }
 
-      } else if (newWaitingPartition.size() != 0) {
+      } else if (!newWaitingPartition.isEmpty()) {
 
         logger.info("[ONE_TO_MANY]: Add operator partition for kafka partition(s): " + StringUtils.join(newWaitingPartition, ", ") + ", topic: " + this.getConsumer().topic);
         Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(_cloneOperator());
@@ -231,14 +229,14 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
         Map<Integer, Long> offsetTrack = new HashMap<Integer, Long>();
         for (Partition<AbstractPartitionableKafkaInputOperator> partition : partitions) {
           List<OperatorStats> opss = partition.getStats().getLastWindowedStats();
-          if(opss==null || opss.size()==0){
+          if(opss==null || opss.isEmpty()){
             continue;
           }
           offsetTrack.putAll(partition.getPartitionedInstance().consumer.getCurrentOffsets());
           // Get the latest stats
           OperatorStats stat = partition.getStats().getLastWindowedStats().get(partition.getStats().getLastWindowedStats().size() - 1);
-          if (stat.customStats instanceof KafkaMeterStats) {
-            KafkaMeterStats kms = (KafkaMeterStats) stat.customStats;
+          if (stat.counters instanceof KafkaMeterStats) {
+            KafkaMeterStats kms = (KafkaMeterStats) stat.counters;
             for (Integer kParId : kms.get_1minMovingAvgPerPartition().keySet()) {
               kPIntakeRate.put(kParId, kms.get_1minMovingAvgPerPartition().get(kParId));
             }
@@ -280,10 +278,12 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       {
         double[] firstPair = firstEntry.getValue();
         double[] secondPair = secondEntry.getValue();
-        if (msgRateUpperBound == Long.MAX_VALUE || firstPair[0] == secondPair[0])
+        if (msgRateUpperBound == Long.MAX_VALUE || firstPair[0] == secondPair[0]) {
           return (int) (secondPair[1] - firstPair[1]);
-        else
+        }
+        else {
           return (int)(secondPair[0] - firstPair[0]);
+        }
       }
     });
 
@@ -347,13 +347,13 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     //preprocess the stats
     List<KafkaMeterStats> kmss = new LinkedList<KafkaConsumer.KafkaMeterStats>();
     for (OperatorStats os : stats.getLastWindowedStats()) {
-      if (os != null && os.customStats instanceof KafkaMeterStats) {
-        kmss.add((KafkaMeterStats) os.customStats);
+      if (os != null && os.counters instanceof KafkaMeterStats) {
+        kmss.add((KafkaMeterStats) os.counters);
       }
     }
     kafkaStatsHolder.put(stats.getOperatorId(), kmss);
 
-    if(t - lastCheckTime < repartitionCheckInterval || kafkaStatsHolder.size() != currentPartitionInfo.size() || currentPartitionInfo.size()==0 ){
+    if(t - lastCheckTime < repartitionCheckInterval || kafkaStatsHolder.size() != currentPartitionInfo.size() || currentPartitionInfo.isEmpty() ){
       // skip checking if there exist more optimal partition
       // if it's still within repartitionCheckInterval seconds since last check
       // or if the operator hasn't collected all the stats from all the current partitions
@@ -374,7 +374,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           newWaitingPartition.add(metadata.partitionId());
         }
       }
-      if (newWaitingPartition.size() != 0) {
+      if (!newWaitingPartition.isEmpty()) {
         // found new kafka partition
         lastRepartitionTime = t;
         return true;
@@ -414,11 +414,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       for (Integer pid : kafkaStatsHolder.keySet()) {
         kPIntakeRate.putAll(kafkaStatsHolder.get(pid).get(j).get_1minMovingAvgPerPartition());
       }
-      if (kPIntakeRate.size() == 0) {
+      if (kPIntakeRate.isEmpty()) {
         return false;
       }
       List<PartitionInfo> partitionInfo = firstFitDecreasingAlgo(kPIntakeRate);
-      if (partitionInfo.size() == 0 || partitionInfo.size() == currentPartitionInfo.size()) {
+      if (partitionInfo.isEmpty() || partitionInfo.size() == currentPartitionInfo.size()) {
         return false;
       }
     }
@@ -437,7 +437,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     // Only care about the KafkaMeterStats
 
     // if there is no kafka meter stats at all, don't repartition
-    if(kmss==null || kmss.size()==0){
+    if(kmss==null || kmss.isEmpty()){
       return false;
     }
     // if all the stats within the window have msgs/s above the upper bound threshold (hard limit)
@@ -463,7 +463,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   }
 
-  private final AbstractPartitionableKafkaInputOperator _cloneOperator(){
+  private AbstractPartitionableKafkaInputOperator _cloneOperator(){
     AbstractPartitionableKafkaInputOperator newOp = cloneOperator();
     newOp.msgRateUpperBound = this.msgRateUpperBound;
     newOp.byteRateUpperBound = this.byteRateUpperBound;
@@ -505,7 +505,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
     if (strategy == PartitionStrategy.ONE_TO_MANY) {
       //send the stats to AppMaster and let the AppMaster decide if it wants to repartition
-      context.setCustomStats(getConsumer().getConsumerStats());
+      context.setCounters(getConsumer().getConsumerStats());
     }
   }
 

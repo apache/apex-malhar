@@ -21,7 +21,8 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
-import com.datatorrent.api.Stats;
+import com.datatorrent.api.Context;
+import java.io.Serializable;
 
 /**
  * <p>
@@ -115,7 +116,7 @@ public interface BucketManager<T extends Bucketable>
    * Adds the event to the un-written section of the bucket corresponding to the bucket key.
    *
    * @param bucketKey key of the bucket.
-   * @param event     new event.
+   * @param event new event.
    */
   void newEvent(long bucketKey, T event);
 
@@ -124,7 +125,6 @@ public interface BucketManager<T extends Bucketable>
    * persisting all un-written events in the store.
    *
    * @param window window number.
-   * @throws Exception
    */
   void endWindow(long window);
 
@@ -149,15 +149,16 @@ public interface BucketManager<T extends Bucketable>
    * The partition to which an event belongs to depends on the event key.
    * <pre><code>partition = eventKey.hashCode() & partitionMask</code></pre>
    *
-   * @param oldManagers             {@link BucketManager}s of all old partitions.
+   * @param oldManagers {@link BucketManager}s of all old partitions.
    * @param partitionKeysToManagers mapping of partition keys to {@link BucketManager}s of new partitions.
-   * @param partitionMask           partition mask to find which partition an event belongs to.
+   * @param partitionMask partition mask to find which partition an event belongs to.
    */
   void definePartitions(List<BucketManager<T>> oldManagers, Map<Integer, BucketManager<T>> partitionKeysToManagers,
-                        int partitionMask);
+          int partitionMask);
 
   /**
    * Callback interface for {@link BucketManager} for load and off-load operations.
+   * @param <T> Type of the values which can be bucketed.
    */
   public static interface Listener<T extends Bucketable>
   {
@@ -178,16 +179,14 @@ public interface BucketManager<T extends Bucketable>
 
   }
 
-  public static class BucketCounters implements Stats.OperatorStats.CustomStats
+  public static class BucketCounters implements Context.Counters, Serializable
   {
     protected int numBucketsInMemory;
     protected int numEvictedBuckets;
     protected int numDeletedBuckets;
-
     protected long numEventsCommittedPerWindow;
     protected long numEventsInMemory;
     protected long numIgnoredEvents;
-
     protected long low;
     protected long high;
 
@@ -230,5 +229,8 @@ public interface BucketManager<T extends Bucketable>
     {
       return high;
     }
+
+    private static final long serialVersionUID = 201405191248L;
   }
+
 }
