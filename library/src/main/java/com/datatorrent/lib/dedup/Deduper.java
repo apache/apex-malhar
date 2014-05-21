@@ -425,39 +425,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     Map<Integer, Long> numEventsInMemoryPerOperator;
     Map<Integer, Long> numIgoredEventsPerOperator;
 
-    transient Function<Collection<Integer>, Integer> aggregateInts = new Function<Collection<Integer>, Integer>()
-    {
-
-      @Override
-      public Integer apply(@Nullable Collection<Integer> values)
-      {
-        int sum = 0;
-        if (values == null) {
-          return sum;
-        }
-        for (Integer x : values) {
-          sum += x;
-        }
-        return sum;
-      }
-    };
-
-    transient Function<Collection<Long>, Long> aggregateLongs = new Function<Collection<Long>, Long>()
-    {
-
-      @Override
-      public Long apply(@Nullable Collection<Long> values)
-      {
-        Long sum = 0L;
-        if (values == null) {
-          return sum;
-        }
-        for (Long x : values) {
-          sum += x;
-        }
-        return sum;
-      }
-    };
+    transient Function<Collection<Integer>, Integer> aggregateInts;
+    transient Function<Collection<Long>, Long> aggregateLongs;
 
     public CountersListener()
     {
@@ -476,6 +445,41 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     @Override
     public Response processStats(BatchedOperatorStats batchedOperatorStats)
     {
+      if (aggregateInts == null) {
+        aggregateInts = new Function<Collection<Integer>, Integer>()
+        {
+
+          @Override
+          public Integer apply(@Nullable Collection<Integer> values)
+          {
+            int sum = 0;
+            if (values == null) {
+              return sum;
+            }
+            for (Integer x : values) {
+              sum += x;
+            }
+            return sum;
+          }
+        };
+        aggregateLongs = new Function<Collection<Long>, Long>()
+        {
+
+          @Override
+          public Long apply(@Nullable Collection<Long> values)
+          {
+            Long sum = 0L;
+            if (values == null) {
+              return sum;
+            }
+            for (Long x : values) {
+              sum += x;
+            }
+            return sum;
+          }
+        };
+      }
+
       List<Stats.OperatorStats> lastWindowedStats = batchedOperatorStats.getLastWindowedStats();
       if (lastWindowedStats != null) {
 
