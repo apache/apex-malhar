@@ -402,7 +402,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
 
-  public static class Counters extends BucketManager.BucketCounters
+  public static class Counters extends BucketManager.BucketCounters implements Serializable
   {
     protected long numDuplicateEvents;
 
@@ -502,6 +502,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
           }
         }
 
+        logger.debug("counters {}, {}", aggregatedCounter, aggregateInts);
         aggregatedCounter.setNumBucketsInMemory(aggregateInts.apply(numBucketsInMemoryPerOperator.values()));
         aggregatedCounter.setNumEvictedBuckets(aggregateInts.apply(numEvictedBucketsPerOperator.values()));
         aggregatedCounter.setNumDeletedBuckets(aggregateInts.apply(numDeletedBucketsPerOperator.values()));
