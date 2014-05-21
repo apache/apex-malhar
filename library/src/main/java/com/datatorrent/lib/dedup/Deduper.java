@@ -425,7 +425,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     Map<Integer, Long> numEventsInMemoryPerOperator;
     Map<Integer, Long> numIgoredEventsPerOperator;
 
-    Function<Collection<Integer>, Integer> aggregateInts = new Function<Collection<Integer>, Integer>()
+    transient Function<Collection<Integer>, Integer> aggregateInts = new Function<Collection<Integer>, Integer>()
     {
 
       @Override
@@ -442,7 +442,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       }
     };
 
-    Function<Collection<Long>, Long> aggregateLongs = new Function<Collection<Long>, Long>()
+    transient Function<Collection<Long>, Long> aggregateLongs = new Function<Collection<Long>, Long>()
     {
 
       @Override
