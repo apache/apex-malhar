@@ -21,10 +21,12 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -416,6 +418,46 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   {
     Counters aggregatedCounter;
     Response response;
+    Map<Integer, Integer> numBucketsInMemoryPerOperator;
+    Map<Integer, Integer> numEvictedBucketsPerOperator;
+    Map<Integer, Integer> numDeletedBucketsPerOperator;
+    Map<Integer, Long> numEventsCommittedPerWindowPerOperator;
+    Map<Integer, Long> numEventsInMemoryPerOperator;
+    Map<Integer, Long> numIgoredEventsPerOperator;
+
+    Function<Collection<Integer>, Integer> aggregateInts = new Function<Collection<Integer>, Integer>()
+    {
+
+      @Override
+      public Integer apply(@Nullable Collection<Integer> values)
+      {
+        int sum = 0;
+        if (values == null) {
+          return sum;
+        }
+        for (Integer x : values) {
+          sum += x;
+        }
+        return sum;
+      }
+    };
+
+    Function<Collection<Long>, Long> aggregateLongs = new Function<Collection<Long>, Long>()
+    {
+
+      @Override
+      public Long apply(@Nullable Collection<Long> values)
+      {
+        Long sum = 0L;
+        if (values == null) {
+          return sum;
+        }
+        for (Long x : values) {
+          sum += x;
+        }
+        return sum;
+      }
+    };
 
     public CountersListener()
     {
@@ -423,6 +465,12 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       this.response = new Response();
       response.repartitionRequired = false;
       response.aggregatedCounters = aggregatedCounter;
+      numBucketsInMemoryPerOperator = Maps.newHashMap();
+      numEvictedBucketsPerOperator = Maps.newHashMap();
+      numDeletedBucketsPerOperator = Maps.newHashMap();
+      numEventsCommittedPerWindowPerOperator = Maps.newHashMap();
+      numEventsInMemoryPerOperator = Maps.newHashMap();
+      numIgoredEventsPerOperator = Maps.newHashMap();
     }
 
     @Override
@@ -430,12 +478,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     {
       List<Stats.OperatorStats> lastWindowedStats = batchedOperatorStats.getLastWindowedStats();
       if (lastWindowedStats != null) {
-        int numBucketsInMemory = 0;
-        int numEvictedBuckets = 0;
-        int numDeletedBuckets = 0;
-        long numEventsCommittedPerWindow = 0;
-        long numEventsInMemory = 0;
-        long numIgnoredEvents = 0;
+
         long low = 0;
         long high = 0;
 
@@ -447,24 +490,24 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
                 cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
                 cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
 
-              numBucketsInMemory += cs.getNumBucketsInMemory();
-              numEvictedBuckets += cs.getNumEvictedBuckets();
-              numDeletedBuckets += cs.getNumDeletedBuckets();
-              numEventsCommittedPerWindow += cs.getNumEventsCommittedPerWindow();
-              numEventsInMemory += cs.getNumEventsInMemory();
-              numIgnoredEvents += cs.getNumIgnoredEvents();
+              numBucketsInMemoryPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory());
+              numEvictedBucketsPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumEvictedBuckets());
+              numDeletedBucketsPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumDeletedBuckets());
+              numEventsCommittedPerWindowPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumEventsCommittedPerWindow());
+              numEventsInMemoryPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumEventsInMemory());
+              numIgoredEventsPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumIgnoredEvents());
               low = cs.getLow();
               high = cs.getHigh();
             }
           }
         }
 
-        aggregatedCounter.setNumBucketsInMemory(numBucketsInMemory);
-        aggregatedCounter.setNumEvictedBuckets(numEvictedBuckets);
-        aggregatedCounter.setNumDeletedBuckets(numDeletedBuckets);
-        aggregatedCounter.setNumEventsCommittedPerWindow(numEventsCommittedPerWindow);
-        aggregatedCounter.setNumEventsInMemory(numEventsInMemory);
-        aggregatedCounter.setNumIgnoredEvents(numIgnoredEvents);
+        aggregatedCounter.setNumBucketsInMemory(aggregateInts.apply(numBucketsInMemoryPerOperator.values()));
+        aggregatedCounter.setNumEvictedBuckets(aggregateInts.apply(numEvictedBucketsPerOperator.values()));
+        aggregatedCounter.setNumDeletedBuckets(aggregateInts.apply(numDeletedBucketsPerOperator.values()));
+        aggregatedCounter.setNumEventsCommittedPerWindow(aggregateLongs.apply(numEventsCommittedPerWindowPerOperator.values()));
+        aggregatedCounter.setNumEventsInMemory(aggregateLongs.apply(numEventsInMemoryPerOperator.values()));
+        aggregatedCounter.setNumIgnoredEvents(aggregateLongs.apply(numIgoredEventsPerOperator.values()));
         aggregatedCounter.setLow(low);
         aggregatedCounter.setHigh(high);
 
