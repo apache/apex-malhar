@@ -134,7 +134,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
-  protected transient Counters counters;
+  protected transient DeduperCounters counters;
   private transient long currentWindow;
 
   public Deduper()
@@ -152,7 +152,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     this.context = context;
     this.currentWindow = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
-    counters = new Counters();
+    counters = new DeduperCounters();
     bucketManager.setBucketCounters(counters);
     bucketManager.startService(this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
@@ -402,7 +402,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
 
-  public static class Counters extends BucketManager.BucketCounters implements Serializable
+  public static class DeduperCounters extends BucketManager.BucketCounters implements Serializable
   {
     protected long numDuplicateEvents;
 
@@ -416,7 +416,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
   public static class CountersListener implements StatsListener, Serializable
   {
-    Counters aggregatedCounter;
+    DeduperCounters aggregatedCounter;
     Response response;
     Map<Integer, Integer> numBucketsInMemoryPerOperator;
     Map<Integer, Integer> numEvictedBucketsPerOperator;
@@ -430,7 +430,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
     public CountersListener()
     {
-      this.aggregatedCounter = new Counters();
+      this.aggregatedCounter = new DeduperCounters();
       this.response = new Response();
       response.repartitionRequired = false;
       response.aggregatedCounters = aggregatedCounter;
@@ -488,8 +488,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
         for (Stats.OperatorStats os : lastWindowedStats) {
           if (os.counters != null) {
-            if (os.counters instanceof Counters) {
-              Counters cs = (Counters) os.counters;
+            if (os.counters instanceof DeduperCounters) {
+              DeduperCounters cs = (DeduperCounters) os.counters;
               logger.debug("bucketStats {} {} {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
                 cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
                 cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
