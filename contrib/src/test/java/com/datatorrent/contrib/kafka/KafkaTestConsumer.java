@@ -42,6 +42,7 @@ public class KafkaTestConsumer implements Runnable
   private final int bufferSize = BUFFER_SIZE_DEFAULT;
   public transient ArrayBlockingQueue<Message> holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);;
   private final String topic;
+  private String zkaddress = "localhost:2182";
   private boolean isAlive = true;
   private int receiveCount = 0;
   // A latch object to notify the waiting thread that it's done consuming the message
@@ -68,10 +69,17 @@ public class KafkaTestConsumer implements Runnable
     this.topic = topic;
   }
 
+  public KafkaTestConsumer(String topic, String zkaddress)
+  {
+    this.zkaddress = zkaddress;
+    this.topic = topic;
+    consumer = kafka.consumer.Consumer.createJavaConsumerConnector(createConsumerConfig());
+  }
+
   private ConsumerConfig createConsumerConfig()
   {
     Properties props = new Properties();
-    props.setProperty("zookeeper.connect", "localhost:2182");
+    props.setProperty("zookeeper.connect", zkaddress);
     props.setProperty("group.id", "group1");
     props.put("auto.offset.reset", "smallest");
     return new ConsumerConfig(props);
