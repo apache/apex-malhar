@@ -21,12 +21,10 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -69,12 +67,12 @@ import com.datatorrent.lib.bucket.Bucketable;
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
  *
- * @param <INPUT>  type of input tuple
+ * @param <INPUT> type of input tuple
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
 public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
-  implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
+        implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
   @InputPortFieldAnnotation(name = "input", optional = true)
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
@@ -134,7 +132,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
-  protected transient DeduperCounters counters;
+  protected transient Counters counters;
   private transient long currentWindow;
 
   public Deduper()
@@ -152,7 +150,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     this.context = context;
     this.currentWindow = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
-    counters = new DeduperCounters();
+    counters = new Counters();
     bucketManager.setBucketCounters(counters);
     bucketManager.startService(this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
@@ -318,7 +316,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
       //distribute waiting events
       for (long bucketKey : allWaitingEvents.keySet()) {
-        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext(); ) {
+        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext();) {
           INPUT event = iterator.next();
           int partitionKey = event.getEventKey().hashCode() & lPartitionMask;
 
@@ -372,7 +370,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       return false;
     }
 
-    Deduper<?, ?> deduper = (Deduper<?, ?>) o;
+    Deduper<?, ?> deduper = (Deduper<?, ?>)o;
 
     if (partitionMask != deduper.partitionMask) {
       return false;
@@ -402,7 +400,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
 
-  public static class DeduperCounters extends BucketManager.BucketCounters implements Serializable
+  public static class Counters extends BucketManager.BucketCounters
   {
     protected long numDuplicateEvents;
 
@@ -416,108 +414,23 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
   public static class CountersListener implements StatsListener, Serializable
   {
-    DeduperCounters aggregatedCounter;
-    Response response;
-    Map<Integer, Integer> numBucketsInMemoryPerOperator;
-    Map<Integer, Integer> numEvictedBucketsPerOperator;
-    Map<Integer, Integer> numDeletedBucketsPerOperator;
-    Map<Integer, Long> numEventsCommittedPerWindowPerOperator;
-    Map<Integer, Long> numEventsInMemoryPerOperator;
-    Map<Integer, Long> numIgoredEventsPerOperator;
-
-    transient Function<Collection<Integer>, Integer> aggregateInts;
-    transient Function<Collection<Long>, Long> aggregateLongs;
-
-    public CountersListener()
-    {
-      this.aggregatedCounter = new DeduperCounters();
-      this.response = new Response();
-      response.repartitionRequired = false;
-      response.aggregatedCounters = aggregatedCounter;
-      numBucketsInMemoryPerOperator = Maps.newHashMap();
-      numEvictedBucketsPerOperator = Maps.newHashMap();
-      numDeletedBucketsPerOperator = Maps.newHashMap();
-      numEventsCommittedPerWindowPerOperator = Maps.newHashMap();
-      numEventsInMemoryPerOperator = Maps.newHashMap();
-      numIgoredEventsPerOperator = Maps.newHashMap();
-    }
-
     @Override
     public Response processStats(BatchedOperatorStats batchedOperatorStats)
     {
-      if (aggregateInts == null) {
-        aggregateInts = new Function<Collection<Integer>, Integer>()
-        {
-
-          @Override
-          public Integer apply(@Nullable Collection<Integer> values)
-          {
-            int sum = 0;
-            if (values == null) {
-              return sum;
-            }
-            for (Integer x : values) {
-              sum += x;
-            }
-            return sum;
-          }
-        };
-        aggregateLongs = new Function<Collection<Long>, Long>()
-        {
-
-          @Override
-          public Long apply(@Nullable Collection<Long> values)
-          {
-            Long sum = 0L;
-            if (values == null) {
-              return sum;
-            }
-            for (Long x : values) {
-              sum += x;
-            }
-            return sum;
-          }
-        };
-      }
-
       List<Stats.OperatorStats> lastWindowedStats = batchedOperatorStats.getLastWindowedStats();
       if (lastWindowedStats != null) {
-
-        long low = 0;
-        long high = 0;
-
         for (Stats.OperatorStats os : lastWindowedStats) {
           if (os.counters != null) {
-            if (os.counters instanceof DeduperCounters) {
-              DeduperCounters cs = (DeduperCounters) os.counters;
+            if (os.counters instanceof Counters) {
+              Counters cs = (Counters)os.counters;
               logger.debug("bucketStats {} {} {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
-                cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
-                cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
-
-              numBucketsInMemoryPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory());
-              numEvictedBucketsPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumEvictedBuckets());
-              numDeletedBucketsPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumDeletedBuckets());
-              numEventsCommittedPerWindowPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumEventsCommittedPerWindow());
-              numEventsInMemoryPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumEventsInMemory());
-              numIgoredEventsPerOperator.put(batchedOperatorStats.getOperatorId(), cs.getNumIgnoredEvents());
-              low = cs.getLow();
-              high = cs.getHigh();
+                           cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
+                           cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
             }
           }
         }
-
-        logger.debug("counters {}, {}", aggregatedCounter, aggregateInts);
-        aggregatedCounter.setNumBucketsInMemory(aggregateInts.apply(numBucketsInMemoryPerOperator.values()));
-        aggregatedCounter.setNumEvictedBuckets(aggregateInts.apply(numEvictedBucketsPerOperator.values()));
-        aggregatedCounter.setNumDeletedBuckets(aggregateInts.apply(numDeletedBucketsPerOperator.values()));
-        aggregatedCounter.setNumEventsCommittedPerWindow(aggregateLongs.apply(numEventsCommittedPerWindowPerOperator.values()));
-        aggregatedCounter.setNumEventsInMemory(aggregateLongs.apply(numEventsInMemoryPerOperator.values()));
-        aggregatedCounter.setNumIgnoredEvents(aggregateLongs.apply(numIgoredEventsPerOperator.values()));
-        aggregatedCounter.setLow(low);
-        aggregatedCounter.setHigh(high);
-
       }
-      return response;
+      return null;
     }
 
     private static final long serialVersionUID = 201404082336L;

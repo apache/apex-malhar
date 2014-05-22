@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.bucket;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -23,6 +22,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import com.datatorrent.api.Context;
+import java.io.Serializable;
 
 /**
  * <p>
@@ -195,19 +195,9 @@ public interface BucketManager<T extends Bucketable>
       return numBucketsInMemory;
     }
 
-    public void setNumBucketsInMemory(int numBucketsInMemory)
-    {
-      this.numBucketsInMemory = numBucketsInMemory;
-    }
-
     public int getNumEvictedBuckets()
     {
       return numEvictedBuckets;
-    }
-
-    public void setNumEvictedBuckets(int numEvictedBuckets)
-    {
-      this.numEvictedBuckets = numEvictedBuckets;
     }
 
     public int getNumDeletedBuckets()
@@ -215,19 +205,9 @@ public interface BucketManager<T extends Bucketable>
       return numDeletedBuckets;
     }
 
-    public void setNumDeletedBuckets(int numDeletedBuckets)
-    {
-      this.numDeletedBuckets = numDeletedBuckets;
-    }
-
     public long getNumEventsCommittedPerWindow()
     {
       return numEventsCommittedPerWindow;
-    }
-
-    public void setNumEventsCommittedPerWindow(long numEventsCommittedPerWindow)
-    {
-      this.numEventsCommittedPerWindow = numEventsCommittedPerWindow;
     }
 
     public long getNumEventsInMemory()
@@ -235,19 +215,9 @@ public interface BucketManager<T extends Bucketable>
       return numEventsInMemory;
     }
 
-    public void setNumEventsInMemory(long numEventsInMemory)
-    {
-      this.numEventsInMemory = numEventsInMemory;
-    }
-
     public long getNumIgnoredEvents()
     {
       return numIgnoredEvents;
-    }
-
-    public void setNumIgnoredEvents(long numIgnoredEvents)
-    {
-      this.numIgnoredEvents = numIgnoredEvents;
     }
 
     public long getLow()
@@ -255,19 +225,9 @@ public interface BucketManager<T extends Bucketable>
       return low;
     }
 
-    public void setLow(long low)
-    {
-      this.low = low;
-    }
-
     public long getHigh()
     {
       return high;
-    }
-
-    public void setHigh(long high)
-    {
-      this.high = high;
     }
 
     private static final long serialVersionUID = 201405191248L;
