@@ -15,21 +15,19 @@
  */
 package com.datatorrent.demos.rollingtopwords;
 
-/*
- *  Copyright (c) 2012-2013 DataTorrent, Inc.
- *  All Rights Reserved.
- */
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import java.util.*;
 
 /**
  *
@@ -54,7 +52,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     @Override
     public void process(Map<T, Integer> map)
     {
-      for (Map.Entry<T, Integer> e: map.entrySet()) {
+      for (Map.Entry<T, Integer> e : map.entrySet()) {
         WindowedHolder<T> holder = objects.get(e.getKey());
         if (holder == null) {
           holder = new WindowedHolder<T>(e.getKey(), windows);
@@ -175,11 +173,29 @@ public class WindowedTopCounter<T> extends BaseOperator
 
   /**
    * Set the count of most frequently occurring keys to emit per map object.
+   *
    * @param count count of the objects in the map emitted at the output port.
    */
   public void setTopCount(int count)
   {
     topCount = count;
+  }
+
+  static class TopSpotComparator implements Comparator<WindowedHolder<?>>
+  {
+    @Override
+    public int compare(WindowedHolder<?> o1, WindowedHolder<?> o2)
+    {
+      if (o1.totalCount > o2.totalCount) {
+        return 1;
+      }
+      else if (o1.totalCount < o2.totalCount) {
+        return -1;
+      }
+
+      return 0;
+    }
+
   }
 
 }

@@ -18,10 +18,10 @@ package com.datatorrent.demos.rollingtopwords;
 import java.io.Serializable;
 import java.util.Comparator;
 
-
 /**
  * Developed for a demo<br>
  *
+ * @param <T> Type of object for which sliding window is being maintained.
  * @since 0.3.2
  */
 public class WindowedHolder<T> implements Serializable
@@ -63,20 +63,5 @@ public class WindowedHolder<T> implements Serializable
   {
     return identifier + " => " + totalCount;
   }
-}
 
-class TopSpotComparator implements Comparator<WindowedHolder<?>>
-{
-  @Override
-  public int compare(WindowedHolder<?> o1, WindowedHolder<?> o2)
-  {
-    if (o1.totalCount > o2.totalCount) {
-      return 1;
-    }
-    else if (o1.totalCount < o2.totalCount) {
-      return -1;
-    }
-
-    return 0;
-  }
 }
