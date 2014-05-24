@@ -16,7 +16,6 @@
 package com.datatorrent.demos.rollingtopwords;
 
 import java.io.Serializable;
-import java.util.Comparator;
 
 /**
  * Developed for a demo<br>
@@ -24,7 +23,7 @@ import java.util.Comparator;
  * @param <T> Type of object for which sliding window is being maintained.
  * @since 0.3.2
  */
-public class WindowedHolder<T> implements Serializable
+public class SlidingContainer<T> implements Serializable
 {
   private static final long serialVersionUID = 201305291751L;
   T identifier;
@@ -33,11 +32,12 @@ public class WindowedHolder<T> implements Serializable
   int windowedCount[];
 
   @SuppressWarnings("unused")
-  private WindowedHolder()
+  private SlidingContainer()
   {
+    /* needed for Kryo serialization */
   }
 
-  public WindowedHolder(T identifier, int windowCount)
+  public SlidingContainer(T identifier, int windowCount)
   {
     this.identifier = identifier;
     this.totalCount = 0;
