@@ -61,12 +61,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private String directory;
   @NotNull
   private DirectoryScanner scanner = new DirectoryScanner();
+  private int scanIntervalMillis = 5000;
   private int offset;
   private String currentFile;
   private final HashSet<String> processedFiles = new HashSet<String>();
   private int emitBatchSize = 1000;
 
   private transient FileSystem fs;
+  private transient long lastScanMillis;
   private transient Path filePath;
   private transient InputStream inputStream;
   private transient LinkedHashSet<Path> pendingFiles = new LinkedHashSet<Path>();
@@ -89,6 +91,16 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public void setScanner(DirectoryScanner scanner)
   {
     this.scanner = scanner;
+  }
+
+  public int getScanIntervalMillis()
+  {
+    return scanIntervalMillis;
+  }
+
+  public void setScanIntervalMillis(int scanIntervalMillis)
+  {
+    this.scanIntervalMillis = scanIntervalMillis;
   }
 
   public int getEmitBatchSize()
@@ -151,7 +163,10 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   {
     if (inputStream == null) {
       if (pendingFiles.isEmpty()) {
-        pendingFiles = scanner.scan(fs, filePath, processedFiles);
+        if (System.currentTimeMillis() - scanIntervalMillis > lastScanMillis) {
+          pendingFiles = scanner.scan(fs, filePath, processedFiles);
+          lastScanMillis = System.currentTimeMillis();
+        }
       }
       if (!pendingFiles.isEmpty())
       {
@@ -214,7 +229,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     Kryo kryo = new Kryo();
     Collection<Partition<AbstractFSDirectoryInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(partitionCount);
     for (int i=0; i<scanners.size(); i++) {
-      AbstractFSDirectoryInputOperator<T> oper = kryo.copy(this);    	
+      AbstractFSDirectoryInputOperator<T> oper = kryo.copy(this);
       oper.setScanner(scanners.get(i));
       newPartitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<T>>(oper));
     }
