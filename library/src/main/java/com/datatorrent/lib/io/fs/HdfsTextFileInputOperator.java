@@ -42,7 +42,7 @@ public class HdfsTextFileInputOperator extends AbstractHDFSInputOperator
   @OutputPortFieldAnnotation(name = "HDFSOutput")
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
 
-  private BufferedReader br = null;
+  private transient BufferedReader br = null;
 
   private static final Logger logger = LoggerFactory.getLogger(HdfsTextFileInputOperator.class);
 

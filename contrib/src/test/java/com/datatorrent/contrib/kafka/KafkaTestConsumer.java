@@ -39,9 +39,10 @@ public class KafkaTestConsumer implements Runnable
   private final transient ConsumerConnector consumer;
   protected static final int BUFFER_SIZE_DEFAULT = 1024 * 1024; // 1M
   // Config parameters that user can set.
-  private int bufferSize = BUFFER_SIZE_DEFAULT;
+  private final int bufferSize = BUFFER_SIZE_DEFAULT;
   public transient ArrayBlockingQueue<Message> holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize);;
   private final String topic;
+  private String zkaddress = "localhost:2182";
   private boolean isAlive = true;
   private int receiveCount = 0;
   // A latch object to notify the waiting thread that it's done consuming the message
@@ -68,10 +69,17 @@ public class KafkaTestConsumer implements Runnable
     this.topic = topic;
   }
 
+  public KafkaTestConsumer(String topic, String zkaddress)
+  {
+    this.zkaddress = zkaddress;
+    this.topic = topic;
+    consumer = kafka.consumer.Consumer.createJavaConsumerConnector(createConsumerConfig());
+  }
+
   private ConsumerConfig createConsumerConfig()
   {
     Properties props = new Properties();
-    props.setProperty("zookeeper.connect", "localhost:2182");
+    props.setProperty("zookeeper.connect", zkaddress);
     props.setProperty("group.id", "group1");
     props.put("auto.offset.reset", "smallest");
     return new ConsumerConfig(props);
@@ -96,8 +104,10 @@ public class KafkaTestConsumer implements Runnable
     logger.debug("Inside consumer::run receiveCount= {}", receiveCount);
     while (it.hasNext() & isAlive) {
       Message msg = new Message(it.next().message());
-      if(getMessage(msg).equals(KafkaOperatorTestBase.END_TUPLE) && latch != null){
+      if (latch != null) {
         latch.countDown();
+      }
+      if(getMessage(msg).equals(KafkaOperatorTestBase.END_TUPLE)){
         return;
       }
       holdingBuffer.add(msg);

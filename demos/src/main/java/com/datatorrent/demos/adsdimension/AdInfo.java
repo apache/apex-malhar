@@ -18,6 +18,7 @@ package com.datatorrent.demos.adsdimension;
 import java.io.Serializable;
 import java.util.concurrent.TimeUnit;
 
+import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 
 /**
@@ -89,7 +90,7 @@ public class AdInfo implements Serializable
     hash = 71 * hash + this.publisherId;
     hash = 71 * hash + this.advertiserId;
     hash = 71 * hash + this.adUnit;
-    hash = 71 * hash + (int)(this.timestamp ^ (this.timestamp >>> 32));
+    hash = 71 * hash + (int) (this.timestamp ^ (this.timestamp >>> 32));
     return hash;
   }
 
@@ -102,7 +103,7 @@ public class AdInfo implements Serializable
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final AdInfo other = (AdInfo)obj;
+    final AdInfo other = (AdInfo) obj;
     if (this.publisherId != other.publisherId) {
       return false;
     }
@@ -112,10 +113,7 @@ public class AdInfo implements Serializable
     if (this.adUnit != other.adUnit) {
       return false;
     }
-    if (this.timestamp != other.timestamp) {
-      return false;
-    }
-    return true;
+    return this.timestamp == other.timestamp;
   }
 
   @Override
@@ -124,7 +122,7 @@ public class AdInfo implements Serializable
     return "AdInfo{" + "publisherId=" + publisherId + ", advertiserId=" + advertiserId + ", adUnit=" + adUnit + ", timestamp=" + timestamp + ", cost=" + cost + ", revenue=" + revenue + ", impressions=" + impressions + ", clicks=" + clicks + '}';
   }
 
-  public static class AdInfoAggregator implements Aggregator<AdInfo>
+  public static class AdInfoAggregator implements Aggregator<AdInfo, AdInfoAggregateEvent>
   {
     String dimension;
     TimeUnit time;
@@ -184,7 +182,7 @@ public class AdInfo implements Serializable
       if (getClass() != obj.getClass()) {
         return false;
       }
-      final AdInfoAggregator other = (AdInfoAggregator)obj;
+      final AdInfoAggregator other = (AdInfoAggregator) obj;
       if (this.time != other.time) {
         return false;
       }
@@ -194,16 +192,13 @@ public class AdInfo implements Serializable
       if (this.advertiserId != other.advertiserId) {
         return false;
       }
-      if (this.adUnit != other.adUnit) {
-        return false;
-      }
-      return true;
+      return this.adUnit == other.adUnit;
     }
 
     @Override
-    public AdInfo getGroup(AdInfo src)
+    public AdInfoAggregateEvent getGroup(AdInfo src, int aggregatorIndex)
     {
-      AdInfo event = new AdInfo();
+      AdInfoAggregateEvent event = new AdInfoAggregateEvent(aggregatorIndex);
       if (time != null) {
         event.timestamp = TimeUnit.MILLISECONDS.convert(time.convert(src.timestamp, TimeUnit.MILLISECONDS), time);
       }
@@ -224,7 +219,16 @@ public class AdInfo implements Serializable
     }
 
     @Override
-    public void aggregate(AdInfo dest, AdInfo src)
+    public void aggregate(AdInfoAggregateEvent dest, AdInfo src)
+    {
+      dest.cost += src.cost;
+      dest.revenue += src.revenue;
+      dest.impressions += src.impressions;
+      dest.clicks += src.clicks;
+    }
+
+    @Override
+    public void aggregate(AdInfoAggregateEvent dest, AdInfoAggregateEvent src)
     {
       dest.cost += src.cost;
       dest.revenue += src.revenue;
@@ -251,7 +255,7 @@ public class AdInfo implements Serializable
 
       if (time != null) {
         long ltime = time.convert(event.timestamp, TimeUnit.MILLISECONDS);
-        hash = 71 * hash + (int)(ltime ^ (ltime >>> 32));
+        hash = 71 * hash + (int) (ltime ^ (ltime >>> 32));
       }
 
       return hash;
@@ -293,6 +297,27 @@ public class AdInfo implements Serializable
 
     @SuppressWarnings("FieldNameHidesFieldInSuperclass")
     private static final long serialVersionUID = 201402211829L;
+  }
+
+  public static class AdInfoAggregateEvent extends AdInfo implements DimensionsComputation.AggregateEvent
+  {
+    int aggregatorIndex;
+
+    private AdInfoAggregateEvent()
+    {
+      //Used for kryo serialization
+    }
+
+    public AdInfoAggregateEvent(int aggregatorIndex)
+    {
+      this.aggregatorIndex = aggregatorIndex;
+    }
+
+    @Override
+    public int getAggregatorIndex()
+    {
+      return aggregatorIndex;
+    }
   }
 
   private static final long serialVersionUID = 201402211825L;
