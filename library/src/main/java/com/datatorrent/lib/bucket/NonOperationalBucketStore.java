@@ -31,6 +31,7 @@ import com.datatorrent.api.annotation.Stateless;
  * {@link BucketStore} which doesn't keep any state.<br/>
  *
  * @param <T> type of bucket event
+ * @since 1.0.1
  */
 @Stateless
 public class NonOperationalBucketStore<T extends Bucketable & Event> implements BucketStore.ExpirableBucketStore<T>

@@ -131,6 +131,7 @@ import java.util.List;
  *
  *    a1,a2:b1,b2|c1,c2:d1,d2|e1,e2,e3:f1
  *
+ * @since 1.0.1
  */
 public abstract class AbstractXmlCartesianProduct<T, O> extends BaseOperator
 {
