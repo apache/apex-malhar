@@ -12,7 +12,10 @@ import com.google.common.primitives.Ints;
 import com.datatorrent.common.util.Slice;
 
 /**
+ * <p>HDFSStoragePerformanceTest class.</p>
+ *
  * @author Gaurav Gupta  <gaurav@datatorrent.com>
+ * @since 1.0.1
  */
 public class HDFSStoragePerformanceTest
 {
