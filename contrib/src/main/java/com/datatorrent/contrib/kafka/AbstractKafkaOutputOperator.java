@@ -15,12 +15,18 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.util.Properties;
+
 import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
+
 import javax.validation.constraints.NotNull;
+
 import kafka.javaapi.producer.Producer;
 import kafka.producer.ProducerConfig;
+
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,7 +53,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class})
+@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class, StringUtils.class})
 public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
 {
   @SuppressWarnings("unused")
@@ -57,12 +63,40 @@ public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
   private String topic = "topic1";
 
   protected int sendCount;
+  
+  private String producerProperties = "";
+  
+  private Properties configProperties = new Properties();
+    
+  public Properties getConfigProperties()
+  {
+    return configProperties;
+  }
+
+  public void setConfigProperties(Properties configProperties)
+  {
+    this.configProperties = configProperties;
+  }
+
 
   /**
-   * Abstract method to setup producer configuration.
+   * setup producer configuration.
    * @return ProducerConfig
    */
-  public abstract ProducerConfig createKafkaProducerConfig();
+  protected ProducerConfig createKafkaProducerConfig(){
+    Properties prop = new Properties();
+    for (String propString : producerProperties.split(",")) {
+      if (!propString.contains("=")) {
+        continue;
+      }
+      String[] keyVal = StringUtils.trim(propString).split("=");
+      prop.put(StringUtils.trim(keyVal[0]), StringUtils.trim(keyVal[1]));
+    }
+    
+    configProperties.putAll(prop);
+    
+    return new ProducerConfig(configProperties);
+  };
 
   public Producer<K, V> getProducer()
   {
