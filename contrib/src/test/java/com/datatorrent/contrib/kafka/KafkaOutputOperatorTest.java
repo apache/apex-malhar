@@ -122,7 +122,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
   public void testKafkaOutputOperator() throws Exception
   {
     //initialize the latch to synchronize the threads
-    latch = new CountDownLatch(1);
+    latch = new CountDownLatch(maxTuple);
     // Setup a message listener to receive the message
     KafkaTestConsumer listener = new KafkaTestConsumer("topic1");
     listener.setLatch(latch);
