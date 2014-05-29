@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,15 @@
  */
 package com.datatorrent.lib.io;
 
-import java.net.URI;
-import javax.validation.constraints.NotNull;
+import java.util.Map;
+
+import javax.ws.rs.core.MediaType;
+
+import com.sun.jersey.api.client.WebResource;
+
+import org.codehaus.jettison.json.JSONObject;
+
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  *
@@ -27,18 +34,28 @@ import javax.validation.constraints.NotNull;
  *
  * @param <T>
  * @since 0.3.2
- * @deprecated
  */
-@Deprecated
-public class HttpOutputOperator<T> extends HttpPostOutputOperator<T>
+public class HttpPostOutputOperator<T> extends AbstractHttpOperator<T>
 {
-  @Deprecated
-  public void setResourceURL(URI url)
+  protected transient WebResource resource;
+
+  @Override
+  protected void processTuple(T t)
   {
-    if (!url.isAbsolute()) {
-      throw new IllegalArgumentException("URL is not absolute: " + url);
+    if (t instanceof Map) {
+      resource.type(MediaType.APPLICATION_JSON).post(new JSONObject((Map<?, ?>)t).toString());
     }
-    this.url = url.toString();
+    else {
+      resource.post(t.toString());
+    }
   }
 
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+    resource = wsClient.resource(url);
+  }
+
+  private static final long serialVersionUID = 201405151144L;
 }
