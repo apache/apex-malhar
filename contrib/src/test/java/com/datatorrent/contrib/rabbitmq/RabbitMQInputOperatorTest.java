@@ -172,14 +172,17 @@ public class RabbitMQInputOperatorTest
       @Override
       public void run()
       {
+        long startTms = System.currentTimeMillis();
+        long timeout = 10000L;
         try {
-          while (!collections.containsKey("collector")) {
+          while (!collections.containsKey("collector") && System.currentTimeMillis() - startTms < timeout) {
             Thread.sleep(500);
           }
           publisher.generateMessages(testNum);
-          while (true) {
+          while (System.currentTimeMillis() - startTms < timeout) {
+            @SuppressWarnings("unchecked")
             ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
-            if (strList.size() < testNum * 3) {
+            if (strList == null || strList.size() < testNum * 3) {
               Thread.sleep(10);
             }
             else {
@@ -202,6 +205,7 @@ public class RabbitMQInputOperatorTest
     logger.debug("collection size:" + collections.size() + " " + collections.toString());
 
     ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
+    Assert.assertNotNull("collector list", strList);
     Assert.assertEquals("emitted value for testNum was ", testNum * 3, strList.size());
     for (int i = 0; i < strList.size(); i++) {
       String str = strList.get(i);
