@@ -17,14 +17,14 @@ package com.datatorrent.contrib.twitter;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
-import twitter4j.*;
-import twitter4j.conf.ConfigurationBuilder;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import twitter4j.*;
+import twitter4j.conf.ConfigurationBuilder;
 
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
@@ -51,10 +51,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>();
   public final transient DefaultOutputPort<String> text = new DefaultOutputPort<String>();
   public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> hashtag = new DefaultOutputPort<String>();
 
   /* the following 3 ports are not implemented so far */
   public final transient DefaultOutputPort<?> userMention = null;
-  public final transient DefaultOutputPort<?> hashtag = null;
   public final transient DefaultOutputPort<?> media = null;
   /**
    * Enable debugging.
@@ -97,10 +97,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
 
     ConfigurationBuilder cb = new ConfigurationBuilder();
     cb.setDebugEnabled(debug).
-      setOAuthConsumerKey(consumerKey).
-      setOAuthConsumerSecret(consumerSecret).
-      setOAuthAccessToken(accessToken).
-      setOAuthAccessTokenSecret(accessTokenSecret);
+            setOAuthConsumerKey(consumerKey).
+            setOAuthConsumerSecret(consumerSecret).
+            setOAuthAccessToken(accessToken).
+            setOAuthAccessTokenSecret(accessTokenSecret);
 
     ts = new TwitterStreamFactory(cb.build()).getInstance();
   }
@@ -123,10 +123,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
       }
 
       int max = multiplier + multiplierVariance;
-      randomMultiplier = min + (int) (Math.random() * ((max - min) + 1));
+      randomMultiplier = min + (int)(Math.random() * ((max - min) + 1));
     }
     try {
-      for (int i = randomMultiplier; i-- > 0; ) {
+      for (int i = randomMultiplier; i-- > 0;) {
         statuses.put(status);
         count++;
       }
@@ -186,10 +186,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   {
     ConfigurationBuilder cb = new ConfigurationBuilder();
     cb.setDebugEnabled(debug).
-      setOAuthConsumerKey(consumerKey).
-      setOAuthConsumerSecret(consumerSecret).
-      setOAuthAccessToken(accessToken).
-      setOAuthAccessTokenSecret(accessTokenSecret);
+            setOAuthConsumerKey(consumerKey).
+            setOAuthConsumerSecret(consumerSecret).
+            setOAuthAccessToken(accessToken).
+            setOAuthAccessTokenSecret(accessTokenSecret);
 
     ts = new TwitterStreamFactory(cb.build()).getInstance();
     ts.addListener(TwitterSampleInput.this);
@@ -231,7 +231,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   @Override
   public void emitTuples()
   {
-    for (int size = statuses.size(); size-- > 0; ) {
+    for (int size = statuses.size(); size-- > 0;) {
       Status s = statuses.poll();
       if (status.isConnected()) {
         status.emit(s);
@@ -249,7 +249,15 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
           }
         }
       }
-      // do the same thing for all the other output ports.
+
+      if (hashtag.isConnected()) {
+        HashtagEntity[] hashtagEntities = s.getHashtagEntities();
+        if (hashtagEntities != null) {
+          for (HashtagEntity he : hashtagEntities) {
+            hashtag.emit(he.getText());
+          }
+        }
+      }
     }
   }
 
@@ -338,7 +346,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final TwitterSampleInput other = (TwitterSampleInput) obj;
+    final TwitterSampleInput other = (TwitterSampleInput)obj;
     if (this.status != other.status && (this.status == null || !this.status.equals(other.status))) {
       return false;
     }
