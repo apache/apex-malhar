@@ -15,20 +15,23 @@
  */
 package com.datatorrent.contrib.rabbitmq;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.DAG.Locality;
-import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.Connection;
-import com.rabbitmq.client.ConnectionFactory;
-import com.rabbitmq.client.QueueingConsumer;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import com.rabbitmq.client.Channel;
+import com.rabbitmq.client.Connection;
+import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.QueueingConsumer;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.DAG.Locality;
 
 /**
  *
@@ -37,10 +40,12 @@ public class RabbitMQInputOperatorTest
 {
   private static Logger logger = LoggerFactory.getLogger(RabbitMQInputOperatorTest.class);
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
+
   public static final class TestStringRabbitMQInputOperator extends AbstractSinglePortRabbitMQInputOperator<String>
   {
     @Override
-    public String getTuple(byte[] message) {
+    public String getTuple(byte[] message)
+    {
       return new String(message);
     }
 
@@ -48,6 +53,7 @@ public class RabbitMQInputOperatorTest
     {
       throw new UnsupportedOperationException("Not supported yet.");
     }
+
   }
 
   private final class RabbitMQMessageGenerator
@@ -57,7 +63,7 @@ public class RabbitMQInputOperatorTest
     Connection connection = null;
     Channel channel = null;
     final String exchange = "testEx";
-    public String queueName="testQ";
+    public String queueName = "testQ";
 
     public void setup() throws IOException
     {
@@ -68,9 +74,11 @@ public class RabbitMQInputOperatorTest
 //      channel.queueDeclare(queueName, false, false, false, null);
     }
 
-    public void setQueueName(String queueName) {
+    public void setQueueName(String queueName)
+    {
       this.queueName = queueName;
     }
+
     public void process(Object message) throws IOException
     {
       String msg = message.toString();
@@ -101,6 +109,7 @@ public class RabbitMQInputOperatorTest
         process(dataMapc);
       }
     }
+
   }
 
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
@@ -128,6 +137,7 @@ public class RabbitMQInputOperatorTest
         collections.put(id, list = new ArrayList<T>());
       }
     }
+
   }
 
   public static class CollectorModule<T> extends BaseOperator
@@ -136,22 +146,23 @@ public class RabbitMQInputOperatorTest
   }
 
   @Test
-  public void testDag() throws Exception {
+  public void testDag() throws Exception
+  {
     final int testNum = 3;
     LocalMode lma = LocalMode.newInstance();
     DAG dag = lma.getDAG();
-    TestStringRabbitMQInputOperator generator = dag.addOperator("Generator", TestStringRabbitMQInputOperator.class);
+    TestStringRabbitMQInputOperator consumer = dag.addOperator("Consumer", TestStringRabbitMQInputOperator.class);
     CollectorModule<String> collector = dag.addOperator("Collector", new CollectorModule<String>());
 
-    generator.setHost("localhost");
-    generator.setExchange("testEx");
-    generator.setExchangeType("fanout");
+    consumer.setHost("localhost");
+    consumer.setExchange("testEx");
+    consumer.setExchangeType("fanout");
 
     final RabbitMQMessageGenerator publisher = new RabbitMQMessageGenerator();
     publisher.setup();
 //    publisher.generateMessages(testNum);
 
-    dag.addStream("Stream", generator.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("Stream", consumer.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
     final LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
@@ -161,12 +172,17 @@ public class RabbitMQInputOperatorTest
       @Override
       public void run()
       {
+        long startTms = System.currentTimeMillis();
+        long timeout = 10000L;
         try {
-          Thread.sleep(500);
+          while (!collections.containsKey("collector") && System.currentTimeMillis() - startTms < timeout) {
+            Thread.sleep(500);
+          }
           publisher.generateMessages(testNum);
-          while (true) {
+          while (System.currentTimeMillis() - startTms < timeout) {
+            @SuppressWarnings("unchecked")
             ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
-            if (strList.size() < testNum * 3) {
+            if (strList == null || strList.size() < testNum * 3) {
               Thread.sleep(10);
             }
             else {
@@ -181,13 +197,15 @@ public class RabbitMQInputOperatorTest
         }
         lc.shutdown();
       }
+
     }.start();
 
     lc.run();
 
-    logger.debug("collection size:"+collections.size()+" "+collections.toString());
+    logger.debug("collection size:" + collections.size() + " " + collections.toString());
 
-    ArrayList<String> strList =(ArrayList<String>)collections.get("collector");
+    ArrayList<String> strList = (ArrayList<String>)collections.get("collector");
+    Assert.assertNotNull("collector list", strList);
     Assert.assertEquals("emitted value for testNum was ", testNum * 3, strList.size());
     for (int i = 0; i < strList.size(); i++) {
       String str = strList.get(i);
@@ -206,4 +224,5 @@ public class RabbitMQInputOperatorTest
     }
     logger.debug("end of test");
   }
+
 }
