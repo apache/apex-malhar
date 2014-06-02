@@ -19,14 +19,34 @@
 'use strict';
 
 angular.module('twitter')
-    .controller('TwitterController', ['$scope', 'rest', function ($scope, rest) {
-        rest.getApp(settings.twitter.appName).then(function (app) {
+    .controller('TwitterUrlsController', ['$scope', 'rest', function ($scope, rest) {
+        rest.getApp(settings.twitterUrls.appName).then(function (app) {
             $scope.app = app;
             $scope.appURL = settings.appsURL + app.id;
         });
+
+        $scope.topic = settings.twitterUrls.topic;
+        $scope.pageTitle = 'Twitter Top URLs';
+        $scope.entity = 'URLs';
+        $scope.gridTitle = 'Twitter Top URLs';
+        $scope.chartTitle = 'Top 10 URLs Chart';
+        $scope.colName = 'URL';
+    }])
+    .controller('TwitterHashtagsController', ['$scope', 'rest', function ($scope, rest) {
+        rest.getApp(settings.twitterHashtags.appName).then(function (app) {
+          $scope.app = app;
+          $scope.appURL = settings.appsURL + app.id;
+        });
+
+        $scope.topic = settings.twitterHashtags.topic;
+        $scope.pageTitle = 'Twitter Top Hashtags';
+        $scope.entity = 'hashtags';
+        $scope.gridTitle = 'Twitter Top Hashtags';
+        $scope.chartTitle = 'Top 10 Hashtags Chart';
+        $scope.colName = 'Hashtag';
     }])
     .controller('TwitterGridControlller', ['$scope', 'socket', function ($scope, socket) {
-        socket.subscribe(settings.twitter.topic, function(data) {
+        socket.subscribe($scope.topic, function(data) {
             var list = [];
             jQuery.each(data.data, function(key, value) {
                 list.push( { name: key, value: parseInt(value, 10) } );
@@ -34,19 +54,21 @@ angular.module('twitter')
             list = _.sortBy(list, function(item) {
                 return -item.value;
             });
-            $scope.myData = list;
+            $scope.topTen = list;
             $scope.$apply();
         }, $scope);
 
         $scope.gridOptions = {
-            data: 'myData',
+            data: 'topTen',
             enableColumnResize: true,
-            columnDefs: [{ field: "name", displayName: 'URL', width: '75%', sortable: false },
-                { field: "value", displayName: 'Count', width: '25%', sortable: false }]
+          columnDefs: [
+            { field: "name", displayName: $scope.colName, width: '75%', sortable: false },
+            { field: "value", displayName: 'Count', width: '25%', sortable: false }
+          ]
         };
     }])
     .controller('TwitterBarChartController', ['$scope', 'socket', function($scope, socket) {
-        socket.subscribe(settings.twitter.topic, function(data) {
+        socket.subscribe($scope.topic, function(data) {
             var list = [];
             jQuery.each(data.data, function(key, value) {
                 list.push( { name: key, value: parseInt(value, 10) } );

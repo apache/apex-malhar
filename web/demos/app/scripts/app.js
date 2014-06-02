@@ -38,9 +38,13 @@ angular.module('app')
       .when('/', {
         templateUrl: 'views/welcome.html'
       })
-      .when('/twitter', {
+      .when('/twitterUrls', {
         templateUrl: 'views/twitter.html',
-        controller: 'TwitterController'
+        controller: 'TwitterUrlsController'
+      })
+      .when('/twitterHashtags', {
+        templateUrl: 'views/twitter.html',
+        controller: 'TwitterHashtagsController'
       })
       .when('/mobile', {
         templateUrl: 'views/mobile.html',
