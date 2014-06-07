@@ -17,7 +17,7 @@ package com.datatorrent.demos.mroperator;
 
 import org.apache.hadoop.fs.Path;
 
-import com.datatorrent.lib.io.fs.AbstractHdfsOutputOperator;
+import com.datatorrent.lib.io.fs.AbstractHdfsRollingFileOutputOperator;
 import com.datatorrent.lib.util.KeyHashValPair;
 
 /**
@@ -28,7 +28,7 @@ import com.datatorrent.lib.util.KeyHashValPair;
  *
  * @since 0.9.4
  */
-public class HdfsKeyValOutputOperator<K,V> extends AbstractHdfsOutputOperator<KeyHashValPair<K,V>>
+public class HdfsKeyValOutputOperator<K,V> extends AbstractHdfsRollingFileOutputOperator<KeyHashValPair<K,V>>
 {
   
   private Path path;
@@ -37,7 +37,7 @@ public class HdfsKeyValOutputOperator<K,V> extends AbstractHdfsOutputOperator<Ke
   public Path nextFilePath()
   {
     if(path == null){
-      path = new Path(getFilePathPattern());
+      path = new Path(getFilePath());
     }
     return path;
   }
