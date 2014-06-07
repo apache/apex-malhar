@@ -31,6 +31,9 @@ angular.module('twitter')
         $scope.gridTitle = 'Twitter Top URLs';
         $scope.chartTitle = 'Top 10 URLs Chart';
         $scope.colName = 'URL';
+        $scope.formatter = function(url) {
+            return '<a xlink:href="' + url + '">' + url + '</a>';
+        };
     }])
     .controller('TwitterHashtagsController', ['$scope', 'rest', function ($scope, rest) {
         rest.getApp(settings.twitterHashtags.appName).then(function (app) {
@@ -44,6 +47,9 @@ angular.module('twitter')
         $scope.gridTitle = 'Twitter Top Hashtags';
         $scope.chartTitle = 'Top 10 Hashtags Chart';
         $scope.colName = 'Hashtag';
+        $scope.formatter = function(Hashtag) {
+            return '<a xlink:href="https://twitter.com/search?q=%23' + encodeURIComponent(Hashtag) + '">' + Hashtag + '</a>';
+        };
     }])
     .controller('TwitterGridControlller', ['$scope', 'socket', function ($scope, socket) {
         socket.subscribe($scope.topic, function(data) {
@@ -79,6 +85,9 @@ angular.module('twitter')
             //var max = _.max(list, function(item) {item.value});
             var max = list[0].value;
             _.each(list, function(item) {
+                if ($scope.formatter) {
+                    item.name = $scope.formatter(item.name);
+                }
                 item.name += ' - ' + item.value;
                 item.score = item.value / max * 100;
             });
