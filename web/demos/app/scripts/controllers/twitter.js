@@ -32,7 +32,7 @@ angular.module('twitter')
         $scope.chartTitle = 'Top 10 URLs Chart';
         $scope.colName = 'URL';
         $scope.formatter = function(url) {
-            return '<a xlink:href="' + url + '">' + url + '</a>';
+            return '<a class="svg-link" xlink:href="' + url + '">' + url + '</a>';
         };
     }])
     .controller('TwitterHashtagsController', ['$scope', 'rest', function ($scope, rest) {
@@ -48,7 +48,7 @@ angular.module('twitter')
         $scope.chartTitle = 'Top 10 Hashtags Chart';
         $scope.colName = 'Hashtag';
         $scope.formatter = function(Hashtag) {
-            return '<a xlink:href="https://twitter.com/search?q=%23' + encodeURIComponent(Hashtag) + '">' + Hashtag + '</a>';
+            return '<a class="svg-link" xlink:href="https://twitter.com/search?q=%23' + encodeURIComponent(Hashtag) + '">' + Hashtag + '</a>';
         };
     }])
     .controller('TwitterGridControlller', ['$scope', 'socket', function ($scope, socket) {
