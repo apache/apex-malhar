@@ -9,15 +9,16 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.flume.Context;
-import org.apache.flume.Event;
-import org.apache.flume.interceptor.Interceptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import com.google.common.primitives.Ints;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.flume.Context;
+import org.apache.flume.Event;
+import org.apache.flume.interceptor.Interceptor;
 
 import static com.datatorrent.flume.interceptor.ColumnFilteringFormattingInterceptor.Constants.COLUMNS_FORMATTER;
 import static com.datatorrent.flume.interceptor.ColumnFilteringFormattingInterceptor.Constants.SRC_SEPARATOR;

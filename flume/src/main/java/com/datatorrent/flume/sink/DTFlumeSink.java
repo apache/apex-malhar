@@ -26,6 +26,7 @@ import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.flume.storage.EventCodec;
 import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
+import com.datatorrent.netlet.NetletThrowable;
 import com.datatorrent.netlet.NetletThrowable.NetletRuntimeException;
 
 /**
@@ -167,25 +168,31 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
     if (maxTuples > 0) {
       if (playback != null) {
-        int i = 0;
-        do {
-          if (!client.write(playback)) {
-            try {
+        try {
+          int i = 0;
+          do {
+            if (!client.write(playback)) {
               retryWrite(playback, null);
             }
-            catch (IOException io) {
-              logger.warn("Playback Failed", io);
+            playback = storage.retrieveNext();
+          }
+          while (++i < maxTuples && playback != null);
+
+          outstandingEventsCount += i;
+        }
+        catch (Exception ex) {
+          logger.warn("Playback Failed", ex);
+          if (ex instanceof NetletThrowable) {
+            try {
               eventloop.disconnect(client);
+            }
+            finally {
               client = null;
               outstandingEventsCount = 0;
-              return Status.BACKOFF;
             }
           }
-          playback = storage.retrieveNext();
+          return Status.BACKOFF;
         }
-        while (++i < maxTuples && playback != null);
-
-        outstandingEventsCount += i;
       }
       else {
         int storedTuples = 0;
@@ -227,9 +234,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
           t.rollback();
           throw er;
         }
-        catch (Throwable th) {
-          logger.error("Transaction Failed", th);
-          if (th instanceof NetletRuntimeException && client != null) {
+        catch (Exception ex) {
+          logger.error("Transaction Failed", ex);
+          if (ex instanceof NetletRuntimeException && client != null) {
             try {
               eventloop.disconnect(client);
             }
