@@ -34,6 +34,9 @@ import org.apache.hadoop.fs.Path;
  */
 public abstract class AbstractHdfsRollingFileOutputOperator<T> extends AbstractHdfsFileOutputOperator<T>
 {
+  protected int currentBytesWritten = 0;
+  protected int bytesPerFile = 0;
+
   protected transient Path currentFilePath;
   /**
    * This variable specifies if the operator needs to close the file at every end window

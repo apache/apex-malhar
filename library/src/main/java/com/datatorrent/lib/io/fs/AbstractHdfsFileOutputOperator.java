@@ -42,11 +42,9 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
   protected transient BufferedOutputStream bufferedOutput;
   protected transient FileSystem fs;
   protected String filePath;
-  protected int currentBytesWritten = 0;
   protected long totalBytesWritten = 0;
   protected boolean append = true;
   protected int bufferSize = 0;
-  protected int bytesPerFile = 0;
   protected int replication = 0;
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
   {
@@ -138,7 +136,6 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
       throw new RuntimeException(ex);
     }
     fs = null;
-    filePath = null;
     append = false;
   }
 
