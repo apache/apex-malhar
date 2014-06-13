@@ -40,8 +40,6 @@ public class HdfsExactlyOnceOutputOperator extends AbstractHdfsFileOutputOperato
   private final String TEMP = ".tmp";
   private transient Path currentFilePath;
   private transient Path currentTempFilePath;
-  @NotNull
-  private String logType;
 
   @Override
   protected void processTuple(String t)
@@ -127,16 +125,6 @@ public class HdfsExactlyOnceOutputOperator extends AbstractHdfsFileOutputOperato
   {
     super.teardown();
     fsOutput = null;
-  }
-
-  public String getLogType()
-  {
-    return logType;
-  }
-
-  public void setLogType(String logType)
-  {
-    this.logType = logType;
   }
 
   private static final long serialVersionUID = 201405201214L;
