@@ -23,7 +23,7 @@ package com.datatorrent.lib.io.fs;
  *
  * @since 0.9.4
  */
-public abstract class AbstractTupleHDFSOutputOperator<T extends HdfsOutputTupleInterface> extends AbstractHdfsOutputOperator<T>
+public abstract class AbstractTupleHdfsOutputOperator<T extends HdfsOutputTupleInterface> extends AbstractHdfsRollingFileOutputOperator<T>
 {
   @Override
   public byte[] getBytesForTuple(T t)

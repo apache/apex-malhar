@@ -160,7 +160,7 @@ public class Application implements StreamingApplication
   public HdfsStringOutputOperator getHdfsOutputOperator(String name, DAG dag, String folderName)
   {
     HdfsStringOutputOperator oper = dag.addOperator("hdfs", HdfsStringOutputOperator.class);
-    oper.setFilePathPattern(folderName + "/%(contextId)/transactions.out.part%(partIndex)");
+    oper.setFilePath(folderName + "/%(contextId)/transactions.out.part%(partIndex)");
     oper.setBytesPerFile(1024 * 1024 * 1024);
     return oper;
   }
