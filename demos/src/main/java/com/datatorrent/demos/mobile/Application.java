@@ -207,7 +207,7 @@ public class Application implements StreamingApplication
       movementGen.phone_register.add(5556101);
       ConsoleOutputOperator out = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
       out.setStringFormat("phoneLocationQueryResult" + ": %s");
-      dag.addStream("consoledata", movementGen.locationQueryResult, out.input).setLocality(Locality.CONTAINER_LOCAL);
+      dag.addStream("consoledata", movementGen.locationQueryResult, out.input);
     }
   }
 
