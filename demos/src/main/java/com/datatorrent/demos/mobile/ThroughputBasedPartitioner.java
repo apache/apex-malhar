@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.demos.mobile;
 
 import java.io.Serializable;
@@ -7,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.sun.org.apache.xalan.internal.xsltc.runtime.Operators;
 
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Operator;
@@ -15,13 +29,20 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
 
 /**
- * Created by gaurav on 6/11/14.
+ * This does the partition of the operator based on the throughput.
+ * The max and min throughput can be controlled by the properties
+ *
+ * </br>
+ * <b>maximumEvents:</b> The maximum throughput above which the operator will be repartitioned</br>
+ * <b>minimumEvents:</b> The minimum throughput below which the operators will be merged</br>
+ * <b>cooldownMillis:</b> The time for the operators to stabilize before next partitioning if required</br>
+ * <b></b></br>
  */
 public class ThroughputBasedPartitioner<T extends Operator> implements StatsListener, Partitioner<T>, Serializable
 {
   private long maximumEvents;
   private long minimumEvents;
-  private long coolDownMillis = 2000;
+  private long cooldownMillis = 2000;
   private long nextMillis;
   private long partitionNextMillis;
 
@@ -30,17 +51,16 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
   {
     Response response = new Response();
     response.repartitionRequired = false;
-    final HashMap<Integer, BatchedOperatorStats> map = partitionedInstanceStatus.get();
-    if (!map.containsKey(stats.getOperatorId())) {
+    if (!partitionedInstanceStatus.containsKey(stats.getOperatorId())) {
       return response;
     }
-    map.put(stats.getOperatorId(), stats);
+    partitionedInstanceStatus.put(stats.getOperatorId(), stats);
     if (System.currentTimeMillis() > nextMillis) {
       if (stats.getTuplesProcessedPSMA() < minimumEvents || stats.getTuplesProcessedPSMA() > maximumEvents) {
         response.repartitionRequired = true;
         logger.debug("setting repartition to true");
       }
-      nextMillis = System.currentTimeMillis() + coolDownMillis;
+      nextMillis = System.currentTimeMillis() + cooldownMillis;
     }
     return response;
   }
@@ -48,10 +68,10 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
   @Override
   public Collection<Partition<T>> definePartitions(Collection<Partition<T>> partitions, int incrementalCapacity)
   {
-    if (partitionedInstanceStatus.get().isEmpty()) {
+    if (partitionedInstanceStatus.isEmpty()) {
       // first call
       // trying to give initial stability before sending the repartition call
-      partitionNextMillis = System.currentTimeMillis() + 2 * coolDownMillis;
+      partitionNextMillis = System.currentTimeMillis() + 2 * cooldownMillis;
       nextMillis = partitionNextMillis;
       return null;
     }
@@ -131,7 +151,7 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
       }
       // put back low load partitions that could not be combined
       newPartitions.addAll(lowLoadPartitions.values());
-      partitionNextMillis = System.currentTimeMillis() + coolDownMillis;
+      partitionNextMillis = System.currentTimeMillis() + cooldownMillis;
       return newPartitions;
 
     }
@@ -141,13 +161,12 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
   public void partitioned(Map<Integer, Partition<T>> partitions)
   {
     logger.debug("Partitioned Map: {}", partitions);
-    HashMap<Integer, BatchedOperatorStats> map = partitionedInstanceStatus.get();
-    map.clear();
+    partitionedInstanceStatus.clear();
     for (Map.Entry<Integer, Partition<T>> entry : partitions.entrySet()) {
-      if (map.containsKey(entry.getKey())) {
+      if (partitionedInstanceStatus.containsKey(entry.getKey())) {
       }
       else {
-        map.put(entry.getKey(), null);
+        partitionedInstanceStatus.put(entry.getKey(), null);
       }
     }
   }
@@ -162,20 +181,12 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
     minimumEvents = minEvents;
   }
 
-  public void setCoolDownMillis(long millis)
+  public void setCooldownMillis(long millis)
   {
-    coolDownMillis = millis;
+    cooldownMillis = millis;
   }
 
-  private static final transient ThreadLocal<HashMap<Integer, BatchedOperatorStats>> partitionedInstanceStatus = new ThreadLocal<HashMap<Integer, BatchedOperatorStats>>()
-  {
-    @Override
-    protected HashMap<Integer, BatchedOperatorStats> initialValue()
-    {
-      return new HashMap<Integer, BatchedOperatorStats>();
-    }
-
-  };
+  private transient HashMap<Integer, BatchedOperatorStats> partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
 
   private static final Logger logger = LoggerFactory.getLogger(ThroughputBasedPartitioner.class);
 }

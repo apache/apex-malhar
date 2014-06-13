@@ -161,7 +161,7 @@ public class Application implements StreamingApplication
     //dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
     //dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 30000);
     ThroughputBasedPartitioner<PhoneMovementGenerator> partitioner = new ThroughputBasedPartitioner<PhoneMovementGenerator>();
-    partitioner.setCoolDownMillis(90000);
+    partitioner.setCooldownMillis(90000);
     partitioner.setMaximumThroughput(30000);
     partitioner.setMinimumThroughput(10000);
     dag.setAttribute(movementGen,OperatorContext.STATS_LISTENERS, Arrays.asList(new StatsListener[]{partitioner}));
