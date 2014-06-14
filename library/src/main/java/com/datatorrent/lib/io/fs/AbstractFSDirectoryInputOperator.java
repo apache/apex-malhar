@@ -256,8 +256,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
   public static class DirectoryScanner implements Serializable
   {
-	private static final long serialVersionUID = 4535844463258899929L;
-	private String filePatternRegexp;
+    private static final long serialVersionUID = 4535844463258899929L;
+    private String filePatternRegexp;
     private int partitionIndex;
     private int partitionCount;
 
@@ -334,6 +334,12 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       that.partitionIndex = partitionIndex;
       that.partitionCount = partitionCount;
       return that;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "DirectoryScanner [filePatternRegexp=" + filePatternRegexp + "]";
     }
 
   }
