@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.net.InetSocketAddress;
 import java.util.List;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.EmptyWatcher;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
@@ -148,3 +147,4 @@ public class HBaseTestHelper
   }
 
 }
+
