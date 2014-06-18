@@ -23,6 +23,7 @@ import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * Hdfs file output operator that writes the data from the tuple to the file supplied in the tuple.
@@ -41,7 +42,7 @@ public abstract class AbstractHdfsTupleFileOutputOperator<INPUT, OUTPUT> extends
   public void setup(Context.OperatorContext context)
   {
     try {
-      fs = FileSystem.get(new Path(filePath).toUri(), new Configuration());
+      fs = FileSystem.newInstance(new Path(filePath).toUri(), new Configuration());
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -82,6 +83,7 @@ public abstract class AbstractHdfsTupleFileOutputOperator<INPUT, OUTPUT> extends
 
   protected abstract OUTPUT getOutputTuple(INPUT t);
 
+  @OutputPortFieldAnnotation(name = "output", optional = true)
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
   private static final long serialVersionUID = 201405151751L;
 }
