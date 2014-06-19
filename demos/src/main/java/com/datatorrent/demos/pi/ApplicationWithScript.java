@@ -75,7 +75,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="PiCalculatorUsingScriptOperatorDemo")
+@ApplicationAnnotation(name="PiJavaScriptDemo")
 public class ApplicationWithScript implements StreamingApplication
 {
 
