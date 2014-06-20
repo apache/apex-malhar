@@ -258,6 +258,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   {
     private static final long serialVersionUID = 4535844463258899929L;
     private String filePatternRegexp;
+    private transient Pattern regex = null;
     private int partitionIndex;
     private int partitionCount;
 
@@ -269,46 +270,35 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     public void setFilePatternRegexp(String filePatternRegexp)
     {
       this.filePatternRegexp = filePatternRegexp;
+      this.regex = null;
     }
 
     public LinkedHashSet<Path> scan(FileSystem fs, Path filePath, Set<String> consumedFiles)
     {
+      if (filePatternRegexp != null && this.regex == null) {
+         this.regex = Pattern.compile(this.filePatternRegexp);
+      }
+
       LinkedHashSet<Path> pathSet = Sets.newLinkedHashSet();
       try {
         LOG.debug("Scanning {} with pattern {}", filePath, this.filePatternRegexp);
-
-        Pattern regex = this.filePatternRegexp != null ? Pattern.compile(this.filePatternRegexp) : null;
         FileStatus[] files = fs.listStatus(filePath);
         for (FileStatus status : files)
         {
           Path path = status.getPath();
           String filePathStr = path.toString();
 
-          if (regex != null) {
-            Matcher matcher = regex.matcher(filePathStr);
-            if (!matcher.matches()) {
-              continue;
-            }
-            if (partitionCount > 1 && matcher.groupCount() > 0) {
-              String numStr = matcher.group(1);
-              try {
-                int i = Integer.parseInt(numStr);
-                if (i % partitionCount != partitionIndex) {
-                  continue;
-                }
-              } catch (NumberFormatException ex) {
-                LOG.warn("Failed to parse partition index {} {}", filePathStr, filePatternRegexp, ex);
-                continue;
-              }
-            }
-          }
-
           if (consumedFiles.contains(filePathStr)) {
             continue;
           }
 
-          LOG.debug("Found {}", filePathStr);
-          pathSet.add(path);
+          if (acceptFile(filePathStr)) {
+            LOG.debug("Found {}", filePathStr);
+            pathSet.add(path);
+          } else {
+            // don't look at it again
+            consumedFiles.add(filePathStr);
+          }
         }
       } catch (FileNotFoundException e) {
         LOG.warn("Failed to list directory {}", filePath, e);
@@ -316,6 +306,29 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         throw new RuntimeException(e);
       }
       return pathSet;
+    }
+
+    protected boolean acceptFile(String filePathStr)
+    {
+      if (regex != null) {
+        Matcher matcher = regex.matcher(filePathStr);
+        if (!matcher.matches()) {
+          return false;
+        }
+        if (partitionCount > 1) {
+          int i = filePathStr.hashCode();
+          int mod = i % partitionCount;
+          if (mod < 0) {
+            mod += partitionCount;
+          }
+          LOG.debug("partition {} {} {} {}", partitionIndex, filePathStr, i, mod);
+
+          if (mod != partitionIndex) {
+            return false;
+          }
+        }
+      }
+      return true;
     }
 
     public List<DirectoryScanner> partition(int count)
@@ -331,6 +344,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     {
       DirectoryScanner that = new DirectoryScanner();
       that.filePatternRegexp = this.filePatternRegexp;
+      that.regex = this.regex;
       that.partitionIndex = partitionIndex;
       that.partitionCount = partitionCount;
       return that;
