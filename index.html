@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <meta charset='utf-8' />
+    <meta http-equiv="X-UA-Compatible" content="chrome=1" />
+    <meta name="description" content="Malhar : DataTorrent open source library." />
+
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Malhar</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/DataTorrent/Malhar">View on GitHub</a>
+
+          <h1 id="project_title">Malhar</h1>
+          <h2 id="project_tagline">DataTorrent open source library.</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/DataTorrent/Malhar/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/DataTorrent/Malhar/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
+    </div>
+
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h1>
+<a name="malhar" class="anchor" href="#malhar"><span class="octicon octicon-link"></span></a>Malhar</h1>
+
+<p>Malhar repository contains open source operator and codec library that can be used with the DataTorrent platform to build Realtime streaming applications. In addition to the library there are benchmark, contrib, demos, webdemos and samples folders available. Demos contain demo applications built using the library operators. Webdemos contain webpages for the demos. Benchmark contains performance testing applications. Contrib contains additional operators that interface with third party softwares. Samples contain some sample code that shows how to use the library operators.</p>
+
+<p><a href="https://travis-ci.org/DataTorrent/Malhar"><img src="https://travis-ci.org/DataTorrent/Malhar.png?branch=master" alt="Build Status"></a></p>
+
+<h2>
+<a name="contributing" class="anchor" href="#contributing"><span class="octicon octicon-link"></span></a>Contributing</h2>
+
+<p>This project welcomes new contributors.  If you would like to help make Malhar better by adding new features, enhancing existing features, or fixing bugs, here is how to do it.</p>
+
+<p>You acknowledge that your submissions to DataTorrent on this repository are made pursuant the terms of the Apache License, Version 2.0 (<a href="http://www.apache.org/licenses/LICENSE-2.0.html">http://www.apache.org/licenses/LICENSE-2.0.html</a>) and constitute "Contributions," as defined therein, and you represent and warrant that you have the right and authority to do so.</p>
+
+<ul>
+<li>Fork Malhar into your own GitHub repository</li>
+<li>Create a topic branch with an appropriate name</li>
+<li>Write code, comments, tests in your repository</li>
+<li>Create a GitHub pull request from your repository, providing as many details about your changes as possible</li>
+<li>After we review and accept your request we’ll commit your code to the DataTorrent/Malhar repository</li>
+</ul><p>The submitted code must follow certain prescribed conventions and it is also recommended that it follow the prescribed style. The conventions and style are described in the <a href="docs/CodingConventionsAndStyle.md">Coding Conventions and Style</a> document.</p>
+
+<p>When adding <strong>new files</strong>, please include the following Apache v2.0 license header at the top of the file, with the fields enclosed by brackets "[]" replaced with your own identifying information. <strong>(Don't include the brackets!)</strong>:</p>
+
+<pre><code>/*
+ * Copyright (c) [XXXX] [NAME OF COPYRIGHT OWNER]
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+</code></pre>
+
+<p>Thanks for contributing!</p>
+
+<h2>
+<a name="documentation" class="anchor" href="#documentation"><span class="octicon octicon-link"></span></a>Documentation</h2>
+
+<p>The documentation for Operators, Widgets, Demos, and Apps is available at <a href="https://datatorrent.com/docs/apidocs/">Malhar Javadocs</a>. Documentation
+for the platform itself can be found at <a href="https://datatorrent.com/resources.php">Resources</a>.</p>
+
+<h2>
+<a name="discussion-group" class="anchor" href="#discussion-group"><span class="octicon octicon-link"></span></a>Discussion group</h2>
+
+<p>Please use the <a href="http://groups.google.com/group/malhar-users">Malhar discussion group</a> for support. Subscription to the group is open and postings are welcome. You can post anything about the operators, discuss new operator ideas or report issues and get answers from experts. You can signup by going to the following url <a href="https://groups.google.com/forum/#!forum/malhar-users">https://groups.google.com/forum/#!forum/malhar-users</a></p>
+
+<h2>
+<a name="getting-the-source-code" class="anchor" href="#getting-the-source-code"><span class="octicon octicon-link"></span></a>Getting the source code</h2>
+
+<p>The Malhar repository is on github.com. You can download or clone it using the GitHub links.  If you already have a GitHub account you can fork the DataTorrent/Malhar repository and contribute with pull requests.  See Contributing section below.</p>
+
+<h2>
+<a name="compiling-the-code" class="anchor" href="#compiling-the-code"><span class="octicon octicon-link"></span></a>Compiling the code</h2>
+
+<p>The project uses maven to build the code. To build the code run mvn install at the top level. The code also has a dependency to the DataTorrent API. The API releases are available in the DataTorrent maven repository and the Malhar pom.xml is configured with it. Individual modules such as library can be built independently by changing directory to the module and running maven there.</p>
+
+<h2>
+<a name="running-the-code" class="anchor" href="#running-the-code"><span class="octicon octicon-link"></span></a>Running the code</h2>
+
+<p>To run the code DataTorrent platform is needed. The developer version or an evaluation version, both of which are free, can be downloaded from </p>
+
+<p><a href="https://www.datatorrent.com/download.php">https://www.datatorrent.com/download.php</a></p>
+
+<p>Please follow the instructions in the software README on how to run the application.  </p>
+
+<p>For an easer setup, sandbox virtual machine provides pre-configured DataTorrent platform with all necessary dependencies, and can be found in the download section.</p>
+
+<h2>
+<a name="demos" class="anchor" href="#demos"><span class="octicon octicon-link"></span></a>Demos</h2>
+
+<p>Multiple demos are provided with the DataTorrent platform to showcase the platform and provide application development examples.  Demos can be executed after downloading and installing DataTorrent platform or the sandbox with pre-configured DataTorrent platform environment.  See <a href="https://github.com/DataTorrent/Malhar/tree/master/demos/src/main/java/com/datatorrent/demos">demos source code</a> for application development examples.</p>
+
+<h2>
+<a name="web-apps" class="anchor" href="#web-apps"><span class="octicon octicon-link"></span></a>Web Apps</h2>
+
+<p>Web interface for the following demos is available:</p>
+
+<ul>
+<li>Twitter</li>
+<li>Mobile</li>
+<li>Machine Generated Data</li>
+<li>Ads Dimensions</li>
+<li>Fraud</li>
+</ul><p>Web apps run on Node.js. Please see <a href="https://github.com/DataTorrent/Malhar/tree/master/webapps">webapps</a> for more information.</p>
+
+<h2>
+<a name="issue-tracking" class="anchor" href="#issue-tracking"><span class="octicon octicon-link"></span></a>Issue tracking</h2>
+
+<p><a href="https://malhar.atlassian.net">Malhar JIRA</a> issue tracking system is used for this project. You can monitor the state of existing issues and their track their progress at <a href="https://malhar.atlassian.net">https://malhar.atlassian.net</a></p>
+
+<p>When working with JIRA to submit pull requests, please use <a href="https://confluence.atlassian.com/display/AOD/Processing+JIRA+issues+with+commit+messages">smart commits</a> feature by specifying MLHR-XXXX in the commit messages.  It helps us link commits with issues being tracked for easy reference.  And example commit might look like this:</p>
+
+<pre><code>git commit -am "MLHR-12345 #comment Task completed ahead of schedule #resolve"
+</code></pre>
+
+<h2>
+<a name="license" class="anchor" href="#license"><span class="octicon octicon-link"></span></a>License</h2>
+
+<p>Licensed under the Apache License, Version 2.0 (the "License"); you may not use this file except in compliance with the License. You may obtain a copy of the License at</p>
+
+<p><a href="http://www.apache.org/licenses/LICENSE-2.0">http://www.apache.org/licenses/LICENSE-2.0</a></p>
+
+<p>Unless required by applicable law or agreed to in writing, software distributed under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.</p>
+      </section>
+    </div>
+
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Malhar maintained by <a href="https://github.com/DataTorrent">DataTorrent</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
+
+    
+
+  </body>
+</html>
