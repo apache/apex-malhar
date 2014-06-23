@@ -19,13 +19,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,13 +32,14 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
-import com.esotericsoftware.kryo.Kryo;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * Input operator that reads files from a directory.<p/>
@@ -67,7 +62,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private final HashSet<String> processedFiles = new HashSet<String>();
   private int emitBatchSize = 1000;
 
-  private transient FileSystem fs;
+  protected transient FileSystem fs;
+  protected transient Configuration configuration;
   private transient long lastScanMillis;
   private transient Path filePath;
   private transient InputStream inputStream;
@@ -118,7 +114,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   {
     try {
       filePath = new Path(directory);
-      fs = FileSystem.newInstance(filePath.toUri(), new Configuration());
+      configuration = new Configuration();
+      fs = FileSystem.newInstance(filePath.toUri(), configuration);
       if (currentFile != null && offset > 0) {
         LOG.info("Continue reading {} from index {}", currentFile, offset);
         int index = offset;
