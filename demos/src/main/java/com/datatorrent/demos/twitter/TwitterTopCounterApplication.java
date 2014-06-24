@@ -23,12 +23,15 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
+
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 import com.datatorrent.demos.rollingtopwords.WindowedTopCounter;
 
 /**
@@ -134,7 +137,7 @@ import com.datatorrent.demos.rollingtopwords.WindowedTopCounter;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="TwitterTopCounterApplication")
+@ApplicationAnnotation(name="TwitterDemo")
 public class TwitterTopCounterApplication implements StreamingApplication
 {
   private final Locality locality = null;

@@ -25,14 +25,14 @@ import kafka.utils.VerifiableProperties;
  * Messages are distributed to 2 partitions
  * One for even number, the other for odd
  */
-public class KafkaTestPartitioner implements Partitioner<String>
+public class KafkaTestPartitioner implements Partitioner
 {
   public KafkaTestPartitioner (VerifiableProperties props) {
     
   }
   @Override
-  public int partition(String key, int num_Partitions)
+  public int partition(Object key, int num_Partitions)
   {
-    return Integer.parseInt(key)%num_Partitions;
+    return Integer.parseInt((String)key)%num_Partitions;
   }
 }

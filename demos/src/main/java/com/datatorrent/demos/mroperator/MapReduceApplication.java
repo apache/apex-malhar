@@ -39,7 +39,7 @@ import com.datatorrent.api.StreamingApplication;
  * @since 0.9.0
  */
 @SuppressWarnings({ "deprecation" })
-@ApplicationAnnotation(name="MapReduceApplication")
+@ApplicationAnnotation(name="MapReduceDemo")
 public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingApplication
 {
 
@@ -123,7 +123,7 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
     dag.setAttribute(reduceOpr, Context.OperatorContext.INITIAL_PARTITION_COUNT, numberOfReducers);
 
     HdfsKeyValOutputOperator<K2,V2> console = dag.addOperator("console", new HdfsKeyValOutputOperator<K2,V2>());
-    console.setFilePathPattern(outputDirName);
+    console.setFilePath(outputDirName);
     // ConsoleOutputOperator console = dag.addOperator("console", new
     // ConsoleOutputOperator());
 

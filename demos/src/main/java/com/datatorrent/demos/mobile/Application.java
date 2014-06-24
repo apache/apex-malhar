@@ -104,7 +104,7 @@ import java.util.Random;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="MobileApplication")
+@ApplicationAnnotation(name="MobileDemo")
 public class Application implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);

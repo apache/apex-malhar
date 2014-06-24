@@ -15,24 +15,14 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.lib.xml.XmlDOMOperator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
 import javax.validation.constraints.NotNull;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
-import java.io.IOException;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -131,56 +121,41 @@ import java.util.List;
  *
  *    a1,a2:b1,b2|c1,c2:d1,d2|e1,e2,e3:f1
  *
+ * @since 1.0.1
  */
-public abstract class AbstractXmlCartesianProduct<T, O> extends BaseOperator
+public abstract class AbstractXmlCartesianProduct<T> extends XmlDOMOperator<T>
 {
   @NotNull
   private String config;
 
-  private transient DocumentBuilderFactory docFactory;
-  private transient DocumentBuilder docBuilder;
   private transient XPath xpath;
 
   private transient PathElementFactory pathElementFactory;
   private transient CartesianProductFactory cartesianProductFactory;
 
-  public transient DefaultInputPort<T> input = new DefaultInputPort<T>()
+  protected void processDocument(Document document, T tuple)
   {
-    @Override
-    public void process(T tuple)
-    {
-      processTuple(tuple);
+    try {
+      List<String> result = new ArrayList<String>();
+      for (CartesianProduct cartesianProduct : cartesianProducts) {
+          cartesianProduct.product(document, result);
+      }
+      processResult(result, tuple);
+    } catch (XPathExpressionException e) {
+      e.printStackTrace();
     }
-  };
-
-  protected abstract void processTuple(T tuple);
-
-  @OutputPortFieldAnnotation(name = "output")
-  public final transient DefaultOutputPort<O> output = new DefaultOutputPort<O>();
-
-  protected List<String> processXml(String xml) throws XPathExpressionException, IOException, SAXException
-  {
-    Document document = docBuilder.parse(new InputSource(new StringReader(xml)));
-    List<String> result = new ArrayList<String>();
-    for (CartesianProduct cartesianProduct : cartesianProducts) {
-      cartesianProduct.product(document, result);
-    }
-    return result;
   }
+
+  protected abstract void processResult(List<String> result, T tuple);
 
   @Override
   public void setup(Context.OperatorContext context)
   {
-    try {
-      docFactory = DocumentBuilderFactory.newInstance();
-      docBuilder = docFactory.newDocumentBuilder();
-      xpath = XPathFactory.newInstance().newXPath();
-      pathElementFactory = new PathElementFactory();
-      cartesianProductFactory = new CartesianProductFactory();
-      parseConfig();
-    } catch (ParserConfigurationException e) {
-      throw new RuntimeException(e);
-    }
+    super.setup(context);
+    xpath = XPathFactory.newInstance().newXPath();
+    pathElementFactory = new PathElementFactory();
+    cartesianProductFactory = new CartesianProductFactory();
+    parseConfig();
   }
 
   public void setConfig(String config)

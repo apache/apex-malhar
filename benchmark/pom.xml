@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-all</artifactId>
-    <version>0.9.6-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-benchmark</artifactId>
@@ -38,7 +38,7 @@
         <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
-      <version>0.8.0</version>
+      <version>0.8.1.1</version>
       <optional>true</optional>
       <exclusions>
         <exclusion>

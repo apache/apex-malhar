@@ -41,14 +41,14 @@ import kafka.javaapi.consumer.SimpleConsumer;
  */
 public class KafkaMetadataUtil
 {
-  
+
   private static Logger logger = LoggerFactory.getLogger(KafkaMetadataUtil.class);
-  
+
   // A temporary client used to retrieve the metadata of topic/partition etc
   private static final String mdClientId = "Kafka_Broker_Lookup_Client";
 
   private static final int timeout=10000;
-  
+
   //buffer size for MD lookup client is 128k should be enough for most cases
   private static final int bufferSize = 128 * 1024;
 
@@ -66,8 +66,8 @@ public class KafkaMetadataUtil
     }
     return tmd.partitionsMetadata();
   }
-  
-  
+
+
   /**
    * @param brokerList
    * @param topic
@@ -89,7 +89,7 @@ public class KafkaMetadataUtil
     }
     return null;
   }
-  
+
   /**
    * @param brokerSet
    * @param topic
@@ -105,7 +105,7 @@ public class KafkaMetadataUtil
     try {
       for (Iterator<String> iterator = brokerSet.iterator(); iterator.hasNext();) {
         String broker = iterator.next();
-        logger.debug("Try to get Metadata for topic " + topic);
+        logger.debug("Try to get Metadata for topic {} broker {}", topic, broker);
         try {
           mdConsumer = new SimpleConsumer(broker.split(":")[0], Integer.parseInt(broker.split(":")[1]), timeout, bufferSize, mdClientId);
 
@@ -113,7 +113,7 @@ public class KafkaMetadataUtil
           topics.add(topic);
           kafka.javaapi.TopicMetadataRequest req = new kafka.javaapi.TopicMetadataRequest(topics);
           TopicMetadataResponse resp = mdConsumer.send(req);
-          List<TopicMetadata> metaData = (List<TopicMetadata>) resp.topicsMetadata();
+          List<TopicMetadata> metaData = resp.topicsMetadata();
           for (TopicMetadata item : metaData) {
             // There is at most 1 topic for this method
             return item;
@@ -122,7 +122,7 @@ public class KafkaMetadataUtil
           throw new IllegalArgumentException("Wrong format for broker url, should be \"broker1:port1\"");
         } catch (Exception e) {
           iterator.remove();
-          logger.error("Highly possible some broker(s) for topic " + topic + " are dead");
+          logger.error("Highly possible some broker(s) for topic {} are dead", topic, e);
           // skip and try next broker
         }
       }
@@ -134,8 +134,8 @@ public class KafkaMetadataUtil
       }
     }
   }
-  
-  
+
+
   /**
    * @param consumer
    * @param topic
@@ -163,5 +163,5 @@ public class KafkaMetadataUtil
     return offsets[0];
   }
 
-  
+
 }

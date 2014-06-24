@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.5
  */
-@ApplicationAnnotation(name="MachineData")
+@ApplicationAnnotation(name="MachineDataDemo")
 @SuppressWarnings("unused")
 public class Application implements StreamingApplication
 {

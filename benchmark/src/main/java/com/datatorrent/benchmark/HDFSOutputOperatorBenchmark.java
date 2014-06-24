@@ -44,7 +44,7 @@ public abstract class HDFSOutputOperatorBenchmark
       RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
    
       HdfsByteOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsByteOutputOperator());
-      hdfsOutputOperator.setFilePathPattern("hdfsOperatorBenchmarking" + "/%(contextId)/transactions.out.part%(partIndex)");
+      hdfsOutputOperator.setFilePath("hdfsOperatorBenchmarking" + "/%(contextId)/transactions.out.part%(partIndex)");
       hdfsOutputOperator.setAppend(false);
    
       dag.addStream("Generator2HDFSOutput", wordGenerator.output, hdfsOutputOperator.input).setLocality(getLocality());      

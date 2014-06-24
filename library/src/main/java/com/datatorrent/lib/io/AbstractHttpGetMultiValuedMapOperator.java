@@ -13,21 +13,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.io.fs;
+package com.datatorrent.lib.io;
+
+import javax.ws.rs.core.MultivaluedMap;
+
+import com.sun.jersey.api.client.WebResource;
 
 /**
- * Adapter for writing tuples that implements interface <code>com.datatorrent.lib.io.fs.HDFSOutputTupleInterface</code> to HDFS
- * <p>
- * Serializes tuples into a HDFS file.<br/>
- * </p>
+ * Abstract Http get operator to get multi valued map from incoming tuple and create the web resource with query params
  *
- * @since 0.9.4
+ * @param <INPUT>
+ * @param <OUTPUT>
  */
-public abstract class AbstractTupleHDFSOutputOperator<T extends HdfsOutputTupleInterface> extends AbstractHdfsOutputOperator<T>
+public abstract class AbstractHttpGetMultiValuedMapOperator<INPUT, OUTPUT> extends AbstractHttpGetOperator<INPUT, OUTPUT>
 {
   @Override
-  public byte[] getBytesForTuple(T t)
+  protected WebResource getResourceWithQueryParams(INPUT t)
   {
-    return t.getBytes();
+    WebResource wr = wsClient.resource(url);
+    wr = wr.queryParams(getQueryParams(t));
+
+    return wr;
   }
+
+  protected abstract MultivaluedMap<String, String> getQueryParams(INPUT input);
+
 }

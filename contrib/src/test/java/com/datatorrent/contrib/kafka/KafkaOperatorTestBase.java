@@ -19,10 +19,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.util.Properties;
-import kafka.admin.CreateTopicCommand;
+
+import kafka.admin.TopicCommand;
 import kafka.server.KafkaConfig;
 import kafka.server.KafkaServerStartable;
 import kafka.utils.Utils;
+
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
 import org.junit.After;
@@ -142,12 +144,12 @@ public class KafkaOperatorTestBase
 
   public void createTopic(String topicName)
   {
-    String[] args = new String[8];
+    String[] args = new String[9];
     args[0] = "--zookeeper";
     args[1] = "localhost:" + TEST_ZOOKEEPER_PORT;
-    args[2] = "--replica";
+    args[2] = "--replication-factor";
     args[3] = "1";
-    args[4] = "--partition";
+    args[4] = "--partitions";
     if(hasMultiPartition){
       args[5] = "2";
     } else {
@@ -155,7 +157,9 @@ public class KafkaOperatorTestBase
     }
     args[6] = "--topic";
     args[7] = topicName;
-    CreateTopicCommand.main(args);
+    args[8] = "--create";
+
+    TopicCommand.main(args);
     //Right now, there is no programmatic synchronized way to create the topic. have to wait 2 sec to make sure the topic is created
     // So the tests will not hit any bizarre failure
     try {

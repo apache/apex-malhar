@@ -15,21 +15,19 @@
  */
 package com.datatorrent.demos.rollingtopwords;
 
-/*
- *  Copyright (c) 2012-2013 DataTorrent, Inc.
- *  All Rights Reserved.
- */
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import java.util.*;
 
 /**
  *
@@ -54,10 +52,10 @@ public class WindowedTopCounter<T> extends BaseOperator
     @Override
     public void process(Map<T, Integer> map)
     {
-      for (Map.Entry<T, Integer> e: map.entrySet()) {
-        WindowedHolder<T> holder = objects.get(e.getKey());
+      for (Map.Entry<T, Integer> e : map.entrySet()) {
+        SlidingContainer<T> holder = objects.get(e.getKey());
         if (holder == null) {
-          holder = new WindowedHolder<T>(e.getKey(), windows);
+          holder = new SlidingContainer<T>(e.getKey(), windows);
           objects.put(e.getKey(), holder);
         }
         holder.adjustCount(e.getValue());
@@ -70,10 +68,10 @@ public class WindowedTopCounter<T> extends BaseOperator
    */
   @OutputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>();
-  private PriorityQueue<WindowedHolder<T>> topCounter;
+  private PriorityQueue<SlidingContainer<T>> topCounter;
   private int windows;
   private int topCount = 10;
-  private HashMap<T, WindowedHolder<T>> objects = new HashMap<T, WindowedHolder<T>>();
+  private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
 
   /**
    * Set the width of the sliding window.
@@ -96,7 +94,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
-    topCounter = new PriorityQueue<WindowedHolder<T>>(this.topCount, new TopSpotComparator());
+    topCounter = new PriorityQueue<SlidingContainer<T>>(this.topCount, new TopSpotComparator());
   }
 
   @Override
@@ -108,13 +106,13 @@ public class WindowedTopCounter<T> extends BaseOperator
   @Override
   public void endWindow()
   {
-    Iterator<Map.Entry<T, WindowedHolder<T>>> iterator = objects.entrySet().iterator();
+    Iterator<Map.Entry<T, SlidingContainer<T>>> iterator = objects.entrySet().iterator();
     int i = topCount;
 
     /*
      * Try to fill the priority queue with the first topCount URLs.
      */
-    WindowedHolder<T> holder;
+    SlidingContainer<T> holder;
     while (iterator.hasNext()) {
       holder = iterator.next().getValue();
       holder.slide();
@@ -156,9 +154,9 @@ public class WindowedTopCounter<T> extends BaseOperator
      * Emit our top URLs without caring for order.
      */
     HashMap<T, Integer> map = new HashMap<T, Integer>();
-    Iterator<WindowedHolder<T>> iterator1 = topCounter.iterator();
+    Iterator<SlidingContainer<T>> iterator1 = topCounter.iterator();
     while (iterator1.hasNext()) {
-      final WindowedHolder<T> wh = iterator1.next();
+      final SlidingContainer<T> wh = iterator1.next();
       map.put(wh.identifier, wh.totalCount);
     }
 
@@ -175,11 +173,29 @@ public class WindowedTopCounter<T> extends BaseOperator
 
   /**
    * Set the count of most frequently occurring keys to emit per map object.
+   *
    * @param count count of the objects in the map emitted at the output port.
    */
   public void setTopCount(int count)
   {
     topCount = count;
+  }
+
+  static class TopSpotComparator implements Comparator<SlidingContainer<?>>
+  {
+    @Override
+    public int compare(SlidingContainer<?> o1, SlidingContainer<?> o2)
+    {
+      if (o1.totalCount > o2.totalCount) {
+        return 1;
+      }
+      else if (o1.totalCount < o2.totalCount) {
+        return -1;
+      }
+
+      return 0;
+    }
+
   }
 
 }

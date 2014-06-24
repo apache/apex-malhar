@@ -29,7 +29,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="YahooFinanceWithDerbySQL")
+@ApplicationAnnotation(name="YahooFinanceWithDerbySQLDemo")
 public class ApplicationWithDerbySQL implements StreamingApplication
 {
   @Override

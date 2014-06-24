@@ -14,7 +14,6 @@ import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.AttributeMap.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
 /**
  *
@@ -28,11 +27,11 @@ public class OperatorContextTestHelper
     {
       return new SimpleDateFormat("yyyyMMddHHmmss");
     }
+
   };
 
   public static class TestIdOperatorContext extends TestContext implements OperatorContext
   {
-
     int id;
     String applicationPath;
     String applicationId;
@@ -56,11 +55,6 @@ public class OperatorContextTestHelper
     }
 
     @Override
-    public void setCustomStats(CustomStats stats)
-    {
-    }
-
-    @Override
     @SuppressWarnings("unchecked")
     public <T> T getValue(Attribute<T> key)
     {
@@ -71,11 +65,16 @@ public class OperatorContextTestHelper
       return super.getValue(key);
     }
 
+    @Override
+    public void setCounters(Counters counters)
+    {
+      /* intentionally no-op */
+    }
+
   }
 
   private static class TestContext implements Context
   {
-
     @Override
     public AttributeMap getAttributes()
     {
@@ -88,6 +87,12 @@ public class OperatorContextTestHelper
       return key.defaultValue;
     }
 
+    @Override
+    public void setCounters(Counters counters)
+    {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
   }
 
   public static String getUniqueApplicationPath(String applicationPathPrefix)
@@ -97,5 +102,3 @@ public class OperatorContextTestHelper
   }
 
 }
-
-

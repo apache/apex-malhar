@@ -32,6 +32,7 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.bucket.Bucket;
@@ -66,39 +67,14 @@ import com.datatorrent.lib.bucket.Bucketable;
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
  *
- * @param <INPUT>  type of input tuple
+ * @param <INPUT> type of input tuple
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
 public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
-  implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
+        implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
-  //Check-pointed state
-  @Nonnull
-  protected BucketManager<INPUT> bucketManager;
-
-  //bucketKey -> list of bucketData which belong to that bucket and are waiting for the bucket to be loaded.
-  @Nonnull
-  protected final Map<Long, List<INPUT>> waitingEvents;
-  protected Set<Integer> partitionKeys;
-  protected int partitionMask;
-
-  //Non check-pointed state
-  protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
-  private transient long sleepTimeMillis;
-  private transient OperatorContext context;
-  protected transient Counters counters;
-  private transient long currentWindow;
-
-  public Deduper()
-  {
-    waitingEvents = Maps.newHashMap();
-    partitionKeys = Sets.newHashSet(0);
-    partitionMask = 0;
-
-    fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
-  }
-
+  @InputPortFieldAnnotation(name = "input", optional = true)
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
   {
     @Override
@@ -144,6 +120,29 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
   };
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
+  //Check-pointed state
+  @Nonnull
+  protected BucketManager<INPUT> bucketManager;
+  //bucketKey -> list of bucketData which belong to that bucket and are waiting for the bucket to be loaded.
+  @Nonnull
+  protected final Map<Long, List<INPUT>> waitingEvents;
+  protected Set<Integer> partitionKeys;
+  protected int partitionMask;
+  //Non check-pointed state
+  protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
+  private transient long sleepTimeMillis;
+  private transient OperatorContext context;
+  protected transient Counters counters;
+  private transient long currentWindow;
+
+  public Deduper()
+  {
+    waitingEvents = Maps.newHashMap();
+    partitionKeys = Sets.newHashSet(0);
+    partitionMask = 0;
+
+    fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
+  }
 
   @Override
   public void setup(OperatorContext context)
@@ -184,7 +183,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     catch (Throwable cause) {
       DTThrowable.rethrow(cause);
     }
-    context.setCustomStats(counters);
+    context.setCounters(counters);
   }
 
   @Override
@@ -317,7 +316,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
       //distribute waiting events
       for (long bucketKey : allWaitingEvents.keySet()) {
-        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext(); ) {
+        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext();) {
           INPUT event = iterator.next();
           int partitionKey = event.getEventKey().hashCode() & lPartitionMask;
 
@@ -371,7 +370,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       return false;
     }
 
-    Deduper<?, ?> deduper = (Deduper<?, ?>) o;
+    Deduper<?, ?> deduper = (Deduper<?, ?>)o;
 
     if (partitionMask != deduper.partitionMask) {
       return false;
@@ -409,6 +408,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     {
       return numDuplicateEvents;
     }
+
+    private static final long serialVersionUID = 201405061055L;
   }
 
   public static class CountersListener implements StatsListener, Serializable
@@ -419,12 +420,12 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       List<Stats.OperatorStats> lastWindowedStats = batchedOperatorStats.getLastWindowedStats();
       if (lastWindowedStats != null) {
         for (Stats.OperatorStats os : lastWindowedStats) {
-          if (os.customStats != null) {
-            if (os.customStats instanceof Counters) {
-              Counters cs = (Counters) os.customStats;
+          if (os.counters != null) {
+            if (os.counters instanceof Counters) {
+              Counters cs = (Counters)os.counters;
               logger.debug("bucketStats {} {} {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
-                cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
-                cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
+                           cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
+                           cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
             }
           }
         }

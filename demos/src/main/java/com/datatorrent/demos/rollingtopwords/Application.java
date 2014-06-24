@@ -39,7 +39,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="TwitterRollingTopWordsApplication")
+@ApplicationAnnotation(name="SampleStreamDemo")
 public class Application implements StreamingApplication
 {
   private final Locality locality = null;

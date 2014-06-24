@@ -36,7 +36,7 @@ import java.net.URI;
  *
  * @since 0.9.0
  */
-@ApplicationAnnotation(name="FraudDetect")
+@ApplicationAnnotation(name="FraudDetectDemo")
 public class Application implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
@@ -160,7 +160,7 @@ public class Application implements StreamingApplication
   public HdfsStringOutputOperator getHdfsOutputOperator(String name, DAG dag, String folderName)
   {
     HdfsStringOutputOperator oper = dag.addOperator("hdfs", HdfsStringOutputOperator.class);
-    oper.setFilePathPattern(folderName + "/%(contextId)/transactions.out.part%(partIndex)");
+    oper.setFilePath(folderName + "/%(contextId)/transactions.out.part%(partIndex)");
     oper.setBytesPerFile(1024 * 1024 * 1024);
     return oper;
   }

@@ -15,15 +15,16 @@
  */
 package com.datatorrent.demos.pi;
 
-
+import com.datatorrent.api.Context.OperatorContext;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  * Monte Carlo PI estimation demo : <br>
@@ -70,7 +71,7 @@ import com.datatorrent.api.StreamingApplication;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="PiCalculator")
+@ApplicationAnnotation(name="PiCalculatorUsingCustomOperatorDemo")
 public class Application implements StreamingApplication
 {
   private final Locality locality = null;
@@ -86,11 +87,11 @@ public class Application implements StreamingApplication
 
     PiCalculateOperator calc = dag.addOperator("picalc", new PiCalculateOperator());
     calc.setBase(maxValue*maxValue);
-    dag.addStream("rand_calc", rand.integer_data, calc.input).setLocality(locality);
 
     ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
-    dag.addStream("rand_console",calc.output, console.input).setLocality(locality);
 
+    dag.addStream("rand_calc", rand.integer_data, calc.input).setLocality(locality);
+    dag.addStream("rand_console",calc.output, console.input).setLocality(locality);
   }
 
 }

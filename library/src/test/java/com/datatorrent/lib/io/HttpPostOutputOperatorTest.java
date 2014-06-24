@@ -17,37 +17,40 @@ package com.datatorrent.lib.io;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import junit.framework.Assert;
+
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import junit.framework.Assert;
-import org.apache.commons.io.IOUtils;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.core.MediaType;
+
 import org.codehaus.jettison.json.JSONObject;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.junit.Test;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.core.MediaType;
+
+import org.apache.commons.io.IOUtils;
 
 /**
- * Functional test for {@link com.datatorrent.lib.io.HttpOutputOperator}.
+ * Functional test for {@link com.datatorrent.lib.io.HttpPostOutputOperator}.
  */
-public class HttpOutputOperatorTest {
-
+public class HttpPostOutputOperatorTest
+{
   boolean receivedMessage = false;
 
   @Test
-  public void testHttpOutputNode() throws Exception {
+  public void testHttpOutputNode() throws Exception
+  {
 
     final List<String> receivedMessages = new ArrayList<String>();
-    Handler handler=new AbstractHandler()
+    Handler handler = new AbstractHandler()
     {
       @Override
       @Consumes({MediaType.APPLICATION_JSON})
@@ -62,6 +65,7 @@ public class HttpOutputOperatorTest {
         ((Request)request).setHandled(true);
         receivedMessage = true;
       }
+
     };
 
     Server server = new Server(0);
@@ -72,8 +76,8 @@ public class HttpOutputOperatorTest {
     System.out.println("url: " + url);
 
 
-    HttpOutputOperator<Object> node = new HttpOutputOperator<Object>();
-    node.setResourceURL(new URI(url));
+    HttpPostOutputOperator<Object> node = new HttpPostOutputOperator<Object>();
+    node.setUrl(url);
 
     node.setup(null);
 
@@ -89,7 +93,7 @@ public class HttpOutputOperatorTest {
     }
 
     Assert.assertEquals("number requests", 1, receivedMessages.size());
-    System.out.println( receivedMessages.get(0));
+    System.out.println(receivedMessages.get(0));
     JSONObject json = new JSONObject(data);
     Assert.assertTrue("request body " + receivedMessages.get(0), receivedMessages.get(0).contains(json.toString()));
 
