@@ -59,6 +59,31 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
   protected abstract Message createMessage(T tuple);
 
   /**
+   * Convert to and send message.
+   * @param tuple
+   */
+  protected void processTuple(T tuple) 
+  {
+    countMessages++;
+
+    if (countMessages > maxSendMessage && maxSendMessage != 0) {
+      if (countMessages == maxSendMessage + 1) {
+        logger.warn("Reached maximum send messages of {}", maxSendMessage);
+      }
+      return; // Stop sending messages after max limit.
+    }
+
+    try {
+      Message msg = createMessage(tuple);
+      getProducer().send(msg);
+      //logger.debug("process message {}", tuple.toString());
+    }
+    catch (JMSException ex) {
+      throw new RuntimeException("Failed to send message", ex);
+    }
+  }
+  
+  /**
    * The single input port.
    */
   @InputPortFieldAnnotation(name = "ActiveMQInputPort")
@@ -67,23 +92,7 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
     @Override
     public void process(T tuple)
     {
-      countMessages++;
-
-      if (countMessages > maxSendMessage && maxSendMessage != 0) {
-        if (countMessages == maxSendMessage + 1) {
-          logger.warn("Reached maximum send messages of {}", maxSendMessage);
-        }
-        return; // Stop sending messages after max limit.
-      }
-
-      try {
-        Message msg = createMessage(tuple);
-        getProducer().send(msg);
-        //logger.debug("process message {}", tuple.toString());
-      }
-      catch (JMSException ex) {
-        logger.debug(ex.getLocalizedMessage());
-      }
+      processTuple(tuple);
     }
   };
 }
