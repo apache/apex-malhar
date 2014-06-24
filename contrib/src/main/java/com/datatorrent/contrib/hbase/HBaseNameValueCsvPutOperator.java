@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +53,7 @@ public class HBaseNameValueCsvPutOperator extends HBasePutOperator<String> {
 	}
 
 	private static final transient Logger logger = LoggerFactory.getLogger(HBaseNameValueCsvPutOperator.class);
+	@NotNull
 	private String mapping;
 	private transient String rowKey;
 	private transient Map<String, ColDef> colMap = new HashMap<String, ColDef>();
