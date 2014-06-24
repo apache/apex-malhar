@@ -28,22 +28,22 @@ import com.datatorrent.api.AttributeMap.Attribute;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
-public class HBaseCsvConfigPutOperatorTest {
+public class HBaseNameValueCsvPutOperatorTest {
 	private static final Logger logger = LoggerFactory
-			.getLogger(HBasePutOperatorTest.class);
+			.getLogger(HBaseNameValueCsvPutOperatorTest.class);
 
 	@Test
 	public void testPut() {
 		try {
 			HBaseTestHelper.clearHBase();
-			HBaseCsvConfigPutOperator propPutOperator = new HBaseCsvConfigPutOperator();
+			HBaseNameValueCsvPutOperator propPutOperator = new HBaseNameValueCsvPutOperator();
 
 			propPutOperator.setTableName("table1");
 			propPutOperator.setZookeeperQuorum("127.0.0.1");
 			propPutOperator.setZookeeperClientPort(2181);
 			String s = "name=milind,st=patrick,ct=fremont,sa=cali";
-			propPutOperator
-					.setPropFilepath("/home/cloudera/employee.properties");
+			String s1 = "st=tasman,ct=sancla,name=milinda,sa=cali";
+			propPutOperator.setMapping("name=row,st=colfam0.street,ct=colfam0.city,sa=colfam0.state");
 			propPutOperator.setup(new OperatorContext() {
 
 				@Override
@@ -68,6 +68,7 @@ public class HBaseCsvConfigPutOperatorTest {
 			});
 			propPutOperator.beginWindow(0);
 			propPutOperator.inputPort.process(s);
+			propPutOperator.inputPort.process(s1);
 			propPutOperator.endWindow();
 			HBaseTuple tuple;
 
@@ -87,4 +88,5 @@ public class HBaseCsvConfigPutOperatorTest {
 			logger.error(e.getMessage());
 		}
 	}
+	
 }
