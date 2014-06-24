@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.AttributeMap.Attribute;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Stats.OperatorStats.CustomStats;
 
 public class HBaseNameValueCsvPutOperatorTest {
 	private static final Logger logger = LoggerFactory
@@ -57,13 +56,15 @@ public class HBaseNameValueCsvPutOperatorTest {
 				}
 
 				@Override
-				public void setCustomStats(CustomStats stats) {
-				}
-
-				@Override
 				public int getId() {
 					// TODO Auto-generated method stub
 					return 0;
+				}
+
+				@Override
+				public void setCounters(Counters counters) {
+					// TODO Auto-generated method stub
+					
 				}
 			});
 			propPutOperator.beginWindow(0);
