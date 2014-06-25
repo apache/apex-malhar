@@ -41,7 +41,6 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * end window and they are put on end window
  * @param <T> The tuple type
  */
-@SuppressWarnings("serial")
 public abstract class AbstractHBaseTransactionalPutOutputOperator<T>
 		extends
 		AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> {

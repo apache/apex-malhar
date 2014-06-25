@@ -40,7 +40,6 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * 
  * @param <T> The tuple type
  */
-@SuppressWarnings("serial")
 public abstract class AbstractHBaseNonTransactionalAppendOutputOperator<T>
 		extends AbstractStoreOutputOperator<T, HBaseStore> {
 	private static final transient Logger logger = LoggerFactory

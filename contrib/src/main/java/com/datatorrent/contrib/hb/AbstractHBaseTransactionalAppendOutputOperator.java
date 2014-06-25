@@ -43,12 +43,11 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * 
  * @param <T> The tuple type
  */
-@SuppressWarnings("serial")
 public abstract class AbstractHBaseTransactionalAppendOutputOperator<T>
 		extends
 		AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> {
 	private static final transient Logger logger = LoggerFactory
-			.getLogger(AbstractHBaseTransactionalPutOutputOperator.class);
+			.getLogger(AbstractHBaseTransactionalAppendOutputOperator.class);
 	private transient List<T> tuples;
 
 	public AbstractHBaseTransactionalAppendOutputOperator() {
