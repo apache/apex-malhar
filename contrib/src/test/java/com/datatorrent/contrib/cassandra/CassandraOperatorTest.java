@@ -4,18 +4,13 @@ package com.datatorrent.contrib.cassandra;
 import java.util.List;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.DriverException;
-
 import javax.annotation.Nonnull;
-
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
 import com.google.common.collect.Lists;
-
 import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.DAG;
-
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.cassandra.AbstractCassandraInputOperator;
 import com.datatorrent.contrib.cassandra.AbstractCassandraTransactionableOutputOperator;
@@ -66,7 +61,7 @@ public class CassandraOperatorTest
 			session.execute(createTable);
 		}
 		catch (Throwable e) {
-			
+
 			DTThrowable.rethrow(e);
 		}
 	}
@@ -86,7 +81,7 @@ public class CassandraOperatorTest
 		}
 	}
 
-	private static class TestOutputOperator extends AbstractCassandraTransactionableOutputOperator<TestEvent>
+	private static class TestOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<TestEvent>
 	{
 		private static final String INSERT_STMT = "INSERT INTO " + KEYSPACE+"." +TABLE_NAME + " (ID) VALUES (?);";
 
@@ -117,7 +112,7 @@ public class CassandraOperatorTest
 
 		public long getNumOfEventsInStore()
 		{
-			
+
 			try {
 				Cluster cluster = Cluster.builder()
 						.addContactPoint(NODE).build();
@@ -170,7 +165,7 @@ public class CassandraOperatorTest
 				Cluster cluster = Cluster.builder()
 						.addContactPoint(NODE).build();
 				Session session = cluster.connect(KEYSPACE);
-				
+
 				String insert = "INSERT INTO " + TABLE_NAME +" (ID)"+ " VALUES (?);";
 				PreparedStatement stmt = session.prepare(insert);
 				BoundStatement boundStatement = new BoundStatement(stmt);
@@ -185,8 +180,8 @@ public class CassandraOperatorTest
 			}
 		}
 	}
-	
-	
+
+
 	@Test
 	public void testCassandraOutputOperator()
 	{
@@ -199,7 +194,7 @@ public class CassandraOperatorTest
 		OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
 		TestOutputOperator outputOperator = new TestOutputOperator();
-		
+
 		outputOperator.setStore(transactionalStore);
 
 		outputOperator.setup(context);
@@ -217,7 +212,7 @@ public class CassandraOperatorTest
 
 		Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
 	}
-	
+
 	@Test
 	public void TestCassandraInputOperator()
 	{
@@ -243,6 +238,6 @@ public class CassandraOperatorTest
 
 		Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
 	}
-	
+
 }
 

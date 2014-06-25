@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-
 package com.datatorrent.contrib.cassandra;
-
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.DriverException;
@@ -33,29 +31,21 @@ import com.datatorrent.lib.db.Connectable;
  * A {@link Connectable} that uses cassandra to connect to stores.
  *
  */
-
-
 public class CassandraStore implements Connectable
 {
 	protected static final Logger logger = LoggerFactory.getLogger(CassandraStore.class);
-
-
-
 	private String userName;
 	private String password;
 	@NotNull
 	private String node;
-
 	protected transient Cluster cluster = null;
 	protected transient Session session = null;
 	protected String keyspace=null;
 
-
-
 	/**
 	 * Sets the keyspace.
 	 *
-	 * @param userName user name.
+	 * @param keyspace keyspace.
 	 */
 	public void setKeyspace(String keyspace) {
 		this.keyspace = keyspace;
@@ -86,6 +76,11 @@ public class CassandraStore implements Connectable
 		return node;
 	}
 
+	/**
+	 * Sets the node.
+	 *
+	 * @param node node
+	 */
 	public void setNode(@NotNull String node) {
 		this.node = node;
 	}
@@ -101,7 +96,6 @@ public class CassandraStore implements Connectable
 	/**
 	 * Creates a cluster object.
 	 */
-
 	public void buildCluster(){
 
 		try {
@@ -125,7 +119,6 @@ public class CassandraStore implements Connectable
 	public void connect()
 	{
 		try {
-
 			if(cluster==null)
 				buildCluster();
 			session = cluster.connect();
@@ -167,6 +160,5 @@ public class CassandraStore implements Connectable
 		catch (DriverException ex) {
 			throw new RuntimeException("closing database resource", ex);
 		}
-
 	}
 }

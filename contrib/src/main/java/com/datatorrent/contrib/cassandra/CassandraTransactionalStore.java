@@ -15,9 +15,6 @@
  */
 
 package com.datatorrent.contrib.cassandra;
-
-
-
 import javax.annotation.Nonnull;
 
 import com.datastax.driver.core.BoundStatement;
@@ -32,14 +29,12 @@ import com.datatorrent.lib.db.TransactionableStore;
  * <p>CassandraTransactionalStore class which inherits CassandraStore class and provides transaction support to the operators.</p>
  *
  */
-
 public class CassandraTransactionalStore extends CassandraStore implements TransactionableStore{
 
 	public static String DEFAULT_APP_ID_COL = "dt_app_id";
 	public static String DEFAULT_OPERATOR_ID_COL = "dt_operator_id";
 	public static String DEFAULT_WINDOW_COL = "dt_window";
 	public static String DEFAULT_META_TABLE = "dt_meta";
-
 
 	@Nonnull
 	protected String metaTableAppIdColumn;
@@ -50,15 +45,12 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 	@Nonnull
 	private String metaTable;
 
-
 	private transient boolean inTransaction;
 	private transient PreparedStatement lastWindowFetchCommand;
-	private transient PreparedStatement lastWindowInsertCommand;
 	private transient PreparedStatement lastWindowUpdateCommand;
 	private transient PreparedStatement lastWindowDeleteCommand;
 
 	private transient Statement lastWindowFetchStatement;
-	private transient Statement lastWindowInsertStatement;
 	private transient Statement lastWindowUpdateStatement;
 	private transient Statement lastWindowDeleteStatement;
 
@@ -116,21 +108,8 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 		this.metaTableWindowColumn = windowColumn;
 	}
 
-
-	public Statement getLastWindowFetchStatement() {
-		return lastWindowFetchStatement;
-	}
-
-	public Statement getLastWindowInsertStatement() {
-		return lastWindowInsertStatement;
-	}
-
 	public Statement getLastWindowUpdateStatement() {
 		return lastWindowUpdateStatement;
-	}
-
-	public Statement getLastWindowDeleteStatement() {
-		return lastWindowDeleteStatement;
 	}
 
 	@Override
@@ -138,17 +117,10 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 	{
 		super.connect();
 		try {
-
 			String command = "SELECT " + metaTableWindowColumn + " FROM " + keyspace +"."+ metaTable + " WHERE " + metaTableAppIdColumn +
 					" = ? AND " + metaTableOperatorIdColumn + " = ?";
 			logger.debug(command);
-
 			lastWindowFetchCommand = session.prepare(command);
-
-			command = "INSERT INTO " + keyspace +"."+ metaTable+"(" + metaTableAppIdColumn +","+
-					metaTableOperatorIdColumn + "," + metaTableWindowColumn + ")" + " VALUES (?,?,?)" ;
-			logger.debug(command);
-			lastWindowInsertCommand = super.getSession().prepare(command);
 
 			command = "UPDATE " + keyspace +"."+ metaTable + " SET " + metaTableWindowColumn + " = ? where " + metaTableAppIdColumn + " = ? " +
 					" and " + metaTableOperatorIdColumn + " = ?";
@@ -159,7 +131,6 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 					metaTableOperatorIdColumn + " = ?";
 			logger.debug(command);
 			lastWindowDeleteCommand = session.prepare(command);
-
 		}
 		catch (DriverException e) {
 			throw new RuntimeException(e);
@@ -199,9 +170,7 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 	@Override
 	public void rollbackTransaction()
 	{
-
 		inTransaction = false;
-
 	}
 
 	@Override
@@ -216,18 +185,10 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 		try {
 			BoundStatement boundStatement = new BoundStatement(lastWindowFetchCommand);
 			lastWindowFetchStatement = boundStatement.bind(appId,operatorId);
-
 			long lastWindow = -1;
-
 			ResultSet resultSet = session.execute(lastWindowFetchStatement);
 			if (!resultSet.isExhausted()) {
 				lastWindow = resultSet.one().getLong(0);
-			}
-			else {
-				boundStatement = new BoundStatement(lastWindowInsertCommand);
-				lastWindowInsertStatement = boundStatement.bind(appId,operatorId,lastWindow);
-				session.execute(lastWindowInsertStatement);
-				lastWindowInsertCommand.disableTracing();
 			}
 			lastWindowFetchCommand.disableTracing();
 			return lastWindow;
@@ -243,12 +204,10 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 		try {
 			BoundStatement boundStatement = new BoundStatement(lastWindowUpdateCommand);
 			lastWindowUpdateStatement = boundStatement.bind(windowId,appId,operatorId);
-
 		}
 		catch (DriverException e) {
 			throw new RuntimeException(e);
 		}
-
 	}
 
 	@Override

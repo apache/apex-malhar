@@ -16,10 +16,12 @@
 
 package com.datatorrent.contrib.cassandra;
 
-import com.datastax.driver.core.BatchStatement;
+import javax.annotation.Nonnull;
+import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.*;
-import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator; 
+import com.datatorrent.api.Context;
+
 
 /**
  * <p>
@@ -41,13 +43,24 @@ import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
  *
  * @param <T>type of tuple</T>
  */
-public abstract class AbstractCassandraTransactionableOutputOperator<T> extends AbstractBatchTransactionableStoreOutputOperator<T, CassandraTransactionalStore>{
 
-	protected transient BatchStatement batchCommand;
+public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extends AbstractCassandraTransactionableOutputOperator<T>{
 
-	public AbstractCassandraTransactionableOutputOperator(){
-		super();
-		batchCommand = new BatchStatement();
+	private transient PreparedStatement updateCommand;
+
+	/**
+	 * Gets the statement which insert/update the table in the database.
+	 *
+	 * @return the cql statement to update a tuple in the database.
+	 */
+	@Nonnull
+	protected abstract PreparedStatement getUpdateCommand();
+	 
+	@Override
+	public void setup(Context.OperatorContext context)
+	{
+		super.setup(context);
+		updateCommand = getUpdateCommand();
 	}
 
 	/**
@@ -57,51 +70,10 @@ public abstract class AbstractCassandraTransactionableOutputOperator<T> extends 
 	 * @param tuple     tuple
 	 * @throws DriverException
 	 */
-	protected abstract Statement getUpdateStatement(T tuple) throws DriverException;
+	protected abstract Statement setStatementParameters(PreparedStatement updateCommand, T tuple) throws DriverException;
 
 	@Override
-	public void processBatch(){
-		try {
-			store.getSession().execute(batchCommand);
-			batchCommand.clear();
-			tuples.clear();
-		}
-		catch (NoHostAvailableException ex) {
-			store.disconnect();
-			throw new RuntimeException(String.format("Error while running batch query"), ex);
-		}
-		catch (QueryExecutionException ex) {
-			store.disconnect();
-			throw new RuntimeException(String.format("Error while running batch query"), ex);
-		}
-		catch (QueryValidationException ex) {
-			store.disconnect();
-			throw new RuntimeException(String.format("Error while running batch query"), ex);
-		}
-		catch(Exception e)
-		{
-			store.disconnect();
-			throw new RuntimeException(e);
-		}
-	}
-
-	@Override
-	public void endWindow(){
-		try {
-			for(T tuple: tuples)
-			{
-				batchCommand.add(getUpdateStatement(tuple));
-			}
-			store.storeCommittedWindowId(appId, operatorId, currentWindowId);
-			batchCommand.add(store.getLastWindowUpdateStatement());
-			processBatch();
-			committedWindowId = currentWindowId;
-			super.endWindow();
-		}
-		catch(DriverException e)
-		{
-			store.disconnect();
-			throw new RuntimeException(e);
-		}
+	protected Statement getUpdateStatement(T tuple){
+		return setStatementParameters(updateCommand, tuple);
 	}
 }

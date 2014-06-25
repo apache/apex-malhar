@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.*;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
@@ -38,17 +37,14 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Row)}.
  * </p>
  */
-
-
 public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractCassandraInputOperator.class);
-	Statement queryStatement = null;
 
 	/**
 	 * Any concrete class has to override this method to convert a Database row into Tuple.
 	 *
-	 * @param result a single row that has been read from database.
+	 * @param row a single row that has been read from database.
 	 * @return Tuple a tuples created from row which can be any Java object.
 	 */
 	public abstract T getTuple(Row row);
@@ -101,7 +97,5 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
 			throw new RuntimeException(String.format("Error while running query: %s", query), ex);
 		}
 	}
-
-
 
 }
