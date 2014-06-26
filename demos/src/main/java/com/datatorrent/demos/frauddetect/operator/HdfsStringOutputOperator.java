@@ -24,7 +24,7 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAGContext;
 
-import com.datatorrent.lib.io.fs.AbstractHdfsOutputOperator;
+import com.datatorrent.lib.io.fs.AbstractHdfsRollingFileOutputOperator;
 
 /**
  * Adapter for writing Strings to HDFS
@@ -34,7 +34,7 @@ import com.datatorrent.lib.io.fs.AbstractHdfsOutputOperator;
  *
  * @since 0.9.4
  */
-public class HdfsStringOutputOperator extends AbstractHdfsOutputOperator<String>
+public class HdfsStringOutputOperator extends AbstractHdfsRollingFileOutputOperator<String>
 {
 
   /**
@@ -58,7 +58,7 @@ public class HdfsStringOutputOperator extends AbstractHdfsOutputOperator<String>
     params.put(FNAME_SUB_CONTEXT_ID, contextId);
     StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
     index++;
-    return new Path(sub.replace(getFilePathPattern().toString()));
+    return new Path(sub.replace(getFilePath().toString()));
   }
 
   @Override

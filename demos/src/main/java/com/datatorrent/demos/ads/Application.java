@@ -356,7 +356,7 @@ public class Application implements StreamingApplication
       HdfsHashMapOutputOperator viewsToHdfs = dag.addOperator("viewsToHdfs", new HdfsHashMapOutputOperator());
       viewsToHdfs.setAppend(false);
       viewsToHdfs.setCloseCurrentFile(true);
-      viewsToHdfs.setFilePathPattern("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
+      viewsToHdfs.setFilePath("file:///tmp/adsdemo/views-%(operatorId)-part%(partIndex)");
       dag.setInputPortAttribute(viewsToHdfs.input, PortContext.PARTITION_PARALLEL, true);
       viewsAggStream.addSink(viewsToHdfs.input);
     }

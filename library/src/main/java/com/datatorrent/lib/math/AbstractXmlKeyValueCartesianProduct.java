@@ -24,7 +24,7 @@ import org.w3c.dom.NodeList;
  *
  * @since 1.0.1
  */
-public abstract class AbstractXmlKeyValueCartesianProduct<T,O> extends AbstractXmlCartesianProduct<T,O>
+public abstract class AbstractXmlKeyValueCartesianProduct<T> extends AbstractXmlCartesianProduct<T>
 {
   @Override
   public String getValue(Node node)

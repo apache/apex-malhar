@@ -156,9 +156,9 @@ public class KafkaOperatorTestBase
       args[5] = "1";
     }
     args[6] = "--topic";
-    args[7] = TEST_TOPIC;
+    args[7] = topicName;
     args[8] = "--create";
-    
+
     TopicCommand.main(args);
     //Right now, there is no programmatic synchronized way to create the topic. have to wait 2 sec to make sure the topic is created
     // So the tests will not hit any bizarre failure

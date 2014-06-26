@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.io.fs;
 
-/**
- * Adapter for writing tuples that implements interface <code>com.datatorrent.lib.io.fs.HDFSOutputTupleInterface</code> to HDFS
- * <p>
- * Serializes tuples into a HDFS file.<br/>
- * </p>
- *
- * @since 0.9.4
+/*
+  Demo Application for new Paritionable UniqueCount Operator.
  */
-public abstract class AbstractTupleHDFSOutputOperator<T extends HdfsOutputTupleInterface> extends AbstractHdfsOutputOperator<T>
-{
-  @Override
-  public byte[] getBytesForTuple(T t)
-  {
-    return t.getBytes();
-  }
-}
+package com.datatorrent.demos.uniquecountdemo;

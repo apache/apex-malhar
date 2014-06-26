@@ -16,12 +16,12 @@
 package com.datatorrent.lib.io.jms;
 
 import javax.jms.Connection;
+import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Session;
 import javax.validation.constraints.NotNull;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -355,11 +355,8 @@ public class ActiveMQBase
    */
   public void createConnection() throws JMSException
   {
-    // Create connection
-    ActiveMQConnectionFactory connectionFactory;
-    connectionFactory = new ActiveMQConnectionFactory(user, password, url);
 
-    connection = connectionFactory.createConnection();
+    connection = getConnectionFactory().createConnection();
     if (durable && clientId != null) {
       connection.setClientID(clientId);
     }
@@ -374,6 +371,14 @@ public class ActiveMQBase
                   : session.createQueue(subject);
   }
 
+  /**
+   * Implement connection factory lookup. 
+   */
+  protected ConnectionFactory getConnectionFactory()
+  {
+    return new org.apache.activemq.ActiveMQConnectionFactory(user, password, url);
+  }
+  
   /**
    *  cleanup connection resources.
    */

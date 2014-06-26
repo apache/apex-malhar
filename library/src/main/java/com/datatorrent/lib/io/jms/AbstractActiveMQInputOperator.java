@@ -159,7 +159,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
       setupConnection();
     }
     catch (JMSException ex) {
-      logger.error(ex.getLocalizedMessage());
+      throw new RuntimeException(ex);
     }
   }
 

@@ -16,22 +16,7 @@
 package com.datatorrent.lib.io;
 
 import java.net.URI;
-import java.util.Map;
-
 import javax.validation.constraints.NotNull;
-import javax.ws.rs.core.MediaType;
-
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
-
-import org.codehaus.jettison.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  *
@@ -42,57 +27,18 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  *
  * @param <T>
  * @since 0.3.2
+ * @deprecated
  */
-@ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
-public class HttpOutputOperator<T> extends BaseOperator
+@Deprecated
+public class HttpOutputOperator<T> extends HttpPostOutputOperator<T>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(HttpOutputOperator.class);
-
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
-  {
-    @Override
-    public void process(T t)
-    {
-      if (t instanceof Map) {
-        resource.type(MediaType.APPLICATION_JSON).post(new JSONObject((Map<?, ?>)t).toString());
-      }
-      else {
-        resource.post(t.toString());
-      }
-    }
-  };
-
-  /**
-   * The URL of the web service resource for the POST request.
-   */
-  @NotNull
-  private URI resourceUrl;
-  private transient Client wsClient;
-  private transient WebResource resource;
-
+  @Deprecated
   public void setResourceURL(URI url)
   {
     if (!url.isAbsolute()) {
       throw new IllegalArgumentException("URL is not absolute: " + url);
     }
-    this.resourceUrl = url;
+    this.url = url.toString();
   }
 
-  @Override
-  public void setup(OperatorContext context)
-  {
-    wsClient = Client.create();
-    wsClient.setFollowRedirects(true);
-    resource = wsClient.resource(resourceUrl); // side step "not absolute URL" after serialization
-    LOG.info("URL: {}", resourceUrl);
-  }
-
-  @Override
-  public void teardown()
-  {
-    if (wsClient != null) {
-      wsClient.destroy();
-    }
-    super.teardown();
-  }
 }

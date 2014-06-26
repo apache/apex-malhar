@@ -22,7 +22,7 @@ import org.apache.commons.lang.text.StrSubstitutor;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.fs.AbstractHdfsOutputOperator;
+import com.datatorrent.lib.io.fs.AbstractHdfsRollingFileOutputOperator;
 
 /**
  * Adapter for writing HashMap to HDFS
@@ -32,7 +32,7 @@ import com.datatorrent.lib.io.fs.AbstractHdfsOutputOperator;
  *
  * @since 0.9.4
  */
-public class HdfsHashMapOutputOperator extends AbstractHdfsOutputOperator<HashMap<Object, Object>>
+public class HdfsHashMapOutputOperator extends AbstractHdfsRollingFileOutputOperator<HashMap<Object, Object>>
 {
 
   /**
@@ -55,7 +55,7 @@ public class HdfsHashMapOutputOperator extends AbstractHdfsOutputOperator<HashMa
     params.put(FNAME_SUB_OPERATOR_ID, Integer.toString(operatorId));
     StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
     index++;
-    return new Path(sub.replace(getFilePathPattern().toString()));
+    return new Path(sub.replace(getFilePath().toString()));
   }
 
   @Override

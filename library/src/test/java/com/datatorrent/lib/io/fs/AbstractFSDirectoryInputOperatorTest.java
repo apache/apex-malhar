@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -164,14 +165,23 @@ public class AbstractFSDirectoryInputOperatorTest
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
 
+    Path path = new Path(new File(testMeta.dir).getAbsolutePath());
+    FileContext.getLocalFSFileContext().delete(path, true);
+    for (int file=0; file<4; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00"+file), "");
+    }
+
     List<Partition<AbstractFSDirectoryInputOperator<String>>> partitions = Lists.newArrayList();
     partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
-    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = oper.definePartitions(partitions, 2);
-    Assert.assertEquals(3, newPartitions.size());
+    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = oper.definePartitions(partitions, 1);
+    Assert.assertEquals(2, newPartitions.size());
 
     for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
       Assert.assertNotSame(oper, p.getPartitionedInstance());
       Assert.assertNotSame(oper.getScanner(), p.getPartitionedInstance().getScanner());
+      Set<String> consumed = Sets.newHashSet();
+      LinkedHashSet<Path> files = p.getPartitionedInstance().getScanner().scan(FileSystem.getLocal(new Configuration(false)), path, consumed);
+      Assert.assertEquals("partition " + files, 2, files.size());
     }
 
   }

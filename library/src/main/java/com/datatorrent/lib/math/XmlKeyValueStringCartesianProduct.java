@@ -15,10 +15,11 @@
  */
 package com.datatorrent.lib.math;
 
-import org.xml.sax.SAXException;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import org.xml.sax.InputSource;
 
-import javax.xml.xpath.XPathExpressionException;
-import java.io.IOException;
+import java.io.StringReader;
 import java.util.List;
 
 /**
@@ -27,22 +28,26 @@ import java.util.List;
  *
  * @since 1.0.1
  */
-public class XmlKeyValueStringCartesianProduct extends AbstractXmlKeyValueCartesianProduct<String, String>
+public class XmlKeyValueStringCartesianProduct extends AbstractXmlKeyValueCartesianProduct<String>
 {
+
+  InputSource source = new InputSource();
+
+  @OutputPortFieldAnnotation(name = "output")
+  public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
+
   @Override
-  protected void processTuple(String tuple)
+  protected InputSource getInputSource(String tuple)
   {
-    try {
-      List<String> result = processXml(tuple);
-      for (String str : result) {
-        output.emit(str);
-      }
-    } catch (XPathExpressionException e) {
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    } catch (SAXException e) {
-      throw new RuntimeException(e);
+    source.setCharacterStream(new StringReader(tuple));
+    return source;
+  }
+
+  @Override
+  protected void processResult(List<String> result, String tuple)
+  {
+    for (String str : result) {
+      output.emit(str);
     }
   }
 }
