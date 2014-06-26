@@ -15,11 +15,15 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import java.io.IOException;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.client.*;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.client.HBaseAdmin;
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.util.Bytes;
+
+import java.io.IOException;
 
 /**
  * This class implements a persistence strategy that stores the state parameters in columns
@@ -33,6 +37,7 @@ import org.apache.hadoop.hbase.util.Bytes;
  *
  * @since 0.3.2
  */
+@Deprecated
 public class HBaseRowStatePersistence extends HBaseBaseStatePersistence
 {
 

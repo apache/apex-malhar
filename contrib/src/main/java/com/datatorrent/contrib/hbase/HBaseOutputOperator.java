@@ -15,18 +15,19 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * The base class for HBase output operators. <br>
@@ -44,6 +45,7 @@ import org.slf4j.LoggerFactory;
  * @param <T> The tuple type
  * @since 0.3.2
  */
+@Deprecated
 public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implements Operator {
 
   private static final transient Logger logger = LoggerFactory.getLogger(HBaseOutputOperator.class);

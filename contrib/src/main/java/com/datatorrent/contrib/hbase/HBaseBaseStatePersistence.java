@@ -15,13 +15,13 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import java.io.IOException;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Get;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.util.Bytes;
+
+import java.io.IOException;
 
 /**
  * The abstract class implements a persistence strategy that uses application specified
@@ -38,6 +38,7 @@ import org.apache.hadoop.hbase.util.Bytes;
  *
  * @since 0.3.2
  */
+@Deprecated
 public abstract class HBaseBaseStatePersistence implements HBaseStatePersistenceStrategy
 {
 

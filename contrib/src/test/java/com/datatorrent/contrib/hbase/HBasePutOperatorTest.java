@@ -15,9 +15,6 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.contrib.hbase.HBasePutOperator;
-import com.datatorrent.contrib.hbase.HBaseRowStatePersistence;
-import com.datatorrent.contrib.hbase.HBaseStatePersistenceStrategy;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import junit.framework.Assert;
@@ -29,6 +26,7 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
+@Deprecated
 public class HBasePutOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(HBasePutOperatorTest.class);
