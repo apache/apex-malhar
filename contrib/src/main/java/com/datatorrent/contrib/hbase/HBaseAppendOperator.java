@@ -15,8 +15,9 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import java.io.IOException;
 import org.apache.hadoop.hbase.client.Append;
+
+import java.io.IOException;
 
 /**
  * Operator for storing tuples in HBase columns.<br>
@@ -32,6 +33,7 @@ import org.apache.hadoop.hbase.client.Append;
  * @param <T> The tuple type
  * @since 0.3.2
  */
+@Deprecated
 public abstract class HBaseAppendOperator<T> extends HBaseOutputOperator<T>
 {
 

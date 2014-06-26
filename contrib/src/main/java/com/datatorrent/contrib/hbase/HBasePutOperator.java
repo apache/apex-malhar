@@ -15,10 +15,10 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import java.io.IOException;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
+
+import java.io.IOException;
 
 /**
  * Operator for storing tuples in HBase rows.<br>
@@ -34,6 +34,7 @@ import org.apache.hadoop.hbase.client.Result;
  * @param <T> The tuple type
  * @since 0.3.2
  */
+@Deprecated
 public abstract class HBasePutOperator<T> extends HBaseOutputOperator<T>
 {
 
