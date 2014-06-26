@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,28 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hb;
+package com.datatorrent.contrib.hbase;
 
-import java.io.IOException;
-import java.io.InterruptedIOException;
-
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.db.TransactionableStore;
 import org.apache.hadoop.hbase.HColumnDescriptor;
 import org.apache.hadoop.hbase.HTableDescriptor;
 import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.HBaseAdmin;
-import org.apache.hadoop.hbase.client.Put;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
+import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.TransactionableStore;
+import java.io.IOException;
+import java.io.InterruptedIOException;
 /**
  * <p>HBaseTransactionalStore class.</p>
- *
+ * Note that since HBase doesn't support transactions this store cannot guarantee each tuple is written only once to
+ * HBase in case the operator is restarted from an earlier checkpoint. It only tries to minimize the number of
+ * duplicates limiting it to the tuples that were processed in the window when the operator shutdown.
  */
 public class HBaseTransactionalStore extends HBaseStore implements
 		TransactionableStore {

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hb;
+package com.datatorrent.contrib.hbase;
 
-import java.io.IOException;
-
+import com.datatorrent.lib.db.Connectable;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 
-import com.datatorrent.lib.db.Connectable;
+import java.io.IOException;
 /**
  * A {@link Connectable} that uses hbase to connect to stores.
  *

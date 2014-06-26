@@ -1,4 +1,3 @@
-
 /*
  * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
  *
@@ -14,54 +13,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hb;
+package com.datatorrent.contrib.hbase;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
 import junit.framework.Assert;
-
-import org.apache.hadoop.hbase.client.Append;
+import org.apache.hadoop.hbase.client.Put;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.hbase.HBaseColTupleGenerator;
-import com.datatorrent.contrib.hbase.HBaseTestHelper;
-import com.datatorrent.contrib.hbase.HBaseTuple;
+import java.io.IOException;
 
 /**
- * Test for transactional append operator
+ *
  */
-public class HBAppendOperatorTest {
+public class HBaseTransactionalPutOperatorTest {
 	private static final Logger logger = LoggerFactory
-			.getLogger(HBAppendOperatorTest.class);
+			.getLogger(HBaseTransactionalPutOperatorTest.class);
 
-	public HBAppendOperatorTest() {
+	public HBaseTransactionalPutOperatorTest() {
 	}
 
 	@Test
-	public void testAppend() {
+	public void testPut() {
 		try {
+      HBaseTestHelper.startLocalCluster();
 			HBaseTestHelper.clearHBase();
 			LocalMode lma = LocalMode.newInstance();
 			DAG dag = lma.getDAG();
 
-			dag.setAttribute(DAG.APPLICATION_NAME, "HBaseAppendOperatorTest");
-			HBaseColTupleGenerator ctg = dag.addOperator("coltuplegenerator",
-					HBaseColTupleGenerator.class);
-			TestHBaseAppendOperator thop = dag.addOperator("testhbaseput",
-					TestHBaseAppendOperator.class);
-			dag.addStream("ss", ctg.outputPort, thop.input);
+			dag.setAttribute(DAG.APPLICATION_NAME, "HBasePutOperatorTest");
+			HBaseRowTupleGenerator rtg = dag.addOperator("tuplegenerator",
+					HBaseRowTupleGenerator.class);
+			TestHBasePutOperator thop = dag.addOperator("testhbaseput",
+					TestHBasePutOperator.class);
+			dag.addStream("ss", rtg.outputPort, thop.input);
 
 			thop.getStore().setTableName("table1");
 			thop.getStore().setZookeeperQuorum("127.0.0.1");
 			thop.getStore().setZookeeperClientPort(2181);
 
-			final LocalMode.Controller lc = lma.getController();
+			LocalMode.Controller lc = lma.getController();
 			lc.setHeartbeatMonitoringEnabled(false);
 			lc.run(30000);
 
-			
 			HBaseTuple tuple = HBaseTestHelper.getHBaseTuple("row0", "colfam0",
 					"col-0");
 			Assert.assertNotNull("Tuple", tuple);
@@ -72,31 +68,32 @@ public class HBAppendOperatorTest {
 					"col-0");
 			Assert.assertEquals("Tuple column value", tuple.getColValue(),
 					"val-0-0");
-			tuple = HBaseTestHelper.getHBaseTuple("row0", "colfam0", "col-499");
+			tuple = HBaseTestHelper.getHBaseTuple("row499", "colfam0", "col-0");
 			Assert.assertNotNull("Tuple", tuple);
-			Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
+			Assert.assertEquals("Tuple row", tuple.getRow(), "row499");
 			Assert.assertEquals("Tuple column family", tuple.getColFamily(),
 					"colfam0");
 			Assert.assertEquals("Tuple column name", tuple.getColName(),
-					"col-499");
+					"col-0");
 			Assert.assertEquals("Tuple column value", tuple.getColValue(),
-					"val-0-499");
+					"val-499-0");
 		} catch (Exception ex) {
+			ex.printStackTrace();
 			logger.error(ex.getMessage());
 			assert false;
 		}
 	}
 
 	@SuppressWarnings("serial")
-	public static class TestHBaseAppendOperator extends
-			AbstractHBaseTransactionalAppendOutputOperator<HBaseTuple> {
+	public static class TestHBasePutOperator extends
+			AbstractHBaseTransactionalPutOutputOperator<HBaseTuple> {
 
 		@Override
-		public Append operationAppend(HBaseTuple t) {
-			Append append = new Append(t.getRow().getBytes());
-			append.add(t.getColFamily().getBytes(), t.getColName().getBytes(),
-					t.getColValue().getBytes());
-			return append;
+		public Put operationPut(HBaseTuple t) throws IOException {
+			Put put = new Put(t.getRow().getBytes());
+			put.add(t.getColFamily().getBytes(), t.getColName().getBytes(), t
+					.getColValue().getBytes());
+			return put;
 		}
 
 	}

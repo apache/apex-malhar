@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,19 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hb;
+package com.datatorrent.contrib.hbase;
+
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
+import org.apache.hadoop.hbase.client.Append;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import org.apache.hadoop.hbase.client.Append;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 /**
  * Operator for storing tuples in HBase columns.<br>
@@ -38,8 +37,12 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * for the tuple in the table.<br>
  * 
  * <br>
- * This class provides transactional append where tuples are collected till the
+ * This class provides batch append where tuples are collected till the
  * end window and they are appended on end window
+ *
+ * Note that since HBase doesn't support transactions this store cannot guarantee each tuple is written only once to
+ * HBase in case the operator is restarted from an earlier checkpoint. It only tries to minimize the number of
+ * duplicates limiting it to the tuples that were processed in the window when the operator shutdown.
  * 
  * @param <T> The tuple type
  */

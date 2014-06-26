@@ -15,22 +15,18 @@
  */
 package com.datatorrent.contrib.hbase;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
 import junit.framework.Assert;
-
 import org.apache.hadoop.hbase.client.Append;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.contrib.hbase.HBaseAppendOperator;
-import com.datatorrent.contrib.hbase.HBaseRowStatePersistence;
-import com.datatorrent.contrib.hbase.HBaseStatePersistenceStrategy;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
-
 /**
  *
  */
+@Deprecated
 public class HBaseAppendOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(HBasePutOperatorTest.class);

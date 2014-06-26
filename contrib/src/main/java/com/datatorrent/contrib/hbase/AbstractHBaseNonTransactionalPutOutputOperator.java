@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hb;
+package com.datatorrent.contrib.hbase;
 
-import java.io.InterruptedIOException;
-
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
+import java.io.InterruptedIOException;
 /**
  * Operator for storing tuples in HBase rows.<br>
  *

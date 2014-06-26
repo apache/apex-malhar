@@ -15,8 +15,9 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import java.io.IOException;
 import org.apache.hadoop.hbase.client.HTable;
+
+import java.io.IOException;
 
 /**
  * Interface for persistence strategy.<br>
@@ -35,6 +36,7 @@ import org.apache.hadoop.hbase.client.HTable;
  *
  * @since 0.3.2
  */
+@Deprecated
 public interface HBaseStatePersistenceStrategy
 {
   /**
