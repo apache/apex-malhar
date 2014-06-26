@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,14 +15,9 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import java.io.IOException;
-import java.io.StringReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.validation.constraints.NotNull;
-
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.util.ReusableStringReader;
 import org.apache.hadoop.hbase.client.Put;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,9 +25,12 @@ import org.supercsv.io.CsvListReader;
 import org.supercsv.io.ICsvListReader;
 import org.supercsv.prefs.CsvPreference;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.util.ReusableStringReader;
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * accepts a string of key value pairs containing the data to be inserted.These

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,8 +30,9 @@ public class HBaseNameValueCsvPutOperatorTest {
 			.getLogger(HBaseNameValueCsvPutOperatorTest.class);
 
 	@Test
-	public void testPut() {
+	public void testPut() throws Exception {
 		try {
+      HBaseTestHelper.startLocalCluster();
 			HBaseTestHelper.clearHBase();
 			HBaseNameValueCsvPutOperator propPutOperator = new HBaseNameValueCsvPutOperator();
 

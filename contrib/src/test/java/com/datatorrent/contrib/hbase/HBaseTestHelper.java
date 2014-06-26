@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,7 +53,7 @@ public class HBaseTestHelper
     ZooKeeperServer zooKeeper = new ZooKeeperServer(zooFile, zooFile, 2000);
 
     NIOServerCnxnFactory serverFactory = new NIOServerCnxnFactory();
-    serverFactory.configure(new InetSocketAddress(2182),10);
+    serverFactory.configure(new InetSocketAddress(2181),10);
     serverFactory.startup(zooKeeper);
   }
 
