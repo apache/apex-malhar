@@ -21,7 +21,7 @@ import com.datatorrent.common.util.Slice;
  */
 public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
 {
-  protected final transient Kryo kryo;
+  protected final Kryo kryo;
 
   public KryoSerializableStreamCodec()
   {
