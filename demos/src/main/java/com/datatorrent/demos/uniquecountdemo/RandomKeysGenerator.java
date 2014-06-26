@@ -31,7 +31,7 @@ public class RandomKeysGenerator implements InputOperator
 {
 
   protected int numKeys = 100;
-  protected int tuppleBlast = 15000;
+  protected int tupleBlast = 15000;
   protected long sleepTime = 0;
   protected Map<Integer, MutableInt> history = new HashMap<Integer, MutableInt>();
   private Random random = new Random();
@@ -48,7 +48,7 @@ public class RandomKeysGenerator implements InputOperator
   @Override
   public void emitTuples()
   {
-    for (int i = 0; i < tuppleBlast; i++) {
+    for (int i = 0; i < tupleBlast; i++) {
       int key = random.nextInt(numKeys);
       outPort.emit(key);
 
@@ -119,14 +119,14 @@ public class RandomKeysGenerator implements InputOperator
     this.numKeys = numKeys;
   }
 
-  public int getTuppleBlast()
+  public int getTupleBlast()
   {
-    return tuppleBlast;
+    return tupleBlast;
   }
 
-  public void setTuppleBlast(int tuppleBlast)
+  public void setTupleBlast(int tupleBlast)
   {
-    this.tuppleBlast = tuppleBlast;
+    this.tupleBlast = tupleBlast;
   }
 
   public long getSleepTime()

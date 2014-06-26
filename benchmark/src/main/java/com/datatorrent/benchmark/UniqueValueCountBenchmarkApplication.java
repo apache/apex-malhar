@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.uniquecountdemo;
+package com.datatorrent.benchmark;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
@@ -22,19 +22,18 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.PartitionableUniqueCount;
 import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.stream.StreamDuplicater;
-import com.datatorrent.lib.util.KeyHashValPair;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
  * Application to demonstrate PartitionableUniqueCount operator. <br>
  * The input operator generate random keys, which is sent to
- * PartitionableUniqueCount operator initially partitaioned into three partitions to
+ * PartitionableUniqueCount operator initially partitioned into three partitions to
  * test unifier functionality, and output of the operator is sent to verifier to verify
  * that it generates correct result.
  */
-@ApplicationAnnotation(name="UniqueValueBenchmark")
-public class BenchmarkApp implements StreamingApplication
+@ApplicationAnnotation(name="UniqueCountBenchmark")
+public class UniqueValueCountBenchmarkApplication implements StreamingApplication
 {
 
   @Override
@@ -46,9 +45,9 @@ public class BenchmarkApp implements StreamingApplication
 
 
         /* Generate random key-value pairs */
-    RandKeyGen randGen = dag.addOperator("randomgen", new RandKeyGen());
-    randGen.setNumKeys(1000000);
-    randGen.setSleepTime(50);
+    RandomEventGenerator randGen = dag.addOperator("randomgen", new RandomEventGenerator());
+    randGen.setMaxvalue(999999);
+    randGen.setTuplesBlastIntervalMillis(50);
     dag.setAttribute(randGen, Context.OperatorContext.INITIAL_PARTITION_COUNT, 3);
 
         /* Initialize with three partition to start with */
@@ -61,7 +60,7 @@ public class BenchmarkApp implements StreamingApplication
     UniqueCounterValue counter = dag.addOperator("count", new UniqueCounterValue());
     ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
 
-    dag.addStream("datain", randGen.outPort, uniqCount.data);
+    dag.addStream("datain", randGen.integer_data, uniqCount.data);
     dag.addStream("consoutput", uniqCount.count, counter.data);
     dag.addStream("final", counter.count, output.input);
   }

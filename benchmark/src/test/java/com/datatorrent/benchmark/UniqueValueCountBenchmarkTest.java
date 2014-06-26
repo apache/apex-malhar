@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.uniquecountdemo;
+package com.datatorrent.benchmark;
 
 import com.datatorrent.api.LocalMode;
 import org.apache.hadoop.conf.Configuration;
@@ -22,13 +22,13 @@ import org.junit.Test;
 /**
  * Test the DAG declaration in local mode.
  */
-public class UniqueCountBenchmark
+public class UniqueValueCountBenchmarkTest
 {
   @Test
   public void testApplication() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    new BenchmarkApp().populateDAG(lma.getDAG(), new Configuration(false));
+    new UniqueValueCountBenchmarkApplication().populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
     lc.run(10000);
   }

@@ -18,20 +18,19 @@ package com.datatorrent.demos.uniquecountdemo;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.PartitionableUniqueCount;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.util.KeyValPair;
 import org.apache.hadoop.conf.Configuration;
 
+@ApplicationAnnotation(name="UniqueKeyValueCountDemo")
 public class UniqueKeyValCountDemo implements StreamingApplication
 {
 
   @Override
   public void populateDAG(DAG dag, Configuration entries)
   {
-    dag.setAttribute(dag.APPLICATION_NAME, "UniqueValueCountDemo");
-    dag.setAttribute(dag.DEBUG, true);
-
         /* Generate random key-value pairs */
     RandomDataGenerator randGen = dag.addOperator("randomgen", new RandomDataGenerator());
 

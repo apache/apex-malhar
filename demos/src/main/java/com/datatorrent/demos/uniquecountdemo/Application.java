@@ -29,7 +29,7 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Application to demonstrate PartitionableUniqueCount operator. <br>
  * The input operator generate random keys, which is sent to
- * PartitionableUniqueCount operator initially partitaioned into three partitions to
+ * PartitionableUniqueCount operator initially partitioned into three partitions to
  * test unifier functionality, and output of the operator is sent to verifier to verify
  * that it generates correct result.
  */
@@ -40,11 +40,6 @@ public class Application implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration entries)
   {
-
-    dag.setAttribute(dag.APPLICATION_NAME, "UniqueValueCountDemo");
-    dag.setAttribute(dag.DEBUG, true);
-
-
         /* Generate random key-value pairs */
     RandomKeysGenerator randGen = dag.addOperator("randomgen", new RandomKeysGenerator());
 
@@ -60,6 +55,11 @@ public class Application implements StreamingApplication
     StreamDuplicater<KeyHashValPair<Integer, Integer>> dup = dag.addOperator("dup", new StreamDuplicater<KeyHashValPair<Integer, Integer>>());
     ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
 
+    ConsoleOutputOperator successOutput = dag.addOperator("successoutput", new ConsoleOutputOperator());
+    successOutput.setStringFormat("Success %d");
+    ConsoleOutputOperator failureOutput = dag.addOperator("failureoutput", new ConsoleOutputOperator());
+    failureOutput.setStringFormat("Failure %d");
+
     // success and failure counters.
     UniqueCounterValue<Integer> successcounter = dag.addOperator("successcounter", new UniqueCounterValue<Integer>());
     UniqueCounterValue<Integer> failurecounter = dag.addOperator("failurecounter", new UniqueCounterValue<Integer>());
@@ -71,5 +71,7 @@ public class Application implements StreamingApplication
     dag.addStream("dataverification1", dup.out2, verifier.in2);
     dag.addStream("successc", verifier.successPort, successcounter.data);
     dag.addStream("failurec", verifier.failurePort, failurecounter.data);
+    dag.addStream("succconsoutput", successcounter.count, successOutput.input);
+    dag.addStream("failconsoutput", failurecounter.count, failureOutput.input);
   }
 }
