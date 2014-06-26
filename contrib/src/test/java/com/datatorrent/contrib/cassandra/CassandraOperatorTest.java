@@ -1,23 +1,34 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.contrib.cassandra;
 
-
-import java.util.List;
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.DriverException;
-import javax.annotation.Nonnull;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import com.google.common.collect.Lists;
 import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.DAG;
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.contrib.cassandra.AbstractCassandraInputOperator;
-import com.datatorrent.contrib.cassandra.AbstractCassandraTransactionableOutputOperator;
-import com.datatorrent.contrib.cassandra.CassandraStore;
-import com.datatorrent.contrib.cassandra.CassandraTransactionalStore;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.google.common.collect.Lists;
+import org.junit.Assert;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import javax.annotation.Nonnull;
+import java.util.List;
 
 /**
  * Tests for {@link AbstractCassandraTransactionableOutputOperator} and {@link AbstractCassandraInputOperator}

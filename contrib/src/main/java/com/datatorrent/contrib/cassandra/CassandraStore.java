@@ -15,17 +15,16 @@
  */
 
 package com.datatorrent.contrib.cassandra;
+
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.DriverException;
-
-import javax.validation.constraints.NotNull;
-
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.db.Connectable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.Connectable;
+import javax.validation.constraints.NotNull;
 
 /**
  * A {@link Connectable} that uses cassandra to connect to stores.

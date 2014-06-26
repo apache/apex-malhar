@@ -16,11 +16,12 @@
 
 package com.datatorrent.contrib.cassandra;
 
-import javax.annotation.Nonnull;
 import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Statement;
-import com.datastax.driver.core.exceptions.*;
+import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.api.Context;
+
+import javax.annotation.Nonnull;
 
 
 /**
@@ -66,8 +67,8 @@ public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extend
 	/**
 	 * Sets the parameter of the insert/update statement with values from the tuple.
 	 *
-	 * @param statement update statement which was returned by {@link #getUpdateCommand()}
 	 * @param tuple     tuple
+   * @return statement The statement to execute
 	 * @throws DriverException
 	 */
 	protected abstract Statement setStatementParameters(PreparedStatement updateCommand, T tuple) throws DriverException;

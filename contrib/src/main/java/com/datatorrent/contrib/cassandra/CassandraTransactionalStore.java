@@ -15,21 +15,18 @@
  */
 
 package com.datatorrent.contrib.cassandra;
-import javax.annotation.Nonnull;
 
-import com.datastax.driver.core.BoundStatement;
-import com.datastax.driver.core.PreparedStatement;
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Statement;
+import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.DriverException;
-
 import com.datatorrent.lib.db.TransactionableStore;
+
+import javax.annotation.Nonnull;
 
 /**
  * <p>CassandraTransactionalStore class which inherits CassandraStore class and provides transaction support to the operators.</p>
  *
  */
-public class CassandraTransactionalStore extends CassandraStore implements TransactionableStore{
+public class CassandraTransactionalStore extends CassandraStore implements TransactionableStore {
 
 	public static String DEFAULT_APP_ID_COL = "dt_app_id";
 	public static String DEFAULT_OPERATOR_ID_COL = "dt_operator_id";
@@ -54,6 +51,8 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 	private transient Statement lastWindowUpdateStatement;
 	private transient Statement lastWindowDeleteStatement;
 
+  protected transient BatchStatement batchCommand;
+
 	public CassandraTransactionalStore()
 	{
 		super();
@@ -61,6 +60,7 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 		metaTableAppIdColumn = DEFAULT_APP_ID_COL;
 		metaTableOperatorIdColumn = DEFAULT_OPERATOR_ID_COL;
 		metaTableWindowColumn = DEFAULT_WINDOW_COL;
+    batchCommand = new BatchStatement();
 		inTransaction = false;
 	}
 
@@ -112,7 +112,12 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 		return lastWindowUpdateStatement;
 	}
 
-	@Override
+  public BatchStatement getBatchCommand()
+  {
+    return batchCommand;
+  }
+
+  @Override
 	public void connect()
 	{
 		super.connect();
@@ -164,12 +169,15 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 	@Override
 	public void commitTransaction()
 	{
-		inTransaction = false;
+    session.execute(batchCommand);
+    batchCommand.clear();
+    inTransaction = false;
 	}
 
 	@Override
 	public void rollbackTransaction()
 	{
+    batchCommand.clear();
 		inTransaction = false;
 	}
 
@@ -204,6 +212,7 @@ public class CassandraTransactionalStore extends CassandraStore implements Trans
 		try {
 			BoundStatement boundStatement = new BoundStatement(lastWindowUpdateCommand);
 			lastWindowUpdateStatement = boundStatement.bind(windowId,appId,operatorId);
+      batchCommand.add(lastWindowUpdateStatement);
 		}
 		catch (DriverException e) {
 			throw new RuntimeException(e);

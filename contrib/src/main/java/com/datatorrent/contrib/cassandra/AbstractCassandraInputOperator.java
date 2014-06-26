@@ -17,17 +17,14 @@
 package com.datatorrent.contrib.cassandra;
 
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
-import com.datastax.driver.core.exceptions.*;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
-
+import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Base Cassandra input adapter operator, which reads data from persistence database through DATASTAX API
@@ -80,21 +77,9 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
 				outputPort.emit(tuple);
 			}
 		}
-		catch (NoHostAvailableException ex) {
+		catch (Exception ex) {
 			store.disconnect();
-			throw new RuntimeException(String.format("Error while running query: %s", query), ex);
-		}
-		catch (QueryExecutionException ex) {
-			store.disconnect();
-			throw new RuntimeException(String.format("Error while running query: %s", query), ex);
-		}
-		catch (QueryValidationException ex) {
-			store.disconnect();
-			throw new RuntimeException(String.format("Error while running query: %s", query), ex);
-		}
-		catch(DriverException ex){
-			store.disconnect();
-			throw new RuntimeException(String.format("Error while running query: %s", query), ex);
+      DTThrowable.rethrow(ex);
 		}
 	}
 
