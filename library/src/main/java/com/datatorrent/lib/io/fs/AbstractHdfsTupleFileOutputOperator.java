@@ -15,15 +15,14 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.IOException;
-
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import java.io.IOException;
 
 /**
  * Hdfs file output operator that writes the data from the tuple to the file supplied in the tuple.
@@ -32,6 +31,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * @param <INPUT> type of incoming tuple
  * @param <OUTPUT> type of outgoing tuple
  */
+@Deprecated
 public abstract class AbstractHdfsTupleFileOutputOperator<INPUT, OUTPUT> extends AbstractHdfsFileOutputOperator<INPUT>
 {
   /**

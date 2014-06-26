@@ -15,18 +15,17 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.*;
-import java.util.Calendar;
-
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.fs.HdfsFileDataOutputOperator.FileData;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.fs.HdfsFileDataOutputOperator.FileData;
+import java.io.*;
 
 /**
  * Functional test for {@link HdfsFileDataOutputOperator}
  */
+@Deprecated
 public class HdfsFileDataOutputOperatorTest
 {
   @Test

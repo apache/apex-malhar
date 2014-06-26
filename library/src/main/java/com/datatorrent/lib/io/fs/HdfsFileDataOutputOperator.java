@@ -15,14 +15,13 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.util.Date;
-
 import com.datatorrent.lib.io.fs.HdfsFileDataOutputOperator.FileData;
 import com.datatorrent.lib.io.fs.HdfsFileDataOutputOperator.FileData.FileInfo;
 
 /**
  * Hdfs output operator that takes {@link FileData} input tuple and writes data to the file specified in the tuple.
  */
+@Deprecated
 public class HdfsFileDataOutputOperator extends AbstractHdfsTupleFileOutputOperator<FileData, FileData.FileInfo>
 {
   @Override
