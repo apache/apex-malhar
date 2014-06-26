@@ -15,25 +15,19 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import java.io.File;
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.net.InetSocketAddress;
-import java.util.List;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.hbase.EmptyWatcher;
-import org.apache.hadoop.hbase.HBaseConfiguration;
-import org.apache.hadoop.hbase.HColumnDescriptor;
-import org.apache.hadoop.hbase.HTableDescriptor;
-import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.LocalHBaseCluster;
+import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
-import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.server.NIOServerCnxn;
 import org.apache.zookeeper.server.NIOServerCnxnFactory;
-//import org.apache.zookeeper.server.NIOServerCnxnFactory;
 import org.apache.zookeeper.server.ZooKeeperServer;
+
+import java.io.File;
+import java.io.IOException;
+import java.net.InetSocketAddress;
+import java.util.List;
+
+//import org.apache.hadoop.hbase.EmptyWatcher;
 
 /**
  *
@@ -148,3 +142,4 @@ public class HBaseTestHelper
   }
 
 }
+
