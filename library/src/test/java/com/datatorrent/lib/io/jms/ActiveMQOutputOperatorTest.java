@@ -18,9 +18,12 @@ package com.datatorrent.lib.io.jms;
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.util.ActiveMQMessageListener;
+
 import javax.jms.JMSException;
 import javax.jms.Message;
+
 import junit.framework.Assert;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +57,7 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
         msg = getSession().createTextMessage(tuple.toString());
       }
       catch (JMSException ex) {
-        logger.debug(ex.getLocalizedMessage());
+        throw new RuntimeException("Failed to create message.", ex);
       }
 
       return msg;
@@ -75,12 +78,7 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
   {
     // Setup a message listener to receive the message
     final ActiveMQMessageListener listener = new ActiveMQMessageListener();
-    try {
-      listener.setupConnection();
-    }
-    catch (JMSException ex) {
-      logger.debug(ex.getLocalizedMessage());
-    }
+    listener.setupConnection();
     listener.run();
 
     // Malhar module to send message
@@ -139,13 +137,8 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
   {
     // Setup a message listener to receive the message
     final ActiveMQMessageListener listener = new ActiveMQMessageListener();
-    try {
-      listener.setTopic(true);
-      listener.setupConnection();
-    }
-    catch (JMSException ex) {
-      logger.debug(ex.getLocalizedMessage());
-    }
+    listener.setTopic(true);
+    listener.setupConnection();
     listener.run();
 
     // Create ActiveMQStringSinglePortOutputOperator
@@ -213,7 +206,7 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
           //logger.debug("process message {}", tuple.toString());
         }
         catch (JMSException ex) {
-          logger.debug(ex.getLocalizedMessage());
+          throw new RuntimeException("Failed to create message.", ex);
         }
       }
     };
@@ -229,7 +222,7 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
           //logger.debug("process message {}", tuple.toString());
         }
         catch (JMSException ex) {
-          logger.debug(ex.getLocalizedMessage());
+          throw new RuntimeException("Failed to create message.", ex);
         }
       }
     };
@@ -240,13 +233,8 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
   {
     // Setup a message listener to receive the message
     final ActiveMQMessageListener listener = new ActiveMQMessageListener();
-    try {
-      listener.setMaximumReceiveMessages(0);
-      listener.setupConnection();
-    }
-    catch (JMSException ex) {
-      logger.debug(ex.getLocalizedMessage());
-    }
+    listener.setMaximumReceiveMessages(0);
+    listener.setupConnection();
     listener.run();
 
     // Malhar module to send message
