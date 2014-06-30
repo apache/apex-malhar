@@ -22,7 +22,6 @@ import org.slf4j.LoggerFactory;
 import org.apache.flume.Event;
 
 import com.datatorrent.api.*;
-import com.datatorrent.api.Context.Counters;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.annotation.ShipContainingJars;
@@ -561,7 +560,7 @@ public abstract class AbstractFlumeInputOperator<T>
       final HashMap<Integer, ConnectionStatus> map = partitionedInstanceStatus.get();
       response.repartitionRequired = false;
 
-      Counters lastStat = null;
+      Object lastStat = null;
       List<OperatorStats> lastWindowedStats = stats.getLastWindowedStats();
       for (OperatorStats os : lastWindowedStats) {
         if (os.counters != null) {
@@ -646,7 +645,7 @@ public abstract class AbstractFlumeInputOperator<T>
     private static final long serialVersionUID = 201312241646L;
   }
 
-  public static class ConnectionStatus implements Counters, Serializable
+  public static class ConnectionStatus implements Serializable
   {
     int id;
     String spec;
