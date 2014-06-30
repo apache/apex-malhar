@@ -15,15 +15,16 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.Attribute;
-import com.datatorrent.api.Context.OperatorContext;
+import java.io.IOException;
+
 import junit.framework.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.AttributeMap.Attribute;
+import com.datatorrent.api.Context.OperatorContext;
 
 public class HBaseNameValueCsvPutOperatorTest {
 	private static final Logger logger = LoggerFactory
@@ -61,7 +62,7 @@ public class HBaseNameValueCsvPutOperatorTest {
 				}
 
 				@Override
-				public void setCounters(Counters counters) {
+				public void setCounters(Object counters) {
 					// TODO Auto-generated method stub
 					
 				}
