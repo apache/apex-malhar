@@ -11,4 +11,5 @@ For each bucket, the manager maintain two sub-buckets:
   * non-transient sub-bucket: events which have not been persisted yet.
 
 At the end of every application window the bucket manager writes the non-transient sub-bucket of all the buckets and transfers the data from them to the corresponding transient sub-bucket.
+During recovery the buckets are lazily loaded from the persistent store which also reduces the time in reconstructing the operator's state when it is re-deployed.
 
