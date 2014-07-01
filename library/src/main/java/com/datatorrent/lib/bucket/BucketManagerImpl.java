@@ -107,7 +107,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   private transient final MinMaxPriorityQueue<Bucket<T>> bucketHeap;
   protected transient BucketCounters bucketCounters;
 
-  BucketManagerImpl()
+  public BucketManagerImpl()
   {
     eventQueue = new LinkedBlockingQueue<Long>();
     evictionCandidates = Sets.newHashSet();
