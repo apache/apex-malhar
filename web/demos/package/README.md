@@ -32,7 +32,7 @@ Web Application for DataTorrent Demos:
 
 ## Architecture and Development
 
-See web application source code  [webapps](https://github.com/DataTorrent/Malhar/tree/master/webapps)
+See web application source code  [web demos](https://github.com/DataTorrent/Malhar/tree/master/web/demos)
 
 ## Tips
 
