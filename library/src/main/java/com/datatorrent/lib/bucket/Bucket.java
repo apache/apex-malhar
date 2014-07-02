@@ -53,6 +53,7 @@ public class Bucket<T extends Bucketable>
   private transient long lastUpdateTime;
   private transient boolean isDataOnDiskLoaded;
 
+  @SuppressWarnings("unused")
   private Bucket()
   {
     bucketKey = -1L;

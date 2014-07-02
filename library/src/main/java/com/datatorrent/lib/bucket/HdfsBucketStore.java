@@ -337,7 +337,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       return false;
     }
 
-    HdfsBucketStore that = (HdfsBucketStore) o;
+    HdfsBucketStore<?> that = (HdfsBucketStore<?>) o;
 
     if (noOfBuckets != that.noOfBuckets) {
       return false;
