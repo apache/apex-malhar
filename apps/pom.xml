@@ -20,12 +20,6 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>dt-engine</artifactId>
-      <version>${dt.framework.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
       <type>jar</type>

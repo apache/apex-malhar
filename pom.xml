@@ -41,4 +41,20 @@
     <module>benchmark</module>
     <module>apps</module>
   </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>dt-api</artifactId>
+      <version>${dt.framework.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>dt-engine</artifactId>
+      <version>${dt.framework.version}</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
+
 </project>
