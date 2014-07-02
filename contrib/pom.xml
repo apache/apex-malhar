@@ -53,38 +53,6 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>dt-engine</artifactId>
-      <version>${dt.framework.version}</version>
-      <scope>runtime</scope>
-      <exclusions>
-        <exclusion>
-          <artifactId>jackson-core-asl</artifactId>
-          <groupId>org.codehaus.jackson</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-jaxrs</artifactId>
-          <groupId>org.codehaus.jackson</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-mapper-asl</artifactId>
-          <groupId>org.codehaus.jackson</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jackson-xc</artifactId>
-          <groupId>org.codehaus.jackson</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty</artifactId>
-          <groupId>org.mortbay.jetty</groupId>
-        </exclusion>
-        <exclusion>
-          <artifactId>jetty-util</artifactId>
-          <groupId>org.mortbay.jetty</groupId>
-        </exclusion>
-      </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
       <scope>test</scope>
