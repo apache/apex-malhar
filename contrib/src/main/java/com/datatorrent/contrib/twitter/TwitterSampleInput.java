@@ -222,7 +222,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   {
     this.feedMultiplier = multiplier;
   }
-  
+
   public int getFeedMultiplier()
   {
     return this.feedMultiplier;
@@ -232,7 +232,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   {
     this.feedMultiplierVariance = multiplierVariance;
   }
-  
+
   public int getFeedMultiplierVariance()
   {
     return this.feedMultiplierVariance;
@@ -322,21 +322,11 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   }
 
   @Override
-  @SuppressWarnings({"null", "ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions"})
   public int hashCode()
   {
     int hash = 7;
-    hash = 11 * hash + (this.status != null ? this.status.hashCode() : 0);
-    hash = 11 * hash + (this.text != null ? this.text.hashCode() : 0);
-    hash = 11 * hash + (this.url != null ? this.url.hashCode() : 0);
-    hash = 11 * hash + (this.userMention != null ? this.userMention.hashCode() : 0);
-    hash = 11 * hash + (this.hashtag != null ? this.hashtag.hashCode() : 0);
-    hash = 11 * hash + (this.media != null ? this.media.hashCode() : 0);
     hash = 11 * hash + (this.debug ? 1 : 0);
-    hash = 11 * hash + (this.operatorThread != null ? this.operatorThread.hashCode() : 0);
-    hash = 11 * hash + (this.ts != null ? this.ts.hashCode() : 0);
-    hash = 11 * hash + (this.statuses != null ? this.statuses.hashCode() : 0);
-    hash = 11 * hash + this.count;
     hash = 11 * hash + this.feedMultiplier;
     hash = 11 * hash + this.feedMultiplierVariance;
     hash = 11 * hash + (this.consumerKey != null ? this.consumerKey.hashCode() : 0);
@@ -347,7 +337,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   }
 
   @Override
-  @SuppressWarnings({"null", "ConstantConditions"})
+  @SuppressWarnings({"ConstantConditions"})
   public boolean equals(Object obj)
   {
     if (obj == null) {
@@ -356,38 +346,8 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     if (getClass() != obj.getClass()) {
       return false;
     }
-    final TwitterSampleInput other = (TwitterSampleInput)obj;
-    if (this.status != other.status && (this.status == null || !this.status.equals(other.status))) {
-      return false;
-    }
-    if (this.text != other.text && (this.text == null || !this.text.equals(other.text))) {
-      return false;
-    }
-    if (this.url != other.url && (this.url == null || !this.url.equals(other.url))) {
-      return false;
-    }
-    if (this.userMention != other.userMention && (this.userMention == null || !this.userMention.equals(other.userMention))) {
-      return false;
-    }
-    if (this.hashtag != other.hashtag && (this.hashtag == null || !this.hashtag.equals(other.hashtag))) {
-      return false;
-    }
-    if (this.media != other.media && (this.media == null || !this.media.equals(other.media))) {
-      return false;
-    }
+    final TwitterSampleInput other = (TwitterSampleInput) obj;
     if (this.debug != other.debug) {
-      return false;
-    }
-    if (this.operatorThread != other.operatorThread && (this.operatorThread == null || !this.operatorThread.equals(other.operatorThread))) {
-      return false;
-    }
-    if (this.ts != other.ts && (this.ts == null || !this.ts.equals(other.ts))) {
-      return false;
-    }
-    if (this.statuses != other.statuses && (this.statuses == null || !this.statuses.equals(other.statuses))) {
-      return false;
-    }
-    if (this.count != other.count) {
       return false;
     }
     if (this.feedMultiplier != other.feedMultiplier) {
@@ -414,7 +374,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   @Override
   public String toString()
   {
-    return "TwitterSampleInput{" + "status=" + status + ", text=" + text + ", url=" + url + ", userMention=" + userMention + ", hashtag=" + hashtag + ", media=" + media + ", debug=" + debug + ", operatorThread=" + operatorThread + ", ts=" + ts + ", statuses=" + statuses + ", count=" + count + ", feedMultiplier=" + feedMultiplier + ", feedMultiplierVariance=" + feedMultiplierVariance + ", consumerKey=" + consumerKey + ", consumerSecret=" + consumerSecret + ", accessToken=" + accessToken + ", accessTokenSecret=" + accessTokenSecret + '}';
+    return "TwitterSampleInput{debug=" + debug + ", feedMultiplier=" + feedMultiplier + ", feedMultiplierVariance=" + feedMultiplierVariance + ", consumerKey=" + consumerKey + ", consumerSecret=" + consumerSecret + ", accessToken=" + accessToken + ", accessTokenSecret=" + accessTokenSecret + '}';
   }
 
   private static final Logger logger = LoggerFactory.getLogger(TwitterSampleInput.class);
