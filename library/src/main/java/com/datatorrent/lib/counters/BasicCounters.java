@@ -32,7 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.api.NumberAggregate;
+import com.datatorrent.lib.util.NumberAggregate;
 
 /**
  * Implementation of basic number counters.
