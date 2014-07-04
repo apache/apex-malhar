@@ -47,6 +47,8 @@ import com.datatorrent.api.Partitioner;
  * files and current offset for recovery. The directory scanning logic is pluggable to support custom directory layouts
  * and naming schemes. The default implementation scans a single directory. Supports static partitioning based on the
  * directory scanner.
+ *
+ * @since 1.0.2
  */
 public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperator, Partitioner<AbstractFSDirectoryInputOperator<T>>
 {

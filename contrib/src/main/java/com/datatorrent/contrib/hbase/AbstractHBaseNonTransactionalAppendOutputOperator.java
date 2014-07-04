@@ -25,19 +25,20 @@ import java.io.IOException;
 
 /**
  * Operator for storing tuples in HBase columns.<br>
- * 
+ *
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
  * in columns in a HBase table. It should be extended by the end-operator
  * developer. The extending class should implement operationAppend method and
  * provide a HBase Append metric object that specifies where and what to store
  * for the tuple in the table.<br>
- * 
+ *
  * <br>
  * This class offers non-transactional append where the columns are append as
  * the tuples come in without waiting for the end window
- * 
+ *
  * @param <T> The tuple type
+ * @since 1.0.2
  */
 public abstract class AbstractHBaseNonTransactionalAppendOutputOperator<T>
 		extends AbstractStoreOutputOperator<T, HBaseStore> {

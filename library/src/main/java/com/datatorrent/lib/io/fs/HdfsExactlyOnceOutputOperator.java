@@ -34,6 +34,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * then the operator doesn't process anything during that window. If it doesn't, then the operator deletes
  * the <window_id>.tmp file if it exists, creates new and starts writing to it.
  *
+ * @since 1.0.2
  */
 public class HdfsExactlyOnceOutputOperator extends AbstractHdfsFileOutputOperator<String>
 {

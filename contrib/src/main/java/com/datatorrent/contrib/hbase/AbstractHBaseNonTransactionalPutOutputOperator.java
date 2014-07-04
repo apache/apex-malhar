@@ -35,9 +35,10 @@ import java.io.InterruptedIOException;
  *
  * <br>
  * This class offers non-transactional put where tuples are put as they come in
+ *
  * @param <T> The tuple type
+ * @since 1.0.2
  */
-
 public abstract class AbstractHBaseNonTransactionalPutOutputOperator<T> extends AbstractStoreOutputOperator<T,HBaseStore>{
 	private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBaseNonTransactionalPutOutputOperator.class);
 	public AbstractHBaseNonTransactionalPutOutputOperator(){

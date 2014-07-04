@@ -37,6 +37,8 @@ import com.datatorrent.api.StatsListener;
  * <b>minimumEvents:</b> The minimum throughput below which the operators will be merged</br>
  * <b>cooldownMillis:</b> The time for the operators to stabilize before next partitioning if required</br>
  * <b></b></br>
+ *
+ * @since 1.0.2
  */
 public class ThroughputBasedPartitioner<T extends Operator> implements StatsListener, Partitioner<T>, Serializable
 {

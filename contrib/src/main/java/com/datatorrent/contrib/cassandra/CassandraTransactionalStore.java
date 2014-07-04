@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
 /**
  * <p>CassandraTransactionalStore class which inherits CassandraStore class and provides transaction support to the operators.</p>
  *
+ * @since 1.0.2
  */
 public class CassandraTransactionalStore extends CassandraStore implements TransactionableStore {
 

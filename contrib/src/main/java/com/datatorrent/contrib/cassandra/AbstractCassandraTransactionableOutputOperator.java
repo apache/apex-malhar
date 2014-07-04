@@ -40,6 +40,7 @@ import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
  * </p>
  *
  * @param <T>type of tuple</T>
+ * @since 1.0.2
  */
 public abstract class AbstractCassandraTransactionableOutputOperator<T> extends AbstractBatchTransactionableStoreOutputOperator<T, CassandraTransactionalStore> {
 

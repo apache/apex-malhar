@@ -36,9 +36,9 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 /**
  * An application which connects to Twitter Sample Input and stores all the
  * tweets with their usernames in a hbase database. Please review the docs
- * for TwitterTopCounterApplication to setup your twitter credentials. 
+ * for TwitterTopCounterApplication to setup your twitter credentials.
  *
- * You need to create the HBase table to run this demo. Table name can be 
+ * You need to create the HBase table to run this demo. Table name can be
  * configured but columnfamily must be 'cf' to make this demo simple and complied
  * with the mysql based demo.
  * create 'tablename', 'cf'

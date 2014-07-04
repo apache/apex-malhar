@@ -24,6 +24,7 @@ import java.io.IOException;
 /**
  * A {@link Connectable} that uses hbase to connect to stores.
  *
+ * @since 1.0.2
  */
 public class HBaseStore implements Connectable {
 

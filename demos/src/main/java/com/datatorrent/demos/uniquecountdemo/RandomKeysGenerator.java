@@ -27,6 +27,11 @@ import java.util.*;
 /*
     Generate random keys.
  */
+/**
+ * <p>RandomKeysGenerator class.</p>
+ *
+ * @since 1.0.2
+ */
 public class RandomKeysGenerator implements InputOperator
 {
 

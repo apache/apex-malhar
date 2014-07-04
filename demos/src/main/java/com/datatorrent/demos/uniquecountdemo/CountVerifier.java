@@ -28,6 +28,11 @@ import java.util.Map;
 /*
 Compare results and print non-matching values to console.
  */
+/**
+ * <p>CountVerifier class.</p>
+ *
+ * @since 1.0.2
+ */
 public class CountVerifier<K> implements Operator
 {
   HashMap<K, Integer> map1 = new HashMap<K, Integer>();

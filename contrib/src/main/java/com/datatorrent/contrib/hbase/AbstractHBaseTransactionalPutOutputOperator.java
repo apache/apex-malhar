@@ -44,6 +44,7 @@ import java.util.List;
  * duplicates limiting it to the tuples that were processed in the window when the operator shutdown.
  *
  * @param <T> The tuple type
+ * @since 1.0.2
  */
 public abstract class AbstractHBaseTransactionalPutOutputOperator<T>
 		extends

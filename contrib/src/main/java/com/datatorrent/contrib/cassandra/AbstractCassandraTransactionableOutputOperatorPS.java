@@ -43,8 +43,8 @@ import javax.annotation.Nonnull;
  * </p>
  *
  * @param <T>type of tuple</T>
+ * @since 1.0.2
  */
-
 public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extends AbstractCassandraTransactionableOutputOperator<T>{
 
 	private transient PreparedStatement updateCommand;

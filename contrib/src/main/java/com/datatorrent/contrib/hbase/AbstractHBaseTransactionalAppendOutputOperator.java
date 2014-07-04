@@ -28,14 +28,14 @@ import java.util.List;
 
 /**
  * Operator for storing tuples in HBase columns.<br>
- * 
+ *
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
  * in columns in a HBase table. It should be extended by the end-operator
  * developer. The extending class should implement operationAppend method and
  * provide a HBase Append metric object that specifies where and what to store
  * for the tuple in the table.<br>
- * 
+ *
  * <br>
  * This class provides batch append where tuples are collected till the
  * end window and they are appended on end window
@@ -43,8 +43,9 @@ import java.util.List;
  * Note that since HBase doesn't support transactions this store cannot guarantee each tuple is written only once to
  * HBase in case the operator is restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when the operator shutdown.
- * 
+ *
  * @param <T> The tuple type
+ * @since 1.0.2
  */
 public abstract class AbstractHBaseTransactionalAppendOutputOperator<T>
 		extends

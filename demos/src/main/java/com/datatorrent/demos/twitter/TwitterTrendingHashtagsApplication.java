@@ -137,6 +137,7 @@ import com.datatorrent.demos.rollingtopwords.WindowedTopCounter;
  * </li>
  * </ul>
  *
+ * @since 1.0.2
  */
 @ApplicationAnnotation(name="TwitterTrendingDemo")
 public class TwitterTrendingHashtagsApplication implements StreamingApplication

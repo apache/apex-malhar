@@ -29,6 +29,7 @@ import com.sun.jersey.api.client.WebResource;
  *
  * @param <K> Type of key in input map tuple
  * @param <V> Type of value in input map tuple
+ * @since 1.0.2
  */
 public class HttpGetMapOperator<K, V> extends AbstractHttpGetOperator<Map<K, V>, String>
 {

@@ -25,6 +25,11 @@ import org.apache.commons.lang.mutable.MutableInt;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * <p>PartitionableUniqueCount class.</p>
+ *
+ * @since 1.0.2
+ */
 public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
 {
 

@@ -26,6 +26,8 @@ import java.util.Random;
 /**
  * Generate random Key value pairs.
  * key is string and value is int, it emits the pair as KeyValPair on outPort,
+ *
+ * @since 1.0.2
  */
 public class RandomDataGenerator implements InputOperator
 {

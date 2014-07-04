@@ -25,6 +25,7 @@ import com.datatorrent.api.DefaultOutputPort;
 /**
  * <p>TwitterStatusHashtagExtractor class.</p>
  *
+ * @since 1.0.2
  */
 public class TwitterStatusHashtagExtractor extends BaseOperator
 {

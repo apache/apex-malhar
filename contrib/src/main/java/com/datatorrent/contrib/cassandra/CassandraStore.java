@@ -29,6 +29,7 @@ import javax.validation.constraints.NotNull;
 /**
  * A {@link Connectable} that uses cassandra to connect to stores.
  *
+ * @since 1.0.2
  */
 public class CassandraStore implements Connectable
 {
