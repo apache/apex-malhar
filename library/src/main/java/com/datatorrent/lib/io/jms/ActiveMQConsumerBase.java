@@ -134,11 +134,11 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
   }
 
   /**
-   * Connection specific setup for ActiveMQ.
+   * Setup the message consumer.
    *
    * @throws JMSException
    */
-  public void setupConnection() throws JMSException
+  protected void setupConnection() throws JMSException
   {
     super.createConnection();
     replyProducer = getSession().createProducer(null);
@@ -154,7 +154,7 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
    *
    * @param message
    */
-  public void sendReply(Message message)
+  protected void sendReply(Message message)
   {
     try {
       if (message.getJMSReplyTo() != null) { // Send reply only if the replyTo destination is set
@@ -171,7 +171,7 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
    *
    * @param message
    */
-  public void acknowledgeMessage(Message message)
+  protected void acknowledgeMessage(Message message)
   {
     try {
       if (isTransacted()) {
@@ -229,7 +229,7 @@ public abstract class ActiveMQConsumerBase extends ActiveMQBase implements Messa
    * Release resources.
    */
   @Override
-  public void cleanup()
+  protected void cleanup()
   {
     try {
       consumer.setMessageListener(null);
