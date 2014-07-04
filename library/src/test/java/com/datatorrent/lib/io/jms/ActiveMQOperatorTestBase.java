@@ -35,7 +35,7 @@ import org.junit.Before;
  */
 public class ActiveMQOperatorTestBase
 {
-
+  public static String AMQ_BROKER_URL = "brokerURL";
   private BrokerService broker;
 
   public ActiveMQOperatorTestBase()
