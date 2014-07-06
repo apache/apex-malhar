@@ -82,6 +82,7 @@ public class AbstractFSDirectoryInputOperatorTest
     {
       super.closeFile(is);
       br.close();
+      br = null;
     }
 
     @Override
@@ -183,7 +184,112 @@ public class AbstractFSDirectoryInputOperatorTest
       LinkedHashSet<Path> files = p.getPartitionedInstance().getScanner().scan(FileSystem.getLocal(new Configuration(false)), path, consumed);
       Assert.assertEquals("partition " + files, 2, files.size());
     }
+  }
 
+  /**
+   * Test for testing dynamic partitioning.
+   * - Create 4 file with 3 records each.
+   * - Create a single partition, and read all records, populating pending files in operator.
+   * - Split it in two operators
+   * - Try to emit records again, expected result is no record is emitted, as all files are
+   *   processed.
+   * - Create another 4 files with 3 records each
+   * - Try to emit records again, expected result total record emitted 4 * 3 = 12.
+   */
+  @Test
+  public void testPartitioningStateTransfer() throws Exception
+  {
+    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
+    oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
+
+    // Create 4 files with 3 records each.
+    Path path = new Path(new File(testMeta.dir).getAbsolutePath());
+    FileContext.getLocalFSFileContext().delete(path, true);
+    int file = 0;
+    for (file=0; file<4; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
+    }
+
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    oper.output.setSink(sink);
+
+    int wid = 0;
+
+    // Read all records to populate processedList in operator.
+    oper.setup(null);
+    for(int i = 0; i < 10; i++) {
+      oper.beginWindow(wid);
+      oper.emitTuples();
+      oper.endWindow();
+      wid++;
+    }
+    Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
+
+    /*
+     * Workaround for kryo.copy,
+     * definePartitions seems to work on newly created object, with no setup and
+     * emitTuples called on it. once emitTuples is called, it causes the issue while
+     * processing BufferedReader (br)
+     */
+    TestFSDirectoryInputOperator temp = new TestFSDirectoryInputOperator();
+    temp.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
+    temp.setDirectory(new File(testMeta.dir).getAbsolutePath());
+    temp.currentPartitions = 1;
+    temp.partitionCount = 2;
+
+    // Create partitions of the operator.
+    List<Partition<AbstractFSDirectoryInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
+    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = temp.definePartitions(partitions, 1);
+    Assert.assertEquals(2, newPartitions.size());
+
+    /* Collect all operators in a list */
+    List<AbstractFSDirectoryInputOperator<String>> opers = Lists.newArrayList();
+    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+      TestFSDirectoryInputOperator oi = (TestFSDirectoryInputOperator)p.getPartitionedInstance();
+      oi.setup(null);
+      oi.output.setSink(sink);
+      opers.add(oi);
+    }
+
+    sink.clear();
+    for(int i = 0; i < 10; i++) {
+      for(AbstractFSDirectoryInputOperator<String> o : opers) {
+        o.beginWindow(wid);
+        o.emitTuples();
+        o.endWindow();
+      }
+      wid++;
+    }
+
+    // No record should be read.
+    Assert.assertEquals("No new tuples read ", 0, sink.collectedTuples.size());
+
+    // Add four new files with 3 records each.
+    for (; file<8; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
+    }
+
+    // TODO: scan is not able to find the new files without sleep.
+    // check for an api to flush files to storage, so that scan
+    // will be able to find them.
+    Thread.sleep(5000);
+
+    for(int i = 0; i < 10; i++) {
+      for(AbstractFSDirectoryInputOperator<String> o : opers) {
+        o.beginWindow(wid);
+        o.emitTuples();
+        o.endWindow();
+      }
+      wid++;
+    }
+
+    // If all files are processed only once then number of records emitted should
+    // be 12.
+    Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
   }
 
 }
