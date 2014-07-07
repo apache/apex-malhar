@@ -25,6 +25,8 @@ import java.util.regex.Pattern;
 
 import javax.validation.constraints.NotNull;
 
+import com.datatorrent.api.StatsListener;
+import com.datatorrent.common.util.Pair;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -42,15 +44,22 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
 
 /**
- * Input operator that reads files from a directory.<p/>
- * Derived class defines how to read entries from the input stream and emit to the port. Keeps track of previously read
- * files and current offset for recovery. The directory scanning logic is pluggable to support custom directory layouts
- * and naming schemes. The default implementation scans a single directory. Supports static partitioning based on the
- * directory scanner.
+ * Input operator that reads files from a directory.
+ * <p/>
+ * Derived class defines how to read entries from the input stream and emit to the port.
+ * <p/>
+ * The directory scanning logic is pluggable to support custom directory layouts and naming schemes. The default
+ * implementation scans a single directory.
+ * <p/>
+ * Fault tolerant by tracking previously read files and current offset as part of checkpoint state. In case of failure
+ * the operator will skip files that were already processed and fast forward to the offset of the current file.
+ * <p/>
+ * Supports partitioning and dynamic changes to number of partitions through property {@link #partitionCount}. The
+ * directory scanner is responsible to only accept the files that belong to a partition.
  *
  * @since 1.0.2
  */
-public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperator, Partitioner<AbstractFSDirectoryInputOperator<T>>
+public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperator, Partitioner<AbstractFSDirectoryInputOperator<T>>, StatsListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFSDirectoryInputOperator.class);
 
@@ -63,13 +72,16 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private String currentFile;
   private final HashSet<String> processedFiles = new HashSet<String>();
   private int emitBatchSize = 1000;
+  private int currentPartitions = 1 ;
+  private int partitionCount = 1;
+
 
   protected transient FileSystem fs;
   protected transient Configuration configuration;
   private transient long lastScanMillis;
   private transient Path filePath;
   private transient InputStream inputStream;
-  private transient LinkedHashSet<Path> pendingFiles = new LinkedHashSet<Path>();
+  protected transient LinkedHashSet<Path> pendingFiles = new LinkedHashSet<Path>();
 
   public String getDirectory()
   {
@@ -109,6 +121,21 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public void setEmitBatchSize(int emitBatchSize)
   {
     this.emitBatchSize = emitBatchSize;
+  }
+
+  public int getPartitionCount()
+  {
+    return partitionCount;
+  }
+
+  public void setPartitionCount(int requiredPartitions)
+  {
+    this.partitionCount = requiredPartitions;
+  }
+
+  public int getCurrentPartitions()
+  {
+    return currentPartitions;
   }
 
   @Override
@@ -220,24 +247,72 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
-    int partitionCount = partitions.size() + incrementalCapacity;
-    if (partitionCount == partitions.size()) {
+    boolean isInitialParitition = partitions.iterator().next().getStats() == null;
+    if (isInitialParitition && partitionCount == 1) {
+      partitionCount = currentPartitions = partitions.size() + incrementalCapacity;
+    } else {
+      incrementalCapacity = partitionCount - currentPartitions;
+    }
+
+    int totalCount = partitions.size() + incrementalCapacity;
+    LOG.info("definePartitions trying to create {} partitions, current {}  required {}", totalCount, partitionCount, currentPartitions) ;
+
+    if (totalCount == partitions.size()) {
       return partitions;
     }
-    List<DirectoryScanner> scanners = scanner.partition(partitionCount);
+
+    /*
+     * Build collective state from all instances of the operator.
+     */
+    Set<String> totalProcessedFiles = new HashSet<String>();
+    List<Pair<String, Integer>> currentFiles = new ArrayList<Pair<String, Integer>>();
+    List<DirectoryScanner> oldscanners = new LinkedList<DirectoryScanner>();
+    for(Partition<AbstractFSDirectoryInputOperator<T>> partition : partitions) {
+      AbstractFSDirectoryInputOperator<T> oper = partition.getPartitionedInstance();
+      totalProcessedFiles.addAll(oper.processedFiles);
+      if (oper.currentFile != null)
+        currentFiles.add(new Pair<String, Integer>(oper.currentFile, oper.offset));
+      oldscanners.add(oper.getScanner());
+    }
+
+    /*
+     * Create partitions of scanners, scanner's partition method will do state
+     * transfer for DirectoryScanner objects.
+     */
+    List<DirectoryScanner> scanners = scanner.partition(totalCount, oldscanners);
+
     Kryo kryo = new Kryo();
-    Collection<Partition<AbstractFSDirectoryInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(partitionCount);
+    Collection<Partition<AbstractFSDirectoryInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
     for (int i=0; i<scanners.size(); i++) {
       AbstractFSDirectoryInputOperator<T> oper = kryo.copy(this);
-      oper.setScanner(scanners.get(i));
+      DirectoryScanner scn = scanners.get(i);
+      oper.setScanner(scn);
+
+      // Do state transfer
+      oper.processedFiles.addAll(totalProcessedFiles);
+
+      /* set current scanning directory and offset */
+      oper.currentFile = null;
+      oper.offset = 0;
+      for(Pair<String, Integer> current : currentFiles) {
+        if (scn.acceptFile(current.getFirst())) {
+          oper.currentFile = current.getFirst();
+          oper.offset = current.getSecond();
+          break;
+        }
+      }
+
       newPartitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<T>>(oper));
     }
+
+    LOG.info("definePartitions called returning {} partitions", newPartitions.size());
     return newPartitions;
   }
 
   @Override
   public void partitioned(Map<Integer, Partition<AbstractFSDirectoryInputOperator<T>>> partitions)
   {
+    currentPartitions = partitions.size();
   }
 
   /**
@@ -253,6 +328,22 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   abstract protected void emit(T tuple);
 
 
+  /**
+   * Repartition is required when number of partitions are not equal to required
+   * partitions.
+   */
+  @Override
+  public Response processStats(BatchedOperatorStats batchedOperatorStats)
+  {
+    Response res = new Response();
+    res.repartitionRequired = false;
+    if (currentPartitions != partitionCount) {
+      LOG.info("processStats: trying repartition of input operator current {} required {}", currentPartitions, partitionCount);
+      res.repartitionRequired = true;
+    }
+    return res;
+  }
+
   public static class DirectoryScanner implements Serializable
   {
     private static final long serialVersionUID = 4535844463258899929L;
@@ -260,6 +351,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     private transient Pattern regex = null;
     private int partitionIndex;
     private int partitionCount;
+    protected final transient HashSet<String> ignoredFiles = new HashSet<String>();
 
     public String getFilePatternRegexp()
     {
@@ -291,12 +383,16 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
             continue;
           }
 
+          if (ignoredFiles.contains(filePathStr)) {
+            continue;
+          }
+
           if (acceptFile(filePathStr)) {
             LOG.debug("Found {}", filePathStr);
             pathSet.add(path);
           } else {
             // don't look at it again
-            consumedFiles.add(filePathStr);
+            ignoredFiles.add(filePathStr);
           }
         }
       } catch (FileNotFoundException e) {
@@ -309,7 +405,12 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
     protected boolean acceptFile(String filePathStr)
     {
-      if (regex != null) {
+      if (filePatternRegexp != null && this.regex == null) {
+        regex = Pattern.compile(this.filePatternRegexp);
+      }
+
+      if (regex != null)
+      {
         Matcher matcher = regex.matcher(filePathStr);
         if (!matcher.matches()) {
           return false;
@@ -339,6 +440,10 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       return partitions;
     }
 
+    public List<DirectoryScanner>  partition(int count , Collection<DirectoryScanner> scanners) {
+      return partition(count);
+    }
+
     protected DirectoryScanner createPartition(int partitionIndex, int partitionCount)
     {
       DirectoryScanner that = new DirectoryScanner();
@@ -352,9 +457,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     @Override
     public String toString()
     {
-      return "DirectoryScanner [filePatternRegexp=" + filePatternRegexp + "]";
+      return "DirectoryScanner [filePatternRegexp=" + filePatternRegexp + " partitionIndex=" +
+          partitionIndex + " partitionCount=" + partitionCount + "]";
     }
-
   }
-
 }
