@@ -44,15 +44,22 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
 
 /**
- * Input operator that reads files from a directory.<p/>
- * Derived class defines how to read entries from the input stream and emit to the port. Keeps track of previously read
- * files and current offset for recovery. The directory scanning logic is pluggable to support custom directory layouts
- * and naming schemes. The default implementation scans a single directory. Supports static partitioning based on the
- * directory scanner.
+ * Input operator that reads files from a directory.
+ * <p/>
+ * Derived class defines how to read entries from the input stream and emit to the port.
+ * <p/>
+ * The directory scanning logic is pluggable to support custom directory layouts and naming schemes. The default
+ * implementation scans a single directory.
+ * <p/>
+ * Fault tolerant by tracking previously read files and current offset as part of checkpoint state. In case of failure
+ * the operator will skip files that were already processed and fast forward to the offset of the current file.
+ * <p/>
+ * Supports partitioning and dynamic changes to number of partitions through property {@link #partitionCount}. The
+ * directory scanner is responsible to only accept the files that belong to a partition.
  */
 public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperator, Partitioner<AbstractFSDirectoryInputOperator<T>>, StatsListener
 {
-  protected static final Logger LOG = LoggerFactory.getLogger(AbstractFSDirectoryInputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractFSDirectoryInputOperator.class);
 
   @NotNull
   private String directory;
@@ -63,8 +70,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private String currentFile;
   private final HashSet<String> processedFiles = new HashSet<String>();
   private int emitBatchSize = 1000;
-  protected int currentPartitions = 1 ;
-  protected int partitionCount = 1;
+  private int currentPartitions = 1 ;
+  private int partitionCount = 1;
 
 
   protected transient FileSystem fs;
@@ -122,6 +129,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public void setPartitionCount(int requiredPartitions)
   {
     this.partitionCount = requiredPartitions;
+  }
+
+  public int getCurrentPartitions()
+  {
+    return currentPartitions;
   }
 
   @Override
@@ -234,7 +246,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
     boolean isInitialParitition = partitions.iterator().next().getStats() == null;
-    if (isInitialParitition) {
+    if (isInitialParitition && partitionCount == 1) {
       partitionCount = currentPartitions = partitions.size() + incrementalCapacity;
     } else {
       incrementalCapacity = partitionCount - currentPartitions;
@@ -247,7 +259,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       return partitions;
     }
 
-
     /*
      * Build collective state from all instances of the operator.
      */
@@ -258,7 +269,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       AbstractFSDirectoryInputOperator<T> oper = partition.getPartitionedInstance();
       totalProcessedFiles.addAll(oper.processedFiles);
       if (oper.currentFile != null)
-        currentFiles.add(new Pair(oper.currentFile, oper.offset));
+        currentFiles.add(new Pair<String, Integer>(oper.currentFile, oper.offset));
       oldscanners.add(oper.getScanner());
     }
 

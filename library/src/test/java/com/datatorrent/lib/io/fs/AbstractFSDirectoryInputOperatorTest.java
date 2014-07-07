@@ -24,6 +24,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
@@ -37,13 +38,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.python.google.common.collect.Lists;
+import org.python.google.common.collect.Maps;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator.DirectoryScanner;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Sets;
 
 public class AbstractFSDirectoryInputOperatorTest
@@ -99,7 +103,7 @@ public class AbstractFSDirectoryInputOperatorTest
   }
 
   @Test
-  public void test() throws Exception
+  public void testSinglePartiton() throws Exception
   {
     FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
     HashSet<String> allLines = Sets.newHashSet();
@@ -176,6 +180,7 @@ public class AbstractFSDirectoryInputOperatorTest
     partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
     Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = oper.definePartitions(partitions, 1);
     Assert.assertEquals(2, newPartitions.size());
+    Assert.assertEquals(2, oper.getCurrentPartitions());
 
     for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
       Assert.assertNotSame(oper, p.getPartitionedInstance());
@@ -199,10 +204,14 @@ public class AbstractFSDirectoryInputOperatorTest
   @Test
   public void testPartitioningStateTransfer() throws Exception
   {
+    
     TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
-
+    oper.setScanIntervalMillis(0);
+    
+    TestFSDirectoryInputOperator initialState = new Kryo().copy(oper);
+    
     // Create 4 files with 3 records each.
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
     FileContext.getLocalFSFileContext().delete(path, true);
@@ -228,23 +237,24 @@ public class AbstractFSDirectoryInputOperatorTest
     }
     Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
 
-    /*
-     * Workaround for kryo.copy,
-     * definePartitions seems to work on newly created object, with no setup and
-     * emitTuples called on it. once emitTuples is called, it causes the issue while
-     * processing BufferedReader (br)
-     */
-    TestFSDirectoryInputOperator temp = new TestFSDirectoryInputOperator();
-    temp.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
-    temp.setDirectory(new File(testMeta.dir).getAbsolutePath());
-    temp.currentPartitions = 1;
-    temp.partitionCount = 2;
+    Assert.assertEquals(1, initialState.getCurrentPartitions());
+    initialState.setPartitionCount(2);
+    StatsListener.Response rsp = initialState.processStats(null);
+    Assert.assertEquals(true, rsp.repartitionRequired);
 
     // Create partitions of the operator.
     List<Partition<AbstractFSDirectoryInputOperator<String>>> partitions = Lists.newArrayList();
     partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
-    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = temp.definePartitions(partitions, 1);
+    // incremental capacity controlled partitionCount property
+    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
     Assert.assertEquals(2, newPartitions.size());
+    Assert.assertEquals(1, initialState.getCurrentPartitions());
+    Map<Integer, Partition<AbstractFSDirectoryInputOperator<String>>> m = Maps.newHashMap();
+    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+      m.put(m.size(), p);
+    }
+    initialState.partitioned(m);
+    Assert.assertEquals(2, initialState.getCurrentPartitions());
 
     /* Collect all operators in a list */
     List<AbstractFSDirectoryInputOperator<String>> opers = Lists.newArrayList();
@@ -272,11 +282,6 @@ public class AbstractFSDirectoryInputOperatorTest
     for (; file<8; file++) {
       FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
     }
-
-    // TODO: scan is not able to find the new files without sleep.
-    // check for an api to flush files to storage, so that scan
-    // will be able to find them.
-    Thread.sleep(5000);
 
     for(int i = 0; i < 10; i++) {
       for(AbstractFSDirectoryInputOperator<String> o : opers) {
