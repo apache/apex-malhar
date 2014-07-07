@@ -8,7 +8,7 @@
     <version>1.0.3-SNAPSHOT</version>
   </parent>
 
-  <artifactId>datatorrent-flume</artifactId>
+  <artifactId>dt-flume</artifactId>
   <packaging>jar</packaging>
   <name>DataTorrent Flume Integration</name>
 
