@@ -75,7 +75,7 @@ import com.google.common.collect.Sets;
  * @since 1.0.2
  */
 
-public abstract class AbstractExactOnceKafkaOutputOperator<T, K, V> extends AbstractKafkaOutputOperator<K, V>
+public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends AbstractKafkaOutputOperator<K, V>
 {
 
   private Map<Integer, Pair<byte[], byte[]>>  lastMsgs;
@@ -141,7 +141,7 @@ public abstract class AbstractExactOnceKafkaOutputOperator<T, K, V> extends Abst
 
       String leadBroker = pm.leader().host();
       int port = pm.leader().port();
-      String clientName = "Client_" + tm.topic() + "_" + pm.partitionId();
+      String clientName = this.getClass().getName() + "_Client_" + tm.topic() + "_" + pm.partitionId();
       SimpleConsumer consumer = new SimpleConsumer(leadBroker, port, 100000, 64 * 1024, clientName);
 
       long readOffset = KafkaMetadataUtil.getLastOffset(consumer, tm.topic(), pm.partitionId(), kafka.api.OffsetRequest.LatestTime(), clientName);
@@ -183,6 +183,6 @@ public abstract class AbstractExactOnceKafkaOutputOperator<T, K, V> extends Abst
    */
   protected abstract Pair<K, V> tupleToKeyValue(T tuple);
   
-  private static final Logger logger = LoggerFactory.getLogger(AbstractExactOnceKafkaOutputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractExactlyOnceKafkaOutputOperator.class);
   
 }

@@ -39,9 +39,9 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class KafkaExactOnceOutputOperatorTest extends KafkaOperatorTestBase
+public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
 {
-  private static final Logger logger = LoggerFactory.getLogger(KafkaExactOnceOutputOperatorTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(KafkaExactlyOnceOutputOperatorTest.class);
   private static final int maxTuple = 40;
   private static CountDownLatch latch;
   private static boolean isRestarted = false;
@@ -179,7 +179,7 @@ public class KafkaExactOnceOutputOperatorTest extends KafkaOperatorTestBase
     
   }
   
-  public static class SimpleKafkaExactOnceOutputOperator extends AbstractExactOnceKafkaOutputOperator<String, String, String>{
+  public static class SimpleKafkaExactOnceOutputOperator extends AbstractExactlyOnceKafkaOutputOperator<String, String, String>{
 
     @Override
     protected int compareToLastMsg(Pair<String, String> tupleKeyValue, Pair<byte[], byte[]> lastReceivedKeyValue)
