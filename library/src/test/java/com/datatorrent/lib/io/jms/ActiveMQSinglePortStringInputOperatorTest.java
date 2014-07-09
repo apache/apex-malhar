@@ -43,7 +43,7 @@ public class ActiveMQSinglePortStringInputOperatorTest extends ActiveMQOperatorT
   {
 
     ActiveMQSinglePortStringInputOperator oper = new ActiveMQSinglePortStringInputOperator();
-    oper.setUrl("vm://localhost");
+    oper.getConnectionFactoryProperties().put(AMQ_BROKER_URL, "vm://localhost");
     oper.setMaximumReceiveMessages(100);
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     oper.outputPort.setSink(sink);
