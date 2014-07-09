@@ -97,7 +97,6 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
     initializeLastProcessingOffset();
   }
 
-  @InputPortFieldAnnotation(name = "KafkaInputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>() {
     @Override
     public void process(T tuple)
