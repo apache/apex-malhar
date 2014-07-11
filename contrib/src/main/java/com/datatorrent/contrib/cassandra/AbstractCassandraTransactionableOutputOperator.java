@@ -19,6 +19,7 @@ package com.datatorrent.contrib.cassandra;
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
 
 /**
@@ -41,6 +42,7 @@ import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
  *
  * @param <T>type of tuple</T>
  */
+@ShipContainingJars(classes = {com.datastax.driver.core.Cluster.class, com.codahale.metrics.Metric.class})
 public abstract class AbstractCassandraTransactionableOutputOperator<T> extends AbstractBatchTransactionableStoreOutputOperator<T, CassandraTransactionalStore> {
 
 	public AbstractCassandraTransactionableOutputOperator(){
@@ -64,5 +66,4 @@ public abstract class AbstractCassandraTransactionableOutputOperator<T> extends 
       batchCommand.add(getUpdateStatement(tuple));
     }
 	}
-
 }

@@ -20,6 +20,7 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.api.Context;
+import com.datatorrent.api.annotation.ShipContainingJars;
 
 import javax.annotation.Nonnull;
 
@@ -44,6 +45,7 @@ import javax.annotation.Nonnull;
  *
  * @param <T>type of tuple</T>
  */
+@ShipContainingJars(classes = {com.datastax.driver.core.Cluster.class, com.codahale.metrics.Metric.class})
 
 public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extends AbstractCassandraTransactionableOutputOperator<T>{
 
