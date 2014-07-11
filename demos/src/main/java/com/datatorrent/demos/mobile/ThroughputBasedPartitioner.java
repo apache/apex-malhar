@@ -70,9 +70,12 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
   @Override
   public Collection<Partition<T>> definePartitions(Collection<Partition<T>> partitions, int incrementalCapacity)
   {
-    if (partitionedInstanceStatus.isEmpty()) {
+    if (partitionedInstanceStatus == null || partitionedInstanceStatus.isEmpty()) {
       // first call
       // trying to give initial stability before sending the repartition call
+      if (partitionedInstanceStatus == null) {
+        partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
+      }
       partitionNextMillis = System.currentTimeMillis() + 2 * cooldownMillis;
       nextMillis = partitionNextMillis;
       return null;
