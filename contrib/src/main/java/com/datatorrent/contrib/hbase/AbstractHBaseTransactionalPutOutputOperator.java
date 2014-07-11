@@ -57,8 +57,8 @@ import java.util.List;
 		com.google.protobuf.AbstractMessageLite.class,
 		org.apache.hadoop.hbase.BaseConfigurable.class,
 		org.apache.hadoop.hbase.protobuf.generated.AccessControlProtos.class,
-		org.apache.hadoop.hbase.ipc.BadAuthException.class ,
-		org.cloudera.htrace.HTraceConfiguration.class})
+		org.apache.hadoop.hbase.ipc.BadAuthException.class,
+		org.cloudera.htrace.HTraceConfiguration.class })
 public abstract class AbstractHBaseTransactionalPutOutputOperator<T>
 		extends
 		AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> {
