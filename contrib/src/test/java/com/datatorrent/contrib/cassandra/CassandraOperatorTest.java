@@ -249,6 +249,5 @@ public class CassandraOperatorTest
 
 		Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
 	}
-
 }
 
