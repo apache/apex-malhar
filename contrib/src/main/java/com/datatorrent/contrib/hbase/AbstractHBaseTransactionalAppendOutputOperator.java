@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.hbase;
 
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 import org.apache.hadoop.hbase.client.Append;
@@ -47,6 +48,13 @@ import java.util.List;
  * @param <T> The tuple type
  * @since 1.0.2
  */
+@ShipContainingJars(classes = { org.apache.hadoop.hbase.client.HTable.class,
+		org.apache.hadoop.hbase.util.BloomFilterFactory.class,
+		com.google.protobuf.AbstractMessageLite.class,
+		org.apache.hadoop.hbase.BaseConfigurable.class,
+		org.apache.hadoop.hbase.protobuf.generated.AccessControlProtos.class,
+		org.apache.hadoop.hbase.ipc.BadAuthException.class ,
+		org.cloudera.htrace.HTraceConfiguration.class})
 public abstract class AbstractHBaseTransactionalAppendOutputOperator<T>
 		extends
 		AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> {
