@@ -17,11 +17,11 @@ import com.datatorrent.lib.util.KeyHashValPair;
  *
  * @since 0.9.0
  */
-public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<MachineKey, Map<String, AverageData>>>
+public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<MachineKey, AverageData>>
 {
 
-  private Map<MachineKey, Map<String, AverageData>> sums = new HashMap<MachineKey, Map<String, AverageData>>();
-  public final transient DefaultOutputPort<KeyHashValPair<MachineKey, Map<String, AverageData>>> outputPort = new DefaultOutputPort<KeyHashValPair<MachineKey, Map<String, AverageData>>>();
+  private Map<MachineKey, AverageData> sums = new HashMap<MachineKey, AverageData>();
+  public final transient DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>> outputPort = new DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>>();
 
   @Override
   public void beginWindow(long arg0)
@@ -33,8 +33,8 @@ public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<Machi
   @Override
   public void endWindow()
   {
-    for (Map.Entry<MachineKey, Map<String, AverageData>> entry : sums.entrySet()) {
-      outputPort.emit(new KeyHashValPair<MachineKey, Map<String, AverageData>>(entry.getKey(), entry.getValue()));
+    for (Map.Entry<MachineKey, AverageData> entry : sums.entrySet()) {
+      outputPort.emit(new KeyHashValPair<MachineKey, AverageData>(entry.getKey(), entry.getValue()));
     }
     sums.clear();
   
@@ -55,40 +55,19 @@ public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<Machi
   }
 
   @Override
-  public void process(KeyHashValPair<MachineKey, Map<String, AverageData>> arg0)
+  public void process(KeyHashValPair<MachineKey, AverageData> arg0)
   {
     MachineKey tupleKey = arg0.getKey();
-    Map<String, AverageData> sumsMap = sums.get(tupleKey);
-    Map<String, AverageData> tupleValue = arg0.getValue();
+    AverageData sumsMap = sums.get(tupleKey);
+    AverageData tupleValue = arg0.getValue();
     if (sumsMap == null) {
       sums.put(tupleKey, tupleValue);
     } else {
-      updateSum("cpu", sumsMap, tupleValue);
-      updateSum("ram", sumsMap, tupleValue);
-      updateSum("hdd", sumsMap, tupleValue);
+      sumsMap.getCount().add(tupleValue.getCount());
+      sumsMap.getHdd().add(tupleValue.getHdd());
+      sumsMap.getRam().add(tupleValue.getRam());
+      sumsMap.getCpu().add(tupleValue.getCpu());
     }
-
-  }
-
-  /**
-   * This method updates the sum and count for a given Resource key
-   * @param resourceKey the resource key whose sum and count needs to be updated
-   * @param sumsMap the map that stores the sum and count values
-   * @param tupleMap the new tuple map that is added
-   */
-  private void updateSum(String resourceKey, Map<String, AverageData> sumsMap, Map<String, AverageData> tupleMap)
-  {
-    AverageData sumsAverageData = sumsMap.get(resourceKey);
-    AverageData tupleAverageData = tupleMap.get(resourceKey);
-    if (tupleAverageData != null) {
-      if (sumsAverageData != null) {
-        sumsAverageData.setCount(sumsAverageData.getCount() + tupleAverageData.getCount());
-        sumsAverageData.setSum(sumsAverageData.getSum() + tupleAverageData.getSum());
-      } else {
-        sumsMap.put(resourceKey, tupleAverageData);
-      }
-    }
-
   }
 
 }
