@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.hbase;
 
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 import org.apache.hadoop.hbase.client.Append;
@@ -25,21 +26,29 @@ import java.io.IOException;
 
 /**
  * Operator for storing tuples in HBase columns.<br>
- *
+ * 
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
  * in columns in a HBase table. It should be extended by the end-operator
  * developer. The extending class should implement operationAppend method and
  * provide a HBase Append metric object that specifies where and what to store
  * for the tuple in the table.<br>
- *
+ * 
  * <br>
  * This class offers non-transactional append where the columns are append as
  * the tuples come in without waiting for the end window
- *
- * @param <T> The tuple type
+ * 
+ * @param <T>
+ *            The tuple type
  * @since 1.0.2
  */
+@ShipContainingJars(classes = { org.apache.hadoop.hbase.client.HTable.class,
+		org.apache.hadoop.hbase.util.BloomFilterFactory.class,
+		com.google.protobuf.AbstractMessageLite.class,
+		org.apache.hadoop.hbase.BaseConfigurable.class,
+		org.apache.hadoop.hbase.protobuf.generated.AccessControlProtos.class,
+		org.apache.hadoop.hbase.ipc.BadAuthException.class,
+		org.cloudera.htrace.HTraceConfiguration.class })
 public abstract class AbstractHBaseNonTransactionalAppendOutputOperator<T>
 		extends AbstractStoreOutputOperator<T, HBaseStore> {
 	private static final transient Logger logger = LoggerFactory
@@ -66,7 +75,8 @@ public abstract class AbstractHBaseNonTransactionalAppendOutputOperator<T>
 	 * return a HBase Append metric that specifies where and what to store for
 	 * the tuple in the table.
 	 * 
-	 * @param t The tuple
+	 * @param t
+	 *            The tuple
 	 * @return The HBase Append metric
 	 */
 	public abstract Append operationAppend(T t);
