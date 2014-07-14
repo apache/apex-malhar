@@ -15,6 +15,8 @@
  */
 package com.datatorrent.demos.machinedata.data;
 
+import org.apache.commons.lang.mutable.MutableLong;
+
 /**
  * This class stores the value of sum and the count of values summed.
  * <p>
@@ -26,55 +28,68 @@ package com.datatorrent.demos.machinedata.data;
 public class AverageData
 {
 
-  private double sum;
-  private long count;
+  private MutableLong cpu;
+  private MutableLong hdd;
+  private MutableLong ram;
+  private MutableLong count;
 
   /**
    * This is default constructor that sets the sum and count to 0
    */
   public AverageData()
   {
-    sum = 0;
-    count = 0;
+
   }
 
   /**
    * This constructor takes the value of sum and count and initialize the local attributes to corresponding values
    * 
-   * @param sum
-   *          the value of sum
    * @param count
    *          the value of count
    */
-  public AverageData(double sum, long count)
+  public AverageData(MutableLong cpu,MutableLong hdd,MutableLong ram, MutableLong count)
   {
-    this.sum = sum;
+    this.cpu = cpu;
+    this.ram = ram;
+    this.hdd = hdd;
     this.count = count;
   }
 
-  /**
-   * This returns the value of sum
-   * @return
-   */
-  public double getSum()
+  public MutableLong getCpu()
   {
-    return sum;
+    return cpu;
   }
 
-  /**
-   * This method sets the value of sum
-   * @param sum
-   */
-  public void setSum(double sum)
+  public void setCpu(MutableLong cpu)
   {
-    this.sum = sum;
+    this.cpu = cpu;
+  }
+
+  public MutableLong getHdd()
+  {
+    return hdd;
+  }
+
+  public void setHdd(MutableLong hdd)
+  {
+    this.hdd = hdd;
+  }
+
+  public MutableLong getRam()
+  {
+    return ram;
+  }
+
+  public void setRam(MutableLong ram)
+  {
+    this.ram = ram;
   }
 
   /**
    * This returns the value of count
    * @return
    */
-  public long getCount()
+  public MutableLong getCount()
   {
     return count;
   }
@@ -83,7 +98,7 @@ public class AverageData
    * This method sets the value of count
    * @param count
    */
-  public void setCount(long count)
+  public void setCount(MutableLong count)
   {
     this.count = count;
   }
