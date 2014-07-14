@@ -72,7 +72,54 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private int emitBatchSize = 1000;
   private int currentPartitions = 1 ;
   private int partitionCount = 1;
+  protected int retryCount = 0;
+  private int maxRetryCount = 5;
+  transient protected int skipCount = 0;
 
+  /**
+   * Class representing failed file, When read fails on a file in middle, then the file is
+   * added to failedList along with last read offset.
+   * The files from failedList will be processed after all pendingFiles are processed, but
+   * before checking for new files.
+   * failed file is retried for maxRetryCount number of times, after that the file is
+   * ignored.
+   */
+  protected static class FailedFile {
+    String path;
+    int   offset;
+    int    retryCount;
+    long   lastFailedTime;
+
+    public FailedFile()
+    {
+
+    }
+
+    FailedFile(String path, int offset) {
+      this.path = path;
+      this.offset = offset;
+      this.retryCount = 0;
+    }
+
+    FailedFile(String path, int offset, int retryCount) {
+      this.path = path;
+      this.offset = offset;
+      this.retryCount = retryCount;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "FailedFile[" +
+          "path='" + path + '\'' +
+          ", offset=" + offset +
+          ", retryCount=" + retryCount +
+          ", lastFailedTime=" + lastFailedTime +
+          ']';
+    }
+  }
+  /* List of failed file */
+  protected final Queue<FailedFile> failedFiles = new LinkedList<FailedFile>();
 
   protected transient FileSystem fs;
   protected transient Configuration configuration;
@@ -144,7 +191,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       configuration = new Configuration();
       fs = FileSystem.newInstance(filePath.toUri(), configuration);
       if (currentFile != null && offset > 0) {
-        LOG.info("Continue reading {} from index {}", currentFile, offset);
+        long startTime = System.currentTimeMillis();
+        LOG.info("Continue reading {} from index {} time={}", currentFile, offset, startTime);
         int index = offset;
         this.inputStream = openFile(new Path(currentFile));
         // fast forward to previous offset
@@ -152,6 +200,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           readEntity();
           offset++;
         }
+        LOG.info("Read offset={} records in setup time={}", offset, System.currentTimeMillis() - startTime);
       }
     }
     catch (IOException ex) {
@@ -186,21 +235,25 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   final public void emitTuples()
   {
     if (inputStream == null) {
-      if (pendingFiles.isEmpty()) {
+      if (pendingFiles.isEmpty() && failedFiles.isEmpty()) {
         if (System.currentTimeMillis() - scanIntervalMillis > lastScanMillis) {
           pendingFiles = scanner.scan(fs, filePath, processedFiles);
           lastScanMillis = System.currentTimeMillis();
         }
       }
-      if (!pendingFiles.isEmpty())
-      {
-        Path path = pendingFiles.iterator().next();
-        pendingFiles.remove(path);
-        try {
+
+      try {
+        if (!pendingFiles.isEmpty()) {
+          Path path = pendingFiles.iterator().next();
+          pendingFiles.remove(path);
           this.inputStream = openFile(path);
-        } catch (Exception ex) {
-          throw new RuntimeException(ex);
         }
+        else if (!failedFiles.isEmpty()) {
+          FailedFile ff = failedFiles.poll();
+          this.inputStream = openFile(ff);
+        }
+      }catch (IOException ex) {
+        throw new RuntimeException(ex);
       }
     }
 
@@ -214,8 +267,17 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
             closeFile(inputStream);
             break;
           }
-          offset++;
-          emit(line);
+
+          /* If skipCount is non zero, then failed file recovery is going on, skipCount is
+           * used to prevent already emitted records from being emitted again during recovery.
+           * When failed file is open, skipCount is set to the last read offset for that file.
+           */
+          if (skipCount == 0) {
+            offset++;
+            emit(line);
+          }
+          else
+            skipCount--;
         }
       } catch (IOException e) {
         LOG.error("FS reader error", e);
@@ -224,20 +286,64 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
   }
 
+  protected void addToFailedList(FailedFile ff) throws IOException {
+
+    // try to close file
+    if (this.inputStream != null)
+      this.inputStream.close();
+
+    ff.retryCount ++;
+    ff.lastFailedTime = System.currentTimeMillis();
+    ff.offset = this.offset;
+
+    // Clear current file state.
+    this.currentFile = null;
+    this.inputStream = null;
+    this.offset = 0;
+
+    if (ff.retryCount > maxRetryCount)
+      return;
+
+    LOG.info("adding to failed list path {} offset {} retry {}", ff.path, ff.offset, ff.retryCount);
+    failedFiles.add(ff);
+  }
+
+  protected void addToFailedList(String path, int offset, int retryCount) throws IOException {
+    FailedFile ff = new FailedFile(path, offset, retryCount);
+    addToFailedList(ff);
+  }
+
+  protected InputStream openFile(FailedFile ff)  throws IOException
+  {
+    LOG.info("retrying failed file {} offset {} retry {}", ff.path, ff.offset, ff.retryCount);
+    String path = ff.path;
+    this.inputStream = openFile(new Path(path));
+    this.offset = ff.offset;
+    this.retryCount = ff.retryCount;
+    this.skipCount = ff.offset;
+    return this.inputStream;
+  }
+
   protected InputStream openFile(Path path) throws IOException
   {
     LOG.info("opening file {}", path);
     InputStream input = fs.open(path);
     currentFile = path.toString();
     offset = 0;
+    retryCount = 0;
+    skipCount = 0;
     return input;
   }
 
   protected void closeFile(InputStream is) throws IOException
   {
-    is.close();
-    is = null;
-    processedFiles.add(currentFile);
+    LOG.info("closing file {} offset {}", currentFile, offset);
+
+    if (is != null)
+      is.close();
+    if (currentFile != null)
+      processedFiles.add(currentFile);
+
     currentFile = null;
     inputStream = null;
   }
@@ -265,9 +371,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     Set<String> totalProcessedFiles = new HashSet<String>();
     List<Pair<String, Integer>> currentFiles = new ArrayList<Pair<String, Integer>>();
     List<DirectoryScanner> oldscanners = new LinkedList<DirectoryScanner>();
+    List<FailedFile> totalFailedFiles = new LinkedList<FailedFile>();
     for(Partition<AbstractFSDirectoryInputOperator<T>> partition : partitions) {
       AbstractFSDirectoryInputOperator<T> oper = partition.getPartitionedInstance();
       totalProcessedFiles.addAll(oper.processedFiles);
+      totalFailedFiles.addAll(oper.failedFiles);
       if (oper.currentFile != null)
         currentFiles.add(new Pair<String, Integer>(oper.currentFile, oper.offset));
       oldscanners.add(oper.getScanner());
@@ -286,7 +394,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       DirectoryScanner scn = scanners.get(i);
       oper.setScanner(scn);
 
-      // Do state transfer
+      // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
 
       /* set current scanning directory and offset */
@@ -297,6 +405,17 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           oper.currentFile = current.getFirst();
           oper.offset = current.getSecond();
           break;
+        }
+      }
+
+      /* transfer failed files */
+      oper.failedFiles.clear();
+      Iterator<FailedFile> iter = totalFailedFiles.iterator();
+      while (iter.hasNext()) {
+        FailedFile ff = iter.next();
+        if (scn.acceptFile(ff.path)) {
+          oper.failedFiles.add(ff);
+          iter.remove();
         }
       }
 
@@ -342,13 +461,23 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     return res;
   }
 
+  public int getMaxRetryCount()
+  {
+    return maxRetryCount;
+  }
+
+  public void setMaxRetryCount(int maxRetryCount)
+  {
+    this.maxRetryCount = maxRetryCount;
+  }
+
   public static class DirectoryScanner implements Serializable
   {
     private static final long serialVersionUID = 4535844463258899929L;
-    private String filePatternRegexp;
-    private transient Pattern regex = null;
-    private int partitionIndex;
-    private int partitionCount;
+    protected String filePatternRegexp;
+    protected transient Pattern regex = null;
+    protected int partitionIndex;
+    protected int partitionCount;
     protected final transient HashSet<String> ignoredFiles = new HashSet<String>();
 
     public String getFilePatternRegexp()
@@ -365,7 +494,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     public LinkedHashSet<Path> scan(FileSystem fs, Path filePath, Set<String> consumedFiles)
     {
       if (filePatternRegexp != null && this.regex == null) {
-         this.regex = Pattern.compile(this.filePatternRegexp);
+        this.regex = Pattern.compile(this.filePatternRegexp);
       }
 
       LinkedHashSet<Path> pathSet = Sets.newLinkedHashSet();
