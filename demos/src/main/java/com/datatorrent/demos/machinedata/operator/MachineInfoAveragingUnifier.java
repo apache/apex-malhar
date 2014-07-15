@@ -6,10 +6,10 @@ import java.util.Map;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
+
 import com.datatorrent.demos.machinedata.data.AverageData;
 import com.datatorrent.demos.machinedata.data.MachineKey;
 import com.datatorrent.lib.util.KeyHashValPair;
-
 
 /**
  * This class calculates the partial sum and count for a given key
@@ -37,7 +37,7 @@ public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<Machi
       outputPort.emit(new KeyHashValPair<MachineKey, AverageData>(entry.getKey(), entry.getValue()));
     }
     sums.clear();
-  
+
   }
 
   @Override
@@ -58,15 +58,16 @@ public class MachineInfoAveragingUnifier implements Unifier<KeyHashValPair<Machi
   public void process(KeyHashValPair<MachineKey, AverageData> arg0)
   {
     MachineKey tupleKey = arg0.getKey();
-    AverageData sumsMap = sums.get(tupleKey);
+    AverageData averageData = sums.get(tupleKey);
     AverageData tupleValue = arg0.getValue();
-    if (sumsMap == null) {
+    if (averageData == null) {
       sums.put(tupleKey, tupleValue);
-    } else {
-      sumsMap.getCount().add(tupleValue.getCount());
-      sumsMap.getHdd().add(tupleValue.getHdd());
-      sumsMap.getRam().add(tupleValue.getRam());
-      sumsMap.getCpu().add(tupleValue.getCpu());
+    }
+    else {
+      averageData.setCpu(averageData.getCpu() + tupleValue.getCpu());
+      averageData.setRam(averageData.getRam() + tupleValue.getRam());
+      averageData.setHdd(averageData.getHdd() + tupleValue.getHdd());
+      averageData.setCount(averageData.getCount() + tupleValue.getCount());
     }
   }
 
