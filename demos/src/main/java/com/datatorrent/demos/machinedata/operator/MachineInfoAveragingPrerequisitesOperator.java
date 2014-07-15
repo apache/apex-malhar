@@ -18,6 +18,7 @@ package com.datatorrent.demos.machinedata.operator;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+
 import com.datatorrent.demos.machinedata.data.MachineKey;
 import com.datatorrent.demos.machinedata.data.MachineInfo;
 import com.datatorrent.demos.machinedata.data.AverageData;
@@ -42,31 +43,34 @@ public class MachineInfoAveragingPrerequisitesOperator extends BaseOperator
   // Aggregate sum of all values seen for a key.
   private Map<MachineKey, AverageData> sums = new HashMap<MachineKey, AverageData>();
 
-
-
-  public final transient DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>> outputPort = new DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>>(){
-    public Unifier<KeyHashValPair<MachineKey,AverageData>> getUnifier() {
+  public final transient DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>> outputPort = new DefaultOutputPort<KeyHashValPair<MachineKey, AverageData>>()
+  {
+    public Unifier<KeyHashValPair<MachineKey, AverageData>> getUnifier()
+    {
       MachineInfoAveragingUnifier unifier = new MachineInfoAveragingUnifier();
       return unifier;
-    };
+    }
+
+    ;
   };
 
-  public transient DefaultInputPort<MachineInfo> inputPort = new DefaultInputPort<MachineInfo>() {
+  public transient DefaultInputPort<MachineInfo> inputPort = new DefaultInputPort<MachineInfo>()
+  {
 
     @Override
     public void process(MachineInfo tuple)
     {
       MachineKey key = tuple.getMachineKey();
-
-      AverageData sumsMap = sums.get(key);
-      if (sumsMap == null) {
-        sumsMap = new AverageData(new MutableLong(tuple.getCpu()),new MutableLong(tuple.getHdd()),new MutableLong(tuple.getRam()),new MutableLong(1));
-        sums.put(key, sumsMap);
-      } else {
-        sumsMap.getCpu().add(tuple.getCpu());
-        sumsMap.getRam().add(tuple.getRam());
-        sumsMap.getHdd().add(tuple.getHdd());
-        sumsMap.getCount().increment();
+      AverageData averageData = sums.get(key);
+      if (averageData == null) {
+        averageData = new AverageData(tuple.getCpu(), tuple.getHdd(), tuple.getRam(), 1);
+        sums.put(key, averageData);
+      }
+      else {
+        averageData.setCpu(averageData.getCpu() + tuple.getCpu());
+        averageData.setRam(averageData.getRam() + tuple.getRam());
+        averageData.setHdd(averageData.getHdd() + tuple.getHdd());
+        averageData.setCount(averageData.getCount() + 1);
       }
     }
   };
@@ -77,7 +81,7 @@ public class MachineInfoAveragingPrerequisitesOperator extends BaseOperator
 
     for (Map.Entry<MachineKey, AverageData> entry : sums.entrySet()) {
       if (outputPort.isConnected()) {
-        outputPort.emit(new KeyHashValPair<MachineKey, AverageData>(entry.getKey(),entry.getValue()));
+        outputPort.emit(new KeyHashValPair<MachineKey, AverageData>(entry.getKey(), entry.getValue()));
       }
     }
     sums.clear();
