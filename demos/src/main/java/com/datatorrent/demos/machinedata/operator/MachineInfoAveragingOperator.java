@@ -113,16 +113,16 @@ public class MachineInfoAveragingOperator extends BaseOperator
       MachineKey key = entry.getKey();
       AverageData averageResultMap = entry.getValue();
       Map<String, String> averageResult = Maps.newHashMap();
-      long count = averageResultMap.getCount().longValue();
-      double average = averageResultMap.getCpu().longValue() / count;
+      long count = averageResultMap.getCount();
+      double average = averageResultMap.getCpu() / count;
       averageResult.put(CPU, average + "");
-      emitAlert(average,CPU,key);
-      average = averageResultMap.getHdd().longValue() / count;
+      emitAlert(average, CPU, key);
+      average = averageResultMap.getHdd() / count;
       averageResult.put(HDD, average + "");
-      emitAlert(average,HDD,key);
-      average = averageResultMap.getRam().longValue() / count;
+      emitAlert(average, HDD, key);
+      average = averageResultMap.getRam() / count;
       averageResult.put(RAM, average + "");
-      emitAlert(average,RAM,key);
+      emitAlert(average, RAM, key);
       averageResult.put(DAY, key.getDay().toString());
       outputPort.emit(new KeyValPair<MachineKey, Map<String, String>>(key, averageResult));
     }

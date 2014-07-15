@@ -102,7 +102,7 @@ public class MachineInfo
   /**
    * This method sets the CPU% usage
    * 
-   * @param hdd
+   * @param cpu
    *          the CPU% usage
    */
   public void setCpu(int cpu)
@@ -123,7 +123,7 @@ public class MachineInfo
   /**
    * This method sets the RAM% usage
    * 
-   * @param hdd
+   * @param ram
    *          the RAM% usage
    */
   public void setRam(int ram)

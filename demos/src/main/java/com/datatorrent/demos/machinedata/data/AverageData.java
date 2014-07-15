@@ -15,7 +15,6 @@
  */
 package com.datatorrent.demos.machinedata.data;
 
-import org.apache.commons.lang.mutable.MutableLong;
 
 /**
  * This class stores the value of sum and the count of values summed.
@@ -28,10 +27,10 @@ import org.apache.commons.lang.mutable.MutableLong;
 public class AverageData
 {
 
-  private MutableLong cpu;
-  private MutableLong hdd;
-  private MutableLong ram;
-  private MutableLong count;
+  private long cpu;
+  private long hdd;
+  private long ram;
+  private long count;
 
   /**
    * This is default constructor that sets the sum and count to 0
@@ -47,7 +46,7 @@ public class AverageData
    * @param count
    *          the value of count
    */
-  public AverageData(MutableLong cpu,MutableLong hdd,MutableLong ram, MutableLong count)
+  public AverageData(long cpu,long hdd,long ram, long count)
   {
     this.cpu = cpu;
     this.ram = ram;
@@ -55,32 +54,32 @@ public class AverageData
     this.count = count;
   }
 
-  public MutableLong getCpu()
+  public long getCpu()
   {
     return cpu;
   }
 
-  public void setCpu(MutableLong cpu)
+  public void setCpu(long cpu)
   {
     this.cpu = cpu;
   }
 
-  public MutableLong getHdd()
+  public long getHdd()
   {
     return hdd;
   }
 
-  public void setHdd(MutableLong hdd)
+  public void setHdd(long hdd)
   {
     this.hdd = hdd;
   }
 
-  public MutableLong getRam()
+  public long getRam()
   {
     return ram;
   }
 
-  public void setRam(MutableLong ram)
+  public void setRam(long ram)
   {
     this.ram = ram;
   }
@@ -89,7 +88,7 @@ public class AverageData
    * This returns the value of count
    * @return
    */
-  public MutableLong getCount()
+  public long getCount()
   {
     return count;
   }
@@ -98,7 +97,7 @@ public class AverageData
    * This method sets the value of count
    * @param count
    */
-  public void setCount(MutableLong count)
+  public void setCount(long count)
   {
     this.count = count;
   }
