@@ -18,15 +18,6 @@
     <maven.deploy.skip>false</maven.deploy.skip>
   </properties>
 
-  <!-- repository to provide the DataTorrent artifacts -->
-  <!--repositories>
-    <repository>
-      <id>datatorrent</id>
-      <name>DataTorrent Release Repository</name>
-      <url>https://www.datatorrent.com/maven/content/repositories/releases/</url>
-    </repository>
-  </repositories-->
-
   <build>
     <plugins>
       <!-- Publish tests jar -->
@@ -64,16 +55,6 @@
           <groupId>javax.mail</groupId>
         </exclusion>
       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.2</version>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-websocket</artifactId>
-      <version>${jetty.version}</version>
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
@@ -131,6 +112,19 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.5</version>
+      <scope>provided</scope>
+    </dependency>
+    <!-- The following are needed but DT Engine already has them.
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-websocket</artifactId>
+      <version>${jetty.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>org.codehaus.jackson</groupId>
       <artifactId>jackson-core-asl</artifactId>
       <version>${jackson.version}</version>
@@ -162,6 +156,7 @@
       <artifactId>async-http-client</artifactId>
       <version>1.7.20</version>
     </dependency>
+    -->
     <dependency>
       <groupId>net.sf.trove4j</groupId>
       <artifactId>trove4j</artifactId>
@@ -171,6 +166,7 @@
       <groupId>org.hsqldb</groupId>
       <artifactId>hsqldb</artifactId>
       <version>2.3.1</version>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
