@@ -56,6 +56,10 @@ import com.datatorrent.api.Partitioner;
  * <p/>
  * Supports partitioning and dynamic changes to number of partitions through property {@link #partitionCount}. The
  * directory scanner is responsible to only accept the files that belong to a partition.
+ * <p/>
+ * This class supports retrying of failed files by putting them into failed list, and retrying them after pending
+ * files are processed. Retrying is disabled when maxRetryCount is set to zero.
+ *
  */
 public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperator, Partitioner<AbstractFSDirectoryInputOperator<T>>, StatsListener
 {
@@ -72,7 +76,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private int emitBatchSize = 1000;
   private int currentPartitions = 1 ;
   private int partitionCount = 1;
-  protected int retryCount = 0;
+  private int retryCount = 0;
   private int maxRetryCount = 5;
   transient protected int skipCount = 0;
 
@@ -90,18 +94,16 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     int    retryCount;
     long   lastFailedTime;
 
-    public FailedFile()
-    {
+    /* For kryo serialization */
+    protected FailedFile() {}
 
-    }
-
-    FailedFile(String path, int offset) {
+    protected FailedFile(String path, int offset) {
       this.path = path;
       this.offset = offset;
       this.retryCount = 0;
     }
 
-    FailedFile(String path, int offset, int retryCount) {
+    protected FailedFile(String path, int offset, int retryCount) {
       this.path = path;
       this.offset = offset;
       this.retryCount = retryCount;
@@ -119,7 +121,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
   }
   /* List of failed file */
-  protected final Queue<FailedFile> failedFiles = new LinkedList<FailedFile>();
+  private final Queue<FailedFile> failedFiles = new LinkedList<FailedFile>();
 
   protected transient FileSystem fs;
   protected transient Configuration configuration;
@@ -250,7 +252,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         }
         else if (!failedFiles.isEmpty()) {
           FailedFile ff = failedFiles.poll();
-          this.inputStream = openFile(ff);
+          this.inputStream = retryFailedFile(ff);
         }
       }catch (IOException ex) {
         throw new RuntimeException(ex);
@@ -286,7 +288,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
   }
 
-  protected void addToFailedList(FailedFile ff) throws IOException {
+  protected void addToFailedList() throws IOException {
+
+    FailedFile ff = new FailedFile(currentFile, offset, retryCount);
 
     // try to close file
     if (this.inputStream != null)
@@ -308,12 +312,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     failedFiles.add(ff);
   }
 
-  protected void addToFailedList(String path, int offset, int retryCount) throws IOException {
-    FailedFile ff = new FailedFile(path, offset, retryCount);
-    addToFailedList(ff);
-  }
-
-  protected InputStream openFile(FailedFile ff)  throws IOException
+  protected InputStream retryFailedFile(FailedFile ff)  throws IOException
   {
     LOG.info("retrying failed file {} offset {} retry {}", ff.path, ff.offset, ff.retryCount);
     String path = ff.path;
@@ -474,11 +473,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public static class DirectoryScanner implements Serializable
   {
     private static final long serialVersionUID = 4535844463258899929L;
-    protected String filePatternRegexp;
-    protected transient Pattern regex = null;
-    protected int partitionIndex;
-    protected int partitionCount;
-    protected final transient HashSet<String> ignoredFiles = new HashSet<String>();
+    private String filePatternRegexp;
+    private transient Pattern regex = null;
+    private int partitionIndex;
+    private int partitionCount;
+    private final transient HashSet<String> ignoredFiles = new HashSet<String>();
 
     public String getFilePatternRegexp()
     {
@@ -489,6 +488,20 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     {
       this.filePatternRegexp = filePatternRegexp;
       this.regex = null;
+    }
+
+    public Pattern getRegex() {
+      if (this.regex == null && this.filePatternRegexp != null)
+        this.regex = Pattern.compile(this.filePatternRegexp);
+      return this.regex;
+    }
+
+    public int getPartitionCount() {
+      return partitionCount;
+    }
+
+    public int getPartitionIndex() {
+      return partitionIndex;
     }
 
     public LinkedHashSet<Path> scan(FileSystem fs, Path filePath, Set<String> consumedFiles)
