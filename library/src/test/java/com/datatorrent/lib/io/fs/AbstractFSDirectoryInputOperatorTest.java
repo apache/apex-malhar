@@ -15,40 +15,22 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.python.google.common.collect.Lists;
-import org.python.google.common.collect.Maps;
-
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.StatsListener;
+import com.datatorrent.api.*;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator.DirectoryScanner;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.esotericsoftware.kryo.Kryo;
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
+import java.io.*;
+import java.util.*;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileSystem;
+import org.junit.*;
+import org.junit.rules.TestWatcher;
 
 public class AbstractFSDirectoryInputOperatorTest
 {
@@ -204,14 +186,14 @@ public class AbstractFSDirectoryInputOperatorTest
   @Test
   public void testPartitioningStateTransfer() throws Exception
   {
-    
+
     TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
     oper.setScanIntervalMillis(0);
-    
+
     TestFSDirectoryInputOperator initialState = new Kryo().copy(oper);
-    
+
     // Create 4 files with 3 records each.
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
     FileContext.getLocalFSFileContext().delete(path, true);
