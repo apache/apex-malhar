@@ -110,14 +110,14 @@ public class StoreManager
   @Nullable
   public Object get(@Nonnull Object key)
   {
-    Object primaryVal = primary.getValueFor(key);
+    Object primaryVal = primary.get(key);
     if (primaryVal != null) {
       return primaryVal;
     }
 
-    Object backupVal = backup.getValueFor(key);
+    Object backupVal = backup.get(key);
     if (backupVal != null) {
-      primary.setValueFor(key, backupVal);
+      primary.put(key, backupVal);
       return backupVal;
     }
     return null;
