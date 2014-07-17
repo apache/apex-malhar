@@ -58,7 +58,7 @@ public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extend
 	 */
 	@Nonnull
 	protected abstract PreparedStatement getUpdateCommand();
-	 
+
 	@Override
 	public void setup(Context.OperatorContext context)
 	{
