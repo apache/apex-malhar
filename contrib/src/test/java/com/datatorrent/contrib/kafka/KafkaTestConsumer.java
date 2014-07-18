@@ -108,7 +108,7 @@ public class KafkaTestConsumer implements Runnable
         latch.countDown();
       }
       if(getMessage(msg).equals(KafkaOperatorTestBase.END_TUPLE)){
-        return;
+        break;
       }
       holdingBuffer.add(msg);
       receiveCount++;
