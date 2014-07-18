@@ -21,16 +21,17 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.common.util.Pair;
 
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
 import junit.framework.Assert;
 
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,13 +39,13 @@ import org.slf4j.LoggerFactory;
 /**
  *
  */
-public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
+public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
 {
-  private static final Logger logger = LoggerFactory.getLogger(KafkaOutputOperatorTest.class);
-  private static int tupleCount = 0;
-  private static final int maxTuple = 20;
+  private static final Logger logger = LoggerFactory.getLogger(KafkaExactlyOnceOutputOperatorTest.class);
+  private static final int maxTuple = 40;
   private static CountDownLatch latch;
-
+  private static boolean isRestarted = false;
+  
    /**
    * Tuple generator for testing.
    */
@@ -67,6 +68,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     @Override
     public void setup(OperatorContext context)
     {
+      
     }
 
     @Override
@@ -80,16 +82,14 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
       dataGeneratorThread = new Thread("String Generator")
       {
         @Override
-        @SuppressWarnings("SleepWhileInLoop")
         public void run()
         {
           try {
             int i = 0;
             while (dataGeneratorThread != null && i < maxTuple) {
-              stringBuffer.put("testString " + (++i));
-              tupleCount++;
+              stringBuffer.put((++i) + "###testString " + i);
             }
-            stringBuffer.put(KafkaOperatorTestBase.END_TUPLE);
+            stringBuffer.put((maxTuple + 1) + "###" + KafkaOperatorTestBase.END_TUPLE);
           }
           catch (InterruptedException ie) {
           }
@@ -108,80 +108,91 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     public void emitTuples()
     {
       for (int i = stringBuffer.size(); i-- > 0;) {
+        if (i == 20 && isRestarted == false) {
+          isRestarted = true;
+          // fail the operator and when it gets back resend everything 
+          throw new RuntimeException();
+        }
         outputPort.emit(stringBuffer.poll());
       }
     }
   } // End of StringGeneratorInputOperator
 
   /**
-   * Test AbstractKafkaOutputOperator (i.e. an output adapter for Kafka, aka producer).
-   * This module sends data into an ActiveMQ message bus.
+   * Test AbstractKafkaExactOnceOutputOperator (i.e. an output adapter for Kafka, aka producer).
+   * This module sends data into a Kafka message bus.
    *
-   * [Generate tuple] ==> [send tuple through Kafka output adapter(i.e. producer) into Kafka message bus]
-   * ==> [receive data in outside Kaka listener (i.e consumer)]
+   * [Generate tuple] ==> [send tuple through Kafka output adapter(i.e. producer) into Kafka message bus](fail the producer at certain point and bring it back)
+   * ==> [receive data in outside Kafka listener (i.e consumer)] ==> Verify kafka doesn't receive duplicated message
    *
    * @throws Exception
    */
   @Test
-  @SuppressWarnings({"SleepWhileInLoop", "empty-statement", "rawtypes"})
-  public void testKafkaOutputOperator() throws Exception
+  @SuppressWarnings({"rawtypes"})
+  public void testKafkaExactOnceOutputOperator() throws Exception
   {
     //initialize the latch to synchronize the threads
     latch = new CountDownLatch(maxTuple);
     // Setup a message listener to receive the message
     KafkaTestConsumer listener = new KafkaTestConsumer("topic1");
     listener.setLatch(latch);
-    new Thread(listener).start();
 
+    // Malhar module to send message
     // Create DAG for testing.
     LocalMode lma = LocalMode.newInstance();
+    final DAG dag = lma.getDAG();
 
-    StreamingApplication app = new StreamingApplication() {
-      @Override
-      public void populateDAG(DAG dag, Configuration conf)
-      {
-      }
-    };
-
-    DAG dag = lma.getDAG();
-
-    // Create ActiveMQStringSinglePortOutputOperator
     StringGeneratorInputOperator generator = dag.addOperator("TestStringGenerator", StringGeneratorInputOperator.class);
-    KafkaSinglePortOutputOperator node = dag.addOperator("KafkaMessageProducer", KafkaSinglePortOutputOperator.class);
-
+    final SimpleKafkaExactOnceOutputOperator node = dag.addOperator("Kafka message producer", SimpleKafkaExactOnceOutputOperator.class);
+    
     Properties props = new Properties();
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
-    props.put("metadata.broker.list", "invalidhost:9092");
+    props.put("metadata.broker.list", "localhost:9092");
     props.setProperty("producer.type", "async");
     props.setProperty("queue.buffering.max.ms", "200");
     props.setProperty("queue.buffering.max.messages", "10");
     props.setProperty("batch.num.messages", "5");
-
+    
     node.setConfigProperties(props);
+    // Set configuration parameters for Kafka
     node.setTopic("topic1");
 
     // Connect ports
     dag.addStream("Kafka message", generator.outputPort, node.inputPort).setLocality(Locality.CONTAINER_LOCAL);
 
-    // MLHR-1143: verify we can set broker list (and other properties) through configuration
-    Configuration conf = new Configuration(false);
-    conf.set("dt.operator.KafkaMessageProducer.prop.configProperties(metadata.broker.list)", "localhost:9092");
-    lma.prepareDAG(app, conf);
-
+    
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();
     lc.runAsync();
 
-    // Immediately return unless latch timeout in 5 seconds
-    latch.await(15, TimeUnit.SECONDS);
+    Future f = Executors.newFixedThreadPool(1).submit(listener);
+    f.get(30, TimeUnit.SECONDS);
+    
     lc.shutdown();
 
     // Check values send vs received
-    Assert.assertEquals("Number of emitted tuples", tupleCount, listener.holdingBuffer.size());
+    Assert.assertEquals("Number of emitted tuples", maxTuple, listener.holdingBuffer.size());
     logger.debug(String.format("Number of emitted tuples: %d", listener.holdingBuffer.size()));
     Assert.assertEquals("First tuple", "testString 1", listener.getMessage(listener.holdingBuffer.peek()));
 
     listener.close();
+    
+  }
+  
+  public static class SimpleKafkaExactOnceOutputOperator extends AbstractExactlyOnceKafkaOutputOperator<String, String, String>{
+
+    @Override
+    protected int compareToLastMsg(Pair<String, String> tupleKeyValue, Pair<byte[], byte[]> lastReceivedKeyValue)
+    {
+      return Integer.parseInt(tupleKeyValue.first) - Integer.parseInt(new String(lastReceivedKeyValue.first));
+    }
+
+    @Override
+    protected Pair<String, String> tupleToKeyValue(String tuple)
+    {
+      return new Pair<String, String>(tuple.split("###")[0], tuple.split("###")[1]);
+    }
+    
   }
 
 

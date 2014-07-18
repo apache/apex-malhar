@@ -41,6 +41,10 @@ import kafka.javaapi.consumer.SimpleConsumer;
  */
 public class KafkaMetadataUtil
 {
+  
+  public static final String PRODUCER_PROP_PARTITIONER = "partitioner.class";
+  
+  public static final String PRODUCER_PROP_BROKERLIST = "metadata.broker.list";
 
   private static Logger logger = LoggerFactory.getLogger(KafkaMetadataUtil.class);
 
