@@ -35,7 +35,6 @@ import kafka.producer.Partitioner;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Pair;
 import com.datatorrent.contrib.kafka.AbstractKafkaOutputOperator;
 import com.google.common.collect.Sets;
@@ -44,9 +43,9 @@ import com.google.common.collect.Sets;
 /**
  * Kafka output operator, which, in most cases, guarantees to send tuples to kafka MQ only once.<br>
  * Assuming messages kept in kafka are ordered by either key or value or keyvalue pair
- * (For example, use timestamps as key), this Kafka OutputOperator always retrieve the last message from MQ as initial offset. 
+ * (For example, use timestamps as key), this Kafka OutputOperator always retrieve the last message from MQ as initial offset.
  *  So that replayed message wouldn't be sent to kafka again.
- * 
+ *
  * This is not "perfect exact once" in 2 cases:
  * 1 Multiple producers produce messages to same kafka partition
  * 2 You have same message sent out and before kafka synchronized this message among all the brokers, the operator is
@@ -79,19 +78,22 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
 {
 
   private Map<Integer, Pair<byte[], byte[]>>  lastMsgs;
-  
+
   private transient  Partitioner partitioner;
-  
+
   private transient int partitionNum = 1;
-  
+
   @Override
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    try{
-      partitioner = (Partitioner)Class.forName((String)getConfigProperties().get(KafkaMetadataUtil.PRODUCER_PROP_PARTITIONER)).newInstance();
-    }catch(Exception e){
-      logger.warn("Initialize partitioner error", e);
+    try {
+      String className = (String) getConfigProperties().get(KafkaMetadataUtil.PRODUCER_PROP_PARTITIONER);
+      if (className != null) {
+        partitioner = (Partitioner) Class.forName(className).newInstance();
+      }
+    } catch (Exception e) {
+      throw new RuntimeException("Failed to initialize partitioner", e);
     }
     //read last message from kafka
     initializeLastProcessingOffset();
@@ -103,13 +105,13 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
     {
       Pair<K, V> keyValue = tupleToKeyValue(tuple);
       int pid = 0;
-      
+
       if(partitioner!=null){
         pid = partitioner.partition(keyValue.first, partitionNum);
       }
-      
+
       Pair<byte[], byte[]> lastMsg = lastMsgs.get(pid);
-      
+
       if(lastMsg == null || compareToLastMsg(keyValue, lastMsg) > 0){
         getProducer().send(new KeyedMessage<K, V>(getTopic(), keyValue.first, keyValue.second));
         System.out.println("Send out the message " + keyValue.second);
@@ -121,32 +123,32 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
       }
     }
   };
-  
+
   private void initializeLastProcessingOffset()
   {
 
-    // read last received kafka message 
+    // read last received kafka message
     TopicMetadata tm = KafkaMetadataUtil.getTopicMetadata(Sets.newHashSet((String)getConfigProperties().get(KafkaMetadataUtil.PRODUCER_PROP_BROKERLIST)), this.getTopic());
 
     if (tm == null) {
-      return;
+      throw new RuntimeException("Failed to retrieve topic metadata");
     }
 
     partitionNum = tm.partitionsMetadata().size();
-    
+
     lastMsgs = new HashMap<Integer, Pair<byte[],byte[]>>(partitionNum);
-    
+
     for (PartitionMetadata pm : tm.partitionsMetadata()) {
 
       String leadBroker = pm.leader().host();
       int port = pm.leader().port();
-      String clientName = this.getClass().getName() + "_Client_" + tm.topic() + "_" + pm.partitionId();
+      String clientName = this.getClass().getName().replace('$', '.') + "_Client_" + tm.topic() + "_" + pm.partitionId();
       SimpleConsumer consumer = new SimpleConsumer(leadBroker, port, 100000, 64 * 1024, clientName);
 
       long readOffset = KafkaMetadataUtil.getLastOffset(consumer, tm.topic(), pm.partitionId(), kafka.api.OffsetRequest.LatestTime(), clientName);
 
       FetchRequest req = new FetchRequestBuilder().clientId(clientName).addFetch(tm.topic(), pm.partitionId(), readOffset - 1, 100000).build();
-      
+
       FetchResponse fetchResponse = consumer.fetch(req);
       for (MessageAndOffset messageAndOffset : fetchResponse.messageSet(tm.topic(), pm.partitionId())) {
 
@@ -164,24 +166,24 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
     }
 
   }
-  
+
   /**
-   * compare the incoming tuple with the last received message in kafka. 
-   * 
+   * compare the incoming tuple with the last received message in kafka.
+   *
    * @param tupleKeyValue
    * @param lastReceivedKeyValue
    * @return <=0 if tupleKeyValue is supposed to be before lastReceivedKeyValue
    *          >0 if tupleKeyValue is after the lastReceivedKeyValue
    */
   protected abstract int compareToLastMsg(Pair<K, V> tupleKeyValue, Pair<byte[], byte[]> lastReceivedKeyValue);
-  
+
   /**
    * Tell the operator how to convert a input tuple to a kafka key value pair
    * @param tuple
    * @return
    */
   protected abstract Pair<K, V> tupleToKeyValue(T tuple);
-  
+
   private static final Logger logger = LoggerFactory.getLogger(AbstractExactlyOnceKafkaOutputOperator.class);
-  
+
 }
