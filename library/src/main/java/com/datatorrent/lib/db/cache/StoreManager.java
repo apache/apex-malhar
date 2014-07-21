@@ -118,9 +118,14 @@ public class StoreManager
     Object backupVal = backup.get(key);
     if (backupVal != null) {
       primary.put(key, backupVal);
-      return backupVal;
     }
-    return null;
+    return backupVal;
+  }
+
+  public void put(@Nonnull Object key, @Nonnull Object value)
+  {
+    primary.put(key, value);
+    backup.put(key, value);
   }
 
   private final static Logger logger = LoggerFactory.getLogger(StoreManager.class);

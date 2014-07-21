@@ -18,13 +18,10 @@ package com.datatorrent.lib.db.jdbc;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
-
-import javax.annotation.Nonnull;
 
 import junit.framework.Assert;
 import org.junit.AfterClass;
@@ -43,134 +40,151 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 /**
  * Test for {@link JDBCLookupCacheBackedOperator}
  */
-public class JDBCLookupCacheBackedOperatorTest {
-	private static final String INMEM_DB_URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
-	private static final String INMEM_DB_DRIVER = "org.hsqldb.jdbcDriver";
-	protected static final String TABLE_NAME = "Test_Lookup_Cache";
+public class JDBCLookupCacheBackedOperatorTest
+{
+  private static final String INMEM_DB_URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
+  private static final String INMEM_DB_DRIVER = "org.hsqldb.jdbcDriver";
+  protected static final String TABLE_NAME = "Test_Lookup_Cache";
 
-	protected static TestJDBCLookupCacheBackedOperator lookupCacheBackedOperator = new TestJDBCLookupCacheBackedOperator();
-	protected static CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
-	protected static final Map<Integer, String> mapping = Maps.newHashMap();
+  protected static TestJDBCLookupCacheBackedOperator lookupCacheBackedOperator = new TestJDBCLookupCacheBackedOperator();
+  protected static CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+  protected static final Map<Integer, String> mapping = Maps.newHashMap();
 
-	static {
-		mapping.put(1, "one");
-		mapping.put(2, "two");
-		mapping.put(3, "three");
-		mapping.put(4, "four");
-		mapping.put(5, "five");
-	}
+  static {
+    mapping.put(1, "one");
+    mapping.put(2, "two");
+    mapping.put(3, "three");
+    mapping.put(4, "four");
+    mapping.put(5, "five");
+  }
 
-	protected static transient final Logger logger = LoggerFactory
-			.getLogger(JDBCLookupCacheBackedOperatorTest.class);
+  protected static transient final Logger logger = LoggerFactory.getLogger(JDBCLookupCacheBackedOperatorTest.class);
 
-	private final static Exchanger<Map<Object, Object>> bulkValuesExchanger = new Exchanger<Map<Object, Object>>();
+  private final static Exchanger<Map<Object, Object>> bulkValuesExchanger = new Exchanger<Map<Object, Object>>();
 
-	public static class TestJDBCLookupCacheBackedOperator extends
-			JDBCLookupCacheBackedOperator<String> {
+  public static class TestJDBCLookupCacheBackedOperator extends JDBCLookupCacheBackedOperator<String>
+  {
 
-		@Override
-		public Integer getKeyFromTuple(String tuple) {
-			return Integer.parseInt(tuple);
-		}
+    @Override
+    public Integer getKeyFromTuple(String tuple)
+    {
+      return Integer.parseInt(tuple);
+    }
 
-		@Override
-		public Map<Object, Object> fetchStartupData() {
-			return null;
-		}
+    @Override
+    public Map<Object, Object> fetchStartupData()
+    {
+      return null;
+    }
 
-		@Override
-		protected void preparePutStatement(Object key, Object value)
-				throws SQLException {
-			putStatement.setInt(1, (Integer) key);
-			putStatement.setString(2, (String) value);
+    @Override
+    protected void preparePutStatement(PreparedStatement putStatement, Object key, Object value) throws SQLException
+    {
+      putStatement.setInt(1, (Integer) key);
+      putStatement.setString(2, (String) value);
 
-		}
+    }
 
-		@Override
-		protected void prepareGetStatement(Object key) throws SQLException {
-			getStatement.setInt(1, (Integer) key);
-		}
+    @Override
+    protected void prepareGetStatement(PreparedStatement getStatement, Object key) throws SQLException
+    {
+      getStatement.setInt(1, (Integer) key);
+    }
 
-		@Override
-		public Object processResultSet(ResultSet resultSet) {
-			try {
-				if(resultSet.next())
-					return resultSet.getString(1);
-				return null;
-			} catch (SQLException e) {
-				throw new RuntimeException("while processing the result set", e);
-			}
-		}
+    @Override
+    public Object processResultSet(ResultSet resultSet) throws SQLException
+    {
+      if (resultSet.next()) {
+        return resultSet.getString(1);
+      }
+      return null;
+    }
 
-		@Override
-		protected String fetchInsertQuery() {
-			return "INSERT INTO " + TABLE_NAME + " (col1, col2) VALUES (?, ?)";
-		}
+    @Override
+    protected String fetchInsertQuery()
+    {
+      return "INSERT INTO " + TABLE_NAME + " (col1, col2) VALUES (?, ?)";
+    }
 
-		@Override
-		protected String fetchGetQuery() {
-			return "select col1, col2 from " + TABLE_NAME + " where col1 = ?";
-		}
-	}
+    @Override
+    protected String fetchGetQuery()
+    {
+      return "select col1, col2 from " + TABLE_NAME + " where col1 = ?";
+    }
 
-	@Test
-	public void test() throws Exception {
-		lookupCacheBackedOperator.beginWindow(0);
-		lookupCacheBackedOperator.input.process("1");
-		lookupCacheBackedOperator.input.process("2");
-		lookupCacheBackedOperator.endWindow();
+    @Override
+    public Map<Object, Object> bulkGet(Set<Object> keys)
+    {
 
-		// Check values send vs received
-		Assert.assertEquals("Number of emitted tuples", 2,
-				sink.collectedTuples.size());
+      Map<Object, Object> valMap = super.bulkGet(keys);
+      try {
+        bulkValuesExchanger.exchange(valMap);
+      }
+      catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      return valMap;
+    }
+  }
 
-		Map<Object, Object> bulk = bulkValuesExchanger.exchange(null, 30,
-				TimeUnit.SECONDS);
-		Assert.assertEquals("bulk values retrieval", 2, bulk.size());
-	}
+  @Test
+  public void test() throws Exception
+  {
+    lookupCacheBackedOperator.beginWindow(0);
+    lookupCacheBackedOperator.input.process("1");
+    lookupCacheBackedOperator.input.process("2");
+    lookupCacheBackedOperator.endWindow();
 
-	@BeforeClass
-	public static void setup() throws Exception {
-		// This will load the JDBC driver, each DB has its own driver
-		Class.forName(INMEM_DB_DRIVER).newInstance();
+    // Check values send vs received
+    Assert.assertEquals("Number of emitted tuples", 2, sink.collectedTuples.size());
 
-		Connection con = DriverManager.getConnection(INMEM_DB_URL);
-		Statement stmt = con.createStatement();
+    Map<Object, Object> bulk = bulkValuesExchanger.exchange(null, 30, TimeUnit.SECONDS);
+    Assert.assertEquals("bulk values retrieval", 2, bulk.size());
+  }
 
-		String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
-				+ " (col1 INTEGER, col2 VARCHAR(20))";
+  @BeforeClass
+  public static void setup() throws Exception
+  {
+    // This will load the JDBC driver, each DB has its own driver
+    Class.forName(INMEM_DB_DRIVER).newInstance();
 
-		stmt.executeUpdate(createTable);
-		stmt.executeUpdate("Delete from " + TABLE_NAME);
+    Connection con = DriverManager.getConnection(INMEM_DB_URL);
+    Statement stmt = con.createStatement();
 
-		// populate the database
-		for (Map.Entry<Integer, String> entry : mapping.entrySet()) {
-			String insert = "INSERT INTO " + TABLE_NAME
-					+ " (col1, col2) VALUES (" + entry.getKey() + ", '"
-					+ entry.getValue() + "')";
-			stmt.executeUpdate(insert);
-		}
+    String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
+      + " (col1 INTEGER, col2 VARCHAR(20))";
 
-		// Setup the operator
-		lookupCacheBackedOperator.store.setDbUrl(INMEM_DB_URL);
-		lookupCacheBackedOperator.store.setDbDriver(INMEM_DB_DRIVER);
+    stmt.executeUpdate(createTable);
+    stmt.executeUpdate("Delete from " + TABLE_NAME);
 
-		Calendar now = Calendar.getInstance();
-		now.add(Calendar.SECOND, 5);
+    // populate the database
+    for (Map.Entry<Integer, String> entry : mapping.entrySet()) {
+      String insert = "INSERT INTO " + TABLE_NAME
+        + " (col1, col2) VALUES (" + entry.getKey() + ", '"
+        + entry.getValue() + "')";
+      stmt.executeUpdate(insert);
+    }
 
-		SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-		lookupCacheBackedOperator.setCacheRefreshTime(format.format(now
-				.getTime()));
+    // Setup the operator
+    lookupCacheBackedOperator.store.setDbUrl(INMEM_DB_URL);
+    lookupCacheBackedOperator.store.setDbDriver(INMEM_DB_DRIVER);
 
-		lookupCacheBackedOperator.output.setSink(sink);
+    Calendar now = Calendar.getInstance();
+    now.add(Calendar.SECOND, 5);
 
-		Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(
-				7);
-		lookupCacheBackedOperator.setup(context);
-	}
+    SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
+    lookupCacheBackedOperator.setCacheRefreshTime(format.format(now
+      .getTime()));
 
-	@AfterClass
-	public static void teardown() throws Exception {
-	}
+    lookupCacheBackedOperator.output.setSink(sink);
+
+    Context.OperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(7);
+    lookupCacheBackedOperator.setup(context);
+  }
+
+  @AfterClass
+  public static void teardown() throws Exception
+  {
+  }
 
 }
