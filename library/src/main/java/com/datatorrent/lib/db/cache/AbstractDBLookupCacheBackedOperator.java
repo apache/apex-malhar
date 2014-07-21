@@ -40,7 +40,7 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   protected final CacheProperties cacheProperties;
   protected String cacheRefreshTime;
 
-  private transient StoreManager storeManager;
+  protected transient StoreManager storeManager;
 
   public AbstractDBLookupCacheBackedOperator()
   {

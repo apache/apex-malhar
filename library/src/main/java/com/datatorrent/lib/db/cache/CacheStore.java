@@ -68,7 +68,7 @@ public class CacheStore implements Store.Primary
   }
 
   @Override
-  public void setValueFor(Object key, Object value)
+  public void put(Object key, Object value)
   {
     cache.put(key, value);
   }
@@ -86,7 +86,7 @@ public class CacheStore implements Store.Primary
   }
 
   @Override
-  public Object getValueFor(Object key)
+  public Object get(Object key)
   {
     return cache.getIfPresent(key);
   }
