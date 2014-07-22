@@ -62,6 +62,7 @@ public class KafkaApplicationTest
     Configuration conf = new Configuration(false);
     conf.set("dt.operator.Kafka.prop.configProperties(metadata.broker.list)", "localhost:9092");
     conf.set("dt.operator.Kafka.prop.topic", kafkaTopic);
+    conf.set("dt.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT", "1");
 
     // DO NOT USE  conf.set("com.datatorrent.demos.adsdimension.KafkaApplication.metadata.broker.list", "localhost:9092");
     //conf.set("zk.connect", "127.0.0.1:2181");
@@ -72,6 +73,9 @@ public class KafkaApplicationTest
     lma.prepareDAG(new KafkaApplication(), conf);
 
     LocalMode.Controller lc = lma.getController();
+
+
+
     lc.setHeartbeatMonitoringEnabled(false);
 
     lc.runAsync();

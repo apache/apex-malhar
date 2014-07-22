@@ -26,6 +26,7 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 import org.apache.hadoop.conf.Configuration;
 
+import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -54,12 +55,10 @@ public class KafkaApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "KafkaAdsDimension");
-
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
 
     DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent>());
-    dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 60);
+    dag.setAttribute(dimensions, Context.OperatorContext.APPLICATION_WINDOW_COUNT, 60);
 
     String[] dimensionSpecs = new String[] {
             "time=" + TimeUnit.MINUTES,
@@ -87,8 +86,16 @@ public class KafkaApplication implements StreamingApplication
 
     KafkaSinglePortOutputOperator kafka = dag.addOperator("Kafka", new KafkaSinglePortOutputOperator<String, AdInfo>());
 
+    // Set default properties based on http://kafka.apache.org/documentation.html#producerconfigs
     kafka.setTopic("adsdimensions");
-    kafka.getConfigProperties().setProperty("serializer.class", KafkaStringEncoder.class.getName());
+    Properties kafkaProps = kafka.getConfigProperties();
+    kafkaProps.setProperty("producer.type", "async");
+    kafkaProps.setProperty("queue.buffering.max.ms", "200");
+    kafkaProps.setProperty("queue.buffering.max.messages", "10");
+    kafkaProps.setProperty("batch.num.messages", "5");
+    kafkaProps.setProperty("serializer.class", KafkaStringEncoder.class.getName());
+
+
 
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, kafka.inputPort);
