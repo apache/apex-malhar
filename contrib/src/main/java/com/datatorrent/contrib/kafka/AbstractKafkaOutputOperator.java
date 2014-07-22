@@ -15,20 +15,18 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.util.Properties;
-
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
-
-import javax.validation.constraints.NotNull;
-
+import com.datatorrent.api.annotation.ShipContainingJars;
+import com.yammer.metrics.Metrics;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.ProducerConfig;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotNull;
+import java.util.Properties;
 
 /**
  * Kafka output adapter operator, which produce data into Kafka message bus.<p><br>
@@ -53,7 +51,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class, StringUtils.class})
+@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class, StringUtils.class, Metrics.class})
 public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
 {
   @SuppressWarnings("unused")
