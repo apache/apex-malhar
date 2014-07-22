@@ -48,6 +48,14 @@ import java.util.concurrent.TimeUnit;
  *      <value>localhost:9092</value>
  *    </property>
  *
+ * Additional Kafka properties can be found in http://kafka.apache.org/documentation.html#producerconfigs
+ * and can be set using following pattern
+ *
+ *    <property>
+ *      <name>dt.operator.Kafka.prop.configProperties(producer.type)</name>
+ *      <value>async</value>
+ *    </property>
+ *
  */
 @ApplicationAnnotation(name="KafkaAdsDimensionsDemo")
 public class KafkaApplication implements StreamingApplication
@@ -83,24 +91,17 @@ public class KafkaApplication implements StreamingApplication
     unifier.setAggregators(aggregators);
     dimensions.setUnifier(unifier);
 
-
     KafkaSinglePortOutputOperator kafka = dag.addOperator("Kafka", new KafkaSinglePortOutputOperator<String, AdInfo>());
 
-    // Set default properties based on http://kafka.apache.org/documentation.html#producerconfigs
+    // Set default Kafka topic for writing output messages
     kafka.setTopic("adsdimensions");
+    // Set default properties based on http://kafka.apache.org/documentation.html#producerconfigs
     Properties kafkaProps = kafka.getConfigProperties();
-    kafkaProps.setProperty("producer.type", "async");
-    kafkaProps.setProperty("queue.buffering.max.ms", "200");
-    kafkaProps.setProperty("queue.buffering.max.messages", "10");
-    kafkaProps.setProperty("batch.num.messages", "5");
     kafkaProps.setProperty("serializer.class", KafkaStringEncoder.class.getName());
-
-
 
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, kafka.inputPort);
   }
-
 
 
   public static class KafkaStringEncoder implements kafka.serializer.Encoder<AdInfo>
@@ -129,7 +130,6 @@ public class KafkaApplication implements StreamingApplication
       msg.append(adInfo.clicks);
 
       return msg.toString().getBytes();
-
     }
 
   }
