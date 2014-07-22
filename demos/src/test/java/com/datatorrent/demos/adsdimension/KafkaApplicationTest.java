@@ -71,20 +71,13 @@ public class KafkaApplicationTest
     //conf.set("request.required.acks", "1");
 
     lma.prepareDAG(new KafkaApplication(), conf);
-
     LocalMode.Controller lc = lma.getController();
-
-
-
     lc.setHeartbeatMonitoringEnabled(false);
-
     lc.runAsync();
-
 
     CountDownLatch latch = new CountDownLatch(100);
     // Setup a message listener to receive the message
     KafkaTestConsumer listener = new KafkaTestConsumer(kafkaTopic);
-
 
     listener.setLatch(latch);
     new Thread(listener).start();
@@ -93,9 +86,7 @@ public class KafkaApplicationTest
     lc.shutdown();
 
     String lastMessage;
-
     Assert.assertTrue("Minimum messages received from Kafka " + listener.holdingBuffer, listener.holdingBuffer.size() >= 100);
-
     while (!listener.holdingBuffer.isEmpty()) {
       lastMessage = listener.getMessage(listener.holdingBuffer.poll());
       Assert.assertNotNull("Did not receive message from Kafka", lastMessage);
