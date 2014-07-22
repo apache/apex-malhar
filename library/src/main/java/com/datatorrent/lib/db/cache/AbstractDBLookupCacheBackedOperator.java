@@ -40,7 +40,7 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   protected final CacheProperties cacheProperties;
   protected String cacheRefreshTime;
 
-  private transient StoreManager storeManager;
+  protected transient StoreManager storeManager;
 
   public AbstractDBLookupCacheBackedOperator()
   {
@@ -52,14 +52,19 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
     @Override
     public void process(T tuple)
     {
-      Object key = getKeyFromTuple(tuple);
-      Object value = storeManager.get(key);
-
-      if (value != null) {
-        output.emit(new KeyValPair<Object, Object>(key, value));
-      }
+      processTuple(tuple);
     }
   };
+
+  protected void processTuple(T tuple)
+  {
+    Object key = getKeyFromTuple(tuple);
+    Object value = storeManager.get(key);
+
+    if (value != null) {
+      output.emit(new KeyValPair<Object, Object>(key, value));
+    }
+  }
 
   public final transient DefaultOutputPort<KeyValPair<Object, Object>> output = new DefaultOutputPort<KeyValPair<Object, Object>>();
 

@@ -110,17 +110,22 @@ public class StoreManager
   @Nullable
   public Object get(@Nonnull Object key)
   {
-    Object primaryVal = primary.getValueFor(key);
+    Object primaryVal = primary.get(key);
     if (primaryVal != null) {
       return primaryVal;
     }
 
-    Object backupVal = backup.getValueFor(key);
+    Object backupVal = backup.get(key);
     if (backupVal != null) {
-      primary.setValueFor(key, backupVal);
-      return backupVal;
+      primary.put(key, backupVal);
     }
-    return null;
+    return backupVal;
+  }
+
+  public void put(@Nonnull Object key, @Nonnull Object value)
+  {
+    primary.put(key, value);
+    backup.put(key, value);
   }
 
   private final static Logger logger = LoggerFactory.getLogger(StoreManager.class);

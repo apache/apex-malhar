@@ -63,7 +63,7 @@ public class StoreManagerTest
     }
 
     @Override
-    public Object getValueFor(Object key)
+    public Object get(Object key)
     {
       return backupMap.get(key);
     }
@@ -86,6 +86,11 @@ public class StoreManagerTest
     {
       //Do nothing
     }
+
+	@Override
+	public void put(Object key, Object value) {
+		backupMap.put(key, value);
+	}
   }
 
   @Test
@@ -95,7 +100,7 @@ public class StoreManagerTest
     StoreManager manager = new StoreManager(primary, new DummyBackupStore());
     manager.initialize(null);
 
-    Assert.assertEquals("manager initialization- value", "one", primary.getValueFor(1));
+    Assert.assertEquals("manager initialization- value", "one", primary.get(1));
     Assert.assertEquals("manager initializaton- total", 5, primary.getKeys().size());
 
     Assert.assertEquals("backup hit", "six", manager.get(6));
