@@ -35,6 +35,7 @@ import com.datatorrent.api.DefaultInputPort;
  * Contains base implementations for setup, teardown, open file and close file.
  *
  * @param <INPUT> incoming tuple type
+ * @since 1.0.2
  */
 public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
 {

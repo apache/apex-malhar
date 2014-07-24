@@ -24,6 +24,7 @@ import com.sun.jersey.api.client.WebResource;
  *
  * @param <INPUT>
  * @param <OUTPUT>
+ * @since 1.0.2
  */
 public abstract class AbstractHttpGetMultiValuedMapOperator<INPUT, OUTPUT> extends AbstractHttpGetOperator<INPUT, OUTPUT>
 {

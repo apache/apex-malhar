@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.machinedata.data;
 
+
 /**
  * This class stores the value of sum and the count of values summed.
  * <p>
@@ -26,7 +27,9 @@ package com.datatorrent.demos.machinedata.data;
 public class AverageData
 {
 
-  private double sum;
+  private long cpu;
+  private long hdd;
+  private long ram;
   private long count;
 
   /**
@@ -34,40 +37,51 @@ public class AverageData
    */
   public AverageData()
   {
-    sum = 0;
-    count = 0;
+
   }
 
   /**
    * This constructor takes the value of sum and count and initialize the local attributes to corresponding values
    * 
-   * @param sum
-   *          the value of sum
    * @param count
    *          the value of count
    */
-  public AverageData(double sum, long count)
+  public AverageData(long cpu,long hdd,long ram, long count)
   {
-    this.sum = sum;
+    this.cpu = cpu;
+    this.ram = ram;
+    this.hdd = hdd;
     this.count = count;
   }
 
-  /**
-   * This returns the value of sum
-   * @return
-   */
-  public double getSum()
+  public long getCpu()
   {
-    return sum;
+    return cpu;
   }
 
-  /**
-   * This method sets the value of sum
-   * @param sum
-   */
-  public void setSum(double sum)
+  public void setCpu(long cpu)
   {
-    this.sum = sum;
+    this.cpu = cpu;
+  }
+
+  public long getHdd()
+  {
+    return hdd;
+  }
+
+  public void setHdd(long hdd)
+  {
+    this.hdd = hdd;
+  }
+
+  public long getRam()
+  {
+    return ram;
+  }
+
+  public void setRam(long ram)
+  {
+    this.ram = ram;
   }
 
   /**

@@ -15,14 +15,12 @@
  */
 package com.datatorrent.demos.mobile;
 
-import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.api.DAGContext;
-import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -36,6 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -159,8 +158,14 @@ public class Application implements StreamingApplication
     movementGen.setRange(20);
     movementGen.setThreshold(80);
     dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
-    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
-    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 30000);
+    //dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
+    //dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 30000);
+    ThroughputBasedPartitioner<PhoneMovementGenerator> partitioner = new ThroughputBasedPartitioner<PhoneMovementGenerator>();
+    partitioner.setCooldownMillis(90000);
+    partitioner.setMaximumThroughput(30000);
+    partitioner.setMinimumThroughput(10000);
+    dag.setAttribute(movementGen,OperatorContext.STATS_LISTENERS, Arrays.asList(new StatsListener[]{partitioner}));
+    dag.setAttribute(movementGen,OperatorContext.PARTITIONER, partitioner);
     dag.setInputPortAttribute(movementGen.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     // default partitioning: first connected stream to movementGen will be partitioned
@@ -202,7 +207,7 @@ public class Application implements StreamingApplication
       movementGen.phone_register.add(5556101);
       ConsoleOutputOperator out = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
       out.setStringFormat("phoneLocationQueryResult" + ": %s");
-      dag.addStream("consoledata", movementGen.locationQueryResult, out.input).setLocality(Locality.CONTAINER_LOCAL);
+      dag.addStream("consoledata", movementGen.locationQueryResult, out.input);
     }
   }
 

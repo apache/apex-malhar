@@ -29,6 +29,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *
  * @param <INPUT> tuple type of input port
  * @param <OUTPUT> tuple type of output port
+ * @since 1.0.2
  */
 public abstract class AbstractHttpGetOperator<INPUT, OUTPUT> extends AbstractHttpOperator<INPUT>
 {

@@ -60,6 +60,7 @@ import com.datatorrent.api.Partitioner;
  * This class supports retrying of failed files by putting them into failed list, and retrying them after pending
  * files are processed. Retrying is disabled when maxRetryCount is set to zero.
  *
+ * @since 1.0.2
  */
 public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperator, Partitioner<AbstractFSDirectoryInputOperator<T>>, StatsListener
 {

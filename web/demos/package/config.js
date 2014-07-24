@@ -26,7 +26,8 @@ config.fraud.mongo.dbName = 'frauddetect';
 config.settings = {};
 var settings = config.settings;
 
-settings.twitter = {};
+settings.twitterUrls = {};
+settings.twitterHashtags = {};
 settings.mobile = {};
 settings.mobile.topic = {};
 settings.machine = {};
@@ -38,8 +39,10 @@ settings.fraud = {};
 settings.webSocketURL = 'ws://' + config.gateway.host + ':' + config.gateway.port + '/pubsub';
 settings.appsURL = 'http://' + config.gateway.host + ':' + config.gateway.port + '/static/#ops/apps/';
 
-settings.twitter.appName = process.env.APP_NAME_TWITTER || 'TwitterDemo';
-settings.twitter.topic = 'demos.twitter.topURLs';
+settings.twitterUrls.appName = process.env.APP_NAME_TWITTER_URLS || 'TwitterDemo';
+settings.twitterUrls.topic = 'demos.twitter.topURLs';
+settings.twitterHashtags.appName = process.env.APP_NAME_TWITTER_HASHTAGS || 'TwitterTrendingDemo';
+settings.twitterHashtags.topic = 'demos.twitter.topHashtags';
 settings.mobile.topic.out = 'demos.mobile.phoneLocationQueryResult';
 settings.mobile.topic.in = 'demos.mobile.phoneLocationQuery';
 settings.mobile.appName = process.env.APP_NAME_MOBILE || 'MobileDemo';
