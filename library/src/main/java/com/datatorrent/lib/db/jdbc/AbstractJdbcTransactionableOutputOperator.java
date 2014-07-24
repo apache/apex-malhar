@@ -49,7 +49,7 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
  *
- * @param <T>type of tuple</T>
+ * @param <T> type of tuple
  * @since 0.9.4
  */
 public abstract class AbstractJdbcTransactionableOutputOperator<T> extends AbstractPassThruTransactionableStoreOutputOperator<T, JdbcTransactionalStore>
