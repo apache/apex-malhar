@@ -44,7 +44,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
   @Nonnull
   private String metaTable;
 
-  private transient boolean inTransaction;
+  private boolean inTransaction;
   private transient PreparedStatement lastWindowFetchCommand;
   private transient PreparedStatement lastWindowInsertCommand;
   private transient PreparedStatement lastWindowUpdateCommand;
