@@ -177,7 +177,12 @@ public class StockTickInput implements InputOperator
 
   public String getTickers()
   {
-    return StringUtils.join(",", symbols);
+    if (symbols != null) {
+      return StringUtils.join(",", symbols);
+    }
+    else {
+      return "";
+    }
   }
 
 }
