@@ -92,7 +92,7 @@ public class BaseKeyValueOperator<K, V> extends BaseKeyOperator<K>
     return (Class<? extends StreamCodec<KeyValPair<K, V>>>)c;
   }
 
-  public static class DefaultPartitionCodec<K, V> extends JavaSerializationStreamCodec<KeyValPair<K, V>>
+  public static class DefaultPartitionCodec<K, V> extends JavaSerializationStreamCodec<KeyValPair<K, V>> 
   {
     /**
      * A codec to enable partitioning to be done by key

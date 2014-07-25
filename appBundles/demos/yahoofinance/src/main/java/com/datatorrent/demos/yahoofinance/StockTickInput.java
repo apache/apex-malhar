@@ -32,6 +32,7 @@ import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.hadoop.util.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -167,6 +168,16 @@ public class StockTickInput implements InputOperator
   public void setOutputEvenIfZeroVolume(boolean outputEvenIfZeroVolume)
   {
     this.outputEvenIfZeroVolume = outputEvenIfZeroVolume;
+  }
+
+  public void setTickers(String tickers)
+  {
+    symbols = StringUtils.split(tickers, ',');
+  }
+
+  public String getTickers()
+  {
+    return StringUtils.join(",", symbols);
   }
 
 }

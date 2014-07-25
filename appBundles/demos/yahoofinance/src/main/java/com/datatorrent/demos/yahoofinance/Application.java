@@ -16,19 +16,20 @@
 package com.datatorrent.demos.yahoofinance;
 
 
-import org.apache.hadoop.conf.Configuration;
-
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.InputPort;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.math.RangeKeyVal;
 import com.datatorrent.lib.math.SumKeyVal;
 import com.datatorrent.lib.multiwindow.SimpleMovingAverage;
 import com.datatorrent.lib.stream.ConsolidatorKeyVal;
+import com.datatorrent.lib.util.BaseKeyValueOperator.DefaultPartitionCodec;
 import com.datatorrent.lib.util.HighLow;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * Yahoo! Finance Application Demo :<br>
@@ -193,7 +194,7 @@ public class Application implements StreamingApplication
   protected int streamingWindowSizeMilliSeconds = 1000; // 1 second
   protected int appWindowCountMinute = 60;   // 1 minute
   protected int appWindowCountSMA = 300;  // 5 minute
-  protected String[] tickers = {"IBM", "GOOG", "AAPL", "YHOO"};
+  //protected String[] tickers = {"IBM", "GOOG", "AAPL", "YHOO"};
 
   /**
    * Instantiate stock input operator for actual Yahoo finance ticks of symbol, last price, total daily volume, and last traded price.
@@ -205,7 +206,7 @@ public class Application implements StreamingApplication
   {
     StockTickInput oper = dag.addOperator(name, StockTickInput.class);
     oper.readIntervalMillis = 200;
-    oper.symbols = tickers;
+    //oper.symbols = tickers;
     return oper;
   }
 
@@ -341,7 +342,9 @@ public class Application implements StreamingApplication
     ConsolidatorKeyVal<String,HighLow<Double>,Long,?,?,?> chartOperator = getChartOperator("Chart", dag);
 
     SimpleMovingAverage<String, Double> priceSMA = getPriceSimpleMovingAverageOperator("PriceSMA", dag, appWindowCountSMA);
-
+    DefaultPartitionCodec<String, Double> codec = new DefaultPartitionCodec<String, Double>();
+    dag.setInputPortAttribute(highlow.data, PortContext.STREAM_CODEC, codec);
+    dag.setInputPortAttribute(priceSMA.data, PortContext.STREAM_CODEC, codec);
     dag.addStream("price", tick.price, quoteOperator.in1, highlow.data, priceSMA.data);
     dag.addStream("vol", tick.volume, dailyVolume.data, minuteVolume.data);
     dag.addStream("time", tick.time, quoteOperator.in3);
