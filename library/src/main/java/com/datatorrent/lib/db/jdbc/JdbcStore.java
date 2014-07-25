@@ -36,14 +36,12 @@ import com.datatorrent.lib.db.Connectable;
 public class JdbcStore implements Connectable
 {
   protected static final Logger logger = LoggerFactory.getLogger(JdbcStore.class);
-
   @NotNull
   private String dbUrl;
   @NotNull
   private String dbDriver;
   private String userName;
   private String password;
-
   protected transient Connection connection = null;
 
   @NotNull
@@ -73,7 +71,7 @@ public class JdbcStore implements Connectable
     return connection;
   }
 
-  /**
+ /**
    * Sets the user name.
    *
    * @param userName user name.
@@ -142,4 +140,5 @@ public class JdbcStore implements Connectable
       throw new RuntimeException("is connected", e);
     }
   }
+
 }

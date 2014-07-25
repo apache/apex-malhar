@@ -15,14 +15,13 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.api.Context.OperatorContext;
+import java.util.ArrayList;
+
+import com.datatorrent.lib.multiwindow.AbstractSlidingWindowKeyVal;
+import com.datatorrent.lib.util.KeyValPair;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.multiwindow.AbstractSlidingWindowKeyVal;
-import com.datatorrent.lib.multiwindow.SlidingWindowObject;
-import com.datatorrent.lib.util.KeyValPair;
-import java.util.ArrayList;
-import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  * Sliding window sum operator

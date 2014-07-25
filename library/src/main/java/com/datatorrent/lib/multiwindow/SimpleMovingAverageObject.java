@@ -24,7 +24,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  *
  * @since 0.3.2
  */
-public class SimpleMovingAverageObject implements SlidingWindowObject
+public class SimpleMovingAverageObject
 {
   private MutableDouble sum;
   private MutableInt count;
@@ -51,7 +51,6 @@ public class SimpleMovingAverageObject implements SlidingWindowObject
     count.add(1);
   }
 
-  @Override
   public void clear()
   {
     sum.setValue(0);
