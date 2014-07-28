@@ -21,8 +21,8 @@ public interface BucketFileSystem
   {
     String name;
     int size;
-    long minTime;
-    long maxTime;
+    long fromSeq;
+    long toSeq;
   }
 
   BucketFileMeta createFile(DataKey key, long minTime, long maxTime) throws IOException;

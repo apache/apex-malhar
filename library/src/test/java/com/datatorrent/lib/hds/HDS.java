@@ -10,11 +10,17 @@ import java.util.Map;
 public interface HDS
 {
   interface DataKey {
+    /**
+     * The bucket name. Should this be byte[] instead of String?
+     * @return
+     */
     String getBucketKey();
-  }
-
-  interface TimeSeriesDataKey extends DataKey {
-    long getTime();
+    /**
+     * Monotonically increasing sequence that is used as secondary level of organization within buckets.
+     * In most cases this will be a time stamp.
+     * @return
+     */
+    long getSequence();
   }
 
   interface Bucket<K extends DataKey, V>

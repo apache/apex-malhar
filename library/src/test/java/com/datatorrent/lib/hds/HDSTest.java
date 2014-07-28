@@ -16,7 +16,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.Test;
 
-import com.datatorrent.lib.hds.HDS.TimeSeriesDataKey;
+import com.datatorrent.lib.hds.HDS.DataKey;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -24,7 +24,7 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public class HDSTest
 {
-  public static class MyDataKey implements TimeSeriesDataKey
+  public static class MyDataKey implements DataKey
   {
     public String bucketKey;
     public long timestamp;
@@ -37,7 +37,7 @@ public class HDSTest
     }
 
     @Override
-    public long getTime()
+    public long getSequence()
     {
       return timestamp;
     }
@@ -128,9 +128,9 @@ public class HDSTest
     key2.bucketKey = "bucket1";
     key2.timestamp = 11;
     key1.data = "data11bucket1";
-
     KeyValPair<MyDataKey, String> entry2 = new KeyValPair<HDSTest.MyDataKey, String>(key2, key2.data);
-    hds.put(entry2);
+
+    hds.put(entry2); // next time bucket
     files = bucket1Dir.list(ff);
     Assert.assertEquals("" + Arrays.asList(files), 2, files.length);
 

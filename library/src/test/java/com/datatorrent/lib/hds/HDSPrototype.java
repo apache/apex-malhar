@@ -7,6 +7,7 @@ package com.datatorrent.lib.hds;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -15,6 +16,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.Range;
+
 import com.datatorrent.lib.hds.BucketFileSystem.BucketFileMeta;
 import com.datatorrent.lib.hds.HDS.DataKey;
 import com.esotericsoftware.kryo.Kryo;
@@ -22,7 +25,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sun.xml.internal.rngom.parse.compact.EOFException;
+
 
 /**
  *
@@ -48,6 +51,15 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
   void close()
   {
 
+  }
+
+  protected Range<Long> getRange(long time)
+  {
+    long timeBucket = this.timeBucketUnit.convert(time, TimeUnit.MILLISECONDS);
+    timeBucket = timeBucket - (timeBucket % this.timeBucketSize);
+    long min = TimeUnit.MILLISECONDS.convert(timeBucket, timeBucketUnit);
+    long max = TimeUnit.MILLISECONDS.convert(timeBucket + timeBucketSize, timeBucketUnit);
+    return Range.between(min, max);
   }
 
   private byte[] toBytes(Map.Entry<K, V> data)
@@ -92,17 +104,13 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
   public void put(Map.Entry<K, V> entry) throws IOException
   {
     byte[] bytes = toBytes(entry);
-
-    long time = 0;
-    if (entry.getKey() instanceof HDS.TimeSeriesDataKey) {
-      time = ((HDS.TimeSeriesDataKey)entry.getKey()).getTime();
-    }
+    long sequence = entry.getKey().getSequence();
 
     List<BucketFileMeta> files = bfs.listFiles(entry.getKey());
     ArrayList<BucketFileMeta> bucketFiles = Lists.newArrayList();
     // find files to check for existing key
     for (BucketFileMeta bfm : files) {
-      if (time == 0 || bfm.minTime <= time && bfm.maxTime > time) {
+      if (sequence == 0 || bfm.fromSeq <= sequence && bfm.toSeq > sequence) {
         bucketFiles.add(bfm);
       }
     }
@@ -134,15 +142,8 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
     } else {
       if (targetFile == null) {
         // create new file
-        long minTime = 0, maxTime = 0;
-        if (time != 0) {
-          // assign time bucket - this can be more flexible based on current vs. arrival time
-          long timeBucket = this.timeBucketUnit.convert(time, TimeUnit.MILLISECONDS);
-          timeBucket = timeBucket - (timeBucket % this.timeBucketSize);
-          minTime = TimeUnit.MILLISECONDS.convert(timeBucket, timeBucketUnit);
-          maxTime = TimeUnit.MILLISECONDS.convert(timeBucket + timeBucketSize, timeBucketUnit);
-        }
-        targetFile = bfs.createFile(entry.getKey(), minTime, maxTime);
+        Range<Long> r  = getRange(sequence);
+        targetFile = bfs.createFile(entry.getKey(), r.getMinimum(), r.getMaximum());
       }
       // append to existing bucket file
       dos = bfs.getOutputStream(entry.getKey(), targetFile);

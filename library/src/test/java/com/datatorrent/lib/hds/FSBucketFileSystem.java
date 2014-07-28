@@ -47,7 +47,7 @@ public class FSBucketFileSystem implements BucketFileSystem
   }
 
   @Override
-  public BucketFileMeta createFile(DataKey key, long minTime, long maxTime) throws IOException
+  public BucketFileMeta createFile(DataKey key, long fromSeq, long toSeq) throws IOException
   {
     String bucketKey = key.getBucketKey();
     BucketMeta bm = metaInfo.get(bucketKey);
@@ -57,8 +57,8 @@ public class FSBucketFileSystem implements BucketFileSystem
     }
     BucketFileMeta bfm = new BucketFileMeta();
     bfm.name = bucketKey + '-' + bm.fileSeq++;
-    bfm.minTime = minTime;
-    bfm.maxTime = maxTime;
+    bfm.fromSeq = fromSeq;
+    bfm.toSeq = toSeq;
     bm.files.add(bfm);
     // create empty file, override anything existing
     fs.create(new Path(getBucketPath(key), bfm.name), true).close();
