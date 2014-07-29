@@ -173,11 +173,11 @@ public class Application implements StreamingApplication
 
     // generate seed numbers
     Random random = new Random();
-    int maxPhone = phoneRange.upperEndpoint() - 5550000;
+    int maxPhone = phoneRange.upperEndpoint() - phoneRange.lowerEndpoint();
     int phonesToDisplay = conf.getInt(TOTAL_SEED_NOS,10);
 
     for (int i = phonesToDisplay; i-- > 0; ) {
-      int phoneNo = 5550000 + random.nextInt(maxPhone + 1);
+      int phoneNo = phoneRange.lowerEndpoint() + random.nextInt(maxPhone + 1);
       LOG.info("seed no: " + phoneNo);
       movementGen.phone_register.add(phoneNo);
     }
