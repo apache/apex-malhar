@@ -15,62 +15,12 @@
  */
 package com.datatorrent.lib.xml;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.common.util.DTThrowable;
-import org.w3c.dom.Document;
-import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 /**
- * Operator that provides XML DOM parsing functionality.
+ * The class is deprecated and provided temporarily for backwards compatibility with earlier release. It will be removed
+ * in the next release. Use AbstractXmlDOMOperator instead.
  *
- * The operator is abstract and should be extended. It parses incoming tuples using the Java XML DOM parser and provides
- * the resulting Document object along with the tuple to the extending operator for processing.
- *
- * @since 1.0.2
+ * @deprecated
  */
-public abstract class XmlDOMOperator<T> extends BaseOperator
+public abstract class XmlDOMOperator<T> extends AbstractXmlDOMOperator<T>
 {
-  protected transient DocumentBuilderFactory docFactory;
-  protected transient DocumentBuilder docBuilder;
-
-  @Override
-  public void setup(Context.OperatorContext context)
-  {
-    try {
-      docFactory = DocumentBuilderFactory.newInstance();
-      docBuilder = docFactory.newDocumentBuilder();
-    } catch (ParserConfigurationException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  public transient DefaultInputPort<T> input = new DefaultInputPort<T>()
-  {
-    @Override
-    public void process(T tuple)
-    {
-      processTuple(tuple);
-    }
-  };
-
-  protected void processTuple(T tuple) {
-    try {
-      InputSource source = getInputSource(tuple);
-      Document document = docBuilder.parse(source);
-      processDocument(document, tuple);
-    } catch (Exception e) {
-      DTThrowable.rethrow(e);
-    }
-  }
-
-  protected abstract InputSource getInputSource(T tuple);
-
-  protected abstract void processDocument(Document document, T tuple);
-
 }
