@@ -25,10 +25,9 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Range;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,7 +109,7 @@ public class Application implements StreamingApplication
   public static final String P_phoneRange = com.datatorrent.demos.mobile.Application.class.getName() + ".phoneRange";
   public static final String TOTAL_SEED_NOS = com.datatorrent.demos.mobile.Application.class.getName() + ".totalSeedNumbers";
 
-  private Range<Integer> phoneRange = Ranges.closed(5550000, 5559999);
+  private Range<Integer> phoneRange = Range.between(5550000, 5559999);
 
   private void configure(DAG dag, Configuration conf)
   {
@@ -134,7 +133,7 @@ public class Application implements StreamingApplication
       if (tokens.length != 2) {
         throw new IllegalArgumentException("Invalid range: " + phoneRange);
       }
-      this.phoneRange = Ranges.closed(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
+      this.phoneRange = Range.between(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
     }
     System.out.println("Phone range: " + this.phoneRange);
   }
@@ -148,8 +147,8 @@ public class Application implements StreamingApplication
     dag.setAttribute(DAG.DEBUG, true);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
-    phones.setMinvalue(this.phoneRange.lowerEndpoint());
-    phones.setMaxvalue(this.phoneRange.upperEndpoint());
+    phones.setMinvalue(this.phoneRange.getMinimum());
+    phones.setMaxvalue(this.phoneRange.getMaximum());
     phones.setTuplesBlast(200);
     phones.setTuplesBlastIntervalMillis(5);
     dag.setOutputPortAttribute(phones.integer_data, PortContext.QUEUE_CAPACITY, 32 * 1024);
@@ -173,11 +172,11 @@ public class Application implements StreamingApplication
 
     // generate seed numbers
     Random random = new Random();
-    int maxPhone = phoneRange.upperEndpoint() - phoneRange.lowerEndpoint();
+    int maxPhone = phoneRange.getMaximum() - phoneRange.getMinimum();
     int phonesToDisplay = conf.getInt(TOTAL_SEED_NOS,10);
 
     for (int i = phonesToDisplay; i-- > 0; ) {
-      int phoneNo = phoneRange.lowerEndpoint() + random.nextInt(maxPhone + 1);
+      int phoneNo = phoneRange.getMinimum() + random.nextInt(maxPhone + 1);
       LOG.info("seed no: " + phoneNo);
       movementGen.phone_register.add(phoneNo);
     }
