@@ -78,157 +78,107 @@
             <executions>
               <execution>
                 <phase>${rpm.phase}</phase>
-                <id>generate-rpm</id>
+                <id>generate-sink-rpm</id>
                 <goals>
                   <goal>attached-rpm</goal>
                 </goals>
+                <configuration>
+                  <copyright>Apache License, Version 2.0</copyright>
+                  <workarea>target/sink-rpm</workarea>
+                  <classifier>sink</classifier>
+                  <name>datatorrent-flume-${project.version}</name>
+                  <distribution>DataTorrent Enterprise ${project.version}</distribution>
+                  <group>Application/Collectors</group>
+                  <icon>src/main/resources/logo.gif</icon>
+                  <packager>DataTorrent Build System</packager>
+                  <prefix>${package.prefix}</prefix>
+                  <changelogFile>src/changelog</changelogFile>
+                  <defineStatements>
+                    <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+                  </defineStatements>
+                  <mappings>
+                    <mapping>
+                      <directory>${package.prefix}/flume-${project.version}/lib</directory>
+                      <filemode>750</filemode>
+                      <username>${package.username}</username>
+                      <groupname>${package.groupname}</groupname>
+                      <artifact></artifact>
+                      <dependency>
+                        <includes>
+                          <include>com.datatorrent:dt-api:jar:${project.version}</include>
+                          <include>com.datatorrent:dt-netlet:jar:${project.version}</include>
+                          <include>com.datatorrent:dt-common:jar:${project.version}</include>
+                          <include>com.esotericsoftware.kryo:kryo:jar:2.23.0</include>
+                          <include>org.apache.curator:curator-client:jar:2.3.0</include>
+                          <include>org.apache.curator:curator-x-discovery:jar:2.3.0</include>
+                          <include>org.apache.curator:curator-framework:jar:2.3.0</include>
+                        </includes>
+                      </dependency>
+                    </mapping>
+                    <mapping>
+                      <directory>${package.prefix}/flume-${project.version}/conf</directory>
+                      <configuration>true</configuration>
+                      <filemode>640</filemode>
+                      <username>${package.username}</username>
+                      <groupname>${package.groupname}</groupname>
+                      <sources>
+                        <source>
+                          <location>src/main/resources/flume-conf</location>
+                        </source>
+                      </sources>
+                    </mapping>
+                  </mappings>
+                  <preinstallScriptlet>
+                    <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &gt;/dev/null 2&gt;&amp;1 &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
+                  </preinstallScriptlet>
+                </configuration>
+              </execution>
+
+              <execution>
+                <phase>${rpm.phase}</phase>
+                <id>generate-operator-rpm</id>
+                <goals>
+                  <goal>attached-rpm</goal>
+                </goals>
+                <configuration>
+                  <copyright>Apache License, Version 2.0</copyright>
+                  <workarea>target/operator-rpm</workarea>
+                  <classifier>operator</classifier>
+                  <name>datatorrent-flume-operator-${project.version}</name>
+                  <distribution>DataTorrent Enterprise ${project.version}</distribution>
+                  <group>Application/Collectors</group>
+                  <icon>src/main/resources/logo.gif</icon>
+                  <packager>DataTorrent Build System</packager>
+                  <prefix>${package.prefix}</prefix>
+                  <changelogFile>src/changelog</changelogFile>
+                  <defineStatements>
+                    <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
+                  </defineStatements>
+                  <mappings>
+                    <mapping>
+                      <directory>${package.prefix}/flume-operator-${project.version}/lib</directory>
+                      <filemode>640</filemode>
+                      <username>${package.username}</username>
+                      <groupname>${package.groupname}</groupname>
+                      <artifact></artifact>
+                      <dependency>
+                        <includes>
+                          <include>org.apache.curator:curator-client:jar:2.3.0</include>
+                          <include>org.apache.curator:curator-x-discovery:jar:2.3.0</include>
+                          <include>org.apache.curator:curator-framework:jar:2.3.0</include>
+                          <include>org.apache.flume:flume-ng-sdk:jar:1.4.0</include>
+                          <include>org.apache.flume:flume-ng-core:jar:1.4.0</include>
+                          <include>org.apache.flume:flume-ng-configuration:jar:1.4.0</include>
+                        </includes>
+                      </dependency>
+                    </mapping>
+                  </mappings>
+                  <preinstallScriptlet>
+                    <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &gt;/dev/null 2&gt;&amp;1 &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
+                  </preinstallScriptlet>
+                </configuration>
               </execution>
             </executions>
-            <configuration>
-	      <name>datatorrent-flume</name>
-              <copyright>Apache License, Version 2.0</copyright>
-              <distribution>DataTorrent Enterprise ${project.version}</distribution>
-              <group>Application/Collectors</group>
-              <icon>src/main/resources/logo.gif</icon>
-              <packager>DataTorrent Build System</packager>
-              <prefix>${package.prefix}</prefix>
-              <changelogFile>src/changelog</changelogFile>
-              <defineStatements>
-                <defineStatement>_unpackaged_files_terminate_build 0</defineStatement>
-              </defineStatements>
-              <mappings>
-                <mapping>
-                  <directory>${package.prefix}/flume-${project.version}/lib</directory>
-                  <filemode>750</filemode>
-                  <username>${package.username}</username>
-                  <groupname>${package.groupname}</groupname>
-                  <artifact></artifact>
-                  <dependency>
-                    <excludes>
-                      <!-- begin CDH5 dependency -->
-                      <exclude>asm:asm:4.0</exclude>
-                      <exclude>com.datatorrent:dt-netlet</exclude>
-                      <exclude>org.apache.avro:avro</exclude>
-                      <exclude>org.apache.avro:avro-ipc</exclude>
-                      <exclude>commons-cli:commons-cli</exclude>
-                      <exclude>commons-codec:commons-codec</exclude>
-                      <!-- exclude>commons-collections</exclude>
-                      <exclude>commons-compress</exclude>
-                      <exclude>commons-io</exclude>
-                      <exclude>commons-lang</exclude>
-                      <exclude>commons-logging</exclude>
-                      <exclude>flume-ng-configuration</exclude>
-                      <exclude>flume-ng-core</exclude>
-                      <exclude>flume-ng-sdk</exclude>
-                      <exclude>gson</exclude>
-                      <exclude>guava</exclude>
-                      <exclude>httpclient</exclude>
-                      <exclude>httpcore</exclude>
-                      <exclude>jackson-core-asl</exclude>
-                      <exclude>jackson-mapper-asl</exclude>
-                      <exclude>jetty</exclude>
-                      <exclude>jetty</exclude>
-                      <exclude>joda-time</exclude>
-                      <exclude>jsr305</exclude>
-                      <exclude>libthrift</exclude>
-                      <exclude>log4j</exclude>
-                      <exclude>mina-core</exclude>
-                      <exclude>netty</exclude>
-                      <exclude>paranamer</exclude>
-                      <exclude>protobuf-java</exclude>
-                      <exclude>servlet-api</exclude>
-                      <exclude>snappy-java</exclude>
-                      <exclude>stax-api</exclude>
-                      <exclude>velocity</exclude>
-                      <exclude>xz</exclude>
-                      <exclude>zookeeper</exclude -->
-                      <!-- end CDH5 dependency -->
-                    </excludes>
-                  </dependency>
-                </mapping>
-                <mapping>
-                  <directory>${package.prefix}/flume-${project.version}/conf</directory>
-                  <configuration>true</configuration>
-                  <filemode>640</filemode>
-                  <username>${package.username}</username>
-                  <groupname>${package.groupname}</groupname>
-                  <sources>
-                    <source>
-                      <location>src/main/resources/flume-conf</location>
-                    </source>
-                  </sources>
-                </mapping>
-                <!-- mapping>
-                  <directory>/opt/dt</directory>
-                  <sources>
-                    <softlinkSource>
-                      <destination>flume</destination>
-                      <location>flume-${project.version}</location>
-                    </softlinkSource>
-                  </sources>
-                </mapping -->
-                <!-- mapping>
-                  <directory>/usr/local/bin/landfill</directory>
-                  <filemode>440</filemode>
-                  <username>dumper</username>
-                  <groupname>dumpgroup</groupname>
-                  <sources>
-                    <source>
-                      <location>target/classes</location>
-                    </source>
-                  </sources>
-                </mapping>
-                <mapping>
-                  <directory>/usr/local/doc/landfill</directory>
-                  <documentation>true</documentation>
-                  <filemode>444</filemode>
-                  <username>dumper</username>
-                  <groupname>dumpgroup</groupname>
-                  <sources>
-                    <source>
-                      <location>target/site</location>
-                    </source>
-                  </sources>
-                </mapping>
-                <mapping>
-                  <directory>/usr/local/bin</directory>
-                  <filemode>750</filemode>
-                  <username>dumper</username>
-                  <groupname>dumpgroup</groupname>
-                  <sources>
-                    <source>
-                      <location>src/main/bin</location>
-                    </source>
-                    <softlinkSource>
-                      <location>/usr/local/bin/new.sh</location>
-                      <destination>old.sh</destination>
-                    </softlinkSource>
-                  </sources>
-                </mapping>
-                <mapping>
-                  <directory>/usr/local/oldbin</directory>
-                  <filemode>750</filemode>
-                  <username>dumper</username>
-                  <groupname>dumpgroup</groupname>
-                  <sources>
-                    <softlinkSource>
-                      <location>/usr/local/bin</location>
-                    </softlinkSource>
-                  </sources>
-                </mapping -->
-              </mappings>
-              <preinstallScriptlet>
-                <script>groupadd -f ${package.groupname} &amp;&amp; id ${package.username} &gt;/dev/null 2&gt;&amp;1 &amp;&amp; usermod -aG ${package.groupname} ${package.username} || useradd -g ${package.groupname} ${package.username}</script>
-              </preinstallScriptlet>
-              <!-- postinstallScriptlet>
-                <scriptFile>src/main/scripts/postinstall</scriptFile>
-                <fileEncoding>utf-8</fileEncoding>
-              </postinstallScriptlet>
-              <preremoveScriptlet>
-                <scriptFile>src/main/scripts/preremove</scriptFile>
-                <fileEncoding>utf-8</fileEncoding>
-              </preremoveScriptlet -->
-            </configuration>
           </plugin>
         </plugins>
       </build>
