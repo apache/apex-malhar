@@ -26,12 +26,12 @@ public class HDSTest
 {
   public static class MyDataKey implements DataKey
   {
-    public String bucketKey;
+    public long bucketKey;
     public long timestamp;
     public String data;
 
     @Override
-    public String getBucketKey()
+    public long getBucketKey()
     {
       return bucketKey;
     }
@@ -47,7 +47,7 @@ public class HDSTest
     {
       final int prime = 31;
       int result = 1;
-      result = prime * result + ((bucketKey == null) ? 0 : bucketKey.hashCode());
+      result = prime * result + (int) (bucketKey ^ (bucketKey >>> 32));
       result = prime * result + (int) (timestamp ^ (timestamp >>> 32));
       return result;
     }
@@ -62,10 +62,7 @@ public class HDSTest
       if (getClass() != obj.getClass())
         return false;
       MyDataKey other = (MyDataKey) obj;
-      if (bucketKey == null) {
-        if (other.bucketKey != null)
-          return false;
-      } else if (!bucketKey.equals(other.bucketKey))
+      if (bucketKey != other.bucketKey)
         return false;
       if (timestamp != other.timestamp)
         return false;
@@ -79,6 +76,7 @@ public class HDSTest
   {
     File file = new File("target/hds");
     FileUtils.deleteDirectory(file);
+    final long BUCKET1 = 1L;
 
     FileSystem fs = FileSystem.getLocal(new Configuration(false)).getRawFileSystem();
     BucketFileSystem bfs = new FSBucketFileSystem(fs, file.getAbsolutePath());
@@ -91,19 +89,19 @@ public class HDSTest
     hds.init();
 
     MyDataKey key1 = new MyDataKey();
-    key1.bucketKey = "bucket1";
+    key1.bucketKey = BUCKET1;
     key1.timestamp = 1;
     key1.data = "data01bucket1";
     KeyValPair<MyDataKey, String> entry1 = new KeyValPair<HDSTest.MyDataKey, String>(key1, key1.data);
 
     hds.put(entry1);
 
-    File bucket1Dir = new File(file, "bucket1");
+    File bucket1Dir = new File(file, Long.toString(BUCKET1));
     File bucket1DupsFile = new File(bucket1Dir, FSBucketFileSystem.DUPLICATES);
     Assert.assertTrue("exists " + bucket1Dir, bucket1Dir.exists() && bucket1Dir.isDirectory());
     Assert.assertFalse("exists " + bucket1DupsFile, bucket1DupsFile.exists());
 
-    RegexFileFilter ff = new RegexFileFilter("bucket.*");
+    RegexFileFilter ff = new RegexFileFilter("\\d+.*");
     String[] files = bucket1Dir.list(ff);
     Assert.assertEquals("" + Arrays.asList(files), 1, files.length);
 
@@ -113,7 +111,7 @@ public class HDSTest
     Assert.assertTrue("exists " + bucket1DupsFile, bucket1DupsFile.exists() && bucket1DupsFile.isFile());
 
     MyDataKey key12 = new MyDataKey();
-    key12.bucketKey = "bucket1";
+    key12.bucketKey = BUCKET1;
     key12.timestamp = 2;
     key12.data = "data02bucket1";
     KeyValPair<MyDataKey, String> entry12 = new KeyValPair<HDSTest.MyDataKey, String>(key12, key12.data);
@@ -125,7 +123,7 @@ public class HDSTest
 
 
     MyDataKey key2 = new MyDataKey();
-    key2.bucketKey = "bucket1";
+    key2.bucketKey = BUCKET1;
     key2.timestamp = 11;
     key1.data = "data11bucket1";
     KeyValPair<MyDataKey, String> entry2 = new KeyValPair<HDSTest.MyDataKey, String>(key2, key2.data);

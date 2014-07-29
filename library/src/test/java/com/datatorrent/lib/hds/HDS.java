@@ -11,10 +11,10 @@ public interface HDS
 {
   interface DataKey {
     /**
-     * The bucket name. Should this be byte[] instead of String?
+     * The bucket key.
      * @return
      */
-    String getBucketKey();
+    long getBucketKey();
     /**
      * Monotonically increasing sequence that is used as secondary level of organization within buckets.
      * In most cases this will be a time stamp.

@@ -33,7 +33,7 @@ public class FSBucketFileSystem implements BucketFileSystem
     Set<BucketFileMeta> files = Sets.newHashSet();
   }
 
-  private final HashMap<String, BucketMeta> metaInfo = Maps.newHashMap();
+  private final HashMap<Long, BucketMeta> metaInfo = Maps.newHashMap();
 
   public FSBucketFileSystem(FileSystem fs, String basePath)
   {
@@ -43,20 +43,20 @@ public class FSBucketFileSystem implements BucketFileSystem
 
   protected Path getBucketPath(DataKey key)
   {
-    return new Path(basePath, key.getBucketKey());
+    return new Path(basePath, Long.toString(key.getBucketKey()));
   }
 
   @Override
   public BucketFileMeta createFile(DataKey key, long fromSeq, long toSeq) throws IOException
   {
-    String bucketKey = key.getBucketKey();
+    long bucketKey = key.getBucketKey();
     BucketMeta bm = metaInfo.get(bucketKey);
     if (bm == null) {
       // new bucket
       metaInfo.put(bucketKey, bm = new BucketMeta());
     }
     BucketFileMeta bfm = new BucketFileMeta();
-    bfm.name = bucketKey + '-' + bm.fileSeq++;
+    bfm.name = Long.toString(bucketKey) + '-' + bm.fileSeq++;
     bfm.fromSeq = fromSeq;
     bfm.toSeq = toSeq;
     bm.files.add(bfm);
@@ -69,7 +69,7 @@ public class FSBucketFileSystem implements BucketFileSystem
   public List<BucketFileMeta> listFiles(DataKey key) throws IOException
   {
     List<BucketFileMeta> files = Lists.newArrayList();
-    String bucketKey = key.getBucketKey();
+    Long bucketKey = key.getBucketKey();
     BucketMeta bm = metaInfo.get(bucketKey);
     if (bm != null) {
       files.addAll(bm.files);
