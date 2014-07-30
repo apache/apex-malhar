@@ -9,7 +9,7 @@
 
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
-    <datatorrent.version>1.0.3-SNAPSHOT</datatorrent.version>
+    <datatorrent.version>1.0.4-SNAPSHOT</datatorrent.version>
   </properties>
 
   <name>DataTorrent Ads Dimension Demo</name>
