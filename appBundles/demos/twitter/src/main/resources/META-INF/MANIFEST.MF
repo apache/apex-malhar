@@ -1,4 +1,4 @@
-DT-Engine-Version: 1.0.3-SNAPSHOT
+DT-Engine-Version: 1.0.3-RC1
 DT-App-Bundle-Name: twitter-demo
 DT-App-Bundle-Version: 1.0-SNAPSHOT
 Class-Path: lib/*.jar
