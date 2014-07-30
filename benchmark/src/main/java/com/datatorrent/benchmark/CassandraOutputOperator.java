@@ -8,6 +8,11 @@ import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.contrib.cassandra.AbstractCassandraTransactionableOutputOperatorPS;
 
 
+/**
+ * <p>CassandraOutputOperator class.</p>
+ *
+ * @since 1.0.3
+ */
 public class CassandraOutputOperator extends  AbstractCassandraTransactionableOutputOperatorPS<Integer>{
 
 	private int id = 0;

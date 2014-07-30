@@ -28,17 +28,17 @@ import java.io.InterruptedIOException;
 
 /**
  * Operator for storing tuples in HBase rows.<br>
- * 
+ *
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
  * in rows in a HBase table. It should be extended by the end-operator
  * developer. The extending class should implement operationPut method and
  * provide a HBase Put metric object that specifies where and what to store for
  * the tuple in the table.<br>
- * 
+ *
  * <br>
  * This class offers non-transactional put where tuples are put as they come in
- * 
+ *
  * @param <T>
  *            The tuple type
  * @since 1.0.2

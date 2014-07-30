@@ -30,24 +30,24 @@ import java.util.List;
 
 /**
  * Operator for storing tuples in HBase rows.<br>
- * 
+ *
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
  * in rows in a HBase table. It should be extended by the end-operator
  * developer. The extending class should implement operationPut method and
  * provide a HBase Put metric object that specifies where and what to store for
  * the tuple in the table.<br>
- * 
+ *
  * <br>
  * This class provides a batch put where tuples are collected till the end
  * window and they are put on end window
- * 
+ *
  * Note that since HBase doesn't support transactions this store cannot
  * guarantee each tuple is written only once to HBase in case the operator is
  * restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when
  * the operator shutdown.
- * 
+ *
  * @param <T>
  *            The tuple type
  * @since 1.0.2

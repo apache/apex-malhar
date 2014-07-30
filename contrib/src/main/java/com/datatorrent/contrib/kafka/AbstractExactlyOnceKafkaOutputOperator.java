@@ -73,7 +73,6 @@ import com.google.common.collect.Sets;
  *
  * @since 1.0.2
  */
-
 public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends AbstractKafkaOutputOperator<K, V>
 {
 
