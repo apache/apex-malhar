@@ -128,6 +128,9 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
         putStatement.executeBatch();
         putStatement.clearBatch();
       }
+      else {
+        putStatement.executeUpdate();
+      }
     }
     catch (SQLException e) {
       throw new RuntimeException("while executing insert", e);
