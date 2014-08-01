@@ -19,6 +19,7 @@ package com.datatorrent.contrib.cassandra;
 import com.datastax.driver.core.Cluster;
 import com.datastax.driver.core.Session;
 import com.datastax.driver.core.exceptions.DriverException;
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
 import org.slf4j.Logger;
@@ -29,7 +30,9 @@ import javax.validation.constraints.NotNull;
 /**
  * A {@link Connectable} that uses cassandra to connect to stores.
  *
+ * @since 1.0.2
  */
+@ShipContainingJars(classes = {com.datastax.driver.core.Cluster.class})
 public class CassandraStore implements Connectable
 {
 	protected static final Logger logger = LoggerFactory.getLogger(CassandraStore.class);

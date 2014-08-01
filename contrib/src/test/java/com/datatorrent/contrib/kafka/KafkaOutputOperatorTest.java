@@ -21,11 +21,16 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
+
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+
 import junit.framework.Assert;
+
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +44,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
   private static int tupleCount = 0;
   private static final int maxTuple = 20;
   private static CountDownLatch latch;
-  
+
    /**
    * Tuple generator for testing.
    */
@@ -128,29 +133,40 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     listener.setLatch(latch);
     new Thread(listener).start();
 
-    // Malhar module to send message
     // Create DAG for testing.
     LocalMode lma = LocalMode.newInstance();
+
+    StreamingApplication app = new StreamingApplication() {
+      @Override
+      public void populateDAG(DAG dag, Configuration conf)
+      {
+      }
+    };
+
     DAG dag = lma.getDAG();
 
     // Create ActiveMQStringSinglePortOutputOperator
     StringGeneratorInputOperator generator = dag.addOperator("TestStringGenerator", StringGeneratorInputOperator.class);
-    KafkaSinglePortOutputOperator node = dag.addOperator("Kafka message producer", KafkaSinglePortOutputOperator.class);
-    
+    KafkaSinglePortOutputOperator node = dag.addOperator("KafkaMessageProducer", KafkaSinglePortOutputOperator.class);
+
     Properties props = new Properties();
     props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
-    props.put("metadata.broker.list", "localhost:9092");
+    props.put("metadata.broker.list", "invalidhost:9092");
     props.setProperty("producer.type", "async");
     props.setProperty("queue.buffering.max.ms", "200");
     props.setProperty("queue.buffering.max.messages", "10");
     props.setProperty("batch.num.messages", "5");
-    
+
     node.setConfigProperties(props);
-    // Set configuration parameters for Kafka
     node.setTopic("topic1");
 
     // Connect ports
     dag.addStream("Kafka message", generator.outputPort, node.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+
+    // MLHR-1143: verify we can set broker list (and other properties) through configuration
+    Configuration conf = new Configuration(false);
+    conf.set("dt.operator.KafkaMessageProducer.prop.configProperties(metadata.broker.list)", "localhost:9092");
+    lma.prepareDAG(app, conf);
 
     // Create local cluster
     final LocalMode.Controller lc = lma.getController();

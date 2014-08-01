@@ -15,15 +15,17 @@
  */
 package com.datatorrent.demos.frauddetect;
 
-import com.datatorrent.lib.multiwindow.SlidingWindowObject;
+
 import org.apache.commons.lang.mutable.MutableDouble;
+
+import com.datatorrent.lib.multiwindow.SimpleMovingAverageObject;
 
 /**
  * State object for sliding window sum
  *
  * @since 0.9.0
  */
-public class SlidingWindowSumObject implements SlidingWindowObject
+public class SlidingWindowSumObject extends SimpleMovingAverageObject
 {
 
   MutableDouble sum = new MutableDouble(0);
@@ -32,6 +34,7 @@ public class SlidingWindowSumObject implements SlidingWindowObject
     sum.add(n);
   }
 
+  @Override
   public double getSum() {
     return sum.doubleValue();
   }

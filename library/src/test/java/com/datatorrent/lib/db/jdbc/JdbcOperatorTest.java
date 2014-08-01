@@ -90,14 +90,9 @@ public class JdbcOperatorTest
 
     @Nonnull
     @Override
-    protected PreparedStatement getUpdateCommand()
+    protected String getUpdateCommand()
     {
-      try {
-        return store.getConnection().prepareStatement(INSERT_STMT);
-      }
-      catch (SQLException e) {
-        throw new RuntimeException("preparing", e);
-      }
+      return INSERT_STMT;
     }
 
     @Override

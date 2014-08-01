@@ -9,7 +9,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import com.datatorrent.api.NumberAggregate;
+import com.datatorrent.lib.util.NumberAggregate;
 
 /**
  * Tests for {@link BasicCounters}

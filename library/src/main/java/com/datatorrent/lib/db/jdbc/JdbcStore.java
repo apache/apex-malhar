@@ -25,6 +25,10 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.CharMatcher;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
+
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
 
@@ -36,15 +40,18 @@ import com.datatorrent.lib.db.Connectable;
 public class JdbcStore implements Connectable
 {
   protected static final Logger logger = LoggerFactory.getLogger(JdbcStore.class);
-
   @NotNull
   private String dbUrl;
   @NotNull
   private String dbDriver;
-  private String userName;
-  private String password;
+  private final Properties connectionProps;
 
   protected transient Connection connection = null;
+
+  public JdbcStore()
+  {
+    connectionProps = new Properties();
+  }
 
   @NotNull
   public String getDbUrl()
@@ -76,21 +83,44 @@ public class JdbcStore implements Connectable
   /**
    * Sets the user name.
    *
-   * @param userName user name.
+   * @param userName user name
+   * @deprecated use {@link #setConnectionProperties(String)} instead.
    */
   public void setUserName(String userName)
   {
-    this.userName = userName;
+    connectionProps.put("user", userName);
   }
 
   /**
    * Sets the password.
    *
    * @param password password
+   * @deprecated use {@link #setConnectionProperties(String)} instead.
    */
   public void setPassword(String password)
   {
-    this.password = password;
+    connectionProps.put("password", password);
+  }
+
+  /**
+   * Sets the properties on the jdbc connection.
+   *
+   * @param connectionProperties comma separated list of properties. property key and value are separated by colon.
+   *                             eg. user:xyz,password:ijk
+   */
+  public void setConnectionProperties(String connectionProperties)
+  {
+    String[] properties = Iterables.toArray(Splitter.on(CharMatcher.anyOf(":,")).omitEmptyStrings().trimResults().split(connectionProperties), String.class);
+    for (int i = 0; i < properties.length; i += 2) {
+      if (i + 1 < properties.length) {
+        connectionProps.put(properties[i], properties[i + 1]);
+      }
+    }
+  }
+
+  public Properties getConnectionProps()
+  {
+    return connectionProps;
   }
 
   /**
@@ -102,13 +132,6 @@ public class JdbcStore implements Connectable
     try {
       // This will load the JDBC driver, each DB has its own driver
       Class.forName(dbDriver).newInstance();
-      Properties connectionProps = new Properties();
-      if (userName != null) {
-        connectionProps.put("user", this.userName);
-      }
-      if (password != null) {
-        connectionProps.put("password", this.password);
-      }
       connection = DriverManager.getConnection(dbUrl, connectionProps);
 
       logger.debug("JDBC connection Success");
@@ -142,4 +165,6 @@ public class JdbcStore implements Connectable
       throw new RuntimeException("is connected", e);
     }
   }
+
+
 }

@@ -18,6 +18,7 @@ package com.datatorrent.contrib.cassandra;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.DriverException;
+import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.db.TransactionableStore;
 
 import javax.annotation.Nonnull;
@@ -25,7 +26,9 @@ import javax.annotation.Nonnull;
 /**
  * <p>CassandraTransactionalStore class which inherits CassandraStore class and provides transaction support to the operators.</p>
  *
+ * @since 1.0.2
  */
+@ShipContainingJars(classes = {com.datastax.driver.core.Cluster.class})
 public class CassandraTransactionalStore extends CassandraStore implements TransactionableStore {
 
 	public static String DEFAULT_APP_ID_COL = "dt_app_id";

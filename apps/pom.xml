@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-all</artifactId>
-    <version>1.0.2-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-apps</artifactId>
@@ -20,12 +20,6 @@
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>dt-engine</artifactId>
-      <version>${dt.framework.version}</version>
-      <scope>runtime</scope>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
       <type>jar</type>
@@ -35,6 +29,12 @@
       <artifactId>malhar-contrib</artifactId>
       <version>${project.version}</version>
       <type>jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.slf4j</groupId>
+      <artifactId>slf4j-api</artifactId>
+      <version>1.7.5</version>
+      <scope>provided</scope>
     </dependency>
     <dependency>
       <groupId>net.sf.opencsv</groupId>

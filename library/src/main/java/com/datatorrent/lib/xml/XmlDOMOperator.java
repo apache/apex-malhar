@@ -13,6 +13,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Created by Pramod Immaneni <pramod@datatorrent.com> on 6/12/14.
+ *
+ * @since 1.0.2
  */
 public abstract class XmlDOMOperator<T> extends BaseOperator
 {

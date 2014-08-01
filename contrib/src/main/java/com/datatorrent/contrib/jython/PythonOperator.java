@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.script;
+package com.datatorrent.contrib.jython;
 
 import com.datatorrent.api.Context.OperatorContext;
 import java.util.HashMap;
@@ -23,6 +23,7 @@ import org.python.core.PyObject;
 import org.python.util.PythonInterpreter;
 
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.lib.script.ScriptOperator;
 import java.util.Iterator;
 import javax.script.ScriptContext;
 import org.python.core.*;

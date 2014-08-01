@@ -24,6 +24,11 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.util.KeyValPair;
 import org.apache.hadoop.conf.Configuration;
 
+/**
+ * <p>UniqueKeyValCountDemo class.</p>
+ *
+ * @since 1.0.2
+ */
 @ApplicationAnnotation(name="UniqueKeyValueCountDemo")
 public class UniqueKeyValCountDemo implements StreamingApplication
 {

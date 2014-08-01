@@ -25,8 +25,8 @@ import com.google.common.collect.Lists;
  *
  * @param <T> The tuple type.
  * @param <S> The store type.
+ * @since 1.0.2
  */
-
 public abstract class AbstractBatchTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends AbstractTransactionableStoreOutputOperator<T, S>{
 	protected final List<T> tuples;
 

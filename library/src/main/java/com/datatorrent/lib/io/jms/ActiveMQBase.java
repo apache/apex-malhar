@@ -15,17 +15,20 @@
  */
 package com.datatorrent.lib.io.jms;
 
+import java.util.Map;
+
 import javax.jms.Connection;
 import javax.jms.ConnectionFactory;
 import javax.jms.Destination;
 import javax.jms.JMSException;
 import javax.jms.Session;
-import javax.validation.constraints.NotNull;
 
+import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.annotation.ShipContainingJars;
+import com.google.common.collect.Maps;
 
 /**
  * Base class for any ActiveMQ input or output adapter operator. <p><br>
@@ -38,9 +41,8 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * None<br>
  * <br>
  * Properties:<br>
- * <b>usr</b>: userid for connecting to active MQ message bus<br>
- * <b>password</b>: password for connecting to active MQ message bus<br>
- * <b>url</b>: URL for connecting to active MQ message bus<br>
+ * <b>connectionFactoryClass</b>: Connection factory of the JMS provider (default is ActiveMQ)<br>
+ * <b>connectionFactoryProperties</b>: Properties to initialize the connection factory (consult your providers documentation)<br>
  * <b>ackMode</b>: message acknowledgment mode<br>
  * <b>clientId</b>: client id<br>
  * <b>subject</b>: name of destination<br>
@@ -70,12 +72,8 @@ public class ActiveMQBase
   private transient Session session;
   private transient Destination destination;
 
-  @NotNull
-  private String user = "";
-  @NotNull
-  private String password = "";
-  @NotNull
-  private String url;
+  private String connectionFactoryClass;
+  private Map<String, String> connectionFactoryProperties = Maps.newHashMap();
   private String ackMode = "CLIENT_ACKNOWLEDGE";
   private String clientId = "TestClient";
   private String subject = "TEST.FOO";
@@ -110,58 +108,56 @@ public class ActiveMQBase
     return destination;
   }
 
-  /**
-   * @return the username 
-   */
-  public String getUser()
+  public String getConnectionFactoryClass()
   {
-    return user;
+    return connectionFactoryClass;
+  }
+
+  public void setConnectionFactoryClass(String connectionFactoryClass)
+  {
+    this.connectionFactoryClass = connectionFactoryClass;
   }
 
   /**
-   * Sets the username for connecting to active MQ message bus
-   * 
-   * @param user the string to set the user name to.
+   * Return the connection factory properties. Property names are provider specific and can be set directly from configuration, for example:<p>
+   * <code>dt.operator.JMSOper.connectionFactoryProperties.brokerURL=vm://localhost<code>
+   * @return reference to mutable properties
    */
+  public Map<String, String> getConnectionFactoryProperties()
+  {
+    return connectionFactoryProperties;
+  }
+
+  public void setConnectionFactoryProperties(Map<String, String> connectionFactoryProperties)
+  {
+    this.connectionFactoryProperties = connectionFactoryProperties;
+  }
+  
+  /**
+   * @deprecated Use {@link #getConnectionFactoryProperties} to set properties supported by the connection factory.
+   */
+  @Deprecated
   public void setUser(String user)
   {
-    this.user = user;
+    this.connectionFactoryProperties.put("userName", user);
   }
 
   /**
-   * @return the password 
+   * @deprecated Use {@link #getConnectionFactoryProperties} to set properties supported by the connection factory.
    */
-  public String getPassword()
-  {
-    return password;
-  }
-
-  /**
-   * Sets the password to set for connecting to active MQ message bus.
-   * 
-   * @param password the string to set the password to 
-   */
+  @Deprecated
   public void setPassword(String password)
   {
-    this.password = password;
+    this.connectionFactoryProperties.put("password", password);
   }
 
   /**
-   * @return the url 
+   * @deprecated Use {@link #getConnectionFactoryProperties} to set properties supported by the connection factory.
    */
-  public String getUrl()
-  {
-    return url;
-  }
-
-  /**
-   * Sets the url.
-   * 
-   * @param url the url to set 
-   */
+  @Deprecated
   public void setUrl(String url)
   {
-    this.url = url;
+    this.connectionFactoryProperties.put("brokerURL", url);
   }
 
   /**
@@ -376,13 +372,28 @@ public class ActiveMQBase
    */
   protected ConnectionFactory getConnectionFactory()
   {
-    return new org.apache.activemq.ActiveMQConnectionFactory(user, password, url);
+    logger.debug("class {} properties {}", connectionFactoryClass, connectionFactoryProperties);
+    ConnectionFactory cf;
+    try {
+      if (connectionFactoryClass != null) {
+        @SuppressWarnings("unchecked")
+        Class<ConnectionFactory> clazz = (Class<ConnectionFactory>)Class.forName(connectionFactoryClass);
+        cf = clazz.newInstance();
+      } else {
+        cf = new org.apache.activemq.ActiveMQConnectionFactory();
+      }
+      BeanUtils.populate(cf, connectionFactoryProperties);
+      return cf;
+    }
+    catch (Exception e) {
+      throw new RuntimeException("Failed to create connection factory.", e);
+    }
   }
   
   /**
    *  cleanup connection resources.
    */
-  public void cleanup()
+  protected void cleanup()
   {
     try {
       session.close();

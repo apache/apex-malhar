@@ -49,7 +49,7 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
  *
- * @param <T>type of tuple</T>
+ * @param <T> type of tuple
  * @since 0.9.4
  */
 public abstract class AbstractJdbcTransactionableOutputOperator<T> extends AbstractPassThruTransactionableStoreOutputOperator<T, JdbcTransactionalStore>
@@ -75,7 +75,12 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
-    updateCommand = getUpdateCommand();
+    try {
+      updateCommand = store.connection.prepareStatement(getUpdateCommand());
+    }
+    catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
 
   }
 
@@ -114,7 +119,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
       throw new RuntimeException("processing batch", e);
     }
     finally {
-      batchStartIdx += batchSize;
+      batchStartIdx += tuples.size() - batchStartIdx;
     }
   }
 
@@ -135,7 +140,7 @@ public abstract class AbstractJdbcTransactionableOutputOperator<T> extends Abstr
    * @return the sql statement to update a tuple in the database.
    */
   @Nonnull
-  protected abstract PreparedStatement getUpdateCommand();
+  protected abstract String getUpdateCommand();
 
   /**
    * Sets the parameter of the insert/update statement with values from the tuple.

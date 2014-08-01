@@ -42,6 +42,8 @@ import java.util.Map;
  * the mapping a row xyz is created. the value patrickhenry is inserted into
  * columnfamily address and column street of row xyz. other values are inserted
  * similarly.
+ *
+ * @since 1.0.2
  */
 public class HBaseNameValueCsvPutOperator extends HBasePutOperator<String> {
 

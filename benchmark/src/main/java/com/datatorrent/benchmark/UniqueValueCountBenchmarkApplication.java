@@ -31,6 +31,8 @@ import org.apache.hadoop.conf.Configuration;
  * PartitionableUniqueCount operator initially partitioned into three partitions to
  * test unifier functionality, and output of the operator is sent to verifier to verify
  * that it generates correct result.
+ *
+ * @since 1.0.2
  */
 @ApplicationAnnotation(name="UniqueCountBenchmark")
 public class UniqueValueCountBenchmarkApplication implements StreamingApplication

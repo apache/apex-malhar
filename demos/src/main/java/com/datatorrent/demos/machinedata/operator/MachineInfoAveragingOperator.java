@@ -18,22 +18,22 @@ package com.datatorrent.demos.machinedata.operator;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+
 import com.datatorrent.demos.machinedata.data.MachineInfo;
 import com.datatorrent.demos.machinedata.data.MachineKey;
 import com.datatorrent.demos.machinedata.data.AverageData;
 import com.datatorrent.demos.machinedata.data.ResourceType;
 import com.datatorrent.lib.util.KeyHashValPair;
 import com.datatorrent.lib.util.KeyValPair;
+
 import com.google.common.collect.Maps;
 
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,7 +46,12 @@ import java.util.Map;
 public class MachineInfoAveragingOperator extends BaseOperator
 {
 
-  private Map<MachineKey, List<Map<String, AverageData>>> dataMap = new HashMap<MachineKey, List<Map<String, AverageData>>>();
+  public static final String CPU = "cpu";
+  public static final String RAM = "ram";
+  public static final String HDD = "hdd";
+  public static final String DAY = "day";
+
+  private transient Map<MachineKey, AverageData> dataMap = new HashMap<MachineKey, AverageData>();
 
   public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<String, String>>> outputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<String, String>>>();
 
@@ -55,15 +60,16 @@ public class MachineInfoAveragingOperator extends BaseOperator
   private int threshold = 95;
 
   private boolean genAlert;
-  private transient DateFormat dateFormat = new SimpleDateFormat();
+  //private transient DateFormat dateFormat = new SimpleDateFormat();
 
   /**
    * Buffer all the tuples as is till end window gets called
    */
-  public final transient DefaultInputPort<KeyHashValPair<MachineKey, Map<String, AverageData>>> inputPort = new DefaultInputPort<KeyHashValPair<MachineKey, Map<String, AverageData>>>() {
+  public final transient DefaultInputPort<KeyHashValPair<MachineKey, AverageData>> inputPort = new DefaultInputPort<KeyHashValPair<MachineKey, AverageData>>()
+  {
 
     @Override
-    public void process(KeyHashValPair<MachineKey, Map<String, AverageData>> tuple)
+    public void process(KeyHashValPair<MachineKey, AverageData> tuple)
     {
       addTuple(tuple);
     }
@@ -71,6 +77,7 @@ public class MachineInfoAveragingOperator extends BaseOperator
 
   /**
    * This method returns the threshold value
+   *
    * @return
    */
   public int getThreshold()
@@ -79,7 +86,8 @@ public class MachineInfoAveragingOperator extends BaseOperator
   }
 
   /**
-   * This method sets the threshold value. If the average usage for any Resource is above this for a given key, then the alert is sent 
+   * This method sets the threshold value. If the average usage for any Resource is above this for a given key, then the alert is sent
+   *
    * @param threshold the threshold value
    */
   public void setThreshold(int threshold)
@@ -89,69 +97,52 @@ public class MachineInfoAveragingOperator extends BaseOperator
 
   /**
    * This adds the given tuple to the dataMap
+   *
    * @param tuple input tuple
    */
-  private void addTuple(KeyHashValPair<MachineKey, Map<String, AverageData>> tuple)
+  private void addTuple(KeyHashValPair<MachineKey, AverageData> tuple)
   {
     MachineKey key = tuple.getKey();
-    List<Map<String, AverageData>> list = dataMap.get(key);
-    if (list == null) {
-      list = new ArrayList<Map<String, AverageData>>();
-      dataMap.put(key, list);
-    }
-    list.add(tuple.getValue());
+    dataMap.put(key, tuple.getValue());
   }
 
   @Override
   public void endWindow()
   {
-    for (Map.Entry<MachineKey, List<Map<String, AverageData>>> entry : dataMap.entrySet()) {
+    for (Map.Entry<MachineKey, AverageData> entry : dataMap.entrySet()) {
       MachineKey key = entry.getKey();
-      List<Map<String, AverageData>> list = entry.getValue();
-
-      Map<ResourceType, AverageData> averageResultMap = Maps.newHashMap();
-
-      for (Map<String, AverageData> map : list) {
-        prepareAverageResult(map, ResourceType.CPU, averageResultMap);
-        prepareAverageResult(map, ResourceType.RAM, averageResultMap);
-        prepareAverageResult(map, ResourceType.HDD, averageResultMap);
-      }
+      AverageData averageResultMap = entry.getValue();
       Map<String, String> averageResult = Maps.newHashMap();
-
-      for (Map.Entry<ResourceType, AverageData> dataEntry : averageResultMap.entrySet()) {
-        ResourceType resourceType = dataEntry.getKey();
-        double average = dataEntry.getValue().getSum() / dataEntry.getValue().getCount();
-        averageResult.put(resourceType.toString(), average+"");
-
-        if (average > threshold) {
-          BigDecimal bd = new BigDecimal(average);
-          bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
-          String stime = key.getDay()+key.getTimeKey();
-          String skey = getKeyInfo(key);
-
-          smtpAlert.emit(resourceType.toString().toUpperCase() + " alert at " + stime + " " + resourceType + " usage breached current usage: " + bd.doubleValue() + "% threshold: " + threshold + "%\n\n" + skey);
-        }
-      }
-      averageResult.put("day", key.getDay().toString());
+      long count = averageResultMap.getCount();
+      double average = averageResultMap.getCpu() / count;
+      averageResult.put(CPU, average + "");
+      emitAlert(average, CPU, key);
+      average = averageResultMap.getHdd() / count;
+      averageResult.put(HDD, average + "");
+      emitAlert(average, HDD, key);
+      average = averageResultMap.getRam() / count;
+      averageResult.put(RAM, average + "");
+      emitAlert(average, RAM, key);
+      averageResult.put(DAY, key.getDay().toString());
       outputPort.emit(new KeyValPair<MachineKey, Map<String, String>>(key, averageResult));
     }
     dataMap.clear();
   }
 
-  private void prepareAverageResult(Map<String, AverageData> map, ResourceType valueKey, Map<ResourceType, AverageData> averageResultMap)
+  private void emitAlert(double average, String resourceType, MachineKey key)
   {
-    AverageData average = averageResultMap.get(valueKey);
-    if (average == null) {
-      average = new AverageData(map.get(valueKey.toString()).getSum(), map.get(valueKey.toString()).getCount());
-      averageResultMap.put(valueKey, average);
-    } else {
-      average.setSum(average.getSum() + map.get(valueKey.toString()).getSum());
-      average.setCount(average.getCount() + map.get(valueKey.toString()).getCount());
+    if (average > threshold) {
+      BigDecimal bd = new BigDecimal(average);
+      bd = bd.setScale(2, BigDecimal.ROUND_HALF_UP);
+      String stime = key.getDay() + key.getTimeKey();
+      String skey = getKeyInfo(key);
+      smtpAlert.emit(resourceType.toUpperCase() + " alert at " + stime + " " + resourceType + " usage breached current usage: " + bd.doubleValue() + "% threshold: " + threshold + "%\n\n" + skey);
     }
   }
 
   /**
    * This method is used to artificially generate alerts
+   *
    * @param genAlert
    */
   public void setGenAlert(boolean genAlert)
@@ -165,7 +156,7 @@ public class MachineInfoAveragingOperator extends BaseOperator
     DateFormat dayDateFormat = new SimpleDateFormat("dd");
     String day = dayDateFormat.format(date);
 
-    MachineKey alertKey = new MachineKey(timeKey,day);
+    MachineKey alertKey = new MachineKey(timeKey, day);
     alertKey.setCustomer(1);
     alertKey.setProduct(5);
     alertKey.setOs(10);
@@ -186,6 +177,7 @@ public class MachineInfoAveragingOperator extends BaseOperator
 
   /**
    * This method returns the String for a given MachineKey instance
+   *
    * @param key MachineKey instance that needs to be converted to string
    * @return
    */

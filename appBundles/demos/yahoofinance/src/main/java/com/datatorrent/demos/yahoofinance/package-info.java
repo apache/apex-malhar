@@ -13,18 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.multiwindow;
 
 /**
- * Interface to store window specific information.
- *
- * @since 0.3.2
+ * Yahoo Finance demonstration applications.
  */
-public interface SlidingWindowObject
-{
-  /**
-   * Clear out the fields as needed when streaming window moves to next one. This method is called at the beginning of each window.
-   */
-  public void clear();
-
-}
+package com.datatorrent.demos.yahoofinance;

@@ -18,6 +18,11 @@ package com.datatorrent.lib.util;
 import java.io.IOException;
 import java.io.Reader;
 
+/**
+ * <p>ReusableStringReader class.</p>
+ *
+ * @since 1.0.2
+ */
 public class ReusableStringReader extends Reader
 {
   private String str;
