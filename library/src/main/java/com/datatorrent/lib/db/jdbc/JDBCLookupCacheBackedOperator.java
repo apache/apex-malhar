@@ -52,12 +52,12 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
     store = new JdbcStore();
   }
 
-  public void setTable(String tableName)
+  public void setTableName(String tableName)
   {
     this.tableName = tableName;
   }
 
-  public String getTable()
+  public String getTableName()
   {
     return tableName;
   }

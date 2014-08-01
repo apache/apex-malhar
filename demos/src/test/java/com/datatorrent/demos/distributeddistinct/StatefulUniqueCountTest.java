@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.valuecount;
+package com.datatorrent.demos.distributeddistinct;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -27,6 +27,7 @@ import java.util.Properties;
 import junit.framework.Assert;
 
 import org.apache.hadoop.conf.Configuration;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
 import com.datatorrent.api.BaseOperator;
@@ -44,8 +45,13 @@ import com.datatorrent.lib.util.KeyValPair;
 public class StatefulUniqueCountTest
 {
 
+  public static final String INMEM_DB_URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
+  public static final String INMEM_DB_DRIVER = "org.hsqldb.jdbc.JDBCDriver";
+  public static final String TABLE_NAME = "Test_Lookup_Cache";
+  
   static class KeyGen implements InputOperator
   {
+
     public transient DefaultOutputPort<KeyValPair<Integer, Object>> output = new DefaultOutputPort<KeyValPair<Integer, Object>>();
 
     @Override
@@ -167,7 +173,7 @@ public class StatefulUniqueCountTest
           tempList.add(resultSet.getInt(1));
         }
       } catch (SQLException e) {
-        e.printStackTrace();
+        throw new RuntimeException(e);
       }
       Collections.sort(tempList);
       return tempList;
@@ -189,16 +195,49 @@ public class StatefulUniqueCountTest
       DefaultOutputPort valOut = valCount.output;
       @SuppressWarnings("rawtypes")
       DefaultOutputPort uniqueOut = uniqueUnifier.output;
-
       dag.addStream("DataIn", keyGen.output, valCount.input);
       dag.addStream("UnifyWindows", valOut, uniqueUnifier.input);
       dag.addStream("ResultsOut", uniqueOut, verifyTable.input);
     }
   }
   
+  @BeforeClass
+  public static void setup(){
+    try {
+      Class.forName(INMEM_DB_DRIVER).newInstance();
+      Connection con = DriverManager.getConnection(INMEM_DB_URL, new Properties());
+      Statement stmt = con.createStatement();
+      stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (col1 INTEGER, col2 INTEGER, col3 BIGINT)");
+    } catch (InstantiationException e) {
+      throw new RuntimeException(e);
+    } catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    } catch (ClassNotFoundException e) {
+      throw new RuntimeException(e);
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   @Test
-  public void testSomeMethod() throws Exception
+  public void testApplication() throws Exception
   {
-    LocalMode.runApp(new Application(), 5000);
+    LocalMode lma = LocalMode.newInstance();
+    Configuration conf = new Configuration(false);
+    conf.set("dt.operator.Unique.prop.tableName", "Test_Lookup_Cache");
+    conf.set("dt.operator.Unique.prop.store.dbUrl", "jdbc:hsqldb:mem:test;sql.syntax_mys=true");
+    conf.set("dt.operator.Unique.prop.store.dbDriver", "org.hsqldb.jdbcDriver");
+
+    lma.prepareDAG(new Application(), conf);
+    lma.cloneDAG();
+    LocalMode.Controller lc = lma.getController();
+    lc.setHeartbeatMonitoringEnabled(false);
+    lc.runAsync();
+
+    long now = System.currentTimeMillis();
+    while (System.currentTimeMillis() - now < 15000) {
+      Thread.sleep(1000);
+    }
+    lc.shutdown();
   }
 }

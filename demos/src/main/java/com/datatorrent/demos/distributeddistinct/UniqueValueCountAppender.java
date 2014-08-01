@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.algo.UniqueValueCount;
 import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
 import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
 import com.google.common.collect.Lists;

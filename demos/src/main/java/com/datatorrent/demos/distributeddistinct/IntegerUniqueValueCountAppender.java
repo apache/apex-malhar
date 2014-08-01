@@ -26,10 +26,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * This operator demonstrates {@link UniqueValueCountAppender} given that
- * the keys and values of the preceding {@link UniqueValueCount} operator
- * are both integers. It will keep track of the number of all the
- * unique values emitted per key since the application starts.
+ * This operator demonstrates {@link UniqueValueCountAppender} given that the keys and values of the preceding {@link UniqueValueCount} operator
+ * are both integers. <br/>
+ * It will keep track of the number of all the unique values emitted per key since the application starts.
  * 
  */
 public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<Integer>
@@ -52,7 +51,6 @@ public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<In
   {
     super.setup(context);
     windowID = context.getAttributes().get(OperatorContext.ACTIVATION_WINDOW_ID);
-
     try {
       ResultSet resultSet = store.getConnection().createStatement().executeQuery("SELECT col1 FROM " + tableName + " WHERE col3 > " + windowID);
       PreparedStatement deleteStatement;
