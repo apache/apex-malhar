@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Range;
@@ -25,6 +26,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 
 /**
@@ -32,7 +34,13 @@ import com.google.common.collect.Maps;
  */
 public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
 {
+  private static class BucketMeta {
+    int fileSeq;
+    Set<BucketFileMeta> files = Sets.newHashSet();
+  }
 
+  public static final String DUPLICATES = "_DUPLICATES";
+  private final HashMap<Long, BucketMeta> metaInfo = Maps.newHashMap();
   BucketFileSystem bfs;
   int maxSize;
   // second level of partitioning by time
@@ -77,6 +85,24 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
     return (Map.Entry<K, V>)writeSerde.readClassAndObject(new Input(buffer));
   }
 
+  private BucketFileMeta createFile(DataKey key, long fromSeq, long toSeq) throws IOException
+  {
+    long bucketKey = key.getBucketKey();
+    BucketMeta bm = metaInfo.get(bucketKey);
+    if (bm == null) {
+      // new bucket
+      metaInfo.put(bucketKey, bm = new BucketMeta());
+    }
+    BucketFileMeta bfm = new BucketFileMeta();
+    bfm.name = Long.toString(bucketKey) + '-' + bm.fileSeq++;
+    bfm.fromSeq = fromSeq;
+    bfm.toSeq = toSeq;
+    bm.files.add(bfm);
+    // create empty file, override anything existing
+    bfs.createFile(bucketKey, bfm);
+    return bfm;
+  }
+
   private HashMap<K, V> loadFile(DataKey key, BucketFileMeta bfm) throws IOException
   {
     HashMap<K, V> data = Maps.newHashMap();
@@ -106,7 +132,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
     byte[] bytes = toBytes(entry);
     long sequence = entry.getKey().getSequence();
 
-    List<BucketFileMeta> files = bfs.listFiles(entry.getKey());
+    List<BucketFileMeta> files = listFiles(entry.getKey());
     ArrayList<BucketFileMeta> bucketFiles = Lists.newArrayList();
     // find files to check for existing key
     for (BucketFileMeta bfm : files) {
@@ -138,15 +164,15 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
     DataOutputStream dos;
     if (duplicateKey) {
       // append to duplicates file
-      dos = bfs.getDuplicatesOutputStream(entry.getKey());
+      dos = bfs.getOutputStream(entry.getKey(), DUPLICATES);
     } else {
       if (targetFile == null) {
         // create new file
         Range<Long> r  = getRange(sequence);
-        targetFile = bfs.createFile(entry.getKey(), r.getMinimum(), r.getMaximum());
+        targetFile = createFile(entry.getKey(), r.getMinimum(), r.getMaximum());
       }
-      // append to existing bucket file
-      dos = bfs.getOutputStream(entry.getKey(), targetFile);
+      // append to existing file
+      dos = bfs.getOutputStream(entry.getKey(), targetFile.name);
       targetFile.size += (4+bytes.length);
     }
     // TODO: batching
@@ -159,7 +185,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
   @Override
   public V get(K key) throws IOException
   {
-    List<BucketFileMeta> files = bfs.listFiles(key);
+    List<BucketFileMeta> files = listFiles(key);
     for (BucketFileMeta bfm : files) {
       HashMap<K, V> data = cache.get(bfm.name);
       if (data == null) {
@@ -172,4 +198,16 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
     }
     return null;
   }
+
+  private List<BucketFileMeta> listFiles(DataKey key) throws IOException
+  {
+    List<BucketFileMeta> files = Lists.newArrayList();
+    Long bucketKey = key.getBucketKey();
+    BucketMeta bm = metaInfo.get(bucketKey);
+    if (bm != null) {
+      files.addAll(bm.files);
+    }
+    return files;
+  }
+
 }

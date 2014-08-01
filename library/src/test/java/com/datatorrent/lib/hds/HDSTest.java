@@ -97,7 +97,7 @@ public class HDSTest
     hds.put(entry1);
 
     File bucket1Dir = new File(file, Long.toString(BUCKET1));
-    File bucket1DupsFile = new File(bucket1Dir, FSBucketFileSystem.DUPLICATES);
+    File bucket1DupsFile = new File(bucket1Dir, HDSPrototype.DUPLICATES);
     Assert.assertTrue("exists " + bucket1Dir, bucket1Dir.exists() && bucket1Dir.isDirectory());
     Assert.assertFalse("exists " + bucket1DupsFile, bucket1DupsFile.exists());
 
@@ -131,6 +131,8 @@ public class HDSTest
     hds.put(entry2); // next time bucket
     files = bucket1Dir.list(ff);
     Assert.assertEquals("" + Arrays.asList(files), 2, files.length);
+
+    bfs.close();
 
   }
 

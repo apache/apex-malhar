@@ -7,15 +7,9 @@ package com.datatorrent.lib.hds;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-import org.python.google.common.collect.Lists;
-import org.python.google.common.collect.Maps;
-import org.python.google.common.collect.Sets;
 
 import com.datatorrent.lib.hds.HDS.DataKey;
 
@@ -24,16 +18,8 @@ import com.datatorrent.lib.hds.HDS.DataKey;
  */
 public class FSBucketFileSystem implements BucketFileSystem
 {
-  public static final String DUPLICATES = "_DUPLICATES";
   private final FileSystem fs;
   private final String basePath;
-
-  private static class BucketMeta {
-    int fileSeq;
-    Set<BucketFileMeta> files = Sets.newHashSet();
-  }
-
-  private final HashMap<Long, BucketMeta> metaInfo = Maps.newHashMap();
 
   public FSBucketFileSystem(FileSystem fs, String basePath)
   {
@@ -41,62 +27,42 @@ public class FSBucketFileSystem implements BucketFileSystem
     this.basePath = basePath;
   }
 
-  protected Path getBucketPath(DataKey key)
+  protected Path getBucketPath(long bucketKey)
   {
-    return new Path(basePath, Long.toString(key.getBucketKey()));
+    return new Path(basePath, Long.toString(bucketKey));
   }
 
   @Override
-  public BucketFileMeta createFile(DataKey key, long fromSeq, long toSeq) throws IOException
+  public void close() throws IOException
   {
-    long bucketKey = key.getBucketKey();
-    BucketMeta bm = metaInfo.get(bucketKey);
-    if (bm == null) {
-      // new bucket
-      metaInfo.put(bucketKey, bm = new BucketMeta());
-    }
-    BucketFileMeta bfm = new BucketFileMeta();
-    bfm.name = Long.toString(bucketKey) + '-' + bm.fileSeq++;
-    bfm.fromSeq = fromSeq;
-    bfm.toSeq = toSeq;
-    bm.files.add(bfm);
+  }
+
+  @Override
+  public void init()
+  {
+  }
+
+  @Override
+  public void createFile(long bucketKey, BucketFileMeta fileMeta) throws IOException
+  {
     // create empty file, override anything existing
-    fs.create(new Path(getBucketPath(key), bfm.name), true).close();
-    return bfm;
+    fs.create(new Path(getBucketPath(bucketKey), fileMeta.name), true).close();
   }
 
   @Override
-  public List<BucketFileMeta> listFiles(DataKey key) throws IOException
+  public DataOutputStream getOutputStream(DataKey key, String fileName) throws IOException
   {
-    List<BucketFileMeta> files = Lists.newArrayList();
-    Long bucketKey = key.getBucketKey();
-    BucketMeta bm = metaInfo.get(bucketKey);
-    if (bm != null) {
-      files.addAll(bm.files);
-    }
-    return files;
-  }
-
-  @Override
-  public DataOutputStream getOutputStream(HDS.DataKey key, BucketFileMeta bfm) throws IOException
-  {
-    return fs.append(new Path(getBucketPath(key), bfm.name));
-  }
-
-  @Override
-  public DataOutputStream getDuplicatesOutputStream(DataKey key) throws IOException
-  {
-    Path path = new Path(getBucketPath(key), DUPLICATES);
+    Path path = new Path(getBucketPath(key.getBucketKey()), fileName);
     if (!fs.exists(path)) {
       return fs.create(path);
     }
-    return fs.append(new Path(getBucketPath(key), DUPLICATES));
+    return fs.append(path);
   }
 
   @Override
   public DataInputStream getInputStream(DataKey key, BucketFileMeta bfm) throws IOException
   {
-    return fs.open(new Path(getBucketPath(key), bfm.name));
+    return fs.open(new Path(getBucketPath(key.getBucketKey()), bfm.name));
   }
 
 }
