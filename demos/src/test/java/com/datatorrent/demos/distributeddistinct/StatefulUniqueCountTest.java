@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,30 +15,19 @@
  */
 package com.datatorrent.demos.distributeddistinct;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 
 import junit.framework.Assert;
-
 import org.apache.hadoop.conf.Configuration;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.demos.distributeddistinct.IntegerUniqueValueCountAppender;
+
 import com.datatorrent.lib.algo.UniqueValueCount;
 import com.datatorrent.lib.util.KeyValPair;
 

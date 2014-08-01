@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.datatorrent.demos.distributeddistinct;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.distributeddistinct.Application;
 
 public class ApplicationTest
 {

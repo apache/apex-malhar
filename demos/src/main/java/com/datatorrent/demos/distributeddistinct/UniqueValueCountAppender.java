@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,29 +15,31 @@
  */
 package com.datatorrent.demos.distributeddistinct;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
+
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.algo.UniqueValueCount;
 import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
 import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 /**
  * <p>
  * This operator supplements the {@link UniqueValueCount} operator by making it state-full.<br/>
  * It helps to track unique values through out the lifetime of the application.
  * </p>
- * 
+ *
  * <p>
  * The operator counts the number of values emitted per key by storing previously
  * counted values in both a transient cache and in a persistent database. <br/>
@@ -45,11 +47,10 @@ import com.google.common.collect.Sets;
  * in the windows greater than the activation window, then re-enter them as needed to keep it stateful.<br/>
  * This operator, when appended to {@link UniqueValueCount} will keep track of the
  * unique values emitted since the start of the application.
- *
  */
 public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedOperator<InternalCountOutput<V>> implements Partitioner<UniqueValueCountAppender<V>>
 {
-  
+
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
   protected transient long windowID;
@@ -57,6 +58,32 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
 
   public UniqueValueCountAppender()
   {
+    partitionKeys = Sets.newHashSet(0);
+    partitionMask = 0;
+  }
+
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    super.setup(context);
+    windowID = context.getAttributes().get(Context.OperatorContext.ACTIVATION_WINDOW_ID);
+    try {
+      ResultSet resultSet = store.getConnection().createStatement().executeQuery("SELECT col1 FROM " + tableName + " WHERE col3 > " + windowID);
+      PreparedStatement deleteStatement = store.getConnection().prepareStatement("DELETE FROM " + tableName + " WHERE col3 > " + windowID + " AND col1 = ?");
+
+      Set<Object> deletedKeys = Sets.newHashSet();
+      while (resultSet.next()) {
+        Object key = resultSet.getObject(1);
+        if (partitionKeys.contains((key.hashCode() & partitionMask)) && !deletedKeys.contains(key)) {
+          deletedKeys.add(key);
+          deleteStatement.setObject(1, key);
+          deleteStatement.executeUpdate();
+        }
+      }
+    }
+    catch (SQLException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
@@ -84,7 +111,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   {
     return "select col2 from " + tableName + " where col1 = ?";
   }
-  
+
   @Override
   public Map<Object, Object> fetchStartupData()
   {
@@ -101,7 +128,8 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
         putStatement.executeBatch();
         putStatement.clearBatch();
       }
-    } catch (SQLException e) {
+    }
+    catch (SQLException e) {
       throw new RuntimeException("while executing insert", e);
     }
   }
@@ -126,7 +154,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
 
   /**
    * Assigns the partitions according to certain key values and keeps track of the
-   * keys that each partition will be processing so that in the case of a 
+   * keys that each partition will be processing so that in the case of a
    * rollback, each partition will only clear the data that it is responsible for.
    */
   @Override
@@ -147,7 +175,8 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
         UniqueValueCountAppender<V> statefulUniqueCount = this.getClass().newInstance();
         DefaultPartition<UniqueValueCountAppender<V>> partition = new DefaultPartition<UniqueValueCountAppender<V>>(statefulUniqueCount);
         newPartitions.add(partition);
-      } catch (Throwable cause) {
+      }
+      catch (Throwable cause) {
         DTThrowable.rethrow(cause);
       }
     }

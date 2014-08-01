@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,7 +22,7 @@ import java.sql.Statement;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.algo.UniqueValueCount;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
@@ -45,30 +45,6 @@ public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<In
       throw new RuntimeException("while processing the result set", e);
     }
   }
-
-  @Override
-  public void setup(OperatorContext context)
-  {
-    super.setup(context);
-    windowID = context.getAttributes().get(OperatorContext.ACTIVATION_WINDOW_ID);
-    try {
-      ResultSet resultSet = store.getConnection().createStatement().executeQuery("SELECT col1 FROM " + tableName + " WHERE col3 > " + windowID);
-      PreparedStatement deleteStatement;
-      deleteStatement = store.getConnection().prepareStatement("DELETE FROM " + tableName + " WHERE col3 > " + windowID + " AND col1 = ?");
-      Set<Integer> doneKeys = new HashSet<Integer>();
-      while (resultSet.next()) {
-        Integer key = resultSet.getInt(1);
-        if (partitionKeys.contains((key.hashCode() & partitionMask)) && !doneKeys.contains(key)) {
-          doneKeys.add(key);
-          deleteStatement.setInt(1, key);
-          deleteStatement.executeUpdate();
-        }
-      }
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
-
-  }
   
   @Override
   protected void prepareGetStatement(PreparedStatement getStatement, Object key) throws SQLException
@@ -87,7 +63,7 @@ public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<In
       if (!currentVals.contains(val)) {
         batch = true;
         putStatement.setInt(1, (Integer) key);
-        putStatement.setInt(2, (Integer) val);
+        putStatement.setInt(2, val);
         putStatement.setLong(3, windowID);
         putStatement.addBatch();
       }
