@@ -47,17 +47,17 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
   protected transient PreparedStatement getStatement;
 
   public JDBCLookupCacheBackedOperator()
-  {
+  {	
     super();
     store = new JdbcStore();
   }
 
-  public void setTable(String tableName)
+  public void setTableName(String tableName)
   {
     this.tableName = tableName;
   }
 
-  public String getTable()
+  public String getTableName()
   {
     return tableName;
   }
@@ -111,7 +111,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
       ResultSet resultSet = getStatement.executeQuery();
       return processResultSet(resultSet);
     }
-    catch (SQLException e) {
+    catch (SQLException e) {	
       throw new RuntimeException("while fetching key", e);
     }
   }
@@ -133,9 +133,9 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
     return valMap;
   }
 
-  protected abstract void prepareGetStatement(PreparedStatement getStatement, Object Key) throws SQLException;
+  protected abstract void prepareGetStatement(PreparedStatement getStatement, Object key) throws SQLException;
 
-  protected abstract void preparePutStatement(PreparedStatement putStatement, Object Key, Object Value) throws SQLException;
+  protected abstract void preparePutStatement(PreparedStatement putStatement, Object key, Object value) throws SQLException;
 
   protected abstract String fetchInsertQuery();
 
