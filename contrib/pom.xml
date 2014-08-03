@@ -148,8 +148,6 @@
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>2.0</version>
-      <scope>test</scope>
-      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.almworks.sqlite4java</groupId>
@@ -189,7 +187,6 @@
       <artifactId>hbase-client</artifactId>
       <version>0.98.2-hadoop2</version>
       <type>jar</type>
-      <optional>true</optional>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>
@@ -230,7 +227,6 @@
       <artifactId>hbase-server</artifactId>
       <version>0.98.2-hadoop2</version>
       <type>jar</type>
-      <optional>true</optional>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>
@@ -370,7 +366,6 @@
       <groupId>net.sf.supercsv</groupId>
       <artifactId>super-csv</artifactId>
       <version>2.2.0</version>
-      <optional>true</optional>
     </dependency>
   </dependencies>
 </project>

@@ -15,16 +15,16 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
+import java.io.InterruptedIOException;
+
 import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Put;
 import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InterruptedIOException;
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
  * Operator for storing tuples in HBase rows.<br>
@@ -43,13 +43,7 @@ import java.io.InterruptedIOException;
  *            The tuple type
  * @since 1.0.2
  */
-@ShipContainingJars(classes = { org.apache.hadoop.hbase.client.HTable.class,
-		org.apache.hadoop.hbase.util.BloomFilterFactory.class,
-		com.google.protobuf.AbstractMessageLite.class,
-		org.apache.hadoop.hbase.BaseConfigurable.class,
-		org.apache.hadoop.hbase.protobuf.generated.AccessControlProtos.class,
-		org.apache.hadoop.hbase.ipc.BadAuthException.class,
-		org.cloudera.htrace.HTraceConfiguration.class })
+
 public abstract class AbstractHBaseNonTransactionalPutOutputOperator<T> extends
 		AbstractStoreOutputOperator<T, HBaseStore> {
 	private static final transient Logger logger = LoggerFactory

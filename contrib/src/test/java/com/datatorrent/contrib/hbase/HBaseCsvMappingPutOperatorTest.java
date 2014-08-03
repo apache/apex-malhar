@@ -48,7 +48,7 @@ public class HBaseCsvMappingPutOperatorTest {
 
         @Override
         public <T> T getValue(Attribute<T> key) {
-          return null;
+          return key.defaultValue;
         }
 
         @Override

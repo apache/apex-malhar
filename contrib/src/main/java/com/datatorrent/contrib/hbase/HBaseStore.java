@@ -138,6 +138,7 @@ public class HBaseStore implements Connectable {
 		configuration.set("hbase.zookeeper.property.clientPort", ""
 				+ zookeeperClientPort);
 		table = new HTable(configuration, tableName);
+		table.setAutoFlushTo(false);
 
 	}
 

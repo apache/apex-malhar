@@ -15,18 +15,21 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
-import org.apache.hadoop.hbase.client.HTable;
-import org.apache.hadoop.hbase.client.Put;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
+import java.io.InterruptedIOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+
+import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.hbase.client.Put;
+import org.apache.hadoop.hbase.client.RetriesExhaustedWithDetailsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 /**
  * Operator for storing tuples in HBase rows.<br>
@@ -47,53 +50,111 @@ import java.util.List;
  * restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when
  * the operator shutdown.
- *
+ *  BenchMark Results
+ * -----------------
+ * The operator operates at 20,000 tuples/sec with the following configuration
+ * 
+ * Container memory size=1G
+ * CPU=Intel(R) Core(TM) i7-4500U CPU @ 1.80 GHz 2.40 Ghz
+ * 
+ * It supports atleast once and atmost once processing modes.
+ * Exactly once is not supported
  * @param <T>
  *            The tuple type
  * @since 1.0.2
  */
-@ShipContainingJars(classes = { org.apache.hadoop.hbase.client.HTable.class,
-		org.apache.hadoop.hbase.util.BloomFilterFactory.class,
-		com.google.protobuf.AbstractMessageLite.class,
-		org.apache.hadoop.hbase.BaseConfigurable.class,
-		org.apache.hadoop.hbase.protobuf.generated.AccessControlProtos.class,
-		org.apache.hadoop.hbase.ipc.BadAuthException.class,
-		org.cloudera.htrace.HTraceConfiguration.class })
+
 public abstract class AbstractHBaseTransactionalPutOutputOperator<T>
-		extends
-		AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> {
-	private static final transient Logger logger = LoggerFactory
-			.getLogger(AbstractHBaseTransactionalPutOutputOperator.class);
-	private transient List<T> tuples;
+extends
+AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> {
+  private static final transient Logger logger = LoggerFactory
+      .getLogger(AbstractHBaseTransactionalPutOutputOperator.class);
+  private List<T> tuples;
+  protected transient boolean atmostonceflag;
+  private transient ProcessingMode mode;
+  public ProcessingMode getMode()
+  {
+    return mode;
+  }
 
-	public AbstractHBaseTransactionalPutOutputOperator() {
-		store = new HBaseTransactionalStore();
-		tuples = new ArrayList<T>();
-	}
+  public void setMode(ProcessingMode mode)
+  {
+    this.mode = mode;
+  }
 
-	@Override
-	public void storeAggregate() {
+  public AbstractHBaseTransactionalPutOutputOperator() {
+    store = new HBaseTransactionalStore();
+    tuples = new ArrayList<T>();
+  }
 
-		Iterator<T> it = tuples.iterator();
-		while (it.hasNext()) {
-			T t = it.next();
-			try {
-				HTable table = store.getTable();
-				Put put = operationPut(t);
-				table.put(put);
-			} catch (IOException e) {
-				logger.error("Could not output tuple", e);
-				DTThrowable.rethrow(e);
-			}
-			it.remove();
-		}
-	}
+  @Override
+  public void storeAggregate() {
+    if(mode==ProcessingMode.AT_LEAST_ONCE ){
+      atleastOnce();
+    }
+    else if(mode==ProcessingMode.AT_MOST_ONCE){
+      atmostOnce();
+    }
+    else{
+      throw new RuntimeException("This operator only supports atleast once and atmost once cases");
+    }
+  }
+  private void atmostOnce(){
+    if(atmostonceflag){
+      storeData();
+    }
+    tuples.clear();
+  }
+  private void atleastOnce()
+  {
+    storeData();
+    tuples.clear();
+  }
 
-	public abstract Put operationPut(T t) throws IOException;
+  private void storeData()
+  {
+    HTable table = store.getTable();
+    Iterator<T> it = tuples.iterator();
+    while (it.hasNext()) {
+      T t = it.next();
+      try {
+        Put put = operationPut(t);
+        table.put(put);
+      } catch (IOException e) {
+        logger.error("Could not output tuple", e);
+        DTThrowable.rethrow(e);
+      }
 
-	@Override
-	public void processTuple(T tuple) {
-		tuples.add(tuple);
-	}
+    }
+    try {
+      table.flushCommits();
+    } catch (RetriesExhaustedWithDetailsException e) {
+      logger.error("Could not output tuple", e);
+      DTThrowable.rethrow(e);
+    } catch (InterruptedIOException e) {
+      logger.error("Could not output tuple", e);
+      DTThrowable.rethrow(e);
+    }
+  }
+
+  public abstract Put operationPut(T t) throws IOException;
+
+  @Override
+  public void processTuple(T tuple) {
+    tuples.add(tuple);
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    atmostonceflag=true;
+    super.beginWindow(windowId);
+  }
+  @Override
+  public void setup(OperatorContext context)
+  {
+    mode=context.getValue(context.PROCESSING_MODE);
+    super.setup(context);
+  }
 
 }
