@@ -53,7 +53,7 @@ public class CassandraOutputBenchmarkApplication implements StreamingApplication
     store.setKeyspace("test");
     store.setNode("127.0.0.1");
     cassandra.setStore(store);
-    
+
     dag.addStream("rand_cassandra", rand.integer_data, cassandra.input).setLocality(locality);
   }
 
