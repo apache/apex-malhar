@@ -30,15 +30,8 @@ public class FrauddetectApplicationTest {
     @Test
     public void testApplication() throws Exception {
         Application application = new Application();
-
         Configuration conf = new Configuration(false);
-        conf.set(Application.MONGO_HOST_PROPERTY, "localhost");
-        conf.set(Application.MONGO_HOST_PROPERTY, "localhost");
-        conf.setInt(Application.BIN_THRESHOLD_PROPERTY, 20);
-        conf.setInt(Application.AVG_THRESHOLD_PROPERTY, 1200);
-        conf.setInt(Application.CC_THRESHOLD_PROPERTY, 420);
         LocalMode lma = LocalMode.newInstance();
-
         application.populateDAG(lma.getDAG(), conf);
         lma.getController().run(120000);
     }
