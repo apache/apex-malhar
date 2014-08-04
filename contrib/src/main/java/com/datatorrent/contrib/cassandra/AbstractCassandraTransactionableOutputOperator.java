@@ -16,10 +16,11 @@
 
 package com.datatorrent.contrib.cassandra;
 
+import java.util.Collection;
+
 import com.datastax.driver.core.BatchStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
 
 /**
@@ -53,17 +54,19 @@ public abstract class AbstractCassandraTransactionableOutputOperator<T> extends 
    * Sets the parameter of the insert/update statement with values from the tuple.
    *
    * @param tuple     tuple
-   * @return statement The statement to excecute
+   * @return statement The statement to execute
    * @throws DriverException
    */
   protected abstract Statement getUpdateStatement(T tuple) throws DriverException;
 
   @Override
-  public void processBatch(){
+  public void processBatch(Collection<T> tuples)
+  {
     BatchStatement batchCommand = store.getBatchCommand();
     for(T tuple: tuples)
     {
       batchCommand.add(getUpdateStatement(tuple));
     }
   }
+
 }

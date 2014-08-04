@@ -15,9 +15,7 @@
  */
 package com.datatorrent.lib.db;
 
-import java.util.List;
-
-import com.datatorrent.api.Context.OperatorContext;
+import java.util.Collection;
 import com.google.common.collect.Lists;
 
 /**
@@ -27,40 +25,34 @@ import com.google.common.collect.Lists;
  * @param <S> The store type.
  * @since 1.0.2
  */
-public abstract class AbstractBatchTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends AbstractTransactionableStoreOutputOperator<T, S>{
-	protected final List<T> tuples;
+public abstract class AbstractBatchTransactionableStoreOutputOperator<T, S extends TransactionableStore> extends AbstractAggregateTransactionableStoreOutputOperator<T, S> {
 
-	public AbstractBatchTransactionableStoreOutputOperator(){
-		tuples = Lists.newArrayList();
-	}
+  private Collection<T> tuples;
+  public AbstractBatchTransactionableStoreOutputOperator(){
+    tuples = Lists.newArrayList();
+  }
 
-	@Override
-	public void setup(OperatorContext context)
-	{
-		super.setup(context);
-	}
+  @Override
+  public void processTuple(T tuple)
+  {
+    tuples.add(tuple);
+  }
 
-	@Override
-	public void processTuple(T tuple)
-	{
-		tuples.add(tuple);
-	}
+  @Override
+  public void endWindow()
+  {
+    super.endWindow();
+    tuples.clear();
+  }
 
-	@Override
-	public void endWindow()
-	{
-		store.beginTransaction();
-		processBatch();
-		store.storeCommittedWindowId(appId, operatorId, currentWindowId);
-		store.commitTransaction();
-		committedWindowId = currentWindowId;
-		super.endWindow();
-		tuples.clear();
-	}
+  /**
+   * Processes the whole batch at the end window and writes to the store.
+   *
+   */
+  public abstract void processBatch(Collection<T> tuples);
 
-	/**
-	 * Processes the whole batch at the end window and writes to the store.
-	 *
-	 */
-	public abstract void processBatch();
+  @Override
+  public void storeAggregate() {
+    processBatch(tuples);
+  }
 }
