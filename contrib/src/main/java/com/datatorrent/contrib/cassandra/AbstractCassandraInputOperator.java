@@ -17,15 +17,17 @@
 package com.datatorrent.contrib.cassandra;
 
 
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.api.annotation.ShipContainingJars;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datastax.driver.core.ResultSet;
+import com.datastax.driver.core.Row;
+
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
  * Base Cassandra input adapter operator, which reads data from persistence database through DATASTAX API
@@ -37,7 +39,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.2
  */
-@ShipContainingJars(classes = {com.datastax.driver.core.Cluster.class})
 public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore> {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractCassandraInputOperator.class);
