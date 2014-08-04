@@ -46,25 +46,25 @@ import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
 @ShipContainingJars(classes = {com.datastax.driver.core.Cluster.class, com.codahale.metrics.Metric.class})
 public abstract class AbstractCassandraTransactionableOutputOperator<T> extends AbstractBatchTransactionableStoreOutputOperator<T, CassandraTransactionalStore> {
 
-	public AbstractCassandraTransactionableOutputOperator(){
-		super();
-	}
+  public AbstractCassandraTransactionableOutputOperator(){
+    super();
+  }
 
-	/**
-	 * Sets the parameter of the insert/update statement with values from the tuple.
-	 *
-	 * @param tuple     tuple
+  /**
+   * Sets the parameter of the insert/update statement with values from the tuple.
+   *
+   * @param tuple     tuple
    * @return statement The statement to excecute
-	 * @throws DriverException
-	 */
-	protected abstract Statement getUpdateStatement(T tuple) throws DriverException;
+   * @throws DriverException
+   */
+  protected abstract Statement getUpdateStatement(T tuple) throws DriverException;
 
-	@Override
-	public void processBatch(){
+  @Override
+  public void processBatch(){
     BatchStatement batchCommand = store.getBatchCommand();
     for(T tuple: tuples)
     {
       batchCommand.add(getUpdateStatement(tuple));
     }
-	}
+  }
 }

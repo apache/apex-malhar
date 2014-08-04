@@ -49,34 +49,34 @@ import javax.annotation.Nonnull;
 @ShipContainingJars(classes = {com.datastax.driver.core.Cluster.class, com.codahale.metrics.Metric.class})
 public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extends AbstractCassandraTransactionableOutputOperator<T>{
 
-	private transient PreparedStatement updateCommand;
+  private transient PreparedStatement updateCommand;
 
-	/**
-	 * Gets the statement which insert/update the table in the database.
-	 *
-	 * @return the cql statement to update a tuple in the database.
-	 */
-	@Nonnull
-	protected abstract PreparedStatement getUpdateCommand();
+  /**
+   * Gets the statement which insert/update the table in the database.
+   *
+   * @return the cql statement to update a tuple in the database.
+   */
+  @Nonnull
+  protected abstract PreparedStatement getUpdateCommand();
 
-	@Override
-	public void setup(Context.OperatorContext context)
-	{
-		super.setup(context);
-		updateCommand = getUpdateCommand();
-	}
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    super.setup(context);
+    updateCommand = getUpdateCommand();
+  }
 
-	/**
-	 * Sets the parameter of the insert/update statement with values from the tuple.
-	 *
-	 * @param tuple     tuple
+  /**
+   * Sets the parameter of the insert/update statement with values from the tuple.
+   *
+   * @param tuple     tuple
    * @return statement The statement to execute
-	 * @throws DriverException
-	 */
-	protected abstract Statement setStatementParameters(PreparedStatement updateCommand, T tuple) throws DriverException;
+   * @throws DriverException
+   */
+  protected abstract Statement setStatementParameters(PreparedStatement updateCommand, T tuple) throws DriverException;
 
-	@Override
-	protected Statement getUpdateStatement(T tuple){
-		return setStatementParameters(updateCommand, tuple);
-	}
+  @Override
+  protected Statement getUpdateStatement(T tuple){
+    return setStatementParameters(updateCommand, tuple);
+  }
 }
