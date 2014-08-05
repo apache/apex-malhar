@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  <property>
+	<name>dt.application.PiDemo.class</name>
+	<value>com.datatorrent.demos.pi.Application</value>
+	<description>An alias for the application</description>
+</property> 
+<property>
+	<name>dt.application.PiDemo.operator.rand.minvalue</name>
+	<value>0</value>
+</property>
+<property>
+	<name>dt.application.PiDemo.operator.rand.maxvalue</name>
+	<value>30000</value>
+</property>
+<property>
+	<name>dt.application.PiDemo.operator.picalc.base</name>
+	<value>900000000</value>
+</property>
+<property>
+	<name>dt.application.PiDemo.attr.CONTAINER_MEMORY_MB</name>
+	<value>512</value>
+</property>
+</configuration>
