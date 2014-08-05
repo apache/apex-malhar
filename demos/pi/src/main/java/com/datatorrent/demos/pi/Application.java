@@ -79,17 +79,9 @@ public class Application implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    int maxValue = 30000;
-
     RandomEventGenerator rand = dag.addOperator("rand", new RandomEventGenerator());
-    rand.setMinvalue(0);
-    rand.setMaxvalue(maxValue);
-
     PiCalculateOperator calc = dag.addOperator("picalc", new PiCalculateOperator());
-    calc.setBase(maxValue*maxValue);
-
     ConsoleOutputOperator console = dag.addOperator("console", new ConsoleOutputOperator());
-
     dag.addStream("rand_calc", rand.integer_data, calc.input).setLocality(locality);
     dag.addStream("rand_console",calc.output, console.input).setLocality(locality);
   }

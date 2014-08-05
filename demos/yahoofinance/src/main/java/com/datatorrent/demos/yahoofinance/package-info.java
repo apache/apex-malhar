@@ -17,4 +17,4 @@
 /**
  * Yahoo Finance demonstration applications.
  */
-package com.datatorrent.demos.yahoofinance;
+package com.datatorrent.demos.chart;

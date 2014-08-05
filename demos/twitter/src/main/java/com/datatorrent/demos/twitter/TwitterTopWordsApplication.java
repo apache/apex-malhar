@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.twitter;
 
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG.Locality;
@@ -39,10 +40,9 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="TwitterTopWordsDemo")
+@ApplicationAnnotation(name="SampleStreamDemo")
 public class TwitterTopWordsApplication implements StreamingApplication
 {
-  private final Locality locality = null;
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
@@ -50,19 +50,15 @@ public class TwitterTopWordsApplication implements StreamingApplication
       twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
 
       TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
-
       UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueWordCounter", new UniqueCounter<String>());
-
       WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
-      topCounts.setTopCount(10);
       topCounts.setSlidingWindowWidth(120, 1);
 
-      dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input).setLocality(Locality.CONTAINER_LOCAL);
-      dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data).setLocality(locality);
-
-      dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input).setLocality(locality);
+      dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
+      dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
+      dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input);
 
       ConsoleOutputOperator consoleOperator = dag.addOperator("topWords", new ConsoleOutputOperator());
-      dag.addStream("TopWords", topCounts.output, consoleOperator.input).setLocality(locality);
+      dag.addStream("TopWords", topCounts.output, consoleOperator.input);
   }
 }

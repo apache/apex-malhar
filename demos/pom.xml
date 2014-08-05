@@ -20,7 +20,8 @@
     <module>twitter</module>
     <module>yahoofinance</module>
     <module>frauddetect</module>
-    
+    <module>mobile</module>
+    <module>wordcount</module>
   </modules>
 
 </project>

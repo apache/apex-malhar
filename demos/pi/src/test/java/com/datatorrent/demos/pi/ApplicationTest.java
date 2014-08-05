@@ -16,9 +16,11 @@
 package com.datatorrent.demos.pi;
 
 
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
+
 
 /**
  *
@@ -28,6 +30,12 @@ public class ApplicationTest
   @Test
   public void testSomeMethod() throws Exception
   {
-    LocalMode.runApp(new Application(), 10000);
+	  LocalMode lma = LocalMode.newInstance();
+	    Configuration conf =new Configuration(false);
+	    conf.addResource("dt-site-pi.xml");
+	    lma.prepareDAG(new Application(), conf);
+	    LocalMode.Controller lc = lma.getController();
+	    lc.run(10000);
+  
   }
 }

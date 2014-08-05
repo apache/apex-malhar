@@ -13,34 +13,35 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.twitter;
-
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
+package com.datatorrent.demos.yahoofinance;
 
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.demos.yahoofinance.YahooFinanceApplication;
+
+
 /**
- * Test the DAG declaration in local mode.
+ * Run Yahoo Finance application demo.
+ *
  */
-public class TwitterTopWordsTest
+public class YahooFinanceChartApplicationTest
 {
   /**
-   * This test requires twitter authentication setup and is skipped by default
-   * (see {@link TwitterSampleInput}).
+   * This will run for ever.
    *
    * @throws Exception
    */
   @Test
   public void testApplication() throws Exception
   {
-	TwitterTopWordsApplication app = new TwitterTopWordsApplication();
-	Configuration conf =new Configuration(false);
-	conf.addResource("dt-site-rollingtopwords.xml");
-    LocalMode lma = LocalMode.newInstance();
-    lma.prepareDAG(app, conf);
-    LocalMode.Controller lc = lma.getController();
-    lc.run(120000);
+	  LocalMode lma = LocalMode.newInstance();
+	    Configuration conf =new Configuration(false);
+	    conf.addResource("dt-site-chart.xml");
+	    lma.prepareDAG(new YahooFinanceApplication(), conf);
+	    LocalMode.Controller lc = lma.getController();
+	    lc.run(60000);
   }
+
 }

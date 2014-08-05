@@ -148,42 +148,16 @@ import com.datatorrent.lib.testbench.ThroughputCounter;
 @ApplicationAnnotation(name="AdsDemo")
 public class Application implements StreamingApplication
 {
-  public static final int WINDOW_SIZE_MILLIS = 500;
-  public static final String P_numGenerators = Application.class.getName() + ".numGenerators";
-  public static final String P_generatorVTuplesBlast = Application.class.getName() + ".generatorVTuplesBlast";
-  public static final String P_generatorMaxWindowsCount = Application.class.getName() + ".generatorMaxWindowsCount";
+ 
   public static final String P_allInline = Application.class.getName() + ".allInline";
   public static final String P_enableHdfs = Application.class.getName() + ".enableHdfs";
-  // adjust these depending on execution mode (junit, cli-local, cluster)
-  private int applicationWindow = 5 * 1000 / WINDOW_SIZE_MILLIS;
-  private int generatorVTuplesBlast = 1000;
-  private int generatorMaxWindowsCount = 100;
-  private int generatorWindowCount = 1;
   private Locality locality = null;
-  private int numGenerators = 1;
-
-  public void setUnitTestMode()
-  {
-    generatorVTuplesBlast = 10;
-    generatorWindowCount = 5;
-    generatorMaxWindowsCount = 20;
-    applicationWindow = 5;
-  }
-
-  public void setLocalMode()
-  {
-    generatorVTuplesBlast = 1000; // keep low to not distort window boundaries
-    //generatorVTuplesBlast = 500000;
-    generatorWindowCount = 5;
-    //generatorMaxWindowsCount = 50;
-    generatorMaxWindowsCount = 1000000;
-  }
-
+ 
   private void configure(DAG dag, Configuration conf)
   {
 
     if (StreamingApplication.Environment.CLUSTER == conf.getEnum(StreamingApplication.ENVIRONMENT, StreamingApplication.Environment.LOCAL)) {
-      setLocalMode();
+     
       // settings only affect distributed mode
       AttributeMap attributes = dag.getAttributes();
       if (attributes.get(DAGContext.CONTAINER_MEMORY_MB) == null) {
@@ -197,13 +171,9 @@ public class Application implements StreamingApplication
       }
     }
     else if (StreamingApplication.Environment.LOCAL == conf.getEnum(StreamingApplication.ENVIRONMENT, StreamingApplication.Environment.CLUSTER)) {
-      setLocalMode();
+     
     }
-
-    this.generatorVTuplesBlast = conf.getInt(P_generatorVTuplesBlast, this.generatorVTuplesBlast);
-    this.generatorMaxWindowsCount = conf.getInt(P_generatorMaxWindowsCount, this.generatorMaxWindowsCount);
     this.locality = conf.getBoolean(P_allInline, false) ? Locality.CONTAINER_LOCAL : null;
-    this.numGenerators = conf.getInt(P_numGenerators, this.numGenerators);
 
   }
 
@@ -214,7 +184,6 @@ public class Application implements StreamingApplication
     if (!StringUtils.isEmpty(gatewayAddress)) {
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       String topic = "demos.ads." + name;
-      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
       PubSubWebSocketOutputOperator<Object> wsOut = b.addOperator(name, new PubSubWebSocketOutputOperator<Object>());
       wsOut.setUri(uri);
       wsOut.setTopic(topic);
@@ -224,52 +193,6 @@ public class Application implements StreamingApplication
     oper.setStringFormat(name + "%s");
     oper.silent = silent;
     return oper.input;
-  }
-
-  public SumCountMap<String, Double> getSumOperator(String name, DAG b)
-  {
-    return b.addOperator(name, new SumCountMap<String, Double>());
-  }
-
-  public StreamMerger<HashMap<String, Integer>> getStreamMerger(String name, DAG b)
-  {
-    StreamMerger<HashMap<String, Integer>> oper = b.addOperator(name, new StreamMerger<HashMap<String, Integer>>());
-    return oper;
-  }
-
-  public ThroughputCounter<String, Integer> getThroughputCounter(String name, DAG b)
-  {
-    ThroughputCounter<String, Integer> oper = b.addOperator(name, new ThroughputCounter<String, Integer>());
-    oper.setRollingWindowCount(5);
-    return oper;
-  }
-
-  public MarginMap<String, Double> getMarginOperator(String name, DAG b)
-  {
-    MarginMap<String, Double> oper = b.addOperator(name, new MarginMap<String, Double>());
-    oper.setPercent(true);
-    return oper;
-  }
-
-  public QuotientMap<String, Integer> getQuotientOperator(String name, DAG b)
-  {
-    QuotientMap<String, Integer> oper = b.addOperator(name, new QuotientMap<String, Integer>());
-    oper.setMult_by(100);
-    oper.setCountkey(true);
-    return oper;
-  }
-
-  public EventGenerator getPageViewGenOperator(String name, DAG b)
-  {
-    EventGenerator oper = b.addOperator(name, EventGenerator.class);
-    oper.setKeys("home,finance,sports,mail");
-    // Paying $2.15,$3,$1.75,$.6 for 1000 views respectively
-    oper.setValues("0.00215,0.003,0.00175,0.0006");
-    oper.setWeights("25,25,25,25");
-    oper.setTuplesBlast(this.generatorVTuplesBlast);
-    oper.setMaxCountOfWindows(generatorMaxWindowsCount);
-    oper.setRollingWindowCount(this.generatorWindowCount);
-    return oper;
   }
 
   public EventClassifier getAdViewsStampOperator(String name, DAG b)
@@ -315,41 +238,22 @@ public class Application implements StreamingApplication
     alist.add(35);
     wmap.put("mail", alist);
     oper.setKeyWeights(wmap);
-    oper.setPassFilter(40);
-    oper.setTotalFilter(1000);
+
     return oper;
   }
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
+	
     configure(dag, conf);
     dag.setAttribute(DAG.APPLICATION_NAME, "AdsApplication");
-    dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS); // set the streaming window size to 1 millisec
-
-    //dag.getAttributes().attr(DAG.CONTAINERS_MAX_COUNT).setIfAbsent(9);
-    EventGenerator viewGen = getPageViewGenOperator("viewGen", dag);
-    dag.getMeta(viewGen).getAttributes().put(OperatorContext.INITIAL_PARTITION_COUNT, numGenerators);
-    dag.setOutputPortAttribute(viewGen.hash_data, PortContext.QUEUE_CAPACITY, 32 * 1024);
-
+    EventGenerator viewGen =dag.addOperator("viewGen", EventGenerator.class);
     EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
-    dag.setOutputPortAttribute(adviews.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
-    dag.setInputPortAttribute(adviews.event, PortContext.QUEUE_CAPACITY, 32 * 1024);
-
     FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);
-    dag.setInputPortAttribute(insertclicks.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
-
-    SumCountMap<String, Double> viewAggregate = getSumOperator("viewAggr", dag);
-    dag.setAttribute(viewAggregate, OperatorContext.APPLICATION_WINDOW_COUNT, applicationWindow);
-    dag.setInputPortAttribute(viewAggregate.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
-
-    SumCountMap<String, Double> clickAggregate = getSumOperator("clickAggr", dag);
-    dag.setAttribute(clickAggregate, OperatorContext.APPLICATION_WINDOW_COUNT, applicationWindow);
-
-    dag.setInputPortAttribute(adviews.event, PortContext.PARTITION_PARALLEL, true);
-    dag.addStream("views", viewGen.hash_data, adviews.event).setLocality(Locality.CONTAINER_LOCAL);
-    dag.setInputPortAttribute(insertclicks.data, PortContext.PARTITION_PARALLEL, true);
-    dag.setInputPortAttribute(viewAggregate.data, PortContext.PARTITION_PARALLEL, true);
+    SumCountMap<String, Double> viewAggregate=dag.addOperator("viewAggr", new SumCountMap<String, Double>());
+    SumCountMap<String, Double> clickAggregate=dag.addOperator("clickAggr", new SumCountMap<String, Double>());
+    dag.addStream("views", viewGen.hash_data, adviews.event);
     DAG.StreamMeta viewsAggStream = dag.addStream("viewsaggregate", adviews.data, insertclicks.data, viewAggregate.data).setLocality(Locality.CONTAINER_LOCAL);
 
     if (conf.getBoolean(P_enableHdfs, false)) {
@@ -361,16 +265,13 @@ public class Application implements StreamingApplication
       viewsAggStream.addSink(viewsToHdfs.input);
     }
 
-    dag.setInputPortAttribute(clickAggregate.data, PortContext.PARTITION_PARALLEL, true);
-    dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data).setLocality(Locality.CONTAINER_LOCAL);
-
-
-    QuotientMap<String, Integer> ctr = getQuotientOperator("ctr", dag);
-    SumCountMap<String, Double> cost = getSumOperator("cost", dag);
-    SumCountMap<String, Double> revenue = getSumOperator("rev", dag);
-    MarginMap<String, Double> margin = getMarginOperator("margin", dag);
-    StreamMerger<HashMap<String, Integer>> merge = getStreamMerger("countmerge", dag);
-    ThroughputCounter<String, Integer> tuple_counter = getThroughputCounter("tuple_counter", dag);
+    dag.addStream("clicksaggregate", insertclicks.filter, clickAggregate.data);
+    QuotientMap<String, Integer> ctr = dag.addOperator("ctr", new QuotientMap<String, Integer>());
+    SumCountMap<String, Double> cost = dag.addOperator("cost", new SumCountMap<String, Double>());
+    SumCountMap<String, Double> revenue = dag.addOperator("rev", new SumCountMap<String, Double>());
+    MarginMap<String, Double> margin =dag.addOperator("margin", new MarginMap<String, Double>());
+    StreamMerger<HashMap<String, Integer>> merge =dag.addOperator("countmerge", new StreamMerger<HashMap<String, Integer>>());
+    ThroughputCounter<String, Integer> tuple_counter =dag.addOperator("tuple_counter", new ThroughputCounter<String, Integer>());
 
     dag.addStream("adviewsdata", viewAggregate.sum, cost.data);
     dag.addStream("clicksdata", clickAggregate.sum, revenue.data);

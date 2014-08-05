@@ -16,6 +16,7 @@
 package com.datatorrent.demos.pi;
 
 
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
@@ -27,7 +28,12 @@ public class CalculatorTest
 {
   @Test
   public void testSomeMethod() throws Exception
-  {
-    LocalMode.runApp(new Calculator(), 10000);
+  { 
+    LocalMode lma = LocalMode.newInstance();
+    Configuration conf =new Configuration(false);
+    conf.addResource("dt-site-pilibrary.xml");
+    lma.prepareDAG(new Calculator(), conf);
+    LocalMode.Controller lc = lma.getController();
+    lc.run(10000);
   }
 }

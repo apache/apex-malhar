@@ -62,41 +62,32 @@ public class Calculator implements StreamingApplication
   {
     /* keep generating random values between 0 and 30000 */
     RandomEventGenerator xyGenerator = dag.addOperator("GenerateX", RandomEventGenerator.class);
-    xyGenerator.setMinvalue(0);
-    xyGenerator.setMaxvalue(30000);
 
     /* calculate square of each of the values it receives */
     SquareCalculus squareOperator = dag.addOperator("SquareX", SquareCalculus.class);
 
     /* pair the consecutive values */
     AbstractAggregator<Integer> pairOperator = dag.addOperator("PairXY", new ArrayListAggregator<Integer>());
-    pairOperator.setSize(2);
-
     Sigma<Integer> sumOperator = dag.addOperator("SumXY", new Sigma<Integer>());
-
     LogicalCompareToConstant<Integer> comparator = dag.addOperator("AnalyzeLocation", new LogicalCompareToConstant<Integer>());
-    comparator.setConstant(30000 * 30000);
-
+    comparator.setConstant(30000 *30000);
     Counter inCircle = dag.addOperator("CountInCircle", Counter.class);
     Counter inSquare = dag.addOperator("CountInSquare", Counter.class);
-
     Division division = dag.addOperator("Ratio", Division.class);
-
     MultiplyByConstant multiplication = dag.addOperator("InstantPI", MultiplyByConstant.class);
     multiplication.setMultiplier(4);
-
     RunningAverage average = dag.addOperator("AveragePI", new RunningAverage());
 
-    dag.addStream("x", xyGenerator.integer_data, squareOperator.input).setLocality(locality);
-    dag.addStream("sqr", squareOperator.integerResult, pairOperator.input).setLocality(locality);
-    dag.addStream("x2andy2", pairOperator.output, sumOperator.input).setLocality(locality);
-    dag.addStream("x2plusy2", sumOperator.integerResult, comparator.input, inSquare.input).setLocality(locality);
-    dag.addStream("inCirclePoints", comparator.greaterThan, inCircle.input).setLocality(locality);
-    dag.addStream("numerator", inCircle.output, division.numerator).setLocality(locality);
-    dag.addStream("denominator", inSquare.output, division.denominator).setLocality(locality);
-    dag.addStream("ratio", division.doubleQuotient, multiplication.input).setLocality(locality);
-    dag.addStream("instantPi", multiplication.doubleProduct, average.input).setLocality(locality);
-    dag.addStream("averagePi", average.doubleAverage, getConsolePort(dag, "Console")).setLocality(locality);
+    dag.addStream("x", xyGenerator.integer_data, squareOperator.input);
+    dag.addStream("sqr", squareOperator.integerResult, pairOperator.input);
+    dag.addStream("x2andy2", pairOperator.output, sumOperator.input);
+    dag.addStream("x2plusy2", sumOperator.integerResult, comparator.input, inSquare.input);
+    dag.addStream("inCirclePoints", comparator.greaterThan, inCircle.input);
+    dag.addStream("numerator", inCircle.output, division.numerator);
+    dag.addStream("denominator", inSquare.output, division.denominator);
+    dag.addStream("ratio", division.doubleQuotient, multiplication.input);
+    dag.addStream("instantPi", multiplication.doubleProduct, average.input);
+    dag.addStream("averagePi", average.doubleAverage, getConsolePort(dag, "Console"));
 
   }
 
