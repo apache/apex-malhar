@@ -59,14 +59,13 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
     }
     partitionedInstanceStatus.put(stats.getOperatorId(), stats);
     if (stats.getTuplesProcessedPSMA() < minimumEvents || stats.getTuplesProcessedPSMA() > maximumEvents) {
-      if (repartition) {
-        if (System.currentTimeMillis() > nextMillis) {
-          repartition = false;
-          response.repartitionRequired = true;
-          logger.debug("setting repartition to true");
-        }
+      if (repartition && System.currentTimeMillis() > nextMillis) {
+        repartition = false;
+        response.repartitionRequired = true;
+        logger.debug("setting repartition to true");
+
       }
-      else {
+      else if (!repartition) {
         repartition = true;
         nextMillis = System.currentTimeMillis() + cooldownMillis;
       }
