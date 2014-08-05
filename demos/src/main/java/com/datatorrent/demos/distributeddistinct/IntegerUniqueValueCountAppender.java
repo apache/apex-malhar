@@ -80,7 +80,7 @@ public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<In
       while (resultSet.next()) {
         int val = resultSet.getInt(1);
         @SuppressWarnings("unchecked")
-        Set<Integer> valSet = (Set<Integer>) storeManager.get(val);
+        Set<Integer> valSet = (Set<Integer>) cacheManager.get(val);
         output.emit(new KeyValPair<Object, Object>(val, valSet.size()));
       }
     } catch (SQLException e) {

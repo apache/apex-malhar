@@ -18,8 +18,8 @@ package com.datatorrent.lib.db.jdbc;
 import java.sql.*;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Exchanger;
 import java.util.concurrent.TimeUnit;
 
@@ -60,7 +60,7 @@ public class JDBCLookupCacheBackedOperatorTest
 
   protected static transient final Logger logger = LoggerFactory.getLogger(JDBCLookupCacheBackedOperatorTest.class);
 
-  private final static Exchanger<Map<Object, Object>> bulkValuesExchanger = new Exchanger<Map<Object, Object>>();
+  private final static Exchanger<List<Object>> bulkValuesExchanger = new Exchanger<List<Object>>();
 
   public static class TestJDBCLookupCacheBackedOperator extends JDBCLookupCacheBackedOperator<String>
   {
@@ -72,7 +72,7 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     @Override
-    public Map<Object, Object> fetchStartupData()
+    public Map<Object, Object> loadInitialData()
     {
       return null;
     }
@@ -113,17 +113,26 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     @Override
-    public Map<Object, Object> bulkGet(Set<Object> keys)
+    public List<Object> getAll(List<Object> keys)
     {
-
-      Map<Object, Object> valMap = super.bulkGet(keys);
+      List<Object> values = super.getAll(keys);
       try {
-        bulkValuesExchanger.exchange(valMap);
+        bulkValuesExchanger.exchange(values);
       }
       catch (InterruptedException e) {
         throw new RuntimeException(e);
       }
-      return valMap;
+      return values;
+    }
+
+    @Override
+    public void putAll(Map<Object, Object> m)
+    {
+    }
+
+    @Override
+    public void remove(Object key)
+    {
     }
   }
 
@@ -138,7 +147,7 @@ public class JDBCLookupCacheBackedOperatorTest
     // Check values send vs received
     Assert.assertEquals("Number of emitted tuples", 2, sink.collectedTuples.size());
 
-    Map<Object, Object> bulk = bulkValuesExchanger.exchange(null, 30, TimeUnit.SECONDS);
+    List<Object> bulk = bulkValuesExchanger.exchange(null, 30, TimeUnit.SECONDS);
     Assert.assertEquals("bulk values retrieval", 2, bulk.size());
   }
 
@@ -166,8 +175,8 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     // Setup the operator
-    lookupCacheBackedOperator.store.setDbUrl(INMEM_DB_URL);
-    lookupCacheBackedOperator.store.setDbDriver(INMEM_DB_DRIVER);
+    lookupCacheBackedOperator.getStore().setDbUrl(INMEM_DB_URL);
+    lookupCacheBackedOperator.getStore().setDbDriver(INMEM_DB_DRIVER);
 
     Calendar now = Calendar.getInstance();
     now.add(Calendar.SECOND, 5);

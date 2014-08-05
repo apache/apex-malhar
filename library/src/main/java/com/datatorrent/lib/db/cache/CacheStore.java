@@ -15,6 +15,8 @@
  */
 package com.datatorrent.lib.db.cache;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Executors;
@@ -24,9 +26,10 @@ import java.util.concurrent.TimeUnit;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.common.collect.Lists;
 
 /**
- * A {@link Store.Primary} which keeps key/value pairs in memory.<br/>
+ * A {@link CacheManager.Primary} which keeps key/value pairs in memory.<br/>
  *
  * Properties of the cache store:<br/>
  * <ul>
@@ -39,10 +42,11 @@ import com.google.common.cache.CacheBuilder;
  *
  * @since 0.9.2
  */
-public class CacheStore implements Store.Primary
+public class CacheStore implements CacheManager.Primary
 {
   private transient ScheduledExecutorService cleanupScheduler;
   private transient Cache<Object, Object> cache;
+  private transient boolean open;
 
   public CacheStore(CacheProperties properties)
   {
@@ -80,9 +84,15 @@ public class CacheStore implements Store.Primary
   }
 
   @Override
-  public void bulkSet(Map<Object, Object> data)
+  public void putAll(Map<Object, Object> data)
   {
     cache.asMap().putAll(data);
+  }
+
+  @Override
+  public void remove(Object key)
+  {
+    cache.invalidate(key);
   }
 
   @Override
@@ -92,14 +102,31 @@ public class CacheStore implements Store.Primary
   }
 
   @Override
-  public Map<Object, Object> bulkGet(Set<Object> keys)
+  public List<Object> getAll(List<Object> keys)
   {
-    return cache.getAllPresent(keys);
+    List<Object> values = Lists.newArrayList();
+    for (Object key : keys) {
+      values.add(cache.getIfPresent(key));
+    }
+    return values;
   }
 
   @Override
-  public void teardown()
+  public void connect() throws IOException
   {
+    open = true;
+  }
+
+  @Override
+  public boolean connected()
+  {
+    return open;
+  }
+
+  @Override
+  public void disconnect() throws IOException
+  {
+    open = false;
     cleanupScheduler.shutdown();
   }
 

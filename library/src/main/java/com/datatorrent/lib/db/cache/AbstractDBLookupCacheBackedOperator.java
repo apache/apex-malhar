@@ -15,6 +15,13 @@
  */
 package com.datatorrent.lib.db.cache;
 
+import java.io.IOException;
+
+import javax.validation.constraints.NotNull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
@@ -32,15 +39,18 @@ import com.datatorrent.lib.util.KeyValPair;
  * <li>Query to fetch the value of the key from tuple when the value is not present in the cache.</li>
  * </ul>
  *
- * @param <T> type of tuples </T>
+ * @param <T> type of tuples
+ * @param <S> type of store
  * @since 0.9.1
  */
-public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator, Store.Backup
+public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectable> implements Operator, CacheManager.Backup
 {
   protected CacheProperties cacheProperties;
   protected String cacheRefreshTime;
+  @NotNull
+  protected S store;
 
-  protected transient StoreManager storeManager;
+  protected transient CacheManager cacheManager;
 
   public AbstractDBLookupCacheBackedOperator()
   {
@@ -59,7 +69,7 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   protected void processTuple(T tuple)
   {
     Object key = getKeyFromTuple(tuple);
-    Object value = storeManager.get(key);
+    Object value = cacheManager.get(key);
 
     if (value != null) {
       output.emit(new KeyValPair<Object, Object>(key, value));
@@ -83,14 +93,52 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
   @Override
   public void setup(Context.OperatorContext context)
   {
-    storeManager = new StoreManager(new CacheStore(cacheProperties), this);
-    storeManager.initialize(cacheRefreshTime);
+    cacheManager = new CacheManager(new CacheStore(cacheProperties), this);
+    try {
+      cacheManager.initialize(cacheRefreshTime);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Override
   public void teardown()
   {
-    storeManager.shutdown();
+    try {
+      cacheManager.close();
+    }
+    catch (IOException e) {
+      LOG.error("closing manager", e);
+    }
+  }
+
+  @Override
+  public void connect() throws IOException
+  {
+    store.connect();
+  }
+
+  @Override
+  public boolean connected()
+  {
+    return store.connected();
+  }
+
+  @Override
+  public void disconnect() throws IOException
+  {
+    store.disconnect();
+  }
+
+  public void setStore(S store)
+  {
+    this.store = store;
+  }
+
+  public S getStore()
+  {
+    return store;
   }
 
   /**
@@ -112,4 +160,7 @@ public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator
    * @return key corresponding to the operator.
    */
   protected abstract Object getKeyFromTuple(T tuple);
+
+  private final static Logger LOG = LoggerFactory.getLogger(AbstractDBLookupCacheBackedOperator.class);
+
 }

@@ -63,6 +63,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   protected transient boolean batch;
 
   public UniqueValueCountAppender()
+
   {
     partitionKeys = Sets.newHashSet(0);
     partitionMask = 0;
@@ -100,12 +101,12 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
 
     Object key = getKeyFromTuple(tuple);
     @SuppressWarnings("unchecked")
-    Set<Object> values = (Set<Object>) storeManager.get(key);
+    Set<Object> values = (Set<Object>) cacheManager.get(key);
     if (values == null) {
       values = Sets.newHashSet();
     }
     values.addAll(tuple.getInternalSet());
-    storeManager.put(key, values);
+    cacheManager.put(key, values);
   }
 
   @Override
@@ -121,7 +122,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   }
 
   @Override
-  public Map<Object, Object> fetchStartupData()
+  public Map<Object, Object> loadInitialData()
   {
     return null;
   }
@@ -161,6 +162,18 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   protected Object getKeyFromTuple(InternalCountOutput<V> tuple)
   {
     return tuple.getKey();
+  }
+
+  @Override
+  public void putAll(Map<Object, Object> m)
+  {
+    throw new UnsupportedOperationException("not supported");
+  }
+
+  @Override
+  public void remove(Object key)
+  {
+    throw new UnsupportedOperationException("not supported");
   }
 
   /**

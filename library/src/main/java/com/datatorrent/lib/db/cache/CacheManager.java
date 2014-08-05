@@ -15,6 +15,8 @@
  */
 package com.datatorrent.lib.db.cache;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -26,6 +28,9 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
+
+import com.datatorrent.lib.db.KeyValueStore;
 
 /**
  * Manages primary and secondary stores.<br/>
@@ -41,23 +46,25 @@ import com.google.common.base.Strings;
  *
  * @since 0.9.2
  */
-public class StoreManager
+public class CacheManager implements Closeable
 {
-  protected transient final Store.Primary primary;
-  protected transient final Store.Backup backup;
+  protected transient final Primary primary;
+  protected transient final Backup backup;
   private transient Timer refresher;
 
-  public StoreManager(final Store.Primary primary, final Store.Backup backup)
+  public CacheManager(final Primary primary, final Backup backup)
   {
     this.primary = Preconditions.checkNotNull(primary, "primary store");
     this.backup = Preconditions.checkNotNull(backup, "backup store");
   }
 
-  public void initialize(@Nullable String refreshTime/*HH:mm:ss*/)
+  public void initialize(@Nullable String refreshTime/*HH:mm:ss*/) throws IOException
   {
-    Map<Object, Object> initialEntries = backup.fetchStartupData();
+    primary.connect();
+    backup.connect();
+    Map<Object, Object> initialEntries = backup.loadInitialData();
     if (initialEntries != null) {
-      primary.bulkSet(initialEntries);
+      primary.putAll(initialEntries);
     }
 
     if (!Strings.isNullOrEmpty(refreshTime)) {
@@ -80,11 +87,13 @@ public class StoreManager
         @Override
         public void run()
         {
-          Set<Object> keysToRefresh = primary.getKeys();
+          List<Object> keysToRefresh = Lists.newArrayList(primary.getKeys());
           if (keysToRefresh.size() > 0) {
-            Map<Object, Object> refreshedValues = backup.bulkGet(keysToRefresh);
+            List<Object> refreshedValues = backup.getAll(keysToRefresh);
             if (refreshedValues != null) {
-              primary.bulkSet(refreshedValues);
+              for (int i = 0; i < keysToRefresh.size(); i++) {
+                primary.put(keysToRefresh.get(i), refreshedValues.get(i));
+              }
             }
           }
         }
@@ -98,13 +107,6 @@ public class StoreManager
       }
       refresher.scheduleAtFixedRate(task, initialDelay, 86400000);
     }
-  }
-
-  public void shutdown()
-  {
-    refresher.cancel();
-    primary.teardown();
-    backup.teardown();
   }
 
   @Nullable
@@ -128,6 +130,42 @@ public class StoreManager
     backup.put(key, value);
   }
 
-  private final static Logger logger = LoggerFactory.getLogger(StoreManager.class);
+  @Override
+  public void close() throws IOException
+  {
+    refresher.cancel();
+    primary.disconnect();
+    backup.disconnect();
+  }
+
+  /**
+   * A primary store should also provide setting the value for a key.
+   */
+  public static interface Primary extends KeyValueStore
+  {
+
+    /**
+     * Get all the keys in the store.
+     *
+     * @return all present keys.
+     */
+    Set<Object> getKeys();
+  }
+
+  /**
+   * Backup store is queried when {@link Primary} doesn't contain a key.<br/>
+   * It also provides data needed at startup.<br/>
+   */
+  public static interface Backup extends KeyValueStore
+  {
+    /**
+     * <br>Backup stores are also used to initialize primary stores. This fetches initialization data.</br>
+     *
+     * @return map of key/value to initialize {@link CacheManager}
+     */
+    Map<Object, Object> loadInitialData();
+  }
+
+  private final static Logger LOG = LoggerFactory.getLogger(CacheManager.class);
 
 }
