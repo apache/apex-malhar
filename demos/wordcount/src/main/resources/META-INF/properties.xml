@@ -6,7 +6,7 @@
 	</property>
 	<property>
 		<name>dt.application.WordCountDemo.operator.wordinput.fileName</name>
-		<value>com/datatorrent/demos/wordcount/samplefile.txt</value>
+		<value>samplefile.txt</value>
 	</property>
 	<property>
 		<name>dt.application.WordCountDemo.stream.wordinput.count.locality</name>
