@@ -37,7 +37,7 @@ public class HDSTest
     }
 
     @Override
-    public long getSequence()
+    public long getSequenceKey()
     {
       return timestamp;
     }
@@ -86,7 +86,9 @@ public class HDSTest
     hds.timeBucketUnit = TimeUnit.MILLISECONDS;
     hds.timeBucketSize = 10;
     hds.maxSize = 500;
-    hds.init();
+    hds.setup(null);
+
+    hds.beginWindow(10);
 
     MyDataKey key1 = new MyDataKey();
     key1.bucketKey = BUCKET1;
@@ -97,7 +99,7 @@ public class HDSTest
     hds.put(entry1);
 
     File bucket1Dir = new File(file, Long.toString(BUCKET1));
-    File bucket1DupsFile = new File(bucket1Dir, HDSPrototype.DUPLICATES);
+    File bucket1DupsFile = new File(bucket1Dir, HDSPrototype.FNAME_WAL);
     Assert.assertTrue("exists " + bucket1Dir, bucket1Dir.exists() && bucket1Dir.isDirectory());
     Assert.assertFalse("exists " + bucket1DupsFile, bucket1DupsFile.exists());
 
@@ -131,6 +133,15 @@ public class HDSTest
     hds.put(entry2); // next time bucket
     files = bucket1Dir.list(ff);
     Assert.assertEquals("" + Arrays.asList(files), 2, files.length);
+
+    hds.endWindow();
+
+    File metaFile = new File(bucket1Dir, HDSPrototype.FNAME_META);
+    Assert.assertFalse("exists " + metaFile, metaFile.exists());
+
+    hds.committed(1);
+
+    Assert.assertTrue("exists " + metaFile, metaFile.exists() && metaFile.isFile());
 
     bfs.close();
 

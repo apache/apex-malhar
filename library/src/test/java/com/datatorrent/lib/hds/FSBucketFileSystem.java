@@ -8,10 +8,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-
-import com.datatorrent.lib.hds.HDS.DataKey;
+import org.apache.hadoop.fs.Options.Rename;
 
 /**
  * Hadoop file system backed store.
@@ -50,9 +50,9 @@ public class FSBucketFileSystem implements BucketFileSystem
   }
 
   @Override
-  public DataOutputStream getOutputStream(DataKey key, String fileName) throws IOException
+  public DataOutputStream getOutputStream(long bucketKey, String fileName) throws IOException
   {
-    Path path = new Path(getBucketPath(key.getBucketKey()), fileName);
+    Path path = new Path(getBucketPath(bucketKey), fileName);
     if (!fs.exists(path)) {
       return fs.create(path);
     }
@@ -60,9 +60,17 @@ public class FSBucketFileSystem implements BucketFileSystem
   }
 
   @Override
-  public DataInputStream getInputStream(DataKey key, BucketFileMeta bfm) throws IOException
+  public DataInputStream getInputStream(long bucketKey, String fileName) throws IOException
   {
-    return fs.open(new Path(getBucketPath(key.getBucketKey()), bfm.name));
+    return fs.open(new Path(getBucketPath(bucketKey), fileName));
+  }
+
+  @Override
+  public void rename(long bucketKey, String fromName, String toName) throws IOException
+  {
+    FileContext fc = FileContext.getFileContext(fs.getUri());
+    Path bucketPath = getBucketPath(bucketKey);
+    fc.rename(new Path(bucketPath, fromName), new Path(bucketPath, toName), Rename.OVERWRITE);
   }
 
 }

@@ -20,7 +20,7 @@ public interface HDS
      * In most cases this will be a time stamp.
      * @return
      */
-    long getSequence();
+    long getSequenceKey();
   }
 
   interface Bucket<K extends DataKey, V>

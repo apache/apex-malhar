@@ -10,8 +10,10 @@ import java.io.DataOutputStream;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -19,6 +21,9 @@ import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang3.Range;
 
+import com.datatorrent.api.CheckpointListener;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
 import com.datatorrent.lib.hds.BucketFileSystem.BucketFileMeta;
 import com.datatorrent.lib.hds.HDS.DataKey;
 import com.esotericsoftware.kryo.Kryo;
@@ -32,15 +37,21 @@ import com.google.common.collect.Sets;
 /**
  *
  */
-public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
+public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>, CheckpointListener, Operator
 {
   private static class BucketMeta {
     int fileSeq;
     Set<BucketFileMeta> files = Sets.newHashSet();
   }
 
-  public static final String DUPLICATES = "_DUPLICATES";
-  private final HashMap<Long, BucketMeta> metaInfo = Maps.newHashMap();
+  public static final String FNAME_WAL = "_WAL";
+  public static final String FNAME_META = "_META";
+
+  private final transient HashMap<Long, BucketMeta> metaInfo = Maps.newHashMap();
+  // change log by bucket by window
+  private final HashMap<Long, LinkedHashMap<Long, BucketFileMeta>> metaUpdates = Maps.newLinkedHashMap();
+  private transient long windowId;
+
   BucketFileSystem bfs;
   int maxSize;
   // second level of partitioning by time
@@ -50,16 +61,6 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
   // TODO: managed cache
   private final HashMap<String, HashMap<K, V>> cache = Maps.newHashMap();
   private final Kryo writeSerde = new Kryo();
-
-  void init()
-  {
-
-  }
-
-  void close()
-  {
-
-  }
 
   protected Range<Long> getRange(long time)
   {
@@ -106,11 +107,11 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
   private HashMap<K, V> loadFile(DataKey key, BucketFileMeta bfm) throws IOException
   {
     HashMap<K, V> data = Maps.newHashMap();
-    InputStream is = bfs.getInputStream(key, bfm);
+    InputStream is = bfs.getInputStream(key.getBucketKey(), bfm.name);
     DataInputStream dis = new DataInputStream(is);
 
     int pos = 0;
-    while (pos < bfm.size) {
+    while (pos < bfm.committedOffset) {
       try {
         int len = dis.readInt();
         pos += 4;
@@ -130,7 +131,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
   public void put(Map.Entry<K, V> entry) throws IOException
   {
     byte[] bytes = toBytes(entry);
-    long sequence = entry.getKey().getSequence();
+    long sequence = entry.getKey().getSequenceKey();
 
     List<BucketFileMeta> files = listFiles(entry.getKey());
     ArrayList<BucketFileMeta> bucketFiles = Lists.newArrayList();
@@ -156,7 +157,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
         duplicateKey = true;
         break;
       }
-      if (bfm.size + bytes.length < maxSize) {
+      if (bfm.committedOffset + bytes.length < maxSize) {
         targetFile = bfm;
       }
     }
@@ -164,7 +165,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
     DataOutputStream dos;
     if (duplicateKey) {
       // append to duplicates file
-      dos = bfs.getOutputStream(entry.getKey(), DUPLICATES);
+      dos = bfs.getOutputStream(entry.getKey().getBucketKey(), FNAME_WAL);
     } else {
       if (targetFile == null) {
         // create new file
@@ -172,8 +173,14 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
         targetFile = createFile(entry.getKey(), r.getMinimum(), r.getMaximum());
       }
       // append to existing file
-      dos = bfs.getOutputStream(entry.getKey(), targetFile.name);
-      targetFile.size += (4+bytes.length);
+      dos = bfs.getOutputStream(entry.getKey().getBucketKey(), targetFile.name);
+      targetFile.committedOffset += (4+bytes.length);
+      // track meta data change by window
+      LinkedHashMap<Long, BucketFileMeta> bucketMetaChanges = this.metaUpdates.get(entry.getKey().getBucketKey());
+      if (bucketMetaChanges == null) {
+        this.metaUpdates.put(entry.getKey().getBucketKey(), bucketMetaChanges = Maps.newLinkedHashMap());
+      }
+      bucketMetaChanges.put(windowId, writeSerde.copy(targetFile));
     }
     // TODO: batching
     dos.writeInt(bytes.length);
@@ -209,5 +216,73 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>
     }
     return files;
   }
+
+  @Override
+  public void setup(OperatorContext arg0)
+  {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void teardown()
+  {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    this.windowId = windowId;
+  }
+
+  @Override
+  public void endWindow()
+  {
+    // TODO Auto-generated method stub
+
+  }
+
+  @Override
+  public void checkpointed(long arg0)
+  {
+  }
+
+  @Override
+  public void committed(long committedWindowId)
+  {
+    for (long bucketKey : this.metaUpdates.keySet())
+    {
+      BucketMeta bucketMeta;
+      try {
+        InputStream is = bfs.getInputStream(bucketKey, FNAME_META);
+        bucketMeta = (BucketMeta)writeSerde.readClassAndObject(new Input(is));
+        is.close();
+      } catch (IOException e) {
+        bucketMeta = new BucketMeta();
+      }
+
+      Map<Long, BucketFileMeta> files = this.metaUpdates.get(bucketKey);
+      for (long windowId : files.keySet()) {
+        if (windowId <= committedWindowId) {
+          bucketMeta.files.add(files.get(windowId));
+        } else {
+          break;
+        }
+      }
+
+      try {
+        OutputStream os = bfs.getOutputStream(bucketKey, FNAME_META + ".new");
+        Output output = new Output(os);
+        writeSerde.writeClassAndObject(output, bucketMeta);
+        output.close();
+        bfs.rename(bucketKey, FNAME_META + ".new", FNAME_META);
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to write bucket meta data " + bucketKey, e);
+      }
+    }
+  }
+
 
 }

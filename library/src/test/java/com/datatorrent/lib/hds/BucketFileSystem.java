@@ -9,8 +9,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import com.datatorrent.lib.hds.HDS.DataKey;
-
 /**
  * Encapsulate management of meta information and underlying file system interaction.
  * <p>
@@ -21,9 +19,21 @@ public interface BucketFileSystem extends Closeable
 
   public class BucketFileMeta
   {
+    /**
+     * Name of file (relative to bucket)
+     */
     String name;
-    int size;
+    /**
+     * The offset (inclusive) till which the file is consistent.
+     */
+    int committedOffset;
+    /**
+     * Lower bound sequence key
+     */
     long fromSeq;
+    /**
+     * Upper bound sequence key
+     */
     long toSeq;
   }
 
@@ -43,7 +53,16 @@ public interface BucketFileSystem extends Closeable
    */
   void createFile(long bucketKey, BucketFileMeta fileMeta) throws IOException;
 
-  DataOutputStream getOutputStream(DataKey key, String fileName) throws IOException;
-  DataInputStream getInputStream(DataKey key, BucketFileMeta name) throws IOException;
+  DataOutputStream getOutputStream(long bucketKey, String fileName) throws IOException;
+  DataInputStream getInputStream(long bucketKey, String fileName) throws IOException;
+
+  /**
+   * Atomic file rename.
+   * @param bucketKey
+   * @param oldName
+   * @param newName
+   * @throws IOException
+   */
+  void rename(long bucketKey, String oldName, String newName) throws IOException;
 
 }
