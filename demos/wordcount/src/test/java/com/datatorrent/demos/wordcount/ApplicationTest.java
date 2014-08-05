@@ -33,9 +33,10 @@ public class ApplicationTest
   public void testSomeMethod() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    new Application().populateDAG(lma.getDAG(), new Configuration(false));
+    Configuration conf =new Configuration(false);
+    conf.addResource("dt-site-wordcount.xml");
+    lma.prepareDAG(new Application(), conf);
     LocalMode.Controller lc = lma.getController();
-
     long start = System.currentTimeMillis();
     lc.run(300000);
     long end = System.currentTimeMillis();

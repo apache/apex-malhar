@@ -94,20 +94,12 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name="WordCountDemo")
 public class Application implements StreamingApplication
 {
-  protected String fileName = "com/datatorrent/demos/wordcount/samplefile.txt";
-  private Locality locality = null;
-
-  @Override
+   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    locality = Locality.CONTAINER_LOCAL;
-
     WordCountInputOperator input = dag.addOperator("wordinput", new WordCountInputOperator());
-    input.setFileName(fileName);
     UniqueCounter<String> wordCount = dag.addOperator("count", new UniqueCounter<String>());
-
-    dag.addStream("wordinput-count", input.outputPort, wordCount.data).setLocality(locality);
-
+    dag.addStream("wordinput-count", input.outputPort, wordCount.data);
     ConsoleOutputOperator consoleOperator = dag.addOperator("console", new ConsoleOutputOperator());
     dag.addStream("count-console",wordCount.count, consoleOperator.input);
 
