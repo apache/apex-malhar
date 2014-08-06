@@ -22,11 +22,11 @@ import java.util.*;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
@@ -48,17 +48,19 @@ import com.datatorrent.lib.db.KeyValueStore;
  */
 public class CacheManager implements Closeable
 {
-  protected transient final Primary primary;
-  protected transient final Backup backup;
+  @NotNull
+  protected Primary primary;
+  @NotNull
+  protected Backup backup;
+  protected String refreshTime;
   private transient Timer refresher;
 
-  public CacheManager(final Primary primary, final Backup backup)
+  public CacheManager()
   {
-    this.primary = Preconditions.checkNotNull(primary, "primary store");
-    this.backup = Preconditions.checkNotNull(backup, "backup store");
+    this.primary = new CacheStore();
   }
 
-  public void initialize(@Nullable String refreshTime/*HH:mm:ss*/) throws IOException
+  public void initialize() throws IOException
   {
     primary.connect();
     backup.connect();
@@ -136,6 +138,42 @@ public class CacheManager implements Closeable
     refresher.cancel();
     primary.disconnect();
     backup.disconnect();
+  }
+
+  public void setPrimary(Primary primary)
+  {
+    this.primary = primary;
+  }
+
+  public Primary getPrimary()
+  {
+    return primary;
+  }
+
+  public void setBackup(Backup backup)
+  {
+    this.backup = backup;
+  }
+
+  public Backup getBackup()
+  {
+    return backup;
+  }
+
+  /**
+   * The cache store can be refreshed every day at a specific time. This sets
+   * the time. If the time is not set, cache is not refreshed.
+   *
+   * @param time time at which cache is refreshed everyday. Format is HH:mm:ss Z.
+   */
+  public void setRefreshTime(String time)
+  {
+    refreshTime = time;
+  }
+
+  public String getRefreshTime()
+  {
+    return refreshTime;
   }
 
   /**

@@ -45,16 +45,14 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectable> implements Operator, CacheManager.Backup
 {
-  protected CacheProperties cacheProperties;
-  protected String cacheRefreshTime;
   @NotNull
   protected S store;
+  @NotNull
+  protected CacheManager cacheManager;
 
-  protected transient CacheManager cacheManager;
-
-  public AbstractDBLookupCacheBackedOperator()
+  protected AbstractDBLookupCacheBackedOperator()
   {
-    cacheProperties = new CacheProperties();
+    cacheManager = new CacheManager();
   }
 
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
@@ -93,9 +91,9 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
   @Override
   public void setup(Context.OperatorContext context)
   {
-    cacheManager = new CacheManager(new CacheStore(cacheProperties), this);
+    cacheManager.setBackup(this);
     try {
-      cacheManager.initialize(cacheRefreshTime);
+      cacheManager.initialize();
     }
     catch (IOException e) {
       throw new RuntimeException(e);
@@ -141,15 +139,14 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
     return store;
   }
 
-  /**
-   * The cache store can be refreshed every day at a specific time. This sets
-   * the time. If the time is not set, cache is not refreshed.
-   *
-   * @param time time at which cache is refreshed everyday. Format is HH:mm:ss Z.
-   */
-  public void setCacheRefreshTime(String time)
+  public void setCacheManager(CacheManager cacheManager)
   {
-    cacheRefreshTime = time;
+    this.cacheManager = cacheManager;
+  }
+
+  public CacheManager getCacheManager()
+  {
+    return cacheManager;
   }
 
   /**

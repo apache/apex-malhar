@@ -216,8 +216,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
       statefulUniqueCountInstance.partitionMask = lPartitionMask;
       statefulUniqueCountInstance.store = anOldOperator.store;
       statefulUniqueCountInstance.tableName = anOldOperator.tableName;
-      statefulUniqueCountInstance.cacheProperties = anOldOperator.cacheProperties;
-      statefulUniqueCountInstance.cacheRefreshTime = anOldOperator.cacheRefreshTime;
+      statefulUniqueCountInstance.cacheManager = anOldOperator.cacheManager;
     }
     return newPartitions;
   }

@@ -23,6 +23,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.validation.constraints.NotNull;
+
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -44,31 +46,16 @@ import com.google.common.collect.Lists;
  */
 public class CacheStore implements CacheManager.Primary
 {
+  @NotNull
+  protected CacheProperties cacheProperties;
+
   private transient ScheduledExecutorService cleanupScheduler;
   private transient Cache<Object, Object> cache;
   private transient boolean open;
 
-  public CacheStore(CacheProperties properties)
+  public CacheStore()
   {
-    Preconditions.checkNotNull(properties.entryExpiryStrategy, "expiryType");
-
-    CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-    if (properties.entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_ACCESS) {
-      cacheBuilder.expireAfterAccess(properties.entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
-    }
-    else if (properties.entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {
-      cacheBuilder.expireAfterWrite(properties.entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
-    }
-    cache = cacheBuilder.build();
-    this.cleanupScheduler = Executors.newScheduledThreadPool(1);
-    cleanupScheduler.scheduleAtFixedRate(new Runnable()
-    {
-      @Override
-      public void run()
-      {
-        cache.cleanUp();
-      }
-    }, properties.cacheCleanupIntervalInMillis, properties.cacheCleanupIntervalInMillis, TimeUnit.MILLISECONDS);
+    cacheProperties = new CacheProperties();
   }
 
   @Override
@@ -115,6 +102,25 @@ public class CacheStore implements CacheManager.Primary
   public void connect() throws IOException
   {
     open = true;
+    Preconditions.checkNotNull(cacheProperties.entryExpiryStrategy, "expiryType");
+
+    CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
+    if (cacheProperties.entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_ACCESS) {
+      cacheBuilder.expireAfterAccess(cacheProperties.entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
+    }
+    else if (cacheProperties.entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {
+      cacheBuilder.expireAfterWrite(cacheProperties.entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
+    }
+    cache = cacheBuilder.build();
+    this.cleanupScheduler = Executors.newScheduledThreadPool(1);
+    cleanupScheduler.scheduleAtFixedRate(new Runnable()
+    {
+      @Override
+      public void run()
+      {
+        cache.cleanUp();
+      }
+    }, cacheProperties.cacheCleanupIntervalInMillis, cacheProperties.cacheCleanupIntervalInMillis, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -128,6 +134,16 @@ public class CacheStore implements CacheManager.Primary
   {
     open = false;
     cleanupScheduler.shutdown();
+  }
+
+  public void setCacheProperties(CacheProperties cacheProperties)
+  {
+    this.cacheProperties = cacheProperties;
+  }
+
+  public CacheProperties getCacheProperties()
+  {
+    return this.cacheProperties;
   }
 
   /**

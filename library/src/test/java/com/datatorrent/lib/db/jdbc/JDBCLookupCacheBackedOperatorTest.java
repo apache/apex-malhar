@@ -182,8 +182,7 @@ public class JDBCLookupCacheBackedOperatorTest
     now.add(Calendar.SECOND, 5);
 
     SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-    lookupCacheBackedOperator.setCacheRefreshTime(format.format(now
-      .getTime()));
+    lookupCacheBackedOperator.getCacheManager().setRefreshTime(format.format(now.getTime()));
 
     lookupCacheBackedOperator.output.setSink(sink);
 

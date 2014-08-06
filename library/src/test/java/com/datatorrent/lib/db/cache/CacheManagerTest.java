@@ -118,14 +118,14 @@ public class CacheManagerTest
   @Test
   public void testCacheManager() throws IOException
   {
-    CacheManager.Primary primary = new CacheStore(new CacheProperties());
-    CacheManager manager = new CacheManager(primary, new DummyBackupStore());
-    manager.initialize(null);
+    CacheManager manager = new CacheManager();
+    manager.setBackup(new DummyBackupStore());
+    manager.initialize();
 
-    Assert.assertEquals("manager initialization- value", "one", primary.get(1));
-    Assert.assertEquals("manager initializaton- total", 5, primary.getKeys().size());
+    Assert.assertEquals("manager initialization- value", "one", manager.primary.get(1));
+    Assert.assertEquals("manager initializaton- total", 5, manager.primary.getKeys().size());
 
     Assert.assertEquals("backup hit", "six", manager.get(6));
-    Assert.assertEquals("primary updated- total", 6, primary.getKeys().size());
+    Assert.assertEquals("primary updated- total", 6, manager.primary.getKeys().size());
   }
 }
