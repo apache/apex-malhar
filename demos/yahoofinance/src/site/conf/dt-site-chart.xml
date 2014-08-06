@@ -18,6 +18,10 @@
 	<value>TIME</value>
 </property>
 <property>
+	<name>dt.application.YahooFinanceDemoWithChart.operator.StockTickInput.tickers</name>
+	<value>IBM,GOOG,AAPL,YHOO</value>
+</property>
+<property>
 	<name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.yAxisLabel</name>
 	<value>PRICE</value>
 </property>
