@@ -9,6 +9,7 @@
 
   <artifactId>malhar-demos</artifactId>
   <name>Demos</name>
+  <packaging>pom</packaging>
 
   <modules>
     <module>ads</module>
