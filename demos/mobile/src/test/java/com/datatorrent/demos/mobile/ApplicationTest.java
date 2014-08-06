@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.mobile;
 
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
@@ -33,6 +34,13 @@ public class ApplicationTest
   @Test
   public void testGetApplication() throws Exception
   {
-    LocalMode.runApp(new Application(), 10000);
+	  Application app = new Application();
+		Configuration conf =new Configuration(false);
+		conf.addResource("dt-site-mobile.xml");
+	    LocalMode lma = LocalMode.newInstance();
+	    lma.prepareDAG(app, conf);
+	    LocalMode.Controller lc = lma.getController();
+	    lc.run(10000);
+   
   }
 }

@@ -31,6 +31,7 @@ public class FrauddetectApplicationTest {
     public void testApplication() throws Exception {
         Application application = new Application();
         Configuration conf = new Configuration(false);
+        conf.addResource("dt-site-frauddetect.xml");
         LocalMode lma = LocalMode.newInstance();
         application.populateDAG(lma.getDAG(), conf);
         lma.getController().run(120000);
