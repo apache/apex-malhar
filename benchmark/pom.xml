@@ -17,6 +17,33 @@
     <skipTests>true</skipTests>
   </properties>
 
+	<build>
+		<plugins>
+			<plugin>
+				<artifactId>maven-assembly-plugin</artifactId>
+				<version>2.4</version>
+				<executions>
+					<execution>
+						<id>distro-assembly</id>
+						<phase>package</phase>
+						<goals>
+							<goal>single</goal>
+						</goals>
+						<configuration>
+							<finalName>${project.build.finalName}</finalName>
+							<descriptors>
+								<descriptor>assemble.xml</descriptor>
+							</descriptors>
+							<archiverConfig>
+								<defaultDirectoryMode>0755</defaultDirectoryMode>
+							</archiverConfig>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>
+		</plugins>
+	</build>
+
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>
@@ -57,6 +84,12 @@
       <groupId>com.datastax.cassandra</groupId>
       <artifactId>cassandra-driver-core</artifactId>
       <version>2.0.2</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.aerospike</groupId>
+      <artifactId>aerospike-client</artifactId>
+      <version>3.0.26</version>
       <optional>true</optional>
     </dependency>
   </dependencies>

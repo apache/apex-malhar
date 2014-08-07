@@ -372,5 +372,11 @@
       <version>2.2.0</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>com.aerospike</groupId>
+      <artifactId>aerospike-client</artifactId>
+      <version>3.0.26</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 </project>
