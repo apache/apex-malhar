@@ -14,7 +14,6 @@ import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -39,15 +38,20 @@ import com.google.common.collect.Sets;
  */
 public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>, CheckpointListener, Operator
 {
-  private static class BucketMeta {
+  /*
+   * Meta data about bucket, persisted in store
+   */
+  private static class BucketMeta
+  {
     int fileSeq;
     Set<BucketFileMeta> files = Sets.newHashSet();
+    LinkedHashMap<Long, Long> walOffset = Maps.newLinkedHashMap();
   }
 
   public static final String FNAME_WAL = "_WAL";
   public static final String FNAME_META = "_META";
 
-  private final transient HashMap<Long, BucketMeta> metaInfo = Maps.newHashMap();
+  private final HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
   // change log by bucket by window
   private final HashMap<Long, LinkedHashMap<Long, BucketFileMeta>> metaUpdates = Maps.newLinkedHashMap();
   private transient long windowId;
@@ -89,11 +93,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
   private BucketFileMeta createFile(DataKey key, long fromSeq, long toSeq) throws IOException
   {
     long bucketKey = key.getBucketKey();
-    BucketMeta bm = metaInfo.get(bucketKey);
-    if (bm == null) {
-      // new bucket
-      metaInfo.put(bucketKey, bm = new BucketMeta());
-    }
+    BucketMeta bm = getMeta(bucketKey);
     BucketFileMeta bfm = new BucketFileMeta();
     bfm.name = Long.toString(bucketKey) + '-' + bm.fileSeq++;
     bfm.fromSeq = fromSeq;
@@ -133,7 +133,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
     byte[] bytes = toBytes(entry);
     long sequence = entry.getKey().getSequenceKey();
 
-    List<BucketFileMeta> files = listFiles(entry.getKey());
+    Set<BucketFileMeta> files = getMeta(entry.getKey().getBucketKey()).files;
     ArrayList<BucketFileMeta> bucketFiles = Lists.newArrayList();
     // find files to check for existing key
     for (BucketFileMeta bfm : files) {
@@ -164,7 +164,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
 
     DataOutputStream dos;
     if (duplicateKey) {
-      // append to duplicates file
+      // append to log
       dos = bfs.getOutputStream(entry.getKey().getBucketKey(), FNAME_WAL);
     } else {
       if (targetFile == null) {
@@ -192,7 +192,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
   @Override
   public V get(K key) throws IOException
   {
-    List<BucketFileMeta> files = listFiles(key);
+    Set<BucketFileMeta> files = getMeta(key.getBucketKey()).files;
     for (BucketFileMeta bfm : files) {
       HashMap<K, V> data = cache.get(bfm.name);
       if (data == null) {
@@ -204,17 +204,6 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
       }
     }
     return null;
-  }
-
-  private List<BucketFileMeta> listFiles(DataKey key) throws IOException
-  {
-    List<BucketFileMeta> files = Lists.newArrayList();
-    Long bucketKey = key.getBucketKey();
-    BucketMeta bm = metaInfo.get(bucketKey);
-    if (bm != null) {
-      files.addAll(bm.files);
-    }
-    return files;
   }
 
   @Override
@@ -249,19 +238,41 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
   {
   }
 
+  /**
+   * Get meta data from cache or load it on first access
+   * @param bucketKey
+   * @return
+   */
+  private BucketMeta getMeta(long bucketKey)
+  {
+    BucketMeta bm = metaCache.get(bucketKey);
+    if (bm == null) {
+      bm = loadBucketMeta(bucketKey);
+      metaCache.put(bucketKey, bm);
+    }
+    return bm;
+  }
+
+
+  private BucketMeta loadBucketMeta(long bucketKey)
+  {
+    BucketMeta bucketMeta = null;
+    try {
+      InputStream is = bfs.getInputStream(bucketKey, FNAME_META);
+      bucketMeta = (BucketMeta)writeSerde.readClassAndObject(new Input(is));
+      is.close();
+    } catch (IOException e) {
+      bucketMeta = new BucketMeta();
+    }
+    return bucketMeta;
+  }
+
   @Override
   public void committed(long committedWindowId)
   {
     for (long bucketKey : this.metaUpdates.keySet())
     {
-      BucketMeta bucketMeta;
-      try {
-        InputStream is = bfs.getInputStream(bucketKey, FNAME_META);
-        bucketMeta = (BucketMeta)writeSerde.readClassAndObject(new Input(is));
-        is.close();
-      } catch (IOException e) {
-        bucketMeta = new BucketMeta();
-      }
+      BucketMeta bucketMeta = loadBucketMeta(bucketKey);
 
       Map<Long, BucketFileMeta> files = this.metaUpdates.get(bucketKey);
       for (long windowId : files.keySet()) {
