@@ -16,7 +16,7 @@
 package com.datatorrent.demos.yahoofinance;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.yahoofinance.Application;
+import com.datatorrent.demos.yahoofinance.YahooFinanceApplication;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
@@ -36,7 +36,7 @@ public class ApplicationTest
   public void testApplication() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    new Application().populateDAG(lma.getDAG(), new Configuration(false));
+    new YahooFinanceApplication().populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
     lc.run(10000);
   }

@@ -29,7 +29,7 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
  * @since 0.3.2
  */
 @ApplicationAnnotation(name="YahooFinanceWithoutChartDemo")
-public class YahooFinanceApplicationNoChart extends YahooFinanceApplication
+public class YahooFinanceApplicationNoChart extends YahooFinanceApplicationWithChart
 {
   @Override
   public void populateDAG(DAG dag, Configuration conf)

@@ -46,10 +46,6 @@
 	<value>32768</value>
 </property>
  <property>
-    <name>dt.application.MobileDemo.stream.Results.locality</name>
-    <value>CONTAINER_LOCAL</value>
- </property>
- <property>
 	<name>dt.application.MobileDemo.operator.LocationResults.topic</name>
 	<value>demos.mobile.phoneLocationQueryResult</value>
 </property>

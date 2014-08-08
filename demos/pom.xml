@@ -22,6 +22,13 @@
     <module>frauddetect</module>
     <module>mobile</module>
     <module>wordcount</module>
+    <module>mrmonitor</module>
+    <module>mroperator</module>
+    <module>scalability</module>
+    <module>samplestream</module>
+    <module>uniquecount</module>
+    <module>visualdata</module>
+    <module>distributedistinct</module>
   </modules>
 
 </project>

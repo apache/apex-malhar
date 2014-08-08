@@ -19,7 +19,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.yahoofinance.YahooFinanceApplication;
+import com.datatorrent.demos.yahoofinance.YahooFinanceApplicationWithChart;
 
 
 /**
@@ -39,7 +39,7 @@ public class YahooFinanceChartApplicationTest
 	  LocalMode lma = LocalMode.newInstance();
 	    Configuration conf =new Configuration(false);
 	    conf.addResource("dt-site-chart.xml");
-	    lma.prepareDAG(new YahooFinanceApplication(), conf);
+	    lma.prepareDAG(new YahooFinanceApplicationWithChart(), conf);
 	    LocalMode.Controller lc = lma.getController();
 	    lc.run(60000);
   }
