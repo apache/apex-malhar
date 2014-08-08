@@ -11,6 +11,7 @@
   <artifactId>malhar-demos</artifactId>
   <packaging>pom</packaging>
   <name>Demos</name>
+  <packaging>pom</packaging>
 
   <modules>
     <module>machinedata</module>
