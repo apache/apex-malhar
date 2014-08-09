@@ -39,7 +39,8 @@ import com.datatorrent.lib.db.cache.AbstractDBLookupCacheBackedOperator;
  */
 public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T>
 {
-  protected final JdbcStore store;
+  @NotNull
+  protected JdbcStore store;
   @NotNull
   protected String tableName;
 
@@ -47,7 +48,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
   protected transient PreparedStatement getStatement;
 
   public JDBCLookupCacheBackedOperator()
-  {	
+  {
     super();
     store = new JdbcStore();
   }
@@ -86,6 +87,11 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
     super.teardown();
   }
 
+  public void setStore(JdbcStore store)
+  {
+    this.store = store;
+  }
+
   public JdbcStore getStore()
   {
     return store;
@@ -111,7 +117,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
       ResultSet resultSet = getStatement.executeQuery();
       return processResultSet(resultSet);
     }
-    catch (SQLException e) {	
+    catch (SQLException e) {
       throw new RuntimeException("while fetching key", e);
     }
   }

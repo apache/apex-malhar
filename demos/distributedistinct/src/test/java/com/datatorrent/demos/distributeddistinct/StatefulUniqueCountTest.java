@@ -20,8 +20,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Properties;
 
-import junit.framework.Assert;
 import org.apache.hadoop.conf.Configuration;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 

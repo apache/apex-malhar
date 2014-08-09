@@ -37,7 +37,7 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public abstract class AbstractDBLookupCacheBackedOperator<T> implements Operator, Store.Backup
 {
-  protected final CacheProperties cacheProperties;
+  protected CacheProperties cacheProperties;
   protected String cacheRefreshTime;
 
   protected transient StoreManager storeManager;

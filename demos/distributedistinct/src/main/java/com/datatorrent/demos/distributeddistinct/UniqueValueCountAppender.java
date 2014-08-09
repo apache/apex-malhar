@@ -18,9 +18,15 @@ package com.datatorrent.demos.distributeddistinct;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -66,6 +72,8 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
+    LOGGER.debug("store properties {} {}", store.getDbDriver(), store.getDbUrl());
+    LOGGER.debug("table name {}", tableName);
     windowID = context.getAttributes().get(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     try {
       ResultSet resultSet = store.getConnection().createStatement().executeQuery("SELECT col1 FROM " + tableName + " WHERE col3 > " + windowID);
@@ -168,6 +176,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
     }
 
     final int finalCapacity = partitions.size() + incrementalCapacity;
+    UniqueValueCountAppender<V> anOldOperator = partitions.iterator().next().getPartitionedInstance();
     partitions.clear();
 
     Collection<Partition<UniqueValueCountAppender<V>>> newPartitions = Lists.newArrayListWithCapacity(finalCapacity);
@@ -192,6 +201,10 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
 
       statefulUniqueCountInstance.partitionKeys = statefulUniqueCountPartition.getPartitionKeys().get(input).partitions;
       statefulUniqueCountInstance.partitionMask = lPartitionMask;
+      statefulUniqueCountInstance.store = anOldOperator.store;
+      statefulUniqueCountInstance.tableName = anOldOperator.tableName;
+      statefulUniqueCountInstance.cacheProperties = anOldOperator.cacheProperties;
+      statefulUniqueCountInstance.cacheRefreshTime = anOldOperator.cacheRefreshTime;
     }
     return newPartitions;
   }
@@ -200,4 +213,6 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   public void partitioned(Map<Integer, com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> partitions)
   {
   }
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(UniqueValueCountAppender.class);
 }

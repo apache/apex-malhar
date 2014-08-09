@@ -1,4 +1,0 @@
-DT-Engine-Version: 1.0.3-SNAPSHOT
-DT-App-Bundle-Name: wordcount
-DT-App-Bundle-Version: 1.0-SNAPSHOT
-Class-Path: lib/*.jar

@@ -23,9 +23,9 @@ import com.datatorrent.api.LocalMode;
  */
 public class CassandraApplicatonTest {
 
-	@Test
-	public void test() throws Exception {
-		 LocalMode.runApp(new CassandraOutputBenchmarkApplication(), 10000);
-	}
+  @Test
+  public void test() throws Exception {
+    LocalMode.runApp(new CassandraOutputBenchmarkApplication(), 10000);
+  }
 
 }
