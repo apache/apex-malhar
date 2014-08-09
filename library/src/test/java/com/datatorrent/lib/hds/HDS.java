@@ -16,11 +16,10 @@ public interface HDS
      */
     long getBucketKey();
     /**
-     * Monotonically increasing sequence that is used as secondary level of organization within buckets.
-     * In most cases this will be a time stamp.
+     * The key as byte array
      * @return
      */
-    long getSequenceKey();
+    byte[] getBytes();
   }
 
   interface Bucket<K extends DataKey, V>

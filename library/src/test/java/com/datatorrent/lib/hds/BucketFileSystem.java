@@ -24,17 +24,9 @@ public interface BucketFileSystem extends Closeable
      */
     String name;
     /**
-     * The offset (inclusive) till which the file is consistent.
-     */
-    int committedOffset;
-    /**
      * Lower bound sequence key
      */
-    long fromSeq;
-    /**
-     * Upper bound sequence key
-     */
-    long toSeq;
+    byte[] fromSeq;
   }
 
   /**
