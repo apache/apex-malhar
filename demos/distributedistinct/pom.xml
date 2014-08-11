@@ -139,19 +139,13 @@
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
-      <version>${datatorrent.version}</version>
-      <!-- 
-           If you know your application do not need the transitive dependencies that are pulled in by malhar-library,
-           Uncomment the following to reduce the size of your app bundle. 
-      -->
-      <!--    
+      <version>${datatorrent.version}</version>   
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-      -->
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
