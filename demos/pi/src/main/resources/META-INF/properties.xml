@@ -5,11 +5,6 @@
     <name>dt.attr.MASTER_MEMORY_MB</name>
     <value>1024</value>
   </property>
-  <property>
-	<name>dt.application.PiDemo.class</name>
-	<value>com.datatorrent.demos.pi.Application</value>
-	<description>An alias for the application</description>
-</property> 
 <property>
 	<name>dt.application.PiDemo.operator.rand.minvalue</name>
 	<value>0</value>
@@ -27,11 +22,6 @@
 	<value>512</value>
 </property>
 <!-- prperties for pi library demo -->
-<property>
-	<name>dt.application.PiLibraryDemo.class</name>
-	<value>com.datatorrent.demos.pi.Calculator</value>
-	<description>An alias for the application</description>
-</property> 
 <property>
 	<name>dt.application.PiLibraryDemo.operator.GenerateX.minvalue</name>
 	<value>0</value>

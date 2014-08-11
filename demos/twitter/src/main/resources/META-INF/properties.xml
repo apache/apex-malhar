@@ -7,11 +7,6 @@
     <value>1024</value>
   </property>
 	<property>
-		<name>dt.application.RollingTopWordsDemo.class</name>
-		<value>com.datatorrent.demos.twitter.TwitterTopWordsApplication</value>
-		<description>An alias for the application</description>
-	</property>
-	<property>
 		<name>dt.application.RollingTopWordsDemo.operator.TopCounter.topCount
 		</name>
 		<value>10</value>

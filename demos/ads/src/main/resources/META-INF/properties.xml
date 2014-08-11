@@ -1,9 +1,4 @@
 <configuration>
- <property>
-	<name>dt.application.AdsDemoLocal.class</name>
-	<value>com.datatorrent.demos.ads.Application</value>
-	<description>An alias for the application</description>
-</property>
 <property>
 	<name>dt.attr.STREAMING_WINDOW_SIZE_MILLIS</name>
 	<value>500</value>
@@ -25,125 +20,125 @@
 
 <!-- view gen operator -->
  <property>
-	<name>dt.application.AdsDemoLocal.operator.viewGen.attr.INITIAL_PARTITION_COUNT
+	<name>dt.application.AdsDemo.operator.viewGen.attr.INITIAL_PARTITION_COUNT
 	</name>
 	<value>1</value> 
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.viewGen.outputport.hash_data.attr.QUEUE_CAPACITY</name>
+	<name>dt.application.AdsDemo.operator.viewGen.outputport.hash_data.attr.QUEUE_CAPACITY</name>
 	<value>32768</value> 
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.viewGen.keys</name>
+	<name>dt.application.AdsDemo.operator.viewGen.keys</name>
 	<value>home,finance,sports,mail</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.viewGen.values</name>
+	<name>dt.application.AdsDemo.operator.viewGen.values</name>
 	<value>0.00215,0.003,0.00175,0.0006</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.viewGen.weights</name>
+	<name>dt.application.AdsDemo.operator.viewGen.weights</name>
 	<value>25,25,25,25</value>
 </property>
  <property>
-	<name>dt.application.AdsDemoLocal.operator.viewGen.tuplesBlast</name>
+	<name>dt.application.AdsDemo.operator.viewGen.tuplesBlast</name>
 	<value>1000</value>
 </property>
 
 <property>
-	<name>dt.application.AdsDemoLocal.operator.viewGen.maxCountOfWindows</name>
+	<name>dt.application.AdsDemo.operator.viewGen.maxCountOfWindows</name>
 	<value>1000000</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.viewGen.rollingWindowCount</name>
+	<name>dt.application.AdsDemo.operator.viewGen.rollingWindowCount</name>
 	<value>5</value>
 </property> 
 <!-- end view gen operator --> 
 <!-- ad views operator -->
 <property>
-	<name>dt.application.AdsDemoLocal.operator.adviews.outputport.data.attr.QUEUE_CAPACITY
+	<name>dt.application.AdsDemo.operator.adviews.outputport.data.attr.QUEUE_CAPACITY
 	</name>
 	<value>32768</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.adviews.inputport.event.attr.QUEUE_CAPACITY
+	<name>dt.application.AdsDemo.operator.adviews.inputport.event.attr.QUEUE_CAPACITY
 	</name>
 	<value>32768</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.adviews.inputport.event.attr.PARTITION_PARALLEL
+	<name>dt.application.AdsDemo.operator.adviews.inputport.event.attr.PARTITION_PARALLEL
 	</name>
 	<value>true</value>
 </property>
 <!--end ad views operator -->
 <!-- insert clicks operator -->
 <property>
-	<name>dt.application.AdsDemoLocal.operator.insertclicks.inputport.data.attr.QUEUE_CAPACITY
+	<name>dt.application.AdsDemo.operator.insertclicks.inputport.data.attr.QUEUE_CAPACITY
 	</name>
 <value>32768</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.insertclicks.passFilter</name>
+	<name>dt.application.AdsDemo.operator.insertclicks.passFilter</name>
 	<value>40</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.insertclicks.totalFilter</name>
+	<name>dt.application.AdsDemo.operator.insertclicks.totalFilter</name>
 	<value>1000</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.insertclicks.inputport.data.attr.PARTITION_PARALLEL
+	<name>dt.application.AdsDemo.operator.insertclicks.inputport.data.attr.PARTITION_PARALLEL
 	</name>
 	<value>true</value>
 </property>
 <!--end insert clicks operator -->
 <!-- view Aggr operator -->
  <property>
-	<name>dt.application.AdsDemoLocal.operator.viewAggr.attr.APPLICATION_WINDOW_COUNT
+	<name>dt.application.AdsDemo.operator.viewAggr.attr.APPLICATION_WINDOW_COUNT
 	</name>
 	<value>10</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.viewAggr.inputport.data.attr.QUEUE_CAPACITY
+	<name>dt.application.AdsDemo.operator.viewAggr.inputport.data.attr.QUEUE_CAPACITY
 	</name>
 <value>32768</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.viewAggr.inputport.data.attr.PARTITION_PARALLEL
+	<name>dt.application.AdsDemo.operator.viewAggr.inputport.data.attr.PARTITION_PARALLEL
 	</name>
 	<value>true</value>
 </property>
 <!--end view Aggr operator -->
 <!--click aggr operator  -->
 <property>
-	<name>dt.application.AdsDemoLocal.operator.clickAggr.attr.APPLICATION_WINDOW_COUNT
+	<name>dt.application.AdsDemo.operator.clickAggr.attr.APPLICATION_WINDOW_COUNT
 	</name>
 	<value>10</value>
 </property> 
 <property>
-	<name>dt.application.AdsDemoLocal.operator.clickAggr.inputport.data.attr.PARTITION_PARALLEL
+	<name>dt.application.AdsDemo.operator.clickAggr.inputport.data.attr.PARTITION_PARALLEL
 	</name>
 	<value>true</value>
 </property>
 <!-- end click aggr operator -->
 <property>
-	<name>dt.application.AdsDemoLocal.operator.tuple_counter.rollingWindowCount</name>
+	<name>dt.application.AdsDemo.operator.tuple_counter.rollingWindowCount</name>
 	<value>5</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.margin.percent</name>
+	<name>dt.application.AdsDemo.operator.margin.percent</name>
 	<value>true</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.ctr.mult_by</name>
+	<name>dt.application.AdsDemo.operator.ctr.mult_by</name>
 	<value>100</value>
 </property>
 <property>
-	<name>dt.application.AdsDemoLocal.operator.ctr.countkey</name>
+	<name>dt.application.AdsDemo.operator.ctr.countkey</name>
 	<value>true</value>
 </property>
 <!-- stream properties -->
 <property>
-    <name>dt.application.AdsDemoLocal.stream.views.locality</name>
+    <name>dt.application.AdsDemo.stream.views.locality</name>
     <value>CONTAINER_LOCAL</value>
     <description>Specify container locality for the views stream</description>
  </property>
@@ -153,7 +148,7 @@
     <description>Specify container locality for the viewsaggregate stream</description>
  </property> -->
   <property>
-    <name>dt.application.AdsDemoLocal.stream.clicksaggregate.locality</name>
+    <name>dt.application.AdsDemo.stream.clicksaggregate.locality</name>
     <value>CONTAINER_LOCAL</value>
     <description>Specify container locality for the clicksaggregate stream</description>
  </property>
