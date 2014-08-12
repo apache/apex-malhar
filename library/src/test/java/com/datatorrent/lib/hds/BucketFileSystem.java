@@ -8,6 +8,7 @@ import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  * Encapsulate management of meta information and underlying file system interaction.
@@ -27,6 +28,13 @@ public interface BucketFileSystem extends Closeable
      * Lower bound sequence key
      */
     byte[] fromSeq;
+
+    @Override
+    public String toString()
+    {
+      return "BucketFileMeta [name=" + name + ", fromSeq=" + Arrays.toString(fromSeq) + "]";
+    }
+
   }
 
   /**

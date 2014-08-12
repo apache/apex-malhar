@@ -12,13 +12,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
-import java.util.concurrent.TimeUnit;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang3.Range;
+import org.apache.commons.io.output.CountingOutputStream;
 
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
@@ -27,8 +25,8 @@ import com.datatorrent.lib.hds.BucketFileSystem.BucketFileMeta;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 
 /**
@@ -42,8 +40,20 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
    */
   private static class BucketMeta
   {
+    private BucketMeta(Comparator<byte[]> cmp)
+    {
+      files = Maps.newTreeMap(cmp);
+    }
+
+    private BucketMeta()
+    {
+      // for serialization only
+      files = null;
+      throw new RuntimeException();
+    }
+
     int fileSeq;
-    Set<BucketFileMeta> files = Sets.newHashSet();
+    final TreeMap<byte[], BucketFileMeta> files;
   }
 
   public static final String FNAME_WAL = "_WAL";
@@ -56,18 +66,16 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
   private transient long windowId;
 
   BucketFileSystem bfs;
-  int maxSize;
-  // second level of partitioning by time
-  TimeUnit timeBucketUnit = TimeUnit.HOURS;
-  int timeBucketSize = 1;
 
   // keys that were modified and written to WAL, but not yet persisted
   private final HashMap<K, Map.Entry<K, V>> uncommittedChanges = Maps.newHashMap();
   private final HashMap<String, TreeMap<byte[], V>> cache = Maps.newHashMap();
+  // TODO: leave serialization to API client
   private final Kryo writeSerde = new Kryo();
 
   @NotNull
   private Comparator<byte[]> keyComparator;
+  private int maxFileSize = 64000;
 
   /**
    * Compare keys for sequencing as secondary level of organization within buckets.
@@ -84,13 +92,14 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
     this.keyComparator = keyComparator;
   }
 
-  protected Range<Long> getRange(long time)
+  public int getMaxFileSize()
   {
-    long timeBucket = this.timeBucketUnit.convert(time, TimeUnit.MILLISECONDS);
-    timeBucket = timeBucket - (timeBucket % this.timeBucketSize);
-    long min = TimeUnit.MILLISECONDS.convert(timeBucket, timeBucketUnit);
-    long max = TimeUnit.MILLISECONDS.convert(timeBucket + timeBucketSize, timeBucketUnit);
-    return Range.between(min, max);
+    return maxFileSize;
+  }
+
+  public void setMaxFileSize(int maxFileSize)
+  {
+    this.maxFileSize = maxFileSize;
   }
 
   private BucketFileMeta createFile(long bucketKey, byte[] fromSeq) throws IOException
@@ -99,9 +108,9 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
     BucketFileMeta bfm = new BucketFileMeta();
     bfm.name = Long.toString(bucketKey) + '-' + bm.fileSeq++;
     bfm.fromSeq = fromSeq;
-    bm.files.add(bfm);
-    // create empty file, override anything existing
-    bfs.createFile(bucketKey, bfm);
+    bm.files.put(fromSeq, bfm);
+    // initialize with empty file
+    //bfs.createFile(bucketKey, bfm);
     return bfm;
   }
 
@@ -113,10 +122,11 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
    * @return
    * @throws IOException
    */
-  private TreeMap<byte[], V> readFile(long bucketKey, BucketFileMeta bfm) throws IOException
+  @VisibleForTesting
+  protected TreeMap<byte[], V> readFile(long bucketKey, String fileName) throws IOException
   {
     TreeMap<byte[], V> data = Maps.newTreeMap(getKeyComparator());
-    InputStream is = bfs.getInputStream(bucketKey, bfm.name);
+    InputStream is = bfs.getInputStream(bucketKey, fileName);
     Input input = new Input(is);
     while (!input.eof()) {
       byte[] key = writeSerde.readObject(input, byte[].class);
@@ -136,15 +146,41 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
    */
   private void writeFile(long bucketKey, BucketFileMeta fileMeta, TreeMap<byte[], V> data) throws IOException
   {
-    DataOutputStream dos = bfs.getOutputStream(bucketKey, fileMeta.name + ".tmp");
-    Output out = new Output(dos);
+    DataOutputStream dos = null;
+    CountingOutputStream cos = null;
+    Output out = null;
     for (Map.Entry<byte[], V> dataEntry : data.entrySet()) {
+      if (out == null) {
+        if (fileMeta == null) {
+          // roll file
+          fileMeta = createFile(bucketKey, dataEntry.getKey());
+        }
+        dos = bfs.getOutputStream(bucketKey, fileMeta.name + ".tmp");
+        cos = new CountingOutputStream(dos);
+        out = new Output(cos);
+      }
+
       writeSerde.writeObject(out, dataEntry.getKey());
       writeSerde.writeClassAndObject(out, dataEntry.getValue());
+
+      if (cos.getCount() + out.position() > this.maxFileSize) {
+        // roll file
+        out.close();
+        cos.close();
+        dos.close();
+        this.cache.remove(fileMeta.name);
+        bfs.rename(bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+        fileMeta = null;
+        out = null;
+      }
     }
-    out.flush();
-    dos.close();
-    bfs.rename(bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+
+    if (out != null) {
+      out.close();
+      cos.close();
+      dos.close();
+      bfs.rename(bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+    }
 
     // track meta data change by window
     LinkedHashMap<Long, BucketFileMeta> bucketMetaChanges = this.metaUpdates.get(bucketKey);
@@ -157,15 +193,16 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
   @Override
   public void put(Map.Entry<K, V> entry) throws IOException
   {
-    // TODO: WAL
-    // bfs.getOutputStream(entry.getKey().getBucketKey(), FNAME_WAL);
+    DataOutputStream wal = walMap.get(entry.getKey().getBucketKey());
+    if (wal == null) {
+      wal = bfs.getOutputStream(entry.getKey().getBucketKey(), FNAME_WAL);
+      walMap.put(entry.getKey().getBucketKey(), wal);
+    }
     this.uncommittedChanges.put(entry.getKey(), entry);
   }
 
   public void writeDataFiles() throws IOException
   {
-    // map to lookup the range for each key
-    Map<BucketMeta, TreeMap<byte[], BucketFileMeta>> sequenceRanges = Maps.newHashMap();
     // bucket keys by file
     Map<Long, Map<BucketFileMeta, Map<byte[], V>>> modifiedBuckets = Maps.newHashMap();
 
@@ -174,14 +211,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
       // find files to check for existing key
       long bucketKey = entry.getKey().getBucketKey();
       BucketMeta bm = getMeta(bucketKey);
-      TreeMap<byte[], BucketFileMeta> bucketSeqStarts = sequenceRanges.get(bm);
-      if (bm == null) {
-        // load sequence ranges from file meta
-        sequenceRanges.put(bm, bucketSeqStarts = Maps.newTreeMap(getKeyComparator()));
-        for (BucketFileMeta bfm : bm.files) {
-          bucketSeqStarts.put(bfm.fromSeq, bfm);
-        }
-      }
+      TreeMap<byte[], BucketFileMeta> bucketSeqStarts = bm.files;
 
       // find the file for the key
       Map.Entry<byte[], BucketFileMeta> floorEntry = bucketSeqStarts.floorEntry(entry.getKey().getBytes());
@@ -208,13 +238,13 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
       }
       Map<byte[], V> fileUpdates = modifiedFiles.get(floorFile);
       if (fileUpdates == null) {
-        modifiedFiles.put(floorEntry.getValue(), fileUpdates = Maps.newHashMap());
+        modifiedFiles.put(floorFile, fileUpdates = Maps.newHashMap());
       }
       fileUpdates.put(entry.getKey().getBytes(), entry.getValue().getValue());
 
     }
 
-    // write out new and modified files
+    // write modified files
     for (Map.Entry<Long, Map<BucketFileMeta, Map<byte[], V>>> bucketEntry : modifiedBuckets.entrySet()) {
       for (Map.Entry<BucketFileMeta, Map<byte[], V>> fileEntry : bucketEntry.getValue().entrySet()) {
         BucketFileMeta fileMeta = fileEntry.getKey();
@@ -228,33 +258,47 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
           fileData = cache.get(fileMeta.name);
           if (fileData == null) {
             // load file to check for presence of key
-            fileData = readFile(bucketEntry.getKey(), fileMeta);
+            fileData = readFile(bucketEntry.getKey(), fileMeta.name);
           }
         }
 
         // apply updates
         fileData.putAll(fileEntry.getValue());
         writeFile(bucketEntry.getKey(), fileMeta, fileData);
+
       }
     }
-  }
 
+    uncommittedChanges.clear();
+  }
 
   @Override
   public V get(K key) throws IOException
   {
-    Set<BucketFileMeta> files = getMeta(key.getBucketKey()).files;
-    for (BucketFileMeta bfm : files) {
-      TreeMap<byte[], V> data = cache.get(bfm.name);
-      if (data == null) {
-        // load file to check for presence of key
-        cache.put(bfm.name, data = readFile(key.getBucketKey(), bfm));
-      }
-      if (data.containsKey(key)) {
-        return data.get(key);
-      }
+    // check unwritten changes first
+    Map.Entry<K, V> kv = uncommittedChanges.get(key);
+    if (kv != null) {
+      return kv.getValue();
     }
-    return null;
+
+    BucketMeta bm = getMeta(key.getBucketKey());
+    if (bm == null) {
+      throw new IllegalArgumentException("Invalid bucket key " + key.getBucketKey());
+    }
+
+    Map.Entry<byte[], BucketFileMeta> floorEntry = bm.files.floorEntry(key.getBytes());
+    if (floorEntry == null) {
+      // no file for this key
+      return null;
+    }
+
+    // lookup against file data
+    TreeMap<byte[], V> fileData = cache.get(floorEntry.getValue().name);
+    if (fileData == null) {
+      // load file to check for presence of key
+      fileData = readFile(key.getBucketKey(), floorEntry.getValue().name);
+    }
+    return fileData.get(key);
   }
 
   @Override
@@ -280,8 +324,13 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
   @Override
   public void endWindow()
   {
-    // TODO Auto-generated method stub
-
+    for (DataOutputStream wal : walMap.values()) {
+      try {
+        wal.flush();
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to flush WAL", e);
+      }
+    }
   }
 
   @Override
@@ -304,7 +353,6 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
     return bm;
   }
 
-
   private BucketMeta loadBucketMeta(long bucketKey)
   {
     BucketMeta bucketMeta = null;
@@ -313,7 +361,7 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
       bucketMeta = (BucketMeta)writeSerde.readClassAndObject(new Input(is));
       is.close();
     } catch (IOException e) {
-      bucketMeta = new BucketMeta();
+      bucketMeta = new BucketMeta(getKeyComparator());
     }
     return bucketMeta;
   }
@@ -328,7 +376,8 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
       Map<Long, BucketFileMeta> files = this.metaUpdates.get(bucketKey);
       for (long windowId : files.keySet()) {
         if (windowId <= committedWindowId) {
-          bucketMeta.files.add(files.get(windowId));
+          BucketFileMeta bfm = files.get(windowId);
+          bucketMeta.files.put(bfm.fromSeq, bfm);
         } else {
           break;
         }
