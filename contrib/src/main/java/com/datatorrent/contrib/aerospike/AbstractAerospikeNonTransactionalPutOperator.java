@@ -16,14 +16,13 @@
 
 package com.datatorrent.contrib.aerospike;
 
-import java.util.List;
-
-import org.python.google.common.collect.Lists;
-
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
+import org.python.google.common.collect.Lists;
+
+import java.util.List;
 
 
 /**
@@ -37,7 +36,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 public abstract class AbstractAerospikeNonTransactionalPutOperator<T> extends AbstractStoreOutputOperator<T,AerospikeStore> {
 
-  protected List<Bin> bins;
+  private transient List<Bin> bins;
   public AbstractAerospikeNonTransactionalPutOperator() {
     super();
     bins = Lists.newArrayList();

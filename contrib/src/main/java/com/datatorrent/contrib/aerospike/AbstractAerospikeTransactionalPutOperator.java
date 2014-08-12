@@ -16,14 +16,14 @@
 
 package com.datatorrent.contrib.aerospike;
 
-import java.util.Collection;
-import java.util.List;
-
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
 import com.google.common.collect.Lists;
+
+import java.util.Collection;
+import java.util.List;
 
 /**
  * <p>
@@ -42,7 +42,7 @@ import com.google.common.collect.Lists;
 
 public abstract class AbstractAerospikeTransactionalPutOperator<T> extends AbstractBatchTransactionableStoreOutputOperator<T, AerospikeTransactionalStore> {
 
-  protected List<Bin> bins;
+  private transient List<Bin> bins;
   public AbstractAerospikeTransactionalPutOperator() {
 
     super();
