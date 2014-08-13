@@ -152,6 +152,23 @@
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-contrib</artifactId>
       <version>${datatorrent.version}</version>
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>com.datatorrent</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${datatorrent.version}</version> 
+      <exclusions>
+        <exclusion>
+          <groupId>*</groupId>
+          <artifactId>*</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>redis.clients</groupId>
