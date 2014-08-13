@@ -16,16 +16,14 @@
 package com.datatorrent.benchmark;
 
 import org.junit.Test;
+
 import com.datatorrent.api.LocalMode;
 
-/**
- * Test the DAG declaration in local mode.
- */
-public class CassandraApplicatonTest {
+public class AerospikeBenchmarkAppTest {
 
   @Test
   public void test() throws Exception {
-    LocalMode.runApp(new CassandraOutputBenchmarkApplication(), 10000);
-  }
 
+    LocalMode.runApp(new AerospikeOutputBenchmarkApplication(), 10000);
+  }
 }

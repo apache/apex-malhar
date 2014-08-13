@@ -15,17 +15,26 @@
  */
 package com.datatorrent.benchmark;
 
-import org.junit.Test;
-import com.datatorrent.api.LocalMode;
+import java.util.List;
 
-/**
- * Test the DAG declaration in local mode.
- */
-public class CassandraApplicatonTest {
+import com.aerospike.client.AerospikeException;
+import com.aerospike.client.Bin;
+import com.aerospike.client.Key;
+import com.datatorrent.contrib.aerospike.AbstractAerospikeTransactionalPutOperator;
 
-  @Test
-  public void test() throws Exception {
-    LocalMode.runApp(new CassandraOutputBenchmarkApplication(), 10000);
+
+public class AerospikeOutputOperator extends AbstractAerospikeTransactionalPutOperator<Integer>{
+
+  private final String KEYSPACE = "test";
+  private final String SET_NAME = "Aerospike_Output";
+  private int id = 0;
+  @Override
+  protected Key getUpdatedBins(Integer tuple, List<Bin> bins)
+      throws AerospikeException {
+
+    Key key = new Key(KEYSPACE,SET_NAME,id++);
+    bins.add(new Bin("ID",tuple));
+    return key;
   }
 
 }

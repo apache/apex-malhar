@@ -22,6 +22,7 @@ import java.io.IOException;
  *
  * @since 0.9.3
  */
+@Deprecated
 public interface Connectable
 {
   /**

@@ -18,7 +18,6 @@ package com.datatorrent.demos.mobile;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -161,8 +160,8 @@ public class Application implements StreamingApplication
     //dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 30000);
     ThroughputBasedPartitioner<PhoneMovementGenerator> partitioner = new ThroughputBasedPartitioner<PhoneMovementGenerator>();
     partitioner.setCooldownMillis(90000);
-    partitioner.setMaximumThroughput(30000);
-    partitioner.setMinimumThroughput(10000);
+    partitioner.setMaximumEvents(30000);
+    partitioner.setMinimumEvents(10000);
     dag.setAttribute(movementGen,OperatorContext.STATS_LISTENERS, Arrays.asList(new StatsListener[]{partitioner}));
     dag.setAttribute(movementGen,OperatorContext.PARTITIONER, partitioner);
     dag.setInputPortAttribute(movementGen.data, PortContext.QUEUE_CAPACITY, 32 * 1024);

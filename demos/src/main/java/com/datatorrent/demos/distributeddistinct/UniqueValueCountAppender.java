@@ -18,9 +18,15 @@ package com.datatorrent.demos.distributeddistinct;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Map;
+import java.util.Set;
 
 import javax.annotation.Nonnull;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
@@ -57,6 +63,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   protected transient boolean batch;
 
   public UniqueValueCountAppender()
+
   {
     partitionKeys = Sets.newHashSet(0);
     partitionMask = 0;
@@ -66,6 +73,8 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
+    LOGGER.debug("store properties {} {}", store.getDbDriver(), store.getDbUrl());
+    LOGGER.debug("table name {}", tableName);
     windowID = context.getAttributes().get(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     try {
       ResultSet resultSet = store.getConnection().createStatement().executeQuery("SELECT col1 FROM " + tableName + " WHERE col3 > " + windowID);
@@ -92,12 +101,12 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
 
     Object key = getKeyFromTuple(tuple);
     @SuppressWarnings("unchecked")
-    Set<Object> values = (Set<Object>) storeManager.get(key);
+    Set<Object> values = (Set<Object>) cacheManager.get(key);
     if (values == null) {
       values = Sets.newHashSet();
     }
     values.addAll(tuple.getInternalSet());
-    storeManager.put(key, values);
+    cacheManager.put(key, values);
   }
 
   @Override
@@ -113,7 +122,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   }
 
   @Override
-  public Map<Object, Object> fetchStartupData()
+  public Map<Object, Object> loadInitialData()
   {
     return null;
   }
@@ -155,6 +164,18 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
     return tuple.getKey();
   }
 
+  @Override
+  public void putAll(Map<Object, Object> m)
+  {
+    throw new UnsupportedOperationException("not supported");
+  }
+
+  @Override
+  public void remove(Object key)
+  {
+    throw new UnsupportedOperationException("not supported");
+  }
+
   /**
    * Assigns the partitions according to certain key values and keeps track of the
    * keys that each partition will be processing so that in the case of a
@@ -168,6 +189,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
     }
 
     final int finalCapacity = partitions.size() + incrementalCapacity;
+    UniqueValueCountAppender<V> anOldOperator = partitions.iterator().next().getPartitionedInstance();
     partitions.clear();
 
     Collection<Partition<UniqueValueCountAppender<V>>> newPartitions = Lists.newArrayListWithCapacity(finalCapacity);
@@ -192,6 +214,9 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
 
       statefulUniqueCountInstance.partitionKeys = statefulUniqueCountPartition.getPartitionKeys().get(input).partitions;
       statefulUniqueCountInstance.partitionMask = lPartitionMask;
+      statefulUniqueCountInstance.store = anOldOperator.store;
+      statefulUniqueCountInstance.tableName = anOldOperator.tableName;
+      statefulUniqueCountInstance.cacheManager = anOldOperator.cacheManager;
     }
     return newPartitions;
   }
@@ -200,4 +225,6 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   public void partitioned(Map<Integer, com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> partitions)
   {
   }
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(UniqueValueCountAppender.class);
 }

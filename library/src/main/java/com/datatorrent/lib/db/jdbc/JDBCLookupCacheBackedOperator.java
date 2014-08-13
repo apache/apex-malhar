@@ -18,12 +18,12 @@ package com.datatorrent.lib.db.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.List;
 
 import javax.annotation.Nonnull;
 import javax.validation.constraints.NotNull;
+
+import com.google.common.collect.Lists;
 
 import com.datatorrent.api.Context;
 
@@ -37,9 +37,8 @@ import com.datatorrent.lib.db.cache.AbstractDBLookupCacheBackedOperator;
  * @param <T> type of input tuples </T>
  * @since 0.9.1
  */
-public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T>
+public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupCacheBackedOperator<T, JdbcStore>
 {
-  protected final JdbcStore store;
   @NotNull
   protected String tableName;
 
@@ -47,7 +46,7 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
   protected transient PreparedStatement getStatement;
 
   public JDBCLookupCacheBackedOperator()
-  {	
+  {
     super();
     store = new JdbcStore();
   }
@@ -65,7 +64,8 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
   @Override
   public void setup(Context.OperatorContext context)
   {
-    store.connect();
+    super.setup(context);
+
     String insertQuery = fetchInsertQuery();
     String getQuery = fetchGetQuery();
     try {
@@ -75,20 +75,6 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
     catch (SQLException e) {
       throw new RuntimeException(e);
     }
-
-    super.setup(context);
-  }
-
-  @Override
-  public void teardown()
-  {
-    store.disconnect();
-    super.teardown();
-  }
-
-  public JdbcStore getStore()
-  {
-    return store;
   }
 
   @Override
@@ -111,26 +97,26 @@ public abstract class JDBCLookupCacheBackedOperator<T> extends AbstractDBLookupC
       ResultSet resultSet = getStatement.executeQuery();
       return processResultSet(resultSet);
     }
-    catch (SQLException e) {	
+    catch (SQLException e) {
       throw new RuntimeException("while fetching key", e);
     }
   }
 
   @Override
-  public Map<Object, Object> bulkGet(Set<Object> keys)
+  public List<Object> getAll(List<Object> keys)
   {
-    Map<Object, Object> valMap = new HashMap<Object, Object>();
+    List<Object> values = Lists.newArrayList();
     for (Object key : keys) {
       try {
         prepareGetStatement(getStatement, key);
         ResultSet resultSet = getStatement.executeQuery();
-        valMap.put(key, processResultSet(resultSet));
+        values.add(processResultSet(resultSet));
       }
       catch (SQLException e) {
         throw new RuntimeException("while fetching keys", e);
       }
     }
-    return valMap;
+    return values;
   }
 
   protected abstract void prepareGetStatement(PreparedStatement getStatement, Object key) throws SQLException;

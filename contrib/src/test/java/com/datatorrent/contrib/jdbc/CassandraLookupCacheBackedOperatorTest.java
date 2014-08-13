@@ -71,7 +71,7 @@ public class CassandraLookupCacheBackedOperatorTest extends JDBCLookupCacheBacke
       now.add(Calendar.SECOND, 15);
 
       SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss z");
-      lookupCacheBackedOperator.setCacheRefreshTime(format.format(now.getTime()));
+      lookupCacheBackedOperator.getCacheManager().setRefreshTime(format.format(now.getTime()));
 
       lookupCacheBackedOperator.output.setSink(sink);
 

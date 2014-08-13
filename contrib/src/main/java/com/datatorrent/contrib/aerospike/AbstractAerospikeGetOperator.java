@@ -14,34 +14,30 @@
  * limitations under the License.
  */
 
-package com.datatorrent.contrib.cassandra;
+package com.datatorrent.contrib.aerospike;
 
 
+import com.aerospike.client.Record;
+import com.aerospike.client.query.RecordSet;
+import com.aerospike.client.query.Statement;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.db.AbstractStoreInputOperator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datastax.driver.core.ResultSet;
-import com.datastax.driver.core.Row;
-
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
-
 /**
- * Base Cassandra input adapter operator, which reads data from persistence database through DATASTAX API
+ * Base Aerospike input adapter operator, which reads data from persistence database through its API
  * and writes into output port(s).
  *
  * <p>
- * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Row)}.
+ * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Record)}.
  * </p>
- *
- * @since 1.0.2
  */
-public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore> {
+public abstract class AbstractAerospikeGetOperator<T> extends AbstractStoreInputOperator<T, AerospikeStore> {
 
-  private static final Logger logger = LoggerFactory.getLogger(AbstractCassandraInputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractAerospikeGetOperator.class);
 
   /**
    * Any concrete class has to override this method to convert a Database row into Tuple.
@@ -49,7 +45,7 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
    * @param row a single row that has been read from database.
    * @return Tuple a tuples created from row which can be any Java object.
    */
-  public abstract T getTuple(Row row);
+  public abstract T getTuple(Record record);
 
   /**
    * Any concrete class has to override this method to return the query string which will be used to
@@ -57,7 +53,7 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
    *
    * @return Query string
    */
-  public abstract String queryToRetrieveData();
+  public abstract Statement queryToRetrieveData();
 
   /**
    * The output port that will emit tuple into DAG.
@@ -70,15 +66,16 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
    * It then converts each row into tuple and emit that into output port.
    */
   @Override
-  public void emitTuples()
-  {
-    String query = queryToRetrieveData();
-    logger.debug(String.format("select statement: %s", query));
+  public void emitTuples() {
 
+    Statement query = queryToRetrieveData();
+    logger.debug(String.format("select statement: %s", query.toString()));
+    RecordSet rs;
     try {
-      ResultSet result = store.getSession().execute(query);
-      for(Row row: result) {
-        T tuple = getTuple(row);
+      rs = store.getClient().query(null, query);
+      while(rs.next()){
+        Record rec = rs.getRecord();
+        T tuple = getTuple(rec);
         outputPort.emit(tuple);
       }
     }
