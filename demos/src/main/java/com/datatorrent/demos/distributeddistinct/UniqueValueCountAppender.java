@@ -75,10 +75,10 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
     super.setup(context);
     LOGGER.debug("store properties {} {}", store.getDbDriver(), store.getDbUrl());
     LOGGER.debug("table name {}", tableName);
-    windowID = context.getAttributes().get(Context.OperatorContext.ACTIVATION_WINDOW_ID);
+    windowID = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     try {
-      ResultSet resultSet = store.getConnection().createStatement().executeQuery("SELECT col1 FROM " + tableName + " WHERE col3 > " + windowID);
-      PreparedStatement deleteStatement = store.getConnection().prepareStatement("DELETE FROM " + tableName + " WHERE col3 > " + windowID + " AND col1 = ?");
+      ResultSet resultSet = store.getConnection().createStatement().executeQuery("SELECT col1 FROM " + tableName + " WHERE col3 >= " + windowID);
+      PreparedStatement deleteStatement = store.getConnection().prepareStatement("DELETE FROM " + tableName + " WHERE col3 >= " + windowID + " AND col1 = ?");
 
       Set<Object> deletedKeys = Sets.newHashSet();
       while (resultSet.next()) {
@@ -136,9 +136,6 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
       if (batch) {
         putStatement.executeBatch();
         putStatement.clearBatch();
-      }
-      else {
-        putStatement.executeUpdate();
       }
     }
     catch (SQLException e) {

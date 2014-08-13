@@ -55,13 +55,13 @@ public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<In
   @Override
   protected void preparePutStatement(PreparedStatement putStatement, Object key, Object value) throws SQLException
   {
-    batch = true;
     @SuppressWarnings("unchecked")
     Set<Integer> valueSet = (Set<Integer>) value;
     for (Integer val : valueSet) {
       @SuppressWarnings("unchecked")
       Set<Integer> currentVals = (Set<Integer>) get(key);
       if (!currentVals.contains(val)) {
+        batch = true;
         putStatement.setInt(1, (Integer) key);
         putStatement.setInt(2, val);
         putStatement.setLong(3, windowID);
