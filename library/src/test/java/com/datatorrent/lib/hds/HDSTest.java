@@ -10,18 +10,14 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.concurrent.TimeUnit;
 
-import junit.framework.Assert;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.apache.commons.lang3.Range;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.getopt.util.hash.MurmurHash;
+import org.junit.Assert;
 import org.junit.Test;
-
-import com.datatorrent.lib.hds.HDS.DataKey;
-import com.datatorrent.lib.util.KeyValPair;
 
 /**
  *
@@ -34,11 +30,10 @@ public class HDSTest
   int maxSize = 500;
 
 
-  public static class MyDataKey implements DataKey
+  public static class MyDataKey
   {
     public byte[] bytes;
 
-    @Override
     public long getBucketKey()
     {
       return readLong(this.bytes, 0);
@@ -63,7 +58,6 @@ public class HDSTest
       return Arrays.equals(this.bytes, other.bytes);
     }
 
-    @Override
     public byte[] getBytes()
     {
       return bytes;
@@ -128,7 +122,7 @@ public class HDSTest
     FileSystem fs = FileSystem.getLocal(new Configuration(false)).getRawFileSystem();
     BucketFileSystem bfs = new FSBucketFileSystem(fs, file.getAbsolutePath());
 
-    HDSPrototype<MyDataKey, String> hds = new HDSPrototype<HDSTest.MyDataKey, String>();
+    HDSPrototype hds = new HDSPrototype();
     hds.bfs = bfs;
     hds.setKeyComparator(new MyDataKey.SequenceComparator());
     hds.setMaxFileSize(1); // limit to single entry per file
@@ -136,15 +130,13 @@ public class HDSTest
     hds.setup(null);
 
     hds.beginWindow(10);
+    Assert.assertFalse("exists " + bucket1WalFile, bucket1WalFile.exists());
 
     MyDataKey key1 = MyDataKey.newKey(BUCKET1, 1);
     String data1 = "data01bucket1";
-    KeyValPair<MyDataKey, String> entry1 = new KeyValPair<HDSTest.MyDataKey, String>(key1, data1);
 
-    Assert.assertFalse("exists " + bucket1WalFile, bucket1WalFile.exists());
-
-    hds.put(entry1);
-    Assert.assertEquals("uncommited get1 " + key1, data1, hds.get(key1));
+    hds.put(BUCKET1, key1.getBytes(), data1.getBytes());
+    Assert.assertArrayEquals("uncommited get1 " + key1, data1.getBytes(), hds.get(BUCKET1, key1.getBytes()));
 
     Assert.assertTrue("exists " + bucket1Dir, bucket1Dir.exists() && bucket1Dir.isDirectory());
     Assert.assertTrue("exists " + bucket1WalFile, bucket1WalFile.exists() && bucket1WalFile.isFile());
@@ -157,28 +149,26 @@ public class HDSTest
 
     // replace value
     String data1Updated = data1 + "-update1";
-    entry1 = new KeyValPair<HDSTest.MyDataKey, String>(key1, data1Updated);
-    hds.put(entry1);
-    Assert.assertEquals("uncommited get2 " + key1, data1Updated, hds.get(key1));
+    hds.put(BUCKET1, key1.getBytes(), data1Updated.getBytes());
+    Assert.assertArrayEquals("uncommited get2 " + key1, data1Updated.getBytes(), hds.get(BUCKET1, key1.getBytes()));
 
     hds.writeDataFiles();
     files = bucket1Dir.list(dataFileFilter);
     Assert.assertEquals("" + Arrays.asList(files), 1, files.length);
-    Assert.assertEquals("cold read key=" + entry1.getKey(), data1Updated, hds.readFile(BUCKET1, "1-0").get(entry1.getKey().getBytes()));
+    Assert.assertArrayEquals("cold read key=" + key1, data1Updated.getBytes(), hds.readFile(BUCKET1, "1-0").get(key1.getBytes()));
 
     MyDataKey key12 = MyDataKey.newKey(BUCKET1, 2);
+    String data12 = "data02bucket1";
+
     Assert.assertEquals(BUCKET1, key12.getBucketKey());
 
-    String data12 = "data02bucket1";
-    KeyValPair<MyDataKey, String> entry12 = new KeyValPair<HDSTest.MyDataKey, String>(key12, data12);
-
-    hds.put(entry12); // key 2, bucket 1
+    hds.put(key12.getBucketKey(), key12.bytes, data12.getBytes()); // key 2, bucket 1
     hds.writeDataFiles();
 
     files = bucket1Dir.list(dataFileFilter);
     Assert.assertEquals("" + Arrays.asList(files), 2, files.length);
-    Assert.assertEquals("cold read key=" + entry1.getKey(), entry1.getValue(), hds.readFile(BUCKET1, "1-0").get(entry1.getKey().getBytes()));
-    Assert.assertEquals("cold read key=" + entry12.getKey(), entry12.getValue(), hds.readFile(BUCKET1, "1-1").get(entry12.getKey().getBytes()));
+    Assert.assertArrayEquals("cold read key=" + key1, data1Updated.getBytes(), hds.readFile(BUCKET1, "1-0").get(key1.getBytes()));
+    Assert.assertArrayEquals("cold read key=" + key12, data12.getBytes(), hds.readFile(BUCKET1, "1-1").get(key12.getBytes()));
     Assert.assertTrue("exists " + bucket1WalFile, bucket1WalFile.exists() && bucket1WalFile.isFile());
 
     hds.endWindow();

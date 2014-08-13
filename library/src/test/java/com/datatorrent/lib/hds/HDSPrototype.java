@@ -32,7 +32,7 @@ import com.google.common.collect.Maps;
 /**
  *
  */
-public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>, CheckpointListener, Operator
+public class HDSPrototype implements HDS.BucketManager, CheckpointListener, Operator
 {
   /*
    * Meta data about bucket, persisted in store
@@ -49,7 +49,6 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
     {
       // for serialization only
       files = null;
-      throw new RuntimeException();
     }
 
     int fileSeq;
@@ -60,16 +59,22 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
   public static final String FNAME_META = "_META";
 
   private final HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
-  // change log by bucket by window
-  private final HashMap<Long, LinkedHashMap<Long, BucketFileMeta>> metaUpdates = Maps.newLinkedHashMap();
-  private transient HashMap<Long, DataOutputStream> walMap = Maps.newHashMap();
   private transient long windowId;
-
   BucketFileSystem bfs;
 
-  // keys that were modified and written to WAL, but not yet persisted
-  private final HashMap<K, Map.Entry<K, V>> uncommittedChanges = Maps.newHashMap();
-  private final HashMap<String, TreeMap<byte[], V>> cache = Maps.newHashMap();
+  private static class Bucket
+  {
+    private long bucketKey;
+    private transient DataOutputStream wal;
+    // keys that were modified and written to WAL, but not yet persisted
+    private final HashMap<byte[], byte[]> uncommittedChanges = Maps.newHashMap();
+    // change log by bucket by window
+    private final LinkedHashMap<Long, BucketFileMeta> metaUpdates = Maps.newLinkedHashMap();
+    private final transient HashMap<String, TreeMap<byte[], byte[]>> fileDataCache = Maps.newHashMap();
+  }
+
+  private final HashMap<Long, Bucket> buckets = Maps.newHashMap();
+
   // TODO: leave serialization to API client
   private final Kryo writeSerde = new Kryo();
 
@@ -123,15 +128,14 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
    * @throws IOException
    */
   @VisibleForTesting
-  protected TreeMap<byte[], V> readFile(long bucketKey, String fileName) throws IOException
+  protected TreeMap<byte[], byte[]> readFile(long bucketKey, String fileName) throws IOException
   {
-    TreeMap<byte[], V> data = Maps.newTreeMap(getKeyComparator());
+    TreeMap<byte[], byte[]> data = Maps.newTreeMap(getKeyComparator());
     InputStream is = bfs.getInputStream(bucketKey, fileName);
     Input input = new Input(is);
     while (!input.eof()) {
       byte[] key = writeSerde.readObject(input, byte[].class);
-      @SuppressWarnings("unchecked")
-      V value = (V)writeSerde.readClassAndObject(input);
+      byte[] value = writeSerde.readObject(input, byte[].class);
       data.put(key, value);
     }
     return data;
@@ -144,32 +148,32 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
    * @param fileMeta
    * @param data
    */
-  private void writeFile(long bucketKey, BucketFileMeta fileMeta, TreeMap<byte[], V> data) throws IOException
+  private void writeFile(Bucket bucket, BucketFileMeta fileMeta, TreeMap<byte[], byte[]> data) throws IOException
   {
     DataOutputStream dos = null;
     CountingOutputStream cos = null;
     Output out = null;
-    for (Map.Entry<byte[], V> dataEntry : data.entrySet()) {
+    for (Map.Entry<byte[], byte[]> dataEntry : data.entrySet()) {
       if (out == null) {
         if (fileMeta == null) {
           // roll file
-          fileMeta = createFile(bucketKey, dataEntry.getKey());
+          fileMeta = createFile(bucket.bucketKey, dataEntry.getKey());
         }
-        dos = bfs.getOutputStream(bucketKey, fileMeta.name + ".tmp");
+        dos = bfs.getOutputStream(bucket.bucketKey, fileMeta.name + ".tmp");
         cos = new CountingOutputStream(dos);
         out = new Output(cos);
       }
 
       writeSerde.writeObject(out, dataEntry.getKey());
-      writeSerde.writeClassAndObject(out, dataEntry.getValue());
+      writeSerde.writeObject(out, dataEntry.getValue());
 
       if (cos.getCount() + out.position() > this.maxFileSize) {
         // roll file
         out.close();
         cos.close();
         dos.close();
-        this.cache.remove(fileMeta.name);
-        bfs.rename(bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+        bucket.fileDataCache.remove(fileMeta.name);
+        bfs.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
         fileMeta = null;
         out = null;
       }
@@ -179,126 +183,139 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
       out.close();
       cos.close();
       dos.close();
-      bfs.rename(bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+      bfs.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
     }
 
     // track meta data change by window
-    LinkedHashMap<Long, BucketFileMeta> bucketMetaChanges = this.metaUpdates.get(bucketKey);
-    if (bucketMetaChanges == null) {
-      this.metaUpdates.put(bucketKey, bucketMetaChanges = Maps.newLinkedHashMap());
-    }
+    LinkedHashMap<Long, BucketFileMeta> bucketMetaChanges = bucket.metaUpdates;
     bucketMetaChanges.put(windowId, writeSerde.copy(fileMeta));
   }
 
-  @Override
-  public void put(Map.Entry<K, V> entry) throws IOException
+  private Bucket getBucket(long bucketKey)
   {
-    DataOutputStream wal = walMap.get(entry.getKey().getBucketKey());
-    if (wal == null) {
-      wal = bfs.getOutputStream(entry.getKey().getBucketKey(), FNAME_WAL);
-      walMap.put(entry.getKey().getBucketKey(), wal);
+    Bucket bucket = this.buckets.get(bucketKey);
+    if (bucket == null) {
+      bucket = new Bucket();
+      bucket.bucketKey = bucketKey;
+      this.buckets.put(bucketKey, bucket);
     }
-    this.uncommittedChanges.put(entry.getKey(), entry);
-  }
-
-  public void writeDataFiles() throws IOException
-  {
-    // bucket keys by file
-    Map<Long, Map<BucketFileMeta, Map<byte[], V>>> modifiedBuckets = Maps.newHashMap();
-
-    for (Map.Entry<K, Map.Entry<K, V>> entry : uncommittedChanges.entrySet()) {
-      //byte[] key = entry.getKey().getBytes();
-      // find files to check for existing key
-      long bucketKey = entry.getKey().getBucketKey();
-      BucketMeta bm = getMeta(bucketKey);
-      TreeMap<byte[], BucketFileMeta> bucketSeqStarts = bm.files;
-
-      // find the file for the key
-      Map.Entry<byte[], BucketFileMeta> floorEntry = bucketSeqStarts.floorEntry(entry.getKey().getBytes());
-      BucketFileMeta floorFile;
-      if (floorEntry != null) {
-        floorFile = floorEntry.getValue();
-      } else {
-        floorEntry = bucketSeqStarts.firstEntry();
-        if (floorEntry == null || floorEntry.getValue().name != null) {
-          // no existing file or file with higher key
-          floorFile = new BucketFileMeta();
-        } else {
-          // already have a placeholder for new keys, move start key
-          floorFile = floorEntry.getValue();
-        }
-        floorFile.fromSeq = entry.getKey().getBytes();
-        bucketSeqStarts.put(floorFile.fromSeq, floorFile);
-      }
-
-      // add to existing file
-      Map<BucketFileMeta, Map<byte[], V>> modifiedFiles = modifiedBuckets.get(bucketKey);
-      if (modifiedFiles == null) {
-        modifiedBuckets.put(bucketKey, modifiedFiles = Maps.newHashMap());
-      }
-      Map<byte[], V> fileUpdates = modifiedFiles.get(floorFile);
-      if (fileUpdates == null) {
-        modifiedFiles.put(floorFile, fileUpdates = Maps.newHashMap());
-      }
-      fileUpdates.put(entry.getKey().getBytes(), entry.getValue().getValue());
-
-    }
-
-    // write modified files
-    for (Map.Entry<Long, Map<BucketFileMeta, Map<byte[], V>>> bucketEntry : modifiedBuckets.entrySet()) {
-      for (Map.Entry<BucketFileMeta, Map<byte[], V>> fileEntry : bucketEntry.getValue().entrySet()) {
-        BucketFileMeta fileMeta = fileEntry.getKey();
-        TreeMap<byte[], V> fileData;
-        if (fileMeta.name == null) {
-          // new file
-          fileMeta = createFile(bucketEntry.getKey(), fileMeta.fromSeq);
-          fileData = Maps.newTreeMap(getKeyComparator());
-        } else {
-          // existing file
-          fileData = cache.get(fileMeta.name);
-          if (fileData == null) {
-            // load file to check for presence of key
-            fileData = readFile(bucketEntry.getKey(), fileMeta.name);
-          }
-        }
-
-        // apply updates
-        fileData.putAll(fileEntry.getValue());
-        writeFile(bucketEntry.getKey(), fileMeta, fileData);
-
-      }
-    }
-
-    uncommittedChanges.clear();
+    return bucket;
   }
 
   @Override
-  public V get(K key) throws IOException
+  public byte[] get(long bucketKey, byte[] key) throws IOException
   {
+    Bucket bucket = getBucket(bucketKey);
     // check unwritten changes first
-    Map.Entry<K, V> kv = uncommittedChanges.get(key);
-    if (kv != null) {
-      return kv.getValue();
+    byte[] v = bucket.uncommittedChanges.get(key);
+    if (v != null) {
+      return v;
     }
 
-    BucketMeta bm = getMeta(key.getBucketKey());
+    BucketMeta bm = getMeta(bucketKey);
     if (bm == null) {
-      throw new IllegalArgumentException("Invalid bucket key " + key.getBucketKey());
+      throw new IllegalArgumentException("Invalid bucket key " + bucketKey);
     }
 
-    Map.Entry<byte[], BucketFileMeta> floorEntry = bm.files.floorEntry(key.getBytes());
+    Map.Entry<byte[], BucketFileMeta> floorEntry = bm.files.floorEntry(key);
     if (floorEntry == null) {
       // no file for this key
       return null;
     }
 
     // lookup against file data
-    TreeMap<byte[], V> fileData = cache.get(floorEntry.getValue().name);
+    TreeMap<byte[], byte[]> fileData = bucket.fileDataCache.get(floorEntry.getValue().name);
     if (fileData == null) {
       // load file to check for presence of key
-      fileData = readFile(key.getBucketKey(), floorEntry.getValue().name);
+      fileData = readFile(bucketKey, floorEntry.getValue().name);
     }
     return fileData.get(key);
+  }
+
+  @Override
+  public void put(long bucketKey, byte[] key, byte[] value) throws IOException
+  {
+    Bucket bucket = getBucket(bucketKey);
+    if (bucket.wal == null) {
+      bucket.wal = bfs.getOutputStream(bucket.bucketKey, FNAME_WAL);
+      bucket.wal.write(key);
+      bucket.wal.write(value);
+    }
+    bucket.uncommittedChanges.put(key, value);
+  }
+
+  public void writeDataFiles() throws IOException
+  {
+    // bucket keys by file
+    Map<Bucket, Map<BucketFileMeta, Map<byte[], byte[]>>> modifiedBuckets = Maps.newHashMap();
+
+    for (Map.Entry<Long, Bucket> bucketEntry : this.buckets.entrySet()) {
+      Bucket bucket = bucketEntry.getValue();
+
+      for (Map.Entry<byte[], byte[]> entry : bucket.uncommittedChanges.entrySet()) {
+
+        BucketMeta bm = getMeta(bucketEntry.getKey());
+        TreeMap<byte[], BucketFileMeta> bucketSeqStarts = bm.files;
+
+        // find the file for the key
+        Map.Entry<byte[], BucketFileMeta> floorEntry = bucketSeqStarts.floorEntry(entry.getKey());
+        BucketFileMeta floorFile;
+        if (floorEntry != null) {
+          floorFile = floorEntry.getValue();
+        } else {
+          floorEntry = bucketSeqStarts.firstEntry();
+          if (floorEntry == null || floorEntry.getValue().name != null) {
+            // no existing file or file with higher key
+            floorFile = new BucketFileMeta();
+          } else {
+            // already have a placeholder for new keys, move start key
+            floorFile = floorEntry.getValue();
+          }
+          floorFile.fromSeq = entry.getKey();
+          bucketSeqStarts.put(floorFile.fromSeq, floorFile);
+        }
+
+        // add to existing file
+        Map<BucketFileMeta, Map<byte[], byte[]>> modifiedFiles = modifiedBuckets.get(bucketEntry.getKey());
+        if (modifiedFiles == null) {
+          modifiedBuckets.put(bucketEntry.getValue(), modifiedFiles = Maps.newHashMap());
+        }
+        Map<byte[], byte[]> fileUpdates = modifiedFiles.get(floorFile);
+        if (fileUpdates == null) {
+          modifiedFiles.put(floorFile, fileUpdates = Maps.newHashMap());
+        }
+        fileUpdates.put(entry.getKey(), entry.getValue());
+
+      }
+    }
+
+    // write modified files
+    for (Map.Entry<Bucket, Map<BucketFileMeta, Map<byte[], byte[]>>> bucketEntry : modifiedBuckets.entrySet()) {
+      Bucket bucket = bucketEntry.getKey();
+      for (Map.Entry<BucketFileMeta, Map<byte[], byte[]>> fileEntry : bucketEntry.getValue().entrySet()) {
+        BucketFileMeta fileMeta = fileEntry.getKey();
+        TreeMap<byte[], byte[]> fileData;
+        if (fileMeta.name == null) {
+          // new file
+          fileMeta = createFile(bucketEntry.getKey().bucketKey, fileMeta.fromSeq);
+          fileData = Maps.newTreeMap(getKeyComparator());
+        } else {
+          // existing file
+          fileData = bucket.fileDataCache.get(fileMeta.name);
+          if (fileData == null) {
+            // load file to check for presence of key
+            fileData = readFile(bucket.bucketKey, fileMeta.name);
+          }
+        }
+
+        // apply updates
+        fileData.putAll(fileEntry.getValue());
+        writeFile(bucket, fileMeta, fileData);
+        bucket.uncommittedChanges.clear();
+
+      }
+    }
+
   }
 
   @Override
@@ -324,9 +341,10 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
   @Override
   public void endWindow()
   {
-    for (DataOutputStream wal : walMap.values()) {
+    for (Bucket bucket : this.buckets.values()) {
       try {
-        wal.flush();
+        if (bucket.wal != null)
+          bucket.wal.flush();
       } catch (IOException e) {
         throw new RuntimeException("Failed to flush WAL", e);
       }
@@ -369,11 +387,11 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
   @Override
   public void committed(long committedWindowId)
   {
-    for (long bucketKey : this.metaUpdates.keySet())
+    for (Bucket bucket : this.buckets.values())
     {
       // update meta data for modified files
-      BucketMeta bucketMeta = loadBucketMeta(bucketKey);
-      Map<Long, BucketFileMeta> files = this.metaUpdates.get(bucketKey);
+      BucketMeta bucketMeta = loadBucketMeta(bucket.bucketKey);
+      Map<Long, BucketFileMeta> files = bucket.metaUpdates;
       for (long windowId : files.keySet()) {
         if (windowId <= committedWindowId) {
           BucketFileMeta bfm = files.get(windowId);
@@ -384,13 +402,13 @@ public class HDSPrototype<K extends HDS.DataKey, V> implements HDS.Bucket<K, V>,
       }
 
       try {
-        OutputStream os = bfs.getOutputStream(bucketKey, FNAME_META + ".new");
+        OutputStream os = bfs.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
         Output output = new Output(os);
         writeSerde.writeClassAndObject(output, bucketMeta);
         output.close();
-        bfs.rename(bucketKey, FNAME_META + ".new", FNAME_META);
+        bfs.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
       } catch (IOException e) {
-        throw new RuntimeException("Failed to write bucket meta data " + bucketKey, e);
+        throw new RuntimeException("Failed to write bucket meta data " + bucket.bucketKey, e);
       }
     }
   }
