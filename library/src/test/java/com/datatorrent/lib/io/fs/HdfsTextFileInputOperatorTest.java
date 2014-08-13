@@ -35,7 +35,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 public class HdfsTextFileInputOperatorTest
 {
   // Sample text file path.
-  protected String localFileName = "../demos/src/main/resources/com/datatorrent/demos/wordcount/samplefile.txt";
+  protected String localFileName = "../demos/wordcount/src/main/resources/samplefile.txt";
 
 
   @SuppressWarnings({ "rawtypes", "unchecked" })
