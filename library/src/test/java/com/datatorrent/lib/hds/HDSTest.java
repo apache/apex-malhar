@@ -116,13 +116,13 @@ public class HDSTest
     final long BUCKET1 = 1L;
 
     File bucket1Dir = new File(file, Long.toString(BUCKET1));
-    File bucket1WalFile = new File(bucket1Dir, HDSPrototype.FNAME_WAL);
+    File bucket1WalFile = new File(bucket1Dir, HDSBucketManager.FNAME_WAL);
     RegexFileFilter dataFileFilter = new RegexFileFilter("\\d+.*");
 
     FileSystem fs = FileSystem.getLocal(new Configuration(false)).getRawFileSystem();
     BucketFileSystem bfs = new FSBucketFileSystem(fs, file.getAbsolutePath());
 
-    HDSPrototype hds = new HDSPrototype();
+    HDSBucketManager hds = new HDSBucketManager();
     hds.bfs = bfs;
     hds.setKeyComparator(new MyDataKey.SequenceComparator());
     hds.setMaxFileSize(1); // limit to single entry per file
@@ -173,7 +173,7 @@ public class HDSTest
 
     hds.endWindow();
 
-    File metaFile = new File(bucket1Dir, HDSPrototype.FNAME_META);
+    File metaFile = new File(bucket1Dir, HDSBucketManager.FNAME_META);
     Assert.assertFalse("exists " + metaFile, metaFile.exists());
 
     hds.committed(1);

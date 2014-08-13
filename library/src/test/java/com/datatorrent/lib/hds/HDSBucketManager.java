@@ -30,49 +30,16 @@ import com.google.common.collect.Maps;
 
 
 /**
- *
+ * Manager for buckets. Implements can be sub-classed as operator or used in composite pattern.
  */
-public class HDSPrototype implements HDS.BucketManager, CheckpointListener, Operator
+public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, Operator
 {
-  /*
-   * Meta data about bucket, persisted in store
-   * Modified on compaction
-   */
-  private static class BucketMeta
-  {
-    private BucketMeta(Comparator<byte[]> cmp)
-    {
-      files = Maps.newTreeMap(cmp);
-    }
-
-    private BucketMeta()
-    {
-      // for serialization only
-      files = null;
-    }
-
-    int fileSeq;
-    final TreeMap<byte[], BucketFileMeta> files;
-  }
-
   public static final String FNAME_WAL = "_WAL";
   public static final String FNAME_META = "_META";
 
   private final HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
   private transient long windowId;
   BucketFileSystem bfs;
-
-  private static class Bucket
-  {
-    private long bucketKey;
-    private transient DataOutputStream wal;
-    // keys that were modified and written to WAL, but not yet persisted
-    private final HashMap<byte[], byte[]> uncommittedChanges = Maps.newHashMap();
-    // change log by bucket by window
-    private final LinkedHashMap<Long, BucketFileMeta> metaUpdates = Maps.newLinkedHashMap();
-    private final transient HashMap<String, TreeMap<byte[], byte[]>> fileDataCache = Maps.newHashMap();
-  }
-
   private final HashMap<Long, Bucket> buckets = Maps.newHashMap();
 
   // TODO: leave serialization to API client
@@ -413,5 +380,37 @@ public class HDSPrototype implements HDS.BucketManager, CheckpointListener, Oper
     }
   }
 
+
+  /**
+   * Meta data about bucket, persisted in store
+   * Flushed on compaction
+   */
+  private static class BucketMeta
+  {
+    private BucketMeta(Comparator<byte[]> cmp)
+    {
+      files = Maps.newTreeMap(cmp);
+    }
+
+    private BucketMeta()
+    {
+      // for serialization only
+      files = null;
+    }
+
+    int fileSeq;
+    final TreeMap<byte[], BucketFileMeta> files;
+  }
+
+  private static class Bucket
+  {
+    private long bucketKey;
+    private transient DataOutputStream wal;
+    // keys that were modified and written to WAL, but not yet persisted
+    private final HashMap<byte[], byte[]> uncommittedChanges = Maps.newHashMap();
+    // change log by bucket by window
+    private final LinkedHashMap<Long, BucketFileMeta> metaUpdates = Maps.newLinkedHashMap();
+    private final transient HashMap<String, TreeMap<byte[], byte[]>> fileDataCache = Maps.newHashMap();
+  }
 
 }
