@@ -24,9 +24,6 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.hbase.HBaseCsvMappingPutOperator;
 import com.datatorrent.contrib.hbase.HBaseRowStringGenerator;
 
-
-
-
 @ApplicationAnnotation(name="HBaseBenchmarkApp")
 public class HBaseCsvMappingApplication implements StreamingApplication
 {
