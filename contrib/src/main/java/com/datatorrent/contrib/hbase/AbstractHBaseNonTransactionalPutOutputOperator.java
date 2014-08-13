@@ -44,31 +44,29 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * @since 1.0.2
  */
 
-public abstract class AbstractHBaseNonTransactionalPutOutputOperator<T> extends
-		AbstractStoreOutputOperator<T, HBaseStore> {
-	private static final transient Logger logger = LoggerFactory
-			.getLogger(AbstractHBaseNonTransactionalPutOutputOperator.class);
+public abstract class AbstractHBaseNonTransactionalPutOutputOperator<T> extends AbstractStoreOutputOperator<T, HBaseStore> {
+  private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBaseNonTransactionalPutOutputOperator.class);
 
-	public AbstractHBaseNonTransactionalPutOutputOperator() {
-		store = new HBaseStore();
-	}
+  public AbstractHBaseNonTransactionalPutOutputOperator() {
+    store = new HBaseStore();
+  }
 
-	@Override
-	public void processTuple(T tuple) {
-		HTable table = store.getTable();
-		Put put = operationPut(tuple);
-		try {
-			table.put(put);
-		} catch (RetriesExhaustedWithDetailsException e) {
-			logger.error("Could not output tuple", e);
-			DTThrowable.rethrow(e);
-		} catch (InterruptedIOException e) {
-			logger.error("Could not output tuple", e);
-			DTThrowable.rethrow(e);
-		}
+  @Override
+  public void processTuple(T tuple) {
+    HTable table = store.getTable();
+    Put put = operationPut(tuple);
+    try {
+      table.put(put);
+    } catch (RetriesExhaustedWithDetailsException e) {
+      logger.error("Could not output tuple", e);
+      DTThrowable.rethrow(e);
+    } catch (InterruptedIOException e) {
+      logger.error("Could not output tuple", e);
+      DTThrowable.rethrow(e);
+    }
 
-	}
+  }
 
-	public abstract Put operationPut(T t);
+  public abstract Put operationPut(T t);
 
 }

@@ -38,104 +38,99 @@ import com.datatorrent.lib.util.ReusableStringReader;
  * of the row, or column.The incoming tuples are inserted accordingly.
  *
  */
-public class HBaseCsvMappingPutOperator extends
-		AbstractHBaseTransactionalPutOutputOperator<String> {
-	private class ColDef {
-		String colFam;
-		String colName;
-	}
+public class HBaseCsvMappingPutOperator extends AbstractHBaseTransactionalPutOutputOperator<String> {
+  private class ColDef {
+    String colFam;
+    String colName;
+  }
 
-	private static final transient Logger logger = LoggerFactory
-			.getLogger(HBaseCsvMappingPutOperator.class);
+  private static final transient Logger logger = LoggerFactory.getLogger(HBaseCsvMappingPutOperator.class);
+  private transient Integer rowIndex;
+  private transient Map<Integer, ColDef> colMap = new HashMap<Integer, ColDef>();
+  private transient ICsvListReader lineListReader = null;
+  private transient ReusableStringReader lineSr = new ReusableStringReader();
+  private transient ArrayList<String> csvLineList = new ArrayList<String>();
+  private String mappingString;
 
-	private transient Integer rowIndex;
-	private transient Map<Integer, ColDef> colMap = new HashMap<Integer, ColDef>();
-	private transient ICsvListReader lineListReader = null;
-	private transient ReusableStringReader lineSr = new ReusableStringReader();
-	private transient ArrayList<String> csvLineList = new ArrayList<String>();
-	private String mappingString;
+  public void setMappingString(String mappingString) {
+    this.mappingString = mappingString;
+  }
 
-	public void setMappingString(String mappingString) {
-		this.mappingString = mappingString;
-	}
+  @Override
+  public Put operationPut(String t) throws IOException {
+    return parseLine(t);
+  }
 
-	@Override
-	public Put operationPut(String t) throws IOException {
-		return parseLine(t);
-	}
+  public void parseMapping() {
+    ICsvListReader listReader = null;
+    StringReader sr = null;
+    ArrayList<String> csvList = new ArrayList<String>();
+    try {
+      sr = new StringReader(mappingString);
+      listReader = new CsvListReader(sr,CsvPreference.STANDARD_PREFERENCE);
+      csvList = (ArrayList<String>) listReader.read();
+    } catch (IOException e) {
+      logger.error("Cannot read the mapping string", e);
+      DTThrowable.rethrow(e);
+    } finally {
+      try {
+        sr.close();
+        listReader.close();
+      } catch (IOException e) {
+        logger.error("Error closing Csv reader", e);
+        DTThrowable.rethrow(e);
+      }
+    }
+    for (int index = 0; index < csvList.size(); index++) {
+      String value = csvList.get(index);
+      if (value.equals("row"))
+        rowIndex = index;
+      else {
+        ColDef c = new ColDef();
+        c.colFam = value.substring(0, value.indexOf('.'));
+        c.colName = value.substring(value.indexOf('.') + 1);
+        colMap.put(index, c);
+      }
+    }
+  }
 
-	public void parseMapping() {
-		ICsvListReader listReader = null;
-		StringReader sr = null;
-		ArrayList<String> csvList = new ArrayList<String>();
-		try {
-			sr = new StringReader(mappingString);
-			listReader = new CsvListReader(sr,
-					CsvPreference.STANDARD_PREFERENCE);
-			csvList = (ArrayList<String>) listReader.read();
-		} catch (IOException e) {
-			logger.error("Cannot read the mapping string", e);
-			DTThrowable.rethrow(e);
-		} finally {
-			try {
-				sr.close();
-				listReader.close();
-			} catch (IOException e) {
-				logger.error("Error closing Csv reader", e);
-				DTThrowable.rethrow(e);
-			}
-		}
-		for (int index = 0; index < csvList.size(); index++) {
-			String value = csvList.get(index);
-			if (value.equals("row"))
-				rowIndex = index;
-			else {
-				ColDef c = new ColDef();
-				c.colFam = value.substring(0, value.indexOf('.'));
-				c.colName = value.substring(value.indexOf('.') + 1);
-				colMap.put(index, c);
-			}
-		}
-	}
+  public Put parseLine(String s) {
+    Put put = null;
+    try {
+      lineSr.open(s);
+      csvLineList = (ArrayList<String>) lineListReader.read();
+    } catch (IOException e) {
+      logger.error("Cannot read the property string", e);
+      DTThrowable.rethrow(e);
+    }
+    put = new Put(csvLineList.get(rowIndex).getBytes());
+    for (Entry<Integer, ColDef> e : colMap.entrySet()) {
+      String colValue = csvLineList.get(e.getKey());
+      put.add(e.getValue().colFam.getBytes(),e.getValue().colName.getBytes(), colValue.getBytes());
+    }
 
-	public Put parseLine(String s) {
-		Put put = null;
-		try {
-			lineSr.open(s);
-			csvLineList = (ArrayList<String>) lineListReader.read();
-		} catch (IOException e) {
-			logger.error("Cannot read the property string", e);
-			DTThrowable.rethrow(e);
-		}
-		put = new Put(csvLineList.get(rowIndex).getBytes());
-		for (Entry<Integer, ColDef> e : colMap.entrySet()) {
-			String colValue = csvLineList.get(e.getKey());
-			put.add(e.getValue().colFam.getBytes(),
-					e.getValue().colName.getBytes(), colValue.getBytes());
-		}
+    csvLineList.clear();
+    return put;
+  }
 
-		csvLineList.clear();
-		return put;
-	}
+  @Override
+  public void setup(OperatorContext context) {
+    super.setup(context);
+    parseMapping();
+    lineListReader = new CsvListReader(lineSr,
+        CsvPreference.STANDARD_PREFERENCE);
+  }
 
-	@Override
-	public void setup(OperatorContext context) {
-		super.setup(context);
-		parseMapping();
-		lineListReader = new CsvListReader(lineSr,
-				CsvPreference.STANDARD_PREFERENCE);
-	}
-
-	@Override
-	public void teardown() {
-		super.teardown();
-		try {
-			lineSr.close();
-			lineListReader.close();
-		} catch (IOException e) {
-			logger.error("Cannot close the readers", e);
-			DTThrowable.rethrow(e);
-		}
-	}
+  @Override
+  public void teardown() {
+    super.teardown();
+    try {
+      lineSr.close();
+      lineListReader.close();
+    } catch (IOException e) {
+      logger.error("Cannot close the readers", e);
+      DTThrowable.rethrow(e);
+    }
+  }
 
 }

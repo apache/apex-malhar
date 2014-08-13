@@ -44,34 +44,34 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  */
 
 public abstract class AbstractHBaseNonTransactionalAppendOutputOperator<T>
-		extends AbstractStoreOutputOperator<T, HBaseStore> {
-	private static final transient Logger logger = LoggerFactory
-			.getLogger(AbstractHBaseNonTransactionalAppendOutputOperator.class);
+extends AbstractStoreOutputOperator<T, HBaseStore> {
+  private static final transient Logger logger = LoggerFactory
+      .getLogger(AbstractHBaseNonTransactionalAppendOutputOperator.class);
 
-	public AbstractHBaseNonTransactionalAppendOutputOperator() {
-		store = new HBaseStore();
-	}
+  public AbstractHBaseNonTransactionalAppendOutputOperator() {
+    store = new HBaseStore();
+  }
 
-	@Override
-	public void processTuple(T tuple) {
-		Append append = operationAppend(tuple);
-		try {
-			store.getTable().append(append);
-		} catch (IOException e) {
-			logger.error("Could not append tuple", e);
-			DTThrowable.rethrow(e);
-		}
+  @Override
+  public void processTuple(T tuple) {
+    Append append = operationAppend(tuple);
+    try {
+      store.getTable().append(append);
+    } catch (IOException e) {
+      logger.error("Could not append tuple", e);
+      DTThrowable.rethrow(e);
+    }
 
-	}
+  }
 
-	/**
-	 * Return the HBase Append metric to store the tuple. The implementor should
-	 * return a HBase Append metric that specifies where and what to store for
-	 * the tuple in the table.
-	 * 
-	 * @param t
-	 *            The tuple
-	 * @return The HBase Append metric
-	 */
-	public abstract Append operationAppend(T t);
+  /**
+   * Return the HBase Append metric to store the tuple. The implementor should
+   * return a HBase Append metric that specifies where and what to store for
+   * the tuple in the table.
+   * 
+   * @param t
+   *            The tuple
+   * @return The HBase Append metric
+   */
+  public abstract Append operationAppend(T t);
 }

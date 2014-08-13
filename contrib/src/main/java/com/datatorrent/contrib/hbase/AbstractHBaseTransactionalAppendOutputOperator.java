@@ -28,6 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
@@ -64,12 +65,9 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * @since 1.0.2
  */
 
-public abstract class AbstractHBaseTransactionalAppendOutputOperator<T> extends
-AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> {
-  private static final transient Logger logger = LoggerFactory
-      .getLogger(AbstractHBaseTransactionalAppendOutputOperator.class);
+public abstract class AbstractHBaseTransactionalAppendOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, HBaseWindowStore> {
+  private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBaseTransactionalAppendOutputOperator.class);
   private List<T> tuples;
-  protected transient boolean atmostonceflag;
   private transient ProcessingMode mode;
   public ProcessingMode getMode()
   {
@@ -82,35 +80,12 @@ AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> 
   }
 
   public AbstractHBaseTransactionalAppendOutputOperator() {
-    store = new HBaseTransactionalStore();
+    store = new HBaseWindowStore();
     tuples = new ArrayList<T>();
   }
 
   @Override
   public void storeAggregate() {
-    if(mode==ProcessingMode.AT_LEAST_ONCE){
-      atleastOnce();
-    }
-    else if(mode==ProcessingMode.AT_MOST_ONCE){
-      atmostOnce();
-    }
-    else{
-      throw new RuntimeException("This operator only supports atleast once and atmost once cases");
-    }
-  }
-  private void atmostOnce(){
-    if(atmostonceflag){
-      storeData();
-    }
-    tuples.clear();
-  }
-  private void atleastOnce()
-  {
-    storeData();
-    tuples.clear();
-  }
-  private void storeData()
-  {
     HTable table = store.getTable();
     Iterator<T> it = tuples.iterator();
     while (it.hasNext()) {
@@ -133,6 +108,7 @@ AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> 
       logger.error("Could not output tuple", e);
       DTThrowable.rethrow(e);
     }
+    tuples.clear();
   }
 
   /**
@@ -150,16 +126,17 @@ AbstractAggregateTransactionableStoreOutputOperator<T, HBaseTransactionalStore> 
   public void processTuple(T tuple) {
     tuples.add(tuple);
   }
-  @Override
-  public void beginWindow(long windowId)
-  {
-    atmostonceflag=true;
-    super.beginWindow(windowId);
-  }
+
   @Override
   public void setup(OperatorContext context)
   {
     mode=context.getValue(context.PROCESSING_MODE);
+    if(mode==ProcessingMode.EXACTLY_ONCE){
+      throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
+    }
+    if(mode==ProcessingMode.AT_MOST_ONCE){
+      tuples.clear();
+    }
     super.setup(context);
   }
 

@@ -65,7 +65,7 @@ public class HBaseCsvMappingPutOperatorTest {
         @Override
         public void setCounters(Object counters) {
           // TODO Auto-generated method stub
-          
+
         }
       });
       csvMappingPutOperator.beginWindow(0);
@@ -91,5 +91,5 @@ public class HBaseCsvMappingPutOperatorTest {
       logger.error(e.getMessage());
     }
   }
-  
+
 }
