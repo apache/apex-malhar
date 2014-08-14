@@ -15,86 +15,222 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
+import java.io.IOException;
+
 import junit.framework.Assert;
+
 import org.apache.hadoop.hbase.client.Put;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.AttributeMap.Attribute;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.ProcessingMode;
 
 /**
  *
  */
 public class HBaseTransactionalPutOperatorTest {
-	private static final Logger logger = LoggerFactory
-			.getLogger(HBaseTransactionalPutOperatorTest.class);
+  private static final Logger logger = LoggerFactory
+      .getLogger(HBaseTransactionalPutOperatorTest.class);
 
-	public HBaseTransactionalPutOperatorTest() {
-	}
+  public HBaseTransactionalPutOperatorTest() {
+  }
+  @Test
+  public void testAtleastOnce() throws Exception {
+    try {
+      //   HBaseTestHelper.startLocalCluster();
+      HBaseTestHelper.clearHBase();
+      TestHBasePutOperator thop = new TestHBasePutOperator();
 
-	@Test
-	public void testPut() {
-		try {
-      HBaseTestHelper.startLocalCluster();
-			HBaseTestHelper.clearHBase();
-			LocalMode lma = LocalMode.newInstance();
-			DAG dag = lma.getDAG();
+      thop.getStore().setTableName("table1");
+      thop.getStore().setZookeeperQuorum("127.0.0.1");
+      thop.getStore().setZookeeperClientPort(2181);
+      HBaseTuple t1=new HBaseTuple();
+      t1.setColFamily("colfam0");t1.setColName("street");t1.setRow("row1");t1.setColValue("ts");
+      HBaseTuple t2=new HBaseTuple();
+      t2.setColFamily("colfam0");t2.setColName("city");t2.setRow("row2");t2.setColValue("tc");
+      thop.setup(new OperatorContext() {
 
-			dag.setAttribute(DAG.APPLICATION_NAME, "HBasePutOperatorTest");
-			HBaseRowTupleGenerator rtg = dag.addOperator("tuplegenerator",
-					HBaseRowTupleGenerator.class);
-			TestHBasePutOperator thop = dag.addOperator("testhbaseput",
-					TestHBasePutOperator.class);
-			dag.addStream("ss", rtg.outputPort, thop.input);
+        @Override
+        public <T> T getValue(Attribute<T> key) {
+          if(key.equals(PROCESSING_MODE)){
+            return (T) ProcessingMode.AT_LEAST_ONCE;
+          }
+          return key.defaultValue;
+        }
 
-			thop.getStore().setTableName("table1");
-			thop.getStore().setZookeeperQuorum("127.0.0.1");
-			thop.getStore().setZookeeperClientPort(2181);
+        @Override
+        public AttributeMap getAttributes() {  
+          return null;
+        }
 
-			LocalMode.Controller lc = lma.getController();
-			lc.setHeartbeatMonitoringEnabled(false);
-			lc.run(30000);
+        @Override
+        public int getId() {
+          // TODO Auto-generated method stub
+          return 0;
+        }
 
-			HBaseTuple tuple = HBaseTestHelper.getHBaseTuple("row0", "colfam0",
-					"col-0");
-			Assert.assertNotNull("Tuple", tuple);
-			Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
-			Assert.assertEquals("Tuple column family", tuple.getColFamily(),
-					"colfam0");
-			Assert.assertEquals("Tuple column name", tuple.getColName(),
-					"col-0");
-			Assert.assertEquals("Tuple column value", tuple.getColValue(),
-					"val-0-0");
-			tuple = HBaseTestHelper.getHBaseTuple("row499", "colfam0", "col-0");
-			Assert.assertNotNull("Tuple", tuple);
-			Assert.assertEquals("Tuple row", tuple.getRow(), "row499");
-			Assert.assertEquals("Tuple column family", tuple.getColFamily(),
-					"colfam0");
-			Assert.assertEquals("Tuple column name", tuple.getColName(),
-					"col-0");
-			Assert.assertEquals("Tuple column value", tuple.getColValue(),
-					"val-499-0");
-		} catch (Exception ex) {
-			ex.printStackTrace();
-			logger.error(ex.getMessage());
-			assert false;
-		}
-	}
+        @Override
+        public void setCounters(Object counters) {
+          // TODO Auto-generated method stub
 
-	@SuppressWarnings("serial")
-	public static class TestHBasePutOperator extends
-			AbstractHBaseTransactionalPutOutputOperator<HBaseTuple> {
+        }
+      });
+      thop.beginWindow(0);
+      thop.input.process(t1);
+      thop.input.process(t2);
+      thop.endWindow();
+      HBaseTuple tuple;
 
-		@Override
-		public Put operationPut(HBaseTuple t) throws IOException {
-			Put put = new Put(t.getRow().getBytes());
-			put.add(t.getColFamily().getBytes(), t.getColName().getBytes(), t
-					.getColValue().getBytes());
-			return put;
-		}
+      tuple = HBaseTestHelper
+          .getHBaseTuple("row1", "colfam0", "street");
 
-	}
+      Assert.assertNotNull("Tuple", tuple);
+      Assert.assertEquals("Tuple row", tuple.getRow(), "row1");
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(),"colfam0");
+      Assert.assertEquals("Tuple column name", tuple.getColName(),"street");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(),"ts");
+    } catch (IOException e) {
+
+      logger.error(e.getMessage());
+    }
+  }
+  @Test
+  public void testAtmostOnce1() throws Exception {
+    try {
+      //   HBaseTestHelper.startLocalCluster();
+      HBaseTestHelper.clearHBase();
+      TestHBasePutOperator thop = new TestHBasePutOperator();
+      thop.getStore().setTableName("table1");
+      thop.getStore().setZookeeperQuorum("127.0.0.1");
+      thop.getStore().setZookeeperClientPort(2181);
+      HBaseTuple t1=new HBaseTuple();
+      t1.setColFamily("colfam0");t1.setColName("street");t1.setRow("row1");t1.setColValue("ts");
+      HBaseTuple t2=new HBaseTuple();
+      t2.setColFamily("colfam0");t2.setColName("city");t2.setRow("row2");t2.setColValue("tc");
+      thop.setup(new OperatorContext() {
+
+        @Override
+        public <T> T getValue(Attribute<T> key) {
+          if(key.equals(PROCESSING_MODE)){
+            return (T) ProcessingMode.AT_MOST_ONCE;
+          }
+          return key.defaultValue;
+        }
+
+        @Override
+        public AttributeMap getAttributes() {  
+          return null;
+        }
+
+        @Override
+        public int getId() {
+          // TODO Auto-generated method stub
+          return 0;
+        }
+
+        @Override
+        public void setCounters(Object counters) {
+          // TODO Auto-generated method stub
+
+        }
+      });
+      thop.beginWindow(0);
+      thop.input.process(t1);
+      thop.input.process(t2);
+      thop.endWindow();
+      HBaseTuple tuple;
+
+      tuple = HBaseTestHelper.getHBaseTuple("row1", "colfam0", "street");
+
+      Assert.assertNotNull("Tuple", tuple);
+      Assert.assertEquals("Tuple row", tuple.getRow(), "row1");
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(),
+          "colfam0");
+      Assert.assertEquals("Tuple column name", tuple.getColName(),
+          "street");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(),
+          "ts");
+    } catch (IOException e) {
+
+      logger.error(e.getMessage());
+    }
+  }
+  @Test
+  public void testAtmostOnce2() throws Exception {
+    try {
+      //   HBaseTestHelper.startLocalCluster();
+      HBaseTestHelper.clearHBase();
+      TestHBasePutOperator thop = new TestHBasePutOperator();
+      thop.getStore().setTableName("table1");
+      thop.getStore().setZookeeperQuorum("127.0.0.1");
+      thop.getStore().setZookeeperClientPort(2181);
+      HBaseTuple t1=new HBaseTuple();
+      t1.setColFamily("colfam0");t1.setColName("street");t1.setRow("row1");t1.setColValue("ts");
+      HBaseTuple t2=new HBaseTuple();
+      t2.setColFamily("colfam0");t2.setColName("city");t2.setRow("row2");t2.setColValue("tc");
+      thop.beginWindow(0);
+      thop.input.process(t1);
+      thop.setup(new OperatorContext() {
+
+        @Override
+        public <T> T getValue(Attribute<T> key) {
+          if(key.equals(PROCESSING_MODE)){
+            return (T) ProcessingMode.AT_MOST_ONCE;
+          }
+          return key.defaultValue;
+        }
+
+        @Override
+        public AttributeMap getAttributes() {  
+          return null;
+        }
+
+        @Override
+        public int getId() {
+          // TODO Auto-generated method stub
+          return 0;
+        }
+
+        @Override
+        public void setCounters(Object counters) {
+          // TODO Auto-generated method stub
+
+        }
+      });
+
+      
+      
+      thop.input.process(t2);
+      thop.endWindow();
+      HBaseTuple tuple,tuple2;
+
+      tuple = HBaseTestHelper.getHBaseTuple("row1", "colfam0", "street");
+      tuple2= HBaseTestHelper.getHBaseTuple("row2", "colfam0", "city");
+      Assert.assertNull("Tuple", tuple);
+      Assert.assertNotNull("Tuple2", tuple2);
+      Assert.assertEquals("Tuple row", tuple2.getRow(), "row2");
+      Assert.assertEquals("Tuple column family", tuple2.getColFamily(),"colfam0");
+      Assert.assertEquals("Tuple column name", tuple2.getColName(),"city");
+      Assert.assertEquals("Tuple column value", tuple2.getColValue(),"tc");
+    } catch (IOException e) {
+
+      logger.error(e.getMessage());
+    }
+  }
+  
+  public static class TestHBasePutOperator extends
+  AbstractHBaseWindowPutOutputOperator<HBaseTuple> {
+
+    @Override
+    public Put operationPut(HBaseTuple t) throws IOException {
+      Put put = new Put(t.getRow().getBytes());
+      put.add(t.getColFamily().getBytes(), t.getColName().getBytes(), t.getColValue().getBytes());
+      return put;
+    }
+
+  }
 }

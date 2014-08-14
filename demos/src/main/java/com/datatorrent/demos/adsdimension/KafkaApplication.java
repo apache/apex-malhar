@@ -56,6 +56,7 @@ import java.util.concurrent.TimeUnit;
  *      <value>async</value>
  *    </property>
  *
+ * @since 1.0.3
  */
 @ApplicationAnnotation(name="KafkaAdsDimensionsDemo")
 public class KafkaApplication implements StreamingApplication

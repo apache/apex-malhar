@@ -5,7 +5,7 @@
   <parent>
     <groupId>com.datatorrent</groupId>
     <artifactId>malhar-all</artifactId>
-    <version>1.0.3-SNAPSHOT</version>
+    <version>1.0.4-SNAPSHOT</version>
   </parent>
 
   <artifactId>malhar-contrib</artifactId>
@@ -149,7 +149,6 @@
       <groupId>net.sf.opencsv</groupId>
       <artifactId>opencsv</artifactId>
       <version>2.0</version>
-      <scope>test</scope>
       <optional>true</optional>
     </dependency>
     <dependency>
@@ -189,8 +188,8 @@
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-client</artifactId>
       <version>0.98.2-hadoop2</version>
-      <type>jar</type>
       <optional>true</optional>
+      <type>jar</type>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>
@@ -230,8 +229,8 @@
       <groupId>org.apache.hbase</groupId>
       <artifactId>hbase-server</artifactId>
       <version>0.98.2-hadoop2</version>
-      <type>jar</type>
       <optional>true</optional>
+      <type>jar</type>
       <exclusions>
         <exclusion>
           <groupId>org.slf4j</groupId>
@@ -385,5 +384,11 @@
      <version>0.9.0</version>
      <optional>true</optional>
    </dependency>
+   <dependency>
+      <groupId>com.aerospike</groupId>
+      <artifactId>aerospike-client</artifactId>
+      <version>3.0.26</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 </project>

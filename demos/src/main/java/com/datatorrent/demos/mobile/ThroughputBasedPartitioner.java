@@ -47,6 +47,7 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
   private long cooldownMillis = 2000;
   private long nextMillis;
   private long partitionNextMillis;
+  private boolean repartition;
 
   @Override
   public Response processStats(BatchedOperatorStats stats)
@@ -57,12 +58,20 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
       return response;
     }
     partitionedInstanceStatus.put(stats.getOperatorId(), stats);
-    if (System.currentTimeMillis() > nextMillis) {
-      if (stats.getTuplesProcessedPSMA() < minimumEvents || stats.getTuplesProcessedPSMA() > maximumEvents) {
+    if (stats.getTuplesProcessedPSMA() < minimumEvents || stats.getTuplesProcessedPSMA() > maximumEvents) {
+      if (repartition && System.currentTimeMillis() > nextMillis) {
+        repartition = false;
         response.repartitionRequired = true;
         logger.debug("setting repartition to true");
+
       }
-      nextMillis = System.currentTimeMillis() + cooldownMillis;
+      else if (!repartition) {
+        repartition = true;
+        nextMillis = System.currentTimeMillis() + cooldownMillis;
+      }
+    }
+    else {
+      repartition = false;
     }
     return response;
   }
@@ -176,19 +185,34 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
     }
   }
 
-  public void setMaximumThroughput(long maxEvents)
+  public long getMaximumEvents()
   {
-    maximumEvents = maxEvents;
+    return maximumEvents;
   }
 
-  public void setMinimumThroughput(long minEvents)
+  public void setMaximumEvents(long maximumEvents)
   {
-    minimumEvents = minEvents;
+    this.maximumEvents = maximumEvents;
   }
 
-  public void setCooldownMillis(long millis)
+  public long getMinimumEvents()
   {
-    cooldownMillis = millis;
+    return minimumEvents;
+  }
+
+  public void setMinimumEvents(long minimumEvents)
+  {
+    this.minimumEvents = minimumEvents;
+  }
+
+  public long getCooldownMillis()
+  {
+    return cooldownMillis;
+  }
+
+  public void setCooldownMillis(long cooldownMillis)
+  {
+    this.cooldownMillis = cooldownMillis;
   }
 
   private transient HashMap<Integer, BatchedOperatorStats> partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();

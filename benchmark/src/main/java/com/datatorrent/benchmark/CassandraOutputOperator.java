@@ -8,21 +8,26 @@ import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.contrib.cassandra.AbstractCassandraTransactionableOutputOperatorPS;
 
 
+/**
+ * <p>CassandraOutputOperator class.</p>
+ *
+ * @since 1.0.3
+ */
 public class CassandraOutputOperator extends  AbstractCassandraTransactionableOutputOperatorPS<Integer>{
 
-	private int id = 0;
+  private int id = 0;
 
-	@Override
-	protected PreparedStatement getUpdateCommand() {
-		String statement = "Insert into test.cassandra_operator(id, result) values (?,?);";
-		return store.getSession().prepare(statement);
-	}
+  @Override
+  protected PreparedStatement getUpdateCommand() {
+    String statement = "Insert into test.cassandra_operator(id, result) values (?,?);";
+    return store.getSession().prepare(statement);
+  }
 
-	@Override
-	protected Statement setStatementParameters(PreparedStatement updateCommand,
-			Integer tuple) throws DriverException {
-		BoundStatement boundStmnt = new BoundStatement(updateCommand);
-		return boundStmnt.bind(id++,tuple);
-	}
+  @Override
+  protected Statement setStatementParameters(PreparedStatement updateCommand,
+      Integer tuple) throws DriverException {
+    BoundStatement boundStmnt = new BoundStatement(updateCommand);
+    return boundStmnt.bind(id++,tuple);
+  }
 
 }

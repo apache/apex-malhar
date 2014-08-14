@@ -35,219 +35,219 @@ import java.util.List;
  */
 public class CassandraOperatorTest
 {
-	public static final String NODE = "127.0.0.1";
-	public static final String KEYSPACE = "test";
+  public static final String NODE = "127.0.0.1";
+  public static final String KEYSPACE = "test";
 
-	private static final String TABLE_NAME = "test_event_table";
-	private static String APP_ID = "CassandraOperatorTest";
-	private static int OPERATOR_ID = 0;
+  private static final String TABLE_NAME = "test_event_table";
+  private static String APP_ID = "CassandraOperatorTest";
+  private static int OPERATOR_ID = 0;
 
-	private static class TestEvent
-	{
-		int id;
+  private static class TestEvent
+  {
+    int id;
 
-		TestEvent(int id)
-		{
-			this.id = id;
-		}
-	}
+    TestEvent(int id)
+    {
+      this.id = id;
+    }
+  }
 
-	@BeforeClass
-	public static void setup()
-	{
-		try {
-			Cluster cluster = Cluster.builder()
-					.addContactPoint(NODE).build();
-			Session session = cluster.connect(KEYSPACE);
-
-
-			String createMetaTable = "CREATE TABLE IF NOT EXISTS " + CassandraTransactionalStore.DEFAULT_META_TABLE + " ( " +
-					CassandraTransactionalStore.DEFAULT_APP_ID_COL + " TEXT, " +
-					CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT, " +
-					CassandraTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT, " +
-					"PRIMARY KEY (" + CassandraTransactionalStore.DEFAULT_APP_ID_COL + ", " + CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL  + ") " +
-					");";
-			session.execute(createMetaTable);
-			String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (ID INT PRIMARY KEY);";
-			session.execute(createTable);
-		}
-		catch (Throwable e) {
-
-			DTThrowable.rethrow(e);
-		}
-	}
-
-	private static void cleanTable()
-	{
-		try {
-			Cluster cluster = Cluster.builder()
-					.addContactPoint(NODE).build();
-			Session session = cluster.connect(KEYSPACE);
-
-			String cleanTable = "TRUNCATE " + TABLE_NAME + ";";
-			session.execute(cleanTable);
-		}
-		catch (DriverException e) {
-			throw new RuntimeException(e);
-		}
-	}
-
-	private static class TestOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<TestEvent>
-	{
-		private static final String INSERT_STMT = "INSERT INTO " + KEYSPACE+"." +TABLE_NAME + " (ID) VALUES (?);";
-
-		TestOutputOperator()
-		{
-			cleanTable();
-		}
-
-		@Nonnull
-		@Override
-		protected PreparedStatement getUpdateCommand()
-		{
-			try {
-				return store.getSession().prepare(INSERT_STMT);
-			}
-			catch (DriverException e) {
-				throw new RuntimeException("preparing", e);
-			}
-		}
-
-		@Override
-		protected Statement setStatementParameters(PreparedStatement statement, TestEvent tuple) throws DriverException
-		{
-			BoundStatement boundStatement = new BoundStatement(statement);
-			Statement stmnt = boundStatement.bind(tuple.id);
-			return stmnt;
-		}
-
-		public long getNumOfEventsInStore()
-		{
-
-			try {
-				Cluster cluster = Cluster.builder()
-						.addContactPoint(NODE).build();
-				Session session = cluster.connect(KEYSPACE);
-
-				String countQuery = "SELECT count(*) from " + TABLE_NAME + ";";
-				ResultSet resultSet = session.execute(countQuery);
-				for(Row row: resultSet)
-				{
-					return row.getLong(0);
-				}
-				return 0;
-			}
-			catch (DriverException e) {
-				throw new RuntimeException("fetching count", e);
-			}
-		}
-	}
-
-	private static class TestInputOperator extends AbstractCassandraInputOperator<TestEvent>
-	{
-
-		private static final String retrieveQuery = "SELECT * FROM " +KEYSPACE +"."+TABLE_NAME + ";";
-
-		TestInputOperator()
-		{
-			cleanTable();
-		}
-
-		@Override
-		public TestEvent getTuple(Row row)
-		{
-			try {
-				return new TestEvent(row.getInt(0));
-			}
-			catch (DriverException e) {
-				throw new RuntimeException(e);
-			}
-		}
-
-		@Override
-		public String queryToRetrieveData()
-		{
-			return retrieveQuery;
-		}
-
-		public void insertEventsInTable(int numEvents)
-		{
-			try {
-				Cluster cluster = Cluster.builder()
-						.addContactPoint(NODE).build();
-				Session session = cluster.connect(KEYSPACE);
-
-				String insert = "INSERT INTO " + TABLE_NAME +" (ID)"+ " VALUES (?);";
-				PreparedStatement stmt = session.prepare(insert);
-				BoundStatement boundStatement = new BoundStatement(stmt);
-				Statement statement;
-				for (int i = 0; i < numEvents; i++) {
-					statement = boundStatement.bind(i);
-					session.execute(statement);
-				}
-			}
-			catch (DriverException e) {
-				throw new RuntimeException(e);
-			}
-		}
-	}
+  @BeforeClass
+  public static void setup()
+  {
+    try {
+      Cluster cluster = Cluster.builder()
+          .addContactPoint(NODE).build();
+      Session session = cluster.connect(KEYSPACE);
 
 
-	@Test
-	public void testCassandraOutputOperator()
-	{
-		CassandraTransactionalStore transactionalStore = new CassandraTransactionalStore();
-		transactionalStore.setNode(NODE);
-		transactionalStore.setKeyspace(KEYSPACE);
+      String createMetaTable = "CREATE TABLE IF NOT EXISTS " + CassandraTransactionalStore.DEFAULT_META_TABLE + " ( " +
+          CassandraTransactionalStore.DEFAULT_APP_ID_COL + " TEXT, " +
+          CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT, " +
+          CassandraTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT, " +
+          "PRIMARY KEY (" + CassandraTransactionalStore.DEFAULT_APP_ID_COL + ", " + CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL  + ") " +
+          ");";
+      session.execute(createMetaTable);
+      String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (ID INT PRIMARY KEY);";
+      session.execute(createTable);
+    }
+    catch (Throwable e) {
 
-		AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
-		attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-		OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+      DTThrowable.rethrow(e);
+    }
+  }
 
-		TestOutputOperator outputOperator = new TestOutputOperator();
+  private static void cleanTable()
+  {
+    try {
+      Cluster cluster = Cluster.builder()
+          .addContactPoint(NODE).build();
+      Session session = cluster.connect(KEYSPACE);
 
-		outputOperator.setStore(transactionalStore);
+      String cleanTable = "TRUNCATE " + TABLE_NAME + ";";
+      session.execute(cleanTable);
+    }
+    catch (DriverException e) {
+      throw new RuntimeException(e);
+    }
+  }
 
-		outputOperator.setup(context);
+  private static class TestOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<TestEvent>
+  {
+    private static final String INSERT_STMT = "INSERT INTO " + KEYSPACE+"." +TABLE_NAME + " (ID) VALUES (?);";
 
-		List<TestEvent> events = Lists.newArrayList();
-		for (int i = 0; i < 10; i++) {
-			events.add(new TestEvent(i));
-		}
+    TestOutputOperator()
+    {
+      cleanTable();
+    }
 
-		outputOperator.beginWindow(0);
-		for (TestEvent event : events) {
-			outputOperator.input.process(event);
-		}
-		outputOperator.endWindow();
+    @Nonnull
+    @Override
+    protected PreparedStatement getUpdateCommand()
+    {
+      try {
+        return store.getSession().prepare(INSERT_STMT);
+      }
+      catch (DriverException e) {
+        throw new RuntimeException("preparing", e);
+      }
+    }
 
-		Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
-	}
+    @Override
+    protected Statement setStatementParameters(PreparedStatement statement, TestEvent tuple) throws DriverException
+    {
+      BoundStatement boundStatement = new BoundStatement(statement);
+      Statement stmnt = boundStatement.bind(tuple.id);
+      return stmnt;
+    }
 
-	@Test
-	public void TestCassandraInputOperator()
-	{
-		CassandraStore store = new CassandraStore();
-		store.setNode(NODE);
-		store.setKeyspace(KEYSPACE);
+    public long getNumOfEventsInStore()
+    {
 
-		AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
-		attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-		OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+      try {
+        Cluster cluster = Cluster.builder()
+            .addContactPoint(NODE).build();
+        Session session = cluster.connect(KEYSPACE);
 
-		TestInputOperator inputOperator = new TestInputOperator();
-		inputOperator.setStore(store);
-		inputOperator.insertEventsInTable(10);
+        String countQuery = "SELECT count(*) from " + TABLE_NAME + ";";
+        ResultSet resultSet = session.execute(countQuery);
+        for(Row row: resultSet)
+        {
+          return row.getLong(0);
+        }
+        return 0;
+      }
+      catch (DriverException e) {
+        throw new RuntimeException("fetching count", e);
+      }
+    }
+  }
 
-		CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
-		inputOperator.outputPort.setSink(sink);
+  private static class TestInputOperator extends AbstractCassandraInputOperator<TestEvent>
+  {
 
-		inputOperator.setup(context);
-		inputOperator.beginWindow(0);
-		inputOperator.emitTuples();
-		inputOperator.endWindow();
+    private static final String retrieveQuery = "SELECT * FROM " +KEYSPACE +"."+TABLE_NAME + ";";
 
-		Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
-	}
+    TestInputOperator()
+    {
+      cleanTable();
+    }
+
+    @Override
+    public TestEvent getTuple(Row row)
+    {
+      try {
+        return new TestEvent(row.getInt(0));
+      }
+      catch (DriverException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public String queryToRetrieveData()
+    {
+      return retrieveQuery;
+    }
+
+    public void insertEventsInTable(int numEvents)
+    {
+      try {
+        Cluster cluster = Cluster.builder()
+            .addContactPoint(NODE).build();
+        Session session = cluster.connect(KEYSPACE);
+
+        String insert = "INSERT INTO " + TABLE_NAME +" (ID)"+ " VALUES (?);";
+        PreparedStatement stmt = session.prepare(insert);
+        BoundStatement boundStatement = new BoundStatement(stmt);
+        Statement statement;
+        for (int i = 0; i < numEvents; i++) {
+          statement = boundStatement.bind(i);
+          session.execute(statement);
+        }
+      }
+      catch (DriverException e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+
+
+  @Test
+  public void testCassandraOutputOperator()
+  {
+    CassandraTransactionalStore transactionalStore = new CassandraTransactionalStore();
+    transactionalStore.setNode(NODE);
+    transactionalStore.setKeyspace(KEYSPACE);
+
+    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+
+    TestOutputOperator outputOperator = new TestOutputOperator();
+
+    outputOperator.setStore(transactionalStore);
+
+    outputOperator.setup(context);
+
+    List<TestEvent> events = Lists.newArrayList();
+    for (int i = 0; i < 10; i++) {
+      events.add(new TestEvent(i));
+    }
+
+    outputOperator.beginWindow(0);
+    for (TestEvent event : events) {
+      outputOperator.input.process(event);
+    }
+    outputOperator.endWindow();
+
+    Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
+  }
+
+  @Test
+  public void TestCassandraInputOperator()
+  {
+    CassandraStore store = new CassandraStore();
+    store.setNode(NODE);
+    store.setKeyspace(KEYSPACE);
+
+    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+
+    TestInputOperator inputOperator = new TestInputOperator();
+    inputOperator.setStore(store);
+    inputOperator.insertEventsInTable(10);
+
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    inputOperator.outputPort.setSink(sink);
+
+    inputOperator.setup(context);
+    inputOperator.beginWindow(0);
+    inputOperator.emitTuples();
+    inputOperator.endWindow();
+
+    Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
+  }
 }
 
