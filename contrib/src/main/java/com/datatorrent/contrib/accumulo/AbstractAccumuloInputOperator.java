@@ -43,7 +43,7 @@ public abstract class AbstractAccumuloInputOperator<T> extends AbstractStoreInpu
 
   @Override
   public void emitTuples() {
-    Connector conn = getStore().getConnector();
+    Connector conn = store.getConnector();
     Scanner scan = getScanner(conn);
 
     for (Entry<Key, Value> entry : scan) {
