@@ -38,7 +38,7 @@ import com.datatorrent.lib.util.ReusableStringReader;
  * of the row, or column.The incoming tuples are inserted accordingly.
  *
  */
-public class HBaseCsvMappingPutOperator extends AbstractHBaseTransactionalPutOutputOperator<String> {
+public class HBaseCsvMappingPutOperator extends AbstractHBaseWindowPutOutputOperator<String> {
   private class ColDef {
     String colFam;
     String colName;

@@ -45,7 +45,7 @@ import java.util.Map;
  *
  * @since 1.0.2
  */
-public class HBaseNameValueCsvPutOperator extends AbstractHBaseTransactionalPutOutputOperator<String> {
+public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOperator<String> {
 
   private class ColDef {
     String colFam;

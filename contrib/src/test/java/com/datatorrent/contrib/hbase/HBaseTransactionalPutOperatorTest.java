@@ -223,7 +223,7 @@ public class HBaseTransactionalPutOperatorTest {
   }
   
   public static class TestHBasePutOperator extends
-  AbstractHBaseTransactionalPutOutputOperator<HBaseTuple> {
+  AbstractHBaseWindowPutOutputOperator<HBaseTuple> {
 
     @Override
     public Put operationPut(HBaseTuple t) throws IOException {

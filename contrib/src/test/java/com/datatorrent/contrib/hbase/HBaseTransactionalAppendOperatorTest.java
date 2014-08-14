@@ -85,7 +85,7 @@ public class HBaseTransactionalAppendOperatorTest {
 
   @SuppressWarnings("serial")
   public static class TestHBaseAppendOperator extends
-  AbstractHBaseTransactionalAppendOutputOperator<HBaseTuple> {
+  AbstractHBaseWindowAppendOutputOperator<HBaseTuple> {
 
     @Override
     public Append operationAppend(HBaseTuple t) {
