@@ -17,15 +17,14 @@ package com.datatorrent.contrib.accumulo;
 
 import java.util.List;
 
-import javax.validation.constraints.Min;
-
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.data.Mutation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
+import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 import com.google.common.collect.Lists;
 
 /**
@@ -47,82 +46,69 @@ import com.google.common.collect.Lists;
  * restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when
  * the operator shutdown.
- * BenchMark Results
- * -----------------
- * The operator operates at 30,000 tuples/sec with the following configuration
- * 
- * Container memory size=1G
- * Accumulo Max Memory=2G
- * Accumulo number of write threads=1
- * CPU=Intel(R) Core(TM) i7-4500U CPU @ 1.80 GHz 2.40 Ghz
  * 
  * @param <T>
  *            The tuple type
  */
 
-public abstract class AbstractAccumuloAtleastOnceOutputOperator<T> extends AbstractPassThruTransactionableStoreOutputOperator<T, AccumuloTransactionalStore> {
-	protected static int DEFAULT_BATCH_SIZE = 1000;
-	private static final transient Logger logger = LoggerFactory
-			.getLogger(AbstractAccumuloAtleastOnceOutputOperator.class);
+public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, AccumuloWindowStore> {
+  private static final transient Logger logger = LoggerFactory.getLogger(AbstractAccumuloOutputOperator.class);
+  private final List<T> tuples;
+  private transient ProcessingMode mode;
+  public ProcessingMode getMode()
+  {
+    return mode;
+  }
 
-	@Min(1)
-	private int batchSize;
-	private final List<T> tuples;
-	public AbstractAccumuloAtleastOnceOutputOperator()
-	{
-		tuples = Lists.newArrayList();
-		batchSize = DEFAULT_BATCH_SIZE;
-		store = new AccumuloTransactionalStore();
-	}
-	@Override
-	public void processTuple(T tuple)
-	{
-		tuples.add(tuple);
-		if (tuples.size() >= batchSize) {
-			processBatch();
-		}
+  public void setMode(ProcessingMode mode)
+  {
+    this.mode = mode;
+  }
 
-	}
-	@Override
-	public void endWindow()
-	{
-		if (tuples.size() > 0) {
-			processBatch();
-		}
-		super.endWindow();
-	}
+  public AbstractAccumuloOutputOperator()
+  {
+    tuples = Lists.newArrayList();
+    store = new AccumuloWindowStore();
+  }
+  @Override
+  public void processTuple(T tuple)
+  {
+    tuples.add(tuple);
+  }
 
-	/**
-	 * Sets the size of a batch operation.<br/>
-	 * <b>Default:</b> {@value #DEFAULT_BATCH_SIZE}
-	 *
-	 * @param batchSize size of a batch
-	 */
-	public void setBatchSize(int batchSize)
-	{
-		this.batchSize = batchSize;
-	}
-	/**
-	 * 
-	 * @param t
-	 * @return Mutation
-	 */
-	public abstract Mutation operationMutation(T t);
+  @Override
+  public void storeAggregate() {
+    try {
+      for (T tuple : tuples) {
+        Mutation mutation = operationMutation(tuple);
+        store.getBatchwriter().addMutation(mutation);
+      }
+      store.getBatchwriter().flush();
 
-	private void processBatch()
-	{
-		try {
-			for (T tuple : tuples) {
-				Mutation mutation = operationMutation(tuple);
-				store.getBatchwriter().addMutation(mutation);
-			}
-			store.getBatchwriter().flush();
-
-		} catch (MutationsRejectedException e) {
-			logger.error("unable to write mutations", e);
-			DTThrowable.rethrow(e);
-		}
-		tuples.clear();
-	}
+    } catch (MutationsRejectedException e) {
+      logger.error("unable to write mutations", e);
+      DTThrowable.rethrow(e);
+    }
+    tuples.clear();
+  }
+  /**
+   * 
+   * @param t
+   * @return Mutation
+   */
+  public abstract Mutation operationMutation(T t);
+  
+  @Override
+  public void setup(OperatorContext context)
+  {
+    mode=context.getValue(context.PROCESSING_MODE);
+    if(mode==ProcessingMode.EXACTLY_ONCE){
+      throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
+    }
+    if(mode==ProcessingMode.AT_MOST_ONCE){
+      tuples.clear();
+    }
+    super.setup(context);
+  }
 }
 

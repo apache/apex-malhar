@@ -38,156 +38,171 @@ import com.datatorrent.lib.db.Connectable;
  * 
  */
 public class AccumuloStore implements Connectable {
-	private static final transient Logger logger = LoggerFactory
-			.getLogger(AccumuloStore.class);
-	private String zookeeperHost;
-	private String instanceName;
-	private String userName;
-	private String password;
-	protected String tableName;
-	protected transient Connector connector;
-	protected transient BatchWriter batchwriter;
-    private long memoryLimit;
-    private int numThreads;
-	private static final long DEFAULT_MEMORY=2147483648l;
-    private static final int DEFAULT_THREADS=1;
-	public AccumuloStore(){
-		memoryLimit=DEFAULT_MEMORY;
-		numThreads=DEFAULT_THREADS;
-	}
-	public BatchWriter getBatchwriter() {
-		return batchwriter;
-	}
+  private static final transient Logger logger = LoggerFactory.getLogger(AccumuloStore.class);
+  private String zookeeperHost;
+  private String instanceName;
+  private String userName;
+  private String password;
+  protected String tableName;
 
-	/**
-	 * getter for Connector
-	 * 
-	 * @return Connector
-	 */
-	public Connector getConnector() {
-		return connector;
-	}
+  protected transient Connector connector;
+  protected transient BatchWriter batchwriter;
 
-	/**
-	 * getter for TableName
-	 * 
-	 * @return TableName
-	 */
-	public String getTableName() {
-		return tableName;
-	}
+  private long memoryLimit;
+  private int numThreads;
+  private static final long DEFAULT_MEMORY=2147483648l;
+  private static final int DEFAULT_THREADS=1;
 
-	/**
-	 * setter for TableName
-	 * 
-	 * @param tableName
-	 */
-	public void setTableName(String tableName) {
-		this.tableName = tableName;
-	}
+  public AccumuloStore(){
+    memoryLimit=DEFAULT_MEMORY;
+    numThreads=DEFAULT_THREADS;
+  }
 
-	/**
-	 * getter for zookeeper host address
-	 * 
-	 * @return ZookeeperHost
-	 */
-	public String getZookeeperHost() {
-		return zookeeperHost;
-	}
+  /**
+   * getter for Connector
+   * 
+   * @return Connector
+   */
+  public Connector getConnector() {
+    return connector;
+  }
 
-	/**
-	 * setter for zookeeper host address
-	 * 
-	 * @param zookeeperHost
-	 */
-	public void setZookeeperHost(String zookeeperHost) {
-		this.zookeeperHost = zookeeperHost;
-	}
+  /**
+   * getter for TableName
+   * 
+   * @return TableName
+   */
+  public String getTableName() {
+    return tableName;
+  }
 
-	/**
-	 * getter for instanceName
-	 * 
-	 * @return instanceName
-	 */
-	public String getInstanceName() {
-		return instanceName;
-	}
+  /**
+   * setter for TableName
+   * 
+   * @param tableName
+   */
+  public void setTableName(String tableName) {
+    this.tableName = tableName;
+  }
 
-	/**
-	 * setter for instanceName
-	 * 
-	 * @param instanceName
-	 */
-	public void setInstanceName(String instanceName) {
-		this.instanceName = instanceName;
-	}
+  /**
+   * getter for zookeeper host address
+   * 
+   * @return ZookeeperHost
+   */
+  public String getZookeeperHost() {
+    return zookeeperHost;
+  }
 
-	/**
-	 * setter for userName
-	 * 
-	 * @param userName
-	 */
-	public void setUserName(String userName) {
-		this.userName = userName;
-	}
+  /**
+   * setter for zookeeper host address
+   * 
+   * @param zookeeperHost
+   */
+  public void setZookeeperHost(String zookeeperHost) {
+    this.zookeeperHost = zookeeperHost;
+  }
 
-	/**
-	 * setter for password
-	 * 
-	 * @param password
-	 */
-	public void setPassword(String password) {
-		this.password = password;
-	}
-	
-	public void setMemoryLimit(long memoryLimit) {
-		this.memoryLimit = memoryLimit;
-	}
-	
-	public void setNumThreads(int numThreads) {
-		this.numThreads = numThreads;
-	}
+  /**
+   * getter for instanceName
+   * 
+   * @return instanceName
+   */
+  public String getInstanceName() {
+    return instanceName;
+  }
 
-	@Override
-	public void connect() throws IOException {
-		Instance instance = null;
-		instance = new ZooKeeperInstance(instanceName, zookeeperHost);
-		try {
-			PasswordToken t = new PasswordToken(password.getBytes());
-			connector = instance.getConnector(userName, t);
-		} catch (AccumuloException e) {
-			logger.error("error connecting to accumulo", e);
-			DTThrowable.rethrow(e);
-		} catch (AccumuloSecurityException e) {
-			logger.error("error connecting to accumulo", e);
-			DTThrowable.rethrow(e);
-		}
-		BatchWriterConfig config = new BatchWriterConfig();
-		config.setMaxMemory(memoryLimit);
-		config.setMaxWriteThreads(numThreads);
-		try {
-			batchwriter = connector.createBatchWriter(
-					tableName, config);
-		} catch (TableNotFoundException e) {
-			logger.error("table not found", e);
-			DTThrowable.rethrow(e);
-		}
-	}
+  /**
+   * setter for instanceName
+   * 
+   * @param instanceName
+   */
+  public void setInstanceName(String instanceName) {
+    this.instanceName = instanceName;
+  }
 
-	@Override
-	public void disconnect() throws IOException {
-		try {
-			batchwriter.close();
-		} catch (MutationsRejectedException e) {
-			logger.error("mutation rejected during batchwriter close", e);
-			DTThrowable.rethrow(e);
-		}
-	}
+  /**
+   * setter for userName
+   * 
+   * @param userName
+   */
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
 
-	@Override
-	public boolean connected() {
-		// Not applicable for accumulo
-		return false;
-	}
+  /**
+   * setter for password
+   * 
+   * @param password
+   */
+  public void setPassword(String password) {
+    this.password = password;
+  }
+  /**
+   * setter for memory limit
+   * 
+   * @param memoryLimit
+   */
+  public void setMemoryLimit(long memoryLimit) {
+    this.memoryLimit = memoryLimit;
+  }
+  /**
+   * setter for number of writer threads
+   * 
+   * @param numThreads
+   */
+  public void setNumThreads(int numThreads) {
+    this.numThreads = numThreads;
+  }
+
+  /**
+   * getter for BatchWriter
+   * 
+   * @return BatchWriter
+   */
+  public BatchWriter getBatchwriter() {
+    return batchwriter;
+  }
+
+  @Override
+  public void connect() throws IOException {
+    Instance instance = null;
+    instance = new ZooKeeperInstance(instanceName, zookeeperHost);
+    try {
+      PasswordToken t = new PasswordToken(password.getBytes());
+      connector = instance.getConnector(userName, t);
+    } catch (AccumuloException e) {
+      logger.error("error connecting to accumulo", e);
+      DTThrowable.rethrow(e);
+    } catch (AccumuloSecurityException e) {
+      logger.error("error connecting to accumulo", e);
+      DTThrowable.rethrow(e);
+    }
+    BatchWriterConfig config = new BatchWriterConfig();
+    config.setMaxMemory(memoryLimit);
+    config.setMaxWriteThreads(numThreads);
+    try {
+      batchwriter = connector.createBatchWriter(tableName, config);
+    } catch (TableNotFoundException e) {
+      logger.error("table not found", e);
+      DTThrowable.rethrow(e);
+    }
+  }
+
+  @Override
+  public void disconnect() throws IOException {
+    try {
+      batchwriter.close();
+    } catch (MutationsRejectedException e) {
+      logger.error("mutation rejected during batchwriter close", e);
+      DTThrowable.rethrow(e);
+    }
+  }
+
+  @Override
+  public boolean connected() {
+    // Not applicable for accumulo
+    return false;
+  }
 
 }

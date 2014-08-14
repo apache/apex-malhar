@@ -21,8 +21,8 @@ import com.datatorrent.api.LocalMode;
 import com.datatorrent.benchmark.AccumuloApp;
 
 public class AccumuloAppTest {
-	@Test
-	public void testSomeMethod() throws Exception {
-		LocalMode.runApp(new AccumuloApp(), 30000);
-	}
+  @Test
+  public void testSomeMethod() throws Exception {
+    LocalMode.runApp(new AccumuloApp(), 30000);
+  }
 }

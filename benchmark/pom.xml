@@ -91,5 +91,11 @@
       <version>2.0.2</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>accumulo-core</artifactId>
+      <version>1.5.1</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 </project>

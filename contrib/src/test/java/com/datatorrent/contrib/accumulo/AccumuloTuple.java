@@ -18,41 +18,41 @@ package com.datatorrent.contrib.accumulo;
 import java.io.Serializable;
 
 public class AccumuloTuple implements Serializable {
-	private String row;
-	private String colFamily;
-	private String colName;
-	private String colValue;
+  private String row;
+  private String colFamily;
+  private String colName;
+  private String colValue;
 
-	public String getRow() {
-		return row;
-	}
+  public String getRow() {
+    return row;
+  }
 
-	public void setRow(String row) {
-		this.row = row;
-	}
+  public void setRow(String row) {
+    this.row = row;
+  }
 
-	public String getColFamily() {
-		return colFamily;
-	}
+  public String getColFamily() {
+    return colFamily;
+  }
 
-	public void setColFamily(String colFamily) {
-		this.colFamily = colFamily;
-	}
+  public void setColFamily(String colFamily) {
+    this.colFamily = colFamily;
+  }
 
-	public String getColName() {
-		return colName;
-	}
+  public String getColName() {
+    return colName;
+  }
 
-	public void setColName(String colName) {
-		this.colName = colName;
-	}
+  public void setColName(String colName) {
+    this.colName = colName;
+  }
 
-	public String getColValue() {
-		return colValue;
-	}
+  public String getColValue() {
+    return colValue;
+  }
 
-	public void setColValue(String colValue) {
-		this.colValue = colValue;
-	}
+  public void setColValue(String colValue) {
+    this.colValue = colValue;
+  }
 
 }

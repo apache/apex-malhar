@@ -22,41 +22,48 @@ import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.contrib.accumulo.AbstractAccumuloAtleastOnceOutputOperator;
+import com.datatorrent.contrib.accumulo.AbstractAccumuloOutputOperator;
 import com.datatorrent.contrib.accumulo.AccumuloRowTupleGenerator;
 import com.datatorrent.contrib.accumulo.AccumuloTestHelper;
 import com.datatorrent.contrib.accumulo.AccumuloTuple;
+/**
+ * BenchMark Results
+ * -----------------
+ * The operator operates at 30,000 tuples/sec with the following configuration
+ * 
+ * Container memory size=1G
+ * Accumulo Max Memory=2G
+ * Accumulo number of write threads=1
+ * CPU=Intel(R) Core(TM) i7-4500U CPU @ 1.80 GHz 2.40 Ghz
+ */
 public class AccumuloApp implements StreamingApplication {
 
-	@Override
-	public void populateDAG(DAG dag, Configuration conf) {
-		AccumuloTestHelper.getConnector();
-		AccumuloTestHelper.clearTable();
+  @Override
+  public void populateDAG(DAG dag, Configuration conf) {
+    AccumuloTestHelper.getConnector();
+    AccumuloTestHelper.clearTable();
+    dag.setAttribute(DAG.APPLICATION_NAME, "AccumuloOutputTest");
+    AccumuloRowTupleGenerator rtg = dag.addOperator("tuplegenerator",AccumuloRowTupleGenerator.class);
+    TestAccumuloOutputOperator taop = dag.addOperator("testaccumulooperator", TestAccumuloOutputOperator.class);
+    dag.addStream("ss", rtg.outputPort, taop.input);
+    AttributeMap attributes = dag.getAttributes();
+    attributes.put(DAGContext.CONTAINER_MEMORY_MB, 4096);
+    taop.getStore().setTableName("tab1");
+    taop.getStore().setZookeeperHost("127.0.0.1");
+    taop.getStore().setInstanceName("milind");
+    taop.getStore().setUserName("root");
+    taop.getStore().setPassword("milind");
 
-		dag.setAttribute(DAG.APPLICATION_NAME, "AccumuloOutputTest");
-		AccumuloRowTupleGenerator rtg = dag.addOperator("tuplegenerator",
-				AccumuloRowTupleGenerator.class);
-		TestAccumuloOutputOperator taop = dag.addOperator(
-				"testaccumulooperator", TestAccumuloOutputOperator.class);
-		dag.addStream("ss", rtg.outputPort, taop.input);
-		AttributeMap attributes = dag.getAttributes();
-		attributes.put(DAGContext.CONTAINER_MEMORY_MB, 4096);
-		taop.getStore().setTableName("tab1");
-		taop.getStore().setZookeeperHost("127.0.0.1");
-		taop.getStore().setInstanceName("instance");
-		taop.getStore().setUserName("root");
-		taop.getStore().setPassword("pass");
+  }
 
-	}
+  public static class TestAccumuloOutputOperator extends AbstractAccumuloOutputOperator<AccumuloTuple> {
 
-	public static class TestAccumuloOutputOperator extends AbstractAccumuloAtleastOnceOutputOperator<AccumuloTuple> {
+    @Override
+    public Mutation operationMutation(AccumuloTuple t) {
+      Mutation mutation = new Mutation(t.getRow().getBytes());
+      mutation.put(t.getColFamily().getBytes(),t.getColName().getBytes(),t.getColValue().getBytes());
+      return mutation;
+    }
 
-		@Override
-		public Mutation operationMutation(AccumuloTuple t) {
-			Mutation mutation = new Mutation(t.getRow().getBytes());
-			mutation.put(t.getColFamily().getBytes(),t.getColName().getBytes(),t.getColValue().getBytes());
-			return mutation;
-		}
-
-	}
+  }
 }

@@ -27,28 +27,28 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 public class AccumuloRowTupleGenerator extends BaseOperator implements
 InputOperator {
 
-	int rowCount;
+  int rowCount;
 
-	@OutputPortFieldAnnotation(name = "outputPort")
-	public final transient DefaultOutputPort<AccumuloTuple> outputPort = new DefaultOutputPort<AccumuloTuple>();
+  @OutputPortFieldAnnotation(name = "outputPort")
+  public final transient DefaultOutputPort<AccumuloTuple> outputPort = new DefaultOutputPort<AccumuloTuple>();
 
-	@Override
-	public void emitTuples() {
-		AccumuloTuple tuple = new AccumuloTuple();
-		tuple.setRow("row" + rowCount);
-		tuple.setColFamily("colfam0");
-		tuple.setColName("col" + "-" + 0);
-		tuple.setColValue("val" + "-" + rowCount + "-" + 0);
-		++rowCount;
-		if(rowCount==99999)
-			rowCount=0;
-		outputPort.emit(tuple);
-	}
+  @Override
+  public void emitTuples() {
+    AccumuloTuple tuple = new AccumuloTuple();
+    tuple.setRow("row" + rowCount);
+    tuple.setColFamily("colfam0");
+    tuple.setColName("col" + "-" + 0);
+    tuple.setColValue("val" + "-" + rowCount + "-" + 0);
+    ++rowCount;
+    if(rowCount==99999)
+      rowCount=0;
+    outputPort.emit(tuple);
+  }
 
-	@Override
-	public void setup(OperatorContext context) {
-		super.setup(context);
-		rowCount = 0;
-	}
+  @Override
+  public void setup(OperatorContext context) {
+    super.setup(context);
+    rowCount = 0;
+  }
 
 }

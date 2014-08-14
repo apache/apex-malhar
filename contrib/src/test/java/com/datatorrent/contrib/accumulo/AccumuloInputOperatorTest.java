@@ -36,92 +36,81 @@ import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.DTThrowable;
 
 public class AccumuloInputOperatorTest {
-	private static final Logger logger = LoggerFactory
-			.getLogger(AccumuloInputOperatorTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(AccumuloInputOperatorTest.class);
 
-	@Test
-	public void testScan() {
-		try {
-			AccumuloTestHelper.getConnector();
-			AccumuloTestHelper.deleteTable();
-			AccumuloTestHelper.createTable();
+  @Test
+  public void testScan() {
+    try {
+      AccumuloTestHelper.getConnector();
+      AccumuloTestHelper.deleteTable();
+      AccumuloTestHelper.createTable();
 
-			AccumuloTestHelper.populateAccumulo();
-			LocalMode lma = LocalMode.newInstance();
-			DAG dag = lma.getDAG();
+      AccumuloTestHelper.populateAccumulo();
+      LocalMode lma = LocalMode.newInstance();
+      DAG dag = lma.getDAG();
 
-			dag.setAttribute(DAG.APPLICATION_NAME, "AccumuloInputTest");
-			TestAccumuloInputOperator taip = dag.addOperator(
-					"testaccumuloinput", TestAccumuloInputOperator.class);
-			AccumuloTupleCollector tc = dag.addOperator("tuplecollector",
-					AccumuloTupleCollector.class);
-			dag.addStream("ss", taip.outputPort, tc.inputPort);
+      dag.setAttribute(DAG.APPLICATION_NAME, "AccumuloInputTest");
+      TestAccumuloInputOperator taip = dag.addOperator("testaccumuloinput", TestAccumuloInputOperator.class);
+      AccumuloTupleCollector tc = dag.addOperator("tuplecollector",AccumuloTupleCollector.class);
+      dag.addStream("ss", taip.outputPort, tc.inputPort);
 
-			taip.getStore().setTableName("tab1");
-			taip.getStore().setZookeeperHost("127.0.0.1");
-			taip.getStore().setInstanceName("instance");
-			taip.getStore().setUserName("root");
-			taip.getStore().setPassword("pass");
-			LocalMode.Controller lc = lma.getController();
-			lc.setHeartbeatMonitoringEnabled(false);
-			lc.run(30000);
+      taip.getStore().setTableName("tab1");
+      taip.getStore().setZookeeperHost("127.0.0.1");
+      taip.getStore().setInstanceName("instance");
+      taip.getStore().setUserName("root");
+      taip.getStore().setPassword("pass");
+      LocalMode.Controller lc = lma.getController();
+      lc.setHeartbeatMonitoringEnabled(false);
+      lc.run(30000);
 
-			List<AccumuloTuple> tuples = AccumuloTupleCollector.tuples;
-			Assert.assertTrue(tuples.size() > 0);
-			AccumuloTuple tuple = AccumuloTestHelper.findTuple(tuples, "row0",
-					"colfam0", "col-0");
-			Assert.assertNotNull("Tuple", tuple);
-			Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
-			Assert.assertEquals("Tuple column family", tuple.getColFamily(),
-					"colfam0");
-			Assert.assertEquals("Tuple column name", tuple.getColName(),
-					"col-0");
-			Assert.assertEquals("Tuple column value", tuple.getColValue(),
-					"val-0-0");
-			tuple = AccumuloTestHelper.findTuple(tuples, "row499", "colfam0",
-					"col-0");
-			Assert.assertNotNull("Tuple", tuple);
-			Assert.assertEquals("Tuple row", tuple.getRow(), "row499");
-			Assert.assertEquals("Tuple column family", tuple.getColFamily(),
-					"colfam0");
-			Assert.assertEquals("Tuple column name", tuple.getColName(),
-					"col-0");
-			Assert.assertEquals("Tuple column value", tuple.getColValue(),
-					"val-499-0");
-		} catch (Exception ex) {
-			logger.error(ex.getMessage());
-			assert false;
-		}
-	}
+      List<AccumuloTuple> tuples = AccumuloTupleCollector.tuples;
+      Assert.assertTrue(tuples.size() > 0);
+      AccumuloTuple tuple = AccumuloTestHelper.findTuple(tuples, "row0","colfam0", "col-0");
+      Assert.assertNotNull("Tuple", tuple);
+      Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(),"colfam0");
+      Assert.assertEquals("Tuple column name", tuple.getColName(),"col-0");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(),"val-0-0");
+      tuple = AccumuloTestHelper.findTuple(tuples, "row499", "colfam0","col-0");
+      Assert.assertNotNull("Tuple", tuple);
+      Assert.assertEquals("Tuple row", tuple.getRow(), "row499");
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(),"colfam0");
+      Assert.assertEquals("Tuple column name", tuple.getColName(),"col-0");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(),"val-499-0");
+    } catch (Exception ex) {
+      logger.error(ex.getMessage());
+      assert false;
+    }
+  }
 
-	public static class TestAccumuloInputOperator extends
-	AbstractAccumuloInputOperator<AccumuloTuple> {
+  public static class TestAccumuloInputOperator extends
+  AbstractAccumuloInputOperator<AccumuloTuple> {
 
-		@Override
-		public AccumuloTuple getTuple(Entry<Key, Value> entry) {
-			AccumuloTuple tuple = new AccumuloTuple();
-			tuple.setRow(entry.getKey().getRow().toString());
-			tuple.setColFamily(entry.getKey().getColumnFamily().toString());
-			tuple.setColName(entry.getKey().getColumnQualifier().toString());
-			tuple.setColValue(entry.getValue().toString());
-			return tuple;
-		}
+    @Override
+    public AccumuloTuple getTuple(Entry<Key, Value> entry) {
+      AccumuloTuple tuple = new AccumuloTuple();
+      tuple.setRow(entry.getKey().getRow().toString());
+      tuple.setColFamily(entry.getKey().getColumnFamily().toString());
+      tuple.setColName(entry.getKey().getColumnQualifier().toString());
+      tuple.setColValue(entry.getValue().toString());
+      return tuple;
+    }
 
-		@Override
-		public Scanner getScanner(Connector conn) {
-			Authorizations auths = new Authorizations();
-			Scanner scan = null;
-			try {
-				scan = conn.createScanner(getStore().getTableName(), auths);
-			} catch (TableNotFoundException e) {
-				logger.error("table not found ");
-				DTThrowable.rethrow(e);
-			}
-			scan.setRange(new Range());
-			// scan.fetchColumnFamily("attributes");
+    @Override
+    public Scanner getScanner(Connector conn) {
+      Authorizations auths = new Authorizations();
+      Scanner scan = null;
+      try {
+        scan = conn.createScanner(getStore().getTableName(), auths);
+      } catch (TableNotFoundException e) {
+        logger.error("table not found ");
+        DTThrowable.rethrow(e);
+      }
+      scan.setRange(new Range());
+      // scan.fetchColumnFamily("attributes");
 
-			return scan;
-		}
+      return scan;
+    }
 
-	}
+  }
 }

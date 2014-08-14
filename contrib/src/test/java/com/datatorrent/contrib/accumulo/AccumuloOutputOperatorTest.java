@@ -27,75 +27,72 @@ import com.datatorrent.api.AttributeMap.Attribute;
 import com.datatorrent.api.Context.OperatorContext;
 
 public class AccumuloOutputOperatorTest {
-	private static final Logger logger = LoggerFactory
-			.getLogger(AccumuloOutputOperatorTest.class);
+  private static final Logger logger = LoggerFactory
+      .getLogger(AccumuloOutputOperatorTest.class);
 
-	@Test
-	public void testPut() throws Exception {
+  @Test
+  public void testPut() throws Exception {
 
-		AccumuloTestHelper.getConnector();
-		AccumuloTestHelper.clearTable();
-		TestAccumuloOutputOperator atleastOper = new TestAccumuloOutputOperator();
+    AccumuloTestHelper.getConnector();
+    AccumuloTestHelper.clearTable();
+    TestAccumuloOutputOperator atleastOper = new TestAccumuloOutputOperator();
 
-		atleastOper.getStore().setTableName("tab1");
-		atleastOper.getStore().setZookeeperHost("127.0.0.1");
-		atleastOper.getStore().setInstanceName("instance");
-		atleastOper.getStore().setUserName("root");
-		atleastOper.getStore().setPassword("pass");
+    atleastOper.getStore().setTableName("tab1");
+    atleastOper.getStore().setZookeeperHost("127.0.0.1");
+    atleastOper.getStore().setInstanceName("instance");
+    atleastOper.getStore().setUserName("root");
+    atleastOper.getStore().setPassword("pass");
 
-		atleastOper.setup(new OperatorContext() {
+    atleastOper.setup(new OperatorContext() {
 
-			@Override
-			public <T> T getValue(Attribute<T> key) {
-				return null;
-			}
+      @Override
+      public <T> T getValue(Attribute<T> key) {
+        return null;
+      }
 
-			@Override
-			public AttributeMap getAttributes() {
-				return null;
-			}
+      @Override
+      public AttributeMap getAttributes() {
+        return null;
+      }
 
-			@Override
-			public int getId() {
-				// TODO Auto-generated method stub
-				return 0;
-			}
+      @Override
+      public int getId() {
+        // TODO Auto-generated method stub
+        return 0;
+      }
 
-			@Override
-			public void setCounters(Object counters) {
-				// TODO Auto-generated method stub
+      @Override
+      public void setCounters(Object counters) {
+        // TODO Auto-generated method stub
 
-			}
-		});
-		atleastOper.beginWindow(0);
-		AccumuloTuple a=new AccumuloTuple();
-		a.setRow("john");a.setColFamily("colfam0");a.setColName("street");a.setColValue("patrick");
-		atleastOper.input.process(a);
-		atleastOper.endWindow();
-		AccumuloTuple tuple;
+      }
+    });
+    atleastOper.beginWindow(0);
+    AccumuloTuple a=new AccumuloTuple();
+    a.setRow("john");a.setColFamily("colfam0");a.setColName("street");a.setColValue("patrick");
+    atleastOper.input.process(a);
+    atleastOper.endWindow();
+    AccumuloTuple tuple;
 
-		tuple = AccumuloTestHelper
-				.getAccumuloTuple("john", "colfam0", "street");
+    tuple = AccumuloTestHelper
+        .getAccumuloTuple("john", "colfam0", "street");
 
-		Assert.assertNotNull("Tuple", tuple);
-		Assert.assertEquals("Tuple row", tuple.getRow(), "john");
-		Assert.assertEquals("Tuple column family", tuple.getColFamily(),
-				"colfam0");
-		Assert.assertEquals("Tuple column name", tuple.getColName(),
-				"street");
-		Assert.assertEquals("Tuple column value", tuple.getColValue(),
-				"patrick");
+    Assert.assertNotNull("Tuple", tuple);
+    Assert.assertEquals("Tuple row", tuple.getRow(), "john");
+    Assert.assertEquals("Tuple column family", tuple.getColFamily(),"colfam0");
+    Assert.assertEquals("Tuple column name", tuple.getColName(),"street");
+    Assert.assertEquals("Tuple column value", tuple.getColValue(),"patrick");
 
-	}
-	public static class TestAccumuloOutputOperator extends AbstractAccumuloAtleastOnceOutputOperator<AccumuloTuple> {
+  }
+  public static class TestAccumuloOutputOperator extends AbstractAccumuloOutputOperator<AccumuloTuple> {
 
-		@Override
-		public Mutation operationMutation(AccumuloTuple t) {
-			Mutation mutation = new Mutation(t.getRow().getBytes());
-			mutation.put(t.getColFamily().getBytes(),t.getColName().getBytes(),t.getColValue().getBytes());
-			return mutation;
-		}
+    @Override
+    public Mutation operationMutation(AccumuloTuple t) {
+      Mutation mutation = new Mutation(t.getRow().getBytes());
+      mutation.put(t.getColFamily().getBytes(),t.getColName().getBytes(),t.getColValue().getBytes());
+      return mutation;
+    }
 
-	}
+  }
 
 }

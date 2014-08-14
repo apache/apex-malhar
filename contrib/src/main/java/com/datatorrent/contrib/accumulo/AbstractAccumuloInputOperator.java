@@ -31,27 +31,26 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * </p>
  *
  */
-public abstract class AbstractAccumuloInputOperator<T> extends
-		AbstractStoreInputOperator<T, AccumuloStore> {
+public abstract class AbstractAccumuloInputOperator<T> extends AbstractStoreInputOperator<T, AccumuloStore> {
 
-	public abstract T getTuple(Entry<Key, Value> entry);
+  public abstract T getTuple(Entry<Key, Value> entry);
 
-	public abstract Scanner getScanner(Connector conn);
+  public abstract Scanner getScanner(Connector conn);
 
-	public AbstractAccumuloInputOperator() {
-		store = new AccumuloStore();
-	}
+  public AbstractAccumuloInputOperator() {
+    store = new AccumuloStore();
+  }
 
-	@Override
-	public void emitTuples() {
-		Connector conn = getStore().getConnector();
-		Scanner scan = getScanner(conn);
+  @Override
+  public void emitTuples() {
+    Connector conn = getStore().getConnector();
+    Scanner scan = getScanner(conn);
 
-		for (Entry<Key, Value> entry : scan) {
-			T tuple = getTuple(entry);
-			outputPort.emit(tuple);
-		}
+    for (Entry<Key, Value> entry : scan) {
+      T tuple = getTuple(entry);
+      outputPort.emit(tuple);
+    }
 
-	}
+  }
 
 }

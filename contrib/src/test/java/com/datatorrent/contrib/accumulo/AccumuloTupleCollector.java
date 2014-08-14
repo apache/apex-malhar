@@ -23,16 +23,16 @@ import com.datatorrent.api.DefaultInputPort;
 
 public class AccumuloTupleCollector extends BaseOperator {
 
-	public static List<AccumuloTuple> tuples;
+  public static List<AccumuloTuple> tuples;
 
-	public AccumuloTupleCollector() {
-		tuples = new ArrayList<AccumuloTuple>();
-	}
+  public AccumuloTupleCollector() {
+    tuples = new ArrayList<AccumuloTuple>();
+  }
 
-	public final transient DefaultInputPort<AccumuloTuple> inputPort = new DefaultInputPort<AccumuloTuple>() {
-		public void process(AccumuloTuple tuple) {
-			tuples.add(tuple);
-		}
-	};
+  public final transient DefaultInputPort<AccumuloTuple> inputPort = new DefaultInputPort<AccumuloTuple>() {
+    public void process(AccumuloTuple tuple) {
+      tuples.add(tuple);
+    }
+  };
 
 }

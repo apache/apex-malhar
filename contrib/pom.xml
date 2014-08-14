@@ -373,15 +373,17 @@
       <version>2.2.0</version>
       <optional>true</optional>
     </dependency>
-<dependency>
-<groupId>org.apache.accumulo</groupId>
-<artifactId>accumulo-core</artifactId>
-<version>1.5.1</version>
-</dependency>
-<dependency>
-    <groupId>org.apache.thrift</groupId>
-    <artifactId>libthrift</artifactId>
-    <version>0.9.0</version>
-</dependency>
+    <dependency>
+      <groupId>org.apache.accumulo</groupId>
+      <artifactId>accumulo-core</artifactId>
+      <version>1.5.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+     <groupId>org.apache.thrift</groupId>
+     <artifactId>libthrift</artifactId>
+     <version>0.9.0</version>
+     <optional>true</optional>
+   </dependency>
   </dependencies>
 </project>
