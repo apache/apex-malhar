@@ -50,9 +50,9 @@ public class AccumuloApp implements StreamingApplication {
     attributes.put(DAGContext.CONTAINER_MEMORY_MB, 4096);
     taop.getStore().setTableName("tab1");
     taop.getStore().setZookeeperHost("127.0.0.1");
-    taop.getStore().setInstanceName("milind");
+    taop.getStore().setInstanceName("instance");
     taop.getStore().setUserName("root");
-    taop.getStore().setPassword("milind");
+    taop.getStore().setPassword("pass");
 
   }
 

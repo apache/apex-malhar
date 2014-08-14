@@ -148,9 +148,9 @@ public class AccumuloTestHelper {
   }
 
   public static void getConnector() {
-    Instance instance = new ZooKeeperInstance("milind", "127.0.0.1");
+    Instance instance = new ZooKeeperInstance("instance", "127.0.0.1");
     try {
-      con = instance.getConnector("root", "milind");
+      con = instance.getConnector("root", "pass");
     } catch (AccumuloException e) {
       logger.error("error in test helper");
       DTThrowable.rethrow(e);
