@@ -8,11 +8,9 @@ import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
-import org.apache.commons.lang3.Range;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.getopt.util.hash.MurmurHash;
@@ -24,10 +22,6 @@ import org.junit.Test;
  */
 public class HDSTest
 {
-
-  TimeUnit timeBucketUnit = TimeUnit.MILLISECONDS;
-  int timeBucketSize = 10;
-  int maxSize = 500;
 
 
   public static class MyDataKey
@@ -99,15 +93,6 @@ public class HDSTest
 
   }
 
-  protected Range<Long> getRange(long time)
-  {
-    long timeBucket = this.timeBucketUnit.convert(time, TimeUnit.MILLISECONDS);
-    timeBucket = timeBucket - (timeBucket % this.timeBucketSize);
-    long min = TimeUnit.MILLISECONDS.convert(timeBucket, timeBucketUnit);
-    long max = TimeUnit.MILLISECONDS.convert(timeBucket + timeBucketSize, timeBucketUnit);
-    return Range.between(min, max);
-  }
-
   @Test
   public void test() throws Exception
   {
@@ -163,7 +148,10 @@ public class HDSTest
     Assert.assertEquals(BUCKET1, key12.getBucketKey());
 
     hds.put(key12.getBucketKey(), key12.bytes, data12.getBytes()); // key 2, bucket 1
+
     hds.writeDataFiles();
+    File metaFile = new File(bucket1Dir, HDSBucketManager.FNAME_META);
+    Assert.assertTrue("exists " + metaFile, metaFile.exists());
 
     files = bucket1Dir.list(dataFileFilter);
     Assert.assertEquals("" + Arrays.asList(files), 2, files.length);
@@ -172,10 +160,6 @@ public class HDSTest
     Assert.assertTrue("exists " + bucket1WalFile, bucket1WalFile.exists() && bucket1WalFile.isFile());
 
     hds.endWindow();
-
-    File metaFile = new File(bucket1Dir, HDSBucketManager.FNAME_META);
-    Assert.assertFalse("exists " + metaFile, metaFile.exists());
-
     hds.committed(1);
 
     Assert.assertTrue("exists " + metaFile, metaFile.exists() && metaFile.isFile());

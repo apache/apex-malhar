@@ -10,7 +10,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -41,9 +40,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   private transient long windowId;
   BucketFileSystem bfs;
   private final HashMap<Long, Bucket> buckets = Maps.newHashMap();
-
-  // TODO: leave serialization to API client
-  private final Kryo writeSerde = new Kryo();
+  private final transient Kryo kryo = new Kryo();
 
   @NotNull
   private Comparator<byte[]> keyComparator;
@@ -51,7 +48,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
   /**
    * Compare keys for sequencing as secondary level of organization within buckets.
-   * In most cases this will be implemented using a time stamp as leading component.
+   * In most cases it will be implemented using a time stamp as leading component.
    * @return
    */
   public Comparator<byte[]> getKeyComparator()
@@ -101,8 +98,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     InputStream is = bfs.getInputStream(bucketKey, fileName);
     Input input = new Input(is);
     while (!input.eof()) {
-      byte[] key = writeSerde.readObject(input, byte[].class);
-      byte[] value = writeSerde.readObject(input, byte[].class);
+      byte[] key = kryo.readObject(input, byte[].class);
+      byte[] value = kryo.readObject(input, byte[].class);
       data.put(key, value);
     }
     return data;
@@ -131,8 +128,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         out = new Output(cos);
       }
 
-      writeSerde.writeObject(out, dataEntry.getKey());
-      writeSerde.writeObject(out, dataEntry.getValue());
+      kryo.writeObject(out, dataEntry.getKey());
+      kryo.writeObject(out, dataEntry.getValue());
 
       if (cos.getCount() + out.position() > this.maxFileSize) {
         // roll file
@@ -153,9 +150,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       bfs.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
     }
 
-    // track meta data change by window
-    LinkedHashMap<Long, BucketFileMeta> bucketMetaChanges = bucket.metaUpdates;
-    bucketMetaChanges.put(windowId, writeSerde.copy(fileMeta));
   }
 
   private Bucket getBucket(long bucketKey)
@@ -211,6 +205,12 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     bucket.uncommittedChanges.put(key, value);
   }
 
+  /**
+   * Flush changes from write cache to disk.
+   * New data files will be written and meta data replaced atomically.
+   * The flush frequency determines availability of changes to external readers.
+   * @throws IOException
+   */
   public void writeDataFiles() throws IOException
   {
     // bucket keys by file
@@ -279,8 +279,21 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         fileData.putAll(fileEntry.getValue());
         writeFile(bucket, fileMeta, fileData);
         bucket.uncommittedChanges.clear();
-
       }
+
+      // flush meta data for new files
+      BucketMeta bucketMeta = getMeta(bucket.bucketKey);
+      try {
+        OutputStream os = bfs.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
+        Output output = new Output(os);
+        kryo.writeClassAndObject(output, bucketMeta);
+        output.close();
+        os.close();
+        bfs.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
+      } catch (IOException e) {
+        throw new RuntimeException("Failed to write bucket meta data " + bucket.bucketKey, e);
+      }
+
     }
 
   }
@@ -343,7 +356,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     BucketMeta bucketMeta = null;
     try {
       InputStream is = bfs.getInputStream(bucketKey, FNAME_META);
-      bucketMeta = (BucketMeta)writeSerde.readClassAndObject(new Input(is));
+      bucketMeta = (BucketMeta)kryo.readClassAndObject(new Input(is));
       is.close();
     } catch (IOException e) {
       bucketMeta = new BucketMeta(getKeyComparator());
@@ -354,30 +367,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   @Override
   public void committed(long committedWindowId)
   {
-    for (Bucket bucket : this.buckets.values())
-    {
-      // update meta data for modified files
-      BucketMeta bucketMeta = loadBucketMeta(bucket.bucketKey);
-      Map<Long, BucketFileMeta> files = bucket.metaUpdates;
-      for (long windowId : files.keySet()) {
-        if (windowId <= committedWindowId) {
-          BucketFileMeta bfm = files.get(windowId);
-          bucketMeta.files.put(bfm.fromSeq, bfm);
-        } else {
-          break;
-        }
-      }
-
-      try {
-        OutputStream os = bfs.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
-        Output output = new Output(os);
-        writeSerde.writeClassAndObject(output, bucketMeta);
-        output.close();
-        bfs.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to write bucket meta data " + bucket.bucketKey, e);
-      }
-    }
   }
 
 
@@ -405,11 +394,9 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   private static class Bucket
   {
     private long bucketKey;
-    private transient DataOutputStream wal;
     // keys that were modified and written to WAL, but not yet persisted
     private final HashMap<byte[], byte[]> uncommittedChanges = Maps.newHashMap();
-    // change log by bucket by window
-    private final LinkedHashMap<Long, BucketFileMeta> metaUpdates = Maps.newLinkedHashMap();
+    private transient DataOutputStream wal;
     private final transient HashMap<String, TreeMap<byte[], byte[]>> fileDataCache = Maps.newHashMap();
   }
 
