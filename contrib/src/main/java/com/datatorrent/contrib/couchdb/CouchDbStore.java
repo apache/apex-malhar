@@ -28,7 +28,6 @@ import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 import com.datatorrent.lib.db.Connectable;
 
@@ -38,7 +37,6 @@ import com.datatorrent.lib.db.Connectable;
  *
  * @since 0.3.5
  */
-@ShipContainingJars(classes = {CouchDbConnector.class})
 public class CouchDbStore implements Connectable
 {
   /**

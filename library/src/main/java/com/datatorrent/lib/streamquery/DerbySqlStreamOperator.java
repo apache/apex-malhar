@@ -16,7 +16,6 @@
 package com.datatorrent.lib.streamquery;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.streamquery.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
 
 import java.sql.*;
@@ -30,7 +29,6 @@ import java.util.Map;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {org.apache.derby.jdbc.EmbeddedDriver.class})
 public class DerbySqlStreamOperator extends AbstractSqlStreamOperator
 {
   protected transient ArrayList<PreparedStatement> insertStatements = new ArrayList<PreparedStatement>(5);

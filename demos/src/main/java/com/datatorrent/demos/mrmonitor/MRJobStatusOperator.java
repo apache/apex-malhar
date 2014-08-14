@@ -29,7 +29,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.IdleTimeHandler;
@@ -44,7 +43,6 @@ import com.datatorrent.demos.mrmonitor.MRStatusObject.TaskObject;
  * @since 0.3.4
  */
 
-@ShipContainingJars(classes = { org.apache.http.client.ClientProtocolException.class, org.apache.http.HttpRequest.class })
 public class MRJobStatusOperator implements Operator, IdleTimeHandler
 {
   private static final Logger LOG = LoggerFactory.getLogger(MRJobStatusOperator.class);

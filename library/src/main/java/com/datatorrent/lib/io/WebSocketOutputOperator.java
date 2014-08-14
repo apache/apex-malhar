@@ -35,7 +35,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  *
@@ -47,7 +46,6 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * @param <T> tuple type
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WebSocketOutputOperator<T> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketOutputOperator.class);

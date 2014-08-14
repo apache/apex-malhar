@@ -23,7 +23,6 @@ import redis.clients.jedis.Jedis;
 
 import com.google.common.collect.Maps;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 import com.datatorrent.contrib.redis.AbstractRedisAggregateOutputOperator;
 import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
@@ -33,7 +32,6 @@ import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
  *
  * @since 0.9.4
  */
-@ShipContainingJars(classes = {DateTimeFormatter.class, DateTimeFormat.class, Jedis.class})
 public class RedisAggregateOutputOperator extends AbstractRedisAggregateOutputOperator<AdInfo>
 {
   private final Map<String, AdInfo> cache;

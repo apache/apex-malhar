@@ -18,7 +18,6 @@ package com.datatorrent.lib.io;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +35,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {javax.mail.Session.class, com.sun.mail.util.MailLogger.class})
 public class SmtpOutputOperator extends BaseOperator
 {
   public enum RecipientType

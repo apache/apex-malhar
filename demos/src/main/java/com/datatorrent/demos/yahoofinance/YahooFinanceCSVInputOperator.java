@@ -18,7 +18,6 @@ package com.datatorrent.demos.yahoofinance;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +39,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {au.com.bytecode.opencsv.CSVReader.class})
 public class YahooFinanceCSVInputOperator extends SimpleSinglePortInputOperator<HashMap<String, Object>> implements Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(YahooFinanceCSVInputOperator.class);
