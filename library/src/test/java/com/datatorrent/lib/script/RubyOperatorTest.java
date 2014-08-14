@@ -15,10 +15,11 @@
  */
 package com.datatorrent.lib.script;
 
-import java.util.HashMap;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import junit.framework.Assert;
 import org.junit.Test;
-import com.datatorrent.lib.testbench.CollectorTestSink;
+
+import java.util.HashMap;
 
 /**
  * Unit test for RubyOperator.
@@ -58,11 +59,12 @@ public class RubyOperatorTest {
   public void TestRubyOperatorEval() {
 
     RubyOperator oper = new RubyOperator();
-    String setupScript1 = "a = b+c";
-    String setupScript2 = "d = a*10";
+    String setupScript1 = "b=0";
+    String setupScript2 = "c=0";
     oper.addSetupScript(setupScript1);
     oper.addSetupScript(setupScript2);
-    oper.setEval();
+    String script = "a = b+c \n d = a*10";
+    oper.setEval(script);
     oper.setPassThru(true);
     CollectorTestSink sink = new CollectorTestSink();
     oper.result.setSink(sink);

@@ -16,11 +16,12 @@
 
 package com.datatorrent.lib.script;
 
-import java.util.Map;
+import com.datatorrent.api.Context.OperatorContext;
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.javasupport.JavaEmbedUtils.EvalUnit;
-import com.datatorrent.api.Context.OperatorContext;
+
+import java.util.Map;
 
 /**
  * Operator to execute ruby script on tuples
@@ -40,9 +41,10 @@ public class RubyOperator extends ScriptOperator {
   private transient EvalUnit unit;
 
 
-  public void setEval() {
+  public void setEval(String script) {
 
     this.type = Type.EVAL;
+    this.script = script;
   }
 
   public void setInvoke(String functionName) {
@@ -55,11 +57,12 @@ public class RubyOperator extends ScriptOperator {
   public void setup(OperatorContext context) {
 
     sc = new ScriptingContainer(LocalVariableBehavior.PERSISTENT);
-    if(type == Type.INVOKE) {
-      for (String s : setupScripts) {
-        unit = sc.parse(s);
-        unit.run();
-      }
+    for (String s : setupScripts) {
+      EvalUnit unit = sc.parse(s);
+      unit.run();
+    }
+    if (type == Type.EVAL) {
+      unit = sc.parse(script);
     }
   }
 
@@ -71,11 +74,7 @@ public class RubyOperator extends ScriptOperator {
         for (Map.Entry<String, Object> entry : tuple.entrySet()) {
           sc.put(entry.getKey(), entry.getValue());
         }
-        for (String s : setupScripts) {
-          unit = sc.parse(s);
-          evalResult = unit.run();
-        }
-
+        evalResult = unit.run();
       }
       else {
         Object[] args = new Object[tuple.size()];
