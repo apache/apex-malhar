@@ -88,7 +88,7 @@ public class JdbcNonTransanctionalOutputOperatorTest
     }
   }
 
-  private static class TestOutputOperator extends AbstractJdbcNonTransactionableOutputOperator<TestEvent>
+  private static class TestOutputOperator extends AbstractJdbcNonTransactionableOutputOperator<TestEvent, JdbcStore>
   {
     private static final String INSERT_STMT = "INSERT INTO " + TABLE_NAME + " values (?)";
 
@@ -107,7 +107,6 @@ public class JdbcNonTransanctionalOutputOperatorTest
     @Override
     protected void setStatementParameters(PreparedStatement statement, TestEvent tuple) throws SQLException
     {
-      System.out.println(tuple.id);
       statement.setInt(1, tuple.id);
     }
 

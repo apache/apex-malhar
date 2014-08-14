@@ -23,57 +23,26 @@ import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
  * <p>A generic output operator which updates a JDBC database without using transactions.</p>
  *
  * @param <T> The kind of tuples that are being processed
  */
-public abstract class AbstractJdbcNonTransactionableOutputOperator<T> extends BaseOperator
+public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends JdbcStore> extends AbstractStoreOutputOperator<T, S>
 {
-  protected JdbcStore store;
   private transient PreparedStatement updateCommand;
-
-  public final transient DefaultInputPort<T> input = new DefaultInputPort<T>() {
-    @Override
-    public void process(T t)
-    {
-      processTuple(t);
-    }
-  };
 
   public AbstractJdbcNonTransactionableOutputOperator()
   {
   }
-
-  /**
-   * Gets the store
-   * 
-   * @return the store
-   */
-  public JdbcStore getStore()
-  {
-    return store;
-  }
-
-  /**
-   * Sets the store
-   * 
-   * @param store
-   */
-  public void setStore(JdbcStore store)
-  {
-    this.store = store;
-  }
-
   @Override
   public void setup(Context.OperatorContext context)
   {
+    super.setup(context);
     try {
-      store.connect();
       updateCommand = store.getConnection().prepareStatement(getUpdateCommand());
     } catch (SQLException e) {
       throw new RuntimeException(e);
