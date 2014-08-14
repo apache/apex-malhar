@@ -51,6 +51,12 @@
                 <include>org.cloudera.htrace:htrace-core:jar</include>
                 <include>com.google.protobuf:protobuf-java:jar</include>
                 <include>net.sf.supercsv:super-csv:jar</include>
+                <include>${project.groupId}:${project.artifactId}:jar</include>
+                <include>org.apache.accumulo:accumulo-core:jar</include>
+                <include>org.apache.accumulo:accumulo-fate:jar</include>
+                <include>org.apache.accumulo:accumulo-start:jar</include>
+                <include>org.apache.accumulo:accumulo-trace:jar</include>
+                <include>org.apache.thrift:libthrift:jar</include>
             </includes>
         </dependencySet>
 
