@@ -43,16 +43,6 @@ public interface BucketFileSystem extends Closeable
    */
   void init();
 
-  /**
-   * Create a new empty file for the given key.
-   * @param key
-   * @param minTime
-   * @param maxTime
-   * @return
-   * @throws IOException
-   */
-  void createFile(long bucketKey, BucketFileMeta fileMeta) throws IOException;
-
   DataOutputStream getOutputStream(long bucketKey, String fileName) throws IOException;
   DataInputStream getInputStream(long bucketKey, String fileName) throws IOException;
 
@@ -64,5 +54,6 @@ public interface BucketFileSystem extends Closeable
    * @throws IOException
    */
   void rename(long bucketKey, String oldName, String newName) throws IOException;
+  void delete(long bucketKey, String fileName) throws IOException;
 
 }

@@ -10,12 +10,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.output.CountingOutputStream;
+import org.python.google.common.collect.Sets;
 
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
@@ -71,18 +73,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     this.maxFileSize = maxFileSize;
   }
 
-  private BucketFileMeta createFile(long bucketKey, byte[] fromSeq) throws IOException
-  {
-    BucketMeta bm = getMeta(bucketKey);
-    BucketFileMeta bfm = new BucketFileMeta();
-    bfm.name = Long.toString(bucketKey) + '-' + bm.fileSeq++;
-    bfm.fromSeq = fromSeq;
-    bm.files.put(fromSeq, bfm);
-    // initialize with empty file
-    //bfs.createFile(bucketKey, bfm);
-    return bfm;
-  }
-
   /**
    * Read entire file.
    * TODO: delegate to the file reader
@@ -106,28 +96,28 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   }
 
   /**
-   * Write (replace) the bucket file.
-   * TODO: delegate to the file writer
-   * @param bucketKey
-   * @param fileMeta
+   * Write data to size based rolling files
+   * @param bucket
+   * @param bucketMeta
    * @param data
+   * @throws IOException
    */
-  private void writeFile(Bucket bucket, BucketFileMeta fileMeta, TreeMap<byte[], byte[]> data) throws IOException
+  private void writeFile(Bucket bucket, BucketMeta bucketMeta, TreeMap<byte[], byte[]> data) throws IOException
   {
     DataOutputStream dos = null;
     CountingOutputStream cos = null;
     Output out = null;
+    BucketFileMeta fileMeta = null;
     for (Map.Entry<byte[], byte[]> dataEntry : data.entrySet()) {
       if (out == null) {
-        if (fileMeta == null) {
-          // roll file
-          fileMeta = createFile(bucket.bucketKey, dataEntry.getKey());
-        }
+        // next file
+        fileMeta = bucketMeta.addFile(bucket.bucketKey, dataEntry.getKey());
         dos = bfs.getOutputStream(bucket.bucketKey, fileMeta.name + ".tmp");
         cos = new CountingOutputStream(dos);
         out = new Output(cos);
       }
 
+      // TODO: delegate to the file writer
       kryo.writeObject(out, dataEntry.getKey());
       kryo.writeObject(out, dataEntry.getValue());
 
@@ -138,7 +128,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         dos.close();
         bucket.fileDataCache.remove(fileMeta.name);
         bfs.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
-        fileMeta = null;
         out = null;
       }
     }
@@ -168,7 +157,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     Bucket bucket = getBucket(bucketKey);
     // check unwritten changes first
-    byte[] v = bucket.uncommittedChanges.get(key);
+    byte[] v = bucket.writeCache.get(key);
     if (v != null) {
       return v;
     }
@@ -202,7 +191,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       bucket.wal.write(key);
       bucket.wal.write(value);
     }
-    bucket.uncommittedChanges.put(key, value);
+    bucket.writeCache.put(key, value);
   }
 
   /**
@@ -218,11 +207,10 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
     for (Map.Entry<Long, Bucket> bucketEntry : this.buckets.entrySet()) {
       Bucket bucket = bucketEntry.getValue();
+      BucketMeta bm = getMeta(bucketEntry.getKey());
+      TreeMap<byte[], BucketFileMeta> bucketSeqStarts = bm.files;
 
-      for (Map.Entry<byte[], byte[]> entry : bucket.uncommittedChanges.entrySet()) {
-
-        BucketMeta bm = getMeta(bucketEntry.getKey());
-        TreeMap<byte[], BucketFileMeta> bucketSeqStarts = bm.files;
+      for (Map.Entry<byte[], byte[]> entry : bucket.writeCache.entrySet()) {
 
         // find the file for the key
         Map.Entry<byte[], BucketFileMeta> floorEntry = bucketSeqStarts.floorEntry(entry.getKey());
@@ -258,40 +246,54 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
     // write modified files
     for (Map.Entry<Bucket, Map<BucketFileMeta, Map<byte[], byte[]>>> bucketEntry : modifiedBuckets.entrySet()) {
+
       Bucket bucket = bucketEntry.getKey();
+      // copy on write
+      BucketMeta bucketMetaCopy = kryo.copy(getMeta(bucket.bucketKey));
+      HashSet<String> filesToDelete = Sets.newHashSet();
+
       for (Map.Entry<BucketFileMeta, Map<byte[], byte[]>> fileEntry : bucketEntry.getValue().entrySet()) {
         BucketFileMeta fileMeta = fileEntry.getKey();
         TreeMap<byte[], byte[]> fileData;
-        if (fileMeta.name == null) {
-          // new file
-          fileMeta = createFile(bucketEntry.getKey().bucketKey, fileMeta.fromSeq);
-          fileData = Maps.newTreeMap(getKeyComparator());
-        } else {
-          // existing file
+
+        if (fileMeta.name != null) {
+          // load existing file
           fileData = bucket.fileDataCache.get(fileMeta.name);
           if (fileData == null) {
-            // load file to check for presence of key
             fileData = readFile(bucket.bucketKey, fileMeta.name);
           }
+          filesToDelete.add(fileMeta.name);
+        } else {
+          fileData = Maps.newTreeMap(getKeyComparator());
         }
 
         // apply updates
         fileData.putAll(fileEntry.getValue());
-        writeFile(bucket, fileMeta, fileData);
-        bucket.uncommittedChanges.clear();
+        // new file
+        writeFile(bucket, bucketMetaCopy, fileData);
       }
 
       // flush meta data for new files
-      BucketMeta bucketMeta = getMeta(bucket.bucketKey);
       try {
         OutputStream os = bfs.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
         Output output = new Output(os);
-        kryo.writeClassAndObject(output, bucketMeta);
+        kryo.writeClassAndObject(output, bucketMetaCopy);
         output.close();
         os.close();
         bfs.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
       } catch (IOException e) {
         throw new RuntimeException("Failed to write bucket meta data " + bucket.bucketKey, e);
+      }
+
+      // clear pending changes
+      bucket.writeCache.clear();
+      // switch to new version
+      this.metaCache.put(bucket.bucketKey, bucketMetaCopy);
+
+      // delete old files
+      for (String fileName : filesToDelete) {
+        bfs.delete(bucket.bucketKey, fileName);
+        bucket.fileDataCache.remove(fileName);
       }
 
     }
@@ -387,6 +389,15 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       files = null;
     }
 
+    private BucketFileMeta addFile(long bucketKey, byte[] fromSeq)
+    {
+      BucketFileMeta bfm = new BucketFileMeta();
+      bfm.name = Long.toString(bucketKey) + '-' + this.fileSeq++;
+      bfm.fromSeq = fromSeq;
+      files.put(fromSeq, bfm);
+      return bfm;
+    }
+
     int fileSeq;
     final TreeMap<byte[], BucketFileMeta> files;
   }
@@ -395,7 +406,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     private long bucketKey;
     // keys that were modified and written to WAL, but not yet persisted
-    private final HashMap<byte[], byte[]> uncommittedChanges = Maps.newHashMap();
+    private final HashMap<byte[], byte[]> writeCache = Maps.newHashMap();
     private transient DataOutputStream wal;
     private final transient HashMap<String, TreeMap<byte[], byte[]>> fileDataCache = Maps.newHashMap();
   }

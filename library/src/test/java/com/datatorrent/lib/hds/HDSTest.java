@@ -140,7 +140,7 @@ public class HDSTest
     hds.writeDataFiles();
     files = bucket1Dir.list(dataFileFilter);
     Assert.assertEquals("" + Arrays.asList(files), 1, files.length);
-    Assert.assertArrayEquals("cold read key=" + key1, data1Updated.getBytes(), hds.readFile(BUCKET1, "1-0").get(key1.getBytes()));
+    Assert.assertArrayEquals("cold read key=" + key1, data1Updated.getBytes(), hds.readFile(BUCKET1, "1-1").get(key1.getBytes()));
 
     MyDataKey key12 = MyDataKey.newKey(BUCKET1, 2);
     String data12 = "data02bucket1";
@@ -149,14 +149,15 @@ public class HDSTest
 
     hds.put(key12.getBucketKey(), key12.bytes, data12.getBytes()); // key 2, bucket 1
 
+    // new key added to existing range, due to size limit 2 data files will be written
     hds.writeDataFiles();
     File metaFile = new File(bucket1Dir, HDSBucketManager.FNAME_META);
     Assert.assertTrue("exists " + metaFile, metaFile.exists());
 
     files = bucket1Dir.list(dataFileFilter);
     Assert.assertEquals("" + Arrays.asList(files), 2, files.length);
-    Assert.assertArrayEquals("cold read key=" + key1, data1Updated.getBytes(), hds.readFile(BUCKET1, "1-0").get(key1.getBytes()));
-    Assert.assertArrayEquals("cold read key=" + key12, data12.getBytes(), hds.readFile(BUCKET1, "1-1").get(key12.getBytes()));
+    Assert.assertArrayEquals("cold read key=" + key1, data1Updated.getBytes(), hds.readFile(BUCKET1, "1-2").get(key1.getBytes()));
+    Assert.assertArrayEquals("cold read key=" + key12, data12.getBytes(), hds.readFile(BUCKET1, "1-3").get(key12.getBytes()));
     Assert.assertTrue("exists " + bucket1WalFile, bucket1WalFile.exists() && bucket1WalFile.isFile());
 
     hds.endWindow();

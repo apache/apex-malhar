@@ -43,10 +43,9 @@ public class FSBucketFileSystem implements BucketFileSystem
   }
 
   @Override
-  public void createFile(long bucketKey, BucketFileMeta fileMeta) throws IOException
+  public void delete(long bucketKey, String fileName) throws IOException
   {
-    // create empty file, override anything existing
-    fs.create(new Path(getBucketPath(bucketKey), fileMeta.name), true).close();
+    fs.delete(new Path(getBucketPath(bucketKey), fileName), true);
   }
 
   @Override
