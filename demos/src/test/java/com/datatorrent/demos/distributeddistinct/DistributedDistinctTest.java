@@ -36,8 +36,6 @@ import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
-import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
-import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
 
@@ -59,55 +57,52 @@ public class DistributedDistinctTest
   private static String applicationPath;
 
   @Test
-  public void testProcess()
+  public void testProcess() throws Exception
   {
     insertValues();
-    try {
-      Statement stmt = valueCounter.getStore().getConnection().createStatement();
-      
-      ResultSet resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 1");
-      ArrayList<Integer> answersOne = new ArrayList<Integer>();
-      for (int i = 1; i < 16; i++) {
-        answersOne.add(i);
-      }
-      Assert.assertEquals(answersOne, processResult(resultSet));
-      
-      resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 2");
-      ArrayList<Integer> answersTwo = new ArrayList<Integer>();
-      answersTwo.add(3);  
-      answersTwo.add(6);
-      answersTwo.add(9);
-      for (int i = 11; i < 21; i++) {
-        answersTwo.add(i);
-      }
-      Assert.assertEquals(answersTwo, processResult(resultSet));
-      
-      resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 3");
-      ArrayList<Integer> answersThree = new ArrayList<Integer>();
-      answersThree.add(2);
-      answersThree.add(4);
-      answersThree.add(6);
-      answersThree.add(8);
-      answersThree.add(10);
-      for (int i = 11; i < 21; i++) {
-        answersThree.add(i);
-      }
-      Assert.assertEquals(answersThree, processResult(resultSet));
-      
-      valueCounter.teardown();
-    } catch (SQLException e) {
-      e.printStackTrace();
+    Statement stmt = valueCounter.getStore().getConnection().createStatement();
+
+    ResultSet resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 1");
+    ArrayList<Integer> answersOne = new ArrayList<Integer>();
+    for (int i = 1; i < 16; i++) {
+      answersOne.add(i);
     }
+    Assert.assertEquals(answersOne, processResult(resultSet));
+
+    resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 2");
+    ArrayList<Integer> answersTwo = new ArrayList<Integer>();
+    answersTwo.add(3);
+    answersTwo.add(6);
+    answersTwo.add(9);
+    for (int i = 11; i < 21; i++) {
+      answersTwo.add(i);
+    }
+    Assert.assertEquals(answersTwo, processResult(resultSet));
+
+    resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 3");
+    ArrayList<Integer> answersThree = new ArrayList<Integer>();
+    answersThree.add(2);
+    answersThree.add(4);
+    answersThree.add(6);
+    answersThree.add(8);
+    answersThree.add(10);
+    for (int i = 11; i < 21; i++) {
+      answersThree.add(i);
+    }
+    Assert.assertEquals(answersThree, processResult(resultSet));
+
+    valueCounter.teardown();
   }
-  
-  public static void insertValues() {
+
+  public static void insertValues()
+  {
     logger.debug("start round 0");
     valueCounter.beginWindow(0);
     emitKeyVals(1, 1, 10, 1);
     emitKeyVals(1, 5, 15, 1);
     valueCounter.endWindow();
-    logger.debug("end round 0");  
- 
+    logger.debug("end round 0");
+
     logger.debug("start round 1");
     valueCounter.beginWindow(1);
     emitKeyVals(2, 3, 15, 3);
@@ -115,7 +110,7 @@ public class DistributedDistinctTest
     emitKeyVals(3, 11, 20, 1);
     valueCounter.endWindow();
     logger.debug("end round 1");
- 
+
     logger.debug("start round 2");
     valueCounter.beginWindow(2);
     emitKeyVals(3, 2, 20, 2);
@@ -152,66 +147,52 @@ public class DistributedDistinctTest
   @Test
   public void testSetup() throws Exception
   {
-    try {
-      insertValues();
-      Statement stmt = valueCounter.getStore().getConnection().createStatement();
-      AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
-      attributes.put(DAG.APPLICATION_ID, APP_ID);
-      attributes.put(DAG.APPLICATION_PATH, applicationPath);
-      attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, new Long(2));
-      
-      valueCounter.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
-      
-      ResultSet resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 2");
-      ArrayList<Integer> answersAfterClear = new ArrayList<Integer>();
-      for (int i = 3; i < 16; i += 3) {
-        answersAfterClear.add(i);
-      }
-      Assert.assertEquals(answersAfterClear, processResult(resultSet));
-      
-      resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 3");
-      ArrayList<Integer> answersThree = new ArrayList<Integer>();
-      answersThree.add(2);
-      answersThree.add(4);
-      answersThree.add(6);
-      answersThree.add(8);
-      answersThree.add(10);
-      for (int i = 11; i < 21; i++) {
-        answersThree.add(i);
-      }
-      Assert.assertEquals(answersThree, processResult(resultSet));
-      stmt.executeQuery("DELETE FROM " + TABLE_NAME);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
+    insertValues();
+    Statement stmt = valueCounter.getStore().getConnection().createStatement();
+    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, APP_ID);
+    attributes.put(DAG.APPLICATION_PATH, applicationPath);
+    attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, new Long(2));
+
+    valueCounter.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
+
+    ResultSet resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 2");
+    ArrayList<Integer> answersAfterClear = new ArrayList<Integer>();
+    for (int i = 3; i < 16; i += 3) {
+      answersAfterClear.add(i);
     }
+    Assert.assertEquals(answersAfterClear, processResult(resultSet));
+
+    resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 3");
+    ArrayList<Integer> answersThree = new ArrayList<Integer>();
+    answersThree.add(2);
+    answersThree.add(4);
+    answersThree.add(6);
+    answersThree.add(8);
+    answersThree.add(10);
+    for (int i = 11; i < 21; i++) {
+      answersThree.add(i);
+    }
+    Assert.assertEquals(answersThree, processResult(resultSet));
+    stmt.executeQuery("DELETE FROM " + TABLE_NAME);
   }
 
   @BeforeClass
-  public static void setup()
+  public static void setup() throws Exception
   {
-    try {
-      valueCounter = new IntegerUniqueValueCountAppender();
-      Class.forName(INMEM_DB_DRIVER).newInstance();
-      Connection con = DriverManager.getConnection(INMEM_DB_URL, new Properties());
-      Statement stmt = con.createStatement();
-      stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (col1 INTEGER, col2 INTEGER, col3 BIGINT)");
-      AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
-      attributes.put(DAG.APPLICATION_ID, APP_ID);
-      attributes.put(DAG.APPLICATION_PATH, applicationPath);
-      attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, new Long(0));
-      valueCounter.setTableName(TABLE_NAME);
-      valueCounter.getStore().setDbDriver(INMEM_DB_DRIVER);
-      valueCounter.getStore().setDbUrl(INMEM_DB_URL);
-      TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes);
-      valueCounter.setup(context);
-    } catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    } catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    } catch (ClassNotFoundException e) {
-      throw new RuntimeException(e);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
-    }
+    valueCounter = new IntegerUniqueValueCountAppender();
+    Class.forName(INMEM_DB_DRIVER).newInstance();
+    Connection con = DriverManager.getConnection(INMEM_DB_URL, new Properties());
+    Statement stmt = con.createStatement();
+    stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (col1 INTEGER, col2 INTEGER, col3 BIGINT)");
+    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, APP_ID);
+    attributes.put(DAG.APPLICATION_PATH, applicationPath);
+    attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, new Long(0));
+    valueCounter.setTableName(TABLE_NAME);
+    valueCounter.getStore().setDbDriver(INMEM_DB_DRIVER);
+    valueCounter.getStore().setDbUrl(INMEM_DB_URL);
+    TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes);
+    valueCounter.setup(context);
   }
 }
