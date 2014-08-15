@@ -22,6 +22,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.Nonnull;
 
+import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -38,6 +39,8 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.bucket.Bucket;
 import com.datatorrent.lib.bucket.BucketManager;
 import com.datatorrent.lib.bucket.Bucketable;
+import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
+import com.datatorrent.lib.counters.BasicCounters;
 
 /**
  * <p>
@@ -67,12 +70,12 @@ import com.datatorrent.lib.bucket.Bucketable;
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
  *
- * @param <INPUT> type of input tuple
+ * @param <INPUT>  type of input tuple
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
 public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
-        implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
+  implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
   @InputPortFieldAnnotation(name = "input", optional = true)
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
@@ -88,7 +91,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       Bucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
 
       if (bucket != null && bucket.containsEvent(tuple)) {
-        counters.numDuplicateEvents++;
+        numDuplicateEvents.increment();
         return;
       } //ignore event
 
@@ -132,7 +135,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
-  protected transient Counters counters;
+  protected transient BasicCounters<MutableLong> counters;
+  protected transient MutableLong numDuplicateEvents;
   private transient long currentWindow;
 
   public Deduper()
@@ -150,8 +154,17 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     this.context = context;
     this.currentWindow = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
-    counters = new Counters();
+    counters = new BasicCounters<MutableLong>(MutableLong.class);
     bucketManager.setBucketCounters(counters);
+    try {
+      numDuplicateEvents = counters.findCounter(CounterKeys.DUPLICATE_EVENTS);
+    }
+    catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+    catch (InstantiationException e) {
+      throw new RuntimeException(e);
+    }
     bucketManager.startService(this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
     for (long bucketKey : waitingEvents.keySet()) {
@@ -213,7 +226,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
               output.emit(convert(event));
             }
             else {
-              counters.numDuplicateEvents++;
+              numDuplicateEvents.increment();
             }
           }
         }
@@ -316,7 +329,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
       //distribute waiting events
       for (long bucketKey : allWaitingEvents.keySet()) {
-        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext();) {
+        for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext(); ) {
           INPUT event = iterator.next();
           int partitionKey = event.getEventKey().hashCode() & lPartitionMask;
 
@@ -370,7 +383,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       return false;
     }
 
-    Deduper<?, ?> deduper = (Deduper<?, ?>)o;
+    Deduper<?, ?> deduper = (Deduper<?, ?>) o;
 
     if (partitionMask != deduper.partitionMask) {
       return false;
@@ -400,16 +413,9 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
 
-  public static class Counters extends BucketManager.BucketCounters
+  public static enum CounterKeys
   {
-    protected long numDuplicateEvents;
-
-    public long getNumDuplicateEvents()
-    {
-      return numDuplicateEvents;
-    }
-
-    private static final long serialVersionUID = 201405061055L;
+    DUPLICATE_EVENTS
   }
 
   public static class CountersListener implements StatsListener, Serializable
@@ -421,11 +427,19 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       if (lastWindowedStats != null) {
         for (Stats.OperatorStats os : lastWindowedStats) {
           if (os.counters != null) {
-            if (os.counters instanceof Counters) {
-              Counters cs = (Counters)os.counters;
-              logger.debug("bucketStats {} {} {} {} {} {} {} {} {} {}", batchedOperatorStats.getOperatorId(), cs.getNumBucketsInMemory(),
-                           cs.getNumDeletedBuckets(), cs.getNumEvictedBuckets(), cs.getNumEventsInMemory(), cs.getNumEventsCommittedPerWindow(),
-                           cs.getNumIgnoredEvents(), cs.getNumDuplicateEvents(), cs.getLow(), cs.getHigh());
+            if (os.counters instanceof BasicCounters) {
+              @SuppressWarnings("unchecked")
+              BasicCounters<MutableLong> cs = (BasicCounters<MutableLong>) os.counters;
+              logger.debug("operatorId:{} buckets:[in-memory:{} deleted:{} evicted:{}] events:[in-memory:{} committed-last-window:{} " +
+                  "ignored:{} duplicates:{}] low:{} high:{}", batchedOperatorStats.getOperatorId(),
+                cs.getCounter(BucketManager.CounterKeys.BUCKETS_IN_MEMORY),
+                cs.getCounter(BucketManager.CounterKeys.DELETED_BUCKETS),
+                cs.getCounter(BucketManager.CounterKeys.EVICTED_BUCKETS),
+                cs.getCounter(BucketManager.CounterKeys.EVENTS_IN_MEMORY),
+                cs.getCounter(BucketManager.CounterKeys.EVENTS_COMMITTED_LAST_WINDOW),
+                cs.getCounter(TimeBasedBucketManagerImpl.CounterKeys.IGNORED_EVENTS), cs.getCounter(CounterKeys.DUPLICATE_EVENTS),
+                cs.getCounter(TimeBasedBucketManagerImpl.CounterKeys.LOW),
+                cs.getCounter(TimeBasedBucketManagerImpl.CounterKeys.HIGH));
             }
           }
         }

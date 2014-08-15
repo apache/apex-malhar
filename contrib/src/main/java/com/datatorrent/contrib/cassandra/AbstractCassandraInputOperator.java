@@ -34,9 +34,10 @@ import org.slf4j.LoggerFactory;
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Row)}.
  * </p>
+ *
+ * @since 1.0.2
  */
 @ShipContainingJars(classes = {com.datastax.driver.core.Cluster.class})
-
 public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore> {
 
 	private static final Logger logger = LoggerFactory.getLogger(AbstractCassandraInputOperator.class);

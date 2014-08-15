@@ -228,3 +228,6 @@ article.alert-msg h1 span.alertType {
 button.clearFraudsBtn {
   float:right;
 }
+a.svg-link {
+    text-decoration: underline;
+}

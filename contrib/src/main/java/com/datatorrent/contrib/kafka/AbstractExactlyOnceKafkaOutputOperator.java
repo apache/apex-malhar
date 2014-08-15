@@ -73,7 +73,6 @@ import com.google.common.collect.Sets;
  *
  * @since 1.0.2
  */
-
 public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends AbstractKafkaOutputOperator<K, V>
 {
 
@@ -114,7 +113,6 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
 
       if(lastMsg == null || compareToLastMsg(keyValue, lastMsg) > 0){
         getProducer().send(new KeyedMessage<K, V>(getTopic(), keyValue.first, keyValue.second));
-        System.out.println("Send out the message " + keyValue.second);
         sendCount ++;
       } else {
         // ignore tuple because kafka has already had the tuple

@@ -26,7 +26,6 @@ import org.junit.Test;
 
 import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.AttributeMap.Attribute;
-import com.datatorrent.api.Context.Counters;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
@@ -167,7 +166,7 @@ public class HdfsExactlyOnceOutputOperatorTest
     }
 
     @Override
-    public void setCounters(Counters stats)
+    public void setCounters(Object stats)
     {
     }
 

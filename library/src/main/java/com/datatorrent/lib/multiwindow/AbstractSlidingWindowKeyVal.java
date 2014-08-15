@@ -47,7 +47,7 @@ import com.datatorrent.lib.util.KeyValPair;
  *
  * @since 0.3.3
  */
-public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends SlidingWindowObject>
+public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends SimpleMovingAverageObject>
 		extends BaseNumberKeyValueOperator<K, V>
 {
 	/**
@@ -61,7 +61,7 @@ public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends
 
 	/**
 	 * Concrete class has to implement how they want the tuple to be processed.
-	 * 
+	 *
 	 * @param tuple
 	 *          a keyVal pair of tuple.
 	 */
@@ -69,7 +69,7 @@ public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends
 
 	/**
 	 * Concrete class has to implement what to emit at the end of window.
-	 * 
+	 *
 	 * @param key
 	 * @param obj
 	 */
@@ -84,7 +84,7 @@ public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends
 
 	/**
 	 * Getter function for windowSize (number of previous window buffer).
-	 * 
+	 *
 	 * @return windowSize
 	 */
 	public int getWindowSize()
@@ -117,7 +117,7 @@ public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends
 	 * Moves buffer by 1 and clear contents of current. If you override
 	 * beginWindow, you must call super.beginWindow(windowId) to ensure proper
 	 * operator behavior.
-	 * 
+	 *
 	 * @param windowId
 	 */
 	@Override

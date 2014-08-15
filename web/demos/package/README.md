@@ -2,7 +2,8 @@ Web Demos
 ===============
 
 Web Application for DataTorrent Demos:
-- Twitter
+- Twitter URLs
+- Twitter Hashtags
 - Mobile
 - Machine Generated Data
 - Ads Dimensions
@@ -22,7 +23,8 @@ Web Application for DataTorrent Demos:
  Please use ```config.js``` or environment variables (```start.sh```) for configuration (DT Gateway, Redis, MongoDB, etc.).
 
  Applications are automatically discovered by name (to show stats like "Events/sec"). See the following settings in ```config.js```:
- - settings.twitter.appName
+ - settings.twitterUrls.appName
+ - settings.twitterHashtags.appName
  - settings.mobile.appName
  - settings.machine.appName
  - settings.dimensions.appName
@@ -30,7 +32,7 @@ Web Application for DataTorrent Demos:
 
 ## Architecture and Development
 
-See web application source code  [webapps](https://github.com/DataTorrent/Malhar/tree/master/webapps)
+See web application source code  [web demos](https://github.com/DataTorrent/Malhar/tree/master/web/demos)
 
 ## Tips
 

@@ -25,7 +25,6 @@ import java.io.File;
 import java.util.concurrent.LinkedBlockingQueue;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.io.FilenameUtils;
-import org.python.antlr.PythonParser.and_expr_return;
 import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
@@ -55,14 +54,14 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
   private transient FAListener listener;
 
   private LinkedBlockingQueue<FileInfoRecord> fileRecordsQueue = new LinkedBlockingQueue<FileInfoRecord>();
-  
+
   private transient Thread directoryScanThread = new Thread(new DirectoryScanner());
 
   public class FAListener implements FileAlterationListener
   {
     // Is triggered when a file is created in the monitored folder
-    
-    @Override    
+
+    @Override
     public void onFileCreate(File file)
     {
       FileInfoRecord fileRecord = new FileInfoRecord(file.getAbsolutePath(), FilenameUtils.getExtension(file.getAbsolutePath()), file.length());
@@ -73,8 +72,8 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
         DTThrowable.rethrow(e);
       }
     }
-    
-    
+
+
     @Override
     public void onFileDelete(File file)
     {
@@ -117,7 +116,7 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
 
   /**
    * Thread that periodically scans the directory.
-   * 
+   *
    */
   public class DirectoryScanner implements Runnable
   {
@@ -136,8 +135,8 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
   }
 
   /**
-   * Sets the path of the directory to be scanned. 
-   * 
+   * Sets the path of the directory to be scanned.
+   *
    * @param dirPath
    *          the path of the directory to be scanned
    */
@@ -148,7 +147,7 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
 
   /**
    * Returns the path of the directory being scanned.
-   * 
+   *
    * @return directoryPath the path of directory being scanned.
    */
   public String getDirectoryPath()
@@ -158,7 +157,7 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
 
   /**
    * Sets the time interval at which the directory is to be scanned
-   * 
+   *
    * @param scanIntervalInMilliSeconds
    *          the time interval for scanning the directory
    */
@@ -169,7 +168,7 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
 
   /**
    * Returns the interval at which the directory is being scanned.
-   * 
+   *
    * @return scanIntervalInMilliSeconds the interval at which the directory is being scanned
    */
   public int getScanIntervalInMilliSeconds()
@@ -179,7 +178,7 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
 
   /**
    * Sets the number of file records to output in one emit cycle
-   * 
+   *
    * @param fileCount
    *          the number of file records to output per emit
    */
@@ -190,7 +189,7 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
 
   /**
    * Returns the number of file records that are output per emit.
-   * 
+   *
    * @return fileCountPerEmit the number of file records that are output per emit
    */
   public int getFileCountPerEmit()
@@ -199,9 +198,9 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
   }
 
   /**
-   * Creates the directory instance for the specified directory path and 
+   * Creates the directory instance for the specified directory path and
    * check if it exists.
-   * 
+   *
    */
   @Override
   public void setup(OperatorContext context)
@@ -210,19 +209,19 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
   }
 
   /**
-   * Initializes the directory scan monitoring mechanism 
+   * Initializes the directory scan monitoring mechanism
    * and starts the thread that periodically scans the directory.
    */
   @Override
   final public void activate(OperatorContext ctx)
-  {    
+  {
      baseDirectory = new File(directoryPath.replace('/', File.separatorChar).replace('\\', File.separatorChar));
-  
+
      if (!baseDirectory.exists()) {
-       // Check if monitored folder exists      
+       // Check if monitored folder exists
        throw new RuntimeException("Directory not found: " + baseDirectory);
      }
-    
+
     // Start the directory monitor
     observer = new FileAlterationObserver(baseDirectory);
 
@@ -230,7 +229,7 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
     observer.addListener(listener);
 
     directoryScanThread.start();
-    
+
   }
 
   /**
@@ -260,7 +259,7 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
    */
   @Override
   public void emitTuples()
-  {    
+  {
     int count = fileCountPerEmit;
     try {
       while (!fileRecordsQueue.isEmpty() && count > 0) {

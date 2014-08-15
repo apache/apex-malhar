@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,18 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.multiwindow;
 
 /**
- * Interface to store window specific information.
- *
- * @since 0.3.2
+ * Basic counters and aggregates implementations.
  */
-public interface SlidingWindowObject
-{
-  /**
-   * Clear out the fields as needed when streaming window moves to next one. This method is called at the beginning of each window.
-   */
-  public void clear();
-
-}
+package com.datatorrent.lib.counters;

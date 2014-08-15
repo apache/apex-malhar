@@ -15,27 +15,25 @@
  */
 package com.datatorrent.demos.mobile;
 
-import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.api.DAGContext;
-import com.datatorrent.api.StreamingApplication;
+
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.google.common.collect.Range;
-import com.google.common.collect.Ranges;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.Range;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.URI;
+import java.util.Arrays;
 import java.util.Random;
 
 /**
@@ -111,7 +109,7 @@ public class Application implements StreamingApplication
   public static final String P_phoneRange = com.datatorrent.demos.mobile.Application.class.getName() + ".phoneRange";
   public static final String TOTAL_SEED_NOS = com.datatorrent.demos.mobile.Application.class.getName() + ".totalSeedNumbers";
 
-  private Range<Integer> phoneRange = Ranges.closed(5550000, 5559999);
+  private Range<Integer> phoneRange = Range.between(5550000, 5559999);
 
   private void configure(DAG dag, Configuration conf)
   {
@@ -135,7 +133,7 @@ public class Application implements StreamingApplication
       if (tokens.length != 2) {
         throw new IllegalArgumentException("Invalid range: " + phoneRange);
       }
-      this.phoneRange = Ranges.closed(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
+      this.phoneRange = Range.between(Integer.parseInt(tokens[0]), Integer.parseInt(tokens[1]));
     }
     System.out.println("Phone range: " + this.phoneRange);
   }
@@ -149,8 +147,8 @@ public class Application implements StreamingApplication
     dag.setAttribute(DAG.DEBUG, true);
 
     RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
-    phones.setMinvalue(this.phoneRange.lowerEndpoint());
-    phones.setMaxvalue(this.phoneRange.upperEndpoint());
+    phones.setMinvalue(this.phoneRange.getMinimum());
+    phones.setMaxvalue(this.phoneRange.getMaximum());
     phones.setTuplesBlast(200);
     phones.setTuplesBlastIntervalMillis(5);
     dag.setOutputPortAttribute(phones.integer_data, PortContext.QUEUE_CAPACITY, 32 * 1024);
@@ -159,8 +157,14 @@ public class Application implements StreamingApplication
     movementGen.setRange(20);
     movementGen.setThreshold(80);
     dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
-    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
-    dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 30000);
+    //dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MIN, 10000);
+    //dag.setAttribute(movementGen, OperatorContext.PARTITION_TPS_MAX, 30000);
+    ThroughputBasedPartitioner<PhoneMovementGenerator> partitioner = new ThroughputBasedPartitioner<PhoneMovementGenerator>();
+    partitioner.setCooldownMillis(90000);
+    partitioner.setMaximumThroughput(30000);
+    partitioner.setMinimumThroughput(10000);
+    dag.setAttribute(movementGen,OperatorContext.STATS_LISTENERS, Arrays.asList(new StatsListener[]{partitioner}));
+    dag.setAttribute(movementGen,OperatorContext.PARTITIONER, partitioner);
     dag.setInputPortAttribute(movementGen.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
     // default partitioning: first connected stream to movementGen will be partitioned
@@ -168,11 +172,11 @@ public class Application implements StreamingApplication
 
     // generate seed numbers
     Random random = new Random();
-    int maxPhone = phoneRange.upperEndpoint() - 5550000;
+    int maxPhone = phoneRange.getMaximum() - phoneRange.getMinimum();
     int phonesToDisplay = conf.getInt(TOTAL_SEED_NOS,10);
 
     for (int i = phonesToDisplay; i-- > 0; ) {
-      int phoneNo = 5550000 + random.nextInt(maxPhone + 1);
+      int phoneNo = phoneRange.getMinimum() + random.nextInt(maxPhone + 1);
       LOG.info("seed no: " + phoneNo);
       movementGen.phone_register.add(phoneNo);
     }
@@ -202,7 +206,7 @@ public class Application implements StreamingApplication
       movementGen.phone_register.add(5556101);
       ConsoleOutputOperator out = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
       out.setStringFormat("phoneLocationQueryResult" + ": %s");
-      dag.addStream("consoledata", movementGen.locationQueryResult, out.input).setLocality(Locality.CONTAINER_LOCAL);
+      dag.addStream("consoledata", movementGen.locationQueryResult, out.input);
     }
   }
 

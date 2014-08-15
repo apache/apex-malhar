@@ -72,61 +72,59 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     @Override
-    public Object getValueFor(Object key)
-    {
-      String query = "select col2 from " + TABLE_NAME + " where col1 = " + key;
-      Statement stmt;
-      try {
-        stmt = store.connection.createStatement();
-        ResultSet resultSet = stmt.executeQuery(query);
-        resultSet.next();
-        Object value = resultSet.getString(1);
-        stmt.close();
-        resultSet.close();
-        return value;
-      }
-      catch (SQLException e) {
-        throw new RuntimeException("while fetching key", e);
-      }
-    }
-
-    @Override
-    public Map<Object, Object> bulkGet(Set<Object> keys)
-    {
-      StringBuilder builder = new StringBuilder("(");
-      for (Object k : keys) {
-        builder.append(k);
-        builder.append(",");
-      }
-      builder.deleteCharAt(builder.length() - 1);
-      builder.append(")");
-      String query = "select col1, col2 from " + TABLE_NAME + " where col1 in " + builder.toString();
-
-      try {
-        Statement statement = store.connection.createStatement();
-        ResultSet resultSet = statement.executeQuery(query);
-
-        Map<Object, Object> values = Maps.newHashMap();
-        while (resultSet.next()) {
-          values.put(resultSet.getInt(1), resultSet.getString(2));
-        }
-        bulkValuesExchanger.exchange(values);
-        return values;
-      }
-      catch (SQLException e) {
-        throw new RuntimeException("while fetching multiple keys", e);
-      }
-      catch (InterruptedException e) {
-        throw new RuntimeException("interrupted while multiple keys", e);
-      }
-    }
-
-    @Override
     public Map<Object, Object> fetchStartupData()
     {
       return null;
     }
 
+    @Override
+    protected void preparePutStatement(PreparedStatement putStatement, Object key, Object value) throws SQLException
+    {
+      putStatement.setInt(1, (Integer) key);
+      putStatement.setString(2, (String) value);
+
+    }
+
+    @Override
+    protected void prepareGetStatement(PreparedStatement getStatement, Object key) throws SQLException
+    {
+      getStatement.setInt(1, (Integer) key);
+    }
+
+    @Override
+    public Object processResultSet(ResultSet resultSet) throws SQLException
+    {
+      if (resultSet.next()) {
+        return resultSet.getString(1);
+      }
+      return null;
+    }
+
+    @Override
+    protected String fetchInsertQuery()
+    {
+      return "INSERT INTO " + TABLE_NAME + " (col1, col2) VALUES (?, ?)";
+    }
+
+    @Override
+    protected String fetchGetQuery()
+    {
+      return "select col1, col2 from " + TABLE_NAME + " where col1 = ?";
+    }
+
+    @Override
+    public Map<Object, Object> bulkGet(Set<Object> keys)
+    {
+
+      Map<Object, Object> valMap = super.bulkGet(keys);
+      try {
+        bulkValuesExchanger.exchange(valMap);
+      }
+      catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      return valMap;
+    }
   }
 
   @Test
@@ -153,18 +151,21 @@ public class JDBCLookupCacheBackedOperatorTest
     Connection con = DriverManager.getConnection(INMEM_DB_URL);
     Statement stmt = con.createStatement();
 
-    String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (col1 INTEGER, col2 VARCHAR(20))";
+    String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME
+      + " (col1 INTEGER, col2 VARCHAR(20))";
 
     stmt.executeUpdate(createTable);
     stmt.executeUpdate("Delete from " + TABLE_NAME);
 
-    //populate the database
+    // populate the database
     for (Map.Entry<Integer, String> entry : mapping.entrySet()) {
-      String insert = "INSERT INTO " + TABLE_NAME + " (col1, col2) VALUES (" + entry.getKey() + ", '" + entry.getValue() + "')";
+      String insert = "INSERT INTO " + TABLE_NAME
+        + " (col1, col2) VALUES (" + entry.getKey() + ", '"
+        + entry.getValue() + "')";
       stmt.executeUpdate(insert);
     }
 
-    //Setup the operator
+    // Setup the operator
     lookupCacheBackedOperator.store.setDbUrl(INMEM_DB_URL);
     lookupCacheBackedOperator.store.setDbDriver(INMEM_DB_DRIVER);
 
@@ -172,7 +173,8 @@ public class JDBCLookupCacheBackedOperatorTest
     now.add(Calendar.SECOND, 5);
 
     SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-    lookupCacheBackedOperator.setCacheRefreshTime(format.format(now.getTime()));
+    lookupCacheBackedOperator.setCacheRefreshTime(format.format(now
+      .getTime()));
 
     lookupCacheBackedOperator.output.setSink(sink);
 

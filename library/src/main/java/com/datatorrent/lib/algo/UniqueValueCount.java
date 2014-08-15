@@ -45,8 +45,7 @@ public class UniqueValueCount<K> extends BaseOperator {
     private final Map<K,Set<Object>>  interimUniqueValues;
 
 
-    @InputPortFieldAnnotation(name="inputPort")
-    public transient DefaultInputPort<KeyValPair<K,Object>> inputPort = new DefaultInputPort<KeyValPair<K,Object>>() {
+    public transient DefaultInputPort<KeyValPair<K,Object>> input = new DefaultInputPort<KeyValPair<K,Object>>() {
 
         @Override
         public void process(KeyValPair<K, Object> pair) {
@@ -59,8 +58,7 @@ public class UniqueValueCount<K> extends BaseOperator {
         }
     } ;
 
-    @OutputPortFieldAnnotation(name="outputPort")
-    public transient DefaultOutputPort<KeyValPair<K,Integer>> outputPort= new DefaultOutputPort<KeyValPair<K,Integer>>(){
+    public transient DefaultOutputPort<KeyValPair<K,Integer>> output = new DefaultOutputPort<KeyValPair<K,Integer>>(){
 
         @Override
         @SuppressWarnings({"rawtypes","unchecked"})
@@ -78,7 +76,7 @@ public class UniqueValueCount<K> extends BaseOperator {
     public void endWindow() {
         for (K key : interimUniqueValues.keySet()) {
             Set<Object> values= interimUniqueValues.get(key);
-            outputPort.emit(new InternalCountOutput<K>(key, values.size(),values));
+            output.emit(new InternalCountOutput<K>(key, values.size(),values));
         }
         interimUniqueValues.clear();
     }
@@ -116,7 +114,7 @@ public class UniqueValueCount<K> extends BaseOperator {
      */
      static class UniqueCountUnifier<K> implements Unifier<InternalCountOutput<K>> {
 
-        public final transient DefaultOutputPort<InternalCountOutput<K>> outputPort = new DefaultOutputPort<InternalCountOutput<K>>();
+        public final transient DefaultOutputPort<InternalCountOutput<K>> output = new DefaultOutputPort<InternalCountOutput<K>>();
 
         private final Map<K,Set<Object>> finalUniqueValues;
 
@@ -141,7 +139,7 @@ public class UniqueValueCount<K> extends BaseOperator {
         @Override
         public void endWindow() {
             for(K key: finalUniqueValues.keySet()){
-                outputPort.emit(new InternalCountOutput<K>(key,finalUniqueValues.get(key).size(),finalUniqueValues.get(key)));
+                output.emit(new InternalCountOutput<K>(key,finalUniqueValues.get(key).size(),finalUniqueValues.get(key)));
             }
             finalUniqueValues.clear();
         }

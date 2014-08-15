@@ -24,12 +24,13 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.cassandra.CassandraTransactionalStore;
 
 /**
- * 
+ *
  *Application to benchmark the performance of cassandra output operator.
  *The operator was tested on following configuration:
  *Virtual Box with 10GB ram, 4 processor cores on an i7 machine with 16GB ram
  *The number of tuples processed per second were around 20,000
  *
+ * @since 1.0.3
  */
 
 @ApplicationAnnotation(name="CassandraOperatorDemo")

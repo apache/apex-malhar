@@ -13,16 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.script;
+package com.datatorrent.contrib.jython;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import junit.framework.Assert;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.script.PythonOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import org.python.core.PyInteger;
 

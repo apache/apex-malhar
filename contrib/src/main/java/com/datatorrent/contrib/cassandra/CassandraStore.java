@@ -30,6 +30,7 @@ import javax.validation.constraints.NotNull;
 /**
  * A {@link Connectable} that uses cassandra to connect to stores.
  *
+ * @since 1.0.2
  */
 @ShipContainingJars(classes = {com.datastax.driver.core.Cluster.class})
 public class CassandraStore implements Connectable

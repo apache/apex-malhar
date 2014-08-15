@@ -17,14 +17,14 @@ package com.datatorrent.contrib.twitter;
 
 import java.util.concurrent.ArrayBlockingQueue;
 
-import twitter4j.*;
-import twitter4j.conf.ConfigurationBuilder;
-
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import twitter4j.*;
+import twitter4j.conf.ConfigurationBuilder;
 
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
@@ -51,10 +51,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>();
   public final transient DefaultOutputPort<String> text = new DefaultOutputPort<String>();
   public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>();
+  public final transient DefaultOutputPort<String> hashtag = new DefaultOutputPort<String>();
 
   /* the following 3 ports are not implemented so far */
   public final transient DefaultOutputPort<?> userMention = null;
-  public final transient DefaultOutputPort<?> hashtag = null;
   public final transient DefaultOutputPort<?> media = null;
   /**
    * Enable debugging.
@@ -70,9 +70,9 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   /**
    * The state which we would like to save for this operator.
    */
-  private int multiplier = 1;
+  private int feedMultiplier = 1;
   @Min(0)
-  private int multiplierVariance = 0;
+  private int feedMultiplierVariance = 0;
 
   /* Following twitter access credentials should be set before using this operator. */
   @NotNull
@@ -91,16 +91,16 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   {
     operatorThread = Thread.currentThread();
 
-    if (multiplier != 1) {
-      logger.info("Load set to be {}% of the entire twitter feed", multiplier);
+    if (feedMultiplier != 1) {
+      logger.info("Load set to be {}% of the entire twitter feed", feedMultiplier);
     }
 
     ConfigurationBuilder cb = new ConfigurationBuilder();
     cb.setDebugEnabled(debug).
-      setOAuthConsumerKey(consumerKey).
-      setOAuthConsumerSecret(consumerSecret).
-      setOAuthAccessToken(accessToken).
-      setOAuthAccessTokenSecret(accessTokenSecret);
+            setOAuthConsumerKey(consumerKey).
+            setOAuthConsumerSecret(consumerSecret).
+            setOAuthAccessToken(accessToken).
+            setOAuthAccessTokenSecret(accessTokenSecret);
 
     ts = new TwitterStreamFactory(cb.build()).getInstance();
   }
@@ -114,19 +114,19 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   @Override
   public void onStatus(Status status)
   {
-    int randomMultiplier = multiplier;
+    int randomMultiplier = feedMultiplier;
 
-    if (multiplierVariance > 0) {
-      int min = multiplier - multiplierVariance;
+    if (feedMultiplierVariance > 0) {
+      int min = feedMultiplier - feedMultiplierVariance;
       if (min < 0) {
         min = 0;
       }
 
-      int max = multiplier + multiplierVariance;
-      randomMultiplier = min + (int) (Math.random() * ((max - min) + 1));
+      int max = feedMultiplier + feedMultiplierVariance;
+      randomMultiplier = min + (int)(Math.random() * ((max - min) + 1));
     }
     try {
-      for (int i = randomMultiplier; i-- > 0; ) {
+      for (int i = randomMultiplier; i-- > 0;) {
         statuses.put(status);
         count++;
       }
@@ -186,10 +186,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   {
     ConfigurationBuilder cb = new ConfigurationBuilder();
     cb.setDebugEnabled(debug).
-      setOAuthConsumerKey(consumerKey).
-      setOAuthConsumerSecret(consumerSecret).
-      setOAuthAccessToken(accessToken).
-      setOAuthAccessTokenSecret(accessTokenSecret);
+            setOAuthConsumerKey(consumerKey).
+            setOAuthConsumerSecret(consumerSecret).
+            setOAuthAccessToken(accessToken).
+            setOAuthAccessTokenSecret(accessTokenSecret);
 
     ts = new TwitterStreamFactory(cb.build()).getInstance();
     ts.addListener(TwitterSampleInput.this);
@@ -220,18 +220,28 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
 
   public void setFeedMultiplier(int multiplier)
   {
-    this.multiplier = multiplier;
+    this.feedMultiplier = multiplier;
+  }
+
+  public int getFeedMultiplier()
+  {
+    return this.feedMultiplier;
   }
 
   public void setFeedMultiplierVariance(int multiplierVariance)
   {
-    this.multiplierVariance = multiplierVariance;
+    this.feedMultiplierVariance = multiplierVariance;
+  }
+
+  public int getFeedMultiplierVariance()
+  {
+    return this.feedMultiplierVariance;
   }
 
   @Override
   public void emitTuples()
   {
-    for (int size = statuses.size(); size-- > 0; ) {
+    for (int size = statuses.size(); size-- > 0;) {
       Status s = statuses.poll();
       if (status.isConnected()) {
         status.emit(s);
@@ -249,7 +259,15 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
           }
         }
       }
-      // do the same thing for all the other output ports.
+
+      if (hashtag.isConnected()) {
+        HashtagEntity[] hashtagEntities = s.getHashtagEntities();
+        if (hashtagEntities != null) {
+          for (HashtagEntity he : hashtagEntities) {
+            hashtag.emit(he.getText());
+          }
+        }
+      }
     }
   }
 
@@ -309,8 +327,8 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   {
     int hash = 7;
     hash = 11 * hash + (this.debug ? 1 : 0);
-    hash = 11 * hash + this.multiplier;
-    hash = 11 * hash + this.multiplierVariance;
+    hash = 11 * hash + this.feedMultiplier;
+    hash = 11 * hash + this.feedMultiplierVariance;
     hash = 11 * hash + (this.consumerKey != null ? this.consumerKey.hashCode() : 0);
     hash = 11 * hash + (this.consumerSecret != null ? this.consumerSecret.hashCode() : 0);
     hash = 11 * hash + (this.accessToken != null ? this.accessToken.hashCode() : 0);
@@ -332,10 +350,10 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
     if (this.debug != other.debug) {
       return false;
     }
-    if (this.multiplier != other.multiplier) {
+    if (this.feedMultiplier != other.feedMultiplier) {
       return false;
     }
-    if (this.multiplierVariance != other.multiplierVariance) {
+    if (this.feedMultiplierVariance != other.feedMultiplierVariance) {
       return false;
     }
     if ((this.consumerKey == null) ? (other.consumerKey != null) : !this.consumerKey.equals(other.consumerKey)) {
@@ -356,7 +374,7 @@ public class TwitterSampleInput implements InputOperator, ActivationListener<Ope
   @Override
   public String toString()
   {
-    return "TwitterSampleInput{debug=" + debug + ", multiplier=" + multiplier + ", multiplierVariance=" + multiplierVariance + ", consumerKey=" + consumerKey + ", consumerSecret=" + consumerSecret + ", accessToken=" + accessToken + ", accessTokenSecret=" + accessTokenSecret + '}';
+    return "TwitterSampleInput{debug=" + debug + ", feedMultiplier=" + feedMultiplier + ", feedMultiplierVariance=" + feedMultiplierVariance + ", consumerKey=" + consumerKey + ", consumerSecret=" + consumerSecret + ", accessToken=" + accessToken + ", accessTokenSecret=" + accessTokenSecret + '}';
   }
 
   private static final Logger logger = LoggerFactory.getLogger(TwitterSampleInput.class);

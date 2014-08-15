@@ -31,7 +31,9 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 /**
  * Abstract http operator that creates client at setup and destroy at teardown
  * and provides the process tuple method to be implemented to process each incoming tuple
+ *
  * @param <T>
+ * @since 1.0.2
  */
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
 public abstract class AbstractHttpOperator<T> extends BaseOperator

@@ -36,8 +36,7 @@ import com.datatorrent.common.util.Slice;
  *          codec.
  * @since 0.3.3
  */
-public class JavaSerializationStreamCodec<T extends Serializable> implements
-		StreamCodec<T>
+public class JavaSerializationStreamCodec<T extends Serializable> implements StreamCodec<T>, Serializable
 {
 	@Override
 	public Object fromByteArray(Slice fragment)
