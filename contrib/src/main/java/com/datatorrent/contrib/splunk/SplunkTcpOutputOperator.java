@@ -15,12 +15,13 @@
  */
 package com.datatorrent.contrib.splunk;
 
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.net.Socket;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 import com.splunk.TcpInput;
+
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
 
 /**
  * 
@@ -52,7 +53,7 @@ public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, S
       socket = tcpInput.attach();
       stream = new DataOutputStream(socket.getOutputStream());
     } catch (IOException e) {
-      throw new RuntimeException();
+      throw new RuntimeException(e);
     }
   }
 
@@ -63,7 +64,7 @@ public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, S
       stream.writeBytes(tuple.toString());
 
     } catch (IOException e) {
-      throw new RuntimeException();
+      throw new RuntimeException(e);
     }
   }
 
@@ -73,7 +74,7 @@ public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, S
     try {
       stream.flush();
     } catch (IOException e) {
-      throw new RuntimeException();
+      throw new RuntimeException(e);
     }
   }
 
@@ -82,9 +83,15 @@ public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, S
 
     super.teardown();
     try {
-      socket.close();
+      stream.close();
     } catch (IOException e) {
-      throw new RuntimeException();
+      throw new RuntimeException(e);
+    } finally {
+      try {
+        socket.close();
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 

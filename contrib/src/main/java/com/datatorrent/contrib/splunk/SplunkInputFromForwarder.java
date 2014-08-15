@@ -15,6 +15,10 @@
  */
 package com.datatorrent.contrib.splunk;
 
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -22,13 +26,10 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.Properties;
 
-import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
-
 /**
  * 
- * An abstract class which receives input from a splunk forwarder and writes the lines to kafka
+ * An abstract class which receives input from a splunk forwarder and writes the lines to kafka.
+ * A kafka input operator can be used to read these lines in a DataTorrent application.
  *
  * @param <T> the type of data to be stored into kafka
  */
