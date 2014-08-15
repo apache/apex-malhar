@@ -105,7 +105,7 @@ public class HDSTest
     RegexFileFilter dataFileFilter = new RegexFileFilter("\\d+.*");
 
     FileSystem fs = FileSystem.getLocal(new Configuration(false)).getRawFileSystem();
-    BucketFileSystem bfs = new FSBucketFileSystem(fs, file.getAbsolutePath());
+    HDSFileAccess bfs = new HDSFileAccessFSImpl(fs, file.getAbsolutePath());
 
     HDSBucketManager hds = new HDSBucketManager();
     hds.bfs = bfs;
