@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -22,7 +23,8 @@ import org.python.google.common.collect.Sets;
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.hds.BucketFileSystem.BucketFileMeta;
+import com.datatorrent.lib.hds.BucketFileSystem.HDSFileReader;
+import com.datatorrent.lib.hds.BucketFileSystem.HDSFileWriter;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -75,9 +77,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
   /**
    * Read entire file.
-   * TODO: delegate to the file reader
    * @param bucketKey
-   * @param bfm
+   * @param fileName
    * @return
    * @throws IOException
    */
@@ -85,13 +86,9 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   protected TreeMap<byte[], byte[]> readFile(long bucketKey, String fileName) throws IOException
   {
     TreeMap<byte[], byte[]> data = Maps.newTreeMap(getKeyComparator());
-    InputStream is = bfs.getInputStream(bucketKey, fileName);
-    Input input = new Input(is);
-    while (!input.eof()) {
-      byte[] key = kryo.readObject(input, byte[].class);
-      byte[] value = kryo.readObject(input, byte[].class);
-      data.put(key, value);
-    }
+    HDSFileReader reader = bfs.getReader(bucketKey, fileName);
+    reader.readFully(data);
+    reader.close();
     return data;
   }
 
@@ -104,38 +101,29 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
    */
   private void writeFile(Bucket bucket, BucketMeta bucketMeta, TreeMap<byte[], byte[]> data) throws IOException
   {
-    DataOutputStream dos = null;
-    CountingOutputStream cos = null;
-    Output out = null;
+    HDSFileWriter fw = null;
     BucketFileMeta fileMeta = null;
     for (Map.Entry<byte[], byte[]> dataEntry : data.entrySet()) {
-      if (out == null) {
+      if (fw == null) {
         // next file
         fileMeta = bucketMeta.addFile(bucket.bucketKey, dataEntry.getKey());
-        dos = bfs.getOutputStream(bucket.bucketKey, fileMeta.name + ".tmp");
-        cos = new CountingOutputStream(dos);
-        out = new Output(cos);
+        fw = bfs.getWriter(bucket.bucketKey, fileMeta.name + ".tmp");
       }
 
-      // TODO: delegate to the file writer
-      kryo.writeObject(out, dataEntry.getKey());
-      kryo.writeObject(out, dataEntry.getValue());
+      fw.append(dataEntry.getKey(), dataEntry.getValue());
 
-      if (cos.getCount() + out.position() > this.maxFileSize) {
+      if (fw.getFileSize() > this.maxFileSize) {
         // roll file
-        out.close();
-        cos.close();
-        dos.close();
+        fw.close();
         bucket.fileDataCache.remove(fileMeta.name);
         bfs.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
-        out = null;
+        fw = null;
       }
     }
 
-    if (out != null) {
-      out.close();
-      cos.close();
-      dos.close();
+    if (fw != null) {
+      fw.close();
+      bucket.fileDataCache.remove(fileMeta.name);
       bfs.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
     }
 
@@ -371,6 +359,23 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
   }
 
+  public static class BucketFileMeta
+  {
+    /**
+     * Name of file (relative to bucket)
+     */
+    public String name;
+    /**
+     * Lower bound sequence key
+     */
+    public byte[] fromSeq;
+
+    @Override
+    public String toString()
+    {
+      return "BucketFileMeta [name=" + name + ", fromSeq=" + Arrays.toString(fromSeq) + "]";
+    }
+  }
 
   /**
    * Meta data about bucket, persisted in store

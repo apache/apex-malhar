@@ -8,7 +8,7 @@ import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.TreeMap;
 
 /**
  * Encapsulate management of meta information and underlying file system interaction.
@@ -17,25 +17,6 @@ import java.util.Arrays;
  */
 public interface BucketFileSystem extends Closeable
 {
-
-  public class BucketFileMeta
-  {
-    /**
-     * Name of file (relative to bucket)
-     */
-    String name;
-    /**
-     * Lower bound sequence key
-     */
-    byte[] fromSeq;
-
-    @Override
-    public String toString()
-    {
-      return "BucketFileMeta [name=" + name + ", fromSeq=" + Arrays.toString(fromSeq) + "]";
-    }
-
-  }
 
   /**
    * Performs setup operations eg. crate database connections, delete events of windows greater than last committed
@@ -55,5 +36,28 @@ public interface BucketFileSystem extends Closeable
    */
   void rename(long bucketKey, String oldName, String newName) throws IOException;
   void delete(long bucketKey, String fileName) throws IOException;
+
+  // placeholder interface
+  interface HDSFileReader extends Closeable {
+    void readFully(TreeMap<byte[], byte[]> data) throws IOException;
+  }
+
+  // placeholder interface
+  interface HDSFileWriter extends Closeable {
+    void append(byte[] key, byte[] value) throws IOException;
+    int getFileSize();
+  }
+
+  /**
+   * Obtain a reader for the given data file. Since existing file formats may depend on the file system directly (vs.
+   * work just based on InputStream), construction of the reader is part of the file system abstraction itself.
+   */
+  public HDSFileReader getReader(long bucketKey, String fileName) throws IOException;
+
+  /**
+   * Obtain a writer for the given data file. Since existing file formats may depend on the file system directly (vs.
+   * work just based on OutputStream), construction of the writer is part of the file system abstraction itself.
+   */
+  public HDSFileWriter getWriter(long bucketKey, String fileName) throws IOException;
 
 }
