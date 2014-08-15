@@ -52,7 +52,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
   private final HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
   private transient long windowId;
-  HDSFileAccess bfs;
+  protected HDSFileAccess bfs;
   private final HashMap<Long, Bucket> buckets = Maps.newHashMap();
   private final transient Kryo kryo = new Kryo();
 
