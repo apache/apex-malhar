@@ -10,7 +10,7 @@
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
     <datatorrent.version>1.0.4-SNAPSHOT</datatorrent.version>
-    <datatorrent.appbundle.classpath>lib/*.jar</datatorrent.appbundle.classpath>
+    <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
   </properties>
 
   <name>Datatorrent MachineData Demo</name>
@@ -66,10 +66,10 @@
           <archive>
             <index>true</index>
             <manifestEntries>
-              <Class-Path>${datatorrent.appbundle.classpath}</Class-Path>
+              <Class-Path>${datatorrent.apppackage.classpath}</Class-Path>
               <DT-Engine-Version>${datatorrent.version}</DT-Engine-Version>
-              <DT-App-Bundle-Name>${project.artifactId}</DT-App-Bundle-Name>
-              <DT-App-Bundle-Version>${project.version}</DT-App-Bundle-Version>
+              <DT-App-Package-Name>${project.artifactId}</DT-App-Package-Name>
+              <DT-App-Package-Version>${project.version}</DT-App-Package-Version>
             </manifestEntries>
           </archive>
         </configuration>
@@ -114,7 +114,7 @@
          <artifactId>maven-assembly-plugin</artifactId>
          <executions>
            <execution>
-             <id>app-bundle-assembly</id>
+             <id>app-package-assembly</id>
              <phase>package</phase>
              <goals>
                <goal>single</goal>
@@ -122,11 +122,35 @@
              <configuration>
                <finalName>${project.build.finalName}</finalName>
                <descriptors>
-                 <descriptor>src/assemble/appBundle.xml</descriptor>
+                 <descriptor>src/assemble/appPackage.xml</descriptor>
                </descriptors>
                <archiverConfig>
                  <defaultDirectoryMode>0755</defaultDirectoryMode>
                </archiverConfig>                  
+             </configuration>
+           </execution>
+         </executions>
+       </plugin>
+       <plugin>
+         <groupId>com.github.goldin</groupId>
+         <artifactId>copy-maven-plugin</artifactId>
+         <version>0.2.5</version>
+         <executions>
+           <execution>
+             <id>create-archive</id>
+             <phase>package</phase>
+             <goals>
+               <goal>copy</goal>
+             </goals>
+             <configuration>
+               <resources>
+                 <resource>
+                   <move>true</move>
+                   <targetPath>${project.build.directory}</targetPath>
+                   <file>${project.build.directory}/${project.build.finalName}-appPackage.zip</file>
+                   <destFileName>DTApp-${project.artifactId}-${project.version}.jar</destFileName>
+                 </resource>
+               </resources>
              </configuration>
            </execution>
          </executions>
