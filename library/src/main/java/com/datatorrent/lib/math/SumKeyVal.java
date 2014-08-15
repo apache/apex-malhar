@@ -42,7 +42,7 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
-  protected class SumEntry
+  protected static class SumEntry
   {
     public MutableDouble sum;
     public boolean changed = true;
@@ -63,12 +63,12 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
    * Sums key map.
    */
   protected HashMap<K, SumEntry> sums = new HashMap<K, SumEntry>();
-  
+
   /**
    * Cumulative sum flag.
    */
   protected boolean cumulative = false;
-  
+
   /**
    * Input port to receive data.
    */
@@ -106,37 +106,37 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
     }
 
   };
-  
+
   /**
    * Output sum port.
    */
   @OutputPortFieldAnnotation(name = "sum", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> sum = new DefaultOutputPort<KeyValPair<K, V>>();
-  
+
   /**
    * Output double sum port.
    */
   @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Double>> sumDouble = new DefaultOutputPort<KeyValPair<K, Double>>();
-  
-  /** 
+
+  /**
    * Output integer sum port.
    */
   @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Integer>> sumInteger = new DefaultOutputPort<KeyValPair<K, Integer>>();
-  
+
   /**
    * Output long sum port.
    */
   @OutputPortFieldAnnotation(name = "sumLong", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Long>> sumLong = new DefaultOutputPort<KeyValPair<K, Long>>();
-  
+
   /**
    * Output short sum port.
    */
   @OutputPortFieldAnnotation(name = "sumShort", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Short>> sumShort = new DefaultOutputPort<KeyValPair<K, Short>>();
-  
+
   /**
    * Output float sum port.
    */
@@ -153,7 +153,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   }
 
   /**
-   * 
+   *
    * @param cumulative
    */
   public void setCumulative(boolean cumulative)
