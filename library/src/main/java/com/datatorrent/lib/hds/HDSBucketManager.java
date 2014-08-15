@@ -28,8 +28,6 @@ import java.util.TreeMap;
 
 import javax.validation.constraints.NotNull;
 
-import org.python.google.common.collect.Sets;
-
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
@@ -40,6 +38,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 
 /**
