@@ -67,16 +67,16 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFSDirectoryInputOperator.class);
 
   @NotNull
-  private String directory;
+  protected String directory;
   @NotNull
-  private DirectoryScanner scanner = new DirectoryScanner();
-  private int scanIntervalMillis = 5000;
-  private int offset;
-  private String currentFile;
-  private final HashSet<String> processedFiles = new HashSet<String>();
-  private int emitBatchSize = 1000;
+  protected DirectoryScanner scanner = new DirectoryScanner();
+  protected int scanIntervalMillis = 5000;
+  protected int offset;
+  protected String currentFile;
+  protected final Set<String> processedFiles = new HashSet<String>();
+  protected int emitBatchSize = 1000;
   private int currentPartitions = 1 ;
-  private int partitionCount = 1;
+  protected int partitionCount = 1;
   private int retryCount = 0;
   private int maxRetryCount = 5;
   transient protected int skipCount = 0;
@@ -122,13 +122,13 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
   }
   /* List of failed file */
-  private final Queue<FailedFile> failedFiles = new LinkedList<FailedFile>();
+  protected final Queue<FailedFile> failedFiles = new LinkedList<FailedFile>();
 
   protected transient FileSystem fs;
   protected transient Configuration configuration;
-  private transient long lastScanMillis;
-  private transient Path filePath;
-  private transient InputStream inputStream;
+  protected transient long lastScanMillis;
+  protected transient Path filePath;
+  protected transient InputStream inputStream;
   protected transient LinkedHashSet<Path> pendingFiles = new LinkedHashSet<Path>();
 
   public String getDirectory()
@@ -235,7 +235,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   }
 
   @Override
-  final public void emitTuples()
+  public void emitTuples()
   {
     if (inputStream == null) {
       if (pendingFiles.isEmpty() && failedFiles.isEmpty()) {
