@@ -18,7 +18,6 @@ package com.datatorrent.lib.hds;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.TreeMap;
 
 import org.apache.commons.io.output.CountingOutputStream;
@@ -53,6 +52,7 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
   @Override
   public void close() throws IOException
   {
+    fs.close();
   }
 
   @Override
@@ -95,22 +95,48 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
   @Override
   public HDSFileReader getReader(final long bucketKey, final String fileName) throws IOException
   {
+    final DataInputStream is = getInputStream(bucketKey, fileName);
     return new HDSFileReader() {
-      @Override
-      public void close() throws IOException
-      {
-      }
 
       @Override
       public void readFully(TreeMap<byte[], byte[]> data) throws IOException
       {
-        InputStream is = getInputStream(bucketKey, fileName);
         Input input = new Input(is);
         while (!input.eof()) {
           byte[] key = kryo.readObject(input, byte[].class);
           byte[] value = kryo.readObject(input, byte[].class);
           data.put(key, value);
         }
+      }
+
+      @Override
+      public byte[] getValue(byte[] key) throws IOException {
+        throw new UnsupportedOperationException("Operation not implemented");
+      }
+
+      @Override
+      public void reset() throws IOException {
+        is.reset();
+      }
+
+      @Override
+      public void seek(byte[] key) throws IOException {
+        throw new UnsupportedOperationException("Operation not implemented");
+      }
+
+      @Override
+      public boolean next() throws IOException {
+        throw new UnsupportedOperationException("Operation not implemented");
+      }
+
+      @Override
+      public void get(MutableKeyValue mutableKeyValue) throws IOException {
+        throw new UnsupportedOperationException("Operation not implemented");
+      }
+
+      @Override
+      public void close() throws IOException {
+        is.close();
       }
     };
   }
