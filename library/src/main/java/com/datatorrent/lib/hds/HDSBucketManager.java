@@ -42,7 +42,7 @@ import com.google.common.collect.Sets;
 
 
 /**
- * Manager for buckets. Implements can be sub-classed as operator or used in composite pattern.
+ * Manager for buckets. Can be sub-classed as operator or used in composite pattern.
  */
 public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, Operator
 {
