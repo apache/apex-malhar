@@ -44,10 +44,51 @@ public interface HDSFileAccess extends Closeable
   // placeholder interface
   interface HDSFileReader extends Closeable {
     void readFully(TreeMap<byte[], byte[]> data) throws IOException;
+
+    /**
+     * Searches for a matching key, and returns the corresponding value.  Exception is thrown if a matching key is not found.
+     * @param key Byte array representing the key
+     * @return Byte array representing the value
+     * @throws IOException
+     */
+    byte[] getValue(byte[] key) throws IOException;
+
+    /**
+     * Repositions the pointer to the beginning of the underlying file.
+     * @throws IOException
+     */
+    void reset() throws IOException;
+
+    /**
+     * Searches for a matching key, and positions the pointer before the start of the key.
+     * @param key Byte array representing the key
+     * @throws IOException
+     */
+    void seek(byte[] key) throws IOException;
+
+    /**
+     * Advances the pointer to the next available key in the underlying file, or returns false if end of file is reached.
+     * @return true if another key is available, false otherwise
+     * @throws IOException
+     */
+    boolean next() throws IOException;
+
+    /**
+     * Reads the next available key/value into {@link com.datatorrent.lib.hds.MutableKeyValue} starting at the current pointer location, or throws Exception if end of file is reached.
+     * @param mutableKeyValue A key/value pair represented by byte arrays
+     * @throws IOException
+     */
+    public void get(MutableKeyValue mutableKeyValue) throws IOException;
   }
 
   // placeholder interface
   interface HDSFileWriter extends Closeable {
+    /**
+     * Appends key/value pair to the underlying file.
+     * @param key
+     * @param value
+     * @throws IOException
+     */
     void append(byte[] key, byte[] value) throws IOException;
     int getFileSize();
   }
