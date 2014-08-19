@@ -20,12 +20,16 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.TreeMap;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.io.output.CountingOutputStream;
+import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Options.Rename;
 import org.apache.hadoop.fs.Path;
 
+import com.datatorrent.common.util.DTThrowable;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -35,13 +39,22 @@ import com.esotericsoftware.kryo.io.Output;
  */
 public class HDSFileAccessFSImpl implements HDSFileAccess
 {
-  private final FileSystem fs;
-  private final String basePath;
+  @NotNull
+  private String basePath;
+  private transient FileSystem fs;
 
-  public HDSFileAccessFSImpl(FileSystem fs, String basePath)
+  public HDSFileAccessFSImpl()
   {
-    this.fs = fs;
-    this.basePath = basePath;
+  }
+
+  public String getBasePath()
+  {
+    return basePath;
+  }
+
+  public void setBasePath(String path)
+  {
+    this.basePath = path;
   }
 
   protected Path getBucketPath(long bucketKey)
@@ -58,6 +71,14 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
   @Override
   public void init()
   {
+    if (fs == null) {
+      Path dataFilePath = new Path(basePath);
+      try {
+        fs = FileSystem.newInstance(dataFilePath.toUri(), new Configuration());
+      } catch (IOException e) {
+        DTThrowable.rethrow(e);
+      }
+    }
   }
 
   @Override
@@ -172,6 +193,12 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
 
     };
 
+  }
+
+  @Override
+  public String toString()
+  {
+    return "HDSFileAccessFSImpl [basePath=" + basePath + "]";
   }
 
 }

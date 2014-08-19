@@ -21,11 +21,6 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import javax.validation.constraints.NotNull;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,7 +29,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
 import com.esotericsoftware.kryo.Kryo;
@@ -51,11 +45,8 @@ public class HDSOperator extends HDSBucketManager implements Partitioner<HDSOper
    */
   protected int partitionMask;
   protected Set<Integer> partitions;
-  @NotNull
-  private String storeDir;
 
   private transient StreamCodec<KeyValPair<byte[], byte[]>> streamCodec;
-  private transient FileSystem fs;
 
   public final transient DefaultInputPort<KeyValPair<byte[], byte[]>> data = new DefaultInputPort<KeyValPair<byte[], byte[]>>() {
     @Override
@@ -99,20 +90,12 @@ public class HDSOperator extends HDSBucketManager implements Partitioner<HDSOper
   @Override
   public void setup(OperatorContext arg0)
   {
+    LOG.debug("Opening store {} for partitions {} {}", super.getFileStore(), new PartitionKeys(this.partitionMask, this.partitions));
     super.setup(arg0);
     try {
       this.streamCodec = getBucketKeyStreamCodec().newInstance();
     } catch (Exception e) {
       throw new RuntimeException("Failed to create streamCodec", e);
-    }
-
-    LOG.debug("Opening store at {} for partitions {} {}", this.storeDir, new PartitionKeys(this.partitionMask, this.partitions));
-    Path dataFilePath = new Path(storeDir);
-    try {
-      this.fs = FileSystem.newInstance(dataFilePath.toUri(), new Configuration());
-      super.bfs = new HDSFileAccessFSImpl(fs, storeDir);
-    } catch (IOException e) {
-      DTThrowable.rethrow(e);
     }
   }
 
@@ -120,12 +103,6 @@ public class HDSOperator extends HDSBucketManager implements Partitioner<HDSOper
   public void teardown()
   {
     super.teardown();
-    try {
-      super.bfs.close();
-      this.fs.close();
-    } catch (IOException e) {
-      LOG.warn("Failed to close.", e);
-    }
   }
 
   @Override
@@ -169,16 +146,6 @@ public class HDSOperator extends HDSBucketManager implements Partitioner<HDSOper
   @Override
   public void partitioned(Map<Integer, Partition<HDSOperator>> arg0)
   {
-  }
-
-  public String getStoreDir()
-  {
-    return storeDir;
-  }
-
-  public void setStoreDir(String storeDir)
-  {
-    this.storeDir = storeDir;
   }
 
 }

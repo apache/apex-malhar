@@ -57,7 +57,7 @@ public class HDSTestApp implements StreamingApplication
     Generator generator = dag.addOperator("Generator", new Generator());
     HDSOperator store = dag.addOperator("Store", new HDSOperator());
     store.setKeyComparator(new MyDataKey.SequenceComparator());
-
+    store.setFileStore(new HDSFileAccessFSImpl());
     dag.addStream("Generator2Store", generator.output, store.data);
   }
 
@@ -69,7 +69,7 @@ public class HDSTestApp implements StreamingApplication
 
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
-    conf.set("dt.operator.Store.storeDir", file.toURI().toString());
+    conf.set("dt.operator.Store.fileStore.basePath", file.toURI().toString());
     conf.set("dt.operator.Store.attr.INITIAL_PARTITION_COUNT", "2");
 
     lma.prepareDAG(new HDSTestApp(), conf);
