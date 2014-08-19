@@ -22,8 +22,6 @@ import java.util.Comparator;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.getopt.util.hash.MurmurHash;
 import org.junit.Assert;
 import org.junit.Test;
@@ -115,11 +113,12 @@ public class HDSTest
     File bucket1WalFile = new File(bucket1Dir, HDSBucketManager.FNAME_WAL);
     RegexFileFilter dataFileFilter = new RegexFileFilter("\\d+.*");
 
-    FileSystem fs = FileSystem.getLocal(new Configuration(false)).getRawFileSystem();
-    HDSFileAccess bfs = new HDSFileAccessFSImpl(fs, file.getAbsolutePath());
+    //FileSystem fs = FileSystem.getLocal(new Configuration(false)).getRawFileSystem();
+    HDSFileAccessFSImpl bfs = new HDSFileAccessFSImpl();
+    bfs.setBasePath(file.getAbsolutePath());
 
     HDSBucketManager hds = new HDSBucketManager();
-    hds.bfs = bfs;
+    hds.setFileStore(bfs);
     hds.setKeyComparator(new MyDataKey.SequenceComparator());
     hds.setMaxFileSize(1); // limit to single entry per file
 

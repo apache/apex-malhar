@@ -26,11 +26,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
 
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
+import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileWriter;
 import com.esotericsoftware.kryo.Kryo;
@@ -51,13 +53,25 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
   private final HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
   private transient long windowId;
-  protected HDSFileAccess bfs;
   private final HashMap<Long, Bucket> buckets = Maps.newHashMap();
   private final transient Kryo kryo = new Kryo();
 
   @NotNull
   private Comparator<byte[]> keyComparator;
+  @Valid
+  @NotNull
+  private HDSFileAccess fileStore;
   private int maxFileSize = 64000;
+
+  public HDSFileAccess getFileStore()
+  {
+    return fileStore;
+  }
+
+  public void setFileStore(HDSFileAccess fileStore)
+  {
+    this.fileStore = fileStore;
+  }
 
   /**
    * Compare keys for sequencing as secondary level of organization within buckets.
@@ -95,7 +109,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   protected TreeMap<byte[], byte[]> readFile(long bucketKey, String fileName) throws IOException
   {
     TreeMap<byte[], byte[]> data = Maps.newTreeMap(getKeyComparator());
-    HDSFileReader reader = bfs.getReader(bucketKey, fileName);
+    HDSFileReader reader = fileStore.getReader(bucketKey, fileName);
     reader.readFully(data);
     reader.close();
     return data;
@@ -116,7 +130,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       if (fw == null) {
         // next file
         fileMeta = bucketMeta.addFile(bucket.bucketKey, dataEntry.getKey());
-        fw = bfs.getWriter(bucket.bucketKey, fileMeta.name + ".tmp");
+        fw = fileStore.getWriter(bucket.bucketKey, fileMeta.name + ".tmp");
       }
 
       fw.append(dataEntry.getKey(), dataEntry.getValue());
@@ -125,7 +139,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         // roll file
         fw.close();
         bucket.fileDataCache.remove(fileMeta.name);
-        bfs.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+        fileStore.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
         fw = null;
       }
     }
@@ -133,7 +147,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     if (fw != null) {
       fw.close();
       bucket.fileDataCache.remove(fileMeta.name);
-      bfs.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+      fileStore.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
     }
 
   }
@@ -184,7 +198,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     Bucket bucket = getBucket(bucketKey);
     if (bucket.wal == null) {
-      bucket.wal = bfs.getOutputStream(bucket.bucketKey, FNAME_WAL);
+      bucket.wal = fileStore.getOutputStream(bucket.bucketKey, FNAME_WAL);
       bucket.wal.write(key);
       bucket.wal.write(value);
     }
@@ -272,12 +286,12 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
       // flush meta data for new files
       try {
-        OutputStream os = bfs.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
+        OutputStream os = fileStore.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
         Output output = new Output(os);
         kryo.writeClassAndObject(output, bucketMetaCopy);
         output.close();
         os.close();
-        bfs.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
+        fileStore.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
       } catch (IOException e) {
         throw new RuntimeException("Failed to write bucket meta data " + bucket.bucketKey, e);
       }
@@ -289,7 +303,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
       // delete old files
       for (String fileName : filesToDelete) {
-        bfs.delete(bucket.bucketKey, fileName);
+        fileStore.delete(bucket.bucketKey, fileName);
         bucket.fileDataCache.remove(fileName);
       }
 
@@ -300,15 +314,17 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   @Override
   public void setup(OperatorContext arg0)
   {
-    // TODO Auto-generated method stub
-
+    fileStore.init();
   }
 
   @Override
   public void teardown()
   {
-    // TODO Auto-generated method stub
-
+    try {
+      fileStore.close();
+    } catch (IOException e) {
+      DTThrowable.rethrow(e);
+    }
   }
 
   @Override
@@ -354,7 +370,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     BucketMeta bucketMeta = null;
     try {
-      InputStream is = bfs.getInputStream(bucketKey, FNAME_META);
+      InputStream is = fileStore.getInputStream(bucketKey, FNAME_META);
       bucketMeta = (BucketMeta)kryo.readClassAndObject(new Input(is));
       is.close();
     } catch (IOException e) {
