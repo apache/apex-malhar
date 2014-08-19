@@ -25,6 +25,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 import javax.validation.Valid;
 import javax.validation.constraints.NotNull;
@@ -55,6 +57,9 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   private transient long windowId;
   private final HashMap<Long, Bucket> buckets = Maps.newHashMap();
   private final transient Kryo kryo = new Kryo();
+  @VisibleForTesting
+  protected transient ExecutorService writeExecutor;
+  private transient Exception writerError;
 
   @NotNull
   private Comparator<byte[]> keyComparator;
@@ -62,6 +67,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   @NotNull
   private HDSFileAccess fileStore;
   private int maxFileSize = 64000;
+  private int flushSize = 100;
+
 
   public HDSFileAccess getFileStore()
   {
@@ -88,6 +95,11 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     this.keyComparator = keyComparator;
   }
 
+  /**
+   * Size limit for data files. Files are rolled once the limit has been exceeded.
+   * The final size of a file can be larger than the limit by the size of the last/single entry written to it.
+   * @return
+   */
   public int getMaxFileSize()
   {
     return maxFileSize;
@@ -96,6 +108,20 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void setMaxFileSize(int maxFileSize)
   {
     this.maxFileSize = maxFileSize;
+  }
+
+  /**
+   * The number of changes collected in memory before flushing to persistent storage.
+   * @return
+   */
+  public int getFlushSize()
+  {
+    return flushSize;
+  }
+
+  public void setFlushSize(int flushSize)
+  {
+    this.flushSize = flushSize;
   }
 
   /**
@@ -173,6 +199,12 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       return v;
     }
 
+    // check changes currently being flushed
+    v = bucket.frozenWriteCache.get(key);
+    if (v != null) {
+      return v;
+    }
+
     BucketMeta bm = getMeta(bucketKey);
     if (bm == null) {
       throw new IllegalArgumentException("Invalid bucket key " + bucketKey);
@@ -211,7 +243,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
    * The flush frequency determines availability of changes to external readers.
    * @throws IOException
    */
-  public void writeDataFiles() throws IOException
+  private void writeDataFiles() throws IOException
   {
     // bucket keys by file
     Map<Bucket, Map<BucketFileMeta, Map<byte[], byte[]>>> modifiedBuckets = Maps.newHashMap();
@@ -221,7 +253,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       BucketMeta bm = getMeta(bucketEntry.getKey());
       TreeMap<byte[], BucketFileMeta> bucketSeqStarts = bm.files;
 
-      for (Map.Entry<byte[], byte[]> entry : bucket.writeCache.entrySet()) {
+      for (Map.Entry<byte[], byte[]> entry : bucket.frozenWriteCache.entrySet()) {
 
         // find the file for the key
         Map.Entry<byte[], BucketFileMeta> floorEntry = bucketSeqStarts.floorEntry(entry.getKey());
@@ -297,7 +329,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       }
 
       // clear pending changes
-      bucket.writeCache.clear();
+      bucket.frozenWriteCache.clear();
       // switch to new version
       this.metaCache.put(bucket.bucketKey, bucketMetaCopy);
 
@@ -315,6 +347,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void setup(OperatorContext arg0)
   {
     fileStore.init();
+    writeExecutor = Executors.newSingleThreadScheduledExecutor();
   }
 
   @Override
@@ -325,6 +358,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
+    writeExecutor.shutdown();
   }
 
   @Override
@@ -336,6 +370,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   @Override
   public void endWindow()
   {
+    boolean scheduleFlush = false;
     for (Bucket bucket : this.buckets.values()) {
       try {
         if (bucket.wal != null)
@@ -343,7 +378,36 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       } catch (IOException e) {
         throw new RuntimeException("Failed to flush WAL", e);
       }
+
+      if (bucket.writeCache.size() > this.flushSize && !bucket.writeCache.isEmpty()) {
+        if (bucket.frozenWriteCache.isEmpty()) {
+          bucket.frozenWriteCache = bucket.writeCache;
+          bucket.writeCache = Maps.newHashMap();
+          scheduleFlush = true;
+        }
+      }
     }
+
+    if (scheduleFlush) {
+      Runnable flushRunnable = new Runnable() {
+        @Override
+        public void run()
+        {
+          try {
+            writeDataFiles();
+          } catch (IOException e) {
+            writerError = e;
+          }
+        }
+      };
+      this.writeExecutor.execute(flushRunnable);
+
+      if (writerError != null) {
+        throw new RuntimeException("Error while flushing write cache.", this.writerError);
+      }
+
+    }
+
   }
 
   @Override
@@ -436,7 +500,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     private long bucketKey;
     // keys that were modified and written to WAL, but not yet persisted
-    private final HashMap<byte[], byte[]> writeCache = Maps.newHashMap();
+    private HashMap<byte[], byte[]> writeCache = Maps.newHashMap();
+    private HashMap<byte[], byte[]> frozenWriteCache = Maps.newHashMap();
     private transient DataOutputStream wal;
     private final transient HashMap<String, TreeMap<byte[], byte[]>> fileDataCache = Maps.newHashMap();
   }

@@ -17,6 +17,7 @@ package com.datatorrent.contrib.hds;
 
 import java.io.File;
 import java.nio.ByteBuffer;
+import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -32,10 +33,15 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.hds.HDSTest.MyDataKey;
 import com.datatorrent.lib.util.KeyValPair;
+import com.google.common.collect.Maps;
 
 @ApplicationAnnotation(name="HDSTestApp")
 public class HDSTestApp implements StreamingApplication
 {
+  private static final String DATA0 = "data0";
+  private static final String DATA1 = "data1";
+  private static byte[] KEY0 = ByteBuffer.allocate(16).putLong(0x00000000).putLong(0).array();
+  private static byte[] KEY1 = ByteBuffer.allocate(16).putLong(0xffffffff).putLong(0).array();
 
   public static class Generator extends BaseOperator implements InputOperator
   {
@@ -44,10 +50,8 @@ public class HDSTestApp implements StreamingApplication
     @Override
     public void emitTuples()
     {
-      byte[] k0 = ByteBuffer.allocate(16).putLong(0x00000000).putLong(0).array();
-      output.emit(new KeyValPair<byte[], byte[]>(k0, "data0".getBytes()));
-      byte[] k1 = ByteBuffer.allocate(16).putLong(0xffffffff).putLong(0).array();
-      output.emit(new KeyValPair<byte[], byte[]>(k1, "data1".getBytes()));
+      output.emit(new KeyValPair<byte[], byte[]>(KEY0, DATA0.getBytes()));
+      output.emit(new KeyValPair<byte[], byte[]>(KEY1, DATA1.getBytes()));
     }
   }
 
@@ -70,6 +74,7 @@ public class HDSTestApp implements StreamingApplication
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
     conf.set("dt.operator.Store.fileStore.basePath", file.toURI().toString());
+    conf.set("dt.operator.Store.flushSize", "0");
     conf.set("dt.operator.Store.attr.INITIAL_PARTITION_COUNT", "2");
 
     lma.prepareDAG(new HDSTestApp(), conf);
@@ -78,12 +83,11 @@ public class HDSTestApp implements StreamingApplication
     lc.runAsync();
 
     long tms = System.currentTimeMillis();
-    File f0 = new File(file, "0/_WAL");
-    File f1 = new File(file, "1/_WAL");
+    File f0 = new File(file, "0/0-0");
+    File f1 = new File(file, "1/1-0");
 
     while (System.currentTimeMillis() - tms < 30000) {
-      if (f0.exists()) break;
-      if (f1.exists()) break;
+      if (f0.exists() && f1.exists()) break;
       Thread.sleep(100);
     }
     lc.shutdown();
@@ -91,7 +95,19 @@ public class HDSTestApp implements StreamingApplication
     Assert.assertTrue("exists " + f0, f0.exists() && f0.isFile());
     Assert.assertTrue("exists " + f1, f1.exists() && f1.isFile());
 
-  }
+    HDSFileAccessFSImpl fs = new HDSFileAccessFSImpl();
+    fs.setBasePath(file.toURI().toString());
+    fs.init();
 
+    TreeMap<byte[], byte[]> data = Maps.newTreeMap(new MyDataKey.SequenceComparator());
+    fs.getReader(0, "0-0").readFully(data);
+    Assert.assertArrayEquals("read key=" + new String(KEY0), DATA0.getBytes(), data.get(KEY0));
+
+    data.clear();
+    fs.getReader(1, "1-0").readFully(data);
+    Assert.assertArrayEquals("read key=" + new String(KEY1), DATA1.getBytes(), data.get(KEY1));
+
+    fs.close();
+  }
 
 }
