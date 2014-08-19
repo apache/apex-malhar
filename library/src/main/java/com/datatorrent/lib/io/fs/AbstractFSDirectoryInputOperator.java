@@ -206,14 +206,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       
       long startTime = System.currentTimeMillis();
       LOG.info("Continue reading {} from index {} time={}", currentFile, offset, startTime);
-        
+      
+      // fast forward to previous offset
       if(inputStream != null) {
         for(int index = 0; index < offset; index++) {
           readEntity();
         }
       }
       
-      // fast forward to previous offset
       LOG.info("Read offset={} records in setup time={}", offset, System.currentTimeMillis() - startTime);
     }
     catch (IOException ex) {
@@ -417,7 +417,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
 
-      /* set current scanning directory and offset */
+      /* redistribute unfinished files properly */
       oper.unfinishedFiles.clear();
       oper.currentFile = null;
       oper.offset = 0;
@@ -441,13 +441,12 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         }
       }
       
+      /* redistribute pending files properly */
       oper.pendingFiles.clear();
       Iterator<Path> pendingFilesIterator = totalPendingFiles.iterator();
-      while(pendingFilesIterator.hasNext())
-      {
+      while(pendingFilesIterator.hasNext()) {
         Path path = pendingFilesIterator.next();
-        if(scn.acceptFile(path.toString()))
-        {
+        if(scn.acceptFile(path.toString())) {
           oper.pendingFiles.add(path);
           pendingFilesIterator.remove();
         }

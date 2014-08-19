@@ -19,7 +19,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Input operator that reads gzip compressed text file.
+ * A file input operator.
+ * 
+ * Allows the user to read uncompressed and gzip compressed input files. When
+ * gzip compressed input files are read they are first copied to the specified
+ * backup directory.
+ * 
+ * @since 1.0.4
  */
 public abstract class FSInputOperator<T> extends AbstractThroughputHashFSDirectoryInputOperator<T>
 {

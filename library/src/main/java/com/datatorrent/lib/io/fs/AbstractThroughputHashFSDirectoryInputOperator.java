@@ -1,32 +1,32 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.StatsListener;
-import com.datatorrent.common.util.Pair;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Queue;
 import java.util.Set;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * @author tfarkas
+ * Input operator that reads files from a directory.
+ * <p/>
+ * Provides the same functionality as the AbstractFSDirectoryInputOperator
+ * except that this utilized dynamic partitioning where the user can set the
+ * preferred number of pending files per operator as well as the max number of
+ * operators and define a repartition interval. When the repartition interval
+ * passes then a new number of operators are created to accommodate the
+ * remaining pending files.
+ * <p/>
+ * 
+ * @since 1.0.4
  */
-
-
 public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends AbstractFSDirectoryInputOperator<T>
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractThroughputHashFSDirectoryInputOperator.class);
@@ -147,7 +147,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
 
-      // set current scanning directory and offset
+      /* redistribute unfinished files properly */
       oper.unfinishedFiles.clear();
       oper.currentFile = null;
       oper.offset = 0;
@@ -171,13 +171,12 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
         }
       }
       
+      /* redistribute pending files properly */
       oper.pendingFiles.clear();
       Iterator<Path> pendingFilesIterator = totalPendingFiles.iterator();
-      while(pendingFilesIterator.hasNext())
-      {
+      while(pendingFilesIterator.hasNext()) {
         Path path = pendingFilesIterator.next();
-        if(scn.acceptFile(path.toString()))
-        {
+        if(scn.acceptFile(path.toString())) {
           oper.pendingFiles.add(path);
           pendingFilesIterator.remove();
         }
@@ -202,8 +201,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     Response response = new Response();
     response.repartitionRequired = false;
     
-    if(System.currentTimeMillis() - repartitionInterval > lastRepartition)
-    {
+    if(System.currentTimeMillis() - repartitionInterval > lastRepartition) {
       response.repartitionRequired = true;
       return response;
     }
