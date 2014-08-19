@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.hds;
+package com.datatorrent.contrib.hds;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -74,7 +74,7 @@ public interface HDSFileAccess extends Closeable
     boolean next() throws IOException;
 
     /**
-     * Reads the next available key/value into {@link com.datatorrent.lib.hds.MutableKeyValue} starting at the current pointer location, or throws Exception if end of file is reached.
+     * Reads the next available key/value into {@link com.datatorrent.contrib.hds.MutableKeyValue} starting at the current pointer location, or throws Exception if end of file is reached.
      * @param mutableKeyValue A key/value pair represented by byte arrays
      * @throws IOException
      */

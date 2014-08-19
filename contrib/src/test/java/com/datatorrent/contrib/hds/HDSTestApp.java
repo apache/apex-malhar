@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.hds;
+package com.datatorrent.contrib.hds;
 
 import java.io.File;
 import java.nio.ByteBuffer;
@@ -30,7 +30,7 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.hds.HDSTest.MyDataKey;
+import com.datatorrent.contrib.hds.HDSTest.MyDataKey;
 import com.datatorrent.lib.util.KeyValPair;
 
 @ApplicationAnnotation(name="HDSTestApp")
