@@ -15,6 +15,14 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.StatsListener;
+import com.esotericsoftware.kryo.Kryo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,25 +30,14 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import javax.validation.constraints.NotNull;
-
-import com.datatorrent.api.StatsListener;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.esotericsoftware.kryo.Kryo;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Partitioner;
 
 /**
  * Input operator that reads files from a directory.
@@ -188,9 +185,15 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     return currentPartitions;
   }
 
+  private transient int operatorId;
+  
   @Override
   public void setup(OperatorContext context)
   {
+    operatorId = context.getId();
+    
+    LOG.info("Setup Operator " + context.getId());
+    
     try {
       filePath = new Path(directory);
       configuration = new Configuration();
@@ -224,10 +227,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void teardown()
   {
-    try {
-      if (inputStream != null) {
-        inputStream.close();
-      }
+    LOG.info("TearDown Operator: " + operatorId);
+    
+    try 
+    {
+      IOUtils.closeQuietly(inputStream);
       fs.close();
     } catch (Exception e) {
       // ignore
