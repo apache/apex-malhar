@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.hds;
+package com.datatorrent.contrib.hds;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -31,8 +31,8 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.hds.HDSFileAccess.HDSFileReader;
-import com.datatorrent.lib.hds.HDSFileAccess.HDSFileWriter;
+import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
+import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileWriter;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
