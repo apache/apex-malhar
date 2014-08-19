@@ -26,6 +26,7 @@ import org.getopt.util.hash.MurmurHash;
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.contrib.hds.tfile.TFileImpl;
 /**
  *
  */
@@ -102,8 +103,7 @@ public class HDSTest
 
   }
 
-  @Test
-  public void test() throws Exception
+  private void testHDSFileAccess(HDSFileAccessFSImpl bfs) throws Exception
   {
     File file = new File("target/hds");
     FileUtils.deleteDirectory(file);
@@ -113,8 +113,6 @@ public class HDSTest
     File bucket1WalFile = new File(bucket1Dir, HDSBucketManager.FNAME_WAL);
     RegexFileFilter dataFileFilter = new RegexFileFilter("\\d+.*");
 
-    //FileSystem fs = FileSystem.getLocal(new Configuration(false)).getRawFileSystem();
-    HDSFileAccessFSImpl bfs = new HDSFileAccessFSImpl();
     bfs.setBasePath(file.getAbsolutePath());
 
     HDSBucketManager hds = new HDSBucketManager();
@@ -178,7 +176,28 @@ public class HDSTest
     bfs.close();
 
   }
+  
+  @Test
+  public void testDefaultHDSFileAccess() throws Exception
+  {
+    
+    // Create default HDSFileAccessImpl
+    HDSFileAccessFSImpl bfs = new HDSFileAccessFSImpl();
+    
+    testHDSFileAccess(bfs);
 
+  }
+  
+  
+  @Test
+  public void testTFileHDSFileAccess() throws Exception
+  {
 
+    //Create TFileImpl
+    TFileImpl timpl = new TFileImpl();
+    
+    testHDSFileAccess(timpl);
+
+  }
 
 }
