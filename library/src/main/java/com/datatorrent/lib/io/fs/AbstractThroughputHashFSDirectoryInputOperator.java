@@ -102,6 +102,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     else
     {
       newOperatorCount = partitionCount;
+      firstStart = false;
     }
     
     //if(newOperatorCount == partitions.size())
