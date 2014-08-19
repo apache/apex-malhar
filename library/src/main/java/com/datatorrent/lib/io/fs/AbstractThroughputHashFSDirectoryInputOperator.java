@@ -34,6 +34,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   private long repartitionInterval = 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
   
+  private boolean firstStart=true;
   private transient long lastRepartition = 0;
   
   public void setRepartitionInterval(long repartitionInterval)
@@ -60,8 +61,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
     lastRepartition = System.currentTimeMillis();
-    LOG.info("PARTITION SIZE: " + partitions.size());
-    
     //
     // Build collective state from all instances of the operator.
     //
@@ -82,16 +81,25 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       oldscanners.add(oper.getScanner());
     }
     
-    int totalFileCount = currentFiles.size() + totalFailedFiles.size() + totalPendingFiles.size();
+    int totalFileCount;
+    int newOperatorCount;
     
-    int newOperatorCount = totalFileCount / preferredMaxPendingFilesPerOperator;
-    
-    if(totalFileCount % preferredMaxPendingFilesPerOperator > 0)
+    if(!firstStart)
     {
-      newOperatorCount++;
-    }
+      totalFileCount = currentFiles.size() + totalFailedFiles.size() + totalPendingFiles.size();
+      newOperatorCount = totalFileCount / preferredMaxPendingFilesPerOperator;
     
-    if(newOperatorCount > partitionCount)
+      if(totalFileCount % preferredMaxPendingFilesPerOperator > 0)
+      {
+        newOperatorCount++;
+      }
+    
+      if(newOperatorCount > partitionCount)
+      {
+        newOperatorCount = partitionCount;
+      }
+    }
+    else
     {
       newOperatorCount = partitionCount;
     }
