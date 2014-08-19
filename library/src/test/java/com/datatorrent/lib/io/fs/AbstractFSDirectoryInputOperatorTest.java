@@ -273,6 +273,8 @@ public class AbstractFSDirectoryInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
     }
 
+    Thread.sleep(10);
+    
     for(int i = 0; i < 10; i++) {
       for(AbstractFSDirectoryInputOperator<String> o : opers) {
         o.beginWindow(wid);
