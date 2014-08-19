@@ -24,6 +24,8 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileContext;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Options.Rename;
@@ -41,7 +43,7 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
 {
   @NotNull
   private String basePath;
-  private transient FileSystem fs;
+  protected transient FileSystem fs;
 
   public HDSFileAccessFSImpl()
   {
@@ -88,7 +90,7 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
   }
 
   @Override
-  public DataOutputStream getOutputStream(long bucketKey, String fileName) throws IOException
+  public FSDataOutputStream getOutputStream(long bucketKey, String fileName) throws IOException
   {
     Path path = new Path(getBucketPath(bucketKey), fileName);
     if (!fs.exists(path)) {
@@ -98,7 +100,7 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
   }
 
   @Override
-  public DataInputStream getInputStream(long bucketKey, String fileName) throws IOException
+  public FSDataInputStream getInputStream(long bucketKey, String fileName) throws IOException
   {
     return fs.open(new Path(getBucketPath(bucketKey), fileName));
   }
