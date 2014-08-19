@@ -31,8 +31,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractThroughputHashFSDirectoryInputOperator.class);
   
-  protected final Queue<FailedFile> unfinishedFiles = new LinkedList<FailedFile>();
-  
   private long repartitionInterval = 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
   
@@ -59,89 +57,32 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   }
   
   @Override
-  public void emitTuples()
-  {
-    if (inputStream == null) {
-      if (unfinishedFiles.isEmpty() && pendingFiles.isEmpty() && failedFiles.isEmpty()) {
-        if (System.currentTimeMillis() - scanIntervalMillis > lastScanMillis) {
-          pendingFiles = scanner.scan(fs, filePath, processedFiles);
-          lastScanMillis = System.currentTimeMillis();
-        }
-      }
-
-      try {
-        if(!unfinishedFiles.isEmpty())
-        {
-          FailedFile ff = unfinishedFiles.poll();
-          this.inputStream = retryFailedFile(ff);
-        }
-        if (!pendingFiles.isEmpty()) {
-          Path path = pendingFiles.iterator().next();
-          pendingFiles.remove(path);
-          this.inputStream = openFile(path);
-        }
-        else if (!failedFiles.isEmpty()) {
-          FailedFile ff = failedFiles.poll();
-          this.inputStream = retryFailedFile(ff);
-        }
-      }catch (IOException ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-
-    if (inputStream != null) {
-      try {
-        int counterForTuple = 0;
-        while (counterForTuple++ < emitBatchSize) {
-          T line = readEntity();
-          if (line == null) {
-            LOG.info("done reading file ({} entries).", offset);
-            closeFile(inputStream);
-            break;
-          }
-
-          /* If skipCount is non zero, then failed file recovery is going on, skipCount is
-           * used to prevent already emitted records from being emitted again during recovery.
-           * When failed file is open, skipCount is set to the last read offset for that file.
-           */
-          if (skipCount == 0) {
-            offset++;
-            emit(line);
-          }
-          else
-            skipCount--;
-        }
-      } catch (IOException e) {
-        LOG.error("FS reader error", e);
-        throw new RuntimeException("FS reader error", e);
-      }
-    }
-  }
-  
-  @Override
   public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
     lastRepartition = System.currentTimeMillis();
+    LOG.info("PARTITION SIZE: " + partitions.size());
     
-    /*
-     * Build collective state from all instances of the operator.
-     */
+    //
+    // Build collective state from all instances of the operator.
+    //
+    
     Set<String> totalProcessedFiles = new HashSet<String>();
-    List<FailedFile> currentFiles = new ArrayList<FailedFile>();
+    List<FailedFile> currentFiles = new LinkedList<FailedFile>();
     List<DirectoryScanner> oldscanners = new LinkedList<DirectoryScanner>();
     List<FailedFile> totalFailedFiles = new LinkedList<FailedFile>();
-    int pendingFileCount = 0;
+    List<Path> totalPendingFiles = new LinkedList<Path>();
     for(Partition<AbstractFSDirectoryInputOperator<T>> partition : partitions) {
       AbstractFSDirectoryInputOperator<T> oper = partition.getPartitionedInstance();
       totalProcessedFiles.addAll(oper.processedFiles);
       totalFailedFiles.addAll(oper.failedFiles);
-      pendingFileCount += oper.pendingFiles.size();
+      totalPendingFiles.addAll(oper.pendingFiles);
+      oper.pendingFiles.size();
       if (oper.currentFile != null)
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
       oldscanners.add(oper.getScanner());
     }
     
-    int totalFileCount = currentFiles.size() + totalFailedFiles.size() + pendingFileCount;
+    int totalFileCount = currentFiles.size() + totalFailedFiles.size() + totalPendingFiles.size();
     
     int newOperatorCount = totalFileCount / preferredMaxPendingFilesPerOperator;
     
@@ -155,10 +96,10 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       newOperatorCount = partitionCount;
     }
     
-    if(newOperatorCount == partitions.size())
-    {
-      return partitions;
-    }
+    //if(newOperatorCount == partitions.size())
+    //{
+    //  return partitions;
+    //}
     
     Kryo kryo = new Kryo();
     
@@ -166,28 +107,35 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     {
       Collection<Partition<AbstractFSDirectoryInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(1);
 
-      AbstractThroughputHashFSDirectoryInputOperator<T> operator = kryo.copy(this);
-      newPartitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<T>>(operator));
+      AbstractThroughputHashFSDirectoryInputOperator<T> operator;
+      
+      operator = kryo.copy(this);
+  
       
       operator.processedFiles.addAll(totalProcessedFiles);
       operator.currentFile = null;
       operator.offset = 0;
       operator.pendingFiles.clear();
+      operator.pendingFiles.addAll(totalPendingFiles);
       operator.failedFiles.clear();
+      operator.failedFiles.addAll(totalFailedFiles);
       operator.unfinishedFiles.clear();
+      operator.unfinishedFiles.addAll(currentFiles);
       
       List<DirectoryScanner> scanners = scanner.partition(1, oldscanners);
       
       operator.setScanner(scanners.get(0));
       
+      newPartitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<T>>(operator));
+      
       return newPartitions;
     }
     
     
-    /*
-     * Create partitions of scanners, scanner's partition method will do state
-     * transfer for DirectoryScanner objects.
-     */
+    //
+    // Create partitions of scanners, scanner's partition method will do state
+    // transfer for DirectoryScanner objects.
+    //
     List<DirectoryScanner> scanners = scanner.partition(newOperatorCount, oldscanners);
 
     Collection<Partition<AbstractFSDirectoryInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(newOperatorCount);
@@ -199,16 +147,20 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
 
-      /* set current scanning directory and offset */
+      // set current scanning directory and offset
       oper.unfinishedFiles.clear();
-      for(FailedFile current : currentFiles) {
-        if (scn.acceptFile(current.path)) {
-          oper.unfinishedFiles.add(current);
-          break;
+      oper.currentFile = null;
+      oper.offset = 0;
+      Iterator<FailedFile> unfinishedIter = currentFiles.iterator();
+      while(unfinishedIter.hasNext()) {
+        FailedFile unfinishedFile = unfinishedIter.next();
+        if (scn.acceptFile(unfinishedFile.path)) {
+          oper.unfinishedFiles.add(unfinishedFile);
+          unfinishedIter.remove();
         }
       }
 
-      /* transfer failed files */
+      // transfer failed files 
       oper.failedFiles.clear();
       Iterator<FailedFile> iter = totalFailedFiles.iterator();
       while (iter.hasNext()) {
@@ -218,11 +170,24 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
           iter.remove();
         }
       }
+      
+      oper.pendingFiles.clear();
+      Iterator<Path> pendingFilesIterator = totalPendingFiles.iterator();
+      while(pendingFilesIterator.hasNext())
+      {
+        Path path = pendingFilesIterator.next();
+        if(scn.acceptFile(path.toString()))
+        {
+          oper.pendingFiles.add(path);
+          pendingFilesIterator.remove();
+        }
+      }
 
       newPartitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<T>>(oper));
     }
 
     LOG.info("definePartitions called returning {} partitions", newPartitions.size());
+    
     return newPartitions;
   }
   
@@ -231,12 +196,13 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   {
   }
   
+  @Override
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
     Response response = new Response();
     response.repartitionRequired = false;
     
-    if(System.currentTimeMillis() - scanIntervalMillis > lastRepartition)
+    if(System.currentTimeMillis() - repartitionInterval > lastRepartition)
     {
       response.repartitionRequired = true;
       return response;

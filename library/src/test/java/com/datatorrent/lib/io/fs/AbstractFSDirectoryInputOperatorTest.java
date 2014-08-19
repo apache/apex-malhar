@@ -31,18 +31,24 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.*;
 import org.junit.rules.TestWatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AbstractFSDirectoryInputOperatorTest
 {
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractFSDirectoryInputOperatorTest.class);
+  
   public static class TestMeta extends TestWatcher
   {
     public String dir = null;
-
+    public String methodName = null;
+    public String className = null;
+    
     @Override
     protected void starting(org.junit.runner.Description description)
     {
-      String methodName = description.getMethodName();
-      String className = description.getClassName();
+      methodName = description.getMethodName();
+      className = description.getClassName();
       this.dir = "target/" + className + "/" + methodName;
     }
   };
@@ -186,7 +192,7 @@ public class AbstractFSDirectoryInputOperatorTest
   @Test
   public void testPartitioningStateTransfer() throws Exception
   {
-
+    LOG.info("Begin: " + 1);
     TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
@@ -217,7 +223,9 @@ public class AbstractFSDirectoryInputOperatorTest
       oper.endWindow();
       wid++;
     }
+    
     Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
+    LOG.info("End: " + 1);
 
     Assert.assertEquals(1, initialState.getCurrentPartitions());
     initialState.setPartitionCount(2);

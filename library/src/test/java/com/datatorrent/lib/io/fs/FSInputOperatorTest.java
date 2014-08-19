@@ -15,6 +15,8 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator.DirectoryScanner;
+import com.datatorrent.lib.io.fs.FSInputOperator.HashCodeBasedDirectoryScanner;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.io.BufferedReader;
 import java.io.File;
@@ -41,11 +43,14 @@ import org.junit.Test;
 
 public class FSInputOperatorTest
 {
-    private static final int NUMBER_OF_TEST_FILES = 100;
+    private static final int NUMBER_OF_TXT_TEST_FILES = 100;
+    private static final int NUMBER_OF_GZ_TEST_FILES = 100;
+    private static final int TOTAL_FILE_COUNT = NUMBER_OF_GZ_TEST_FILES + NUMBER_OF_TXT_TEST_FILES;
     private static final int FILE_NAME_BIT_COUNT = 100;
     private static final int FILE_LINE_BIT_COUNT = 500;
-    private static final int FILE_LINE_COUNT = 10;
-    private static final int FILE_TUPLE_COUNT = NUMBER_OF_TEST_FILES * FILE_LINE_COUNT;
+    private static final int FILE_LINE_COUNT = 100;
+    private static final int FILE_TUPLE_COUNT = TOTAL_FILE_COUNT * FILE_LINE_COUNT;
+    private static final int EMIT_BATCH_SIZE = 10;
     
     private static final Random random = new Random();
     private static final String TEST_DIRECTORY = "target" + File.separator + FSInputOperatorTest.class.getName();
@@ -70,7 +75,7 @@ public class FSInputOperatorTest
     }
     
     @Before
-    public void createGZFilesForTest() throws Exception
+    public void createFilesForTest() throws Exception
     {
         File testDirectory = new File(TEST_DIRECTORY);
         File testBakDirectory = new File(TEST_BAK_DIRECTORY);
@@ -82,7 +87,7 @@ public class FSInputOperatorTest
         testBakDirectory.mkdirs();
         
         for(int fileCounter = 0;
-            fileCounter < NUMBER_OF_TEST_FILES;
+            fileCounter < NUMBER_OF_GZ_TEST_FILES;
             fileCounter++)
         {
             String fileName = generateRandomString(FILE_NAME_BIT_COUNT) + ".gz";
@@ -124,36 +129,71 @@ public class FSInputOperatorTest
                 output.close();
             }
         }
+        
+        for(int fileCounter = 0;
+            fileCounter < NUMBER_OF_TXT_TEST_FILES;
+            fileCounter++)
+        {
+            String fileName = generateRandomString(FILE_NAME_BIT_COUNT) + ".txt";
+            File file = new File(testDirectory, fileName);
+            
+            if(!file.createNewFile())
+            {
+                fileCounter--;
+                continue;
+            }
+            
+            FileOutputStream output = new FileOutputStream(file.getAbsolutePath());
+            
+            try
+            {
+                Writer writer = new OutputStreamWriter(output);
+                
+                try
+                {
+                    for(int lineCounter = 0;
+                        lineCounter < FILE_LINE_COUNT;
+                        lineCounter++)
+                    {
+                        writer.write(generateRandomString(FILE_LINE_BIT_COUNT));
+                        
+                        if(lineCounter != FILE_LINE_COUNT -1)
+                        {
+                            writer.write("\n");
+                        }
+                    }
+                }
+                finally
+                {
+                    writer.close();
+                }
+            }
+            finally
+            {
+                output.close();
+            }
+        }
     }
     
     @Test
     public void testSinglePartiton() throws Exception
-    {
+    {   
         FSInputOperatorTestOperator testOperator = new FSInputOperatorTestOperator();
         CollectorTestSink<Object> testSink = new CollectorTestSink<Object>();
         
         testOperator.output.setSink(testSink);
         
+        testOperator.setEmitBatchSize(EMIT_BATCH_SIZE);
         testOperator.setDirectory(TEST_DIRECTORY);
         testOperator.setBackupDirectory(TEST_BAK_DIRECTORY);
         
+        HashCodeBasedDirectoryScanner hcds = new HashCodeBasedDirectoryScanner();
+        DirectoryScanner directoryScanner = hcds.createPartition(0, 1);
+        testOperator.setScanner(directoryScanner);
+        
         testOperator.setup(null);
         
-        try
-        {
-            Path filePath = new Path(TEST_DIRECTORY);
-            Configuration configuration = new Configuration();
-            FileSystem fs = FileSystem.newInstance(filePath.toUri(), configuration);
-
-            Set<String> scannedFiles = testOperator.scanDirectories(fs, filePath);
-            testOperator.getPendingFiles().addAll(scannedFiles);
-        }
-        catch(IOException ex)
-        {
-            throw new RuntimeException(ex);
-        }
-        
-        for(long wid = 0; wid < NUMBER_OF_TEST_FILES; wid++)
+        for(long wid = 0; wid < FILE_TUPLE_COUNT / EMIT_BATCH_SIZE * 2; wid++)
         {
             testOperator.beginWindow(wid);
             testOperator.emitTuples();
@@ -162,7 +202,7 @@ public class FSInputOperatorTest
         
         testOperator.teardown();
 
-        Assert.assertEquals("number tuples", NUMBER_OF_TEST_FILES * FILE_LINE_COUNT, testSink.collectedTuples.size());
+        Assert.assertEquals("number tuples", FILE_TUPLE_COUNT, testSink.collectedTuples.size());
         //Assert.assertEquals("lines", allLines, new HashSet<String>(queryResults.collectedTuples));
 
     }

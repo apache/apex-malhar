@@ -1,37 +1,28 @@
-/*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator.DirectoryScanner;
+import com.google.common.collect.Sets;
 import java.io.*;
-
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.compress.compressors.CompressorException;
 import org.apache.commons.compress.compressors.CompressorStreamFactory;
+import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.FileUtil;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class FSInputOperator<T> extends AbstractThroughputFSDirectoryInputOperator<T>
+/**
+ * Input operator that reads gzip compressed text file.
+ */
+public abstract class FSInputOperator<T> extends AbstractThroughputHashFSDirectoryInputOperator<T>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(FSInputOperator.class);
-    
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
 
   private int replayCountdown;
@@ -39,7 +30,7 @@ public abstract class FSInputOperator<T> extends AbstractThroughputFSDirectoryIn
 
   private transient BufferedReader br;
   private transient FileSystem dstFs;
-  
+
   @Override
   public void setup(Context.OperatorContext context)
   {
@@ -72,7 +63,7 @@ public abstract class FSInputOperator<T> extends AbstractThroughputFSDirectoryIn
   protected InputStream openFile(Path path) throws IOException
   {
     InputStream is = super.openFile(path);
-    if (path.toString().endsWith(".gz")) {
+    if (path.toString().toLowerCase().endsWith(".gz")) {
       try {
         is = new CompressorStreamFactory().createCompressorInputStream(CompressorStreamFactory.GZIP, is);
         if (dstFs != null) {
@@ -94,13 +85,12 @@ public abstract class FSInputOperator<T> extends AbstractThroughputFSDirectoryIn
     super.closeFile(is);
   }
 
-  @Override
-  protected T readEntity() throws IOException
+  public T readEntity() throws IOException
   {
     return readEntityFromReader(br);
   }
   
-  public abstract T readEntityFromReader(BufferedReader reader);
+  protected abstract T readEntityFromReader(BufferedReader reader) throws IOException;
 
   @Override
   protected void emit(T tuple)
@@ -127,4 +117,108 @@ public abstract class FSInputOperator<T> extends AbstractThroughputFSDirectoryIn
   {
     return this.backupDirectory;
   }
+
+  public static class HashCodeBasedDirectoryScanner extends AbstractFSDirectoryInputOperator.DirectoryScanner
+  {
+    private static final long serialVersionUID = 6010948077851507418L;
+    private static final Logger LOG = LoggerFactory.getLogger(HashCodeBasedDirectoryScanner.class);
+
+    private String filePatternRegexp;
+    private transient Pattern regex = null;
+    private int partitionIndex;
+    private int partitionCount;
+
+    @Override
+    public String getFilePatternRegexp()
+    {
+      return filePatternRegexp;
+    }
+
+    @Override
+    public void setFilePatternRegexp(String filePatternRegexp)
+    {
+      this.filePatternRegexp = filePatternRegexp;
+      this.regex = null;
+    }
+
+    @Override
+    public LinkedHashSet<Path> scan(FileSystem fs, Path filePath, Set<String> consumedFiles)
+    {
+      if (filePatternRegexp != null && this.regex == null) {
+        this.regex = Pattern.compile(this.filePatternRegexp);
+      }
+
+      LinkedHashSet<Path> pathSet = Sets.newLinkedHashSet();
+      try {
+        LOG.debug("Scanning {} with pattern {}", filePath, this.filePatternRegexp);
+        FileStatus[] files = fs.listStatus(filePath);
+        for (FileStatus status : files) {
+          Path path = status.getPath();
+          String filePathStr = path.toString();
+
+          if (consumedFiles.contains(filePathStr)) {
+            continue;
+          }
+
+          if (acceptFile(filePathStr)) {
+            LOG.debug("Found {}", filePathStr);
+            pathSet.add(path);
+          }
+          else {
+            // don't look at it again
+            consumedFiles.add(filePathStr);
+          }
+        }
+      }
+      catch (FileNotFoundException e) {
+        LOG.warn("Failed to list directory {}", filePath, e);
+      }
+      catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+      return pathSet;
+    }
+
+    @Override
+    protected boolean acceptFile(String filePathStr)
+    {
+      if (regex != null) {
+        Matcher matcher = regex.matcher(filePathStr);
+        if (!matcher.matches()) {
+          return false;
+        }
+        if (partitionCount > 1) {
+          int i = filePathStr.hashCode();
+          int mod = i % partitionCount;
+          if (mod < 0) {
+            mod += partitionCount;
+          }
+          LOG.debug("Validation {} {} {}", filePathStr, i, mod);
+
+          if (mod != partitionIndex) {
+            return false;
+          }
+        }
+      }
+      return true;
+    }
+
+    @Override
+    protected DirectoryScanner createPartition(int partitionIndex, int partitionCount)
+    {
+      HashCodeBasedDirectoryScanner that = new HashCodeBasedDirectoryScanner();
+      that.filePatternRegexp = this.filePatternRegexp;
+      that.partitionIndex = partitionIndex;
+      that.partitionCount = partitionCount;
+      return that;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "HashCodeBasedDirectoryScanner [filePatternRegexp=" + filePatternRegexp + "]";
+    }
+
+  }
+
 }
