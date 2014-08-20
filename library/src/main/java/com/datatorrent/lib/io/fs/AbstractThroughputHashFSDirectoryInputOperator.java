@@ -87,6 +87,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     if(!firstStart) {
       totalFileCount = currentFiles.size() + totalFailedFiles.size() + totalPendingFiles.size();
+      LOG.debug("definePartitions: Total File Count: {}", totalFileCount);
       newOperatorCount = totalFileCount / preferredMaxPendingFilesPerOperator;
     
       if(totalFileCount % preferredMaxPendingFilesPerOperator > 0) {
@@ -101,8 +102,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       newOperatorCount = partitionCount;
       firstStart = false;
     }
-    
-    LOG.info("Partitioning: " + newOperatorCount);
     
     //if(newOperatorCount == partitions.size())
     //{
