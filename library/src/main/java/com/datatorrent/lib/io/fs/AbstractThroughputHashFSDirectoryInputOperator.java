@@ -75,6 +75,9 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       totalProcessedFiles.addAll(oper.processedFiles);
       totalFailedFiles.addAll(oper.failedFiles);
       totalPendingFiles.addAll(oper.pendingFiles);
+      LOG.debug("definePartitions: Operator {} processedFiles count: {}", oper.operatorId, processedFiles.size());
+      LOG.debug("definePartitions: Operator {} failedFiles count: {}", oper.operatorId, failedFiles.size());
+      LOG.debug("definePartitions: Operator {} pendingFiles count: {}", oper.operatorId, pendingFiles.size());
       oper.pendingFiles.size();
       if (oper.currentFile != null) {
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));

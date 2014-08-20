@@ -196,14 +196,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     return currentPartitions;
   }
 
-  private transient int operatorId;
+  protected int operatorId;
   
   @Override
   public void setup(OperatorContext context)
   {
     operatorId = context.getId();
     
-    LOG.info("Setup Operator " + context.getId());
+    LOG.debug("Setup Operator {}", operatorId);
     
     try {
       filePath = new Path(directory);
@@ -238,7 +238,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void teardown()
   {
-    LOG.info("TearDown Operator: " + operatorId);
+    LOG.debug("TearDown Operator: {}", operatorId);
     
     IOUtils.closeQuietly(inputStream);
     IOUtils.closeQuietly(fs);
