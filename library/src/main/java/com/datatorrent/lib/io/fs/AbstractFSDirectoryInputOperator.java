@@ -229,13 +229,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   {
     LOG.info("TearDown Operator: " + operatorId);
     
-    try 
-    {
-      IOUtils.closeQuietly(inputStream);
-      fs.close();
-    } catch (Exception e) {
-      // ignore
-    }
+    IOUtils.closeQuietly(inputStream);
+    IOUtils.closeQuietly(fs);
   }
 
   @Override
@@ -250,7 +245,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
   @Override
   public void emitTuples()
-  {/*
+  {
     if (System.currentTimeMillis() - scanIntervalMillis > lastScanMillis) {
       pendingFiles.addAll(scanner.scan(fs, filePath, processedFiles));
       for(Path pendingFile: pendingFiles) {
@@ -258,7 +253,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       }
       lastScanMillis = System.currentTimeMillis();
     }
-    
+    /*
     if (inputStream == null) {
       try {
         if(!unfinishedFiles.isEmpty()) {
