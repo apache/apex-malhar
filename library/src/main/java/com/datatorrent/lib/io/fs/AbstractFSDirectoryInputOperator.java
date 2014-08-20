@@ -129,7 +129,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected transient long lastScanMillis;
   protected transient Path filePath;
   protected transient InputStream inputStream;
-  protected transient LinkedHashSet<Path> pendingFiles = new LinkedHashSet<Path>();
+  protected final LinkedHashSet<Path> pendingFiles = new LinkedHashSet<Path>();
 
   public String getDirectory()
   {
@@ -260,9 +260,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     long startTime = System.currentTimeMillis();
     
     if (startTime - scanIntervalMillis >= lastScanMillis) {
-      pendingFiles.addAll(scanner.scan(fs, filePath, processedFiles));
-      for(Path pendingFile: pendingFiles) {
-        processedFiles.add(pendingFile.toString());
+      Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
+      pendingFiles.addAll(newPaths);
+      
+      for(Path newPath: newPaths) {
+        processedFiles.add(newPath.toString());
       }
       lastScanMillis = System.currentTimeMillis();
     }
