@@ -35,6 +35,7 @@ import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileWriter;
 import com.esotericsoftware.kryo.Kryo;
@@ -347,7 +348,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void setup(OperatorContext arg0)
   {
     fileStore.init();
-    writeExecutor = Executors.newSingleThreadScheduledExecutor();
+    writeExecutor = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory(this.getClass().getSimpleName()+"-Writer"));
   }
 
   @Override
@@ -380,6 +381,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       }
 
       if (bucket.writeCache.size() > this.flushSize && !bucket.writeCache.isEmpty()) {
+        // ensure previous flush completed
         if (bucket.frozenWriteCache.isEmpty()) {
           bucket.frozenWriteCache = bucket.writeCache;
           bucket.writeCache = Maps.newHashMap();
