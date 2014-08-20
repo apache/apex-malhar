@@ -73,7 +73,7 @@ public abstract class FSInputOperator<T> extends AbstractThroughputHashFSDirecto
       try {
         is = new CompressorStreamFactory().createCompressorInputStream(CompressorStreamFactory.GZIP, is);
         if (dstFs != null) {
-          FileUtil.copy(fs, path, dstFs, new Path(backupDirectory, path.getName()), false, configuration);
+          //FileUtil.copy(fs, path, dstFs, new Path(backupDirectory, path.getName()), false, configuration);
         }
       }
       catch (CompressorException ce) {
