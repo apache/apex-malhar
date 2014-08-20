@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.datatorrent.api.CheckpointListener;
@@ -56,6 +57,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
   private final HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
   private transient long windowId;
+  private transient long lastFlushWindowId;
   private final HashMap<Long, Bucket> buckets = Maps.newHashMap();
   private final transient Kryo kryo = new Kryo();
   @VisibleForTesting
@@ -68,7 +70,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   @NotNull
   private HDSFileAccess fileStore;
   private int maxFileSize = 64000;
-  private int flushSize = 100;
+  private int flushSize = 1000000;
+  private int flushIntervalCount = 30;
 
 
   public HDSFileAccess getFileStore()
@@ -123,6 +126,23 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void setFlushSize(int flushSize)
   {
     this.flushSize = flushSize;
+  }
+
+  /**
+   * Cached writes are flushed to persistent storage periodically. The interval is specified as count of windows and
+   * establishes the maximum latency for changes to be written while below the {@link #flushSize} threshold.
+   *
+   * @return
+   */
+  @Min(value=1)
+  public int getFlushIntervalCount()
+  {
+    return flushIntervalCount;
+  }
+
+  public void setFlushIntervalCount(int flushIntervalCount)
+  {
+    this.flushIntervalCount = flushIntervalCount;
   }
 
   /**
@@ -380,12 +400,13 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         throw new RuntimeException("Failed to flush WAL", e);
       }
 
-      if (bucket.writeCache.size() > this.flushSize && !bucket.writeCache.isEmpty()) {
+      if ((bucket.writeCache.size() > this.flushSize || windowId - lastFlushWindowId > flushIntervalCount) && !bucket.writeCache.isEmpty()) {
         // ensure previous flush completed
         if (bucket.frozenWriteCache.isEmpty()) {
           bucket.frozenWriteCache = bucket.writeCache;
           bucket.writeCache = Maps.newHashMap();
           scheduleFlush = true;
+          lastFlushWindowId = windowId;
         }
       }
     }

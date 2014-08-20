@@ -74,7 +74,8 @@ public class HDSTestApp implements StreamingApplication
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
     conf.set("dt.operator.Store.fileStore.basePath", file.toURI().toString());
-    conf.set("dt.operator.Store.flushSize", "0");
+    //conf.set("dt.operator.Store.flushSize", "0");
+    conf.set("dt.operator.Store.flushIntervalCount", "1");
     conf.set("dt.operator.Store.attr.INITIAL_PARTITION_COUNT", "2");
 
     lma.prepareDAG(new HDSTestApp(), conf);
