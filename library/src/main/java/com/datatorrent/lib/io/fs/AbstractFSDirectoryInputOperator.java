@@ -250,7 +250,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
   @Override
   public void emitTuples()
-  {
+  {/*
     if (System.currentTimeMillis() - scanIntervalMillis > lastScanMillis) {
       pendingFiles.addAll(scanner.scan(fs, filePath, processedFiles));
       for(Path pendingFile: pendingFiles) {
@@ -306,7 +306,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         LOG.error("FS reader error", e);
         addToFailedList();
       }
-    }
+    }*/
   }
 
   protected void addToFailedList() {
