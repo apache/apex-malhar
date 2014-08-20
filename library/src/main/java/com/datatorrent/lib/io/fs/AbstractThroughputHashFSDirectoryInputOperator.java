@@ -207,11 +207,11 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   @Override
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
-    LOG.debug("Process Stats");
     Response response = new Response();
     response.repartitionRequired = false;
     
     if(System.currentTimeMillis() - repartitionInterval > lastRepartition) {
+      LOG.debug("Repartition Triggered");
       response.repartitionRequired = true;
       return response;
     }
