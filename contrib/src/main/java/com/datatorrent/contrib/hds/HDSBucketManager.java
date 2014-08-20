@@ -29,12 +29,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileWriter;
 import com.esotericsoftware.kryo.Kryo;
@@ -55,6 +57,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
   private final HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
   private transient long windowId;
+  private transient long lastFlushWindowId;
   private final HashMap<Long, Bucket> buckets = Maps.newHashMap();
   private final transient Kryo kryo = new Kryo();
   @VisibleForTesting
@@ -67,7 +70,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   @NotNull
   private HDSFileAccess fileStore;
   private int maxFileSize = 64000;
-  private int flushSize = 100;
+  private int flushSize = 1000000;
+  private int flushIntervalCount = 30;
 
 
   public HDSFileAccess getFileStore()
@@ -122,6 +126,23 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void setFlushSize(int flushSize)
   {
     this.flushSize = flushSize;
+  }
+
+  /**
+   * Cached writes are flushed to persistent storage periodically. The interval is specified as count of windows and
+   * establishes the maximum latency for changes to be written while below the {@link #flushSize} threshold.
+   *
+   * @return
+   */
+  @Min(value=1)
+  public int getFlushIntervalCount()
+  {
+    return flushIntervalCount;
+  }
+
+  public void setFlushIntervalCount(int flushIntervalCount)
+  {
+    this.flushIntervalCount = flushIntervalCount;
   }
 
   /**
@@ -243,102 +264,90 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
    * The flush frequency determines availability of changes to external readers.
    * @throws IOException
    */
-  private void writeDataFiles() throws IOException
+  private void writeDataFiles(Bucket bucket) throws IOException
   {
     // bucket keys by file
-    Map<Bucket, Map<BucketFileMeta, Map<byte[], byte[]>>> modifiedBuckets = Maps.newHashMap();
+    //Map<Bucket, Map<BucketFileMeta, Map<byte[], byte[]>>> modifiedBuckets = Maps.newHashMap();
 
-    for (Map.Entry<Long, Bucket> bucketEntry : this.buckets.entrySet()) {
-      Bucket bucket = bucketEntry.getValue();
-      BucketMeta bm = getMeta(bucketEntry.getKey());
-      TreeMap<byte[], BucketFileMeta> bucketSeqStarts = bm.files;
+    BucketMeta bm = getMeta(bucket.bucketKey);
+    TreeMap<byte[], BucketFileMeta> bucketSeqStarts = bm.files;
+    Map<BucketFileMeta, Map<byte[], byte[]>> modifiedFiles = Maps.newHashMap();
 
-      for (Map.Entry<byte[], byte[]> entry : bucket.frozenWriteCache.entrySet()) {
+    for (Map.Entry<byte[], byte[]> entry : bucket.frozenWriteCache.entrySet()) {
 
-        // find the file for the key
-        Map.Entry<byte[], BucketFileMeta> floorEntry = bucketSeqStarts.floorEntry(entry.getKey());
-        BucketFileMeta floorFile;
-        if (floorEntry != null) {
-          floorFile = floorEntry.getValue();
+      // find the file for the key
+      Map.Entry<byte[], BucketFileMeta> floorEntry = bucketSeqStarts.floorEntry(entry.getKey());
+      BucketFileMeta floorFile;
+      if (floorEntry != null) {
+        floorFile = floorEntry.getValue();
+      } else {
+        floorEntry = bucketSeqStarts.firstEntry();
+        if (floorEntry == null || floorEntry.getValue().name != null) {
+          // no existing file or file with higher key
+          floorFile = new BucketFileMeta();
         } else {
-          floorEntry = bucketSeqStarts.firstEntry();
-          if (floorEntry == null || floorEntry.getValue().name != null) {
-            // no existing file or file with higher key
-            floorFile = new BucketFileMeta();
-          } else {
-            // already have a placeholder for new keys, move start key
-            floorFile = floorEntry.getValue();
-          }
-          floorFile.fromSeq = entry.getKey();
-          bucketSeqStarts.put(floorFile.fromSeq, floorFile);
+          // already have a placeholder for new keys, move start key
+          floorFile = floorEntry.getValue();
         }
-
-        // add to existing file
-        Map<BucketFileMeta, Map<byte[], byte[]>> modifiedFiles = modifiedBuckets.get(bucketEntry.getKey());
-        if (modifiedFiles == null) {
-          modifiedBuckets.put(bucketEntry.getValue(), modifiedFiles = Maps.newHashMap());
-        }
-        Map<byte[], byte[]> fileUpdates = modifiedFiles.get(floorFile);
-        if (fileUpdates == null) {
-          modifiedFiles.put(floorFile, fileUpdates = Maps.newHashMap());
-        }
-        fileUpdates.put(entry.getKey(), entry.getValue());
-
+        floorFile.fromSeq = entry.getKey();
+        bucketSeqStarts.put(floorFile.fromSeq, floorFile);
       }
+
+      Map<byte[], byte[]> fileUpdates = modifiedFiles.get(floorFile);
+      if (fileUpdates == null) {
+        modifiedFiles.put(floorFile, fileUpdates = Maps.newHashMap());
+      }
+      fileUpdates.put(entry.getKey(), entry.getValue());
+
     }
 
+    // copy meta data on write
+    BucketMeta bucketMetaCopy = kryo.copy(getMeta(bucket.bucketKey));
+    HashSet<String> filesToDelete = Sets.newHashSet();
+
     // write modified files
-    for (Map.Entry<Bucket, Map<BucketFileMeta, Map<byte[], byte[]>>> bucketEntry : modifiedBuckets.entrySet()) {
+    for (Map.Entry<BucketFileMeta, Map<byte[], byte[]>> fileEntry : modifiedFiles.entrySet()) {
+      BucketFileMeta fileMeta = fileEntry.getKey();
+      TreeMap<byte[], byte[]> fileData;
 
-      Bucket bucket = bucketEntry.getKey();
-      // copy on write
-      BucketMeta bucketMetaCopy = kryo.copy(getMeta(bucket.bucketKey));
-      HashSet<String> filesToDelete = Sets.newHashSet();
-
-      for (Map.Entry<BucketFileMeta, Map<byte[], byte[]>> fileEntry : bucketEntry.getValue().entrySet()) {
-        BucketFileMeta fileMeta = fileEntry.getKey();
-        TreeMap<byte[], byte[]> fileData;
-
-        if (fileMeta.name != null) {
-          // load existing file
-          fileData = bucket.fileDataCache.get(fileMeta.name);
-          if (fileData == null) {
-            fileData = readFile(bucket.bucketKey, fileMeta.name);
-          }
-          filesToDelete.add(fileMeta.name);
-        } else {
-          fileData = Maps.newTreeMap(getKeyComparator());
+      if (fileMeta.name != null) {
+        // load existing file
+        fileData = bucket.fileDataCache.get(fileMeta.name);
+        if (fileData == null) {
+          fileData = readFile(bucket.bucketKey, fileMeta.name);
         }
-
-        // apply updates
-        fileData.putAll(fileEntry.getValue());
-        // new file
-        writeFile(bucket, bucketMetaCopy, fileData);
+        filesToDelete.add(fileMeta.name);
+      } else {
+        fileData = Maps.newTreeMap(getKeyComparator());
       }
 
-      // flush meta data for new files
-      try {
-        OutputStream os = fileStore.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
-        Output output = new Output(os);
-        kryo.writeClassAndObject(output, bucketMetaCopy);
-        output.close();
-        os.close();
-        fileStore.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
-      } catch (IOException e) {
-        throw new RuntimeException("Failed to write bucket meta data " + bucket.bucketKey, e);
-      }
+      // apply updates
+      fileData.putAll(fileEntry.getValue());
+      // new file
+      writeFile(bucket, bucketMetaCopy, fileData);
+    }
 
-      // clear pending changes
-      bucket.frozenWriteCache.clear();
-      // switch to new version
-      this.metaCache.put(bucket.bucketKey, bucketMetaCopy);
+    // flush meta data for new files
+    try {
+      OutputStream os = fileStore.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
+      Output output = new Output(os);
+      kryo.writeClassAndObject(output, bucketMetaCopy);
+      output.close();
+      os.close();
+      fileStore.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
+    } catch (IOException e) {
+      throw new RuntimeException("Failed to write bucket meta data " + bucket.bucketKey, e);
+    }
 
-      // delete old files
-      for (String fileName : filesToDelete) {
-        fileStore.delete(bucket.bucketKey, fileName);
-        bucket.fileDataCache.remove(fileName);
-      }
+    // clear pending changes
+    bucket.frozenWriteCache.clear();
+    // switch to new version
+    this.metaCache.put(bucket.bucketKey, bucketMetaCopy);
 
+    // delete old files
+    for (String fileName : filesToDelete) {
+      fileStore.delete(bucket.bucketKey, fileName);
+      bucket.fileDataCache.remove(fileName);
     }
 
   }
@@ -347,7 +356,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void setup(OperatorContext arg0)
   {
     fileStore.init();
-    writeExecutor = Executors.newSingleThreadScheduledExecutor();
+    writeExecutor = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory(this.getClass().getSimpleName()+"-Writer"));
   }
 
   @Override
@@ -370,8 +379,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   @Override
   public void endWindow()
   {
-    boolean scheduleFlush = false;
-    for (Bucket bucket : this.buckets.values()) {
+    for (final Bucket bucket : this.buckets.values()) {
       try {
         if (bucket.wal != null)
           bucket.wal.flush();
@@ -379,35 +387,33 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         throw new RuntimeException("Failed to flush WAL", e);
       }
 
-      if (bucket.writeCache.size() > this.flushSize && !bucket.writeCache.isEmpty()) {
+      if ((bucket.writeCache.size() > this.flushSize || windowId - lastFlushWindowId > flushIntervalCount) && !bucket.writeCache.isEmpty()) {
+        // ensure previous flush completed
         if (bucket.frozenWriteCache.isEmpty()) {
           bucket.frozenWriteCache = bucket.writeCache;
           bucket.writeCache = Maps.newHashMap();
-          scheduleFlush = true;
-        }
-      }
-    }
 
-    if (scheduleFlush) {
-      Runnable flushRunnable = new Runnable() {
-        @Override
-        public void run()
-        {
-          try {
-            writeDataFiles();
-          } catch (IOException e) {
-            writerError = e;
+          Runnable flushRunnable = new Runnable() {
+            @Override
+            public void run()
+            {
+              try {
+                writeDataFiles(bucket);
+              } catch (IOException e) {
+                writerError = e;
+              }
+            }
+          };
+          this.writeExecutor.execute(flushRunnable);
+
+          if (writerError != null) {
+            throw new RuntimeException("Error while flushing write cache.", this.writerError);
           }
+
+          lastFlushWindowId = windowId;
         }
-      };
-      this.writeExecutor.execute(flushRunnable);
-
-      if (writerError != null) {
-        throw new RuntimeException("Error while flushing write cache.", this.writerError);
       }
-
     }
-
   }
 
   @Override
