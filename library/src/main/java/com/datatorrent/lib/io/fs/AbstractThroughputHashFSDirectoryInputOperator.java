@@ -76,34 +76,33 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       totalFailedFiles.addAll(oper.failedFiles);
       totalPendingFiles.addAll(oper.pendingFiles);
       oper.pendingFiles.size();
-      if (oper.currentFile != null)
+      if (oper.currentFile != null) {
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
-      oldscanners.add(oper.getScanner());
+      }
+      oldscanners.add(oper.getScanner());  
     }
     
     int totalFileCount;
     int newOperatorCount;
     
-    if(!firstStart)
-    {
+    if(!firstStart) {
       totalFileCount = currentFiles.size() + totalFailedFiles.size() + totalPendingFiles.size();
       newOperatorCount = totalFileCount / preferredMaxPendingFilesPerOperator;
     
-      if(totalFileCount % preferredMaxPendingFilesPerOperator > 0)
-      {
+      if(totalFileCount % preferredMaxPendingFilesPerOperator > 0) {
         newOperatorCount++;
       }
     
-      if(newOperatorCount > partitionCount)
-      {
+      if(newOperatorCount > partitionCount) {
         newOperatorCount = partitionCount;
       }
     }
-    else
-    {
+    else {
       newOperatorCount = partitionCount;
       firstStart = false;
     }
+    
+    LOG.info("Partitioning: " + newOperatorCount);
     
     //if(newOperatorCount == partitions.size())
     //{
@@ -120,7 +119,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       
       operator = kryo.copy(this);
   
-      
       operator.processedFiles.addAll(totalProcessedFiles);
       operator.currentFile = null;
       operator.offset = 0;
