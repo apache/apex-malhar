@@ -253,7 +253,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       }
       lastScanMillis = System.currentTimeMillis();
     }
-    /*
+    
     if (inputStream == null) {
       try {
         if(!unfinishedFiles.isEmpty()) {
@@ -301,7 +301,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         LOG.error("FS reader error", e);
         addToFailedList();
       }
-    }*/
+    }
   }
 
   protected void addToFailedList() {
@@ -485,11 +485,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
     Response res = new Response();
-    res.repartitionRequired = false;
+    /*res.repartitionRequired = false;
     if (currentPartitions != partitionCount) {
       LOG.info("processStats: trying repartition of input operator current {} required {}", currentPartitions, partitionCount);
       res.repartitionRequired = true;
-    }
+    }*/
     return res;
   }
 
