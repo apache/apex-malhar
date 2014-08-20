@@ -485,11 +485,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
     Response res = new Response();
-    /*res.repartitionRequired = false;
+    res.repartitionRequired = false;
     if (currentPartitions != partitionCount) {
       LOG.info("processStats: trying repartition of input operator current {} required {}", currentPartitions, partitionCount);
       res.repartitionRequired = true;
-    }*/
+    }
     return res;
   }
 

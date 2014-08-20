@@ -208,12 +208,12 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
     Response response = new Response();
-    response.repartitionRequired = false;
+    /*response.repartitionRequired = false;
     
     if(System.currentTimeMillis() - repartitionInterval > lastRepartition) {
       response.repartitionRequired = true;
       return response;
-    }
+    }*/
 
     return response;
   }
