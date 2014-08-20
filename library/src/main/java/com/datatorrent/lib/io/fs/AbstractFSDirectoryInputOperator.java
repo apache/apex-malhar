@@ -75,6 +75,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected int partitionCount = 1;
   private int retryCount = 0;
   private int maxRetryCount = 5;
+  private int minBatchIntervalMillis = 1000;
   transient protected int skipCount = 0;
 
   /**
@@ -169,6 +170,16 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   {
     this.emitBatchSize = emitBatchSize;
   }
+  
+  public int getMinBatchIntervalMillis()
+  {
+    return minBatchIntervalMillis;
+  }
+  
+  public void setMinBatchIntervalMillis(int minBatchIntervalMillis)
+  {
+    this.minBatchIntervalMillis = minBatchIntervalMillis;
+  }
 
   public int getPartitionCount()
   {
@@ -246,7 +257,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void emitTuples()
   {
-    if (System.currentTimeMillis() - scanIntervalMillis > lastScanMillis) {
+    long startTime = System.currentTimeMillis();
+    
+    if (startTime - scanIntervalMillis >= lastScanMillis) {
       pendingFiles.addAll(scanner.scan(fs, filePath, processedFiles));
       for(Path pendingFile: pendingFiles) {
         processedFiles.add(pendingFile.toString());
@@ -274,7 +287,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         addToFailedList();
       }
     }
-
+    
     if (inputStream != null) {
       try {
         int counterForTuple = 0;
@@ -300,6 +313,21 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       } catch (IOException e) {
         LOG.error("FS reader error", e);
         addToFailedList();
+      }
+    }
+    
+    long endTime = System.currentTimeMillis();
+    long diffTime = endTime - startTime;
+    
+    if(diffTime < minBatchIntervalMillis)
+    {
+      try
+      {
+        Thread.sleep(minBatchIntervalMillis);
+      }
+      catch(InterruptedException e)
+      {
+        //Do nothing
       }
     }
   }
