@@ -606,6 +606,19 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
     protected boolean acceptFile(String filePathStr)
     {
+      if (partitionCount > 1) {
+        int i = filePathStr.hashCode();
+        int mod = i % partitionCount;
+        if (mod < 0) {
+          mod += partitionCount;
+        }
+        LOG.debug("partition {} {} {} {}", partitionIndex, filePathStr, i, mod);
+
+        if (mod != partitionIndex) {
+          return false;
+        }
+      }
+      
       if (filePatternRegexp != null && this.regex == null) {
         regex = Pattern.compile(this.filePatternRegexp);
       }
@@ -616,19 +629,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         if (!matcher.matches()) {
           return false;
         }
-        if (partitionCount > 1) {
-          int i = filePathStr.hashCode();
-          int mod = i % partitionCount;
-          if (mod < 0) {
-            mod += partitionCount;
-          }
-          LOG.debug("partition {} {} {} {}", partitionIndex, filePathStr, i, mod);
-
-          if (mod != partitionIndex) {
-            return false;
-          }
-        }
       }
+      
       return true;
     }
 
