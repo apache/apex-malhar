@@ -10,7 +10,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,11 +104,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       newOperatorCount = partitionCount;
       firstStart = false;
     }
-    
-    //if(newOperatorCount == partitions.size())
-    //{
-    //  return partitions;
-    //}
     
     Kryo kryo = new Kryo();
     
