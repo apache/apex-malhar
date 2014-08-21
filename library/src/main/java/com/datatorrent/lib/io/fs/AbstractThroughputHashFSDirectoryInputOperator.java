@@ -77,9 +77,11 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       LOG.debug("definePartitions: Operator {} processedFiles count: {}", oper.operatorId, oper.processedFiles.size());
       LOG.debug("definePartitions: Operator {} failedFiles count: {}", oper.operatorId, oper.failedFiles.size());
       LOG.debug("definePartitions: Operator {} pendingFiles count: {}", oper.operatorId, oper.pendingFiles.size());
+      LOG.debug("definePartitions: Operator {} currentFiles count: {}", oper.operatorId, oper.unfinishedFiles.size());
       currentFiles.addAll(oper.unfinishedFiles);
       if (oper.currentFile != null) {
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
+        LOG.debug("definePartitions: Operator {} failedFile: {} {}", oper.operatorId, oper.currentFile, oper.offset);
       }
       oldscanners.add(oper.getScanner());  
     }
@@ -115,6 +117,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       
       operator = kryo.copy(this);
   
+      operator.processedFiles.clear();
       operator.processedFiles.addAll(totalProcessedFiles);
       operator.currentFile = null;
       operator.offset = 0;
