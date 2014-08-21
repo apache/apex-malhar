@@ -33,6 +33,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   private long repartitionInterval = 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
   
+  protected transient boolean disableProcessing = false;
   private boolean firstStart=true;
   private transient long lastRepartition = 0;
   
@@ -54,6 +55,16 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   public int getPreferredMaxPendingFilesPerOperator()
   {
     return preferredMaxPendingFilesPerOperator;
+  }
+  
+  @Override
+  public void emitTuples()
+  {
+    if(!disableProcessing)
+    {
+      LOG.debug("emitTuples called when repartitioning. This is not correct.");
+      super.emitTuples();
+    }
   }
   
   @Override
@@ -83,11 +94,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
         LOG.debug("definePartitions: Operator {} failedFile: {} {}", oper.operatorId, oper.currentFile, oper.offset);
       }
-      oper.currentFile = null;
-      oper.offset = 0;
-      oper.pendingFiles.clear();
-      oper.unfinishedFiles.clear();
-      oper.failedFiles.clear();
       oldscanners.add(oper.getScanner());  
     }
     
@@ -122,6 +128,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       
       operator = kryo.copy(this);
   
+      operator.disableProcessing = false;
       operator.processedFiles.clear();
       operator.processedFiles.addAll(totalProcessedFiles);
       operator.currentFile = null;
@@ -155,6 +162,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       DirectoryScanner scn = scanners.get(i);
       oper.setScanner(scn);
 
+      oper.disableProcessing = false;
       // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
 
@@ -215,6 +223,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     if(System.currentTimeMillis() - repartitionInterval > lastRepartition) {
       LOG.debug("Repartition Triggered");
+      disableProcessing = true;
       response.repartitionRequired = true;
       return response;
     }
