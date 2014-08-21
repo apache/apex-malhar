@@ -129,7 +129,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected transient long lastScanMillis;
   protected transient Path filePath;
   protected transient InputStream inputStream;
-  protected transient final Set<Path> pendingFiles = new LinkedHashSet<Path>();
+  protected final Set<Path> pendingFiles = new LinkedHashSet<Path>();
 
   public String getDirectory()
   {
