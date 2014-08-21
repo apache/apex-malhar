@@ -69,7 +69,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     List<FailedFile> currentFiles = new LinkedList<FailedFile>();
     List<DirectoryScanner> oldscanners = new LinkedList<DirectoryScanner>();
     List<FailedFile> totalFailedFiles = new LinkedList<FailedFile>();
-    List<Path> totalPendingFiles = new LinkedList<Path>();
+    List<String> totalPendingFiles = new LinkedList<String>();
     for(Partition<AbstractFSDirectoryInputOperator<T>> partition : partitions) {
       AbstractFSDirectoryInputOperator<T> oper = partition.getPartitionedInstance();
       totalProcessedFiles.addAll(oper.processedFiles);
@@ -182,11 +182,12 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       
       /* redistribute pending files properly */
       oper.pendingFiles.clear();
-      Iterator<Path> pendingFilesIterator = totalPendingFiles.iterator();
-      while(pendingFilesIterator.hasNext()) {
-        Path path = pendingFilesIterator.next();
-        if(scn.acceptFile(path.toString())) {
-          oper.pendingFiles.add(path);
+      Iterator<String> pendingFilesIterator = totalPendingFiles.iterator();
+      while(pendingFilesIterator.hasNext()) 
+      {
+        String pathString = pendingFilesIterator.next();
+        if(scn.acceptFile(pathString)) {
+          oper.pendingFiles.add(pathString);
           pendingFilesIterator.remove();
         }
       }

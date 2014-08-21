@@ -129,7 +129,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected transient long lastScanMillis;
   protected transient Path filePath;
   protected transient InputStream inputStream;
-  protected Set<Path> pendingFiles = new LinkedHashSet<Path>();
+  protected Set<String> pendingFiles = new LinkedHashSet<String>();
 
   public String getDirectory()
   {
@@ -261,9 +261,10 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     
     if (startTime - scanIntervalMillis >= lastScanMillis) {
       Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
-      pendingFiles.addAll(newPaths);
       
       for(Path newPath: newPaths) {
+        String newPathString = newPaths.toString();
+        pendingFiles.add(newPathString);
         processedFiles.add(newPath.toString());
       }
       lastScanMillis = System.currentTimeMillis();
@@ -276,9 +277,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           this.inputStream = retryFailedFile(ff);
         }
         else if (!pendingFiles.isEmpty()) {
-          Path path = pendingFiles.iterator().next();
-          pendingFiles.remove(path);
-          this.inputStream = openFile(path);
+          String newPathString = pendingFiles.iterator().next();
+          pendingFiles.remove(newPathString);
+          this.inputStream = openFile(new Path(newPathString));
         }
         else if (!failedFiles.isEmpty()) {
           FailedFile ff = failedFiles.poll();
@@ -419,7 +420,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     Set<FailedFile> currentFiles = new HashSet<FailedFile>();
     List<DirectoryScanner> oldscanners = new LinkedList<DirectoryScanner>();
     List<FailedFile> totalFailedFiles = new LinkedList<FailedFile>();
-    List<Path> totalPendingFiles = new LinkedList<Path>();
+    List<String> totalPendingFiles = new LinkedList<String>();
     for(Partition<AbstractFSDirectoryInputOperator<T>> partition : partitions) {
       AbstractFSDirectoryInputOperator<T> oper = partition.getPartitionedInstance();
       totalProcessedFiles.addAll(oper.processedFiles);
@@ -472,11 +473,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       
       /* redistribute pending files properly */
       oper.pendingFiles.clear();
-      Iterator<Path> pendingFilesIterator = totalPendingFiles.iterator();
+      Iterator<String> pendingFilesIterator = totalPendingFiles.iterator();
       while(pendingFilesIterator.hasNext()) {
-        Path path = pendingFilesIterator.next();
-        if(scn.acceptFile(path.toString())) {
-          oper.pendingFiles.add(path);
+        String pathString = pendingFilesIterator.next();
+        if(scn.acceptFile(pathString)) {
+          oper.pendingFiles.add(pathString);
           pendingFilesIterator.remove();
         }
       }
