@@ -74,10 +74,10 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       totalProcessedFiles.addAll(oper.processedFiles);
       totalFailedFiles.addAll(oper.failedFiles);
       totalPendingFiles.addAll(oper.pendingFiles);
-      LOG.debug("definePartitions: Operator {} processedFiles count: {}", oper.operatorId, processedFiles.size());
-      LOG.debug("definePartitions: Operator {} failedFiles count: {}", oper.operatorId, failedFiles.size());
-      LOG.debug("definePartitions: Operator {} pendingFiles count: {}", oper.operatorId, pendingFiles.size());
-      oper.pendingFiles.size();
+      LOG.debug("definePartitions: Operator {} processedFiles count: {}", oper.operatorId, oper.processedFiles.size());
+      LOG.debug("definePartitions: Operator {} failedFiles count: {}", oper.operatorId, oper.failedFiles.size());
+      LOG.debug("definePartitions: Operator {} pendingFiles count: {}", oper.operatorId, oper.pendingFiles.size());
+      currentFiles.addAll(oper.unfinishedFiles);
       if (oper.currentFile != null) {
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
       }
@@ -142,7 +142,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     List<DirectoryScanner> scanners = scanner.partition(newOperatorCount, oldscanners);
 
     Collection<Partition<AbstractFSDirectoryInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(newOperatorCount);
-    for (int i=0; i<scanners.size(); i++) {
+    for (int i=0; i<newOperatorCount; i++) {
       AbstractThroughputHashFSDirectoryInputOperator<T> oper = kryo.copy(this);
       DirectoryScanner scn = scanners.get(i);
       oper.setScanner(scn);
