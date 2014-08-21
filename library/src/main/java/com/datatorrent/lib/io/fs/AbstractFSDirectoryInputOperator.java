@@ -276,8 +276,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     if (inputStream == null) {
       try {
         if(!unfinishedFiles.isEmpty()) {
-          FailedFile ff = unfinishedFiles.poll();
-          this.inputStream = retryFailedFile(ff);
+          retryFailedFile(unfinishedFiles.poll());
         }
         else if (!pendingFiles.isEmpty()) {
           String newPathString = pendingFiles.iterator().next();
@@ -285,8 +284,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           this.inputStream = openFile(new Path(newPathString));
         }
         else if (!failedFiles.isEmpty()) {
-          FailedFile ff = failedFiles.poll();
-          this.inputStream = retryFailedFile(ff);
+          retryFailedFile(failedFiles.poll());
         }
       }catch (IOException ex) {
         LOG.error("FS reader error", ex);
@@ -301,7 +299,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           T line = readEntity();
           if (line == null) {
             LOG.info("done reading file ({} entries).", offset);
-            debug.emit("done reading file (" + offset + " entries)");
+            debug.emit("done reading file " + currentFile + " (" + offset + " entries)");
             closeFile(inputStream);
             break;
           }
