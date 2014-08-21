@@ -69,7 +69,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected int scanIntervalMillis = 5000;
   protected int offset;
   protected String currentFile;
-  protected final Set<String> processedFiles = new HashSet<String>();
+  protected Set<String> processedFiles = new HashSet<String>();
   protected int emitBatchSize = 1000;
   private int currentPartitions = 1 ;
   protected int partitionCount = 1;
@@ -120,16 +120,16 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   }
   
   /* List of unfinished files */
-  protected final Queue<FailedFile> unfinishedFiles = new LinkedList<FailedFile>();
+  protected Queue<FailedFile> unfinishedFiles = new LinkedList<FailedFile>();
   /* List of failed file */
-  protected final Queue<FailedFile> failedFiles = new LinkedList<FailedFile>();
+  protected Queue<FailedFile> failedFiles = new LinkedList<FailedFile>();
 
   protected transient FileSystem fs;
   protected transient Configuration configuration;
   protected transient long lastScanMillis;
   protected transient Path filePath;
   protected transient InputStream inputStream;
-  protected final Set<Path> pendingFiles = new LinkedHashSet<Path>();
+  protected Set<Path> pendingFiles = new LinkedHashSet<Path>();
 
   public String getDirectory()
   {
