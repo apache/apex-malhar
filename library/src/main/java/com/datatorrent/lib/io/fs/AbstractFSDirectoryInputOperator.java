@@ -262,7 +262,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   {
     long startTime = System.currentTimeMillis();
     
-    if (startTime - scanIntervalMillis >= lastScanMillis) {
+    /*if (startTime - scanIntervalMillis >= lastScanMillis) {
       Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
       
       for(Path newPath: newPaths) {
@@ -271,7 +271,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         processedFiles.add(newPathString);
       }
       lastScanMillis = System.currentTimeMillis();
-    }
+    }*/
     
     if (inputStream == null) {
       try {
