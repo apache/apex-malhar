@@ -41,6 +41,15 @@ public interface HDSFileAccess extends Closeable
   void rename(long bucketKey, String oldName, String newName) throws IOException;
   void delete(long bucketKey, String fileName) throws IOException;
 
+  /**
+   * Truncate file, used for WAL recovery.
+   * @param bucketKey
+   * @param fileName
+   * @param size
+   * @throws IOException
+   */
+  void truncate(long bucketKey, String fileName, long size) throws IOException;
+
   // placeholder interface
   interface HDSFileReader extends Closeable {
     void readFully(TreeMap<byte[], byte[]> data) throws IOException;
