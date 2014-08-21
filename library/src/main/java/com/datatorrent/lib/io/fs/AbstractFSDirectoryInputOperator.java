@@ -16,6 +16,7 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
@@ -130,6 +131,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected transient Path filePath;
   protected transient InputStream inputStream;
   protected Set<String> pendingFiles = new LinkedHashSet<String>();
+  public final transient DefaultOutputPort<String> debug = new DefaultOutputPort<String>();
 
   public String getDirectory()
   {
@@ -299,6 +301,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           T line = readEntity();
           if (line == null) {
             LOG.info("done reading file ({} entries).", offset);
+            debug.emit("done reading file (" + offset + " entries)");
             closeFile(inputStream);
             break;
           }
