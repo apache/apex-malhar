@@ -45,7 +45,8 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Manager for buckets. Can be sub-classed as operator or used in composite pattern.
@@ -70,6 +71,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   @NotNull
   private HDSFileAccess fileStore;
   private int maxFileSize = 64000;
+  private int maxWalFileSize = 64 * 1024 * 1024;
   private int flushSize = 1000000;
   private int flushIntervalCount = 30;
 
@@ -112,6 +114,22 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void setMaxFileSize(int maxFileSize)
   {
     this.maxFileSize = maxFileSize;
+  }
+
+  /**
+   * Size limit for WAL files. Files are rolled once the limit has been exceeded.
+   * The final size of a file can be larger than the limit, as files are rolled at
+   * end of the operator window.
+   * @return
+   */
+  public int getMaxWalFileSize()
+  {
+    return maxWalFileSize;
+  }
+
+  public void setMaxWalFileSize(int maxWalFileSize)
+  {
+    this.maxWalFileSize = maxWalFileSize;
   }
 
   /**
@@ -196,7 +214,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       bucket.fileDataCache.remove(fileMeta.name);
       fileStore.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
     }
-
   }
 
   private Bucket getBucket(long bucketKey)
@@ -251,12 +268,29 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     Bucket bucket = getBucket(bucketKey);
     if (bucket.wal == null) {
-      bucket.wal = fileStore.getOutputStream(bucket.bucketKey, FNAME_WAL);
-      bucket.wal.write(key);
-      bucket.wal.write(value);
+      //TODO: put recovery in separate thread.
+
+      bucket.recoveryInProgress = true;
+      // Initiate a new WAL for bucket, and run recovery if needed.
+      BucketWalWriter w = new BucketWalWriter(fileStore, bucketKey);
+      bucket.wal = w;
+      w.setMaxWalFileSize(maxWalFileSize);
+      w.setup();
+
+      // Get last committed LSN from store, and use that for recovery.
+      BucketMeta meta = getMeta(bucketKey);
+      w.runRecovery(this, meta.committedLSN);
+      bucket.recoveryInProgress = false;
+    }
+    /* Do not update WAL, if tuple being added is coming through recovery */
+    if (!bucket.recoveryInProgress) {
+      long lsn = bucket.wal.append(key, value);
+      if (lsn >= bucket.lsn)
+        bucket.lsn = lsn;
     }
     bucket.writeCache.put(key, value);
   }
+
 
   /**
    * Flush changes from write cache to disk.
@@ -331,6 +365,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     try {
       OutputStream os = fileStore.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
       Output output = new Output(os);
+      bucketMetaCopy.committedLSN = bucket.lsn;
       kryo.writeClassAndObject(output, bucketMetaCopy);
       output.close();
       os.close();
@@ -382,7 +417,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     for (final Bucket bucket : this.buckets.values()) {
       try {
         if (bucket.wal != null)
-          bucket.wal.flush();
+          bucket.wal.endWindow();
       } catch (IOException e) {
         throw new RuntimeException("Failed to flush WAL", e);
       }
@@ -391,8 +426,9 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         // ensure previous flush completed
         if (bucket.frozenWriteCache.isEmpty()) {
           bucket.frozenWriteCache = bucket.writeCache;
+          bucket.committedLSN = bucket.lsn;
           bucket.writeCache = Maps.newHashMap();
-
+          logger.debug("Flushing data to disks for bucket {} committedLSN {}", bucket.bucketKey, bucket.committedLSN);
           Runnable flushRunnable = new Runnable() {
             @Override
             public void run()
@@ -499,17 +535,48 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     }
 
     int fileSeq;
+    long committedLSN;
     final TreeMap<byte[], BucketFileMeta> files;
   }
 
-  private static class Bucket
+  protected static class Bucket
   {
     private long bucketKey;
     // keys that were modified and written to WAL, but not yet persisted
-    private HashMap<byte[], byte[]> writeCache = Maps.newHashMap();
+    protected HashMap<byte[], byte[]> writeCache = Maps.newHashMap();
     private HashMap<byte[], byte[]> frozenWriteCache = Maps.newHashMap();
-    private transient DataOutputStream wal;
     private final transient HashMap<String, TreeMap<byte[], byte[]>> fileDataCache = Maps.newHashMap();
+    private transient BucketWalWriter wal;
+    private long committedLSN;
+    private long lsn;
+    private boolean recoveryInProgress;
   }
+
+  @VisibleForTesting
+  protected void saveWalMeta() throws IOException
+  {
+    for(Bucket bucket : buckets.values())
+    {
+      bucket.wal.saveMeta();
+    }
+  }
+
+  @VisibleForTesting
+  protected void forceWal() throws IOException
+  {
+    for(Bucket bucket : buckets.values())
+    {
+      bucket.wal.close();
+    }
+  }
+
+  @VisibleForTesting
+  protected int unflushedData(long bucketKey)
+  {
+    Bucket b = getBucket(bucketKey);
+    return b.writeCache.size();
+  }
+
+  private static final Logger logger = LoggerFactory.getLogger(HDSBucketManager.class);
 
 }

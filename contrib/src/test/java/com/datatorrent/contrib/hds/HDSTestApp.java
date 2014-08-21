@@ -86,6 +86,8 @@ public class HDSTestApp implements StreamingApplication
     long tms = System.currentTimeMillis();
     File f0 = new File(file, "0/0-0");
     File f1 = new File(file, "1/1-0");
+    File wal0 = new File(file, "0/_WAL-0");
+    File wal1 = new File(file, "1/_WAL-0");
 
     while (System.currentTimeMillis() - tms < 30000) {
       if (f0.exists() && f1.exists()) break;
@@ -95,6 +97,8 @@ public class HDSTestApp implements StreamingApplication
 
     Assert.assertTrue("exists " + f0, f0.exists() && f0.isFile());
     Assert.assertTrue("exists " + f1, f1.exists() && f1.isFile());
+    Assert.assertTrue("exists " + wal0, wal0.exists() && wal0.exists());
+    Assert.assertTrue("exists " + wal1, wal1.exists() && wal1.exists());
 
     HDSFileAccessFSImpl fs = new HDSFileAccessFSImpl();
     fs.setBasePath(file.toURI().toString());
