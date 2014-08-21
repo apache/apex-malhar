@@ -263,7 +263,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
       
       for(Path newPath: newPaths) {
-        String newPathString = newPaths.toString();
+        String newPathString = newPath.toString();
         pendingFiles.add(newPathString);
         processedFiles.add(newPath.toString());
       }
