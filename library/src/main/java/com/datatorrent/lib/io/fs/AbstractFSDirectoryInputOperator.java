@@ -231,7 +231,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       LOG.info("Read offset={} records in setup time={}", offset, System.currentTimeMillis() - startTime);
     }
     catch (IOException ex) {
-      throw new RuntimeException(ex);
+      LOG.error("FS reader error", ex);
+      addToFailedList();
     }
   }
 
@@ -326,7 +327,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     {
       try
       {
-        Thread.sleep(minBatchIntervalMillis);
+        Thread.sleep(minBatchIntervalMillis - diffTime);
       }
       catch(InterruptedException e)
       {
