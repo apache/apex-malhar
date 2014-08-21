@@ -83,6 +83,11 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
         LOG.debug("definePartitions: Operator {} failedFile: {} {}", oper.operatorId, oper.currentFile, oper.offset);
       }
+      oper.currentFile = null;
+      oper.offset = 0;
+      oper.pendingFiles.clear();
+      oper.unfinishedFiles.clear();
+      oper.failedFiles.clear();
       oldscanners.add(oper.getScanner());  
     }
     
