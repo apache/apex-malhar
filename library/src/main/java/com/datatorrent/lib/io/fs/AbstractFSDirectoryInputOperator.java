@@ -265,7 +265,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       for(Path newPath: newPaths) {
         String newPathString = newPath.toString();
         pendingFiles.add(newPathString);
-        processedFiles.add(newPath.toString());
+        processedFiles.add(newPathString);
       }
       lastScanMillis = System.currentTimeMillis();
     }
