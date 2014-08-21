@@ -299,7 +299,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           T line = readEntity();
           if (line == null) {
             LOG.info("done reading file ({} entries).", offset);
-            debug.emit("Operator " + operatorId + " done reading file " + currentFile + " (" + offset + " entries)");
+            debug.emit("done reading file " + currentFile + " (" + offset + " entries) " + "Operator " + operatorId);
             closeFile(inputStream);
             break;
           }
