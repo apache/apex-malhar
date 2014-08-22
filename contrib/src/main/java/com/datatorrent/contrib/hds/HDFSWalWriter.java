@@ -61,13 +61,11 @@ public class HDFSWalWriter implements WALWriter
   {
     out.flush();
     if (out instanceof FSDataOutputStream) {
-      logger.info("calling hflush on file " + name);
       ((FSDataOutputStream) out).hflush();
       ((FSDataOutputStream) out).hsync();
     }
     committedOffset = out.size();
     unflushed = 0;
-    logger.info("flushing file new offset {}", committedOffset);
   }
 
   @Override public long getUnflushedCount()
