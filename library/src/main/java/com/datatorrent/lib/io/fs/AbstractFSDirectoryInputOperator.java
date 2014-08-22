@@ -259,6 +259,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       }
       
       mapPrint += "========= End Map =========\n";
+      
+      debug.emit(mapPrint);
     }
     
     long startTime = System.currentTimeMillis();
