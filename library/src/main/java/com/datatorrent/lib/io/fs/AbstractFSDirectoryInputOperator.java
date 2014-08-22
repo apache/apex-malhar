@@ -255,11 +255,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void endWindow()
   {
-  }
-
-  @Override
-  public void emitTuples()
-  {
     long startTime = System.currentTimeMillis();
     
     if (startTime - scanIntervalMillis >= lastScanMillis) {
@@ -323,8 +318,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     
     long endTime = System.currentTimeMillis();
     long diffTime = endTime - startTime;
+  }
+
+  @Override
+  public void emitTuples()
+  {
+
     
-    if(diffTime < minBatchIntervalMillis)
+    /*if(diffTime < minBatchIntervalMillis)
     {
       try
       {
@@ -334,7 +335,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       {
         //Do nothing
       }
-    }
+    }*/
   }
 
   protected void addToFailedList() {

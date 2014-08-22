@@ -64,8 +64,10 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     {
       super.emitTuples();
     }
-    
-    LOG.debug("emitTuples called when repartitioning. This is not correct.");
+    else
+    {
+      LOG.debug("emitTuples called when repartitioning. This is not correct.");
+    }
   }
   
   @Override
