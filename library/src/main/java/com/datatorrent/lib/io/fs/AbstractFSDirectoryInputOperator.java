@@ -76,7 +76,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected int partitionCount = 1;
   private int retryCount = 0;
   private int maxRetryCount = 5;
-  private int minBatchIntervalMillis = 1000;
   transient protected int skipCount = 0;
 
   /**
@@ -173,16 +172,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     this.emitBatchSize = emitBatchSize;
   }
   
-  public int getMinBatchIntervalMillis()
-  {
-    return minBatchIntervalMillis;
-  }
-  
-  public void setMinBatchIntervalMillis(int minBatchIntervalMillis)
-  {
-    this.minBatchIntervalMillis = minBatchIntervalMillis;
-  }
-
   public int getPartitionCount()
   {
     return partitionCount;
@@ -317,7 +306,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
     
     long endTime = System.currentTimeMillis();
-    long diffTime = endTime - startTime;
   }
 
   @Override
