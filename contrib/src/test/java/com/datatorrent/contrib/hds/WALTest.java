@@ -15,6 +15,9 @@
  */
 package com.datatorrent.contrib.hds;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.ByteBufferInput;
+import com.esotericsoftware.kryo.io.ByteBufferOutput;
 import com.google.common.util.concurrent.MoreExecutors;
 import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
@@ -163,8 +166,9 @@ public class WALTest
   /**
    * Rest recovery of operator cache. Steps
    * - Add some tuples
-   * - Save WAL state
-   * -
+   * - Flush data to disk.
+   * - Add some more tuples, which are not flushed to data, but flushed to WAL.
+   * - Save WAL state (operator checkpoint)
    * @throws IOException
    */
   @Test
@@ -186,7 +190,6 @@ public class WALTest
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(bfs);
     hds.setKeyComparator(new HDSTest.MyDataKey.SequenceComparator());
-    hds.setFlushIntervalCount(1);
     hds.setFlushSize(3);
     hds.setup(null);
     hds.writeExecutor = MoreExecutors.sameThreadExecutor();
@@ -201,27 +204,40 @@ public class WALTest
     hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
     hds.endWindow();
 
-    // Data writtern till this point is written to data files, and
-    // tuples added in this window, will not be written to data files
+    // Tuples added till this point is written to data files,
+    //
+    // Tuples being added in this window, will not be written to data files
     // but will be saved in WAL. These should get recovered when bucket
-    // is initialized for use.
+    // is initialized for use next time.
     hds.beginWindow(3);
     hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
     hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
     hds.endWindow();
-    hds.saveWalMeta();
     hds.forceWal();
-
     hds.teardown();
 
-    hds = new HDSBucketManager();
-    hds.setFileStore(bfs);
+    /* Get a check-pointed state of the WAL */
+    Kryo kryo = new Kryo();
+    com.esotericsoftware.kryo.io.ByteBufferOutput oo = new ByteBufferOutput(100000);
+    kryo.writeObject(oo, hds);
+    oo.flush();
+    com.esotericsoftware.kryo.io.ByteBufferInput oi = new ByteBufferInput(oo.getByteBuffer());
+    HDSBucketManager newOperator = kryo.readObject(oi, HDSBucketManager.class);
 
+    newOperator.setKeyComparator(new HDSTest.MyDataKey.SequenceComparator());
+    newOperator.setFlushIntervalCount(1);
+    newOperator.setFlushSize(3);
+    newOperator.setup(null);
+    newOperator.writeExecutor = MoreExecutors.sameThreadExecutor();
+
+    newOperator.setFileStore(bfs);
+    newOperator.setup(null);
     // This should run recovery, as first tuple is added in bucket
-    hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
+    newOperator.beginWindow(3);
+    newOperator.put(1, genRandomByteArray(500), genRandomByteArray(500));
 
     // Number of tuples = tuples recovered (2) + tuple being added (1).
-    Assert.assertEquals("Number of tuples in store ", 3, hds.unflushedData(1));
+    Assert.assertEquals("Number of tuples in store ", 5, newOperator.unflushedData(1));
   }
 
   private static final Logger logger = LoggerFactory.getLogger(WALTest.class);

@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.TreeMap;
 
 /**
@@ -49,6 +50,7 @@ public interface HDSFileAccess extends Closeable
    * @throws IOException
    */
   void truncate(long bucketKey, String fileName, long size) throws IOException;
+
 
   // placeholder interface
   interface HDSFileReader extends Closeable {
