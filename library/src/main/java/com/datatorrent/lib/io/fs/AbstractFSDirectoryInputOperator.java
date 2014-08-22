@@ -193,7 +193,10 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void setup(OperatorContext context)
   {
-    operatorId = context.getId();
+    if(context != null)
+    {
+      operatorId = context.getId();
+    }
     
     LOG.debug("Setup Operator {}", operatorId);
     
