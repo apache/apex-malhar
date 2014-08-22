@@ -4,7 +4,6 @@ import com.datatorrent.api.DefaultPartition;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -79,7 +78,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     // Build collective state from all instances of the operator.
     //
     
-    Map<String, Integer> totalCountMap = new HashMap<String, Integer>();
     Set<String> totalProcessedFiles = new HashSet<String>();
     List<FailedFile> currentFiles = new LinkedList<FailedFile>();
     List<DirectoryScanner> oldscanners = new LinkedList<DirectoryScanner>();
@@ -95,20 +93,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       LOG.debug("definePartitions: Operator {} pendingFiles count: {}", oper.operatorId, oper.pendingFiles.size());
       LOG.debug("definePartitions: Operator {} unfinishedFiles count: {}", oper.operatorId, oper.unfinishedFiles.size());
       currentFiles.addAll(oper.unfinishedFiles);
-      
-      Set<String> countMapFiles = oper.countMap.keySet();
-      
-      for(String key: countMapFiles) {
-        
-        Integer newCount = totalCountMap.get(key);
-        
-        if(newCount == null) {
-          LOG.debug("Two operators working on the same file.");
-          newCount = 0;
-        }
-        
-        totalCountMap.put(key, newCount + oper.countMap.get(key));
-      }
       
       if (oper.currentFile != null) {
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
@@ -148,14 +132,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       AbstractThroughputHashFSDirectoryInputOperator<T> operator;
       
       operator = kryo.copy(this);
-  
-      operator.countMap.clear();
-      Set<String> files = totalCountMap.keySet();
-      
-      for(String file: files)
-      {
-        operator.countMap.put(file, totalCountMap.get(file));
-      }
       
       operator.disableProcessing = false;
       operator.processedFiles.clear();
@@ -191,19 +167,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       DirectoryScanner scn = scanners.get(i);
       oper.setScanner(scn);
       
-      oper.countMap.clear();
-      Set<String> files = totalCountMap.keySet();
-      
-      for(String file: files)
-      {
-        if(!scn.acceptFile(file))
-        {
-          continue;
-        }
-        
-        oper.countMap.put(file, totalCountMap.get(file));
-      }
-
       oper.disableProcessing = false;
       // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
