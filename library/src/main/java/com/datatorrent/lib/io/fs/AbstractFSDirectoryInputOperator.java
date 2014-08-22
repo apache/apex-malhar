@@ -246,6 +246,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void endWindow()
   {
+    windowSkipCount++;
     if(windowSkipCount == 10) {
       windowSkipCount = 0;
       
