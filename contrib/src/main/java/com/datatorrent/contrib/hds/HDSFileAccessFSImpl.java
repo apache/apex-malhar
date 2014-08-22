@@ -32,6 +32,7 @@ import org.apache.hadoop.fs.Options.Rename;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.common.util.Slice;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -156,13 +157,13 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
     return new HDSFileReader() {
 
       @Override
-      public void readFully(TreeMap<byte[], byte[]> data) throws IOException
+      public void readFully(TreeMap<Slice, byte[]> data) throws IOException
       {
         Input input = new Input(is);
         while (!input.eof()) {
           byte[] key = kryo.readObject(input, byte[].class);
           byte[] value = kryo.readObject(input, byte[].class);
-          data.put(key, value);
+          data.put(new Slice(key, 0, key.length), value);
         }
       }
 

@@ -31,7 +31,7 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.hds.HDSTest.MyDataKey;
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.util.KeyValPair;
 import com.google.common.collect.Maps;
 
@@ -60,7 +60,7 @@ public class HDSTestApp implements StreamingApplication
   {
     Generator generator = dag.addOperator("Generator", new Generator());
     HDSOperator store = dag.addOperator("Store", new HDSOperator());
-    store.setKeyComparator(new MyDataKey.SequenceComparator());
+    store.setKeyComparator(new HDSTest.SequenceComparator());
     store.setFileStore(new HDSFileAccessFSImpl());
     dag.addStream("Generator2Store", generator.output, store.data);
   }
@@ -104,13 +104,13 @@ public class HDSTestApp implements StreamingApplication
     fs.setBasePath(file.toURI().toString());
     fs.init();
 
-    TreeMap<byte[], byte[]> data = Maps.newTreeMap(new MyDataKey.SequenceComparator());
+    TreeMap<Slice, byte[]> data = Maps.newTreeMap(new HDSTest.SequenceComparator());
     fs.getReader(0, "0-0").readFully(data);
-    Assert.assertArrayEquals("read key=" + new String(KEY0), DATA0.getBytes(), data.get(KEY0));
+    Assert.assertArrayEquals("read key=" + new String(KEY0), DATA0.getBytes(), data.get(HDSBucketManager.toSlice(KEY0)));
 
     data.clear();
     fs.getReader(1, "1-0").readFully(data);
-    Assert.assertArrayEquals("read key=" + new String(KEY1), DATA1.getBytes(), data.get(KEY1));
+    Assert.assertArrayEquals("read key=" + new String(KEY1), DATA1.getBytes(), data.get(HDSBucketManager.toSlice(KEY1)));
 
     fs.close();
   }
