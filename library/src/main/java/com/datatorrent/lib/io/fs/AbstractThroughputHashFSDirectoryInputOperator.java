@@ -196,6 +196,11 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       
       for(String file: files)
       {
+        if(!scn.acceptFile(file))
+        {
+          continue;
+        }
+        
         oper.countMap.put(file, totalCountMap.get(file));
       }
 
