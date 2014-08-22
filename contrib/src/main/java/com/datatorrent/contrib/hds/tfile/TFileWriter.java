@@ -50,9 +50,6 @@ public final class TFileWriter implements HDSFileWriter
   }
 
   @Override
-  public int getFileSize() 
-  {
-    return fsdos.size();
-  }
+  public long getBytesWritten() throws IOException{ return fsdos.getPos(); }
 
 }

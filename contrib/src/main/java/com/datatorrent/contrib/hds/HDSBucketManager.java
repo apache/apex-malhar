@@ -199,8 +199,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       }
 
       fw.append(dataEntry.getKey(), dataEntry.getValue());
-
-      if (fw.getFileSize() > this.maxFileSize) {
+      if ( fw.getBytesWritten() > this.maxFileSize) {
         // roll file
         fw.close();
         bucket.fileDataCache.remove(fileMeta.name);
@@ -543,7 +542,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     private long bucketKey;
     // keys that were modified and written to WAL, but not yet persisted
-    protected HashMap<byte[], byte[]> writeCache = Maps.newHashMap();
+    private HashMap<byte[], byte[]> writeCache = Maps.newHashMap();
     private HashMap<byte[], byte[]> frozenWriteCache = Maps.newHashMap();
     private final transient HashMap<String, TreeMap<byte[], byte[]>> fileDataCache = Maps.newHashMap();
     private transient BucketWalWriter wal;

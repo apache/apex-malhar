@@ -15,10 +15,14 @@
  */
 package com.datatorrent.contrib.hds;
 
+import com.datatorrent.common.util.Slice;
+import org.apache.hadoop.fs.Path;
+
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.TreeMap;
 
 /**
@@ -50,17 +54,18 @@ public interface HDSFileAccess extends Closeable
    */
   void truncate(long bucketKey, String fileName, long size) throws IOException;
 
-  // placeholder interface
+  /**
+   * HDS Data File Format Reader
+   */
   interface HDSFileReader extends Closeable {
-    void readFully(TreeMap<byte[], byte[]> data) throws IOException;
-
     /**
-     * Searches for a matching key, and returns the corresponding value.  Exception is thrown if a matching key is not found.
-     * @param key Byte array representing the key
-     * @return Byte array representing the value
+     * Read the entire contents of the uderlying file into a TreeMap structure
+     * @param data
      * @throws IOException
      */
-    byte[] getValue(byte[] key) throws IOException;
+    //Move to
+    // void readFully(TreeMap<Slice, Slice> data) throws IOException;
+    void readFully(TreeMap<byte[], byte[]> data) throws IOException;
 
     /**
      * Repositions the pointer to the beginning of the underlying file.
@@ -76,21 +81,21 @@ public interface HDSFileAccess extends Closeable
     void seek(byte[] key) throws IOException;
 
     /**
-     * Advances the pointer to the next available key in the underlying file, or returns false if end of file is reached.
-     * @return true if another key is available, false otherwise
+     * Reads next available key/value pair starting from the current pointer position
+     * into Slice objects and advances pointer to next key.  If pointer is at the end
+     * of the file, false is returned, and Slice objects remain null.
+     *
+     * @param key Empty slice object
+     * @param value Empty slice object
+     * @return True if key/value were successfully read, false otherwise
      * @throws IOException
      */
-    boolean next() throws IOException;
-
-    /**
-     * Reads the next available key/value into {@link com.datatorrent.contrib.hds.MutableKeyValue} starting at the current pointer location, or throws Exception if end of file is reached.
-     * @param mutableKeyValue A key/value pair represented by byte arrays
-     * @throws IOException
-     */
-    public void get(MutableKeyValue mutableKeyValue) throws IOException;
+    boolean next(Slice key, Slice value) throws IOException;
   }
 
-  // placeholder interface
+  /**
+   * HDS Data File Format Writer
+   */
   interface HDSFileWriter extends Closeable {
     /**
      * Appends key/value pair to the underlying file.
@@ -99,7 +104,13 @@ public interface HDSFileAccess extends Closeable
      * @throws IOException
      */
     void append(byte[] key, byte[] value) throws IOException;
-    int getFileSize();
+
+    /**
+     * Returns number of bytes written to the underlying stream.
+     * @return
+     * @throws IOException
+     */
+    long getBytesWritten() throws IOException;
   }
 
   /**
