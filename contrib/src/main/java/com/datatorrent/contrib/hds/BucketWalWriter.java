@@ -15,16 +15,11 @@
  */
 package com.datatorrent.contrib.hds;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Maps;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -58,8 +53,11 @@ import java.util.TreeMap;
 public class BucketWalWriter
 {
   public static final String WAL_FILE_PREFIX = "_WAL-";
-  public static final String WALMETA_FILE_PREFIX = "_WALMETA";
-  public static final String WALMETA_TMP_FILE = WALMETA_FILE_PREFIX + ".tmp";
+
+  public void setBucketKey(long bucketKey)
+  {
+    this.bucketKey = bucketKey;
+  }
 
   static class OffsetRange {
     long start;
@@ -74,17 +72,13 @@ public class BucketWalWriter
   }
 
   /* Data to be maintain for each file */
-  private static class WalFileMeta implements Comparable<WalFileMeta> {
+  private static class WalFileMeta {
     public long walId;
     public long walSequenceStart;
     public long walSequenceEnd;
     public long committedBytes;
     public TreeMap<Long, OffsetRange> windowIndex = Maps.newTreeMap();
 
-    @Override public int compareTo(WalFileMeta o)
-    {
-      return (int)(walId - o.walId);
-    }
 
     @Override public String toString()
     {
@@ -96,8 +90,6 @@ public class BucketWalWriter
           '}';
     }
   }
-
-  transient public TreeMap<Long, WalFileMeta> files = Maps.newTreeMap();
 
   /* Backend Filesystem managing WAL */
   transient HDSFileAccess bfs;
@@ -117,17 +109,20 @@ public class BucketWalWriter
 
   transient private long bucketKey;
 
+  private boolean dirty;
+
   /* current active WAL file id, it is read from WAL meta on startup */
   private long walFileId = -1;
 
-  /* Last commited LSN on disk */
+  /* Last committed LSN on disk */
   private long committedLsn = -1;
 
-  /* current processing LSN window */
-  private transient long lsn = 0;
-
   /* Current WAL size */
-  private long commitedLength = 0;
+  private long committedLength = 0;
+
+  public TreeMap<Long, WalFileMeta> files = Maps.newTreeMap();
+
+  private BucketWalWriter() {}
 
   public BucketWalWriter(HDSFileAccess bfs, long bucketKey) {
     this.bfs = bfs;
@@ -140,16 +135,25 @@ public class BucketWalWriter
    */
   public void runRecovery(HDS.BucketManager store, long id) throws IOException
   {
+
     logger.debug("Recovering last processed LSN is " + id);
     if (store == null)
       return;
+
+    /* If store committed id is greater than WAL id, then all data present in WAL
+       is already processed, remote WAL files in that case, and reset metadata.
+     */
+    if (committedLsn < id) {
+      cleanupAllWal();
+      return;
+    }
+
 
     /* Find WAL file id and offset where this window is located */
     WalFileMeta startWalFile = null;
     long offset = 0;
     for(Map.Entry<Long, WalFileMeta> fmetaEntry : files.entrySet()) {
       WalFileMeta fmeta =  fmetaEntry.getValue();
-      logger.debug("Range for file " + fmeta.walId + " is (" + fmeta.walSequenceStart + ", " + fmeta.walSequenceEnd + ")");
       if (fmeta.walSequenceStart <= id && fmeta.walSequenceEnd >= id)
       {
           // This file contains, sequence id
@@ -161,7 +165,7 @@ public class BucketWalWriter
     }
 
     if (startWalFile == null) {
-      logger.warn("Sequence id not found in metadata bucket {} lsn {}", bucketKey, id);
+      logger.warn("Sequence id not found in metadata, bucket {} lsn {} committedLSN {}", bucketKey, id, committedLsn);
       return;
     }
 
@@ -177,17 +181,8 @@ public class BucketWalWriter
         MutableKeyValue o = wReader.get();
         store.put(bucketKey, o.getKey(), o.getValue());
       }
-
       wReader.close();
     }
-  }
-
-  public long getLSNForRecovery()
-  {
-    Map.Entry<Long, WalFileMeta> lastEntry = files.lastEntry();
-    long lastLSN = lastEntry.getValue().walSequenceEnd;
-    lsn = lastLSN + 1;
-    return lastLSN;
   }
 
   /**
@@ -212,55 +207,60 @@ public class BucketWalWriter
     if (fileMeta.committedBytes == 0)
       return;
 
-    bfs.truncate(bucketKey, WAL_FILE_PREFIX + fileMeta.walId, fileMeta.committedBytes);
+    DataInputStream in = bfs.getInputStream(bucketKey, WAL_FILE_PREFIX + fileMeta.walId);
+    DataOutputStream out = bfs.getOutputStream(bucketKey, WAL_FILE_PREFIX + fileMeta.walId + "-truncate");
+    IOUtils.copyLarge(in, out, 0, fileMeta.committedBytes);
+    in.close();
+    out.close();
+    bfs.rename(bucketKey, WAL_FILE_PREFIX + fileMeta.walId + "-truncate", WAL_FILE_PREFIX + fileMeta.walId);
 
     //TODO: Remove new WAL files created after last checkpoint (i.e fileId > walFileId).
   }
 
-  public long append(byte[] key, byte[] value) throws IOException
+  public void append(byte[] key, byte[] value) throws IOException
   {
     if (writer == null)
       writer = new HDFSWalWriter(bfs, bucketKey, WAL_FILE_PREFIX + walFileId);
 
     writer.append(key, value);
+    dirty = true;
+
     if (maxUnflushedBytes > 0 && writer.getUnflushedCount() > maxUnflushedBytes)
       writer.flush();
-    return lsn;
-  }
-
-  public void setLSN(long lsn) {
-    committedLsn = lsn;
   }
 
   /* Update WAL meta data after committing window id wid */
-  public void upadateWalMeta() {
+  public void updateWalMeta() {
     WalFileMeta fileMeta = files.get(walFileId);
     if (fileMeta == null) {
       fileMeta = new WalFileMeta();
       fileMeta.walId = walFileId;
       fileMeta.walSequenceStart = committedLsn;
-      files.put((long)walFileId, fileMeta);
+      files.put(walFileId, fileMeta);
     }
 
-    logger.info("file " + walFileId + "lsn " + committedLsn + " start " + commitedLength + " end " + writer.logSize());
-    OffsetRange range = new OffsetRange(commitedLength, writer.logSize());
+    logger.debug("file " + walFileId + " lsn " + committedLsn + " start " + committedLength + " end " + writer.logSize());
+    OffsetRange range = new OffsetRange(committedLength, writer.logSize());
     fileMeta.windowIndex.put(committedLsn, range);
     fileMeta.walSequenceEnd = committedLsn;
-    commitedLength = writer.logSize();
-    fileMeta.committedBytes = commitedLength;
+    committedLength = writer.logSize();
+    fileMeta.committedBytes = committedLength;
   }
 
   /* batch writes, and wait till file is written */
-  public void endWindow() throws IOException
+  public void endWindow(long windowId) throws IOException
   {
+    /* No tuple added in this window, no need to do anything. */
+    if (!dirty)
+      return;
+
     if (writer != null) {
       writer.flush();
     }
+    dirty = false;
+    committedLsn = windowId;
 
-    committedLsn = lsn;
-    lsn++;
-
-    upadateWalMeta();
+    updateWalMeta();
 
     /* Roll over log, if we have crossed the log size */
     if (maxWalFileSize > 0 && writer.logSize() > maxWalFileSize) {
@@ -268,11 +268,24 @@ public class BucketWalWriter
       writer.close();
       walFileId++;
       writer = null;
-      commitedLength = 0;
+      committedLength = 0;
     }
   }
 
 
+
+  /**
+   * Remote all WAL file, and cleanup metadata.
+   * @throws IOException
+   */
+  private void cleanupAllWal() throws IOException
+  {
+    for(WalFileMeta file : files.values())
+    {
+      bfs.delete(bucketKey, "WAL-" + file.walId);
+    }
+    files = Maps.newTreeMap();
+  }
 
   /* Remove old WAL files, and their metadata */
   public void cleanup(long cleanLsn) throws IOException
@@ -285,7 +298,7 @@ public class BucketWalWriter
 
       /* Remove old file from WAL */
       if (file.walSequenceStart < cleanLsn) {
-        files.remove(file);
+        files.remove(file.walId);
         bfs.delete(bucketKey, "WAL-" + file.walId);
       }
     }
@@ -311,23 +324,6 @@ public class BucketWalWriter
     this.maxUnflushedBytes = maxUnflushedBytes;
   }
 
-  /* Save WAL metadata in file */
-  public void saveMeta() throws IOException
-  {
-    logger.debug("Saving WAL metadata for bucket " + bucketKey + " commitedLSN " + committedLsn);
-    printMeta(0);
-    Kryo kryo = new Kryo();
-    DataOutputStream out = bfs.getOutputStream(bucketKey, WALMETA_TMP_FILE);
-    Output kout = new Output(out);
-    kout.writeLong(walFileId);
-    kout.writeLong(committedLsn);
-    kryo.writeClassAndObject(kout, files);
-
-    kout.close();
-    out.close();
-
-    bfs.rename(bucketKey, WALMETA_TMP_FILE, WALMETA_FILE_PREFIX);
-  }
 
   /* For debugging purpose */
   private void printMeta(int id)
@@ -339,30 +335,9 @@ public class BucketWalWriter
     }
   }
 
-  void readMeta() {
-    try {
-      DataInputStream fin = bfs.getInputStream(bucketKey, WALMETA_FILE_PREFIX);
-      Kryo kryo = new Kryo();
-      Input in = new Input(fin);
-      walFileId = in.readLong();
-      committedLsn = in.readLong();
-      lsn = committedLsn + 1;
-      files = (TreeMap)kryo.readClassAndObject(in);
-    } catch (IOException ex) {
-      walFileId = -1;
-      committedLsn = -1;
-      lsn = 0;
-      files = Maps.newTreeMap();
-    }
 
-    printMeta(1);
-    logger.info("Read metadata walFileId {} committedLsn {}", walFileId, committedLsn);
-  }
-
-  void setup() throws IOException
+  void init() throws IOException
   {
-    /* Restore stored metadata */
-    readMeta();
     /* Restore last WAL file */
     restoreLastWal();
 
@@ -385,6 +360,11 @@ public class BucketWalWriter
   {
     if (writer != null)
       writer.close();
+  }
+
+  public void setFileStore(HDSFileAccess bfs)
+  {
+    this.bfs = bfs;
   }
 
   private static transient final Logger logger = LoggerFactory.getLogger(BucketWalWriter.class);

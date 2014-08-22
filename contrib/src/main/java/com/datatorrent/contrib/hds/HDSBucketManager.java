@@ -268,26 +268,26 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void put(long bucketKey, byte[] key, byte[] value) throws IOException
   {
     Bucket bucket = getBucket(bucketKey);
-    if (bucket.wal == null) {
+    if (bucket.wal == null || bucket.recoveryNeeded) {
       //TODO: put recovery in separate thread.
-
+      bucket.recoveryNeeded = false;
       bucket.recoveryInProgress = true;
-      // Initiate a new WAL for bucket, and run recovery if needed.
-      BucketWalWriter w = new BucketWalWriter(fileStore, bucketKey);
-      bucket.wal = w;
-      w.setMaxWalFileSize(maxWalFileSize);
-      w.setup();
+      if (bucket.wal == null) {
+        // Initiate a new WAL for bucket, and run recovery if needed.
+        BucketWalWriter w = new BucketWalWriter(fileStore, bucketKey);
+        bucket.wal = w;
+        w.setMaxWalFileSize(maxWalFileSize);
+      }
+      bucket.wal.init();
 
       // Get last committed LSN from store, and use that for recovery.
       BucketMeta meta = getMeta(bucketKey);
-      w.runRecovery(this, meta.committedLSN);
+      bucket.wal.runRecovery(this, meta.committedLSN);
       bucket.recoveryInProgress = false;
     }
     /* Do not update WAL, if tuple being added is coming through recovery */
     if (!bucket.recoveryInProgress) {
-      long lsn = bucket.wal.append(key, value);
-      if (lsn >= bucket.lsn)
-        bucket.lsn = lsn;
+      bucket.wal.append(key, value);
     }
     bucket.writeCache.put(new Slice(key, 0, key.length), value);
   }
@@ -359,7 +359,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     try {
       OutputStream os = fileStore.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
       Output output = new Output(os);
-      bucketMetaCopy.committedLSN = bucket.lsn;
+      bucketMetaCopy.committedLSN = windowId;
       kryo.writeClassAndObject(output, bucketMetaCopy);
       output.close();
       os.close();
@@ -382,6 +382,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       }
     }
 
+    //TODO cleanup WAL files which are not needed
   }
 
   @Override
@@ -389,6 +390,14 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     fileStore.init();
     writeExecutor = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory(this.getClass().getSimpleName()+"-Writer"));
+    for(Bucket bucket : buckets.values())
+    {
+      bucket.recoveryNeeded = true;
+      if (bucket.wal != null) {
+        bucket.wal.setBucketKey(bucket.bucketKey);
+        bucket.wal.setFileStore(fileStore);
+      }
+    }
   }
 
   @Override
@@ -414,7 +423,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     for (final Bucket bucket : this.buckets.values()) {
       try {
         if (bucket.wal != null)
-          bucket.wal.endWindow();
+          bucket.wal.endWindow(windowId);
       } catch (IOException e) {
         throw new RuntimeException("Failed to flush WAL", e);
       }
@@ -423,8 +432,9 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         // ensure previous flush completed
         if (bucket.frozenWriteCache.isEmpty()) {
           bucket.frozenWriteCache = bucket.writeCache;
+          bucket.committedLSN = windowId;
           bucket.writeCache = Maps.newHashMap();
-          //LOG.debug("Flushing data to disks for bucket {} committedLSN {}", bucket.bucketKey, bucket.committedLSN);
+          LOG.debug("Flushing data to disks for bucket {} committedLSN {}", bucket.bucketKey, bucket.committedLSN);
           Runnable flushRunnable = new Runnable() {
             @Override
             public void run()
@@ -543,20 +553,12 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     private HashMap<Slice, byte[]> writeCache = Maps.newHashMap();
     private HashMap<Slice, byte[]> frozenWriteCache = Maps.newHashMap();
     private final transient HashMap<String, HDSFileReader> readerCache = Maps.newHashMap();
-
-    private transient BucketWalWriter wal;
-    private long lsn;
+    private BucketWalWriter wal;
+    private long committedLSN;
     private boolean recoveryInProgress;
+    private boolean recoveryNeeded;
   }
 
-  @VisibleForTesting
-  protected void saveWalMeta() throws IOException
-  {
-    for(Bucket bucket : buckets.values())
-    {
-      bucket.wal.saveMeta();
-    }
-  }
 
   @VisibleForTesting
   protected void forceWal() throws IOException
@@ -574,7 +576,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     return b.writeCache.size();
   }
 
-  @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(HDSBucketManager.class);
 
 }

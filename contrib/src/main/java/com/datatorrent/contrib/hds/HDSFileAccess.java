@@ -15,14 +15,10 @@
  */
 package com.datatorrent.contrib.hds;
 
-import com.datatorrent.common.util.Slice;
-import org.apache.hadoop.fs.Path;
-
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
 import java.util.TreeMap;
 
 import com.datatorrent.common.util.Slice;
@@ -59,11 +55,10 @@ public interface HDSFileAccess extends Closeable
   /**
    * HDS Data File Format Reader
    */
-  interface HDSFileReader extends Closeable {
-
-
+  interface HDSFileReader extends Closeable
+  {
     /**
-     * Read the entire contents of the uderlying file into a TreeMap structure
+     * Read the entire contents of the underlying file into a TreeMap structure
      * @param data
      * @throws IOException
      */
