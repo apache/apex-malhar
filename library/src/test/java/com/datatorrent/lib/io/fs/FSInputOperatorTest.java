@@ -53,12 +53,10 @@ public class FSInputOperatorTest
         @Override
         public String readEntityFromReader(BufferedReader reader)
         {
-            try
-            {
+            try {
                 return reader.readLine();
             }
-            catch(IOException e)
-            {
+            catch(IOException e) {
                 Assert.fail("There was an error reading from test files.");
             }
             
@@ -80,88 +78,69 @@ public class FSInputOperatorTest
         
         for(int fileCounter = 0;
             fileCounter < NUMBER_OF_GZ_TEST_FILES;
-            fileCounter++)
-        {
+            fileCounter++) {
             String fileName = generateRandomString(FILE_NAME_BIT_COUNT) + ".gz";
             File file = new File(testDirectory, fileName);
             
-            if(!file.createNewFile())
-            {
+            if(!file.createNewFile()) {
                 fileCounter--;
                 continue;
             }
             
             FileOutputStream output = new FileOutputStream(file.getAbsolutePath());
             
-            try
-            {
+            try {
                 Writer writer = new OutputStreamWriter(new CompressorStreamFactory().createCompressorOutputStream(CompressorStreamFactory.GZIP, output));
                 
-                try
-                {
+                try {
                     for(int lineCounter = 0;
                         lineCounter < FILE_LINE_COUNT;
-                        lineCounter++)
-                    {
+                        lineCounter++) {
                         writer.write(generateRandomString(FILE_LINE_BIT_COUNT));
                         
-                        if(lineCounter != FILE_LINE_COUNT -1)
-                        {
+                        if(lineCounter != FILE_LINE_COUNT -1) {
                             writer.write("\n");
                         }
                     }
-                }
-                finally
-                {
+                } finally {
                     writer.close();
                 }
             }
-            finally
-            {
+            finally {
                 output.close();
             }
         }
         
         for(int fileCounter = 0;
             fileCounter < NUMBER_OF_TXT_TEST_FILES;
-            fileCounter++)
-        {
+            fileCounter++) {
             String fileName = generateRandomString(FILE_NAME_BIT_COUNT) + ".txt";
             File file = new File(testDirectory, fileName);
             
-            if(!file.createNewFile())
-            {
+            if(!file.createNewFile()) {
                 fileCounter--;
                 continue;
             }
             
             FileOutputStream output = new FileOutputStream(file.getAbsolutePath());
             
-            try
-            {
+            try {
                 Writer writer = new OutputStreamWriter(output);
                 
-                try
-                {
+                try {
                     for(int lineCounter = 0;
                         lineCounter < FILE_LINE_COUNT;
-                        lineCounter++)
-                    {
+                        lineCounter++) {
                         writer.write(generateRandomString(FILE_LINE_BIT_COUNT));
                         
-                        if(lineCounter != FILE_LINE_COUNT -1)
-                        {
+                        if(lineCounter != FILE_LINE_COUNT -1) {
                             writer.write("\n");
                         }
                     }
-                }
-                finally
-                {
+                } finally {
                     writer.close();
                 }
-            }
-            finally
-            {
+            } finally {
                 output.close();
             }
         }
@@ -185,8 +164,7 @@ public class FSInputOperatorTest
         
         testOperator.setup(null);
         
-        for(long wid = 0; wid < FILE_TUPLE_COUNT / EMIT_BATCH_SIZE * 2; wid++)
-        {
+        for(long wid = 0; wid < FILE_TUPLE_COUNT / EMIT_BATCH_SIZE * 2; wid++) {
             testOperator.beginWindow(wid);
             testOperator.emitTuples();
             testOperator.endWindow();

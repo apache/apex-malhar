@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.DefaultPartition;
@@ -33,7 +48,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   private long repartitionInterval = 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
   
-  protected transient boolean disableProcessing = false;
   private boolean firstStart=true;
   private transient long lastRepartition = 0;
   
@@ -55,19 +69,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   public int getPreferredMaxPendingFilesPerOperator()
   {
     return preferredMaxPendingFilesPerOperator;
-  }
-  
-  @Override
-  public void emitTuples()
-  {
-    if(!disableProcessing)
-    {
-      super.emitTuples();
-    }
-    else
-    {
-      LOG.debug("emitTuples called when repartitioning. This is not correct.");
-    }
   }
   
   @Override
@@ -125,15 +126,13 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     Kryo kryo = new Kryo();
     
-    if(newOperatorCount == 0)
-    {
+    if(newOperatorCount == 0) {
       Collection<Partition<AbstractFSDirectoryInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(1);
 
       AbstractThroughputHashFSDirectoryInputOperator<T> operator;
       
       operator = kryo.copy(this);
       
-      operator.disableProcessing = false;
       operator.processedFiles.clear();
       operator.processedFiles.addAll(totalProcessedFiles);
       operator.currentFile = null;
@@ -167,7 +166,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       DirectoryScanner scn = scanners.get(i);
       oper.setScanner(scn);
       
-      oper.disableProcessing = false;
       // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
 
@@ -198,8 +196,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       /* redistribute pending files properly */
       oper.pendingFiles.clear();
       Iterator<String> pendingFilesIterator = totalPendingFiles.iterator();
-      while(pendingFilesIterator.hasNext()) 
-      {
+      while(pendingFilesIterator.hasNext()) {
         String pathString = pendingFilesIterator.next();
         if(scn.acceptFile(pathString)) {
           oper.pendingFiles.add(pathString);
@@ -228,7 +225,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     if(System.currentTimeMillis() - repartitionInterval > lastRepartition) {
       LOG.debug("Repartition Triggered");
-      disableProcessing = true;
       response.repartitionRequired = true;
       return response;
     }
