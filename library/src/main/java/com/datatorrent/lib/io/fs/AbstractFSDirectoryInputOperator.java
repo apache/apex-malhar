@@ -247,20 +247,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
   @Override
   public void endWindow()
-  { 
-    long startTime = System.currentTimeMillis();
-    
-    if (startTime - scanIntervalMillis >= lastScanMillis) {
-      Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
-      
-      for(Path newPath: newPaths) {
-        String newPathString = newPath.toString();
-        pendingFiles.add(newPathString);
-        processedFiles.add(newPathString);
-      }
-      lastScanMillis = System.currentTimeMillis();
-    }
-    
+  {
     if (inputStream == null) {
       try {
         if(!unfinishedFiles.isEmpty()) {
@@ -313,6 +300,18 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void emitTuples()
   {
+    long startTime = System.currentTimeMillis();
+    
+    if (startTime - scanIntervalMillis >= lastScanMillis) {
+      Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
+      
+      for(Path newPath: newPaths) {
+        String newPathString = newPath.toString();
+        pendingFiles.add(newPathString);
+        processedFiles.add(newPathString);
+      }
+      lastScanMillis = System.currentTimeMillis();
+    }
   }
 
   protected void addToFailedList() {
