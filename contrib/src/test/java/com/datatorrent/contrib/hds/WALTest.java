@@ -138,7 +138,7 @@ public class WALTest
 
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(bfs);
-    hds.setKeyComparator(new HDSTest.MyDataKey.SequenceComparator());
+    hds.setKeyComparator(new HDSTest.SequenceComparator());
     hds.setFlushIntervalCount(1);
     hds.setFlushSize(3);
     hds.setMaxWalFileSize(1024);
@@ -169,6 +169,7 @@ public class WALTest
    * - Flush data to disk.
    * - Add some more tuples, which are not flushed to data, but flushed to WAL.
    * - Save WAL state (operator checkpoint)
+   * - Add a tuple to start recovery from tuples.
    * @throws IOException
    */
   @Test
@@ -189,7 +190,7 @@ public class WALTest
 
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(bfs);
-    hds.setKeyComparator(new HDSTest.MyDataKey.SequenceComparator());
+    hds.setKeyComparator(new HDSTest.SequenceComparator());
     hds.setFlushSize(3);
     hds.setup(null);
     hds.writeExecutor = MoreExecutors.sameThreadExecutor();
@@ -224,7 +225,7 @@ public class WALTest
     com.esotericsoftware.kryo.io.ByteBufferInput oi = new ByteBufferInput(oo.getByteBuffer());
     HDSBucketManager newOperator = kryo.readObject(oi, HDSBucketManager.class);
 
-    newOperator.setKeyComparator(new HDSTest.MyDataKey.SequenceComparator());
+    newOperator.setKeyComparator(new HDSTest.SequenceComparator());
     newOperator.setFlushIntervalCount(1);
     newOperator.setFlushSize(3);
     newOperator.setup(null);
@@ -232,12 +233,13 @@ public class WALTest
 
     newOperator.setFileStore(bfs);
     newOperator.setup(null);
+
     // This should run recovery, as first tuple is added in bucket
     newOperator.beginWindow(3);
     newOperator.put(1, genRandomByteArray(500), genRandomByteArray(500));
 
     // Number of tuples = tuples recovered (2) + tuple being added (1).
-    Assert.assertEquals("Number of tuples in store ", 5, newOperator.unflushedData(1));
+    Assert.assertEquals("Number of tuples in store ", 3, newOperator.unflushedData(1));
   }
 
   private static final Logger logger = LoggerFactory.getLogger(WALTest.class);

@@ -22,6 +22,8 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.TreeMap;
 
+import com.datatorrent.common.util.Slice;
+
 /**
  * Abstraction for file system and format interaction.
  */
@@ -54,7 +56,7 @@ public interface HDSFileAccess extends Closeable
 
   // placeholder interface
   interface HDSFileReader extends Closeable {
-    void readFully(TreeMap<byte[], byte[]> data) throws IOException;
+    void readFully(TreeMap<Slice, byte[]> data) throws IOException;
 
     /**
      * Searches for a matching key, and returns the corresponding value.  Exception is thrown if a matching key is not found.
