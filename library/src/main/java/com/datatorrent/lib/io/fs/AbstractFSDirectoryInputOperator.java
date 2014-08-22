@@ -119,6 +119,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
   }
   
+  private transient int windowSkipCount;
   /* List of unfinished files */
   protected Queue<FailedFile> unfinishedFiles = new LinkedList<FailedFile>();
   /* List of failed file */
@@ -131,6 +132,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected transient InputStream inputStream;
   protected Set<String> pendingFiles = new LinkedHashSet<String>();
   public final transient DefaultOutputPort<String> debug = new DefaultOutputPort<String>();
+  protected Map<String, Integer> countMap = new HashMap<String, Integer>();
 
   public String getDirectory()
   {
@@ -244,6 +246,21 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void endWindow()
   {
+    if(windowSkipCount == 10) {
+      windowSkipCount = 0;
+      
+      String mapPrint = "========== Begin Map ==========\n";
+      
+      Set<String> files = countMap.keySet();
+      
+      for(String file: files)
+      {
+        mapPrint += "file: " + file + ": " + countMap.get(file) + "\n";
+      }
+      
+      mapPrint += "========= End Map =========\n";
+    }
+    
     long startTime = System.currentTimeMillis();
     
     if (startTime - scanIntervalMillis >= lastScanMillis) {
@@ -294,6 +311,17 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           //
           if (skipCount == 0) {
             offset++;
+            
+            Integer lineCount = countMap.get(currentFile);
+            
+            if(lineCount == null)
+            {
+              lineCount = 0;
+            }
+            
+            lineCount = lineCount + 1;
+            countMap.put(currentFile, lineCount);
+            
             emit(line);
           }
           else
@@ -304,26 +332,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         addToFailedList();
       }
     }
-    
-    long endTime = System.currentTimeMillis();
   }
 
   @Override
   public void emitTuples()
   {
-
-    
-    /*if(diffTime < minBatchIntervalMillis)
-    {
-      try
-      {
-        Thread.sleep(minBatchIntervalMillis - diffTime);
-      }
-      catch(InterruptedException e)
-      {
-        //Do nothing
-      }
-    }*/
   }
 
   protected void addToFailedList() {
