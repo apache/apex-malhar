@@ -93,7 +93,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       LOG.debug("definePartitions: Operator {} processedFiles count: {}", oper.operatorId, oper.processedFiles.size());
       LOG.debug("definePartitions: Operator {} failedFiles count: {}", oper.operatorId, oper.failedFiles.size());
       LOG.debug("definePartitions: Operator {} pendingFiles count: {}", oper.operatorId, oper.pendingFiles.size());
-      LOG.debug("definePartitions: Operator {} currentFiles count: {}", oper.operatorId, oper.unfinishedFiles.size());
+      LOG.debug("definePartitions: Operator {} unfinishedFiles count: {}", oper.operatorId, oper.unfinishedFiles.size());
       currentFiles.addAll(oper.unfinishedFiles);
       
       Set<String> countMapFiles = oper.countMap.keySet();

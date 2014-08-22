@@ -181,7 +181,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
   public void setPartitionCount(int requiredPartitions)
   {
-    this.partitionCount = requiredPartitions;
+    this.partitionCount = requiredPartitions; 
   }
 
   public int getCurrentPartitions()
