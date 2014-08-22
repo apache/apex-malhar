@@ -15,18 +15,10 @@
  */
 package com.datatorrent.contrib.hds;
 
-import com.datatorrent.common.util.Slice;
-import org.apache.hadoop.fs.Path;
-
 import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-<<<<<<< HEAD
-import java.util.Iterator;
-=======
-import java.nio.file.Path;
->>>>>>> 7cda033e5da9bdc6598b16421f4e0ce45331b2fb
 import java.util.TreeMap;
 
 import com.datatorrent.common.util.Slice;
@@ -60,19 +52,13 @@ public interface HDSFileAccess extends Closeable
    */
   void truncate(long bucketKey, String fileName, long size) throws IOException;
 
-<<<<<<< HEAD
   /**
    * HDS Data File Format Reader
    */
-=======
-
-  // placeholder interface
->>>>>>> 7cda033e5da9bdc6598b16421f4e0ce45331b2fb
-  interface HDSFileReader extends Closeable {
-
-
+  interface HDSFileReader extends Closeable
+  {
     /**
-     * Read the entire contents of the uderlying file into a TreeMap structure
+     * Read the entire contents of the underlying file into a TreeMap structure
      * @param data
      * @throws IOException
      */
