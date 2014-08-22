@@ -105,7 +105,6 @@ public class HFileImpl extends HDSFileAccessFSImpl {
         // HFile block size is available via writer.getFileContext().getBlocksize()
         // bytesAppendedCounter is used to produce non-zero counts until first flush
         return (fsdos.getPos() <=0 ) ? bytesAppendedCounter : fsdos.getPos();
-
       }
 
       @Override
@@ -130,7 +129,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
     return new HDSFileReader(){
 
       @Override
-      public void readFully(TreeMap<byte[], byte[]> data) throws IOException {
+      public void readFully(TreeMap<Slice, byte[]> data) throws IOException {
         if (reader.getEntries() <= 0) return;
         scanner.seekTo();
         KeyValue kv;
@@ -139,7 +138,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
           Slice key = new Slice(kv.getRowArray(), kv.getKeyOffset(), kv.getKeyLength());
           Slice value = new Slice(kv.getRowArray(), kv.getValueOffset(), kv.getValueLength());
           //data.put(key, value);
-          data.put(key.clone().buffer, value.clone().buffer);
+          data.put(key, value.clone().buffer);
         } while (scanner.next());
       }
 
@@ -149,8 +148,8 @@ public class HFileImpl extends HDSFileAccessFSImpl {
       }
 
       @Override
-      public void seek(byte[] key) throws IOException {
-        scanner.seekTo(key);
+      public boolean seek(byte[] key) throws IOException {
+        return (scanner.seekTo(key) == 0);
       }
 
       @Override

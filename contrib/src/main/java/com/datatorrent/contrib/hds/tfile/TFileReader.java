@@ -26,14 +26,15 @@ import org.apache.hadoop.io.file.tfile.TFile.Reader;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner.Entry;
 
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
 
 public class TFileReader implements HDSFileReader
 {
 
-  private Reader reader;
-  private Scanner scanner;
-  private FSDataInputStream fsdis;
+  private final Reader reader;
+  private final Scanner scanner;
+  private final FSDataInputStream fsdis;
 
   public TFileReader(FSDataInputStream fsdis, long fileLength, Configuration conf) throws IOException
   {
@@ -55,7 +56,7 @@ public class TFileReader implements HDSFileReader
   }
 
   @Override
-  public void readFully(TreeMap<byte[], byte[]> data) throws IOException
+  public void readFully(TreeMap<Slice, byte[]> data) throws IOException
   {
     scanner.rewind();
     for (; !scanner.atEnd(); scanner.advance()) {
@@ -66,7 +67,7 @@ public class TFileReader implements HDSFileReader
       byte[] value = new byte[vlen];
       en.getKey(key);
       en.getValue(value);
-      data.put(key, value);
+      data.put(new Slice(key, 0, key.length), value);
     }
 
   }
@@ -78,11 +79,9 @@ public class TFileReader implements HDSFileReader
   }
 
   @Override
-  public void seek(byte[] key) throws IOException
+  public boolean seek(byte[] key) throws IOException
   {
-    if (!scanner.seekTo(key)) {
-      throw new IOException("The key is not seekable");
-    }
+    return scanner.seekTo(key);
   }
 
   @Override

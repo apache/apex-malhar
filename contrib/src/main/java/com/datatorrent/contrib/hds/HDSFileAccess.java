@@ -25,6 +25,8 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.TreeMap;
 
+import com.datatorrent.common.util.Slice;
+
 /**
  * Abstraction for file system and format interaction.
  */
@@ -58,6 +60,8 @@ public interface HDSFileAccess extends Closeable
    * HDS Data File Format Reader
    */
   interface HDSFileReader extends Closeable {
+
+
     /**
      * Read the entire contents of the uderlying file into a TreeMap structure
      * @param data
@@ -65,7 +69,8 @@ public interface HDSFileAccess extends Closeable
      */
     //Move to
     // void readFully(TreeMap<Slice, Slice> data) throws IOException;
-    void readFully(TreeMap<byte[], byte[]> data) throws IOException;
+    void readFully(TreeMap<Slice, byte[]> data) throws IOException;
+    //void readFully(TreeMap<byte[], byte[]> data) throws IOException;
 
     /**
      * Repositions the pointer to the beginning of the underlying file.
@@ -77,8 +82,9 @@ public interface HDSFileAccess extends Closeable
      * Searches for a matching key, and positions the pointer before the start of the key.
      * @param key Byte array representing the key
      * @throws IOException
+     * @return true if a given key is found
      */
-    void seek(byte[] key) throws IOException;
+    boolean seek(byte[] key) throws IOException;
 
     /**
      * Reads next available key/value pair starting from the current pointer position
@@ -91,6 +97,7 @@ public interface HDSFileAccess extends Closeable
      * @throws IOException
      */
     boolean next(Slice key, Slice value) throws IOException;
+
   }
 
   /**

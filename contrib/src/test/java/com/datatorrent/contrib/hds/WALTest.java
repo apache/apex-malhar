@@ -135,7 +135,7 @@ public class WALTest
 
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(bfs);
-    hds.setKeyComparator(new HDSTest.MyDataKey.SequenceComparator());
+    hds.setKeyComparator(new HDSTest.SequenceComparator());
     hds.setFlushIntervalCount(1);
     hds.setFlushSize(3);
     hds.setMaxWalFileSize(1024);
@@ -185,7 +185,7 @@ public class WALTest
 
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(bfs);
-    hds.setKeyComparator(new HDSTest.MyDataKey.SequenceComparator());
+    hds.setKeyComparator(new HDSTest.SequenceComparator());
     hds.setFlushIntervalCount(1);
     hds.setFlushSize(3);
     hds.setup(null);
