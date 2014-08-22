@@ -22,6 +22,7 @@ import java.util.TreeMap;
 
 import javax.validation.constraints.NotNull;
 
+import com.datatorrent.common.util.Slice;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -60,9 +61,17 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
     this.basePath = path;
   }
 
+  protected Path getFilePath(long bucketKey, String fileName) {
+    return new Path(getBucketPath(bucketKey), fileName);
+  }
+
   protected Path getBucketPath(long bucketKey)
   {
     return new Path(basePath, Long.toString(bucketKey));
+  }
+
+  public long getFileSize(long bucketKey, String fileName) throws IOException {
+    return fs.getFileStatus(getFilePath(bucketKey, fileName)).getLen();
   }
 
   @Override
@@ -87,13 +96,14 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
   @Override
   public void delete(long bucketKey, String fileName) throws IOException
   {
-    fs.delete(new Path(getBucketPath(bucketKey), fileName), true);
+    fs.delete(getFilePath(bucketKey, fileName), true);
   }
+
 
   @Override
   public FSDataOutputStream getOutputStream(long bucketKey, String fileName) throws IOException
   {
-    Path path = new Path(getBucketPath(bucketKey), fileName);
+    Path path = getFilePath(bucketKey, fileName);
     if (!fs.exists(path)) {
       return fs.create(path);
     }
@@ -103,7 +113,7 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
   @Override
   public FSDataInputStream getInputStream(long bucketKey, String fileName) throws IOException
   {
-    return fs.open(new Path(getBucketPath(bucketKey), fileName));
+    return fs.open(getFilePath(bucketKey, fileName));
   }
 
   @Override
@@ -145,7 +155,7 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
 
     rename(bucketKey, fileName + "-recovery", fileName);
     rename(bucketKey, "." + fileName + "-recovery.crc",
-        "." + fileName + ".crc");
+            "." + fileName + ".crc");
   }
 
   private final transient Kryo kryo = new Kryo();
@@ -168,27 +178,17 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
       }
 
       @Override
-      public byte[] getValue(byte[] key) throws IOException {
-        throw new UnsupportedOperationException("Operation not implemented");
-      }
-
-      @Override
       public void reset() throws IOException {
         is.reset();
       }
 
       @Override
-      public void seek(byte[] key) throws IOException {
+      public boolean seek(byte[] key) throws IOException {
         throw new UnsupportedOperationException("Operation not implemented");
       }
 
       @Override
-      public boolean next() throws IOException {
-        throw new UnsupportedOperationException("Operation not implemented");
-      }
-
-      @Override
-      public void get(MutableKeyValue mutableKeyValue) throws IOException {
+      public boolean next(Slice key, Slice value) throws IOException {
         throw new UnsupportedOperationException("Operation not implemented");
       }
 
@@ -223,7 +223,7 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
       }
 
       @Override
-      public int getFileSize()
+      public long getBytesWritten()
       {
         return cos.getCount() + out.position();
       }

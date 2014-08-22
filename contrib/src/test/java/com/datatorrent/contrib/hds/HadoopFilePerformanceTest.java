@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hbase;
+package com.datatorrent.contrib.hds;
 
 import com.google.common.base.Stopwatch;
 
@@ -61,7 +61,7 @@ import java.util.concurrent.TimeUnit;
  *   MALHAR_PATH=~/repos/sashadt-malhar
  *   export HADOOP_CLASSPATH="~/.m2/repository/org/cloudera/htrace/htrace-core/2.04/htrace-core-2.04.jar:~/.m2/repository/org/apache/hbase/hbase-protocol/0.98.2-hadoop2/hbase-protocol-0.98.2-hadoop2.jar:~/.m2/repository/org/apache/hbase/hbase-client/0.98.2-hadoop2/hbase-client-0.98.2-hadoop2.jar:~/.m2/repository/org/apache/hbase/hbase-common/0.98.2-hadoop2/hbase-common-0.98.2-hadoop2.jar:~/.m2/repository/org/apache/hbase/hbase-server/0.98.2-hadoop2/hbase-server-0.98.2-hadoop2.jar:${MALHAR_PATH}/library/target/malhar-library-1.0.4-SNAPSHOT-tests.jar"
  *   export HADOOP_CLIENT_OPTS="-Dlog4j.debug -Dlog4j.configuration=file://${MALHAR_PATH}/library/src/test/resources/log4j.properties"
- *   hadoop org.junit.runner.JUnitCore com.datatorrent.contrib.hbase.HadoopFilePerformanceTest
+ *   hadoop org.junit.runner.JUnitCore com.datatorrent.contrib.hds.HadoopFilePerformanceTest
  *
  */
 public class HadoopFilePerformanceTest {

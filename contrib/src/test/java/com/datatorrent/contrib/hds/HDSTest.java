@@ -22,12 +22,13 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.TreeMap;
 
+import com.datatorrent.common.util.Slice;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.common.util.Slice;
+import com.datatorrent.contrib.hds.hfile.HFileImpl;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
 import com.google.common.collect.Maps;
@@ -153,9 +154,7 @@ public class HDSTest
     Assert.assertTrue("exists " + bucket1WalFile, bucket1WalFile.exists() && bucket1WalFile.isFile());
 
     hds.committed(1);
-
     Assert.assertTrue("exists " + metaFile, metaFile.exists() && metaFile.isFile());
-
     bfs.close();
 
   }
@@ -163,24 +162,46 @@ public class HDSTest
   @Test
   public void testDefaultHDSFileAccess() throws Exception
   {
-
     // Create default HDSFileAccessImpl
     HDSFileAccessFSImpl bfs = new HDSFileAccessFSImpl();
-
     testHDSFileAccess(bfs);
-
   }
 
 
   @Test
   public void testTFileHDSFileAccess() throws Exception
   {
-
     //Create TFileImpl
     TFileImpl timpl = new TFileImpl();
-
     testHDSFileAccess(timpl);
+  }
 
+  @Test
+  public void testHFileHDSFileAccess() throws Exception
+  {
+    //Create HfileImpl
+    HFileImpl hfi = new HFileImpl();
+    testHDSFileAccess(hfi);
   }
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

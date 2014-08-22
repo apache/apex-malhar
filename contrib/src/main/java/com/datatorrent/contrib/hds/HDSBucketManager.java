@@ -193,8 +193,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       }
 
       fw.append(asArray(dataEntry.getKey()), dataEntry.getValue());
+      if ( fw.getBytesWritten() > this.maxFileSize) {
 
-      if (fw.getFileSize() > this.maxFileSize) {
         // roll file
         fw.close();
         fileStore.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
@@ -256,7 +256,12 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     if (reader == null) {
       bucket.readerCache.put(floorEntry.getValue().name, reader = fileStore.getReader(bucketKey, floorEntry.getValue().name));
     }
-    return reader.getValue(key);
+
+    //return reader.getValue(key);
+    reader.seek(key);
+    Slice value = new Slice(null, 0,0);
+    reader.next(new Slice(null, 0, 0), value);
+    return value.buffer;
   }
 
   @Override
@@ -534,9 +539,11 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     private long bucketKey;
     // keys that were modified and written to WAL, but not yet persisted
+
     private HashMap<Slice, byte[]> writeCache = Maps.newHashMap();
     private HashMap<Slice, byte[]> frozenWriteCache = Maps.newHashMap();
     private final transient HashMap<String, HDSFileReader> readerCache = Maps.newHashMap();
+
     private transient BucketWalWriter wal;
     private long lsn;
     private boolean recoveryInProgress;

@@ -20,7 +20,6 @@ import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.file.tfile.TFile;
 
 import com.datatorrent.contrib.hds.HDSFileAccessFSImpl;
@@ -38,12 +37,12 @@ public class TFileImpl extends HDSFileAccessFSImpl
   private int inputBufferSize = 256 * 1024;
   
   private int outputBufferSize = 256 * 1024;
-  
+
   @Override
   public HDSFileReader getReader(long bucketKey, String fileName) throws IOException
   {
     FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
-    long fileLength = fs.getContentSummary(new Path(getBucketPath(bucketKey), fileName)).getLength();
+    long fileLength = getFileSize(bucketKey, fileName);
     setupConfig(fs.getConf());
     return new TFileReader(fsdis, fileLength, fs.getConf());
   }

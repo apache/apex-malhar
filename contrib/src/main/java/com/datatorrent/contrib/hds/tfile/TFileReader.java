@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.TreeMap;
 
+import com.datatorrent.common.util.Slice;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.io.file.tfile.TFile.Reader;
@@ -27,7 +28,6 @@ import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner.Entry;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
-import com.datatorrent.contrib.hds.MutableKeyValue;
 
 public class TFileReader implements HDSFileReader
 {
@@ -73,52 +73,39 @@ public class TFileReader implements HDSFileReader
   }
 
   @Override
-  public byte[] getValue(byte[] key) throws IOException
-  {
-    seek(key);
-    Entry en = scanner.entry();
-    byte[] rkey = new byte[en.getKeyLength()];
-    byte[] rval = new byte[en.getValueLength()];
-    en.getKey(rkey);
-    // If the key doesn't exist
-    if (!Arrays.equals(key, rkey)) {
-      return null;
-    } else {
-      en.getValue(rval);
-      return rval;
-    }
-  }
-
-  @Override
   public void reset() throws IOException
   {
     scanner.rewind();
   }
 
   @Override
-  public void seek(byte[] key) throws IOException
+  public boolean seek(byte[] key) throws IOException
   {
-    if (!scanner.seekTo(key)) {
-      throw new IOException("The key is not seekable");
-    }
+    return scanner.seekTo(key);
   }
 
   @Override
-  public boolean next() throws IOException
+  public boolean next(Slice key, Slice value) throws IOException
   {
-    return scanner.advance();
-  }
-
-  @Override
-  public void get(MutableKeyValue mutableKeyValue) throws IOException
-  {
+    if (scanner.atEnd()) return false;
     Entry en = scanner.entry();
     byte[] rkey = new byte[en.getKeyLength()];
     byte[] rval = new byte[en.getValueLength()];
     en.getKey(rkey);
     en.getValue(rval);
-    mutableKeyValue.setKey(rkey);
-    mutableKeyValue.setValue(rval);
+
+    key.buffer = rkey;
+    key.offset = 0;
+    key.length = en.getKeyLength();
+
+    value.buffer = rval;
+    value.offset = 0;
+    value.length = en.getKeyLength();
+
+    scanner.advance();
+    return true;
   }
 
 }
+
+
