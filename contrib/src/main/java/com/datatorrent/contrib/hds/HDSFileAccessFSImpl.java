@@ -18,11 +18,15 @@ package com.datatorrent.contrib.hds;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.TreeMap;
 
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.output.CountingOutputStream;
+import org.apache.commons.lang.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -32,10 +36,13 @@ import org.apache.hadoop.fs.Options.Rename;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.common.util.Pair;
 import com.datatorrent.common.util.Slice;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * Hadoop file system backed store.
@@ -103,10 +110,7 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
   public FSDataOutputStream getOutputStream(long bucketKey, String fileName) throws IOException
   {
     Path path = getFilePath(bucketKey, fileName);
-    if (!fs.exists(path)) {
-      return fs.create(path);
-    }
-    return fs.append(path);
+    return fs.create(path, true);
   }
 
   @Override
@@ -128,38 +132,67 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
   @Override
   public HDSFileReader getReader(final long bucketKey, final String fileName) throws IOException
   {
-    final DataInputStream is = getInputStream(bucketKey, fileName);
+    final HashMap<Slice, Pair<byte[], Integer>> data = Maps.newHashMap();
+    final ArrayList<Slice> keys = Lists.newArrayList();
+    final MutableInt index = new MutableInt();
+
+    DataInputStream is = getInputStream(bucketKey, fileName);
+    Input input = new Input(is);
+    while (!input.eof()) {
+      byte[] keyBytes = kryo.readObject(input, byte[].class);
+      byte[] value = kryo.readObject(input, byte[].class);
+      Slice key = new Slice(keyBytes, 0, keyBytes.length);
+      data.put(key, new Pair<byte[], Integer>(value, keys.size()));
+      keys.add(key);
+    }
+    input.close();
+    is.close();
+
     return new HDSFileReader() {
 
       @Override
-      public void readFully(TreeMap<Slice, byte[]> data) throws IOException
+      public void readFully(TreeMap<Slice, byte[]> result) throws IOException
       {
-        Input input = new Input(is);
-        while (!input.eof()) {
-          byte[] key = kryo.readObject(input, byte[].class);
-          byte[] value = kryo.readObject(input, byte[].class);
-          data.put(new Slice(key, 0, key.length), value);
+        for (Map.Entry<Slice, Pair<byte[], Integer>> e : data.entrySet()) {
+          result.put(e.getKey(), e.getValue().first);
         }
       }
 
       @Override
       public void reset() throws IOException {
-        is.reset();
+        index.setValue(0);
       }
 
       @Override
       public boolean seek(byte[] key) throws IOException {
-        throw new UnsupportedOperationException("Operation not implemented");
+        Pair<byte[], Integer> v = data.get(new Slice(key, 0, key.length));
+        if (v == null) {
+          index.setValue(0);
+          return false;
+        }
+        index.setValue(v.second);
+        return true;
       }
 
       @Override
       public boolean next(Slice key, Slice value) throws IOException {
-        throw new UnsupportedOperationException("Operation not implemented");
+        int pos = index.intValue();
+        if (pos < keys.size()) {
+          Slice k = keys.get(pos);
+          key.buffer = k.buffer;
+          key.offset = k.offset;
+          key.length = k.length;
+          Pair<byte[], Integer> v = data.get(k);
+          value.buffer = v.first;
+          value.offset = 0;
+          value.length = v.first.length;
+          index.increment();
+        }
+        return false;
       }
 
       @Override
       public void close() throws IOException {
-        is.close();
       }
     };
   }
