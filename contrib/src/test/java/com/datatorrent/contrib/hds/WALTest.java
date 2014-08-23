@@ -52,7 +52,7 @@ public class WALTest
   public void testWalWriteAndRead() throws IOException
   {
     FileUtils.deleteDirectory(file);
-    HDSFileAccessFSImpl bfs = new HDSFileAccessFSImpl();
+    HDSFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
@@ -89,7 +89,7 @@ public class WALTest
   public void testWalSkip() throws IOException
   {
     FileUtils.deleteDirectory(file);
-    HDSFileAccessFSImpl bfs = new HDSFileAccessFSImpl();
+    HDSFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
@@ -132,7 +132,7 @@ public class WALTest
     FileUtils.deleteDirectory(file);
     final long BUCKET1 = 1L;
 
-    HDSFileAccessFSImpl bfs = new HDSFileAccessFSImpl();
+    HDSFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
@@ -184,7 +184,7 @@ public class WALTest
     RegexFileFilter dataFileFilter = new RegexFileFilter("\\d+.*");
 
     FileUtils.deleteDirectory(file);
-    HDSFileAccessFSImpl bfs = new HDSFileAccessFSImpl();
+    HDSFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 

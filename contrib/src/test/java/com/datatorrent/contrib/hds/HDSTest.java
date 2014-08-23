@@ -187,7 +187,7 @@ public class HDSTest
     Slice key = newKey(1, 1);
     String data = "data1";
 
-    HDSFileAccessFSImpl fa = new HDSFileAccessFSImpl();
+    HDSFileAccessFSImpl fa = new MockFileAccess();
     fa.setBasePath(file.getAbsolutePath());
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(fa);
@@ -216,7 +216,7 @@ public class HDSTest
   public void testDefaultHDSFileAccess() throws Exception
   {
     // Create default HDSFileAccessImpl
-    HDSFileAccessFSImpl bfs = new HDSFileAccessFSImpl();
+    HDSFileAccessFSImpl bfs = new MockFileAccess();
     testHDSFileAccess(bfs);
   }
 

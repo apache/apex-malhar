@@ -61,7 +61,7 @@ public class HDSTestApp implements StreamingApplication
     Generator generator = dag.addOperator("Generator", new Generator());
     HDSOperator store = dag.addOperator("Store", new HDSOperator());
     store.setKeyComparator(new HDSTest.SequenceComparator());
-    store.setFileStore(new HDSFileAccessFSImpl());
+    store.setFileStore(new MockFileAccess());
     dag.addStream("Generator2Store", generator.output, store.data);
   }
 
@@ -100,7 +100,7 @@ public class HDSTestApp implements StreamingApplication
     Assert.assertTrue("exists " + wal0, wal0.exists() && wal0.exists());
     Assert.assertTrue("exists " + wal1, wal1.exists() && wal1.exists());
 
-    HDSFileAccessFSImpl fs = new HDSFileAccessFSImpl();
+    HDSFileAccessFSImpl fs = new MockFileAccess();
     fs.setBasePath(file.toURI().toString());
     fs.init();
 
