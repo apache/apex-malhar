@@ -119,7 +119,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
   }
   
-  private transient int windowSkipCount;
+  private transient boolean emit = true;
+  protected boolean idempotentEmit = false;
   /* List of unfinished files */
   protected Queue<FailedFile> unfinishedFiles = new LinkedList<FailedFile>();
   /* List of failed file */
@@ -131,7 +132,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected transient Path filePath;
   protected transient InputStream inputStream;
   protected Set<String> pendingFiles = new LinkedHashSet<String>();
-  public final transient DefaultOutputPort<String> debug = new DefaultOutputPort<String>();
 
   public String getDirectory()
   {
@@ -171,6 +171,16 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public void setEmitBatchSize(int emitBatchSize)
   {
     this.emitBatchSize = emitBatchSize;
+  }
+  
+  public void setIdempotentEmit(boolean idempotentEmit)
+  {
+    this.idempotentEmit = idempotentEmit;
+  }
+  
+  public boolean isIdempotentEmit()
+  {
+    return idempotentEmit;
   }
   
   public int getPartitionCount()
@@ -243,10 +253,29 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void beginWindow(long windowId)
   {
+    emit = true;
   }
 
   @Override
   public void endWindow()
+  {
+  }
+
+  @Override
+  public void emitTuples()
+  {
+    if(emit)
+    {
+      emitTuplesHelper();
+      
+      if(idempotentEmit)
+      {
+        emit = false;
+      }
+    }
+  }
+  
+  protected void emitTuplesHelper()
   {
     if (inputStream == null) {
       try {
@@ -261,7 +290,19 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         else if (!failedFiles.isEmpty()) {
           retryFailedFile(failedFiles.poll());
         }
-      }catch (IOException ex) {
+        else {
+          if (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
+            Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
+      
+            for(Path newPath: newPaths) {
+              String newPathString = newPath.toString();
+              pendingFiles.add(newPathString);
+              processedFiles.add(newPathString);
+            }
+            lastScanMillis = System.currentTimeMillis();
+          }
+        }
+      } catch (IOException ex) {
         LOG.error("FS reader error", ex);
         addToFailedList();
       }
@@ -274,7 +315,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           T line = readEntity();
           if (line == null) {
             LOG.info("done reading file ({} entries).", offset);
-            debug.emit("done reading file " + currentFile + " (" + offset + " entries) " + "Operator " + operatorId);
             closeFile(inputStream);
             break;
           }
@@ -292,25 +332,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         }
       } catch (IOException e) {
         LOG.error("FS reader error", e);
-        addToFailedList();
+          addToFailedList();
       }
-    }
-  }
-
-  @Override
-  public void emitTuples()
-  {
-    long startTime = System.currentTimeMillis();
-    
-    if (startTime - scanIntervalMillis >= lastScanMillis) {
-      Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
-      
-      for(Path newPath: newPaths) {
-        String newPathString = newPath.toString();
-        pendingFiles.add(newPathString);
-        processedFiles.add(newPathString);
-      }
-      lastScanMillis = System.currentTimeMillis();
     }
   }
 

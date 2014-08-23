@@ -18,6 +18,7 @@ package com.datatorrent.lib.io.fs;
 import com.datatorrent.api.DefaultPartition;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
+import java.io.IOException;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -25,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -69,6 +71,68 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   public int getPreferredMaxPendingFilesPerOperator()
   {
     return preferredMaxPendingFilesPerOperator;
+  }
+  
+  @Override
+  protected void emitTuplesHelper()
+  {
+    if(System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
+      Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
+
+      for(Path newPath : newPaths) {
+        String newPathString = newPath.toString();
+        pendingFiles.add(newPathString);
+        processedFiles.add(newPathString);
+      }
+      lastScanMillis = System.currentTimeMillis();
+    }
+    
+    if (inputStream == null) {
+      try {
+        if(!unfinishedFiles.isEmpty()) {
+          retryFailedFile(unfinishedFiles.poll());
+        }
+        else if (!pendingFiles.isEmpty()) {
+          String newPathString = pendingFiles.iterator().next();
+          pendingFiles.remove(newPathString);
+          this.inputStream = openFile(new Path(newPathString));
+        }
+        else if (!failedFiles.isEmpty()) {
+          retryFailedFile(failedFiles.poll());
+        }
+      } catch (IOException ex) {
+        LOG.error("FS reader error", ex);
+        addToFailedList();
+      }
+    }
+    
+    if (inputStream != null) {
+      try {
+        int counterForTuple = 0;
+        while (counterForTuple++ < emitBatchSize) {
+          T line = readEntity();
+          if (line == null) {
+            LOG.info("done reading file ({} entries).", offset);
+            closeFile(inputStream);
+            break;
+          }
+
+          // If skipCount is non zero, then failed file recovery is going on, skipCount is
+          // used to prevent already emitted records from being emitted again during recovery.
+          // When failed file is open, skipCount is set to the last read offset for that file.
+          //
+          if (skipCount == 0) {
+            offset++;
+            emit(line);
+          }
+          else
+            skipCount--;
+        }
+      } catch (IOException e) {
+        LOG.error("FS reader error", e);
+          addToFailedList();
+      }
+    }
   }
   
   @Override
