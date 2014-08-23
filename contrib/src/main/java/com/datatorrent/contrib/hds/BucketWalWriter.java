@@ -15,10 +15,14 @@
  */
 package com.datatorrent.contrib.hds;
 
+import com.datatorrent.contrib.hds.HDS.WALReader;
+import com.datatorrent.contrib.hds.HDS.WALWriter;
 import com.google.common.collect.Maps;
+
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.util.Map;
 import java.util.TreeMap;
@@ -63,6 +67,7 @@ public class BucketWalWriter
     long start;
     long end;
 
+    @SuppressWarnings("unused")
     private OffsetRange() {}
 
     OffsetRange(long start, long end) {
@@ -122,6 +127,7 @@ public class BucketWalWriter
 
   public TreeMap<Long, WalFileMeta> files = Maps.newTreeMap();
 
+  @SuppressWarnings("unused")
   private BucketWalWriter() {}
 
   public BucketWalWriter(HDSFileAccess bfs, long bucketKey) {
@@ -326,6 +332,7 @@ public class BucketWalWriter
 
 
   /* For debugging purpose */
+  @SuppressWarnings("unused")
   private void printMeta(int id)
   {
     for(WalFileMeta meta : files.values()) {

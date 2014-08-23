@@ -22,7 +22,6 @@ import java.util.TreeMap;
 
 import javax.validation.constraints.NotNull;
 
-import com.datatorrent.common.util.Slice;
 import org.apache.commons.io.output.CountingOutputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -122,40 +121,6 @@ public class HDSFileAccessFSImpl implements HDSFileAccess
     FileContext fc = FileContext.getFileContext(fs.getUri());
     Path bucketPath = getBucketPath(bucketKey);
     fc.rename(new Path(bucketPath, fromName), new Path(bucketPath, toName), Rename.OVERWRITE);
-  }
-
-  /**
-   * Truncate file to size, copy input file till size to temp and then renames to original
-   * file.
-   * @param bucketKey
-   * @param fileName
-   * @param size
-   * @throws IOException
-   */
-  @Override public void truncate(long bucketKey, String fileName, long size) throws IOException
-  {
-    DataInputStream in = getInputStream(bucketKey, fileName);
-    DataOutputStream out = getOutputStream(bucketKey, fileName + "-recovery");
-
-    long offset = size;
-    int blockSize = 64 * 1024;
-    long len;
-    byte[] data = new byte[blockSize];
-
-    while (offset > 0)
-    {
-      len = offset > blockSize? blockSize : offset;
-      offset -= len;
-      int count = in.read(data, 0, (int)len);
-      out.write(data, 0, count);
-    }
-
-    in.close();
-    out.close();
-
-    rename(bucketKey, fileName + "-recovery", fileName);
-    rename(bucketKey, "." + fileName + "-recovery.crc",
-            "." + fileName + ".crc");
   }
 
   private final transient Kryo kryo = new Kryo();

@@ -19,7 +19,7 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 
-public class HDFSWalReader implements WALReader
+public class HDFSWalReader implements HDS.WALReader
 {
   DataInputStream in;
   private boolean eof = false;
@@ -41,7 +41,7 @@ public class HDFSWalReader implements WALReader
 
   @Override public void seek(long offset) throws IOException
   {
-    long count = in.skipBytes((int) offset);
+    in.skipBytes((int) offset);
   }
 
   @Override public boolean advance() throws IOException

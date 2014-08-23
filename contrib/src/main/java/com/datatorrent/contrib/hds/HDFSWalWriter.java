@@ -15,14 +15,13 @@
  */
 package com.datatorrent.contrib.hds;
 
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import org.apache.hadoop.fs.FSDataOutputStream;
 
-public class HDFSWalWriter implements WALWriter
+
+public class HDFSWalWriter implements HDS.WALWriter
 {
   transient DataOutputStream out;
   long committedOffset;
@@ -88,5 +87,4 @@ public class HDFSWalWriter implements WALWriter
     return "HDFSWalWritter Bucket " + bucketKey + " fileId " + name ;
   }
 
-  private static Logger logger = LoggerFactory.getLogger(HDFSWalWriter.class);
 }
