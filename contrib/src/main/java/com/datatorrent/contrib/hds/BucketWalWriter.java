@@ -54,7 +54,7 @@ import java.util.TreeMap;
  *   all files after that to recovery store state.
  *
  */
-public class BucketWalWriter
+public class BucketWalWriter implements Closeable
 {
   public static final String WAL_FILE_PREFIX = "_WAL-";
 
@@ -96,11 +96,11 @@ public class BucketWalWriter
     }
   }
 
-  /* Backend Filesystem managing WAL */
+  /* Backing file system for WAL */
   transient HDSFileAccess bfs;
 
   /*
-   * If maxmimum number of bytes allowed to be written to file between flush,
+   * If maximum number of bytes allowed to be written to file between flush,
    * default is 64K.
    */
   transient long maxUnflushedBytes = 64 * 1024;
@@ -354,16 +354,12 @@ public class BucketWalWriter
     walFileId++;
   }
 
-  public void teardown() throws IOException
-  {
-    writer.close();
-  }
-
   public long getCommittedLSN() {
     return committedLsn;
   }
 
-  void close() throws IOException
+  @Override
+  public void close() throws IOException
   {
     if (writer != null)
       writer.close();

@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.hds;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -23,6 +24,7 @@ import java.util.Comparator;
 import java.util.TreeMap;
 
 import com.datatorrent.common.util.Slice;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.junit.Assert;
@@ -31,10 +33,14 @@ import org.junit.Test;
 import com.datatorrent.contrib.hds.hfile.HFileImpl;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.MoreExecutors;
+
 /**
- *
+ * Tests for bucket management
  */
 public class HDSTest
 {
@@ -105,7 +111,7 @@ public class HDSTest
     hds.setFlushSize(0); // flush after every key
 
     hds.setup(null);
-    hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // execute synchronously on endWindow
+    hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
 
     hds.beginWindow(10);
     Assert.assertFalse("exists " + bucket1WalFile, bucket1WalFile.exists());
@@ -158,6 +164,53 @@ public class HDSTest
     bfs.close();
 
   }
+
+  public static <T> T clone(Kryo kryo, T src) throws IOException
+  {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    Output output = new Output(bos);
+    kryo.writeObject(output, src);
+    output.close();
+    Input input = new Input(bos.toByteArray());
+    @SuppressWarnings("unchecked")
+    Class<T> clazz = (Class<T>)src.getClass();
+    return kryo.readObject(input, clazz);
+  }
+
+
+  @Test
+  public void testGet() throws Exception
+  {
+    File file = new File("target/hds-testGet");
+    FileUtils.deleteDirectory(file);
+
+    Slice key = newKey(1, 1);
+    String data = "data1";
+
+    HDSFileAccessFSImpl fa = new HDSFileAccessFSImpl();
+    fa.setBasePath(file.getAbsolutePath());
+    HDSBucketManager hds = new HDSBucketManager();
+    hds.setFileStore(fa);
+    hds.setKeyComparator(new SequenceComparator());
+    hds.setFlushSize(0); // flush after every key
+
+    hds.setup(null);
+    hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
+    hds.beginWindow(1);
+    hds.put(getBucketKey(key), key.buffer, data.getBytes());
+    hds.endWindow();
+    hds.teardown();
+
+    // get fresh instance w/o cached readers
+    hds = clone(new Kryo(), hds);
+    hds.setup(null);
+    hds.beginWindow(1);
+    byte[] val = hds.get(getBucketKey(key), key.buffer);
+    hds.endWindow();
+    hds.teardown();
+    Assert.assertArrayEquals("get", data.getBytes(), val);
+  }
+
 
   @Test
   public void testDefaultHDSFileAccess() throws Exception

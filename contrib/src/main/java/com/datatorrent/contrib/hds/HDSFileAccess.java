@@ -56,7 +56,6 @@ public interface HDSFileAccess extends Closeable
     //Move to
     // void readFully(TreeMap<Slice, Slice> data) throws IOException;
     void readFully(TreeMap<Slice, byte[]> data) throws IOException;
-    //void readFully(TreeMap<byte[], byte[]> data) throws IOException;
 
     /**
      * Repositions the pointer to the beginning of the underlying file.
@@ -75,7 +74,7 @@ public interface HDSFileAccess extends Closeable
     /**
      * Reads next available key/value pair starting from the current pointer position
      * into Slice objects and advances pointer to next key.  If pointer is at the end
-     * of the file, false is returned, and Slice objects remain null.
+     * of the file, false is returned, and Slice objects remains unmodified.
      *
      * @param key Empty slice object
      * @param value Empty slice object

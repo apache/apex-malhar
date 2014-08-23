@@ -31,13 +31,13 @@ import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
-import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
@@ -57,10 +57,10 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public static final String FNAME_WAL = "_WAL";
   public static final String FNAME_META = "_META";
 
-  private final HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
-  private transient long windowId;
+  private final transient HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
+  private long windowId;
   private transient long lastFlushWindowId;
-  private final HashMap<Long, Bucket> buckets = Maps.newHashMap();
+  private final transient HashMap<Long, Bucket> buckets = Maps.newHashMap();
   private final transient Kryo kryo = new Kryo();
   @VisibleForTesting
   protected transient ExecutorService writeExecutor;
@@ -274,11 +274,10 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       bucket.recoveryInProgress = true;
       if (bucket.wal == null) {
         // Initiate a new WAL for bucket, and run recovery if needed.
-        BucketWalWriter w = new BucketWalWriter(fileStore, bucketKey);
-        bucket.wal = w;
-        w.setMaxWalFileSize(maxWalFileSize);
+        bucket.wal = new BucketWalWriter(fileStore, bucketKey);
+        bucket.wal.setMaxWalFileSize(maxWalFileSize);
+        bucket.wal.init();
       }
-      bucket.wal.init();
 
       // Get last committed LSN from store, and use that for recovery.
       BucketMeta meta = getMeta(bucketKey);
@@ -390,6 +389,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     fileStore.init();
     writeExecutor = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory(this.getClass().getSimpleName()+"-Writer"));
+    // TODO: this should happen on-demand, when the bucket is opened
     for(Bucket bucket : buckets.values())
     {
       bucket.recoveryNeeded = true;
@@ -403,11 +403,13 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   @Override
   public void teardown()
   {
-    try {
-      fileStore.close();
-    } catch (IOException e) {
-      DTThrowable.rethrow(e);
+    for (Bucket bucket : this.buckets.values()) {
+      for (HDSFileReader reader : bucket.readerCache.values()) {
+        IOUtils.closeQuietly(reader);
+      }
+      IOUtils.closeQuietly(bucket.wal);
     }
+    IOUtils.closeQuietly(fileStore);
     writeExecutor.shutdown();
   }
 
@@ -545,14 +547,13 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     final TreeMap<Slice, BucketFileMeta> files;
   }
 
-  protected static class Bucket
+  private static class Bucket
   {
     private long bucketKey;
     // keys that were modified and written to WAL, but not yet persisted
-
     private HashMap<Slice, byte[]> writeCache = Maps.newHashMap();
     private HashMap<Slice, byte[]> frozenWriteCache = Maps.newHashMap();
-    private final transient HashMap<String, HDSFileReader> readerCache = Maps.newHashMap();
+    private final HashMap<String, HDSFileReader> readerCache = Maps.newHashMap();
     private BucketWalWriter wal;
     private long committedLSN;
     private boolean recoveryInProgress;
