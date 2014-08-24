@@ -16,7 +16,6 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
@@ -198,23 +197,13 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     return currentPartitions;
   }
 
-  protected int operatorId;
-  
   @Override
   public void setup(OperatorContext context)
   {
-    if(context != null)
-    {
-      operatorId = context.getId();
-    }
-    
-    LOG.debug("Setup Operator {}", operatorId);
-    
     try {
       filePath = new Path(directory);
       configuration = new Configuration();
       fs = FileSystem.newInstance(filePath.toUri(), configuration);
-      
       if(!unfinishedFiles.isEmpty()) {
         retryFailedFile(unfinishedFiles.poll());
         skipCount = 0;
@@ -222,17 +211,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         retryFailedFile(failedFiles.poll());
         skipCount = 0;
       }
-      
       long startTime = System.currentTimeMillis();
       LOG.info("Continue reading {} from index {} time={}", currentFile, offset, startTime);
-      
       // fast forward to previous offset
       if(inputStream != null) {
         for(int index = 0; index < offset; index++) {
           readEntity();
         }
       }
-      
       LOG.info("Read offset={} records in setup time={}", offset, System.currentTimeMillis() - startTime);
     }
     catch (IOException ex) {
@@ -244,8 +230,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void teardown()
   {
-    LOG.debug("TearDown Operator: {}", operatorId);
-    
     IOUtils.closeQuietly(inputStream);
     IOUtils.closeQuietly(fs);
   }
@@ -264,75 +248,75 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void emitTuples()
   {
+    //emit will be true if the operator is not idempotent. If the operator is 
+    //idempotent then emit will be true the first time emitTuples is called
+    //within a window and false the other times emit tuples is called within a
+    //window
     if(emit)
     {
-      emitTuplesHelper();
+      if (inputStream == null) {
+        try {
+          if(!unfinishedFiles.isEmpty()) {
+            retryFailedFile(unfinishedFiles.poll());
+          }
+          else if (!pendingFiles.isEmpty()) {
+            String newPathString = pendingFiles.iterator().next();
+            pendingFiles.remove(newPathString);
+            this.inputStream = openFile(new Path(newPathString));
+          }
+          else if (!failedFiles.isEmpty()) {
+            retryFailedFile(failedFiles.poll());
+          }
+          else {
+            if (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
+              Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
       
+              for(Path newPath: newPaths) {
+                String newPathString = newPath.toString();
+                pendingFiles.add(newPathString);
+                processedFiles.add(newPathString);
+              }
+              lastScanMillis = System.currentTimeMillis();
+            }
+          }
+        } catch (IOException ex) {
+          LOG.error("FS reader error", ex);
+          addToFailedList();
+        }
+      }
+
+      if (inputStream != null) {
+        try {
+          int counterForTuple = 0;
+          while (counterForTuple++ < emitBatchSize) {
+            T line = readEntity();
+            if (line == null) {
+              LOG.info("done reading file ({} entries).", offset);
+              closeFile(inputStream);
+              break;
+            }
+
+            // If skipCount is non zero, then failed file recovery is going on, skipCount is
+            // used to prevent already emitted records from being emitted again during recovery.
+            // When failed file is open, skipCount is set to the last read offset for that file.
+            //
+            if (skipCount == 0) {
+              offset++;
+              emit(line);
+            }
+            else
+              skipCount--;
+          }
+        } catch (IOException e) {
+          LOG.error("FS reader error", e);
+          addToFailedList();
+        }
+      }
+      //If the operator is idempotent, do nothing on other calls to emittuples
+      //within the same window
       if(idempotentEmit)
       {
         emit = false;
-      }
-    }
-  }
-  
-  protected void emitTuplesHelper()
-  {
-    if (inputStream == null) {
-      try {
-        if(!unfinishedFiles.isEmpty()) {
-          retryFailedFile(unfinishedFiles.poll());
-        }
-        else if (!pendingFiles.isEmpty()) {
-          String newPathString = pendingFiles.iterator().next();
-          pendingFiles.remove(newPathString);
-          this.inputStream = openFile(new Path(newPathString));
-        }
-        else if (!failedFiles.isEmpty()) {
-          retryFailedFile(failedFiles.poll());
-        }
-        else {
-          if (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
-            Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
-      
-            for(Path newPath: newPaths) {
-              String newPathString = newPath.toString();
-              pendingFiles.add(newPathString);
-              processedFiles.add(newPathString);
-            }
-            lastScanMillis = System.currentTimeMillis();
-          }
-        }
-      } catch (IOException ex) {
-        LOG.error("FS reader error", ex);
-        addToFailedList();
-      }
-    }
-    
-    if (inputStream != null) {
-      try {
-        int counterForTuple = 0;
-        while (counterForTuple++ < emitBatchSize) {
-          T line = readEntity();
-          if (line == null) {
-            LOG.info("done reading file ({} entries).", offset);
-            closeFile(inputStream);
-            break;
-          }
-
-          // If skipCount is non zero, then failed file recovery is going on, skipCount is
-          // used to prevent already emitted records from being emitted again during recovery.
-          // When failed file is open, skipCount is set to the last read offset for that file.
-          //
-          if (skipCount == 0) {
-            offset++;
-            emit(line);
-          }
-          else
-            skipCount--;
-        }
-      } catch (IOException e) {
-        LOG.error("FS reader error", e);
-          addToFailedList();
       }
     }
   }
@@ -433,7 +417,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
       oldscanners.add(oper.getScanner());
     }
-    
+
     /*
      * Create partitions of scanners, scanner's partition method will do state
      * transfer for DirectoryScanner objects.
@@ -462,7 +446,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           unfinishedIter.remove();
         }
       }
-      
+
       /* transfer failed files */
       oper.failedFiles.clear();
       Iterator<FailedFile> iter = totalFailedFiles.iterator();
@@ -473,7 +457,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           iter.remove();
         }
       }
-      
+
       /* redistribute pending files properly */
       oper.pendingFiles.clear();
       Iterator<String> pendingFilesIterator = totalPendingFiles.iterator();
@@ -484,7 +468,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           pendingFilesIterator.remove();
         }
       }
-
       newPartitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<T>>(oper));
     }
 
@@ -624,7 +607,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           return false;
         }
       }
-      
       if (filePatternRegexp != null && this.regex == null) {
         regex = Pattern.compile(this.filePatternRegexp);
       }
@@ -636,7 +618,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           return false;
         }
       }
-      
       return true;
     }
 
