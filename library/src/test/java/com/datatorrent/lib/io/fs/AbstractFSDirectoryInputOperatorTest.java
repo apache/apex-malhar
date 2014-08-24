@@ -37,14 +37,12 @@ public class AbstractFSDirectoryInputOperatorTest
   public static class TestMeta extends TestWatcher
   {
     public String dir = null;
-    public String methodName = null;
-    public String className = null;
-    
+
     @Override
     protected void starting(org.junit.runner.Description description)
     {
-      methodName = description.getMethodName();
-      className = description.getClassName();
+      String methodName = description.getMethodName();
+      String className = description.getClassName();
       this.dir = "target/" + className + "/" + methodName;
     }
   };
@@ -55,8 +53,7 @@ public class AbstractFSDirectoryInputOperatorTest
   {
     @OutputPortFieldAnnotation(name = "output")
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
-    protected transient BufferedReader br = null;
-    private boolean throwIOException = false;
+    private transient BufferedReader br = null;
 
     @Override
     protected InputStream openFile(Path path) throws IOException
@@ -73,20 +70,10 @@ public class AbstractFSDirectoryInputOperatorTest
       br.close();
       br = null;
     }
-    
-    protected void throwIOExceptionOnNextRead()
-    {
-      throwIOException = true;
-    }
 
     @Override
     protected String readEntity() throws IOException
     {
-      if(throwIOException) {
-        throwIOException = false;
-        throw new IOException();
-      }
-      
       return br.readLine();
     }
 
@@ -199,6 +186,7 @@ public class AbstractFSDirectoryInputOperatorTest
   @Test
   public void testPartitioningStateTransfer() throws Exception
   {
+
     TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
@@ -229,7 +217,6 @@ public class AbstractFSDirectoryInputOperatorTest
       oper.endWindow();
       wid++;
     }
-    
     Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
 
     Assert.assertEquals(1, initialState.getCurrentPartitions());
@@ -291,7 +278,7 @@ public class AbstractFSDirectoryInputOperatorTest
     // be 12.
     Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
   }
-  
+
   /**
    * Test for testing dynamic partitioning.
    * - Create 4 file with 3 records each.
@@ -333,7 +320,7 @@ public class AbstractFSDirectoryInputOperatorTest
       oper.endWindow();
       wid++;
     }
-    
+
     Assert.assertEquals("Partial tuples read ", 6, sink.collectedTuples.size());
 
     Assert.assertEquals(1, initialState.getCurrentPartitions());
@@ -376,7 +363,7 @@ public class AbstractFSDirectoryInputOperatorTest
 
     Assert.assertEquals("Remaining tuples read ", 6, sink.collectedTuples.size());
   }
-  
+
   /**
    * Test for testing dynamic partitioning interrupting ongoing read.
    * - Create 4 file with 3 records each.
@@ -418,7 +405,7 @@ public class AbstractFSDirectoryInputOperatorTest
       oper.endWindow();
       wid++;
     }
-    
+
     Assert.assertEquals("Partial tuples read ", 6, sink.collectedTuples.size());
 
     Assert.assertEquals(1, initialState.getCurrentPartitions());

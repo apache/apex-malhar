@@ -16,7 +16,6 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator.DirectoryScanner;
-import com.datatorrent.lib.io.fs.FSInputOperator.HashCodeBasedDirectoryScanner;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.io.BufferedReader;
 import java.io.File;
@@ -43,11 +42,11 @@ public class FSInputOperatorTest
     private static final int FILE_LINE_COUNT = 100;
     private static final int FILE_TUPLE_COUNT = TOTAL_FILE_COUNT * FILE_LINE_COUNT;
     private static final int EMIT_BATCH_SIZE = 10;
-    
+
     private static final Random random = new Random();
     private static final String TEST_DIRECTORY = "target" + File.separator + FSInputOperatorTest.class.getName();
     private static final String TEST_BAK_DIRECTORY = TEST_DIRECTORY + ".bak";
-    
+
     private class FSInputOperatorTestOperator extends FSInputOperator<String>
     {
         @Override
@@ -59,45 +58,36 @@ public class FSInputOperatorTest
             catch(IOException e) {
                 Assert.fail("There was an error reading from test files.");
             }
-            
             return null;
         }   
     }
-    
+
     @Before
     public void createFilesForTest() throws Exception
     {
         File testDirectory = new File(TEST_DIRECTORY);
         File testBakDirectory = new File(TEST_BAK_DIRECTORY);
-        
         FileContext.getLocalFSFileContext().delete(new Path(testDirectory.getAbsolutePath()), true);
         FileContext.getLocalFSFileContext().delete(new Path(testBakDirectory.getAbsolutePath()), true);
-        
         testDirectory.mkdirs();
         testBakDirectory.mkdirs();
-        
         for(int fileCounter = 0;
             fileCounter < NUMBER_OF_GZ_TEST_FILES;
             fileCounter++) {
             String fileName = generateRandomString(FILE_NAME_BIT_COUNT) + ".gz";
             File file = new File(testDirectory, fileName);
-            
             if(!file.createNewFile()) {
                 fileCounter--;
                 continue;
             }
-            
             FileOutputStream output = new FileOutputStream(file.getAbsolutePath());
-            
             try {
                 Writer writer = new OutputStreamWriter(new CompressorStreamFactory().createCompressorOutputStream(CompressorStreamFactory.GZIP, output));
-                
                 try {
                     for(int lineCounter = 0;
                         lineCounter < FILE_LINE_COUNT;
                         lineCounter++) {
                         writer.write(generateRandomString(FILE_LINE_BIT_COUNT));
-                        
                         if(lineCounter != FILE_LINE_COUNT -1) {
                             writer.write("\n");
                         }
@@ -110,20 +100,16 @@ public class FSInputOperatorTest
                 output.close();
             }
         }
-        
         for(int fileCounter = 0;
             fileCounter < NUMBER_OF_TXT_TEST_FILES;
             fileCounter++) {
             String fileName = generateRandomString(FILE_NAME_BIT_COUNT) + ".txt";
             File file = new File(testDirectory, fileName);
-            
             if(!file.createNewFile()) {
                 fileCounter--;
                 continue;
             }
-            
             FileOutputStream output = new FileOutputStream(file.getAbsolutePath());
-            
             try {
                 Writer writer = new OutputStreamWriter(output);
                 
@@ -145,38 +131,29 @@ public class FSInputOperatorTest
             }
         }
     }
-    
+
     @Test
     public void testSinglePartiton() throws Exception
-    {   
+    {
         FSInputOperatorTestOperator testOperator = new FSInputOperatorTestOperator();
         CollectorTestSink<Object> testSink = new CollectorTestSink<Object>();
-        
         testOperator.output.setSink(testSink);
-        
         testOperator.setEmitBatchSize(EMIT_BATCH_SIZE);
         testOperator.setDirectory(TEST_DIRECTORY);
         testOperator.setBackupDirectory(TEST_BAK_DIRECTORY);
-        
-        HashCodeBasedDirectoryScanner hcds = new HashCodeBasedDirectoryScanner();
+        DirectoryScanner hcds = new DirectoryScanner();
         DirectoryScanner directoryScanner = hcds.createPartition(0, 1);
         testOperator.setScanner(directoryScanner);
-        
         testOperator.setup(null);
-        
         for(long wid = 0; wid < FILE_TUPLE_COUNT / EMIT_BATCH_SIZE * 2; wid++) {
             testOperator.beginWindow(wid);
             testOperator.emitTuples();
             testOperator.endWindow();
         }
-        
         testOperator.teardown();
-
         Assert.assertEquals("number tuples", FILE_TUPLE_COUNT, testSink.collectedTuples.size());
-        //Assert.assertEquals("lines", allLines, new HashSet<String>(queryResults.collectedTuples));
-
     }
-    
+
     private String generateRandomString(int bitCount)
     {
         return new BigInteger(bitCount, random).toString(32);
