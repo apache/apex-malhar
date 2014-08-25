@@ -150,11 +150,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   }
 
   @Override
-  public void partitioned(Map<Integer, Partition<AbstractFSDirectoryInputOperator<T>>> partitions)
-  {
-  }
-
-  @Override
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
     Log.debug("Processing stats");
