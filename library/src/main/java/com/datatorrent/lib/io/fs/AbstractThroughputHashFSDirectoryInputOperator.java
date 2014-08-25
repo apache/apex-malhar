@@ -48,16 +48,12 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   private long repartitionInterval = 5L * 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
   private transient FileCount fileCounter;
+  private transient OperatorContext context;
   
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    
-    if(context != null)
-    {
-      fileCounter = new FileCount();
-      context.setCounters(fileCounter);
-    }
+    this.context = context;
   }
     
   public void setRepartitionInterval(long repartitionInterval)
@@ -101,9 +97,16 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   public void endWindow()
   {
     super.endWindow();
-    fileCounter.fileCount = failedFiles.size() + 
+    
+    if(context != null)
+    {
+      fileCounter = new FileCount();
+      
+      fileCounter.fileCount = failedFiles.size() + 
                             pendingFiles.size() +
                             unfinishedFiles.size();
+      context.setCounters(fileCounter);
+    }
   }
   
   @Override
@@ -155,8 +158,12 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
     Log.debug("Processing stats");
-    int statsListSize = batchedOperatorStats.getLastWindowedStats().size();
-    int fileCount = ((FileCount) batchedOperatorStats.getLastWindowedStats().get(statsListSize - 1).counters).fileCount;
+    int fileCount = 0;
+    
+    for(OperatorStats operatorStats: batchedOperatorStats.getLastWindowedStats())
+    {
+      fileCount += ((FileCount) operatorStats.counters).fileCount;
+    }
     
     int newOperatorCount = computeOperatorCount(fileCount);
     
