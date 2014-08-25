@@ -71,7 +71,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   protected String currentFile;
   protected Set<String> processedFiles = new HashSet<String>();
   protected int emitBatchSize = 1000;
-  private int currentPartitions = 1 ;
+  protected int currentPartitions = 1 ;
   protected int partitionCount = 1;
   private int retryCount = 0;
   private int maxRetryCount = 5;

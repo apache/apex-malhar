@@ -15,6 +15,10 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.CountersAggregator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Stats.OperatorStats;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -35,13 +39,20 @@ import org.slf4j.LoggerFactory;
  * 
  * @since 1.0.4
  */
-public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends AbstractFSDirectoryInputOperator<T>
+public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends AbstractFSDirectoryInputOperator<T> implements CountersAggregator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractThroughputHashFSDirectoryInputOperator.class);
 
-  private long repartitionInterval = 60L * 1000L;
+  private long repartitionInterval = 5L * 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
-
+  private OperatorContext context;
+  
+  public void setup(OperatorContext context)
+  {
+    setup(context);
+    this.context = context;
+  }
+    
   public void setRepartitionInterval(long repartitionInterval)
   {
     this.repartitionInterval = repartitionInterval;
@@ -80,6 +91,19 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   }
   
   @Override
+  public void endWindow()
+  {
+    super.endWindow();
+    
+    if(context != null)
+    {
+      context.setCounters((pendingFiles.size() + 
+                          failedFiles.size() + 
+                          unfinishedFiles.size()));
+    }
+  }
+  
+  @Override
   protected int computedNewPartitionCount(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
     LOG.debug("Called throughput.");
@@ -100,20 +124,27 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     if(!isInitialParitition) {
       LOG.debug("definePartitions: Total File Count: {}", totalFileCount);
-      newOperatorCount = totalFileCount / preferredMaxPendingFilesPerOperator;
-
-      if(totalFileCount % preferredMaxPendingFilesPerOperator > 0) {
-        newOperatorCount++;
-      }
-
-      if(newOperatorCount > partitionCount) {
-        newOperatorCount = partitionCount;
-      }
+      newOperatorCount = computeOperatorCount(totalFileCount);
     }
     else {
       newOperatorCount = partitionCount;
     }
     
+    return newOperatorCount;
+  }
+  
+  private int computeOperatorCount(int totalFileCount)
+  {
+    int newOperatorCount = totalFileCount / preferredMaxPendingFilesPerOperator;
+
+    if(totalFileCount % preferredMaxPendingFilesPerOperator > 0) {
+      newOperatorCount++;
+    }
+
+    if(newOperatorCount > partitionCount) {
+      newOperatorCount = partitionCount;
+    }
+
     return newOperatorCount;
   }
 
@@ -125,15 +156,34 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   @Override
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
+    int statsListSize = batchedOperatorStats.getLastWindowedStats().size();
+    int fileCount = (Integer) batchedOperatorStats.getLastWindowedStats().get(statsListSize - 1).counters;
+    
+    int newOperatorCount = computeOperatorCount(fileCount);
+    
     Response response = new Response();
-    response.repartitionRequired = false;
-
-    if(System.currentTimeMillis() - repartitionInterval > lastRepartition) {
-      LOG.debug("Repartition Triggered");
-      response.repartitionRequired = true;
+    
+    if(newOperatorCount == currentPartitions ||
+      System.currentTimeMillis() - repartitionInterval <= lastRepartition)
+    {
+      response.repartitionRequired = false;
       return response;
     }
-
+    
+    response.repartitionRequired = true;
     return response;
+  }
+  
+  @Override
+  public Object aggregate(Collection<?> countersList)
+  {
+    Integer totalPendingFileCount = 0;
+    
+    for(Object count: countersList)
+    {
+      totalPendingFileCount += (Integer) count;
+    }
+    
+    return totalPendingFileCount;
   }
 }
