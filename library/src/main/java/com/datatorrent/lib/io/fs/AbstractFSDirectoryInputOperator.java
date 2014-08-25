@@ -118,6 +118,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
   }
   
+  protected long lastRepartition = 0;
   private transient boolean emit = true;
   protected boolean idempotentEmit = false;
   /* List of unfinished files */
@@ -222,6 +223,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       LOG.info("Read offset={} records in setup time={}", offset, System.currentTimeMillis() - startTime);
     }
     catch (IOException ex) {
+      if(maxRetryCount <= 0) {
+        throw new RuntimeException(ex);
+      }
       LOG.error("FS reader error", ex);
       addToFailedList();
     }
@@ -280,6 +284,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
             }
           }
         } catch (IOException ex) {
+          if(maxRetryCount <= 0) {
+            throw new RuntimeException(ex);
+          }
           LOG.error("FS reader error", ex);
           addToFailedList();
         }
@@ -308,6 +315,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
               skipCount--;
           }
         } catch (IOException e) {
+          if(maxRetryCount <= 0) {
+            throw new RuntimeException(e);
+          }
           LOG.error("FS reader error", e);
           addToFailedList();
         }
@@ -385,15 +395,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
-    boolean isInitialParitition = partitions.iterator().next().getStats() == null;
-    if (isInitialParitition && partitionCount == 1) {
-      partitionCount = currentPartitions = partitions.size() + incrementalCapacity;
-    } else {
-      incrementalCapacity = partitionCount - currentPartitions;
-    }
-
-    int totalCount = partitions.size() + incrementalCapacity;
-    LOG.info("definePartitions trying to create {} partitions, current {}  required {}", totalCount, partitionCount, currentPartitions) ;
+    lastRepartition = System.currentTimeMillis();
+    
+    int totalCount = computedNewPartitionCount(partitions, incrementalCapacity);
 
     if (totalCount == partitions.size()) {
       return partitions;
@@ -473,6 +477,21 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
     LOG.info("definePartitions called returning {} partitions", newPartitions.size());
     return newPartitions;
+  }
+  
+  protected int computedNewPartitionCount(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
+  {
+    boolean isInitialParitition = partitions.iterator().next().getStats() == null;
+    
+    if (isInitialParitition && partitionCount == 1) {
+      partitionCount = currentPartitions = partitions.size() + incrementalCapacity;
+    } else {
+      incrementalCapacity = partitionCount - currentPartitions;
+    }
+
+    int totalCount = partitions.size() + incrementalCapacity;
+    LOG.info("definePartitions trying to create {} partitions, current {}  required {}", totalCount, partitionCount, currentPartitions);
+    return totalCount;
   }
 
   @Override
