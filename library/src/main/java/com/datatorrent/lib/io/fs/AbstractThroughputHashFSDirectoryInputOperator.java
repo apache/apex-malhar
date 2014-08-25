@@ -23,6 +23,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 import org.apache.hadoop.fs.Path;
+import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -97,9 +98,9 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     if(context != null)
     {
-      context.setCounters((pendingFiles.size() + 
-                          failedFiles.size() + 
-                          unfinishedFiles.size()));
+      context.setCounters((Integer) (pendingFiles.size() + 
+                                    failedFiles.size() + 
+                                    unfinishedFiles.size()));
     }
   }
   
@@ -156,6 +157,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   @Override
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
+    Log.debug("Processing stats");
     int statsListSize = batchedOperatorStats.getLastWindowedStats().size();
     int fileCount = (Integer) batchedOperatorStats.getLastWindowedStats().get(statsListSize - 1).counters;
     
