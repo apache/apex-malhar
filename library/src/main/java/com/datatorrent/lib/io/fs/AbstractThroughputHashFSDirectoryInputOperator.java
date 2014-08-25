@@ -49,7 +49,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   
   public void setup(OperatorContext context)
   {
-    setup(context);
+    super.setup(context);
     this.context = context;
   }
     
