@@ -46,12 +46,17 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
 
   private long repartitionInterval = 5L * 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
-  private OperatorContext context;
+  private transient FileCount fileCounter;
   
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    this.context = context;
+    
+    if(context != null)
+    {
+      fileCounter = new FileCount();
+      context.setCounters(fileCounter);
+    }
   }
     
   public void setRepartitionInterval(long repartitionInterval)
@@ -95,13 +100,9 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   public void endWindow()
   {
     super.endWindow();
-    
-    if(context != null)
-    {
-      context.setCounters((Integer) (pendingFiles.size() + 
-                                    failedFiles.size() + 
-                                    unfinishedFiles.size()));
-    }
+    fileCounter.fileCount = failedFiles.size() + 
+                            pendingFiles.size() +
+                            unfinishedFiles.size();
   }
   
   @Override
@@ -154,7 +155,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   {
     Log.debug("Processing stats");
     int statsListSize = batchedOperatorStats.getLastWindowedStats().size();
-    int fileCount = (Integer) batchedOperatorStats.getLastWindowedStats().get(statsListSize - 1).counters;
+    int fileCount = ((FileCount) batchedOperatorStats.getLastWindowedStats().get(statsListSize - 1).counters).fileCount;
     
     int newOperatorCount = computeOperatorCount(fileCount);
     
@@ -174,13 +175,18 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   @Override
   public Object aggregate(Collection<?> countersList)
   {
-    Integer totalPendingFileCount = 0;
+    FileCount fileCount = new FileCount();
     
     for(Object count: countersList)
     {
-      totalPendingFileCount += (Integer) count;
+      fileCount.fileCount += ((FileCount) count).fileCount;
     }
     
-    return totalPendingFileCount;
+    return fileCount;
+  }
+  
+  private static class FileCount
+  {
+    public int fileCount = 0;
   }
 }
