@@ -89,7 +89,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     for(Partition<AbstractFSDirectoryInputOperator<T>> partition : partitions) {
       AbstractFSDirectoryInputOperator<T> oper = partition.getPartitionedInstance();
-      totalFileCount += oper.processedFiles.size();
       totalFileCount += oper.failedFiles.size();
       totalFileCount += oper.pendingFiles.size();
       totalFileCount += oper.unfinishedFiles.size();
