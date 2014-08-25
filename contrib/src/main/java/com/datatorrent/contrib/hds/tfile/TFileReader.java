@@ -16,7 +16,6 @@
 package com.datatorrent.contrib.hds.tfile;
 
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.TreeMap;
 
 import com.datatorrent.common.util.Slice;
@@ -26,7 +25,6 @@ import org.apache.hadoop.io.file.tfile.TFile.Reader;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner.Entry;
 
-import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
 
 public class TFileReader implements HDSFileReader
@@ -100,7 +98,7 @@ public class TFileReader implements HDSFileReader
 
     value.buffer = rval;
     value.offset = 0;
-    value.length = en.getKeyLength();
+    value.length = en.getValueLength();
 
     scanner.advance();
     return true;
