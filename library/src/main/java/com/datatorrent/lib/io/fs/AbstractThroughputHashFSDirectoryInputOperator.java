@@ -82,6 +82,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   @Override
   protected int computedNewPartitionCount(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
+    LOG.debug("Called throughput.");
     boolean isInitialParitition = partitions.iterator().next().getStats() == null;
     int newOperatorCount;
     int totalFileCount = 0;
