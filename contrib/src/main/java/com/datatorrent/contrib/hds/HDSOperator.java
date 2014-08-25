@@ -74,7 +74,7 @@ public class HDSOperator extends HDSBucketManager implements Partitioner<HDSOper
     {
       int length = t.getKey().length;
       int hash = 0;
-      for (int i = 0; i < 4 && i < length; i++) {
+      for (int i = 8; i < 12 && i < length; i++) {
         hash = hash << 8;
         hash += t.getKey()[i];
       }

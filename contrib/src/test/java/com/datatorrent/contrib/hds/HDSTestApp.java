@@ -40,8 +40,8 @@ public class HDSTestApp implements StreamingApplication
 {
   private static final String DATA0 = "data0";
   private static final String DATA1 = "data1";
-  private static byte[] KEY0 = ByteBuffer.allocate(16).putLong(0x00000000).putLong(0).array();
-  private static byte[] KEY1 = ByteBuffer.allocate(16).putLong(0xffffffff).putLong(0).array();
+  private static byte[] KEY0 = ByteBuffer.allocate(16).putLong(0).putLong(0x00000000).array();
+  private static byte[] KEY1 = ByteBuffer.allocate(16).putLong(0).putLong(0xffffffff).array();
 
   public static class Generator extends BaseOperator implements InputOperator
   {
@@ -60,7 +60,6 @@ public class HDSTestApp implements StreamingApplication
   {
     Generator generator = dag.addOperator("Generator", new Generator());
     HDSOperator store = dag.addOperator("Store", new HDSOperator());
-    store.setKeyComparator(new HDSTest.SequenceComparator());
     store.setFileStore(new MockFileAccess());
     dag.addStream("Generator2Store", generator.output, store.data);
   }

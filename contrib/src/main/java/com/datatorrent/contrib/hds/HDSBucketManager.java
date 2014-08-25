@@ -48,6 +48,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Manager for buckets. Can be sub-classed as operator or used in composite pattern.
@@ -67,7 +68,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   private transient Exception writerError;
 
   @NotNull
-  private Comparator<Slice> keyComparator;
+  private Comparator<Slice> keyComparator = new DefaultKeyComparator();
   @Valid
   @NotNull
   private HDSFileAccess fileStore;
@@ -498,6 +499,20 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
   }
 
+  /**
+   * Default key comparator that performs lexicographical comparison of the byte arrays.
+   */
+  public static class DefaultKeyComparator implements Comparator<Slice>
+  {
+    private final transient Comparator<byte[]> cmp = UnsignedBytes.lexicographicalComparator();
+
+    @Override
+    public int compare(Slice o1, Slice o2)
+    {
+      return cmp.compare(o1.buffer, o2.buffer);
+    }
+  }
+
   public static class BucketFileMeta
   {
     /**
@@ -552,6 +567,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     private long bucketKey;
     // keys that were modified and written to WAL, but not yet persisted
     private HashMap<Slice, byte[]> writeCache = Maps.newHashMap();
+    // keys that are being flushed to data files
     private HashMap<Slice, byte[]> frozenWriteCache = Maps.newHashMap();
     private final HashMap<String, HDSFileReader> readerCache = Maps.newHashMap();
     private BucketWalWriter wal;

@@ -23,15 +23,14 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.TreeMap;
 
-import com.datatorrent.common.util.Slice;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.contrib.hds.hfile.HFileImpl;
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
+import com.datatorrent.contrib.hds.hfile.HFileImpl;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -47,7 +46,7 @@ public class HDSTest
 
   private long getBucketKey(Slice key)
   {
-    return readLong(key.buffer, 0);
+    return readLong(key.buffer, 8);
   }
 
   public static class SequenceComparator implements Comparator<Slice>
@@ -55,11 +54,11 @@ public class HDSTest
     @Override
     public int compare(Slice o1, Slice o2)
     {
-      long t1 = readLong(o1.buffer, o1.offset + 8);
-      long t2 = readLong(o2.buffer, o2.offset + 8);
+      long t1 = readLong(o1.buffer, o1.offset);
+      long t2 = readLong(o2.buffer, o2.offset);
       if (t1 == t2) {
-        long b1 = readLong(o1.buffer, o1.offset);
-        long b2 = readLong(o2.buffer, o2.offset);
+        long b1 = readLong(o1.buffer, o1.offset + 8);
+        long b2 = readLong(o2.buffer, o2.offset + 8);
         return b1 == b2 ? 0 : (b1 > b2) ? 1 : -1;
       } else {
         return t1 > t2 ? 1 : -1;
@@ -69,7 +68,7 @@ public class HDSTest
 
   public static Slice newKey(long bucketId, long sequenceId)
   {
-    byte[] bytes = ByteBuffer.allocate(16).putLong(bucketId).putLong(sequenceId).array();
+    byte[] bytes = ByteBuffer.allocate(16).putLong(sequenceId).putLong(bucketId).array();
     return new Slice(bytes, 0, bytes.length);
   }
 
@@ -106,7 +105,7 @@ public class HDSTest
 
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(bfs);
-    hds.setKeyComparator(new SequenceComparator());
+    //hds.setKeyComparator(new SequenceComparator());
     hds.setMaxFileSize(1); // limit to single entry per file
     hds.setFlushSize(0); // flush after every key
 
@@ -191,7 +190,6 @@ public class HDSTest
     fa.setBasePath(file.getAbsolutePath());
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(fa);
-    hds.setKeyComparator(new SequenceComparator());
     hds.setFlushSize(0); // flush after every key
 
     hds.setup(null);
@@ -220,7 +218,7 @@ public class HDSTest
     testHDSFileAccess(bfs);
   }
 
-
+/*
   @Test
   public void testTFileHDSFileAccess() throws Exception
   {
@@ -236,7 +234,7 @@ public class HDSTest
     HFileImpl hfi = new HFileImpl();
     testHDSFileAccess(hfi);
   }
-
+*/
 }
 
 
