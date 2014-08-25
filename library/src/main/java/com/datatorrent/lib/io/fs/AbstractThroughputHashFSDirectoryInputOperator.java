@@ -19,6 +19,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -185,7 +186,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     return fileCount;
   }
   
-  private static class FileCount
+  static class FileCount implements Serializable
   {
     public int fileCount = 0;
   }
