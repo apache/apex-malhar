@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.hds;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -26,15 +25,13 @@ import java.util.TreeMap;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
-import com.datatorrent.contrib.hds.hfile.HFileImpl;
-import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.MoreExecutors;
 
@@ -43,6 +40,8 @@ import com.google.common.util.concurrent.MoreExecutors;
  */
 public class HDSTest
 {
+  @Rule
+  public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
 
   private long getBucketKey(Slice key)
   {
@@ -93,7 +92,7 @@ public class HDSTest
 
   private void testHDSFileAccess(HDSFileAccessFSImpl bfs) throws Exception
   {
-    File file = new File("target/hds");
+    File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
     final long BUCKET1 = 1L;
 
@@ -164,23 +163,10 @@ public class HDSTest
 
   }
 
-  public static <T> T clone(Kryo kryo, T src) throws IOException
-  {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    Output output = new Output(bos);
-    kryo.writeObject(output, src);
-    output.close();
-    Input input = new Input(bos.toByteArray());
-    @SuppressWarnings("unchecked")
-    Class<T> clazz = (Class<T>)src.getClass();
-    return kryo.readObject(input, clazz);
-  }
-
-
   @Test
   public void testGet() throws Exception
   {
-    File file = new File("target/hds-testGet");
+    File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
 
     Slice key = newKey(1, 1);
@@ -200,7 +186,7 @@ public class HDSTest
     hds.teardown();
 
     // get fresh instance w/o cached readers
-    hds = clone(new Kryo(), hds);
+    hds = TestUtils.clone(new Kryo(), hds);
     hds.setup(null);
     hds.beginWindow(1);
     byte[] val = hds.get(getBucketKey(key), key.buffer);
@@ -209,6 +195,14 @@ public class HDSTest
     Assert.assertArrayEquals("get", data.getBytes(), val);
   }
 
+  @Test
+  public void testRandomWrite() throws Exception
+  {
+    File file = new File(testInfo.getDir());
+    FileUtils.deleteDirectory(file);
+
+
+  }
 
   @Test
   public void testDefaultHDSFileAccess() throws Exception
