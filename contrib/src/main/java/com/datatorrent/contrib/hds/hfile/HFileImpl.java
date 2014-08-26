@@ -125,6 +125,10 @@ public class HFileImpl extends HDSFileAccessFSImpl {
     final Path filePath = getFilePath(bucketKey, fileName);
     final HFile.Reader reader = HFile.createReader(fs, filePath, cacheConfig, conf);
     final HFileScanner scanner = reader.getScanner(true, true, false);
+    
+    {
+      scanner.seekTo();
+    }
 
     return new HDSFileReader(){
 
@@ -148,8 +152,14 @@ public class HFileImpl extends HDSFileAccessFSImpl {
       }
 
       @Override
-      public boolean seek(byte[] key) throws IOException {
-        return (scanner.seekTo(key) == 0);
+      public boolean seek(byte[] key) throws IOException
+      {
+        if (scanner.seekTo(key) == 0){
+          return true;
+        } else {
+          scanner.next();
+          return false;
+        }
       }
 
       @Override
@@ -158,6 +168,10 @@ public class HFileImpl extends HDSFileAccessFSImpl {
         if (reader.getEntries() <= 0) return false;
 
         KeyValue kv = scanner.getKeyValue();
+        if (kv == null) {
+          // cursor is already at the end
+          return false;
+        }
         key.buffer = kv.getRowArray();
         key.offset = kv.getKeyOffset();
         key.length = kv.getKeyLength();
