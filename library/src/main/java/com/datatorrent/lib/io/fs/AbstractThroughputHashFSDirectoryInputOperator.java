@@ -190,9 +190,9 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       fileCount += fileCountMap.get(operatorId);
     }
     
-    LOG.debug("FileCounter {}", fileCount);
-    
     int newOperatorCount = computeOperatorCount(fileCount);
+    
+    LOG.debug("FileCounter file count {} new operator count {}", fileCount, newOperatorCount);
     
     if(newOperatorCount == currentPartitions ||
       System.currentTimeMillis() - repartitionInterval <= lastRepartition)
