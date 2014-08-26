@@ -76,6 +76,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private int retryCount = 0;
   private int maxRetryCount = 5;
   transient protected int skipCount = 0;
+  protected transient int operatorId;
+  protected Map<Integer, Integer> fileCountMap = new HashMap<Integer, Integer>();
 
   /**
    * Class representing failed file, When read fails on a file in middle, then the file is
@@ -201,6 +203,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void setup(OperatorContext context)
   {
+    operatorId = context.getId();
+    
     try {
       filePath = new Path(directory);
       configuration = new Configuration();
@@ -396,6 +400,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
     lastRepartition = System.currentTimeMillis();
+    
+    for(Partition<AbstractFSDirectoryInputOperator<T>> partition: partitions)
+    {
+      fileCountMap.remove(partition.getPartitionedInstance().operatorId);
+    }
     
     int totalCount = computedNewPartitionCount(partitions, incrementalCapacity);
 

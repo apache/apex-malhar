@@ -50,7 +50,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   private int preferredMaxPendingFilesPerOperator = 10;
   private transient FileCount fileCounter;
   private transient OperatorContext context;
-  private Map<Integer, Integer> fileCountMap = new HashMap<Integer, Integer>();
   
   public void setup(OperatorContext context)
   {
@@ -170,11 +169,28 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       }
     }
     
-    LOG.debug("FileCounter {} {}",+ batchedOperatorStats.getOperatorId(), fileCount);
+    Response response = new Response();
+    
+    fileCountMap.put(operatorId, fileCount);
+    
+    if(fileCountMap.keySet().size() != currentPartitions)
+    {
+      response.repartitionRequired = false;
+      return response;
+    }
+    
+    fileCount = 0;
+    
+    Set<Integer> operatorIds = fileCountMap.keySet();
+    
+    for(Integer operatorId: operatorIds)
+    {
+      fileCount += fileCountMap.get(operatorId);
+    }
+    
+    LOG.debug("FileCounter {}", fileCount);
     
     int newOperatorCount = computeOperatorCount(fileCount);
-    
-    Response response = new Response();
     
     if(newOperatorCount == currentPartitions ||
       System.currentTimeMillis() - repartitionInterval <= lastRepartition)
