@@ -119,7 +119,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       
       if (oper.currentFile != null) {
         totalFileCount++;
-      }  
+      }
     }
     
     if(!isInitialParitition) {
@@ -155,10 +155,8 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   {
     int fileCount = 0;
     
-    for(OperatorStats operatorStats: batchedOperatorStats.getLastWindowedStats())
-    {
-      if(operatorStats.counters != null)
-      {
+    for(OperatorStats operatorStats: batchedOperatorStats.getLastWindowedStats()) {
+      if(operatorStats.counters != null) {
         fileCount = (Integer) operatorStats.counters;
       }
     }
