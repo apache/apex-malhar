@@ -404,11 +404,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     
     int totalCount = computedNewPartitionCount(partitions, incrementalCapacity);
 
+    LOG.debug("Computed new partitions: {}", totalCount);
+    
     if (totalCount == partitions.size()) {
       return partitions;
     }
-    
-    LOG.debug("Running definePartitions.");
     
     for(Partition<AbstractFSDirectoryInputOperator<T>> partition: partitions)
     {
