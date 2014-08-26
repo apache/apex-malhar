@@ -15,17 +15,11 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
-import java.io.Serializable;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import org.apache.hadoop.fs.Path;
-import org.mortbay.log.Log;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,17 +92,13 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   {
     super.endWindow();
     
-    if(context != null)
-    {
+    if(context != null) {
       int fileCount = failedFiles.size() + 
                       pendingFiles.size() +
                       unfinishedFiles.size();
-      
-      if(currentFile != null)
-      {
+      if(currentFile != null) {
         fileCount++;
       }
-      
       context.setCounters(fileCount);
     }
   }
@@ -150,13 +140,10 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     if(totalFileCount % preferredMaxPendingFilesPerOperator > 0) {
       newOperatorCount++;
     }
-
     if(newOperatorCount > partitionCount) {
       newOperatorCount = partitionCount;
     }
-    
-    if(newOperatorCount == 0)
-    {
+    if(newOperatorCount == 0) {
       newOperatorCount = 1;
     }
 
@@ -166,7 +153,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   @Override
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
-    Log.debug("Processing stats");
     int fileCount = 0;
     
     for(OperatorStats operatorStats: batchedOperatorStats.getLastWindowedStats())
@@ -180,13 +166,11 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     Response response = new Response();
     
     if(fileCount > 0 ||
-      System.currentTimeMillis() - repartitionInterval <= lastRepartition)
-    {
+      System.currentTimeMillis() - repartitionInterval <= lastRepartition) {
       response.repartitionRequired = false;
       return response;
     }
     
-    LOG.debug("Repartition true.");
     response.repartitionRequired = true;
     return response;
   }
