@@ -30,7 +30,6 @@ import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  * Read input from Twitter. <p> <br>
@@ -45,7 +44,6 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {StatusListener.class, Status.class})
 public class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener
 {
   public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>();

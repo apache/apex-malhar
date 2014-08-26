@@ -53,7 +53,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.demos.mroperator.ReporterImpl.ReporterType;
 
 /**
@@ -63,7 +62,6 @@ import com.datatorrent.demos.mroperator.ReporterImpl.ReporterType;
  *
  * @since 0.9.0
  */
-@ShipContainingJars(classes = { org.apache.hadoop.mapred.Reporter.class })
 @SuppressWarnings({ "unchecked"})
 public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator implements Partitioner<MapOperator<K1, V1, K2, V2>>
 {

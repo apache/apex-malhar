@@ -24,7 +24,6 @@ import kafka.producer.ProducerConfig;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
 import com.yammer.metrics.Metrics;
@@ -39,7 +38,6 @@ import java.util.Map;
  *
  * @since 0.9.3
  */
-@ShipContainingJars(classes={kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.ScalaObject.class, Metrics.class})
 public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>
 {
 

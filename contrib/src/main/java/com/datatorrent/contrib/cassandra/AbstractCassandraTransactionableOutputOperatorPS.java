@@ -20,7 +20,6 @@ import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.api.Context;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 import javax.annotation.Nonnull;
 

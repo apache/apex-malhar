@@ -17,7 +17,6 @@ package com.datatorrent.contrib.mqtt;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import javax.validation.constraints.NotNull;
 import org.fusesource.mqtt.client.BlockingConnection;
 import org.fusesource.mqtt.client.MQTT;
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.9.3
  */
-@ShipContainingJars(classes = {MQTT.class})
 public class AbstractMqttOutputOperator extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMqttOutputOperator.class);

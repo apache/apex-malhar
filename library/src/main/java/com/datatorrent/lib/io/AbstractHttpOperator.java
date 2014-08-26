@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  * Abstract http operator that creates client at setup and destroy at teardown
@@ -35,7 +34,6 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * @param <T>
  * @since 1.0.2
  */
-@ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
 public abstract class AbstractHttpOperator<T> extends BaseOperator
 {
   @NotNull

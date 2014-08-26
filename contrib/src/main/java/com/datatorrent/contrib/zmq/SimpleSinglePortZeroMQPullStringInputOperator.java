@@ -17,7 +17,6 @@ package com.datatorrent.contrib.zmq;
 
 import org.zeromq.ZMQ;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.contrib.zmq.SimpleSinglePortZeroMQPullInputOperator;
 
 /**
@@ -25,7 +24,6 @@ import com.datatorrent.contrib.zmq.SimpleSinglePortZeroMQPullInputOperator;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes={ZMQ.class})
 public class SimpleSinglePortZeroMQPullStringInputOperator extends SimpleSinglePortZeroMQPullInputOperator<String>
 {
   private SimpleSinglePortZeroMQPullStringInputOperator()

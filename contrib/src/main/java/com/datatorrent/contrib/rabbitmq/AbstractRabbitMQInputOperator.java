@@ -19,7 +19,6 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -60,7 +59,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes={com.rabbitmq.client.ConnectionFactory.class})
 public abstract class AbstractRabbitMQInputOperator<T>
     implements InputOperator,
 ActivationListener<OperatorContext>
