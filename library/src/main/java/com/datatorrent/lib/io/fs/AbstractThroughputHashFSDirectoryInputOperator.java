@@ -17,6 +17,7 @@ package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
+import java.lang.annotation.ElementType;
 import java.util.Collection;
 import java.util.Set;
 import org.apache.hadoop.fs.Path;
@@ -128,20 +129,20 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   }
 
   @Override
+  @SuppressWarnings("null")
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
-    FileCounters totalFileCounters = new FileCounters();
+    FileCounters fileCounters = null;
     
     for(OperatorStats operatorStats: batchedOperatorStats.getLastWindowedStats()) {
       if(operatorStats.counters != null) {
-        FileCounters fileCounters = (FileCounters) operatorStats.counters;
-        totalFileCounters.addL(fileCounters);
+        fileCounters = (FileCounters) operatorStats.counters;
       }
     }
     
     Response response = new Response();
     
-    if(totalFileCounters.getPendingFiles() > 0L ||
+    if(fileCounters.getPendingFiles() > 0L ||
       System.currentTimeMillis() - repartitionInterval <= lastRepartition) {
       response.repartitionRequired = false;
       return response;

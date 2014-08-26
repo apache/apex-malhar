@@ -492,7 +492,19 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     currentFile = null;
     inputStream = null;
   }
-
+ 
+  @Override
+  public Object aggregate(Collection<?> countersList)
+  {
+    FileCounters totalFileCounters = new FileCounters();
+    
+    for(Object fileCounters: countersList) {
+      totalFileCounters.addL((FileCounters) fileCounters);
+    }
+    
+    return totalFileCounters;
+  }
+  
   @Override
   public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
