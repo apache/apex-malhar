@@ -382,13 +382,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     @Override
     public int compareTo(Exchange<T> tExchange)
     {
-      if (window < tExchange.window) {
-        return -1;
-      }
-      if (window == tExchange.window) {
-        return 0;
-      }
-      return 1;
+      return (int) (window - tExchange.window);
     }
   }
 
