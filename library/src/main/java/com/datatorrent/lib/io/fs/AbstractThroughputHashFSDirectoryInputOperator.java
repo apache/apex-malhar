@@ -42,14 +42,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
 
   private long repartitionInterval = 5L * 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
-  private transient OperatorContext context;
   
-  public void setup(OperatorContext context)
-  {
-    super.setup(context);
-    this.context = context;
-  }
-    
   public void setRepartitionInterval(long repartitionInterval)
   {
     this.repartitionInterval = repartitionInterval;
@@ -85,22 +78,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     }
 
     super.emitTuples();
-  }
-  
-  @Override
-  public void endWindow()
-  {
-    super.endWindow();
-    
-    if(context != null) {
-      int fileCount = failedFiles.size() + 
-                      pendingFiles.size() +
-                      unfinishedFiles.size();
-      if(currentFile != null) {
-        fileCount++;
-      }
-      context.setCounters(fileCount);
-    }
   }
   
   @Override
@@ -153,17 +130,18 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   @Override
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
   {
-    int fileCount = 0;
+    FileCounters totalFileCounters = new FileCounters();
     
     for(OperatorStats operatorStats: batchedOperatorStats.getLastWindowedStats()) {
       if(operatorStats.counters != null) {
-        fileCount = (Integer) operatorStats.counters;
+        FileCounters fileCounters = (FileCounters) operatorStats.counters;
+        totalFileCounters.addL(fileCounters);
       }
     }
     
     Response response = new Response();
     
-    if(fileCount > 0 ||
+    if(totalFileCounters.getPendingFiles() > 0L ||
       System.currentTimeMillis() - repartitionInterval <= lastRepartition) {
       response.repartitionRequired = false;
       return response;

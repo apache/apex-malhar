@@ -15,13 +15,13 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.minlog.Log;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.FileNotFoundException;
@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.2
  */
-public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperator, Partitioner<AbstractFSDirectoryInputOperator<T>>, StatsListener
+public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperator, Partitioner<AbstractFSDirectoryInputOperator<T>>, StatsListener, CountersAggregator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFSDirectoryInputOperator.class);
 
@@ -77,6 +77,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private int retryCount = 0;
   private int maxRetryCount = 5;
   transient protected int skipCount = 0;
+  private transient OperatorContext context;
+  private long numberOfFailures = 0;
+  private long numberOfRetries = 0;
 
   /**
    * Class representing failed file, When read fails on a file in middle, then the file is
@@ -116,6 +119,81 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           ", retryCount=" + retryCount +
           ", lastFailedTime=" + lastFailedTime +
           ']';
+    }
+  }
+  
+  public static class FileCounters
+  {
+    int processedFiles;
+    long pendingFiles;
+    long numberOfFailures;
+    long numberOfRetries;
+    
+    public FileCounters()
+    {
+      this.processedFiles = 0;
+      this.pendingFiles = 0;
+      this.numberOfFailures = 0;
+      this.numberOfRetries = 0;
+    }
+    
+    public FileCounters(int processedFiles,
+                        long pendingFiles,
+                        long numberOfFailures,
+                        long numberOfRetries)
+    {
+      setProcessedFiles(processedFiles);
+      setPendingFiles(pendingFiles);
+      setNumberOfFailures(numberOfFailures);
+      setNumberOfRetries(numberOfRetries);
+    }
+    
+    public void addL(FileCounters fileCounters)
+    {
+      this.processedFiles += fileCounters.getProcessedFiles();
+      this.pendingFiles += fileCounters.getPendingFiles();
+      this.numberOfFailures += fileCounters.getNumberOfFailures();
+      this.numberOfRetries += fileCounters.getNumberOfRetries();
+    }
+    
+    private void setProcessedFiles(int processedFiles)
+    {
+      this.processedFiles = processedFiles;
+    }
+    
+    public int getProcessedFiles()
+    {
+      return processedFiles;
+    }
+    
+    private void setPendingFiles(long pendingFiles)
+    {
+      this.pendingFiles = pendingFiles;
+    }
+    
+    public long getPendingFiles()
+    {
+      return pendingFiles;
+    }
+    
+    private void setNumberOfFailures(long numberOfFailures)
+    {
+      this.numberOfFailures = numberOfFailures;
+    }
+    
+    public long getNumberOfFailures()
+    {
+      return numberOfFailures;
+    }
+    
+    private void setNumberOfRetries(long numberOfRetries)
+    {
+      this.numberOfRetries = numberOfRetries;
+    }
+    
+    public long getNumberOfRetries()
+    {
+      return numberOfRetries;
     }
   }
   
@@ -202,6 +280,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void setup(OperatorContext context)
   {
+    this.context = context;
+    
     try {
       filePath = new Path(directory);
       configuration = new Configuration();
@@ -224,6 +304,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       LOG.info("Read offset={} records in setup time={}", offset, System.currentTimeMillis() - startTime);
     }
     catch (IOException ex) {
+      numberOfFailures++;
       if(maxRetryCount <= 0) {
         throw new RuntimeException(ex);
       }
@@ -248,6 +329,21 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void endWindow()
   {
+    if(context != null) {
+      int processedFileCount = processedFiles.size();
+      long pendingFileCount = ((long) pendingFiles.size()) + 
+                              ((long) failedFiles.size()) + 
+                              ((long) unfinishedFiles.size());
+
+      if(currentFile != null) {
+        pendingFileCount++;
+      }
+
+      context.setCounters(new FileCounters(processedFileCount,
+                                           pendingFileCount,
+                                           numberOfFailures,
+                                           numberOfRetries));
+    }
   }
 
   @Override
@@ -285,6 +381,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
             }
           }
         } catch (IOException ex) {
+          numberOfFailures++;
           if(maxRetryCount <= 0) {
             throw new RuntimeException(ex);
           }
@@ -316,6 +413,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
               skipCount--;
           }
         } catch (IOException e) {
+          numberOfFailures++;
           if(maxRetryCount <= 0) {
             throw new RuntimeException(e);
           }
@@ -341,6 +439,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       if (this.inputStream != null)
         this.inputStream.close();
     } catch(IOException e) {
+      numberOfFailures++;
       LOG.error("Could not close input stream on: " + currentFile);
     }
 
@@ -356,6 +455,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     if (ff.retryCount > maxRetryCount)
       return;
 
+    numberOfRetries++;
     LOG.info("adding to failed list path {} offset {} retry {}", ff.path, ff.offset, ff.retryCount);
     failedFiles.add(ff);
   }
