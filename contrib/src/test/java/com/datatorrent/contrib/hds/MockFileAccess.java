@@ -99,6 +99,7 @@ public class MockFileAccess extends HDSFileAccessFSImpl
           value.offset = 0;
           value.length = v.first.length;
           index.increment();
+          return true;
         }
         return false;
       }

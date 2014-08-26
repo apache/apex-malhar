@@ -32,6 +32,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.hadoop.io.WritableComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,6 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.primitives.UnsignedBytes;
 
 /**
  * Manager for buckets. Can be sub-classed as operator or used in composite pattern.
@@ -504,12 +504,10 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
    */
   public static class DefaultKeyComparator implements Comparator<Slice>
   {
-    private final transient Comparator<byte[]> cmp = UnsignedBytes.lexicographicalComparator();
-
     @Override
     public int compare(Slice o1, Slice o2)
     {
-      return cmp.compare(o1.buffer, o2.buffer);
+      return WritableComparator.compareBytes(o1.buffer, o1.offset, o1.length, o2.buffer, o2.offset, o2.length);
     }
   }
 

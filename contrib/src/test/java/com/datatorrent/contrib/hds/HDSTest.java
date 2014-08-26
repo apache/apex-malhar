@@ -201,7 +201,36 @@ public class HDSTest
     File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
 
+    HDSFileAccessFSImpl fa = new MockFileAccess();
+    fa.setBasePath(file.getAbsolutePath());
+    HDSBucketManager hds = new HDSBucketManager();
+    hds.setFileStore(fa);
+    hds.setFlushIntervalCount(0); // flush after every window
 
+    long BUCKETKEY = 1;
+
+    hds.setup(null);
+    hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
+
+    hds.beginWindow(1);
+    long[] seqArray = { 5L, 1L, 3L, 4L, 2L };
+    for (long seq : seqArray) {
+      Slice key = newKey(BUCKETKEY, seq);
+      hds.put(BUCKETKEY, key.buffer, ("data"+seq).getBytes());
+    }
+    hds.endWindow();
+
+    hds.teardown();
+
+    HDSFileReader reader = fa.getReader(BUCKETKEY, "1-0");
+    Slice key = new Slice(null, 0, 0);
+    Slice value = new Slice(null, 0, 0);
+    long seq = 0;
+    while (reader.next(key, value)) {
+      seq++;
+      Assert.assertArrayEquals(("data"+seq).getBytes(), value.buffer);
+    }
+    Assert.assertEquals(5, seq);
   }
 
   @Test
