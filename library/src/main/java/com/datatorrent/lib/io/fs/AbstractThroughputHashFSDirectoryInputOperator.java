@@ -48,7 +48,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
 
   private long repartitionInterval = 5L * 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
-  private transient FileCount fileCounter;
   private transient OperatorContext context;
   
   public void setup(OperatorContext context)
@@ -101,12 +100,16 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     if(context != null)
     {
-      fileCounter = new FileCount();
+      int fileCount = failedFiles.size() + 
+                      pendingFiles.size() +
+                      unfinishedFiles.size();
       
-      fileCounter.fileCount = failedFiles.size() + 
-                            pendingFiles.size() +
-                            unfinishedFiles.size();
-      context.setCounters(fileCounter);
+      if(currentFile != null)
+      {
+        fileCount++;
+      }
+      
+      context.setCounters(fileCount);
     }
   }
   
@@ -170,36 +173,13 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     {
       if(operatorStats.counters != null)
       {
-        fileCount = ((FileCount) operatorStats.counters).fileCount;
+        fileCount = (Integer) operatorStats.counters;
       }
     }
     
     Response response = new Response();
     
-    fileCountMap.put(batchedOperatorStats.getOperatorId(), fileCount);
-    
-    LOG.debug("FileCounter {} {}", fileCountMap.keySet().size(), currentPartitions);
-    
-    if(fileCountMap.keySet().size() != currentPartitions)
-    {
-      response.repartitionRequired = false;
-      return response;
-    }
-    
-    fileCount = 0;
-    
-    Set<Integer> operatorIds = fileCountMap.keySet();
-    
-    for(Integer operatorId: operatorIds)
-    {
-      fileCount += fileCountMap.get(operatorId);
-    }
-    
-    int newOperatorCount = computeOperatorCount(fileCount);
-    
-    LOG.debug("FileCounter file count {} new operator count {}", fileCount, newOperatorCount);
-    
-    if(newOperatorCount == currentPartitions ||
+    if(fileCount > 0 ||
       System.currentTimeMillis() - repartitionInterval <= lastRepartition)
     {
       response.repartitionRequired = false;
@@ -209,10 +189,5 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     LOG.debug("Repartition true.");
     response.repartitionRequired = true;
     return response;
-  }
-  
-  static class FileCount implements Serializable
-  {
-    public int fileCount = 0;
   }
 }
