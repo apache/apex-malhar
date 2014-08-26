@@ -171,7 +171,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     Response response = new Response();
     
-    fileCountMap.put(operatorId, fileCount);
+    fileCountMap.put(batchedOperatorStats.getOperatorId(), fileCount);
     
     LOG.debug("FileCounter {} {}", fileCountMap.keySet().size(), currentPartitions);
     
