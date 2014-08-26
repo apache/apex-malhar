@@ -201,6 +201,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
       return response;
     }
     
+    Log.debug("Repartition true.");
     response.repartitionRequired = true;
     return response;
   }
