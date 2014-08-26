@@ -35,10 +35,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
+import com.google.common.collect.*;
 
 import com.datatorrent.common.util.NameableThreadFactory;
 
@@ -302,7 +299,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     logger.debug("start fetch bucket {}", bucketIdx);
 
     long startTime = System.currentTimeMillis();
-    List<Future<Map<Object, T>>> futures = Lists.newArrayList();
     Set<Long> windows = bucketPositions[bucketIdx].keySet();
     int numWindows = windows.size();
     if (maximumPoolSize == -1 && interpolatedPoolSize < numWindows && interpolatedPoolSize < hardLimitOnPoolSize) {
@@ -317,11 +313,25 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       threadPoolExecutor.setMaximumPoolSize(interpolatedPoolSize);
     }
 
+    List<Future<Exchange<T>>> futures = Lists.newArrayList();
     for (long window : windows) {
       futures.add(threadPoolExecutor.submit(new BucketFetchCallable(bucketIdx, window)));
     }
-    for (Future<Map<Object, T>> future : futures) {
-      bucketData.putAll(future.get());
+
+    if (writeEventKeysOnly) {
+      for (Future<Exchange<T>> future : futures) {
+        bucketData.putAll(future.get().data);
+      }
+    }
+    else {
+      List<Exchange<T>> holder = Lists.newArrayList();
+      for (Future<Exchange<T>> future : futures) {
+        holder.add(future.get());
+      }
+      Collections.sort(holder);
+      for (Exchange<T> hdata : holder) {
+        bucketData.putAll(hdata.data);
+      }
     }
     logger.debug("end fetch bucket {} num {} took {}", bucketIdx, bucketData.size(), System.currentTimeMillis() - startTime);
     return bucketData;
@@ -358,7 +368,31 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     return result;
   }
 
-  private class BucketFetchCallable implements Callable<Map<Object, T>>
+  private class Exchange<T> implements Comparable<Exchange<T>>
+  {
+    final long window;
+    final Map<Object, T> data;
+
+    Exchange(long window, Map<Object, T> data)
+    {
+      this.window = window;
+      this.data = data;
+    }
+
+    @Override
+    public int compareTo(Exchange<T> tExchange)
+    {
+      if (window < tExchange.window) {
+        return -1;
+      }
+      if (window == tExchange.window) {
+        return 0;
+      }
+      return 1;
+    }
+  }
+
+  private class BucketFetchCallable implements Callable<Exchange<T>>
   {
 
     final long window;
@@ -371,7 +405,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     }
 
     @Override
-    public Map<Object, T> call() throws IOException
+    public Exchange<T> call() throws IOException
     {
       Kryo readSerde = new Kryo();
       readSerde.setClassLoader(classLoader);
@@ -414,7 +448,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
       finally {
         fs.close();
       }
-      return bucketDataPerWindow;
+      return new Exchange<T>(window, bucketDataPerWindow);
     }
   }
 
