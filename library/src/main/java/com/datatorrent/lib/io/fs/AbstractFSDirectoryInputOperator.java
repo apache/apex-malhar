@@ -408,6 +408,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       return partitions;
     }
     
+    LOG.debug("Running definePartitions.");
+    
     for(Partition<AbstractFSDirectoryInputOperator<T>> partition: partitions)
     {
       Log.debug("Removing old operators from map.");
