@@ -386,6 +386,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     walMeta.tailOffset = bucket.wal.getCommittedLength();
 
     //TODO cleanup WAL files which are not needed
+    bucket.wal.cleanup(walMeta.tailId);
   }
 
   @Override
