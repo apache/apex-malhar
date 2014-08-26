@@ -17,14 +17,18 @@ package com.datatorrent.contrib.hds.hfile;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccessFSImpl;
+import com.google.common.base.Preconditions;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.KeyValue.KVComparator;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.hbase.io.hfile.*;
 
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.TreeMap;
 
 /**
@@ -34,7 +38,7 @@ import java.util.TreeMap;
 public class HFileImpl extends HDSFileAccessFSImpl {
 
   private transient CacheConfig cacheConfig = null;
-  private transient KeyValue.KVComparator comparator = null;
+  private Comparator<Slice> comparator = null;
   private transient HFileContext context = null;
 
   public CacheConfig getCacheConfig() {
@@ -48,14 +52,14 @@ public class HFileImpl extends HDSFileAccessFSImpl {
     this.cacheConfig = conf;
   }
 
-  public KeyValue.KVComparator getComparator() {
+  private KeyValue.KVComparator getKVComparator() {
     if (comparator == null) {
-      comparator = new KeyValue.RawBytesComparator();
+      return new KeyValue.RawBytesComparator();
     }
-    return comparator;
+    return new ComparatorAdaptor(comparator);
   }
 
-  public void setComparator(KeyValue.KVComparator comparator) {
+  public void setComparator(Comparator<Slice> comparator) {
     this.comparator = comparator;
   }
 
@@ -80,7 +84,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
   {
     final FSDataOutputStream fsdos = getOutputStream(bucketKey, fileName);
     final CacheConfig cacheConf = getCacheConfig();
-    final KeyValue.KVComparator comparator = getComparator();
+    final KeyValue.KVComparator comparator = getKVComparator();
     final HFileContext context = getContext();
     final Configuration conf = getConfiguration();
     final HFile.Writer writer = HFile.getWriterFactory(conf, cacheConf)
@@ -88,6 +92,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
             .withComparator(comparator)
             .withFileContext(context)
             .create();
+    ComparatorAdaptor.COMPARATOR.set(this.comparator);
 
     return new HDSFileWriter(){
 
@@ -111,6 +116,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
       public void close() throws IOException {
         writer.close();
         fsdos.close();
+        ComparatorAdaptor.COMPARATOR.remove();
       }
     };
 
@@ -119,13 +125,16 @@ public class HFileImpl extends HDSFileAccessFSImpl {
   @Override
   public HDSFileReader getReader(long bucketKey, String fileName) throws IOException
   {
+    ComparatorAdaptor.COMPARATOR.set(this.comparator);
     //FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
     final Configuration conf = getConfiguration();
     final CacheConfig cacheConfig = getCacheConfig();
     final Path filePath = getFilePath(bucketKey, fileName);
     final HFile.Reader reader = HFile.createReader(fs, filePath, cacheConfig, conf);
     final HFileScanner scanner = reader.getScanner(true, true, false);
-    
+    // comparator was set
+    ComparatorAdaptor.COMPARATOR.remove();
+
     {
       scanner.seekTo();
     }
@@ -190,5 +199,36 @@ public class HFileImpl extends HDSFileAccessFSImpl {
     };
   }
 
+  public static class ComparatorAdaptor extends KVComparator
+  {
+    final Slice s1 = new Slice(null, 0, 0);
+    final Slice s2 = new Slice(null, 0, 0);
+    final Comparator<Slice> cmp;
+
+    static final ThreadLocal<Comparator<Slice>> COMPARATOR = new ThreadLocal<Comparator<Slice>>();
+
+    public ComparatorAdaptor()
+    {
+      cmp = COMPARATOR.get();
+      Preconditions.checkNotNull(cmp, "Key comparator must be set as ThreadLocal.");
+    }
+
+    public ComparatorAdaptor(Comparator<Slice> cmp)
+    {
+      this.cmp = cmp;
+    }
+
+    @Override
+    public int compare(byte[] l, int loff, int llen, byte[] r, int roff, int rlen)
+    {
+      s1.buffer = l;
+      s1.offset = loff;
+      s1.length = llen;
+      s2.buffer = l;
+      s2.offset = loff;
+      s2.length = rlen;
+      return cmp.compare(s1,  s2);
+    }
+  }
 
 }
