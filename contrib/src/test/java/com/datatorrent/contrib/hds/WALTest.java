@@ -139,8 +139,8 @@ public class WALTest
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(bfs);
     hds.setKeyComparator(new HDSTest.SequenceComparator());
-    hds.setFlushIntervalCount(1);
-    hds.setFlushSize(3);
+    hds.setFlushIntervalCount(5);
+    hds.setFlushSize(1000);
     hds.setMaxWalFileSize(1024);
     hds.setup(null);
     hds.writeExecutor = MoreExecutors.sameThreadExecutor();
@@ -241,6 +241,64 @@ public class WALTest
     // Number of tuples = tuples recovered (2) + tuple being added (1).
     Assert.assertEquals("Number of tuples in store ", 3, newOperator.unflushedData(1));
   }
+
+
+
+  /**
+   * Test WAL cleanup functionality, WAL file is deleted, once data
+   * from it is written to data files.
+   * @throws IOException
+   */
+  @Test
+  public void testOldWalCleanup() throws IOException
+  {
+    File file = new File("target/hds");
+    FileUtils.deleteDirectory(file);
+    final long BUCKET1 = 1L;
+
+    HDSFileAccessFSImpl bfs = new MockFileAccess();
+    bfs.setBasePath(file.getAbsolutePath());
+    bfs.init();
+
+    HDSBucketManager hds = new HDSBucketManager();
+    hds.setFileStore(bfs);
+    hds.setKeyComparator(new HDSTest.SequenceComparator());
+    // Flush at every window.
+    hds.setFlushIntervalCount(2);
+    hds.setFlushSize(1000);
+    hds.setMaxWalFileSize(4000);
+    hds.setup(null);
+    hds.writeExecutor = MoreExecutors.sameThreadExecutor();
+
+    hds.beginWindow(1);
+    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.endWindow();
+
+    hds.beginWindow(2);
+    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    // log file will roll at this point because of limit on WAL file size,
+    hds.endWindow();
+
+    File wal0 = new File(file.getAbsoluteFile().toString() + "/1/_WAL-0");
+    Assert.assertEquals("New Wal-0 created ", wal0.exists(), true);
+
+    hds.beginWindow(3);
+    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.endWindow();
+    // Data till this point is committed to disk, and old WAL file WAL-0
+    // is deleted, as all data from that file is committed.
+    hds.forceWal();
+
+    wal0 = new File(file.getAbsoluteFile().toString() + "/1/_WAL-0");
+    Assert.assertEquals("New Wal-0 created ", wal0.exists(), false);
+
+    File wal1 = new File(file.getAbsoluteFile().toString() + "/1/_WAL-1");
+    Assert.assertEquals("New Wal-1 created ", wal1.exists(), true);
+  }
+
 
   private static final Logger logger = LoggerFactory.getLogger(WALTest.class);
 
