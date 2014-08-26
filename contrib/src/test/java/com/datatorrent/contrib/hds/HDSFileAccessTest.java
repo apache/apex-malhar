@@ -37,10 +37,10 @@ import com.datatorrent.contrib.hds.tfile.TFileImpl;
 
 /**
  * Unit Test for HFile/TFile Writer/Reader With/Without compression.
- *  
+ *
  * Use Writer, Reader to verify each other.
- * 
- * To test reader, there is test cases for both sequential read and random read(existing/non-existing key) 
+ *
+ * To test reader, there is test cases for both sequential read and random read(existing/non-existing key)
  *
  */
 public class HDSFileAccessTest
@@ -49,7 +49,7 @@ public class HDSFileAccessTest
 
   private String[] values;
 
-  private String testFileDir = "target/hdsio";
+  private final String testFileDir = "target/hdsio";
 
   @Before
   public void setupData()
@@ -64,7 +64,7 @@ public class HDSFileAccessTest
   {
     testTFile(TFile.COMPRESSION_NONE);
   }
-  
+
   @Test
   public void testTFileGZ() throws IOException
   {
@@ -76,25 +76,26 @@ public class HDSFileAccessTest
   {
     testHFile(Algorithm.NONE);
   }
-  
+
   @Test
   public void testHFileGZ() throws IOException
   {
     testHFile(Algorithm.GZ);
   }
-  
+
   private void testTFile(String compression) throws IOException{
-    
+
     TFileImpl timpl = new TFileImpl();
     timpl.setCompressName(compression);
     writeFile(0, timpl, "TFileUnit" + compression);
     testSeqRead(0, timpl, "TFileUnit" + compression);
     testRandomRead(0, timpl, "TFileUnit" + compression);
-    
+
   }
-  
+
   private void testHFile(Algorithm calgo) throws IOException{
     HFileImpl himpl = new HFileImpl();
+    himpl.setComparator(new HDSBucketManager.DefaultKeyComparator());
     HFileContext context = new HFileContext();
     context.setCompression(calgo);
     himpl.setContext(context);
