@@ -132,8 +132,6 @@ public class HFileImpl extends HDSFileAccessFSImpl {
     final Path filePath = getFilePath(bucketKey, fileName);
     final HFile.Reader reader = HFile.createReader(fs, filePath, cacheConfig, conf);
     final HFileScanner scanner = reader.getScanner(true, true, false);
-    // comparator was set
-    ComparatorAdaptor.COMPARATOR.remove();
 
     {
       scanner.seekTo();
@@ -194,6 +192,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
       @Override
       public void close() throws IOException {
         reader.close();
+        ComparatorAdaptor.COMPARATOR.remove();
       }
 
     };
@@ -224,11 +223,24 @@ public class HFileImpl extends HDSFileAccessFSImpl {
       s1.buffer = l;
       s1.offset = loff;
       s1.length = llen;
-      s2.buffer = l;
-      s2.offset = loff;
+      s2.buffer = r;
+      s2.offset = roff;
       s2.length = rlen;
       return cmp.compare(s1,  s2);
     }
+
+    @Override
+    public int compareFlatKey(byte[] left, int loffset, int llength, byte[] right, int roffset, int rlength)
+    {
+      s1.buffer = left;
+      s1.offset = loffset;
+      s1.length = llength;
+      s2.buffer = right;
+      s2.offset = roffset;
+      s2.length = rlength;
+      return cmp.compare(s1,  s2);
+    }
+
   }
 
 }
