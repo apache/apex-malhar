@@ -401,15 +401,15 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   {
     lastRepartition = System.currentTimeMillis();
     
-    for(Partition<AbstractFSDirectoryInputOperator<T>> partition: partitions)
-    {
-      fileCountMap.remove(partition.getPartitionedInstance().operatorId);
-    }
-    
     int totalCount = computedNewPartitionCount(partitions, incrementalCapacity);
 
     if (totalCount == partitions.size()) {
       return partitions;
+    }
+    
+    for(Partition<AbstractFSDirectoryInputOperator<T>> partition: partitions)
+    {
+      fileCountMap.remove(partition.getPartitionedInstance().operatorId);
     }
 
     /*

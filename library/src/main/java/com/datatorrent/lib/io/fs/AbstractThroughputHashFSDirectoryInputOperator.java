@@ -173,6 +173,8 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     fileCountMap.put(operatorId, fileCount);
     
+    LOG.debug("FileCounter {} {}", fileCountMap.keySet().size(), currentPartitions);
+    
     if(fileCountMap.keySet().size() != currentPartitions)
     {
       response.repartitionRequired = false;
