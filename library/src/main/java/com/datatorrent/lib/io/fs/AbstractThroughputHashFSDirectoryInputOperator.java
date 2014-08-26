@@ -21,6 +21,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import java.io.Serializable;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.apache.hadoop.fs.Path;
@@ -41,7 +42,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @since 1.0.4
  */
-public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends AbstractFSDirectoryInputOperator<T> implements CountersAggregator
+public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends AbstractFSDirectoryInputOperator<T>
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractThroughputHashFSDirectoryInputOperator.class);
 
@@ -49,6 +50,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   private int preferredMaxPendingFilesPerOperator = 10;
   private transient FileCount fileCounter;
   private transient OperatorContext context;
+  private Map<Integer, Integer> fileCountMap = new HashMap<Integer, Integer>();
   
   public void setup(OperatorContext context)
   {
@@ -162,8 +164,13 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     for(OperatorStats operatorStats: batchedOperatorStats.getLastWindowedStats())
     {
-      fileCount += ((FileCount) operatorStats.counters).fileCount;
+      if(operatorStats.counters != null)
+      {
+        fileCount = ((FileCount) operatorStats.counters).fileCount;
+      }
     }
+    
+    LOG.debug("FileCounter {} {}",+ batchedOperatorStats.getOperatorId(), fileCount);
     
     int newOperatorCount = computeOperatorCount(fileCount);
     
@@ -178,19 +185,6 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     
     response.repartitionRequired = true;
     return response;
-  }
-  
-  @Override
-  public Object aggregate(Collection<?> countersList)
-  {
-    FileCount fileCount = new FileCount();
-    
-    for(Object count: countersList)
-    {
-      fileCount.fileCount += ((FileCount) count).fileCount;
-    }
-    
-    return fileCount;
   }
   
   static class FileCount implements Serializable
