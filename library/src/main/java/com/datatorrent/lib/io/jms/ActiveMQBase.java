@@ -27,7 +27,6 @@ import org.apache.commons.beanutils.BeanUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.google.common.collect.Maps;
 
 /**
@@ -64,7 +63,6 @@ import com.google.common.collect.Maps;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {javax.jms.Message.class, org.apache.activemq.ActiveMQConnectionFactory.class, javax.management.j2ee.statistics.Stats.class})
 public class ActiveMQBase
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQBase.class);

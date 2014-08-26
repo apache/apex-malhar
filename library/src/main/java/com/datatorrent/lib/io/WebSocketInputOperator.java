@@ -16,7 +16,6 @@
 package com.datatorrent.lib.io;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.ning.http.client.AsyncHttpClient;
 import com.ning.http.client.AsyncHttpClientConfigBean;
 import com.ning.http.client.websocket.WebSocket;
@@ -45,7 +44,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketInputOperator.class);

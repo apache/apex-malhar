@@ -17,7 +17,6 @@ package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.yammer.metrics.Metrics;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.ProducerConfig;
@@ -51,7 +50,6 @@ import java.util.Properties;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes={kafka.javaapi.producer.Producer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class, StringUtils.class, Metrics.class})
 public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
 {
   @SuppressWarnings("unused")

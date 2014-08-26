@@ -21,7 +21,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.util.KeyValPair;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,7 +39,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {au.com.bytecode.opencsv.CSVReader.class})
 public class StockTickInput implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(StockTickInput.class);

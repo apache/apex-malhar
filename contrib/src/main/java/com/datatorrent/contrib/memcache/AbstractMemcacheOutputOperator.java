@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.memcache;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 import net.spy.memcached.MemcachedClient;
 
@@ -35,7 +34,6 @@ import net.spy.memcached.MemcachedClient;
  * @param <T> The tuple type.
  * @since 0.9.3
  */
-@ShipContainingJars(classes = {MemcachedClient.class})
 public abstract class AbstractMemcacheOutputOperator<T>
         extends AbstractStoreOutputOperator<T, MemcacheStore>
 {
