@@ -151,6 +151,11 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
     if(newOperatorCount > partitionCount) {
       newOperatorCount = partitionCount;
     }
+    
+    if(newOperatorCount == 0)
+    {
+      newOperatorCount = 1;
+    }
 
     return newOperatorCount;
   }
