@@ -122,7 +122,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
   }
   
-  public static class FileCounters
+  public static class FileCounters implements Serializable
   {
     int processedFiles;
     long pendingFiles;
