@@ -30,6 +30,8 @@ import org.junit.Test;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
+import com.datatorrent.contrib.hds.hfile.HFileImpl;
+import com.datatorrent.contrib.hds.tfile.TFileImpl;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Maps;
@@ -241,8 +243,8 @@ public class HDSTest
     testHDSFileAccess(bfs);
   }
 
-/*
-  @Test
+
+  //@Test
   public void testTFileHDSFileAccess() throws Exception
   {
     //Create TFileImpl
@@ -255,9 +257,10 @@ public class HDSTest
   {
     //Create HfileImpl
     HFileImpl hfi = new HFileImpl();
+    hfi.setComparator(new HDSBucketManager.DefaultKeyComparator());
     testHDSFileAccess(hfi);
   }
-*/
+
 }
 
 
