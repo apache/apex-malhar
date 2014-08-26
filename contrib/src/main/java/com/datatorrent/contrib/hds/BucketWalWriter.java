@@ -135,60 +135,43 @@ public class BucketWalWriter implements Closeable
     this.bucketKey = bucketKey;
   }
 
+  public BucketWalWriter(HDSFileAccess bfs, long bucketKey, long fileId, long offset) {
+    this.bfs = bfs;
+    this.bucketKey = bucketKey;
+    this.walFileId = fileId;
+    this.committedLength = offset;
+    logger.info("current {}  offset {} ", walFileId, committedLength);
+
+  }
+
   /**
    * Run recovery for bucket, by adding valid data from WAL to
    * store.
    */
-  public void runRecovery(HDS.BucketManager store, long id) throws IOException
+  public void runRecovery(HDS.BucketManager store, long fileId, long offset) throws IOException
   {
-
-    logger.debug("Recovering last processed LSN is " + id);
-    if (store == null)
+    if (walFileId == 0 && committedLength == 0)
       return;
 
-    /* If store committed id is greater than WAL id, then all data present in WAL
-       is already processed, remote WAL files in that case, and reset metadata.
-     */
-    if (committedLsn < id) {
-      cleanupAllWal();
-      return;
-    }
-
-
-    /* Find WAL file id and offset where this window is located */
-    WalFileMeta startWalFile = null;
-    long offset = 0;
-    for(Map.Entry<Long, WalFileMeta> fmetaEntry : files.entrySet()) {
-      WalFileMeta fmeta =  fmetaEntry.getValue();
-      if (fmeta.walSequenceStart <= id && fmeta.walSequenceEnd >= id)
-      {
-          // This file contains, sequence id
-          startWalFile = fmeta;
-          long key = startWalFile.windowIndex.ceilingKey(id);
-          offset = startWalFile.windowIndex.get(key).end;
-          break;
-      }
-    }
-
-    if (startWalFile == null) {
-      logger.warn("Sequence id not found in metadata, bucket {} lsn {} committedLSN {}", bucketKey, id, committedLsn);
-      return;
-    }
+    restoreLastWal();
 
     /* Reconstruct Store cache state, from WAL files */
-    long walid = startWalFile.walId;
+    long walid = fileId;
     logger.info("Recovering starting from file " + walid + " offset " + offset + " till " + walFileId);
-    for (long i = walid; i < walFileId; i++) {
+    for (long i = fileId; i <= walFileId; i++) {
       WALReader wReader = new HDFSWalReader(bfs, bucketKey, WAL_FILE_PREFIX + i);
       wReader.seek(offset);
       offset = 0;
 
       while (wReader.advance()) {
+        logger.info("Reading tuple");
         MutableKeyValue o = wReader.get();
         store.put(bucketKey, o.getKey(), o.getValue());
       }
       wReader.close();
     }
+
+    walFileId++;
   }
 
   /**
@@ -199,27 +182,16 @@ public class BucketWalWriter implements Closeable
    */
   private void restoreLastWal() throws IOException
   {
-    /* Get the metadata for last WAL for this bucket */
-    Map.Entry<Long, WalFileMeta> lastEntry = files.lastEntry();
-    if (lastEntry == null)
+    if (committedLength == 0)
       return;
-    WalFileMeta fileMeta = lastEntry.getValue();
-
-    /* No WAL entries */
-    if (fileMeta == null)
-      return;
-
-    /* no data to commit */
-    if (fileMeta.committedBytes == 0)
-      return;
-
-    DataInputStream in = bfs.getInputStream(bucketKey, WAL_FILE_PREFIX + fileMeta.walId);
-    DataOutputStream out = bfs.getOutputStream(bucketKey, WAL_FILE_PREFIX + fileMeta.walId + "-truncate");
-    IOUtils.copyLarge(in, out, 0, fileMeta.committedBytes);
+    logger.info("recovery wal {} till offset {}", walFileId, committedLength);
+    DataInputStream in = bfs.getInputStream(bucketKey, WAL_FILE_PREFIX + walFileId);
+    DataOutputStream out = bfs.getOutputStream(bucketKey, WAL_FILE_PREFIX + walFileId + "-truncate");
+    IOUtils.copyLarge(in, out, 0, committedLength);
     in.close();
     out.close();
-    bfs.rename(bucketKey, WAL_FILE_PREFIX + fileMeta.walId + "-truncate", WAL_FILE_PREFIX + fileMeta.walId);
-
+    bfs.rename(bucketKey, WAL_FILE_PREFIX + walFileId + "-truncate", WAL_FILE_PREFIX + walFileId);
+    logger.info("Done copying file");
     //TODO: Remove new WAL files created after last checkpoint (i.e fileId > walFileId).
   }
 
@@ -343,17 +315,6 @@ public class BucketWalWriter implements Closeable
   }
 
 
-  void init() throws IOException
-  {
-    /* Restore last WAL file */
-    restoreLastWal();
-
-    writer = null;
-
-    /* Use new file for fresh restart */
-    walFileId++;
-  }
-
   public long getCommittedLSN() {
     return committedLsn;
   }
@@ -363,6 +324,16 @@ public class BucketWalWriter implements Closeable
   {
     if (writer != null)
       writer.close();
+  }
+
+  public long getWalFileId()
+  {
+    return walFileId;
+  }
+
+  public long getCommittedLength()
+  {
+    return committedLength;
   }
 
   public void setFileStore(HDSFileAccess bfs)

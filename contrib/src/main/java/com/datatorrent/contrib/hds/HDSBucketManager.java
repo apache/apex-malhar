@@ -77,6 +77,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   private int flushSize = 1000000;
   private int flushIntervalCount = 30;
 
+  private HashMap<Long, WalMeta> walMeta = Maps.newHashMap();
 
   public HDSFileAccess getFileStore()
   {
@@ -269,20 +270,18 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void put(long bucketKey, byte[] key, byte[] value) throws IOException
   {
     Bucket bucket = getBucket(bucketKey);
-    if (bucket.wal == null || bucket.recoveryNeeded) {
+    if (bucket.wal == null) {
       //TODO: put recovery in separate thread.
-      bucket.recoveryNeeded = false;
+      WalMeta meta = getWalMeta(bucketKey);
+
       bucket.recoveryInProgress = true;
       if (bucket.wal == null) {
-        // Initiate a new WAL for bucket, and run recovery if needed.
-        bucket.wal = new BucketWalWriter(fileStore, bucketKey);
+        bucket.wal = new BucketWalWriter(fileStore, bucketKey, meta.fileId, meta.offset);
         bucket.wal.setMaxWalFileSize(maxWalFileSize);
-        bucket.wal.init();
       }
 
       // Get last committed LSN from store, and use that for recovery.
-      BucketMeta meta = getMeta(bucketKey);
-      bucket.wal.runRecovery(this, meta.committedLSN);
+      bucket.wal.runRecovery(this, meta.tailId, meta.tailOffset);
       bucket.recoveryInProgress = false;
     }
     /* Do not update WAL, if tuple being added is coming through recovery */
@@ -382,6 +381,10 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       }
     }
 
+    WalMeta walMeta = getWalMeta(bucket.bucketKey);
+    walMeta.tailId = bucket.wal.getWalFileId();
+    walMeta.tailOffset = bucket.wal.getCommittedLength();
+
     //TODO cleanup WAL files which are not needed
   }
 
@@ -390,15 +393,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     fileStore.init();
     writeExecutor = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory(this.getClass().getSimpleName()+"-Writer"));
-    // TODO: this should happen on-demand, when the bucket is opened
-    for(Bucket bucket : buckets.values())
-    {
-      bucket.recoveryNeeded = true;
-      if (bucket.wal != null) {
-        bucket.wal.setBucketKey(bucket.bucketKey);
-        bucket.wal.setFileStore(fileStore);
-      }
-    }
   }
 
   @Override
@@ -425,8 +419,12 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     for (final Bucket bucket : this.buckets.values()) {
       try {
-        if (bucket.wal != null)
+        if (bucket.wal != null) {
           bucket.wal.endWindow(windowId);
+          WalMeta walMeta = getWalMeta(bucket.bucketKey);
+          walMeta.fileId = bucket.wal.getWalFileId();
+          walMeta.offset = bucket.wal.getCommittedLength();
+        }
       } catch (IOException e) {
         throw new RuntimeException("Failed to flush WAL", e);
       }
@@ -459,6 +457,16 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         }
       }
     }
+  }
+
+  private WalMeta getWalMeta(long bucketKey)
+  {
+    WalMeta meta = walMeta.get(bucketKey);
+    if (meta == null) {
+      meta = new WalMeta();
+      walMeta.put(bucketKey, meta);
+    }
+    return meta;
   }
 
   @Override
@@ -593,4 +601,15 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
   private static final Logger LOG = LoggerFactory.getLogger(HDSBucketManager.class);
 
+  /* Holds current file Id for WAL and current offset for WAL */
+  private static class WalMeta
+  {
+    /* The current WAL file and offset */
+    long fileId;
+    long offset;
+
+    /* Flushed WAL file and offset, data till this point is flushed to disk */
+    public long tailId;
+    public long tailOffset;
+  }
 }
