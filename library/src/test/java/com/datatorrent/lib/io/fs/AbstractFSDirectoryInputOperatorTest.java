@@ -279,4 +279,174 @@ public class AbstractFSDirectoryInputOperatorTest
     Assert.assertEquals("All tuples read ", 12, sink.collectedTuples.size());
   }
 
+  /**
+   * Test for testing dynamic partitioning.
+   * - Create 4 file with 3 records each.
+   * - Create a single partition, and read some records, populating pending files in operator.
+   * - Split it in two operators
+   * - Try to emit the remaining records.
+   */
+  @Test
+  public void testPartitioningStateTransferInterrupted() throws Exception
+  {
+    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
+    oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
+    oper.setScanIntervalMillis(0);
+    oper.setEmitBatchSize(2);
+
+    TestFSDirectoryInputOperator initialState = new Kryo().copy(oper);
+
+    // Create 4 files with 3 records each.
+    Path path = new Path(new File(testMeta.dir).getAbsolutePath());
+    FileContext.getLocalFSFileContext().delete(path, true);
+    int file = 0;
+    for (file=0; file<4; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
+    }
+
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    oper.output.setSink(sink);
+
+    int wid = 0;
+
+    //Read some records
+    oper.setup(null);
+    for(int i = 0; i < 5; i++) {
+      oper.beginWindow(wid);
+      oper.emitTuples();
+      oper.endWindow();
+      wid++;
+    }
+
+    Assert.assertEquals("Partial tuples read ", 6, sink.collectedTuples.size());
+
+    Assert.assertEquals(1, initialState.getCurrentPartitions());
+    initialState.setPartitionCount(2);
+    StatsListener.Response rsp = initialState.processStats(null);
+    Assert.assertEquals(true, rsp.repartitionRequired);
+
+    // Create partitions of the operator.
+    List<Partition<AbstractFSDirectoryInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
+    // incremental capacity controlled partitionCount property
+    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
+    Assert.assertEquals(2, newPartitions.size());
+    Assert.assertEquals(1, initialState.getCurrentPartitions());
+    Map<Integer, Partition<AbstractFSDirectoryInputOperator<String>>> m = Maps.newHashMap();
+    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+      m.put(m.size(), p);
+    }
+    initialState.partitioned(m);
+    Assert.assertEquals(2, initialState.getCurrentPartitions());
+
+    /* Collect all operators in a list */
+    List<AbstractFSDirectoryInputOperator<String>> opers = Lists.newArrayList();
+    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+      TestFSDirectoryInputOperator oi = (TestFSDirectoryInputOperator)p.getPartitionedInstance();
+      oi.setup(null);
+      oi.output.setSink(sink);
+      opers.add(oi);
+    }
+
+    sink.clear();
+    for(int i = 0; i < 10; i++) {
+      for(AbstractFSDirectoryInputOperator<String> o : opers) {
+        o.beginWindow(wid);
+        o.emitTuples();
+        o.endWindow();
+      }
+      wid++;
+    }
+
+    Assert.assertEquals("Remaining tuples read ", 6, sink.collectedTuples.size());
+  }
+
+  /**
+   * Test for testing dynamic partitioning interrupting ongoing read.
+   * - Create 4 file with 3 records each.
+   * - Create a single partition, and read some records, populating pending files in operator.
+   * - Split it in two operators
+   * - Try to emit the remaining records.
+   */
+  @Test
+  public void testPartitioningStateTransferFailure() throws Exception
+  {
+    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
+    oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
+    oper.setScanIntervalMillis(0);
+    oper.setEmitBatchSize(2);
+
+    TestFSDirectoryInputOperator initialState = new Kryo().copy(oper);
+
+    // Create 4 files with 3 records each.
+    Path path = new Path(new File(testMeta.dir).getAbsolutePath());
+    FileContext.getLocalFSFileContext().delete(path, true);
+    int file = 0;
+    for (file=0; file<4; file++) {
+      FileUtils.write(new File(testMeta.dir, "partition00"+file), "a\nb\nc\n");
+    }
+
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    oper.output.setSink(sink);
+
+    int wid = 0;
+
+    //Read some records
+    oper.setup(null);
+    for(int i = 0; i < 5; i++) {
+      oper.beginWindow(wid);
+      oper.emitTuples();
+      oper.endWindow();
+      wid++;
+    }
+
+    Assert.assertEquals("Partial tuples read ", 6, sink.collectedTuples.size());
+
+    Assert.assertEquals(1, initialState.getCurrentPartitions());
+    initialState.setPartitionCount(2);
+    StatsListener.Response rsp = initialState.processStats(null);
+    Assert.assertEquals(true, rsp.repartitionRequired);
+
+    // Create partitions of the operator.
+    List<Partition<AbstractFSDirectoryInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
+    // incremental capacity controlled partitionCount property
+    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
+    Assert.assertEquals(2, newPartitions.size());
+    Assert.assertEquals(1, initialState.getCurrentPartitions());
+    Map<Integer, Partition<AbstractFSDirectoryInputOperator<String>>> m = Maps.newHashMap();
+    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+      m.put(m.size(), p);
+    }
+    initialState.partitioned(m);
+    Assert.assertEquals(2, initialState.getCurrentPartitions());
+
+    /* Collect all operators in a list */
+    List<AbstractFSDirectoryInputOperator<String>> opers = Lists.newArrayList();
+    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+      TestFSDirectoryInputOperator oi = (TestFSDirectoryInputOperator)p.getPartitionedInstance();
+      oi.setup(null);
+      oi.output.setSink(sink);
+      opers.add(oi);
+    }
+
+    sink.clear();
+    for(int i = 0; i < 10; i++) {
+      for(AbstractFSDirectoryInputOperator<String> o : opers) {
+        o.beginWindow(wid);
+        o.emitTuples();
+        o.endWindow();
+      }
+      wid++;
+    }
+
+    // No record should be read.
+    Assert.assertEquals("Remaining tuples read ", 6, sink.collectedTuples.size());
+  }
 }
