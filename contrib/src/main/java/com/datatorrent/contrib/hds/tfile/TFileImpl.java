@@ -20,11 +20,22 @@ import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.io.file.tfile.DTFile;
 import org.apache.hadoop.io.file.tfile.TFile;
+import org.apache.hadoop.io.file.tfile.TFile.Reader;
+import org.apache.hadoop.io.file.tfile.TFile.Writer;
 
 import com.datatorrent.contrib.hds.HDSFileAccessFSImpl;
 
-public class TFileImpl extends HDSFileAccessFSImpl
+/**
+ * A TFile wrapper with HDSFileAccess API
+ * <ul>
+ * <li>{@link TFileImpl.DefaultTFileImpl} return default TFile {@link Reader} and {@link Writer} for IO operations</li> 
+ * <li>{@link TFileImpl.DTFileImpl} return DTFile {@link org.apache.hadoop.io.file.tfile.DTFile.Reader}(which is faster than default TFile reader) and {@link Writer} for IO operations</li> 
+ * </ul>
+ *
+ */
+public abstract class TFileImpl extends HDSFileAccessFSImpl
 {
   private int minBlockSize = 64 * 1024;
 
@@ -38,15 +49,6 @@ public class TFileImpl extends HDSFileAccessFSImpl
   
   private int outputBufferSize = 256 * 1024;
 
-  @Override
-  public HDSFileReader getReader(long bucketKey, String fileName) throws IOException
-  {
-    FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
-    long fileLength = getFileSize(bucketKey, fileName);
-    setupConfig(fs.getConf());
-    return new TFileReader(fsdis, fileLength, fs.getConf());
-  }
-  
   
   private void setupConfig(Configuration conf)
   {
@@ -133,6 +135,41 @@ public class TFileImpl extends HDSFileAccessFSImpl
   public void setOutputBufferSize(int outputBufferSize)
   {
     this.outputBufferSize = outputBufferSize;
+  }
+  
+  /**
+   * Return {@link TFile} {@link Reader}
+   *
+   */
+  public static class DefaultTFileImpl extends TFileImpl{
+    
+    @Override
+    public HDSFileReader getReader(long bucketKey, String fileName) throws IOException
+    {
+      FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
+      long fileLength = getFileSize(bucketKey, fileName);
+      super.setupConfig(fs.getConf());
+      return new TFileReader(fsdis, fileLength, fs.getConf());
+    }
+    
+  }
+  
+  
+  /**
+   * Return {@link DTFile} {@link org.apache.hadoop.io.file.tfile.DTFile.Reader}
+   *
+   */
+  public static class DTFileImpl extends TFileImpl {
+    
+    @Override
+    public HDSFileReader getReader(long bucketKey, String fileName) throws IOException
+    {
+      FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
+      long fileLength = getFileSize(bucketKey, fileName);
+      super.setupConfig(fs.getConf());
+      return new DTFileReader(fsdis, fileLength, fs.getConf());
+    }
+    
   }
 
 

@@ -70,6 +70,18 @@ public class HDSFileAccessTest
   {
     testTFile(TFile.COMPRESSION_GZ);
   }
+  
+  @Test
+  public void testDTFile() throws IOException
+  {
+    testDTFile(TFile.COMPRESSION_NONE);
+  }
+
+  @Test
+  public void testDTFileGZ() throws IOException
+  {
+    testDTFile(TFile.COMPRESSION_GZ);
+  }
 
   @Test
   public void testHFile() throws IOException
@@ -85,7 +97,17 @@ public class HDSFileAccessTest
 
   private void testTFile(String compression) throws IOException{
 
-    TFileImpl timpl = new TFileImpl();
+    TFileImpl timpl = new TFileImpl.DefaultTFileImpl();
+    timpl.setCompressName(compression);
+    writeFile(0, timpl, "TFileUnit" + compression);
+    testSeqRead(0, timpl, "TFileUnit" + compression);
+    testRandomRead(0, timpl, "TFileUnit" + compression);
+
+  }
+  
+  private void testDTFile(String compression) throws IOException{
+
+    TFileImpl timpl = new TFileImpl.DTFileImpl();
     timpl.setCompressName(compression);
     writeFile(0, timpl, "TFileUnit" + compression);
     testSeqRead(0, timpl, "TFileUnit" + compression);

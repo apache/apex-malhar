@@ -244,11 +244,19 @@ public class HDSTest
   }
 
 
-  //@Test
-  public void testTFileHDSFileAccess() throws Exception
+  @Test
+  public void testDefaultTFileHDSFileAccess() throws Exception
   {
-    //Create TFileImpl
-    TFileImpl timpl = new TFileImpl();
+    //Create DefaultTFileImpl
+    TFileImpl timpl = new TFileImpl.DefaultTFileImpl();
+    testHDSFileAccess(timpl);
+  }
+  
+  @Test
+  public void testDTFileHDSFileAccess() throws Exception
+  {
+    //Create DefaultTFileImpl
+    TFileImpl timpl = new TFileImpl.DTFileImpl();
     testHDSFileAccess(timpl);
   }
 
