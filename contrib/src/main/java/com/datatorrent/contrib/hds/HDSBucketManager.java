@@ -210,13 +210,22 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     }
   }
 
-  private Bucket getBucket(long bucketKey)
+  private Bucket getBucket(long bucketKey) throws IOException
   {
     Bucket bucket = this.buckets.get(bucketKey);
     if (bucket == null) {
       bucket = new Bucket();
       bucket.bucketKey = bucketKey;
       this.buckets.put(bucketKey, bucket);
+
+      WalMeta meta = getWalMeta(bucketKey);
+      bucket.recoveryInProgress = true;
+      bucket.wal = new BucketWalWriter(fileStore, bucketKey, meta.fileId, meta.offset);
+      bucket.wal.setMaxWalFileSize(maxWalFileSize);
+
+      // Get last committed LSN from store, and use that for recovery.
+      bucket.wal.runRecovery(this, meta.tailId, meta.tailOffset);
+      bucket.recoveryInProgress = false;
     }
     return bucket;
   }
@@ -271,18 +280,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     Bucket bucket = getBucket(bucketKey);
     if (bucket.wal == null) {
-      //TODO: put recovery in separate thread.
-      WalMeta meta = getWalMeta(bucketKey);
 
-      bucket.recoveryInProgress = true;
-      if (bucket.wal == null) {
-        bucket.wal = new BucketWalWriter(fileStore, bucketKey, meta.fileId, meta.offset);
-        bucket.wal.setMaxWalFileSize(maxWalFileSize);
-      }
-
-      // Get last committed LSN from store, and use that for recovery.
-      bucket.wal.runRecovery(this, meta.tailId, meta.tailOffset);
-      bucket.recoveryInProgress = false;
     }
     /* Do not update WAL, if tuple being added is coming through recovery */
     if (!bucket.recoveryInProgress) {
@@ -594,7 +592,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   }
 
   @VisibleForTesting
-  protected int unflushedData(long bucketKey)
+  protected int unflushedData(long bucketKey) throws IOException
   {
     Bucket b = getBucket(bucketKey);
     return b.writeCache.size();
