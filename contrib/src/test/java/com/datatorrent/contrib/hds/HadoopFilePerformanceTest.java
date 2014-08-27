@@ -24,11 +24,11 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.compress.Compression;
-import org.apache.hadoop.hbase.io.compress.Compression.Algorithm;
 import org.apache.hadoop.io.*;
 import org.apache.hadoop.hbase.io.hfile.*;
 import org.apache.hadoop.io.file.tfile.TFile;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner;
+import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner.Entry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -36,6 +36,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -65,10 +66,10 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class HadoopFilePerformanceTest {
-	private static final Logger logger = LoggerFactory.getLogger(HadoopFilePerformanceTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(HadoopFilePerformanceTest.class);
 
-	public HadoopFilePerformanceTest() {
-	}
+  public HadoopFilePerformanceTest() {
+  }
 
   private static int testSize = 10000;
   private static int valueSizeBytes = 1000;
@@ -84,7 +85,7 @@ public class HadoopFilePerformanceTest {
   }
 
   private enum Testfile {
-    MAPFILE, TFILE, TFILE_GZ, HFILE, HFILE_GZ, PLAIN;
+    MAPFILE, TFILE, TFILE_GZ, DTFILE, DTFILE_GZ, HFILE, HFILE_GZ, PLAIN;
     public String filename() {
       return HadoopFilePerformanceTest.class.getName() + ".test." + this.toString();
     }
@@ -254,12 +255,12 @@ public class HadoopFilePerformanceTest {
   }
 
 
-  public void writeTFile(Path file, Compression.Algorithm compression) throws Exception {
+  public void writeTFile(Path file, String cname) throws Exception {
 
 
     FSDataOutputStream fos = hdfs.create(file);
 
-    TFile.Writer writer = new TFile.Writer(fos, 64 * 1024, compression.getName(), "jclass:" + BytesWritable.Comparator.class.getName(), new Configuration());
+    TFile.Writer writer = new TFile.Writer(fos, 64 * 1024, cname, "jclass:" + BytesWritable.Comparator.class.getName(), new Configuration());
 
     for (int i=0; i < testSize; i++) {
       String k = getKey(i);
@@ -310,7 +311,7 @@ public class HadoopFilePerformanceTest {
     logger.info("Writing {} with {} key/value pairs", file, String.format("%,d", testSize));
 
     startTimer();
-    writeTFile(file, Compression.Algorithm.NONE);
+    writeTFile(file, TFile.COMPRESSION_NONE);
     logger.info ("Duration: {}",  stopTimer());
 
     Assert.assertTrue(hdfs.exists(file));
@@ -326,7 +327,7 @@ public class HadoopFilePerformanceTest {
     logger.info("Writing {} with {} key/value pairs", file, String.format("%,d", testSize));
 
     startTimer();
-    writeTFile(file, Compression.Algorithm.GZ);
+    writeTFile(file, TFile.COMPRESSION_GZ);
     logger.info ("Duration: {}",  stopTimer());
 
     Assert.assertTrue(hdfs.exists(file));
@@ -432,20 +433,19 @@ public class HadoopFilePerformanceTest {
   public void testTFileRead() throws Exception {
 
     Path file = Testfile.TFILE.filepath();
-    Compression.Algorithm compression = Compression.Algorithm.NONE;
     logger.info("Reading {} with {} key/value pairs", file, String.format("%,d", testSize));
-    writeTFile(file, compression);
+    writeTFile(file, TFile.COMPRESSION_NONE);
 
     startTimer();
-    readTFileSeq(file, compression);
+    readTFileSeq(file);
     logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
 
     startTimer();
-    readTFileSeqId(file, compression);
+    readTFileSeqId(file);
     logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
 
     startTimer();
-    readTFileRandom(file, compression);
+    readTFileRandom(file);
     logger.info("Duration for scanner.seekTo(key) RANDOM keys: {}", stopTimer());
 
   }
@@ -454,25 +454,24 @@ public class HadoopFilePerformanceTest {
   public void testTFileReadGZ() throws Exception {
 
     Path file = Testfile.TFILE_GZ.filepath();
-    Compression.Algorithm compression = Compression.Algorithm.GZ;
     logger.info("Reading {} with {} key/value pairs", file, String.format("%,d", testSize));
-    writeTFile(file, compression);
+    writeTFile(file, TFile.COMPRESSION_GZ);
 
     startTimer();
-    readTFileSeq(file, compression);
+    readTFileSeq(file);
     logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
 
     startTimer();
-    readTFileSeqId(file, compression);
+    readTFileSeqId(file);
     logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
 
     startTimer();
-    readTFileRandom(file, compression);
+    readTFileRandom(file);
     logger.info ("Duration for scanner.seekTo(key) RANDOM keys: {}",  stopTimer());
 
   }
   
-  private void readTFileRandom(Path file, Algorithm compression) throws IOException
+  private void readTFileRandom(Path file) throws IOException
   {
     
     Random random = new Random();
@@ -484,15 +483,16 @@ public class HadoopFilePerformanceTest {
     scanner.rewind();
     
     for(int i=0; i< testSize; i++){
-      scanner.rewind();
+//      scanner.rewind();
       scanner.seekTo(getKey(random.nextInt(testSize)).getBytes());
-      scanner.entry();
+//      Entry en = scanner.entry();
+//      en.get(new BytesWritable(new byte[en.getKeyLength()]), new BytesWritable(new byte[en.getValueLength()]));
     }
     reader.close();
 
 
   }
-  private void readTFileSeqId(Path file, Algorithm compression) throws IOException
+  private void readTFileSeqId(Path file) throws IOException
   {
     
     FSDataInputStream in = hdfs.open(file);
@@ -503,12 +503,13 @@ public class HadoopFilePerformanceTest {
     
     for(int i=0; i< testSize; i++){
       scanner.seekTo(getKey(i).getBytes());
-      scanner.entry();
+      Entry en = scanner.entry();
+      en.get(new BytesWritable(new byte[en.getKeyLength()]), new BytesWritable(new byte[en.getValueLength()]));
     }
     reader.close();
     
   }
-  private void readTFileSeq(Path file, Algorithm compression) throws IOException
+  private void readTFileSeq(Path file) throws IOException
   {
     
     FSDataInputStream in = hdfs.open(file);
@@ -517,13 +518,134 @@ public class HadoopFilePerformanceTest {
     Scanner scanner = reader.createScanner();
     scanner.rewind();
     do {
-      scanner.entry();
+      Entry en = scanner.entry();
+      en.get(new BytesWritable(new byte[en.getKeyLength()]), new BytesWritable(new byte[en.getValueLength()]));
     } while(scanner.advance() && !scanner.atEnd());
       
     reader.close();
     
   }
+  
+  
+  
+  
+  @Test
+  public void testDTFileRead() throws Exception {
 
+    Path file = Testfile.DTFILE.filepath();
+    logger.info("Reading {} with {} key/value pairs", file, String.format("%,d", testSize));
+    writeTFile(file, TFile.COMPRESSION_NONE);
+
+    startTimer();
+    readDTFileSeq(file);
+    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
+
+    startTimer();
+    readDTFileSeq(file);
+    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
+
+    startTimer();
+    readDTFileRandom(file);
+    logger.info("Duration for scanner.seekTo(key) RANDOM keys: {}", stopTimer());
+
+  }
+
+  @Test
+  public void testDTFileReadGZ() throws Exception {
+
+    Path file = Testfile.DTFILE_GZ.filepath();
+    logger.info("Reading {} with {} key/value pairs", file, String.format("%,d", testSize));
+    writeTFile(file, TFile.COMPRESSION_GZ);
+
+    startTimer();
+    readDTFileSeq(file);
+    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
+
+    startTimer();
+    readDTFileSeqId(file);
+    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
+
+    startTimer();
+    readDTFileRandom(file);
+    logger.info ("Duration for scanner.seekTo(key) RANDOM keys: {}",  stopTimer());
+
+  }
+  
+  
+  private void readDTFileSeq(Path file) throws IOException
+  {
+    
+    FSDataInputStream in = hdfs.open(file);
+    long size = hdfs.getContentSummary(file).getLength();
+    org.apache.hadoop.io.file.tfile.DTFile.Reader reader = new org.apache.hadoop.io.file.tfile.DTFile.Reader(in, size, new Configuration());
+    org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner scanner = reader.createScanner();
+    scanner.rewind();
+    do {
+      org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner.Entry en = scanner.entry();
+      en.getBlockBuffer();
+      en.getKeyOffset();
+      en.getKeyLength();
+      en.getValueLength();
+      en.getValueOffset();
+//    System.out.println(new String(Arrays.copyOfRange(en.getBlockBuffer(), en.getKeyOffset(), en.getKeyOffset() + en.getKeyLength())) + ", " + new String(Arrays.copyOfRange(en.getBlockBuffer(), en.getValueOffset(), en.getValueOffset() + en.getValueLength())));
+
+    } while(scanner.advance() && !scanner.atEnd());
+      
+    reader.close();
+    
+  }
+  
+  private void readDTFileRandom(Path file) throws IOException
+  {
+    
+    Random random = new Random();
+    
+    FSDataInputStream in = hdfs.open(file);
+    long size = hdfs.getContentSummary(file).getLength();
+    org.apache.hadoop.io.file.tfile.DTFile.Reader reader = new org.apache.hadoop.io.file.tfile.DTFile.Reader(in, size, new Configuration());
+    org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner scanner = reader.createScanner();
+    scanner.rewind();
+    
+    for(int i=0; i< testSize; i++){
+      scanner.seekTo(getKey(random.nextInt(testSize)).getBytes());
+      org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner.Entry en = scanner.entry();
+      en.getBlockBuffer();
+      en.getKeyOffset();
+      en.getKeyLength();
+      en.getValueLength();
+      en.getValueOffset();
+//      System.out.println(new String(Arrays.copyOfRange(en.getBlockBuffer(), en.getKeyOffset(), en.getKeyOffset() + en.getKeyLength())) + ", " + new String(Arrays.copyOfRange(en.getBlockBuffer(), en.getValueOffset(), en.getValueOffset() + en.getValueLength())));
+      
+    }
+    reader.close();
+
+
+  }
+  private void readDTFileSeqId(Path file) throws IOException
+  {
+    
+    FSDataInputStream in = hdfs.open(file);
+    long size = hdfs.getContentSummary(file).getLength();
+    org.apache.hadoop.io.file.tfile.DTFile.Reader reader = new org.apache.hadoop.io.file.tfile.DTFile.Reader(in, size, new Configuration());
+    org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner scanner = reader.createScanner();
+    scanner.rewind();
+    
+    for(int i=0; i< testSize; i++){
+      scanner.seekTo(getKey(i).getBytes());
+      org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner.Entry en = scanner.entry();
+      en.getBlockBuffer();
+      en.getKeyOffset();
+      en.getKeyLength();
+      en.getValueLength();
+      en.getValueOffset();
+//    System.out.println(new String(Arrays.copyOfRange(en.getBlockBuffer(), en.getKeyOffset(), en.getKeyOffset() + en.getKeyLength())) + ", " + new String(Arrays.copyOfRange(en.getBlockBuffer(), en.getValueOffset(), en.getValueOffset() + en.getValueLength())));
+
+    }
+    reader.close();
+    
+  }
+
+  
 
 
 }
