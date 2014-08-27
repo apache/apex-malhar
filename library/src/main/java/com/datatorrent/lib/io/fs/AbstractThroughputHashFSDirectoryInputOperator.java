@@ -67,16 +67,7 @@ public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends 
   @Override
   public void emitTuples()
   {
-    if(System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
-      Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
-
-      for(Path newPath : newPaths) {
-        String newPathString = newPath.toString();
-        pendingFiles.add(newPathString);
-        processedFiles.add(newPathString);
-      }
-      lastScanMillis = System.currentTimeMillis();
-    }
+    scanDirectory();
 
     super.emitTuples();
   }
