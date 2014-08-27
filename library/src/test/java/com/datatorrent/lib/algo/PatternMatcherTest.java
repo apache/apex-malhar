@@ -102,6 +102,10 @@ public class PatternMatcherTest
     patternMatcher.inputPort.process(1);
     patternMatcher.endWindow();
     Assert.assertEquals("The number of tuples emited is one", 1, sink.collectedTuples.size());
+    List<Integer> outputList = sink.collectedTuples;
+    for (int i = 0; i < outputList.size(); i++) {
+      Assert.assertEquals("Matching the output pattern with input pattern", inputPattern, outputList.get(i));
+    }
   }
 
   @Test
@@ -121,6 +125,10 @@ public class PatternMatcherTest
     patternMatcher.inputPort.process(0);
     patternMatcher.endWindow();
     Assert.assertEquals("The number of tuples emited are three", 3, sink.collectedTuples.size());
+    List<Integer> outputList = sink.collectedTuples;
+    for (int i = 0; i < outputList.size(); i++) {
+      Assert.assertEquals("Matching the output pattern with input pattern", inputPattern, outputList.get(i));
+    }
   }
 
   @Test
@@ -156,7 +164,7 @@ public class PatternMatcherTest
     Assert.assertEquals("The number of tuples emited ", 1 + patternSize / primeNumber, sink.collectedTuples.size());
     List<Integer> outputList = sink.collectedTuples;
     for (int i = 0; i < outputList.size(); i++) {
-      Assert.assertEquals("Matching the output pattern with input pattern",inputPattern,outputList.get(i));
+      Assert.assertEquals("Matching the output pattern with input pattern", inputPattern, outputList.get(i));
     }
   }
 
