@@ -380,10 +380,9 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     }
 
     WalMeta walMeta = getWalMeta(bucket.bucketKey);
-    walMeta.tailId = bucket.wal.getWalFileId();
-    walMeta.tailOffset = bucket.wal.getCommittedLength();
+    walMeta.tailId = bucket.tailId;
+    walMeta.tailOffset = bucket.tailOffset;
 
-    //TODO cleanup WAL files which are not needed
     bucket.wal.cleanup(walMeta.tailId);
   }
 
@@ -432,7 +431,11 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
         // ensure previous flush completed
         if (bucket.frozenWriteCache.isEmpty()) {
           bucket.frozenWriteCache = bucket.writeCache;
+
           bucket.committedLSN = windowId;
+          bucket.tailId = bucket.wal.getWalFileId();
+          bucket.tailOffset = bucket.wal.getCommittedLength();
+
           bucket.writeCache = Maps.newHashMap();
           LOG.debug("Flushing data to disks for bucket {} committedLSN {}", bucket.bucketKey, bucket.committedLSN);
           Runnable flushRunnable = new Runnable() {
@@ -578,7 +581,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     private BucketWalWriter wal;
     private long committedLSN;
     private boolean recoveryInProgress;
-    private boolean recoveryNeeded;
+    private long tailId;
+    private long tailOffset;
   }
 
 
