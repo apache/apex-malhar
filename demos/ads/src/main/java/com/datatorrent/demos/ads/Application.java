@@ -247,7 +247,7 @@ public class Application implements StreamingApplication
   {
 	
     configure(dag, conf);
-    dag.setAttribute(DAG.APPLICATION_NAME, "AdsApplication");
+    //dag.setAttribute(DAG.APPLICATION_NAME, "AdsApplication");
     EventGenerator viewGen =dag.addOperator("viewGen", EventGenerator.class);
     EventClassifier adviews = getAdViewsStampOperator("adviews", dag);
     FilteredEventClassifier<Double> insertclicks = getInsertClicksOperator("insertclicks", dag);

@@ -163,7 +163,7 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "TwitterTrendingHashtagsApplication");
+    //dag.setAttribute(DAG.APPLICATION_NAME, "TwitterTrendingHashtagsApplication");
 
     // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterSampleInput twitterFeed = new TwitterSampleInput();

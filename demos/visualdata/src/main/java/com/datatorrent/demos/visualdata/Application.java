@@ -31,17 +31,21 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
  */
 @ApplicationAnnotation(name="VisualDataDemo")
 public class Application implements StreamingApplication {
-    
+
   private final Locality locality = Locality.CONTAINER_LOCAL;
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     String appName = conf.get("appName");
-    if(appName == null){
+    if (appName != null) {
+      dag.setAttribute(DAG.APPLICATION_NAME, appName);
+    } else if (dag.getAttributes().get(DAG.APPLICATION_NAME) != null) {
+      appName = dag.getAttributes().get(DAG.APPLICATION_NAME);
+    }
+    else {
       appName = "VisualDataDemo";
     }
-    dag.setAttribute(DAG.APPLICATION_NAME, appName);
     int maxValue = 30000;
 
     RandomEventGenerator rand = dag.addOperator("random", new RandomEventGenerator());
@@ -76,10 +80,10 @@ public class Application implements StreamingApplication {
 
     // wire to progress bar chart gadget
     dag.addStream("ws_progress_data", demo.progressOutput, wooa.percentageInput.setTopic("app." + appName + ".progress")).setLocality(locality);
-    
+
     // wire to piechart gadget
     dag.addStream("ws_piechart_data", demo.pieChartOutput, wooa.pieChartInput.setTopic("app." + appName + ".piechart")).setLocality(locality);
-    
+
   }
 
 }

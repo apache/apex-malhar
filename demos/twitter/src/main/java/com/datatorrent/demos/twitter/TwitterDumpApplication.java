@@ -142,7 +142,7 @@ public class TwitterDumpApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAGContext.APPLICATION_NAME, "TweetsDump");
+    //dag.setAttribute(DAGContext.APPLICATION_NAME, "TweetsDump");
 
     TwitterSampleInput twitterStream = dag.addOperator("TweetSampler", new TwitterSampleInput());
 
