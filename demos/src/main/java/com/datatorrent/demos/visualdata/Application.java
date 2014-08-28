@@ -39,8 +39,13 @@ public class Application implements StreamingApplication {
   public void populateDAG(DAG dag, Configuration conf)
   {
     String appName = conf.get("appName");
-    if(appName != null){
+    if (appName != null) {
       dag.setAttribute(DAG.APPLICATION_NAME, appName);
+    } else if (dag.getAttributes().get(DAG.APPLICATION_NAME) != null) {
+      appName = dag.getAttributes().get(DAG.APPLICATION_NAME);
+    }
+    else {
+      appName = "VisualDataDemo";
     }
     int maxValue = 30000;
 
