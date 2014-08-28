@@ -37,26 +37,26 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name="ScalableAdsDemo")
 public class ScalableAdsApp implements StreamingApplication
 {
-  
+
   private int QUEUE_CAPACITY= 16*1024;
   public static final int WINDOW_SIZE_MILLIS = 1000;
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "ScalableAdsApplication");
+    //dag.setAttribute(DAG.APPLICATION_NAME, "ScalableAdsApplication");
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, WINDOW_SIZE_MILLIS);
-    
+
     int heartbeat_interval = conf.getInt(ScalableAdsApp.class.getName() + ".heartbeat_interval", 1000);
     int heartbeat_timeout = conf.getInt(ScalableAdsApp.class.getName() + ".heartbeat_timeout", 30000);
     int unifier_count = conf.getInt(ScalableAdsApp.class.getName() + ".unifier_count", 2);
-    
+
     dag.setAttribute(DAG.HEARTBEAT_INTERVAL_MILLIS, heartbeat_interval);
     dag.setAttribute(DAG.HEARTBEAT_TIMEOUT_MILLIS, heartbeat_timeout);
 
     int partitions = conf.getInt(ScalableAdsApp.class.getName() + ".partitions", 1);
     int partitions_agg = conf.getInt(ScalableAdsApp.class.getName() + ".partitions_agg", 1);
-    
+
     InputItemGenerator input = dag.addOperator("input", InputItemGenerator.class);
     dag.setOutputPortAttribute(input.outputPort, PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
     dag.setAttribute(input, OperatorContext.INITIAL_PARTITION_COUNT, partitions);

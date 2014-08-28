@@ -50,7 +50,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 @ApplicationAnnotation(name="TwitterDumpHBaseDemo")
 public class TwitterDumpHBaseApplication implements StreamingApplication
 {
-  
+
   public static class Status2Hbase extends HBaseOutputOperator<Status>{
 
     @Override
@@ -67,14 +67,14 @@ public class TwitterDumpHBaseApplication implements StreamingApplication
       put.add("cf".getBytes(), "userid".getBytes(), t.getText().getBytes());
       getTable().put(put);
     }
-    
+
   }
-  
+
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAGContext.APPLICATION_NAME, "TweetsDump");
+    //dag.setAttribute(DAGContext.APPLICATION_NAME, "TweetsDump");
 
     TwitterSampleInput twitterStream = dag.addOperator("TweetSampler", new TwitterSampleInput());
 
