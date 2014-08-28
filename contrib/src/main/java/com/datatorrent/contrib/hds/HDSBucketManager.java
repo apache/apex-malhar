@@ -218,14 +218,20 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       bucket.bucketKey = bucketKey;
       this.buckets.put(bucketKey, bucket);
 
-      WalMeta meta = getWalMeta(bucketKey);
-      bucket.recoveryInProgress = true;
-      bucket.wal = new BucketWalWriter(fileStore, bucketKey, meta.fileId, meta.offset);
+      BucketMeta bmeta = getMeta(bucketKey);
+      WalMeta wmeta = getWalMeta(bucketKey);
+      bucket.wal = new BucketWalWriter(fileStore, bucketKey, wmeta.fileId, wmeta.offset);
       bucket.wal.setMaxWalFileSize(maxWalFileSize);
 
-      // Get last committed LSN from store, and use that for recovery.
-      bucket.wal.runRecovery(this, meta.tailId, meta.tailOffset);
-      bucket.recoveryInProgress = false;
+      // bmeta.componentLSN is data which is committed to disks.
+      // wmeta.windowId     windowId till which data is available in WAL.
+      if (bmeta.committedWid < wmeta.windowId)
+      {
+        bucket.recoveryInProgress = true;
+        // Get last committed LSN from store, and use that for recovery.
+        bucket.wal.runRecovery(this, wmeta.tailId, wmeta.tailOffset);
+        bucket.recoveryInProgress = false;
+      }
     }
     return bucket;
   }
@@ -279,9 +285,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void put(long bucketKey, byte[] key, byte[] value) throws IOException
   {
     Bucket bucket = getBucket(bucketKey);
-    if (bucket.wal == null) {
-
-    }
     /* Do not update WAL, if tuple being added is coming through recovery */
     if (!bucket.recoveryInProgress) {
       bucket.wal.append(key, value);
@@ -356,7 +359,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     try {
       OutputStream os = fileStore.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
       Output output = new Output(os);
-      bucketMetaCopy.committedLSN = windowId;
+      bucketMetaCopy.committedWid = windowId;
       kryo.writeClassAndObject(output, bucketMetaCopy);
       output.close();
       os.close();
@@ -422,6 +425,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
           WalMeta walMeta = getWalMeta(bucket.bucketKey);
           walMeta.fileId = bucket.wal.getWalFileId();
           walMeta.offset = bucket.wal.getCommittedLength();
+          walMeta.windowId = windowId;
         }
       } catch (IOException e) {
         throw new RuntimeException("Failed to flush WAL", e);
@@ -437,7 +441,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
           bucket.tailOffset = bucket.wal.getCommittedLength();
 
           bucket.writeCache = Maps.newHashMap();
-          LOG.debug("Flushing data to disks for bucket {} committedLSN {}", bucket.bucketKey, bucket.committedLSN);
+          LOG.debug("Flushing data to disks for bucket {} committedWid {}", bucket.bucketKey, bucket.committedLSN);
           Runnable flushRunnable = new Runnable() {
             @Override
             public void run()
@@ -566,7 +570,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     }
 
     int fileSeq;
-    long committedLSN;
+    long committedWid;
     final TreeMap<Slice, BucketFileMeta> files;
   }
 
@@ -608,7 +612,11 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   private static class WalMeta
   {
     /* The current WAL file and offset */
+    // Window Id which is written to the WAL.
+    public long windowId;
+    // Current Wal File sequence id
     long fileId;
+    // Offset in current file after writing data for windowId.
     long offset;
 
     /* Flushed WAL file and offset, data till this point is flushed to disk */
