@@ -15,25 +15,31 @@
  */
 package com.datatorrent.demos.mobile;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+import java.util.Set;
+
+import javax.validation.constraints.Min;
+
+import org.apache.commons.lang.mutable.MutableLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.HighLow;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import javax.validation.constraints.Min;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
+import com.datatorrent.lib.counters.BasicCounters;
+import com.datatorrent.lib.util.HighLow;
 
 /**
  * <p>
@@ -115,17 +121,21 @@ public class PhoneMovementGenerator extends BaseOperator
       String command = tuple.get(KEY_COMMAND);
       if (command != null) {
         if (command.equals(COMMAND_ADD)) {
+          addCommandCounter.increment();
           String phoneStr= tuple.get(KEY_PHONE);
           registerPhone(phoneStr);
         }
         else if (command.equals(COMMAND_ADD_RANGE)) {
+          addRangeCommandCounter.increment();
           registerPhoneRange(tuple.get(KEY_START_PHONE), tuple.get(KEY_END_PHONE));
         }
         else if (command.equals(COMMAND_DELETE)) {
+          deleteCommandCounter.increment();
           String phoneStr= tuple.get(KEY_PHONE);
           deregisterPhone(phoneStr);
         }
         else if (command.equals(COMMAND_CLEAR)) {
+          clearCommandCounter.increment();
           clearPhones();
         }
       }
@@ -152,6 +162,14 @@ public class PhoneMovementGenerator extends BaseOperator
   private int threshold = 80;
   private int rotate = 0;
 
+  protected BasicCounters<MutableLong> commandCounters;
+
+  private transient MutableLong addCommandCounter;
+  private transient MutableLong addRangeCommandCounter;
+  private transient MutableLong deleteCommandCounter;
+  private transient MutableLong clearCommandCounter;
+
+  private transient OperatorContext context;
   private final transient HashMap<Integer, HighLow<Integer>> newgps = new HashMap<Integer, HighLow<Integer>>();
 
   /**
@@ -260,6 +278,20 @@ public class PhoneMovementGenerator extends BaseOperator
   @Override
   public void setup(OperatorContext context)
   {
+    this.context = context;
+    this.commandCounters = new BasicCounters<MutableLong>(MutableLong.class);
+    try {
+      this.addCommandCounter = commandCounters.findCounter(CommandCounters.ADD);
+      this.addRangeCommandCounter = commandCounters.findCounter(CommandCounters.ADD_RANGE);
+      this.deleteCommandCounter = commandCounters.findCounter(CommandCounters.DELETE);
+      this.clearCommandCounter = commandCounters.findCounter(CommandCounters.CLEAR);
+    }
+    catch (IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+    catch (InstantiationException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -281,13 +313,13 @@ public class PhoneMovementGenerator extends BaseOperator
     boolean found = false;
     for (Integer phone: phone_register) {
       emitQueryResult( phone);
-      //log.debug(String.format("Query id is \"%s\", and phone is \"%d\"", p.getKey(), p.getValue()));
       found = true;
     }
     if (!found) {
       log.debug("No phone number");
     }
     newgps.clear();
+    context.setCounters(commandCounters);
   }
 
   private void emitQueryResult(Integer phone) {
@@ -306,6 +338,11 @@ public class PhoneMovementGenerator extends BaseOperator
     removedResult.put(KEY_PHONE, String.valueOf(phone));
     removedResult.put(KEY_REMOVED,"true");
     locationQueryResult.emit(removedResult);
+  }
+
+  public static enum CommandCounters
+  {
+    ADD, ADD_RANGE, DELETE, CLEAR
   }
 
 }
