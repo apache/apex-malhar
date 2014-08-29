@@ -35,23 +35,26 @@ import java.util.TreeMap;
  * have grown a beyond maxWalFileSize then current file is closed
  * and new file is created.
  *
- * The WAL manages LSN for each bucket separately, LSN start from
- * zero and incremented at each operator window. LSN is saved as
- * part of WAL state.
+ * The WAL usage windowId as log sequence number(LSN). When data is
+ * written to data files, the committedWid saved in bucket metadata.
  *
- * WAL state contains following files.
- * 1) Current WAL file id (A integer , which is added to WAL file name
- *   for example _WAL-id
- * 2) committedLSN  data for this and all previous LSNs are flushed to disks.
- * 3) For each file
- *     Start LSN and End LSN.
- *     for each LSN start and end offset.
+ * The windowId upto which data is available is stored in BucketManager
+ * WalMetadata and check pointed with operator state.
  *
- * After failure
- *   next WAL file id used for storing logs.
- *   active LSN is set to committedLSN + 1
- *   find file and offset for persistedLSN in data files and read
- *   all files after that to recovery store state.
+ * Recovery After Failure.
+ *
+ *   If committedWid is smaller than wal windowId.
+ *   - Truncate last WAL file to known offset.
+ *   - Wal metadata contains file id and offset where committedWid ended,
+ *     start reading from that location till the end of current WAL file
+ *     and adds tuples back to the writeCache in store.
+ *
+ *   If committedWid is greater than wal windowId
+ *   The data was committed to disks after last operator checkpoint. In this
+ *   case recovery is not needed all data from WAL is already written to data
+ *   files. We will reprocess tuples which are in between committedWid and wal windowId.
+ *   This will not cause problem now, because file write is idempotent with
+ *   duplicate tuples.
  *
  */
 public class BucketWalWriter implements Closeable

@@ -240,8 +240,16 @@ public class WALTest
 
     // Number of tuples = tuples recovered (2) + tuple being added (1).
     Assert.assertEquals("Number of tuples in store ", 3, newOperator.unflushedData(1));
-  }
 
+    newOperator.put(1, genRandomByteArray(500), genRandomByteArray(500));
+    newOperator.put(1, genRandomByteArray(500), genRandomByteArray(500));
+    newOperator.put(1, genRandomByteArray(500), genRandomByteArray(500));
+    newOperator.endWindow();
+    newOperator.forceWal();
+
+    File wal1 = new File(file.getAbsoluteFile().toString() + "/1/_WAL-1");
+    Assert.assertEquals("New Wal-1 created ", wal1.exists(), true);
+  }
 
 
   /**
@@ -293,7 +301,7 @@ public class WALTest
     hds.forceWal();
 
     wal0 = new File(file.getAbsoluteFile().toString() + "/1/_WAL-0");
-    Assert.assertEquals("New Wal-0 created ", wal0.exists(), false);
+    Assert.assertEquals("New Wal-0 deleted ", wal0.exists(), false);
 
     File wal1 = new File(file.getAbsoluteFile().toString() + "/1/_WAL-1");
     Assert.assertEquals("New Wal-1 created ", wal1.exists(), true);
