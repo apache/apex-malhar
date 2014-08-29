@@ -22,6 +22,7 @@ import junit.framework.Assert;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
+import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.io.*;
@@ -29,16 +30,15 @@ import org.apache.hadoop.hbase.io.hfile.*;
 import org.apache.hadoop.io.file.tfile.TFile;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner.Entry;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.*;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
+import java.lang.management.ManagementFactory;
 
 /**
  * Performance testing of various Hadoop files, including HFile, TFile, MapFile, Plain
@@ -60,8 +60,9 @@ import java.util.concurrent.TimeUnit;
  * Note: Be sure to replace MALHAR_PATH location with local checkout of <a href="https://github.com/DataTorrent/Malhar">Malhar</a> library.
  *
  *   MALHAR_PATH=~/repos/sashadt-malhar
- *   export HADOOP_CLASSPATH="~/.m2/repository/org/cloudera/htrace/htrace-core/2.04/htrace-core-2.04.jar:~/.m2/repository/org/apache/hbase/hbase-protocol/0.98.2-hadoop2/hbase-protocol-0.98.2-hadoop2.jar:~/.m2/repository/org/apache/hbase/hbase-client/0.98.2-hadoop2/hbase-client-0.98.2-hadoop2.jar:~/.m2/repository/org/apache/hbase/hbase-common/0.98.2-hadoop2/hbase-common-0.98.2-hadoop2.jar:~/.m2/repository/org/apache/hbase/hbase-server/0.98.2-hadoop2/hbase-server-0.98.2-hadoop2.jar:${MALHAR_PATH}/library/target/malhar-library-1.0.4-SNAPSHOT-tests.jar"
- *   export HADOOP_CLIENT_OPTS="-Dlog4j.debug -Dlog4j.configuration=file://${MALHAR_PATH}/library/src/test/resources/log4j.properties"
+ *   M2_HOME=/home/sasha/.m2
+ *   export HADOOP_CLASSPATH="${M2_HOME}/repository/org/cloudera/htrace/htrace-core/2.04/htrace-core-2.04.jar:${M2_HOME}/repository/org/apache/hbase/hbase-protocol/0.98.2-hadoop2/hbase-protocol-0.98.2-hadoop2.jar:${M2_HOME}/repository/org/apache/hbase/hbase-client/0.98.2-hadoop2/hbase-client-0.98.2-hadoop2.jar:${M2_HOME}/repository/org/apache/hbase/hbase-common/0.98.2-hadoop2/hbase-common-0.98.2-hadoop2.jar:${M2_HOME}/repository/org/apache/hbase/hbase-server/0.98.2-hadoop2/hbase-server-0.98.2-hadoop2.jar:${MALHAR_PATH}/contrib/target/*"
+ *   export HADOOP_CLIENT_OPTS="-DTEST_KV_COUNT=100000 -DTEST_KEY_SIZE_BYTES=100 -DTEST_VALUE_SIZE_BYTES=1000 -Dlog4j.debug -Dlog4j.configuration=file://${MALHAR_PATH}/library/src/test/resources/log4j.properties"
  *   hadoop org.junit.runner.JUnitCore com.datatorrent.contrib.hds.HadoopFilePerformanceTest
  *
  */
@@ -71,11 +72,12 @@ public class HadoopFilePerformanceTest {
   public HadoopFilePerformanceTest() {
   }
 
-  private static int testSize = 10000;
-  private static int valueSizeBytes = 1000;
+  private static int testSize = Integer.parseInt(System.getProperty("TEST_KV_COUNT", "10000"));
+  private static int keySizeBytes = Integer.parseInt(System.getProperty("TEST_KEY_SIZE_BYTES", "100"));
+  private static int valueSizeBytes = Integer.parseInt(System.getProperty("TEST_VALUE_SIZE_BYTES", "1000"));
   private static char[] valueValidChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
-  private static int keySizeBytes = 100;
   private static String keyFormat = "%0" + keySizeBytes + "d";
+  private static Map<String, String> testSummary = new TreeMap<String, String>();
 
   private static String getValue() {
     return RandomStringUtils.random(valueSizeBytes, valueValidChars);
@@ -94,20 +96,10 @@ public class HadoopFilePerformanceTest {
     }
   }
 
-  private Stopwatch timer = new Stopwatch();
-
-  private void startTimer() {
-    timer.reset();
-    timer.start();
-  }
-
-  private String stopTimer() {
-    timer.stop();
-    return String.format("%,d", timer.elapsedTime(TimeUnit.NANOSECONDS)) + " ns ( " + timer.toString(6) + " )";
-  }
 
   private Configuration conf = null;
   private FileSystem hdfs = null;
+
 
   @Before
   public void startup() throws Exception {
@@ -121,6 +113,40 @@ public class HadoopFilePerformanceTest {
     deleteTestfiles();
     hdfs.close();
   }
+
+  private Stopwatch timer = new Stopwatch();
+
+  private void startTimer() {
+    timer.reset();
+    timer.start();
+  }
+
+  private String stopTimer(Testfile fileType, String testType) throws IOException {
+    timer.stop();
+    long elapsedMS = timer.elapsedTime(TimeUnit.MICROSECONDS);
+    String testKey = testSize + "," + fileType.name() + "-" + testType;
+    long fileSize = hdfs.getContentSummary(fileType.filepath()).getSpaceConsumed();
+    testSummary.put(testKey, "" + elapsedMS + "," + fileSize);
+    return String.format("%,d", timer.elapsedTime(TimeUnit.NANOSECONDS)) + " ns ( " + timer.toString(6) + " )";
+  }
+
+
+  @AfterClass
+  public static void summary() throws Exception {
+    long heapMax = ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax();
+    long nonHeapMax = ManagementFactory.getMemoryMXBean().getNonHeapMemoryUsage().getMax();
+    System.out.println("==============================================================================");
+    System.out.println("Test Size: " + String.format("%,d", testSize) + " pairs (" + String.format("%,d", keySizeBytes) + " key bytes /"+String.format("%,d", valueSizeBytes)+" value bytes)");
+    System.out.println("Memory: " + String.format("%,d", heapMax) + " Heap MAX +  " + String.format("%,d", nonHeapMax) + " Non-Heap Max =  " + String.format("%,d", (heapMax+nonHeapMax)) + " Total MAX");
+    System.out.println("==============================================================================");
+    System.out.println("KV PAIRS ("+keySizeBytes+"/"+valueSizeBytes+"), TEST ID, ELAPSED TIME (μs/microseconds), FILE SIZE (bytes)");
+    Iterator it = testSummary.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry kv = (Map.Entry)it.next();
+      System.out.println(kv.getKey() + "," + kv.getValue());
+    }
+  }
+
 
   private void deleteTestfiles() throws Exception {
     for (Testfile t: Testfile.values()) {
@@ -137,7 +163,7 @@ public class HadoopFilePerformanceTest {
 
     Path file = Testfile.PLAIN.filepath();
 
-    logger.info("Writing {} with {} key/value pairs", file, String.format("%,d", testSize));
+    logger.debug("Writing {} with {} key/value pairs", file, String.format("%,d", testSize));
 
     startTimer();
     FSDataOutputStream fos = hdfs.create(file);
@@ -145,8 +171,8 @@ public class HadoopFilePerformanceTest {
       fos.writeUTF(getKey(i) + ":" + getValue());
     }
     fos.close();
-    logger.info ("Duration: {}",  stopTimer());
-    logger.info("Space consumed: {} bytes", String.format("%,d", hdfs.getContentSummary(file).getSpaceConsumed()));
+    logger.info("Duration: {}", stopTimer(Testfile.PLAIN, "WRITE"));
+    logger.debug("Space consumed: {} bytes", String.format("%,d", hdfs.getContentSummary(file).getSpaceConsumed()));
 
     Assert.assertTrue(hdfs.exists(file));
     hdfs.delete( file, true );
@@ -175,11 +201,11 @@ public class HadoopFilePerformanceTest {
   public void testMapFileWrite() throws Exception {
 
     Path file = Testfile.MAPFILE.filepath();
-    logger.info("Writing {} with {} key/value pairs", file, String.format("%,d", testSize));
+    logger.debug("Writing {} with {} key/value pairs", file, String.format("%,d", testSize));
 
     startTimer();
     writeMapFile();
-    logger.info ("Duration: {}",  stopTimer());
+    logger.info("Duration: {}", stopTimer(Testfile.MAPFILE, "WRITE"));
 
     Assert.assertTrue(hdfs.exists(file));
     ContentSummary fileInfo = hdfs.getContentSummary(file);
@@ -205,7 +231,7 @@ public class HadoopFilePerformanceTest {
     while (reader.next(key,value)) {
       //logger.debug("read key:{} value:{}", key, value);
     }
-    logger.info ("Duration for reader.next() SEQUENTIAL keys: {}",  stopTimer());
+    logger.info ("Duration for reader.next() SEQUENTIAL keys: {}",  stopTimer(Testfile.MAPFILE, "READ-SEQ"));
 
     startTimer();
     reader.reset();
@@ -214,7 +240,7 @@ public class HadoopFilePerformanceTest {
       reader.get(key, value);
       //logger.debug("{}:{}", key, value);
     }
-    logger.info ("Duration for reader.get(key) SEQUENTIAL keys: {}",  stopTimer());
+    logger.info ("Duration for reader.get(key) SEQUENTIAL keys: {}",  stopTimer(Testfile.MAPFILE, "READ-SEQ-ID"));
 
     Random random = new Random();
     startTimer();
@@ -223,7 +249,7 @@ public class HadoopFilePerformanceTest {
       reader.get(key,value);
       //logger.debug("{}:{}", key, value);
     }
-    logger.info ("Duration for reader.get(key) RANDOM keys: {}",  stopTimer());
+    logger.info ("Duration for reader.get(key) RANDOM keys: {}",  stopTimer(Testfile.MAPFILE, "READ-RAND"));
 
   }
 
@@ -235,8 +261,11 @@ public class HadoopFilePerformanceTest {
     cacheConf.shouldEvictOnClose();
     FSDataOutputStream fos = hdfs.create(file);
     KeyValue.KVComparator comparator = new KeyValue.RawBytesComparator();
-    HFileContext context = new HFileContext();
-    context.setCompression(compression);
+
+    HFileContext context = new HFileContextBuilder()
+            .withBlockSize(conf.getInt("hbase.mapreduce.hfileoutputformat.blocksize", HConstants.DEFAULT_BLOCKSIZE))
+            .withCompression(compression)
+            .build();
 
     logger.debug("context.getBlockSize(): {}", context.getBlocksize());
     logger.debug("context.getCompression(): {}", context.getCompression());
@@ -279,7 +308,7 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     writeHFile(file, Compression.Algorithm.NONE);
-    logger.info ("Duration: {}",  stopTimer());
+    logger.info ("Duration: {}",  stopTimer(Testfile.HFILE, "WRITE"));
 
     Assert.assertTrue(hdfs.exists(file));
     ContentSummary fileInfo = hdfs.getContentSummary(file);
@@ -295,7 +324,7 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     writeHFile(file, Compression.Algorithm.GZ);
-    logger.info ("Duration: {}",  stopTimer());
+    logger.info ("Duration: {}",  stopTimer(Testfile.HFILE_GZ, "WRITE"));
 
     Assert.assertTrue(hdfs.exists(file));
     ContentSummary fileInfo = hdfs.getContentSummary(file);
@@ -312,7 +341,7 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     writeTFile(file, TFile.COMPRESSION_NONE);
-    logger.info ("Duration: {}",  stopTimer());
+    logger.info ("Duration: {}",  stopTimer(Testfile.TFILE, "WRITE"));
 
     Assert.assertTrue(hdfs.exists(file));
     ContentSummary fileInfo = hdfs.getContentSummary(file);
@@ -328,7 +357,7 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     writeTFile(file, TFile.COMPRESSION_GZ);
-    logger.info ("Duration: {}",  stopTimer());
+    logger.info ("Duration: {}",  stopTimer(Testfile.TFILE_GZ, "WRITE"));
 
     Assert.assertTrue(hdfs.exists(file));
     ContentSummary fileInfo = hdfs.getContentSummary(file);
@@ -394,15 +423,15 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     readHFileSeq(file, compression);
-    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer(Testfile.HFILE, "READ-SEQ"));
 
     startTimer();
     readHFileSeqId(file, compression);
-    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer(Testfile.HFILE, "READ-SEQ-ID"));
 
     startTimer();
     readHFileRandom(file, compression);
-    logger.info("Duration for scanner.seekTo(key) RANDOM keys: {}", stopTimer());
+    logger.info("Duration for scanner.seekTo(key) RANDOM keys: {}", stopTimer(Testfile.HFILE, "READ-RAND"));
 
   }
 
@@ -416,15 +445,15 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     readHFileSeq(file, compression);
-    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}",stopTimer(Testfile.HFILE_GZ, "READ-SEQ"));
 
     startTimer();
     readHFileSeqId(file, compression);
-    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer(Testfile.HFILE_GZ, "READ-SEQ-ID"));
 
     startTimer();
     readHFileRandom(file, compression);
-    logger.info ("Duration for scanner.seekTo(key) RANDOM keys: {}",  stopTimer());
+    logger.info ("Duration for scanner.seekTo(key) RANDOM keys: {}",  stopTimer(Testfile.HFILE_GZ, "READ-RAND"));
 
   }
 
@@ -438,15 +467,15 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     readTFileSeq(file);
-    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer(Testfile.TFILE, "READ-SEQ"));
 
     startTimer();
     readTFileSeqId(file);
-    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer(Testfile.TFILE, "READ-SEQ-ID"));
 
     startTimer();
     readTFileRandom(file);
-    logger.info("Duration for scanner.seekTo(key) RANDOM keys: {}", stopTimer());
+    logger.info("Duration for scanner.seekTo(key) RANDOM keys: {}", stopTimer(Testfile.TFILE, "READ-RAND"));
 
   }
 
@@ -459,15 +488,15 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     readTFileSeq(file);
-    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer(Testfile.TFILE_GZ, "READ-SEQ"));
 
     startTimer();
     readTFileSeqId(file);
-    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer(Testfile.TFILE_GZ, "READ-SEQ-ID"));
 
     startTimer();
     readTFileRandom(file);
-    logger.info ("Duration for scanner.seekTo(key) RANDOM keys: {}",  stopTimer());
+    logger.info ("Duration for scanner.seekTo(key) RANDOM keys: {}",  stopTimer(Testfile.TFILE_GZ, "READ-RAND"));
 
   }
   
@@ -538,15 +567,15 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     readDTFileSeq(file);
-    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer(Testfile.DTFILE, "READ-SEQ"));
 
     startTimer();
     readDTFileSeq(file);
-    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer(Testfile.DTFILE, "READ-SEQ-ID"));
 
     startTimer();
     readDTFileRandom(file);
-    logger.info("Duration for scanner.seekTo(key) RANDOM keys: {}", stopTimer());
+    logger.info("Duration for scanner.seekTo(key) RANDOM keys: {}", stopTimer(Testfile.DTFILE, "READ-RAND"));
 
   }
 
@@ -559,15 +588,15 @@ public class HadoopFilePerformanceTest {
 
     startTimer();
     readDTFileSeq(file);
-    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.next() SEQUENTIAL keys: {}", stopTimer(Testfile.DTFILE_GZ, "READ-SEQ"));
 
     startTimer();
     readDTFileSeqId(file);
-    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer());
+    logger.info("Duration for scanner.seekTo(key) SEQUENTIAL keys: {}", stopTimer(Testfile.DTFILE_GZ, "READ-SEQ-ID"));
 
     startTimer();
     readDTFileRandom(file);
-    logger.info ("Duration for scanner.seekTo(key) RANDOM keys: {}",  stopTimer());
+    logger.info ("Duration for scanner.seekTo(key) RANDOM keys: {}",  stopTimer(Testfile.DTFILE_GZ, "READ-RAND"));
 
   }
   

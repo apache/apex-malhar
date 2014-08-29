@@ -29,10 +29,47 @@ import org.apache.hadoop.hbase.io.hfile.*;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.Properties;
 import java.util.TreeMap;
 
 /**
- * Implements HFile backed Historic Data Store (HDS) key/value storage.
+ * Implements HFile backed Historic Data Store (HDS) key/value storage access.
+ *
+ * Key tuning parameters include data block size, which can affect caching and random access performance, and
+ * use of compression, which can affect access speed and storage space used.
+ *
+ *   blockSize - Size of data blocks in bytes.  Default: 65536 ( 64 * 1024 bytes)
+ *   compression - Compression algorithm to use.  Options: none, gz, lz4, lzo, snappy.  Default: none
+ *
+ * These parameters can be set with following property definitions.  (replace HDSOutputOperator with actual operator name)
+ *
+ *   <property>
+ *     <name>dt.operator.HDSOutputOperator.prop.fileStore.blockSize</name>
+ *     <value>1048576</value>
+ *   </property>
+ *   <property>
+ *     <name>dt.operator.HDSOutputOperator.prop.fileStore.compression</name>
+ *     <value>1048576</value>
+ *   </property>
+ *
+ * A number of configuration properties can be specified to tune the performance of this implementation.
+ * Here are some of the properties which can be configured:
+ *
+ *   hfile.block.cache.size - percentage of maximum java heap to allocate to block cache.  Default: 0.25 (25%)
+ *   hbase.bucketcache.size - percent of maximum java heap to allocate to bucketcache, or value in megabytes.  Default:
+ *   hbase.bucketcache.combinedcache.enabled - indices and blooms are kept in the LRU blockcache and the data blocks are kept in the bucketcache.  Default: true
+ *   hbase.bucketcache.percentage.in.combinedcache - percent to dedicate to bucketcache vs blockcache.  Default: 0.9 ( 90% )
+ *   hbase.rs.cacheblocksonwrite - cache data blocks on write.  Default: false
+ *   hfile.block.index.cacheonwrite - cache index blocks on write.  Default: false
+ *   hbase.rs.evictblocksonclose - evict all blocks from cache when file is closed.  Default: false
+ *
+ * These properties can be defined using global Hadoop configuration (available on all Hadoop nodes) or through
+ * configProperties helper.  In following example configProperties is used to set the values.  (replace HDSOutputOperator with actual operator name)
+ *
+ *   <property>
+ *     <name>dt.operator.HDSOutputOperator.prop.fileStore.configProperties(hfile.block.cache.size)</name>
+ *     <value>0.25</value>
+ *   </property>
  *
  */
 public class HFileImpl extends HDSFileAccessFSImpl {
@@ -40,10 +77,18 @@ public class HFileImpl extends HDSFileAccessFSImpl {
   private transient CacheConfig cacheConfig = null;
   private Comparator<Slice> comparator = null;
   private transient HFileContext context = null;
+  private Properties configProperties = new Properties();
+  private int blockSize = 65536;
+  private String compression = "none";
 
+
+  /**
+   * Get HFile cache configuration based on combination of global settings and configProperties.
+   * @return
+   */
   public CacheConfig getCacheConfig() {
     if (cacheConfig == null ) {
-      cacheConfig = new CacheConfig(fs.getConf());
+      cacheConfig = new CacheConfig(getConfiguration());
     }
     return cacheConfig;
   }
@@ -63,9 +108,46 @@ public class HFileImpl extends HDSFileAccessFSImpl {
     this.comparator = comparator;
   }
 
+
+  public Properties getConfigProperties() {
+    return configProperties;
+  }
+
+  public void setConfigProperties(Properties configProperties) {
+    this.configProperties = configProperties;
+  }
+
+  public String getCompression() {
+    return compression;
+  }
+
+  public void setCompression(String compression) {
+    this.compression = compression;
+  }
+
+  public int getBlockSize() {
+    return blockSize;
+  }
+
+  public void setBlockSize(int blockSize) {
+    this.blockSize = blockSize;
+  }
+
+  /**
+   * Creates new context with override options for compression, and blockSize.  To configure other
+   * settings supported by {@link org.apache.hadoop.hbase.io.hfile.HFileContext} use setContext method.
+   * @return
+   */
+  public HFileContext buildContext() {
+    return new HFileContextBuilder()
+            .withCompression(Compression.getCompressionAlgorithmByName(getCompression()))
+            .withBlockSize(getBlockSize())
+            .build();
+  }
+
   public HFileContext getContext() {
     if (context == null ) {
-      context = new HFileContextBuilder().withCompression(Compression.Algorithm.NONE).build();
+      context = buildContext();
     }
     return context;
   }
@@ -74,11 +156,28 @@ public class HFileImpl extends HDSFileAccessFSImpl {
     this.context = context;
   }
 
+  /**
+   * Returns global {@link org.apache.hadoop.conf.Configuration} object with additional properties set based on
+   * contents of configProperties.
+   * @return
+   */
   public Configuration getConfiguration() {
+    Configuration conf = fs.getConf();
+    for (String name: configProperties.stringPropertyNames()) {
+      String value = configProperties.getProperty(name);
+      conf.set(name, value);
+    }
     return fs.getConf();
   }
 
 
+  /**
+   * Creates and returns a new HFile writer.
+   * @param bucketKey
+   * @param fileName
+   * @return
+   * @throws IOException
+   */
   @Override
   public HDSFileWriter getWriter(long bucketKey, String fileName) throws IOException
   {
@@ -122,6 +221,13 @@ public class HFileImpl extends HDSFileAccessFSImpl {
 
   }
 
+  /**
+   * Creates and returns a new HFile reader.
+   * @param bucketKey
+   * @param fileName
+   * @return
+   * @throws IOException
+   */
   @Override
   public HDSFileReader getReader(long bucketKey, String fileName) throws IOException
   {
@@ -198,6 +304,9 @@ public class HFileImpl extends HDSFileAccessFSImpl {
     };
   }
 
+  /**
+   * Adapter to support comparisons between two {@link com.datatorrent.common.util.Slice} objects.
+   */
   public static class ComparatorAdaptor extends KVComparator
   {
     final Slice s1 = new Slice(null, 0, 0);
