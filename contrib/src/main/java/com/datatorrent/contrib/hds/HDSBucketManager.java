@@ -77,7 +77,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   private int flushSize = 1000000;
   private int flushIntervalCount = 30;
 
-  private HashMap<Long, WalMeta> walMeta = Maps.newHashMap();
+  private final HashMap<Long, WalMeta> walMeta = Maps.newHashMap();
 
   public HDSFileAccess getFileStore()
   {
@@ -214,6 +214,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   {
     Bucket bucket = this.buckets.get(bucketKey);
     if (bucket == null) {
+      LOG.debug("Opening bucket {}", bucketKey);
       bucket = new Bucket();
       bucket.bucketKey = bucketKey;
       this.buckets.put(bucketKey, bucket);
@@ -227,6 +228,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       // wmeta.windowId     windowId till which data is available in WAL.
       if (bmeta.committedWid < wmeta.windowId)
       {
+        LOG.debug("Recovery for bucket {}", bucketKey);
         bucket.recoveryInProgress = true;
         // Get last committed LSN from store, and use that for recovery.
         bucket.wal.runRecovery(this, wmeta.tailId, wmeta.tailOffset);
