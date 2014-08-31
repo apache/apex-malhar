@@ -24,6 +24,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
+
 /**
  * JDBC output adapter operator, for HashMap column mapping and non-transaction type database write. Key is string, Value can be any type derived from Java object.<p><br>
  * <br>
@@ -45,7 +47,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.2
+ * @deprecated use {@link AbstractJdbcNonTransactionableOutputOperator}
  */
+@Deprecated
 public class JDBCNonTransactionHashMapOutputOperator<V> extends JDBCNonTransactionOutputOperator<HashMap<String, V>>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCNonTransactionHashMapOutputOperator.class);
