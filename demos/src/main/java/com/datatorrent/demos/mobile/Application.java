@@ -159,7 +159,7 @@ public class Application implements StreamingApplication
     for (int i = phonesToDisplay; i-- > 0; ) {
       int phoneNo = phoneRange.getMinimum() + random.nextInt(maxPhone + 1);
       LOG.info("seed no: " + phoneNo);
-      movementGen.phone_register.add(phoneNo);
+      movementGen.phoneRegister.add(phoneNo);
     }
 
     // done generating data
@@ -183,8 +183,8 @@ public class Application implements StreamingApplication
     }
     else {
       // for testing purposes without server
-      movementGen.phone_register.add(5554995);
-      movementGen.phone_register.add(5556101);
+      movementGen.phoneRegister.add(5554995);
+      movementGen.phoneRegister.add(5556101);
       ConsoleOutputOperator out = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
       out.setStringFormat("phoneLocationQueryResult" + ": %s");
       dag.addStream("consoledata", movementGen.locationQueryResult, out.input);

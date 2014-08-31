@@ -66,8 +66,8 @@ public class PhoneMovementGenerator extends BaseOperator
         loc = new HighLow<Integer>(random.nextInt(range), random.nextInt(range));
         gps.put(tuple, loc);
       }
-      int xloc = loc.getHigh().intValue();
-      int yloc = loc.getLow().intValue();
+      int xloc = loc.getHigh();
+      int yloc = loc.getLow();
       int state = rotate % 4;
 
       // Compute new location
@@ -154,7 +154,7 @@ public class PhoneMovementGenerator extends BaseOperator
   public static final String COMMAND_DELETE = "del";
   public static final String COMMAND_CLEAR = "clear";
 
-  final Set<Integer> phone_register = Sets.newHashSet();
+  final Set<Integer> phoneRegister = Sets.newHashSet();
 
   private final transient HashMap<Integer, HighLow<Integer>> gps = new HashMap<Integer, HighLow<Integer>>();
   private final Random random = new Random();
@@ -244,7 +244,7 @@ public class PhoneMovementGenerator extends BaseOperator
 
   private void registerSinglePhone(int phone)
   {
-    phone_register.add(phone);
+    phoneRegister.add(phone);
     log.debug(String.format("Registered query id with phonenum \"%s\"", phone));
     emitQueryResult(phone);
   }
@@ -257,8 +257,8 @@ public class PhoneMovementGenerator extends BaseOperator
     try {
       Integer phone = new Integer(phoneStr);
       // simply remove the channel
-      if (phone_register.contains(phone)) {
-        phone_register.remove(phone);
+      if (phoneRegister.contains(phone)) {
+        phoneRegister.remove(phone);
         log.debug(String.format("Removing query id \"%s\"", phone));
         emitPhoneRemoved(phone);
       }
@@ -268,7 +268,7 @@ public class PhoneMovementGenerator extends BaseOperator
   }
 
   private void clearPhones() {
-    phone_register.clear();
+    phoneRegister.clear();
     log.info("Clearing phones");
   }
 
@@ -311,7 +311,7 @@ public class PhoneMovementGenerator extends BaseOperator
       }
     }
     boolean found = false;
-    for (Integer phone: phone_register) {
+    for (Integer phone: phoneRegister) {
       emitQueryResult( phone);
       found = true;
     }
