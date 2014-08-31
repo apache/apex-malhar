@@ -26,7 +26,6 @@ import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -53,8 +52,6 @@ import com.datatorrent.lib.util.HighLow;
  */
 public class PhoneMovementGenerator extends BaseOperator
 {
-  private static Logger log = LoggerFactory.getLogger(PhoneMovementGenerator.class);
-
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Integer> data = new DefaultInputPort<Integer>()
   {
@@ -117,7 +114,7 @@ public class PhoneMovementGenerator extends BaseOperator
     @Override
     public void process(Map<String,String> tuple)
     {
-      log.info("new query: " + tuple);
+      LOG.info("new query {}", tuple);
       String command = tuple.get(KEY_COMMAND);
       if (command != null) {
         if (command.equals(COMMAND_ADD)) {
@@ -219,33 +216,38 @@ public class PhoneMovementGenerator extends BaseOperator
     try {
       Integer phone = new Integer(phoneStr);
       registerSinglePhone(phone);
-    } catch (NumberFormatException nfe) {
-      log.warn("Invalid no: " + phoneStr);
+    }
+    catch (NumberFormatException nfe) {
+      LOG.warn("Invalid no {}", phoneStr);
     }
   }
 
   private void registerPhoneRange(String startPhoneStr, String endPhoneStr)
   {
     if (Strings.isNullOrEmpty(startPhoneStr) || Strings.isNullOrEmpty(endPhoneStr)) {
-      log.warn("Invalid phone range %s, %s", startPhoneStr,endPhoneStr);
+      LOG.warn("Invalid phone range {} {}", startPhoneStr, endPhoneStr);
       return;
     }
     try {
       Integer startPhone = new Integer(startPhoneStr);
       Integer endPhone = new Integer(endPhoneStr);
-      Preconditions.checkArgument(endPhone >= startPhone, "Invalid phone range %s, %s", startPhone, endPhone);
+      if (endPhone < startPhone) {
+        LOG.warn("Invalid phone range {} {}", startPhone, endPhone);
+        return;
+      }
       for (int i = startPhone; i <= endPhone; i++) {
         registerSinglePhone(i);
       }
-    } catch (NumberFormatException nfe) {
-      log.warn("Invalid phone range <" + startPhoneStr + "," + endPhoneStr + ">");
+    }
+    catch (NumberFormatException nfe) {
+      LOG.warn("Invalid phone range <{},{}>", startPhoneStr, endPhoneStr);
     }
   }
 
   private void registerSinglePhone(int phone)
   {
     phoneRegister.add(phone);
-    log.debug(String.format("Registered query id with phonenum \"%s\"", phone));
+    LOG.debug("Registered query id with phone {}", phone);
     emitQueryResult(phone);
   }
 
@@ -256,20 +258,21 @@ public class PhoneMovementGenerator extends BaseOperator
     }
     try {
       Integer phone = new Integer(phoneStr);
-      // simply remove the channel
+      // remove the channel
       if (phoneRegister.contains(phone)) {
         phoneRegister.remove(phone);
-        log.debug(String.format("Removing query id \"%s\"", phone));
+        LOG.debug("Removing query id {}", phone);
         emitPhoneRemoved(phone);
       }
-    } catch (NumberFormatException nfe) {
-      log.warn("Invalid no: " + phoneStr);
+    }
+    catch (NumberFormatException nfe) {
+      LOG.warn("Invalid phone {}", phoneStr);
     }
   }
 
   private void clearPhones() {
     phoneRegister.clear();
-    log.info("Clearing phones");
+    LOG.info("Clearing phones");
   }
 
   @OutputPortFieldAnnotation(name = "locationQueryResult")
@@ -316,7 +319,7 @@ public class PhoneMovementGenerator extends BaseOperator
       found = true;
     }
     if (!found) {
-      log.debug("No phone number");
+      LOG.debug("No phone number");
     }
     newgps.clear();
     context.setCounters(commandCounters);
@@ -345,4 +348,5 @@ public class PhoneMovementGenerator extends BaseOperator
     ADD, ADD_RANGE, DELETE, CLEAR
   }
 
+  private static final Logger LOG = LoggerFactory.getLogger(PhoneMovementGenerator.class);
 }
