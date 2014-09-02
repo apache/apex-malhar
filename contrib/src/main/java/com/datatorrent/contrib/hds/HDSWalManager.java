@@ -15,17 +15,20 @@
  */
 package com.datatorrent.contrib.hds;
 
-import com.datatorrent.contrib.hds.HDS.WALReader;
-import com.datatorrent.contrib.hds.HDS.WALWriter;
-import com.google.common.collect.Maps;
+import java.io.Closeable;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.*;
-import java.util.Map;
-import java.util.TreeMap;
+import com.datatorrent.contrib.hds.HDS.WALReader;
+import com.datatorrent.contrib.hds.HDS.WALWriter;
+import com.google.common.collect.Maps;
 
 /**
  * Manages WAL for a bucket.
@@ -57,7 +60,7 @@ import java.util.TreeMap;
  *   duplicate tuples.
  *
  */
-public class BucketWalWriter implements Closeable
+public class HDSWalManager implements Closeable
 {
   public static final String WAL_FILE_PREFIX = "_WAL-";
 
@@ -109,14 +112,14 @@ public class BucketWalWriter implements Closeable
   private long committedLength = 0;
 
   @SuppressWarnings("unused")
-  private BucketWalWriter() {}
+  private HDSWalManager() {}
 
-  public BucketWalWriter(HDSFileAccess bfs, long bucketKey) {
+  public HDSWalManager(HDSFileAccess bfs, long bucketKey) {
     this.bfs = bfs;
     this.bucketKey = bucketKey;
   }
 
-  public BucketWalWriter(HDSFileAccess bfs, long bucketKey, long fileId, long offset) {
+  public HDSWalManager(HDSFileAccess bfs, long bucketKey, long fileId, long offset) {
     this.bfs = bfs;
     this.bucketKey = bucketKey;
     this.walFileId = fileId;
@@ -284,6 +287,6 @@ public class BucketWalWriter implements Closeable
     this.bfs = bfs;
   }
 
-  private static transient final Logger logger = LoggerFactory.getLogger(BucketWalWriter.class);
+  private static transient final Logger logger = LoggerFactory.getLogger(HDSWalManager.class);
 }
 

@@ -221,7 +221,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
       BucketMeta bmeta = getMeta(bucketKey);
       WalMeta wmeta = getWalMeta(bucketKey);
-      bucket.wal = new BucketWalWriter(fileStore, bucketKey, wmeta.fileId, wmeta.offset);
+      bucket.wal = new HDSWalManager(fileStore, bucketKey, wmeta.fileId, wmeta.offset);
       bucket.wal.setMaxWalFileSize(maxWalFileSize);
 
       // bmeta.componentLSN is data which is committed to disks.
@@ -584,7 +584,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     // keys that are being flushed to data files
     private HashMap<Slice, byte[]> frozenWriteCache = Maps.newHashMap();
     private final HashMap<String, HDSFileReader> readerCache = Maps.newHashMap();
-    private BucketWalWriter wal;
+    private HDSWalManager wal;
     private long committedLSN;
     private boolean recoveryInProgress;
     private long tailId;

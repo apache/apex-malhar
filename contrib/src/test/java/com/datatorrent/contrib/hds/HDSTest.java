@@ -99,7 +99,7 @@ public class HDSTest
     final long BUCKET1 = 1L;
 
     File bucket1Dir = new File(file, Long.toString(BUCKET1));
-    File bucket1WalFile = new File(bucket1Dir, BucketWalWriter.WAL_FILE_PREFIX + 0);
+    File bucket1WalFile = new File(bucket1Dir, HDSWalManager.WAL_FILE_PREFIX + 0);
     RegexFileFilter dataFileFilter = new RegexFileFilter("\\d+.*");
 
     bfs.setBasePath(file.getAbsolutePath());
@@ -251,7 +251,7 @@ public class HDSTest
     TFileImpl timpl = new TFileImpl.DefaultTFileImpl();
     testHDSFileAccess(timpl);
   }
-  
+
   @Test
   public void testDTFileHDSFileAccess() throws Exception
   {
