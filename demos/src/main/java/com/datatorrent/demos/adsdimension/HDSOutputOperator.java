@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.demos.adsdimension;
 
 import java.io.ByteArrayOutputStream;
@@ -34,46 +49,46 @@ import com.google.common.collect.Lists;
 public class HDSOutputOperator extends HDSBucketManager implements Partitioner<HDSOutputOperator>
 {
   private static final Logger LOG = LoggerFactory.getLogger(HDSOutputOperator.class);
-  
+
   private transient final ByteBuffer valbb = ByteBuffer.allocate(8 * 4);
-  
+
   private transient final ByteBuffer keybb = ByteBuffer.allocate(8 + 4 * 3);
-  
+
   private boolean debug = false;
-  
+
   private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   /**
    * Partition keys identify assigned bucket(s).
    */
   protected int partitionMask;
-  
+
   protected Set<Integer> partitions;
 
   private transient StreamCodec<AdInfoAggregateEvent> streamCodec;
-  
-  
-  private SortedMap<Long, Map<AdInfo, AdInfoAggregateEvent>> cache = new TreeMap<Long, Map<AdInfo, AdInfoAggregateEvent>>();
-  
+
+
+  private final SortedMap<Long, Map<AdInfo, AdInfoAggregateEvent>> cache = new TreeMap<Long, Map<AdInfo, AdInfoAggregateEvent>>();
+
   private int maxCacheSize = 20;
-  
+
   private AdInfoAggregator aggregator;
-  
+
   public void setMaxCacheSize(int maxCacheSize)
   {
     this.maxCacheSize = maxCacheSize;
   }
-  
-  
+
+
   @Override
   public void endWindow()
   {
-    int expiredEntries = cache.size() - maxCacheSize; 
+    int expiredEntries = cache.size() - maxCacheSize;
     while(expiredEntries-- > 0){
-      
+
       Map<AdInfo, AdInfoAggregateEvent> vals = cache.remove(cache.firstKey());
       for (Entry<AdInfo, AdInfoAggregateEvent> en : vals.entrySet()) {
-        AdInfoAggregateEvent ai = en.getValue(); 
+        AdInfoAggregateEvent ai = en.getValue();
         try {
           put(streamCodec.getPartition(ai) & partitionMask, getKey(en.getKey()), getValue(ai));
         } catch (IOException e) {
@@ -81,11 +96,11 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
         }
       }
     }
-    
+
     super.endWindow();
   }
-  
-  
+
+
   private byte[] getKey(AdInfo event)
   {
     if (debug) {
@@ -96,7 +111,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
       keyBuilder.append("|adUnit:").append(event.adUnit);
       return keyBuilder.toString().getBytes();
     }
-    
+
     byte[] data = new byte[8 + 4 * 3];
     keybb.rewind();
     keybb.putLong(event.getTimestamp());
@@ -111,7 +126,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
 
   private byte[] getValue(AdInfoAggregateEvent event)
   {
-   
+
     if (debug) {
       StringBuilder keyBuilder = new StringBuilder(32);
       keyBuilder.append("|clicks:").append(event.clicks);
@@ -129,10 +144,10 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
     valbb.rewind();
     valbb.get(data);
     return data;
-    
-  } 
-  
-  
+
+  }
+
+
   /**
    * The input port
    */
@@ -156,9 +171,9 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
           aggregator.aggregate(val, adInfo);
         }
       }
-      
+
     }
-    
+
     @Override
     public Class<? extends StreamCodec<AdInfoAggregateEvent>> getStreamCodec()
     {
@@ -166,8 +181,8 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
     }
 
   };
-  
-  
+
+
   public static class BucketKeyStreamCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent>
   {
     @Override
@@ -253,7 +268,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
   {
     return aggregator;
   }
-  
+
 
   public void setAggregator(AdInfoAggregator aggregator)
   {

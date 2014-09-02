@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.demos.adsdimension;
 
 import java.util.concurrent.TimeUnit;
@@ -16,7 +31,7 @@ import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 
 /**
  * An AdsDimensionsDemo run with HDS
- * 
+ *
  * Example of configuration
   <pre>
   {@code
@@ -24,7 +39,7 @@ import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
       <name>dt.application.AdsDimensionsWithHDSDemo.class</name>
       <value>com.datatorrent.demos.adsdimension.ApplicationWithHDS</value>
   </property>
-  
+
   <property>
      <name>dt.application.AdsDimensionsWithHDSDemo.attr.containerMemoryMB</name>
      <value>8192</value>
@@ -54,12 +69,12 @@ import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
        <name>dt.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
        <value>true</value>
   </property>
-  
+
   <property>
        <name>dt.operator.HDSOut.attr.INITIAL_PARTITION_COUNT</name>
        <value>4</value>
   </property>
-  
+
   <property>
        <name>dt.operator.HDSOut.fileStore.basePath</name>
        <value>AdsDimensionWithHDS</value>
@@ -97,13 +112,13 @@ public class ApplicatonWithHDS implements StreamingApplication
     dimensions.setUnifier(unifier);
 
     HDSOutputOperator hdsOut = dag.addOperator("HDSOut", HDSOutputOperator.class);
-    
+
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
-    
+
     hdsOut.setFileStore(hdsFile);
-    
+
     hdsOut.setAggregator(new AdInfoAggregator());
-    
+
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, hdsOut.input);
   }
