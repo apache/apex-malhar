@@ -180,7 +180,7 @@ public class WALTest
     final long BUCKET1 = 1L;
 
     File bucket1Dir = new File(file, Long.toString(BUCKET1));
-    File bucket1WalFile = new File(bucket1Dir, BucketWalWriter.WAL_FILE_PREFIX + 1);
+    File bucket1WalFile = new File(bucket1Dir, HDSWalManager.WAL_FILE_PREFIX + 1);
     RegexFileFilter dataFileFilter = new RegexFileFilter("\\d+.*");
 
     FileUtils.deleteDirectory(file);

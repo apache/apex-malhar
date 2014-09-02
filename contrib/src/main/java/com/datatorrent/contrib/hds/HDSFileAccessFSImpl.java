@@ -114,7 +114,7 @@ abstract public class HDSFileAccessFSImpl implements HDSFileAccess
   @Override
   public String toString()
   {
-    return "HDSFileAccessFSImpl [basePath=" + basePath + "]";
+    return this.getClass().getSimpleName() + "[basePath=" + basePath + "]";
   }
 
 }
