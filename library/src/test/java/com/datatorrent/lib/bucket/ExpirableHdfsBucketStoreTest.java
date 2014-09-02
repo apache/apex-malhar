@@ -15,35 +15,41 @@
  */
 package com.datatorrent.lib.bucket;
 
-import org.junit.AfterClass;
-import org.junit.Assert;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.runner.Description;
+
+import com.google.common.collect.Sets;
 
 public class ExpirableHdfsBucketStoreTest
 {
-  static BucketStoreTests tests;
-  static ExpirableHdfsBucketStore<DummyEvent> expirableStore;
-
-  @BeforeClass
-  public static void setUp()
+  public static class TestMeta extends HdfsBucketStoreTest.TestMeta
   {
-    tests = new BucketStoreTests();
-    expirableStore = new ExpirableHdfsBucketStore<DummyEvent>();
-    tests.setup(expirableStore);
+
+    @Override
+    protected void starting(Description description)
+    {
+      super.starting(description);
+    }
+
+    @Override
+    protected HdfsBucketStore<DummyEvent> getBucketStore()
+    {
+      ExpirableHdfsBucketStore<DummyEvent> lBucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
+      lBucketStore.setNoOfBuckets(TOTAL_BUCKETS);
+      lBucketStore.setWriteEventKeysOnly(true);
+      lBucketStore.setConfiguration(7, applicationPath, Sets.newHashSet(0), 0);
+      return lBucketStore;
+    }
   }
 
-  @AfterClass
-  public static void tearDown() throws Exception
-  {
-    tests.tearDown();
-  }
+  @Rule
+  public TestMeta testMeta = new TestMeta();
 
   @Test
-  public void test1() throws Exception
+  public void testExpirableStore() throws Exception
   {
-    tests.testStoreBucketData();
-    expirableStore.deleteExpiredBuckets(1);
-    Assert.assertTrue(!tests.bucketExists(0));
+    testMeta.util.storeBucket(0);
+    ((BucketStore.ExpirableBucketStore) testMeta.bucketStore).deleteExpiredBuckets(1);
+    Assert.assertTrue(!testMeta.util.bucketExists(0));
   }
 }
