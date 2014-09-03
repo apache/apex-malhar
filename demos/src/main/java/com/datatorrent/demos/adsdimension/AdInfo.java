@@ -303,7 +303,7 @@ public class AdInfo implements Serializable
   {
     int aggregatorIndex;
 
-    private AdInfoAggregateEvent()
+    public AdInfoAggregateEvent()
     {
       //Used for kryo serialization
     }
