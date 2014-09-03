@@ -137,6 +137,13 @@
       <classifier>tests</classifier>
     </dependency>
     <dependency>
+      <scope>test</scope>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+    </dependency>
+    <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>
       <version>5.1.22</version>
