@@ -42,7 +42,6 @@ import com.datatorrent.demos.mrmonitor.MRStatusObject.TaskObject;
  *
  * @since 0.3.4
  */
-
 public class MRJobStatusOperator implements Operator, IdleTimeHandler
 {
   private static final Logger LOG = LoggerFactory.getLogger(MRJobStatusOperator.class);

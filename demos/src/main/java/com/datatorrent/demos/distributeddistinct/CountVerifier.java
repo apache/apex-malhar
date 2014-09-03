@@ -28,7 +28,8 @@ import com.datatorrent.lib.util.KeyValPair;
 /**
  * An operator that takes two streams of Integer to Integer KeyValPairs and verifies that the two streams output the
  * same KeyValPairs within a given window.
- * 
+ *
+ * @since 1.0.4
  */
 public class CountVerifier implements Operator
 {

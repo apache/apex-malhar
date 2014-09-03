@@ -42,7 +42,6 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  *            The tuple type
  * @since 1.0.2
  */
-
 public abstract class AbstractHBaseAppendOutputOperator<T>
 extends AbstractStoreOutputOperator<T, HBaseStore> {
   private static final transient Logger logger = LoggerFactory

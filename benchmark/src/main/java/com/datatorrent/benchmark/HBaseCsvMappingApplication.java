@@ -28,10 +28,11 @@ import com.datatorrent.contrib.hbase.HBaseRowStringGenerator;
  * BenchMark Results
  * -----------------
  * The operator operates at 20,000 tuples/sec with the following configuration
- * 
+ *
  * Container memory size=1G
  * CPU=Intel(R) Core(TM) i7-4500U CPU @ 1.80 GHz 2.40 Ghz
- * 
+ *
+ * @since 1.0.4
  */
 @ApplicationAnnotation(name="HBaseBenchmarkApp")
 public class HBaseCsvMappingApplication implements StreamingApplication

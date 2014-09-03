@@ -37,6 +37,7 @@ import com.datatorrent.lib.util.ReusableStringReader;
  * This operator takes a configuration string which tells us about the position
  * of the row, or column.The incoming tuples are inserted accordingly.
  *
+ * @since 1.0.4
  */
 public class HBaseCsvMappingPutOperator extends AbstractHBaseWindowPutOutputOperator<String> {
   private class ColDef {

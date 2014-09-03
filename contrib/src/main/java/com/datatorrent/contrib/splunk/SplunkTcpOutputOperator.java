@@ -24,9 +24,10 @@ import java.io.IOException;
 import java.net.Socket;
 
 /**
- * 
+ *
  * Base Output operator for Splunk which writes to a TCP port on which splunk server is configured.
  *
+ * @since 1.0.4
  */
 public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, SplunkStore> {
 

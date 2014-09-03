@@ -53,6 +53,8 @@ import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
  * in the windows greater than the activation window, then re-enter them as needed to keep it stateful.<br/>
  * This operator, when appended to {@link UniqueValueCount} will keep track of the
  * unique values emitted since the start of the application.
+ *
+ * @since 1.0.4
  */
 public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedOperator<InternalCountOutput<V>> implements Partitioner<UniqueValueCountAppender<V>>
 {

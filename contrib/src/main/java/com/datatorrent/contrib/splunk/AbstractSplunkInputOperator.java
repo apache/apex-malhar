@@ -33,8 +33,9 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Row)}.
  * </p>
+ *
+ * @since 1.0.4
  */
-
 public abstract class AbstractSplunkInputOperator<T> extends AbstractStoreInputOperator<T, SplunkStore> {
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractSplunkInputOperator.class);

@@ -23,6 +23,11 @@ import com.aerospike.client.Key;
 import com.datatorrent.contrib.aerospike.AbstractAerospikeTransactionalPutOperator;
 
 
+/**
+ * <p>AerospikeOutputOperator class.</p>
+ *
+ * @since 1.0.4
+ */
 public class AerospikeOutputOperator extends AbstractAerospikeTransactionalPutOperator<Integer>{
 
   private final String KEYSPACE = "test";

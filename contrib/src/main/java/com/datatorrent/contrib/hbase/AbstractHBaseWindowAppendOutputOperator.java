@@ -50,14 +50,14 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * guarantee each tuple is written only once to HBase in case the operator is
  * restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when
- * the operator shutdown. 
+ * the operator shutdown.
  * It supports atleast once and atmost once processing modes.
  * Exactly once is not supported
+ *
  * @param <T>
  *            The tuple type
  * @since 1.0.2
  */
-
 public abstract class AbstractHBaseWindowAppendOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, HBaseWindowStore> {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBaseWindowAppendOutputOperator.class);
   private List<T> tuples;

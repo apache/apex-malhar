@@ -30,6 +30,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * This is an abstract class. Sub-classes need to implement {@link #getScanner()} and {@link #getTuple(Entry)}.
  * </p>
  *
+ * @since 1.0.4
  */
 public abstract class AbstractAccumuloInputOperator<T> extends AbstractStoreInputOperator<T, AccumuloStore> {
 

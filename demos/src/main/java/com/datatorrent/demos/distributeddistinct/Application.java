@@ -30,6 +30,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * This application demonstrates the UniqueValueCount operator. It uses an input operator which generates random key
  * value pairs and simultaneously emits them to the UniqueValueCount operator and keeps track of the number of unique
  * values per key to emit to the verifier.
+ *
+ * @since 1.0.4
  */
 @ApplicationAnnotation(name = "ValueCount")
 public class Application implements StreamingApplication

@@ -22,6 +22,8 @@ import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * Operator that outputs random values in a map.
+ *
+ * @since 1.0.4
  */
 public class RandomMapOutput extends BaseOperator {
 

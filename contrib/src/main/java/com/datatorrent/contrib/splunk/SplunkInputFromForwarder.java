@@ -27,11 +27,12 @@ import java.net.Socket;
 import java.util.Properties;
 
 /**
- * 
+ *
  * An abstract class which receives input from a splunk forwarder and writes the lines to kafka.
  * A kafka input operator can be used to read these lines in a DataTorrent application.
  *
  * @param <T> the type of data to be stored into kafka
+ * @since 1.0.4
  */
 public abstract class SplunkInputFromForwarder<T> {
 

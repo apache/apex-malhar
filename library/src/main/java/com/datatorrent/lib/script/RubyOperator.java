@@ -26,8 +26,8 @@ import java.util.Map;
 /**
  * Operator to execute ruby script on tuples
  *
+ * @since 1.0.4
  */
-
 public class RubyOperator extends ScriptOperator {
 
   public enum Type

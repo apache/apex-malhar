@@ -38,8 +38,8 @@ import java.util.List;
  * </p>
  *
  * @param <T>type of tuple</T>
+ * @since 1.0.4
  */
-
 public abstract class AbstractAerospikeTransactionalPutOperator<T> extends AbstractBatchTransactionableStoreOutputOperator<T, AerospikeTransactionalStore> {
 
   private transient List<Bin> bins;

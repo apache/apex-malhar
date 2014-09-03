@@ -54,11 +54,11 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * the operator shutdown.
  * It supports atleast once and atmost once processing modes.
  * Exactly once is not supported
+ *
  * @param <T>
  *            The tuple type
  * @since 1.0.2
  */
-
 public abstract class AbstractHBaseWindowPutOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, HBaseWindowStore> {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractHBaseWindowPutOutputOperator.class);
   private List<T> tuples;

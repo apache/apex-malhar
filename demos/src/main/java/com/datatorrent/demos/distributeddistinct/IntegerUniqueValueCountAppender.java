@@ -29,7 +29,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * This operator demonstrates {@link UniqueValueCountAppender} given that the keys and values of the preceding {@link UniqueValueCount} operator
  * are both integers. <br/>
  * It will keep track of the number of all the unique values emitted per key since the application starts.
- * 
+ *
+ * @since 1.0.4
  */
 public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<Integer>
 {

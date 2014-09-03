@@ -19,8 +19,10 @@ package com.datatorrent.lib.xml;
  * The class is deprecated and provided temporarily for backwards compatibility with earlier release. It will be removed
  * in the next release. Use AbstractXmlDOMOperator instead.
  *
+ * @since 1.0.4
  * @deprecated
  */
+@Deprecated
 public abstract class XmlDOMOperator<T> extends AbstractXmlDOMOperator<T>
 {
 }

@@ -26,11 +26,12 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * 
+ *
  * Application to benchmark the performance of ruby operator.
  * The operator was tested on the DT cluster and the
  * number of tuples processed by the operator per second were around 10,000
  *
+ * @since 1.0.4
  */
 
 

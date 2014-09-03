@@ -35,7 +35,8 @@ import com.datatorrent.lib.db.Connectable;
 
 /**
  * A {@link Connectable} for accumulo
- * 
+ *
+ * @since 1.0.4
  */
 public class AccumuloStore implements Connectable {
   private static final transient Logger logger = LoggerFactory.getLogger(AccumuloStore.class);

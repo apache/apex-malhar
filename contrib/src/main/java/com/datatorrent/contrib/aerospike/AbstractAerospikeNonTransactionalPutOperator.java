@@ -29,11 +29,10 @@ import java.util.List;
  * <p>
  * Generic Aerospike Output Adaptor which writes tuples as they come without providing any transactional support.
  * </p>
-
  *
  * @param <T>type of tuple</T>
+ * @since 1.0.4
  */
-
 public abstract class AbstractAerospikeNonTransactionalPutOperator<T> extends AbstractStoreOutputOperator<T,AerospikeStore> {
 
   private transient List<Bin> bins;

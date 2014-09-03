@@ -25,6 +25,7 @@ import com.datatorrent.lib.db.Connectable;
 /**
  * A {@link Connectable} that uses splunk to connect to stores.
  *
+ * @since 1.0.4
  */
 public class SplunkStore implements Connectable{
 

@@ -23,7 +23,6 @@ import java.util.Map;
  *
  * @since 0.9.0
  */
-
 public class KeyHashValPair<K, V> extends KeyValPair<K, V>
 {
 

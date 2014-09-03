@@ -30,11 +30,13 @@ import com.datatorrent.contrib.accumulo.AccumuloTuple;
  * BenchMark Results
  * -----------------
  * The operator operates at 30,000 tuples/sec with the following configuration
- * 
+ *
  * Container memory size=1G
  * Accumulo Max Memory=2G
  * Accumulo number of write threads=1
  * CPU=Intel(R) Core(TM) i7-4500U CPU @ 1.80 GHz 2.40 Ghz
+ *
+ * @since 1.0.4
  */
 public class AccumuloApp implements StreamingApplication {
 

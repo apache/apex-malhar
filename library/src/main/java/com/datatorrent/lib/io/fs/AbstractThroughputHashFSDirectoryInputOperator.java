@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * passes then a new number of operators are created to accommodate the
  * remaining pending files.
  * <p/>
- * 
+ *
  * @since 1.0.4
  */
 public abstract class AbstractThroughputHashFSDirectoryInputOperator<T> extends AbstractFSDirectoryInputOperator<T>

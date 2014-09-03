@@ -41,6 +41,8 @@ import com.datatorrent.lib.db.TransactionableStore;
  * Provides transactional support.Not intended for true transactional
  * properties. It does not guarantee exactly once property.It only skips tuple
  * processed in previous windows
+ *
+ * @since 1.0.4
  */
 public class AccumuloWindowStore extends AccumuloStore implements TransactionableStore {
   private static final transient Logger logger = LoggerFactory.getLogger(AccumuloWindowStore.class);

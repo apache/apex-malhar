@@ -24,11 +24,12 @@ import com.datatorrent.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * 
+ *
  * Application to benchmark the performance of aerospike output operator.
- * The operator was tested on DT cluster and the number of tuples processed 
+ * The operator was tested on DT cluster and the number of tuples processed
  * by the operator per second were around 12,000
  *
+ * @since 1.0.4
  */
 
 
