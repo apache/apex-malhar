@@ -15,22 +15,18 @@
  */
 package com.datatorrent.demos.adsdimension;
 
-import com.datatorrent.contrib.hds.tfile.TFileImpl;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
+import java.io.File;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestWatcher;
 
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 
 public class HDSQueryOperatorTest
@@ -104,47 +100,5 @@ public class HDSQueryOperatorTest
     Assert.assertEquals("clicks", 10, queryResults.collectedTuples.iterator().next().data.iterator().next().clicks);
   }
 
-}
-
-
-class TestUtils
-{
-  public static class TestInfo extends TestWatcher
-  {
-    public org.junit.runner.Description desc;
-
-    public String getDir()
-    {
-      String methodName = desc.getMethodName();
-      String className = desc.getClassName();
-      return "target/" + className + "/" + methodName;
-    }
-
-    @Override
-    protected void starting(org.junit.runner.Description description)
-    {
-      this.desc = description;
-    }
-  };
-
-  /**
-   * Clone object by serializing and deserializing using Kryo.
-   * Note this is different from using {@link com.esotericsoftware.kryo.Kryo#copy(Object)}, which will attempt to also clone transient fields.
-   * @param kryo
-   * @param src
-   * @return
-   * @throws java.io.IOException
-   */
-  public static <T> T clone(Kryo kryo, T src) throws IOException
-  {
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    Output output = new Output(bos);
-    kryo.writeObject(output, src);
-    output.close();
-    Input input = new Input(bos.toByteArray());
-    @SuppressWarnings("unchecked")
-    Class<T> clazz = (Class<T>)src.getClass();
-    return kryo.readObject(input, clazz);
-  }
 }
 
