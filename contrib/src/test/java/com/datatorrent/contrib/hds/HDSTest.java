@@ -30,6 +30,7 @@ import org.junit.Test;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
+import com.datatorrent.contrib.hds.HDSReader.HDSQuery;
 import com.datatorrent.contrib.hds.hfile.HFileImpl;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
 import com.datatorrent.lib.util.TestUtils;
@@ -45,7 +46,7 @@ public class HDSTest
   @Rule
   public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
 
-  private long getBucketKey(Slice key)
+  public static long getBucketKey(Slice key)
   {
     return readLong(key.buffer, 8);
   }
@@ -120,7 +121,13 @@ public class HDSTest
     String data1 = "data01bucket1";
 
     hds.put(BUCKET1, key1.buffer, data1.getBytes());
-    Assert.assertArrayEquals("uncommitted get1 " + key1, data1.getBytes(), hds.get(BUCKET1, key1.buffer));
+
+    HDSQuery q = new HDSQuery();
+    q.bucketKey = BUCKET1;
+    q.key = Arrays.copyOf(key1.buffer, key1.buffer.length); // check key equality;
+
+    hds.processQuery(q); // write cache
+    Assert.assertArrayEquals("uncommitted get1 " + key1, data1.getBytes(), q.result);
 
     Assert.assertTrue("exists " + bucket1Dir, bucket1Dir.exists() && bucket1Dir.isDirectory());
     Assert.assertTrue("exists " + bucket1WalFile, bucket1WalFile.exists() && bucket1WalFile.isFile());
@@ -134,8 +141,9 @@ public class HDSTest
     // replace value
     String data1Updated = data1 + "-update1";
     hds.put(BUCKET1, key1.buffer, data1Updated.getBytes());
-    byte[] key1Bytes = Arrays.copyOf(key1.buffer, key1.buffer.length); // check key equality
-    Assert.assertArrayEquals("uncommitted get2 " + key1, data1Updated.getBytes(), hds.get(BUCKET1, key1Bytes));
+
+    hds.processQuery(q); // write cache
+    Assert.assertArrayEquals("uncommitted get2 " + key1, data1Updated.getBytes(), q.result);
 
     hds.endWindow();
     files = bucket1Dir.list(dataFileFilter);
@@ -270,23 +278,4 @@ public class HDSTest
   }
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

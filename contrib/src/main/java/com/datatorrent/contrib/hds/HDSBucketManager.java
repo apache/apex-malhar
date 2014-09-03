@@ -16,10 +16,8 @@
 package com.datatorrent.contrib.hds;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -27,12 +25,9 @@ import java.util.TreeMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import javax.validation.Valid;
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import org.apache.commons.io.IOUtils;
-import org.apache.hadoop.io.WritableComparator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,8 +38,6 @@ import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileWriter;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
@@ -53,56 +46,23 @@ import com.google.common.collect.Sets;
 /**
  * Manager for buckets. Can be sub-classed as operator or used in composite pattern.
  */
-public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, Operator
+public class HDSBucketManager extends HDSReader implements HDS.BucketManager, CheckpointListener, Operator
 {
-  public static final String FNAME_WAL = "_WAL";
-  public static final String FNAME_META = "_META";
 
   private final transient HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
   private long windowId;
   private transient long lastFlushWindowId;
   private final transient HashMap<Long, Bucket> buckets = Maps.newHashMap();
-  private final transient Kryo kryo = new Kryo();
   @VisibleForTesting
   protected transient ExecutorService writeExecutor;
   private transient Exception writerError;
 
-  @NotNull
-  private Comparator<Slice> keyComparator = new DefaultKeyComparator();
-  @Valid
-  @NotNull
-  private HDSFileAccess fileStore;
   private int maxFileSize = 64000;
   private int maxWalFileSize = 64 * 1024 * 1024;
   private int flushSize = 1000000;
   private int flushIntervalCount = 30;
 
   private final HashMap<Long, WalMeta> walMeta = Maps.newHashMap();
-
-  public HDSFileAccess getFileStore()
-  {
-    return fileStore;
-  }
-
-  public void setFileStore(HDSFileAccess fileStore)
-  {
-    this.fileStore = fileStore;
-  }
-
-  /**
-   * Compare keys for sequencing as secondary level of organization within buckets.
-   * In most cases it will be implemented using a time stamp as leading component.
-   * @return
-   */
-  public Comparator<Slice> getKeyComparator()
-  {
-    return this.keyComparator;
-  }
-
-  public void setKeyComparator(Comparator<Slice> keyComparator)
-  {
-    this.keyComparator = keyComparator;
-  }
 
   /**
    * Size limit for data files. Files are rolled once the limit has been exceeded.
@@ -191,7 +151,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
       if (fw == null) {
         // next file
         fileMeta = bucketMeta.addFile(bucket.bucketKey, dataEntry.getKey());
-        fw = fileStore.getWriter(bucket.bucketKey, fileMeta.name + ".tmp");
+        fw = this.store.getWriter(bucket.bucketKey, fileMeta.name + ".tmp");
       }
 
       fw.append(asArray(dataEntry.getKey()), dataEntry.getValue());
@@ -199,14 +159,14 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
         // roll file
         fw.close();
-        fileStore.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+        this.store.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
         fw = null;
       }
     }
 
     if (fw != null) {
       fw.close();
-      fileStore.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+      this.store.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
     }
   }
 
@@ -221,7 +181,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
       BucketMeta bmeta = getMeta(bucketKey);
       WalMeta wmeta = getWalMeta(bucketKey);
-      bucket.wal = new HDSWalManager(fileStore, bucketKey, wmeta.fileId, wmeta.offset);
+      bucket.wal = new HDSWalManager(this.store, bucketKey, wmeta.fileId, wmeta.offset);
       bucket.wal.setMaxWalFileSize(maxWalFileSize);
 
       // bmeta.componentLSN is data which is committed to disks.
@@ -240,47 +200,40 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
   private transient Slice keyWrapper = new Slice(null, 0, 0);
 
+  /**
+   * Intercept query processing to incorporate unwritten changes.
+   */
   @Override
-  public byte[] get(long bucketKey, byte[] key) throws IOException
+  protected void processQuery(HDSQuery query)
   {
+    byte[] key = query.key;
     keyWrapper.buffer = key;
     keyWrapper.length = key.length;
 
-    Bucket bucket = getBucket(bucketKey);
-    // check unwritten changes first
-    byte[] v = bucket.writeCache.get(keyWrapper);
-    if (v != null) {
-      return v;
+    Bucket bucket = this.buckets.get(query.bucketKey);
+    if (bucket !=  null) {
+      // check unwritten changes first
+      byte[] v = bucket.writeCache.get(keyWrapper);
+      if (v != null) {
+        query.result = v;
+        query.processed = true;
+        return;
+      }
+      // check changes currently being flushed
+      v = bucket.frozenWriteCache.get(keyWrapper);
+      if (v != null) {
+        query.result = v;
+        query.processed = true;
+        return;
+      }
     }
+    super.processQuery(query);
+  }
 
-    // check changes currently being flushed
-    v = bucket.frozenWriteCache.get(keyWrapper);
-    if (v != null) {
-      return v;
-    }
-
-    BucketMeta bm = getMeta(bucketKey);
-    if (bm == null) {
-      throw new IllegalArgumentException("Invalid bucket key " + bucketKey);
-    }
-
-    Map.Entry<Slice, BucketFileMeta> floorEntry = bm.files.floorEntry(keyWrapper);
-    if (floorEntry == null) {
-      // no file for this key
-      return null;
-    }
-
-    // lookup against data file
-    HDSFileReader reader = bucket.readerCache.get(floorEntry.getValue().name);
-    if (reader == null) {
-      bucket.readerCache.put(floorEntry.getValue().name, reader = fileStore.getReader(bucketKey, floorEntry.getValue().name));
-    }
-
-    //return reader.getValue(key);
-    reader.seek(key);
-    Slice value = new Slice(null, 0,0);
-    reader.next(new Slice(null, 0, 0), value);
-    return value.buffer;
+  @Override
+  public byte[] get(long bucketKey, byte[] key) throws IOException
+  {
+    return super.get(bucketKey, key);
   }
 
   @Override
@@ -293,7 +246,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     }
     bucket.writeCache.put(new Slice(key, 0, key.length), value);
   }
-
 
   /**
    * Flush changes from write cache to disk.
@@ -345,7 +297,7 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
       if (fileMeta.name != null) {
         // load existing file
-        HDSFileReader reader = fileStore.getReader(bucket.bucketKey, fileMeta.name);
+        HDSFileReader reader = store.getReader(bucket.bucketKey, fileMeta.name);
         reader.readFully(fileData);
         reader.close();
         filesToDelete.add(fileMeta.name);
@@ -359,13 +311,13 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
     // flush meta data for new files
     try {
-      OutputStream os = fileStore.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
+      OutputStream os = store.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
       Output output = new Output(os);
       bucketMetaCopy.committedWid = windowId;
       kryo.writeClassAndObject(output, bucketMetaCopy);
       output.close();
       os.close();
-      fileStore.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
+      store.rename(bucket.bucketKey, FNAME_META + ".new", FNAME_META);
     } catch (IOException e) {
       throw new RuntimeException("Failed to write bucket meta data " + bucket.bucketKey, e);
     }
@@ -377,11 +329,8 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
 
     // delete old files
     for (String fileName : filesToDelete) {
-      fileStore.delete(bucket.bucketKey, fileName);
-      HDSFileReader reader = bucket.readerCache.remove(fileName);
-      if (reader != null) {
-        reader.close();
-      }
+      store.delete(bucket.bucketKey, fileName);
+      invalidateReader(bucket.bucketKey, fileName);
     }
 
     WalMeta walMeta = getWalMeta(bucket.bucketKey);
@@ -392,9 +341,9 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   }
 
   @Override
-  public void setup(OperatorContext arg0)
+  public void setup(OperatorContext context)
   {
-    fileStore.init();
+    super.setup(context);
     writeExecutor = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory(this.getClass().getSimpleName()+"-Writer"));
   }
 
@@ -402,24 +351,23 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
   public void teardown()
   {
     for (Bucket bucket : this.buckets.values()) {
-      for (HDSFileReader reader : bucket.readerCache.values()) {
-        IOUtils.closeQuietly(reader);
-      }
       IOUtils.closeQuietly(bucket.wal);
     }
-    IOUtils.closeQuietly(fileStore);
     writeExecutor.shutdown();
+    super.teardown();
   }
 
   @Override
   public void beginWindow(long windowId)
   {
+    super.beginWindow(windowId);
     this.windowId = windowId;
   }
 
   @Override
   public void endWindow()
   {
+    super.endWindow();
     for (final Bucket bucket : this.buckets.values()) {
       try {
         if (bucket.wal != null) {
@@ -497,83 +445,9 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     return bm;
   }
 
-  private BucketMeta loadBucketMeta(long bucketKey)
-  {
-    BucketMeta bucketMeta = null;
-    try {
-      InputStream is = fileStore.getInputStream(bucketKey, FNAME_META);
-      bucketMeta = (BucketMeta)kryo.readClassAndObject(new Input(is));
-      is.close();
-    } catch (IOException e) {
-      bucketMeta = new BucketMeta(getKeyComparator());
-    }
-    return bucketMeta;
-  }
-
   @Override
   public void committed(long committedWindowId)
   {
-  }
-
-  /**
-   * Default key comparator that performs lexicographical comparison of the byte arrays.
-   */
-  public static class DefaultKeyComparator implements Comparator<Slice>
-  {
-    @Override
-    public int compare(Slice o1, Slice o2)
-    {
-      return WritableComparator.compareBytes(o1.buffer, o1.offset, o1.length, o2.buffer, o2.offset, o2.length);
-    }
-  }
-
-  public static class BucketFileMeta
-  {
-    /**
-     * Name of file (relative to bucket)
-     */
-    public String name;
-    /**
-     * Lower bound sequence key
-     */
-    public Slice startKey;
-
-    @Override
-    public String toString()
-    {
-      return "BucketFileMeta [name=" + name + ", fromSeq=" + startKey + "]";
-    }
-  }
-
-  /**
-   * Meta data about bucket, persisted in store
-   * Flushed on compaction
-   */
-  private static class BucketMeta
-  {
-    private BucketMeta(Comparator<Slice> cmp)
-    {
-      files = Maps.newTreeMap(cmp);
-    }
-
-    private BucketMeta()
-    {
-      // for serialization only
-      files = null;
-    }
-
-    private BucketFileMeta addFile(long bucketKey, Slice startKey)
-    {
-      BucketFileMeta bfm = new BucketFileMeta();
-      bfm.name = Long.toString(bucketKey) + '-' + this.fileSeq++;
-      bfm.startKey = startKey;
-      files.put(startKey, bfm);
-      return bfm;
-    }
-
-    int fileSeq;
-    long committedWid;
-    final TreeMap<Slice, BucketFileMeta> files;
   }
 
   private static class Bucket
@@ -583,7 +457,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     private HashMap<Slice, byte[]> writeCache = Maps.newHashMap();
     // keys that are being flushed to data files
     private HashMap<Slice, byte[]> frozenWriteCache = Maps.newHashMap();
-    private final HashMap<String, HDSFileReader> readerCache = Maps.newHashMap();
     private HDSWalManager wal;
     private long committedLSN;
     private boolean recoveryInProgress;
@@ -625,4 +498,6 @@ public class HDSBucketManager implements HDS.BucketManager, CheckpointListener, 
     public long tailId;
     public long tailOffset;
   }
+
+
 }
