@@ -54,9 +54,9 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
 
   private transient final ByteBuffer keybb = ByteBuffer.allocate(8 + 4 * 3);
 
-  private boolean debug = false;
+  protected boolean debug = false;
 
-  private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
   /**
    * Partition keys identify assigned bucket(s).
@@ -79,7 +79,6 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
     this.maxCacheSize = maxCacheSize;
   }
 
-
   @Override
   public void endWindow()
   {
@@ -90,7 +89,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
       for (Entry<AdInfo, AdInfoAggregateEvent> en : vals.entrySet()) {
         AdInfoAggregateEvent ai = en.getValue();
         try {
-          put(streamCodec.getPartition(ai) & partitionMask, getKey(en.getKey()), getValue(ai));
+          put(getBucketKey(ai), getKey(ai), getValue(ai));
         } catch (IOException e) {
           LOG.warn("Error putting the value", e);
         }
@@ -101,7 +100,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
   }
 
 
-  private byte[] getKey(AdInfo event)
+  protected byte[] getKey(AdInfo event)
   {
     if (debug) {
       StringBuilder keyBuilder = new StringBuilder(32);
@@ -124,7 +123,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
   }
 
 
-  private byte[] getValue(AdInfoAggregateEvent event)
+  protected byte[] getValue(AdInfoAggregateEvent event)
   {
 
     if (debug) {
@@ -144,7 +143,6 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
     valbb.rewind();
     valbb.get(data);
     return data;
-
   }
 
 
@@ -171,7 +169,6 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
           aggregator.aggregate(val, adInfo);
         }
       }
-
     }
 
     @Override
@@ -182,6 +179,10 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
 
   };
 
+  public long getBucketKey(AdInfoAggregateEvent aie)
+  {
+    return (streamCodec.getPartition(aie) & partitionMask);
+  }
 
   public static class BucketKeyStreamCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent>
   {

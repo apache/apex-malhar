@@ -17,10 +17,7 @@ package com.datatorrent.contrib.hds;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -54,11 +51,22 @@ public class HDSReader implements Operator
 
   public static class HDSQuery
   {
-    long bucketKey;
-    byte[] key;
-    int keepAliveCount;
-    volatile byte[] result;
-    boolean processed;
+    public long bucketKey;
+    public byte[] key;
+    public int keepAliveCount;
+    public volatile byte[] result;
+    public boolean processed;
+
+    @Override public String toString()
+    {
+      return "HDSQuery{" +
+          "bucketKey=" + bucketKey +
+          ", key=" + Arrays.toString(key) +
+          ", keepAliveCount=" + keepAliveCount +
+          ", result=" + Arrays.toString(result) +
+          ", processed=" + processed +
+          '}';
+    }
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(HDSReader.class);
@@ -86,7 +94,7 @@ public class HDSReader implements Operator
   /**
    * Map containing all current queries. Accessed by operator and reader threads.
    */
-  private final ConcurrentMap<Slice, HDSQuery> queries = Maps.newConcurrentMap();
+  protected final ConcurrentMap<Slice, HDSQuery> queries = Maps.newConcurrentMap();
   private final Map<Long, BucketReader> buckets = Maps.newHashMap();
 
   @VisibleForTesting
@@ -153,11 +161,11 @@ public class HDSReader implements Operator
   public void endWindow()
   {
     // TODO: expire queries
-    for (HDSQuery query : queries.values())
-    {
+    for (HDSQuery query : queries.values()) {
       if (!query.processed) {
         processQuery(query);
-      } else {
+      }
+      if (query.processed) {
         emitQueryResult(query);
       }
     }
