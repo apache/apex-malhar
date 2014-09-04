@@ -24,9 +24,11 @@ import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
+import com.google.common.util.concurrent.MoreExecutors;
 
 
 public class HDSQueryOperatorTest
@@ -39,13 +41,21 @@ public class HDSQueryOperatorTest
     File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
 
-    HDSQueryOperator hdsOut = new HDSQueryOperator();
+    HDSQueryOperator hdsOut = new HDSQueryOperator() {
+      @Override
+      public void setup(OperatorContext arg0)
+      {
+        super.setup(arg0);
+        super.writeExecutor = super.queryExecutor = MoreExecutors.sameThreadExecutor(); // synchronous processing
+      }
+    };
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
     hdsOut.setFileStore(hdsFile);
     hdsFile.setBasePath(testInfo.getDir());
     hdsOut.setAggregator(new AdInfo.AdInfoAggregator());
     hdsOut.setMaxCacheSize(0);
     hdsOut.setup(null);
+
     hdsOut.setDebug(false);
 
     CollectorTestSink<HDSQueryOperator.HDSRangeQueryResult> queryResults = new CollectorTestSink<HDSQueryOperator.HDSRangeQueryResult>();
@@ -88,10 +98,8 @@ public class HDSQueryOperatorTest
 
     Assert.assertEquals("rangeQueries " + hdsOut.rangeQueries, 1, hdsOut.rangeQueries.size());
     HDSQueryOperator.HDSRangeQuery aq = hdsOut.rangeQueries.values().iterator().next();
-    Assert.assertEquals("numTimeUnits " + hdsOut.rangeQueries, 20, aq.numResults);
+    Assert.assertEquals("numTimeUnits " + hdsOut.rangeQueries, baseMinute, aq.startTime);
 
-    hdsOut.processAllQueries();
-    Thread.sleep(1000);
     hdsOut.endWindow();
 
     Assert.assertEquals("queryResults " + queryResults.collectedTuples, 1,
