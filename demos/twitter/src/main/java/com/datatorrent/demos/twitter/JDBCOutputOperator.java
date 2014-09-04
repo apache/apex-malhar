@@ -27,7 +27,6 @@ import com.google.common.collect.Lists;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 import com.datatorrent.contrib.jdbc.JDBCOperatorBase;
 import com.datatorrent.lib.db.Connectable;
@@ -47,7 +46,6 @@ import com.datatorrent.lib.db.Connectable;
  * @param <T> type of tuples </T>
  * @since 0.9.4
  */
-@ShipContainingJars(classes = {JDBCOperatorBase.class, Connectable.class})
 public abstract class JDBCOutputOperator<T> implements Operator
 {
   public static int DEFAULT_BATCH_SIZE = 1000;

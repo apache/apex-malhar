@@ -23,7 +23,6 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -148,16 +147,16 @@ import com.datatorrent.lib.testbench.ThroughputCounter;
 @ApplicationAnnotation(name="AdsDemo")
 public class Application implements StreamingApplication
 {
- 
+
   public static final String P_allInline = Application.class.getName() + ".allInline";
   public static final String P_enableHdfs = Application.class.getName() + ".enableHdfs";
   private Locality locality = null;
- 
+
   private void configure(DAG dag, Configuration conf)
   {
 
     if (StreamingApplication.Environment.CLUSTER == conf.getEnum(StreamingApplication.ENVIRONMENT, StreamingApplication.Environment.LOCAL)) {
-     
+
       // settings only affect distributed mode
       AttributeMap attributes = dag.getAttributes();
       if (attributes.get(DAGContext.CONTAINER_MEMORY_MB) == null) {
@@ -171,7 +170,7 @@ public class Application implements StreamingApplication
       }
     }
     else if (StreamingApplication.Environment.LOCAL == conf.getEnum(StreamingApplication.ENVIRONMENT, StreamingApplication.Environment.CLUSTER)) {
-     
+
     }
     this.locality = conf.getBoolean(P_allInline, false) ? Locality.CONTAINER_LOCAL : null;
 
@@ -245,7 +244,7 @@ public class Application implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-	
+
     configure(dag, conf);
     //dag.setAttribute(DAG.APPLICATION_NAME, "AdsApplication");
     EventGenerator viewGen =dag.addOperator("viewGen", EventGenerator.class);

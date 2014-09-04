@@ -24,6 +24,8 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
+
 /**
  * JDBC output adapter operator, for ArrayList column mapping and non-transaction type database write.<p><br>
  * The tuple can contain an array of java object. <br>
@@ -46,7 +48,9 @@ import org.slf4j.LoggerFactory;
  * <br>
  *
  * @since 0.3.2
+ * @deprecated use {@link AbstractJdbcNonTransactionableOutputOperator}
  */
+@Deprecated
 public class JDBCNonTransactionArrayListOutputOperator extends JDBCNonTransactionOutputOperator<ArrayList<Object>>
 {
   private static final Logger logger = LoggerFactory.getLogger(JDBCNonTransactionArrayListOutputOperator.class);

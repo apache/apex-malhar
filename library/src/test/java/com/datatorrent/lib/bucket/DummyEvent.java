@@ -74,19 +74,20 @@ public class DummyEvent implements Event, Bucketable, Comparable<DummyEvent>
   @Override
   public Object getEventKey()
   {
-    return this;
+    return id;
   }
 
   @Override
   public int compareTo(@Nonnull DummyEvent dummyEvent)
   {
-    if (this.equals(dummyEvent)) {
-      return 0;
-    }
-    if (id < dummyEvent.id) {
-      return -1;
-    }
-    return 1;
+    return id - dummyEvent.id;
+//    if (this.equals(dummyEvent)) {
+//      return 0;
+//    }
+//    if (id < dummyEvent.id) {
+//      return -1;
+//    }
+//    return 1;
   }
 
   @Override

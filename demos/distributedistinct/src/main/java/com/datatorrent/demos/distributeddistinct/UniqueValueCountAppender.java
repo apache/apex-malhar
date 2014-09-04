@@ -53,6 +53,8 @@ import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
  * in the windows greater than the activation window, then re-enter them as needed to keep it stateful.<br/>
  * This operator, when appended to {@link UniqueValueCount} will keep track of the
  * unique values emitted since the start of the application.
+ *
+ * @since 1.0.4
  */
 public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedOperator<InternalCountOutput<V>> implements Partitioner<UniqueValueCountAppender<V>>
 {
@@ -63,6 +65,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   protected transient boolean batch;
 
   public UniqueValueCountAppender()
+
   {
     partitionKeys = Sets.newHashSet(0);
     partitionMask = 0;
@@ -74,10 +77,10 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
     super.setup(context);
     LOGGER.debug("store properties {} {}", store.getDbDriver(), store.getDbUrl());
     LOGGER.debug("table name {}", tableName);
-    windowID = context.getAttributes().get(Context.OperatorContext.ACTIVATION_WINDOW_ID);
+    windowID = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     try {
-      ResultSet resultSet = store.getConnection().createStatement().executeQuery("SELECT col1 FROM " + tableName + " WHERE col3 > " + windowID);
-      PreparedStatement deleteStatement = store.getConnection().prepareStatement("DELETE FROM " + tableName + " WHERE col3 > " + windowID + " AND col1 = ?");
+      ResultSet resultSet = store.getConnection().createStatement().executeQuery("SELECT col1 FROM " + tableName + " WHERE col3 >= " + windowID);
+      PreparedStatement deleteStatement = store.getConnection().prepareStatement("DELETE FROM " + tableName + " WHERE col3 >= " + windowID + " AND col1 = ?");
 
       Set<Object> deletedKeys = Sets.newHashSet();
       while (resultSet.next()) {
@@ -100,12 +103,12 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
 
     Object key = getKeyFromTuple(tuple);
     @SuppressWarnings("unchecked")
-    Set<Object> values = (Set<Object>) storeManager.get(key);
+    Set<Object> values = (Set<Object>) cacheManager.get(key);
     if (values == null) {
       values = Sets.newHashSet();
     }
     values.addAll(tuple.getInternalSet());
-    storeManager.put(key, values);
+    cacheManager.put(key, values);
   }
 
   @Override
@@ -121,7 +124,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   }
 
   @Override
-  public Map<Object, Object> fetchStartupData()
+  public Map<Object, Object> loadInitialData()
   {
     return null;
   }
@@ -135,9 +138,6 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
       if (batch) {
         putStatement.executeBatch();
         putStatement.clearBatch();
-      }
-      else {
-        putStatement.executeUpdate();
       }
     }
     catch (SQLException e) {
@@ -161,6 +161,18 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   protected Object getKeyFromTuple(InternalCountOutput<V> tuple)
   {
     return tuple.getKey();
+  }
+
+  @Override
+  public void putAll(Map<Object, Object> m)
+  {
+    throw new UnsupportedOperationException("not supported");
+  }
+
+  @Override
+  public void remove(Object key)
+  {
+    throw new UnsupportedOperationException("not supported");
   }
 
   /**
@@ -203,8 +215,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
       statefulUniqueCountInstance.partitionMask = lPartitionMask;
       statefulUniqueCountInstance.store = anOldOperator.store;
       statefulUniqueCountInstance.tableName = anOldOperator.tableName;
-      statefulUniqueCountInstance.cacheProperties = anOldOperator.cacheProperties;
-      statefulUniqueCountInstance.cacheRefreshTime = anOldOperator.cacheRefreshTime;
+      statefulUniqueCountInstance.cacheManager = anOldOperator.cacheManager;
     }
     return newPartitions;
   }

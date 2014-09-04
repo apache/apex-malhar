@@ -19,7 +19,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import com.datatorrent.api.CheckpointListener;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
@@ -63,7 +62,6 @@ import org.slf4j.LoggerFactory;
  * @since 0.3.2
  */
 //SimpleConsumer is kafka consumer client used by this operator, zkclient is used by high-level kafka consumer
-@ShipContainingJars(classes = {kafka.javaapi.consumer.SimpleConsumer.class, org.I0Itec.zkclient.ZkClient.class, scala.Function.class, Metrics.class})
 public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>, CheckpointListener
 {
   @SuppressWarnings("unused")

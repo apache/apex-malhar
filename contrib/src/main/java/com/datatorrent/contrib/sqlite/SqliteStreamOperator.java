@@ -20,7 +20,6 @@ import com.almworks.sqlite4java.SQLiteException;
 import com.almworks.sqlite4java.SQLiteStatement;
 import com.datatorrent.lib.streamquery.AbstractSqlStreamOperator;
 import com.datatorrent.lib.streamquery.AbstractSqlStreamOperator.InputSchema.ColumnInfo;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.Context.OperatorContext;
 import java.io.File;
 import java.util.ArrayList;
@@ -34,7 +33,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {com.almworks.sqlite4java.SQLiteConnection.class})
 public class SqliteStreamOperator extends AbstractSqlStreamOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(SqliteStreamOperator.class);

@@ -15,8 +15,9 @@
  */
 package com.datatorrent.lib.db.cache;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import javax.annotation.Nullable;
 
@@ -24,14 +25,15 @@ import junit.framework.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Predicate;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * Tests for {@link StoreManager}
+ * Tests for {@link CacheManager}
  */
-public class StoreManagerTest
+public class CacheManagerTest
 {
-  private static class DummyBackupStore implements Store.Backup
+  private static class DummyBackupStore implements CacheManager.Backup
   {
 
     private static final Map<Object, Object> backupMap = Maps.newHashMap();
@@ -50,14 +52,14 @@ public class StoreManagerTest
     }
 
     @Override
-    public Map<Object, Object> fetchStartupData()
+    public Map<Object, Object> loadInitialData()
     {
       return Maps.filterKeys(backupMap, new Predicate<Object>()
       {
         @Override
         public boolean apply(@Nullable Object key)
         {
-          return ((Integer) key).intValue() <= 5;
+          return key != null && (Integer) key <= 5;
         }
       });
     }
@@ -69,41 +71,61 @@ public class StoreManagerTest
     }
 
     @Override
-    public Map<Object, Object> bulkGet(final Set<Object> keys)
+    public List<Object> getAll(final List<Object> keys)
     {
-      return Maps.filterEntries(backupMap, new Predicate<Map.Entry<Object, Object>>()
-      {
-        @Override
-        public boolean apply(@Nullable Map.Entry<Object, Object> entry)
-        {
-          return keys.contains(entry.getKey());
-        }
-      });
+      List<Object> values = Lists.newArrayList();
+      for (Object key : keys) {
+        values.add(backupMap.get(key));
+      }
+      return values;
     }
 
     @Override
-    public void teardown()
+    public void put(Object key, Object value)
     {
-      //Do nothing
+      backupMap.put(key, value);
     }
 
-	@Override
-	public void put(Object key, Object value) {
-		backupMap.put(key, value);
-	}
+    @Override
+    public void putAll(Map<Object, Object> m)
+    {
+      throw new UnsupportedOperationException("not supported");
+    }
+
+    @Override
+    public void remove(Object key)
+    {
+      throw new UnsupportedOperationException("not supported");
+    }
+
+    @Override
+    public void connect() throws IOException
+    {
+    }
+
+    @Override
+    public void disconnect() throws IOException
+    {
+    }
+
+    @Override
+    public boolean connected()
+    {
+      return true;
+    }
   }
 
   @Test
-  public void testStoreManager()
+  public void testCacheManager() throws IOException
   {
-    Store.Primary primary = new CacheStore(new CacheProperties());
-    StoreManager manager = new StoreManager(primary, new DummyBackupStore());
-    manager.initialize(null);
+    CacheManager manager = new CacheManager();
+    manager.setBackup(new DummyBackupStore());
+    manager.initialize();
 
-    Assert.assertEquals("manager initialization- value", "one", primary.get(1));
-    Assert.assertEquals("manager initializaton- total", 5, primary.getKeys().size());
+    Assert.assertEquals("manager initialization- value", "one", manager.primary.get(1));
+    Assert.assertEquals("manager initializaton- total", 5, manager.primary.getKeys().size());
 
     Assert.assertEquals("backup hit", "six", manager.get(6));
-    Assert.assertEquals("primary updated- total", 6, primary.getKeys().size());
+    Assert.assertEquals("primary updated- total", 6, manager.primary.getKeys().size());
   }
 }

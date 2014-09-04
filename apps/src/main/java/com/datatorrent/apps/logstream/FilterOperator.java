@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
 import com.datatorrent.apps.logstream.PropertyRegistry.PropertyRegistry;
@@ -39,7 +38,6 @@ import com.datatorrent.common.util.DTThrowable;
  *
  * @since 0.9.4
  */
-@ShipContainingJars(classes = {org.codehaus.janino.ExpressionEvaluator.class})
 public class FilterOperator extends BaseOperator
 {
   public final transient DefaultOutputPort<HashMap<String, Object>> outputMap = new DefaultOutputPort<HashMap<String, Object>>();

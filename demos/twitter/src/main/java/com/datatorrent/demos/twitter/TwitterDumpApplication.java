@@ -33,7 +33,6 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  * An application which connects to Twitter Sample Input and stores all the
@@ -67,7 +66,6 @@ import com.datatorrent.api.annotation.ShipContainingJars;
 @ApplicationAnnotation(name="TwitterDumpDemo")
 public class TwitterDumpApplication implements StreamingApplication
 {
-  @ShipContainingJars(classes = {com.mysql.jdbc.Driver.class})
   public static class Status2Database extends JDBCOutputOperator<Status>
   {
     public static final String INSERT_STATUS_STATEMENT = "insert into tweets (window_id, creation_date, text, userid) values (?, ?, ?, ?)";

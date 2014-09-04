@@ -34,6 +34,8 @@ import com.datatorrent.lib.io.ConsoleOutputOperator;
  * value pairs and emits them to the UniqueValueCount operator which keeps track of the unique values per window. It
  * then emits the values to the StatefulUniqueCount which uses a combination of a cache and database to keep track of
  * the overall unique values and outputs the resulting unique value count to the ConsoleOutputOperator.
+ *
+ * @since 1.0.4
  */
 @ApplicationAnnotation(name = "StatefulDistinctCount")
 public class StatefulApplication implements StreamingApplication

@@ -36,7 +36,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import java.lang.reflect.Array;
 
 /**
@@ -53,7 +52,6 @@ import java.lang.reflect.Array;
  *
  * @since 0.9.3
  */
-@ShipContainingJars(classes = {com.ning.http.client.websocket.WebSocket.class})
 public class WidgetOutputOperator extends BaseOperator
 {
   protected transient WebSocketOutputOperator<Pair<String, Object>> wsoo = new WebSocketOutputOperator<Pair<String,Object>>(){

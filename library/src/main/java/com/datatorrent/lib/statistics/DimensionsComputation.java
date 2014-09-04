@@ -33,7 +33,6 @@ import com.esotericsoftware.kryo.io.Output;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  * <p>DimensionsComputation class.</p>
@@ -41,7 +40,6 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  * @since 1.0.2
  */
-@ShipContainingJars(classes = {TCustomHashMap.class, HashingStrategy.class})
 public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputation.AggregateEvent> implements Operator
 {
   private Unifier<AGGREGATE> unifier;

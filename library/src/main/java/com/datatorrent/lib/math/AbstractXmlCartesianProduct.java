@@ -16,7 +16,8 @@
 package com.datatorrent.lib.math;
 
 import com.datatorrent.api.Context;
-import com.datatorrent.lib.xml.XmlDOMOperator;
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.xml.AbstractXmlDOMOperator;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -123,7 +124,7 @@ import java.util.List;
  *
  * @since 1.0.1
  */
-public abstract class AbstractXmlCartesianProduct<T> extends XmlDOMOperator<T>
+public abstract class AbstractXmlCartesianProduct<T> extends AbstractXmlDOMOperator<T>
 {
   @NotNull
   private String config;
@@ -142,7 +143,7 @@ public abstract class AbstractXmlCartesianProduct<T> extends XmlDOMOperator<T>
       }
       processResult(result, tuple);
     } catch (XPathExpressionException e) {
-      e.printStackTrace();
+      DTThrowable.rethrow(e);
     }
   }
 

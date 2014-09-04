@@ -29,7 +29,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * This operator demonstrates {@link UniqueValueCountAppender} given that the keys and values of the preceding {@link UniqueValueCount} operator
  * are both integers. <br/>
  * It will keep track of the number of all the unique values emitted per key since the application starts.
- * 
+ *
+ * @since 1.0.4
  */
 public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<Integer>
 {
@@ -55,13 +56,13 @@ public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<In
   @Override
   protected void preparePutStatement(PreparedStatement putStatement, Object key, Object value) throws SQLException
   {
-    batch = true;
     @SuppressWarnings("unchecked")
     Set<Integer> valueSet = (Set<Integer>) value;
     for (Integer val : valueSet) {
       @SuppressWarnings("unchecked")
       Set<Integer> currentVals = (Set<Integer>) get(key);
       if (!currentVals.contains(val)) {
+        batch = true;
         putStatement.setInt(1, (Integer) key);
         putStatement.setInt(2, val);
         putStatement.setLong(3, windowID);
@@ -80,7 +81,7 @@ public class IntegerUniqueValueCountAppender extends UniqueValueCountAppender<In
       while (resultSet.next()) {
         int val = resultSet.getInt(1);
         @SuppressWarnings("unchecked")
-        Set<Integer> valSet = (Set<Integer>) storeManager.get(val);
+        Set<Integer> valSet = (Set<Integer>) cacheManager.get(val);
         output.emit(new KeyValPair<Object, Object>(val, valSet.size()));
       }
     } catch (SQLException e) {
