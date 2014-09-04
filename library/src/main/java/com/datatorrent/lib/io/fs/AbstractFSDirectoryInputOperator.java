@@ -58,7 +58,7 @@ import org.slf4j.LoggerFactory;
  * <p/>
  * This class supports retrying of failed files by putting them into failed list, and retrying them after pending
  * files are processed. Retrying is disabled when maxRetryCount is set to zero.
- *
+ * @param <T> The type of the object that this input operator reads.
  * @since 1.0.2
  */
 public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperator, Partitioner<AbstractFSDirectoryInputOperator<T>>, StatsListener
@@ -156,7 +156,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
      * The number of times the logical operator tried to resume reading a file
      * on which it encountered an error.
      */
-    NUMBER_OF_RETRIES;
+    NUMBER_OF_RETRIES
   }
 
   /**
@@ -198,7 +198,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     /**
      * The number of files pending on the physical operator.
      */
-    PENDING_FILES;
+    PENDING_FILES
   }
 
   /**
@@ -221,9 +221,12 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
    * <p/>
    * @since 1.0.4
    */
+  @SuppressWarnings("unchecked")
   public final static class FileCountersAggregator implements CountersAggregator,
                                                         Serializable
   {
+    private static final long serialVersionUID = 1L;
+
     public FileCountersAggregator()
     {
     }
@@ -245,7 +248,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       MutableLong totalLocalNumberOfRetries = new MutableLong(0);
 
       for(Object fileCounters: countersList) {
-        BasicCounters basicFileCounters = (BasicCounters) fileCounters;
+        BasicCounters<MutableLong> basicFileCounters = (BasicCounters<MutableLong>) fileCounters;
         totalLocalProcessedFiles.add(basicFileCounters.getCounter(FileCounters.LOCAL_PROCESSED_FILES));
         pendingFiles.add(basicFileCounters.getCounter(FileCounters.PENDING_FILES));
         totalLocalNumberOfFailures.add(basicFileCounters.getCounter(FileCounters.LOCAL_NUMBER_OF_FAILURES));
@@ -257,7 +260,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       globalNumberOfFailures.add(totalLocalNumberOfFailures);
       globalNumberOfRetries.add(totalLocalNumberOfRetries);
 
-      BasicCounters<MutableLong> aggregatedCounters = new BasicCounters(MutableLong.class);
+      BasicCounters<MutableLong> aggregatedCounters = new BasicCounters<MutableLong>(MutableLong.class);
       aggregatedCounters.setCounter(AggregatedFileCounters.PROCESSED_FILES, globalProcessedFiles);
       aggregatedCounters.setCounter(AggregatedFileCounters.PENDING_FILES, pendingFiles);
       aggregatedCounters.setCounter(AggregatedFileCounters.NUMBER_OF_ERRORS, totalLocalNumberOfFailures);
@@ -435,15 +438,15 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public void endWindow()
   {
     if(context != null) {
-      int pendingFileCount = ((int) pendingFiles.size()) +
-                             ((int) failedFiles.size()) +
-                             ((int) unfinishedFiles.size());
+      int pendingFileCount = pendingFiles.size() +
+                             failedFiles.size() +
+                             unfinishedFiles.size();
 
       if(currentFile != null) {
         pendingFileCount++;
       }
 
-      BasicCounters<MutableLong> fileCounters = new BasicCounters(MutableLong.class);
+      BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
       fileCounters.setCounter(FileCounters.GLOBAL_PROCESSED_FILES,
                               new MutableLong(globalProcessedFileCount));
       fileCounters.setCounter(FileCounters.LOCAL_PROCESSED_FILES,
@@ -749,6 +752,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
    * Read the next item from the stream. Depending on the type of stream, this could be a byte array, line or object.
    * Upon return of null, the stream will be considered fully consumed.
    * @throws IOException
+   * @return Depending on the type of stream an object is returned. When null is returned the stream is consumed.
    */
   abstract protected T readEntity() throws IOException;
 
