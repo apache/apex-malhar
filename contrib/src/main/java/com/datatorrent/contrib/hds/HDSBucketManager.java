@@ -57,7 +57,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
   protected transient ExecutorService writeExecutor;
   private transient Exception writerError;
 
-  private int maxFileSize = 64000;
+  private int maxFileSize = 128 * 1024 * 1024; // 128m
   private int maxWalFileSize = 64 * 1024 * 1024;
   private int flushSize = 1000000;
   private int flushIntervalCount = 30;
