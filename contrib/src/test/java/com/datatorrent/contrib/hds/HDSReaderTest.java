@@ -83,12 +83,12 @@ public class HDSReaderTest
     reader.endWindow(); // process query
 
     Assert.assertArrayEquals("query result after endWindow", data.getBytes(), q.result);
-    Assert.assertEquals("query results", 0, results.size());
+    Assert.assertEquals("query results", 1, results.size());
 
     reader.beginWindow(2);
     reader.endWindow(); // emit result
 
-    Assert.assertEquals("query results", 1, results.size());
+    Assert.assertEquals("query results", 2, results.size());
 
     reader.teardown();
   }
