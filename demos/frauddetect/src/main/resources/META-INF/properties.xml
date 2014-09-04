@@ -1,0 +1,147 @@
+<configuration>
+<property>
+	<name>dt.attr.STREAMING_WINDOW_SIZE_MILLIS</name>
+	<value>1000</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.ccUserAlertQueryOutput.topic</name>
+	<value>demos.app.frauddetect.fraudAlert</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.binUserAlertOutput.topic</name>
+	<value>demos.app.frauddetect.fraudAlert</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.avgUserAlertQueryOutput.topic</name>
+	<value>demos.app.frauddetect.fraudAlert</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.txSummaryWsOutput.topic</name>
+	<value>demos.app.frauddetect.txSummary</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.bankInfoFraudDetector.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>10</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.bankInfoFraudDetector.threshold
+	</name>
+	<value>20</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.rangePerMerchant.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.txReceiver.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+<!-- property>
+	<name>dt.application.frauddetect.operator.smaPerMerchant.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property-->
+<property>
+	<name>dt.application.FraudDetectDemo.operator.smaPerMerchant.windowSize
+	</name>
+	<value>30</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.movingSum.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>10</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.movingSum.windowSize
+	</name>
+	<value>3</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.avgAlerter.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.avgAlerter.threshold
+	</name>
+	<value>1200</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.amountFraudDetector.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.amountFraudDetector.threshold
+	</name>
+	<value>420</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoTxStatsOutput.hostName</name>
+	<value>localhost</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoTxStatsOutput.dataBase</name>
+	<value>frauddetect</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoTxStatsOutput.collection</name>
+	<value>txStats</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoBinAlertsOutput.hostName</name>
+	<value>localhost</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoBinAlertsOutput.dataBase</name>
+	<value>frauddetect</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoBinAlertsOutput.collection</name>
+	<value>binAlerts</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoCcAlertsOutput.hostName</name>
+	<value>localhost</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoCcAlertsOutput.dataBase</name>
+	<value>frauddetect</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoCcAlertsOutput.collection</name>
+	<value>ccAlerts</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoAvgAlertsOutput.hostName</name>
+	<value>localhost</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoAvgAlertsOutput.dataBase</name>
+	<value>frauddetect</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.mongoAvgAlertsOutput.collection</name>
+	<value>avgAlerts</value>
+</property>
+<property>
+	<name>dt.application.FraudDetectDemo.operator.txStatsAggregator.attr.APPLICATION_WINDOW_COUNT
+	</name>
+	<value>1</value>
+</property>
+
+<property>
+     <name>dt.application.FraudDetectDemo.port.*.attr.QUEUE_CAPACITY</name>
+     <value>32000</value>
+  </property>
+ <property>
+    <name>dt.application.FraudDetectDemo.attr.CONTAINER_MEMORY_MB</name>
+    <value>2048</value>
+  </property>
+
+</configuration>
+
+

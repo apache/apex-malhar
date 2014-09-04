@@ -1,0 +1,17 @@
+<configuration>
+	<property>
+		<name>dt.application.WordCountDemo.class</name>
+		<value>com.datatorrent.demos.wordcount.Application</value>
+		<description>An alias for the application</description>
+	</property>
+	<property>
+		<name>dt.application.WordCountDemo.operator.wordinput.fileName</name>
+		<value>samplefile.txt</value>
+	</property>
+	<property>
+		<name>dt.application.WordCountDemo.stream.wordinput.count.locality</name>
+		<value>CONTAINER_LOCAL</value>
+		<description>Specify container locality for the viewtuplecount stream
+		</description>
+	</property>
+</configuration>

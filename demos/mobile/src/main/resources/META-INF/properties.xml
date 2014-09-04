@@ -1,0 +1,59 @@
+<configuration>
+ <property>
+	<name>dt.application.MobileDemo.operator.Receiver.tuplesBlast</name>
+	<value>200</value>
+</property>
+ <property>
+	<name>dt.application.MobileDemo.operator.Receiver.tuplesBlastIntervalMillis</name>
+	<value>5</value>
+</property>
+<property>
+	<name>dt.application.MobileDemo.operator.Receiver.outputport.integer_data.attr.QUEUE_CAPACITY
+	</name>
+	<value>32768</value>
+</property>
+ <property>
+	<name>dt.application.MobileDemo.operator.LocationFinder.range</name>
+	<value>20</value>
+</property>
+ <property>
+	<name>dt.application.MobileDemo.operator.LocationFinder.threshold</name>
+	<value>80</value>
+</property>
+ <property>
+	<name>dt.application.MobileDemo.operator.LocationFinder.attr.INITIAL_PARTITION_COUNT
+	</name>
+	<value>2</value> 
+</property>
+<property>
+	<name>dt.application.MobileDemo.operator.LocationFinder.attr.PARTITION_TPS_MIN
+	</name>
+	<value>10000</value> 
+</property>
+<property>
+	<name>dt.application.MobileDemo.operator.LocationFinder.attr.PARTITION_TPS_MAX
+	</name>
+	<value>30000</value> 
+</property>
+<property>
+	<name>dt.application.MobileDemo.operator.LocationFinder.inputport.data.attr.QUEUE_CAPACITY
+	</name>
+	<value>32768</value>
+</property>
+ <property>
+	<name>dt.application.MobileDemo.operator.LocationResults.topic</name>
+	<value>demos.mobile.phoneLocationQueryResult</value>
+</property>
+<property>
+	<name>dt.application.MobileDemo.operator.phoneLocationQueryWS.topic</name>
+	<value>demos.mobile.phoneLocationQuery</value>
+</property>
+ <property>
+    <name>dt.application.MobileDemo.attr.CONTAINER_MEMORY_MB</name>
+    <value>2048</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+</configuration>

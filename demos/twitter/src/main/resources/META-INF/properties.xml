@@ -1,0 +1,49 @@
+
+<!-- properties for rolling top words demo -->
+<configuration>
+<property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+	<property>
+		<name>dt.application.RollingTopWordsDemo.operator.TopCounter.topCount
+		</name>
+		<value>10</value>
+	</property>
+	<property>
+		<name>dt.application.RollingTopWordsDemo.stream.TweetStream.locality
+		</name>
+		<value>CONTAINER_LOCAL</value>
+	</property>
+	<property>
+		<name>dt.application.RollingTopWordsDemo.stream.TwittedWords.locality
+		</name>
+		<value></value>
+	</property>
+	<property>
+		<name>dt.application.RollingTopWordsDemo.stream.UniqueWordCounts.locality
+		</name>
+		<value></value>
+	</property>
+	<property>
+		<name>dt.application.RollingTopWordsDemo.stream.TopWords.locality</name>
+		<value></value>
+	</property>
+	<property>
+		<name>dt.operator.TweetSampler.consumerKey</name>
+		<value>r1DqM35iCTjbgLHf1R7rDbF5R</value>
+	</property>
+	<property>
+		<name>dt.operator.TweetSampler.consumerSecret</name>
+		<value>KBpZiR0glPzvZPm1Sa7sq9MCGQ2H2DrVChNtmYQcU75fwuHjed</value>
+	</property>
+	<property>
+		<name>dt.operator.TweetSampler.accessToken</name>
+		<value>2490355837-lXKev9vIGzftDjDu9LlyQiuGAqjYyPELFRyRpQo</value>
+	</property>
+	<property>
+		<name>dt.operator.TweetSampler.accessTokenSecret</name>
+		<value>lmAxZlFhcBqeTxmyatFT43fzshzrv6lsOAtHDsCBLjiuk</value>
+	</property>
+
+</configuration>
