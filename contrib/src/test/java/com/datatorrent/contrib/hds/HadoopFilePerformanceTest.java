@@ -35,6 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.lang.management.MemoryMXBean;
 import java.util.*;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
@@ -75,6 +76,7 @@ public class HadoopFilePerformanceTest {
   private static int testSize = Integer.parseInt(System.getProperty("TEST_KV_COUNT", "10000"));
   private static int keySizeBytes = Integer.parseInt(System.getProperty("TEST_KEY_SIZE_BYTES", "100"));
   private static int valueSizeBytes = Integer.parseInt(System.getProperty("TEST_VALUE_SIZE_BYTES", "1000"));
+  private static int blockSize = Integer.parseInt(System.getProperty("TEST_BLOCK_SIZE", "65536"));
   private static char[] valueValidChars = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".toCharArray();
   private static String keyFormat = "%0" + keySizeBytes + "d";
   private static Map<String, String> testSummary = new TreeMap<String, String>();
@@ -184,10 +186,18 @@ public class HadoopFilePerformanceTest {
 
     Text key = new Text();
     Text value = new Text();
+
+
+    long fsMinBlockSize = conf.getLong("dfs.namenode.fs-limits.min-block-size", 0);
+
+    long testBlockSize = ((long)blockSize < fsMinBlockSize ) ? fsMinBlockSize : (long)blockSize;
+
     MapFile.Writer writer =  new MapFile.Writer(conf, path,
             MapFile.Writer.keyClass(key.getClass()),
             MapFile.Writer.valueClass(value.getClass()),
-            MapFile.Writer.compression(SequenceFile.CompressionType.NONE));
+            MapFile.Writer.compression(SequenceFile.CompressionType.NONE),
+            SequenceFile.Writer.blockSize(testBlockSize),
+            SequenceFile.Writer.bufferSize((int)testBlockSize));
     for (int i=0; i < testSize; i++) {
       key.set(getKey(i));
       value.set(getValue());
@@ -224,7 +234,12 @@ public class HadoopFilePerformanceTest {
     Text value = new Text();
 
     writeMapFile();
-    MapFile.Reader reader = new MapFile.Reader(Testfile.MAPFILE.filepath(), conf);
+
+    // Set amount of memory to use for buffer
+    float bufferPercent = 0.25f;
+    int bufferSize = (int)(ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * bufferPercent);
+
+    MapFile.Reader reader = new MapFile.Reader(Testfile.MAPFILE.filepath(), conf, SequenceFile.Reader.bufferSize(bufferSize));
 
     startTimer();
     reader.reset();
@@ -263,7 +278,7 @@ public class HadoopFilePerformanceTest {
     KeyValue.KVComparator comparator = new KeyValue.RawBytesComparator();
 
     HFileContext context = new HFileContextBuilder()
-            .withBlockSize(conf.getInt("hbase.mapreduce.hfileoutputformat.blocksize", HConstants.DEFAULT_BLOCKSIZE))
+            .withBlockSize(blockSize)
             .withCompression(compression)
             .build();
 
@@ -289,7 +304,7 @@ public class HadoopFilePerformanceTest {
 
     FSDataOutputStream fos = hdfs.create(file);
 
-    TFile.Writer writer = new TFile.Writer(fos, 64 * 1024, cname, "jclass:" + BytesWritable.Comparator.class.getName(), new Configuration());
+    TFile.Writer writer = new TFile.Writer(fos, blockSize, cname, "jclass:" + BytesWritable.Comparator.class.getName(), new Configuration());
 
     for (int i=0; i < testSize; i++) {
       String k = getKey(i);
