@@ -1,24 +1,43 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.demos.adsdimension;
+
+import java.nio.ByteBuffer;
+import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.*;
-import java.nio.ByteBuffer;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import com.google.common.collect.Sets;
 
 public class HDSQueryOperator extends HDSOutputOperator
 {
-  public final transient DefaultOutputPort<HDSRangeQueryResult> queryResult =
-      new DefaultOutputPort<HDSRangeQueryResult>();
+  public final transient DefaultOutputPort<HDSRangeQueryResult> queryResult = new DefaultOutputPort<HDSRangeQueryResult>();
 
   public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
   {
@@ -38,8 +57,8 @@ public class HDSQueryOperator extends HDSOutputOperator
     public int windowCountdown;
     public  AdInfo.AdInfoAggregateEvent prototype;
     public long startTime;
-    public int numResults;
     public long endTime;
+    private transient Set<HDSQuery> results = Sets.newHashSet();
   }
 
   /**
@@ -63,18 +82,17 @@ public class HDSQueryOperator extends HDSOutputOperator
 
   @VisibleForTesting
   protected transient final Map<String, HDSRangeQuery> rangeQueries = Maps.newConcurrentMap();
+  private transient final Map<HDSQuery, HDSRangeQuery> queryGrouping = Maps.newHashMap();
   private ObjectMapper mapper = null;
 
   public void registerQuery(String queryString) throws Exception
   {
     if (mapper == null) {
       mapper = new ObjectMapper();
-      mapper.configure(
-          org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
-    QueryParameters queryParams =
-        mapper.readValue(queryString, QueryParameters.class);
+    QueryParameters queryParams = mapper.readValue(queryString, QueryParameters.class);
 
     if (queryParams.id == null) {
       return;
@@ -87,35 +105,22 @@ public class HDSQueryOperator extends HDSOutputOperator
     query.prototype = key;
     query.windowCountdown = 30;
     query.startTime = queryParams.startTime;
-    query.numResults = queryParams.numResults;
+    //query.numResults = queryParams.numResults;
     query.endTime = queryParams.endTime;
 
     rangeQueries.put(query.id, query);
+
+    // TODO: set query for each point in series
+    HDSQuery q = new HDSQuery();
+    query.prototype.timestamp = query.startTime;
+    q.bucketKey = getBucketKey(query.prototype);
+    q.key = getKey(query.prototype);
+    super.addQuery(q);
+    this.queryGrouping.put(q, query);
+
   }
 
-
-  public void processAllQueries() {
-
-    for(HDSRangeQuery query : rangeQueries.values()) {
-      // TODO: Generate multiple queries, currently we are
-      // generating single point query for start time only.
-      HDSQuery q = new HDSQuery();
-      query.prototype.timestamp = query.startTime;
-      q.bucketKey = getBucketKey(query.prototype);
-      q.key = getKey(query.prototype);
-      addQuery(q);
-    }
-
-    for(HDSQuery q : queries.values())
-    {
-      processQuery(q);
-    }
-  }
-
-  private transient final ByteBuffer valbb = ByteBuffer.allocate(8 * 4);
-  private transient final ByteBuffer keybb = ByteBuffer.allocate(8 + 4 * 3);
-
-  private AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(byte[] key, byte[] value) throws IOException
+  private AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(byte[] key, byte[] value)
   {
     AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
     if (debug) {
@@ -164,26 +169,46 @@ public class HDSQueryOperator extends HDSOutputOperator
     return ae;
   }
 
-  @Override protected void emitQueryResult(HDSQuery query)
+  @Override
+  protected void emitQueryResult(HDSQuery query)
   {
-    AdInfo.AdInfoAggregateEvent ae;
-    try {
-      ae = getAggregatesFromBytes(query.key, query.result);
-    } catch (Exception ex) {
-      System.out.println("parse exception");
-      ex.printStackTrace();
-      System.out.println(ex.getMessage());
+    HDSRangeQuery rangeQuery = this.queryGrouping.get(query);
+    if (rangeQuery == null) {
+      LOG.debug("Did not find the series for {}", query);
       return;
     }
-
-    // TODO: track the top level query, and add to its result set.
-    // For now generating a fake result.
-    HDSRangeQueryResult res = new HDSRangeQueryResult();
-    res.id = "";
-    res.data = Lists.newArrayList();
-    res.data.add(ae);
-    queryResult.emit(res);
+    rangeQuery.results.add(query);
   }
 
-  private static transient final Logger LOG = LoggerFactory.getLogger(HDSQueryOperator.class);
+  @Override
+  public void endWindow()
+  {
+    super.endWindow();
+
+    Iterator<Map.Entry<String, HDSRangeQuery>> it = this.rangeQueries.entrySet().iterator();
+    while (it.hasNext()) {
+      Map.Entry<String, HDSRangeQuery> e = it.next();
+      HDSRangeQuery rangeQuery = e.getValue();
+      if (--rangeQuery.windowCountdown < 0) {
+        LOG.debug("Removing expired query {}", rangeQuery);
+        it.remove(); // query expired
+        continue;
+      }
+
+      if (!rangeQuery.results.isEmpty()) {
+        HDSRangeQueryResult res = new HDSRangeQueryResult();
+        res.id = rangeQuery.id;
+        res.countDown = rangeQuery.windowCountdown;
+        res.data = Lists.newArrayListWithExpectedSize(rangeQuery.results.size());
+        for (HDSQuery query : rangeQuery.results) {
+          AdInfo.AdInfoAggregateEvent ae = getAggregatesFromBytes(query.key, query.result);
+          res.data.add(ae);
+        }
+        queryResult.emit(res);
+        rangeQuery.results.clear();
+      }
+    }
+  }
+
+  private static final Logger LOG = LoggerFactory.getLogger(HDSQueryOperator.class);
 }
