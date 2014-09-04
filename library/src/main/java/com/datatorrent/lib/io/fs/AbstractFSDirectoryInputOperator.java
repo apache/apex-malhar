@@ -221,17 +221,17 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
    * <p/>
    * @since 1.0.4
    */
-  @SuppressWarnings("unchecked")
   public final static class FileCountersAggregator implements CountersAggregator,
                                                         Serializable
   {
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 201409041428L;
 
     public FileCountersAggregator()
     {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Object aggregate(Collection<?> countersList)
     {
       if(countersList.isEmpty()) {
@@ -767,6 +767,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
    * Repartition is required when number of partitions are not equal to required
    * partitions.
    * @param batchedOperatorStats the stats to use when repartitioning.
+   * @return Returns the stats listener response.
    */
   @Override
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
