@@ -16,7 +16,6 @@
 package com.datatorrent.demos.adsdimension;
 
 import java.io.File;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;

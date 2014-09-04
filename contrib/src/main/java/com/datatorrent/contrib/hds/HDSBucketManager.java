@@ -391,7 +391,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
           bucket.tailOffset = bucket.wal.getCommittedLength();
 
           bucket.writeCache = Maps.newHashMap();
-          LOG.debug("Flushing data to disks for bucket {} committedWid {}", bucket.bucketKey, bucket.committedLSN);
+          LOG.debug("Flushing data for bucket {} committedWid {}", bucket.bucketKey, bucket.committedLSN);
           Runnable flushRunnable = new Runnable() {
             @Override
             public void run()
