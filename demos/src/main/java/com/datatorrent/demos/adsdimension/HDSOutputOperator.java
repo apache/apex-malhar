@@ -68,7 +68,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
   private transient StreamCodec<AdInfoAggregateEvent> streamCodec;
 
 
-  private final SortedMap<Long, Map<AdInfo, AdInfoAggregateEvent>> cache = new TreeMap<Long, Map<AdInfo, AdInfoAggregateEvent>>();
+  protected final SortedMap<Long, Map<AdInfo, AdInfoAggregateEvent>> cache = new TreeMap<Long, Map<AdInfo, AdInfoAggregateEvent>>();
 
   private int maxCacheSize = 20;
 
