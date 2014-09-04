@@ -15,13 +15,14 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
+import com.datatorrent.lib.counters.BasicCounters;
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.minlog.Log;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.io.FileNotFoundException;
@@ -33,6 +34,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
@@ -77,6 +79,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   private int retryCount = 0;
   private int maxRetryCount = 5;
   transient protected int skipCount = 0;
+  private transient OperatorContext context;
+
+  protected long globalNumberOfFailures = 0;
+  protected long localNumberOfFailures = 0;
+  protected long globalNumberOfRetries = 0;
+  protected long localNumberOfRetries = 0;
+  private transient int globalProcessedFileCount = 0;
+  private transient int localProcessedFileCount = 0;
 
   /**
    * Class representing failed file, When read fails on a file in middle, then the file is
@@ -118,7 +128,145 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           ']';
     }
   }
-  
+
+  /**
+   * Enums for aggregated counters about file processing.
+   * <p/>
+   * Contains the enums representing number of files processed, number of
+   * pending files, number of file errors, and number of retries.
+   * <p/>
+   * @since 1.0.4
+   */
+  public static enum AggregatedFileCounters
+  {
+    /**
+     * The number of files processed by the logical operator up until this.
+     * point in time
+     */
+    PROCESSED_FILES,
+    /**
+     * The number of files waiting to be processed by the logical operator.
+     */
+    PENDING_FILES,
+    /**
+     * The number of IO errors encountered by the logical operator.
+     */
+    NUMBER_OF_ERRORS,
+    /**
+     * The number of times the logical operator tried to resume reading a file
+     * on which it encountered an error.
+     */
+    NUMBER_OF_RETRIES;
+  }
+
+  /**
+   * The enums used to track statistics about the
+   * AbstractFSDirectoryInputOperator.
+   */
+  protected static enum FileCounters
+  {
+    /**
+     * The number of files that were in the processed list up to the last
+     * repartition of the operator.
+     */
+    GLOBAL_PROCESSED_FILES,
+    /**
+     * The number of files added to the processed list by the physical operator
+     * since the last repartition.
+     */
+    LOCAL_PROCESSED_FILES,
+    /**
+     * The number of io errors encountered up to the last repartition of the
+     * operator.
+     */
+    GLOBAL_NUMBER_OF_FAILURES,
+    /**
+     * The number of failures encountered by the physical operator since the
+     * last repartition.
+     */
+    LOCAL_NUMBER_OF_FAILURES,
+    /**
+     * The number of retries encountered by the physical operator up to the last
+     * repartition.
+     */
+    GLOBAL_NUMBER_OF_RETRIES,
+    /**
+     * The number of retries encountered by the physical operator since the last
+     * repartition.
+     */
+    LOCAL_NUMBER_OF_RETRIES,
+    /**
+     * The number of files pending on the physical operator.
+     */
+    PENDING_FILES;
+  }
+
+  /**
+   * A counter aggregator for AbstractFSDirectoryInputOperator.
+   * <p/>
+   * In order for this CountersAggregator to be used on your operator, you must
+   * set it within your application like this.
+   * <p/>
+   * <code>
+   * dag.getOperatorMeta("fsinputoperator").getAttributes().put(OperatorContext.COUNTERS_AGGREGATOR,
+   *                                                            new AbstractFSDirectoryInputOperator.FileCountersAggregator());
+   * </code>
+   * <p/>
+   * The value of the aggregated counter can be retrieved by issuing a get
+   * request to the host running your gateway like this.
+   * <p/>
+   * <code>
+   * http://&lt;your host&gt;:9090/ws/v1/applications/&lt;your app id&gt;/logicalPlan/operators/&lt;operatorname&gt;/aggregation
+   * </code>
+   * <p/>
+   * @since 1.0.4
+   */
+  public final static class FileCountersAggregator implements CountersAggregator,
+                                                        Serializable
+  {
+    public FileCountersAggregator()
+    {
+    }
+
+    @Override
+    public Object aggregate(Collection<?> countersList)
+    {
+      if(countersList.isEmpty()) {
+        return null;
+      }
+
+      BasicCounters<MutableLong> tempFileCounters = (BasicCounters<MutableLong>) countersList.iterator().next();
+      MutableLong globalProcessedFiles = tempFileCounters.getCounter(FileCounters.GLOBAL_PROCESSED_FILES);
+      MutableLong globalNumberOfFailures = tempFileCounters.getCounter(FileCounters.GLOBAL_NUMBER_OF_FAILURES);
+      MutableLong globalNumberOfRetries = tempFileCounters.getCounter(FileCounters.GLOBAL_NUMBER_OF_RETRIES);
+      MutableLong totalLocalProcessedFiles = new MutableLong(0);
+      MutableLong pendingFiles = new MutableLong(0);
+      MutableLong totalLocalNumberOfFailures = new MutableLong(0);
+      MutableLong totalLocalNumberOfRetries = new MutableLong(0);
+
+      for(Object fileCounters: countersList) {
+        BasicCounters basicFileCounters = (BasicCounters) fileCounters;
+        totalLocalProcessedFiles.add(basicFileCounters.getCounter(FileCounters.LOCAL_PROCESSED_FILES));
+        pendingFiles.add(basicFileCounters.getCounter(FileCounters.PENDING_FILES));
+        totalLocalNumberOfFailures.add(basicFileCounters.getCounter(FileCounters.LOCAL_NUMBER_OF_FAILURES));
+        totalLocalNumberOfRetries.add(basicFileCounters.getCounter(FileCounters.LOCAL_NUMBER_OF_RETRIES));
+      }
+
+      globalProcessedFiles.add(totalLocalProcessedFiles);
+      globalProcessedFiles.subtract(pendingFiles);
+      globalNumberOfFailures.add(totalLocalNumberOfFailures);
+      globalNumberOfRetries.add(totalLocalNumberOfRetries);
+
+      BasicCounters<MutableLong> aggregatedCounters = new BasicCounters(MutableLong.class);
+      aggregatedCounters.setCounter(AggregatedFileCounters.PROCESSED_FILES, globalProcessedFiles);
+      aggregatedCounters.setCounter(AggregatedFileCounters.PENDING_FILES, pendingFiles);
+      aggregatedCounters.setCounter(AggregatedFileCounters.NUMBER_OF_ERRORS, totalLocalNumberOfFailures);
+      aggregatedCounters.setCounter(AggregatedFileCounters.NUMBER_OF_RETRIES, totalLocalNumberOfRetries);
+
+      return aggregatedCounters;
+    }
+  }
+
   protected long lastRepartition = 0;
   private transient boolean emit = true;
   protected boolean idempotentEmit = false;
@@ -154,46 +302,84 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     this.scanner = scanner;
   }
 
+  /**
+   * Returns the frequency with which new files are scanned for in milliseconds.
+   * @return The scan interval in milliseconds.
+   */
   public int getScanIntervalMillis()
   {
     return scanIntervalMillis;
   }
 
+  /**
+   * Sets the frequency with which new files are scanned for in milliseconds.
+   * @param scanIntervalMillis The scan interval in milliseconds.
+   */
   public void setScanIntervalMillis(int scanIntervalMillis)
   {
     this.scanIntervalMillis = scanIntervalMillis;
   }
 
+  /**
+   * Returns the number of tuples emitted in a batch. If the operator is
+   * idempotent then this is the number of tuples emitted in a window.
+   * @return The number of tuples emitted in a batch.
+   */
   public int getEmitBatchSize()
   {
     return emitBatchSize;
   }
 
+  /**
+   * Sets the number of tuples to emit in a batch. If the operator is
+   * idempotent then this is the number of tuples emitted in a window.
+   * @param emitBatchSize The number of tuples to emit in a batch.
+   */
   public void setEmitBatchSize(int emitBatchSize)
   {
     this.emitBatchSize = emitBatchSize;
   }
-  
+
+  /**
+   * Sets whether the operator is idempotent or not.
+   * @param idempotentEmit If this is true, then the operator
+   */
   public void setIdempotentEmit(boolean idempotentEmit)
   {
     this.idempotentEmit = idempotentEmit;
   }
-  
+
+  /**
+   *
+   * @return
+   */
   public boolean isIdempotentEmit()
   {
     return idempotentEmit;
   }
-  
+
+  /**
+   * Returns the desired number of partitions.
+   * @return the desired number of partitions.
+   */
   public int getPartitionCount()
   {
     return partitionCount;
   }
 
+  /**
+   * Sets the desired number of partitions.
+   * @param requiredPartitions The desired number of partitions.
+   */
   public void setPartitionCount(int requiredPartitions)
   {
-    this.partitionCount = requiredPartitions; 
+    this.partitionCount = requiredPartitions;
   }
 
+  /**
+   * Returns the current number of partitions for the operator.
+   * @return The current number of partitions for the operator.
+   */
   public int getCurrentPartitions()
   {
     return currentPartitions;
@@ -202,6 +388,10 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void setup(OperatorContext context)
   {
+    globalProcessedFileCount = processedFiles.size();
+    LOG.debug("Setup processed file count: {}", globalProcessedFileCount);
+    this.context = context;
+
     try {
       filePath = new Path(directory);
       configuration = new Configuration();
@@ -224,11 +414,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       LOG.info("Read offset={} records in setup time={}", offset, System.currentTimeMillis() - startTime);
     }
     catch (IOException ex) {
-      if(maxRetryCount <= 0) {
-        throw new RuntimeException(ex);
-      }
-      LOG.error("FS reader error", ex);
-      addToFailedList();
+      failureHandling(ex);
     }
   }
 
@@ -248,12 +434,39 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void endWindow()
   {
+    if(context != null) {
+      int pendingFileCount = ((int) pendingFiles.size()) +
+                             ((int) failedFiles.size()) +
+                             ((int) unfinishedFiles.size());
+
+      if(currentFile != null) {
+        pendingFileCount++;
+      }
+
+      BasicCounters<MutableLong> fileCounters = new BasicCounters(MutableLong.class);
+      fileCounters.setCounter(FileCounters.GLOBAL_PROCESSED_FILES,
+                              new MutableLong(globalProcessedFileCount));
+      fileCounters.setCounter(FileCounters.LOCAL_PROCESSED_FILES,
+                              new MutableLong(localProcessedFileCount));
+      fileCounters.setCounter(FileCounters.GLOBAL_NUMBER_OF_FAILURES,
+                              new MutableLong(globalNumberOfFailures));
+      fileCounters.setCounter(FileCounters.LOCAL_NUMBER_OF_FAILURES,
+                              new MutableLong(localNumberOfFailures));
+      fileCounters.setCounter(FileCounters.GLOBAL_NUMBER_OF_RETRIES,
+                              new MutableLong(globalNumberOfRetries));
+      fileCounters.setCounter(FileCounters.LOCAL_NUMBER_OF_RETRIES,
+                              new MutableLong(localNumberOfRetries));
+      fileCounters.setCounter(FileCounters.PENDING_FILES,
+                              new MutableLong(pendingFileCount));
+
+      context.setCounters(fileCounters);
+    }
   }
 
   @Override
   public void emitTuples()
   {
-    //emit will be true if the operator is not idempotent. If the operator is 
+    //emit will be true if the operator is not idempotent. If the operator is
     //idempotent then emit will be true the first time emitTuples is called
     //within a window and false the other times emit tuples is called within a
     //window
@@ -273,23 +486,10 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
             retryFailedFile(failedFiles.poll());
           }
           else {
-            if (System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
-              Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
-      
-              for(Path newPath: newPaths) {
-                String newPathString = newPath.toString();
-                pendingFiles.add(newPathString);
-                processedFiles.add(newPathString);
-              }
-              lastScanMillis = System.currentTimeMillis();
-            }
+            scanDirectory();
           }
         } catch (IOException ex) {
-          if(maxRetryCount <= 0) {
-            throw new RuntimeException(ex);
-          }
-          LOG.error("FS reader error", ex);
-          addToFailedList();
+          failureHandling(ex);
         }
       }
 
@@ -316,11 +516,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
               skipCount--;
           }
         } catch (IOException e) {
-          if(maxRetryCount <= 0) {
-            throw new RuntimeException(e);
-          }
-          LOG.error("FS reader error", e);
-          addToFailedList();
+          failureHandling(e);
         }
       }
       //If the operator is idempotent, do nothing on other calls to emittuples
@@ -332,6 +528,39 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     }
   }
 
+  /**
+   * Scans the directory for new files.
+   */
+  protected void scanDirectory()
+  {
+    if(System.currentTimeMillis() - scanIntervalMillis >= lastScanMillis) {
+      Set<Path> newPaths = scanner.scan(fs, filePath, processedFiles);
+
+      for(Path newPath : newPaths) {
+        String newPathString = newPath.toString();
+        pendingFiles.add(newPathString);
+        processedFiles.add(newPathString);
+        localProcessedFileCount++;
+      }
+
+      lastScanMillis = System.currentTimeMillis();
+    }
+  }
+
+  /**
+   * Helper method for handling IOExceptions.
+   * @param e The caught IOException.
+   */
+  private void failureHandling(Exception e)
+  {
+    localNumberOfFailures++;
+    if(maxRetryCount <= 0) {
+      throw new RuntimeException(e);
+    }
+    LOG.error("FS reader error", e);
+    addToFailedList();
+  }
+
   protected void addToFailedList() {
 
     FailedFile ff = new FailedFile(currentFile, offset, retryCount);
@@ -341,6 +570,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       if (this.inputStream != null)
         this.inputStream.close();
     } catch(IOException e) {
+      localNumberOfFailures++;
       LOG.error("Could not close input stream on: " + currentFile);
     }
 
@@ -356,6 +586,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     if (ff.retryCount > maxRetryCount)
       return;
 
+    localNumberOfRetries++;
     LOG.info("adding to failed list path {} offset {} retry {}", ff.path, ff.offset, ff.retryCount);
     failedFiles.add(ff);
   }
@@ -397,15 +628,20 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
     lastRepartition = System.currentTimeMillis();
-    
+
     int totalCount = computedNewPartitionCount(partitions, incrementalCapacity);
 
     LOG.debug("Computed new partitions: {}", totalCount);
-    
+
     if (totalCount == partitions.size()) {
       return partitions;
     }
-    
+
+    AbstractFSDirectoryInputOperator<T> tempOperator = partitions.iterator().next().getPartitionedInstance();
+
+    long tempGlobalNumberOfRetries = tempOperator.globalNumberOfRetries;
+    long tempGlobalNumberOfFailures = tempOperator.globalNumberOfRetries;
+
     /*
      * Build collective state from all instances of the operator.
      */
@@ -420,6 +656,8 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       totalFailedFiles.addAll(oper.failedFiles);
       totalPendingFiles.addAll(oper.pendingFiles);
       currentFiles.addAll(unfinishedFiles);
+      tempGlobalNumberOfRetries += oper.localNumberOfRetries;
+      tempGlobalNumberOfFailures += oper.localNumberOfFailures;
       if (oper.currentFile != null)
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
       oldscanners.add(oper.getScanner());
@@ -440,6 +678,10 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
       // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
+      oper.globalNumberOfFailures = tempGlobalNumberOfRetries;
+      oper.localNumberOfFailures = 0;
+      oper.globalNumberOfRetries = tempGlobalNumberOfFailures;
+      oper.localNumberOfRetries = 0;
 
       /* redistribute unfinished files properly */
       oper.unfinishedFiles.clear();
@@ -481,11 +723,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     LOG.info("definePartitions called returning {} partitions", newPartitions.size());
     return newPartitions;
   }
-  
+
   protected int computedNewPartitionCount(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
   {
     boolean isInitialParitition = partitions.iterator().next().getStats() == null;
-    
+
     if (isInitialParitition && partitionCount == 1) {
       partitionCount = currentPartitions = partitions.size() + incrementalCapacity;
     } else {
@@ -506,6 +748,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   /**
    * Read the next item from the stream. Depending on the type of stream, this could be a byte array, line or object.
    * Upon return of null, the stream will be considered fully consumed.
+   * @throws IOException
    */
   abstract protected T readEntity() throws IOException;
 
@@ -519,6 +762,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   /**
    * Repartition is required when number of partitions are not equal to required
    * partitions.
+   * @param batchedOperatorStats the stats to use when repartitioning.
    */
   @Override
   public Response processStats(BatchedOperatorStats batchedOperatorStats)
@@ -532,16 +776,32 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     return res;
   }
 
+  /**
+   * Returns the maximum number of times the operator will attempt to process
+   * a file on which it encounters an error.
+   * @return The maximum number of times the operator will attempt to process a
+   * file on which it encounters an error.
+   */
   public int getMaxRetryCount()
   {
     return maxRetryCount;
   }
 
+  /**
+   * Sets the maximum number of times the operator will attempt to process
+   * a file on which it encounters an error.
+   * @param maxRetryCount The maximum number of times the operator will attempt
+   * to process a file on which it encounters an error.
+   */
   public void setMaxRetryCount(int maxRetryCount)
   {
     this.maxRetryCount = maxRetryCount;
   }
 
+  /**
+   * The class that is used to scan for new files in the directory for the
+   * AbstractFSDirectoryInputOperator.
+   */
   public static class DirectoryScanner implements Serializable
   {
     private static final long serialVersionUID = 4535844463258899929L;
@@ -609,7 +869,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         }
       } catch (FileNotFoundException e) {
         LOG.warn("Failed to list directory {}", filePath, e);
-      } catch (Exception e) {
+      } catch (IOException e) {
         throw new RuntimeException(e);
       }
       return pathSet;
