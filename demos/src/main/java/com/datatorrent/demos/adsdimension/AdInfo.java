@@ -83,6 +83,26 @@ public class AdInfo implements Serializable
     this.timestamp = timestamp;
   }
 
+  public double getCost()
+  {
+    return cost;
+  }
+
+  public double getRevenue()
+  {
+    return revenue;
+  }
+
+  public long getImpressions()
+  {
+    return impressions;
+  }
+
+  public long getClicks()
+  {
+    return clicks;
+  }
+
   @Override
   public int hashCode()
   {

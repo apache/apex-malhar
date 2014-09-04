@@ -75,11 +75,14 @@ public class HDSApplicationTest
     conf.set("dt.operator.HDSOut.fileStore.basePath", "target/HDSApplicationTestStore");
 
     conf.set("dt.operator.Query.brokerSet", "localhost:9092");
+    conf.set("dt.operator.QueryResult.prop.configProperties(serializer.class)",
+        com.datatorrent.demos.adsdimension.KafkaJsonEncoder.class.getName());
     conf.set("dt.operator.Query.topic", kafkaQueryTopic);
     conf.set("dt.operator.QueryResult.topic", kafkaQueryResultTopic);
 
     conf.set("dt.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT", "2");
     conf.set("dt.operator.InputGenerator.numPublishers", "2");
+    conf.set("dt.loggers.level", "server.*:INFO");
 
     lma.prepareDAG(new ApplicationWithHDSQuery(), conf);
     LocalMode.Controller lc = lma.getController();
@@ -89,12 +92,13 @@ public class HDSApplicationTest
     //Write messages to kafkaQueryTopic
     KafkaTestProducer kafkaQuery = new KafkaTestProducer(kafkaQueryTopic);
     String testQuery="{\n" +
+            " \"id\": \"query1\",\n" +
             " \"dimensionSelector\": \"time=MINUTES:publisherId\",\n" +
-            " \"numResults\": 20,\n" +
             " \"keys\": {\n" +
             "  \"publisherId\": 1\n" +
             " }\n" +
             "}";
+
     List<String> testQueryMessages = new ArrayList<String>();
     testQueryMessages.add(testQuery);
     kafkaQuery.setMessages(testQueryMessages);
@@ -116,12 +120,11 @@ public class HDSApplicationTest
     LOG.info("Sent " + kafkaQuery.getSendCount() + " messages to " + kafkaQueryTopic);
     LOG.info("Received " + queryResultsListener.holdingBuffer.size() + " messages from Kafka on " + kafkaQueryResultTopic + " topic");
     Assert.assertTrue("Minimum messages received from Kafka " + queryResultsListener.holdingBuffer, queryResultsListener.holdingBuffer.size() >= 1);
+
     while (!queryResultsListener.holdingBuffer.isEmpty()) {
       lastMessage = queryResultsListener.getMessage(queryResultsListener.holdingBuffer.poll());
       Assert.assertNotNull("Did not receive message from Kafka", lastMessage);
-      LOG.debug("received:\n{}", lastMessage);
+      LOG.info("received:\n{}", lastMessage);
     }
-
   }
-
 }
