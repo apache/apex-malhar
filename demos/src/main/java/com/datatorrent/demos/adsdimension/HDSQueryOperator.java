@@ -46,6 +46,7 @@ public class HDSQueryOperator extends HDSOutputOperator
     @Override public void process(String s)
     {
       try {
+        LOG.info("registering query {}", s);
         registerQuery(s);
       } catch(Exception ex) {
         LOG.error("Unable to register query {}", s);
@@ -61,6 +62,16 @@ public class HDSQueryOperator extends HDSOutputOperator
     public long startTime;
     public long endTime;
     private transient Set<HDSQuery> points = Sets.newLinkedHashSet();
+
+    @Override public String toString()
+    {
+      return "HDSRangeQuery{" +
+          "id='" + id + '\'' +
+          ", windowCountdown=" + windowCountdown +
+          ", startTime=" + startTime +
+          ", endTime=" + endTime +
+          '}';
+    }
   }
 
   /**
@@ -86,6 +97,17 @@ public class HDSQueryOperator extends HDSOutputOperator
   protected transient final Map<String, HDSRangeQuery> rangeQueries = Maps.newConcurrentMap();
   private transient final Map<HDSQuery, HDSRangeQuery> queryGrouping = Maps.newHashMap();
   private ObjectMapper mapper = null;
+  private long defaultTimeWindow = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES);
+
+  public long getDefaultTimeWindow()
+  {
+    return defaultTimeWindow;
+  }
+
+  public void setDefaultTimeWindow(long defaultTimeWindow)
+  {
+    this.defaultTimeWindow = defaultTimeWindow;
+  }
 
   public void registerQuery(String queryString) throws Exception
   {
@@ -106,9 +128,22 @@ public class HDSQueryOperator extends HDSOutputOperator
     query.id = queryParams.id;
     query.prototype = key;
     query.windowCountdown = 30;
-    query.startTime = queryParams.startTime;
-    //query.numResults = queryParams.numResults;
-    query.endTime = queryParams.endTime;
+
+    // If endTime is not specified, then use current system time as
+    // end time.
+    if (queryParams.endTime == 0)
+    {
+      query.endTime = TimeUnit.MILLISECONDS.convert(
+          TimeUnit.MINUTES.convert(System.currentTimeMillis(), TimeUnit.MILLISECONDS), TimeUnit.MINUTES);
+    } else
+      query.endTime = queryParams.endTime;
+
+    // If start time is not specified, then return data for cofigured
+    // amounts of minutes (defaultTimeWindow)
+    if (queryParams.startTime == 0)
+      query.startTime = query.endTime - defaultTimeWindow;
+    else
+      query.startTime = queryParams.startTime;
 
     rangeQueries.put(query.id, query);
 
@@ -123,11 +158,13 @@ public class HDSQueryOperator extends HDSOutputOperator
       super.addQuery(q);
       query.prototype.timestamp += TimeUnit.MINUTES.toMillis(1);
     }
-
   }
 
   private AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(byte[] key, byte[] value)
   {
+    if (key == null || value == null)
+      return null;
+
     AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
     if (debug) {
       return getAggregatesFromString(new String(key), new String(value));
@@ -150,7 +187,7 @@ public class HDSQueryOperator extends HDSOutputOperator
 
   private AdInfo.AdInfoAggregateEvent getAggregatesFromString(String key, String value)
   {
-    LOG.debug("converting key {} value is {}", key, value);
+    LOG.info("converting key {} value is {}", key, value);
     AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
     String str = new String(key);
     Pattern p = Pattern.compile("(.*)|publisherId:(\\d+)|advertiserId:(\\d+)|adUnit:(\\d+)");
@@ -212,7 +249,8 @@ public class HDSQueryOperator extends HDSOutputOperator
         // results from persistent store
         if (query.processed && query.result != null) {
           AdInfo.AdInfoAggregateEvent ae = getAggregatesFromBytes(query.key, query.result);
-          res.data.add(ae);
+          if (ae != null)
+            res.data.add(ae);
         }
         rangeQuery.prototype.timestamp += TimeUnit.MINUTES.toMillis(1);
       }
