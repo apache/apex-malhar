@@ -143,7 +143,10 @@ public class Application implements StreamingApplication
     partitioner.setMinimumEvents(10000);
     dag.setAttribute(movementGen,OperatorContext.STATS_LISTENERS, Arrays.asList(new StatsListener[]{partitioner}));
     dag.setAttribute(movementGen,OperatorContext.PARTITIONER, partitioner);
-    dag.addStream("Events", phones.integer_data, movementGen.data);
+    dag.setInputPortAttribute(movementGen.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
+
+    // default partitioning: first connected stream to movementGen will be partitioned
+    dag.addStream("phonedata", phones.integer_data, movementGen.data);
 
     // generate seed numbers
     Random random = new Random();
@@ -164,11 +167,13 @@ public class Application implements StreamingApplication
       URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
       LOG.info("WebSocket with gateway at: {}", gatewayAddress);
 
-      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("LocationResults", new PubSubWebSocketOutputOperator<Object>());
+      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("phoneLocationQueryResultWS", new PubSubWebSocketOutputOperator<Object>());
       wsOut.setUri(uri);
+      wsOut.setTopic("demos.mobile.phoneLocationQueryResult");
 
       PubSubWebSocketInputOperator wsIn = dag.addOperator("phoneLocationQueryWS", new PubSubWebSocketInputOperator());
       wsIn.setUri(uri);
+      wsIn.addTopic("demos.mobile.phoneLocationQuery");
 
       dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
       dag.addStream("query", wsIn.outputPort, movementGen.phoneQuery);
@@ -181,7 +186,6 @@ public class Application implements StreamingApplication
       out.setStringFormat("phoneLocationQueryResult" + ": %s");
       dag.addStream("consoledata", movementGen.locationQueryResult, out.input);
     }
-
   }
 
 }
