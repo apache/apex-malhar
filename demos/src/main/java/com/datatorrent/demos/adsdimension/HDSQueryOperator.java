@@ -21,6 +21,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.demos.adsdimension.AdInfo.AdInfoAggregateEvent;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -58,7 +60,7 @@ public class HDSQueryOperator extends HDSOutputOperator
     public  AdInfo.AdInfoAggregateEvent prototype;
     public long startTime;
     public long endTime;
-    private transient Set<HDSQuery> results = Sets.newHashSet();
+    private transient Set<HDSQuery> points = Sets.newLinkedHashSet();
   }
 
   /**
@@ -110,13 +112,17 @@ public class HDSQueryOperator extends HDSOutputOperator
 
     rangeQueries.put(query.id, query);
 
-    // TODO: set query for each point in series
-    HDSQuery q = new HDSQuery();
+    // set query for each point in series
     query.prototype.timestamp = query.startTime;
-    q.bucketKey = getBucketKey(query.prototype);
-    q.key = getKey(query.prototype);
-    super.addQuery(q);
-    this.queryGrouping.put(q, query);
+    while (query.prototype.timestamp <= query.endTime) {
+      HDSQuery q = new HDSQuery();
+      q.bucketKey = getBucketKey(query.prototype);
+      q.key = getKey(query.prototype);
+      this.queryGrouping.put(q, query);
+      query.points.add(q);
+      super.addQuery(q);
+      query.prototype.timestamp += TimeUnit.MINUTES.toMillis(1);
+    }
 
   }
 
@@ -170,17 +176,6 @@ public class HDSQueryOperator extends HDSOutputOperator
   }
 
   @Override
-  protected void emitQueryResult(HDSQuery query)
-  {
-    HDSRangeQuery rangeQuery = this.queryGrouping.get(query);
-    if (rangeQuery == null) {
-      LOG.debug("Did not find the series for {}", query);
-      return;
-    }
-    rangeQuery.results.add(query);
-  }
-
-  @Override
   public void endWindow()
   {
     super.endWindow();
@@ -192,20 +187,37 @@ public class HDSQueryOperator extends HDSOutputOperator
       if (--rangeQuery.windowCountdown < 0) {
         LOG.debug("Removing expired query {}", rangeQuery);
         it.remove(); // query expired
+        for (HDSQuery q : rangeQuery.points) {
+          this.queryGrouping.remove(q);
+        }
         continue;
       }
 
-      if (!rangeQuery.results.isEmpty()) {
-        HDSRangeQueryResult res = new HDSRangeQueryResult();
-        res.id = rangeQuery.id;
-        res.countDown = rangeQuery.windowCountdown;
-        res.data = Lists.newArrayListWithExpectedSize(rangeQuery.results.size());
-        for (HDSQuery query : rangeQuery.results) {
+      HDSRangeQueryResult res = new HDSRangeQueryResult();
+      res.id = rangeQuery.id;
+      res.countDown = rangeQuery.windowCountdown;
+      res.data = Lists.newArrayListWithExpectedSize(rangeQuery.points.size());
+      rangeQuery.prototype.timestamp = rangeQuery.startTime;
+      for (HDSQuery query : rangeQuery.points) {
+        // check in-flight memory store first
+        Map<AdInfo, AdInfoAggregateEvent> buffered = super.cache.get(rangeQuery.prototype.timestamp);
+        if (buffered != null) {
+          AdInfo.AdInfoAggregateEvent ae = buffered.get(rangeQuery.prototype);
+          if (ae != null) {
+            res.data.add(ae);
+            rangeQuery.prototype.timestamp += TimeUnit.MINUTES.toMillis(1);
+            continue;
+          }
+        }
+        // results from persistent store
+        if (query.processed && query.result != null) {
           AdInfo.AdInfoAggregateEvent ae = getAggregatesFromBytes(query.key, query.result);
           res.data.add(ae);
         }
+        rangeQuery.prototype.timestamp += TimeUnit.MINUTES.toMillis(1);
+      }
+      if (!res.data.isEmpty()) {
         queryResult.emit(res);
-        rangeQuery.results.clear();
       }
     }
   }

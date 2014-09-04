@@ -16,6 +16,7 @@
 package com.datatorrent.demos.adsdimension;
 
 import java.io.File;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
@@ -26,6 +27,7 @@ import org.junit.Test;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.demos.adsdimension.HDSQueryOperator.HDSRangeQueryResult;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -53,7 +55,8 @@ public class HDSQueryOperatorTest
     hdsOut.setFileStore(hdsFile);
     hdsFile.setBasePath(testInfo.getDir());
     hdsOut.setAggregator(new AdInfo.AdInfoAggregator());
-    hdsOut.setMaxCacheSize(0);
+    hdsOut.setMaxCacheSize(1);
+    hdsOut.setFlushIntervalCount(0);
     hdsOut.setup(null);
 
     hdsOut.setDebug(false);
@@ -92,7 +95,7 @@ public class HDSQueryOperatorTest
     query.put("keys", keys);
     query.put("id", "query1");
     query.put("startTime", baseMinute);
-    query.put("endTime", baseMinute);
+    query.put("endTime", baseMinute + TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES));
 
     hdsOut.query.process(query.toString());
 
@@ -102,10 +105,15 @@ public class HDSQueryOperatorTest
 
     hdsOut.endWindow();
 
-    Assert.assertEquals("queryResults " + queryResults.collectedTuples, 1,
-        queryResults.collectedTuples.size());
+    Assert.assertEquals("queryResults " + queryResults.collectedTuples, 1, queryResults.collectedTuples.size());
+    HDSRangeQueryResult r = queryResults.collectedTuples.iterator().next();
+    Assert.assertEquals("result points " + r, 2, r.data.size());
 
-    Assert.assertEquals("clicks", 10, queryResults.collectedTuples.iterator().next().data.iterator().next().clicks);
+    Assert.assertEquals("clicks", 10, r.data.get(0).clicks);
+    Assert.assertEquals("clicks", 40, r.data.get(1).clicks);
+
+    Assert.assertSame("from cache", a, r.data.get(1));
+
   }
 
 }
