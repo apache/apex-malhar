@@ -82,6 +82,27 @@ import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
  <name>dt.operator.HDSOut.fileStore.basePath</name>
  <value>AdsDimensionWithHDS</value>
  </property>
+
+ <property>
+ <name>dt.operator.Query.topic</name>
+ <value>HDSQuery</value>
+ </property>
+
+ <property>
+ <name>dt.operator.QueryResult.topic</name>
+ <value>HDSQueryResult</value>
+ </property>
+
+ <property>
+ <name>dt.operator.Query.brokerSet</name>
+ <value>localhost:9092</value>
+ </property>
+
+ <property>
+ <name>dt.operator.QueryResult.prop.configProperties(metadata.broker.list)</name>
+ <value>localhost:9092</value>
+ </property>
+
  }
  </pre>
  *
@@ -128,13 +149,10 @@ public class ApplicationWithHDSQuery implements StreamingApplication
     KafkaSinglePortStringInputOperator queries =
         dag.addOperator("Query", new KafkaSinglePortStringInputOperator());
     queries.setConsumer(new SimpleKafkaConsumer());
-    queries.setBrokerSet("localhost:9092");
-    queries.setTopic("AdsQuery");
 
     /* Kafka operator to write result to kafa */
     KafkaSinglePortOutputOperator<Object, Object> queryResult =
         dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
-    queryResult.setTopic("AdsQueryResult");
 
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, hdsOut.input);
