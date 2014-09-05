@@ -81,12 +81,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   transient protected int skipCount = 0;
   private transient OperatorContext context;
 
-  protected long globalNumberOfFailures = 0;
-  protected long localNumberOfFailures = 0;
-  protected long globalNumberOfRetries = 0;
-  protected long localNumberOfRetries = 0;
-  private transient int globalProcessedFileCount = 0;
-  private transient int localProcessedFileCount = 0;
+  private BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  protected MutableLong globalNumberOfFailures = new MutableLong();
+  protected MutableLong localNumberOfFailures = new MutableLong();
+  protected MutableLong globalNumberOfRetries = new MutableLong();
+  protected MutableLong localNumberOfRetries = new MutableLong();
+  private transient MutableLong globalProcessedFileCount = new MutableLong();
+  private transient MutableLong localProcessedFileCount = new MutableLong();
+  private transient MutableLong pendingFileCount = new MutableLong();
 
   /**
    * Class representing failed file, When read fails on a file in middle, then the file is
@@ -225,10 +227,10 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
                                                         Serializable
   {
     private static final long serialVersionUID = 201409041428L;
-
-    public FileCountersAggregator()
-    {
-    }
+    MutableLong totalLocalProcessedFiles = new MutableLong();
+    MutableLong pendingFiles = new MutableLong();
+    MutableLong totalLocalNumberOfFailures = new MutableLong();
+    MutableLong totalLocalNumberOfRetries = new MutableLong();
 
     @Override
     @SuppressWarnings("unchecked")
@@ -242,10 +244,10 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       MutableLong globalProcessedFiles = tempFileCounters.getCounter(FileCounters.GLOBAL_PROCESSED_FILES);
       MutableLong globalNumberOfFailures = tempFileCounters.getCounter(FileCounters.GLOBAL_NUMBER_OF_FAILURES);
       MutableLong globalNumberOfRetries = tempFileCounters.getCounter(FileCounters.GLOBAL_NUMBER_OF_RETRIES);
-      MutableLong totalLocalProcessedFiles = new MutableLong(0);
-      MutableLong pendingFiles = new MutableLong(0);
-      MutableLong totalLocalNumberOfFailures = new MutableLong(0);
-      MutableLong totalLocalNumberOfRetries = new MutableLong(0);
+      totalLocalProcessedFiles.setValue(0);
+      pendingFiles.setValue(0);
+      totalLocalNumberOfFailures.setValue(0);
+      totalLocalNumberOfRetries.setValue(0);
 
       for(Object fileCounters: countersList) {
         BasicCounters<MutableLong> basicFileCounters = (BasicCounters<MutableLong>) fileCounters;
@@ -391,7 +393,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void setup(OperatorContext context)
   {
-    globalProcessedFileCount = processedFiles.size();
+    globalProcessedFileCount.setValue((long) processedFiles.size());
     LOG.debug("Setup processed file count: {}", globalProcessedFileCount);
     this.context = context;
 
@@ -419,6 +421,22 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     catch (IOException ex) {
       failureHandling(ex);
     }
+
+    fileCounters.setCounter(FileCounters.GLOBAL_PROCESSED_FILES,
+                            globalProcessedFileCount);
+    fileCounters.setCounter(FileCounters.LOCAL_PROCESSED_FILES,
+                            localProcessedFileCount);
+    fileCounters.setCounter(FileCounters.GLOBAL_NUMBER_OF_FAILURES,
+                            globalNumberOfFailures);
+    fileCounters.setCounter(FileCounters.LOCAL_NUMBER_OF_FAILURES,
+                            localNumberOfFailures);
+    fileCounters.setCounter(FileCounters.GLOBAL_NUMBER_OF_RETRIES,
+                            globalNumberOfRetries);
+    fileCounters.setCounter(FileCounters.LOCAL_NUMBER_OF_RETRIES,
+                            localNumberOfRetries);
+    fileCounters.setCounter(FileCounters.PENDING_FILES,
+                            pendingFileCount);
+
   }
 
   @Override
@@ -438,29 +456,13 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public void endWindow()
   {
     if(context != null) {
-      int pendingFileCount = pendingFiles.size() +
-                             failedFiles.size() +
-                             unfinishedFiles.size();
+      pendingFileCount.setValue(pendingFiles.size() +
+                                     failedFiles.size() +
+                                     unfinishedFiles.size());
 
       if(currentFile != null) {
-        pendingFileCount++;
+        pendingFileCount.increment();
       }
-
-      BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
-      fileCounters.setCounter(FileCounters.GLOBAL_PROCESSED_FILES,
-                              new MutableLong(globalProcessedFileCount));
-      fileCounters.setCounter(FileCounters.LOCAL_PROCESSED_FILES,
-                              new MutableLong(localProcessedFileCount));
-      fileCounters.setCounter(FileCounters.GLOBAL_NUMBER_OF_FAILURES,
-                              new MutableLong(globalNumberOfFailures));
-      fileCounters.setCounter(FileCounters.LOCAL_NUMBER_OF_FAILURES,
-                              new MutableLong(localNumberOfFailures));
-      fileCounters.setCounter(FileCounters.GLOBAL_NUMBER_OF_RETRIES,
-                              new MutableLong(globalNumberOfRetries));
-      fileCounters.setCounter(FileCounters.LOCAL_NUMBER_OF_RETRIES,
-                              new MutableLong(localNumberOfRetries));
-      fileCounters.setCounter(FileCounters.PENDING_FILES,
-                              new MutableLong(pendingFileCount));
 
       context.setCounters(fileCounters);
     }
@@ -543,7 +545,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
         String newPathString = newPath.toString();
         pendingFiles.add(newPathString);
         processedFiles.add(newPathString);
-        localProcessedFileCount++;
+        localProcessedFileCount.increment();
       }
 
       lastScanMillis = System.currentTimeMillis();
@@ -556,7 +558,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
    */
   private void failureHandling(Exception e)
   {
-    localNumberOfFailures++;
+    localNumberOfFailures.increment();
     if(maxRetryCount <= 0) {
       throw new RuntimeException(e);
     }
@@ -573,7 +575,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       if (this.inputStream != null)
         this.inputStream.close();
     } catch(IOException e) {
-      localNumberOfFailures++;
+      localNumberOfFailures.increment();
       LOG.error("Could not close input stream on: " + currentFile);
     }
 
@@ -589,7 +591,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     if (ff.retryCount > maxRetryCount)
       return;
 
-    localNumberOfRetries++;
+    localNumberOfRetries.increment();
     LOG.info("adding to failed list path {} offset {} retry {}", ff.path, ff.offset, ff.retryCount);
     failedFiles.add(ff);
   }
@@ -642,25 +644,25 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
 
     AbstractFSDirectoryInputOperator<T> tempOperator = partitions.iterator().next().getPartitionedInstance();
 
-    long tempGlobalNumberOfRetries = tempOperator.globalNumberOfRetries;
-    long tempGlobalNumberOfFailures = tempOperator.globalNumberOfRetries;
+    MutableLong tempGlobalNumberOfRetries = tempOperator.globalNumberOfRetries;
+    MutableLong tempGlobalNumberOfFailures = tempOperator.globalNumberOfRetries;
 
     /*
      * Build collective state from all instances of the operator.
      */
-    Set<String> totalProcessedFiles = new HashSet<String>();
-    Set<FailedFile> currentFiles = new HashSet<FailedFile>();
-    List<DirectoryScanner> oldscanners = new LinkedList<DirectoryScanner>();
-    List<FailedFile> totalFailedFiles = new LinkedList<FailedFile>();
-    List<String> totalPendingFiles = new LinkedList<String>();
+    Set<String> totalProcessedFiles = Sets.newHashSet();
+    Set<FailedFile> currentFiles = Sets.newHashSet();
+    List<DirectoryScanner> oldscanners = Lists.newLinkedList();
+    List<FailedFile> totalFailedFiles = Lists.newLinkedList();
+    List<String> totalPendingFiles = Lists.newLinkedList();
     for(Partition<AbstractFSDirectoryInputOperator<T>> partition : partitions) {
       AbstractFSDirectoryInputOperator<T> oper = partition.getPartitionedInstance();
       totalProcessedFiles.addAll(oper.processedFiles);
       totalFailedFiles.addAll(oper.failedFiles);
       totalPendingFiles.addAll(oper.pendingFiles);
       currentFiles.addAll(unfinishedFiles);
-      tempGlobalNumberOfRetries += oper.localNumberOfRetries;
-      tempGlobalNumberOfFailures += oper.localNumberOfFailures;
+      tempGlobalNumberOfRetries.add(oper.localNumberOfRetries);
+      tempGlobalNumberOfFailures.add(oper.localNumberOfFailures);
       if (oper.currentFile != null)
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
       oldscanners.add(oper.getScanner());
@@ -682,9 +684,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       // Do state transfer for processed files.
       oper.processedFiles.addAll(totalProcessedFiles);
       oper.globalNumberOfFailures = tempGlobalNumberOfRetries;
-      oper.localNumberOfFailures = 0;
+      oper.localNumberOfFailures.setValue(0);
       oper.globalNumberOfRetries = tempGlobalNumberOfFailures;
-      oper.localNumberOfRetries = 0;
+      oper.localNumberOfRetries.setValue(0);
 
       /* redistribute unfinished files properly */
       oper.unfinishedFiles.clear();
