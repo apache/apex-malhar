@@ -26,16 +26,15 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.SortedMap;
-import java.util.TreeMap;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.contrib.hds.HDSBucketManager;
 import com.datatorrent.demos.adsdimension.AdInfo.AdInfoAggregateEvent;
@@ -45,6 +44,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 public class HDSOutputOperator extends HDSBucketManager implements Partitioner<HDSOutputOperator>
 {
@@ -66,14 +66,17 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
   protected Set<Integer> partitions;
 
   private transient StreamCodec<AdInfoAggregateEvent> streamCodec;
-
-
-  protected final SortedMap<Long, Map<AdInfo, AdInfoAggregateEvent>> cache = new TreeMap<Long, Map<AdInfo, AdInfoAggregateEvent>>();
+  protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache = Maps.newTreeMap();
 
   // TODO: should be aggregation interval count
   private int maxCacheSize = 5;
 
   private AdInfoAggregator aggregator;
+
+  public int getMaxCacheSize()
+  {
+    return maxCacheSize;
+  }
 
   public void setMaxCacheSize(int maxCacheSize)
   {
@@ -86,8 +89,8 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
     int expiredEntries = cache.size() - maxCacheSize;
     while(expiredEntries-- > 0){
 
-      Map<AdInfo, AdInfoAggregateEvent> vals = cache.remove(cache.firstKey());
-      for (Entry<AdInfo, AdInfoAggregateEvent> en : vals.entrySet()) {
+      Map<AdInfoAggregateEvent, AdInfoAggregateEvent> vals = cache.remove(cache.firstKey());
+      for (Entry<AdInfoAggregateEvent, AdInfoAggregateEvent> en : vals.entrySet()) {
         AdInfoAggregateEvent ai = en.getValue();
         try {
           put(getBucketKey(ai), getKey(ai), getValue(ai));
@@ -156,9 +159,9 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
     @Override
     public void process(AdInfoAggregateEvent adInfo)
     {
-      Map<AdInfo, AdInfoAggregateEvent> valMap = cache.get(adInfo.getTimestamp());
+      Map<AdInfoAggregateEvent, AdInfoAggregateEvent> valMap = cache.get(adInfo.getTimestamp());
       if (valMap == null) {
-        valMap = new HashMap<AdInfo, AdInfoAggregateEvent>();
+        valMap = new HashMap<AdInfoAggregateEvent, AdInfoAggregateEvent>();
         valMap.put(adInfo, adInfo);
         cache.put(adInfo.getTimestamp(), valMap);
       } else {

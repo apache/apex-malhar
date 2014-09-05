@@ -235,7 +235,7 @@ public class HDSQueryOperator extends HDSOutputOperator
       rangeQuery.prototype.timestamp = rangeQuery.startTime;
       for (HDSQuery query : rangeQuery.points) {
         // check in-flight memory store first
-        Map<AdInfo, AdInfoAggregateEvent> buffered = super.cache.get(rangeQuery.prototype.timestamp);
+        Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = super.cache.get(rangeQuery.prototype.timestamp);
         if (buffered != null) {
           AdInfo.AdInfoAggregateEvent ae = buffered.get(rangeQuery.prototype);
           if (ae != null) {
