@@ -17,20 +17,19 @@ package com.datatorrent.demos.adsdimension;
 
 import java.util.concurrent.TimeUnit;
 
-import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
-import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
-import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
+import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
+import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 import com.datatorrent.demos.adsdimension.AdInfo.AdInfoAggregator;
 import com.datatorrent.lib.statistics.DimensionsComputation;
-import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 
 /**
  * An AdsDimensionsDemo run with HDS
@@ -136,9 +135,9 @@ public class ApplicationWithHDSQuery implements StreamingApplication
       aggregators[i] = aggregator;
     }
     dimensions.setAggregators(aggregators);
-    DimensionsComputationUnifierImpl unifier = new DimensionsComputationUnifierImpl();
-    unifier.setAggregators(aggregators);
-    dimensions.setUnifier(unifier);
+    //DimensionsComputationUnifierImpl unifier = new DimensionsComputationUnifierImpl();
+    //unifier.setAggregators(aggregators);
+    //dimensions.setUnifier(unifier);
 
     HDSQueryOperator hdsOut = dag.addOperator("HDSOut", HDSQueryOperator.class);
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
@@ -153,6 +152,7 @@ public class ApplicationWithHDSQuery implements StreamingApplication
     /* Kafka operator to write result to kafa */
     KafkaSinglePortOutputOperator<Object, Object> queryResult =
         dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
+    queryResult.getConfigProperties().put("serializer.class", com.datatorrent.demos.adsdimension.KafkaJsonEncoder.class.getName());
 
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, hdsOut.input);

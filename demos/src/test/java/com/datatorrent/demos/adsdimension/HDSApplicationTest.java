@@ -65,18 +65,13 @@ public class HDSApplicationTest
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
-    //conf.set("dt.operator.Kafka.prop.topic", kafkaTopic);
     conf.set("dt.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT", "1");
 
-
-    //conf.set("dt.operator.Query.prop.configProperties(metadata.broker.list)", "localhost:9092");
     conf.set("dt.operator.QueryResult.prop.configProperties(metadata.broker.list)", "localhost:9092");
 
     conf.set("dt.operator.HDSOut.fileStore.basePath", "target/HDSApplicationTestStore");
 
     conf.set("dt.operator.Query.brokerSet", "localhost:9092");
-    conf.set("dt.operator.QueryResult.prop.configProperties(serializer.class)",
-        com.datatorrent.demos.adsdimension.KafkaJsonEncoder.class.getName());
     conf.set("dt.operator.Query.topic", kafkaQueryTopic);
     conf.set("dt.operator.QueryResult.topic", kafkaQueryResultTopic);
 
