@@ -401,20 +401,21 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
             {
               try {
                 writeDataFiles(bucket);
-              } catch (IOException e) {
+              } catch (Exception e) {
+                LOG.debug("Error writing files", e);
                 writerError = e;
               }
             }
           };
           this.writeExecutor.execute(flushRunnable);
-
-          if (writerError != null) {
-            throw new RuntimeException("Error while flushing write cache.", this.writerError);
-          }
-
           lastFlushWindowId = windowId;
         }
       }
+    }
+
+    // propagate any exceptions from writers
+    if (writerError != null) {
+      throw new RuntimeException("Error while flushing write cache.", this.writerError);
     }
   }
 
