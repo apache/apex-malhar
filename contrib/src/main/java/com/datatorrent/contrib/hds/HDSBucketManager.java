@@ -151,6 +151,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
       if (fw == null) {
         // next file
         fileMeta = bucketMeta.addFile(bucket.bucketKey, dataEntry.getKey());
+        LOG.debug("writing new data file {} {}", bucket.bucketKey, fileMeta.name);
         fw = this.store.getWriter(bucket.bucketKey, fileMeta.name + ".tmp");
       }
 
@@ -160,6 +161,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
         // roll file
         fw.close();
         this.store.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+        LOG.debug("created new data file {} {}", bucket.bucketKey, fileMeta.name);
         fw = null;
       }
     }
@@ -167,6 +169,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
     if (fw != null) {
       fw.close();
       this.store.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+      LOG.debug("created new data file {} {}", bucket.bucketKey, fileMeta.name);
     }
   }
 

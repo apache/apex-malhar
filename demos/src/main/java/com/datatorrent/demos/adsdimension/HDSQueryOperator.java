@@ -46,7 +46,7 @@ public class HDSQueryOperator extends HDSOutputOperator
     @Override public void process(String s)
     {
       try {
-        LOG.info("registering query {}", s);
+        LOG.debug("registering query {}", s);
         registerQuery(s);
       } catch(Exception ex) {
         LOG.error("Unable to register query {}", s);
