@@ -70,17 +70,17 @@ public class HDSQueryOperatorTest
     long baseTime = System.currentTimeMillis();
     long baseMinute = TimeUnit.MILLISECONDS.convert(TimeUnit.MINUTES.convert(baseTime, TimeUnit.MICROSECONDS), TimeUnit.MINUTES);
 
-    AdInfo.AdInfoAggregateEvent a = new AdInfo.AdInfoAggregateEvent();
-    a.publisherId = 1;
-    a.timestamp = baseMinute;
-    a.clicks = 10;
-    hdsOut.input.process(a);
+    AdInfo.AdInfoAggregateEvent ae1 = new AdInfo.AdInfoAggregateEvent();
+    ae1.publisherId = 1;
+    ae1.timestamp = baseMinute;
+    ae1.clicks = 10;
+    hdsOut.input.process(ae1);
 
-    a = new AdInfo.AdInfoAggregateEvent();
-    a.publisherId = 1;
-    a.timestamp = baseMinute + TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
-    a.clicks = 40;
-    hdsOut.input.process(a);
+    AdInfo.AdInfoAggregateEvent ae2 = new AdInfo.AdInfoAggregateEvent();
+    ae2.publisherId = 1;
+    ae2.timestamp = baseMinute + TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
+    ae2.clicks = 40;
+    hdsOut.input.process(ae2);
 
     hdsOut.endWindow();
 
@@ -108,10 +108,11 @@ public class HDSQueryOperatorTest
     HDSRangeQueryResult r = queryResults.collectedTuples.iterator().next();
     Assert.assertEquals("result points " + r, 2, r.data.size());
 
-    Assert.assertEquals("clicks", 10, r.data.get(0).clicks);
-    Assert.assertEquals("clicks", 40, r.data.get(1).clicks);
+    Assert.assertEquals("clicks", ae1.clicks, r.data.get(0).clicks);
+    Assert.assertEquals("clicks", ae2.clicks, r.data.get(1).clicks);
 
-    Assert.assertSame("from cache", a, r.data.get(1));
+    Assert.assertNotSame("deserialized", ae1, r.data.get(1));
+    Assert.assertSame("from cache", ae2, r.data.get(1));
 
   }
 
