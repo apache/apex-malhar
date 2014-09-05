@@ -108,9 +108,10 @@ public class HDSQueryOperatorTest
     HDSRangeQueryResult r = queryResults.collectedTuples.iterator().next();
     Assert.assertEquals("result points " + r, 2, r.data.size());
 
-    Assert.assertEquals("clicks", 10, r.data.get(0).clicks);
-    Assert.assertEquals("clicks", 40, r.data.get(1).clicks);
+    Assert.assertEquals("clicks", ae1.clicks, r.data.get(0).clicks);
+    Assert.assertEquals("clicks", ae2.clicks, r.data.get(1).clicks);
 
+    Assert.assertNotSame("deserialized", ae1, r.data.get(1));
     Assert.assertSame("from cache", ae2, r.data.get(1));
 
   }
