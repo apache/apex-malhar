@@ -31,9 +31,12 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * This operator searches the pattern in the input stream.
+ * This takes a pattern which is a list of tuples that you want to find.
+ * If the pattern is defined as “aa” and your input tuples arrive in following manner “a”, “a”, “a”, then this operator
+ * will emit 2 patterns. One matching tuple 1 and 2 and other matching 2 and 3.
  *
  * <br>
- * <b> StateFull : Yes, </b> Count is aggregated over application window(s). <br>
+ * <b> StateFull : Yes, </b> Patterns are found over application window(s). <br>
  * <b> Partitionable : No, </b> will yield wrong result. <br>
  *
  * <b>Ports</b>:<br>
@@ -62,7 +65,7 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
     patternLength = pattern.getPattern().size();
     matchedPatterns.clear();
     for (int i = 0; i < patternLength; i++) {
-      matchedPatterns.add(new ArrayList<T>());
+      matchedPatterns.add(null);
     }
   }
 
@@ -77,34 +80,36 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
     public void process(T t)
     {
       List<Integer> matchingPositions = pattern.getPosition(t);
+      List<T> currentMatch = null;
       if (matchingPositions == null) {
         for (int i = 0; i < patternLength; i++) {
-          matchedPatterns.get(i).clear();
+          matchedPatterns.set(i, null);
         }
         return;
       }
       int matchingPositionIndex = 0;
       int patternPosition = matchingPositions.get(matchingPositionIndex);
       int matchingPositionLength = matchingPositions.size();
+
       for (int i = 0; i < patternLength; ) {
         while (i < patternLength - patternPosition) {
-          matchedPatterns.get(i).clear();
+          matchedPatterns.set(i, null);
           i++;
         }
         if (i == patternLength) {
           break;
         }
-        List<T> prev = matchedPatterns.get(i);
-        if (!prev.isEmpty()) {
-          prev.add(t);
-          matchedPatterns.get(i - 1).addAll(prev);
-          prev.clear();
+        currentMatch = matchedPatterns.get(i);
+        if (currentMatch != null) {
+          currentMatch.add(t);
+          matchedPatterns.set(i - 1, currentMatch);
+          matchedPatterns.set(i, null);
         }
         matchingPositionIndex++;
         i++;
         if (matchingPositionIndex == matchingPositionLength) {
           for (; i < patternLength; i++) {
-            matchedPatterns.get(i).clear();
+            matchedPatterns.set(i, null);
           }
           break;
         }
@@ -113,12 +118,14 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
         }
       }
       if (patternPosition == 0) {
-        matchedPatterns.get(patternLength - 1).add(t);
+        currentMatch = Lists.newArrayList();
+        currentMatch.add(t);
+        matchedPatterns.set(patternLength - 1, currentMatch);
       }
       List<T> outputList = matchedPatterns.get(0);
-      if (!outputList.isEmpty()) {
+      if (outputList != null) {
         processPatternFound(outputList);
-        outputList.clear();
+        matchedPatterns.set(0, null);
       }
     }
   };
