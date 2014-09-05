@@ -129,21 +129,19 @@ public class HDSQueryOperator extends HDSOutputOperator
     query.prototype = key;
     query.windowCountdown = 30;
 
-    // If endTime is not specified, then use current system time as
-    // end time.
-    if (queryParams.endTime == 0)
-    {
-      query.endTime = TimeUnit.MILLISECONDS.convert(
-          TimeUnit.MINUTES.convert(System.currentTimeMillis(), TimeUnit.MILLISECONDS), TimeUnit.MINUTES);
-    } else
-      query.endTime = queryParams.endTime;
+    query.endTime = queryParams.endTime;
+    if (queryParams.endTime == 0) {
+      // If endTime is not specified, then use current system time as end time.
+      query.endTime = System.currentTimeMillis();
+    }
+    query.endTime = TimeUnit.MILLISECONDS.convert(TimeUnit.MINUTES.convert(query.endTime, TimeUnit.MILLISECONDS), TimeUnit.MINUTES);
 
-    // If start time is not specified, then return data for cofigured
-    // amounts of minutes (defaultTimeWindow)
-    if (queryParams.startTime == 0)
+    query.startTime = queryParams.startTime;
+    if (queryParams.startTime == 0) {
+      // If start time is not specified, return data for configured number of intervals (defaultTimeWindow)
       query.startTime = query.endTime - defaultTimeWindow;
-    else
-      query.startTime = queryParams.startTime;
+    }
+    query.startTime = TimeUnit.MILLISECONDS.convert(TimeUnit.MINUTES.convert(query.startTime, TimeUnit.MILLISECONDS), TimeUnit.MINUTES);
 
     rangeQueries.put(query.id, query);
 
