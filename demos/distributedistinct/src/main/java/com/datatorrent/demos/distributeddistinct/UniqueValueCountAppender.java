@@ -69,7 +69,7 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   {
     partitionKeys = Sets.newHashSet(0);
     partitionMask = 0;
-  }
+  } 
 
   @Override
   public void setup(Context.OperatorContext context)
@@ -100,7 +100,6 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   @Override
   protected void processTuple(InternalCountOutput<V> tuple)
   {
-
     Object key = getKeyFromTuple(tuple);
     @SuppressWarnings("unchecked")
     Set<Object> values = (Set<Object>) cacheManager.get(key);

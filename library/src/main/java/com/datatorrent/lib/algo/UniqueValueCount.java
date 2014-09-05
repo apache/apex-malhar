@@ -87,7 +87,7 @@ public class UniqueValueCount<K> extends BaseOperator {
 
         private final Set<Object> interimUniqueValues;
 
-        private InternalCountOutput(){
+        protected InternalCountOutput(){
             this(null,null,null);
         }
 

@@ -39,9 +39,9 @@ import com.datatorrent.lib.util.KeyValPair;
 public class RandomKeyValGenerator implements InputOperator
 {
 
-  protected int numKeys = 50;
+  protected int numKeys = 10000;
   protected int numVals = 1000;
-  protected int tupleBlast = 1000;
+  protected int tupleBlast = 100;
   protected Map<Integer, Set<Integer>> valhistory = new HashMap<Integer, Set<Integer>>();
   private Random rand = new Random();
   private boolean once;

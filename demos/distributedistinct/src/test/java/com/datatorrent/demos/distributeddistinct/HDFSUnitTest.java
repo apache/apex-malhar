@@ -15,15 +15,12 @@
  */
 package com.datatorrent.demos.distributeddistinct;
 
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Properties;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.junit.Assert;
@@ -35,52 +32,74 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
+import com.datatorrent.lib.bucket.Bucket;
+import com.datatorrent.lib.bucket.BucketManagerImpl;
+import com.datatorrent.lib.bucket.HdfsBucketStore;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Test for {@link IntegerUniqueValueCountAppender} and {@link UniqueValueCountAppender}
  */
-public class DistributedDistinctTest
+public class HDFSUnitTest
 {
   private static final Logger logger = LoggerFactory.getLogger(DistributedDistinctTest.class);
 
-  private final static String APP_ID = "DistributedDistinctTest";
+  private final static String APP_ID = "HDFSUnitTest";
   private final static int OPERATOR_ID = 0;
 
-  public static final String INMEM_DB_URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
-  public static final String INMEM_DB_DRIVER = "org.hsqldb.jdbc.JDBCDriver";
-  public static final String TABLE_NAME = "Test_Lookup_Cache";
+  private static HDFSUniqueValueCountAppender<Integer> valueCounter;
+  private static String applicationPath = "a";
 
-  private static IntegerUniqueValueCountAppender valueCounter;
-  private static String applicationPath;
+  private static BucketManagerImpl<BucketableInternalCountOutput<Integer>> bucketManager;
+
+  public final transient DefaultInputPort<KeyValPair<Object, Object>> input = new DefaultInputPort<KeyValPair<Object, Object>>() {
+    public Map<Integer, Integer> map = new HashMap<Integer, Integer>();
+
+    @Override
+    public void process(KeyValPair<Object, Object> tuple)
+    {
+      map.put((Integer) tuple.getKey(), (Integer) tuple.getValue());
+    }
+  };
+
 
   @Test
   public void testProcess() throws Exception
   {
+    // test insert
     insertValues();
-    Statement stmt = valueCounter.getStore().getConnection().createStatement();
 
-    ResultSet resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 1");
-    ArrayList<Integer> answersOne = new ArrayList<Integer>();
+    valueCounter.endWindow();
+    long bucketKey = bucketManager.getBucketKeyFor(new BucketableInternalCountOutput<Integer>(1, 0, new HashSet<Object>()));
+    Bucket<BucketableInternalCountOutput<Integer>> bucket = bucketManager.getBucket(bucketKey);
+    BucketableInternalCountOutput<Integer> event = bucket.getValueFromWrittenPart(1);
+    List<Integer> answersOne = new ArrayList<Integer>();
     for (int i = 1; i < 16; i++) {
       answersOne.add(i);
     }
-    Assert.assertEquals(answersOne, processResult(resultSet));
+    Assert.assertEquals(answersOne, processSet(event.getInternalSet()));
 
-    resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 2");
-    ArrayList<Integer> answersTwo = new ArrayList<Integer>();
+    bucketKey = bucketManager.getBucketKeyFor(new BucketableInternalCountOutput<Integer>(2, 0, new HashSet<Object>()));
+    bucket = bucketManager.getBucket(bucketKey);
+    event = bucket.getValueFromWrittenPart(2);
+    List<Integer> answersTwo = new ArrayList<Integer>();
     answersTwo.add(3);
     answersTwo.add(6);
     answersTwo.add(9);
     for (int i = 11; i < 21; i++) {
       answersTwo.add(i);
     }
-    Assert.assertEquals(answersTwo, processResult(resultSet));
+    Assert.assertEquals(answersTwo, processSet(event.getInternalSet()));
 
-    resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 3");
-    ArrayList<Integer> answersThree = new ArrayList<Integer>();
+    bucketKey = bucketManager.getBucketKeyFor(new BucketableInternalCountOutput<Integer>(3, 0, new HashSet<Object>()));
+    bucket = bucketManager.getBucket(bucketKey);
+    event = bucket.getValueFromWrittenPart(3);
+
+    List<Integer> answersThree = new ArrayList<Integer>();
     answersThree.add(2);
     answersThree.add(4);
     answersThree.add(6);
@@ -89,9 +108,7 @@ public class DistributedDistinctTest
     for (int i = 11; i < 21; i++) {
       answersThree.add(i);
     }
-    Assert.assertEquals(answersThree, processResult(resultSet));
-
-    valueCounter.teardown();
+    Assert.assertEquals(answersThree, processSet(event.getInternalSet()));
   }
 
   public static void insertValues()
@@ -119,15 +136,11 @@ public class DistributedDistinctTest
     logger.debug("end round 2");
   }
 
-  public static ArrayList<Integer> processResult(ResultSet resultSet)
+  public static ArrayList<Integer> processSet(Set<Object> set)
   {
     ArrayList<Integer> tempList = new ArrayList<Integer>();
-    try {
-      while (resultSet.next()) {
-        tempList.add(resultSet.getInt(1));
-      }
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
+    for (Object o : set) {
+      tempList.add((Integer) o);
     }
     Collections.sort(tempList);
     return tempList;
@@ -144,55 +157,24 @@ public class DistributedDistinctTest
     valueCounter.processTuple(new InternalCountOutput<Integer>(key, count, valSet));
   }
 
-  @Test
-  public void testSetup() throws Exception
-  {
-    insertValues();
-    Statement stmt = valueCounter.getStore().getConnection().createStatement();
-    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
-    attributes.put(DAG.APPLICATION_ID, APP_ID);
-    attributes.put(DAG.APPLICATION_PATH, applicationPath);
-    attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, 2L);
-
-    valueCounter.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
-
-    ResultSet resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 2");
-    ArrayList<Integer> answersAfterClear = new ArrayList<Integer>();
-    for (int i = 3; i < 16; i += 3) {
-      answersAfterClear.add(i);
-    }
-    Assert.assertEquals(answersAfterClear, processResult(resultSet));
-
-    resultSet = stmt.executeQuery("SELECT col2 FROM " + TABLE_NAME + " WHERE col1 = 3");
-    ArrayList<Integer> answersThree = new ArrayList<Integer>();
-    answersThree.add(2);
-    answersThree.add(4);
-    answersThree.add(6);
-    answersThree.add(8);
-    answersThree.add(10);
-    for (int i = 11; i < 21; i++) {
-      answersThree.add(i);
-    }
-    Assert.assertEquals(answersThree, processResult(resultSet));
-    stmt.executeQuery("DELETE FROM " + TABLE_NAME);
-  }
-
   @BeforeClass
   public static void setup() throws Exception
   {
-    valueCounter = new IntegerUniqueValueCountAppender();
-    Class.forName(INMEM_DB_DRIVER).newInstance();
-    Connection con = DriverManager.getConnection(INMEM_DB_URL, new Properties());
-    Statement stmt = con.createStatement();
-    stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (col1 INTEGER, col2 INTEGER, col3 BIGINT)");
+    valueCounter = new HDFSUniqueValueCountAppender<Integer>();
     AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
-    attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
-    valueCounter.setTableName(TABLE_NAME);
-    valueCounter.getStore().setDbDriver(INMEM_DB_DRIVER);
-    valueCounter.getStore().setDbUrl(INMEM_DB_URL);
+    attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, new Long(0));
     TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes);
+    bucketManager = new BucketManagerImpl<BucketableInternalCountOutput<Integer>>();
+    HdfsBucketStore<BucketableInternalCountOutput<Integer>> store = new HdfsBucketStore<BucketableInternalCountOutput<Integer>>();
+    HashSet<Integer> set = new HashSet<Integer>();
+    set.add(0);
+    store.setConfiguration(context.getId(), context.getValue(DAG.APPLICATION_PATH), set, 0);
+    bucketManager.setNoOfBuckets(800);
+    bucketManager.setWriteEventKeysOnly(false);
+    bucketManager.setBucketStore(store);
+    valueCounter.setBucketManager(bucketManager);
     valueCounter.setup(context);
   }
 }

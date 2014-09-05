@@ -83,9 +83,10 @@ public class CountVerifier implements Operator
   public void endWindow()
   {
     int failureCount = 0;
-    for (Map.Entry<Integer, Integer> e : receivedCount.entrySet()) {
+    for (Map.Entry<Integer, Integer> e : trueCount.entrySet()) {
       Integer key = e.getKey();
-      if (!trueCount.get(key).equals(e.getValue())) {
+      System.out.println("Key = " + e.getKey() + " True = " + e.getValue() + " Recieved = " + receivedCount.get(key));
+      if (!receivedCount.get(key).equals(e.getValue())) {
         failureCount++;
       }
     }

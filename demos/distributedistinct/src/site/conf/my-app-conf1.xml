@@ -1,7 +1,59 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
 <configuration>
-  <property>
-    <name>dt.attr.MASTER_MEMORY_MB</name>
-    <value>1024</value>
-  </property>
+	<!-- Properties for Stateful Jdbc Application -->
+	<property>
+		<name>dt.attr.MASTER_MEMORY_MB</name>
+		<value>256</value>
+	</property>
+		<property>
+		<name>dt.attr.CONTAINER_MEMORY_MB</name>
+		<value>256</value>
+	</property>
+	<property>
+		<name>dt.application.StatefulJdbcDistinctCount.operator.StatefulUniqueCounter.prop.tableName
+		</name>
+		<value>distributed_distinct_test</value>
+	</property>
+
+	<property>
+		<name>dt.application.StatefulJdbcDistinctCount.operator.StatefulUniqueCounter.prop.store.userName
+		</name>
+		<value>distinct</value>
+	</property>
+	<!-- 
+	<property>
+		<name>dt.application.StatefulJdbcDistinctCount.operator.StatefulUniqueCounter.attr.INITIAL_PARTITION_COUNT</name>
+		<value>4</value>
+	</property>
+	Properties for Stateful Hdfs Application
+	<property>
+		<name>dt.application.StatefulHdfsDistinctCount.operator.StatefulUniqueCounter.prop.bucketManager.writeEventKeysOnly
+		</name>
+		<value>false</value>
+	</property>
+
+	<property>
+		<name>dt.application.StatefulHdfsDistinctCount.operator.StatefulUniqueCounter.prop.bucketManager.noOfBuckets
+		</name>
+		<value>100</value>
+	</property>
+
+	<property>
+		<name>dt.application.StatefulHdfsDistinctCount.operator.StatefulUniqueCounter.prop.bucketManager.noOfBucketInMemory
+		</name>
+		<value>50</value>
+	</property>
+	
+	<property>
+		<name>dt.application.StatefulHdfsDistinctCount.operator.StatefulUniqueCounter.prop.bucketManager.maxNoOfBucketInMemory
+		</name>
+		<value>50</value>
+	</property>
+	
+	<property>
+		<name>dt.application.StatefulHdfsDistinctCount.operator.StatefulUniqueCounter.attr.INITIAL_PARTITION_COUNT</name>
+		<value>4</value>
+	</property>
+	-->
 </configuration>
