@@ -21,6 +21,9 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -30,48 +33,56 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
- * This operator searches the pattern in the input stream.
- * This takes a pattern which is a list of tuples that you want to find.
- * If the pattern is defined as “aa” and your input tuples arrive in following manner “a”, “a”, “a”, then this operator
- * will emit 2 patterns. One matching tuple 1 and 2 and other matching 2 and 3.
+ * <p>
+ * This operator searches for a given state machine in the input stream.<br>
+ * This takes a state machine which is a list of events that you want to find.<br>
+ * For e.g. If the state machine is defined as “aa” and your input events arrive in following manner “a”, “a”, “a”, then this operator
+ * will emit 2 matches for the given state machine. One matching tuple 1 and 2 and other matching 2 and 3.
+ * </p>
  *
  * <br>
- * <b> StateFull : Yes, </b> Patterns are found over application window(s). <br>
+ * <b> StateFull : Yes, </b> State machine is found over application window(s). <br>
  * <b> Partitionable : No, </b> will yield wrong result. <br>
  *
+ * <br>
  * <b>Ports</b>:<br>
  * <b>inputPort</b>: the port to receive input<br>
  *
+ * <br>
  * <b>Properties</b>:<br>
- * <b>pattern</b>: The pattern that needs to be searched<br>
+ * <b>states</b>: The states that needs to be searched<br>
+ *
+ * @param <T> event type
  */
 
 @OperatorAnnotation(partitionable = false)
-public abstract class AbstractPatternMatcher<T> extends BaseOperator
+public abstract class AbstractStateMachine<T> extends BaseOperator
 {
   @NotNull
-  private Pattern pattern;
-  private List<List<T>> matchedPatterns;
+  private StateMachine<T> stateMachine;
+
+  // this stores the partial matches found so far
+  private ArrayList<List<T>> matchedPatterns;
   private int patternLength;
 
-  public AbstractPatternMatcher()
+  public AbstractStateMachine()
   {
     matchedPatterns = Lists.newArrayList();
   }
 
-  public void setPattern(Pattern pattern)
+  public void setStateMachine(StateMachine<T> stateMachine)
   {
-    this.pattern = pattern;
-    patternLength = pattern.getPattern().size();
+    this.stateMachine = stateMachine;
+    patternLength = stateMachine.getStates().length;
     matchedPatterns.clear();
     for (int i = 0; i < patternLength; i++) {
       matchedPatterns.add(null);
     }
   }
 
-  public Pattern getPattern()
+  public StateMachine<T> getStateMachine()
   {
-    return pattern;
+    return stateMachine;
   }
 
   public transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
@@ -79,8 +90,24 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
     @Override
     public void process(T t)
     {
-      List<Integer> matchingPositions = pattern.getPosition(t);
-      List<T> currentMatch = null;
+      if (stateMachine == null) {
+        logger.error("Please set the state machine before searching");
+        return;
+      }
+      //get the matches for input event in the state machine
+      List<Integer> matchingPositions = stateMachine.getPosition(t);
+      List<T> currentMatch;
+
+      /**
+       * Algorithm :
+       * Store all the partial matches seen so far.
+       * Find the position(s) of the input event in the given state machine.
+       * If there was no matching position then reset all the existing partial matches
+       * For each of the matching position x, if there was a partial match till position x-1, then append the new event to this partial match.
+       * Reset partial matches for all non matching positions
+       */
+
+      // if there is no match then reset all the existing partial matches to null
       if (matchingPositions == null) {
         for (int i = 0; i < patternLength; i++) {
           matchedPatterns.set(i, null);
@@ -92,6 +119,7 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
       int matchingPositionLength = matchingPositions.size();
 
       for (int i = 0; i < patternLength; ) {
+        //Reset partial matches to null for all non matching positions
         while (i < patternLength - patternPosition) {
           matchedPatterns.set(i, null);
           i++;
@@ -100,6 +128,7 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
           break;
         }
         currentMatch = matchedPatterns.get(i);
+        //If there was a partial match till position x-1, then append the new event to this partial match.
         if (currentMatch != null) {
           currentMatch.add(t);
           matchedPatterns.set(i - 1, currentMatch);
@@ -107,6 +136,7 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
         }
         matchingPositionIndex++;
         i++;
+        //Reset partial matches to null for all non matching positions
         if (matchingPositionIndex == matchingPositionLength) {
           for (; i < patternLength; i++) {
             matchedPatterns.set(i, null);
@@ -117,12 +147,14 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
           patternPosition = matchingPositions.get(matchingPositionIndex);
         }
       }
+      // If the match is found at starting of state machine,then initialize the partial match
       if (patternPosition == 0) {
         currentMatch = Lists.newArrayList();
         currentMatch.add(t);
         matchedPatterns.set(patternLength - 1, currentMatch);
       }
       List<T> outputList = matchedPatterns.get(0);
+      // If the match is found process it
       if (outputList != null) {
         processPatternFound(outputList);
         matchedPatterns.set(0, null);
@@ -134,30 +166,33 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
 
   public transient DefaultOutputPort<List<T>> outputPort = new DefaultOutputPort<List<T>>();
 
-  public static class Pattern<T>
+  public static class StateMachine<T>
   {
     private Map<T, List<Integer>> positionMap;
-    private List<T> pattern;
+    private T[] states;
 
-    public Pattern()
+    public StateMachine()
     {
       positionMap = Maps.newHashMap();
     }
 
-    public Pattern(List<T> pattern)
+    public StateMachine(T[] states)
     {
-      this.pattern = pattern;
+      this.states = states;
       positionMap = Maps.newHashMap();
       populatePositionMap();
     }
 
+    /**
+     * This function pre-calculates the position of each of the state
+     */
     private void populatePositionMap()
     {
-      for (int i = 0; i < pattern.size(); i++) {
-        if (positionMap.get(pattern.get(i)) == null) {
-          positionMap.put(pattern.get(i), new ArrayList<Integer>());
+      for (int i = 0; i < states.length; i++) {
+        if (positionMap.get(states[i]) == null) {
+          positionMap.put(states[i], new ArrayList<Integer>());
         }
-        positionMap.get(pattern.get(i)).add(0, i);
+        positionMap.get(states[i]).add(0, i);
       }
     }
 
@@ -166,16 +201,18 @@ public abstract class AbstractPatternMatcher<T> extends BaseOperator
       return positionMap.get(t);
     }
 
-    public List<T> getPattern()
+    public T[] getStates()
     {
-      return pattern;
+      return states;
     }
 
-    public void setPattern(List<T> pattern)
+    public void setStates(T[] states)
     {
-      this.pattern = pattern;
+      this.states = states;
       positionMap.clear();
       populatePositionMap();
     }
   }
+
+  private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
 }
