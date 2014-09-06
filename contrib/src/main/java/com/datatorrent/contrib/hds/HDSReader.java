@@ -95,7 +95,7 @@ public class HDSReader implements Operator
    * Map containing all current queries. Accessed by operator and reader threads.
    */
   protected final ConcurrentMap<Slice, HDSQuery> queries = Maps.newConcurrentMap();
-  private final Map<Long, BucketReader> buckets = Maps.newHashMap();
+  private final transient Map<Long, BucketReader> buckets = Maps.newHashMap();
 
   @VisibleForTesting
   protected transient ExecutorService queryExecutor;

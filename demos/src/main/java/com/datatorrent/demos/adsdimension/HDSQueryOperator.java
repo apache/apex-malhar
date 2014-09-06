@@ -96,7 +96,7 @@ public class HDSQueryOperator extends HDSOutputOperator
   @VisibleForTesting
   protected transient final Map<String, HDSRangeQuery> rangeQueries = Maps.newConcurrentMap();
   private transient final Map<HDSQuery, HDSRangeQuery> queryGrouping = Maps.newHashMap();
-  private ObjectMapper mapper = null;
+  private transient ObjectMapper mapper = null;
   private long defaultTimeWindow = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES);
 
   public long getDefaultTimeWindow()
