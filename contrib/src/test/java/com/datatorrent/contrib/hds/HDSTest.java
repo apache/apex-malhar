@@ -21,6 +21,8 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.TreeMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.RegexFileFilter;
@@ -241,6 +243,63 @@ public class HDSTest
       Assert.assertArrayEquals(("data"+seq).getBytes(), value.buffer);
     }
     Assert.assertEquals(5, seq);
+  }
+
+  @Test
+  public void testWriteError() throws Exception
+  {
+    File file = new File(testInfo.getDir());
+    FileUtils.deleteDirectory(file);
+
+    final RuntimeException writeError = new RuntimeException("failure simulation");
+    final CountDownLatch endWindowComplete = new CountDownLatch(1);
+    final CountDownLatch writerActive = new CountDownLatch(1);
+
+    HDSFileAccessFSImpl fa = new MockFileAccess() {
+      @Override
+      public HDSFileWriter getWriter(long bucketKey, String fileName) throws IOException
+      {
+        writerActive.countDown();
+        try {
+          if (endWindowComplete.await(10, TimeUnit.SECONDS)) {
+            throw writeError;
+          }
+        } catch (InterruptedException e) {
+        }
+        return super.getWriter(bucketKey, fileName);
+      }
+    };
+    fa.setBasePath(file.getAbsolutePath());
+    HDSBucketManager hds = new HDSBucketManager();
+    hds.setFileStore(fa);
+    hds.setFlushIntervalCount(0); // flush after every window
+
+    long BUCKETKEY = 1;
+
+    hds.setup(null);
+    //hds.writeExecutor = new ScheduledThreadPoolExecutor(1);
+
+    hds.beginWindow(1);
+    long[] seqArray = { 5L, 1L, 3L, 4L, 2L };
+    for (long seq : seqArray) {
+      Slice key = newKey(BUCKETKEY, seq);
+      hds.put(BUCKETKEY, key.buffer, ("data"+seq).getBytes());
+    }
+    hds.endWindow();
+    endWindowComplete.countDown();
+
+    try {
+      Assert.assertTrue(writerActive.await(10, TimeUnit.SECONDS));
+      hds.writeExecutor.shutdown();
+      hds.writeExecutor.awaitTermination(10, TimeUnit.SECONDS);
+      hds.beginWindow(2);
+      hds.endWindow();
+      Assert.fail("exception not raised");
+    } catch (Exception e) {
+      Assert.assertSame(writeError, e.getCause());
+    }
+
+    hds.teardown();
   }
 
   @Test

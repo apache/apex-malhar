@@ -55,7 +55,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
   private final transient HashMap<Long, Bucket> buckets = Maps.newHashMap();
   @VisibleForTesting
   protected transient ExecutorService writeExecutor;
-  private transient Exception writerError;
+  private volatile transient Exception writerError;
 
   private int maxFileSize = 128 * 1024 * 1024; // 128m
   private int maxWalFileSize = 64 * 1024 * 1024;
@@ -402,7 +402,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
               try {
                 writeDataFiles(bucket);
               } catch (Exception e) {
-                LOG.debug("Error writing files", e);
+                LOG.debug("Write error: {}", e.getMessage());
                 writerError = e;
               }
             }
@@ -413,7 +413,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
       }
     }
 
-    // propagate any exceptions from writers
+    // propagate writer exceptions
     if (writerError != null) {
       throw new RuntimeException("Error while flushing write cache.", this.writerError);
     }
