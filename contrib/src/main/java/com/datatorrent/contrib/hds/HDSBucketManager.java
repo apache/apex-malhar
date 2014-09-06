@@ -60,7 +60,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
   private int maxFileSize = 128 * 1024 * 1024; // 128m
   private int maxWalFileSize = 64 * 1024 * 1024;
   private int flushSize = 1000000;
-  private int flushIntervalCount = 30;
+  private int flushIntervalCount = 120;
 
   private final HashMap<Long, WalMeta> walMeta = Maps.newHashMap();
 

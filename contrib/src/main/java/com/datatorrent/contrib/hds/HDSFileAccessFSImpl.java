@@ -108,6 +108,10 @@ abstract public class HDSFileAccessFSImpl implements HDSFileAccess
   {
     FileContext fc = FileContext.getFileContext(fs.getUri());
     Path bucketPath = getBucketPath(bucketKey);
+    // file context requires absolute path
+    if (!bucketPath.isAbsolute()) {
+      bucketPath = new Path(fs.getWorkingDirectory(), bucketPath);
+    }
     fc.rename(new Path(bucketPath, fromName), new Path(bucketPath, toName), Rename.OVERWRITE);
   }
 
