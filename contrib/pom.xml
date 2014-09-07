@@ -408,13 +408,6 @@
     <artifactId>couchbase-client</artifactId>
     <version>1.4.4</version>
     <optional>true</optional>
-  </dependency>
-    <dependency>
-      <groupId>com.google.code.gson</groupId>
-      <artifactId>gson</artifactId>
-      <version>2.2.2</version>
-      <type>jar</type>
-    </dependency>
-    
+  </dependency>    
   </dependencies>
 </project>
