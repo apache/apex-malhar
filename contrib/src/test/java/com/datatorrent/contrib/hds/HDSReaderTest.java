@@ -34,17 +34,8 @@ public class HDSReaderTest
   @Rule
   public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
 
-  @Test
-  public void testReader() throws Exception
+  private void writeKey(HDSFileAccess fa, Slice key, String data) throws Exception
   {
-    File file = new File(testInfo.getDir());
-    FileUtils.deleteDirectory(file);
-
-    Slice key = HDSTest.newKey(1, 1);
-    String data = "data1";
-
-    HDSFileAccessFSImpl fa = new MockFileAccess();
-    fa.setBasePath(file.getAbsolutePath());
     HDSBucketManager hds = new HDSBucketManager();
     hds.setFileStore(fa);
     hds.setFlushSize(0); // flush after every key
@@ -55,6 +46,21 @@ public class HDSReaderTest
     hds.put(HDSTest.getBucketKey(key), key.buffer, data.getBytes());
     hds.endWindow();
     hds.teardown();
+  }
+
+  @Test
+  public void testReader() throws Exception
+  {
+    File file = new File(testInfo.getDir());
+    FileUtils.deleteDirectory(file);
+
+    HDSFileAccessFSImpl fa = new MockFileAccess();
+    fa.setBasePath(file.getAbsolutePath());
+
+    Slice key = HDSTest.newKey(1, 1);
+    String data = "data1";
+
+    writeKey(fa, key, data);
 
     // setup the reader instance
     final List<HDSQuery> results = Lists.newArrayList();
@@ -86,11 +92,68 @@ public class HDSReaderTest
     Assert.assertEquals("query results", 1, results.size());
 
     reader.beginWindow(2);
-    reader.endWindow(); // emit result
+    reader.endWindow(); // emit result again
 
     Assert.assertEquals("query results", 2, results.size());
 
     reader.teardown();
   }
 
+  @Test
+  public void testReaderRetry() throws Exception
+  {
+    File file = new File(testInfo.getDir());
+    FileUtils.deleteDirectory(file);
+
+    HDSFileAccessFSImpl fa = new MockFileAccess();
+    fa.setBasePath(file.getAbsolutePath());
+
+    Slice key = HDSTest.newKey(1, 1);
+    String data = "data1";
+
+    writeKey(fa, key, data);
+
+    // setup the reader instance
+    final List<HDSQuery> results = Lists.newArrayList();
+    HDSReader reader = new HDSReader() {
+      @Override
+      protected void emitQueryResult(HDSQuery query)
+      {
+        results.add(query);
+      }
+    };
+    reader.queryExecutor = MoreExecutors.sameThreadExecutor(); // synchronous endWindow processing
+    reader.setFileStore(fa);
+
+    reader.setup(null);
+    reader.beginWindow(1);
+
+    HDSQuery q = new HDSQuery();
+    q.bucketKey = HDSTest.getBucketKey(key);
+    q.keepAliveCount = 2;
+    q.key = key.buffer;
+
+    reader.addQuery(q);
+    Assert.assertNull("query result before endWindow", q.result);
+    Assert.assertEquals("query results", 0, results.size());
+
+    reader.endWindow(); // process query
+
+    Assert.assertArrayEquals("query result after endWindow", data.getBytes(), q.result);
+    Assert.assertEquals("query results", 1, results.size());
+    results.clear();
+    q.processed = false;
+
+    String data2 = "data2";
+    writeKey(fa, key, data2);
+
+    reader.beginWindow(2);
+    reader.endWindow(); // process query
+
+    Assert.assertEquals("query results", 1, results.size());
+    Assert.assertArrayEquals("query result after endWindow", data2.getBytes(), q.result);
+
+    reader.teardown();
+
+  }
 }

@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.io.output.CountingOutputStream;
@@ -33,6 +34,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 /**
  * File storage for testing.
@@ -40,6 +42,15 @@ import com.google.common.collect.Maps;
 public class MockFileAccess extends HDSFileAccessFSImpl
 {
   private final transient Kryo kryo = new Kryo();
+
+  private final Set<String> deletedFiles = Sets.newHashSet();
+
+  @Override
+  public void delete(long bucketKey, String fileName) throws IOException
+  {
+    super.delete(bucketKey, fileName);
+    deletedFiles.add(""+bucketKey+fileName);
+  }
 
   @Override
   public HDSFileReader getReader(final long bucketKey, final String fileName) throws IOException
@@ -88,6 +99,11 @@ public class MockFileAccess extends HDSFileAccessFSImpl
 
       @Override
       public boolean next(Slice key, Slice value) throws IOException {
+
+        if (deletedFiles.contains(""+bucketKey+fileName)) {
+          throw new IOException("Simulated error for deleted file: " + fileName);
+        }
+
         int pos = index.intValue();
         if (pos < keys.size()) {
           Slice k = keys.get(pos);

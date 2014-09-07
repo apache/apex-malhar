@@ -15,9 +15,14 @@
  */
 package com.datatorrent.contrib.hds;
 
+import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -144,9 +149,7 @@ public class HDSReader implements Operator
   public void teardown()
   {
     for (BucketReader bucket : this.buckets.values()) {
-      for (HDSFileReader reader : bucket.readers.values()) {
-        IOUtils.closeQuietly(reader);
-      }
+      IOUtils.closeQuietly(bucket);
     }
     IOUtils.closeQuietly(store);
     queryExecutor.shutdown();
@@ -185,6 +188,7 @@ public class HDSReader implements Operator
       public void run()
       {
         try {
+          LOG.debug("Processing {}", query);
           query.result = get(query.bucketKey, query.key);
           query.processed = true;
         } catch (Exception e) {
@@ -199,7 +203,7 @@ public class HDSReader implements Operator
   {
     BucketReader br = this.buckets.get(bucketKey);
     if (br == null) {
-      LOG.debug("Opening bucket {}", bucketKey);
+      LOG.debug("Reading bucket meta {}", bucketKey);
       br = new BucketReader();
       br.bucketMeta = loadBucketMeta(bucketKey);
       this.buckets.put(bucketKey, br);
@@ -211,6 +215,7 @@ public class HDSReader implements Operator
   {
     BucketReader bucket = this.buckets.get(bucketKey);
     if (bucket != null) {
+      LOG.debug("Closing reader {}", name);
       IOUtils.closeQuietly(bucket.readers.remove(name));
     }
   }
@@ -220,22 +225,38 @@ public class HDSReader implements Operator
     Slice keyWrapper = new Slice(key, 0, key.length);
 
     BucketReader bucket = getReader(bucketKey);
-    Map.Entry<Slice, BucketFileMeta> floorEntry = bucket.bucketMeta.files.floorEntry(keyWrapper);
-    if (floorEntry == null) {
-      // no file for this key
-      return null;
-    }
+    for (int i=0; i<10; i++) {
+      Map.Entry<Slice, BucketFileMeta> floorEntry = bucket.bucketMeta.files.floorEntry(keyWrapper);
+      if (floorEntry == null) {
+        // no file for this key
+        return null;
+      }
 
-    // lookup against data file
-    HDSFileReader reader = bucket.readers.get(floorEntry.getValue().name);
-    if (reader == null) {
-      bucket.readers.put(floorEntry.getValue().name, reader = store.getReader(bucketKey, floorEntry.getValue().name));
+      try {
+        HDSFileReader reader = bucket.readers.get(floorEntry.getValue().name);
+        if (reader == null) {
+          bucket.readers.put(floorEntry.getValue().name, reader = store.getReader(bucketKey, floorEntry.getValue().name));
+        }
+        reader.seek(key);
+        Slice value = new Slice(null, 0,0);
+        reader.next(new Slice(null, 0, 0), value);
+        return value.buffer;
+      } catch (IOException e) {
+        // check for meta file update
+        this.buckets.remove(bucketKey);
+        bucket.close();
+        bucket = getReader(bucketKey);
+        Map.Entry<Slice, BucketFileMeta> newEntry = bucket.bucketMeta.files.floorEntry(keyWrapper);
+        if (newEntry != null && newEntry.getValue().name.compareTo(floorEntry.getValue().name) == 0) {
+          // file still the same - error unrelated to rewrite
+          throw e;
+        }
+        // retry
+        LOG.debug("Retry after meta data change bucket {} from {} to {}", bucketKey, floorEntry, newEntry);
+        continue;
+      }
     }
-
-    reader.seek(key);
-    Slice value = new Slice(null, 0,0);
-    reader.next(new Slice(null, 0, 0), value);
-    return value.buffer;
+    return null;
   }
 
   protected void addQuery(HDSQuery query)
@@ -278,7 +299,7 @@ public class HDSReader implements Operator
     @Override
     public String toString()
     {
-      return "BucketFileMeta [name=" + name + ", fromSeq=" + startKey + "]";
+      return "BucketFileMeta [name=" + name + ", startKey=" + startKey + "]";
     }
   }
 
@@ -314,10 +335,18 @@ public class HDSReader implements Operator
     final TreeMap<Slice, BucketFileMeta> files;
   }
 
-  private static class BucketReader
+  private static class BucketReader implements Closeable
   {
     BucketMeta bucketMeta;
     final HashMap<String, HDSFileReader> readers = Maps.newHashMap();
+
+    @Override
+    public void close() throws IOException
+    {
+      for (HDSFileReader reader : readers.values()) {
+        reader.close();
+      }
+    }
   }
 
 }
