@@ -21,6 +21,7 @@ import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
@@ -163,13 +164,19 @@ public class HDSReader implements Operator
   @Override
   public void endWindow()
   {
-    // TODO: expire queries
-    for (HDSQuery query : queries.values()) {
+    Iterator<Map.Entry<Slice, HDSQuery>> it = this.queries.entrySet().iterator();
+    while (it.hasNext()) {
+      HDSQuery query = it.next().getValue();
       if (!query.processed) {
         processQuery(query);
       }
+      // could be processed directly
       if (query.processed) {
         emitQueryResult(query);
+        if (--query.keepAliveCount < 0) {
+          //LOG.debug("Removing expired query {}", query);
+          it.remove(); // query expired
+        }
       }
     }
     if (executorError != null) {
@@ -237,9 +244,10 @@ public class HDSReader implements Operator
         if (reader == null) {
           bucket.readers.put(floorEntry.getValue().name, reader = store.getReader(bucketKey, floorEntry.getValue().name));
         }
-        reader.seek(key);
         Slice value = new Slice(null, 0,0);
-        reader.next(new Slice(null, 0, 0), value);
+        if (reader.seek(key)) {
+          reader.next(new Slice(null, 0, 0), value);
+        }
         return value.buffer;
       } catch (IOException e) {
         // check for meta file update

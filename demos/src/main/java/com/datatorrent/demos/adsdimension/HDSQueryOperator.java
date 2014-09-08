@@ -18,6 +18,7 @@ package com.datatorrent.demos.adsdimension;
 import java.nio.ByteBuffer;
 import java.util.Date;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,7 +62,7 @@ public class HDSQueryOperator extends HDSOutputOperator
     public  AdInfo.AdInfoAggregateEvent prototype;
     public long startTime;
     public long endTime;
-    private transient Set<HDSQuery> points = Sets.newLinkedHashSet();
+    private transient LinkedHashSet<HDSQuery> points = Sets.newLinkedHashSet();
 
     @Override public String toString()
     {
