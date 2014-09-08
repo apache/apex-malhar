@@ -120,8 +120,8 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     @Override
     public void removeCommittedWindowId(String appId, int operatorId) {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
+       }
+    
     @Override
     public void beginTransaction() {
        // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.

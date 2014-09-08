@@ -269,6 +269,8 @@ public class CouchBaseOperatorTest {
         Map<String,Object> keyValues = client.getBulk(keyList);
         System.out.println("keyValues is"+ keyValues.toString());
         System.out.println("size is "+ keyValues.size());
+        java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE,keyValues.toString());
+
         return keyValues.size();
       }
      
@@ -307,7 +309,7 @@ public class CouchBaseOperatorTest {
          }
         Map<String,Object> keyValues = client.getBulk(keyList);
         System.out.println("keyValues is"+ keyValues.toString());
-        System.out.println("size is "+ keyValues.size());
+        java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE,keyValues.toString());
         return keyValues.size();
       }
      
