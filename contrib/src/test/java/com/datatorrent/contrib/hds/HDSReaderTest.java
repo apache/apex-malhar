@@ -57,10 +57,14 @@ public class HDSReaderTest
     HDSFileAccessFSImpl fa = new MockFileAccess();
     fa.setBasePath(file.getAbsolutePath());
 
-    Slice key = HDSTest.newKey(1, 1);
-    String data = "data1";
+    Slice key0 = HDSTest.newKey(1, 0);
+    String data0 = "data0";
 
-    writeKey(fa, key, data);
+    Slice key1 = HDSTest.newKey(1, 1);
+    String data1 = "data1";
+
+    writeKey(fa, key0, data0);
+    writeKey(fa, key1, data1);
 
     // setup the reader instance
     final List<HDSQuery> results = Lists.newArrayList();
@@ -78,9 +82,9 @@ public class HDSReaderTest
     reader.beginWindow(1);
 
     HDSQuery q = new HDSQuery();
-    q.bucketKey = HDSTest.getBucketKey(key);
-    q.keepAliveCount = 2;
-    q.key = key.buffer;
+    q.bucketKey = HDSTest.getBucketKey(key1);
+    q.keepAliveCount = 1;
+    q.key = key1.buffer;
 
     reader.addQuery(q);
     Assert.assertNull("query result before endWindow", q.result);
@@ -88,13 +92,34 @@ public class HDSReaderTest
 
     reader.endWindow(); // process query
 
-    Assert.assertArrayEquals("query result after endWindow", data.getBytes(), q.result);
+    Assert.assertArrayEquals("query result after endWindow", data1.getBytes(), q.result);
     Assert.assertEquals("query results", 1, results.size());
 
     reader.beginWindow(2);
     reader.endWindow(); // emit result again
 
     Assert.assertEquals("query results", 2, results.size());
+
+    reader.beginWindow(3);
+    reader.endWindow(); // emit nothing - query expired
+
+    Assert.assertEquals("query expired", 2, results.size());
+
+    // unknown key
+    results.clear();
+
+    Slice key2 = HDSTest.newKey(1, 2);
+    HDSQuery q2 = new HDSQuery();
+    q2.bucketKey = HDSTest.getBucketKey(key2);
+    q2.keepAliveCount = 1;
+    q2.key = key2.buffer;
+
+    reader.beginWindow(4);
+    reader.addQuery(q2);
+    reader.endWindow(); // emit nothing - unknown key
+    Assert.assertEquals("query results " + results, 1, results.size());
+    Assert.assertArrayEquals("query result " + results.get(0), key2.buffer, results.get(0).key);
+    Assert.assertEquals("query result " + results.get(0), null, results.get(0).result);
 
     reader.teardown();
   }
