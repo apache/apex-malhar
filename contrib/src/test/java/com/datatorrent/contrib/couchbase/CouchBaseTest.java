@@ -53,7 +53,7 @@ public void test()
 {
     CouchBaseStore store = new CouchBaseStore();
         try {
-            store.addNodes("http://127.0.0.1:8091/pools");
+            store.addNodes("http://node26.morado.com:8091/pools");
             store.connect();
         } catch (IOException ex) {
             Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);

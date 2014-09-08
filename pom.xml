@@ -32,6 +32,9 @@
     <jackson.version>1.9.2</jackson.version>
     <jersey.version>1.9</jersey.version>
     <jetty.version>8.1.10.v20130312</jetty.version>
+    <!-- skip tests by default as they depend on manual setup -->
+    <skip.contrib.module.tests>true</skip.contrib.module.tests>
+        <skipTests>true</skipTests>
   </properties>
 
   <modules>

@@ -39,6 +39,7 @@ public class CouchBaseOperatorTest {
     private static int OPERATOR_ID = 0;
     protected static ArrayList<URI> nodes =new ArrayList<URI>();
     protected static ArrayList<String> keyList = new ArrayList<String>();
+    private static String uri = "http://node26.morado.com:8091/pools";
     
     private static class TestEvent {
 
@@ -75,8 +76,8 @@ public class CouchBaseOperatorTest {
         CouchBaseStore store = new CouchBaseStore();
         CouchBaseWindowStore metaStore = new CouchBaseWindowStore();
         try {
-            store.addNodes("http://127.0.0.1:8091/pools");
-            metaStore.addNodes("http://127.0.0.1:8091/pools");
+            store.addNodes(uri);
+            metaStore.addNodes(uri);
             store.connect();
             metaStore.connect();
         } catch (IOException ex) {
@@ -90,7 +91,7 @@ public class CouchBaseOperatorTest {
   public void TestCouchBaseInsertOutputOperator() {
 
     CouchBaseWindowStore store = new CouchBaseWindowStore();
-    store.addNodes("http://127.0.0.1:8091/pools");
+    store.addNodes(uri);
         try {
             store.connect();
         } catch (IOException ex) {
@@ -127,7 +128,7 @@ public class CouchBaseOperatorTest {
   public void TestCouchBaseUpdateOutputOperator() {
 
     CouchBaseWindowStore store = new CouchBaseWindowStore();
-    store.addNodes("http://127.0.0.1:8091/pools");
+    store.addNodes(uri);
         try {
             store.connect();
         } catch (IOException ex) {
@@ -166,7 +167,7 @@ public class CouchBaseOperatorTest {
   public void TestCouchBaseInputOperator() {
 
     CouchBaseStore store = new CouchBaseStore();
-    store.addNodes("http://127.0.0.1:8091/pools");
+    store.addNodes(uri);
         try {
             store.connect();
         } catch (IOException ex) {
@@ -220,7 +221,7 @@ public class CouchBaseOperatorTest {
         private void insertEventsInTable(int numEvents) {
             String key = null;
             Integer value = null;
-            nodes.add(URI.create("http://127.0.0.1:8091/pools"));
+            nodes.add(URI.create(uri));
             CouchbaseClient client = null;
          try {
              client = new CouchbaseClient(nodes,bucket,password);
@@ -258,7 +259,7 @@ public class CouchBaseOperatorTest {
      
         String key = null;
             String value = null;
-            nodes.add(URI.create("http://127.0.0.1:8091/pools"));
+            nodes.add(URI.create(uri));
             CouchbaseClient client = null;
          try {
              client = new CouchbaseClient(nodes,bucket,password);
@@ -297,7 +298,7 @@ public class CouchBaseOperatorTest {
      
         String key = null;
             String value = null;
-            nodes.add(URI.create("http://127.0.0.1:8091/pools"));
+            nodes.add(URI.create(uri));
             CouchbaseClient client = null;
          try {
              client = new CouchbaseClient(nodes,bucket,password);
