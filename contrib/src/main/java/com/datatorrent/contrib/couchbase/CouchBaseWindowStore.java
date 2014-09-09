@@ -27,7 +27,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   private static final transient Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
   private transient String key;
   private transient Object value;
-  
+  private static final String DEFAULT_LAST_WINDOW_PREFIX = "last_window";
   private transient byte[] keyBytes;
   private transient byte[] valueBytes;
   private String bucket;
@@ -40,8 +40,8 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   public CouchBaseWindowStore() {
     mapper = new ObjectMapper();
     bucket = "metadata";
-    password="";
-      
+    password= "";
+    lastWindowValue= DEFAULT_LAST_WINDOW_PREFIX; 
     constructKeys();
   }
 
@@ -51,7 +51,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
 
   public void setKey(String key) {
     this.key = key;
-    constructKeys();
+   // constructKeys();
   }
 
   public Object getValue() {
@@ -60,13 +60,16 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
 
   public void setValue(Object value) {
     this.value = value;
-    constructKeys();
+   // constructKeys();
   }
 
   public void setBucket(String bucketName) {
     this.bucket = bucketName;
   }
 
+  public CouchbaseClient getInstance() {
+    return client;
+  }
   /**
    * setter for password
    * 
