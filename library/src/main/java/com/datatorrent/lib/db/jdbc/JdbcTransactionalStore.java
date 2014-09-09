@@ -22,6 +22,8 @@ import java.sql.SQLException;
 import javax.annotation.Nonnull;
 
 import com.datatorrent.lib.db.TransactionableStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>JdbcTransactionalStore class.</p>
@@ -30,6 +32,8 @@ import com.datatorrent.lib.db.TransactionableStore;
  */
 public class JdbcTransactionalStore extends JdbcStore implements TransactionableStore
 {
+  private static transient final Logger LOG = LoggerFactory.getLogger(JdbcTransactionalStore.class);
+
   public static String DEFAULT_APP_ID_COL = "dt_app_id";
   public static String DEFAULT_OPERATOR_ID_COL = "dt_operator_id";
   public static String DEFAULT_WINDOW_COL = "dt_window";
@@ -45,10 +49,10 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
   private String metaTable;
 
   private boolean inTransaction;
-  private transient PreparedStatement lastWindowFetchCommand;
-  private transient PreparedStatement lastWindowInsertCommand;
-  private transient PreparedStatement lastWindowUpdateCommand;
-  private transient PreparedStatement lastWindowDeleteCommand;
+  protected transient PreparedStatement lastWindowFetchCommand;
+  protected transient PreparedStatement lastWindowInsertCommand;
+  protected transient PreparedStatement lastWindowUpdateCommand;
+  protected transient PreparedStatement lastWindowDeleteCommand;
 
   public JdbcTransactionalStore()
   {
@@ -205,6 +209,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
         connection.commit();
       }
       lastWindowFetchCommand.close();
+      LOG.debug("Last window id: {}", lastWindow);
       return lastWindow;
     }
     catch (SQLException ex) {
