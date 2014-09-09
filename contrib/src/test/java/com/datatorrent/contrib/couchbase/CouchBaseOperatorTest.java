@@ -13,7 +13,6 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
 import org.junit.After;
@@ -103,11 +102,12 @@ public class CouchBaseOperatorTest {
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
     TestInsertOutputOperator outputInsertOperator = new TestInsertOutputOperator();
-    TestEvent e = new TestEvent("prerna", 123);
-    outputInsertOperator.input.put(e);
+   
+    
     outputInsertOperator.setStore(store);
 
     outputInsertOperator.setup(context);
+  
 
     List<CouchBaseOperatorTest.TestEvent> events = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
@@ -116,15 +116,15 @@ public class CouchBaseOperatorTest {
 
     outputInsertOperator.beginWindow(0);
    for (TestEvent event : events) {
-      outputInsertOperator.input.put(event);
+      outputInsertOperator.input.process(event);
     }
     outputInsertOperator.endWindow();
 
-    Assert.assertEquals("rows in db", 10, outputInsertOperator.getNumOfEventsInStore());
+   Assert.assertEquals("rows in db", 10, outputInsertOperator.getNumOfEventsInStore());
   }
    
   
-   @Test
+// @Test
   public void TestCouchBaseUpdateOutputOperator() {
 
     CouchBaseWindowStore store = new CouchBaseWindowStore();
@@ -140,12 +140,16 @@ public class CouchBaseOperatorTest {
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
     TestUpdateOutputOperator outputUpdateOperator = new TestUpdateOutputOperator();
-    TestEvent e = new TestEvent("prerna", 123);
-    outputUpdateOperator.input.put(e);
+   
     outputUpdateOperator.setStore(store);
 
     outputUpdateOperator.setup(context);
-
+    
+     outputUpdateOperator.beginWindow(0);
+     TestEvent e = new TestEvent("prerna123", 12345);
+    outputUpdateOperator.input.put(e);
+    outputUpdateOperator.endWindow();
+    
     List<CouchBaseOperatorTest.TestEvent> events = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
       events.add(new CouchBaseOperatorTest.TestEvent("key"+i,i));
@@ -221,7 +225,7 @@ public class CouchBaseOperatorTest {
         private void insertEventsInTable(int numEvents) {
             String key = null;
             Integer value = null;
-            nodes.add(URI.create(uri));
+           /* nodes.add(URI.create(uri));
             CouchbaseClient client = null;
          try {
              client = new CouchbaseClient(nodes,bucket,password);
@@ -229,20 +233,21 @@ public class CouchBaseOperatorTest {
          } catch (IOException ex) {
              java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
          }
-         client.flush();
+         client.flush();*/
             for(int i=0;i<numEvents;i++)
             {
                 key = String.valueOf("Key" + i);
                 keyList.add(key);
                 value = i;
                 try {
-                    client.set(key, value).get();
+                    store.client.set(key, value).get();
                 } catch (InterruptedException ex) {
                     java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
                 } catch (ExecutionException ex) {
                     java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
                 }
             }
+             java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE,keyList.toString());
     }
 
        
@@ -257,16 +262,15 @@ public class CouchBaseOperatorTest {
 
     public int getNumOfEventsInStore() {
      
-        String key = null;
-            String value = null;
-            nodes.add(URI.create(uri));
+     
+           /* nodes.add(URI.create(uri));
             CouchbaseClient client = null;
          try {
              client = new CouchbaseClient(nodes,bucket,password);
          } catch (IOException ex) {
              java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
-         }
-        Map<String,Object> keyValues = client.getBulk(keyList);
+         }*/
+        Map<String,Object> keyValues = store.client.getBulk(keyList);
         System.out.println("keyValues is"+ keyValues.toString());
         System.out.println("size is "+ keyValues.size());
         java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE,keyValues.toString());
@@ -276,7 +280,7 @@ public class CouchBaseOperatorTest {
      
         @Override
         public String generatekey(TestEvent tuple) {
-            tuple.key = "hi";
+            tuple.key = "insert";
             return tuple.key;
             
         }
@@ -290,7 +294,7 @@ public class CouchBaseOperatorTest {
        
     }
     
-     private static class TestUpdateOutputOperator extends AbstractUpdateCouchBaseOutputOperator<TestEvent> {
+    private static class TestUpdateOutputOperator extends AbstractUpdateCouchBaseOutputOperator<TestEvent> {
 
     TestUpdateOutputOperator() {
       setupConnection();
@@ -298,16 +302,16 @@ public class CouchBaseOperatorTest {
 
     public int getNumOfEventsInStore() {
      
-        String key = null;
-            String value = null;
-            nodes.add(URI.create(uri));
+           /* nodes.add(URI.create(uri));
             CouchbaseClient client = null;
          try {
              client = new CouchbaseClient(nodes,bucket,password);
          } catch (IOException ex) {
              java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE, null, ex);
-         }
-        Map<String,Object> keyValues = client.getBulk(keyList);
+         }*/
+         
+       
+        Map<String,Object> keyValues = store.client.getBulk(keyList);
         System.out.println("keyValues is"+ keyValues.toString());
         java.util.logging.Logger.getLogger(CouchBaseOperatorTest.class.getName()).log(Level.SEVERE,keyValues.toString());
         return keyValues.size();
@@ -315,14 +319,14 @@ public class CouchBaseOperatorTest {
      
         @Override
         public String generatekey(TestEvent tuple) {
-            tuple.key = "hi";
+            tuple.key = "update";
             return tuple.key;
             
         }
 
         @Override
         public Object getObject(TestEvent tuple) {
-            tuple.value = 20;
+            tuple.value = 100;
             return tuple.value;
         }
 
