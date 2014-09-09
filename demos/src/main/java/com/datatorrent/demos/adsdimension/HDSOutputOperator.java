@@ -118,9 +118,9 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
     byte[] data = new byte[8 + 4 * 3];
     keybb.rewind();
     keybb.putLong(event.getTimestamp());
-    keybb.putInt(event.getAdUnit());
-    keybb.putInt(event.getAdvertiserId());
     keybb.putInt(event.getPublisherId());
+    keybb.putInt(event.getAdvertiserId());
+    keybb.putInt(event.getAdUnit());
     keybb.rewind();
     keybb.get(data);
     return data;
