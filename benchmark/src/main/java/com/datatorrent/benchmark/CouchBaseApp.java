@@ -32,13 +32,13 @@ public class CouchBaseApp implements StreamingApplication{
    couchbaseOutput.getStore().addNodes("http://node26.morado.com:8091/pools"); 
    couchbaseOutput.getStore().setBucket("default");
    couchbaseOutput.getStore().setPassword("");
-   couchbaseOutput.getStore().setKey("abc");
-   couchbaseOutput.getStore().setValue("123");
-        try {
-            couchbaseOutput.getStore().connect();
-        } catch (IOException ex) {
-            Logger.getLogger(CouchBaseApp.class.getName()).log(Level.SEVERE, null, ex);
-        }
+  // couchbaseOutput.getStore().setKey("abc");
+  // couchbaseOutput.getStore().setValue("123");
+   //     try {
+   //         couchbaseOutput.getStore().connect();
+   //     } catch (IOException ex) {
+   //         Logger.getLogger(CouchBaseApp.class.getName()).log(Level.SEVERE, null, ex);
+     //   }
   
     dag.addStream("ss",rand.integer_data, couchbaseOutput.input).setLocality(locality);
     }

@@ -3,7 +3,7 @@ package com.datatorrent.contrib.couchbase;
 
 import com.couchbase.client.CouchbaseClient;
 import com.datatorrent.lib.db.Connectable;
-
+import com.couchbase.client.CouchbaseConnectionFactory;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -72,7 +72,9 @@ public class CouchBaseStore implements  Connectable{
   @Override
   public void connect() throws IOException {
     try {
-        client = new CouchbaseClient(baseURIs,bucket,password);
+         java.util.logging.Logger.getLogger(CouchBaseStore.class.getName()).log(Level.SEVERE,"In connect method of store");
+         CouchbaseConnectionFactory cf = new CouchbaseConnectionFactory(baseURIs, "default", "");
+         client = new CouchbaseClient((CouchbaseConnectionFactory) cf);
     } catch (IOException e) {
       System.err.println("Error connecting to Couchbase: " + e.getMessage());
       

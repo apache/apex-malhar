@@ -1,6 +1,7 @@
 package com.datatorrent.contrib.couchbase;
 
 import com.couchbase.client.CouchbaseClient;
+import com.couchbase.client.CouchbaseConnectionFactory;
 import java.util.concurrent.TimeUnit;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.TransactionableStore;
@@ -83,8 +84,8 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   public void connect() throws IOException {
     try {
         java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, baseURIs.toString());
-        
-        clientMeta = new CouchbaseClient(baseURIs,"default","");
+       CouchbaseConnectionFactory cf = new CouchbaseConnectionFactory(baseURIs, "metadata", "");
+         clientMeta = new CouchbaseClient((CouchbaseConnectionFactory) cf);
     } catch (IOException e) {
       System.err.println("Error connecting to Couchbase: " + e.getMessage());
       System.exit(1);
