@@ -135,23 +135,16 @@ public class ApplicationWithHDSQuery implements StreamingApplication
       aggregators[i] = aggregator;
     }
     dimensions.setAggregators(aggregators);
-    //DimensionsComputationUnifierImpl unifier = new DimensionsComputationUnifierImpl();
-    //unifier.setAggregators(aggregators);
-    //dimensions.setUnifier(unifier);
 
     HDSQueryOperator hdsOut = dag.addOperator("HDSOut", HDSQueryOperator.class);
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
     hdsOut.setFileStore(hdsFile);
     hdsOut.setAggregator(new AdInfoAggregator());
 
-    /* Kafka operator to read rangeQueries from kafka */
-    KafkaSinglePortStringInputOperator queries =
-        dag.addOperator("Query", new KafkaSinglePortStringInputOperator());
+    KafkaSinglePortStringInputOperator queries = dag.addOperator("Query", new KafkaSinglePortStringInputOperator());
     queries.setConsumer(new SimpleKafkaConsumer());
 
-    /* Kafka operator to write result to kafa */
-    KafkaSinglePortOutputOperator<Object, Object> queryResult =
-        dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
+    KafkaSinglePortOutputOperator<Object, Object> queryResult = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
     queryResult.getConfigProperties().put("serializer.class", com.datatorrent.demos.adsdimension.KafkaJsonEncoder.class.getName());
 
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
