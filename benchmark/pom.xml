@@ -198,6 +198,17 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+	<groupId>net.spy</groupId>
+	<artifactId>spymemcached</artifactId>
+	<version>2.11.4</version>
+        <optional>true</optional>
+    </dependency>
+    <dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpcore</artifactId>
+     <version>4.3</version>
+    </dependency>
+    <dependency>
     <groupId>com.couchbase.client</groupId>
     <artifactId>couchbase-client</artifactId>
     <version>1.4.4</version>
