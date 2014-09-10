@@ -29,7 +29,7 @@ public class CouchBaseApp implements StreamingApplication{
 
     CouchBaseOutput couchbaseOutput = dag.addOperator("couchbaseOuput", new CouchBaseOutput());
     //CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", new CouchBaseInputOperator());
-   couchbaseOutput.getStore().addNodes("http://node26.morado.com:8091/pools"); 
+   couchbaseOutput.getStore().addNodes("node26.morado.com"); 
    couchbaseOutput.getStore().setBucket("default");
    couchbaseOutput.getStore().setPassword("");
   // couchbaseOutput.getStore().setKey("abc");
