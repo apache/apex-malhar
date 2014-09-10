@@ -13,12 +13,6 @@ import org.junit.Test;
 public class CouchBaseBenchmarkTest {
     @Test
   public void testSomeMethod() throws Exception {
-    try{
-    LocalMode.runApp(new CouchBaseApp(), 30000);
-    }
-    catch(RuntimeException e)
-   {
-      e.getCause().printStackTrace();
-   }
+    LocalMode.runApp(new CouchBaseApp(), 10000);
   }
 }

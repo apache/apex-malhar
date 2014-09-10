@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
+import com.datatorrent.api.DAG.Locality;
 
 /**
  *
@@ -16,7 +17,7 @@ import org.apache.hadoop.conf.Configuration;
 
 
 public class CouchBaseApp implements StreamingApplication{
-    private final transient DAG.Locality locality = null;
+    private final Locality locality = null;
     
     @Override
     public void populateDAG(DAG dag, Configuration conf) {
@@ -29,9 +30,12 @@ public class CouchBaseApp implements StreamingApplication{
 
     CouchBaseOutput couchbaseOutput = dag.addOperator("couchbaseOuput", new CouchBaseOutput());
     //CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", new CouchBaseInputOperator());
-   couchbaseOutput.getStore().addNodes("node26.morado.com"); 
-   couchbaseOutput.getStore().setBucket("default");
-   couchbaseOutput.getStore().setPassword("");
+   CouchBaseWindowStore store = new CouchBaseWindowStore();
+   store.addNodes("node26.morado.com");
+   //couchbaseOutput.getStore().addNodes("node26.morado.com"); 
+   //couchbaseOutput.getStore().setBucket("default");
+   //couchbaseOutput.getStore().setPassword("");
+  //couchbaseOutput.getStore().getInstance().set("preru", 12345); 
   // couchbaseOutput.getStore().setKey("abc");
   // couchbaseOutput.getStore().setValue("123");
    //     try {
@@ -39,7 +43,7 @@ public class CouchBaseApp implements StreamingApplication{
    //     } catch (IOException ex) {
    //         Logger.getLogger(CouchBaseApp.class.getName()).log(Level.SEVERE, null, ex);
      //   }
-  
+    couchbaseOutput.setStore(store);
     dag.addStream("ss",rand.integer_data, couchbaseOutput.input).setLocality(locality);
     }
 

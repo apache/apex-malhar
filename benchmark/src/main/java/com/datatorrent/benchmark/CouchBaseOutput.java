@@ -1,7 +1,6 @@
 
 package com.datatorrent.benchmark;
 
-import com.datatorrent.contrib.couchbase.AbstractCouchBaseOutputOperator;
 import com.datatorrent.contrib.couchbase.AbstractInsertCouchBaseOutputOperator;
 import com.datatorrent.contrib.couchbase.CouchBaseWindowStore;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
@@ -28,10 +27,6 @@ public class CouchBaseOutput extends AbstractInsertCouchBaseOutputOperator<Integ
     }
 
    
-    public void insertOrUpdate(Integer tuple) {
-        tuple = 600;
-       this.insertOrUpdate(tuple);
-    }
     
     @Override
     public void endWindow()
