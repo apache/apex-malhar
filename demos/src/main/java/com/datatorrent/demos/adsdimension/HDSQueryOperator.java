@@ -16,6 +16,7 @@
 package com.datatorrent.demos.adsdimension;
 
 import java.nio.ByteBuffer;
+import java.text.ParseException;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -159,7 +160,7 @@ public class HDSQueryOperator extends HDSOutputOperator
     }
   }
 
-  private AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(byte[] key, byte[] value)
+  protected AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(byte[] key, byte[] value)
   {
     if (key == null || value == null)
       return null;
@@ -183,14 +184,12 @@ public class HDSQueryOperator extends HDSOutputOperator
     return ae;
   }
 
-
-  private AdInfo.AdInfoAggregateEvent getAggregatesFromString(String key, String value)
+  protected AdInfo.AdInfoAggregateEvent getAggregatesFromString(String key, String value)
   {
-    LOG.info("converting key {} value is {}", key, value);
     AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
-    String str = new String(key);
-    Pattern p = Pattern.compile("(.*)|publisherId:(\\d+)|advertiserId:(\\d+)|adUnit:(\\d+)");
-    Matcher m = p.matcher(str);
+    Pattern p = Pattern.compile("([^|]*)\\|publisherId:(\\d+)\\|advertiserId:(\\d+)\\|adUnit:(\\d+)");
+    Matcher m = p.matcher(key);
+    m.find();
     try {
       Date date = sdf.parse(m.group(1));
       ae.timestamp = date.getTime();
@@ -201,13 +200,13 @@ public class HDSQueryOperator extends HDSOutputOperator
     ae.advertiserId = Integer.valueOf(m.group(3));
     ae.adUnit = Integer.valueOf(m.group(4));
 
-    str = new String(value);
-    p = Pattern.compile("|clicks:(.*)|cost:(.*)|impressions:(.*)|revenue:(.*)");
-    m = p.matcher(str);
-    ae.clicks = Integer.valueOf(m.group(1));
-    ae.cost = Float.valueOf(m.group(2));
+    p = Pattern.compile("\\|clicks:(.*)\\|cost:(.*)\\|impressions:(.*)\\|revenue:(.*)");
+    m = p.matcher(value);
+    m.find();
+    ae.clicks = Long.valueOf(m.group(1));
+    ae.cost = Double.valueOf(m.group(2));
     ae.impressions = Long.valueOf(m.group(3));
-    ae.revenue = Long.valueOf(m.group(4));
+    ae.revenue = Double.valueOf(m.group(4));
     return ae;
   }
 

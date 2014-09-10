@@ -16,7 +16,11 @@
 package com.datatorrent.demos.adsdimension;
 
 import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jettison.json.JSONObject;
@@ -30,7 +34,6 @@ import com.datatorrent.demos.adsdimension.HDSQueryOperator.HDSRangeQueryResult;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.util.concurrent.MoreExecutors;
-
 
 public class HDSQueryOperatorTest
 {
@@ -68,19 +71,33 @@ public class HDSQueryOperatorTest
     hdsOut.beginWindow(1);
 
     long baseTime = System.currentTimeMillis();
-    long baseMinute = TimeUnit.MILLISECONDS.convert(TimeUnit.MINUTES.convert(baseTime, TimeUnit.MICROSECONDS), TimeUnit.MINUTES);
+    long baseMinute = TimeUnit.MILLISECONDS.convert(TimeUnit.MINUTES.convert(baseTime, TimeUnit.MILLISECONDS), TimeUnit.MINUTES);
 
+    // Check aggregation for ae1 and ae2 as they have same key.
     AdInfo.AdInfoAggregateEvent ae1 = new AdInfo.AdInfoAggregateEvent();
     ae1.publisherId = 1;
+    ae1.advertiserId = 2;
+    ae1.adUnit = 3;
     ae1.timestamp = baseMinute;
     ae1.clicks = 10;
     hdsOut.input.process(ae1);
 
     AdInfo.AdInfoAggregateEvent ae2 = new AdInfo.AdInfoAggregateEvent();
     ae2.publisherId = 1;
-    ae2.timestamp = baseMinute + TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
-    ae2.clicks = 40;
+    ae2.advertiserId = 2;
+    ae2.adUnit = 3;
+    ae2.timestamp = baseMinute;
+    ae2.clicks = 20;
     hdsOut.input.process(ae2);
+
+
+    AdInfo.AdInfoAggregateEvent ae3 = new AdInfo.AdInfoAggregateEvent();
+    ae3.publisherId = 1;
+    ae3.advertiserId = 2;
+    ae3.adUnit = 3;
+    ae3.timestamp = baseMinute + TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
+    ae3.clicks = 40;
+    hdsOut.input.process(ae3);
 
     hdsOut.endWindow();
 
@@ -88,6 +105,8 @@ public class HDSQueryOperatorTest
 
     JSONObject keys = new JSONObject();
     keys.put("publisherId", String.valueOf(1));
+    keys.put("advertiserId", String.valueOf(2));
+    keys.put("adUnit", String.valueOf(3));
 
     JSONObject query = new JSONObject();
     query.put("numResults", "20");
@@ -108,12 +127,49 @@ public class HDSQueryOperatorTest
     HDSRangeQueryResult r = queryResults.collectedTuples.iterator().next();
     Assert.assertEquals("result points " + r, 2, r.data.size());
 
-    Assert.assertEquals("clicks", ae1.clicks, r.data.get(0).clicks);
-    Assert.assertEquals("clicks", ae2.clicks, r.data.get(1).clicks);
+    // ae1 object is stored as referenced in cache, and when new tuple is aggregated,
+    // the new values are updated in ae1 itself, causing following check to fail.
+    //Assert.assertEquals("clicks", ae1.clicks + ae2.clicks, r.data.get(0).clicks);
+    Assert.assertEquals("clicks", 10 + ae2.clicks, r.data.get(0).clicks);
+    Assert.assertEquals("clicks", ae3.clicks, r.data.get(1).clicks);
 
     Assert.assertNotSame("deserialized", ae1, r.data.get(1));
-    Assert.assertSame("from cache", ae2, r.data.get(1));
+    Assert.assertSame("from cache", ae3, r.data.get(1));
 
+  }
+
+
+  @Test
+  public void testEncodingAndDecoding()
+  {
+    AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
+    ae.timestamp = new Date().getTime();
+    ae.publisherId = 1;
+    ae.adUnit = 2;
+    ae.advertiserId = 3;
+
+    ae.impressions = 1000;
+    ae.clicks = 100;
+    ae.cost = 1.0;
+    ae.revenue = 1.5;
+
+    HDSQueryOperator oper = new HDSQueryOperator();
+
+    // Encode/decode using normal mode
+    oper.setDebug(false);
+    byte[] keyBytes = oper.getKey(ae);
+    byte[] valBytes = oper.getValue(ae);
+    AdInfo.AdInfoAggregateEvent ae1 = oper.getAggregatesFromBytes(keyBytes, valBytes);
+
+
+    // Encode/decode using debug mode
+    oper.setDebug(true);
+    keyBytes = oper.getKey(ae);
+    valBytes = oper.getValue(ae);
+    AdInfo.AdInfoAggregateEvent ae2 = oper.getAggregatesFromBytes(keyBytes, valBytes);
+
+    Assert.assertEquals(ae, ae1);
+    Assert.assertEquals(ae, ae2);
   }
 
 }

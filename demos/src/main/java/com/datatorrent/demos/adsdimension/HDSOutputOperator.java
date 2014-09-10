@@ -56,7 +56,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
 
   protected boolean debug = false;
 
-  protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
   /**
    * Partition keys identify assigned bucket(s).
