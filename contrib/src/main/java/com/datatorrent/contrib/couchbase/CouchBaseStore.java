@@ -6,7 +6,9 @@ import com.datatorrent.lib.db.Connectable;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
 import org.slf4j.Logger;
@@ -24,11 +26,11 @@ public class CouchBaseStore implements  Connectable{
   private String bucket;
   private String password;
   protected transient CouchbaseClient client;
-  protected ArrayList<URI> nodes ;
+  List<URI> baseURIs = new ArrayList<URI>(); 
  
   public CouchBaseStore(){
       client = null;
-      nodes = new ArrayList<URI>();
+      baseURIs = new ArrayList<URI>();
       bucket = "default";
       password="";
       
@@ -43,7 +45,14 @@ public class CouchBaseStore implements  Connectable{
   {
     // Add one or more nodes of your cluster (exchange the IP with yours)
    // nodes.add(URI.create("http://127.0.0.1:8091/pools"));
-     nodes.add(URI.create(url));
+      URI base = null;
+      try {
+          base = new URI(String.format("http://%s:8091/pools",url));
+      } catch (URISyntaxException ex) {
+          java.util.logging.Logger.getLogger(CouchBaseStore.class.getName()).log(Level.SEVERE, null, ex);
+      }
+        
+        baseURIs.add(base);
   }
  
    public void setBucket(String bucketName) {
@@ -63,10 +72,10 @@ public class CouchBaseStore implements  Connectable{
   @Override
   public void connect() throws IOException {
     try {
-        client = new CouchbaseClient(nodes,bucket,password);
+        client = new CouchbaseClient(baseURIs,bucket,password);
     } catch (IOException e) {
       System.err.println("Error connecting to Couchbase: " + e.getMessage());
-      System.exit(1);
+      
     }
  /*   try {
           // Store a Document
