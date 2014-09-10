@@ -16,7 +16,8 @@ import org.apache.hadoop.conf.Configuration;
 
 
 public class CouchBaseApp implements StreamingApplication{
-
+    private final transient DAG.Locality locality = null;
+    
     @Override
     public void populateDAG(DAG dag, Configuration conf) {
         int maxValue = 1000;
@@ -26,9 +27,9 @@ public class CouchBaseApp implements StreamingApplication{
     rand.setMaxvalue(maxValue);
     rand.setTuplesBlast(200);
 
-    CouchBaseOutputOperator couchbaseOutput = dag.addOperator("couchbaseOuput", new CouchBaseOutputOperator());
-    CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", new CouchBaseInputOperator());
-    
+    CouchBaseOutput couchbaseOutput = dag.addOperator("couchbaseOuput", new CouchBaseOutput());
+    //CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", new CouchBaseInputOperator());
+   couchbaseOutput.getStore().addNodes("http://node26.morado.com:8091/pools"); 
    couchbaseOutput.getStore().setBucket("default");
    couchbaseOutput.getStore().setPassword("");
    couchbaseOutput.getStore().setKey("abc");
@@ -39,7 +40,7 @@ public class CouchBaseApp implements StreamingApplication{
             Logger.getLogger(CouchBaseApp.class.getName()).log(Level.SEVERE, null, ex);
         }
   
-    dag.addStream("ss", couchbaseInput.outputPort, couchbaseOutput.input);
+    dag.addStream("ss",rand.integer_data, couchbaseOutput.input).setLocality(locality);
     }
 
    

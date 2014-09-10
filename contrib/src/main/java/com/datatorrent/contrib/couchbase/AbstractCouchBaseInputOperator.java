@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore> {
 
-    private static final Logger logger = LoggerFactory.getLogger(AbstractCouchBaseInputOperator.class);
+    private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseInputOperator.class);
      /**
      * Any concrete class has to override this method to convert a Database row
      * into Tuple.

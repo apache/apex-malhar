@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 
 public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractCouchBaseOutputOperator<T>{
-     private static final Logger logger = LoggerFactory.getLogger(AbstractUpdateCouchBaseOutputOperator.class);
+     private static final transient Logger logger = LoggerFactory.getLogger(AbstractUpdateCouchBaseOutputOperator.class);
      private int expireTime;
    
      @Override

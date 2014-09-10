@@ -8,6 +8,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +25,7 @@ public class CouchBaseStore implements  Connectable{
   private String password;
   protected transient CouchbaseClient client;
   protected ArrayList<URI> nodes ;
-  
+ 
   public CouchBaseStore(){
       client = null;
       nodes = new ArrayList<URI>();
@@ -143,7 +144,9 @@ public class CouchBaseStore implements  Connectable{
 
   @Override
   public void disconnect() throws IOException {
+    java.util.logging.Logger.getLogger(CouchBaseStore.class.getName()).log(Level.SEVERE,"Diconnect called");
     client.shutdown(60, TimeUnit.SECONDS);
+    java.util.logging.Logger.getLogger(CouchBaseStore.class.getName()).log(Level.SEVERE,"client shutdown succeeded");
   }
 
    

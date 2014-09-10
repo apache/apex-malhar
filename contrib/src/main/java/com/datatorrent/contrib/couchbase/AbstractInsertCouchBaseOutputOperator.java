@@ -15,11 +15,8 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractCouchBaseOutputOperator<T> {
 
     private static final Logger logger = LoggerFactory.getLogger(AbstractInsertCouchBaseOutputOperator.class);
-    private int expireTime;
+    private int expireTime=10;
 
-    public AbstractInsertCouchBaseOutputOperator() {
-        store = new CouchBaseWindowStore();
-    }
 
     @Override
     public void insertOrUpdate(T input) {
@@ -54,5 +51,32 @@ public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractC
     public void setExpireTime(int expireTime) {
         this.expireTime = expireTime;
     }
+
+    @Override 
+    public void beginWindow(long windowId)
+    {
+        super.beginWindow(windowId);
+        java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE,"In begin window");
+        
+    }   
+
+  @Override
+  public void endWindow() {
+         super.endWindow();
+         java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE,"In end window" );
+   } 
+
+   @Override
+  public void teardown()
+  {
+     java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE,"In teadown method");
+     super.teardown();
+     try {
+            store.disconnect();
+           java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, "Diconnect called");
+        } catch (IOException ex) {
+            java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
+        }
+  }    
 
 }

@@ -1,6 +1,7 @@
 package com.datatorrent.contrib.couchbase;
 
 import com.couchbase.client.CouchbaseClient;
+import java.util.concurrent.TimeUnit;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.TransactionableStore;
 import java.io.ByteArrayInputStream;
@@ -24,10 +25,10 @@ import org.slf4j.LoggerFactory;
 
 public class CouchBaseWindowStore extends CouchBaseStore implements TransactionableStore{
     
-  private static final transient Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
+  private static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
   private transient String key;
   private transient Object value;
-  private static final String DEFAULT_LAST_WINDOW_PREFIX = "last_window";
+  private static final transient String DEFAULT_LAST_WINDOW_PREFIX = "last_window";
   private transient byte[] keyBytes;
   private transient byte[] valueBytes;
   private String bucket;
@@ -35,12 +36,11 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
  
   private transient String lastWindowValue;
   private transient byte[] lastWindowValueBytes;
-  private ObjectMapper mapper ;
-  
+  protected transient CouchbaseClient clientMeta;
+
   public CouchBaseWindowStore() {
-    mapper = new ObjectMapper();
     bucket = "metadata";
-    password= "";
+    clientMeta = null;
     lastWindowValue= DEFAULT_LAST_WINDOW_PREFIX; 
     constructKeys();
   }
@@ -83,11 +83,13 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public void connect() throws IOException {
     try {
-        client = new CouchbaseClient(nodes,bucket,password);
+        java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, nodes.toString());
+        clientMeta = new CouchbaseClient(nodes,bucket,password);
     } catch (IOException e) {
       System.err.println("Error connecting to Couchbase: " + e.getMessage());
       System.exit(1);
     }
+   super.connect();
   }
   
     @Override
@@ -97,7 +99,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     
     String key = appId + "_" + operatorId + "_" + lastWindowValue;
     //lastWindowValueBytes = key.getBytes();
-    value = (byte[])getInstance().get(key);
+    value = (byte[])clientMeta.get(key);
     if (value != null) {
       long longval = toLong(value);
       return longval;
@@ -112,7 +114,8 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     //lastWindowValueBytes = key.getBytes();
   
       try {
-          client.set(key,WindowIdBytes ).get();
+          java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, nodes.toString());
+          clientMeta.set(key,WindowIdBytes ).get();
       } catch (InterruptedException ex) {
           java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, null, ex);
       } catch (ExecutionException ex) {
@@ -197,6 +200,14 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
       DTThrowable.rethrow(e);
     }
     return result;
+  }
+
+  @Override
+  public void disconnect() throws IOException {
+     java.util.logging.Logger.getLogger(CouchBaseStore.class.getName()).log(Level.SEVERE, "Diconnect called");
+    client.shutdown(60, TimeUnit.SECONDS);
+     java.util.logging.Logger.getLogger(CouchBaseStore.class.getName()).log(Level.SEVERE, null, "client shutdown succeeded");
+    super.disconnect();
   }
 
 }

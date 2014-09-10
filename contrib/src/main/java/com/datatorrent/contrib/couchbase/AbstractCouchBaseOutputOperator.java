@@ -1,6 +1,6 @@
 
 package com.datatorrent.contrib.couchbase;
-
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 import com.google.common.collect.Lists;
@@ -18,8 +18,8 @@ import org.slf4j.LoggerFactory;
  * @param <T>
  */
 public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, CouchBaseWindowStore> {
-  private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
-  private final List<T> tuples;
+  private List<T> tuples;
+  private static final Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
   private transient Operator.ProcessingMode mode;
   public Operator.ProcessingMode getMode()
   {
@@ -31,21 +31,33 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     this.mode = mode;
   }
 
-  public AbstractCouchBaseOutputOperator()
+    public AbstractCouchBaseOutputOperator()
   {
     tuples = Lists.newArrayList();
     store = new CouchBaseWindowStore();
   }
+
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    mode=context.getValue(context.PROCESSING_MODE);
+    if(mode==ProcessingMode.EXACTLY_ONCE){
+      throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
+    }
+    if(mode==ProcessingMode.AT_MOST_ONCE){
+      tuples.clear();
+    }
+    super.setup(context);
+  }
+
   @Override
   public void processTuple(T tuple)
   {
     tuples.add(tuple);
     
-    
   }
 
-  
-  
   
   public List<T> getTuples()
   {
