@@ -84,8 +84,13 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   public void connect() throws IOException {
     try {
         java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, baseURIs.toString());
+	for (java.net.URI u : baseURIs) {
+        java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, "URI " + u + " scheme " + u.getScheme() +  " absolute " + u.isAbsolute());
+	}
        CouchbaseConnectionFactory cf = new CouchbaseConnectionFactory(baseURIs, "metadata", "");
+        java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, "Opened connection");
          clientMeta = new CouchbaseClient((CouchbaseConnectionFactory) cf);
+        java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, "Opened client meta");
     } catch (IOException e) {
       System.err.println("Error connecting to Couchbase: " + e.getMessage());
     }

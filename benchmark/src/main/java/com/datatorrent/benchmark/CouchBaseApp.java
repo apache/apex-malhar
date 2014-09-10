@@ -9,6 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG.Locality;
+import static com.datatorrent.benchmark.ApplicationFixed.QUEUE_CAPACITY;
+import com.datatorrent.api.Context;
 
 /**
  *
@@ -27,24 +29,14 @@ public class CouchBaseApp implements StreamingApplication{
     rand.setMinvalue(0);
     rand.setMaxvalue(maxValue);
     rand.setTuplesBlast(200);
+    
+    CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", CouchBaseInputOperator.class);
+    couchbaseInput.getStore().addNodes("node26.morado.com"); 
+    couchbaseInput.getStore().setBucket("default");
+    couchbaseInput.getStore().setPassword("");
+    WordCountOperator<String> counter = dag.addOperator("Counter", new WordCountOperator<String>());
 
-    CouchBaseOutput couchbaseOutput = dag.addOperator("couchbaseOuput", new CouchBaseOutput());
-    //CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", new CouchBaseInputOperator());
-   CouchBaseWindowStore store = new CouchBaseWindowStore();
-   store.addNodes("node26.morado.com");
-   //couchbaseOutput.getStore().addNodes("node26.morado.com"); 
-   //couchbaseOutput.getStore().setBucket("default");
-   //couchbaseOutput.getStore().setPassword("");
-  //couchbaseOutput.getStore().getInstance().set("preru", 12345); 
-  // couchbaseOutput.getStore().setKey("abc");
-  // couchbaseOutput.getStore().setValue("123");
-   //     try {
-   //         couchbaseOutput.getStore().connect();
-   //     } catch (IOException ex) {
-   //         Logger.getLogger(CouchBaseApp.class.getName()).log(Level.SEVERE, null, ex);
-     //   }
-    couchbaseOutput.setStore(store);
-    dag.addStream("ss",rand.integer_data, couchbaseOutput.input).setLocality(locality);
+    dag.addStream("Generator2Counter",couchbaseInput.outputPort,counter.input ).setLocality(locality);
     }
 
    
