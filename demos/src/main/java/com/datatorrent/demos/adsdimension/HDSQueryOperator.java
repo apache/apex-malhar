@@ -184,44 +184,29 @@ public class HDSQueryOperator extends HDSOutputOperator
     return ae;
   }
 
-
   protected AdInfo.AdInfoAggregateEvent getAggregatesFromString(String key, String value)
   {
-    LOG.info("converting key {} value is {}", key, value);
     AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
-    String[] keySplits = key.split(Pattern.quote("|"));
-
+    Pattern p = Pattern.compile("([^|]*)\\|publisherId:(\\d+)\\|advertiserId:(\\d+)\\|adUnit:(\\d+)");
+    Matcher m = p.matcher(key);
+    m.find();
     try {
-      Date date = sdf.parse(keySplits[0]);
+      Date date = sdf.parse(m.group(1));
       ae.timestamp = date.getTime();
-    } catch (ParseException e) {
+    } catch (Exception ex) {
       ae.timestamp = 0;
     }
+    ae.publisherId = Integer.valueOf(m.group(2));
+    ae.advertiserId = Integer.valueOf(m.group(3));
+    ae.adUnit = Integer.valueOf(m.group(4));
 
-    for(int i = 1; i < keySplits.length; i++) {
-      String[] fieldSplit = keySplits[i].split(":");
-
-      if (fieldSplit[0].equals("publisherId"))
-        ae.publisherId = Integer.valueOf(fieldSplit[1]);
-      else if (fieldSplit[0].equals("advertiserId"))
-        ae.advertiserId = Integer.valueOf(fieldSplit[1]);
-      else if (fieldSplit[0].equals("adUnit"))
-        ae.adUnit = Integer.valueOf(fieldSplit[1]);
-    }
-
-    String[] valSplits = value.split(Pattern.quote("|"));
-    for(int i = 1; i < valSplits.length; i++) {
-      String[] fieldSplit = valSplits[i].split(":");
-
-      if (fieldSplit[0].equals("clicks"))
-        ae.clicks = Long.valueOf(fieldSplit[1]);
-      else if (fieldSplit[0].equals("cost"))
-        ae.cost = Double.valueOf(fieldSplit[1]);
-      else if (fieldSplit[0].equals("impressions"))
-        ae.impressions = Long.valueOf(fieldSplit[1]);
-      else if (fieldSplit[0].equals("revenue"))
-        ae.revenue = Double.valueOf(fieldSplit[1]);
-    }
+    p = Pattern.compile("\\|clicks:(.*)\\|cost:(.*)\\|impressions:(.*)\\|revenue:(.*)");
+    m = p.matcher(value);
+    m.find();
+    ae.clicks = Long.valueOf(m.group(1));
+    ae.cost = Double.valueOf(m.group(2));
+    ae.impressions = Long.valueOf(m.group(3));
+    ae.revenue = Double.valueOf(m.group(4));
     return ae;
   }
 
