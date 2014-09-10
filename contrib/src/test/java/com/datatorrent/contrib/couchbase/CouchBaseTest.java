@@ -51,15 +51,17 @@ public class CouchBaseTest extends BaseOperator{
 @Test
 public void test()
 {
-    CouchBaseStore store = new CouchBaseStore();
+    CouchBaseWindowStore store = new CouchBaseWindowStore();
         try {
-            store.addNodes("http://node26.morado.com:8091/pools");
+            store.addNodes("node26.morado.com");
             store.connect();
+            store.getInstance().set("prer", 12345);
+            Integer output = (Integer) store.getInstance().get("prer");
+            Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE,output.toString());
         } catch (IOException ex) {
             Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
         }
-}
- 
+} 
         
 }
 

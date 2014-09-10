@@ -88,7 +88,6 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
          clientMeta = new CouchbaseClient((CouchbaseConnectionFactory) cf);
     } catch (IOException e) {
       System.err.println("Error connecting to Couchbase: " + e.getMessage());
-      System.exit(1);
     }
    super.connect();
   }
