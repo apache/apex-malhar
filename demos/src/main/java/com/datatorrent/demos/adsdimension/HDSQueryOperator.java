@@ -126,6 +126,12 @@ public class HDSQueryOperator extends HDSOutputOperator
 
     AdInfo.AdInfoAggregateEvent key = mapper.convertValue(queryParams.keys, AdInfo.AdInfoAggregateEvent.class);
 
+    long bucketKey = getBucketKey(key);
+    if (!(super.partitions == null || super.partitions.contains((int)bucketKey))) {
+      //LOG.debug("Ignoring query for bucket {} when this partition serves {}", bucketKey, super.partitions);
+      return;
+    }
+
     HDSRangeQuery query = new HDSRangeQuery();
     query.id = queryParams.id;
     query.prototype = key;
@@ -145,8 +151,6 @@ public class HDSQueryOperator extends HDSOutputOperator
     }
     query.startTime = TimeUnit.MILLISECONDS.convert(query.intervalTimeUnit.convert(query.startTime, TimeUnit.MILLISECONDS), query.intervalTimeUnit);
 
-    rangeQueries.put(query.id, query);
-
     // set query for each point in series
     query.prototype.timestamp = query.startTime;
     while (query.prototype.timestamp <= query.endTime) {
@@ -158,6 +162,8 @@ public class HDSQueryOperator extends HDSOutputOperator
       super.addQuery(q);
       query.prototype.timestamp += query.intervalTimeUnit.toMillis(1);
     }
+
+    rangeQueries.put(query.id, query);
   }
 
   protected AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(byte[] key, byte[] value)
@@ -239,6 +245,7 @@ public class HDSQueryOperator extends HDSOutputOperator
         if (buffered != null) {
           AdInfo.AdInfoAggregateEvent ae = buffered.get(rangeQuery.prototype);
           if (ae != null) {
+            LOG.debug("Adding from cache {}" + ae);
             res.data.add(ae);
             rangeQuery.prototype.timestamp += rangeQuery.intervalTimeUnit.toMillis(1);
             continue;
