@@ -1,5 +1,4 @@
 {
-  "name": "Pi JSON Demo",
   "description": "Pi JSON Demo that is intended to demonstrate the capability of specifying an app using JSON",
   "operators": [
     {
