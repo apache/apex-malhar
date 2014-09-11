@@ -141,8 +141,8 @@ public abstract class AbstractJdbcNonTransactionableBatchOutputOperator<T, S ext
     skipWindow = false;
 
     //This window is done so write it to the database.
-    store.storeCommittedWindowId(appId, operatorId, currentWindowId);
     if(committedWindowId < currentWindowId) {
+      store.storeCommittedWindowId(appId, operatorId, currentWindowId);
       committedWindowId = currentWindowId;
     }
   }
