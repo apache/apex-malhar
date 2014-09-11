@@ -31,6 +31,8 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.common.util.Slice;
+import com.datatorrent.contrib.hds.HDSBucketManager;
 import com.datatorrent.demos.adsdimension.AdInfo.AdInfoAggregateEvent;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -96,7 +98,6 @@ public class HDSQueryOperator extends HDSOutputOperator
 
   @VisibleForTesting
   protected transient final Map<String, HDSRangeQuery> rangeQueries = Maps.newConcurrentMap();
-  private transient final Map<HDSQuery, HDSRangeQuery> queryGrouping = Maps.newHashMap();
   private transient ObjectMapper mapper = null;
   private long defaultTimeWindow = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES);
 
@@ -124,11 +125,17 @@ public class HDSQueryOperator extends HDSOutputOperator
       return;
     }
 
-    AdInfo.AdInfoAggregateEvent key = mapper.convertValue(queryParams.keys, AdInfo.AdInfoAggregateEvent.class);
+    AdInfo.AdInfoAggregateEvent ae = mapper.convertValue(queryParams.keys, AdInfo.AdInfoAggregateEvent.class);
+
+    long bucketKey = getBucketKey(ae);
+    if (!(super.partitions == null || super.partitions.contains((int)bucketKey))) {
+      //LOG.debug("Ignoring query for bucket {} when this partition serves {}", bucketKey, super.partitions);
+      return;
+    }
 
     HDSRangeQuery query = new HDSRangeQuery();
     query.id = queryParams.id;
-    query.prototype = key;
+    query.prototype = ae;
     query.windowCountdown = 30;
 
     query.endTime = queryParams.endTime;
@@ -145,19 +152,29 @@ public class HDSQueryOperator extends HDSOutputOperator
     }
     query.startTime = TimeUnit.MILLISECONDS.convert(query.intervalTimeUnit.convert(query.startTime, TimeUnit.MILLISECONDS), query.intervalTimeUnit);
 
-    rangeQueries.put(query.id, query);
-
     // set query for each point in series
     query.prototype.timestamp = query.startTime;
     while (query.prototype.timestamp <= query.endTime) {
-      HDSQuery q = new HDSQuery();
-      q.bucketKey = getBucketKey(query.prototype);
-      q.key = getKey(query.prototype);
-      this.queryGrouping.put(q, query);
+      Slice key = HDSBucketManager.toSlice(getKey(query.prototype));
+      HDSQuery q = super.queries.get(key);
+      if (q == null) {
+        q = new HDSQuery();
+        q.bucketKey = bucketKey;
+        q.key = key.buffer;
+        super.addQuery(q);
+      } else {
+        // TODO: find out why we got null in first place
+        if (q.result == null) {
+          LOG.debug("Forcing refresh for {}", q);
+          q.processed = false;
+        }
+      }
+      q.keepAliveCount = query.windowCountdown;
       query.points.add(q);
-      super.addQuery(q);
       query.prototype.timestamp += query.intervalTimeUnit.toMillis(1);
     }
+    LOG.debug("Queries: {}", query.points);
+    rangeQueries.put(query.id, query);
   }
 
   protected AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(byte[] key, byte[] value)
@@ -222,9 +239,6 @@ public class HDSQueryOperator extends HDSOutputOperator
       if (--rangeQuery.windowCountdown < 0) {
         LOG.debug("Removing expired query {}", rangeQuery);
         it.remove(); // query expired
-        for (HDSQuery q : rangeQuery.points) {
-          this.queryGrouping.remove(q);
-        }
         continue;
       }
 
@@ -239,6 +253,7 @@ public class HDSQueryOperator extends HDSOutputOperator
         if (buffered != null) {
           AdInfo.AdInfoAggregateEvent ae = buffered.get(rangeQuery.prototype);
           if (ae != null) {
+            LOG.debug("Adding from aggregation buffer {}" + ae);
             res.data.add(ae);
             rangeQuery.prototype.timestamp += rangeQuery.intervalTimeUnit.toMillis(1);
             continue;
