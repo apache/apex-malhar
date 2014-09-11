@@ -18,7 +18,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *
  * @param <T> detail about T
  * @customTag1 custom tag1 value
- * @customTag2 custom tag2 value
+ * @customTag2 val1, val2, val3
  * @customTag3 1234
  * @since 1.0.5
  */
