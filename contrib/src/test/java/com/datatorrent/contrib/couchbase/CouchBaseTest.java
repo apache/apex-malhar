@@ -53,7 +53,7 @@ public void test()
 {
     CouchBaseWindowStore store = new CouchBaseWindowStore();
         try {
-            store.addNodes("node26.morado.com");
+//            store.addNodes("node26.morado.com");
             store.connect();
             store.getInstance().set("prer", 12345);
             Integer output = (Integer) store.getInstance().get("prer");

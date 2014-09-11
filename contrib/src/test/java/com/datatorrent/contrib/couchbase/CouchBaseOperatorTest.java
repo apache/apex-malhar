@@ -75,8 +75,8 @@ public class CouchBaseOperatorTest {
         CouchBaseStore store = new CouchBaseStore();
         CouchBaseWindowStore metaStore = new CouchBaseWindowStore();
         try {
-            store.addNodes(uri);
-            metaStore.addNodes(uri);
+ //           store.addNodes(uri);
+ //           metaStore.addNodes(uri);
             store.connect();
             metaStore.connect();
         } catch (IOException ex) {
@@ -90,7 +90,7 @@ public class CouchBaseOperatorTest {
   public void TestCouchBaseInsertOutputOperator() {
 
     CouchBaseWindowStore store = new CouchBaseWindowStore();
-    store.addNodes(uri);
+//    store.addNodes(uri);
         try {
             store.connect();
         } catch (IOException ex) {
@@ -128,7 +128,7 @@ public class CouchBaseOperatorTest {
   public void TestCouchBaseUpdateOutputOperator() {
 
     CouchBaseWindowStore store = new CouchBaseWindowStore();
-    store.addNodes(uri);
+//    store.addNodes(uri);
         try {
             store.connect();
         } catch (IOException ex) {
@@ -171,7 +171,7 @@ public class CouchBaseOperatorTest {
   public void TestCouchBaseInputOperator() {
 
     CouchBaseStore store = new CouchBaseStore();
-    store.addNodes(uri);
+//    store.addNodes(uri);
         try {
             store.connect();
         } catch (IOException ex) {
