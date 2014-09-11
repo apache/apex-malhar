@@ -61,7 +61,7 @@ public class HDSReader implements Operator
     public byte[] key;
     public int keepAliveCount;
     public volatile byte[] result;
-    public boolean processed;
+    public volatile boolean processed;
 
     @Override public String toString()
     {
