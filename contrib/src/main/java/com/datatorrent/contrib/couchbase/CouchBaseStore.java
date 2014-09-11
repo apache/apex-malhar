@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+import org.eclipse.jetty.http.HttpSchemes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,14 +24,14 @@ import org.slf4j.LoggerFactory;
 public class CouchBaseStore implements  Connectable{
     
   protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
-  private String bucket;
-  private String password;
+  private transient String bucket;
+  private transient String password;
   protected transient CouchbaseClient client;
+  protected List<String> URIs = new ArrayList<String>();
   List<URI> baseURIs = new ArrayList<URI>(); 
  
   public CouchBaseStore(){
       client = null;
-      baseURIs = new ArrayList<URI>();
       bucket = "default";
       password="";
       
@@ -41,18 +42,20 @@ public class CouchBaseStore implements  Connectable{
     return client;
   }
  
-  public void addNodes(String url)
+  public void addNodes(URI url)
   {
     // Add one or more nodes of your cluster (exchange the IP with yours)
    // nodes.add(URI.create("http://127.0.0.1:8091/pools"));
-      URI base = null;
-      try {
-          base = new URI(String.format("http://%s:8091/pools",url));
-      } catch (URISyntaxException ex) {
-          java.util.logging.Logger.getLogger(CouchBaseStore.class.getName()).log(Level.SEVERE, null, ex);
-      }
+      
+     
+          
+          
+          java.util.logging.Logger.getLogger(CouchBaseStore.class.getName()).log(Level.SEVERE,url.toString());
+          java.util.logging.Logger.getLogger(CouchBaseStore.class.getName()).log(Level.SEVERE,url.getScheme());
         
-        baseURIs.add(base);
+     
+        
+        baseURIs.add(url);
   }
  
    public void setBucket(String bucketName) {

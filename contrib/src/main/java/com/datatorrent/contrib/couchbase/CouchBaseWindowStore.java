@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 
 public class CouchBaseWindowStore extends CouchBaseStore implements TransactionableStore{
     
-  private static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
+  private static final Logger logger = LoggerFactory.getLogger(CouchBaseWindowStore.class);
   private transient String key;
   private transient Object value;
   private static final transient String DEFAULT_LAST_WINDOW_PREFIX = "last_window";
@@ -78,6 +78,9 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   public void setPassword(String password) {
     super.setPassword(password);
   }
+
+  
+  
   
   //public void connect() throws IOException
   @Override
