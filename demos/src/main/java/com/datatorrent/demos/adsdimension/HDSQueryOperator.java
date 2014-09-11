@@ -61,6 +61,7 @@ public class HDSQueryOperator extends HDSOutputOperator
     public  AdInfo.AdInfoAggregateEvent prototype;
     public long startTime;
     public long endTime;
+    public TimeUnit intervalTimeUnit = TimeUnit.MINUTES;
     private transient LinkedHashSet<HDSQuery> points = Sets.newLinkedHashSet();
 
     @Override public String toString()
@@ -99,6 +100,7 @@ public class HDSQueryOperator extends HDSOutputOperator
   private transient ObjectMapper mapper = null;
   private long defaultTimeWindow = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES);
 
+
   public long getDefaultTimeWindow()
   {
     return defaultTimeWindow;
@@ -134,14 +136,14 @@ public class HDSQueryOperator extends HDSOutputOperator
       // If endTime is not specified, then use current system time as end time.
       query.endTime = System.currentTimeMillis();
     }
-    query.endTime = TimeUnit.MILLISECONDS.convert(TimeUnit.MINUTES.convert(query.endTime, TimeUnit.MILLISECONDS), TimeUnit.MINUTES);
+    query.endTime = TimeUnit.MILLISECONDS.convert(query.intervalTimeUnit.convert(query.endTime, TimeUnit.MILLISECONDS), query.intervalTimeUnit);
 
     query.startTime = queryParams.startTime;
     if (queryParams.startTime == 0) {
       // If start time is not specified, return data for configured number of intervals (defaultTimeWindow)
       query.startTime = query.endTime - defaultTimeWindow;
     }
-    query.startTime = TimeUnit.MILLISECONDS.convert(TimeUnit.MINUTES.convert(query.startTime, TimeUnit.MILLISECONDS), TimeUnit.MINUTES);
+    query.startTime = TimeUnit.MILLISECONDS.convert(query.intervalTimeUnit.convert(query.startTime, TimeUnit.MILLISECONDS), query.intervalTimeUnit);
 
     rangeQueries.put(query.id, query);
 
@@ -154,7 +156,7 @@ public class HDSQueryOperator extends HDSOutputOperator
       this.queryGrouping.put(q, query);
       query.points.add(q);
       super.addQuery(q);
-      query.prototype.timestamp += TimeUnit.MINUTES.toMillis(1);
+      query.prototype.timestamp += query.intervalTimeUnit.toMillis(1);
     }
   }
 
@@ -238,7 +240,7 @@ public class HDSQueryOperator extends HDSOutputOperator
           AdInfo.AdInfoAggregateEvent ae = buffered.get(rangeQuery.prototype);
           if (ae != null) {
             res.data.add(ae);
-            rangeQuery.prototype.timestamp += TimeUnit.MINUTES.toMillis(1);
+            rangeQuery.prototype.timestamp += rangeQuery.intervalTimeUnit.toMillis(1);
             continue;
           }
         }
@@ -251,6 +253,7 @@ public class HDSQueryOperator extends HDSOutputOperator
         rangeQuery.prototype.timestamp += TimeUnit.MINUTES.toMillis(1);
       }
       if (!res.data.isEmpty()) {
+        LOG.debug("Emitting {} points for {}", res.data.size(), res.id);
         queryResult.emit(res);
       }
     }
