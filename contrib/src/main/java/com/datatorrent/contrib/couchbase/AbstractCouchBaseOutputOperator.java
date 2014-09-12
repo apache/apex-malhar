@@ -1,5 +1,5 @@
-
 package com.datatorrent.contrib.couchbase;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
@@ -11,84 +11,78 @@ import java.util.logging.Level;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author prerna
  * @param <T>
  */
 public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, CouchBaseWindowStore> {
-  private List<T> tuples;
-  private static final Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
-  private transient Operator.ProcessingMode mode;
-  public Operator.ProcessingMode getMode()
-  {
-    return mode;
-  }
 
-  public void setMode(Operator.ProcessingMode mode)
-  {
-    this.mode = mode;
-  }
+    private List<T> tuples;
+    private static final Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
+    private transient Operator.ProcessingMode mode;
 
-    public AbstractCouchBaseOutputOperator()
-  {
-    tuples = Lists.newArrayList();
-    store = new CouchBaseWindowStore();
-  }
+    public Operator.ProcessingMode getMode() {
+        return mode;
+    }
 
+    public void setMode(Operator.ProcessingMode mode) {
+        this.mode = mode;
+    }
 
-  @Override
-  public void setup(OperatorContext context)
-  {
-   URI uri = null;
-    store.URIs.add("127.0.0.1:8091");
-    for( String url : store.URIs){
-        try {
-            uri = new URI("http",url,"/pools",null,null);
-        } catch (URISyntaxException ex) {
-            java.util.logging.Logger.getLogger(AbstractCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
+    public AbstractCouchBaseOutputOperator() {
+        tuples = Lists.newArrayList();
+        store = new CouchBaseWindowStore();
+    }
+
+    @Override
+    public void setup(OperatorContext context) {
+        URI uri = null;
+        store.URIs.add("node26.morado.com:8091");
+        for (String url : store.URIs) {
+            try {
+                uri = new URI("http", url, "/pools", null, null);
+            } catch (URISyntaxException ex) {
+                java.util.logging.Logger.getLogger(AbstractCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            store.addNodes(uri);
         }
-        store.addNodes(uri);
+
+        mode = context.getValue(context.PROCESSING_MODE);
+        if (mode == ProcessingMode.EXACTLY_ONCE) {
+            throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
+        }
+        if (mode == ProcessingMode.AT_MOST_ONCE) {
+            tuples.clear();
+        }
+        super.setup(context);
     }
-    
-    mode=context.getValue(context.PROCESSING_MODE);
-    if(mode==ProcessingMode.EXACTLY_ONCE){
-      throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
+
+    @Override
+    public void processTuple(T tuple) {
+        tuples.add(tuple);
     }
-    if(mode==ProcessingMode.AT_MOST_ONCE){
-      tuples.clear();
+
+    public List<T> getTuples() {
+        return tuples;
     }
-    super.setup(context);
-  }
 
-  @Override
-  public void processTuple(T tuple)
-  {
-    tuples.add(tuple);
-    
-  }
+    @Override
+    public void storeAggregate() {
 
-  
-  public List<T> getTuples()
-  {
-      return tuples;
-  }
-  
-  @Override
-  public void storeAggregate() {
-   
-      for (T tuple : tuples) {
-        insertOrUpdate(tuple);
-       
-      }
-     
-    tuples.clear();
-  }
+        for (T tuple : tuples) {
+            insertOrUpdate(tuple);
 
-  
-   public abstract String generatekey(T tuple);
-   public abstract Object getObject(T tuple);
+        }
 
-   protected abstract void insertOrUpdate(T tuple);
-    
+        tuples.clear();
+    }
+
+    public abstract String generatekey(T tuple);
+
+    public abstract Object getObject(T tuple);
+
+    protected abstract void insertOrUpdate(T tuple);
+
 }

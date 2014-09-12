@@ -1,4 +1,3 @@
-
 package com.datatorrent.benchmark;
 
 import com.datatorrent.api.LocalMode;
@@ -8,11 +7,15 @@ import org.junit.Test;
  *
  * @author prerna
  */
-
-
 public class CouchBaseBenchmarkTest {
+
     @Test
-  public void testSomeMethod() throws Exception {
-    LocalMode.runApp(new CouchBaseAppOutput(), 10000);
-  }
+    public void testCouchBaseAppOutput() throws Exception {
+        LocalMode.runApp(new CouchBaseAppOutput(), 30000);
+    }
+
+    @Test
+    public void testCouchBaseAppInput() throws Exception {
+        LocalMode.runApp(new CouchBaseAppInput(), 30000);
+    }
 }

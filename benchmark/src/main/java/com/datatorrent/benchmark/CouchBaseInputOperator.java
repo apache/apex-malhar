@@ -1,7 +1,5 @@
-
 package com.datatorrent.benchmark;
 
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.contrib.couchbase.AbstractCouchBaseInputOperator;
 import java.util.ArrayList;
 
@@ -21,8 +19,10 @@ public class CouchBaseInputOperator extends AbstractCouchBaseInputOperator<Strin
     @Override
     public ArrayList<String> getKeys() {
        ArrayList<String> keys = new ArrayList<String>();
-       keys.add("prerna");
-       keys.add("key1");
+       keys.add("Key1");
+       keys.add("Key2");
+       keys.add("Key3");
+       keys.add("abc");
        return keys;
     }
     
