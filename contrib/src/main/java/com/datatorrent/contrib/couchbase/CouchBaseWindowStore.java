@@ -1,5 +1,7 @@
 package com.datatorrent.contrib.couchbase;
 
+
+import org.slf4j.LoggerFactory;
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
 import java.util.concurrent.TimeUnit;
@@ -12,11 +14,12 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import org.apache.hadoop.hbase.util.Bytes;
+import java.net.URI;
+import java.net.URISyntaxException;
+
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
  *
  * @author prerna
@@ -75,17 +78,30 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     //public void connect() throws IOException
     @Override
     public void connect() throws IOException {
+            /*URI uri = null;
+            baseURIs.clear();
+            try {
+                uri = new URI("http","node26.morado.com:8091", "/pools", null, null);
+            } catch (URISyntaxException ex) {
+               logger.error(ex.getMessage());
+            }
+           baseURIs.add(uri);*/
+        
+       super.connect();
+
         try {
-            client = new CouchbaseClient(new CouchbaseConnectionFactoryBuilder()
+            clientMeta = new CouchbaseClient(new CouchbaseConnectionFactoryBuilder()
                     .setViewTimeout(30) // set the timeout to 30 seconds
                     .setViewWorkerSize(5) // use 5 worker threads instead of one
                     .setViewConnsPerNode(20) // allow 20 parallel http connections per node in the cluster
-                    .buildCouchbaseConnection(baseURIs, "Metadata", password));
+                    .buildCouchbaseConnection(baseURIs, "metadata", password));
+            //clientMeta = new CouchbaseClient(baseURIs, "metadata", "");
 
         } catch (IOException e) {
             logger.error("Error connecting to Couchbase: " + e.getMessage());
         }
-        super.connect();
+      //baseURIs.clear();
+      //super.connect();
     }
 
     @Override

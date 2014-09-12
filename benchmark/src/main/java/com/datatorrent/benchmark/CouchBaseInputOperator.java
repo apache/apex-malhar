@@ -22,7 +22,6 @@ public class CouchBaseInputOperator extends AbstractCouchBaseInputOperator<Strin
        keys.add("Key1");
        keys.add("Key2");
        keys.add("Key3");
-       keys.add("abc");
        return keys;
     }
     

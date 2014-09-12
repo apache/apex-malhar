@@ -24,9 +24,9 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
         store = new CouchBaseStore();
     }
 
-    @Override
+    //@Override
     public void setup(Context.OperatorContext context) {
-        URI uri = null;
+       /* URI uri = null;
         store.URIs.add("node26.morado.com:8091");
         for (String url : store.URIs) {
             try {
@@ -36,7 +36,7 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
                 java.util.logging.Logger.getLogger(AbstractCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
             }
             store.addNodes(uri);
-        }
+        }*/
         super.setup(context);
     }
 

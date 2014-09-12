@@ -36,10 +36,13 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
         store = new CouchBaseWindowStore();
     }
 
+    
+    
     @Override
     public void setup(OperatorContext context) {
+       
         URI uri = null;
-        store.URIs.add("node26.morado.com:8091");
+       /* store.URIs.add("node26.morado.com:8091");
         for (String url : store.URIs) {
             try {
                 uri = new URI("http", url, "/pools", null, null);
@@ -47,7 +50,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
                 java.util.logging.Logger.getLogger(AbstractCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
             }
             store.addNodes(uri);
-        }
+        }*/
 
         mode = context.getValue(context.PROCESSING_MODE);
         if (mode == ProcessingMode.EXACTLY_ONCE) {
@@ -86,3 +89,4 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     protected abstract void insertOrUpdate(T tuple);
 
 }
+

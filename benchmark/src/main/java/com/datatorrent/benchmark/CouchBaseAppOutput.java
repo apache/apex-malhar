@@ -26,7 +26,8 @@ public class CouchBaseAppOutput implements StreamingApplication {
         rand.setTuplesBlast(200);
 
         CouchBaseOutputOperator couchbaseOutput = dag.addOperator("couchbaseOuput", new CouchBaseOutputOperator());
-
+        couchbaseOutput.getStore().setBucket("default");
+        couchbaseOutput.getStore().setPassword("");
         dag.addStream("ss", rand.integer_data, couchbaseOutput.input).setLocality(locality);
     }
 
