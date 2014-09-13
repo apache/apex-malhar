@@ -79,7 +79,7 @@ public class HDSApplicationTest
     conf.set("dt.operator.InputGenerator.numPublishers", "2");
     conf.set("dt.loggers.level", "server.*:INFO");
 
-    lma.prepareDAG(new ApplicationWithHDSQuery(), conf);
+    lma.prepareDAG(new ApplicationWithHDS(), conf);
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();

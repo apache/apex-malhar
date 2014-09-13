@@ -64,7 +64,7 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
 
  <property>
  <name>dt.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT</name>
- <value>120</value>
+ <value>4</value>
  </property>
 
  <property>
@@ -107,7 +107,7 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
  *
  */
 @ApplicationAnnotation(name="AdsDimensionsWithHDSDemo")
-public class ApplicationWithHDSQuery implements StreamingApplication
+public class ApplicationWithHDS implements StreamingApplication
 {
 
   @Override
@@ -116,7 +116,7 @@ public class ApplicationWithHDSQuery implements StreamingApplication
     dag.setAttribute(DAG.APPLICATION_NAME, "AdsDimensionsWithHDSDemo");
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent>());
-    dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 60);
+    dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     String[] dimensionSpecs = new String[] {
         "time=" + TimeUnit.MINUTES,
         "time=" + TimeUnit.MINUTES + ":adUnit",
