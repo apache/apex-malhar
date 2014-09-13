@@ -24,7 +24,8 @@ public class CouchBaseStore implements Connectable {
     protected transient String bucket;
     protected transient String password;
     protected transient CouchbaseClient client;
-    protected Set<String> uriString = new HashSet<String>();
+    protected String uriString;
+    List<String> uriList = new ArrayList<String>();
     List<URI> baseURIs = new ArrayList<URI>();
 
     public CouchBaseStore() {
@@ -55,17 +56,20 @@ public class CouchBaseStore implements Connectable {
         this.password = password;
     }
 
-    public void setUriString(Set<String> uriString) {
+    public void setUriString(String uriString) {
         logger.info("In setter method of URI");
         this.uriString = uriString;
+        String[] tokens = uriString.split(",");
+        for( int i=0;i<tokens.length;i++)
+          uriList.add(tokens[i]); 
     }
 
     @Override
     public void connect() throws IOException {
         URI uri = null;
-        for (String url : uriString) {
+        for (String url : uriList) {
             try {
-                uri = new URI("http",url, "/pools", null, null);
+                uri = new URI("http",uriString, "/pools", null, null);
             } catch (URISyntaxException ex) {
                logger.error(ex.getMessage());
             }
