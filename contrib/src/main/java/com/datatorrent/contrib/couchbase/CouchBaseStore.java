@@ -5,6 +5,7 @@ import com.datatorrent.lib.db.Connectable;
 import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Arrays;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,8 +61,7 @@ public class CouchBaseStore implements Connectable {
         logger.info("In setter method of URI");
         this.uriString = uriString;
         String[] tokens = uriString.split(",");
-        for( int i=0;i<tokens.length;i++)
-          uriList.add(tokens[i]); 
+        uriList.addAll(Arrays.asList(tokens)); 
     }
 
     @Override
@@ -69,7 +69,7 @@ public class CouchBaseStore implements Connectable {
         URI uri = null;
         for (String url : uriList) {
             try {
-                uri = new URI("http",uriString, "/pools", null, null);
+                uri = new URI("http",url, "/pools", null, null);
             } catch (URISyntaxException ex) {
                logger.error(ex.getMessage());
             }

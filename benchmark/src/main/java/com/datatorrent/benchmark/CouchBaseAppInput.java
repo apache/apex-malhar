@@ -18,8 +18,8 @@ public class CouchBaseAppInput implements StreamingApplication {
     @Override
     public void populateDAG(DAG dag, Configuration conf) {
         CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", CouchBaseInputOperator.class);
-        couchbaseInput.getStore().setBucket("default");
-        couchbaseInput.getStore().setPassword("");
+        //couchbaseInput.getStore().setBucket("default");
+        //couchbaseInput.getStore().setPassword("");
         WordCountOperator<String> counter = dag.addOperator("Counter", new WordCountOperator<String>());
 
         dag.addStream("Generator2Counter", couchbaseInput.outputPort, counter.input).setLocality(locality);

@@ -11,7 +11,7 @@ public class CouchBaseBenchmarkTest {
 
     @Test
     public void testCouchBaseAppOutput() throws Exception {
-        LocalMode.runApp(new CouchBaseAppOutput(), 30000);
+        LocalMode.runApp(new CouchBaseAppOutput(), 300000);
     }
 
     @Test
