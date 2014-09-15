@@ -44,7 +44,16 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 /**
- * Manager for buckets. Can be sub-classed as operator or used in composite pattern.
+ * Writes data to buckets. Can be sub-classed as operator or used in composite pattern.
+ * <p>
+ * Changes are accumulated in a write cache and written to a write-ahead-log (WAL). They are then asynchronously flushed
+ * to the data files when thresholds for the memory buffer are reached.
+ * <p>
+ * When data is read through the same operator (extends reader), full consistency is guaranteed (reads will consider
+ * changes that are not flushed). In the event of failure, the operator recovers the write buffer from the WAL.
+ * <p>
+ * Note that currently changes are not flushed at a committed window boundary, hence uncommitted changes may be read
+ * from data files after recovery, making the operator non-idempotent.
  */
 public class HDSBucketManager extends HDSReader implements HDS.BucketManager, CheckpointListener, Operator
 {
@@ -65,8 +74,9 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
   private final HashMap<Long, WalMeta> walMeta = Maps.newHashMap();
 
   /**
-   * Size limit for data files. Files are rolled once the limit has been exceeded.
-   * The final size of a file can be larger than the limit by the size of the last/single entry written to it.
+   * Size limit for data files. Files are rolled once the limit has been exceeded. The final size of a file can be
+   * larger than the limit by the size of the last/single entry written to it.
+   *
    * @return
    */
   public int getMaxFileSize()
@@ -80,9 +90,9 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
   }
 
   /**
-   * Size limit for WAL files. Files are rolled once the limit has been exceeded.
-   * The final size of a file can be larger than the limit, as files are rolled at
-   * end of the operator window.
+   * Size limit for WAL files. Files are rolled once the limit has been exceeded. The final size of a file can be larger
+   * than the limit, as files are rolled at end of the operator window.
+   *
    * @return
    */
   public int getMaxWalFileSize()
@@ -97,6 +107,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
 
   /**
    * The number of changes collected in memory before flushing to persistent storage.
+   *
    * @return
    */
   public int getFlushSize()
@@ -115,7 +126,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
    *
    * @return
    */
-  @Min(value=1)
+  @Min(value = 1)
   public int getFlushIntervalCount()
   {
     return flushIntervalCount;
@@ -138,6 +149,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
 
   /**
    * Write data to size based rolling files
+   *
    * @param bucket
    * @param bucketMeta
    * @param data
@@ -156,7 +168,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
       }
 
       fw.append(asArray(dataEntry.getKey()), dataEntry.getValue());
-      if ( fw.getBytesWritten() > this.maxFileSize) {
+      if (fw.getBytesWritten() > this.maxFileSize) {
 
         // roll file
         fw.close();
@@ -188,9 +200,8 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
       bucket.wal.setMaxWalFileSize(maxWalFileSize);
 
       // bmeta.componentLSN is data which is committed to disks.
-      // wmeta.windowId     windowId till which data is available in WAL.
-      if (bmeta.committedWid < wmeta.windowId)
-      {
+      // wmeta.windowId windowId till which data is available in WAL.
+      if (bmeta.committedWid < wmeta.windowId) {
         LOG.debug("Recovery for bucket {}", bucketKey);
         bucket.recoveryInProgress = true;
         // Get last committed LSN from store, and use that for recovery.
@@ -214,7 +225,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
     keyWrapper.length = key.length;
 
     Bucket bucket = this.buckets.get(query.bucketKey);
-    if (bucket !=  null) {
+    if (bucket != null) {
       // check unwritten changes first
       byte[] v = bucket.writeCache.get(keyWrapper);
       if (v != null) {
@@ -247,13 +258,13 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
     if (!bucket.recoveryInProgress) {
       bucket.wal.append(key, value);
     }
-    bucket.writeCache.put(new Slice(key, 0, key.length), value);
+    bucket.writeCache.put(toSlice(key), value);
   }
 
   /**
-   * Flush changes from write cache to disk.
-   * New data files will be written and meta data replaced atomically.
-   * The flush frequency determines availability of changes to external readers.
+   * Flush changes from write cache to disk. New data files will be written and meta data replaced atomically. The flush
+   * frequency determines availability of changes to external readers.
+   *
    * @throws IOException
    */
   private void writeDataFiles(Bucket bucket) throws IOException
@@ -347,7 +358,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
   public void setup(OperatorContext context)
   {
     super.setup(context);
-    writeExecutor = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory(this.getClass().getSimpleName()+"-Writer"));
+    writeExecutor = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory(this.getClass().getSimpleName() + "-Writer"));
   }
 
   @Override
@@ -436,6 +447,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
 
   /**
    * Get meta data from cache or load it on first access
+   *
    * @param bucketKey
    * @return
    */
@@ -468,12 +480,10 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
     private long tailOffset;
   }
 
-
   @VisibleForTesting
   protected void forceWal() throws IOException
   {
-    for(Bucket bucket : buckets.values())
-    {
+    for (Bucket bucket : buckets.values()) {
       bucket.wal.close();
     }
   }
@@ -502,6 +512,5 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
     public long tailId;
     public long tailOffset;
   }
-
 
 }
