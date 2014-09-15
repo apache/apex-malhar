@@ -12,8 +12,8 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  *   * @author prerna
  *
  */
-@ApplicationAnnotation(name = "CouchBaseAppOutput")
-public class CouchBaseAppOutput implements StreamingApplication {
+@ApplicationAnnotation(name = "CouchBaseAppUpdate")
+public class CouchBaseAppUpdate implements StreamingApplication {
 
     private final Locality locality = null;
 
@@ -25,10 +25,10 @@ public class CouchBaseAppOutput implements StreamingApplication {
         rand.setMinvalue(0);
         rand.setMaxvalue(maxValue);
         rand.setTuplesBlast(200);
-        CouchBaseOutputOperator couchbaseOutput = dag.addOperator("couchbaseOuput", new CouchBaseOutputOperator());
-        couchbaseOutput.getStore().setBucket("default");
-        couchbaseOutput.getStore().setPassword("");
-        dag.addStream("ss", rand.integer_data, couchbaseOutput.input).setLocality(locality);
+        CouchBaseUpdateOperator couchbaseUpdate = dag.addOperator("couchbaseUpdate", new CouchBaseUpdateOperator());
+       // couchbaseUpdate.getStore().setBucket("default");
+       // couchbaseUpdate.getStore().setPassword("");
+        dag.addStream("ss", rand.integer_data, couchbaseUpdate.input).setLocality(locality);
     }
 
 }

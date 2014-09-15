@@ -1,7 +1,7 @@
- 
+
 package com.datatorrent.benchmark;
 
-import com.datatorrent.contrib.couchbase.AbstractInsertCouchBaseOutputOperator;
+import com.datatorrent.contrib.couchbase.AbstractUpdateCouchBaseOutputOperator;
 
 /**
  *
@@ -9,7 +9,7 @@ import com.datatorrent.contrib.couchbase.AbstractInsertCouchBaseOutputOperator;
  */
 
 
-public class CouchBaseOutputOperator extends AbstractInsertCouchBaseOutputOperator<Integer>{
+public class CouchBaseUpdateOperator  extends AbstractUpdateCouchBaseOutputOperator<Integer>{
 
 
     @Override
