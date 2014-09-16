@@ -35,7 +35,7 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * <p>
  * Generic JDBC Output Adaptor which creates a transaction at the start of window.<br/>
  * Executes batches of sql updates and closes the transaction at the end of the window.
- * </p>
+ * <p>
  *
  * <p>
  * Each tuple corresponds to an SQL update statement. The operator groups the updates in a batch
@@ -48,6 +48,10 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * This is needed for the recovery. The operator writes a tuple exactly once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
+ *
+ * @displayName Abstract JDBC Transactionable Output Operator
+ * @category db
+ * @tags output, transactional
  *
  * @param <T> type of tuple
  * @since 0.9.4

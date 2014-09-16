@@ -30,9 +30,14 @@ import com.datatorrent.api.Context;
 import com.datatorrent.lib.db.cache.AbstractDBLookupCacheBackedOperator;
 
 /**
+ * <p>
  * This is {@link AbstractDBLookupCacheBackedOperator} which uses JDBC to fetch
  * the value of a key from the database when the key is not present in cache.
- * </br>
+ * <p>
+ *
+ * @displayName JDBC Lookup Cache Backed Operator
+ * @category db
+ * @tags output
  *
  * @param <T> type of input tuples </T>
  * @since 0.9.1
