@@ -24,11 +24,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * <p>
  * This operator opens a given file from the local file system.&nbsp;
  * Each line is emitted on the output port.&nbsp;
  * The thread waits for the given sleep interval after emitting a line.
- * <p>
  *
  * <br>
  * <b>Ports</b>:<br>

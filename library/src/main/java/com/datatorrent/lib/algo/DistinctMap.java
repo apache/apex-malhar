@@ -26,10 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * <p>
  * This operator computes and emits distinct key,val pairs (i.e drops duplicates).
- * <p>
+ * 
  * Computes and emits distinct key,val pairs (i.e drops duplicates)<p>
  * This is a pass through operator<br>
  * <br>

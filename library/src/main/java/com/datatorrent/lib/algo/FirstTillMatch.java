@@ -24,10 +24,9 @@ import com.datatorrent.lib.util.BaseMatchOperator;
 import java.util.HashMap;
 
 /**
- * <p>
  * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
  * and comparing those values to a specified number.&nbsp;For each window, all key value pairs are emitted by the operator until a value satisfying the comparison is encountered.
- * <p>
+ * 
  * All key.val pairs with val sub-classed from Number are emitted till the first match;  A compare metric is done based on the property "key",
  * "value", and "cmp". Then on no tuple is emitted in that window. The comparison is done by getting double value of the Number.<p>
  * This module is a pass through<br>

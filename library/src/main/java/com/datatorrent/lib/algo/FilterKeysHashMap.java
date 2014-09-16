@@ -28,9 +28,8 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * <p>
  * This operator filters the incoming stream of key value pairs based on the keys specified by property "keys".
- * <p>
+ * 
  * Filters the incoming stream based of keys specified by property "keys". If
  * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted<p>
  * Operator assumes that the key, val pairs are immutable objects. If this operator has to be used for mutable objects,

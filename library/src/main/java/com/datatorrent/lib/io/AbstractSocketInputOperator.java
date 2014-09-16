@@ -15,10 +15,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 
 /**
- * <p>
  * This is abstract class for socket input operator.
- * <p>
- *
+ * 
  * <b>Ports</b>:</br> <b>outputPort</b>: emits &lt;<T></T>&gt;<br>
  * <br>
  * <b>Properties</b>:<br>

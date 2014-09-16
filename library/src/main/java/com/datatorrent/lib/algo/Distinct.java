@@ -30,9 +30,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyOperator;
 
 /**
- * <p>
  * This operator computes and emits distinct tuples of type K (i.e drops duplicates) at end of window.
- * <p>
+ * 
  * Computes and emits distinct tuples of type K (i.e drops duplicates) at end of window<p>
  * <br>
  * This module is same as a "FirstOf" metric on any key, val pair

@@ -21,11 +21,10 @@ import com.datatorrent.lib.util.AbstractBaseFrequentKeyValueMap;
 import java.util.HashMap;
 
 /**
- * <p>
  * This operator filters the incoming stream of key value pairs by finding the value or values (if there is a tie),
  * for each key, that occurr the fewest number of times within each window.&nbsp;
  * Each key and its corresponding least values are emitted at the end of each window.
- * <p>
+ *
  * Occurrences of all values for each key is counted and at the end of window the least frequent values are emitted on output port least per key<p>
  * This module is an end of window module<br>
  * <br>

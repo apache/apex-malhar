@@ -20,9 +20,7 @@ import com.datatorrent.lib.util.HighLow;
 import java.util.TreeMap;
 
 /**
- * <p>
  * This is an abstract base class for charting operators that display a histogram.
- * <p>
  *
  * @displayName Abstract Histogram Chart Operator
  * @category chart

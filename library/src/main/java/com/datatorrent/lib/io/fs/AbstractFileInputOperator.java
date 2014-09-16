@@ -28,9 +28,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
 
 /**
- * <p>
  * This is an abstract input operator, which reads from a file and produces tuples.
- * <p>
  *
  * @displayName FS File Input
  * @category io

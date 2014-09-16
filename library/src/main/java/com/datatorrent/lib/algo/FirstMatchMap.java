@@ -26,10 +26,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseMatchOperator;
 
 /**
- * <p>
  * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
  * and comparing those values to a specified number.&nbsp;The first key value pair, in each window, to satisfy the comparison is emitted.
- * <p>
+ * 
  * A compare metric on a Number tuple based on the property "key", "value", and "cmp"; the first match is emitted.
  *  The comparison is done by getting double value from the Number.<p>
  * This module is a pass through<br>

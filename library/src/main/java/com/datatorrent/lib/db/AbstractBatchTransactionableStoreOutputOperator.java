@@ -19,10 +19,8 @@ import java.util.Collection;
 import com.google.common.collect.Lists;
 
 /**
- * <p>
  * This abstract class is for aggregate output (over one application window, all in one single batch) to a transactionable store with the transactional exactly-once feature.
- * <p>
- *
+ * 
  * @displayName Abstract Batch Transactionable Store Output Operator
  * @category db
  * @tags transactional, output, exactly once

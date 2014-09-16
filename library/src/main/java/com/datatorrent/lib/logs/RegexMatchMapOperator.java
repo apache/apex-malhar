@@ -23,6 +23,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +70,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0.5
  */
 @Stateless
+@OperatorAnnotation(partitionable=true)
 public class RegexMatchMapOperator extends BaseOperator
 {
   /**

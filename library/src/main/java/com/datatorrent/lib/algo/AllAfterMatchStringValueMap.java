@@ -24,12 +24,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>
  * This operator takes Maps, whose values are numeric strings, as input tuples.&nbsp;
  * It then performs a numeric comparison on the values corresponding to one of the keys in the input tuple maps.&nbsp;
  * All tuples processed by the operator before the first successful comparison are not output by the operator,
  * all tuples processed by the operator after and including a successful comparison are output by the operator.
- * <p>
+ * 
  * A compare metric is done on input tuple based on the property "key",
  * "value", and "cmp". All tuples are emitted (inclusive) once a match is made.
  * The comparison is done by getting double value from the Number.

@@ -25,9 +25,8 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * <p>
  * Writes tuples of a collection to the container's stdout.
- * <p>
+ *
  * This is for specific use case for collection where I want to print each key
  * value pair in different line <br>
  * Mainly to be used for debugging. Users should be careful to not have this

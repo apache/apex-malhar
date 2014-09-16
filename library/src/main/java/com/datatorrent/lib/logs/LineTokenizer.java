@@ -16,13 +16,14 @@
 package com.datatorrent.lib.logs;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.*;
 import com.datatorrent.lib.util.BaseLineTokenizer;
 
 /**
  *
  * <p>
- * Splits lines into tokens and emits token Strings on outpu port.
+ * Splits lines into tokens and emits token Strings on output port.
+ * <p>
  * This module is a pass through. Ideal for applications like word count, or log
  * processing<br>
  * <br>
@@ -38,8 +39,14 @@ import com.datatorrent.lib.util.BaseLineTokenizer;
  * <br>
  * <br>
  *
+ * @displayName Line Tokenizer
+ * @category logs
+ * @tags string
+ *
  * @since 0.3.3
  */
+@Stateless
+@OperatorAnnotation(partitionable=true)
 public class LineTokenizer extends BaseLineTokenizer
 {
 	@OutputPortFieldAnnotation(name = "tokens")
@@ -47,7 +54,7 @@ public class LineTokenizer extends BaseLineTokenizer
 
 	/**
 	 * emits tokens on port "tokens" if tok is not empty
-	 * 
+	 *
 	 * @param tok
 	 */
 	@Override

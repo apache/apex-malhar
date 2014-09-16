@@ -26,9 +26,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
 
 /**
- * <p>
  * This operator orders tuples per key and emits the top N tuples per key at the end of the window.
- * <p>
+ *
  * Orders tuples per key and emits top N tuples per key on end of window<p>
  * This is an end of window module.<br>
  * <br>

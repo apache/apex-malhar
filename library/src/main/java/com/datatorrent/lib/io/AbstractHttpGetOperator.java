@@ -22,11 +22,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * <p>
  * Http get operator to extract query parameters from incoming tuple and make GET calls to
  * the set url.
- * <p>
- *
+ * 
  * If the output port is connected, the response is processed
  *
  * @displayName Abstract Http Query Input

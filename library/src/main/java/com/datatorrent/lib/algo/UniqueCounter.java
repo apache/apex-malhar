@@ -29,9 +29,8 @@ import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
 /**
- * <p>
  * This operator counts the number of times a key exists in a window.&nbsp;A map from keys to counts is emitted at the end of each window.
- * <p>
+ *
  * Counts the number of times a key exists in a window; Count is emitted at end of window in a single HashMap<p>
  * This is an end of window operator<br>
  * <br>

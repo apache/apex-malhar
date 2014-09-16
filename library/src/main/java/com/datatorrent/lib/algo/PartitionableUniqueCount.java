@@ -26,10 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * <p>
  * This operator counts the number of times a key exists in a window.&nbsp;A map from keys to counts is emitted at the end of each window.
- * <p>
  *
  * @displayName Count Key Appearances
  * @category algorithm

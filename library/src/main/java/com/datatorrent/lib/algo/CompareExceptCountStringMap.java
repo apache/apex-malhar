@@ -23,9 +23,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
- * <p>
  * This operator produces a count of how many tuples of value type String satisfy the compare function.
- * <p>
+ * 
  * A count is done on how many tuples of value type String satisfy the compare function. The function is given by
  * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count is emitted on the output port "count".
  * The comparison is done by getting double value from the Number.<p>

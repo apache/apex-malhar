@@ -26,13 +26,12 @@ import com.datatorrent.lib.util.BaseMatchOperator;
 import com.datatorrent.lib.util.UnifierBooleanAnd;
 
 /**
- * <p>
  * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
  * and comparing those values to a specified number.&nbsp;
  * If the comparison returns true for all key value pairs within a window,
  * then a true is emitted at the end of the window.&nbsp;
  * Otherwise a false is emitted at the end of the window.
- * <p>
+ *
  * Each tuple is tested for the compare function. The function is given by
  * "key", "value", and "cmp". If all tuples passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "all".
  * The comparison is done by getting double value from the Number.<p>

@@ -16,11 +16,9 @@
 package com.datatorrent.lib.xml;
 
 /**
- * <p>
  * This is an abstract operator, which parses incoming tuples using the Java XML DOM parser and passes the resultant Document object along with
  * the tuple to the extending operator for processing.
- * <p>
- *
+ * 
  * @displayName XML DOM Operator
  * @category xml
  * @tags

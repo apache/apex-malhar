@@ -43,10 +43,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>
  * This is an abstract input operator, which scans a directory for files.&nbsp;
  * Files are then read and split into tuples, which are emitted.
- * <p>
+ *
  * <p/>
  * Derived class defines how to read entries from the input stream and emit to the port.
  * <p/>

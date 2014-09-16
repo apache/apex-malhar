@@ -23,9 +23,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * <p>
  * This an input operator which passes data from an asynchronous data source to a port processing thread.
- * <p>
+ *
  * This operator handles hand over from asynchronous input to port processing thread (tuples
  * must be emitted by container thread). If derived class implements
  * {@link Runnable} to perform synchronous IO, this class will manage the thread

@@ -24,7 +24,11 @@ import com.datatorrent.lib.bucket.HdfsBucketStore;
 import com.datatorrent.lib.bucket.NonOperationalBucketStore;
 
 /**
- * {@link Deduper} that uses hdfs to store buckets.
+ * Drops duplicate events.
+ *
+ * @displayName  HDFS Deduper
+ * @category dedup
+ * @tags hdfs
  *
  * @since 0.9.5
  */

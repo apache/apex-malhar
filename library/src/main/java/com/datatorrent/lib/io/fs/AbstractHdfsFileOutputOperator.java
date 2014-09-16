@@ -31,10 +31,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * <p>
  * This is an abstract output operator, which writes tuples to an hdfs file.
- * <p>
- *
+ * 
  * Contains base implementations for setup, teardown, open file and close file.
  *
  * @displayName HDFS File Output

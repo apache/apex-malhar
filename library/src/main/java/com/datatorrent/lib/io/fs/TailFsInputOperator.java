@@ -29,10 +29,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 
 /**
- * <p>
  * This operator implements "tail -f" command.&nbsp;If the operator has reached the end of the file, it will wait till more
  * data comes.
- * <p>
  *
  * <br>
  * <b>Ports</b>:<br>

@@ -25,10 +25,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>
  * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
  * and comparing those values to a specified number.&nbsp;The last key value pair, in each window, to satisfy the comparison is emitted.
- * <p>
+ *
  * A compare function is  operated on a tuple value sub-classed from Number based on the property "key", "value", and "cmp". Every tuple
  * is checked and the last one that passes the condition is send during end of window on port "last". The comparison is done by getting double
  * value from the Number<p>
