@@ -26,7 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ActiveMQ input adapter operator, which consume data from ActiveMQ message bus.<p><br>
+ * <p>
+ * This is an abstract operator, which ingests data from an ActiveMQ message bus.
+ * <p>
  *
  * It uses PUSH model to get message. When there is a message available in AMQ message bus,
  * onMessage() got called which buffer the message into a holding buffer. At the same time
@@ -48,6 +50,10 @@ import org.slf4j.LoggerFactory;
  * Compile time checks:<br>
  * Class derived from this has to implement the abstract method emitTuple() <br>
  * <br>
+ *
+ * @displayName Abstract Active MQ Input
+ * @category io
+ * @tags jms, input
  *
  * @since 0.3.2
  */
@@ -79,7 +85,7 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
 
   /**
    * Sets the number of tuples emitted in each burst.
-   * 
+   *
    * @param tuplesBlast the number of tuples to emit in each burst.
    */
   public void setTuplesBlast(int tuplesBlast)
@@ -94,10 +100,10 @@ public abstract class AbstractActiveMQInputOperator extends ActiveMQConsumerBase
   {
     return bufferSize;
   }
-  
+
   /**
    * Sets the size of holding buffer.
-   * 
+   *
    * @param bufferSize- the size of the holding buffer
    */
   public void setBufferSize(int bufferSize)
