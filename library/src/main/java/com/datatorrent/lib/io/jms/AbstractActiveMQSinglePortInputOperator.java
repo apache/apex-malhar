@@ -22,8 +22,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * <p>
- * ActiveMQ input adapter operator with single output port, which consume data
- * from ActiveMQ message bus.
+ * This is an abstract operator, which ingests data from an ActiveMQ message bus.&nbsp;
+ * This operator has a single output port.
+ * <p>
+ *
  * <br>
  * <br>
  * Ports:<br>
@@ -43,6 +45,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * TBD<br>
  * <br>
  *
+ * @displayName Abstract Active MQ Single Port Input
+ * @category io
+ * @tags jms, input
+ *
  * @param <T>
  * @since 0.3.2
  */
@@ -60,7 +66,7 @@ public abstract class AbstractActiveMQSinglePortInputOperator<T> extends
 	 * to implement this method so that it knows what type of message it is going
 	 * to send to Malhar. It converts a JMS message into a Tuple. A Tuple can be
 	 * of any type (derived from Java Object) that operator user intends to.
-	 * 
+	 *
 	 * @param msg
 	 * @return newly constructed tuple from the message.
 	 */
@@ -68,7 +74,7 @@ public abstract class AbstractActiveMQSinglePortInputOperator<T> extends
 
 	/**
 	 * Implement abstract method.
-	 * 
+	 *
 	 * @param msg
 	 */
 	@Override

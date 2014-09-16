@@ -24,7 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ActiveMQ output adapter operator with only one input port, which produce data into ActiveMQ message bus.<p><br>
+ * <p>
+ * This is an abstract ouput operator, which emits data to an ActiveMQ message bus.&nbsp;This operator has a single input port.
+ * <p>
  *
  * <br>
  * Ports:<br>
@@ -44,6 +46,10 @@ import org.slf4j.LoggerFactory;
  * TBD<br>
  * <br>
  *
+ * @displayName Abstract Active MQ Single Port Output
+ * @category io
+ * @tags jms, output
+ *
  * @since 0.3.2
  */
 public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends AbstractActiveMQOutputOperator
@@ -62,7 +68,7 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
    * Convert to and send message.
    * @param tuple
    */
-  protected void processTuple(T tuple) 
+  protected void processTuple(T tuple)
   {
     countMessages++;
 
@@ -82,7 +88,7 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
       throw new RuntimeException("Failed to send message", ex);
     }
   }
-  
+
   /**
    * The single input port.
    */
