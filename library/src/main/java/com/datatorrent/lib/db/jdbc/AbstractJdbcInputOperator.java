@@ -29,12 +29,17 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
+ * <p>
  * Base JDBC input adapter operator, which reads data from persistence database through JAVA DataBase Connectivity (JDBC) API
  * and writes into output port(s).
- *
+ *<p>
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(ResultSet)}.
  * </p>
+ *
+ * @displayName Abstract JDBC Input Operator
+ * @category db
+ * @tags input
  *
  * @since 0.9.4
  */
