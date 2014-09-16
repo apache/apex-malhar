@@ -21,11 +21,17 @@ import java.io.IOException;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * Input Adapter for reading from HDFS<p>
+ * <p>
+ * This is an abstract input operator, which reads tuples from a file on the local file system.
+ * <p>
  * <br>
  * Extends AbstractInputAdapter<br>
  * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
  * <br>
+ *
+ * @displayName Local FS File Input
+ * @category io
+ * @tags local fs, file, input
  *
  * @since 0.3.2
  */

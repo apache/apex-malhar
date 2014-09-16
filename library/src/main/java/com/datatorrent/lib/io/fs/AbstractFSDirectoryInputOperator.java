@@ -43,7 +43,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Input operator that reads files from a directory.
+ * <p>
+ * This is an abstract input operator, which scans a directory for files.&nbsp;
+ * Files are then read and split into tuples, which are emitted.
+ * <p>
  * <p/>
  * Derived class defines how to read entries from the input stream and emit to the port.
  * <p/>
@@ -58,6 +61,11 @@ import org.slf4j.LoggerFactory;
  * <p/>
  * This class supports retrying of failed files by putting them into failed list, and retrying them after pending
  * files are processed. Retrying is disabled when maxRetryCount is set to zero.
+ *
+ * @displayName FS Directory Scan Input
+ * @category io
+ * @tags fs, file, input
+ *
  * @param <T> The type of the object that this input operator reads.
  * @since 1.0.2
  */

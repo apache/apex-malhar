@@ -28,13 +28,13 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
 
 /**
+ * <p>
+ * This is an abstract input operator, which reads from a file and produces tuples.
+ * <p>
  *
- */
-/**
- * Input Adapter for reading from File<p>
- * <br>
- *
- * <br>
+ * @displayName FS File Input
+ * @category io
+ * @tags fs, directory, input
  *
  * @param <STREAM>
  * @since 0.3.2
