@@ -70,6 +70,10 @@ import com.datatorrent.lib.counters.BasicCounters;
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
  *
+ * @displayName Deduper
+ * @category dedup
+ * @tags
+ *
  * @param <INPUT>  type of input tuple
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
