@@ -19,6 +19,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 import java.util.ArrayList;
@@ -26,7 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * <p>
+ * This operator takes a stream of key value pairs each window, and outputs a set of inverted key value pairs at the end of each window.
+ * <p>
  * Inverts the index and sends out the tuple on output port "index" at the end of the window<p>
  * This is an end of window operator<br>
  * <br>
@@ -39,15 +42,21 @@ import java.util.Map;
  * <b>index</b>: emits &lt;V,ArrayList&lt;K&gt;&gt;(1); one HashMap per V<br>
  * <br>
  *
+ * @displayName Invert Keyval Pairs
+ * @category algorithm
+ * @tags keyval
+ *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V> implements Unifier<HashMap<V, ArrayList<K>>>
 {
   /**
    * Inverted key/value map.
    */
   protected HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
-  
+
   /**
    * Input port.
    */
@@ -68,7 +77,7 @@ public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V> implements Uni
       }
     }
   };
-  
+
   /**
    * Output port.
    */
@@ -113,7 +122,7 @@ public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V> implements Uni
     }
     map.clear();
   }
-  
+
   /**
    * Unifier override.
    */

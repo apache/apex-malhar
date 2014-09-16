@@ -26,7 +26,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
 
 /**
- *
+ * <p>
+ * This operator filters the incoming stream of key value pairs by emitting the first N key value pairs with a specified key in each window.
+ * <p>
  * Emits first N tuples of a particular key.<p>
  * This module is a pass through module<br>
  * <br>
@@ -45,10 +47,14 @@ import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
  * <br>
  * <br>
  *
+ * @displayName First N Keyval Pairs Matching Key
+ * @category algorithm
+ * @tags filter, keyval
+ *
  * @since 0.3.2
  */
 @OperatorAnnotation(partitionable = false)
-public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>  
+public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
 {
   /**
    * key count map.
@@ -80,7 +86,7 @@ public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
    */
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>();
-  
+
   /**
    * Clears the cache to start anew in a new window
    */

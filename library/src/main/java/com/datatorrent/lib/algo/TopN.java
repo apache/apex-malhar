@@ -21,11 +21,14 @@ import java.util.Map;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
 
 /**
- *
+ * <p>
+ * This operator orders tuples per key and emits the top N tuples per key at the end of the window.
+ * <p>
  * Orders tuples per key and emits top N tuples per key on end of window<p>
  * This is an end of window module.<br>
  * <br>
@@ -42,9 +45,15 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * N: Has to be >= 1<br>
  * <br>
  *
+ * @displayName Top N Values Per Key
+ * @category algorithm
+ * @tags filter, rank
+ *
  * @since 0.3.3
  */
-public class TopN<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V> implements Unifier<HashMap<K, ArrayList<V>>>   
+
+@OperatorAnnotation(partitionable = true)
+public class TopN<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V> implements Unifier<HashMap<K, ArrayList<V>>>
 {
   /**
    * Output port.

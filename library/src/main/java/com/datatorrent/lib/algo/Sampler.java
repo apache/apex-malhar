@@ -18,6 +18,7 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyOperator;
@@ -26,7 +27,9 @@ import javax.validation.constraints.Min;
 
 /**
  *
- * Emits sample percentage tuples. <br>
+ * <p>
+ * This operator takes a stream of values as input, and emits each tuple with a specified probability.
+ * <p>
  * Emits the tuple as per probability of pass rate out of total rate. <br>
  * <br>
  * An efficient filter to allow sample analysis of a stream. Very useful is the incoming stream has high throughput<p>
@@ -49,9 +52,14 @@ import javax.validation.constraints.Min;
  * <b>Specific run time checks are</b>: None<br>
  * <br>
  *
+ * @displayName Sampler
+ * @category algorithm
+ * @tags filter
+ *
  * @since 0.3.2
  */
 @Stateless
+@OperatorAnnotation(partitionable = true)
 public class Sampler<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")

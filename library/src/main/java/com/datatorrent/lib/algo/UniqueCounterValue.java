@@ -23,6 +23,9 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
+ * <p>
+ * This operator counts the number of unique tuples it recieved in a window and outputs it at the end of each window.
+ * <p>
  * Counts the number of tuples emitted in a window. <p>
  * This is an end of window operator<br>
  * <br>
@@ -65,6 +68,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>15</td></tr>
  * </table>
  * <br>
+ *
+ * @displayName Count Unique Values
+ * @category algorithm
+ * @tags count
  *
  * @since 0.3.2
  */

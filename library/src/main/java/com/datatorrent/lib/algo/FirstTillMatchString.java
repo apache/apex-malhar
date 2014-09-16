@@ -24,7 +24,10 @@ import com.datatorrent.lib.util.BaseMatchOperator;
 import java.util.HashMap;
 
 /**
- *
+ * <p>
+ * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
+ * and comparing those values to a specified number.&nbsp;The first key value pair, in each window, to satisfy the comparison is emitted.
+ * <p>
  * All key,val pairs with val of type String are emitted till the first match;  A compare metric is done based on the property "key", "value",
  * and "cmp". Then on no tuple is emitted in that window. The comparison is done by getting double value of the Number.<p>
  * This module is a pass through<br>
@@ -53,6 +56,10 @@ import java.util.HashMap;
  * <br>
  * <br>
  *
+ * @displayName Emit Keyval Pairs Until Match (String)
+ * @category algorithm
+ * @tags filter, keyval, numeric
+ *
  * @since 0.3.2
  */
 @OperatorAnnotation(partitionable = false)
@@ -62,7 +69,7 @@ public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
    * Tuple emit flag.
    */
   boolean emitted = false;
-  
+
   /**
    * Input port.
    */

@@ -20,12 +20,19 @@ import java.util.Map;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseMatchOperator;
 import com.datatorrent.lib.util.UnifierBooleanOr;
 
 /**
- *
+ * <p>
+ * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
+ * and comparing those values to a specified number.&nbsp;
+ * If the comparison returns true for any of the key value pairs within a window,
+ * then a true is emitted at the end of the window.&nbsp;
+ * Otherwise a false is emitted at the end of the window.
+ * <p>
  * Each tuple is tested for the compare function. The function is given by
  * "key", "value", and "compare". If any tuple passes a Boolean(true) is emitted, else a Boolean(false) is emitted on the output port "any".
  * The comparison is done by getting double value from the Number.<p>
@@ -50,8 +57,14 @@ import com.datatorrent.lib.util.UnifierBooleanOr;
  * <b>Specific run time checks</b>: None<br>
  * <br>
  *
+ * @displayName Emit Boolean For Match (Number)
+ * @category algorithm
+ * @tags filter, keyval
+ *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class MatchAnyMap<K, V extends Number> extends BaseMatchOperator<K,V>
 {
   @InputPortFieldAnnotation(name = "data")

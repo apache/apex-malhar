@@ -27,7 +27,13 @@ import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.lib.util.TopNSort;
 
 /**
- * <p>BottomNUnifier class.</p>
+ * <p>
+ * This unifier takes an input stream of key value pairs is ordered by key,
+ * and the bottom N of the ordered tuples per key are emitted on port "bottom" at the end of window.
+ * <p>
+ * @displayName Bottom N Unifier
+ * @category algorithm
+ * @tags filter, rank, keyval
  *
  * @since 0.3.3
  */
@@ -56,7 +62,7 @@ public class BottomNUnifier<K, V> implements Unifier<HashMap<K, ArrayList<V>>>
 
   }
 
-  
+
   @Override
   public void endWindow()
   {
@@ -105,7 +111,7 @@ public class BottomNUnifier<K, V> implements Unifier<HashMap<K, ArrayList<V>>>
 
   /**
    * Sets value of N (depth)
-   * 
+   *
    * @param val
    */
   public void setN(int val)
@@ -115,7 +121,7 @@ public class BottomNUnifier<K, V> implements Unifier<HashMap<K, ArrayList<V>>>
 
   /**
    * getter function for N
-   * 
+   *
    * @return n
    */
   @Min(1)

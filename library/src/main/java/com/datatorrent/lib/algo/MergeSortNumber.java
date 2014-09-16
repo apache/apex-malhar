@@ -15,9 +15,12 @@
  */
 package com.datatorrent.lib.algo;
 
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import java.util.ArrayList;
 
 /**
+ * <p>
+ * This unifier takes sorted lists of tuples each window and merges them into one large sorted list at the end of each window.
  * <p>
  * Incoming sorted list is merged into already existing sorted list. The input list is expected to be sorted. <b>
  * At the end of the window, merged sorted list is emitted on sort output port. <br>
@@ -37,15 +40,20 @@ import java.util.ArrayList;
  * 1. compare : K type value compare criteria for sort.
  * 2. getUnifierInstance : Get unifier operator instance for output port, (must return self instance).
  *
+ * @displayName Merge Sorted Lists (Number)
+ * @category algorithm
+ * @tags rank, numeric
+ *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = true)
 public class MergeSortNumber<V extends Number> extends MergeSort<V>
 {
 	/**
-	 * Ascending/Desending flag; 
+	 * Ascending/Desending flag;
 	 */
 	private boolean ascending = true;
-	
+
 	/**
 	 * sort function.
 	 */
@@ -71,7 +79,7 @@ public class MergeSortNumber<V extends Number> extends MergeSort<V>
 		}
 		return result;
 	}
-	
+
 	/**
 	 *  Merge class itself is unifier.
 	 */

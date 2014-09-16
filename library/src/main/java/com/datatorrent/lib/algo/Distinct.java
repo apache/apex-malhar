@@ -25,11 +25,14 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyOperator;
 
 /**
- *
+ * <p>
+ * This operator computes and emits distinct tuples of type K (i.e drops duplicates) at end of window.
+ * <p>
  * Computes and emits distinct tuples of type K (i.e drops duplicates) at end of window<p>
  * <br>
  * This module is same as a "FirstOf" metric on any key, val pair
@@ -46,15 +49,21 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * <b>Properties</b>: None<br>
  * <br>
  *
+ * @displayName Emit Distinct
+ * @category algorithm
+ * @tags filter, unique
+ *
  * @since 0.3.3
  */
+
+@OperatorAnnotation(partitionable = true)
 public class Distinct<K> extends BaseKeyOperator<K> implements Unifier<K>
 {
   /**
    * Distinct key map.
    */
   protected HashMap<K, Object> map = new HashMap<K, Object>();
-  
+
   /**
    * Input port.
    */
@@ -74,7 +83,7 @@ public class Distinct<K> extends BaseKeyOperator<K> implements Unifier<K>
       }
     }
   };
-  
+
   /**
    *  Output for distinct values. </b>
    */

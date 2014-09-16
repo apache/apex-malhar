@@ -23,11 +23,16 @@ import org.apache.commons.lang.mutable.MutableInt;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseUniqueKeyValueCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
 /**
+ * <p>
+ * This operator counts the unique occurrences of key value pairs within each window,
+ * and emits a map from key value pairs to counts at the end of each window.
+ * <p>
  * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple. <p>
  * This is an end of window operator<br>
  * <br>
@@ -40,8 +45,14 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * <b>count</b>: emits HashMap&lt;HashMap&lt;K,V&gt;(1),Integer&gt;(1)<br>
  * <br>
  *
+ * @displayName Count Unique Keyval Pairs
+ * @category algorithm
+ * @tags count, keyval
+ *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
 {
   @InputPortFieldAnnotation(name = "data")

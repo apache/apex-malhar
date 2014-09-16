@@ -26,7 +26,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>PartitionableUniqueCount class.</p>
+ *
+ * <p>
+ * This operator counts the number of times a key exists in a window.&nbsp;A map from keys to counts is emitted at the end of each window.
+ * <p>
+ *
+ * @displayName Count Key Appearances
+ * @category algorithm
+ * @tags algorithm, count, keyval
  *
  * @since 1.0.2
  */
