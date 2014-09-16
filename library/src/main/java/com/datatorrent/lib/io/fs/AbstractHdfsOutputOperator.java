@@ -18,7 +18,8 @@ package com.datatorrent.lib.io.fs;
 import org.apache.hadoop.fs.Path;
 
 /**
- * Adapter for writing to HDFS
+ * <p>
+ * This is an abstract output operator, which writes tuples to one or more hdfs files.
  * <p>
  * Serializes tuples into a HDFS file<br>
  * Tuples are written to a single HDFS file or multiple HDFS files, with the option to specify size based file rolling,
@@ -26,6 +27,10 @@ import org.apache.hadoop.fs.Path;
  * Example file path pattern : file:///mydir/adviews.out.%(operatorId).part-%(partIndex). where operatorId and partIndex
  * are place holders.
  * </p>
+ *
+ * @displayName HDFS Files Output
+ * @category io
+ * @tags hdfs, file, output
  *
  * @since 0.9.4
  * @deprecated
@@ -52,7 +57,7 @@ public abstract class AbstractHdfsOutputOperator<T> extends AbstractHdfsRollingF
    * This returns the pattern of the output file
    *
    * @return
-   * @deprecated 
+   * @deprecated
    */
   @Deprecated
   public String getFilePathPattern()

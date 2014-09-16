@@ -25,7 +25,13 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * Input Adapter for reading from HDFS File
+ * <p>
+ * This is an abstract input operator, which reads from a hdfs file and produces tuples.
+ * <p>
+ *
+ * @displayName HDFS File Input
+ * @category io
+ * @tags hdfs, file, input
  *
  * @since 0.3.2
  */
