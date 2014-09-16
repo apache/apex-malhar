@@ -26,10 +26,8 @@ import java.util.Random;
 import javax.validation.constraints.Min;
 
 /**
- *
- * <p>
  * This operator takes a stream of values as input, and emits each tuple with a specified probability.
- * <p>
+ *
  * Emits the tuple as per probability of pass rate out of total rate. <br>
  * <br>
  * An efficient filter to allow sample analysis of a stream. Very useful is the incoming stream has high throughput<p>

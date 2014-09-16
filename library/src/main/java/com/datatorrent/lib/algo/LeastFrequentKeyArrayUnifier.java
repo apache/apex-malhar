@@ -9,9 +9,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
- * <p>
  * This unifier is used by the LeastFrequentKey operator in order to merge the output of the "list" output port.
- * <p>
  *
  * @displayName Emit Least Frequent Value
  * @category algorithm

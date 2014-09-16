@@ -21,10 +21,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * <p>
  * This is an abstract operator, which ingests data from an ActiveMQ message bus.&nbsp;
  * This operator has a single output port.
- * <p>
  *
  * <br>
  * <br>

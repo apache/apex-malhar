@@ -27,10 +27,8 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * <p>
  * This is an abstract operator, which parses incoming tuples using the Java XML DOM parser and passes the resultant Document object along with
  * the tuple to the extending operator for processing.
- * <p>
  *
  * @displayName Abstract XML DOM Operator
  * @category xml

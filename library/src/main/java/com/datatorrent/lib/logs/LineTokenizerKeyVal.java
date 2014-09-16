@@ -16,15 +16,16 @@
 package com.datatorrent.lib.logs;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.*;
 import com.datatorrent.lib.util.BaseLineTokenizer;
 import com.datatorrent.lib.util.UnifierHashMap;
-
 import java.util.HashMap;
 
 /**
- *
- * Splits lines into tokens, and tokens into sub-tokens and emits key,val pairs in a HashMap. Useful to convert String (log lines) into a POJO (HashMap)<p>
+ * <p>
+ * Splits lines into tokens, and tokens into sub-tokens and emits key,val pairs in a HashMap.
+ * <p>
+ * Useful to convert String (log lines) into a POJO (HashMap)<p>
  * This module is a pass through<br>
  * <br>
  * <b>StateFull : No, </b> tokens are processed in current window. <br>
@@ -41,8 +42,14 @@ import java.util.HashMap;
  * <b>splittokenby</b>: The characters used to split a token into key,val pair. Default is "", i.e. tokens are not split, and key is set to token, and val is null<br>
  * <br>
  *
+ * @displayName Line Tokenizer Key Val
+ * @category logs
+ * @tags string
+ *
  * @since 0.3.2
  */
+@Stateless
+@OperatorAnnotation(partitionable=true)
 public class LineTokenizerKeyVal extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")
@@ -51,7 +58,7 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
     @Override
     public Unifier<HashMap<String, String>> getUnifier()
     {
-      return new UnifierHashMap<String, String>();  
+      return new UnifierHashMap<String, String>();
     }
   };
 

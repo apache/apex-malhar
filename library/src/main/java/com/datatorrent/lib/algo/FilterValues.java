@@ -27,9 +27,8 @@ import java.util.HashMap;
 import javax.validation.constraints.NotNull;
 
 /**
- * <p>
  * This operator filters the incoming stream of values by the specified set of filter values.
- * <p>
+ * 
  * Filters incoming stream and emits values as specified by the set of values to filter. If
  * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted. The values are expected to be immutable<p>
  * This operator should not be used with mutable objects. If this operator has immutable Objects, override "cloneCopy" to ensure a new copy is sent out.

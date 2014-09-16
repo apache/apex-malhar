@@ -23,9 +23,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * <p>
  * This operator counts the number of unique tuples it recieved in a window and outputs it at the end of each window.
- * <p>
+ *
  * Counts the number of tuples emitted in a window. <p>
  * This is an end of window operator<br>
  * <br>

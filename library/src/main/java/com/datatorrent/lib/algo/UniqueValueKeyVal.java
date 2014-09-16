@@ -29,10 +29,9 @@ import com.datatorrent.lib.util.BaseKeyOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * <p>
  * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
  * At the end of each window each key/unique count pair is emitted.
- * <p>
+ *
  * Count unique occurrences of vals for every key within a window, and emits Key,Integer pairs tuple.<p>
  * This is an end of window operator. It uses sticky key partition and default unifier<br>
  * <br>

@@ -27,12 +27,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- *
- * <p>
  * This operator filters the incoming stream of values by emitting the value or values (if there is a tie)
  * that occurred the largest number of times within each window to the output port "list".&nbsp;
  * One of the values is emitted to the output port "least" at the end of each window.
- * <p>
+ *
  * Occurrences of each tuple is counted and at the end of window any of the most frequent tuple is emitted on output port least and all least frequent
  * tuples on output port list<p>
  * This module is an end of window module<br>

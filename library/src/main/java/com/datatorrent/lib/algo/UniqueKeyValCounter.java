@@ -29,10 +29,9 @@ import com.datatorrent.lib.util.BaseUniqueKeyValueCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
 /**
- * <p>
  * This operator counts the unique occurrences of key value pairs within each window,
  * and emits a map from key value pairs to counts at the end of each window.
- * <p>
+ *
  * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple. <p>
  * This is an end of window operator<br>
  * <br>

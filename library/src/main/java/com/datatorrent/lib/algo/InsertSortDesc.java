@@ -34,9 +34,8 @@ import java.util.HashMap;
 import java.util.PriorityQueue;
 
 /**
- * <p>
  * This operator takes the values it recieves each window and outputs them in ascending order at the end of each window.
- * <p>
+ *
  * Incoming tuple is inserted into already existing sorted list in a descending order. At the end of the window the resultant sorted list is emitted on the output ports<p>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>

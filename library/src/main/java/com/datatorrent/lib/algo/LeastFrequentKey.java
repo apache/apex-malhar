@@ -26,11 +26,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseFrequentKey;
 
 /**
- * <p>
  * This operator filters the incoming stream of values by emitting the value or values (if there is a tie)
  * that occurred the fewest number of times within each window to the output port "list".&nbsp;
  * One of the values is emitted to the output port "least" at the end of each window.
- * <p>
+ *
  * Occurrences of each tuple is counted and at the end of window any of the least frequent tuple is emitted on output port 'least'
  * All keys with same least frequency value least are emitted on output port 'list'.<br>
  * This module is an end of window module<br>

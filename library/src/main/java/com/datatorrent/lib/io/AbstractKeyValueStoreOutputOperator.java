@@ -29,10 +29,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * <p>
  * This is an abstract input adapter for a key value store.
- * <p>
- *
+ * 
  * @displayName Abstract Keyval Store Input
  * @category db
  * @tags keyval, input

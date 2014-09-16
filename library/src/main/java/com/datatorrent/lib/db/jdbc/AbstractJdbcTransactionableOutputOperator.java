@@ -32,10 +32,8 @@ import com.datatorrent.api.Context;
 import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator;
 
 /**
- * <p>
  * Generic JDBC Output Adaptor which creates a transaction at the start of window.<br/>
  * Executes batches of sql updates and closes the transaction at the end of the window.
- * <p>
  *
  * <p>
  * Each tuple corresponds to an SQL update statement. The operator groups the updates in a batch

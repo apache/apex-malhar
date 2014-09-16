@@ -16,18 +16,18 @@
 package com.datatorrent.lib.logs;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.*;
 import com.datatorrent.lib.util.BaseLineTokenizer;
 import com.datatorrent.lib.util.UnifierArrayList;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * Splits String objects into tokens, and emits as ArrayList.
+ * <p>
+ * Splits String objects into tokens, and emits as an ArrayList.
+ * <p>
  * An ArrayList of all tkns are emitted on output port "tokens".
  * An ArrayList of all subtokens are emitted on port splittokens<p>
  * This module is a pass through. Ideal for applications like log processing<br>
@@ -44,17 +44,21 @@ import org.slf4j.LoggerFactory;
  * <b>splitby</b>: The characters used to split the line. Default is ";\t "<br>
  * <b>splittokenby</b>: The characters used to split a token into key,val1,val2,.... If not specified the value is set to null. Default is "", i.e. tokens are not split<br>
  *
- * <br>
+ * @displayName Line To Token (ArrayList)
+ * @category logs
+ * @tags string
  *
  * @since 0.3.2
  */
+@Stateless
+@OperatorAnnotation(partitionable=true)
 public class LineToTokenArrayList extends BaseLineTokenizer
 {
   protected transient ArrayList<String> tokentuple = null;
   protected transient ArrayList<HashMap<String, ArrayList<String>>> stokentuple = null;
   protected transient HashMap<String, ArrayList<String>> smap = null;
   protected transient ArrayList<String> vals = null;
-  
+
 	/**
 	 * Output token port.
 	 */
@@ -62,12 +66,12 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   public final transient DefaultOutputPort<ArrayList<String>> tokens = new DefaultOutputPort<ArrayList<String>>()
   {
     @Override
-    public Unifier<ArrayList<String>> getUnifier() 
+    public Unifier<ArrayList<String>> getUnifier()
     {
       return new UnifierArrayList<String>();
     }
   };
-  
+
   /**
    * Output sub tokens port.
    */
@@ -75,7 +79,7 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens = new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>()
   {
     @Override
-    public Unifier<ArrayList<HashMap<String, ArrayList<String>>>> getUnifier() 
+    public Unifier<ArrayList<HashMap<String, ArrayList<String>>>> getUnifier()
     {
       return new UnifierArrayList<HashMap<String, ArrayList<String>>>();
     }

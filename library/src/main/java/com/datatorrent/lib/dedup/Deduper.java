@@ -43,9 +43,7 @@ import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
- * <p>
  * Drops duplicate events.
- * </p>
  *
  * <p>
  * Processing of an event involves:

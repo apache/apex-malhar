@@ -27,10 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>
  * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
  * and comparing those values to a specified number.&nbsp;If a key value pair satisfies the comparison, then it is emitted.
- * <p>
+ *
  * A compare function is imposed based on the property "key", "value", and "cmp". If the tuple
  * passed the test, it is emitted on the output port match. The comparison is done by getting double
  * value from the Number. Both output ports are optional, but at least one has to be connected<p>

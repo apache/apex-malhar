@@ -27,9 +27,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 
 /**
- * <p>
  * This operator takes a stream of key value pairs each window, and outputs a set of inverted key value pairs at the end of each window.
- * <p>
+ *
  * Inverts the index and sends out the tuple on output port "index" at the end of the window<p>
  * This is an end of window operator<br>
  * <br>

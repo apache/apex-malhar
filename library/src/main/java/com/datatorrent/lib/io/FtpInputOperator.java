@@ -29,10 +29,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 
 /**
- * <p>
  * This operator emits each line as different tuple for a give file hosted on a ftp server.
- * <p>
- *
+ * 
  * <b>Ports</b>:<br>
  * <b>outport</b>: emits &lt;String&gt;<br>
  * <br>

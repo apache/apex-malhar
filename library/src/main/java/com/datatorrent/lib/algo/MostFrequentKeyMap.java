@@ -28,11 +28,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>
  * This operator filters the incoming stream of key value pairs by finding the key or keys (if there is a tie)
  * that occur the largest number of times within each window.&nbsp;
  * A list of the corresponding key value pairs are then output to the port named "list" and one of the corresponding key value pairs is output to the port "most", at the end of each window.
- * <p>
+ *
  * Occurrences of each key is counted and at the end of window any of the most frequent key is emitted on output port least and all least frequent
  * keys on output port list<p>
  * This module is an end of window module. In case of a tie any of the least key would be emitted. The list port would however have all the tied keys<br>

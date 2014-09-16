@@ -25,10 +25,9 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * <p>
  * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
  * At the end of each window each key, its count of unique values, and its set of unique values is emitted.
- * <p>
+ *
  * Counts no. of unique values of a key within a window.<br>
  * Emits {@link InternalCountOutput} which contains the key, count of its unique values
  * and also the set of values.<br>

@@ -16,9 +16,8 @@
 package com.datatorrent.lib.db;
 
 /**
- * <p>
  * This abstract class is intended for pass-through output adapter of any transactional key value store that wants the "transactional exactly once" feature.
- * <p>
+ *
  * "Pass-through" means it does not wait for end window to write to the store. It will begin transaction at begin window and write to the store as the tuples
  * come and commit the transaction at end window.
  *

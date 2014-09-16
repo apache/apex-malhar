@@ -8,10 +8,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
- * <p>
  * This unifier is used by the LeastFrequentKey operator in order to merge the output of the "least" output port.
- * <p>
- *
+ * 
  * @displayName Emit Least Frequent Key Unifier
  * @category algorithm
  * @tags filter, keyval, count

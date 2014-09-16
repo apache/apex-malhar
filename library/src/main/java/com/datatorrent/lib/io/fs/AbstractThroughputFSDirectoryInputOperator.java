@@ -23,11 +23,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>
  * This is an abstract input operator, which scans a directory for files.&nbsp;
  * Files are then read and split into tuples, which are emitted.&nbsp;
  * This operator is partitioned base on the number of files which remain to be processed.
- * <p>
+ *
  * Provides the same functionality as the AbstractFSDirectoryInputOperator
  * except that this utilized dynamic partitioning where the user can set the
  * preferred number of pending files per operator as well as the max number of

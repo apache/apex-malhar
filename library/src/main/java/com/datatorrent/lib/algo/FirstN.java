@@ -26,9 +26,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
 
 /**
- * <p>
  * This operator filters the incoming stream of key value pairs by emitting the first N key value pairs with a specified key in each window.
- * <p>
+ * 
  * Emits first N tuples of a particular key.<p>
  * This module is a pass through module<br>
  * <br>

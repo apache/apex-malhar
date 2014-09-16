@@ -31,9 +31,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 
 /**
- * <p>
  * This operator reads tuples of a specified byte size from an hdfs text file.
- * <p>
  *
  * @displayName HDFS Byte File Input
  * @category io
