@@ -123,8 +123,8 @@ import java.util.List;
  *
  *    a1,a2:b1,b2|c1,c2:d1,d2|e1,e2,e3:f1
  *
- * @displayName:Abstract XML Cartesian Product,
- * @category:lib.math,
+ * @displayName: Abstract XML Cartesian Product,
+ * @category: lib.math,
  * @tag: cartesian product, xml, multiple products, document
  * @since 1.0.1
  */

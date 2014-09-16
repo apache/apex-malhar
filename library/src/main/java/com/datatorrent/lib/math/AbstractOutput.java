@@ -24,8 +24,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *  <p>
  *  Duplicate port declaration in operators.
  *
- * @displayName:Abstract Output,
- * @category:lib.math,
+ * @displayName: Abstract Output,
+ * @category: lib.math,
  * @tag: output, multiple datatype
  * @since 0.3.3
  */

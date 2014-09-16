@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * Calculate simple moving average (SMA) of last N window. <br>
+ * Calculates simple moving average (SMA) of last N window. <br>
  * <br>
  * <b>StateFull : Yes</b>, operator store values  for n-1 th windows. <br>
  * <b>Partitions : No</b>, sum is not unified on output ports. <br>
@@ -38,7 +38,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Properties</b>:<br>
  * <b>windowSize</b>: Number of windows to keep state on<br>
  * <br>
- *
+ * @displayName: Simple Moving Average
+ * @category: lib.multiwindow,
+ * @tag: Key Value, End of Window, Number, Average
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

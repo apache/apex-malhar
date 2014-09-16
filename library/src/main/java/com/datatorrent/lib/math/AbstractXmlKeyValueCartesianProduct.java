@@ -22,8 +22,8 @@ import org.w3c.dom.NodeList;
  * This operator extends the AbstractXmlCartesianProduct operator and implements the node value 
  * as a key value pair of node name and the node's text value.
  * 
- * @displayName:Abstract XML KeyValue Cartesian Product,
- * @category:lib.math,
+ * @displayName: Abstract XML KeyValue Cartesian Product,
+ * @category: lib.math,
  * @tag: cartesian product, xml, multiple products, key value
  * @since 1.0.1
  */

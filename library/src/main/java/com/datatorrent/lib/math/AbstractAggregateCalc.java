@@ -41,8 +41,8 @@ import java.util.Collection;
  * <b>longResult</b>: emits Long<br>
  * <br>
  * 
- * @displayName:Abstract Aggregate Calculator,
- * @category:lib.math,
+ * @displayName: Abstract Aggregate Calculator,
+ * @category: lib.math,
  * @tag: aggregate, collection
  * @since 0.3.3
  */
