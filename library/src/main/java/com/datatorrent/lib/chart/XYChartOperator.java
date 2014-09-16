@@ -25,7 +25,13 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * This is the base class for all chart operators that draw charts that have two axes
+ * <p>
+ * This is the base class for all chart operators that draw charts that have two axes.
+ * <p>
+ *
+ * @displayName Abstract XY Chart
+ * @category chart
+ * @tags output
  *
  * @param <K> The type for the key
  * @param <X> The type for the data points on the x-axis
