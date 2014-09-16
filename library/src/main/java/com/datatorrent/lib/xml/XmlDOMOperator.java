@@ -21,7 +21,7 @@ package com.datatorrent.lib.xml;
  * the tuple to the extending operator for processing.
  * <p>
  *
- * @displayName Abstract Xml DOM Operator
+ * @displayName XML DOM Operator
  * @category xml
  * @tags
  *

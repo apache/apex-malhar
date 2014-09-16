@@ -32,7 +32,7 @@ import javax.xml.parsers.ParserConfigurationException;
  * the tuple to the extending operator for processing.
  * <p>
  *
- * @displayName Abstract Xml DOM Operator
+ * @displayName Abstract XML DOM Operator
  * @category xml
  * @tags
  *
