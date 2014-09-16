@@ -17,15 +17,18 @@ package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.*;
 import com.datatorrent.lib.util.BaseMatchOperator;
 import com.datatorrent.lib.util.UnifierHashMap;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * <p>
+ * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
+ * and comparing those values to a specified number.&nbsp;
+ * If a key value pair satisfies the comparison, then it is emitted.
+ * <p>
  * A compare function is imposed based on the property "key", "value", and "cmp". If the tuple
  * passed the test, it is emitted on the output port "match". The comparison is done by getting double
  * value from the Number. Both output ports are optional, but at least one has to be connected<p>
@@ -49,8 +52,14 @@ import java.util.Map;
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
  *
+ * @displayName Emit Matching Keyval Pairs (String)
+ * @category algorithm
+ * @tags filter, keyval
+ *
  * @since 0.3.2
  */
+@Stateless
+@OperatorAnnotation(partitionable = true)
 public class MatchStringMap<K> extends BaseMatchOperator<K,String>
 {
   @InputPortFieldAnnotation(name = "data")

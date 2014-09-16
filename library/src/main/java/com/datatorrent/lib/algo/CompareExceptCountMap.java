@@ -18,11 +18,14 @@ package com.datatorrent.lib.algo;
 import java.util.Map;
 
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
- *
+ * <p>
+ * This operator produces a count of how many tuples of value type Number satisfy a specified compare function.
+ * <p>
  * A count is done on how many tuples of value type Number satisfy the compare function. The function is given by
  * "key", "value", and "cmp". If a tuple passed the test count is incremented. On end of window count is emitted on the output port "count".
  * The comparison is done by getting double value from the Number.<p>
@@ -48,8 +51,14 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
  *
+ * @displayName Count All Who Don't Compare Generic
+ * @category algorithm
+ * @tags count, keyval
+ *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
 {
   /**

@@ -23,6 +23,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
 
 /**
+ * <p>
+ * This operator takes an input stream of key value pairs,
+ * orders them by key, and the bottom N of the ordered unique tuples per key are emitted on port "top" at the end of window.
+ * <p>
  * Input stream of key value pairs are ordered by key, and bottom N of the ordered unique tuples per key are emitted on
  * port "top" at the end of window<p>
  * This is an end of window module<br>
@@ -36,6 +40,10 @@ import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
  * <br>
  * <b>Specific compile time checks are</b>:<br>
  * N: Has to be >= 1<br>
+ *
+ * @displayName Bottom N Unifier Map
+ * @category algorithm
+ * @tags filter, rank, unique, keyval
  *
  * @since 0.3.3
  */

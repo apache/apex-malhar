@@ -16,12 +16,16 @@
 package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseFrequentKeyValueMap;
 import java.util.HashMap;
 
 /**
- *
+ * <p>
+ * This operator filters the incoming stream of key value pairs by finding the value or values (if there is a tie), for each key, that occur the largest number of times within each window.&nbsp;
+ * Each key and its corresponding least values are emitted at the end of each window.
+ * <p>
  * Occurrences of all values for each key is counted and at the end of window the most frequent values are emitted on output port least per key<p>
  * This module is an end of window module<br>
  * <br>
@@ -59,8 +63,14 @@ import java.util.HashMap;
  * <br>
  * <br>
  *
+ * @displayName Emit Most Frequent Keyval Pair
+ * @category algorithm
+ * @tags filter, keyval, count
+ *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = false)
 public class MostFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueMap<K, V>
 {
   @OutputPortFieldAnnotation(name = "most")

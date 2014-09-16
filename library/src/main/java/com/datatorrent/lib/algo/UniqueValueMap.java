@@ -22,11 +22,16 @@ import java.util.Map;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyOperator;
 import com.datatorrent.lib.util.UnifierHashMap;
 
 /**
+ * <p>
+ * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
+ * At the end of each window each key/unique count pair is emitted.
+ * <p>
  * Count unique occurrences of vals for every key within a window, and emits Key,Integer pairs tuple.<p>
  * This is an end of window operator. It uses sticky key partition and default unifier<br>
  * <br>
@@ -38,8 +43,13 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * <b>count</b>: emits HashMap&lt;K,Integer&gt;<br>
  * <br>
  *
+ * @displayName Count Unique Values Per Key (Map)
+ * @category algorithm
+ * @tags count, keyval
+ *
  * @since 0.3.2
  */
+@OperatorAnnotation(partitionable = true)
 public class UniqueValueMap<K> extends BaseKeyOperator<K>
 {
   @InputPortFieldAnnotation(name = "data")

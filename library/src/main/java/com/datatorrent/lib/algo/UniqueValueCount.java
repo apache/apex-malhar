@@ -16,15 +16,19 @@
 package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.*;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.KeyValPair;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * <p>
+ * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
+ * At the end of each window each key, its count of unique values, and its set of unique values is emitted.
+ * <p>
  * Counts no. of unique values of a key within a window.<br>
  * Emits {@link InternalCountOutput} which contains the key, count of its unique values
  * and also the set of values.<br>
@@ -35,9 +39,16 @@ import java.util.Set;
  * Stateful: no<br>
  * <br></br>
  *
+ * @displayName Unique Values Per Key
+ * @category algorithm
+ * @tags count, keyval
+ *
  * @param <K>Type of Key objects</K>
  * @since 0.3.5
  */
+
+@Stateless
+@OperatorAnnotation(partitionable = true)
 public class UniqueValueCount<K> extends BaseOperator {
 
     private final Map<K,Set<Object>>  interimUniqueValues;
@@ -149,4 +160,4 @@ public class UniqueValueCount<K> extends BaseOperator {
         public void teardown() {
         }
     }
-}	
+}

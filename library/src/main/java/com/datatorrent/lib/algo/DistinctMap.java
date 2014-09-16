@@ -18,6 +18,7 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 import com.datatorrent.lib.util.UnifierHashMap;
@@ -26,6 +27,9 @@ import java.util.Map;
 
 /**
  *
+ * <p>
+ * This operator computes and emits distinct key,val pairs (i.e drops duplicates).
+ * <p>
  * Computes and emits distinct key,val pairs (i.e drops duplicates)<p>
  * This is a pass through operator<br>
  * <br>
@@ -39,8 +43,14 @@ import java.util.Map;
  * <b>distinct</b>: Output data port, emits HashMap&lt;K,V&gt;(1)<br>
  * <br>
  *
+ * @displayName Emit Distinct Keyval Pairs
+ * @category algorithm
+ * @tags filter, unique, keyval
+ *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
 {
   @InputPortFieldAnnotation(name = "data")

@@ -27,6 +27,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseSortOperator;
 
 /**
+ * <p>
+ * This operator takes the values it recieves each window and outputs them in ascending order at the end of each window.
+ * <p>
  * Takes a stream of key value pairs via input port "data". The incoming tuple
  * is merged into already existing sorted list. At the end of the window the
  * entire sorted list is emitted on output port "sort"
@@ -40,6 +43,10 @@ import com.datatorrent.lib.util.AbstractBaseSortOperator;
  * <b>datalist</b>: expects ArrayList&lt;K&gt;<br>
  * <b>sortlist</b>: emits ArrayList&lt;K&gt;, must be connected<br>
  * <br>
+ *
+ * @displayName Sort Ascending
+ * @category algorithm
+ * @tags rank
  *
  * @since 0.3.3
  */

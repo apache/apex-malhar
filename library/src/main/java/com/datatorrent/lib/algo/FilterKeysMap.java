@@ -18,6 +18,7 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyOperator;
@@ -27,7 +28,9 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- *
+ * <p>
+ * This operator filters the incoming stream of key value pairs based on the keys specified by property "keys"..
+ * <p>
  * Filters the incoming stream based of keys specified by property "keys". If
  * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted<p>
  * Operator assumes that the key, val pairs are immutable objects. If this operator has to be used for mutable objects,
@@ -45,9 +48,14 @@ import javax.validation.constraints.NotNull;
  * <b>keys</b>: The keys to pass through, rest are filtered/dropped. A comma separated list of keys<br>
  * <br>
  *
+ * @displayName Filter Keyval Pairs By Key Generic
+ * @category algorithm
+ * @tags filter, keyval
+ *
  * @since 0.3.2
  */
 @Stateless
+@OperatorAnnotation(partitionable = true)
 public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
 {
   /**
@@ -55,12 +63,12 @@ public class FilterKeysMap<K,V> extends BaseKeyOperator<K>
    */
   @NotNull()
   HashMap<K, V> keys = new HashMap<K, V>();
-  
+
   /**
    * Emits key not in filter map.
    */
   boolean inverse = false;
-  
+
   /**
    * Input port.
    */
