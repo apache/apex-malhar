@@ -23,11 +23,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * Writes tuples to stdout of the container<p>
- * <br>
+ * <p>
+ * Writes tuples to stdout of the container.
+ * <p>
  * Mainly to be used for debugging. Users should be careful to not have this node listen to a high throughput stream<br>
  * <br>
+ *
+ * @displayName Console Output
+ * @category io
+ * @tags output
  *
  * @since 0.3.2
  */
@@ -57,7 +61,7 @@ public class ConsoleOutputOperator extends BaseOperator
     }
   };
   public boolean silent = false;
-  
+
   /**
    * @return the silent
    */

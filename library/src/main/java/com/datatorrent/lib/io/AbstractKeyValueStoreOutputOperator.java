@@ -29,7 +29,13 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * Input adapter for storing in coming data tuples in in data hash map.
+ * <p>
+ * This is an abstract input adapter for a key value store.
+ * <p>
+ *
+ * @displayName Abstract Keyval Store Input
+ * @category db
+ * @tags keyval, input
  *
  * @since 0.3.2
  */

@@ -20,7 +20,13 @@ import javax.ws.rs.core.MultivaluedMap;
 import com.sun.jersey.api.client.WebResource;
 
 /**
- * Abstract Http get operator to get multi valued map from incoming tuple and create the web resource with query params
+ * <p>
+ * Abstract Http get operator to get multi valued map from incoming tuple and create the web resource with query params.
+ * <p>
+ *
+ * @displayName Abstract Http Multivalued Query Input
+ * @category io
+ * @tags http, input
  *
  * @param <INPUT>
  * @param <OUTPUT>

@@ -24,14 +24,18 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- *
- * Writes tuples to standard out of the container
+ * <p>
+ * This operator writes tuples which are maps to standard out of the container.
  * <p>
  * This is for specific use case for map where I want to print each key value
  * pair in different line <br>
  * Mainly to be used for debugging. Users should be careful to not have this
  * node listen to a high throughput stream<br>
  * <br>
+ *
+ * @displayName Map Console Output
+ * @category io
+ * @tags output
  *
  * @since 0.3.4
  */
