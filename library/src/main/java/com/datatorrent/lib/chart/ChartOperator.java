@@ -19,7 +19,13 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
- * This is the base class for all chart operators
+ * <p>
+ * This is an abstract base class for charting operators.
+ * <p>
+ *
+ * @displayName Abstract Chart
+ * @category chart
+ * @tags output
  *
  * @since 0.3.2
  */

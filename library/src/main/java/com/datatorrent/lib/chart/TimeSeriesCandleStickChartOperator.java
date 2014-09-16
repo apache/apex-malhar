@@ -22,7 +22,15 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
+ * <p>
+ * This is a chart operator that produces a candlestick plot out of values.
+ * <p>
+ *
  * This is the chart operator that plots the candle stick of Y for each window.  X will be based on the timestamp derived from the window id
+ *
+ * @displayName This is a chart operator that produces a candlestick plot out of values.
+ * @category chart
+ * @tags output
  *
  * @param <K> The type of the key
  * @since 0.3.2

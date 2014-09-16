@@ -22,7 +22,14 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
+ * <p>
+ * This is a chart operator that plots the average value for each window.
+ * <p>
  * This is the chart operator that plots the average (mean) value of Y for each window.  X will be based on the timestamp derived from the window id
+ *
+ * @displayName Time Series Average Chart Operator
+ * @category chart
+ * @tags output
  *
  * @param <K> The type of the key
  * @since 0.3.2
