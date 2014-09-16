@@ -24,11 +24,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * A compare opertion is done based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "compare". If the tuple fails it is emitted on port "except". The comparison is done by getting double
- * value from the Number. Both output ports are optional, but at least one has to be connected<p>
- *  * This module is a pass through<br>
+ * A compare operation is done based on the property "key", "value", and "compare".&nbsp; 
+ * If the tuple passed the test, it is emitted on the output port "compare".&nbsp; 
+ * If the tuple fails it is emitted on port "except".&nbsp; The comparison is done by getting double value from the Number.
+ * <p>
+ * Both output ports are optional, but at least one has to be connected.
+ * This module is a pass through<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,V&gt;<br>
@@ -70,7 +71,9 @@ import java.util.Map;
  * </table>
  * <br>
  * <br>
- *
+ * @displayname: Compare Except Map
+ * @category: lib.math
+ * @tags: comparison, key value, number, HashMap
  * @since 0.3.2
  */
 @Stateless

@@ -24,8 +24,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  *<p>
- * Emits at end of window maximum of all values sub-classed from Number in the incoming stream. <br>
- * <br>
+ * This operator emits maximum of all values sub-classed from Number at end of window in the incoming stream. <br>
  * <b>StateFull :</b> Yes, max value is determined during application window, can be more than 1. <br>
  * <b>Partitions : </b>Yes, operator itself is used as unifier at output port. <br>
  * <br>
@@ -33,7 +32,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>data</b>: expects V extends Number<br>
  * <b>max</b>: emits V extends Number<br>
  * <br>
- *
+ * @displayname: Maximum
+ * @category: lib.math
+ * @tags: Maximum, Number
  * @since 0.3.2
  */
 public class Max<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>

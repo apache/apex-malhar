@@ -28,7 +28,8 @@ import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
  * <p>
- * Emits the sum of values at the end of window. <br>
+ * Emits the sum of values at the end of window. 
+ * <p>
  * This is an end of window operator. Application can turn this into accumulated
  * sum operator by setting cumulative flag to true. <br>
  * <b>StateFull : Yes</b>, sum is computed over application window >= 1. <br>
@@ -46,7 +47,9 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * <b>Properties: </b> <br>
  * <b>cumulative </b> Sum has to be cumulative. <br>
  * <br>
- *
+ * @displayname: Sum
+ * @category: lib.math
+ * @tags:  Number, Sum, End of Window
  * @param <V>
  *          Generic number type parameter. <br>
  * @since 0.3.3

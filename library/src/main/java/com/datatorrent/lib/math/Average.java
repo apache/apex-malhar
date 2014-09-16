@@ -36,7 +36,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
- *
+ * @displayname: Average
+ * @category: lib.math
+ * @tags: average, number, end window
  * @since 0.3.3
  */
 public class Average<V extends Number> extends BaseNumberValueOperator<V>

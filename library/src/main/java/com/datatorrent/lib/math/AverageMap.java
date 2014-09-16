@@ -46,7 +46,9 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <br>
- *
+ * @displayname: Average Map
+ * @category: lib.math
+ * @tags: average, number, end window, key value, aggregate
  * @since 0.3.3
  */
 public class AverageMap<K, V extends Number> extends

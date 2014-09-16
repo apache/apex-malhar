@@ -20,9 +20,13 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- *  Abstract base operator defining optional double/float/long/integer output ports.  <br>
- *  Duplicate port declaration in operators. <br>
+ * Abstract base operator defining optional double/float/long/integer output port.
+ *  <p>
+ *  Duplicate port declaration in operators.
  *
+ * @displayName:Abstract Output,
+ * @category:lib.math,
+ * @tag: output, multiple datatype
  * @since 0.3.3
  */
 public abstract class AbstractOutput extends BaseOperator

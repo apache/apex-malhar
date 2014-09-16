@@ -23,8 +23,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
- * Emits at end of window minimum of all values sub-classed from Number in the incoming stream. <br>
- * <br>
+ * This operator emits at end of window minimum of all values sub-classed from Number in the incoming stream <br>
+ * <p>
  * <b>StateFull :</b>Yes, min value is computed over application windows. <br>
  * <b>Partitions :</b>Yes, operator is kin unifier operator. <br>
  * <br>
@@ -33,7 +33,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>min</b>: emits V extends Number<br>
  * <br>
  * <br>
- *
+ * @displayname: Minimum
+ * @category: lib.math
+ * @tags: Minimum, Number
  * @since 0.3.2
  */
 public class Min<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>

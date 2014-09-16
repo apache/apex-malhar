@@ -19,9 +19,11 @@ import com.datatorrent.api.annotation.Stateless;
 
 /**
  *
- * Emits the result of square of the input tuple (Number).<br>
+ * Emits the result of square of the input tuple (Number).&nbsp;
  * Emits the result as Long on port longResult, as Integer on port integerResult,
- * as Double on port doubleResult, and as Float on port floatResult. This is a pass through operator<p>
+ * as Double on port doubleResult, and as Float on port floatResult.
+ * <p>
+ * This is a pass through operator
  * <br>
  * <b>Ports</b>:<br>
  * <b>input</b>: expects Number<br>
@@ -30,7 +32,9 @@ import com.datatorrent.api.annotation.Stateless;
  * <b>doubleResult</b>: emits Double<br>
  * <b>floatResult</b>: emits Float<br>
  * <br>
- *
+ * @displayname: Square Calculus
+ * @category: lib.math
+ * @tags:  Number, Square, Multiplication
  * @since 0.3.3
  */
 @Stateless

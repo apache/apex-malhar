@@ -29,10 +29,10 @@ import org.apache.commons.lang.mutable.MutableLong;
 /**
  *
  * Emits the average of values for each key at the end of window.
+ * <p>
  * <br>User can block or only enable certain keys by setting filter-keys/inverse operator properties.
  * <br> Block Key : inverse=true
  * <br> Enable Key : inverse=false
- * <p>
  * This is an end window operator. This can not be partitioned. Partitioning
  * this will yield incorrect result.<br>
  * <br>
@@ -48,7 +48,9 @@ import org.apache.commons.lang.mutable.MutableLong;
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
- *
+ * @displayname: Average Key Value
+ * @category: lib.math
+ * @tags: average, number, end window, key value
  * @since 0.3.3
  */
 public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>

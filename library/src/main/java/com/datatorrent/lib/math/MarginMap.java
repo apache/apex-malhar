@@ -28,8 +28,8 @@ import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  *
- * Adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin for each key
- * (1 - numerator/denominator). <p>
+ * This operator adds all values for each key in "numerator" and "denominator", and at the end of window emits the margin for each key.Margin is calculated as  1 - SUM(numerator)/SUM(denominator).
+ * <p>
  * <br>The values are added for each key within the window and for each stream.<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -41,7 +41,9 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayname: Margin Map
+ * @category: lib.math
+ * @tags: sum, division, Number, Map, MutableDouble
  * @since 0.3.2
  */
 public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>

@@ -28,8 +28,8 @@ import com.datatorrent.lib.util.UnifierHashMapRange;
 
 /**
  * <p>
- * Emits the range for each key at the end of window. <br>
- * Application can allow or block keys by setting filter keys and inverse flag. <br>
+ * Emits the range for each key at the end of window.&nbsp; Application can allow or block keys by setting filter keys and inverse flag 
+ * <br>
  * <br>
  * <b>StateFull : Yes</b>, values are computed over application window. <br>
  * <b>Partitions : Yes</b>, values are unified at output port. <br>
@@ -42,7 +42,9 @@ import com.datatorrent.lib.util.UnifierHashMapRange;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayname: Range Map
+ * @category: lib.math
+ * @tags: Range, Number, Comparison, Map
  * @since 0.3.2
  */
 public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>

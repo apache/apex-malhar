@@ -28,11 +28,10 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * <p/>
- * <br>Operator takes input from two ports - data and base. It stores kay/value pairs arriving at base
- * port in <code>basemap</code> across the windows.</br>
- * <br>The key/value pairs that arrive at data port are compared with base value if the key exists in the <code>basemap</code>.</br>
- * <br>Change value/percent are emitted on separate ports.</br>
+ * Operator takes input from two ports - data and base.&nbsp; 
+ * It stores &lt;key,value&gt; pairs arriving at base port in hash map across the windows.&nbsp;
+ * The &lt;key,value&gt; pairs that arrive at data port are compared with base value if the key exists in the hash map.&nbsp;
+ * Change value and percentage are emitted on separate ports.
  * <p/>
  * StateFull : Yes, base map values are stored across windows. <br>
  * Partitions : Yes, values on the base port are replicated across all partitions. However the order of tuples on the
@@ -49,6 +48,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  *
+ * @displayname: Change Key Value
+ * @category: lib.math
+ * @tags: change, key value, MutableDouble
  * @since 0.3.3
  */
 public class ChangeKeyVal<K, V extends Number> extends

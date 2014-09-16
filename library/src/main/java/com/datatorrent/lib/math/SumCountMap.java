@@ -30,6 +30,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 /**
  * <p>
  * Emits the sum, and count of values for each key at the end of window.
+ * <p>
  * Application accumulate sum across streaming window by setting cumulative flag
  * to true. <br>
  * This is an end of window operator<br>
@@ -50,7 +51,9 @@ import org.apache.commons.lang.mutable.MutableInt;
  * window, <br>
  * hence generating cumulative sum across streaming windows. Default is false.<br>
  * <br>
- *
+ * @displayname: Sum Count Map
+ * @category: lib.math
+ * @tags:  Number, Sum, Counting, Map, MutableInt, MutableDouble, End Of Window
  * @since 0.3.3
  */
 public class SumCountMap<K, V extends Number> extends

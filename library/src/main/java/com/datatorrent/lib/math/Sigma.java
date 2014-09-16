@@ -20,15 +20,10 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import java.util.Collection;
 
 /**
- *
- * Adds incoming tuple to the state. This is a stateful operator that never
- * flushes its state; i.e. the addition would go on forever. The result of each
- * addition is emitted on the four ports, namely \"doubleResult\",
- * \"floatResult\", \"integerResult\", \"longResult\". Input tuple object has to
- * be an implementation of the interface Collection&lt;T&gt;. Tuples are emitted
- * on the output ports only if they are connected. This is done to avoid the
- * cost of calling the functions when some ports are not connected.
+ * Adds incoming tuple to the state.&nbsp; The addition would go on forever.&nbsp; The result of each addition is emitted on the four different data type ports:floatResult,integerResult,longResult,doubleResult.
  * <p>
+ * Input tuple object has to be an implementation of the interface Collection.Tuples are emitted on the output ports only if they are connected. 
+ * This is done to avoid the cost of calling the functions when some ports are not connected.
  * This is a stateful pass through operator<br>
  * <b>Partitions : </b>, no will yield wrong results, no unifier on output port.
  * <br>
@@ -39,7 +34,9 @@ import java.util.Collection;
  * <b>integerResult</b>: emits Integer<br>
  * <b>longResult</b>: emits Long<br>
  * <br>
- *
+ * @displayname: Sigma
+ * @category: lib.math
+ * @tags: Aggregate, Number, Collection
  * @param <T>
  * @since 0.3.3
  */

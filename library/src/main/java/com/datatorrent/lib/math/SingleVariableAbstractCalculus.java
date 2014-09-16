@@ -19,8 +19,9 @@ import com.datatorrent.api.DefaultInputPort;
 
 /**
  * <p>
- * Abstract class that output of function(input_tuple). Emits the result as Long on port \"longResult\", as Integer on port \"integerResult\",
- * as Double on port \"doubleResult\", and as Float on port \"floatResult\". This is a pass through operator<br>
+ * Transforms the input into the output after applying appropriate mathematical function to it.Emits the result as Long on port "longResult", as Integer on port "integerResult",as Double on port "doubleResult", and as Float on port "floatResult". 
+ * <p>
+ * This is a pass through operator<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>input</b>: expects Number<br>
@@ -28,7 +29,10 @@ import com.datatorrent.api.DefaultInputPort;
  * <b>integerResult</b>: emits Integer<br>
  * <b>doubleResult</b>: emits Double<br>
  * <b>floatResult</b>: emits Float<br>
- *
+ * @displayname: Single Variable Abstract Calculus
+ * @category: lib.math
+ * @tags:  Number, Single Variable
+ * @param <T>
  * @since 0.3.2
  */
 public abstract class SingleVariableAbstractCalculus extends AbstractOutput
