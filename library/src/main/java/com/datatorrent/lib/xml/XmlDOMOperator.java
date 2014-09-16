@@ -16,8 +16,14 @@
 package com.datatorrent.lib.xml;
 
 /**
- * The class is deprecated and provided temporarily for backwards compatibility with earlier release. It will be removed
- * in the next release. Use AbstractXmlDOMOperator instead.
+ * <p>
+ * This is an abstract operator, which parses incoming tuples using the Java XML DOM parser and passes the resultant Document object along with
+ * the tuple to the extending operator for processing.
+ * <p>
+ *
+ * @displayName Abstract Xml DOM Operator
+ * @category xml
+ * @tags
  *
  * @since 1.0.4
  * @deprecated

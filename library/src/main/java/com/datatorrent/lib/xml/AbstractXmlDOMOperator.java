@@ -27,10 +27,14 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 /**
- * Operator that provides XML DOM parsing functionality.
- *
- * The operator parses incoming tuple using the Java XML DOM parser and passes the resultant Document object along with
+ * <p>
+ * This is an abstract operator, which parses incoming tuples using the Java XML DOM parser and passes the resultant Document object along with
  * the tuple to the extending operator for processing.
+ * <p>
+ *
+ * @displayName Abstract Xml DOM Operator
+ * @category xml
+ * @tags
  *
  * @since 1.0.2
  */
