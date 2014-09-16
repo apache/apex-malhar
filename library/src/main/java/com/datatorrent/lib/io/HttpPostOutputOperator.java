@@ -26,11 +26,15 @@ import org.codehaus.jettison.json.JSONObject;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- *
- * Sends tuple as POST with JSON content to the given URL<p>
- * <br>
+ * <p>
+ * Sends tuple as POST with JSON content to the given URL.
+ * <p>
  * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
  * <br>
+ *
+ * @displayName Http Output
+ * @category io
+ * @tags http, output
  *
  * @param <T>
  * @since 0.3.2

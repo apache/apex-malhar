@@ -27,7 +27,13 @@ import com.datatorrent.lib.util.PubSubMessageCodec;
 import com.datatorrent.lib.util.PubSubWebSocketClient;
 
 /**
- * <p>PubSubWebSocketInputOperator class.</p>
+ * <p>
+ * This operator reads JSON objects from the given URL and converts them into maps.
+ * <p>
+ *
+ * @displayName Pub Sub Web Socket Input
+ * @category io
+ * @tags http, input
  *
  * @since 0.3.2
  */

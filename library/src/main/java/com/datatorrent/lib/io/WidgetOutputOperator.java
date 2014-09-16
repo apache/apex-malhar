@@ -39,7 +39,9 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import java.lang.reflect.Array;
 
 /**
- * This is an Output operator output the data in a format that can be displayed in DT UI widgets<br><br>
+ * <p>
+ * This operator outputs data in a format that can be displayed in DT UI widgets.
+ * <p>
  *
  * There are 4 input ports each of which is compatible to one widget
  *  <li>simpleInput is used for simple input widget. It takes any object and push the toString() value to the UI</li>
@@ -49,6 +51,10 @@ import java.lang.reflect.Array;
  *
  *  By default it outputs data to WebSocket channel specified by DT gateway.<br>
  *  If DT gateway is not specified, it will use output data to console.
+ *
+ * @displayName DT Widget Output
+ * @category io
+ * @tags dt, output
  *
  * @since 0.9.3
  */
