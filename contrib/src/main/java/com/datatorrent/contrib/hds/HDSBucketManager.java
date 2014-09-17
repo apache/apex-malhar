@@ -344,8 +344,8 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
     // delete old files
     for (String fileName : filesToDelete) {
       store.delete(bucket.bucketKey, fileName);
-      invalidateReader(bucket.bucketKey, fileName);
     }
+    invalidateReader(bucket.bucketKey, filesToDelete);
 
     WalMeta walMeta = getWalMeta(bucket.bucketKey);
     walMeta.tailId = bucket.tailId;
