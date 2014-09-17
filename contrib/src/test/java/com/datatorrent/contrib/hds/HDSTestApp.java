@@ -61,7 +61,7 @@ public class HDSTestApp implements StreamingApplication
     Generator generator = dag.addOperator("Generator", new Generator());
     HDSOperator store = dag.addOperator("Store", new HDSOperator());
     store.setFileStore(new MockFileAccess());
-    dag.addStream("Generator2Store", generator.output, store.data);
+    dag.addStream("Generator2Store", generator.output, store.input);
   }
 
   @Test
