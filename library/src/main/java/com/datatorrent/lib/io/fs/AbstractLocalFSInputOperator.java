@@ -22,12 +22,11 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * This is an abstract input operator, which reads tuples from a file on the local file system.
- *
- * <br>
+ * <p>
  * Extends AbstractInputAdapter<br>
  * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
  * <br>
- *
+ * </p>
  * @displayName Local FS File Input
  * @category io
  * @tags local fs, file, input

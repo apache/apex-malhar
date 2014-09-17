@@ -27,8 +27,10 @@ import java.util.Map;
 
 /**
  * This operator computes and emits distinct key,val pairs (i.e drops duplicates).
- * 
- * Computes and emits distinct key,val pairs (i.e drops duplicates)<p>
+ * <p>
+ * Computes and emits distinct key,val pairs (i.e drops duplicates)
+ * </p>
+ * <p>
  * This is a pass through operator<br>
  * <br>
  * This module is same as a "FirstOf" metric on any key,val pair. At end of window all data is flushed.<br>
@@ -40,10 +42,11 @@ import java.util.Map;
  * <b>data</b>: Input data port expects Map&lt;K,V&gt;<br>
  * <b>distinct</b>: Output data port, emits HashMap&lt;K,V&gt;(1)<br>
  * <br>
+ * </p>
  *
  * @displayName Emit Distinct Keyval Pairs
  * @category algorithm
- * @tags filter, unique, keyval
+ * @tags filter, unique, key value
  *
  * @since 0.3.2
  */

@@ -40,7 +40,7 @@ import java.lang.reflect.Array;
 
 /**
  * This operator outputs data in a format that can be displayed in DT UI widgets.
- * 
+ * <p>
  * There are 4 input ports each of which is compatible to one widget
  *  <li>simpleInput is used for simple input widget. It takes any object and push the toString() value to the UI</li>
  *  <li>timeSeriesInput is used for a widget of bar chart of series number values at certain times. It takes a Long for time and a Number for value </li>
@@ -49,7 +49,7 @@ import java.lang.reflect.Array;
  *
  *  By default it outputs data to WebSocket channel specified by DT gateway.<br>
  *  If DT gateway is not specified, it will use output data to console.
- *
+ * </p>
  * @displayName DT Widget Output
  * @category io
  * @tags dt, output

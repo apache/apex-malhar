@@ -21,7 +21,7 @@ import org.apache.hadoop.fs.Path;
 
 /**
  * This is an abstract output operator, which writes tuples to hdfs files on a size rolling basis.
- *
+ * <p>
  * Serializes tuples into a HDFS file<br>
  * Tuples are written to a single HDFS file or multiple HDFS files, with the option to specify size based file rolling,
  * using place holders in the file path pattern.<br>

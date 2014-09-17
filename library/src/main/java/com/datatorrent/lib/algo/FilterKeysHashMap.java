@@ -29,9 +29,11 @@ import javax.validation.constraints.NotNull;
 
 /**
  * This operator filters the incoming stream of key value pairs based on the keys specified by property "keys".
- * 
+ * <p>
  * Filters the incoming stream based of keys specified by property "keys". If
- * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted<p>
+ * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted
+ * </p>
+ * <p>
  * Operator assumes that the key, val pairs are immutable objects. If this operator has to be used for mutable objects,
  * override "cloneKey()" to make copy of K, and "cloneValue()" to make copy of V.<br>
  * This is a pass through node.<br>
@@ -46,10 +48,11 @@ import javax.validation.constraints.NotNull;
  * <b>Properties</b>:<br>
  * <b>keys</b>: The keys to pass through, rest are filtered/dropped. A comma separated list of keys.<br>
  * <br>
+ * </p>
  *
  * @displayName Filter Keyval Pairs By Key HashMap
  * @category algorithm
- * @tags filter, keyval
+ * @tags filter, key value
  *
  * @since 0.3.2
  */

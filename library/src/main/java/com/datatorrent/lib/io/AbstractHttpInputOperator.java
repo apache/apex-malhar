@@ -34,7 +34,7 @@ import com.sun.jersey.api.client.WebResource;
 
 /**
  * This is an abstract http operator that reads from a given url using the http GET command like an input stream.
- *
+ * <p></p>
  * @displayName Abstract Http Input
  * @category io
  * @tags http, input

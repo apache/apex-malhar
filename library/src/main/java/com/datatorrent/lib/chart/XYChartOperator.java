@@ -26,7 +26,7 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This is the base class for all chart operators that draw charts that have two axes.
- *
+ * <p></p>
  * @displayName Abstract XY Chart
  * @category chart
  * @tags output

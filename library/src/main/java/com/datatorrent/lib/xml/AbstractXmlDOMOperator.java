@@ -29,7 +29,7 @@ import javax.xml.parsers.ParserConfigurationException;
 /**
  * This is an abstract operator, which parses incoming tuples using the Java XML DOM parser and passes the resultant Document object along with
  * the tuple to the extending operator for processing.
- *
+ * <p></p>
  * @displayName Abstract XML DOM Operator
  * @category xml
  * @tags

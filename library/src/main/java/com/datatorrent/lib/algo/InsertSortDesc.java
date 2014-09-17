@@ -35,8 +35,10 @@ import java.util.PriorityQueue;
 
 /**
  * This operator takes the values it recieves each window and outputs them in ascending order at the end of each window.
- *
- * Incoming tuple is inserted into already existing sorted list in a descending order. At the end of the window the resultant sorted list is emitted on the output ports<p>
+ * <p>
+ * Incoming tuple is inserted into already existing sorted list in a descending order. At the end of the window the resultant sorted list is emitted on the output ports.
+ * </p>
+ * <p>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
  * <b>Partitions : No, </b> will yield wrong results. <br>
@@ -48,7 +50,7 @@ import java.util.PriorityQueue;
  * <b>sorthash</b>: emits HashMap&lt;K,Integer&gt;<br>
  * <br>
  * <br>
- *
+ * </p>
  * @displayName Sort Descending
  * @category algorithm
  * @tags rank

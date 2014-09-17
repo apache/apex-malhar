@@ -23,9 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 /**
  * This is an abstract operator, which ingests data from an ActiveMQ message bus.&nbsp;
  * This operator has a single output port.
- *
- * <br>
- * <br>
+ * <p>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
  * <b>Output</b>: Have only one output port<br>
@@ -42,7 +40,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
- *
+ * </p>
  * @displayName Abstract Active MQ Single Port Input
  * @category io
  * @tags jms, input

@@ -28,7 +28,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
  * A generic output operator which updates a JDBC database without using transactions.
- *
+ * <p></p>
  * @displayName Abstract JDBC Non Transactionable Output Operator
  * @category db
  * @tags output

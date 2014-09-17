@@ -19,12 +19,12 @@ import java.util.*;
 
 /**
  * This abstract class is for any implementation of an input adapter of key value store.
- *
+ * <p></p>
  * The default behavior is to get all the values using the keys from the store for each window. Subclasses are free to override this behavior.
  *
  * @displayName Abstract Key Value Store Input Operator
  * @category db
- * @tags input, keyval
+ * @tags input, key value
  *
  * @param <T> The tuple type.
  * @param <S> The store type.

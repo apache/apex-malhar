@@ -29,7 +29,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * This operator reads tuples from an hdfs text file.
- *
+ * <p></p>
  * @displayName HDFS Text File Input
  * @category io
  * @tags hdfs, file, input

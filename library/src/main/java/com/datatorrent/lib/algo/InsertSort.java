@@ -28,11 +28,12 @@ import com.datatorrent.lib.util.AbstractBaseSortOperator;
 
 /**
  * This operator takes the values it recieves each window and outputs them in ascending order at the end of each window.
- * 
+ * <p>
  * Takes a stream of key value pairs via input port "data". The incoming tuple
  * is merged into already existing sorted list. At the end of the window the
  * entire sorted list is emitted on output port "sort"
- * <p/>
+ * </p>
+ * <p>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
  * <b>Partitions : Yes, </b> the operator itself serves as the unifier.
@@ -42,6 +43,7 @@ import com.datatorrent.lib.util.AbstractBaseSortOperator;
  * <b>datalist</b>: expects ArrayList&lt;K&gt;<br>
  * <b>sortlist</b>: emits ArrayList&lt;K&gt;, must be connected<br>
  * <br>
+ * </p>
  *
  * @displayName Sort Ascending
  * @category algorithm

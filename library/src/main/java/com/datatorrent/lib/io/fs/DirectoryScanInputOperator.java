@@ -30,11 +30,11 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
 
 /**
  * This operator scans for files in a local directory and emits tuples read from the files.
- *
+ * <p>
  * Since the operator can be deployed anywhere in the cluster the directory
  * to be scanned should be available on all nodes of the cluster.
  * Not to be used for HDFS.
- * <p>
+ * </p>
  *
  * @displayName Local FS File Input
  * @category io

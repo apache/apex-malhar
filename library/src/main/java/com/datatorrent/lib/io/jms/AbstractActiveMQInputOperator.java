@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This is an abstract operator, which ingests data from an ActiveMQ message bus.
- *
+ * <p>
  * It uses PUSH model to get message. When there is a message available in AMQ message bus,
  * onMessage() got called which buffer the message into a holding buffer. At the same time
  * Malhar Streaming Platform calls emitTuples() on this operator to process message from
@@ -35,8 +35,8 @@ import org.slf4j.LoggerFactory;
  * connected operator.
  * This class can be used if operator has more than one output ports. If it has only one
  * output port it can conveniently derived from AbstractActiveMQSinglePortInputOperator class.
- *
- * <br>
+ * </p>
+ * <p>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
  * <b>Output</b>: Can have any number of output ports<br>
@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * Compile time checks:<br>
  * Class derived from this has to implement the abstract method emitTuple() <br>
  * <br>
- *
+ * </p>
  * @displayName Abstract Active MQ Input
  * @category io
  * @tags jms, input

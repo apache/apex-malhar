@@ -28,9 +28,11 @@ import javax.validation.constraints.NotNull;
 
 /**
  * This operator filters the incoming stream of values by the specified set of filter values.
- * 
+ * <p>
  * Filters incoming stream and emits values as specified by the set of values to filter. If
- * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted. The values are expected to be immutable<p>
+ * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted. The values are expected to be immutable.
+ * </p>
+ * <p>
  * This operator should not be used with mutable objects. If this operator has immutable Objects, override "cloneCopy" to ensure a new copy is sent out.
  * This is a pass through node<br>
  * <br>
@@ -44,6 +46,7 @@ import javax.validation.constraints.NotNull;
  * <b>Properties</b>:<br>
  * <b>keys</b>: The keys to pass through. Those not in the list are dropped. A comma separated list of keys<br>
  * <br>
+ * </p>
  *
  * @displayName Filter Values
  * @category algorithm

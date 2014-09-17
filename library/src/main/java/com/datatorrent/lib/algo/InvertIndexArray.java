@@ -28,8 +28,10 @@ import com.datatorrent.lib.util.BaseKeyValueOperator;
 
 /**
  * This operator takes a stream of key value pairs each window, and outputs a set of inverted key value pairs at the end of each window.
- *
- * Inverts the index and sends out the tuple on output port "index" at the end of the window<p>
+ * <p>
+ * Inverts the index and sends out the tuple on output port "index" at the end of the window.
+ * </p>
+ * <p>
  * This is an end of window operator<br>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
@@ -39,10 +41,11 @@ import com.datatorrent.lib.util.BaseKeyValueOperator;
  * <b>data</b>: expects HashMap&lt;K,ArrayList&lt;V&gt;&gt;<br>
  * <b>index</b>: emits HashMap&lt;V,ArrayList&lt;K&gt;&gt;(1), one HashMap per V<br>
  * <br>
+ * </p>
  *
  * @displayName Invert Keyval Pairs (Array)
  * @category algorithm
- * @tags keyval
+ * @tags key value
  *
  * @since 0.3.2
  */

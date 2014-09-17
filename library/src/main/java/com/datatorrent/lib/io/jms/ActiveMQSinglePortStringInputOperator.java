@@ -23,7 +23,7 @@ import javax.jms.TextMessage;
 /**
  * This operator ingests strings from an ActiveMQ message bus.&nbsp;
  * This operator has a single output port.
- *
+ * <p></p>
  * @displayName Active MQ Single Port Input (String)
  * @category io
  * @tags jms, input

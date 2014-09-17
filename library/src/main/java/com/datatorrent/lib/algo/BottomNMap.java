@@ -25,9 +25,10 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
 /**
  * This operator takes an input stream of key value pairs is ordered by key,
  * and the bottom N of the ordered tuples per key are emitted on port "bottom" at the end of window.
- * 
+ * <p>
  * Input stream of key value pairs is ordered by key, and bottom N of the
  * ordered tuples per key are emitted on port "bottom" at the end of window
+ * </p>
  * <p>
  * This is an end of window operator. At the end of window all data is flushed.
  * Thus the data set is windowed and no history is kept of previous windows<br>
@@ -45,10 +46,11 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * <b>Specific compile time checks are</b>:<br>
  * N: Has to be >= 1<br>
  * <br>
+ * </p>
  *
  * @displayName Bottom N
  * @category algorithm
- * @tags filter, rank, keyval
+ * @tags filter, rank, key value
  *
  * @since 0.3.3
  */

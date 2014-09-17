@@ -24,10 +24,12 @@ import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
  * This operator produces a count of how many tuples of value type String satisfy the compare function.
- * 
+ * <p>
  * A count is done on how many tuples of value type String satisfy the compare function. The function is given by
  * "key", "value", and "compare". If a tuple passed the test count is incremented. On end of window count is emitted on the output port "count".
- * The comparison is done by getting double value from the Number.<p>
+ * The comparison is done by getting double value from the Number.
+ * </p>
+ * <p>
  * This module is an end of window module. If no tuple comes in during a window 0 is emitted on both ports, thus no matter what one Integer
  * tuple is emitted on each port<br>
  * <br>
@@ -49,10 +51,11 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * Value must be able to convert to a "double"<br>
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
+ * </p>
  *
  * @displayName Count All Who Don't Compare String
  * @category algorithm
- * @tags count, keyval
+ * @tags count, key value
  *
  * @since 0.3.2
  */

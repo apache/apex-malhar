@@ -28,17 +28,15 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * <p>
  * Parse Apache log lines one line at a time.&nbsp;
  * Regex (getAccessLogRegex) is used as a parser.&nbsp;
  * The fields extracted include i/p (outputIPAddress), url (outputUrl),
  * status code (outputStatusCode), bytes (outputBytes), referer (outputReferer),
  * and agent (outputAgent).&nbsp;Each of the fields are emitted to a separate output port.
  * <p>
- *
  * Please refer to docs for {@link com.datatorrent.lib.logs.ApacheLogParseOperator} documentation.
  * More output ports in this operator.
- *
+ * </p>
  * @displayName Apache Virtual Log Parse
  * @category logs
  * @tags apache
