@@ -23,6 +23,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutorService;
@@ -210,20 +211,25 @@ public class HDSReader implements Operator
   {
     BucketReader br = this.buckets.get(bucketKey);
     if (br == null) {
+      this.buckets.put(bucketKey, br = new BucketReader());
+    }
+    // meta data can be invalidated on write without removing unaffected readers
+    if (br.bucketMeta == null) {
       LOG.debug("Reading bucket meta {}", bucketKey);
-      br = new BucketReader();
       br.bucketMeta = loadBucketMeta(bucketKey);
-      this.buckets.put(bucketKey, br);
     }
     return br;
   }
 
-  protected void invalidateReader(long bucketKey, String name)
+  protected void invalidateReader(long bucketKey, Set<String> fileNames)
   {
     BucketReader bucket = this.buckets.get(bucketKey);
     if (bucket != null) {
-      LOG.debug("Closing reader {}", name);
-      IOUtils.closeQuietly(bucket.readers.remove(name));
+      bucket.bucketMeta = null; // force index reload
+      for (String name : fileNames) {
+        LOG.debug("Closing reader {}", name);
+        IOUtils.closeQuietly(bucket.readers.remove(name));
+      }
     }
   }
 
