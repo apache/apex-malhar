@@ -7,6 +7,7 @@ package com.datatorrent.lib.comments;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
@@ -14,7 +15,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 /**
  * This is a test comment on the DummyCommentsOperator class.
  *
- * detailed description of the comment
+ * <p> Just a dummy {@link Operator} class with some comments.</p>
+ *
+ * Testing Mr.&nbsp;Space.
  *
  * @param <T> detail about T
  * @customTag1 custom tag1 value
