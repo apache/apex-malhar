@@ -252,9 +252,11 @@ public class HDSBucketManager extends HDSReader implements CheckpointListener, O
    */
   private void writeDataFiles(Bucket bucket) throws IOException
   {
+    // copy meta data on write
+    BucketMeta bucketMetaCopy = kryo.copy(getMeta(bucket.bucketKey));
+
     // bucket keys by file
-    BucketMeta bm = getMeta(bucket.bucketKey);
-    TreeMap<Slice, BucketFileMeta> bucketSeqStarts = bm.files;
+    TreeMap<Slice, BucketFileMeta> bucketSeqStarts = bucketMetaCopy.files;
     Map<BucketFileMeta, Map<Slice, byte[]>> modifiedFiles = Maps.newHashMap();
 
     for (Map.Entry<Slice, byte[]> entry : bucket.frozenWriteCache.entrySet()) {
@@ -271,6 +273,7 @@ public class HDSBucketManager extends HDSReader implements CheckpointListener, O
         } else {
           // placeholder for new keys, move start key
           floorFile = floorEntry.getValue();
+          bucketSeqStarts.remove(floorEntry.getKey());
         }
         floorFile.startKey = entry.getKey();
         bucketSeqStarts.put(floorFile.startKey, floorFile);
@@ -283,8 +286,6 @@ public class HDSBucketManager extends HDSReader implements CheckpointListener, O
       fileUpdates.put(entry.getKey(), entry.getValue());
     }
 
-    // copy meta data on write
-    BucketMeta bucketMetaCopy = kryo.copy(getMeta(bucket.bucketKey));
     HashSet<String> filesToDelete = Sets.newHashSet();
 
     // write modified files
