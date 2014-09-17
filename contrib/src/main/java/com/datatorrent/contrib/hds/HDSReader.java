@@ -275,7 +275,7 @@ public class HDSReader implements Operator
 
   protected void addQuery(HDSQuery query)
   {
-    Slice key = HDSBucketManager.toSlice(query.key);
+    Slice key = HDS.SliceExt.toSlice(query.key);
     HDSQuery existingQuery = this.queries.get(key);
     if (existingQuery != null) {
       query.keepAliveCount = Math.max(query.keepAliveCount, existingQuery.keepAliveCount);

@@ -17,14 +17,12 @@ package com.datatorrent.contrib.hds;
 
 import java.io.Closeable;
 import java.io.IOException;
+import java.util.Arrays;
+
+import com.datatorrent.common.util.Slice;
 
 public interface HDS
 {
-  interface BucketManager
-  {
-    void put(long bucketKey, byte[] key, byte[] value) throws IOException;
-    byte[] get(long bucketKey, byte[] key) throws IOException;
-  }
 
   /**
    * A simple iterator type interface to read WAL
@@ -106,6 +104,22 @@ public interface HDS
      * @return
      */
     public long logSize();
+  }
+
+  /**
+   * Utility methods to be added to {@link Slice}
+   */
+  public final static class SliceExt
+  {
+    public static byte[] asArray(Slice slice)
+    {
+      return Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + slice.length);
+    }
+
+    public static Slice toSlice(byte[] bytes)
+    {
+      return new Slice(bytes, 0, bytes.length);
+    }
   }
 
 }

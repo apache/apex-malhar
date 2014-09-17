@@ -105,11 +105,11 @@ public class HDSTestApp implements StreamingApplication
 
     TreeMap<Slice, byte[]> data = Maps.newTreeMap(new HDSTest.SequenceComparator());
     fs.getReader(0, "0-0").readFully(data);
-    Assert.assertArrayEquals("read key=" + new String(KEY0), DATA0.getBytes(), data.get(HDSBucketManager.toSlice(KEY0)));
+    Assert.assertArrayEquals("read key=" + new String(KEY0), DATA0.getBytes(), data.get(HDS.SliceExt.toSlice(KEY0)));
 
     data.clear();
     fs.getReader(1, "1-0").readFully(data);
-    Assert.assertArrayEquals("read key=" + new String(KEY1), DATA1.getBytes(), data.get(HDSBucketManager.toSlice(KEY1)));
+    Assert.assertArrayEquals("read key=" + new String(KEY1), DATA1.getBytes(), data.get(HDS.SliceExt.toSlice(KEY1)));
 
     fs.close();
   }

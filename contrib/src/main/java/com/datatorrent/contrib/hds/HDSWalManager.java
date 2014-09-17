@@ -20,12 +20,14 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Map;
 import java.util.TreeMap;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDS.WALReader;
 import com.datatorrent.contrib.hds.HDS.WALWriter;
 import com.google.common.collect.Maps;
@@ -131,7 +133,7 @@ public class HDSWalManager implements Closeable
    * Run recovery for bucket, by adding valid data from WAL to
    * store.
    */
-  public void runRecovery(HDS.BucketManager store, long fileId, long offset) throws IOException
+  public void runRecovery(Map<Slice, byte[]> writeCache, long fileId, long offset) throws IOException
   {
     if (walFileId == 0 && committedLength == 0)
       return;
@@ -149,7 +151,7 @@ public class HDSWalManager implements Closeable
 
       while (wReader.advance()) {
         MutableKeyValue o = wReader.get();
-        store.put(bucketKey, o.getKey(), o.getValue());
+        writeCache.put(HDS.SliceExt.toSlice(o.getKey()), o.getValue());
       }
       wReader.close();
     }

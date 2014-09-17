@@ -17,7 +17,6 @@ package com.datatorrent.contrib.hds;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -55,7 +54,7 @@ import com.google.common.collect.Sets;
  * Note that currently changes are not flushed at a committed window boundary, hence uncommitted changes may be read
  * from data files after recovery, making the operator non-idempotent.
  */
-public class HDSBucketManager extends HDSReader implements HDS.BucketManager, CheckpointListener, Operator
+public class HDSBucketManager extends HDSReader implements CheckpointListener, Operator
 {
 
   private final transient HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
@@ -137,16 +136,6 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
     this.flushIntervalCount = flushIntervalCount;
   }
 
-  public static byte[] asArray(Slice slice)
-  {
-    return Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + slice.length);
-  }
-
-  public static Slice toSlice(byte[] bytes)
-  {
-    return new Slice(bytes, 0, bytes.length);
-  }
-
   /**
    * Write data to size based rolling files
    *
@@ -167,7 +156,7 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
         fw = this.store.getWriter(bucket.bucketKey, fileMeta.name + ".tmp");
       }
 
-      fw.append(asArray(dataEntry.getKey()), dataEntry.getValue());
+      fw.append(HDS.SliceExt.asArray(dataEntry.getKey()), dataEntry.getValue());
       if (fw.getBytesWritten() > this.maxFileSize) {
 
         // roll file
@@ -203,10 +192,8 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
       // wmeta.windowId windowId till which data is available in WAL.
       if (bmeta.committedWid < wmeta.windowId) {
         LOG.debug("Recovery for bucket {}", bucketKey);
-        bucket.recoveryInProgress = true;
         // Get last committed LSN from store, and use that for recovery.
-        bucket.wal.runRecovery(this, wmeta.tailId, wmeta.tailOffset);
-        bucket.recoveryInProgress = false;
+        bucket.wal.runRecovery(bucket.writeCache, wmeta.tailId, wmeta.tailOffset);
       }
     }
     return bucket;
@@ -250,15 +237,11 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
     return super.get(bucketKey, key);
   }
 
-  @Override
   public void put(long bucketKey, byte[] key, byte[] value) throws IOException
   {
     Bucket bucket = getBucket(bucketKey);
-    /* Do not update WAL, if tuple being added is coming through recovery */
-    if (!bucket.recoveryInProgress) {
-      bucket.wal.append(key, value);
-    }
-    bucket.writeCache.put(toSlice(key), value);
+    bucket.wal.append(key, value);
+    bucket.writeCache.put(HDS.SliceExt.toSlice(key), value);
   }
 
   /**
@@ -475,7 +458,6 @@ public class HDSBucketManager extends HDSReader implements HDS.BucketManager, Ch
     private HashMap<Slice, byte[]> frozenWriteCache = Maps.newHashMap();
     private HDSWalManager wal;
     private long committedLSN;
-    private boolean recoveryInProgress;
     private long tailId;
     private long tailOffset;
   }
