@@ -38,7 +38,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <li>Method to extract a key from tuple.</li>
  * <li>Query to fetch the value of the key from tuple when the value is not present in the cache.</li>
  * </ul>
- *
+ * <p></p>
  * @displayName Abstract DB Lookup Cache Backed Operator
  * @category db
  * @tags output

@@ -27,10 +27,12 @@ import javax.validation.constraints.Min;
 
 /**
  * This operator takes a stream of values as input, and emits each tuple with a specified probability.
- *
+ * <p>
  * Emits the tuple as per probability of pass rate out of total rate. <br>
  * <br>
- * An efficient filter to allow sample analysis of a stream. Very useful is the incoming stream has high throughput<p>
+ * An efficient filter to allow sample analysis of a stream. Very useful is the incoming stream has high throughput.
+ * </p>
+ * <p>
  * <br>
  * <b> StateFull : No, </b> tuple is processed in current window. <br>
  * <b> Partitions : Yes. </b> No state dependency among input tuples. <br>
@@ -49,6 +51,7 @@ import javax.validation.constraints.Min;
  * <br>
  * <b>Specific run time checks are</b>: None<br>
  * <br>
+ * </p>
  *
  * @displayName Sampler
  * @category algorithm

@@ -27,10 +27,10 @@ import java.util.Map;
 
 /**
  * This operator counts the number of times a key exists in a window.&nbsp;A map from keys to counts is emitted at the end of each window.
- *
+ * <p></p>
  * @displayName Count Key Appearances
  * @category algorithm
- * @tags algorithm, count, keyval
+ * @tags algorithm, count, key value
  *
  * @since 1.0.2
  */

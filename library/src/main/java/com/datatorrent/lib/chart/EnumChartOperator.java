@@ -21,7 +21,7 @@ import java.util.TreeMap;
 
 /**
  * This is an abstract base class for charting operators which use enumerated values on the x-axis.
- *
+ * <p></p>
  * @displayName Abstract Enum Chart Operator
  * @category chart
  * @tags output

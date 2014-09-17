@@ -29,7 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>Use this operator to parse unstructured log data into named fields.</p>
+ * This operator parses unstructured log data into named fields.
  *
  * <p>Uses a regex with named capturing groups (http://www.regular-expressions.info/named.html) to extract portions of a string read
  * from the input port into a Map<String,String>. The capturing group name is used as the key name. The captured value is used as
@@ -66,6 +66,10 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Properties</b>:<br>
  * <b>regex</b>: defines the regex <br>
+ *
+ * @displayName Regex Match Map
+ * @category logs
+ * @tags regex
  *
  * @since 1.0.5
  */

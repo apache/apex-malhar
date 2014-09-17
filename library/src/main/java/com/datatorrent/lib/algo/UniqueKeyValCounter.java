@@ -31,8 +31,10 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 /**
  * This operator counts the unique occurrences of key value pairs within each window,
  * and emits a map from key value pairs to counts at the end of each window.
- *
- * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple. <p>
+ * <p>
+ * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple.
+ * </p>
+ * <p>
  * This is an end of window operator<br>
  * <br>
  * <b>StateFull : yes, </b> Tuples are aggregated over application window(s). <br>
@@ -43,10 +45,11 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
  * <b>count</b>: emits HashMap&lt;HashMap&lt;K,V&gt;(1),Integer&gt;(1)<br>
  * <br>
+ * </p>
  *
  * @displayName Count Unique Keyval Pairs
  * @category algorithm
- * @tags count, keyval
+ * @tags count, key value
  *
  * @since 0.3.2
  */

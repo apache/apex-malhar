@@ -27,8 +27,10 @@ import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
 
 /**
  * This operator filters the incoming stream of key value pairs by emitting the first N key value pairs with a specified key in each window.
- * 
- * Emits first N tuples of a particular key.<p>
+ * <p>
+ * Emits first N tuples of a particular key.
+ * </p>
+ * <p>
  * This module is a pass through module<br>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
@@ -45,10 +47,11 @@ import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
  * N: Has to be >= 1<br>
  * <br>
  * <br>
+ * </p>
  *
  * @displayName First N Keyval Pairs Matching Key
  * @category algorithm
- * @tags filter, keyval
+ * @tags filter, key value
  *
  * @since 0.3.2
  */

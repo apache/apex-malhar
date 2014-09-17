@@ -23,7 +23,7 @@ import java.util.TreeMap;
 
 /**
  * This is the base class for all chart operators that use X-axis as a time series
- *
+ * <p></p>
  * @displayName Time Series Chart
  * @category chart
  * @tags output

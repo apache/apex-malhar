@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * This is an abstract input operator, which scans a directory for files.&nbsp;
  * Files are then read and split into tuples, which are emitted.&nbsp;
  * This operator is partitioned base on the number of files which remain to be processed.
- *
+ * <p>
  * Provides the same functionality as the AbstractFSDirectoryInputOperator
  * except that this utilized dynamic partitioning where the user can set the
  * preferred number of pending files per operator as well as the max number of
@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * of files to process and an amount of time greater than or equal to the
  * repartition interval has passed then a new number of operators are created
  * to accommodate the remaining pending files.
- * <p/>
+ * </p>
  *
  * @displayName FS Throughput Directory Scan Input
  * @category io

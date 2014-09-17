@@ -32,12 +32,12 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This operator reads in JSON data and outputs it as a map.
- * 
+ * <p>
  * (entities on stream delimited by leading length)
  * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.<br>
  * If second rawOutput is connected then content is streamed to this port as it is.
  * <br>
- *
+ * </p>
  * @displayName Http Json Chunks Input
  * @category io
  * @tags http, input

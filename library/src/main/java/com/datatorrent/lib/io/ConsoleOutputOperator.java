@@ -24,10 +24,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Writes tuples to stdout of the container.
- *
+ * <p>
  * Mainly to be used for debugging. Users should be careful to not have this node listen to a high throughput stream<br>
  * <br>
- *
+ * </p>
  * @displayName Console Output
  * @category io
  * @tags output

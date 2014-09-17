@@ -27,7 +27,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * <p>
  * Parse Apache log lines one line at a time.&nbsp;
  * Regex (getAccessLogRegex) is used as a parser.&nbsp;
  * The fields extracted include i/p (outputIPAddress), url (outputUrl),
@@ -49,7 +48,7 @@ import java.util.regex.Pattern;
  * <b>outputAgent</b>: emits String<br>
  * <br>
  * <b>Properties</b>: none<br>
- *
+ * </p>
  * @displayName Apache Log Parse
  * @category logs
  * @tags apache

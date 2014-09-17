@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  * This operator outputs data to an smtp server.
- * 
+ * <p></p>
  * @displayName Smtp Output
  * @category io
  * @tags stmp, output

@@ -28,7 +28,7 @@ import java.util.ArrayList;
 
 /**
  * This unifier takes sorted lists of tuples each window and merges them into one large sorted list at the end of each window.
- *
+ * <p>
  * Incoming sorted list is merged into already existing sorted list. The input list is expected to be sorted. <b>
  * At the end of the window, merged sorted list is emitted on sort output port. <br>
  * <br>
@@ -50,6 +50,7 @@ import java.util.ArrayList;
  * @displayName Merge Sorted Lists (Generic)
  * @category algorithm
  * @tags rank
+ * </p>
  *
  * @since 0.3.3
  */

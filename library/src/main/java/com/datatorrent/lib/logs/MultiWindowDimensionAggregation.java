@@ -35,10 +35,11 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * <p>
- * MultiWindowDimensionAggregation class.
- * </p>
- * This class aggregates the value of given dimension across windows
+ * This class aggregates the value of given dimension across windows.
+ * <p></p>
+ * @displayName Multi Window Dimension Aggregation
+ * @category logs
+ * @tags aggregation
  *
  * @since 0.3.4
  */

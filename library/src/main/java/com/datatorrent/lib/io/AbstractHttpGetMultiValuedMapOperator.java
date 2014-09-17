@@ -21,7 +21,7 @@ import com.sun.jersey.api.client.WebResource;
 
 /**
  * Abstract Http get operator to get multi valued map from incoming tuple and create the web resource with query params.
- *
+ * <p></p>
  * @displayName Abstract Http Multivalued Query Input
  * @category io
  * @tags http, input

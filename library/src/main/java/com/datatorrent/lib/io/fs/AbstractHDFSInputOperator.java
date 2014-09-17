@@ -26,7 +26,7 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * This is an abstract input operator, which reads from a hdfs file and produces tuples.
- *
+ * <p></p>
  * @displayName HDFS File Input
  * @category io
  * @tags hdfs, file, input

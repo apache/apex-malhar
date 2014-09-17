@@ -27,8 +27,10 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
 
 /**
  * This operator orders tuples per key and emits the top N tuples per key at the end of the window.
- *
- * Orders tuples per key and emits top N tuples per key on end of window<p>
+ * <p>
+ * Orders tuples per key and emits top N tuples per key on end of window.
+ * </p>
+ * <p>
  * This is an end of window module.<br>
  * <br>
  * <b>StateFull : Yes, </b> Tuple are aggregated across application window(s). <br>
@@ -43,6 +45,7 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * <b>Specific compile time checks are</b>:<br>
  * N: Has to be >= 1<br>
  * <br>
+ * </p>
  *
  * @displayName Top N Values Per Key
  * @category algorithm

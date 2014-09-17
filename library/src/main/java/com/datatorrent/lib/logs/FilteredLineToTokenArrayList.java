@@ -23,7 +23,9 @@ import java.util.HashMap;
  * <p>
  * Splits String objects into tokens, and emits filtered keys as and ArrayList.
  * <p>
- * An ArrayList of all tokens that pass the filter are emitted<p>
+ * An ArrayList of all tokens that pass the filter are emitted.
+ * </p>
+ * <p>
  * This module is a pass through<br>
  * <br>
  * <b>StateFull : No, </b> tokens are processed in current window. <br>
@@ -40,7 +42,7 @@ import java.util.HashMap;
  * <br>
  * <br>
  * <br>
- *
+ * </p>
  * @displayName Filtered Line To Token ArrayList
  * @category logs
  * @tags string

@@ -29,7 +29,7 @@ import com.datatorrent.api.InputOperator;
 
 /**
  * This is an abstract input operator, which reads from a file and produces tuples.
- *
+ * <p></p>
  * @displayName FS File Input
  * @category io
  * @tags fs, directory, input

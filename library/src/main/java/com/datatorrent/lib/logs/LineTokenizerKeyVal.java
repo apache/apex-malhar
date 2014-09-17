@@ -22,10 +22,11 @@ import com.datatorrent.lib.util.UnifierHashMap;
 import java.util.HashMap;
 
 /**
- * <p>
  * Splits lines into tokens, and tokens into sub-tokens and emits key,val pairs in a HashMap.
  * <p>
- * Useful to convert String (log lines) into a POJO (HashMap)<p>
+ * Useful to convert String (log lines) into a POJO (HashMap)
+ * </p>
+ * <p>
  * This module is a pass through<br>
  * <br>
  * <b>StateFull : No, </b> tokens are processed in current window. <br>
@@ -41,10 +42,10 @@ import java.util.HashMap;
  * <b>splitby</b>: The characters used to split the line. Default is ";\t "<br>
  * <b>splittokenby</b>: The characters used to split a token into key,val pair. Default is "", i.e. tokens are not split, and key is set to token, and val is null<br>
  * <br>
- *
- * @displayName Line Tokenizer Key Val
+ * </p>
+ * @displayName Line Tokenizer Key Value
  * @category logs
- * @tags string
+ * @tags string, key value
  *
  * @since 0.3.2
  */

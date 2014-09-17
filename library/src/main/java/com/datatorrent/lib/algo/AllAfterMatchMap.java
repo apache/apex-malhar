@@ -30,6 +30,7 @@ import java.util.Map;
  * All tuples processed by the operator before the first successful comparison are not output by the operator,
  * all tuples processed by the operator after and including a successful comparison are output by the operator.
  *
+ * <p>
  * A compare metric is done on input tuple based on the property "key",
  * "value", and "cmp" type. All tuples are emitted (inclusive) once a match is made.
  * The comparison is done by getting double value from the Number.
@@ -57,10 +58,11 @@ import java.util.Map;
  * "gte"<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
+ * </p>
  *
- * @displayName EMIT ALL AFTER MATCH (NUMBER)
+ * @displayName Emit All After Match (Number)
  * @category algorithm
- * @tags filter, compare, numeric, keyval
+ * @tags filter, compare, numeric, key value
  *
  * @since 0.3.2
  */

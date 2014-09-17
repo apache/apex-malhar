@@ -46,21 +46,25 @@ import org.slf4j.LoggerFactory;
  * This is an abstract input operator, which scans a directory for files.&nbsp;
  * Files are then read and split into tuples, which are emitted.
  *
- * <p/>
+ * <p>
  * Derived class defines how to read entries from the input stream and emit to the port.
- * <p/>
+ * </p>
+ * <p>
  * The directory scanning logic is pluggable to support custom directory layouts and naming schemes. The default
  * implementation scans a single directory.
- * <p/>
+ * </p>
+ * <p>
  * Fault tolerant by tracking previously read files and current offset as part of checkpoint state. In case of failure
  * the operator will skip files that were already processed and fast forward to the offset of the current file.
- * <p/>
+ * </p>
+ * <p>
  * Supports partitioning and dynamic changes to number of partitions through property {@link #partitionCount}. The
  * directory scanner is responsible to only accept the files that belong to a partition.
- * <p/>
+ * </p>
+ * <p>
  * This class supports retrying of failed files by putting them into failed list, and retrying them after pending
  * files are processed. Retrying is disabled when maxRetryCount is set to zero.
- *
+ * </p>
  * @displayName FS Directory Scan Input
  * @category io
  * @tags fs, file, input

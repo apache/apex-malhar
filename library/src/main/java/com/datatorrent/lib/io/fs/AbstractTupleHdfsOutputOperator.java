@@ -17,8 +17,9 @@ package com.datatorrent.lib.io.fs;
 
 /**
  * This is an abstract output operator, which writes tuples as bytes to hdfs files on a size rolling basis.
- *
+ * <p>
  * Adapter for writing tuples that implements interface <code>com.datatorrent.lib.io.fs.HDFSOutputTupleInterface</code> to HDFS
+ * </p>
  * <p>
  * Serializes tuples into a HDFS file.<br/>
  * </p>

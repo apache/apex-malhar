@@ -31,10 +31,12 @@ import com.datatorrent.lib.util.UnifierBooleanAnd;
  * If the comparison returns true for all key value pairs within a window,
  * then a true is emitted at the end of the window.&nbsp;
  * Otherwise a false is emitted at the end of the window.
- *
+ * <p>
  * Each tuple is tested for the compare function. The function is given by
  * "key", "value", and "cmp". If all tuples passes a Boolean(true) is emitted, else a Boolean(false) is emitted on end of window on the output port "all".
- * The comparison is done by getting double value from the Number.<p>
+ * The comparison is done by getting double value from the Number.
+ * </p>
+ * <p>
  * This module is an end of window module<br>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compared across application window(s). <br>
@@ -55,10 +57,11 @@ import com.datatorrent.lib.util.UnifierBooleanAnd;
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
+ * </p>
  *
  * @displayName Emit All Matching Values (String)
  * @category algorithm
- * @tags filter, keyval
+ * @tags filter, key value
  *
  * @since 0.3.2
  */

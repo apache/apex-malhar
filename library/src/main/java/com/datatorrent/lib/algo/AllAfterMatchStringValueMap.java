@@ -28,10 +28,12 @@ import java.util.Map;
  * It then performs a numeric comparison on the values corresponding to one of the keys in the input tuple maps.&nbsp;
  * All tuples processed by the operator before the first successful comparison are not output by the operator,
  * all tuples processed by the operator after and including a successful comparison are output by the operator.
- * 
+ *
+ * <p>
  * A compare metric is done on input tuple based on the property "key",
  * "value", and "cmp". All tuples are emitted (inclusive) once a match is made.
  * The comparison is done by getting double value from the Number.
+ * </p>
  * <p>
  * This module is a pass through<br>
  * <br>
@@ -42,7 +44,7 @@ import java.util.Map;
  * <b>Properties</b>:<br>
  * <b>key</b>: The key on which compare is done<br>
  * <b>value</b>: The value to compare with<br>
- * <b>cmp<b>: The compare function. Supported values are "lte", "lt", "eq",
+ * <b>cmp</b>: The compare function. Supported values are "lte", "lt", "eq",
  * "neq", "gt", "gte". Default is "eq"<br>
  * <br>
  * <b>Specific compile time checks</b>:<br>
@@ -54,10 +56,11 @@ import java.util.Map;
  * <b>Specific run time checks</b>:<br>
  * The key exists in the HashMap<br>
  * Value converts to Double successfully<br>
+ * </p>
  *
  * @displayName Emit All After Match (String)
  * @category algorithm
- * @tags filter, compare, numeric, keyval
+ * @tags filter, compare, numeric, key value
  *
  * @since 0.3.2
  */

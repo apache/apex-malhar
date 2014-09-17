@@ -24,9 +24,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 /**
  * Http get operator to extract query parameters from incoming tuple and make GET calls to
  * the set url.
- * 
+ * <p>
  * If the output port is connected, the response is processed
- *
+ * </p>
  * @displayName Abstract Http Query Input
  * @category io
  * @tags http, input

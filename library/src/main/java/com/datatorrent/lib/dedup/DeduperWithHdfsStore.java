@@ -25,7 +25,7 @@ import com.datatorrent.lib.bucket.NonOperationalBucketStore;
 
 /**
  * Drops duplicate events.
- *
+ * <p></p>
  * @displayName  HDFS Deduper
  * @category dedup
  * @tags hdfs

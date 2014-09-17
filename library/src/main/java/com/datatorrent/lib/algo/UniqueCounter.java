@@ -30,8 +30,10 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
 /**
  * This operator counts the number of times a key exists in a window.&nbsp;A map from keys to counts is emitted at the end of each window.
- *
- * Counts the number of times a key exists in a window; Count is emitted at end of window in a single HashMap<p>
+ * <p>
+ * Counts the number of times a key exists in a window; Count is emitted at end of window in a single HashMap.
+ * </p>
+ * <p>
  * This is an end of window operator<br>
  * <br>
  * <b>StateFull : yes, </b> Tuples are aggregated over application window(s). <br>
@@ -42,6 +44,7 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * <b>count</b>: emits HashMap&lt;K,Integer&gt;<br>
  * <b>Properties</b>: None<br>
  * <br>
+ * </p>
  *
  * @displayName Count Unique Keys
  * @category algorithm

@@ -30,7 +30,7 @@ import com.datatorrent.api.InputOperator;
 
 /**
  * This operator emits each line as different tuple for a give file hosted on a ftp server.
- * 
+ * <p>
  * <b>Ports</b>:<br>
  * <b>outport</b>: emits &lt;String&gt;<br>
  * <br>
@@ -43,7 +43,7 @@ import com.datatorrent.api.InputOperator;
  * <b>userName</b>: The user name used to login to ftp server. Default is anonymous.<br>
  * <b>password</b>: The password used to login to ftp server.<br>
  * <b>isGzip</b>: If the format of the file is gzip.<br>
- *
+ * </p>
  * @displayName FTP Input
  * @category io
  * @tags ftp, input

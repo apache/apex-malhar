@@ -23,7 +23,7 @@ import java.io.IOException;
 
 /**
  * This abstract class is for any implementation of an input adapter of a store {@link Connectable}.
- *
+ * <p></p>
  * @displayName Abstract Store Input Operator
  * @category db
  * @tags input

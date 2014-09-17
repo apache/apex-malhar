@@ -30,9 +30,11 @@ import java.util.HashMap;
  * This operator filters the incoming stream of values by emitting the value or values (if there is a tie)
  * that occurred the largest number of times within each window to the output port "list".&nbsp;
  * One of the values is emitted to the output port "least" at the end of each window.
- *
+ * <p>
  * Occurrences of each tuple is counted and at the end of window any of the most frequent tuple is emitted on output port least and all least frequent
- * tuples on output port list<p>
+ * tuples on output port list
+ * </p>
+ * <p>
  * This module is an end of window module<br>
  * In case of a tie any of the least key would be emitted. The list port would however have all the tied keys
  * <br>
@@ -49,7 +51,7 @@ import java.util.HashMap;
  * <b>Compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
- *
+ * </p>
  * @displayName Emit Most Frequent Value
  * @category algorithm
  * @tags filter, count
