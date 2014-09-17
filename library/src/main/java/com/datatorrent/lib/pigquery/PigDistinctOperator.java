@@ -29,7 +29,7 @@ import com.datatorrent.api.Operator;
 
 /**
  * Implements pig distinct operator semantic.
- *
+ *<p>
  * <pre>
  * Example
  *
@@ -63,7 +63,10 @@ import com.datatorrent.api.Operator;
  * <b>Ports : </b> <br>
  * <b> inport : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> outport : </b> emits tuple of form Map&lt;String, Object&gt; <br>
- *
+ * 
+ * @displayName: Pig Distinct Operator
+ * @category: pigquery
+ * @tag: map, string, distinct
  * @since 0.3.4
  */
 public class PigDistinctOperator implements Operator, Unifier<Map<String, Object>>

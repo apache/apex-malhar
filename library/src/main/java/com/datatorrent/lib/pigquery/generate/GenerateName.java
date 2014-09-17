@@ -21,6 +21,9 @@ import java.util.Map;
 /**
  * <p>GenerateName class.</p>
  *
+ * @displayName: Generate Name
+ * @category: pigquery.generate
+ * @tag: map, string, unary
  * @since 0.3.4
  */
 public class GenerateName extends UnaryGenerate

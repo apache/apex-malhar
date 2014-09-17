@@ -17,12 +17,15 @@ package com.datatorrent.lib.pigquery;
 
 
 /**
- * This operator semantic maps to script operators already in library.  <br>
+ * This operator semantic maps to stream operators already in library.  <br>
+ * <p>
  * Please check following operators : <br>
  * {@link com.datatorrent.lib.script.BashOperator}. <br>
  * {@link com.datatorrent.lib.script.JavaScriptOperator}. <br>
  * {@link com.datatorrent.lib.script.PythonOperator}.  <br>
- *
+ * @displayName: Pig Stream Operator
+ * @category: pigquery
+ * @tag: script, stream
  * @since 0.3.4
  */
 public class PigStreamOperator

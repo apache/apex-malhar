@@ -22,7 +22,10 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Group condition sub class to group tuples by column value.
- *
+ * <p>
+ * @displayName: Pig Name Group Condition
+ * @category: pigquery.condition
+ * @tag: group, condition, map, string
  * @since 0.3.4
  */
 public class PigNameGroupCondition implements PigGroupCondition
