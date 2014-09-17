@@ -18,11 +18,10 @@ package com.datatorrent.lib.math;
 import com.datatorrent.api.annotation.Stateless;
 
 /**
- *
- * Emits the result of square of the input tuple (Number).&nbsp;
+ * Emits the result as square of the input tuple which is a number.
+ * <p>
  * Emits the result as Long on port longResult, as Integer on port integerResult,
  * as Double on port doubleResult, and as Float on port floatResult.
- * <p>
  * This is a pass through operator
  * <br>
  * <b>Ports</b>:<br>
@@ -33,8 +32,8 @@ import com.datatorrent.api.annotation.Stateless;
  * <b>floatResult</b>: emits Float<br>
  * <br>
  * @displayname: Square Calculus
- * @category: lib.math
- * @tags:  Number, Square, Multiplication
+ * @category: math
+ * @tags:  numeric, square, multiplication
  * @since 0.3.3
  */
 @Stateless

@@ -41,8 +41,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
  * @displayname: Maximum Map
- * @category: lib.math
- * @tags: Maximum, Number, HashMap, Round Robin Partition
+ * @category: math
+ * @tags: maximum, numeric, hash map, round robin partition
  * @since 0.3.2
  */
 public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K,V>>

@@ -22,9 +22,9 @@ import com.datatorrent.lib.algo.MatchMap;
 import java.util.HashMap;
 
 /**
- * This operator compares tuples subclassed from Number based on the property "key", "value", and "cmp", and matching tuples are emitted.&nbsp; If the tuple
-passed the test, it is emitted on the output port "compare".&nbsp; The comparison is done by getting double value from the Number.
+ * This operator compares tuples subclassed from Number based on the property "key", "value", and "cmp", and matching tuples are emitted.
  * <p>
+ * If the tuple passed the test, it is emitted on the output port "compare".&nbsp; The comparison is done by getting double value from the Number.
  * Both output ports are optional, but at least one has to be connected.
  * This module is a pass through<br>
  * <br>
@@ -69,8 +69,8 @@ passed the test, it is emitted on the output port "compare".&nbsp; The compariso
  * <br>
  * <br>
  * @displayname: Compare Map
- * @category: lib.math
- * @tags: comparison, key value, Number, map
+ * @category: math
+ * @tags: comparison, key value, numeric, map
  * @since 0.3.2
  */
 @Stateless

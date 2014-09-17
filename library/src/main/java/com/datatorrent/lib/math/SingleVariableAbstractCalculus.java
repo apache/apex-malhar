@@ -18,9 +18,9 @@ package com.datatorrent.lib.math;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
+ * Transforms the input into the output after applying appropriate mathematical function to it and emits result on respective ports.
  * <p>
- * Transforms the input into the output after applying appropriate mathematical function to it.Emits the result as Long on port "longResult", as Integer on port "integerResult",as Double on port "doubleResult", and as Float on port "floatResult". 
- * <p>
+ * Emits the result as Long on port "longResult", as Integer on port "integerResult",as Double on port "doubleResult", and as Float on port "floatResult". 
  * This is a pass through operator<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -30,8 +30,8 @@ import com.datatorrent.api.DefaultInputPort;
  * <b>doubleResult</b>: emits Double<br>
  * <b>floatResult</b>: emits Float<br>
  * @displayname: Single Variable Abstract Calculus
- * @category: lib.math
- * @tags:  Number, Single Variable
+ * @category: math
+ * @tags: numeric, single variable
  * @param <T>
  * @since 0.3.2
  */

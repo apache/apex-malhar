@@ -44,9 +44,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Properties</b>:<br>
  * <b>windowSize i.e. N</b>: Number of windows to keep state on<br>
  * <br>
- * @displayName: Abstract Sliding Window Key Value,
- * @category: lib.multiwindow,
- * @tag: sliding window, Number, Key Value, Average
+ * @displayName: Abstract Sliding Window Key Value
+ * @category: multiwindow
+ * @tag: sliding window, numeric, key value, average
  * @since 0.3.3
  */
 public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends SimpleMovingAverageObject>

@@ -21,8 +21,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
 
 /**
- * Multiplies input tuple (Number) by the value of property "multiplier".&nbsp; This operator emits the result as Long on port "longProduct", as Integer on port "integerProduct", as Double on port "doubleProduct", and as Float on port "floatProduct". 
+ * Multiplies input tuple (Number) by the value of property "multiplier" and emits the result on respective ports.
  * <p>
+ * This operator emits the result as Long on port "longProduct", as Integer on port "integerProduct", as Double on port "doubleProduct", and as Float on port "floatProduct". 
  * Output is computed in current window.No state dependency among input tuples
  * This is a pass through operator
  * <br>
@@ -40,8 +41,8 @@ import com.datatorrent.api.annotation.Stateless;
  * <b>multiplier</b>: Number to multiply input tuple with<br>
  * <br>
  * @displayname: Multiply By Constant
- * @category: lib.math
- * @tags: Multiplication, Constant, Number,
+ * @category: math
+ * @tags: multiplication, constant, numeric
  * @since 0.3.2
  */
 @Stateless

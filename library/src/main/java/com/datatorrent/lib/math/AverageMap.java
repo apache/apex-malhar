@@ -47,8 +47,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <p>
  * <br>
  * @displayname: Average Map
- * @category: lib.math
- * @tags: average, number, end window, key value, aggregate
+ * @category: math
+ * @tags: average, numeric, end window, key value, aggregate
  * @since 0.3.3
  */
 public class AverageMap<K, V extends Number> extends

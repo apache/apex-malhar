@@ -22,10 +22,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 /**
  * Abstract base operator defining optional double/float/long/integer output port.
  *  <p>
- *  Duplicate port declaration in operators.
+ *  Common port declaration in operators.
  *
- * @displayName: Abstract Output,
- * @category: lib.math,
+ * @displayName: Abstract Output
+ * @category: math
  * @tag: output, multiple datatype
  * @since 0.3.3
  */

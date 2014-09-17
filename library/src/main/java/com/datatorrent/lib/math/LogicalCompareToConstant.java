@@ -45,8 +45,8 @@ import com.datatorrent.api.annotation.Stateless;
  *      <b>lessThan</b>: emits T<br>
  *      <br>
  * @displayname: Logical Compare To Constant
- * @category: lib.math
- * @tags: comparison, logical, key value, Constant
+ * @category: math
+ * @tags: comparison, logical, key value, constant
  * @since 0.3.3
  */
 @Stateless

@@ -46,8 +46,8 @@ import com.google.common.base.Function;
  * <p></p>
  *
  * @displayName: Sorted Moving Window
- * @category: lib.multiwindow, sliding window
- * @tag: Sort, List, Function, sliding window
+ * @category: multiwindow
+ * @tag: sort, list, function, sliding window
  * @since 0.9.2
  */
 public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>

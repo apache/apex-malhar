@@ -23,7 +23,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- *This operator does division metric on consecutive tuples on ports.
+ * This operator does division metric on consecutive tuples on ports.
  * <p>
  * The operator is idempotent as the division is done in order, i.e. the first number on denominator port would divide the first number on the numerator port.<p>
  * This is a pass through operator<br>
@@ -45,8 +45,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <b>errordata</b>: emits String<br>
  * <br>
  * @displayname: Division
- * @category: lib.math
- * @tags: division, Number, idempotent
+ * @category: math
+ * @tags: division, number, idempotent
  * @since 0.3.2
  */
 public class Division extends BaseOperator

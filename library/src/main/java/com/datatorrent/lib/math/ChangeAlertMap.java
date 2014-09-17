@@ -45,8 +45,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * @displayname: Change Alert Map
- * @category: lib.math
- * @tags: change, key value, number, percentage, Map
+ * @category: math
+ * @tags: change, key value, numeric, percentage, map
  * @since 0.3.2
  */
 public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

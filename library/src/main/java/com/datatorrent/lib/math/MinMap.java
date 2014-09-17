@@ -26,8 +26,8 @@ import java.util.Map;
 
 /**
  *
- * This operator emits  minimum of all values sub-classed from Number for each key at end of window. <br>
- * <br>
+ * This operator emits minimum of all values sub-classed from Number for each key at end of window. 
+ * <p>
  * <b>StateFull :</b> Yes, min value is computed over application window. <br>
  * <b>Partitions :</b> Yes, min operator is min unifier for output port.
  * <b>Ports</b>:<br>
@@ -39,8 +39,8 @@ import java.util.Map;
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
  * @displayname: Minimum Map
- * @category: lib.math
- * @tags: Minimum, HashMap, Number
+ * @category: math
+ * @tags: minimum, hash map, numeric
  * @since 0.3.2
  */
 public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V> implements Unifier<HashMap<K,V>>

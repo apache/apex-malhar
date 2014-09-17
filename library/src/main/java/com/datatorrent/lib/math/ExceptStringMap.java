@@ -25,8 +25,9 @@ import com.datatorrent.lib.algo.MatchStringMap;
 import com.datatorrent.lib.util.UnifierHashMap;
 
 /**
- * This operator does comparison on tuple sub-classed from String based on the property "key", "value", and "cmp", and not matched tuples are emitted.&nbsp; The comparison is done by parsing double value from the String.
+ * This operator does comparison on tuple sub-classed from String based on the property "key", "value", and "cmp", and not matched tuples are emitted.
  * <p>
+ * The comparison is done by parsing double value from the String.
  * Both output ports are optional, but at least one has to be connected.
  * This module is a pass through<br>
  * <br>
@@ -54,8 +55,8 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * Is the value of the key a number<br>
  * <br>
  * @displayname: Except String Map
- * @category: lib.math
- * @tags: comparison, String, key value
+ * @category: math
+ * @tags: comparison, string, key value
  * @since 0.3.3
  */
 @Stateless

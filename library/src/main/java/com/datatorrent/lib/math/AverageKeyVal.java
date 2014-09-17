@@ -49,7 +49,7 @@ import org.apache.commons.lang.mutable.MutableLong;
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * @displayname: Average Key Value
- * @category: lib.math
+ * @category: math
  * @tags: average, number, end window, key value
  * @since 0.3.3
  */

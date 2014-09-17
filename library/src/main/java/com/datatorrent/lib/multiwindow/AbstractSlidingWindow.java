@@ -27,7 +27,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 /**
  *
  * <p>Provides a sliding window class that lets users access both states of all streaming window in current sliding window
- * and state of the expired streaming window from last sliding windows</p><br>
+ * and state of the expired streaming window from last sliding windows. </p>
  * <p>
  * <b>Properties</b>:<br>
  * <b>T</b> is the tuple object the operator accept <br>
@@ -35,8 +35,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * <b>windowSize</b>: Number of streaming window in this sliding window<br>
  * <br>
  * 
- * @displayName: Abstract Sliding Window,
- * @category: lib.multiwindow,
+ * @displayName: Abstract Sliding Window
+ * @category: multiwindow
  * @tag: sliding window, state
  * @since 0.3.3
  */

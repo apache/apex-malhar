@@ -56,7 +56,7 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * Does the incoming HashMap have the key, Is the value of the key a number<br>
  * <br>
  * @displayname: Except Map
- * @category: lib.math
+ * @category: math
  * @tags: comparison, Number
  * @since 0.3.3
  */

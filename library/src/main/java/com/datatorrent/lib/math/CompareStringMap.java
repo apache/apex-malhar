@@ -22,8 +22,9 @@ import com.datatorrent.lib.algo.MatchStringMap;
 import java.util.HashMap;
 
 /**
- * This operator compares String tuples based on the property "key", "value", and "cmp" and all matching tuples are emitted.&nbsp; If the tuple passed the test, it is emitted on the output port "compare".&nbsp; The comparison is done by parsing double value from the String.
+ * This operator compares String tuples based on the property "key", "value", and "cmp" and all matching tuples are emitted.
  * <p>
+ * If the tuple passed the test, it is emitted on the output port "compare".&nbsp; The comparison is done by parsing double value from the String.
  * This module is a pass through<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -45,8 +46,8 @@ import java.util.HashMap;
  * Is the value of the key a number<br>
  * <br>
  * @displayname: Compare String Map
- * @category: lib.math
- * @tags: comparison, key value, String, map
+ * @category: math
+ * @tags: comparison, key value, string, map
  * @since 0.3.2
  */
 @Stateless

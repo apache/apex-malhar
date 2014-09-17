@@ -41,7 +41,7 @@ import com.datatorrent.lib.util.UnifierCountOccurKey;
  * <b>count</b>: emits KeyValPair&lt;K,Integer&gt;</b><br>
  * <br>
  * @displayname: Count Key Value
- * @category: lib.math
+ * @category: math
  * @tags: count, key value, aggregate
  * @since 0.3.3
  */

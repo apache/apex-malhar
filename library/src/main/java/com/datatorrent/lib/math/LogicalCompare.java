@@ -22,9 +22,12 @@ import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.Pair;
 
 /**
- * This operator compares the two values in a given pair &lt;T,T&rt; object which are of the comparable property, and emits the pair on appropriate port denoting the result of the comparison.&nbsp; If the first value is equal to second value, then the pair is emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports.&nbsp; If the first value is less than second value, then the pair is emitted on notEqualTo, lessThan and lessThanEqualTo ports.&nbsp; If the first value is greater than second value, then the pair is emitted on notEqualTo, greaterThan and greaterThanEqualTo ports. 
+ * This operator compares the two values in a given pair &lt;T,T&rt; object which are of the comparable property, and emits the pair on appropriate port denoting the result of the comparison.
  * <p>
- * This is a pass through operator
+ * If the first value is equal to second value, then the pair is emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports.
+ * If the first value is less than second value, then the pair is emitted on notEqualTo, lessThan and lessThanEqualTo ports.
+ * If the first value is greater than second value, then the pair is emitted on notEqualTo, greaterThan and greaterThanEqualTo ports. 
+ * This is a pass through operator.
  * <br>
  * StateFull : No, output is computed during current window. <br>
  * Partitions : Yes, no dependency among input tuples. <br>
@@ -39,7 +42,7 @@ import com.datatorrent.common.util.Pair;
  * <b>lessThan</b>: emits Pair&lt;T,T&gt;<br>
  * <br>
  * @displayname: Logical Compare
- * @category: lib.math
+ * @category: math
  * @tags: comparison, logical, key value
  * @since 0.3.3
  */

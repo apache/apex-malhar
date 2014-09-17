@@ -28,10 +28,10 @@ import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  *
- * Adds all values for each key in "numerator" and "denominator", and at the end
- * of window emits the margin (1 - numerator/denominator) for each key.
+ * This operator adds all values for each key in "numerator" and "denominator", and emits the margin for each key at the end of window.
  * <p>
  * <br>
+ * Margin Formula used by this operator: 1 - numerator/denominator.
  * The values are added for each key within the window and for each stream.<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -44,8 +44,8 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
  * @displayname: Margin Key Value
- * @category: lib.math
- * @tags: sum, division, Number, Key Value, MutableDouble
+ * @category: math
+ * @tags: sum, division, numeric, key value
  * @since 0.3.3
  */
 public class MarginKeyVal<K, V extends Number> extends

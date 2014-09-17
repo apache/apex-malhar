@@ -40,8 +40,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
  * @displayname: Minimum Key Value
- * @category: lib.math
- * @tags: Minimum, Number, Key Value
+ * @category: math
+ * @tags: minimum, numeric, key value
  * @since 0.3.2
  */
 public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

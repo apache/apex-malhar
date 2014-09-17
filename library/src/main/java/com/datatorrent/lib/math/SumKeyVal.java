@@ -29,7 +29,6 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- *
  * Emits the sum of values for each key at the end of window. 
  * <p> 
  * This is an end window operator. Default unifier works as this operator follows sticky partition.<br> <br> <b>Ports</b>:<br>
@@ -40,8 +39,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * across streaming windows. Default is false.<br>
  * <br>
  * @displayname: Sum Key Value
- * @category: lib.math
- * @tags:  Number, Sum, Key Value, End Of Window
+ * @category: math
+ * @tags:  numeric, sum, key value
  * @since 0.3.2
  */
 public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

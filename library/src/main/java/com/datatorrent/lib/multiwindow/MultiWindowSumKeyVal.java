@@ -43,8 +43,8 @@ import javax.validation.constraints.Min;
  * window.<br>
  * <br>
  * @displayName: Multi Window Sum Key Value
- * @category: lib.multiwindow,
- * @tag: Key Value, Sum, End of Window, Number
+ * @category: multiwindow
+ * @tag: key value, sum, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

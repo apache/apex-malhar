@@ -30,7 +30,6 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
- * <p>
  * Add all the values for each key on "numerator" and "denominator" and emits quotient at end of window for all keys in the denominator. 
  * <p>
  * <br>
@@ -57,8 +56,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>mult_by :</b> Set multiply by constant value. <br>
  * <br>
  * @displayname: Quotient Map
- * @category: lib.math
- * @tags: Division, Sum, MutableDouble, Map
+ * @category: math
+ * @tags: division, sum, map
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

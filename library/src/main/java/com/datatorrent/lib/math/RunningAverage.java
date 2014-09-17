@@ -22,6 +22,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * Calculate the running average of the input numbers and emit it at the end of the window. 
+ * <p>
  * This is an end of window operator.<br>
  * <br>
  * <b>StateFull : Yes</b>, average is computed over application window. <br>
@@ -35,8 +36,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <b>floatAverage</b>: emits Float<br>
  * <br>
  * @displayname: Running Average
- * @category: lib.math
- * @tags: Average, Number, End of Window
+ * @category: math
+ * @tags: average, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

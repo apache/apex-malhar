@@ -23,9 +23,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
+ * This operator adds all the values on "numerator" and "denominator" and emits quotient at end of window. 
  * <p>
- * This operator adds all the values on "numerator" and "denominator" and emits quotient at end of window. <br>
- * 
  * <br>
  * <b>StateFull : Yes </b>, Sum of values is taken over application window. <br>
  * <b>Partitions : No </b>, will yield wrong results, since values are
@@ -40,8 +39,8 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>mult_by : </b>Multiply by value(default = 1). <br>
  * <br>
  * @displayname: Quotient
- * @category: lib.math
- * @tags: Division, Sum, Number
+ * @category: math
+ * @tags: division, sum, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

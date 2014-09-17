@@ -24,7 +24,7 @@ import com.datatorrent.lib.util.HighLow;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * A range operator of KeyValPair schema which calculate range across multiple streaming windows.
+ * A range operator of KeyValPair schema which calculates range across multiple streaming windows.
  * <p>
  * This is an end window operator which emits only at Nth window. <br>
  * <br>
@@ -44,9 +44,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>windowSize i.e. N</b>: Number of streaming windows that define application window.<br>
  * <br>
  *
- * @displayName: Multi Window Range Key Value,
- * @category: lib.multiwindow,
- * @tag: Key Value, Range, Number
+ * @displayName: Multi Window Range Key Value
+ * @category: multiwindow
+ * @tag: key value, range, numeric
  * @since 0.3.2
  */
 public class MultiWindowRangeKeyVal<K, V extends Number> extends RangeKeyVal<K, V>

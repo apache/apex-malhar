@@ -24,6 +24,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  * This operator sums the division of numerator and denominator value arriving at input ports. 
+ * <p>
  * <br>
  * Margin Formula used by this operator: 1 - numerator/denominator.<br>
  * If percent flag is set then margin is emitted as percentage.
@@ -41,8 +42,8 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <br>
  * <b>percent: </b>  output margin as percentage value.
  * @displayname: Margin
- * @category: lib.math
- * @tags: sum, division, Number
+ * @category: math
+ * @tags: sum, division, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

@@ -22,10 +22,11 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
- * Operator compares data values arriving on input port with base value input operator.&nbsp;
+ * Operator compares data values arriving on input port with base value input operator.
+ * 
+ * <p>
  * Arriving base value is stored in operator for comparison, old base value is overwritten.&nbsp;
  * This emits &lt;change in value,percentage change&gt;.
- * <p>
  * Operator expects values arriving on data input port and base value input operator.
  * Change in value and percentage change in values are emitted on separate ports.<br>
  * This operator can not be partitioned, since copies won't get consecutive operators. <br>
@@ -51,8 +52,8 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  *
  * <br>
  * @displayname: Change
- * @category: lib.math
- * @tags: change, key value, number, percentage
+ * @category: math
+ * @tags: change, key value, numeric, percentage
  * @since 0.3.3
  */
 public class Change<V extends Number> extends BaseNumberValueOperator<V>

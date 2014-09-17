@@ -28,7 +28,7 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  *
- * This operator emits at end of window maximum of all values sub-classed from Number for each key in KeyValPair.
+ * This operator emits maximum of all values sub-classed from Number at end of window for each key in KeyValPair. 
  * <p>
  * <br>
  * <b>Ports</b>:<br>
@@ -40,8 +40,8 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
  * @displayname: Maximum Key Value
- * @category: lib.math
- * @tags: Maximum, Number, Key Value
+ * @category: math
+ * @tags: maximum, numeric, key value
  * @since 0.3.2
  */
 public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
