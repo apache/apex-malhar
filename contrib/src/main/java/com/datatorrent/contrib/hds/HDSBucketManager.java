@@ -200,27 +200,36 @@ public class HDSBucketManager extends HDSReader implements CheckpointListener, O
   }
 
   /**
+   * Lookup in write cache (data not flushed/committed to files).
+   * @param bucketKey
+   * @param key
+   * @return
+   */
+  protected byte[] getUncommitted(long bucketKey, Slice key)
+  {
+    Bucket bucket = this.buckets.get(bucketKey);
+    if (bucket != null) {
+      byte[] v = bucket.writeCache.get(key);
+      if (v != null) {
+        return v;
+      }
+      return bucket.frozenWriteCache.get(key);
+    }
+    return null;
+  }
+
+  /**
    * Intercept query processing to incorporate unwritten changes.
    */
   @Override
   protected void processQuery(HDSQuery query)
   {
-    Bucket bucket = this.buckets.get(query.bucketKey);
-    if (bucket != null) {
-      // check unwritten changes first
-      byte[] v = bucket.writeCache.get(query.key);
-      if (v != null) {
-        query.result = v;
-        query.processed = true;
-        return;
-      }
-      // check changes currently being flushed
-      v = bucket.frozenWriteCache.get(query.key);
-      if (v != null) {
-        query.result = v;
-        query.processed = true;
-        return;
-      }
+    // check unwritten changes first
+    byte[] v = getUncommitted(query.bucketKey, query.key);
+    if (v != null) {
+      query.result = v;
+      query.processed = true;
+      return;
     }
     super.processQuery(query);
   }

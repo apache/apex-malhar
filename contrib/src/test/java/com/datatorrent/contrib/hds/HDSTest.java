@@ -193,15 +193,23 @@ public class HDSTest
     hds.setup(null);
     hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
     hds.beginWindow(1);
+
     hds.put(getBucketKey(key), key.buffer, data.getBytes());
+    byte[] val = hds.getUncommitted(getBucketKey(key), key);
+    Assert.assertArrayEquals("getUncommitted", data.getBytes(), val);
+
     hds.endWindow();
+
+    val = hds.getUncommitted(getBucketKey(key), key);
+    Assert.assertNull("getUncommitted", val);
+
     hds.teardown();
 
     // get fresh instance w/o cached readers
     hds = TestUtils.clone(new Kryo(), hds);
     hds.setup(null);
     hds.beginWindow(1);
-    byte[] val = hds.get(getBucketKey(key), key);
+    val = hds.get(getBucketKey(key), key);
     hds.endWindow();
     hds.teardown();
     Assert.assertArrayEquals("get", data.getBytes(), val);
