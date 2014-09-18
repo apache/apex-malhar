@@ -24,11 +24,6 @@
                       |//root/package/class/class
                       |//root/package/class/method/@qualified
                       |//root/package/class/field/@qualified" />
-  <!--
-                            |//root/package/class/field[not(type/@qualified='com.datatorrent.api.DefaultInputPort')
-                                                  and not(type/@qualified='com.datatorrent.api.DefaultOutputPort')]
-                      |//root/package/class/method[not(starts-with(@name, 'get'))]
-                      -->
 
   <xsl:strip-space elements="*"/>
 </xsl:stylesheet>
