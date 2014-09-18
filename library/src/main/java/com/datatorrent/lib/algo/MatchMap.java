@@ -58,7 +58,7 @@ import java.util.Map;
  *
  * @displayName Emit Matching Keval Pairs (Number)
  * @category algorithm
- * @tags filter, key value
+ * @tags filter, key value, numeric
  *
  * @since 0.3.2
  */

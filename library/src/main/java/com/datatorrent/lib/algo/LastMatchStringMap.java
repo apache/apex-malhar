@@ -56,7 +56,7 @@ import java.util.Map;
  *
  * @displayName Emit Last Match (Number)
  * @category algorithm
- * @tags filter, key value, numeric
+ * @tags filter, key value, string
  *
  * @since 0.3.2
  */

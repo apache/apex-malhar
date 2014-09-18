@@ -55,7 +55,7 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  *
  * @displayName Count All Who Don't Compare String
  * @category algorithm
- * @tags count, key value
+ * @tags count, key value, string
  *
  * @since 0.3.2
  */

@@ -22,8 +22,8 @@ import java.util.*;
  * <p></p>
  * The default behavior is to get all the values using the keys from the store for each window. Subclasses are free to override this behavior.
  *
- * @displayName Abstract Key Value Store Input Operator
- * @category db
+ * @displayName Abstract Key Value Store Input
+ * @category store
  * @tags input, key value
  *
  * @param <T> The tuple type.

@@ -24,8 +24,8 @@ import java.io.IOException;
 /**
  * This abstract class is for any implementation of an input adapter of a store {@link Connectable}.
  * <p></p>
- * @displayName Abstract Store Input Operator
- * @category db
+ * @displayName Abstract Store Input
+ * @category store
  * @tags input
  *
  * @param <T> The tuple type

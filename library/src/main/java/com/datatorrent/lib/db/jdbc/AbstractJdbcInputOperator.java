@@ -36,7 +36,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(ResultSet)}.
  * </p>
  *
- * @displayName Abstract JDBC Input Operator
+ * @displayName Abstract JDBC Input
  * @category db
  * @tags input
  *

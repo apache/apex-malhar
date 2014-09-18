@@ -43,6 +43,9 @@ import com.datatorrent.api.InputOperator;
  * <b>end</b>: if the user wants to start tailing from end.<br>
  * <br>
  * </p>
+ * @displayName Tail Input
+ * @category io
+ * @tags local fs, file, input
  * @since 0.9.4
  */
 public class TailFsInputOperator implements InputOperator, ActivationListener<OperatorContext>

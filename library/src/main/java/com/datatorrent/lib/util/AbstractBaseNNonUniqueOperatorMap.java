@@ -25,8 +25,8 @@ import java.util.Map;
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<StriK,V> (<key, value><br>
- * <b>bottom</b>: Output data port, emits HashMap<K, ArrayList<V>> (<key, ArraList<values>>)<br>
+ * <b>data</b>: Input data port expects HashMap&lt;K,V&gt; (&lt;key, value&gt;)<br>
+ * <b>bottom</b>: Output data port, emits HashMap&lt;K,ArrayList&lt;V&gt;&gt; (&lt;key, ArrayList&lt;values&gt;&gt;)<br>
  * <b>Properties</b>:
  * <b>N</b>: The number of top values to be emitted per key<br>
  * <br>

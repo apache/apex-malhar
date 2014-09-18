@@ -22,7 +22,7 @@ import java.util.TreeMap;
 /**
  * This is an abstract base class for charting operators that display a histogram.
  * <p></p>
- * @displayName Abstract Histogram Chart Operator
+ * @displayName Abstract Histogram Chart
  * @category chart
  * @tags output
  *
