@@ -48,7 +48,7 @@ import com.google.common.collect.Lists;
  * the operator shutdown.
  * @displayName: Abstract Accumulo Output Operator
  * @category: store
- * @tag: output
+ * @tag: output operator
  * @param <T>
  *            The tuple type
  * @since 1.0.4

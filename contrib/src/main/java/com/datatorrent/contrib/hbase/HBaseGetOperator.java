@@ -31,9 +31,9 @@ import org.apache.hadoop.hbase.client.Result;
  * of a KeyValue from the Get result to a tuple.<br>
  *
  * <br>
- * @displayName: HBase Get
+ * @displayName: HBase Get Operator
  * @category: store
- * @tag: input, get
+ * @tag: input operator, get
  * @param <T> The tuple type
  * @since 0.3.2
  */

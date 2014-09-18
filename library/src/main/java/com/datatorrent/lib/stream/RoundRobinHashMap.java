@@ -24,8 +24,9 @@ import java.util.HashMap;
 
 /**
  * <p>
- * Creates a HashMap tuple from incoming tuples. If keys[] are set, then each
- * incoming tuple is the value of the key (in-order) till all keys get a value.
+ * Creates a HashMap tuple from incoming tuples. 
+ * <p>
+ * If keys[] are set, then each incoming tuple is the value of the key (in-order) till all keys get a value.
  * Once all keys are assigned values, the tuple (HashMap) is emitted, the
  * process of assigning values starts again<br>
  * This is a stateful operator as it waits across window boundary to complete
@@ -40,7 +41,9 @@ import java.util.HashMap;
  * <br>
  * <b>Properties</b>:<br>
  * <b>keys[]</b>: Set of keys to insert in the output tuple</b>
- *
+ * @displayName: Round Robin HashMap
+ * @category: stream
+ * @tag: key value, hashmap
  * @since 0.3.3
  */
 public class RoundRobinHashMap<K, V> extends BaseKeyValueOperator<K, V>

@@ -25,8 +25,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Embedded derby sql input operator.
- *
+ * Embedded derby sql input operator. 
+ * <p>
+ * @displayName: Derby Sql Stream Operator
+ * @category: streamquery
+ * @tag: sql, in-memory 
  * @since 0.3.2
  */
 public class DerbySqlStreamOperator extends AbstractSqlStreamOperator

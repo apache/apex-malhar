@@ -53,9 +53,9 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
  * the operator shutdown.
  * It supports atleast once and atmost once processing modes.
  * Exactly once is not supported
- * @displayName: Abstract HBase Window Append Output
+ * @displayName: Abstract HBase Window Append Output Operator
  * @category: store
- * @tag: output, append, transactionable, batch
+ * @tag: output operator, append, transactionable, batch
  * @param <T>
  *            The tuple type
  * @since 1.0.2

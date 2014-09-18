@@ -31,7 +31,7 @@ import java.util.List;
 
 /**
  * Implements the base class for HBase output operators. <br>
- *
+ * <p>
  * <br>
  * The output operator collects all the tuples that arrive in a window and writes them to
  * HBase in endWindow. The tuples are stored in an application specific manner. The concrete
@@ -41,7 +41,9 @@ import java.util.List;
  * are ignored till the processing window id becomes greater than the last processed window id.<br>
  *
  * <br>
- *
+ * @displayName: HBase Output Operator
+ * @category: store
+ * @tag: output operator
  * @param <T> The tuple type
  * @since 0.3.2
  */

@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * <p>
  * @displayName: Apache Log Input Generator
  * @category: db
- * @tag: input, log
+ * @tag: input operator, log
  * @since 0.9.4
  */
 public class ApacheLogInputGenerator implements InputOperator, ActivationListener<OperatorContext>

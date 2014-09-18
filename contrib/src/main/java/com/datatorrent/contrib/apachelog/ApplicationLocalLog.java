@@ -28,7 +28,7 @@ import org.apache.hadoop.conf.Configuration;
  * <p>
  * @displayName: Application Local Log
  * @category: db
- * @tag: reader, output, streaming
+ * @tag: reader, streaming
  * @since 0.9.4
  */
 public class ApplicationLocalLog implements StreamingApplication

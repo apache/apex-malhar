@@ -1,8 +1,8 @@
 package com.datatorrent.contrib.hbase;
 /**
- * @displayName: Abstract HBase Transactional Append Output
+ * @displayName: Abstract HBase Transactional Append Output Operator
  * @category: store
- * @tag: output, append, transactional
+ * @tag: output operator, append, transactional
  * @deprecated
  * HBase operators are not truly transactional.It is only near transactional.
  * AbstractHBaseTransactionalAppendOutputOperator is a misnomer.

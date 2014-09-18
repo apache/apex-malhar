@@ -25,9 +25,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * Counts and then drops the tuple, mainly used for logging. 
  * <p>
- * Counts and then drops the tuple; mainly used for logging. Increments a count
- * and writes the net number (rate) to console. Useful to benchmark other
+ * Increments a count and writes the net number (rate) to console. Useful to benchmark other
  * modules.<br>
  * This operator is neither pass through nor windowed as far as data tuples are
  * concerned. The logging is done during end of window call.<br>
@@ -38,7 +38,9 @@ import org.slf4j.LoggerFactory;
  * <b>Properties</b>: rollingwindowcount: Number of windows to average over.
  * Results are written to the log<br>
  * <br>
- *
+ * @displayName: Dev Null Counter
+ * @category: stream
+ * @tag: count
  * @since 0.3.3
  */
 public class DevNullCounter<K> extends BaseOperator

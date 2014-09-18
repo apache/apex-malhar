@@ -31,7 +31,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * </p>
  * @displayName: Abstract Accumulo Input Operator
  * @category: store
- * @tag: key value, input 
+ * @tag: key value, input operator 
  * @since 1.0.4
  */
 public abstract class AbstractAccumuloInputOperator<T> extends AbstractStoreInputOperator<T, AccumuloStore> {

@@ -32,7 +32,7 @@ import org.apache.hadoop.hbase.client.ResultScanner;
  * should map the contents of a Result from the Scan result to a tuple.<br>
  *
  * <br>
- * @displayName: HBase Scan
+ * @displayName: HBase Scan Operator
  * @category: store
  * @tag: scan, input
  * @since 0.3.2

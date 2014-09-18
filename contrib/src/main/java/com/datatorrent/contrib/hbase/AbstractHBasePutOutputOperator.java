@@ -38,9 +38,9 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  *
  * <br>
  * This class offers non-transactional put where tuples are put as they come in.
- * @displayName: Abstract HBase Put Output
+ * @displayName: Abstract HBase Put Output Operator
  * @category: store
- * @tag: output, put
+ * @tag: output operator, put
  * @param <T>
  *            The tuple type
  * @since 1.0.2

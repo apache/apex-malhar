@@ -29,7 +29,7 @@ import net.sf.uadetector.service.UADetectorServiceFactory;
 import net.sf.uadetector.UserAgentStringParser;
 
 /**
- * This extractor extracts the browser and the OS from a user-agent string.
+ * Extracts the browser and the OS from a user-agent string.
  * <p>
  * The user of this extractor needs to include the jars which contain these classes in DAGContext.LIBRARY_JARS
  *

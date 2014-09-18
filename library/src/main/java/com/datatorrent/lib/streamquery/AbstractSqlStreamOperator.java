@@ -25,8 +25,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Abstract sql db input operator.
- *
+ * Abstract sql db input operator. 
+ * <p>
+ * @displayName: Abstract Sql Stream Operator
+ * @category: streamquery
+ * @tag: sql, hashmap, string
  * @since 0.3.2
  */
 public abstract class AbstractSqlStreamOperator extends BaseOperator

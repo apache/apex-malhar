@@ -41,9 +41,9 @@ import javax.annotation.Nonnull;
  * This is needed for the recovery. The operator writes a tuple exactly once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
- * @displayName: Abstract Cassandra Transactionable Output With Prepared Statement
+ * @displayName: Abstract Cassandra Transactionable Output Operator With Prepared Statement
  * @category: store
- * @tag: output, batch, transactionable
+ * @tag: output operator, batch, transactionable
  * @param <T>type of tuple</T>
  * @since 1.0.2
  */

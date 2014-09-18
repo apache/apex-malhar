@@ -26,14 +26,17 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
+ * 
+ * Aggregates tuples. 
  * <p>
- * Abstract operator to aggregate tuples, if size of collection is 0 then all
- * tuples till end window are aggregated, otherwise collection is emitted as
+ * If size of collection is 0 then all tuples till end window are aggregated, otherwise collection is emitted as
  * soon as collection size reaches to given size. <br>
  * <br>
  * <b>StateFull : Yes </b>, values are collected over application window. <br>
  * <b>Partitions : No</b>, will yield wrong results.
- *
+ * @displayName: Abstract Aggregator
+ * @category: stream
+ * @tag: aggregate
  * @param <T>
  *          Aggregate tuple type.
  * @since 0.3.3

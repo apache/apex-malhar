@@ -32,7 +32,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 
 /**
- * Takes a json byte stream and emits a HashMap of key values
+ * Takes a json byte stream and emits a HashMap of key values. 
  * <p>
  * This is a pass through operator<br>
  * <br>
@@ -44,7 +44,9 @@ import com.datatorrent.common.util.DTThrowable;
  * &nbsp&nbsp The key will be dot concatenated nested key names <br>
  * &nbsp&nbsp eg: key: "agentinfo.os.name", value: "Ubuntu" <br>
  * <br>
- *
+ * @displayName: Json Byte Array
+ * @category: stream
+ * @tag: json, byte array
  * @since 0.9.4
  */
 @Stateless

@@ -35,9 +35,9 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Row)}.
  * </p>
- * @displayName: Abstract Cassandra Input
+ * @displayName: Abstract Cassandra Input Operator
  * @category: store
- * @tag: input
+ * @tag: input operator
  * @since 1.0.2
  */
 public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInputOperator<T, CassandraStore> {
