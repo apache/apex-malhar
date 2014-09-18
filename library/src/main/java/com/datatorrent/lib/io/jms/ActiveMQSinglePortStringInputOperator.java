@@ -25,7 +25,7 @@ import javax.jms.TextMessage;
  * This operator has a single output port.
  * <p></p>
  * @displayName Active MQ Single Port Input (String)
- * @category io
+ * @category messaging
  * @tags jms, input
  *
  * @since 0.3.3
