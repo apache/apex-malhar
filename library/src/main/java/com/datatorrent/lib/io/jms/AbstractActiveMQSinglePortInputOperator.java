@@ -42,7 +42,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <br>
  * </p>
  * @displayName Abstract Active MQ Single Port Input
- * @category io
+ * @category messaging
  * @tags jms, input
  *
  * @param <T>

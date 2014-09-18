@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * </p>
  * @displayName Abstract Active MQ Input
- * @category io
+ * @category messaging
  * @tags jms, input
  *
  * @since 0.3.2
