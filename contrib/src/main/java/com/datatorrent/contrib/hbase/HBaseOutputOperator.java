@@ -30,7 +30,7 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * The base class for HBase output operators. <br>
+ * Implements the base class for HBase output operators. <br>
  *
  * <br>
  * The output operator collects all the tuples that arrive in a window and writes them to

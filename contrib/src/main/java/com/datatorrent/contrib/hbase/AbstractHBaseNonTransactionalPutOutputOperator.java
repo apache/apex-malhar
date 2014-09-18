@@ -1,5 +1,8 @@
 package com.datatorrent.contrib.hbase;
 /**
+ *  @displayName: Abstract HBase NonTransactional Put Output
+ * @category: store
+ * @tag: output, put
  * @deprecated
  * HBase operators are not truly transactional.It is only near transactional.
  * AbstractHBaseNonTransactionalPutOutputOperator is a misnomer.

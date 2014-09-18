@@ -31,7 +31,10 @@ import com.datatorrent.lib.math.Sum;
 
 /**
  * <p>Application class.</p>
- *
+ * <p>
+ * @displayName: Application
+ * @category: db/zmq
+ * @tag: streaming
  * @since 0.3.2
  */
 @ApplicationAnnotation(name="ApacheLog")

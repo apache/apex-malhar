@@ -24,8 +24,12 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * This application just generates apache log file on the fly and dumps the parsed data to output
- *
+ * Generates apache log file on the fly and dumps the parsed data to output.
+ * 
+ * <p>
+ * @displayName: Application Log Generator
+ * @category: db
+ * @tag: streaming
  * @since 0.9.4
  */
 public class ApplicationLogGenerator implements StreamingApplication

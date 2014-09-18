@@ -22,14 +22,16 @@ import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
 
 /**
- * The base class for the HBase operators.<br>
- *
+ * Implements the base class for the HBase operators. <br>
+ * <p>
  * <br>
  * The HBase operators extend this class. The base class contains the HBase properties and also sets up
  * the configuration to be used by the HBase operators.<br>
- *
+ * 
  * <br>
- *
+ * @displayName: HBase Operator Base
+ * @category: store
+ * @tag: base, properties
  * @since 0.3.2
  */
 @ShipContainingJars(classes = {org.apache.hadoop.hbase.client.HTable.class})

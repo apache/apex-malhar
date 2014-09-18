@@ -35,8 +35,12 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
 
 /**
- * <p>DimensionsComputation class.</p>
- *
+ * <p>Computes Dimensions of Events</p>
+ * <p>
+ * @displayName: Dimension Computation
+ * @category: statistics
+ * @tag: event, dimension, aggregation, computation
+ * 
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  * @since 1.0.2
  */

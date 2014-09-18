@@ -21,7 +21,7 @@ import org.apache.hadoop.hbase.client.Put;
 import java.io.IOException;
 
 /**
- * Operator for storing tuples in HBase rows.<br>
+ * Operator for storing tuples in HBase rows. <br>
  *
  *<br>
  * This class provides a HBase output operator that can be used to store tuples in rows in a

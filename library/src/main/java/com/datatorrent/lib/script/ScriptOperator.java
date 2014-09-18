@@ -27,7 +27,10 @@ import javax.validation.constraints.NotNull;
 
 /**
  * Interface for language script operator.
- *
+ * <p>
+ * @displayName: Script Operator
+ * @category: script
+ * @tag: script, map, string
  * @since 0.3.2
  */
 public abstract class ScriptOperator extends BaseOperator

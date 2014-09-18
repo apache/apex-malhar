@@ -25,8 +25,8 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
- * Operator for storing tuples in HBase columns.<br>
- *
+ * Stores tuples in HBase columns and offers non-transactional append. <br>
+ * <p>
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
  * in columns in a HBase table. It should be extended by the end-operator
@@ -37,7 +37,9 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * <br>
  * This class offers non-transactional append where the columns are append as
  * the tuples come in without waiting for the end window
- *
+ * @displayName: Abstract HBase Append Output
+ * @category: store
+ * @tag: output
  * @param <T>
  *            The tuple type
  * @since 1.0.2

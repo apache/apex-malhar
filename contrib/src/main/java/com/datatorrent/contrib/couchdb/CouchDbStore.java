@@ -32,9 +32,12 @@ import org.ektorp.impl.StdCouchDbInstance;
 import com.datatorrent.lib.db.Connectable;
 
 /**
- * A Couch-db store implementation.<br/>
+ * Implements a CouchDb store . <br/>
+ * <p>
  * Operates in At-most once recovery mode.
- *
+ * @displayName: CouchDb Store
+ * @category: db
+ * @tag: store
  * @since 0.3.5
  */
 public class CouchDbStore implements Connectable

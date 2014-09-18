@@ -27,9 +27,11 @@ import java.util.List;
 
 /**
  * <p>
- * Generic Aerospike Output Adaptor which writes tuples as they come without providing any transactional support.
+ * Generic Output Adaptor which writes tuples as they come without providing any transactional support.
  * </p>
- *
+ * @displayName: Abstract Aerospike Non Transactional Put
+ * @category: db
+ * @tag: output, put, non transactional
  * @param <T>type of tuple</T>
  * @since 1.0.4
  */

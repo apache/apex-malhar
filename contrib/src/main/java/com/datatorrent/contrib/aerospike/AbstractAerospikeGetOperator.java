@@ -28,13 +28,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Base Aerospike input adapter operator, which reads data from persistence database through its API
- * and writes into output port(s).
+ * Base input adapter, which reads data from persistence database through its API and writes into output port(s).
  *
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Record)}.
  * </p>
- *
+ * @displayName: Abstract Aerospike Get
+ * @category: db
+ * @tag: get, input
  * @since 1.0.4
  */
 public abstract class AbstractAerospikeGetOperator<T> extends AbstractStoreInputOperator<T, AerospikeStore> {

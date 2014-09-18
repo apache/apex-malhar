@@ -30,7 +30,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
 import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
- * Base class for CouchDb input adaptor.<br/>
+ * Base class for CouchDb input adaptor. <br/>
  * <p>
  * CouchDb filters documents in the database using stored views. Views are referred as design documents.
  * This operator queries the view and emits the view result.
@@ -48,7 +48,9 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * (like the current date) because that will break the caching of a view's result in CouchDb.
  * Also the {@link #getViewQuery()} method should return the same view stored in CouchDb every time.<br/>
  * </p>
- *
+ * @displayName: Abstract CouchDB Input
+ * @category: db
+ * @tag: input
  * @param <T> Type of tuples which are generated</T>
  * @since 0.3.5
  */

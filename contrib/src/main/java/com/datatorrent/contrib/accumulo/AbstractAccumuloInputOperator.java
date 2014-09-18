@@ -24,12 +24,14 @@ import org.apache.accumulo.core.data.Value;
 
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 /**
- * Base Accumulo input adapter operator, which reads data from persistence database and writes into output port(s).
+ * Base input adapter, which reads data from persistence database and writes into output port(s).
  *
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #getScanner()} and {@link #getTuple(Entry)}.
  * </p>
- *
+ * @displayName: Abstract Accumulo Input Operator
+ * @category: store
+ * @tag: key value, input 
  * @since 1.0.4
  */
 public abstract class AbstractAccumuloInputOperator<T> extends AbstractStoreInputOperator<T, AccumuloStore> {

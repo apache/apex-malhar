@@ -23,7 +23,10 @@ import org.apache.hadoop.hbase.client.HTable;
 import java.io.IOException;
 /**
  * A {@link Connectable} that uses hbase to connect to stores.
- *
+ * <p>
+ * @displayName: HBase Store
+ * @category: store
+ * @tag: store
  * @since 1.0.2
  */
 public class HBaseStore implements Connectable {
