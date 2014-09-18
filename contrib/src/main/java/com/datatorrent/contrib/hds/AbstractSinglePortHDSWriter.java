@@ -57,11 +57,6 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSBucketManage
 
   protected transient HDSCodec<EVENT> codec;
 
-  @Override
-  public void endWindow()
-  {
-    super.endWindow();
-  }
 
   public final transient DefaultInputPort<EVENT> input = new DefaultInputPort<EVENT>()
   {
