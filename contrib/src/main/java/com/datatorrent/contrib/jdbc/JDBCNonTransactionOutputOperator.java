@@ -26,9 +26,9 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
 
 /**
- * JDBCNonTransaction output adapter operator, which send insertion data to non-transaction database. <p><br>
+ * JDBCNonTransaction output adapter operator, which send insertion data to non-transaction database.
+ * <p>
  * For non-transactional database, each row is committed as they are inserted into database.
- *
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have one input port which is derived from JDBCOutputOperator base class. <br>
@@ -47,6 +47,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
  * <br>
  * <b>Benchmarks</b>:
  * <br>
+ * </p>
+ *
+ * @displayName JDBC Non Transaction Output Operator
+ * @category db
+ * @tags output
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcNonTransactionableOutputOperator}

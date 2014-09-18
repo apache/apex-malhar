@@ -29,7 +29,11 @@ import javax.script.ScriptContext;
 import org.python.core.*;
 
 /**
- * Operator to execute python script on tuples
+ * Operator to execute python script on tuples.
+ * <p></p>
+ * @displayName Python Operator
+ * @category programming
+ * @tags python
  *
  * @since 0.3.3
  */

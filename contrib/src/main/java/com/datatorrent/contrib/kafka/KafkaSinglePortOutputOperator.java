@@ -20,8 +20,8 @@ import com.datatorrent.api.DefaultInputPort;
 import kafka.producer.KeyedMessage;
 
 /**
- * Kafka output adapter operator with only one input port, which produce data into Kafka message bus.<p><br>
- *
+ * Kafka output adapter operator with a single input port, which writes data to the Kafka message bus.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Have only one input port<br>
@@ -39,6 +39,11 @@ import kafka.producer.KeyedMessage;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ *
+ * @displayName Kafka Single Port Output Operator
+ * @category messaging
+ * @tags output
  *
  * @since 0.3.2
  */

@@ -33,8 +33,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Kafka input adapter consumer, which consume data from Kafka message bus.<p><br>
- *
+ * Kafka input adapter, which consumes data from Kafka message bus.
+ * <p>
  * Properties:<br>
  * <b>tuplesBlast</b>: Number of tuples emitted in each burst<br>
  * <b>bufferSize</b>: Size of holding buffer<br>
@@ -58,6 +58,11 @@ import org.slf4j.LoggerFactory;
  * Each operator can only consume 1 topic<br>
  * If you want partitionable operator refer to {@link AbstractPartitionableKafkaInputOperator}
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Kafka Input Operator
+ * @category messaging
+ * @tags input
  *
  * @since 0.3.2
  */
@@ -145,7 +150,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void activate(OperatorContext ctx)
   {
-    // Don't start thread here! 
+    // Don't start thread here!
     // Because how many threads we want to start for kafka consumer depends on the type of kafka client and the message metadata(topic/partition/replica)
     consumer.start();
   }
@@ -181,7 +186,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     return consumer;
   }
 
-  //add topic as operator property 
+  //add topic as operator property
   public void setTopic(String topic)
   {
     this.consumer.setTopic(topic);

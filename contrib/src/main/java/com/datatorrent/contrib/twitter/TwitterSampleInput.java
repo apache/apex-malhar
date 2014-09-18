@@ -32,8 +32,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 
 /**
- * Read input from Twitter. <p> <br>
- *
+ * This is an input operator for Twitter.
+ * <p>
  * This test can only be run from command line using command line interface script.
  * You need to set twitter authentication credentials in $HOME/.dt/dt-site.xml file in order to run this.
  * The authentication requires following 4 information.
@@ -41,7 +41,10 @@ import com.datatorrent.api.InputOperator;
  * Your application consumer secret,
  * Your twitter access token, and
  * Your twitter access token secret.
- *
+ * </p>
+ * @displayName Twitter Sample Input
+ * @category web
+ * @tags input
  * @since 0.3.2
  */
 public class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener

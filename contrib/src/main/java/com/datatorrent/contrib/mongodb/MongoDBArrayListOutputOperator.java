@@ -16,20 +16,14 @@
 package com.datatorrent.contrib.mongodb;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import org.bson.types.ObjectId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * MongoDB ArrayList output adapter operator, which send insertion data to database.<p><br>
- *
+ * This is a MongoDB Output Operator, which uses HashMaps to map tuples to appropriate tables and columns in MongoDB,
+ * when doing writes.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have one input port, derived from base class <br>
@@ -47,6 +41,10 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Benchmarks</b>:
  * <br>
+ * </p>
+ * @displayName MongoDB Array List Output Operator
+ * @category db
+ * @tags output
  *
  * @since 0.3.2
  */

@@ -22,8 +22,8 @@ import kafka.message.Message;
 
 
 /**
- * Kafka input adapter operator with single output port, which consume data from Kafka message bus.<p><br>
- *
+ * Kafka input adapter operator with a single output port, which consumes data from the Kafka message bus.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -41,6 +41,11 @@ import kafka.message.Message;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Kafka Single Port Input Operator
+ * @category messaging
+ * @tags input
  *
  * @since 0.3.2
  */

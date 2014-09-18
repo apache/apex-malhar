@@ -25,7 +25,8 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 
 /**
- * JDBC output adapter operator, for HashMap column mapping and transaction type database write. <p><br>
+ * JDBC output adapter operator, for HashMap column mapping and transaction type database write.
+ * <p>
  * Each tuple contain a HahMap or Java object. Key is string, Value can be any type derived from Java object. <br>
  * <br>
  * Ports:<br>
@@ -44,6 +45,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ *
+ * @displayName JDBC Transaction Hash Map Output Operator
+ * @category db
+ * @tags output
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcTransactionableOutputOperator}
