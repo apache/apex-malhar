@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
 
 /**
- * JDBC output adapter operator, for HashMap column mapping and non-transaction type database write. Key is string, Value can be any type derived from Java object.<p><br>
- * <br>
+ * JDBC output adapter operator, for HashMap column mapping and non-transaction type database write.
+ * <p>
  * Ports:<br>
  * <b>Input</b>: This has a single input port that writes data into database.<br>
  * <b>Output</b>: No output port<br>
@@ -44,7 +44,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
  * <br>
  * Benchmarks:<br>
  * TBD<br>
- * <br>
+ * </p>
+ *
+ * @displayName JDBC Non Transaction Hash Map Output Operator
+ * @category db
+ * @tags output
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcNonTransactionableOutputOperator}

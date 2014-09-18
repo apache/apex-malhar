@@ -16,20 +16,14 @@
 package com.datatorrent.contrib.memcache;
 
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
-import net.spy.memcached.MemcachedClient;
 
 /**
- * Memcache output adapter operator, which produce data to Memcached.<p><br>
+ * This is an abstract operator used for memcached output adapters.
+ * <p></p>
  *
- * <br>
- * Ports:<br>
- * <b>Input</b>: Can have any number of input ports<br>
- * <b>Output</b>: no output port<br>
- * <br>
- * @since 0.3.2
- */
-/**
- * This abstract class provides the base class for any memcache output adapter.
+ * @displayName Abstract Memcache Output Operator
+ * @category store
+ * @tags output, key value
  *
  * @param <T> The tuple type.
  * @since 0.9.3

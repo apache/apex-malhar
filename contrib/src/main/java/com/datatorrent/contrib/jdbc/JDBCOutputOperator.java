@@ -38,8 +38,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 
 /**
- * JDBC output adapter operator, which writes data into persistence database through JAVA DataBase Connectivity (JDBC) API
- * from Malhar streaming framework.<p><br>
+ * JDBC output adapter operator, which writes data into persistence database through JAVA DataBase Connectivity (JDBC) API from Malhar streaming framework.
+ * <p>
  * Ports:<br>
  * <b>Input</b>: This has a single input port that writes data into database.<br>
  * <b>Output</b>: No output port<br>
@@ -85,6 +85,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ *
+ * @displayName JDBC Output Operator
+ * @category db
+ * @tags output
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcTransactionableOutputOperator}

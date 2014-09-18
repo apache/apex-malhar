@@ -30,8 +30,8 @@ import java.net.UnknownHostException;
 import org.slf4j.LoggerFactory;
 
 /**
- * MongoDB input adapter operator, which send query data from database.<p><br>
- * <p/>
+ * This is an abstract input adapter for MongoDB.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: no input port <br>
@@ -50,7 +50,10 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Benchmarks</b>:
  * <br>
- *
+ * </p>
+ * @displayName MongoDB Input Operator
+ * @category db
+ * @tags input
  * @since 0.3.2
  */
 public abstract class MongoDBInputOperator<T> extends MongoDBConnectable implements InputOperator, ActivationListener<OperatorContext>

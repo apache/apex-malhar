@@ -28,8 +28,8 @@ import javax.validation.constraints.NotNull;
 import java.util.Properties;
 
 /**
- * Kafka output adapter operator, which produce data into Kafka message bus.<p><br>
- *
+ * Kafka output adapter operator, which writes data to the Kafka message bus.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have any number of input ports<br>
@@ -47,6 +47,11 @@ import java.util.Properties;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Kafka Output Operator
+ * @category messaging
+ * @tags output
  *
  * @since 0.3.2
  */
@@ -59,11 +64,11 @@ public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
   private String topic = "topic1";
 
   protected int sendCount;
-  
+
   private String producerProperties = "";
-  
+
   private Properties configProperties = new Properties();
-    
+
   public Properties getConfigProperties()
   {
     return configProperties;
@@ -88,9 +93,9 @@ public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
       String[] keyVal = StringUtils.trim(propString).split("=");
       prop.put(StringUtils.trim(keyVal[0]), StringUtils.trim(keyVal[1]));
     }
-    
+
     configProperties.putAll(prop);
-    
+
     return new ProducerConfig(configProperties);
   };
 

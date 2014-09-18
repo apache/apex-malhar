@@ -33,17 +33,19 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
 
 /**
- * Operator for getting syndication feeds processed using Rome.<p><br>
- *
- * <br>
+ * Input operator for getting syndication feeds processed using Rome.
+ * <p>
  * This class provides a news syndication operator that uses Rome library to
  * parse the syndication feeds. Rome can parse most syndication formats including
  * RSS and Atom. The location of the feed is specified to the operator. The
  * operator spawns a thread that will poll the syndication source location.
  * The poll interval can also be specified. When the operator encounters new
- * syndication entries it emits them through the default output port.<br>
+ * syndication entries it emits them through the default output port.
+ * </p>
  *
- * <br>
+ * @displayName Rome Syndication Operator
+ * @category web
+ * @tags input
  *
  * @since 0.3.2
  */
@@ -129,7 +131,7 @@ public class RomeSyndicationOperator extends SimpleSinglePortInputOperator<RomeF
   {
     this.orderedUpdate = orderedUpdate;
   }
-  
+
   /**
    * Check if ordered update is set
    */

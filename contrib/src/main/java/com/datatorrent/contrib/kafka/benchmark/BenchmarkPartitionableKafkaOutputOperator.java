@@ -30,11 +30,12 @@ import com.yammer.metrics.Metrics;
 import java.util.Map;
 
 /**
- * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads
- * Messages are distributed evenly to partitions
- *
- * It will also be split to {@link #partitionNum} partitions
- * Please set the {@link #partitionNum} in property file to get optimized performance
+ * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads.&nbsp;
+ * Messages are distributed evenly to partitions.
+ * <p></p>
+ * @displayName Benchmark Partitionable Kafka Output Operator
+ * @category messaging
+ * @tags output
  *
  * @since 0.9.3
  */

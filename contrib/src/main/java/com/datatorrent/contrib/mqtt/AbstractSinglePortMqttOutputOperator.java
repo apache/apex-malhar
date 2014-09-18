@@ -17,11 +17,11 @@ package com.datatorrent.contrib.mqtt;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import org.fusesource.mqtt.client.Message;
 
 /**
- * MQTT output adapter operator, which send data to MQTT.<p><br>
- *
+ * This is an abstract output adapter for MQTT.&nbsp;
+ * This operator has a single input port.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have one input port<br>
@@ -37,8 +37,10 @@ import org.fusesource.mqtt.client.Message;
  * None<br>
  * <br>
  * <b>Benchmarks</b>:TBD
- * <br>
- *
+ * </p>
+ * @displayName Abstract Single Port MQTT Output Operator
+ * @category messaging
+ * @tags output
  * @since 0.9.3
  */
 public abstract class AbstractSinglePortMqttOutputOperator<T> extends AbstractMqttOutputOperator

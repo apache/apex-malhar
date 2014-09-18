@@ -30,8 +30,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 
 /**
- * JDBCTransaction output adapter operator, which send insertion data to transaction database. <p><br>
- *
+ * JDBC output adapter operator, which inserts data into the database using transactions.
+ * <p>
  * For transaction output operator, user needs to have a separate table to store some metadata
  * which is needed to recover in case of a node failure. This additional table contain application id,
  * operator id, and max window id. User needs to have this table setup before running the operator
@@ -56,7 +56,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * User required to assign the name for the windowId, operatorId and applicationId column of the table.
  * <br>
  * <b>Benchmarks</b>:
- * <br>
+ * </p>
+ *
+ * @displayName JDBC Transaction Output Operator
+ * @category db
+ * @tags output
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcTransactionableOutputOperator}

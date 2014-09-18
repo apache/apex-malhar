@@ -41,7 +41,8 @@ import com.google.common.collect.Sets;
 
 
 /**
- * Kafka output operator, which, in most cases, guarantees to send tuples to kafka MQ only once.<br>
+ * Kafka output operator, which, in most cases, guarantees to send tuples to kafka MQ only once.
+ * <p>
  * Assuming messages kept in kafka are ordered by either key or value or keyvalue pair
  * (For example, use timestamps as key), this Kafka OutputOperator always retrieve the last message from MQ as initial offset.
  *  So that replayed message wouldn't be sent to kafka again.
@@ -69,7 +70,11 @@ import com.google.common.collect.Sets;
  * <br>
  * Benchmarks:<br>
  * TBD<br>
- * <br>
+ * </p>
+ *
+ * @displayName Abstract Exactly Once Kafka Output Operator
+ * @category messaging
+ * @tags output
  *
  * @since 1.0.2
  */

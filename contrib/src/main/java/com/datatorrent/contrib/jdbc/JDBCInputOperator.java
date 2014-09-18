@@ -30,8 +30,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
 
 /**
- * JDBC input adapter operator, which reads data from persistence database through JAVA DataBase Connectivity (JDBC) API
- * and writes into output port(s). <p><br>
+ * JDBC input adapter operator,
+ * which reads data from persistence database through JAVA DataBase Connectivity (JDBC) API and writes into output port(s).
+ * <p>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
  * <b>Output</b>: This has a single output port that receives data coming from database.<br>
@@ -49,6 +50,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
  * tableName: If this adapter is writing only to a single table, table name has to be set here unless it is mentioned in column mapping.<br>
  * For writing to multiple table this field is ignored as the table names have to be specified in column mapping. See Column mapping field below for details.<br>
  * batchSize: This has to be at least 1 or more. If not specified the default batch size is 1000.<br>
+ * </p>
+ *
+ * @displayName JDBC Input Operator
+ * @category db
+ * @tags input
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcInputOperator}

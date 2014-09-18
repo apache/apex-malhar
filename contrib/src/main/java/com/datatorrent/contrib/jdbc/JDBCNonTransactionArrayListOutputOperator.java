@@ -27,9 +27,9 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
 
 /**
- * JDBC output adapter operator, for ArrayList column mapping and non-transaction type database write.<p><br>
- * The tuple can contain an array of java object. <br>
- *
+ * JDBC output adapter operator, for ArrayList column mapping and non-transaction type database write.&nbsp;
+ * The tuple can contain an array of java object.
+ * <p>
  * Ports:<br>
  * <b>Input</b>: This has a single input port that writes data into database.<br>
  * <b>Output</b>: No output port<br>
@@ -45,7 +45,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
  * <br>
  * Benchmarks:<br>
  * TBD<br>
- * <br>
+ * </p>
+ *
+ * @displayName JDBC Non Transaction Array List Output Operator
+ * @category db
+ * @tags output
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcNonTransactionableOutputOperator}

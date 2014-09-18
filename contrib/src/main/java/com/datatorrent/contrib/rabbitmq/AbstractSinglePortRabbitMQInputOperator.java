@@ -19,8 +19,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * RabbitMQ input adapter single port operator, which consume data from RabbitMQ message bus.<p><br>
- *
+ * This is an abstract RabbitMQ input adapter operator.&nbsp;
+ * This operator has a single output port.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -42,6 +43,10 @@ import com.datatorrent.api.DefaultOutputPort;
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <br>
+ * </p>
+ * @displayName Abstract Single Port RabbitMQ Input Operator
+ * @category messaging
+ * @tags input
  *
  * @since 0.3.2
  */

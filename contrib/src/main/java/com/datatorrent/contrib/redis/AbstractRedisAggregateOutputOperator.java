@@ -16,10 +16,13 @@
 package com.datatorrent.contrib.redis;
 
 import com.datatorrent.lib.db.AbstractAggregateTransactionableKeyValueStoreOutputOperator;
-import redis.clients.jedis.Jedis;
 
 /**
- * This abstract class provides the base class for any redis aggregate output adapter.
+ * This is an abstract Redis aggregate output adapter.
+ * <p></p>
+ * @displayName Abstract Redis Aggregate Output Operator
+ * @category store
+ * @tags output, key value, aggregate
  *
  * @param <T> The tuple type.
  * @since 0.9.3

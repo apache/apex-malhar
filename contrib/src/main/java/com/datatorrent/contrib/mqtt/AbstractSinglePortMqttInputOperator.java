@@ -20,9 +20,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import org.fusesource.mqtt.client.Message;
 
 /**
- * MQTT input adapter operator, which receives data from MQTT.<p><br>
- *
- * <br>
+ * This is an abstract input adapter for MQTT.&nbsp;This operator has a single output port.
+ * <p>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
  * <b>Output</b>: Can have one output port<br>
@@ -37,8 +36,10 @@ import org.fusesource.mqtt.client.Message;
  * None<br>
  * <br>
  * <b>Benchmarks</b>:TBD
- * <br>
- *
+ * </p>
+ * @displayName Abstract Single Port MQTT Input Operator
+ * @category messaging
+ * @tags input
  * @since 0.9.3
  */
 public abstract class AbstractSinglePortMqttInputOperator<T> extends AbstractMqttInputOperator

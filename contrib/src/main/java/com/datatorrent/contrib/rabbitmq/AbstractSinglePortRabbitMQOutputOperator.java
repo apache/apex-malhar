@@ -18,9 +18,9 @@ package com.datatorrent.contrib.rabbitmq;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * RabbitMQ output adapter operator, which send data to RabbitMQ message bus.<p><br>
- *
- * <br>
+ * This is an abstract RabbitMQ output adapter operator.&nbsp;
+ * This operator has a single input port.
+ * <p>
  * Ports:<br>
  * <b>Input</b>: Can have one input port<br>
  * <b>Output</b>: no output port<br>
@@ -40,7 +40,10 @@ import com.datatorrent.api.DefaultInputPort;
  * <tr><td>One tuple per key per window per port</td><td><b>10 thousand K,V pairs/s</td><td>Out-bound rate is the main determinant of performance. Operator can process about 10 thousand unique (k,v immutable pairs) tuples/sec as RabbitMQ DAG. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
- * <br>
+ * </p>
+ * @displayName Abstract Single Port RabbitMQ Output Operator
+ * @category messaging
+ * @tags output
  *
  * @since 0.3.2
  */

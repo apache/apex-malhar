@@ -26,8 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * RabbitMQ output adapter operator, which send data to RabbitMQ message bus.<p><br>
- *
+ * This is an abstract RabbitMQ output adapter operator.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have any number of input ports<br>
@@ -49,6 +49,10 @@ import org.slf4j.LoggerFactory;
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <br>
+ * </p>
+ * @displayName Abstract RabbitMQ Output Operator
+ * @category messaging
+ * @tags output
  *
  * @since 0.3.2
  */

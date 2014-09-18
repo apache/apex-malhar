@@ -38,6 +38,7 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
 
@@ -46,9 +47,9 @@ import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
 
 /**
- * This kafka input operator will be automatically partitioned per upstream kafka partition.<br> <br>
- * This is not real dynamic partition, The partition number is decided by number of partition set for the topic in kafka.<br> <br>
- *
+ * Kafka input adapter, which consumes data from Kafka message bus.&nbsp;
+ * It will be dynamically partitioned based on the upstream kafka partition.
+ * <p>
  * <b>Partition Strategy:</b>
  * <p><b>1. ONE_TO_ONE partition</b> Each operator partition will consume from only one kafka partition </p>
  * <p><b>2. ONE_TO_MANY partition</b> Each operator partition consumer from multiple kafka partition with some hard ingestion rate limit</p>
@@ -75,9 +76,15 @@ import com.google.common.collect.Sets;
  * <p><b>ONLY APPMASTER</b> operator periodically check overall kafka partition layout and add operator partition due to kafka partition add(no delete supported by kafka for now)</p>
  * <br>
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Partitionable Kafka Input Operator
+ * @category messaging
+ * @tags input
  *
  * @since 0.9.0
  */
+@OperatorAnnotation(partitionable = true)
 public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements Partitioner<AbstractPartitionableKafkaInputOperator>, StatsListener
 {
 
