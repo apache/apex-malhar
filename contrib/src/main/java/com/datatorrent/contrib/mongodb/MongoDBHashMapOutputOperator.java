@@ -16,11 +16,7 @@
 package com.datatorrent.contrib.mongodb;
 
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.*;
-import org.bson.types.ObjectId;
 
 /**
  * This is a MongoDB Output Operator, which uses Lists to map tuples to appropriate tables and columns in MongoDB,
@@ -44,7 +40,7 @@ import org.bson.types.ObjectId;
  * <b>Benchmarks</b>:
  * <br>
  * </p>
- * @displayName MongoDB Hash Map Output Operator
+ * @displayName MongoDB Hash Map Output
  * @category db
  * @tags output
  * @since 0.3.2

@@ -42,7 +42,7 @@ import com.datatorrent.api.InputOperator;
  * Your twitter access token, and
  * Your twitter access token secret.
  * </p>
- * @displayName Twitter Sample Input
+ * @displayName Twitter Input
  * @category web
  * @tags input
  * @since 0.3.2

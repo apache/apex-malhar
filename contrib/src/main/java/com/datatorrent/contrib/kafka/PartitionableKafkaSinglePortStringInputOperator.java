@@ -23,7 +23,7 @@ import kafka.message.Message;
  * Kafka input adapter operator with a single output port, which consumes String data from the Kafka message bus.
  * <p></p>
  *
- * @displayName Partitionable Kafka Single Port String Input Operator
+ * @displayName Partitionable Kafka Single Port String Input
  * @category messaging
  * @tags input, string
  *

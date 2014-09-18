@@ -31,7 +31,7 @@ import org.python.core.*;
 /**
  * Operator to execute python script on tuples.
  * <p></p>
- * @displayName Python Operator
+ * @displayName Python
  * @category programming
  * @tags python
  *

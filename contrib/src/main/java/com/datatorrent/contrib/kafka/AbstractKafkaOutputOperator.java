@@ -49,7 +49,7 @@ import java.util.Properties;
  * <br>
  * </p>
  *
- * @displayName Abstract Kafka Output Operator
+ * @displayName Abstract Kafka Output
  * @category messaging
  * @tags output
  *

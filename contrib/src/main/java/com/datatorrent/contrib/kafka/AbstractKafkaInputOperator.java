@@ -60,7 +60,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * </p>
  *
- * @displayName Abstract Kafka Input Operator
+ * @displayName Abstract Kafka Input
  * @category messaging
  * @tags input
  *

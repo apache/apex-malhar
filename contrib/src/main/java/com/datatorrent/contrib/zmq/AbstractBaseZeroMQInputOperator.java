@@ -28,8 +28,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- * ZeroMQ input adapter operator, which consume data from ZeroMQ message bus.<p><br>
- *
+ * This is a ZeroMQ input adapter.&nbsp;
+ * This operator will behave like a subscriber that issues requests.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -55,7 +56,10 @@ import java.util.concurrent.ArrayBlockingQueue;
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <br>
- *
+ * </p>
+ * @displayName Abstract Base ZeroMQ Input
+ * @category messaging
+ * @tags input
  * @since 0.3.2
  */
 @ShipContainingJars(classes={org.zeromq.ZMQ.Socket.class})

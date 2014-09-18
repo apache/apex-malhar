@@ -41,7 +41,7 @@ import com.datatorrent.api.DefaultInputPort;
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * </p>
- * @displayName Abstract Single Port RabbitMQ Output Operator
+ * @displayName Abstract Single Port RabbitMQ Output
  * @category messaging
  * @tags output
  *

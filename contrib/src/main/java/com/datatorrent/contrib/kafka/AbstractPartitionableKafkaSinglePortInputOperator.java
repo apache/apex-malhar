@@ -25,7 +25,7 @@ import kafka.message.Message;
  * It will be dynamically partitioned based on the upstream kafka partition.
  * <p></p>
  *
- * @displayName Abstract Partitionable Kafka Single Port Input Operator
+ * @displayName Abstract Partitionable Kafka Single Port Input
  * @category messaging
  * @tags input
  *

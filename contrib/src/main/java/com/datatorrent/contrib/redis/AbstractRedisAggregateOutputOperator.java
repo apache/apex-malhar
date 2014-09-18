@@ -20,7 +20,7 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableKeyValueStoreOutpu
 /**
  * This is an abstract Redis aggregate output adapter.
  * <p></p>
- * @displayName Abstract Redis Aggregate Output Operator
+ * @displayName Abstract Redis Aggregate Output
  * @category store
  * @tags output, key value, aggregate
  *

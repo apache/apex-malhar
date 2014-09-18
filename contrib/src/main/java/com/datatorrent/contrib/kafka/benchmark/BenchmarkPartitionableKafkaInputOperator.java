@@ -24,7 +24,7 @@ import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
  * This operator emits one constant message for each kafka message received.&nbsp;
  * So we can track the throughput by messages emitted per second in the stram platform.
  * <p></p>
- * @displayName Benchmark Partitionable Kafka Input Operator
+ * @displayName Benchmark Partitionable Kafka Input
  * @category messaging
  * @tags input
  *

@@ -46,7 +46,7 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
  * TBD<br>
  * </p>
  *
- * @displayName JDBC Non Transaction Hash Map Output Operator
+ * @displayName JDBC Non Transaction Hash Map Output
  * @category db
  * @tags output
  *

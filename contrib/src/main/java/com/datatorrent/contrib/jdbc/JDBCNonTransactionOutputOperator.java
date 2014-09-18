@@ -49,7 +49,7 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
  * <br>
  * </p>
  *
- * @displayName JDBC Non Transaction Output Operator
+ * @displayName JDBC Non Transaction Output
  * @category db
  * @tags output
  *

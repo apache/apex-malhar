@@ -25,7 +25,7 @@ import java.util.Map;
  * Otherwise, it will increment the value as is.
  * <p></p>
  *
- * @displayName Redis Number Summation Key Val Pair Output Operator
+ * @displayName Redis Number Summation Key Val Pair Output
  * @category store
  * @tags output, key value
  *

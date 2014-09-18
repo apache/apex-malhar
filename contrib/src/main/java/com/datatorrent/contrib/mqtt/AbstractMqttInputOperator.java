@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This is an abstract input adapter for MQTT.
  * <p></p>
- * @displayName Abstract MQTT Input Operator
+ * @displayName Abstract MQTT Input
  * @category messaging
  * @tags input
  * @since 0.9.3

@@ -21,7 +21,7 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  * This is an abstract operator used for memcached input adapters.
  * <p></p>
  *
- * @displayName Abstract Memcache Input Operator
+ * @displayName Abstract Memcache Input
  * @category store
  * @tags output, key value
  *
