@@ -10,22 +10,25 @@
 <xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
   <xsl:output method="xml" standalone="yes"/>
 
-  <!-- Select:
-        a. all nodes with names root, package, class, interface, comment
-        b. all attributes with names qualified, text
-        c. all text values
-  -->
-  <xsl:template match="node()|text()|@name|@qualified|@text">
+  <!-- copy xml by selecting only the following nodes, attrbutes and text -->
+  <xsl:template match="node()|text()|@*">
     <xsl:copy>
-      <xsl:apply-templates select="root|package|class|interface|comment|tag|text()|@name|@qualified|@text"/>
+      <xsl:apply-templates select="root|package|class|interface|method|field|type|comment|tag|text()|@name|@qualified|@text"/>
     </xsl:copy>
   </xsl:template>
 
-  <!-- Strip off the following paths from the selected xml:
-        a. //root/package/class/class
-        b. //root/package/class/interface
-  -->
-  <xsl:template match="//root/package/class/class|//root/package/class/interface" />
+  <!-- Strip off the following paths from the selected xml -->
+  <xsl:template match="//root/package/interface/interface
+                      |//root/package/interface/method/@qualified
+                      |//root/package/class/interface
+                      |//root/package/class/class
+                      |//root/package/class/method/@qualified
+                      |//root/package/class/field/@qualified" />
+  <!--
+                            |//root/package/class/field[not(type/@qualified='com.datatorrent.api.DefaultInputPort')
+                                                  and not(type/@qualified='com.datatorrent.api.DefaultOutputPort')]
+                      |//root/package/class/method[not(starts-with(@name, 'get'))]
+                      -->
 
   <xsl:strip-space elements="*"/>
 </xsl:stylesheet>
