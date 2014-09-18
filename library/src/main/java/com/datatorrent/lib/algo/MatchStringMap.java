@@ -56,7 +56,7 @@ import java.util.Map;
  *
  * @displayName Emit Matching Keyval Pairs (String)
  * @category algorithm
- * @tags filter, key value
+ * @tags filter, key value, string
  *
  * @since 0.3.2
  */

@@ -47,7 +47,7 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
  *
- * @displayName Abstract JDBC Transactionable Output Operator
+ * @displayName Abstract JDBC Transactionable Output
  * @category db
  * @tags output, transactional
  *

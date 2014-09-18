@@ -26,7 +26,7 @@ import java.util.TreeMap;
  * <p></p>
  * This is the chart operator that plots the candle stick of Y for each window.  X will be based on the timestamp derived from the window id
  *
- * @displayName Time Series Candle Stick Chart Operator
+ * @displayName Time Series Candle Stick Chart
  * @category chart
  * @tags output
  *

@@ -18,9 +18,9 @@ package com.datatorrent.lib.db;
 /**
  * This abstract class is for aggregate output (over one application window) to a transactionable store with the transactional exactly-once feature.
  * <p></p>
- * @displayName Abstract Aggregate Transactionable Store Output Operator
- * @category db
- * @tags transactional, output, key value, exactly once
+ * @displayName Abstract Aggregate Transactionable Store Output
+ * @category store
+ * @tags transactional, output, key value
  *
  * @param <T> The tuple type.
  * @param <S> The store type.

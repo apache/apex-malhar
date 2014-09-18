@@ -26,8 +26,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * This abstract class is for any implementation of an output adapter of non-transactional store {@link Connectable}
  * without the transactional exactly once feature.
  * <p></p>
- * @displayName Abstract Store Output Operator
- * @category db
+ * @displayName Abstract Store Output
+ * @category store
  * @tags output
  *
  * @param <T> The tuple type
