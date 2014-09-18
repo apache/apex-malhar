@@ -28,6 +28,7 @@ import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.hbase.io.hfile.*;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Properties;
 import java.util.TreeMap;
@@ -232,7 +233,6 @@ public class HFileImpl extends HDSFileAccessFSImpl {
   public HDSFileReader getReader(long bucketKey, String fileName) throws IOException
   {
     ComparatorAdaptor.COMPARATOR.set(this.comparator);
-    //FSDataInputStream fsdis =  getInputStream(bucketKey, fileName);
     final Configuration conf = getConfiguration();
     final CacheConfig cacheConfig = getCacheConfig();
     final Path filePath = getFilePath(bucketKey, fileName);
@@ -253,9 +253,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
         do {
           kv = scanner.getKeyValue();
           Slice key = new Slice(kv.getRowArray(), kv.getKeyOffset(), kv.getKeyLength());
-          Slice value = new Slice(kv.getRowArray(), kv.getValueOffset(), kv.getValueLength());
-          //data.put(key, value);
-          data.put(key, value.clone().buffer);
+          data.put(key, Arrays.copyOfRange(kv.getRowArray(), kv.getValueOffset(), kv.getValueOffset() + kv.getValueLength()));
         } while (scanner.next());
       }
 
