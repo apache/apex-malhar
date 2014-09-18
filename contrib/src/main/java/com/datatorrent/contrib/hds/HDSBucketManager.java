@@ -199,29 +199,23 @@ public class HDSBucketManager extends HDSReader implements CheckpointListener, O
     return bucket;
   }
 
-  private transient Slice keyWrapper = new Slice(null, 0, 0);
-
   /**
    * Intercept query processing to incorporate unwritten changes.
    */
   @Override
   protected void processQuery(HDSQuery query)
   {
-    byte[] key = query.key;
-    keyWrapper.buffer = key;
-    keyWrapper.length = key.length;
-
     Bucket bucket = this.buckets.get(query.bucketKey);
     if (bucket != null) {
       // check unwritten changes first
-      byte[] v = bucket.writeCache.get(keyWrapper);
+      byte[] v = bucket.writeCache.get(query.key);
       if (v != null) {
         query.result = v;
         query.processed = true;
         return;
       }
       // check changes currently being flushed
-      v = bucket.frozenWriteCache.get(keyWrapper);
+      v = bucket.frozenWriteCache.get(query.key);
       if (v != null) {
         query.result = v;
         query.processed = true;
@@ -229,12 +223,6 @@ public class HDSBucketManager extends HDSReader implements CheckpointListener, O
       }
     }
     super.processQuery(query);
-  }
-
-  @Override
-  public byte[] get(long bucketKey, byte[] key) throws IOException
-  {
-    return super.get(bucketKey, key);
   }
 
   public void put(long bucketKey, byte[] key, byte[] value) throws IOException

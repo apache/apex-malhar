@@ -87,8 +87,8 @@ public class MockFileAccess extends HDSFileAccessFSImpl
       }
 
       @Override
-      public boolean seek(byte[] key) throws IOException {
-        Pair<byte[], Integer> v = data.get(new Slice(key, 0, key.length));
+      public boolean seek(Slice key) throws IOException {
+        Pair<byte[], Integer> v = data.get(key);
         if (v == null) {
           index.setValue(0);
           return false;

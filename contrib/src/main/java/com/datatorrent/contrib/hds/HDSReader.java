@@ -59,7 +59,7 @@ public class HDSReader implements Operator
   public static class HDSQuery
   {
     public long bucketKey;
-    public byte[] key;
+    public Slice key;
     public int keepAliveCount;
     public volatile byte[] result;
     public volatile boolean processed;
@@ -68,7 +68,7 @@ public class HDSReader implements Operator
     {
       return "HDSQuery{" +
           "bucketKey=" + bucketKey +
-          ", key=" + Arrays.toString(key) +
+          ", key=" + key +
           ", keepAliveCount=" + keepAliveCount +
           ", result=" + Arrays.toString(result) +
           ", processed=" + processed +
@@ -233,13 +233,12 @@ public class HDSReader implements Operator
     }
   }
 
-  protected byte[] get(long bucketKey, byte[] key) throws IOException
+  protected byte[] get(long bucketKey, Slice key) throws IOException
   {
-    Slice keyWrapper = new Slice(key, 0, key.length);
 
     BucketReader bucket = getReader(bucketKey);
     for (int i=0; i<10; i++) {
-      Map.Entry<Slice, BucketFileMeta> floorEntry = bucket.bucketMeta.files.floorEntry(keyWrapper);
+      Map.Entry<Slice, BucketFileMeta> floorEntry = bucket.bucketMeta.files.floorEntry(key);
       if (floorEntry == null) {
         // no file for this key
         return null;
@@ -260,7 +259,7 @@ public class HDSReader implements Operator
         this.buckets.remove(bucketKey);
         bucket.close();
         bucket = getReader(bucketKey);
-        Map.Entry<Slice, BucketFileMeta> newEntry = bucket.bucketMeta.files.floorEntry(keyWrapper);
+        Map.Entry<Slice, BucketFileMeta> newEntry = bucket.bucketMeta.files.floorEntry(key);
         if (newEntry != null && newEntry.getValue().name.compareTo(floorEntry.getValue().name) == 0) {
           // file still the same - error unrelated to rewrite
           throw e;
@@ -275,12 +274,11 @@ public class HDSReader implements Operator
 
   protected void addQuery(HDSQuery query)
   {
-    Slice key = HDS.SliceExt.toSlice(query.key);
-    HDSQuery existingQuery = this.queries.get(key);
+    HDSQuery existingQuery = this.queries.get(query.key);
     if (existingQuery != null) {
       query.keepAliveCount = Math.max(query.keepAliveCount, existingQuery.keepAliveCount);
     }
-    this.queries.put(key, query);
+    this.queries.put(query.key, query);
   }
 
   protected void emitQueryResult(HDSQuery query)

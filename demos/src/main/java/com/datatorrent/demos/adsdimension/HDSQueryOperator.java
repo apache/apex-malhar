@@ -160,7 +160,7 @@ public class HDSQueryOperator extends HDSOutputOperator
       if (q == null) {
         q = new HDSQuery();
         q.bucketKey = bucketKey;
-        q.key = key.buffer;
+        q.key = key;
         super.addQuery(q);
       } else {
         // TODO: find out why we got null in first place
@@ -261,7 +261,7 @@ public class HDSQueryOperator extends HDSOutputOperator
         }
         // results from persistent store
         if (query.processed && query.result != null) {
-          AdInfo.AdInfoAggregateEvent ae = getAggregatesFromBytes(query.key, query.result);
+          AdInfo.AdInfoAggregateEvent ae = getAggregatesFromBytes(query.key.buffer, query.result);
           if (ae != null)
             res.data.add(ae);
         }

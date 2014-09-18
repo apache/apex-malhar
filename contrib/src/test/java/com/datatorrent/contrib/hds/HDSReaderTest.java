@@ -84,7 +84,7 @@ public class HDSReaderTest
     HDSQuery q = new HDSQuery();
     q.bucketKey = HDSTest.getBucketKey(key1);
     q.keepAliveCount = 1;
-    q.key = key1.buffer;
+    q.key = key1;
 
     reader.addQuery(q);
     Assert.assertNull("query result before endWindow", q.result);
@@ -112,13 +112,13 @@ public class HDSReaderTest
     HDSQuery q2 = new HDSQuery();
     q2.bucketKey = HDSTest.getBucketKey(key2);
     q2.keepAliveCount = 1;
-    q2.key = key2.buffer;
+    q2.key = key2;
 
     reader.beginWindow(4);
     reader.addQuery(q2);
     reader.endWindow(); // emit nothing - unknown key
     Assert.assertEquals("query results " + results, 1, results.size());
-    Assert.assertArrayEquals("query result " + results.get(0), key2.buffer, results.get(0).key);
+    Assert.assertEquals("query result " + results.get(0), key2, results.get(0).key);
     Assert.assertEquals("query result " + results.get(0), null, results.get(0).result);
 
     reader.teardown();
@@ -156,7 +156,7 @@ public class HDSReaderTest
     HDSQuery q = new HDSQuery();
     q.bucketKey = HDSTest.getBucketKey(key);
     q.keepAliveCount = 2;
-    q.key = key.buffer;
+    q.key = key;
 
     reader.addQuery(q);
     Assert.assertNull("query result before endWindow", q.result);

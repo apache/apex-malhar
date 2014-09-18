@@ -265,9 +265,9 @@ public class HFileImpl extends HDSFileAccessFSImpl {
       }
 
       @Override
-      public boolean seek(byte[] key) throws IOException
+      public boolean seek(Slice key) throws IOException
       {
-        if (scanner.seekTo(key) == 0){
+        if (scanner.seekTo(key.buffer, key.offset, key.length) == 0){
           return true;
         } else {
           scanner.next();

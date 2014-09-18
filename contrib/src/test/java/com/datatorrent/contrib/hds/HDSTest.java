@@ -126,7 +126,7 @@ public class HDSTest
 
     HDSQuery q = new HDSQuery();
     q.bucketKey = BUCKET1;
-    q.key = Arrays.copyOf(key1.buffer, key1.buffer.length); // check key equality;
+    q.key = new Slice(key1.buffer, key1.offset, key1.length); // check key equality;
 
     hds.processQuery(q); // write cache
     Assert.assertArrayEquals("uncommitted get1 " + key1, data1.getBytes(), q.result);
@@ -201,7 +201,7 @@ public class HDSTest
     hds = TestUtils.clone(new Kryo(), hds);
     hds.setup(null);
     hds.beginWindow(1);
-    byte[] val = hds.get(getBucketKey(key), key.buffer);
+    byte[] val = hds.get(getBucketKey(key), key);
     hds.endWindow();
     hds.teardown();
     Assert.assertArrayEquals("get", data.getBytes(), val);

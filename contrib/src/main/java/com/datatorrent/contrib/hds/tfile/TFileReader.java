@@ -77,9 +77,9 @@ public class TFileReader implements HDSFileReader
   }
 
   @Override
-  public boolean seek(byte[] key) throws IOException
+  public boolean seek(Slice key) throws IOException
   {
-    return scanner.seekTo(key);
+    return scanner.seekTo(key.buffer, key.offset, key.length);
   }
 
   @Override

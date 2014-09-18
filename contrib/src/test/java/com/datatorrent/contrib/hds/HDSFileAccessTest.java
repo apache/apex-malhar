@@ -70,7 +70,7 @@ public class HDSFileAccessTest
   {
     testTFile(TFile.COMPRESSION_GZ);
   }
-  
+
   @Test
   public void testDTFile() throws IOException
   {
@@ -104,7 +104,7 @@ public class HDSFileAccessTest
     testRandomRead(0, timpl, "TFileUnit" + compression);
 
   }
-  
+
   private void testDTFile(String compression) throws IOException{
 
     TFileImpl timpl = new TFileImpl.DTFileImpl();
@@ -163,14 +163,14 @@ public class HDSFileAccessTest
     // seek to existing key k
     // seek() method should move to key[i] where key[i] = k
     // so next "next()" would return key[i] which is equal to k
-    in.seek(new byte[] { 1 });
+    in.seek(HDS.SliceExt.toSlice(new byte[] { 1 }));
     assertTrue(in.next(tkey, tval));
     assertEquals("Value is not as expected", values[1], new String(Arrays.copyOfRange(tval.buffer, tval.offset, tval.offset + tval.length)));
 
     // If seek to non-existing key k
     // seek() method should move to key[i] where key[i-1] < k and key[i] > k
     // so next "next()"  would return first key[i] which is greater than k
-    assertFalse(in.seek(new byte[] { 2 }));
+    assertFalse(in.seek(HDS.SliceExt.toSlice(new byte[] { 2 })));
     in.next(tkey, tval);
     assertEquals("Value is not as expected", values[2], new String(Arrays.copyOfRange(tval.buffer, tval.offset, tval.offset + tval.length)));
     in.close();

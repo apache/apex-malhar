@@ -69,7 +69,7 @@ public interface HDSFileAccess extends Closeable
      * @throws IOException
      * @return true if a given key is found
      */
-    boolean seek(byte[] key) throws IOException;
+    boolean seek(Slice key) throws IOException;
 
     /**
      * Reads next available key/value pair starting from the current pointer position
