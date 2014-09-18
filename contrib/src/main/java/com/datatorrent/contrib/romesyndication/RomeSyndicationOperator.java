@@ -43,7 +43,7 @@ import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
  * syndication entries it emits them through the default output port.
  * </p>
  *
- * @displayName Rome Syndication Operator
+ * @displayName Rome Syndication
  * @category web
  * @tags input
  *

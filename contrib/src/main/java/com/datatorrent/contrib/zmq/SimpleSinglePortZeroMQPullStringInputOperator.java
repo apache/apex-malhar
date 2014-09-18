@@ -20,8 +20,11 @@ import org.zeromq.ZMQ;
 import com.datatorrent.contrib.zmq.SimpleSinglePortZeroMQPullInputOperator;
 
 /**
- * <p>SimpleSinglePortZeroMQPullStringInputOperator class.</p>
- *
+ * This is a ZeroMQ input adapter for Strings, with a single input port.&nbsp;
+ * This operator will automatically recieve data from a pusher.
+ * @displayName Simple Single Port ZeroMQ Pull String Input
+ * @category messaging
+ * @tags output, string
  * @since 0.3.2
  */
 public class SimpleSinglePortZeroMQPullStringInputOperator extends SimpleSinglePortZeroMQPullInputOperator<String>

@@ -21,7 +21,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * This is an abstract operator used for memcached output adapters.
  * <p></p>
  *
- * @displayName Abstract Memcache Output Operator
+ * @displayName Abstract Memcache Output
  * @category store
  * @tags output, key value
  *

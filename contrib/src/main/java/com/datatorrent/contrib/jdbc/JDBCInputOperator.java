@@ -52,7 +52,7 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
  * batchSize: This has to be at least 1 or more. If not specified the default batch size is 1000.<br>
  * </p>
  *
- * @displayName JDBC Input Operator
+ * @displayName JDBC Input
  * @category db
  * @tags input
  *

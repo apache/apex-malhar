@@ -78,7 +78,7 @@ import com.google.common.collect.Sets;
  * <br>
  * </p>
  *
- * @displayName Abstract Partitionable Kafka Input Operator
+ * @displayName Abstract Partitionable Kafka Input
  * @category messaging
  * @tags input
  *

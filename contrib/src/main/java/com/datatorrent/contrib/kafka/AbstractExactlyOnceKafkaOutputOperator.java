@@ -72,7 +72,7 @@ import com.google.common.collect.Sets;
  * TBD<br>
  * </p>
  *
- * @displayName Abstract Exactly Once Kafka Output Operator
+ * @displayName Abstract Exactly Once Kafka Output
  * @category messaging
  * @tags output
  *

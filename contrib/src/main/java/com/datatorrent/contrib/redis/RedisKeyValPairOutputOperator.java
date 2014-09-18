@@ -27,7 +27,7 @@ import java.util.Map;
  * endWindow, and a transaction in Redis blocks all other clients.
  * </p>
  *
- * @displayName Redis Key Val Pair Output Operator
+ * @displayName Redis Key Val Pair Output
  * @category store
  * @tags output, key value
  *

@@ -38,7 +38,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * <br>
  * <b>Benchmarks</b>:TBD
  * </p>
- * @displayName Abstract Single Port MQTT Output Operator
+ * @displayName Abstract Single Port MQTT Output
  * @category messaging
  * @tags output
  * @since 0.9.3

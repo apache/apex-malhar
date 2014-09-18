@@ -21,8 +21,12 @@ import com.datatorrent.api.Context;
 import org.zeromq.ZMQ;
 
 /**
- * <p>Abstract SimpleSinglePortZeroMQPullInputOperator class.</p>
- *
+ * This is a ZeroMQ input adapter, with a single output port.&nbsp;
+ * This operator will automatically recieve data from a pusher.
+ * <p></p>
+ * @displayName Simple Single Port ZeroMQ Pull Input
+ * @category messaging
+ * @tags input
  * @since 0.3.2
  */
 public abstract class SimpleSinglePortZeroMQPullInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable

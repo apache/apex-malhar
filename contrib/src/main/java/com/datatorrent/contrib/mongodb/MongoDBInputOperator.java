@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>:
  * <br>
  * </p>
- * @displayName MongoDB Input Operator
+ * @displayName MongoDB Input
  * @category db
  * @tags input
  * @since 0.3.2

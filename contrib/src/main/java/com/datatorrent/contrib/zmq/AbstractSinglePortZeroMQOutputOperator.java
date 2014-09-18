@@ -18,8 +18,9 @@ package com.datatorrent.contrib.zmq;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * ZeroMQ output adapter operator, which send data to ZeroMQ message bus.<p><br>
- *
+ * This is a ZeroMQ output adapter, with a single input port.&nbsp;
+ * This operator will behave like a publisher that replies to requests.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have one input port<br>
@@ -41,7 +42,10 @@ import com.datatorrent.api.DefaultInputPort;
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <br>
- *
+ * </p>
+ * @displayName Abstract Single Port ZeroMQ Output
+ * @category messaging
+ * @tags output
  * @since 0.3.2
  */
 public abstract class AbstractSinglePortZeroMQOutputOperator<T> extends AbstractBaseZeroMQOutputOperator

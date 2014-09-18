@@ -23,7 +23,7 @@ import java.util.Map;
  * if the values in the tuples are maps, the operator will increment the values in the tuples in redis.&nbsp;
  * Otherwise, it will increment the value as is.
  * <p></p>
- * @displayName Redis Number Summation Key Val Pair Output Operator
+ * @displayName Redis Number Summation Key Val Pair Output
  * @category store
  * @tags output, key value
  *

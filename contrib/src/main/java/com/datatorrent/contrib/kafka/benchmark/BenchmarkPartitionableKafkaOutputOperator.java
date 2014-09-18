@@ -33,7 +33,7 @@ import java.util.Map;
  * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads.&nbsp;
  * Messages are distributed evenly to partitions.
  * <p></p>
- * @displayName Benchmark Partitionable Kafka Output Operator
+ * @displayName Benchmark Partitionable Kafka Output
  * @category messaging
  * @tags output
  *

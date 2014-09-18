@@ -20,7 +20,7 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
 /**
  * This is an abstract Redis input adapter.
  * <p></p>
- * @displayName Abstract Redis Input Operator
+ * @displayName Abstract Redis Input
  * @category store
  * @tags input, key value
  *

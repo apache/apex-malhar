@@ -45,7 +45,7 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * <br>
  * </p>
  *
- * @displayName JDBC Transaction Array List Output Operator
+ * @displayName JDBC Transaction Array List Output
  * @category db
  * @tags output
  *

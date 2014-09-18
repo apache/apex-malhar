@@ -87,7 +87,7 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * <br>
  * </p>
  *
- * @displayName JDBC Output Operator
+ * @displayName JDBC Output
  * @category db
  * @tags output
  *
