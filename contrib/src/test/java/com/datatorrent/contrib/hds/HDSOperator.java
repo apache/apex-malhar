@@ -15,59 +15,18 @@
  */
 package com.datatorrent.contrib.hds;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Set;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.StreamCodec;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.google.common.collect.Lists;
 
-public class HDSOperator extends HDSBucketManager implements Partitioner<HDSOperator>
+public class HDSOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(HDSOperator.class);
+  @Override
+  protected Class<? extends com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter.HDSCodec<KeyValPair<byte[], byte[]>>> getCodecClass()
+  {
+    return BucketKeyStreamCodec.class;
+  }
 
-  /**
-   * Partition keys identify assigned bucket(s).
-   */
-  protected int partitionMask;
-  protected Set<Integer> partitions;
-
-  private transient StreamCodec<KeyValPair<byte[], byte[]>> streamCodec;
-
-  public final transient DefaultInputPort<KeyValPair<byte[], byte[]>> data = new DefaultInputPort<KeyValPair<byte[], byte[]>>() {
-    @Override
-    public void process(KeyValPair<byte[], byte[]> tuple)
-    {
-      int bucketKey = streamCodec.getPartition(tuple) & partitionMask;
-      try {
-        HDSOperator.this.put(bucketKey, tuple.getKey(), tuple.getValue());
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    @Override
-    public Class<? extends StreamCodec<KeyValPair<byte[], byte[]>>> getStreamCodec()
-    {
-      return getBucketKeyStreamCodec();
-    }
-  };
-
-  public static class BucketKeyStreamCodec extends KryoSerializableStreamCodec<KeyValPair<byte[], byte[]>>
+  public static class BucketKeyStreamCodec extends KryoSerializableStreamCodec<KeyValPair<byte[], byte[]>> implements HDSCodec<KeyValPair<byte[], byte[]>>
   {
     @Override
     public int getPartition(KeyValPair<byte[], byte[]> t)
@@ -81,73 +40,24 @@ public class HDSOperator extends HDSBucketManager implements Partitioner<HDSOper
       }
       return hash;
     }
-  }
 
-  protected Class<? extends StreamCodec<KeyValPair<byte[], byte[]>>> getBucketKeyStreamCodec()
-  {
-    return BucketKeyStreamCodec.class;
-  }
-
-  @Override
-  public void setup(OperatorContext arg0)
-  {
-    LOG.debug("Opening store {} for partitions {} {}", super.getFileStore(), new PartitionKeys(this.partitionMask, this.partitions));
-    super.setup(arg0);
-    try {
-      this.streamCodec = getBucketKeyStreamCodec().newInstance();
-    } catch (Exception e) {
-      throw new RuntimeException("Failed to create streamCodec", e);
-    }
-  }
-
-  @Override
-  public void teardown()
-  {
-    super.teardown();
-  }
-
-  @Override
-  public Collection<Partition<HDSOperator>> definePartitions(Collection<Partition<HDSOperator>> partitions, int incrementalCapacity)
-  {
-    boolean isInitialPartition = partitions.iterator().next().getStats() == null;
-
-    if (!isInitialPartition) {
-      // support for dynamic partitioning requires lineage tracking
-      LOG.warn("Dynamic partitioning not implemented");
-      return partitions;
+    @Override
+    public byte[] getKeyBytes(KeyValPair<byte[], byte[]> event)
+    {
+      return event.getKey();
     }
 
-    int totalCount = partitions.size() + incrementalCapacity;
-    Kryo kryo = new Kryo();
-    Collection<Partition<HDSOperator>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
-    for (int i = 0; i < totalCount; i++) {
-      // Kryo.copy fails as it attempts to clone transient fields (input port)
-      // TestStoreOperator oper = kryo.copy(this);
-      ByteArrayOutputStream bos = new ByteArrayOutputStream();
-      Output output = new Output(bos);
-      kryo.writeObject(output, this);
-      output.close();
-      Input input = new Input(bos.toByteArray());
-      HDSOperator oper = kryo.readObject(input, this.getClass());
-      newPartitions.add(new DefaultPartition<HDSOperator>(oper));
+    @Override
+    public byte[] getValueBytes(KeyValPair<byte[], byte[]> event)
+    {
+      return event.getValue();
     }
 
-    // assign the partition keys
-    DefaultPartition.assignPartitionKeys(newPartitions, data);
-
-    for (Partition<HDSOperator> p : newPartitions) {
-      PartitionKeys pks = p.getPartitionKeys().get(data);
-      p.getPartitionedInstance().partitionMask = pks.mask;
-      p.getPartitionedInstance().partitions = pks.partitions;
+    @Override
+    public KeyValPair<byte[], byte[]> fromKeyValue(byte[] key, byte[] value)
+    {
+      return new KeyValPair<byte[], byte[]>(key, value);
     }
-
-    return newPartitions;
   }
-
-  @Override
-  public void partitioned(Map<Integer, Partition<HDSOperator>> arg0)
-  {
-  }
-
 
 }
