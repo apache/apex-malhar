@@ -48,7 +48,7 @@ import com.datatorrent.lib.db.AbstractPassThruTransactionableStoreOutputOperator
  * </p>
  *
  * @displayName Abstract JDBC Transactionable Output
- * @category db
+ * @category database
  * @tags output operator, transactional
  *
  * @param <T> type of tuple

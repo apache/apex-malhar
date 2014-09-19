@@ -30,7 +30,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * A generic output operator which updates a JDBC database without using transactions.
  * <p></p>
  * @displayName Abstract JDBC Non Transactionable Output
- * @category db
+ * @category database
  * @tags output operator
  *
  * @param <T> The kind of tuples that are being processed
