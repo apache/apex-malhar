@@ -15,19 +15,19 @@
  */
 package com.datatorrent.contrib.kafka.benchmark;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Properties;
-import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
 import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Partitioner;
-import com.yammer.metrics.Metrics;
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
+
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads.&nbsp;
@@ -35,7 +35,7 @@ import java.util.Map;
  * <p></p>
  * @displayName Benchmark Partitionable Kafka Output
  * @category messaging
- * @tags output
+ * @tags output operator
  *
  * @since 0.9.3
  */

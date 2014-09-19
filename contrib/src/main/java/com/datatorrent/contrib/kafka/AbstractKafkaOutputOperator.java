@@ -17,7 +17,6 @@ package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
-import com.yammer.metrics.Metrics;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.ProducerConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -51,7 +50,7 @@ import java.util.Properties;
  *
  * @displayName Abstract Kafka Output
  * @category messaging
- * @tags output
+ * @tags output operator
  *
  * @since 0.3.2
  */

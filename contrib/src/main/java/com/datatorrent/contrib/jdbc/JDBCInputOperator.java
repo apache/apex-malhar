@@ -51,7 +51,7 @@ import java.sql.Statement;
  * batchSize: This has to be at least 1 or more. If not specified the default batch size is 1000.<br>
  * </p>
  *
- * @displayName JDBC Input Operator
+ * @displayName JDBC Input
  * @category database
  * @tags input operator
  *

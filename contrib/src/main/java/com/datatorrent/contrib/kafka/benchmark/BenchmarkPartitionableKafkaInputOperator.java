@@ -26,7 +26,7 @@ import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
  * <p></p>
  * @displayName Benchmark Partitionable Kafka Input
  * @category messaging
- * @tags input
+ * @tags input operator
  *
  * @since 0.9.3
  */

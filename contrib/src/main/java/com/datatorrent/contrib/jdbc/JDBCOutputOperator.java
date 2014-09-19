@@ -85,7 +85,7 @@ import java.util.Map;
  * <br>
  * </p>
  *
- * @displayName JDBC Output Operator
+ * @displayName JDBC Output
  * @category database
  * @tags output operator
  *

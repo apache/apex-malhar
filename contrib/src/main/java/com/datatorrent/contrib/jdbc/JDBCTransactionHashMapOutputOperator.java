@@ -48,7 +48,7 @@ import java.util.Map;
  * <br>
  * </p>
  *
- * @displayName JDBC Transaction Hash Map Output Operator
+ * @displayName JDBC Transaction Hash Map Output
  * @category database
  * @tags output operator
  *

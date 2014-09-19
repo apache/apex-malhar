@@ -15,22 +15,18 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
-
-import com.yammer.metrics.Metrics;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import kafka.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Kafka input adapter, which consumes data from Kafka message bus.
@@ -62,7 +58,7 @@ import org.slf4j.LoggerFactory;
  *
  * @displayName Abstract Kafka Input
  * @category messaging
- * @tags input
+ * @tags input operator
  *
  * @since 0.3.2
  */

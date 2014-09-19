@@ -56,7 +56,7 @@ import java.sql.Statement;
  * <b>Benchmarks</b>:
  * </p>
  *
- * @displayName JDBC Transaction Output Operator
+ * @displayName JDBC Transaction Output
  * @category database
  * @tags output operator
  *

@@ -27,7 +27,7 @@ import kafka.message.Message;
  *
  * @displayName Abstract Partitionable Kafka Single Port Input
  * @category messaging
- * @tags input
+ * @tags input operator
  *
  * @since 0.9.0
  */

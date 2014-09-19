@@ -45,7 +45,7 @@ import kafka.message.Message;
  *
  * @displayName Abstract Kafka Single Port Input
  * @category messaging
- * @tags input
+ * @tags input operator
  *
  * @since 0.3.2
  */
