@@ -38,7 +38,9 @@ import java.util.Map;
 
 
 /**
- * Kafka output operator, which, in most cases, guarantees to send tuples to kafka MQ only once.
+ * This is a base implementation of a Kafka output operator,
+ * which, in most cases, guarantees to send tuples to Kafka MQ only once.&nbsp;
+ * Subclasses should implement the methods for converting tuples into a format appropriate for Kafka.
  * <p>
  * Assuming messages kept in kafka are ordered by either key or value or keyvalue pair
  * (For example, use timestamps as key), this Kafka OutputOperator always retrieve the last message from MQ as initial offset.

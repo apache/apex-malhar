@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * This is an SQLite input operator.
  * <p></p>
  * @displayName Sqlite Stream
- * @category db
+ * @category database
  * @tags input operator
  * @since 0.3.2
  */

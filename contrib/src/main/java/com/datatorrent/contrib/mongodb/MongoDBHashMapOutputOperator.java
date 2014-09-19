@@ -41,7 +41,7 @@ import java.util.*;
  * <br>
  * </p>
  * @displayName MongoDB Hash Map Output
- * @category db
+ * @category database
  * @tags output operator
  * @since 0.3.2
  */

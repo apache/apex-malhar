@@ -30,7 +30,8 @@ import java.net.UnknownHostException;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an abstract input adapter for MongoDB.
+ * This is the base implementation of a MongoDB input operator.&nbsp;
+ * Subclasses should implement the methods that convert MongoDB data into tuples.
  * <p>
  * <br>
  * Ports:<br>
@@ -52,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * </p>
  * @displayName MongoDB Input
- * @category db
+ * @category database
  * @tags input operator
  * @since 0.3.2
  */

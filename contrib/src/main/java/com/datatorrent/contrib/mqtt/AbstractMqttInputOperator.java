@@ -27,7 +27,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an abstract input adapter for MQTT.
+ * This is the base implementation for and MQTT input operator.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract MQTT Input
  * @category messaging

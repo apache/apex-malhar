@@ -29,7 +29,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Kafka input adapter, which consumes data from Kafka message bus.
+ * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
+ * Subclasses should implement the method for emitting tuples to downstream operators.
  * <p>
  * Properties:<br>
  * <b>tuplesBlast</b>: Number of tuples emitted in each burst<br>

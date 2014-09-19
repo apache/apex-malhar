@@ -18,9 +18,9 @@ package com.datatorrent.contrib.memcache;
 import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
 
 /**
- * This is an abstract operator used for memcached input adapters.
+ * This is the base implementation used for memcached input adapters.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p></p>
- *
  * @displayName Abstract Memcache Input
  * @category store
  * @tags output operator, key value

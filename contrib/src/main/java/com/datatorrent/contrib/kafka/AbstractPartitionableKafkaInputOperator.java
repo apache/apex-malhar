@@ -34,7 +34,7 @@ import java.util.*;
 import java.util.Map.Entry;
 
 /**
- * Kafka input adapter, which consumes data from Kafka message bus.&nbsp;
+ * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
  * It will be dynamically partitioned based on the upstream kafka partition.
  * <p>
  * <b>Partition Strategy:</b>

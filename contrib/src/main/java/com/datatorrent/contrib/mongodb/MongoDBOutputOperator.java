@@ -36,7 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is a non transactional abstract output adapter for MongoDB.
+ * This is the base implementation for a non transactional output operator for MongoDB.&nbsp;
+ * Subclasses should implement the column mapping for writing tuples out to MongoDB.
  * <p>
  * <br>
  * Ports:<br>
@@ -73,7 +74,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * </p>
  * @displayName MongoDB Output
- * @category db
+ * @category database
  * @tags output operator
  * @since 0.3.2
  */

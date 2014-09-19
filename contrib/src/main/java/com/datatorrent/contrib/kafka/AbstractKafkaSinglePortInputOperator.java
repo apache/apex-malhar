@@ -22,7 +22,9 @@ import kafka.message.Message;
 
 
 /**
- * Kafka input adapter operator with a single output port, which consumes data from the Kafka message bus.
+ * This is the base implementation of the Kafka input operator with a single output port,
+ * which consumes data from the Kafka message bus.&nbsp;
+ * Subclasses should implement the methods which convert Kafka messages to tuples.
  * <p>
  * <br>
  * Ports:<br>

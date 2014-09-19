@@ -18,7 +18,7 @@ package com.datatorrent.contrib.redis;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableKeyValueStoreOutputOperator;
 
 /**
- * This is an abstract Redis aggregate output adapter.
+ * This is the base implementation of a Redis aggregate output operator.
  * <p></p>
  * @displayName Abstract Redis Aggregate Output
  * @category store
