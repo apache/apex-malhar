@@ -24,7 +24,7 @@ import java.util.TreeMap;
  * <p></p>
  * @displayName Abstract Histogram Chart
  * @category chart
- * @tags output
+ * @tags output operator
  *
  * @param <K> The key type
  * @since 0.3.2

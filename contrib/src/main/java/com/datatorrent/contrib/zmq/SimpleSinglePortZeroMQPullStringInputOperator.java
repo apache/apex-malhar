@@ -24,7 +24,7 @@ import com.datatorrent.contrib.zmq.SimpleSinglePortZeroMQPullInputOperator;
  * This operator will automatically recieve data from a pusher.
  * @displayName Simple Single Port ZeroMQ Pull String Input
  * @category messaging
- * @tags output, string
+ * @tags output operator, string
  * @since 0.3.2
  */
 public class SimpleSinglePortZeroMQPullStringInputOperator extends SimpleSinglePortZeroMQPullInputOperator<String>

@@ -28,7 +28,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * <p></p>
  * @displayName Abstract Store Output
  * @category store
- * @tags output
+ * @tags output operator
  *
  * @param <T> The tuple type
  * @param <S> The store type

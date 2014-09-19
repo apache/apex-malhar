@@ -24,7 +24,7 @@ import java.util.TreeMap;
  * <p></p>
  * @displayName Abstract Enum Chart Operator
  * @category chart
- * @tags output
+ * @tags output operator
  *
  * @param <K> The type of the key
  * @param <X> The type of values on the X-axis

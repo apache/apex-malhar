@@ -41,7 +41,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <p></p>
  * @displayName Abstract DB Lookup Cache Backed
  * @category db
- * @tags output
+ * @tags output operator
  *
  * @param <T> type of tuples
  * @param <S> type of store

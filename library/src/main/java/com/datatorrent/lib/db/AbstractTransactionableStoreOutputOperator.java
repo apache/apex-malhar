@@ -29,7 +29,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * <p></p>
  * @displayName Abstract Transactionable Store Output
  * @category store
- * @tags transactional, output
+ * @tags transactional, output operator
  *
  * @param <T> The type of the tuple
  * @param <S> The store type

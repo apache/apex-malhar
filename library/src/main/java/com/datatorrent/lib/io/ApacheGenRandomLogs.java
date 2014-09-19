@@ -49,7 +49,7 @@ import com.datatorrent.api.Context.OperatorContext;
  *
  * @displayName Generate Random Apache Logs
  * @category io
- * @tags log, input, generated
+ * @tags log, input operator, generated
  *
  * @since 0.3.2
  */

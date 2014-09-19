@@ -35,7 +35,7 @@ import org.slf4j.LoggerFactory;
  * <p></p>
  * @displayName Smtp Output
  * @category io
- * @tags stmp, output
+ * @tags stmp, output operator
  *
  * @since 0.3.2
  */

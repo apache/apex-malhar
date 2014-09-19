@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * @displayName Console Output
  * @category io
- * @tags output
+ * @tags output operator
  *
  * @since 0.3.2
  */

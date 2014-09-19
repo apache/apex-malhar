@@ -32,7 +32,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * </p>
  * @displayName Asynchronous Input Processing
  * @category io
- * @tags output
+ * @tags input operator
  *
  * @since 0.3.2
  */

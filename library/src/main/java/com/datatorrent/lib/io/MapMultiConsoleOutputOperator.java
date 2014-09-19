@@ -34,7 +34,7 @@ import com.datatorrent.api.DefaultInputPort;
  * </p>
  * @displayName Map Console Output
  * @category io
- * @tags output
+ * @tags output operator
  *
  * @since 0.3.4
  */

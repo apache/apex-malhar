@@ -26,7 +26,7 @@ import javax.jms.TextMessage;
  * <p></p>
  * @displayName Active MQ Single Port Input (String)
  * @category messaging
- * @tags jms, input, string
+ * @tags jms, input operator, string
  *
  * @since 0.3.3
  */

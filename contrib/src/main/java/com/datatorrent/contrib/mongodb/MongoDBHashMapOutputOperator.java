@@ -42,7 +42,7 @@ import java.util.*;
  * </p>
  * @displayName MongoDB Hash Map Output
  * @category db
- * @tags output
+ * @tags output operator
  * @since 0.3.2
  */
 public class MongoDBHashMapOutputOperator<T> extends MongoDBOutputOperator<HashMap<String, T>>

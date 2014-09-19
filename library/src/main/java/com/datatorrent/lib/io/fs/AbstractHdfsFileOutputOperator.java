@@ -37,7 +37,7 @@ import com.datatorrent.api.DefaultInputPort;
  * </p>
  * @displayName HDFS File Output
  * @category io
- * @tags hdfs, file, output
+ * @tags hdfs, file, output operator
  *
  * @param <INPUT> incoming tuple type
  * @since 1.0.2

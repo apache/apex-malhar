@@ -45,7 +45,7 @@ import com.datatorrent.api.InputOperator;
  * </p>
  * @displayName Tail Input
  * @category io
- * @tags local fs, file, input
+ * @tags local fs, file, input operator
  * @since 0.9.4
  */
 public class TailFsInputOperator implements InputOperator, ActivationListener<OperatorContext>

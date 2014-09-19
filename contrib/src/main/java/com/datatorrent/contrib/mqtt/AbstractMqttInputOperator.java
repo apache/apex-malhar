@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * <p></p>
  * @displayName Abstract MQTT Input
  * @category messaging
- * @tags input
+ * @tags input operator
  * @since 0.9.3
  */
 @ShipContainingJars(classes = {MQTT.class})

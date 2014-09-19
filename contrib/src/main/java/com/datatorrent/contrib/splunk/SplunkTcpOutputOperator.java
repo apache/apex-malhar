@@ -28,7 +28,7 @@ import java.net.Socket;
  * <p></p>
  * @displayName Splunk TCP Output
  * @category db
- * @tags output
+ * @tags output operator
  * @since 1.0.4
  */
 public class SplunkTcpOutputOperator<T> extends AbstractStoreOutputOperator<T, SplunkStore> {

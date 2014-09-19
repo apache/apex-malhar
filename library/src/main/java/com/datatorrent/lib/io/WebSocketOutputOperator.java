@@ -41,7 +41,7 @@ import com.datatorrent.api.DefaultInputPort;
  * <p></p>
  * @displayName JSON Map Output
  * @category io
- * @tags http, input
+ * @tags http, input operator
  *
  * @param <T> tuple type
  * @since 0.3.2

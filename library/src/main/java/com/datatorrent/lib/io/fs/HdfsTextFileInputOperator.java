@@ -32,7 +32,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <p></p>
  * @displayName HDFS Text File Input
  * @category io
- * @tags hdfs, file, input
+ * @tags hdfs, file, input operator
  *
  * @since 0.3.4
  */

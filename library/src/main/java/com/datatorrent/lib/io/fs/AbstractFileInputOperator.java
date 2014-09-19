@@ -32,7 +32,7 @@ import com.datatorrent.api.InputOperator;
  * <p></p>
  * @displayName FS File Input
  * @category io
- * @tags fs, directory, input
+ * @tags fs, directory, input operator
  *
  * @param <STREAM>
  * @since 0.3.2

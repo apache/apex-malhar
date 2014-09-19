@@ -45,7 +45,7 @@ import com.datatorrent.api.DefaultInputPort;
  * </p>
  * @displayName Abstract Single Port ZeroMQ Output
  * @category messaging
- * @tags output
+ * @tags output operator
  * @since 0.3.2
  */
 public abstract class AbstractSinglePortZeroMQOutputOperator<T> extends AbstractBaseZeroMQOutputOperator

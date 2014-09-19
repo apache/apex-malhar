@@ -22,7 +22,7 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableKeyValueStoreOutpu
  * <p></p>
  * @displayName Abstract Redis Aggregate Output
  * @category store
- * @tags output, key value, aggregate
+ * @tags output operator, key value, aggregate
  *
  * @param <T> The tuple type.
  * @since 0.9.3

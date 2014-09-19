@@ -26,7 +26,7 @@ import java.io.IOException;
  * <p></p>
  * @displayName Abstract Store Input
  * @category store
- * @tags input
+ * @tags input operator
  *
  * @param <T> The tuple type
  * @param <S> The store type

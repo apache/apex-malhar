@@ -33,7 +33,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * </p>
  * @displayName Http Output
  * @category io
- * @tags http, output
+ * @tags http, output operator
  *
  * @param <T>
  * @since 0.3.2

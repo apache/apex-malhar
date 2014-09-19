@@ -23,7 +23,7 @@ package com.datatorrent.lib.db;
  * </p>
  * @displayName Abstract Pass Through Transactionable Key Value Store Output
  * @category store
- * @tags output, key value, transactional
+ * @tags output operator, key value, transactional
  *
  * @param <T> The tuple type
  * @param <S> The store type

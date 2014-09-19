@@ -26,7 +26,7 @@ import org.zeromq.ZMQ;
  * <p></p>
  * @displayName Simple Single Port ZeroMQ Pull Input
  * @category messaging
- * @tags input
+ * @tags input operator
  * @since 0.3.2
  */
 public abstract class SimpleSinglePortZeroMQPullInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable

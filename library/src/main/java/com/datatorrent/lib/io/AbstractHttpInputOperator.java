@@ -37,7 +37,7 @@ import com.sun.jersey.api.client.WebResource;
  * <p></p>
  * @displayName Abstract Http Input
  * @category io
- * @tags http, input
+ * @tags http, input operator
  *
  * @since 0.3.2
  */

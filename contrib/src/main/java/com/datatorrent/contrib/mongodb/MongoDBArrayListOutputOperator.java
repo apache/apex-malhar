@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * @displayName MongoDB Array List Output
  * @category db
- * @tags output
+ * @tags output operator
  *
  * @since 0.3.2
  */

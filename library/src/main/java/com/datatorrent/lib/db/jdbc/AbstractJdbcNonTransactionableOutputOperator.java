@@ -31,7 +31,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * <p></p>
  * @displayName Abstract JDBC Non Transactionable Output
  * @category db
- * @tags output
+ * @tags output operator
  *
  * @param <T> The kind of tuples that are being processed
  * @since 1.0.4

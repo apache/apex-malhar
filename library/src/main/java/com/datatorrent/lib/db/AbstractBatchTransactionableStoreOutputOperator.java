@@ -23,7 +23,7 @@ import com.google.common.collect.Lists;
  * <p></p>
  * @displayName Abstract Batch Transactionable Store Output
  * @category store
- * @tags transactional, output
+ * @tags transactional, output operator
  *
  * @param <T> The tuple type.
  * @param <S> The store type.

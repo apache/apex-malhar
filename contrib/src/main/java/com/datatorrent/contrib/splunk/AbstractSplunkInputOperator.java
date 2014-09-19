@@ -33,7 +33,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * </p>
  * @displayName Abstract Splunk Input
  * @category db
- * @tags input
+ * @tags input operator
  *
  * @since 1.0.4
  */

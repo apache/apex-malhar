@@ -46,7 +46,7 @@ import com.datatorrent.api.InputOperator;
  * </p>
  * @displayName FTP Input
  * @category io
- * @tags ftp, input
+ * @tags ftp, input operator
  *
  * @since 0.9.4
  */

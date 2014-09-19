@@ -23,7 +23,7 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  *
  * @displayName Abstract Memcache Input
  * @category store
- * @tags output, key value
+ * @tags output operator, key value
  *
  * @param <T> The tuple type.
  * @since 0.9.3

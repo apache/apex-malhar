@@ -59,7 +59,7 @@ import java.util.concurrent.ArrayBlockingQueue;
  * </p>
  * @displayName Abstract Base ZeroMQ Input
  * @category messaging
- * @tags input
+ * @tags input operator
  * @since 0.3.2
  */
 @ShipContainingJars(classes={org.zeromq.ZMQ.Socket.class})

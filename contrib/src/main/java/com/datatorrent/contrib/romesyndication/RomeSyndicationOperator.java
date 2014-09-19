@@ -45,7 +45,7 @@ import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
  *
  * @displayName Rome Syndication
  * @category web
- * @tags input
+ * @tags input operator
  *
  * @since 0.3.2
  */

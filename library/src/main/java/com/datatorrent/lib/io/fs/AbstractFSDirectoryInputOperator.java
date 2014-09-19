@@ -67,7 +67,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * @displayName FS Directory Scan Input
  * @category io
- * @tags fs, file, input
+ * @tags fs, file, input operator
  *
  * @param <T> The type of the object that this input operator reads.
  * @since 1.0.2
