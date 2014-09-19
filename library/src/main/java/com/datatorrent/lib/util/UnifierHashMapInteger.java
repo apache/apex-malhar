@@ -23,10 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * Combiner for an output port that emits object with Map<K,Integer> interface and has the processing done
- * with round robin partitions. The combiner needs to add values of a key from every partition
- *
+ * This unifier consumes tuples which are maps from objects to integers.&nbsp;
+ * The integers for each key are aggregated and a map from keys to sums is emitted at the end of each application window.
+ * <p>
+ * The processing is done with sticky key partitioning, i.e. each one key belongs only to one partition.
+ * </p>
+ * @displayName Unifier Hash Map Integer
+ * @category algorithm
+ * @tags numeric
  * @since 0.3.2
  */
 public class UnifierHashMapInteger<K> implements Unifier<HashMap<K, Integer>>

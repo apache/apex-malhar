@@ -19,9 +19,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
- *
- * Base class that sets up the operator functionality needed for match based
- * operators
+ * This is an abstract operator, which provides a base implementation for operators doing comparisons.
  * <p>
  * <br>
  * Ports:<br>
@@ -40,7 +38,10 @@ import javax.validation.constraints.Pattern;
  * <br>
  * Run time checks<br>
  * none<br>
- *
+ * </p>
+ * @displayName Base Match
+ * @category algorithm
+ * @tags compare, filter, key value
  * @since 0.3.2
  */
 public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
@@ -59,7 +60,7 @@ public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
 
   /**
    * setter function for key
-   * 
+   *
    * @param key
    */
   public void setKey(K key)
@@ -69,7 +70,7 @@ public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
 
   /**
    * getter function for key
-   * 
+   *
    * @return key
    */
   @NotNull()
@@ -80,7 +81,7 @@ public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
 
   /**
    * setter function for value
-   * 
+   *
    * @param value
    */
   public void setValue(double value)
@@ -90,7 +91,7 @@ public class BaseMatchOperator<K, V> extends BaseKeyValueOperator<K, V>
 
   /**
    * getter function for value
-   * 
+   *
    * @return value
    */
   public double getValue()

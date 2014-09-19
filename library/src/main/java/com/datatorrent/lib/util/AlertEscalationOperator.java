@@ -26,8 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>AlertEscalationOperator class.</p>
- *
+ * This operator consumes tuples.&nbsp;
+ * The operator only emits a tuple if,
+ * at the time the operator receives the tuple,
+ * the amount of time since the last alert interval is greater than the specified alert interval.
+ * <p></p>
+ * @displayName Alert Escalation
+ * @category algorithm
+ * @tags time, filter
  * @since 0.3.2
  */
 public class AlertEscalationOperator extends BaseOperator implements Partitioner<AlertEscalationOperator>
