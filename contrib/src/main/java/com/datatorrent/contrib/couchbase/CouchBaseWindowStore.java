@@ -1,7 +1,5 @@
 package com.datatorrent.contrib.couchbase;
 
-
-import org.slf4j.LoggerFactory;
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
 import java.util.concurrent.TimeUnit;
@@ -14,12 +12,10 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 /**
  *
  * @author prerna
@@ -78,16 +74,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     //public void connect() throws IOException
     @Override
     public void connect() throws IOException {
-            /*URI uri = null;
-            baseURIs.clear();
-            try {
-                uri = new URI("http","node26.morado.com:8091", "/pools", null, null);
-            } catch (URISyntaxException ex) {
-               logger.error(ex.getMessage());
-            }
-           baseURIs.add(uri);*/
-        
-       super.connect();
+        super.connect();
 
         try {
             clientMeta = new CouchbaseClient(new CouchbaseConnectionFactoryBuilder()
@@ -100,8 +87,6 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
         } catch (IOException e) {
             logger.error("Error connecting to Couchbase: " + e.getMessage());
         }
-      //baseURIs.clear();
-      //super.connect();
     }
 
     @Override

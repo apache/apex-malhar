@@ -26,6 +26,24 @@ public class CouchBaseStore implements Connectable {
     protected transient String password;
     protected transient CouchbaseClient client;
     protected String uriString;
+    protected Integer batch_size;
+    protected Integer max_tuples;
+
+    public Integer getMax_tuples() {
+        return max_tuples;
+    }
+
+    public void setMax_tuples(Integer max_tuples) {
+        this.max_tuples = max_tuples;
+    }
+
+    public Integer getBatch_size() {
+        return batch_size;
+    }
+
+    public void setBatch_size(Integer batch_size) {
+        this.batch_size = batch_size;
+    }
     List<String> uriList = new ArrayList<String>();
     List<URI> baseURIs = new ArrayList<URI>();
 
@@ -33,7 +51,8 @@ public class CouchBaseStore implements Connectable {
         client = null;
         bucket = "default";
         password = "";
-
+        batch_size = 100;
+        max_tuples = 1000;
     }
 
     public CouchbaseClient getInstance() {
@@ -61,7 +80,7 @@ public class CouchBaseStore implements Connectable {
         logger.info("In setter method of URI");
         this.uriString = uriString;
         String[] tokens = uriString.split(",");
-        uriList.addAll(Arrays.asList(tokens)); 
+        uriList.addAll(Arrays.asList(tokens));
     }
 
     @Override
@@ -69,25 +88,21 @@ public class CouchBaseStore implements Connectable {
         URI uri = null;
         for (String url : uriList) {
             try {
-                uri = new URI("http",url, "/pools", null, null);
+                uri = new URI("http", url, "/pools", null, null);
             } catch (URISyntaxException ex) {
-               logger.error(ex.getMessage());
+                logger.error(ex.getMessage());
             }
-           baseURIs.add(uri);
+            baseURIs.add(uri);
         }
         try {
+            CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
+            cfb.setOpTimeout(10000);  // wait up to 10 seconds for an operation to succeed
+            cfb.setOpQueueMaxBlockTime(10000); // wait up to 10 second when trying to enqueue an operation
 
-            client = new CouchbaseClient(new CouchbaseConnectionFactoryBuilder()
-                    .setViewTimeout(30) // set the timeout to 30 seconds
-                    .setViewWorkerSize(5) // use 5 worker threads instead of one
-                    .setViewConnsPerNode(20) // allow 20 parallel http connections per node in the cluster
-                    .buildCouchbaseConnection(baseURIs, bucket, password));
-          //client = new CouchbaseClient(baseURIs, "default", "");
+            client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucket, bucket, password));
         } catch (IOException e) {
             logger.error("Error connecting to Couchbase: " + e.getMessage());
-
         }
-
     }
 
     @Override

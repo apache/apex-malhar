@@ -5,9 +5,7 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 import com.google.common.collect.Lists;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
-import java.util.logging.Level;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,22 +34,10 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
         store = new CouchBaseWindowStore();
     }
 
-    
-    
     @Override
     public void setup(OperatorContext context) {
-       
-        URI uri = null;
-       /* store.URIs.add("node26.morado.com:8091");
-        for (String url : store.URIs) {
-            try {
-                uri = new URI("http", url, "/pools", null, null);
-            } catch (URISyntaxException ex) {
-                java.util.logging.Logger.getLogger(AbstractCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            store.addNodes(uri);
-        }*/
 
+        URI uri = null;
         mode = context.getValue(context.PROCESSING_MODE);
         if (mode == ProcessingMode.EXACTLY_ONCE) {
             throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
@@ -60,6 +46,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
             tuples.clear();
         }
         super.setup(context);
+        store.getInstance().flush();
     }
 
     @Override
@@ -89,4 +76,3 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     protected abstract void insertOrUpdate(T tuple);
 
 }
-

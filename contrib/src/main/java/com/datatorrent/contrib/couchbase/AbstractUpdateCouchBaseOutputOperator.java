@@ -1,8 +1,11 @@
 package com.datatorrent.contrib.couchbase;
 
 import java.io.IOException;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.logging.Level;
+import net.spy.memcached.internal.OperationCompletionListener;
+import net.spy.memcached.internal.OperationFuture;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,12 +31,30 @@ public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractC
             java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        try {
-            store.getInstance().add(key, this.expireTime, value).get();
-        } catch (InterruptedException ex) {
-            java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
-        } catch (ExecutionException ex) {
-            java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
+        int numOfBatches = store.getMax_tuples() / store.getBatch_size();
+        for (int k = 0; k < numOfBatches; k++) {
+            final CountDownLatch countLatch = new CountDownLatch(store.batch_size);
+            for (int i = 0; i < store.batch_size; i++) {
+
+                final OperationFuture<Boolean> future = store.getInstance().add(key, value);
+                future.addListener(new OperationCompletionListener() {
+
+                    @Override
+                    public void onComplete(OperationFuture<?> f) throws Exception {
+                        countLatch.countDown();
+                        //System.out.println(f.get());
+                        if (!((Boolean) f.get())) {
+                            System.out.println("Noway");
+                        }
+
+                    }
+                });
+            }
+            try {
+                countLatch.await();
+            } catch (InterruptedException ex) {
+                java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
+            }
         }
 
     }

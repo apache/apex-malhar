@@ -4,8 +4,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import org.slf4j.Logger;
@@ -26,17 +24,6 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
 
     //@Override
     public void setup(Context.OperatorContext context) {
-       /* URI uri = null;
-        store.URIs.add("node26.morado.com:8091");
-        for (String url : store.URIs) {
-            try {
-
-                uri = new URI("http", url, "/pools", null, null);
-            } catch (URISyntaxException ex) {
-                java.util.logging.Logger.getLogger(AbstractCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            store.addNodes(uri);
-        }*/
         super.setup(context);
     }
 

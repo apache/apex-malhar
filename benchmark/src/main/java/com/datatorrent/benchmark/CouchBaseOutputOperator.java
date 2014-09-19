@@ -14,13 +14,13 @@ public class CouchBaseOutputOperator extends AbstractInsertCouchBaseOutputOperat
 
     @Override
     public String generatekey(Integer tuple) {
-       return "abc";
+       return "Key" + tuple;
     }
 
     @Override
     public Object getObject(Integer tuple) {
       tuple = 500;
-       return tuple;
+      return tuple;
     }
 
     
