@@ -15,22 +15,20 @@
  */
 package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotNull;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.validation.constraints.NotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.Context.OperatorContext;
-
-import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
-
 /**
- * JDBC output adapter operator, which inserts data into the database using transactions.
+ * A base implementation of an operator that writes data into a database using JAVA DataBase Connectivity (JDBC) API in
+ * a transactional fashion.
  * <p>
  * For transaction output operator, user needs to have a separate table to store some metadata
  * which is needed to recover in case of a node failure. This additional table contain application id,
@@ -58,9 +56,9 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * <b>Benchmarks</b>:
  * </p>
  *
- * @displayName JDBC Transaction Output
- * @category db
- * @tags output
+ * @displayName JDBC Transaction Output Operator
+ * @category database
+ * @tags output operator
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcTransactionableOutputOperator}

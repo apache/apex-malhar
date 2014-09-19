@@ -16,17 +16,18 @@
 package com.datatorrent.contrib.jdbc;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
 
 /**
- * JDBCNonTransaction output adapter operator, which send insertion data to non-transaction database.
+ * A base implementation of an operator that writes data into a database using JAVA DataBase Connectivity (JDBC) API in
+ * a non-transactional fashion.
  * <p>
  * For non-transactional database, each row is committed as they are inserted into database.
  * <br>
@@ -49,9 +50,9 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
  * <br>
  * </p>
  *
- * @displayName JDBC Non Transaction Output
- * @category db
- * @tags output
+ * @displayName JDBC Non Transaction Output Operator
+ * @category database
+ * @tags output operator
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcNonTransactionableOutputOperator}
