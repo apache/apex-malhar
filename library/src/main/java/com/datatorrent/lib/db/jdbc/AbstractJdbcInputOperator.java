@@ -37,7 +37,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * </p>
  *
  * @displayName Abstract JDBC Input
- * @category db
+ * @category database
  * @tags input operator
  *
  * @since 0.9.4
