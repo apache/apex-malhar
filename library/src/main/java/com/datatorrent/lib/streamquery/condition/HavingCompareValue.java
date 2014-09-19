@@ -23,13 +23,16 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.lib.streamquery.function.FunctionIndex;
 
 /**
- * This class implements comparison of aggregate index value to compare value. <br>
+ * Implements comparison of aggregate index value to input compare value. <br>
+ * <p>
  * Compare value must implement interface Comparable. <br>
  * <br>
  * <b> Properties : </b>
  *  <b> compareValue : </b>  Value to be compared. <br>
  *  <b>  compareType : </b> Type of comparison -1 == lt, 0 == eq, 1 == gt. <br>
- *
+ * @displayName: Having Compare Value
+ * @category: streamquery/condition
+ * @tag: compare, sql condition
  * @since 0.3.4
  */
 @SuppressWarnings("rawtypes")

@@ -41,7 +41,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <br>
  * @displayName: Update Operator
  * @category: streamquery
- * @tag: sql, update, map, string, condition
+ * @tag: sql update, sql condition
  * @since 0.3.3
  */
 public class UpdateOperator extends BaseOperator

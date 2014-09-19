@@ -45,7 +45,7 @@ import com.datatorrent.lib.streamquery.index.Index;
  * <br>
  * @displayName: Select Operator
  * @category: streamquery
- * @tag: sql, select, index, condition, map, string
+ * @tag: sql select, index, sql condition
  * @since 0.3.3
  */
 public class SelectOperator extends BaseOperator

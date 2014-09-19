@@ -48,7 +48,7 @@ import com.datatorrent.lib.streamquery.index.Index;
  *  <br>
  * @displayName: Inner join operator
  * @category: streamquery
- * @tag: sql, join, map, string
+ * @tag: sql, inner join
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

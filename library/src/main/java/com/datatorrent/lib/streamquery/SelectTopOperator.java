@@ -28,8 +28,8 @@ import com.datatorrent.api.Operator;
  * <br>
  * @displayName: Select Top Operator
  * @category: streamquery
- * @tag: sql, select, top, map, string
- * @since 0.3.4
+ * @tag: sql select, sql top
+ *  @since 0.3.4
  */
 public class SelectTopOperator implements Operator
 {

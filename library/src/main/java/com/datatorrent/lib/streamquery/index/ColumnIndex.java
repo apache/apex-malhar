@@ -21,8 +21,11 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * <p>ColumnIndex class.</p>
- *
+ * <p>Implements Column Index class. </p>
+ * <p>
+ * @displayName: Column Index
+ * @category: streamquery/index
+ * @tag: alias
  * @since 0.3.4
  */
 public class ColumnIndex implements Index

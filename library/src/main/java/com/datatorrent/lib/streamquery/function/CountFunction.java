@@ -23,13 +23,17 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Class implements sql count function semantic for select function  statement. <br>
+ * Implements sql count function semantic. <br>
+ * <p>
+ * Counts number of values of given column and returns count of non null values in column.
  *   e.g : sql => SELECT COUNT(column_name) FROM table_name. <br>
  *   <br>
  *   <b> Properties : </b> <br>
  *   <b> column : </b> column name for values count.   <br>
  *   <b> alias  : </b> Alias name for aggregate output. <br>
- *
+ * @displayName: Count Function
+ * @category: streamquery/function
+ * @tag: sql count
  * @since 0.3.4
  */
 public class CountFunction extends FunctionIndex

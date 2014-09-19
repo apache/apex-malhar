@@ -27,7 +27,7 @@ import java.util.TreeMap;
  * <b> columnName : </b> Name of column for ordering tuples. <br>
  * @displayName: OrderBy Rule
  * @category: streamquery
- * @tag: orderby, sort, comparison, map, string, arraylist
+ * @tag: orderby, sort, comparison
  * @since 0.3.3
  */
 @SuppressWarnings("rawtypes")

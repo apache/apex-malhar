@@ -41,7 +41,7 @@ import com.datatorrent.api.Operator.Unifier;
  * <b> oredrByRules : </b>List of order by rules for tuples.
  * @displayName: OrderBy Operator
  * @category: streamquery
- * @tag: orderby, map, string
+ * @tag: orderby
  * @since 0.3.5
  */
 public class OrderByOperator implements Operator, Unifier<Map<String, Object>>

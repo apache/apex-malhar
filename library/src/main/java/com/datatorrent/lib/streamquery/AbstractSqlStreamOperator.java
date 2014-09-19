@@ -29,7 +29,7 @@ import java.util.HashMap;
  * <p>
  * @displayName: Abstract Sql Stream Operator
  * @category: streamquery
- * @tag: sql, hashmap, string
+ * @tag: sql
  * @since 0.3.2
  */
 public abstract class AbstractSqlStreamOperator extends BaseOperator

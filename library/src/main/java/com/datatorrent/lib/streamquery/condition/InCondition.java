@@ -22,12 +22,15 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 /**
- * Condition calsss to check a column value is in given set of values.
+ * Implements a condition class to check if a column value is in a given set of values.
+ * <p>
  * <br>
  * <b>Properties : </b> <br>
  * <b> column : </b> Column name for which value is checked in values set. <br>
  * <b> inValues : </b> Set of values in which column value is checked. <br>
- *
+ * @displayName: In Condition
+ * @category: streamquery/condition
+ * @tag: sql condition
  * @since 0.3.4
  */
 public class InCondition extends Condition

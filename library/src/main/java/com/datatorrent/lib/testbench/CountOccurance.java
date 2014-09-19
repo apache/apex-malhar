@@ -25,8 +25,11 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * <p>CountOccurance class.</p>
- *
+ * <p>Implements Count Occurance class.</p>
+ * <p>
+ * @displayName: Count Occurance
+ * @category: testbench
+ * @tag: count
  * @since 0.3.2
  */
 public class CountOccurance<k> extends BaseOperator

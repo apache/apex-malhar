@@ -21,12 +21,15 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * Abstract class for select aggregate function implementation.
+ * Abstract class for select aggregate function implementation. 
+ * <p>
  * <br>
  * <b>Properties : </b> <br>
  * <b>column : </b> Column name for aggregation.
  * <b>alias : </b> Output value alias name.
- *
+ * @displayName: Function Index
+ * @category: streamquery/function
+ * @tag: sql aggregate
  * @since 0.3.4
  */
 abstract public class FunctionIndex 

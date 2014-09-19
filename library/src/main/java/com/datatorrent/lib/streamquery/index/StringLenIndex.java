@@ -5,8 +5,11 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * <p>StringLenIndex class.</p>
- *
+ * <p>Implements Length of a String Index class.</p>
+ * <p>
+ * @displayName: String Length Index
+ * @category: streamquery/index
+ * @tag: alias
  * @since 0.3.4
  */
 public class StringLenIndex  extends ColumnIndex

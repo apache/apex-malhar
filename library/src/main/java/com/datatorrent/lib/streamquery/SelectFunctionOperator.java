@@ -40,7 +40,7 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
  * <b> functions : </b> Sql function for rows. <br>
  * @displayName: Select Function Operator
  * @category: streamquery
- * @tag: top, limit, map, string, select
+ * @tag: sql top, sql limit, sql select
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)
