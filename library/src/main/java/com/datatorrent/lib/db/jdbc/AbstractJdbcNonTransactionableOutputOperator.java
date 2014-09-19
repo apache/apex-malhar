@@ -27,7 +27,8 @@ import com.datatorrent.api.Context;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
- * A generic output operator which updates a JDBC database without using transactions.
+ * This is a base implementation of a JDBC non transactionable output operator.&nbsp;
+ * Subclasses should implement the method which provides the insertion command.
  * <p></p>
  * @displayName Abstract JDBC Non Transactionable Output
  * @category database

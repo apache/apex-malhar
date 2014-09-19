@@ -33,7 +33,8 @@ import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
 
 /**
- * This is an abstract http operator that reads from a given url using the http GET command like an input stream.
+ * This is a base implementation for an HTTP input operator that reads from a given url using the HTTP GET command like an input stream.&nbsp;
+ * Subclasses must implement the method which handles the response to the HTTP GET request.
  * <p></p>
  * @displayName Abstract Http Input
  * @category io

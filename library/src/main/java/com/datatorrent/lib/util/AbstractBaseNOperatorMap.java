@@ -23,7 +23,8 @@ import java.util.Map;
 import javax.validation.constraints.Min;
 
 /**
- * This is an abstract operator, which provides a base implementation for Top N sorting operators.
+ * This is the base implementation for the Top N sorting operators.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p>
  * Users need to provide processTuple, beginWindow, and endWindow to implement TopN operator
  * This is an end of window module. At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>

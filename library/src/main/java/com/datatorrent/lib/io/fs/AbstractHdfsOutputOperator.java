@@ -15,10 +15,10 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import org.apache.hadoop.fs.Path;
-
 /**
- * This is an abstract output operator, which writes tuples to one or more hdfs files.
+ * This is the base implementation for a HDFS output operator,
+ * which writes tuples to one or more HDFS files.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p>
  * Serializes tuples into a HDFS file<br>
  * Tuples are written to a single HDFS file or multiple HDFS files, with the option to specify size based file rolling,
@@ -26,7 +26,6 @@ import org.apache.hadoop.fs.Path;
  * Example file path pattern : file:///mydir/adviews.out.%(operatorId).part-%(partIndex). where operatorId and partIndex
  * are place holders.
  * </p>
- *
  * @displayName HDFS Files Output
  * @category io
  * @tags hdfs, file, output operator

@@ -22,9 +22,11 @@ import javax.validation.constraints.Min;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * This is an abstract operator which can emit either a map or list of tuples at the end of each application window.&nbsp;
+ * This is the base implementation of an operator,
+ * which can emit either a map or list of tuples at the end of each application window.&nbsp;
  * If the operator emits a list, the list contains the tuples ordered by the their counts.&nbsp;
- * If the operator emits a map, it contains the tuples mapped to their corresponding counts.
+ * If the operator emits a map, it contains the tuples mapped to their corresponding counts.&nbsp;
+ * Subclasses should implement the methods used to emit lists and maps.
  * <p></p>
  * @displayName Abstract Base Sort
  * @category algorithm

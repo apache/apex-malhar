@@ -24,7 +24,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an abstract ouput operator, which emits data to an ActiveMQ message bus.&nbsp;This operator has a single input port.
+ * This is the base implementation of a single port ActiveMQ output operator.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p>
  * Ports:<br>
  * <b>Input</b>: Have only one input port<br>

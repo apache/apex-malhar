@@ -27,7 +27,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import java.util.ArrayList;
 
 /**
- * This unifier takes sorted lists of tuples each window and merges them into one large sorted list at the end of each window.
+ * This is a base class implementation of a unifier which merges sorted lists of tuples.&nbsp;
+ * The operator takes sorted lists as input tuples each window.&nbsp;
+ * At the end of each application window input tuples are merged into one large sorted list and emitted.&nbsp;
+ * Subclasses must implement the comparison method used for sorting.
  * <p>
  * Incoming sorted list is merged into already existing sorted list. The input list is expected to be sorted. <b>
  * At the end of the window, merged sorted list is emitted on sort output port. <br>

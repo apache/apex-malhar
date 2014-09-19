@@ -20,7 +20,9 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * This is an abstract base class for charting operators which use enumerated values on the x-axis.
+ * This is the base implementation of an enum charting operator.&nbsp;
+ * This operator displays values on an x-axis and y-axis where the x-axis may be non-numeric and where the y-axis is numeric.&nbsp;
+ * Subclasses must implement the method which derives the x-axis from tuples.
  * <p></p>
  * @displayName Abstract Enum Chart Operator
  * @category chart

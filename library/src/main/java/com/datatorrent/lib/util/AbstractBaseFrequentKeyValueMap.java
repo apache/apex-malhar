@@ -23,9 +23,11 @@ import java.util.Map;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * This is an abstract operator, which takes key value pairs as inputs.&nbsp;
+ * This is the base implementation of an operator, which takes key value pairs as inputs.&nbsp;
  * It counts the number of times each key value pair occurs.&nbsp;
- * The counts of each key value pair are compared and the winning key value pair(s) for each key is emitted.
+ * The counts of each key value pair are compared and the winning key value pair(s) for each key is emitted.&nbsp;
+ * Subclasses should implement the method that is used to emit key value pairs, as well as the comparison method used
+ * to determine the winning key value pair(s).
  * <p>
  * This module is an end of window module<br>
  * <br>
