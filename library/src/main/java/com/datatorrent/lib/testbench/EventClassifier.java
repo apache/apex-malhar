@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Creates a load with pair of keys.
+ * Creates a load with pair of keys. 
  * <p>
  * Takes a input stream event and adds to incoming keys to create a new tuple that is emitted on output port data.
  * <br>

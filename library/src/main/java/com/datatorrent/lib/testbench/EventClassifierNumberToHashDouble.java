@@ -51,7 +51,9 @@ import javax.validation.constraints.NotNull;
  * <br>
  * <br>
  * <b>Benchmarks</b>: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
- *
+ * @displayName: Event Classifier Number To HashDouble
+ * @category: testbench
+ * @tag: number, classifier
  * @since 0.3.2
  */
 public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOperator
