@@ -15,23 +15,22 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
 import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 
 /**
- * JDBC input adapter operator,
- * which reads data from persistence database through JAVA DataBase Connectivity (JDBC) API and writes into output port(s).
+ * A base implementation of an input operator that reads data from a database using JAVA DataBase Connectivity
+ * (JDBC) API and writes to output port(s).&nbsp;Subclasses should provide the implementation of how to map the data to
+ * the output.
  * <p>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -52,9 +51,9 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
  * batchSize: This has to be at least 1 or more. If not specified the default batch size is 1000.<br>
  * </p>
  *
- * @displayName JDBC Input
- * @category db
- * @tags input
+ * @displayName JDBC Input Operator
+ * @category database
+ * @tags input operator
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcInputOperator}
