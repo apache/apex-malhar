@@ -18,15 +18,14 @@ package com.datatorrent.lib.util;
 import javax.validation.constraints.NotNull;
 
 /**
- * This is an abstract operator, which provides a base implementation for operators which work with numbers.
- * <p>
- * Provides basic methods for value conversion.
+ *
+ * Base class for operators that take in V extends Number. Provides basic methods for value conversion<p>
  * <br>
  * <b>Benchmarks</b>: Not done as there is emit tuple is done by sub-classes<br>
- * </p>
- * @displayName Base Number Value
- * @category algorithm
- * @tags numeric
+ * <br>
+ * <br>
+ * <br>
+ *
  * @since 0.3.2
  */
 public class BaseNumberValueOperator<V extends Number> extends BaseKeyOperator<V>

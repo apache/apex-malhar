@@ -18,11 +18,8 @@ package com.datatorrent.lib.util;
 import com.datatorrent.api.BaseOperator;
 
 /**
- * This is an abstract operator that allows cloneKey to allow users to use mutable objects.
- * <p></p>
- * @displayName Base Key
- * @category algorithm
- * @tags
+ * Base class for operators that allows cloneKey for enabling users to use mutable objects<p>
+ *
  * @since 0.3.2
  */
 public class BaseKeyOperator<K> extends BaseOperator

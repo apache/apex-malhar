@@ -20,9 +20,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This operator orders tuples per key and emits the top N tuples per key at the end of the window.
- * <p>
- * Thus the data set is windowed and no history is kept of previous windows<br>
+ * Tuples are ordered by key, and bottom N of the ordered tuples per key are emitted at the end of window<p>
+ * This is an end of window module<br>
+ * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
  * <b>data</b>: Input data port expects HashMap&lt;K,V&gt; (&lt;key, value&gt;)<br>
@@ -35,10 +35,8 @@ import java.util.Map;
  * N: Has to be an integer<br>
  * <br>
  * Run time checks are:<br>
- * </p>
- * @displayName Abstract Base N Non Unique Map
- * @category algorithm
- * @tags rank
+ * <br>
+ *
  * @since 0.3.2
  */
 public abstract class AbstractBaseNNonUniqueOperatorMap<K, V> extends AbstractBaseNOperatorMap<K, V>

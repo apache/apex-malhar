@@ -19,13 +19,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * This operator allows the user to specify 3 different alert levels, each of which has its own output port.&nbsp;
- * If the amount of time between consecutive tuples exceeds the interval specified for an alert level,
- * then the tuple is emitted on the output port corresponding to that alert level.
- * <p></p>
- * @displayName Alert Three Level Timed Escalation
- * @category algorithm
- * @tags time, filter
+ * Alert Escalation Operator intended for use with Alerts.
+ *
  * @since 0.3.4
  */
 public class AlertThreeLevelTimedEscalationOperator extends AlertEscalationOperator

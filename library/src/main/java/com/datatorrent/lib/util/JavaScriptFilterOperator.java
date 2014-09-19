@@ -22,11 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This operator consumes tuples.&nbsp;If the tuples satisfy a specified Java Script filtering function, then they are emitted.
- * <p></p>
- * @displayName Java Script Filter
- * @category algorithm
- * @tags filter
+ * The filter operator that uses JavaScript, intended for use with alerts
+ *
  * @since 0.3.4
  */
 public class JavaScriptFilterOperator extends FilterOperator

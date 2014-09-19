@@ -23,12 +23,9 @@ import java.util.Map;
 import javax.validation.constraints.Min;
 
 /**
- * This is an abstract operator, which provides a base implementation for Top N sorting operators.
- * <p>
- * Users need to provide processTuple, beginWindow, and endWindow to implement TopN operator
+ * Abstract class for basic topN operators; users need to provide processTuple, beginWindow, and endWindow to implement TopN operator<p>
  * This is an end of window module. At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
- * </p>
- * <p>
+ * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
  * <b>top</b>: emits HashMap&lt;K,ArrayList&lt;V&gt;&gt;<br>
@@ -42,10 +39,7 @@ import javax.validation.constraints.Min;
  * <b>Specific run time checks are</b>: None<br>
  * <br>
  * <b>Benchmark</b>: Not done as this is an abstract operator<br>
- * </p>
- * @displayName Abstract Base N Map
- * @category algorithm
- * @tags rank
+ *
  * @since 0.3.2
  */
 abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator<K,V>

@@ -23,14 +23,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This unifier counts the number of times it consumes an input tuple within each application window.&nbsp;
- * At the end of each window the tuples and their counts are emitted as a map.
- * <p>
- * The processing is done with sticky key partitioning, i.e. each one key belongs only to one partition.
- * </p>
- * @displayName Unifier Count Occur Key
- * @category algorithm
- * @tags numeric
+ * This unifier aggregates occurrence of key on output port and emits key/total occurrence value pair.
+ *
  * @since 0.3.3
  */
 public class UnifierCountOccurKey<K> implements Unifier<KeyValPair<K, Integer>>
@@ -39,9 +33,9 @@ public class UnifierCountOccurKey<K> implements Unifier<KeyValPair<K, Integer>>
 	 * Key/Occurrence  map used for unifying key/occurrence values.
 	 */
   private HashMap<K, Integer> counts = new HashMap<K, Integer>();
-
+  
   /**
-   * Key/occurrence value pair output port.
+   * Key/occurrence value pair output port. 
    */
   public final transient DefaultOutputPort<KeyValPair<K, Integer>> outport = new DefaultOutputPort<KeyValPair<K, Integer>>();
 
