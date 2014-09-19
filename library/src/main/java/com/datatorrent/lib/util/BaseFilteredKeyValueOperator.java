@@ -18,7 +18,8 @@ package com.datatorrent.lib.util;
 import java.util.HashMap;
 
 /**
- * Base class for operators that enables filtering of of keys to be processed<p>
+ * This operator filters incoming tuples based on whether or not the tuple is contained in its filter set.
+ * <p>
  * By default no filtering would be done as inverse is set to true and filterBy would be empty unless set<br>
  * <br>
  * <b>Ports</b>: None<br>
@@ -31,9 +32,10 @@ import java.util.HashMap;
  * <b>Specific run time checks</b>: None<br>
  * <br>
  * <b>Benchmarks</b>: Not done as there are no ports on this operator<br>
- * <br>
- * <br>
- *
+ * </p>
+ * @displayName Base Filtered Key Value
+ * @category algorithm
+ * @tags filter
  * @since 0.3.2
  */
 public class BaseFilteredKeyValueOperator<K, V> extends BaseKeyValueOperator<K, V>

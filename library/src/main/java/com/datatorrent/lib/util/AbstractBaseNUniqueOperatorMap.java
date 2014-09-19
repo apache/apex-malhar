@@ -20,10 +20,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Abstract class for sorting NUnique key, val pairs, emit is done at end of window<p>
- * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
- * <br>
- *
+ * This operator orders tuples per key and emits the top N unique tuples per key at the end of the window.
+ * <p></p>
+ * @displayName Abstract Base N Unique Map
+ * @category algorithm
+ * @tags rank
  * @since 0.3.2
  */
 public abstract class AbstractBaseNUniqueOperatorMap<K, V> extends AbstractBaseNOperatorMap<K, V>

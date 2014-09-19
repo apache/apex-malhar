@@ -18,14 +18,17 @@ package com.datatorrent.lib.util;
 import javax.validation.constraints.NotNull;
 
 /**
- *
- * Base class for operators that take in &lt;K,V extends Number&gt;. Provides basic methods for value conversion<p>
+ * This is an abstract operator,
+ * which provides a base implementation for operators which work with key value pairs,
+ * where the values are numbers.
+ * <p>
+ * Provides basic methods for value conversion<p>
  * <br>
  * <b>Benchmarks</b>: Not done as emit is done by sub-classes<br>
- * <br>
- * <br>
- * <br>
- *
+ * </p>
+ * @displayName Base Number Key Value
+ * @category algorithm
+ * @tags numeric, key value
  * @since 0.3.2
  */
 public class BaseNumberKeyValueOperator<K,V extends Number> extends BaseFilteredKeyValueOperator<K,V>
