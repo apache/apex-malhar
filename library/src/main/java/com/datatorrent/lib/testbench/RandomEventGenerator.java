@@ -24,8 +24,8 @@ import java.util.Random;
 import javax.validation.constraints.Min;
 
 /**
- *
- * Generates synthetic load. Creates tuples using random numbers and keeps emitting them on the output port string_data and integer_data<p>
+ * Generates synthetic load.&nbsp;Creates tuples using random numbers and keeps emitting them on the output port string_data and integer_data.
+ * <p>
  * <br>
  * The load is generated as per config parameters. This class is mainly meant for testing nodes by creating a random number within
  * a range at a very high throughput. This node does not need to be windowed. It would just create tuple stream upto the limit set
@@ -50,10 +50,12 @@ import javax.validation.constraints.Min;
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * This node has been benchmarked at over 10 million tuples/second in local/inline mode<br>
- *<br>
- * Compile time error checking includes<br>
  * <br>
- *
+ * Compile time error checking includes<br>
+ * </p>
+ * @displayName Random Event Generator
+ * @category testbench
+ * @tags generate
  * @since 0.3.2
  */
 public class RandomEventGenerator extends BaseOperator implements InputOperator

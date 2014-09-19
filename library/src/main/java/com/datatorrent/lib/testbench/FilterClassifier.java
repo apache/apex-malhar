@@ -26,7 +26,9 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Filters the tuples as per the filter (pass through percent) and emits them. The aim is to create another stream representing a subsection of incoming load<p>
+ * Filters the tuples as per the filter (pass through percent) and emits them.
+ * <p>
+ * The aim is to create another stream representing a subsection of incoming load<p>
  * <br>
  * Examples of pairs include<br>
  * publisher,advertizer<br>
@@ -48,7 +50,10 @@ import java.util.Random;
  * <br>
  * Compile time checks are:<br>
  * <br>
- *
+ * </p>
+ * @displayName Filter Classifier
+ * @category testbench
+ * @tags filter
  * @since 0.3.2
  */
 public class FilterClassifier<T> extends BaseOperator

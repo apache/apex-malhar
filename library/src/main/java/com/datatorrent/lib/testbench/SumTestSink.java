@@ -18,8 +18,11 @@ package com.datatorrent.lib.testbench;
 import com.datatorrent.api.Sink;
 
 /**
- * A sink implementation to collect expected test results.
- *
+ * A sink implementation which collects Number tuples and sums their values.
+ * <p></p>
+ * @displayName Sum Test Sink
+ * @category testbench
+ * @tags numeric
  * @since 0.3.2
  */
 public class SumTestSink<T> implements Sink<T>

@@ -27,8 +27,10 @@ import java.util.Random;
 
 /**
  *
- * Takes in a stream data and filters the tuples, and only emits tuples as per pass filter numbers provided
- * on output port filter. The aim is to create another stream representing a subsection of incoming load<p>
+ * Takes in a stream of data and filters the tuples.&nbsp;
+ * It only emits tuples which satisfy the filter numbers provided on the output port filter.
+ * <p>
+ * The aim is to create another stream representing a subsection of incoming load<p>
  * <br>
  * Examples of pairs include<br>
  * publisher,advertizer<br>
@@ -59,8 +61,10 @@ import java.util.Random;
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * This node has been benchmarked at over 20 million tuples/second in local/inline mode<br>
- * <br>
- *
+ * </p>
+ * @displayName Filtered Event Classifier
+ * @category testbench
+ * @tags filter
  * @since 0.3.2
  */
 public class FilteredEventClassifier<T> extends BaseOperator
