@@ -37,11 +37,11 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- *
- * Reads via WebSocket from given URL as input stream<p>
- * <br>
- * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.<br>
- * <br>
+ * Reads via WebSocket from given URL as input stream.&nbsp;Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.
+ * <p></p>
+ * @displayName JSON Map Output
+ * @category io
+ * @tags http, input operator
  *
  * @param <T> tuple type
  * @since 0.3.2

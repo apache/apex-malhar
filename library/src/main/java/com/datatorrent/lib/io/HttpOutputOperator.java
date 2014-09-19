@@ -19,11 +19,14 @@ import java.net.URI;
 import javax.validation.constraints.NotNull;
 
 /**
- *
- * Sends tuple as POST with JSON content to the given URL<p>
- * <br>
+ * Sends tuple as POST with JSON content to the given URL.
+ * <p>
  * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
  * <br>
+ * </p>
+ * @displayName Http Output
+ * @category io
+ * @tags http, output operator
  *
  * @param <T>
  * @since 0.3.2

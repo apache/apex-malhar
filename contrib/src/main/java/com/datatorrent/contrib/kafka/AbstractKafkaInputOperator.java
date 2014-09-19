@@ -15,26 +15,23 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.util.HashSet;
-import java.util.Set;
-
-import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.ActivationListener;
+import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
-
-import com.yammer.metrics.Metrics;
-
-import javax.validation.Valid;
-import javax.validation.constraints.NotNull;
-
 import kafka.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
+import java.util.HashSet;
+import java.util.Set;
+
 /**
- * Kafka input adapter consumer, which consume data from Kafka message bus.<p><br>
- *
+ * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
+ * Subclasses should implement the method for emitting tuples to downstream operators.
+ * <p>
  * Properties:<br>
  * <b>tuplesBlast</b>: Number of tuples emitted in each burst<br>
  * <b>bufferSize</b>: Size of holding buffer<br>
@@ -58,6 +55,11 @@ import org.slf4j.LoggerFactory;
  * Each operator can only consume 1 topic<br>
  * If you want partitionable operator refer to {@link AbstractPartitionableKafkaInputOperator}
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Kafka Input
+ * @category messaging
+ * @tags input operator
  *
  * @since 0.3.2
  */
@@ -145,7 +147,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void activate(OperatorContext ctx)
   {
-    // Don't start thread here! 
+    // Don't start thread here!
     // Because how many threads we want to start for kafka consumer depends on the type of kafka client and the message metadata(topic/partition/replica)
     consumer.start();
   }
@@ -181,7 +183,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     return consumer;
   }
 
-  //add topic as operator property 
+  //add topic as operator property
   public void setTopic(String topic)
   {
     this.consumer.setTopic(topic);

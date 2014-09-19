@@ -20,11 +20,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>RedisNumberSummationKeyValPairOutputOperator class.</p>
+ * This class provides an output adapter that takes a key value pair.&nbsp;
+ * If the values in the key value pairs are maps, the operator will increment the values in the key value pair in redis.&nbsp;
+ * Otherwise, it will increment the value as is.
+ * <p></p>
  *
- * This class provides output adapter that takes a key value pair of key type K and value type V, and if
- * V is a map, it will increment the values in the key value pair in redis as hash, otherwise, it will increment the value
- * as is.
+ * @displayName Redis Number Summation Key Val Pair Output
+ * @category store
+ * @tags output operator, key value
  *
  * @param <K> The key type
  * @param <V> The value type

@@ -15,13 +15,10 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.Pair;
+import com.google.common.collect.Sets;
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
 import kafka.javaapi.FetchResponse;
@@ -32,16 +29,19 @@ import kafka.message.Message;
 import kafka.message.MessageAndOffset;
 import kafka.producer.KeyedMessage;
 import kafka.producer.Partitioner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.common.util.Pair;
-import com.datatorrent.contrib.kafka.AbstractKafkaOutputOperator;
-import com.google.common.collect.Sets;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
- * Kafka output operator, which, in most cases, guarantees to send tuples to kafka MQ only once.<br>
+ * This is a base implementation of a Kafka output operator,
+ * which, in most cases, guarantees to send tuples to Kafka MQ only once.&nbsp;
+ * Subclasses should implement the methods for converting tuples into a format appropriate for Kafka.
+ * <p>
  * Assuming messages kept in kafka are ordered by either key or value or keyvalue pair
  * (For example, use timestamps as key), this Kafka OutputOperator always retrieve the last message from MQ as initial offset.
  *  So that replayed message wouldn't be sent to kafka again.
@@ -69,7 +69,11 @@ import com.google.common.collect.Sets;
  * <br>
  * Benchmarks:<br>
  * TBD<br>
- * <br>
+ * </p>
+ *
+ * @displayName Abstract Exactly Once Kafka Output
+ * @category messaging
+ * @tags output operator
  *
  * @since 1.0.2
  */

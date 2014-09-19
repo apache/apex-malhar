@@ -22,12 +22,15 @@ import javax.validation.constraints.Min;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * Takes a stream of key value pairs via input port "data"; The incoming tuple is merged into already existing sorted list.
- * At the end of the window the entire sorted list is emitted on output port "sort"<p>
- * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
- * <br>
- * <br>
- *
+ * This is the base implementation of an operator,
+ * which can emit either a map or list of tuples at the end of each application window.&nbsp;
+ * If the operator emits a list, the list contains the tuples ordered by the their counts.&nbsp;
+ * If the operator emits a map, it contains the tuples mapped to their corresponding counts.&nbsp;
+ * Subclasses should implement the methods used to emit lists and maps.
+ * <p></p>
+ * @displayName Abstract Base Sort
+ * @category algorithm
+ * @tags rank, count
  * @since 0.3.2
  */
 //

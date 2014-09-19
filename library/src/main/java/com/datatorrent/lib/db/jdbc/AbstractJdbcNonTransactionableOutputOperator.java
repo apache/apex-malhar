@@ -27,7 +27,12 @@ import com.datatorrent.api.Context;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
- * <p>A generic output operator which updates a JDBC database without using transactions.</p>
+ * This is a base implementation of a JDBC non transactionable output operator.&nbsp;
+ * Subclasses should implement the method which provides the insertion command.
+ * <p></p>
+ * @displayName Abstract JDBC Non Transactionable Output
+ * @category database
+ * @tags output operator
  *
  * @param <T> The kind of tuples that are being processed
  * @since 1.0.4
@@ -49,7 +54,7 @@ public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends 
 
   /**
    * Sets the statement parameters and executes the update
-   * 
+   *
    * @param tuple the tuple being processed
    */
   public void processTuple(T tuple)
@@ -64,7 +69,7 @@ public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends 
 
   /**
    * Gets the statement which insert/update the table in the database.
-   * 
+   *
    * @return the sql statement to update a tuple in the database.
    */
   @Nonnull
@@ -72,7 +77,7 @@ public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends 
 
   /**
    * Sets the parameter of the insert/update statement with values from the tuple.
-   * 
+   *
    * @param statement
    *          update statement which was returned by {@link #getUpdateCommand()}
    * @param tuple

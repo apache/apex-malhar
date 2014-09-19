@@ -25,8 +25,13 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * <p>HttpStatusFilter class.</p>
- *
+ * This operator consumes tuples which are key value pairs of strings.&nbsp;
+ * The tuples are filtered based on their values, and then the number of times each key occurs is counted.&nbsp;
+ * At the end of the application window each key and the number of times it occurred is emitted.
+ * <p></p>
+ * @displayName Http Status Filter
+ * @category testbench
+ * @tags filter, count
  * @since 0.3.2
  */
 public class HttpStatusFilter extends BaseOperator
@@ -66,10 +71,10 @@ public class HttpStatusFilter extends BaseOperator
 	{
 		collect  = new HashMap<String, Integer>();
 	}
-	
+
 	// out port
 	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
-	
+
 	@Override
 	public void endWindow()
 	{

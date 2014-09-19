@@ -15,12 +15,16 @@
  */
 package com.datatorrent.lib.logs;
 
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import java.util.HashMap;
 
 /**
  * <p>
- * Splits the String tuples into tokens and emits filtered keys as HashMap. A
- * HashMap of all filtered tokens are emitted on output port "tokens" . <br>
+ * Splits the String tuples into tokens and emits filtered keys as a HashMap.
+ * <p>
+ * A HashMap of all filtered tokens are emitted on output port "tokens". <br>
+ * </p>
  * <p>
  * First token in line is treated as key and rest are put into values array list. <br>
  * HashMap of token and array values are emitted on output port.
@@ -40,16 +44,22 @@ import java.util.HashMap;
  * null<br>
  * <b>filterby</b>: Only emit the keys (comma separated) that are in filterby<br>
  * <br>
+ * </p>
+ * @displayName Filtered Line To Token HashMap
+ * @category logs
+ * @tags string
  *
  * @since 0.3.3
  */
+@Stateless
+@OperatorAnnotation(partitionable=true)
 public class FilteredLineToTokenHashMap extends LineToTokenHashMap
 {
 	HashMap<String, Object> filterBy = new HashMap<String, Object>(4);
 
 	/**
 	 * setter function for filterBy
-	 * 
+	 *
 	 * @param list
 	 *          list of keys for subtoken filters
 	 */
@@ -64,7 +74,7 @@ public class FilteredLineToTokenHashMap extends LineToTokenHashMap
 
 	/**
 	 * If the key is in the filter, returns true
-	 * 
+	 *
 	 * @param subtok
 	 * @return true if super.validToken (!isEmpty()) and filter has they token
 	 */

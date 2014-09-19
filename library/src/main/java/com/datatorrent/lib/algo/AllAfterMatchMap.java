@@ -25,15 +25,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This operator takes Maps, whose values are numbers, as input tuples.&nbsp;
+ * It then performs a numeric comparison on the values corresponding to one of the keys in the input tuple maps.&nbsp;
+ * All tuples processed by the operator before the first successful comparison are not output by the operator,
+ * all tuples processed by the operator after and including a successful comparison are output by the operator.
+ *
  * <p>
  * A compare metric is done on input tuple based on the property "key",
  * "value", and "cmp" type. All tuples are emitted (inclusive) once a match is made.
  * The comparison is done by getting double value from the Number.
  * This module is a pass through<br>
- * <br>
- * <b> StateFull : Yes, </b> Count is aggregated over application window(s). <br>
- * <b> Partitions : No, </b> will yield wrong result. <br>
- * <br>
  * <br>
  * <b> StateFull : Yes, </b> Count is aggregated over application window(s). <br>
  * <b> Partitions : No, </b> will yield wrong result. <br>
@@ -57,6 +58,11 @@ import java.util.Map;
  * "gte"<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
+ * </p>
+ *
+ * @displayName Emit All After Match (Number)
+ * @category algorithm
+ * @tags filter, compare, numeric, key value
  *
  * @since 0.3.2
  */
@@ -94,7 +100,7 @@ public class AllAfterMatchMap<K, V extends Number> extends
 
   /**
    * Resets the matched variable
-   * 
+   *
    * @param windowId
    */
   @Override

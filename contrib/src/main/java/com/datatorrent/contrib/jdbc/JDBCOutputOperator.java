@@ -15,6 +15,17 @@
  */
 package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
@@ -23,23 +34,10 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Operator;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
-import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
-
 /**
- * JDBC output adapter operator, which writes data into persistence database through JAVA DataBase Connectivity (JDBC) API
- * from Malhar streaming framework.<p><br>
+ * A base implementation of an operator that writes data into a database using JAVA DataBase Connectivity (JDBC) API.&nbsp;
+ * Subclasses should provide the implementation of how to map the data to output format.
+ * <p>
  * Ports:<br>
  * <b>Input</b>: This has a single input port that writes data into database.<br>
  * <b>Output</b>: No output port<br>
@@ -85,6 +83,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ *
+ * @displayName JDBC Output
+ * @category database
+ * @tags output operator
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcTransactionableOutputOperator}

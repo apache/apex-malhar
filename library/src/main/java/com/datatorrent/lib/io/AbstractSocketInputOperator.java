@@ -15,12 +15,17 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 
 /**
- * This is abstract class for socket input operator.</br>
- *
+ * This is the base implementation for an input operator which reads from a network socket.&nbsp;
+ * Subclasses must implement the method that is used to process incoming bytes from the socket.
+ * <p>
  * <b>Ports</b>:</br> <b>outputPort</b>: emits &lt;<T></T>&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>hostname</b></br> <b>port</b></br> <b>byteBufferSize</b></br> <b>scanIntervalInMilliSeconds</b></br>
+ * </p>
+ * @displayName Abstract Socket Input
+ * @category io
+ * @tags socket, input operator
  *
  * @param <T>
  * @since 0.9.5

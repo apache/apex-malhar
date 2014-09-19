@@ -28,8 +28,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Parse Apache log lines one line at a time.&nbsp;
+ * Regex (getAccessLogRegex) is used as a parser.&nbsp;
+ * The fields extracted include i/p (outputIPAddress), url (outputUrl),
+ * status code (outputStatusCode), bytes (outputBytes), referer (outputReferer),
+ * and agent (outputAgent).&nbsp;Each of the fields are emitted to a separate output port.
+ * <p>
  * Please refer to docs for {@link com.datatorrent.lib.logs.ApacheLogParseOperator} documentation.
  * More output ports in this operator.
+ * </p>
+ * @displayName Apache Virtual Log Parse
+ * @category logs
+ * @tags apache
  *
  * @since 0.3.2
  */
@@ -102,7 +112,7 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
         accessLogEntryMatcher = accessLogPattern.matcher(line);
 
         if (accessLogEntryMatcher.matches()) {
-            
+
         	  serverName = accessLogEntryMatcher.group(1);
             ipAddr = accessLogEntryMatcher.group(2);
             url = accessLogEntryMatcher.group(6);
@@ -121,15 +131,15 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
             outputAgent.emit(agent);
             outputServerName.emit(serverName);
             outputServerName1.emit(serverName);
-            
+
             HashMap<String, String> urlStatus = new HashMap<String, String>();
             urlStatus.put(url, httpStatusCode);
             outUrlStatus.emit(urlStatus);
-            
+
             HashMap<String, String> serverStatus = new HashMap<String, String>();
             serverStatus.put(serverName, httpStatusCode);
             outServerStatus.emit(serverStatus);
-            
+
             clientDataUsage.emit((int)numOfBytes);
             viewCount.emit(new Integer(1));
         }

@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Generates one time seed load based on range provided for the keys, and adds new classification to incoming keys. The new tuple is emitted
- * on the output port keyvalpair_list, val_list, string_data, val_data<p>
- * <br>
+ * Generates one time seed load based on range provided for the keys, and adds new classification to incoming keys.&nbsp;
+ * The new tuple is emitted on the output port keyvalpair_list, val_list, string_data, val_data.
+ * <p>
  * Examples of getting seed distributions include<br>
  * Clients data of a company for every clientId (key is clienId)<br>
  * Persons age, gender, for every phone number (key is phone number)<br>
@@ -64,7 +64,10 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * With key: Benchmarked at over 1 million tuples/second in local/in-line mode<br>
  * Without key: Benchmarked at over 4 million tuples/second in local/in-line mode<br>
- *
+ * </p>
+ * @displayName Seed Event Generator
+ * @category testbench
+ * @tags generate
  * @since 0.3.2
  */
 public class SeedEventGenerator extends BaseOperator implements InputOperator

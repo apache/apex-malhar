@@ -19,11 +19,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>RedisMapOutputOperator class.</p>
- *
+ * This is a Redis output operator, which takes Maps as tuples and writes the key value pairs out to Redis.
+ * <p>
  * This output adapter takes maps as tuples and just writes to the redis store with the keys and the values in the map
  * Note: Redis output operator should never use the passthrough method because it begins a transaction at beginWindow and commits a transaction at
  * endWindow, and a transaction in Redis blocks all other clients.
+ * </p>
+ *
+ * @displayName Redis Map Output
+ * @category store
+ * @tags output operator, key value
  *
  * @param <K> The key type.
  * @param <V> The value type.

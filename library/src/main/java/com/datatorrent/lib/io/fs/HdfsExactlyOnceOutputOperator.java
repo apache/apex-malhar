@@ -27,12 +27,17 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * HDFSOutput Operator that writes the data exactly once.
+ * This operator writes out tuples to hdfs while obeying the exactly once constraint.
+ * <p>
  * The Operator creates file <window_id>.tmp during beginwindow and writes the tuples to it.
  * It moves the file to <window_id> in the end window.
  * If the operator fails and recovers, checks if the file <window_id> exists during begin window. If it does,
  * then the operator doesn't process anything during that window. If it doesn't, then the operator deletes
  * the <window_id>.tmp file if it exists, creates new and starts writing to it.
+ * </p>
+ * @displayName HDFS Exactly Once Output
+ * @category io
+ * @tags hdfs, files, output operator
  *
  * @since 1.0.2
  */

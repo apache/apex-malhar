@@ -21,7 +21,12 @@ import javax.jms.StreamMessage;
 import javax.jms.TextMessage;
 
 /**
- * <p>ActiveMQStringInputOperator class.</p>
+ * This is a single port input operator,
+ * which consumes messages from an ActiveMQ message bus and emits strings.
+ * <p></p>
+ * @displayName Active MQ Single Port Input (String)
+ * @category messaging
+ * @tags jms, input operator, string
  *
  * @since 0.3.3
  */

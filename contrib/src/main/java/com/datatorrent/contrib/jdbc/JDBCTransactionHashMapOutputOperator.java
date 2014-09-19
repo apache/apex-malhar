@@ -15,17 +15,19 @@
  */
 package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 
 /**
- * JDBC output adapter operator, for HashMap column mapping and transaction type database write. <p><br>
+ * A base implementation of an operator that writes data into a database using JAVA DataBase Connectivity (JDBC) API in
+ * a transactional fashion where the input is an HashMap.&nbsp;The table and column mappings are specified in a map.
+ * <p>
  * Each tuple contain a HahMap or Java object. Key is string, Value can be any type derived from Java object. <br>
  * <br>
  * Ports:<br>
@@ -44,6 +46,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ *
+ * @displayName JDBC Transaction Hash Map Output
+ * @category database
+ * @tags output operator
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcTransactionableOutputOperator}

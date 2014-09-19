@@ -23,8 +23,12 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
 
 /**
+ * This operator takes an input stream of key value pairs is ordered by key,
+ * and the bottom N of the ordered tuples per key are emitted on port "bottom" at the end of window.
+ * <p>
  * Input stream of key value pairs is ordered by key, and bottom N of the
  * ordered tuples per key are emitted on port "bottom" at the end of window
+ * </p>
  * <p>
  * This is an end of window operator. At the end of window all data is flushed.
  * Thus the data set is windowed and no history is kept of previous windows<br>
@@ -42,6 +46,11 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * <b>Specific compile time checks are</b>:<br>
  * N: Has to be >= 1<br>
  * <br>
+ * </p>
+ *
+ * @displayName Bottom N
+ * @category algorithm
+ * @tags filter, rank, key value
  *
  * @since 0.3.3
  */
@@ -64,7 +73,7 @@ public class BottomNMap<K, V> extends AbstractBaseNNonUniqueOperatorMap<K, V>
 
   /**
    * Ascending is set to false as we are looking for Bottom N
-   * 
+   *
    * @return false
    */
   @Override
@@ -75,7 +84,7 @@ public class BottomNMap<K, V> extends AbstractBaseNNonUniqueOperatorMap<K, V>
 
   /**
    * Emits tuple to port "bottom"
-   * 
+   *
    * @param tuple
    */
   @Override

@@ -17,7 +17,6 @@ package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
-import com.yammer.metrics.Metrics;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.ProducerConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -28,8 +27,8 @@ import javax.validation.constraints.NotNull;
 import java.util.Properties;
 
 /**
- * Kafka output adapter operator, which produce data into Kafka message bus.<p><br>
- *
+ * This is the base implementation of a Kafka output operator, which writes data to the Kafka message bus.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have any number of input ports<br>
@@ -47,6 +46,11 @@ import java.util.Properties;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Kafka Output
+ * @category messaging
+ * @tags output operator
  *
  * @since 0.3.2
  */
@@ -59,11 +63,11 @@ public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
   private String topic = "topic1";
 
   protected int sendCount;
-  
+
   private String producerProperties = "";
-  
+
   private Properties configProperties = new Properties();
-    
+
   public Properties getConfigProperties()
   {
     return configProperties;
@@ -88,9 +92,9 @@ public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
       String[] keyVal = StringUtils.trim(propString).split("=");
       prop.put(StringUtils.trim(keyVal[0]), StringUtils.trim(keyVal[1]));
     }
-    
+
     configProperties.putAll(prop);
-    
+
     return new ProducerConfig(configProperties);
   };
 

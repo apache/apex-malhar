@@ -15,21 +15,21 @@
  */
 package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
-
 /**
- * JDBC output adapter operator, for ArrayList column mapping and non-transaction type database write.<p><br>
- * The tuple can contain an array of java object. <br>
- *
+ * A base implementation of an operator that writes data into a database using JAVA DataBase Connectivity (JDBC) API in
+ * a non-transactional fashion where the input is an array list of java objects.&nbsp;The table and column mappings are
+ * specified in a list.
+ * <p>
  * Ports:<br>
  * <b>Input</b>: This has a single input port that writes data into database.<br>
  * <b>Output</b>: No output port<br>
@@ -45,7 +45,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
  * <br>
  * Benchmarks:<br>
  * TBD<br>
- * <br>
+ * </p>
+ *
+ * @displayName JDBC Non Transaction Array List Output
+ * @category database
+ * @tags output operator
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcNonTransactionableOutputOperator}

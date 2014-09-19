@@ -23,7 +23,11 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * Counts the number of tuples emitted in a window. <p>
+ * This operator counts the number of unique tuples it recieved in a window and outputs it at the end of each window.
+ * <p>
+ * Counts the number of tuples emitted in a window.
+ * </p>
+ * <p>
  * This is an end of window operator<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -41,6 +45,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * and number of unique k are the main determinant of performance. Tuples are assumed to be immutable. If you use mutable tuples and have lots of keys,
  * the benchmarks may be lower</td></tr>
  * </table><br>
+ * </p>
  * <p>
  * <b>Function Table (K=String)</b>:
  * <table border="1" cellspacing=1 cellpadding=1 summary="Function table for UniqueCounter&lt;K&gt; operator template">
@@ -65,6 +70,11 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <tr><td>End Window (endWindow())</td><td>N/A</td><td>15</td></tr>
  * </table>
  * <br>
+ * </p>
+ *
+ * @displayName Count Unique Values
+ * @category algorithm
+ * @tags count
  *
  * @since 0.3.2
  */

@@ -23,12 +23,13 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>Use this operator to parse unstructured log data into named fields.</p>
+ * This operator parses unstructured log data into named fields.
  *
  * <p>Uses a regex with named capturing groups (http://www.regular-expressions.info/named.html) to extract portions of a string read
  * from the input port into a Map<String,String>. The capturing group name is used as the key name. The captured value is used as
@@ -66,9 +67,14 @@ import org.slf4j.LoggerFactory;
  * <b>Properties</b>:<br>
  * <b>regex</b>: defines the regex <br>
  *
+ * @displayName Regex Match Map
+ * @category logs
+ * @tags regex
+ *
  * @since 1.0.5
  */
 @Stateless
+@OperatorAnnotation(partitionable=true)
 public class RegexMatchMapOperator extends BaseOperator
 {
   /**

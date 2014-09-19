@@ -16,16 +16,18 @@
 package com.datatorrent.lib.logs;
 
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseLineTokenizer;
 import com.datatorrent.lib.util.UnifierHashMap;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
  * <p>
- * Splits String objects into tokens, and emits as HashMap.
+ * Splits String objects into tokens, and emits as a HashMap.
+ * <p>
  * First token in line is treated as key and rest are put into values array list. <br>
  * HashMap of token and array values are emitted on output port.
  * This module is a pass through<br>
@@ -42,8 +44,14 @@ import java.util.HashMap;
  * <b>splittokenby</b>: The characters used to split a token into key,val1,val2,.... Default is "", i.e. tokens are not split, and key=token, val=""<br>
  * <br>
  *
+ * @displayName Line To Token (HashMap)
+ * @category logs
+ * @tags string
+ *
  * @since 0.3.2
  */
+@Stateless
+@OperatorAnnotation(partitionable=true)
 public class LineToTokenHashMap extends BaseLineTokenizer
 {
   @OutputPortFieldAnnotation(name = "tokens")

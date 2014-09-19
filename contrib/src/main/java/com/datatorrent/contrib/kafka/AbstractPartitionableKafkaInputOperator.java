@@ -15,40 +15,28 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import kafka.javaapi.PartitionMetadata;
-
-import com.datatorrent.api.CheckpointListener;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
-
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+import kafka.javaapi.PartitionMetadata;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
- * This kafka input operator will be automatically partitioned per upstream kafka partition.<br> <br>
- * This is not real dynamic partition, The partition number is decided by number of partition set for the topic in kafka.<br> <br>
- *
+ * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
+ * It will be dynamically partitioned based on the upstream kafka partition.
+ * <p>
  * <b>Partition Strategy:</b>
  * <p><b>1. ONE_TO_ONE partition</b> Each operator partition will consume from only one kafka partition </p>
  * <p><b>2. ONE_TO_MANY partition</b> Each operator partition consumer from multiple kafka partition with some hard ingestion rate limit</p>
@@ -75,9 +63,15 @@ import com.google.common.collect.Sets;
  * <p><b>ONLY APPMASTER</b> operator periodically check overall kafka partition layout and add operator partition due to kafka partition add(no delete supported by kafka for now)</p>
  * <br>
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Partitionable Kafka Input
+ * @category messaging
+ * @tags input operator
  *
  * @since 0.9.0
  */
+@OperatorAnnotation(partitionable = true)
 public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements Partitioner<AbstractPartitionableKafkaInputOperator>, StatsListener
 {
 

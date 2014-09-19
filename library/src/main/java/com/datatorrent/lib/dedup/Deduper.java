@@ -43,10 +43,8 @@ import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
- * <p>
- * Drops duplicate events.
- * </p>
- *
+ * This is the base implementation of a deduper, which drops duplicate events.&nbsp;
+ * Subclasses must implement the convert method which turns input tuples into output tuples.
  * <p>
  * Processing of an event involves:
  * <ol>
@@ -69,6 +67,10 @@ import com.datatorrent.lib.counters.BasicCounters;
  * <p>
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
+ *
+ * @displayName Deduper
+ * @category dedup
+ * @tags
  *
  * @param <INPUT>  type of input tuple
  * @param <OUTPUT> type of output tuple

@@ -21,11 +21,16 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import java.util.ArrayList;
 
 /**
+ * This is a base class implementation of a unifier which merges sorted lists of tuples.&nbsp;
+ * The operator takes sorted lists as input tuples each window.&nbsp;
+ * At the end of each application window input tuples are merged into one large sorted list and emitted.&nbsp;
+ * Subclasses must implement the comparison method used for sorting.
  * <p>
  * Incoming sorted list is merged into already existing sorted list. The input list is expected to be sorted. <b>
  * At the end of the window, merged sorted list is emitted on sort output port. <br>
@@ -45,15 +50,21 @@ import java.util.ArrayList;
  * 1. compare : K type value compare criteria for sort.
  * 2. getUnifierInstance : Get unifier operator instance for output port, (must return self instance).
  *
+ * @displayName Merge Sorted Lists (Generic)
+ * @category algorithm
+ * @tags rank
+ * </p>
+ *
  * @since 0.3.3
  */
+@OperatorAnnotation(partitionable = true)
 public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 {
 	/**
 	 * Sorted merged list.
 	 */
 	private ArrayList<K> mergedList = null;
-	
+
 	/**
 	 * Input port.
 	 */
@@ -69,7 +80,7 @@ public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
     	mergedList = processMergeList(mergedList, tuple);
     }
   };
-  
+
   /**
    * Sorted list output port.
    */
@@ -81,19 +92,19 @@ public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
   			return getUnifierInstance();
   		}
   };
-  
+
 	@Override
 	public void setup(OperatorContext context)
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void teardown()
 	{
 		// TODO Auto-generated method stub
-		
+
 	}
 	@Override
 	public void beginWindow(long windowId)
@@ -106,10 +117,10 @@ public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 		sort.emit(mergedList);
 		mergedList = null;
 	}
-	
+
 	/**
 	 *  Sorted parameter list are merged into sorted merged output list.
-	 *  
+	 *
 	 * @param list1 sorted list aggregated by operator
 	 * @param list2 Input port sorted list to be merged.
 	 * @return sorted merged output list.
@@ -120,14 +131,14 @@ public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 		// null lists
 		if (list1 == null) return list2;
 		if (list2 == null) return list1;
-		
-		// Create output list   
+
+		// Create output list
 		ArrayList<K> result = new ArrayList<K>();
-		int index1 = 0;  
+		int index1 = 0;
 		int index2 = 0;
 		boolean loop = true;
 	  while (loop) {
-	  	
+
 	  	// list1 is exhausted
 	  	if (index1 == list1.size()) {
 	  		while(index2 < list2.size()) {
@@ -135,23 +146,23 @@ public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 	  		}
 	  		break;
 	  	}
-	  	
-	  	// list2 is exhausted  
+
+	  	// list2 is exhausted
 	  	if (index2 == list2.size()) {
 	  		while(index1 < list1.size()) {
 	  			result.add(list1.get(index1++));
 	  		}
 	  		break;
 	  	}
-	  	
-	  	// compare values   
+
+	  	// compare values
 	  	K val1 = list1.get(index1++);
 	  	K val2 = list2.get(index2++);
 	  	K[] vals = compare(val1, val2);
 	  	result.add(vals[0]);
 	  	if (vals[1] != null) result.add(vals[1]);
 	  }
-		
+
 	  // done
     return result;
 	}
@@ -164,12 +175,12 @@ public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 	{
 		mergedList = processMergeList(mergedList, tuple);
 	}
-	
+
 	/**
 	 * abstract sort function to be implemented by sub class.
 	 */
 	abstract public  K[] compare(K val1, K val2);
-	
+
 	/**
 	 *  Get output port unifier instance, sub class should return new instance of itself.
 	 */

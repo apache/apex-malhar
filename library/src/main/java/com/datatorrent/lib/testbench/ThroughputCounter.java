@@ -28,13 +28,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Developed for a demo. Stram now has this data for all streams via its web-service<br>
- * Expects incoming stream to be a HashMap<String, Integer> and add all integer values to compute throughput. These
- * values are throughput per window from upstream operators. On end of window this total and average is emitted<p>
- * <br>
- * <br>
+ * This operator expects incoming tuples to be of type HashMap&lt;String, Integer&gt;.&nbsp;
+ * These values are throughput per window from upstream operators.&nbsp;
+ * On end of window this total and average is emitted.
+ * <p>
  * Benchmarks: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
- *
  * <b>Tuple Schema</b>
  * Each input tuple is HashMap<String, Integer><br>
  * Output tuple is a HashMap<String, Integer>, where strings are throughputs, averages etc<br>
@@ -50,8 +48,10 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Benchmarks</b>: Blast as many tuples as possible in inline mode<br>
  * Benchmarked at over 17 million tuples/second in local/in-line mode<br>
- * <br>
- *
+ * </p>
+ * @displayName Throughput Counter
+ * @category testbench
+ * @tags count
  * @since 0.3.2
  */
 public class ThroughputCounter<K, V extends Number> extends BaseOperator

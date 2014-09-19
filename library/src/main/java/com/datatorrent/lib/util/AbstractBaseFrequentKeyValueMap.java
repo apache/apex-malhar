@@ -23,14 +23,20 @@ import java.util.Map;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- *
- * Occurrences of all values for each key in a stream is counted and at the end of window the least frequent value is emitted
- * on output port "count" per key<p>
+ * This is the base implementation of an operator, which takes key value pairs as inputs.&nbsp;
+ * It counts the number of times each key value pair occurs.&nbsp;
+ * The counts of each key value pair are compared and the winning key value pair(s) for each key is emitted.&nbsp;
+ * Subclasses should implement the method that is used to emit key value pairs, as well as the comparison method used
+ * to determine the winning key value pair(s).
+ * <p>
  * This module is an end of window module<br>
  * <br>
  * Ports:<br>
  * <b>data</b>: expects Map<K, V><br>
- *
+ * </p>
+ * @displayName Emit Winning Key Value Pair(s)
+ * @category algorithm
+ * @tags count, compare, key value
  * @since 0.3.2
  */
 public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValueOperator<K, V>

@@ -23,8 +23,10 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 /**
- * ZeroMQ output adapter operator, which send data to ZeroMQ message bus.<p><br>
- *
+ * This is the base implementation of a ZeroMQ output adapter.&nbsp;
+ * This operator will behave like a publisher that replies to requests.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have any number of input ports<br>
@@ -47,8 +49,10 @@ import org.zeromq.ZMQ;
  * <tr><td>One tuple per key per window per port</td><td><b>400 thousand K,V pairs/s</td><td>Out-bound rate is the main determinant of performance. Operator can process about 400 thousand unique (k,v immutable pairs) tuples/sec as ZeroMQ DAG. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
- * <br>
- *
+ * </p>
+ * @displayName Abstract Base ZeroMQ Input
+ * @category messaging
+ * @tags output operator
  * @since 0.3.2
  */
 @ShipContainingJars(classes={org.zeromq.ZMQ.Socket.class})

@@ -15,23 +15,21 @@
  */
 package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.validation.constraints.NotNull;
 import java.sql.DatabaseMetaData;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import javax.validation.constraints.NotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.Context.OperatorContext;
-
-import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
-
 /**
- * JDBCTransaction output adapter operator, which send insertion data to transaction database. <p><br>
- *
+ * A base implementation of an operator that writes data into a database using JAVA DataBase Connectivity (JDBC) API in
+ * a transactional fashion.
+ * <p>
  * For transaction output operator, user needs to have a separate table to store some metadata
  * which is needed to recover in case of a node failure. This additional table contain application id,
  * operator id, and max window id. User needs to have this table setup before running the operator
@@ -56,7 +54,11 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
  * User required to assign the name for the windowId, operatorId and applicationId column of the table.
  * <br>
  * <b>Benchmarks</b>:
- * <br>
+ * </p>
+ *
+ * @displayName JDBC Transaction Output
+ * @category database
+ * @tags output operator
  *
  * @since 0.3.2
  * @deprecated use {@link AbstractJdbcTransactionableOutputOperator}

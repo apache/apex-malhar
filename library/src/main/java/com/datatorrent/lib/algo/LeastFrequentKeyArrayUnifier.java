@@ -9,7 +9,11 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
- * <p>LeastFrequentKeyArrayUnifier class.</p>
+ * This unifier is used by the LeastFrequentKey operator in order to merge the output of the "list" output port.
+ * <p></p>
+ * @displayName Emit Least Frequent Value
+ * @category algorithm
+ * @tags filter, count
  *
  * @since 0.3.3
  */
@@ -19,17 +23,17 @@ public class LeastFrequentKeyArrayUnifier<K> implements Unifier<ArrayList<HashMa
    * Key/Least value map.
    */
   private HashMap<K, Integer> leastMap  = new HashMap<K, Integer>();
-  
+
   /**
    * Default output port.
    */
   public final transient DefaultOutputPort<HashMap<K, Integer>> mergedport = new DefaultOutputPort<HashMap<K, Integer>>();
-  
+
   @Override
   public void beginWindow(long arg0)
   {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
@@ -43,14 +47,14 @@ public class LeastFrequentKeyArrayUnifier<K> implements Unifier<ArrayList<HashMa
   public void setup(OperatorContext arg0)
   {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void teardown()
   {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override

@@ -20,7 +20,9 @@ import java.io.IOException;
 import org.apache.hadoop.fs.Path;
 
 /**
- * Adapter for writing to HDFS
+ * This is the base implementation for an HDFS output operator,
+ * which writes tuples to HDFS files on a size rolling basis.&nbsp;
+ * Subclasses should implement the method which determines the next file to write to in the rolling queue.
  * <p>
  * Serializes tuples into a HDFS file<br>
  * Tuples are written to a single HDFS file or multiple HDFS files, with the option to specify size based file rolling,
@@ -28,6 +30,10 @@ import org.apache.hadoop.fs.Path;
  * Example file path pattern : file:///mydir/adviews.out.%(operatorId).part-%(partIndex). where operatorId and partIndex
  * are place holders.
  * </p>
+ *
+ * @displayName HDFS Rolling Output
+ * @category io
+ * @tags hdfs, file, output operator
  *
  * @param <T> input port tuple type
  * @since 0.9.4

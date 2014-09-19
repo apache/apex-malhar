@@ -24,8 +24,17 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
- * This abstract class is intended to be an output adapter for a TransactionStore with "transactional exactly once" feature
- * For non-idempotent operations (e.g. incrementing values in the store, etc)
+ * This is the base implementation of an output operator,
+ * which writes to a transactional store.&nbsp;
+ * This operator does not provide the exactly once guarantee.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
+ *
+ * with "transactional exactly once" feature
+ * For non-idempotent operations (incrementing values in the store, etc).
+ * <p></p>
+ * @displayName Abstract Transactionable Store Output
+ * @category store
+ * @tags transactional, output operator
  *
  * @param <T> The type of the tuple
  * @param <S> The store type

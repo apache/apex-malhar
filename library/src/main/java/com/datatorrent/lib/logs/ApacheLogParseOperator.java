@@ -18,6 +18,7 @@ package com.datatorrent.lib.logs;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 
 import java.io.IOException;
@@ -26,11 +27,11 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *
- * Parse Apache log lines one line at a time. Regex (getAccessLogRegex) is used
- * as a parser. The fields extracted include i/p (outputIPAddress), url
- * (outputUrl), status code (outputStatusCode), bytes (outputBytes), referer
- * (outputReferer), and agent (outputAgent)
+ * Parse Apache log lines one line at a time.&nbsp;
+ * Regex (getAccessLogRegex) is used as a parser.&nbsp;
+ * The fields extracted include i/p (outputIPAddress), url (outputUrl),
+ * status code (outputStatusCode), bytes (outputBytes), referer (outputReferer),
+ * and agent (outputAgent).
  * <p>
  * This is a pass through operator<br>
  * <br>
@@ -47,10 +48,15 @@ import java.util.regex.Pattern;
  * <b>outputAgent</b>: emits String<br>
  * <br>
  * <b>Properties</b>: none<br>
+ * </p>
+ * @displayName Apache Log Parse
+ * @category logs
+ * @tags apache
  *
  * @since 0.3.3
  */
 @Stateless
+@OperatorAnnotation(partitionable=true)
 public class ApacheLogParseOperator extends BaseOperator
 {
 	/**
@@ -68,32 +74,32 @@ public class ApacheLogParseOperator extends BaseOperator
 			}
 		}
 	};
-	
+
 	/**
 	 * Client IP address, output port.
 	 */
 	public final transient DefaultOutputPort<String> outputIPAddress = new DefaultOutputPort<String>();
-	
+
 	/**
 	 * Access url port, output port.
 	 */
 	public final transient DefaultOutputPort<String> outputUrl = new DefaultOutputPort<String>();
-	
+
 	/**
 	 * Apache status log, output port.
 	 */
 	public final transient DefaultOutputPort<String> outputStatusCode = new DefaultOutputPort<String>();
-	
+
 	/**
 	 * Number of bytes served, output port.
 	 */
 	public final transient DefaultOutputPort<Long> outputBytes = new DefaultOutputPort<Long>();
-	
+
 	/**
-	 * Referer name, output port. 
+	 * Referer name, output port.
 	 */
 	public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>();
-	
+
 	/**
 	 * IP Agent, output port.
 	 */
@@ -124,7 +130,7 @@ public class ApacheLogParseOperator extends BaseOperator
 	 * 1. Requester IP <br>
 	 * 2. Date of Request <br>
 	 * 3. Requested Page Path
-	 * 
+	 *
 	 * @param line
 	 *          : tuple to parsee
 	 * @throws ParseException
