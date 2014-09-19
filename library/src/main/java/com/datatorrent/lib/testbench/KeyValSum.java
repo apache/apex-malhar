@@ -24,8 +24,12 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * <p>KeyValSum class.</p>
- *
+ * This operator consumes maps whose keys are strings and values are integers.&nbsp;
+ * In each application window the values for each key are summed and each string/sum pair is emitted at the end of each window.
+ * <p></p>
+ * @displayName Key Val Sum
+ * @category testbench
+ * @tags count
  * @since 0.3.2
  */
 public class KeyValSum extends BaseOperator
@@ -62,10 +66,10 @@ public class KeyValSum extends BaseOperator
 	{
 		collect  = new HashMap<String, Integer>();
 	}
-	
+
 	// out port
 	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
-	
+
 	@Override
 	public void endWindow()
 	{
