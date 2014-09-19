@@ -21,15 +21,21 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
- * Unifier for array list output port.
- *
+ * This unifier takes lists as input tuples.&nbsp;
+ * The unifier combines all the lists it receives within an application window and emits them at the end of the window.
+ * <p>
+ * The processing is done with sticky key partitioning, i.e. each one key belongs only to one partition.
+ * </p>
+ * @displayName Unifier Array List
+ * @category algorithm
+ * @tags
  * @since 0.3.3
  */
 public class UnifierArrayList<K> implements Unifier<ArrayList<K>>
 {
   // merged list
   private ArrayList<K> mergedList;
-  
+
   @Override
   public void beginWindow(long arg0)
   {
@@ -46,21 +52,21 @@ public class UnifierArrayList<K> implements Unifier<ArrayList<K>>
   public void setup(OperatorContext arg0)
   {
     // TODO Auto-generated method stub
-    
+
   }
 
   @Override
   public void teardown()
   {
     // TODO Auto-generated method stub
-    
+
   }
 
   /**
    * Output port
    */
   public final transient DefaultOutputPort<ArrayList<K>> mergedport = new DefaultOutputPort<ArrayList<K>>();
-  
+
   @Override
   public void process(ArrayList<K> tuple)
   {

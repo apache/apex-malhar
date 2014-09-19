@@ -21,9 +21,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
- *
- * An abstract class that sets up the basic operator functionality needed for match based operators<p>
- * <br>
+ * An abstract operator that sets up the basic functionality needed for match based operators.
+ * <p>
  * Ports:<br>
  * none
  * <br>
@@ -39,7 +38,10 @@ import javax.validation.constraints.Pattern;
  * <br>
  * Run time checks<br>
  * none<br>
- *
+ * </p>
+ * @displayName Abstract Base Match
+ * @category algorithm
+ * @tags compare
  * @since 0.3.2
  */
 @SuppressWarnings("rawtypes")

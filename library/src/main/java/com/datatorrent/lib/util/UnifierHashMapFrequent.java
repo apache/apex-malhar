@@ -23,11 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * Combiner for an output port that emits object with Map<K,V> interface and has the processing done
- * with sticky key partition, i.e. each one key belongs only to one partition. The final output of the
- * combiner is a simple merge into a single object that implements Map
- *
+ * This unifier consumes key value pairs in the form of a hash map, where the key is an object and the value is an integer.&nbsp;
+ * The operator emits either the largest or smallest value associated with each key at the end of each application window.
+ * <p>
+ * The processing is done with sticky key partitioning, i.e. each one key belongs only to one partition.
+ * </p>
+ * @displayName Unifier Hash Map Frequent
+ * @category algorithm
+ * @tags numeric
  * @since 0.3.2
  */
 public class UnifierHashMapFrequent<K> implements Unifier<HashMap<K, Integer>>
