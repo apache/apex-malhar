@@ -28,8 +28,9 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * This is an abstract http operator that creates a client at setup and destroys it teardown.&nbsp;
- * It also provides the process tuple method to be implemented to process each incoming tuple.
+ * This is the base implementation for HTTP operators.&nbsp;
+ * This operator handles the creation and destruction of client connections.&nbsp;
+ * Subclasses must implement the method which processes incoming tuples.
  * <p></p>
  * @displayName Abstract Http
  * @category io

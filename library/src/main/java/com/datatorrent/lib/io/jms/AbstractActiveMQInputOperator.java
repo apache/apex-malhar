@@ -26,7 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an abstract operator, which ingests data from an ActiveMQ message bus.
+ * This is the base implementation of an ActiveMQ input operator.&nbsp;
+ * Subclasses must implement the method which converts ActiveMQ into tuples for emission.
  * <p>
  * It uses PUSH model to get message. When there is a message available in AMQ message bus,
  * onMessage() got called which buffer the message into a holding buffer. At the same time

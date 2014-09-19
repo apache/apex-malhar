@@ -23,8 +23,10 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
- * This abstract class is for any implementation of an output adapter of non-transactional store {@link Connectable}
- * without the transactional exactly once feature.
+ * This is the base implementation of an output operator,
+ * which writes to a non-transactional store.&nbsp;
+ * This operator does not provide the exactly once guarantee.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract Store Output
  * @category store

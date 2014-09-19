@@ -23,7 +23,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an abstract output operator, which emits data to an ActiveMQ message bus.
+ * This is the base implementation of an ActiveMQ output operator.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p>
  * This operator receives tuples from Malhar Streaming Platform through its input ports.
  * When the tuple is available in input ports it converts that to JMS message and send into

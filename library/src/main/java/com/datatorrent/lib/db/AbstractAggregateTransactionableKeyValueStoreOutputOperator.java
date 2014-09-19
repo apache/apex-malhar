@@ -16,7 +16,10 @@
 package com.datatorrent.lib.db;
 
 /**
- * This abstract class is for aggregate output (over one application window) to a transactionable key value store with the transactional exactly-once feature.
+ * This is the base implementation for an aggregate output operator,
+ * which writes to a transactionable key value store (over one application window).&nbsp;
+ * This operator provides the exactly-once gaurantee.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract Aggregate Transactionable Store Output
  * @category store

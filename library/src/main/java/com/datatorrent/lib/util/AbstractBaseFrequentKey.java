@@ -22,8 +22,10 @@ import java.util.Map;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * This is an abstract operator, which counts the number of times each tuple occurs.&nbsp;
- * The counts of tuples are then compared at the end of each window and the winning tuple(s) are emitted.
+ * This is the base implementation of an operator, which counts the number of times each tuple occurs.&nbsp;
+ * The counts of tuples are then compared at the end of each window and the winning tuple(s) are emitted.&nbsp;
+ * Subclasses should implement the methods that are used to emit tuples, as well as the comparison method used
+ * to determine the winning tuple(s).
  * <p>
  * This module is an end of window module.
  * </p>

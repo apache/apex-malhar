@@ -21,7 +21,8 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
- * An abstract operator that sets up the basic functionality needed for match based operators.
+ * This is the base implementation of operators which perform comparisons.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p>
  * Ports:<br>
  * none

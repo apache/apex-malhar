@@ -15,7 +15,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 
 /**
- * This is abstract class for socket input operator.
+ * This is the base implementation for an input operator which reads from a network socket.&nbsp;
+ * Subclasses must implement the method that is used to process incoming bytes from the socket.
  * <p>
  * <b>Ports</b>:</br> <b>outputPort</b>: emits &lt;<T></T>&gt;<br>
  * <br>

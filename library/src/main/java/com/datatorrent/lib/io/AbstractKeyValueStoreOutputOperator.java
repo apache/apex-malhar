@@ -29,7 +29,9 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * This is an abstract input adapter for a key value store.
+ * This is the base implementation of an input operator for a key value store.&nbsp;
+ * Subclasses must implement the methods used to retrieve data from and put data into the store,
+ * they must also implement the methods which handle transactions.
  * <p></p>
  * @displayName Abstract Keyval Store Input
  * @category store

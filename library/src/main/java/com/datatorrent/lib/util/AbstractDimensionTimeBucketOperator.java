@@ -31,12 +31,14 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * This operator consumes tuples, which are maps from fields to objects.&nbsp;
+ * This is the base implementation of an operator.&nbsp;
+ * The operator consumes tuples which are maps from fields to objects.&nbsp;
  * One field in each tuple is considered a "time" field,
  * one or more fields are considered "dimensions",
  * one or more fields are considered "value" fields.&nbsp;
  * This operator outputs a map at the end of each window whose keys are a combination of the "time" and "dimension" fields.&nbsp;
- * The value of the map is another map whose keys are "value" fields and whose values are a numeric metric.
+ * The value of the map is another map whose keys are "value" fields and whose values are a numeric metric.&nbsp;
+ * Subclasses must implement the methods used to process the time, dimension, and value fields.
  * <p>
  * This operator takes in a Map of key value pairs, and output the expanded key value pairs from the dimensions.
  * The user of this class is supposed to:
