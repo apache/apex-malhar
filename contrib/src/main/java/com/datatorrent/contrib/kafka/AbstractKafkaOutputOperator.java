@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Properties;
 
 /**
- * Kafka output adapter operator, which writes data to the Kafka message bus.
+ * This is the base implementation of a Kafka output operator, which writes data to the Kafka message bus.
  * <p>
  * <br>
  * Ports:<br>

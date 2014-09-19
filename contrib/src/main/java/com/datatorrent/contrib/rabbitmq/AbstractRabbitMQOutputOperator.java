@@ -26,7 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an abstract RabbitMQ output adapter operator.
+ * This is the base implementation of a RabbitMQ output operator.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p>
  * <br>
  * Ports:<br>

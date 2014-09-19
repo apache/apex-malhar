@@ -18,7 +18,7 @@ package com.datatorrent.contrib.redis;
 import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
 
 /**
- * This is an abstract Redis input adapter.
+ * This is the base implementation of a Redis input operator.
  * <p></p>
  * @displayName Abstract Redis Input
  * @category store

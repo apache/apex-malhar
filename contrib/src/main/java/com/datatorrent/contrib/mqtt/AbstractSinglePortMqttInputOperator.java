@@ -20,7 +20,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import org.fusesource.mqtt.client.Message;
 
 /**
- * This is an abstract input adapter for MQTT.&nbsp;This operator has a single output port.
+ * This is the base implementation for a single port MQTT input operator.&nbsp;
+ * Subclasses should implement the methods which convert MQTT messages to tuples.
  * <p>
  * Ports:<br>
  * <b>Input</b>: No input port<br>

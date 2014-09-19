@@ -19,8 +19,8 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
- * This is an abstract output adapter for MQTT.&nbsp;
- * This operator has a single input port.
+ * This is the base implementation for a single port MQTT output operator.&nbsp;
+ * Subclasses should implement the conversion of a tuple to an MQTT message.
  * <p>
  * <br>
  * Ports:<br>

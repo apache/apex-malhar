@@ -26,7 +26,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an abstract RabbitMQ input adapter operator.
+ * This is the base implementation of a RabbitMQ input operator.&nbsp;
+ * Subclasses should implement the methods which convert RabbitMQ messages to tuples.
  * <p>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -54,7 +55,6 @@ import org.slf4j.LoggerFactory;
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * </p>
- *
  * @displayName Abstract RabbitMQ Input
  * @category messaging
  * @tags input operator

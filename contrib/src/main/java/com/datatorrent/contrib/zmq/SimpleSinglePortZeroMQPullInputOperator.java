@@ -21,8 +21,10 @@ import com.datatorrent.api.Context;
 import org.zeromq.ZMQ;
 
 /**
- * This is a ZeroMQ input adapter, with a single output port.&nbsp;
- * This operator will automatically recieve data from a pusher.
+ * This is the base implementation of a simple single port ZeroMQ input operator.&nbsp;
+ * This simple operator will automatically receive data from a pusher, convert the byte message into a tuple,
+ * the emit the tuple.&nbsp;
+ * Subclasses should implement the method which converts ZeroMQ byte messages into tuples.
  * <p></p>
  * @displayName Simple Single Port ZeroMQ Pull Input
  * @category messaging

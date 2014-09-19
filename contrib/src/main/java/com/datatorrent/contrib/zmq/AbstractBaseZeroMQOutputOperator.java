@@ -23,8 +23,9 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 /**
- * This is a ZeroMQ output adapter.&nbsp;
- * This operator will behave like a publisher that replies to requests.
+ * This is the base implementation of a ZeroMQ output adapter.&nbsp;
+ * This operator will behave like a publisher that replies to requests.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p>
  * <br>
  * Ports:<br>

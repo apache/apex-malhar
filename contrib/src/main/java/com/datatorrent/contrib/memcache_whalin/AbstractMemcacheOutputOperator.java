@@ -18,9 +18,9 @@ package com.datatorrent.contrib.memcache_whalin;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
- * This is an abstract operator used for memcached output adapters.
+ * This is the base implementation of memcached output operators.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
  * <p></p>
- *
  * @displayName Abstract Memcache Output
  * @category store
  * @tags output operator, key value

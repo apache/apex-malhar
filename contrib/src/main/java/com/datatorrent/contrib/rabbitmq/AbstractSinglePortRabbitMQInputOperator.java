@@ -19,8 +19,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * This is an abstract RabbitMQ input adapter operator.&nbsp;
- * This operator has a single output port.
+ * This is the base implementation of a single port RabbitMQ input operator.&nbsp;
+ * Subclasses should implement the methods which convert RabbitMQ messages to tuples.
  * <p>
  * <br>
  * Ports:<br>

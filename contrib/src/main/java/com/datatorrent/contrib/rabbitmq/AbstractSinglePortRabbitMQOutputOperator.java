@@ -18,8 +18,8 @@ package com.datatorrent.contrib.rabbitmq;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * This is an abstract RabbitMQ output adapter operator.&nbsp;
- * This operator has a single input port.
+ * This is the base implementation of a single port RabbitMQ output operator.&nbsp;
+ * Subclasses should implement the methods which convert tuples to RabbitMQ messages.
  * <p>
  * Ports:<br>
  * <b>Input</b>: Can have one input port<br>

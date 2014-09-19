@@ -18,8 +18,9 @@ package com.datatorrent.contrib.zmq;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * This is a ZeroMQ output adapter, with a single input port.&nbsp;
- * This operator will behave like a publisher that replies to requests.
+ * This is the base implementation of a single port ZeroMQ output adapter.&nbsp;
+ * This operator will behave like a publisher that replies to requests.&nbsp;
+ * Subclasses should implement the methods which create ZeroMQ messages from tuples.
  * <p>
  * <br>
  * Ports:<br>

@@ -27,12 +27,13 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
- * This is an abstract Splunk input adapter, which reads data from Splunk.
+ * This is the base implementation of a Splunk input adapter.&nbsp;
+ * Subclasses must implement the methods which convert Splunk event to tuples.
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Row)}.
  * </p>
  * @displayName Abstract Splunk Input
- * @category db
+ * @category database
  * @tags input operator
  *
  * @since 1.0.4

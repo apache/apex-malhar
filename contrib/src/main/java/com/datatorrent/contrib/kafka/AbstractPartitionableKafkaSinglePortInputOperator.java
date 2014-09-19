@@ -21,10 +21,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import kafka.message.Message;
 
 /**
- * Kafka input adapter, with a single output port, which consumes data from Kafka message bus.&nbsp;
- * It will be dynamically partitioned based on the upstream kafka partition.
+ * This is the base implementation of Kafka input operator, with a single output port, which consumes data from Kafka message bus.&nbsp;
+ * It will be dynamically partitioned based on the upstream Kafka partition.&nbsp;
+ * Subclasses should implement the methods which convert Kafka messages to tuples.
  * <p></p>
- *
  * @displayName Abstract Partitionable Kafka Single Port Input
  * @category messaging
  * @tags input operator

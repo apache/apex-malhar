@@ -19,8 +19,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * This is a ZeroMQ input adapter, with a single output port.&nbsp;
- * This operator will behave like a subscriber that issues requests.
+ * This is the base implementation of a single port ZeroMQ input operator.&nbsp;
+ * This operator will behave like a subscriber that issues requests.&nbsp;
+ * Subclasses should implement the methods which convert ZeroMQ messages into tuples.
  * <p>
  * <br>
  * Ports:<br>
