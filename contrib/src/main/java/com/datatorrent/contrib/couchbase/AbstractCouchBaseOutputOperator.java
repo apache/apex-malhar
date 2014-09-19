@@ -20,7 +20,8 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     private List<T> tuples;
     private static final Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
     private transient Operator.ProcessingMode mode;
-
+    protected static int num_tuples;
+    
     public Operator.ProcessingMode getMode() {
         return mode;
     }
@@ -62,6 +63,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     public void storeAggregate() {
 
         for (T tuple : tuples) {
+            num_tuples++;
             insertOrUpdate(tuple);
 
         }

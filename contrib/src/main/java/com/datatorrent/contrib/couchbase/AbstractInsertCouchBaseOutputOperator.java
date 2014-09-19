@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * @author prerna
  */
 public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractCouchBaseOutputOperator<T> {
-
+    private transient  OperationFuture<Boolean> future;
     private static final Logger logger = LoggerFactory.getLogger(AbstractInsertCouchBaseOutputOperator.class);
 
     @Override
@@ -31,9 +31,8 @@ public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractC
         }
 
         final CountDownLatch countLatch = new CountDownLatch(store.batch_size);
-        for (int i = 0; i < store.batch_size; i++) {
-
-            final OperationFuture<Boolean> future = store.getInstance().set(key, value);
+ 
+            future = store.getInstance().set(key, value);
             future.addListener(new OperationCompletionListener() {
 
                 @Override
@@ -46,8 +45,8 @@ public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractC
 
                 }
             });
-        }
-        if (store.batch_size < store.max_tuples) {
+      
+        if (num_tuples < store.batch_size) {
             try {
                 countLatch.await();
             } catch (InterruptedException ex) {
