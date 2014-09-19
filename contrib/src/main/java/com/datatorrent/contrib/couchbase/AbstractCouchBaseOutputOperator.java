@@ -46,7 +46,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
             tuples.clear();
         }
         super.setup(context);
-        store.getInstance().flush();
+       // store.getInstance().flush();
     }
 
     @Override

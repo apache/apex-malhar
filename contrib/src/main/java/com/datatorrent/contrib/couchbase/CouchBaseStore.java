@@ -8,9 +8,7 @@ import java.net.URI;
 import java.util.Arrays;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,6 +26,24 @@ public class CouchBaseStore implements Connectable {
     protected String uriString;
     protected Integer batch_size;
     protected Integer max_tuples;
+    protected int blockTime;
+    protected int timeout;
+
+    public int getTimeout() {
+        return timeout;
+    }
+
+    public void setTimeout(int timeout) {
+        this.timeout = timeout;
+    }
+
+    public int getBlockTime() {
+        return blockTime;
+    }
+
+    public void setBlockTime(int blockTime) {
+        this.blockTime = blockTime;
+    }
 
     public Integer getMax_tuples() {
         return max_tuples;
@@ -53,6 +69,8 @@ public class CouchBaseStore implements Connectable {
         password = "";
         batch_size = 100;
         max_tuples = 1000;
+        blockTime = 10;
+        timeout = 10;
     }
 
     public CouchbaseClient getInstance() {
@@ -96,10 +114,9 @@ public class CouchBaseStore implements Connectable {
         }
         try {
             CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
-            cfb.setOpTimeout(10000);  // wait up to 10 seconds for an operation to succeed
-            cfb.setOpQueueMaxBlockTime(10000); // wait up to 10 second when trying to enqueue an operation
-
-            client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucket, bucket, password));
+            cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
+            cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
+            client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucket, password));
         } catch (IOException e) {
             logger.error("Error connecting to Couchbase: " + e.getMessage());
         }
