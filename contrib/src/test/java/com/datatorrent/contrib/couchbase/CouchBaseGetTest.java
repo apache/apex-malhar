@@ -23,17 +23,13 @@ import org.junit.Test;
  *
  * @author prerna
  */
-public class CouchBaseTest {
+public class CouchBaseGetTest {
 
     public static List<Object> tuples;
     protected transient CouchbaseClient client;
     List<URI> baseURIs = new ArrayList<URI>();
 
-    public CouchBaseTest() {
-
-        tuples = new ArrayList<Object>();
-    }
-
+    
     @BeforeClass
     public static void setUpClass() {
     }
@@ -53,72 +49,42 @@ public class CouchBaseTest {
 
     @Test
     public void test() {
-        List<String> output = new ArrayList<String>();
-        List<OperationFuture<Boolean>> futures = new ArrayList<OperationFuture<Boolean>>();
+        
         URI uri = null;
-        CouchbaseClient client= null;
         try {
-            uri = new URI("http://node26.morado.com:8091/pools");
+            //uri = new URI("http://node26.morado.com::8091/pools");
+                        uri = new URI("http://node26.morado.com:8091/pools");
+
         } catch (URISyntaxException ex) {
             Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
         }
         baseURIs.add(uri);
-        try {
+        CouchbaseClient client = null;
+       
+            try {
             CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
             cfb.setOpTimeout(10000);  // wait up to 10 seconds for an operation to succeed
-            cfb.setOpQueueMaxBlockTime(10000); // wait up to 1 second when trying to enqueue an operation
-
-            client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, "default","default", ""));
-
-
-          /*  client = new CouchbaseClient(new CouchbaseConnectionFactoryBuilder()
-                      .setViewTimeout(300000) // set the timeout to 30 seconds
-                      .setViewWorkerSize(5) // use 5 worker threads instead of one
-                      .setViewConnsPerNode(20) // allow 20 parallel http connections per node in the cluster
-                    .buildCouchbaseConnection(baseURIs, "default", ""));*/
+            cfb.setOpQueueMaxBlockTime(5000); // wait up to 5 seconds when trying to enqueue an operation
+            
+            client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs,"default","default",""));
         } catch (IOException ex) {
             Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
         }
         client.flush();
+       long startTime = System.currentTimeMillis();
+        System.out.println("start time before get is " + startTime);        
 
-        final AtomicInteger j = new AtomicInteger();
-        long startTime = System.currentTimeMillis();
-        System.out.println("start time before set is " + startTime);
-	for (int k = 0; k < 10000; k++) {
+        for (int k = 0; k < 1000; k++) {
 		System.out.println("k " + k);
-        final CountDownLatch countLatch = new CountDownLatch(100);
+        
         for (int i = 0; i < 100; i++) {
             
-            final OperationFuture<Boolean> future = client.set("Key" + (k*100 + i), i);
-		//System.out.println("i " + i);
-            /* try {
-                future.get();
-            } catch (InterruptedException ex) {
-                Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
-            } catch (ExecutionException ex) {
-                Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
-            }*/
-            future.addListener(new OperationCompletionListener() {
-
-                @Override
-                public void onComplete(OperationFuture<?> f) throws Exception {
-                    countLatch.countDown();
-                     //System.out.println(f.get());
-                     if (!((Boolean)f.get())) 
-                         System.out.println("Noway");
-                    j.incrementAndGet();
-
-                }
-            });
+            String value = client.get("Key" + (k*100 + i)).toString();
+            System.out.println("value is " + value);
         }
-          try {
-             countLatch.await();
-           } catch (InterruptedException ex) {
-            Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
-           }
-   	}
+        }
         long stopTime = System.currentTimeMillis();
-             System.out.println("value of j" + j.intValue());
+             
         //System.out.println("stop time after set is" + stopTime);
         //System.out.println("Threads after set are" + Thread.activeCount());
         //startTime = System.currentTimeMillis();
@@ -148,9 +114,9 @@ public class CouchBaseTest {
         }*/
 
         //stopTime = System.currentTimeMillis();
-        System.out.println("stop time after is set is " + stopTime);
+        System.out.println("stop time after get is " + stopTime);
         System.out.println("Threads after get are + " + Thread.activeCount());
-        Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, output.toString());
+        
         client.shutdown();
 
     }
