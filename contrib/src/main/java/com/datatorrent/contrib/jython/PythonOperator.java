@@ -16,24 +16,20 @@
 package com.datatorrent.contrib.jython;
 
 import com.datatorrent.api.Context.OperatorContext;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.python.core.PyObject;
+import com.datatorrent.lib.script.ScriptOperator;
+import org.python.core.*;
 import org.python.util.PythonInterpreter;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.lib.script.ScriptOperator;
+import java.util.HashMap;
 import java.util.Iterator;
-import javax.script.ScriptContext;
-import org.python.core.*;
+import java.util.Map;
 
 /**
- * Operator to execute python script on tuples.
+ * An operator that executes a python script and passes the input as bindings.
  * <p></p>
  * @displayName Python
- * @category programming
- * @tags python
+ * @category languages
+ * @tags python, script
  *
  * @since 0.3.3
  */

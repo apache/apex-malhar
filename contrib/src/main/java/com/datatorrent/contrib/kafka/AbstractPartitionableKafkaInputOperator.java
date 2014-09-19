@@ -15,36 +15,23 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import kafka.javaapi.PartitionMetadata;
-
-import com.datatorrent.api.CheckpointListener;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
 import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
-
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+import kafka.javaapi.PartitionMetadata;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * Kafka input adapter, which consumes data from Kafka message bus.&nbsp;
@@ -80,7 +67,7 @@ import com.google.common.collect.Sets;
  *
  * @displayName Abstract Partitionable Kafka Input
  * @category messaging
- * @tags input
+ * @tags input operator
  *
  * @since 0.9.0
  */

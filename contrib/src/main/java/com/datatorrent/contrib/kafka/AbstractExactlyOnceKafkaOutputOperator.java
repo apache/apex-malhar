@@ -15,13 +15,10 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.nio.ByteBuffer;
-import java.util.HashMap;
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.common.util.Pair;
+import com.google.common.collect.Sets;
 import kafka.api.FetchRequest;
 import kafka.api.FetchRequestBuilder;
 import kafka.javaapi.FetchResponse;
@@ -32,12 +29,12 @@ import kafka.message.Message;
 import kafka.message.MessageAndOffset;
 import kafka.producer.KeyedMessage;
 import kafka.producer.Partitioner;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.common.util.Pair;
-import com.datatorrent.contrib.kafka.AbstractKafkaOutputOperator;
-import com.google.common.collect.Sets;
+import java.nio.ByteBuffer;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -74,7 +71,7 @@ import com.google.common.collect.Sets;
  *
  * @displayName Abstract Exactly Once Kafka Output
  * @category messaging
- * @tags output
+ * @tags output operator
  *
  * @since 1.0.2
  */

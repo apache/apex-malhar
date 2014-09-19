@@ -47,7 +47,7 @@ import java.util.Map;
  * TBD<br>
  * </p>
  *
- * @displayName JDBC Non Transaction Array List Output Operator
+ * @displayName JDBC Non Transaction Array List Output
  * @category database
  * @tags output operator
  *
