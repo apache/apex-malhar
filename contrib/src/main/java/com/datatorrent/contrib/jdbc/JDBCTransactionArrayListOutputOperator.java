@@ -47,7 +47,7 @@ import java.util.ArrayList;
  * <br>
  * </p>
  *
- * @displayName JDBC Transaction Array List Output Operator
+ * @displayName JDBC Transaction Array List Output
  * @category database
  * @tags output operator
  *

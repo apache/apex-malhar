@@ -15,8 +15,9 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.nio.ByteBuffer;
 import kafka.message.Message;
+
+import java.nio.ByteBuffer;
 
 /**
  * Kafka input adapter operator with a single output port, which consumes String data from the Kafka message bus.
@@ -24,7 +25,7 @@ import kafka.message.Message;
  *
  * @displayName Kafka Single Port String Input
  * @category messaging
- * @tags input, string
+ * @tags input operator, string
  *
  * @since 0.3.5
  */

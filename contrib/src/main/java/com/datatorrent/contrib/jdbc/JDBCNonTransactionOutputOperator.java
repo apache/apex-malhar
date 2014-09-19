@@ -50,7 +50,7 @@ import java.util.ArrayList;
  * <br>
  * </p>
  *
- * @displayName JDBC Non Transaction Output Operator
+ * @displayName JDBC Non Transaction Output
  * @category database
  * @tags output operator
  *
