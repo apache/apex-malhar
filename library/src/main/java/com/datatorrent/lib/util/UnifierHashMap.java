@@ -22,14 +22,11 @@ import com.datatorrent.api.Operator.Unifier;
 import java.util.HashMap;
 
 /**
- * This unifier combines all the hash maps it receives within an application window,
- * and emits the combined hash map at the end of the application window.
- * <p>
- * The processing is done with sticky key partitioning, i.e. each one key belongs only to one partition.
- * </p>
- * @displayName Unifier Hash Map
- * @category algorithm
- * @tags key value
+ *
+ * Combiner for an output port that emits object with Map<K,V> interface and has the processing done
+ * with sticky key partition, i.e. each one key belongs only to one partition. The final output of the
+ * combiner is a simple merge into a single object that implements Map
+ *
  * @since 0.3.2
  */
 public class UnifierHashMap<K, V> implements Unifier<HashMap<K, V>>

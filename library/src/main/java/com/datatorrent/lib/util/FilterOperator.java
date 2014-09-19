@@ -22,12 +22,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * This is an abstract operator which consumes tuples.&nbsp;
- * If the tuples satisfy a specified filtering function, then they are emitted.
- * <p></p>
- * @displayName Filter
- * @category algorithm
- * @tags filter
+ * Filter operator intended for use with alerts
+ *
  * @since 0.3.4
  */
 public abstract class FilterOperator extends BaseOperator

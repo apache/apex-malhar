@@ -23,14 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This unifier consumes hash maps whose keys are objects and whose values are numbers.&nbsp;
- * The values for each key are summed and emitted in a hash map at the end of each application window.
- * <p>
- * This unifier uses round robin partitioning.
- * </p>
- * @displayName Unifier Hash Map Sum Keys
- * @category algorithm
- * @tags numeric, key value
+ *
+ * Combiner for an output port that emits object with Map<K,V> interface and has the processing done
+ * with round robin partition for a Sum metric, i.e. key,vals pairs need to be combined back together
+ *
  * @since 0.3.2
  */
 public class UnifierHashMapSumKeys<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K, V>>
