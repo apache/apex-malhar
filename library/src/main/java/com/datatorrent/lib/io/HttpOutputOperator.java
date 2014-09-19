@@ -26,7 +26,7 @@ import javax.validation.constraints.NotNull;
  * </p>
  * @displayName Http Output
  * @category io
- * @tags http, output
+ * @tags http, output operator
  *
  * @param <T>
  * @since 0.3.2

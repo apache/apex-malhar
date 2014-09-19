@@ -37,7 +37,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * </p>
  * @displayName HDFS Exactly Once Output
  * @category io
- * @tags hdfs, files, output, exactly once
+ * @tags hdfs, files, output operator
  *
  * @since 1.0.2
  */

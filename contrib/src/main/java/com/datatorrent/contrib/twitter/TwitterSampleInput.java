@@ -44,7 +44,7 @@ import com.datatorrent.api.InputOperator;
  * </p>
  * @displayName Twitter Input
  * @category web
- * @tags input
+ * @tags input operator
  * @since 0.3.2
  */
 public class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener

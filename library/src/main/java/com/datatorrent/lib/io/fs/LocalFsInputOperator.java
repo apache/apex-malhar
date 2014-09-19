@@ -38,7 +38,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * </p>
  * @displayName Local FS Line File Input
  * @category io
- * @tags local fs, file, output
+ * @tags local fs, file, output operator
  *
  * @since 0.3.2
  */

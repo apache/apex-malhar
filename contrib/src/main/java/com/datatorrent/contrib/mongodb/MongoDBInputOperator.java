@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * @displayName MongoDB Input
  * @category db
- * @tags input
+ * @tags input operator
  * @since 0.3.2
  */
 public abstract class MongoDBInputOperator<T> extends MongoDBConnectable implements InputOperator, ActivationListener<OperatorContext>

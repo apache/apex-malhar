@@ -29,7 +29,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * </p>
  * @displayName Local FS File Input
  * @category io
- * @tags local fs, file, input
+ * @tags local fs, file, input operator
  *
  * @since 0.3.2
  */

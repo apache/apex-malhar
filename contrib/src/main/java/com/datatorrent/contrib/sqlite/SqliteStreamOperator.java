@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * <p></p>
  * @displayName Sqlite Stream
  * @category db
- * @tags input
+ * @tags input operator
  * @since 0.3.2
  */
 public class SqliteStreamOperator extends AbstractSqlStreamOperator

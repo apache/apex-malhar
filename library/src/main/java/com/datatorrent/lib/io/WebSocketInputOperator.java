@@ -41,7 +41,7 @@ import org.slf4j.LoggerFactory;
  * <p></p>
  * @displayName JSON Map Input
  * @category io
- * @tags http, input
+ * @tags http, input operator
  *
  * @since 0.3.2
  */

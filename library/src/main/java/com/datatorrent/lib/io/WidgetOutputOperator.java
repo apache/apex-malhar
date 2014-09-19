@@ -52,7 +52,7 @@ import java.lang.reflect.Array;
  * </p>
  * @displayName DT Widget Output
  * @category io
- * @tags dt, output
+ * @tags dt, output operator
  *
  * @since 0.9.3
  */

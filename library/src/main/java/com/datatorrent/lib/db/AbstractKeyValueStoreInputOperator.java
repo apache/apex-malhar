@@ -24,7 +24,7 @@ import java.util.*;
  *
  * @displayName Abstract Key Value Store Input
  * @category store
- * @tags input, key value
+ * @tags input operator, key value
  *
  * @param <T> The tuple type.
  * @param <S> The store type.

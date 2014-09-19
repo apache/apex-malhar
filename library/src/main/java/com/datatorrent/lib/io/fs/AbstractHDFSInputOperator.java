@@ -29,7 +29,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * <p></p>
  * @displayName HDFS File Input
  * @category io
- * @tags hdfs, file, input
+ * @tags hdfs, file, input operator
  *
  * @since 0.3.2
  */

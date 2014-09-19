@@ -29,7 +29,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * </p>
  * @displayName Abstract Http Query Input
  * @category io
- * @tags http, input
+ * @tags http, input operator
  *
  * @param <INPUT> tuple type of input port
  * @param <OUTPUT> tuple type of output port

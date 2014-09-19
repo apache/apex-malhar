@@ -39,7 +39,7 @@ import org.fusesource.mqtt.client.Message;
  * </p>
  * @displayName Abstract Single Port MQTT Input
  * @category messaging
- * @tags input
+ * @tags input operator
  * @since 0.9.3
  */
 public abstract class AbstractSinglePortMqttInputOperator<T> extends AbstractMqttInputOperator

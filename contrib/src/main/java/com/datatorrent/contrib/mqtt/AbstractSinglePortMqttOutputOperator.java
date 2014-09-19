@@ -40,7 +40,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * </p>
  * @displayName Abstract Single Port MQTT Output
  * @category messaging
- * @tags output
+ * @tags output operator
  * @since 0.9.3
  */
 public abstract class AbstractSinglePortMqttOutputOperator<T> extends AbstractMqttOutputOperator

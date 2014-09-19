@@ -28,7 +28,7 @@ import java.util.TreeMap;
  *
  * @displayName Time Series Candle Stick Chart
  * @category chart
- * @tags output
+ * @tags output operator
  *
  * @param <K> The type of the key
  * @since 0.3.2

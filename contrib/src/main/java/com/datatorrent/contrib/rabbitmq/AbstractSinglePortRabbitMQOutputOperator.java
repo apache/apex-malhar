@@ -43,7 +43,7 @@ import com.datatorrent.api.DefaultInputPort;
  * </p>
  * @displayName Abstract Single Port RabbitMQ Output
  * @category messaging
- * @tags output
+ * @tags output operator
  *
  * @since 0.3.2
  */

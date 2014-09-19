@@ -22,7 +22,7 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  * <p></p>
  * @displayName Abstract Redis Input
  * @category store
- * @tags input, key value
+ * @tags input operator, key value
  *
  * @param <T> The tuple type.
  * @since 0.9.3

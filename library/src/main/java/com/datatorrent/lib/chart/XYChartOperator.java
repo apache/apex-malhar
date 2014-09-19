@@ -29,7 +29,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <p></p>
  * @displayName Abstract XY Chart
  * @category chart
- * @tags output
+ * @tags output operator
  *
  * @param <K> The type for the key
  * @param <X> The type for the data points on the x-axis

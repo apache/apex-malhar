@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * @displayName Http Json Chunks Input
  * @category io
- * @tags http, input
+ * @tags http, input operator
  *
  * @since 0.9.4
  */

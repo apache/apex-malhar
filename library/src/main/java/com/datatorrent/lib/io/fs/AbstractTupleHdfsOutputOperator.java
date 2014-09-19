@@ -26,7 +26,7 @@ package com.datatorrent.lib.io.fs;
  *
  * @displayName HDFS Rolling Byte Output
  * @category io
- * @tags hdfs, files, output
+ * @tags hdfs, files, output operator
  *
  * @since 0.9.4
  */

@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <p></p>
  * @displayName Abstract Chart
  * @category chart
- * @tags output
+ * @tags output operator
  *
  * @since 0.3.2
  */

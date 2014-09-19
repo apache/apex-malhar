@@ -29,7 +29,7 @@ import org.apache.hadoop.fs.Path;
  *
  * @displayName HDFS Files Output
  * @category io
- * @tags hdfs, file, output
+ * @tags hdfs, file, output operator
  *
  * @since 0.9.4
  * @deprecated

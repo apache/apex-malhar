@@ -35,7 +35,7 @@ import com.datatorrent.common.util.DTThrowable;
  * <p></p>
  * @displayName HDFS Byte File Input
  * @category io
- * @tags hdfs, file, input
+ * @tags hdfs, file, input operator
  *
  * @since 0.9.4
  */

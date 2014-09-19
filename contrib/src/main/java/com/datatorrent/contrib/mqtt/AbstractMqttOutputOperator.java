@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * <p></p>
  * @displayName Abstract MQTT Output
  * @category messaging
- * @tags output
+ * @tags output operator
  * @since 0.9.3
  */
 public class AbstractMqttOutputOperator extends BaseOperator

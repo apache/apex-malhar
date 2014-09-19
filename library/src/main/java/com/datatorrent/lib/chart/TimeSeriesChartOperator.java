@@ -26,7 +26,7 @@ import java.util.TreeMap;
  * <p></p>
  * @displayName Time Series Chart
  * @category chart
- * @tags output
+ * @tags output operator
  *
  * @param <K> The type of the key
  * @param <Y> The type of values on the Y-axis

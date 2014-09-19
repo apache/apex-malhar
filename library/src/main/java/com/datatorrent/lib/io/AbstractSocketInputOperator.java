@@ -24,7 +24,7 @@ import com.datatorrent.api.InputOperator;
  * </p>
  * @displayName Abstract Socket Input
  * @category io
- * @tags socket, input
+ * @tags socket, input operator
  *
  * @param <T>
  * @since 0.9.5

@@ -35,7 +35,7 @@ import com.datatorrent.lib.db.cache.AbstractDBLookupCacheBackedOperator;
  * <p></p>
  * @displayName JDBC Lookup Cache Backed
  * @category db
- * @tags output
+ * @tags output operator
  *
  * @param <T> type of input tuples </T>
  * @since 0.9.1

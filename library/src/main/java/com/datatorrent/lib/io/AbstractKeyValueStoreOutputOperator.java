@@ -33,7 +33,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * <p></p>
  * @displayName Abstract Keyval Store Input
  * @category db
- * @tags keyval, input
+ * @tags keyval, input operator
  *
  * @since 0.3.2
  */

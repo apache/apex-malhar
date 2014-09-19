@@ -24,7 +24,7 @@ import com.sun.jersey.api.client.WebResource;
  * <p></p>
  * @displayName Abstract Http Multivalued Query Input
  * @category io
- * @tags http, input
+ * @tags http, input operator
  *
  * @param <INPUT>
  * @param <OUTPUT>

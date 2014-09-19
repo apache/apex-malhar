@@ -25,7 +25,7 @@ import com.datatorrent.lib.util.PubSubWebSocketClient;
  * <p></p>
  * @displayName Pub Sub Web Socket Output
  * @category io
- * @tags http, input
+ * @tags http, input operator
  *
  * @param <T>
  * @since 0.3.2

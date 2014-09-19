@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  * @displayName Abstract Active MQ Single Port Output
  * @category messaging
- * @tags jms, output
+ * @tags jms, output operator
  *
  * @since 0.3.2
  */

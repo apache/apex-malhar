@@ -33,7 +33,7 @@ import com.datatorrent.api.DefaultInputPort;
  * <p></p>
  * @displayName Abstract Http
  * @category io
- * @tags http, input
+ * @tags http, input operator
  *
  * @param <T>
  * @since 1.0.2

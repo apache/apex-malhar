@@ -20,7 +20,7 @@ package com.datatorrent.lib.db;
  * <p></p>
  * @displayName Abstract Aggregate Transactionable Store Output
  * @category store
- * @tags transactional, output, key value
+ * @tags transactional, output operator, key value
  *
  * @param <T> The tuple type.
  * @param <S> The store type.
