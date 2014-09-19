@@ -23,11 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * Combiner for an output port that emits object with Map<K,V> interface and has the processing done
- * with sticky key partition, i.e. each one key belongs only to one partition. The final output of the
- * combiner is a simple merge into a single object that implements Map
- *
+ * This unifier combines all the maps it receives within an application window,
+ * and emits the combined map at the end of the application window.
+ * <p>
+ * This unifier uses round robin partitioning.
+ * </p>
+ * @displayName Unifier Map
+ * @category algorithm
+ * @tags key value
  * @since 0.3.4
  */
 public class UnifierMap<K, V> implements Unifier<Map<K, V>>
