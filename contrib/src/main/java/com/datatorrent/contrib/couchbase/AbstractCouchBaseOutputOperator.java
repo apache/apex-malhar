@@ -61,9 +61,8 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 
     @Override
     public void storeAggregate() {
-
+        num_tuples = tuples.size();
         for (T tuple : tuples) {
-            num_tuples++;
             insertOrUpdate(tuple);
 
         }

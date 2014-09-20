@@ -69,8 +69,8 @@ public class CouchBaseStore implements Connectable {
         password = "";
         batch_size = 100;
         max_tuples = 1000;
-        blockTime = 10;
-        timeout = 10;
+        blockTime = 10000;
+        timeout = 10000;
     }
 
     public CouchbaseClient getInstance() {
