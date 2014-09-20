@@ -21,7 +21,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     private static final Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
     private transient Operator.ProcessingMode mode;
     protected static int num_tuples;
-    
+
     public Operator.ProcessingMode getMode() {
         return mode;
     }
@@ -47,7 +47,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
             tuples.clear();
         }
         super.setup(context);
-       // store.getInstance().flush();
+        // store.getInstance().flush();
     }
 
     @Override

@@ -17,6 +17,7 @@ public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractC
 
     private static final transient Logger logger = LoggerFactory.getLogger(AbstractUpdateCouchBaseOutputOperator.class);
     private int expireTime;
+    private transient OperationFuture<Boolean> future;
 
     @Override
     public void insertOrUpdate(T input) {
@@ -31,18 +32,21 @@ public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractC
         }
 
         final CountDownLatch countLatch = new CountDownLatch(store.batch_size);
-        for (int i = 0; i < store.batch_size; i++) {
 
-            final OperationFuture<Boolean> future = store.getInstance().add(key, value);
-            future.addListener(new OperationCompletionListener() {
+        future = store.getInstance().add(key, value);
+        future.addListener(new OperationCompletionListener() {
 
-                @Override
-                public void onComplete(OperationFuture<?> f) throws Exception {
-                    countLatch.countDown();
+            @Override
+            public void onComplete(OperationFuture<?> f) throws Exception {
+                countLatch.countDown();
+                if (!((Boolean) f.get())) {
+                    throw new RuntimeException("Operation add failed, Key being added is already present. ");
                 }
-            });
-        }
-        if (store.batch_size < store.max_tuples) {
+
+            }
+        });
+
+        if (num_tuples < store.batch_size) {
             try {
                 countLatch.await();
             } catch (InterruptedException ex) {

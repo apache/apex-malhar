@@ -14,7 +14,8 @@ import org.slf4j.LoggerFactory;
  * @author prerna
  */
 public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractCouchBaseOutputOperator<T> {
-    private transient  OperationFuture<Boolean> future;
+
+    private transient OperationFuture<Boolean> future;
     private static final Logger logger = LoggerFactory.getLogger(AbstractInsertCouchBaseOutputOperator.class);
 
     @Override
@@ -31,21 +32,20 @@ public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractC
         }
 
         final CountDownLatch countLatch = new CountDownLatch(store.batch_size);
- 
-            future = store.getInstance().set(key, value);
-            future.addListener(new OperationCompletionListener() {
 
-                @Override
-                public void onComplete(OperationFuture<?> f) throws Exception {
-                    countLatch.countDown();
-                    //System.out.println(f.get());
-                    if (!((Boolean) f.get())) {
-                        logger.debug("false");
-                    }
+        future = store.getInstance().set(key, value);
+        future.addListener(new OperationCompletionListener() {
 
+            @Override
+            public void onComplete(OperationFuture<?> f) throws Exception {
+                countLatch.countDown();
+                if (!((Boolean) f.get())) {
+                    throw new RuntimeException("Operation set failed");
                 }
-            });
-      
+
+            }
+        });
+
         if (num_tuples < store.batch_size) {
             try {
                 countLatch.await();
