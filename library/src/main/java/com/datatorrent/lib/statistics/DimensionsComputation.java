@@ -35,7 +35,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
 
 /**
- * <p>Computes Dimensions of Events</p>
+ * <p>An implementation of an operator that computes dimensions of events. </p>
  * <p>
  * @displayName: Dimension Computation
  * @category: statistics

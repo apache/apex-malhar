@@ -26,7 +26,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * Computes median of incoming data. <br>
+ * A derivation of BaseOperator that computes median of incoming data. <br>
  * <br>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
@@ -39,7 +39,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * <br>+
  * @displayName: Median
  * @category: statistics
- * @tag: median, number
+ * @tag: median operator, number
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)

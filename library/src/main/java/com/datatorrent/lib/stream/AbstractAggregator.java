@@ -27,7 +27,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * 
- * Aggregates tuples. 
+ * A base implementation of an operator that aggregates tuples.&nbsp; Subclasses should provide the 
+   implementation to get a new collection of a given size. 
  * <p>
  * If size of collection is 0 then all tuples till end window are aggregated, otherwise collection is emitted as
  * soon as collection size reaches to given size. <br>

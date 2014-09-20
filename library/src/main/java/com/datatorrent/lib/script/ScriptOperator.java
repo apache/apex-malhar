@@ -26,11 +26,13 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
+ * A base derivation of a BaseOperator for language script operator.&nbsp; Subclasses should provide the 
+   implementation of getting the bindings and process method. 
  * Interface for language script operator.
  * <p>
- * @displayName: Script Operator
+ * @displayName: Script
  * @category: script
- * @tag: script, map, string
+ * @tag: script operator, map, string
  * @since 0.3.2
  */
 public abstract class ScriptOperator extends BaseOperator

@@ -34,7 +34,7 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
 
 /**
- * A {@link Connectable} for accumulo. 
+ * A {@link Connectable} for accumulo that implements Connectable interface. 
  * <p>
  * @displayName: Accumulo Store
  * @category: store

@@ -31,7 +31,7 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
 import com.datatorrent.lib.streamquery.index.ColumnIndex;
 
 /**
- * Provides sql group by querying semantics on live data stream. <br>
+ * A derivation of BaseOperator that provides sql group by querying semantics on live data stream. <br>
  * <p>
  * Stream rows satisfying given select condition are processed by group by
  * column names and aggregate column function. <br>
@@ -56,7 +56,7 @@ import com.datatorrent.lib.streamquery.index.ColumnIndex;
  * <br>
  * @displayName: GroupBy Having Operator
  * @category: streamquery
- * @tag: sql, groupby, condition, index
+ * @tag: sql, groupby operator, condition, index
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)

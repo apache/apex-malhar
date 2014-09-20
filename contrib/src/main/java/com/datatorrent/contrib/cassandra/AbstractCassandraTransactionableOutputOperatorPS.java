@@ -26,7 +26,7 @@ import javax.annotation.Nonnull;
 
 /**
  * <p>
- * Generic Cassandra Output Adaptor which creates a transaction at the start of window. <br/>
+ * Generic Cassandra Output Adaptor which creates a transaction at the start of window.&nbsp; Subclasses should provide implementation for getting the update statement and setting the statement parameters. <br/>
  * </p>
  *
  * <p>
@@ -41,7 +41,7 @@ import javax.annotation.Nonnull;
  * This is needed for the recovery. The operator writes a tuple exactly once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
- * @displayName: Abstract Cassandra Transactionable Output Operator With Prepared Statement
+ * @displayName: Abstract Cassandra Transactionable Output With Prepared Statement
  * @category: store
  * @tag: output operator, batch, transactionable
  * @param <T>type of tuple</T>

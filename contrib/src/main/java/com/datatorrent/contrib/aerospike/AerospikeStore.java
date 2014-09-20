@@ -26,7 +26,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A {@link Connectable} that uses aerospike to connect to stores.
+ * A {@link Connectable} that uses aerospike to connect to stores and implements Connectable interface. 
  * 
  * @displayName: Aerospike Store
  * @category: db

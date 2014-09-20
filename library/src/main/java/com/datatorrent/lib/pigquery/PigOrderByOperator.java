@@ -20,9 +20,9 @@ package com.datatorrent.lib.pigquery;
  * <p>
  * This semantic same as sql stream query  order by  operator. <br>
  * Please use operator  {@link com.datatorrent.lib.streamquery.OrderByOperator}
- * @displayName: Pig OrderBy Operator
+ * @displayName: Pig OrderBy
  * @category: pigquery
- * @tag: 
+ * @tag: orderby operator
  * @since 0.3.4
  */
 public class PigOrderByOperator 

@@ -25,7 +25,7 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
- * Provides sql order by operator semantic over live stream data. <br>
+ *  An implementation of Operator that provides sql order by operator semantic over live stream data. <br>
  * <p>
  * Input data rows are ordered by order rules, ordered result is emitted on output port. <br>
  * <br>
@@ -39,9 +39,9 @@ import com.datatorrent.api.Operator.Unifier;
  * <br>
  * <b> Properties : </b> <br>
  * <b> oredrByRules : </b>List of order by rules for tuples.
- * @displayName: OrderBy Operator
+ * @displayName: OrderBy
  * @category: streamquery
- * @tag: orderby
+ * @tag: orderby operator
  * @since 0.3.5
  */
 public class OrderByOperator implements Operator, Unifier<Map<String, Object>>

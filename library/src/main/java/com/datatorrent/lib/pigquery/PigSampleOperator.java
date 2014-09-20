@@ -21,9 +21,9 @@ package com.datatorrent.lib.pigquery;
  * <p>
  * Operator must be used with percentage flag on. <br>
  * Please use operator : {@link com.datatorrent.lib.streamquery.SelectTopOperator}.
- * @displayName: Pig Sample Operator
+ * @displayName: Pig Sample
  * @category: pigquery
- * @tag: sample
+ * @tag: sample operator
  * @since 0.3.4
  */
 public class PigSampleOperator

@@ -27,7 +27,7 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 /**
- * Stores tuples in HBase rows and offers non-transactional put. <br>
+ * A base implementation of an output operator that stores tuples in HBase rows and offers non-transactional put.Subclasses should provide implementation for put operation. <br>
  * <p>
  * <br>
  * This class provides a HBase output operator that can be used to store tuples
@@ -38,7 +38,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  *
  * <br>
  * This class offers non-transactional put where tuples are put as they come in.
- * @displayName: Abstract HBase Put Output Operator
+ * @displayName: Abstract HBase Put Output
  * @category: store
  * @tag: output operator, put
  * @param <T>

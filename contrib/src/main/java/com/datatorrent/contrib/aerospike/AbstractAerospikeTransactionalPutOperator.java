@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * <p>
- * Generic Adaptor which creates a transaction at the start of window. <br/>
+ * Generic base adaptor which creates a transaction at the start of window.&nbsp; Subclasses should provide implementation for getting updated bins. <br/>
  * </p>
  * <p>
  * Executes all the put updates and closes the transaction at the end of the window.
@@ -35,7 +35,7 @@ import java.util.List;
  * This is needed for the recovery. The operator writes a tuple at least once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
- * @displayName: Abstract Aerospike Transactional Put Operator
+ * @displayName: Abstract Aerospike Transactional Put
  * @category: db
  * @tag: output operator, put, transactional
  * @param <T>type of tuple</T>

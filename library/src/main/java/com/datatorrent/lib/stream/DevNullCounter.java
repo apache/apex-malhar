@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Counts and then drops the tuple, mainly used for logging. 
+ * A derivation of BaseOperator that is used for logging by counting the tuple and then drops it. 
  * <p>
  * Increments a count and writes the net number (rate) to console. Useful to benchmark other
  * modules.<br>

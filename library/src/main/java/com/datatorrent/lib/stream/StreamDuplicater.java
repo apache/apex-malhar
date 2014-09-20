@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyOperator;
 
 /**
- * Duplicates an input stream as is into two output streams. 
+ * A derivation of BaseKeyValueOperator that duplicates an input stream as is into two output streams. 
  * <p>
  * Duplication is needed to allow separation of listeners into two streams with different properties (for example
  * inline vs in-rack)<p>

@@ -20,7 +20,7 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * Validates row by checking if the given column name value lies between given left,right range. <br>
+ *  A derivation of Condition that validates row by checking if the given column name value lies between given left,right range. <br>
  * <br>
  * <b>Properties : </b> <br>
  * <b> column : </b> Name of column. <br>

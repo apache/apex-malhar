@@ -23,7 +23,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
- * Provides sql delete query semantic on live data stream. <br>
+ * A derivation of BaseOperator that provides sql delete query semantic on live data stream. <br>
  * <p>
  * Stream rows passing condition are emitted on output port stream. <br>
  * <br>
@@ -40,9 +40,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <b> condition : </b> Select condition for selecting rows. <br>
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
- * @displayName: Delete Operator
+ * @displayName: Delete
  * @category: streamquery
- * @tag: sql delete
+ * @tag: sql delete operator
  * @since 0.3.3
  */
 public class DeleteOperator extends BaseOperator

@@ -22,7 +22,7 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 /**
- * Implements a condition class to check if a column value is in a given set of values.
+ * A derivation of Condition that implements a condition class to check if a column value is in a given set of values.
  * <p>
  * <br>
  * <b>Properties : </b> <br>

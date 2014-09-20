@@ -26,7 +26,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Breaks a HashMap tuple into objects. 
+ * A derivation of BaseKeyValueOperator that breaks a HashMap tuple into objects. 
  * <p>
  * Takes a HashMap and emits its keys, keyvals, vals; used for breaking up a
  * HashMap tuple into objects (keys, vals, or &lt;key,val&rt; pairs)

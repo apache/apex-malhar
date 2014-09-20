@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Extracts the time stamp in milliseconds from epoch from an arbitrary date string.
+ * An implementation of InformationExtractor that extracts the time stamp in milliseconds from epoch from an arbitrary date string.
  * <p>
  * @displayName: Timestamp Extractor
  * @category: db

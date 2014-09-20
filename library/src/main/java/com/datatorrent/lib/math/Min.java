@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
- * This operator emits at end of window minimum of all values sub-classed from Number in the incoming stream.
+ * This operator implements Unifier interface and emits at end of window minimum of all values sub-classed from Number in the incoming stream.
  * <p>
  * <b>StateFull :</b>Yes, min value is computed over application windows. <br>
  * <b>Partitions :</b>Yes, operator is kin unifier operator. <br>

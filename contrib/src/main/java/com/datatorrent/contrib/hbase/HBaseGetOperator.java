@@ -21,7 +21,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import org.apache.hadoop.hbase.client.Result;
 
 /**
- * Retrieves tuples from HBase columns and provides get operation. <br>
+ * A base implementation of hbase input operator that retrieves tuples from HBase columns and provides get operation.&nbsp; Subclasses should provide implementation for get operation. <br>
  * <p>
  * <br>
  * This class provides a HBase input operator that can be used to retrieve tuples from columns in a
@@ -31,7 +31,7 @@ import org.apache.hadoop.hbase.client.Result;
  * of a KeyValue from the Get result to a tuple.<br>
  *
  * <br>
- * @displayName: HBase Get Operator
+ * @displayName: HBase Get
  * @category: store
  * @tag: input operator, get
  * @param <T> The tuple type

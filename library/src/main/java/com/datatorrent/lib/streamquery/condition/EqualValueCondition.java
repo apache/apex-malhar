@@ -20,7 +20,7 @@ import java.util.Map;
 
 
 /**
- * Implements condition on column equality. 
+ * A derivation of Condition that implements condition on column equality. 
  * <p>
  * A valid row must have all key/value map in column name/value map.
  *

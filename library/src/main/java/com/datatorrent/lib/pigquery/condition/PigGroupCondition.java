@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * Interface for group by operator.
+ * Interface for pig group by condition.  
  * <p>
  * @displayName: Pig Group Condition
  * @category: pigquery.condition

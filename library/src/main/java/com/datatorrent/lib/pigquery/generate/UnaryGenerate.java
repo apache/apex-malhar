@@ -19,7 +19,8 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * Implements single field foreach generate index.
+ * A base implementation of Generate interface that implements single field foreach generate index.&nbsp; 
+ * Subclasses should provide the implementation of evaluate method.  
  * <p>
  * <b>Properties : </b> <br>
  * <b>fieldName : </b> Field name or value argument. <br>

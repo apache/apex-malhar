@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Implements sql count function semantic. <br>
+ * A derivation of function index that implements sql count function semantic. <br>
  * <p>
  * Counts number of values of given column and returns count of non null values in column.
  *   e.g : sql => SELECT COUNT(column_name) FROM table_name. <br>

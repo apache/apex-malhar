@@ -24,7 +24,7 @@ import java.util.HashMap;
 
 /**
  * <p>
- * Creates a HashMap tuple from incoming tuples. 
+ * A derivation of BaseKeyValueOperator that creates a HashMap tuple from incoming tuples. 
  * <p>
  * If keys[] are set, then each incoming tuple is the value of the key (in-order) till all keys get a value.
  * Once all keys are assigned values, the tuple (HashMap) is emitted, the

@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Creates a load with pair of keys. 
+ * A derivation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
+ * to create a new tuple that is emitted on output port data.
  * <p>
  * Takes a input stream event and adds to incoming keys to create a new tuple that is emitted on output port data.
  * <br>

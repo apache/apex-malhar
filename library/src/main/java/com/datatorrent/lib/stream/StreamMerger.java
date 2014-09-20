@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 
 /**
- * Merges two streams with identical schema and emits the tuples to the output port in order. 
+ * A derivation of BaseOperator that merges two streams with identical schema and emits the tuples to the output port in order. 
  * 
  * <p>
  * This is a pass through operator<br>

@@ -20,7 +20,7 @@ import org.apache.hadoop.hbase.client.HTable;
 import java.io.IOException;
 
 /**
- * Interface for persistence strategy. <br>
+ * Provides interface for persistence strategy. <br>
  * <p>
  * <br>
  * The interface needs to be implemented by any class that will provide the persistence

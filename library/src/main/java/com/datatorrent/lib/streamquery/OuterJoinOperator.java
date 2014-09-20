@@ -16,7 +16,7 @@
 package com.datatorrent.lib.streamquery;
 
 /**
- * Provides sql left,right and full outer join metric semantics on live stream. <br>
+ * An operator that provides sql left,right and full outer join metric semantics on live stream. <br>
  * <p>
  * Please refer to {@link com.datatorrent.lib.streamquery.InnerJoinOperator} for
  * details.
@@ -24,9 +24,9 @@ package com.datatorrent.lib.streamquery;
  * <b> Properties : </b> <br>
  * <b> isLeftJoin : </b> Left join flag. <br>
  * <b> isFullJoin : </b> Full join flag. <br>
- * @displayName: Outer Join Operator
+ * @displayName: Outer Join
  * @category: streamquery
- * @tag: sql, outer join
+ * @tag: sql, outer join operator
  * @since 0.3.4
  */
 public class OuterJoinOperator extends InnerJoinOperator

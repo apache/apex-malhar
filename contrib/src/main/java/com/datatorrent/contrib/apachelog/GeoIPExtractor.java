@@ -28,7 +28,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Extracts Geo information from an IP address using maxmind API .
+ * An implementation of InformationExtractor that extracts Geo information from an IP address using maxmind API .
  *<p>
  * IMPORTANT: The user of this extractor needs to include the jars which contain these classes in DAGContext.LIBRARY_JARS
  *

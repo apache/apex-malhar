@@ -1,6 +1,6 @@
 package com.datatorrent.contrib.hbase;
 /**
- * @displayName: Abstract HBase Transactional Put Output Operator
+ * @displayName: Abstract HBase Transactional Put Output
  * @category: store
  * @tag: output operator, put, transactional
  * @deprecated

@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * <p>Implements Round Double Index class.</p>
+ * <p>A derivation of column index that implements filter method using Round Double Index. </p>
  * <p>
  *  @displayName: Round Double Index
  *  @category: streamquery/index

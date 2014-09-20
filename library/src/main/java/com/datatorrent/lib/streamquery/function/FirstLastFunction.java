@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Implements sql first,last function semantic. <br>
+ * A derivation of function index that implements sql first,last function semantic. <br>
  * <p>
  *   e.g : sql => SELECT FIRST/LAST(column_name) FROM table_name. <br>
  *   <br>

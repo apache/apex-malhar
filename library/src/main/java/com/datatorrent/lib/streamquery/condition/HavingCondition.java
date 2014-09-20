@@ -23,7 +23,8 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.lib.streamquery.function.FunctionIndex;
 
 /**
- * Abstract base class for Group,Having operator with aggregate index constraint.
+ *  A base class for Group,Having operator with aggregate index constraint.&nsbsp; Subclasses should provide the 
+    implementation to check if aggregate is valid.
  * <p>
  * @displayName: Having Condition
  * @category: streamquery/condition

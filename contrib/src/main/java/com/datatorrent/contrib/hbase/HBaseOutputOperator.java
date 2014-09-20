@@ -30,6 +30,8 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
+ * A base implementation of an operator that extends base class for Hbase operators.&nbsp; Subclasses should provide the 
+   implementation of processing the tuples. 
  * Implements the base class for HBase output operators. <br>
  * <p>
  * <br>
@@ -41,7 +43,7 @@ import java.util.List;
  * are ignored till the processing window id becomes greater than the last processed window id.<br>
  *
  * <br>
- * @displayName: HBase Output Operator
+ * @displayName: HBase Output
  * @category: store
  * @tag: output operator
  * @param <T> The tuple type

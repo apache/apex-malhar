@@ -20,7 +20,7 @@ import java.util.Collection;
 
 /**
  *
- * Creates an ArrayList tuple from incoming tuples. 
+ * A derivation of AbstractAggregator that creates an ArrayList tuple from incoming tuples. 
  * <p>
  * The size of the ArrayList before it is emitted is determined by property \"size\". If size == 0
  * then the ArrayList (if not empty) is emitted in the endWindow call. Is size is specified then the ArrayList is emitted as soon as the size is

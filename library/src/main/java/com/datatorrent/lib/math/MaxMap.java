@@ -27,7 +27,7 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
  *
- * This operator emits maximum of all values sub-classed from Number for each key in HashMap at end of window.
+ * This operator implements Unifier interface and emits maximum of all values sub-classed from Number for each key in HashMap at end of window.
  * <p>
  * <br>
  *  <b>StateFull : </b>Yes, key/value max is determined over application window, can be > 1. <br>

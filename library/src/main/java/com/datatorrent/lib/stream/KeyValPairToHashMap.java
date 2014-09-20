@@ -25,7 +25,7 @@ import com.datatorrent.lib.util.KeyValPair;
 import java.util.HashMap;
 
 /**
- * Converts Key Value Pair to a HashMap tuple. 
+ * A derivation of BaseKeyValueOperator that converts Key Value Pair to a HashMap tuple. 
  * <p>
  * Takes a KeyValPair and emits a HashMap(1), Used for for converting KeyValPair
  * to a HashMap(1) tuple

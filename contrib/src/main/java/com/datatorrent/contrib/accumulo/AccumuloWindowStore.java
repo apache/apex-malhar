@@ -38,7 +38,7 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.TransactionableStore;
 
 /**
- * Provides transactional support. 
+ * Provides transactional support by implementing TransactionableStore abstract methods. 
  * 
  * <p>
  * Not intended for true transactional

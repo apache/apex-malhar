@@ -21,7 +21,8 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * Abstract class for select aggregate function implementation. 
+ * A base class for select aggregate function implementation.&nbsp; Subclasses should provide the 
+   implementation for aggregate compute functions. 
  * <p>
  * <br>
  * <b>Properties : </b> <br>

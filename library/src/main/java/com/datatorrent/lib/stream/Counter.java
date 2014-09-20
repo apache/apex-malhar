@@ -22,7 +22,7 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
- * Counts the number of tuples delivered to it in each window and emits the count.
+ * An implementation of Operator and Unifier that counts the number of tuples delivered to it in each window and emits the count.
  * <p>
  * This is a pass through operator<br>
  * <br>

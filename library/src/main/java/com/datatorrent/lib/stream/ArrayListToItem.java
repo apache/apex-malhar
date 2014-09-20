@@ -24,7 +24,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
 import java.util.ArrayList;
 
 /**
- * Breaks up an ArrayList tuple into Objects. 
+ * A derivation of BaseKeyOperator that breaks up an ArrayList tuple into Objects. 
  * <p>
  * Takes in an ArrayList and emits each item in the array; mainly used for
  * breaking up an ArrayList tuple into Objects. <br>

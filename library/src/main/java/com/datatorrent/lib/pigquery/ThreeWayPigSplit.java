@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * <p>
- * Implements Pig split operator semantic. 
+ * A derivation of BaseOperator that implements Pig split operator semantic. 
  * <p>
  * A split into node creates multiple streams from a single stream. <br>
  * This operator implements following semantic.  <br>
@@ -35,7 +35,7 @@ import java.util.Map;
  * </pre>
  * @displayName: Three Way Pig Split
  * @category: pigquery
- * @tag: split, map, string
+ * @tag: split operator, map, string
  * @since 0.3.4
  */
 public class ThreeWayPigSplit  extends PigSplitOperator<Map<String, Integer>>

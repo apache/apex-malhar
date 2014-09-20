@@ -24,7 +24,7 @@ import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.lib.db.TransactionableStore;
 
 /**
- * <p>Provides transaction support to the operators.</p>
+ * <p>Provides transaction support to the operators by implementing TransactionableStore abstract methods. </p>
  * 
  * <p>
  * @displayName: Cassandra Transactional Store

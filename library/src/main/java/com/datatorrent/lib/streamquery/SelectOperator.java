@@ -26,7 +26,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
 import com.datatorrent.lib.streamquery.index.Index;
 
 /**
- * Provides sql select query semantics on live data stream. <br>
+ * A derivation of BaseOperator that provides sql select query semantics on live data stream. <br>
  * <p>
  * Stream rows passing condition are emitted on output port stream. <br>
  * <br>
@@ -43,9 +43,9 @@ import com.datatorrent.lib.streamquery.index.Index;
  * <b> condition : </b> Select condition for selecting rows. <br>
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
- * @displayName: Select Operator
+ * @displayName: Select
  * @category: streamquery
- * @tag: sql select, index, sql condition
+ * @tag: sql select operator, index, sql condition
  * @since 0.3.3
  */
 public class SelectOperator extends BaseOperator

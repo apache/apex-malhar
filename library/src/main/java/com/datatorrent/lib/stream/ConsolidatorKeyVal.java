@@ -29,7 +29,7 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * <p>
- * Aggregates &lt;key,value&rt; input from five ports of different types into
+ * An implementation of operator that Aggregates &lt;key,value&rt; input from five ports of different types into
  * &lt;key,array list map&rt; for each key. <br>
  * <p>
  * Operator emits key/array list map at end window, this end window operator. <br>

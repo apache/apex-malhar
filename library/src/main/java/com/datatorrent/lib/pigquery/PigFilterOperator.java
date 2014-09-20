@@ -24,7 +24,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
 
 
 /**
- * Implements Apache Pig filter statement semantic. <br>
+ * A derivation of BaseOperator that implements Apache Pig filter statement semantic. <br>
  * <p>
  * Stream rows passing condition are emitted on output port stream. <br>
  * <br>
@@ -39,9 +39,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <br>
  * <b> Properties : <b> <br>
  * <b> condition : </b> Select condition for selecting rows. <br>
- * @displayName: Pig Distinct Operator
+ * @displayName: Pig Filter
  * @category: pigquery
- * @tag: map, string, distinct
+ * @tag: map, string, filter operator
  * @since 0.3.4
  */
 public class PigFilterOperator  extends BaseOperator

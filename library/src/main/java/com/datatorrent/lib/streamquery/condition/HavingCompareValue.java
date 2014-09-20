@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 import com.datatorrent.lib.streamquery.function.FunctionIndex;
 
 /**
- * Implements comparison of aggregate index value to input compare value. <br>
+ *  A derivation of HavingCondition that implements comparison of aggregate index value to input compare value. <br>
  * <p>
  * Compare value must implement interface Comparable. <br>
  * <br>

@@ -24,7 +24,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  *<p>
- * This operator emits maximum of all values sub-classed from Number at end of window in the incoming stream. <br>
+ * This operator implements Unifier interface and emits maximum of all values sub-classed from Number at end of window in the incoming stream. <br>
  * <b>StateFull :</b> Yes, max value is determined during application window, can be more than 1. <br>
  * <b>Partitions : </b>Yes, operator itself is used as unifier at output port. <br>
  * <br>

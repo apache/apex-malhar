@@ -19,7 +19,7 @@ import java.util.Map;
 
 
 /**
- * <p>GenerateName class.</p>
+ * <p>A derivation of Unary Generate that generates a name and provides implementation of evaluate method.</p>
  *
  * @displayName: Generate Name
  * @category: pigquery.generate

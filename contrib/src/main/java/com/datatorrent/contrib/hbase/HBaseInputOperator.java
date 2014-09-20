@@ -22,10 +22,10 @@ import com.datatorrent.api.InputOperator;
 import java.io.IOException;
 
 /**
- * Provides the base class for HBase input operators.<br>
+ * A base implementation of hbase input operator which derives from HBaseOperatorBase. <br>
  * <p>
  * <br>
- * @displayName: HBase Input Operator
+ * @displayName: HBase Input
  * @category: store
  * @tag: input operator
  * @param <T> The tuple type

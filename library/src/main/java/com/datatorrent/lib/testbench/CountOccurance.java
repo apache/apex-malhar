@@ -25,9 +25,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * <p>Implements Count Occurance class.</p>
+ * <p>A base implementation of an operator which does count occurrence.</p>
  * <p>
- * @displayName: Count Occurance
+ * @displayName: Count Occurrence
  * @category: testbench
  * @tag: count
  * @since 0.3.2

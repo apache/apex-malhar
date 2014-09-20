@@ -19,8 +19,8 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-/**
- * Implements logical AND/OR select expression. <br>
+/** 
+ *  A derivation of Condition index that implements logical AND/OR select expression. <br>
  * <p>
  * Class provides logical OR or AND function specified in parameters. User can implement
  * complex and/or expression by chaining operator itself.

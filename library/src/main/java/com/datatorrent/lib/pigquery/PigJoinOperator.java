@@ -29,7 +29,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
- * Implements Pig Join(Inner) semantic on live stream.
+ * A derivation of BaseOperator that implements Pig Join(Inner) semantic on live stream.
  * <p>
  * <pre>
  * Example
@@ -80,9 +80,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <br>
  * <b>Properties : </b> <br>
  * <b> joinCondition : </b> Tuple join condition.
- * @displayName: Pig Join Operator
+ * @displayName: Pig Inner Join
  * @category: pigquery
- * @tag: map, string, inner join
+ * @tag: map, string, inner join operator
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)

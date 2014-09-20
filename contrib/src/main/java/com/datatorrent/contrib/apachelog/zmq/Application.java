@@ -30,7 +30,7 @@ import com.datatorrent.lib.logs.ApacheLogParseOperator;
 import com.datatorrent.lib.math.Sum;
 
 /**
- * <p>Application class.</p>
+ * <p>An implementation of Streaming Application that populates the DAG. </p>
  * <p>
  * @displayName: Application
  * @category: db/zmq

@@ -33,7 +33,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Inserts a string of key value pairs which are mapped to corresponding rows, columns.
+ * An implementation of HBase window put operator that inserts a string of key value pairs which are mapped to corresponding rows, columns.
  * <p>
  * Accepts a string of key value pairs containing the data to be inserted.These
  * are mapped to corresponding rows,column families and columns using a property
@@ -44,7 +44,7 @@ import java.util.Map;
  * columnfamily address and column street of row xyz. Other values are inserted
  * similarly.
  * 
- * @displayName: HBase Name Value Csv Put Operator
+ * @displayName: HBase Name Value Csv Put
  * @category: store
  * @tag: output operator, put
  * @since 1.0.2

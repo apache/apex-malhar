@@ -26,7 +26,7 @@ import java.util.Map;
 import javax.script.*;
 
 /**
- * Executes JavaScript on tuples input for Map &lt;String, Object&gt;. 
+ * A derivation of ScriptOperator that executes JavaScript on tuples input for Map &lt;String, Object&gt;. 
  * 
  * <p>
  * Key is name of variable used in script code. Proper map values must be provided
@@ -69,9 +69,9 @@ import javax.script.*;
  *
  * This operator does not checkpoint interpreted functions in the variable bindings because they are not serializable
  * Use setupScript() to define functions, and do NOT define or assign functions to variables at run time
- * @displayName: Java Script Operator
+ * @displayName: Java Script
  * @category: script
- * @tag: script, map, string
+ * @tag: script operator, map, string
  * @since 0.3.2
  */
 public class JavaScriptOperator extends ScriptOperator

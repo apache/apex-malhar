@@ -26,7 +26,7 @@ import java.util.Map;
 
 /**
  *
- * This operator emits minimum of all values sub-classed from Number for each key at end of window. 
+ * This operator implements Unifier interface and emits minimum of all values sub-classed from Number for each key at end of window. 
  * <p>
  * <b>StateFull :</b> Yes, min value is computed over application window. <br>
  * <b>Partitions :</b> Yes, min operator is min unifier for output port.
