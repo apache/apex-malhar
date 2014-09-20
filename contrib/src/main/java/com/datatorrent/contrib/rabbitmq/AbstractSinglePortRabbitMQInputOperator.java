@@ -52,7 +52,10 @@ import com.datatorrent.api.DefaultOutputPort;
  */
 public abstract class AbstractSinglePortRabbitMQInputOperator<T> extends AbstractRabbitMQInputOperator
 {
-    @OutputPortFieldAnnotation(name = "outputPort")
+  /**
+   * This is the output port on which tuples extracted from RabbitMQ messages are emitted.
+   */
+  @OutputPortFieldAnnotation(name = "MQTTOutput")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

@@ -18,6 +18,7 @@ package com.datatorrent.contrib.kafka.benchmark;
 import kafka.message.Message;
 
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
 
 /**
@@ -32,7 +33,10 @@ import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
  */
 public class BenchmarkPartitionableKafkaInputOperator extends AbstractPartitionableKafkaInputOperator
 {
-
+  /**
+   * The output port on which messages are emitted.
+   */
+  @InputPortFieldAnnotation(name = "KafkaOutput")
   public transient DefaultOutputPort<String>  oport = new DefaultOutputPort<String>();
 
   @Override

@@ -51,7 +51,10 @@ import com.datatorrent.api.DefaultOutputPort;
  */
 public abstract class AbstractSinglePortZeroMQInputOperator<T> extends AbstractBaseZeroMQInputOperator
 {
-    @OutputPortFieldAnnotation(name = "outputPort")
+  /**
+   * This is the ouput port on which tuples extracted from ZeroMQ are emitted.
+   */
+  @OutputPortFieldAnnotation(name = "ZeroMQOutput")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

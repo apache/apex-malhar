@@ -73,9 +73,9 @@ public abstract class AbstractSplunkInputOperator<T> extends AbstractStoreInputO
   public abstract String queryToRetrieveData();
 
   /**
-   * The output port that will emit tuple into DAG.
+   * The output port on which tuples read from Splunk are emitted.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
+  @OutputPortFieldAnnotation(name = "SplunkOutput")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   @Override

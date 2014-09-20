@@ -51,9 +51,9 @@ public class KafkaSinglePortOutputOperator<K, V> extends AbstractKafkaOutputOper
 {
 
   /**
-   * The single input port.
+   * This input port receives tuples that will be written out to Kafka.
    */
-  @InputPortFieldAnnotation(name = "KafkaInputPort")
+  @InputPortFieldAnnotation(name = "KafkaInput")
   public final transient DefaultInputPort<V> inputPort = new DefaultInputPort<V>()
   {
     @Override

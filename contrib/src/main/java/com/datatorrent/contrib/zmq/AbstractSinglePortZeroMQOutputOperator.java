@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.zmq;
 
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * This is the base implementation of a single port ZeroMQ output adapter.&nbsp;
@@ -58,6 +59,10 @@ public abstract class AbstractSinglePortZeroMQOutputOperator<T> extends Abstract
    */
   public abstract void processTuple(T tuple);
 
+  /**
+   * This is the input port which provides the tuples that are written out to ZeroMQ.
+   */
+  @OutputPortFieldAnnotation(name = "ZeroMQInput")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     @Override

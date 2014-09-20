@@ -63,7 +63,11 @@ public abstract class MongoDBInputOperator<T> extends MongoDBConnectable impleme
   private String table;
   private DBObject query;
   private transient DBCursor resultCursor;
-  @OutputPortFieldAnnotation(name = "outputPort")
+
+  /**
+   * This is the output port which emits tuples read from MongoDB.
+   */
+  @OutputPortFieldAnnotation(name = "MongoDBOutput")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

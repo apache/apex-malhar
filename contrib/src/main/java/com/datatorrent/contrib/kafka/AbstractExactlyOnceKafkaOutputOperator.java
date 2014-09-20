@@ -17,6 +17,7 @@ package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Pair;
 import com.google.common.collect.Sets;
 import kafka.api.FetchRequest;
@@ -102,6 +103,10 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
     initializeLastProcessingOffset();
   }
 
+  /**
+   * This input port receives tuples that will be written out to Kafka.
+   */
+  @InputPortFieldAnnotation(name = "KafkaInput")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>() {
     @Override
     public void process(T tuple)

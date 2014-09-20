@@ -54,9 +54,9 @@ import kafka.message.Message;
 public abstract class AbstractKafkaSinglePortInputOperator<T> extends AbstractKafkaInputOperator<KafkaConsumer>
 {
   /**
-   * The single output port.
+   * This output port emits tuples extracted from Kafka messages.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
+  @OutputPortFieldAnnotation(name = "KafkaOutput")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

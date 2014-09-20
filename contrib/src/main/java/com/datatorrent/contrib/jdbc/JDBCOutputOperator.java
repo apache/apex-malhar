@@ -440,9 +440,9 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   public abstract void processTuple(T tuple) throws SQLException;
 
   /**
-   * The input port.
+   * This input port receives tuples that will be written out to the database.
    */
-  @InputPortFieldAnnotation(name = "inputPort")
+  @InputPortFieldAnnotation(name = "JDBCInput")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     /**
