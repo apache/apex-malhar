@@ -24,9 +24,9 @@ import org.apache.hadoop.hbase.client.Result;
 import java.io.IOException;
 
 /**
- * The abstract class implements a persistence strategy that uses application specified
- * HBase Get and Put operations to retrieve and save state.<br>
- *
+ * Implements a persistence strategy that uses application specified
+ * HBase Get and Put operations to retrieve and save state. <br>
+ * <p>
  * <br>
  * The concrete persistence class that extends this class can specify how to retrieve state using
  * a HBase Get metric and save state using a HBase Put metric. The class should specifically
@@ -35,7 +35,9 @@ import java.io.IOException;
  * the table and Put metric specifies where to store the state in the table.<br>
  *
  * <br>
- *
+ * @displayName: HBase Base State Persistence
+ * @category: store
+ * @tag: get, put, persistence
  * @since 0.3.2
  */
 @Deprecated

@@ -24,6 +24,9 @@ import java.util.HashMap;
 import javax.validation.constraints.NotNull;
 
 /**
+ * A derivation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
+ * to create a new tuple of Hashmap &lt;String,Double&rt; that is emitted on output port data.
+ * <p>
  * Takes a in stream event and adds to incoming keys to create a new tuple that is emitted on output port data. The aim is to create a load with pair of keys<p>
  * <br>
  * Examples of pairs include<br>
@@ -51,7 +54,9 @@ import javax.validation.constraints.NotNull;
  * <br>
  * <br>
  * <b>Benchmarks</b>: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
- *
+ * @displayName: Event Classifier Number To HashDouble
+ * @category: testbench
+ * @tag: number, classifier
  * @since 0.3.2
  */
 public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOperator

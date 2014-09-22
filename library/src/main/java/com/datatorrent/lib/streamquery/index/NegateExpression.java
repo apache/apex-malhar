@@ -21,8 +21,11 @@ import javax.validation.constraints.Null;
 
 
 /**
- * Index class to implement negate metric sql semantic on column value.
- *
+ * An derivation of Unary Expression that implements filter method using negate metric sql semantic on column value.
+ * <p>
+ * @displayName: Negate Expression
+ * @category: streamquery/index
+ * @tag: expression, alias
  * @since 0.3.4
  */
 public class NegateExpression extends UnaryExpression

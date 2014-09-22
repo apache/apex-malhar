@@ -9,7 +9,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 
 /**
- * This operator provides sql top select query semantic on live data stream. <br>
+ * An implementation of Operator that provides sql top select query semantic on live data stream. <br>
+ * <p>
  * Stream rows passing condition are emitted on output port stream. <br>
  * <br>
  * <b>StateFull : NO,</b> all row data is processed in current time window. <br>
@@ -25,8 +26,10 @@ import com.datatorrent.api.Operator;
  * <b> topValue : </b> top values count. <br>
  * <b> isPercentage : </b> top values count is percentage flag.
  * <br>
- *
- * @since 0.3.4
+ * @displayName: Select Top
+ * @category: streamquery
+ * @tag: sql select, sql top operator
+ *  @since 0.3.4
  */
 public class SelectTopOperator implements Operator
 {

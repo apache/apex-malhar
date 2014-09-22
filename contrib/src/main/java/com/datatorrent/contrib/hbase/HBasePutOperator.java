@@ -21,8 +21,8 @@ import org.apache.hadoop.hbase.client.Put;
 import java.io.IOException;
 
 /**
- * Operator for storing tuples in HBase rows.<br>
- *
+ * Operator for storing tuples in HBase rows. <br>
+ *<p>
  *<br>
  * This class provides a HBase output operator that can be used to store tuples in rows in a
  * HBase table. It should be extended by the end-operator developer. The extending class should implement
@@ -30,7 +30,9 @@ import java.io.IOException;
  * the tuple in the table.<br>
  *
  * <br>
- *
+ * @displayName: HBase Put
+ * @category: store
+ * @tag: output operator, put
  * @param <T> The tuple type
  * @since 0.3.2
  */

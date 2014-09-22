@@ -24,7 +24,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
- *  This operator provides sql select query semantic on live data stream. <br>
+ *  A derivation of BaseOperator that provides sql update query semantic on live data stream. <br>
+ *  <p>
  *  Stream rows passing condition are emitted on output port stream. <br>
  *  <br>
  *  <b>StateFull : NO,</b> all row data is processed in current time window. <br>
@@ -38,7 +39,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <b> condition : </b> Select condition for selecting rows. <br>
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
- *
+ * @displayName: Update
+ * @category: streamquery
+ * @tag: sql update operator, sql condition
  * @since 0.3.3
  */
 public class UpdateOperator extends BaseOperator

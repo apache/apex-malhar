@@ -24,8 +24,8 @@ import com.datatorrent.lib.util.HighLow;
 import com.datatorrent.lib.util.UnifierRange;
 
 /**
+ * This operator emits the range of values at the end of window.
  * <p>
- * Emits the range of values at the end of window<br>
  * <br>
  * <b>StateFull : Yes</b>, values are computed over application time window. <br>
  * <b>Partitions : Yes </b>, High/Low values are unified on output port. <br>
@@ -35,7 +35,9 @@ import com.datatorrent.lib.util.UnifierRange;
  * <b>range</b>: emits HighLow&lt;V&gt;<br>
  * <br>
  * <br>
- *
+ * @displayname: Range
+ * @category: math
+ * @tags: range, numeric , comparison
  * @since 0.3.3
  */
 public class Range<V extends Number> extends BaseNumberValueOperator<V>

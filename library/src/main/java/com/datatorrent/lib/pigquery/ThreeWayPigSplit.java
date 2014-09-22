@@ -19,8 +19,9 @@ import java.util.Map;
 
 /**
  * <p>
- * Class to implement Pig split operator semantic. A split into node creates
- * multiple streams from a single stream. <br>
+ * A derivation of BaseOperator that implements Pig split operator semantic. 
+ * <p>
+ * A split into node creates multiple streams from a single stream. <br>
  * This operator implements following semantic.  <br>
  * <pre>
  * instream is f1:int, f2:int, f3:int
@@ -32,7 +33,9 @@ import java.util.Map;
  *
  * This would match to split into metric for Pig
  * </pre>
- *
+ * @displayName: Three Way Pig Split
+ * @category: pigquery
+ * @tag: split operator, map, string
  * @since 0.3.4
  */
 public class ThreeWayPigSplit  extends PigSplitOperator<Map<String, Integer>>

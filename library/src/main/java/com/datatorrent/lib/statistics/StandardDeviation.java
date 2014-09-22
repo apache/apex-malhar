@@ -25,7 +25,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * This operator computes variance and standard deviation over incoming data. <br>
+ * A derivation of BaseOperator that computes variance and standard deviation over incoming data. <br>
  * <br>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
@@ -37,7 +37,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <b>StateFull : Yes</b>, value are aggregated over application window. <br>
  * <b>Partitions : No</b>, no will yield wrong results. <br>
  * <br>
- *
+ * @displayName: Standard Deviation
+ * @category: statistics
+ * @tag: numeric, math, calculation, sum, count 
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)

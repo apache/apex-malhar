@@ -16,8 +16,11 @@
 package com.datatorrent.lib.testbench;
 
 /**
- * A sink implementation to collect expected test results.
- *
+ * A sink implementation to count expected test results.
+ * <p>
+ * @displayName: Count Test Sink
+ * @category: testbench
+ * @tag: count, sink
  * @since 0.3.2
  */
 public class CountTestSink<T> extends CollectorTestSink<T>

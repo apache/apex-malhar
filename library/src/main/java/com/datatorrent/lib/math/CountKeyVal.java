@@ -30,9 +30,8 @@ import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.UnifierCountOccurKey;
 
 /**
+ * This Operator aggregates occurrence of keys in &lt;key,value&gt; pair at input port.&lt;Key,Occurrence count&gt; pair is emitted for each input on output port.
  * <p>
- * Operator aggregates occurrence of keys in key/value pair at input port. <br>
- * Key/Occurrence count value pair is emitted for each input on output port. <br>
  * <br>
  * StateFull : Yes, key occurrence is aggregated over windows. <br>
  * Partitions : Yes, count occurrence unifier at output port. <br>
@@ -41,7 +40,9 @@ import com.datatorrent.lib.util.UnifierCountOccurKey;
  * <b>data</b>: expects KeyValPair&lt;K,V&gt;<br>
  * <b>count</b>: emits KeyValPair&lt;K,Integer&gt;</b><br>
  * <br>
- *
+ * @displayname: Count Key Value
+ * @category: math
+ * @tags: count, key value, aggregate
  * @since 0.3.3
  */
 public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>

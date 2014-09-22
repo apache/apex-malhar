@@ -21,14 +21,17 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 
 /**
- * Terminates a stream; does nothing to the tuple. Useful if you want to have a
- * stream for monitoring purpose etc. In future STRAM may simply support a
+ * A derivation of BaseOperator that terminates a stream and does not affect the tuple. 
+ * <p>
+ * Useful if you want to have a stream for monitoring purpose etc. In future STRAM may simply support a
  * virtual stream and make this operator redundant<br>
  * <br>
  * <b>Port</b>:<br>
  * <b>data</b>: expects K<br>
  * <br>
- *
+ * @displayName: Dev Null
+ * @category: stream
+ * @tag: debug, terminate
  * @since 0.3.3
  */
 @Stateless

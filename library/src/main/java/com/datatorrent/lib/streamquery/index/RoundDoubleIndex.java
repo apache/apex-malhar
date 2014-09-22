@@ -5,9 +5,12 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * <p>RoundDoubleIndex class.</p>
- *
- * @since 0.3.4
+ * <p>A derivation of column index that implements filter method using Round Double Index. </p>
+ * <p>
+ *  @displayName: Round Double Index
+ *  @category: streamquery/index
+ *  @tag: alias, maths
+ *  @since 0.3.4
  */
 public class RoundDoubleIndex  extends ColumnIndex
 {

@@ -8,8 +8,11 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * <p>SumFunction class.</p>
- *
+ * <p> A derivation of function index that implements sql sum function. </p>
+ * <p>
+ * @displayName: Sum Function
+ * @category: streamquery/function
+ * @tag: sql sum, aggregate
  * @since 0.3.4
  */
 public class SumFunction extends FunctionIndex

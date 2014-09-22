@@ -28,7 +28,8 @@ import com.datatorrent.lib.streamquery.condition.Condition;
 import com.datatorrent.lib.streamquery.index.Index;
 
 /**
- * This operator reads table row data from 2 table data input ports. <br>
+ * An implementation of Operator that reads table row data from two table data input ports. <br>
+ * <p>
  * Operator joins row on given condition and selected names, emits
  * joined result at output port.
  *  <br>
@@ -45,7 +46,9 @@ import com.datatorrent.lib.streamquery.index.Index;
  *  <b> table1Columns : </b> Columns to be selected from table1. <br>
  *  <b> table2Columns : </b> Columns to be selected from table2. <br>
  *  <br>
- *
+ * @displayName: Inner join
+ * @category: streamquery
+ * @tag: sql, inner join operator
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

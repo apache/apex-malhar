@@ -30,11 +30,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
+ * Operator compares consecutive values arriving at input port mapped by keys, emits &lt;key,percent change&gt; pair on output alert port if percent change exceeds percentage threshold set in operator.
  * <p>
- * Operator compare consecutive values arriving at input port mapped by keys,
- * this emits key/percent change pair on output alert port if percent change
- * exceeds percentage thresh hold set in operator. <br>
- *
  * StateFull : Yes, current key/value is stored in operator for comparison in
  * next successive windows. <br>
  * Partition(s): No, base comparison value will be inconsistent across
@@ -49,7 +46,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * same key that triggers an alert tuple<br>
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
- *
+ * @displayname: Change Alert Key Value
+ * @category: math
+ * @tags: change, key value, numeric, percentage
  * @since 0.3.3
  */
 @ShipContainingJars(classes = { MutableDouble.class })

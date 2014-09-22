@@ -24,8 +24,11 @@ import com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * This application just reads from a local apache log file on the fly and dumps the parsed data to output
- *
+ * An implementation of Streaming Application that reads from a local apache log file on the fly and dumps the parsed data to output.
+ * <p>
+ * @displayName: Application Local Log
+ * @category: db
+ * @tag: reader, streaming
  * @since 0.9.4
  */
 public class ApplicationLocalLog implements StreamingApplication

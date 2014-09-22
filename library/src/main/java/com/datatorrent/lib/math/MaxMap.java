@@ -27,8 +27,8 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
  *
- * Emits at end of window maximum of all values sub-classed from Number for each key in HashMap. <p>
- * Emits tuple in end of window. Partition is round robin<br>
+ * This operator implements Unifier interface and emits maximum of all values sub-classed from Number for each key in HashMap at end of window.
+ * <p>
  * <br>
  *  <b>StateFull : </b>Yes, key/value max is determined over application window, can be > 1. <br>
  *  <b>Partitions : </b>Yes, operator is max unifier operator on output port.
@@ -40,7 +40,9 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayname: Maximum Map
+ * @category: math
+ * @tags: maximum, numeric, hash map, round robin partition
  * @since 0.3.2
  */
 public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K,V>>

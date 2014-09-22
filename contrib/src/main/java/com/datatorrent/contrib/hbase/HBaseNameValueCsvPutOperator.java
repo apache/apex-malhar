@@ -33,16 +33,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * accepts a string of key value pairs containing the data to be inserted.These
- * are mapped to corresponding rows,columnfamilies and columns using a property
- * file and inserted into hbase Eg: input string will be of the form
- * name=xyz,st=patrickhenry,ct=fremont,sa=california the properties will contain
- * properties of form
- * name=row,sa=address.street,ct=address.city,sa=address.state with the above
- * the mapping a row xyz is created. the value patrickhenry is inserted into
- * columnfamily address and column street of row xyz. other values are inserted
+ * An implementation of HBase window put operator that inserts a string of key value pairs which are mapped to corresponding rows, columns.
+ * <p>
+ * Accepts a string of key value pairs containing the data to be inserted.These
+ * are mapped to corresponding rows,column families and columns using a property
+ * file and inserted into hbase Example: input string will be of the form
+ * name="xyz", st="patrickhenry" ,ct="fremont", sa="california", the properties will contain
+ * properties of form name=row, sa=address.street, ct=address.city, sa=address.state. 
+ * With the above mapping a row xyz is created. The value patrickhenry is inserted into
+ * columnfamily address and column street of row xyz. Other values are inserted
  * similarly.
- *
+ * 
+ * @displayName: HBase Name Value Csv Put
+ * @category: store
+ * @tag: output operator, put
  * @since 1.0.2
  */
 public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOperator<String> {

@@ -20,14 +20,16 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * This class validates row. Given column name value must be between given left/right range. <br>
+ *  A derivation of Condition that validates row by checking if the given column name value lies between given left,right range. <br>
  * <br>
  * <b>Properties : </b> <br>
  * <b> column : </b> Name of column. <br>
  * <b> leftValue : </b> left range of column value. <br>
  * <b> rightValue : </b> right range od column value. <br>
  * <br>
- *
+ * @displayName: Between Condition
+ * @category: streamquery/condition
+ * @tag: sql condition
  * @since 0.3.4
  */
 public class BetweenCondition  extends Condition

@@ -26,7 +26,10 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * Takes a in stream event and adds to incoming keys to create a new tuple that is emitted on output port data. The aim is to create a load with pair of keys<p>
+ * A derivation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
+ * to create a new tuple that is emitted on output port data.
+ * <p>
+ * Takes a input stream event and adds to incoming keys to create a new tuple that is emitted on output port data.
  * <br>
  * Examples of pairs include<br>
  * publisher,advertizer<br>
@@ -53,7 +56,10 @@ import java.util.Random;
  * <br>
  * <br>
  * <b>Benchmarks</b>: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
- *
+ * <p>
+ * @displayName: Event Classifier
+ * @category: testbench
+ * @tag: hashmap,classification
  * @since 0.3.2
  */
 public class EventClassifier extends BaseOperator

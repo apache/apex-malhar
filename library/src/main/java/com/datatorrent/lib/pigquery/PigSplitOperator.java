@@ -23,12 +23,15 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * Abstract class to implement Pig Split operator semantic.  <br>
+ * A derivation of BaseOperator that implements Pig Split operator semantic.  <br>
+ * <p>
  * Number of output ports are configured in class instance.
  *
  * <b>Properties : </b> <br>
  * <b>numOutPorts : </b> Number of output ports. <br>
- *
+ * @displayName: Pig Split
+ * @category: pigquery
+ * @tag: split operator, integer
  * @since 0.3.4
  */
 public abstract class PigSplitOperator<T>  extends BaseOperator
