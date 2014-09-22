@@ -28,12 +28,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**
- * <p/>
- * Operator takes input from two ports. Operator stores input arriving base port
- * for comparison across the windows. kay/value map arriving are compared with
- * base map, on per key base. For all existing keys map of key/change and
- * key/percent change values are emitted on separate ports. <br>
- * <p/>
+ * Operator takes input from two ports and stores input arriving at base port for comparison across the windows.
+ * <p>
+ * &lt;key,value&gt; maps arriving are compared with base map, on per key basis.For all existing keys, map of &lt;key,change&gt; and &lt;key,percent change&gt; are emitted on separate ports.
  * <br>
  * StateFull : Yes, base values are stored across windows for comparison. <br>
  * Partitions : Yes, values on the base port are replicated across all partitions. The order of tuples from output port may
@@ -51,7 +48,9 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayname: Change Map
+ * @category: math
+ * @tags: change, key value, number, map
  * @since 0.3.3
  */
 public class ChangeMap<K, V extends Number> extends

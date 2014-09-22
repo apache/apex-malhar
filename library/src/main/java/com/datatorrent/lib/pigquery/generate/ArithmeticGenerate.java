@@ -21,10 +21,14 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * This class implements Pig arithmetic operator generate semantic.   <br>
+ * A derivation of Binary Generate that implements Pig arithmetic operator generate semantic.   <br>
+ * <p>
  * Valid opName : '+', '-', '*', '/', '%'. <br>
  * see {@link com.datatorrent.lib.pigquery.generate.BinaryGenerate}.
- *
+ * 
+ * @displayName: Arithmetic Generate
+ * @category: pigquery.generate
+ * @tag: arithmetic operation, map, string, addition, subtraction, multiplication, division, percentage 
  * @since 0.3.4
  */
 public class ArithmeticGenerate  extends BinaryGenerate

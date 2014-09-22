@@ -29,7 +29,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Generates synthetic load. Creates tuples and keeps emitting them on the output port "data"<p>
+ * Generates synthetic load.&nbsp; Creates tuples and keeps emitting them on the output port "data". 
+ * <p>
  * <br>
  * The load is generated as per config parameters. This class is mainly meant for testing
  * nodes.<br>
@@ -60,7 +61,9 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks></b>: Send as many tuples in in-line mode, the receiver just counts the tuples and drops the object<br>
  * String schema does about 26 Million tuples/sec in throughput<br>
  * HashMap schema does about 10 Million tuples/sec in throughput<br>
- *
+ * @displayName: Event Generator
+ * @category: testbench
+ * @tag: input operator, generator
  * @since 0.3.2
  */
 public class EventGenerator implements InputOperator

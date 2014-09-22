@@ -20,8 +20,8 @@ import org.apache.hadoop.hbase.client.Append;
 import java.io.IOException;
 
 /**
- * Operator for storing tuples in HBase columns.<br>
- *
+ * Stores tuples in HBase columns. <br>
+ *<p>
  *<br>
  * This class provides a HBase output operator that can be used to store tuples in columns in a
  * HBase table. It should be extended by the end-operator developer. The extending class should implement
@@ -29,7 +29,9 @@ import java.io.IOException;
  * store for the tuple in the table.<br>
  *
  * <br>
- *
+ * @displayName: HBase Append
+ * @category: store
+ * @tag: append, output operator
  * @param <T> The tuple type
  * @since 0.3.2
  */

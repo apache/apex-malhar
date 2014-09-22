@@ -20,8 +20,8 @@ import org.apache.hadoop.hbase.client.HTable;
 import java.io.IOException;
 
 /**
- * Interface for persistence strategy.<br>
- *
+ * Provides interface for persistence strategy. <br>
+ * <p>
  * <br>
  * The interface needs to be implemented by any class that will provide the persistence
  * for the HBase output operator. The output operator will use the persistence strategy
@@ -33,7 +33,9 @@ import java.io.IOException;
  * method to retrieve and save state that needs to be implemented by the implementor.<br>
  *
  * <br>
- *
+ * @displayName: HBase State Persistence Strategy
+ * @category: store
+ * @tag: persistence
  * @since 0.3.2
  */
 @Deprecated

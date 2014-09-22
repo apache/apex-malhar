@@ -27,8 +27,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 
 
 /**
- * This class implements Apache Pig Cross operator semantic.
- *
+ * An implementation of Operator that implements Apache Pig Cross operator semantic.
+ * <p>
  * <pre>
  * Example
  * Suppose we have relations A and B.
@@ -67,7 +67,10 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <b> inport1 : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> inport2 : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> outport : </b> emits tuple of form Map&lt;String, Object&gt; <br>
- *
+ * 
+ * @displayName: Pig Cross
+ * @category: pigquery
+ * @tag: map, string, cross product operator
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)

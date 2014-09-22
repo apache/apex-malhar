@@ -21,11 +21,13 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Class for implementing order by key name rule. <br>
- *
+ * Implements order by key name rule. <br>
+ * <p>
  * <b>Properties : </b> <br>
  * <b> columnName : </b> Name of column for ordering tuples. <br>
- *
+ * @displayName: OrderBy Rule
+ * @category: streamquery
+ * @tag: orderby, sort, comparison
  * @since 0.3.3
  */
 @SuppressWarnings("rawtypes")

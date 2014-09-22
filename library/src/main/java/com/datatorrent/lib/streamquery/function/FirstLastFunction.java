@@ -23,14 +23,17 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Class implements sql first/last function semantic for select function  statement. <br>
+ * A derivation of function index that implements sql first,last function semantic. <br>
+ * <p>
  *   e.g : sql => SELECT FIRST/LAST(column_name) FROM table_name. <br>
  *   <br>
  *   <b> Properties : </b> <br>
  *   <b> column : </b> column name for first/last value.   <br>
  *   <b> alias  : </b> Alias name for output. <br>
  *   <b> isFirst : </b> return first value if true.
- *
+ * @displayName: First Last Function
+ * @category: streamquery/function
+ * @tag: sql first, sql last
  * @since 0.3.4
  */
 public class FirstLastFunction extends FunctionIndex

@@ -28,7 +28,7 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
 import com.google.common.collect.Lists;
 
 /**
- * Operator for storing tuples in Accumulo rows.<br>
+ * Base output operator that stores tuples in Accumulo rows.&nbsp; Subclasses should provide implementation of operationMutation method. <br>
  *
  * <br>
  * This class provides a Accumulo output operator that can be used to store
@@ -46,7 +46,9 @@ import com.google.common.collect.Lists;
  * restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when
  * the operator shutdown.
- *
+ * @displayName: Abstract Accumulo Output
+ * @category: store
+ * @tag: output operator
  * @param <T>
  *            The tuple type
  * @since 1.0.4

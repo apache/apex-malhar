@@ -28,9 +28,9 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  *
- * A sliding window class that lets users access past N-1 window states
+ * Provides a sliding window class that lets users access past N-1 window states where N is a property.
  * <p>
- * N is a property. The default behavior is just a pass through, i.e. the
+ * The default behavior is just a pass through, i.e. the
  * operator does not do any processing on its own. Users are expected to extend
  * this class and add their specific processing. Users have to define their own
  * output port(s). The tuples are KeyValue pair. This is an abstract class. The
@@ -44,7 +44,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Properties</b>:<br>
  * <b>windowSize i.e. N</b>: Number of windows to keep state on<br>
  * <br>
- *
+ * @displayName: Abstract Sliding Window Key Value
+ * @category: multiwindow
+ * @tag: sliding window, numeric, key value, average
  * @since 0.3.3
  */
 public abstract class AbstractSlidingWindowKeyVal<K, V extends Number, S extends SimpleMovingAverageObject>

@@ -27,8 +27,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.streamquery.function.FunctionIndex;
 
 /**
+ *  An implementation of Operator that applies sql top or limit semantics on incoming tuple(s). <br>
  * <p>
- * This operator applies sql top/limit semantic on incoming tuple(s). <br>
  * <b>StateFull : Yes,</b> Operator aggregates input over application window. <br>
  * <b>Partitions : No, </b> will yield wrong result(s). <br>
  * <br>
@@ -38,7 +38,9 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
  * <br>
  * <b> Properties : </b> <br>
  * <b> functions : </b> Sql function for rows. <br>
- *
+ * @displayName: Select Function
+ * @category: streamquery
+ * @tag: sql top, sql limit, sql select operator
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)

@@ -5,8 +5,11 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * <p>MidIndex class.</p>
- *
+ * <p>A derivation of Column Index that implements filter method based on mid index. </p>
+ * <p>
+ * @displayName: Mid Index
+ * @category: streamquery/index
+ * @tag: index
  * @since 0.3.4
  */
 public class MidIndex extends ColumnIndex

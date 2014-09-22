@@ -25,11 +25,10 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
+ * Compares consecutive input data values, emits &lt;value,percent change value&gt; pair on alert output port, if percent change exceeds certain thresh hold value.
  * <p>
- * Operator compare consecutive input data values and exits value and percent change value
- * pair on alert output port, if percent change exceeds certain thresh hold value. <br>
  * Operator is StateFull since current value is stored for comparison in next window. <br>
- * This operator can not be partitioned, partitioning will result in inconsitent base value
+ * This operator can not be partitioned, partitioning will result in inconsistent base value
  * across replicated copies.
  * <br>
  *
@@ -46,7 +45,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
- *
+ * @displayname: Change Alert
+ * @category: math
+ * @tags: change, key value, numeric, percentage
  * @since 0.3.3
  */
 public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>

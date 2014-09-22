@@ -20,7 +20,10 @@ import java.util.Map;
 
 /**
  * Interface to declare Foreach Generate indexes.
- *
+ * <p>
+ * @displayName: Generate
+ * @category: pigquery.generate
+ * @tag: map, string
  * @since 0.3.4
  */
 public interface Generate

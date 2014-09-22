@@ -19,9 +19,12 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * Abstract class to filter row by expression index.
+ * Abstract class to filter row by binary expression index. 
+ * <p>
  * Sub class will implement filter/getExpressionName functions.
- *
+ * @displayName: Binary Expression
+ * @category: streamquery/index
+ * @tag: alias
  * @since 0.3.4
  */
 abstract public class BinaryExpression  implements Index
