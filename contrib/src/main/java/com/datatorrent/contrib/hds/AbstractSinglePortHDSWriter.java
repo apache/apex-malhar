@@ -17,6 +17,7 @@ package com.datatorrent.contrib.hds;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
@@ -98,6 +99,17 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSBucketManage
     super.setup(arg0);
     try {
       this.codec = getCodecClass().newInstance();
+      // inject the operator reference, if such field exists
+      // TODO: replace with broader solution
+      Class<?> cls = this.codec.getClass();
+      while (cls != null) {
+        for (Field field : cls.getDeclaredFields()) {
+          if (field.getType().isAssignableFrom(this.getClass())) {
+            field.set(this.codec, this);
+          }
+        }
+        cls = cls.getSuperclass();
+      }
     } catch (Exception e) {
       throw new RuntimeException("Failed to create codec", e);
     }

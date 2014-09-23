@@ -15,25 +15,28 @@
  */
 package com.datatorrent.contrib.hds;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
+import com.google.common.base.Preconditions;
 
-public class HDSOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>
+public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>
 {
   @Override
   protected Class<? extends com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter.HDSCodec<KeyValPair<byte[], byte[]>>> getCodecClass()
   {
-    return BucketKeyStreamCodec.class;
+    return BucketStreamCodec.class;
   }
 
-  public static class BucketKeyStreamCodec extends KryoSerializableStreamCodec<KeyValPair<byte[], byte[]>> implements HDSCodec<KeyValPair<byte[], byte[]>>
+  public static class BucketStreamCodec extends KryoSerializableStreamCodec<KeyValPair<byte[], byte[]>> implements HDSCodec<KeyValPair<byte[], byte[]>>
   {
+    public HDSTestOperator operator;
+
     @Override
     public int getPartition(KeyValPair<byte[], byte[]> t)
     {
       int length = t.getKey().length;
       int hash = 0;
-      // TODO: it would be more intuitive to look at the leading bytes
       for (int i = length-4; i > 0 && i < length; i++) {
         hash = hash << 8;
         hash += t.getKey()[i];
@@ -58,6 +61,14 @@ public class HDSOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], 
     {
       return new KeyValPair<byte[], byte[]>(key, value);
     }
+  }
+
+  @Override
+  public void setup(OperatorContext arg0)
+  {
+    super.setup(arg0);
+    Preconditions.checkNotNull(this.codec, "codec not set");
+    Preconditions.checkNotNull(((BucketStreamCodec)this.codec).operator, "operator not set");
   }
 
 }
