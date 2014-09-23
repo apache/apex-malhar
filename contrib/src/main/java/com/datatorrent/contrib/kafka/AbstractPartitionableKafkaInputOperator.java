@@ -99,6 +99,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   // Store the current collected kafka consumer stats
   private transient Map<Integer, List<KafkaMeterStats>> kafkaStatsHolder = new HashMap<Integer, List<KafkaConsumer.KafkaMeterStats>>();
+  
+  private OffsetManager offsetManager = null;
 
   // To avoid uneven data stream, only allow at most 1 repartition in every 30 seconds
   private transient long repartitionInterval = 30000L;
@@ -131,6 +133,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
     // Operator partitions
     List<Partition<AbstractPartitionableKafkaInputOperator>> newPartitions = null;
+    
+    // initialize the offset 
+    if(isInitialParitition && offsetManager !=null){
+      offsetManager.loadInitialOffset();
+    }
 
     switch (strategy) {
 
@@ -149,7 +156,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
             logger.info("[ONE_TO_ONE]: Create operator partition for kafka partition: " + kafkaPartitionList.get(i).partitionId() + ", topic: " + this.getConsumer().topic);
             Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(cloneOperator());
             PartitionMetadata pm = kafkaPartitionList.get(i);
-            KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(pm.partitionId()));
+            Map<Integer, Long> initOffset = offsetManager!=null?offsetManager.getAllOffset():null;
+            KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(pm.partitionId()), initOffset);
             p.getPartitionedInstance().setConsumer(newConsumerForPartition);
             PartitionInfo pif = new PartitionInfo();
             pif.kpids = Sets.newHashSet(pm.partitionId());
@@ -201,7 +209,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           for (int i = 0; i < pIds.length; i++) {
             logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): " + StringUtils.join(pIds[i], ", ") + ", topic: " + this.getConsumer().topic);
             Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(_cloneOperator());
-            KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(pIds[i]);
+            Map<Integer, Long> initOffset = offsetManager!=null?offsetManager.getAllOffset():null;
+            KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(pIds[i], initOffset);
             p.getPartitionedInstance().setConsumer(newConsumerForPartition);
             newPartitions.add(p);
             PartitionInfo pif = new PartitionInfo();
@@ -357,6 +366,9 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     for (OperatorStats os : stats.getLastWindowedStats()) {
       if (os != null && os.counters instanceof KafkaMeterStats) {
         kmss.add((KafkaMeterStats) os.counters);
+        if(offsetManager!=null){
+          offsetManager.updateOffsets(((KafkaMeterStats) os.counters).getOffsetsForPartitions());
+        }
       }
     }
     kafkaStatsHolder.put(stats.getOperatorId(), kmss);
@@ -551,6 +563,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   public void setInitialOffset(String initialOffset)
   {
     this.consumer.initialOffset = initialOffset;
+  }
+  
+  public void setOffsetManager(OffsetManager offsetManager)
+  {
+    this.offsetManager = offsetManager;
   }
 
   //@Pattern(regexp="ONE_TO_ONE|ONE_TO_MANY|ONE_TO_MANY_HEURISTIC", flags={Flag.CASE_INSENSITIVE})

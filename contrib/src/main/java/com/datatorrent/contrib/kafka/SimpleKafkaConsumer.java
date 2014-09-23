@@ -380,12 +380,26 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   }
   
   private void resetOffset(Map<Integer, Long> overrideOffset){
+    
     if(overrideOffset == null){
       return;
     }
-    for (Entry<Integer, Long> offset : offsetTrack.entrySet()) {
-      offset.setValue(overrideOffset.get(offset.getKey()));
+    offsetTrack.clear();
+    // set offset of the partitions assigned to this consumer
+    for (Integer pid: partitionIds) {
+      Long offsetForPar = overrideOffset.get(pid);
+      if (offsetForPar != null) {
+        offsetTrack.put(pid, offsetForPar);
+      }
     }
+  }
+  
+  @Override
+  public KafkaMeterStats getConsumerStats()
+  {
+    KafkaMeterStats stat = super.getConsumerStats();
+    stat.putOffsets(offsetTrack);
+    return stat;
   }
 
 
