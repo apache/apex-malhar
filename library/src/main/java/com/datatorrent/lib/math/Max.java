@@ -39,6 +39,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  */
 public class Max<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
+  /**
+   * Input port that takes a number and compares to max and stores the new max.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {

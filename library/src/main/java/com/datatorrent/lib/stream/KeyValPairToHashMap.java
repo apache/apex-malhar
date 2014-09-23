@@ -25,7 +25,7 @@ import com.datatorrent.lib.util.KeyValPair;
 import java.util.HashMap;
 
 /**
- * A derivation of BaseKeyValueOperator that converts Key Value Pair to a HashMap tuple. 
+ * An implementation of BaseKeyValueOperator that converts Key Value Pair to a HashMap tuple. 
  * <p>
  * Takes a KeyValPair and emits a HashMap(1), Used for for converting KeyValPair
  * to a HashMap(1) tuple
@@ -45,7 +45,7 @@ import java.util.HashMap;
 public class KeyValPairToHashMap<K, V> extends BaseKeyValueOperator<K, V>
 {
 	/**
-	 * key/value input port.
+	 * Input port that takes a key value pair.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, V>> keyval = new DefaultInputPort<KeyValPair<K, V>>()

@@ -53,7 +53,7 @@ import com.datatorrent.lib.util.KeyValPair;
 public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>
 {
 	/**
-	 * Input port.
+	 * Input port that takes in a number.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
@@ -86,7 +86,7 @@ public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>
 	
 	
 	/**
-	 * Output port.
+	 * Output port which emits a key value pair.
 	 */
 	@OutputPortFieldAnnotation(name = "alert")
 	public final transient DefaultOutputPort<KeyValPair<V, Double>> alert = new DefaultOutputPort<KeyValPair<V, Double>>();

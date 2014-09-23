@@ -61,7 +61,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   protected boolean cumulative = false;
   
   /**
-   * Input port to receive data.
+   * Input port that takes a map and adds the values for each key.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()

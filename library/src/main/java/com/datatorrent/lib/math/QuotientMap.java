@@ -117,7 +117,7 @@ public class QuotientMap<K, V extends Number> extends
 	};
 
 	/**
-	 * Quotient input port.
+	 * Quotient output port.
 	 */
 	@OutputPortFieldAnnotation(name = "quotient")
 	public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>();

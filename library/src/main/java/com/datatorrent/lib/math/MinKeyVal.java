@@ -47,7 +47,7 @@ import com.datatorrent.lib.util.KeyValPair;
 public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
 	/**
-	 * Input key/value port.
+	 * Input port which takes a key vaue pair and updates the value for each key if there is a new min.
 	 */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()

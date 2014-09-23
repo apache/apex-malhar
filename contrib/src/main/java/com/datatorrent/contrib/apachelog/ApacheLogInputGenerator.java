@@ -27,7 +27,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * An implementation of input operator activation listener that simulates the apache logs.
+ * An implementation of input operator and activation listener that simulates the apache logs.
  * <p>
  * @displayName: Apache Log Input Generator
  * @category: db
@@ -342,7 +342,10 @@ public class ApacheLogInputGenerator implements InputOperator, ActivationListene
   {
     this.refererFile = refererFile;
   }
-
+  
+  /**
+   * Output port that emits a string into DAG.
+   */
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
   private static final Logger LOG = LoggerFactory.getLogger(ApacheLogInputGenerator.class);
 }

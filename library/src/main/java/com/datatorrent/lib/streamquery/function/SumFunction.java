@@ -8,7 +8,7 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * <p> A derivation of function index that implements sql sum function. </p>
+ * <p> An implementation of sql sum function. </p>
  * <p>
  * @displayName: Sum Function
  * @category: streamquery/function

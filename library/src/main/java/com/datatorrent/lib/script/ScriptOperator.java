@@ -26,7 +26,7 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * A base derivation of a BaseOperator for language script operator.&nbsp; Subclasses should provide the 
+ * A base implementation of a BaseOperator for language script operator.&nbsp; Subclasses should provide the 
    implementation of getting the bindings and process method. 
  * Interface for language script operator.
  * <p>
@@ -37,6 +37,9 @@ import javax.validation.constraints.NotNull;
  */
 public abstract class ScriptOperator extends BaseOperator
 {
+  /**
+   * Input inBindings port that takes in a map of &lt;String, Object&gt.
+   */
   @InputPortFieldAnnotation(name = "inBindings", optional = true)
   public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>()
   {
@@ -47,8 +50,16 @@ public abstract class ScriptOperator extends BaseOperator
     }
 
   };
+  
+  /**
+   * Output outBindings port that emits a map of &lt;String, Object&gt.
+   */
   @OutputPortFieldAnnotation(name = "outBindings", optional = true)
   public final transient DefaultOutputPort<Map<String, Object>> outBindings = new DefaultOutputPort<Map<String, Object>>();
+  
+  /**
+   * Output result port that emits an object as the result.
+   */
   @OutputPortFieldAnnotation(name = "result", optional = true)
   public final transient DefaultOutputPort<Object> result = new DefaultOutputPort<Object>();
   protected boolean isPassThru = true;

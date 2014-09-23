@@ -61,7 +61,7 @@ public class ChangeKeyVal<K, V extends Number> extends
   private HashMap<K, MutableDouble> basemap = new HashMap<K, MutableDouble>();
 
   /**
-   * Data tuples input port.
+   * Input data port that takes key value pairs.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
@@ -87,7 +87,7 @@ public class ChangeKeyVal<K, V extends Number> extends
   };
 
   /**
-   * Base value port, stored in base map for comparison.
+   * Base value input port, stored in base map for comparison.
    */
   @InputPortFieldAnnotation(name = "base")
   public final transient DefaultInputPort<KeyValPair<K, V>> base = new DefaultInputPort<KeyValPair<K, V>>()
@@ -112,13 +112,13 @@ public class ChangeKeyVal<K, V extends Number> extends
   };
 
   /**
-   * Key/Change output port.
+   * Key, Change output port.
    */
   @OutputPortFieldAnnotation(name = "change", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> change = new DefaultOutputPort<KeyValPair<K, V>>();
 
   /**
-   * key/percent change pair output port.
+   * Key, Percentage Change pair output port.
    */
   @OutputPortFieldAnnotation(name = "percent", optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Double>> percent = new DefaultOutputPort<KeyValPair<K, Double>>();

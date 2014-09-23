@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * <p>A derivation of Column Index that implements filter method using case of a string index. </p>
+ * <p>An implementation of Column Index that implements filter method using case of a string index. </p>
  *  <p>
  *  @displayName: String Case Index
  *  @category: streamquery/index

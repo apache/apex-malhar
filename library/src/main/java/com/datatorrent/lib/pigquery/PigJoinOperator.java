@@ -29,7 +29,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
- * A derivation of BaseOperator that implements Pig Join(Inner) semantic on live stream.
+ * An implementation of BaseOperator that implements Pig Join(Inner) semantic on live stream.
  * <p>
  * <pre>
  * Example
@@ -72,7 +72,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <b>Ports : </b> <br>
  * <b>inport1 : </b> expects tuple Map<String, Object>. <br>
  * <b>inport2 : </b> expects tuple Map<String, Object>. <br>
- * <b>outport : </b> emits joinde tuple Map<String, Object>. <br>
+ * <b>outport : </b> emits joined tuple Map<String, Object>. <br>
  * <br>
  * <b> StateFull : </b> Yes, values are aggregated over application window.  <br>
  * <b> Partitions : </b> No, will yield worng results. <br>
@@ -112,7 +112,7 @@ public class PigJoinOperator extends BaseOperator
     }
     
     /**
-     * Input1 port.
+     * Input port 1 that takes a map of &lt;String, Object&gt data on which join is to be performed.
      */
     public final transient DefaultInputPort<Map<String, Object>> inport1 = new DefaultInputPort<Map<String, Object>>()
     {
@@ -127,7 +127,7 @@ public class PigJoinOperator extends BaseOperator
     };
     
     /**
-     * Input2 port.
+     * Input port 2 that takes a map of &lt;String, Object&gt data on which join is to be performed.
      */
     public final transient DefaultInputPort<Map<String, Object>> inport2 = new DefaultInputPort<Map<String, Object>>()
     {
@@ -143,7 +143,7 @@ public class PigJoinOperator extends BaseOperator
     
     
     /**
-     * Output port.
+     * Output port that emits map of &lt;String, Object&gt which is formed by inner join of input data.
      */
     public final transient DefaultOutputPort<Map<String, Object>> outport = 
         new DefaultOutputPort<Map<String, Object>>();

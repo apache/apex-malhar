@@ -35,7 +35,10 @@ public class XmlKeyValueStringCartesianProduct extends AbstractXmlKeyValueCartes
 {
 
   InputSource source = new InputSource();
-
+  
+  /**
+   * Output port that emits cartesian product as Strings.
+   */
   @OutputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
 

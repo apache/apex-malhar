@@ -40,7 +40,10 @@ public class DimensionsComputationUnifierImpl<EVENT, AGGREGATE extends Dimension
   private DimensionsComputation.Aggregator<EVENT, AGGREGATE>[] aggregators;
   @Nonnull
   private final Map<AGGREGATE, AGGREGATE> aggregates;
-
+  
+  /**
+   * Output port that emits an aggregate of events.
+   */
   public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>();
 
   public DimensionsComputationUnifierImpl()

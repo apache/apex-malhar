@@ -30,7 +30,7 @@ import com.datatorrent.lib.util.UnifierMap;
 
 
 /**
- * A derivation of BaseOperator that implements Apache Pig Group operator semantic. <br>
+ * An implementation of BaseOperator that implements Apache Pig Group operator semantic. <br>
  * <p>
  * This operator does not support Group All semantic. <br>
  * <pre>
@@ -86,7 +86,7 @@ public class PigGroupOperator  extends BaseOperator
   }
   
   /**
-   * Input port.
+   * Input port that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
   {
@@ -98,7 +98,7 @@ public class PigGroupOperator  extends BaseOperator
   };
   
   /**
-   * Output port.
+   * Output port that emits a map of &lt;Object, List&lt;Map&lt;String, Object&gt;&gt;&gt;.
    */
   public final transient DefaultOutputPort<Map<Object, List<Map<String, Object>>>> outport = 
       new DefaultOutputPort<Map<Object, List<Map<String, Object>>>>()

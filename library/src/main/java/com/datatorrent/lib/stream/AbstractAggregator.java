@@ -56,7 +56,7 @@ public abstract class AbstractAggregator<T> implements Operator
 	private int size = 0;
 
 	/**
-	 * Input port.
+	 * Input port that takes data to be added to a collection.
 	 */
 	public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
 	{
@@ -76,7 +76,7 @@ public abstract class AbstractAggregator<T> implements Operator
 	};
 
 	/**
-	 * Collection output port.
+	 * Output port that emits a collection.
 	 */
 	public final transient DefaultOutputPort<Collection<T>> output = new DefaultOutputPort<Collection<T>>();
 

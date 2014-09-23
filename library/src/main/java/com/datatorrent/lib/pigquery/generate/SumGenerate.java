@@ -19,7 +19,7 @@ import java.util.Map;
 
 
 /**
- * A derivation of Binary Generate that implements sum generation index expression.
+ * An implementation of Binary Generate that implements sum generation index expression.
  * <p>
  * @displayName: Generate Sum
  * @category: pigquery.generate

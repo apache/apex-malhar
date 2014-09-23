@@ -39,6 +39,9 @@ import com.datatorrent.api.Operator.Unifier;
  */
 public class Counter implements Operator, Unifier<Integer>
 {
+        /**
+	 * Input port that takes objects to be counted in each window.
+	 */
 	public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
 	{
 		@Override
@@ -48,6 +51,10 @@ public class Counter implements Operator, Unifier<Integer>
 		}
 
 	};
+        
+          /**
+	 * Output port that takes emits count in each window.
+	 */
 	public final transient DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>()
 	{
 		@Override

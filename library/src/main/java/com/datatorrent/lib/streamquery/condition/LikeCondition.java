@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * A derivation of Condition that implements condition class to filter rows for which given column name value matches given regular expression. <br>
+ * An implementation of condition class to filter rows for which given column name value matches given regular expression. <br>
  *<p>
  *<b> Properties : </b> <br>
  *<b> column : < /b> Column to be matched with regular expression. <br>

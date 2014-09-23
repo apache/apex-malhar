@@ -24,7 +24,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
 import java.util.ArrayList;
 
 /**
- * A derivation of BaseKeyOperator that breaks up an ArrayList tuple into Objects. 
+ * An implementation of BaseKeyOperator that breaks up an ArrayList tuple into Objects. 
  * <p>
  * Takes in an ArrayList and emits each item in the array; mainly used for
  * breaking up an ArrayList tuple into Objects. <br>
@@ -42,7 +42,7 @@ import java.util.ArrayList;
 public class ArrayListToItem<K> extends BaseKeyOperator<K>
 {
 	/**
-	 * Input array list port.
+	 * Input data port that takes an arraylist.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>()
@@ -60,7 +60,7 @@ public class ArrayListToItem<K> extends BaseKeyOperator<K>
 	};
 
 	/**
-	 * Output array item port.
+	 * Output port that emits an array item.
 	 */
 	@OutputPortFieldAnnotation(name = "item")
 	public final transient DefaultOutputPort<K> item = new DefaultOutputPort<K>();

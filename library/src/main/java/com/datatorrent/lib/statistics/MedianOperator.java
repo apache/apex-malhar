@@ -26,7 +26,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * A derivation of BaseOperator that computes median of incoming data. <br>
+ * An implementation of BaseOperator that computes median of incoming data. <br>
  * <br>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
@@ -48,7 +48,7 @@ public class MedianOperator extends BaseOperator
   private ArrayList<Double> values;
   
   /**
-   * Input data port.
+   * Input data port that takes a number.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>()
@@ -64,7 +64,7 @@ public class MedianOperator extends BaseOperator
   };
   
   /**
-   * Output port
+   * Output port that emits median of incoming data.
    */
   @OutputPortFieldAnnotation(name = "median")
   public final transient DefaultOutputPort<Number> median = new DefaultOutputPort<Number>();

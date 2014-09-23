@@ -49,6 +49,9 @@ import org.apache.commons.lang.mutable.MutableDouble;
  */
 public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
 {
+  /**
+   * Numerator input port that takes a map.
+   */  
   @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>()
   {
@@ -61,6 +64,10 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
       addTuple(tuple, numerators);
     }
   };
+  
+  /**
+   * Denominator input port that takes a map.
+   */
   @InputPortFieldAnnotation(name = "denominator")
   public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>()
   {
@@ -93,6 +100,10 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
       val.add(e.getValue().doubleValue());
     }
   }
+  
+  /*
+   * Output margin port that emits hashmap.
+   */
   @OutputPortFieldAnnotation(name = "margin")
   public final transient DefaultOutputPort<HashMap<K, V>> margin = new DefaultOutputPort<HashMap<K, V>>()
   {

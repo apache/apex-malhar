@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyOperator;
 
 /**
- * A derivation of BaseKeyValueOperator that duplicates an input stream as is into two output streams. 
+ * An implementation of BaseKeyValueOperator that duplicates an input stream as is into two output streams. 
  * <p>
  * Duplication is needed to allow separation of listeners into two streams with different properties (for example
  * inline vs in-rack)<p>
@@ -43,7 +43,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
 public class StreamDuplicater<K> extends BaseKeyOperator<K>
 {
 	/**
-	 * Input port.
+	 * Input data port.
 	 */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
@@ -60,13 +60,13 @@ public class StreamDuplicater<K> extends BaseKeyOperator<K>
   };
 
   /**
-   * Output port 1.
+   * Output port 1 that emits duplicate of input stream.
    */
   @OutputPortFieldAnnotation(name = "out1")
   public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>();
   
   /**
-   * Output port 2.
+   * Output port 2 that emits duplicate of input stream.
    */
   @OutputPortFieldAnnotation(name = "out2")
   public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>();

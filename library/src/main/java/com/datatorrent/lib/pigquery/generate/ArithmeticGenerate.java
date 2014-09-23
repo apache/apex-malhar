@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * A derivation of Binary Generate that implements Pig arithmetic operator generate semantic.   <br>
+ * An implementation of Binary Generate that implements Pig arithmetic operator generate semantic.   <br>
  * <p>
  * Valid opName : '+', '-', '*', '/', '%'. <br>
  * see {@link com.datatorrent.lib.pigquery.generate.BinaryGenerate}.

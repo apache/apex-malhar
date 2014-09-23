@@ -73,7 +73,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   protected boolean cumulative = false;
 
   /**
-   * Input port to receive data.
+   * Input port that takes key value pairs and adds the values for each key.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()

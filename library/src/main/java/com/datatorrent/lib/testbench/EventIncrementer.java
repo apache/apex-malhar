@@ -58,6 +58,9 @@ import java.util.Map;
  */
 public class EventIncrementer extends BaseOperator
 {
+   /**
+   * Input seed port that takes a hashmap of &lt;string,arraylist of integers&gt; which provides seed data for setting up the incrementer data to work on.
+   */
   public final transient DefaultInputPort<HashMap<String, ArrayList<Integer>>> seed = new DefaultInputPort<HashMap<String, ArrayList<Integer>>>()
   {
     @Override
@@ -83,6 +86,10 @@ public class EventIncrementer extends BaseOperator
       }
     }
   };
+  
+  /**
+   * Input increment port that takes a hashmap of &lt;string,hashmap of &lt;string,number&gt;&gt; which provides small random increments to the seed data.
+   */
   public final transient DefaultInputPort<HashMap<String, HashMap<String, Integer>>> increment = new DefaultInputPort<HashMap<String, HashMap<String, Integer>>>()
   {
     @Override
@@ -117,7 +124,15 @@ public class EventIncrementer extends BaseOperator
       }
     }
   };
+  
+  /**
+   * Output data port that emits a hashmap of &lt;string,string&gt; which is the addition of seed and increment.
+   */
   public final transient DefaultOutputPort<HashMap<String, String>> data = new DefaultOutputPort<HashMap<String, String>>();
+  
+  /**
+   * Output count port that emits a hashmap of &lt;string,integer&gt; which contains number of processed tuples per window.
+   */
   public final transient DefaultOutputPort<HashMap<String, Integer>> count = new DefaultOutputPort<HashMap<String, Integer>>();
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
   HashMap<String, ArrayList<KeyValPair<String, Double>>> vmap = new HashMap<String, ArrayList<KeyValPair<String, Double>>>();

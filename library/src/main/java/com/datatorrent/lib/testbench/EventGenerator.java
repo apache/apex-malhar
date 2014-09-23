@@ -69,8 +69,20 @@ import org.slf4j.LoggerFactory;
 public class EventGenerator implements InputOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(EventGenerator.class);
+  
+  /**
+   * Output string port that emits string data.
+   */
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>();
+  
+  /**
+   * Output hash data port that emits a hashmap of &lt;string,double&gt;.
+   */
   public final transient DefaultOutputPort<HashMap<String, Double>> hash_data = new DefaultOutputPort<HashMap<String, Double>>();
+  
+  /**
+   * Output count port that emits a hashmap of &lt;string,number&gt; which contains per window count of throughput.
+   */
   public final transient DefaultOutputPort<HashMap<String, Number>> count = new DefaultOutputPort<HashMap<String, Number>>();
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";

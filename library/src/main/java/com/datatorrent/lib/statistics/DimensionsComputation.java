@@ -52,7 +52,10 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   {
     this.unifier = unifier;
   }
-
+  
+  /**
+   * Output port that emits an aggregate of events.
+   */
   public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>()
   {
     @Override
@@ -66,7 +69,10 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
       }
     }
   };
-
+  
+  /**
+   * Input data port that takes an event.
+   */
   public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
   {
     @Override

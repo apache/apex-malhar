@@ -38,7 +38,7 @@ public class SelectTopOperator implements Operator
   private boolean isPercentage = false;
   
   /**
-   * Input port.
+   * Input port that takes a map of &lt;string,object&gt;.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>() {
     @Override
@@ -104,7 +104,7 @@ public class SelectTopOperator implements Operator
   }
 
   /**
-   * Output port.
+   * Output port that emits a map of &lt;string,object&gt;.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport =  new DefaultOutputPort<Map<String, Object>>();
 }

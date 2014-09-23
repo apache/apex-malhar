@@ -76,6 +76,9 @@ import java.util.HashMap;
 @Stateless
 public class CompareMap<K, V extends Number> extends MatchMap<K,V>
 {
+    /**
+     * Output port that emits a hashmap of matching number tuples after comparison.
+     */
     @OutputPortFieldAnnotation(name = "compare")
     public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
 }

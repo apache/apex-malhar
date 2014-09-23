@@ -62,6 +62,9 @@ import com.datatorrent.lib.util.UnifierHashMap;
 @Stateless
 public class ExceptStringMap<K> extends MatchStringMap<K>
 {
+        /**
+         * Output port that emits non matching string tuples.
+         */
 	@OutputPortFieldAnnotation(name = "except")
 	public final transient DefaultOutputPort<HashMap<K, String>> except = new DefaultOutputPort<HashMap<K, String>>()
 	{

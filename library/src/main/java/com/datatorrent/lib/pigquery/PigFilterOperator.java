@@ -24,7 +24,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
 
 
 /**
- * A derivation of BaseOperator that implements Apache Pig filter statement semantic. <br>
+ * An implementation of BaseOperator that implements Apache Pig filter statement semantic. <br>
  * <p>
  * Stream rows passing condition are emitted on output port stream. <br>
  * <br>
@@ -70,7 +70,7 @@ public class PigFilterOperator  extends BaseOperator
   }
   
   /**
-   * Input port.
+   * Input port that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
   {
@@ -84,7 +84,7 @@ public class PigFilterOperator  extends BaseOperator
   };
   
   /**
-   * Output port.
+   * Output port that emits a map of &lt;String, Object&gt.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
 }

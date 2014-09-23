@@ -22,7 +22,7 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * A derivation of Condition that implements equal join condition class. 
+ * An implementation of equal join condition class. 
  * <p>
  * This compares values of given keys in both row data.
  * <br>

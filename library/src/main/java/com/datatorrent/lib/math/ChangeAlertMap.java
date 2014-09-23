@@ -51,11 +51,14 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  */
 public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
+  /**
+   * Input data port that takes a map of &lt;key,value&gt;.
+   */ 
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
-     * Process each key, compute change or percent, and emit it
+     * Process each key, compute change or percent, and emits it.
      */
     @Override
     public void process(Map<K, V> tuple)
@@ -88,6 +91,9 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
   };
 
   // Default "pass through" unifier works as tuple is emitted as pass through
+  /**
+   * Output port which emits a hashmap of key, percentage change. 
+   */
   @OutputPortFieldAnnotation(name = "alert")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>();
 

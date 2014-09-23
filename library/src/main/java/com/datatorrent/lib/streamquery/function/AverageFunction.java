@@ -23,7 +23,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A derivation of function index that implements average function semantics. <br>
+ * An implementation of function index that implements average function semantics. <br>
  * <p>
  *   e.g : sql => SELECT AVG(column_name) FROM table_name. <br>
  *   <br>
