@@ -24,8 +24,8 @@ import java.util.HashMap;
 import javax.validation.constraints.NotNull;
 
 /**
- * A derivation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
- * to create a new tuple of Hashmap &lt;String,Double&rt; that is emitted on output port data.
+ * An implementation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
+ * to create a new tuple of Hashmap &lt;String,Double&gt; that is emitted on output port data.
  * <p>
  * Takes a in stream event and adds to incoming keys to create a new tuple that is emitted on output port data. The aim is to create a load with pair of keys<p>
  * <br>
@@ -76,6 +76,10 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
       }
     }
   };
+  
+  /**
+   * Output data port that emits a hashmap of &lt;string,double&gt;.
+   */
   public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>();
 
   @NotNull

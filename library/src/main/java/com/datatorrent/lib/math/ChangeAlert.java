@@ -53,7 +53,7 @@ import com.datatorrent.lib.util.KeyValPair;
 public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>
 {
 	/**
-	 * Input port that takes in a number and computes percentage change with base value and emits it.
+	 * Input port that takes in a number.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()

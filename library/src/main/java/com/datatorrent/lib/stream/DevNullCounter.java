@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * A derivation of BaseOperator that is used for logging by counting the tuple and then drops it. 
+ * An implementation of BaseOperator that is used for logging by counting the tuple and then drops it. 
  * <p>
  * Increments a count and writes the net number (rate) to console. Useful to benchmark other
  * modules.<br>
@@ -45,6 +45,9 @@ import org.slf4j.LoggerFactory;
  */
 public class DevNullCounter<K> extends BaseOperator
 {
+        /**
+	 * Input port that takes objects to be counted in each window.
+	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
 	{

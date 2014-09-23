@@ -34,7 +34,7 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 /**
- * A base implementation of an output operator for storing tuples in HBase rows and provides a batch put.Subclasses should provide implementation for put operation. <br>
+ * A base implementation of an AggregateTransactionableStoreOutputOperator operator for storing tuples in HBase rows and provides a batch put.Subclasses should provide implementation for put operation. <br>
  * <p>
  * <br>
  * This class provides a HBase output operator that can be used to store tuples

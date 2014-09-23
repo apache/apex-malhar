@@ -52,7 +52,7 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
   /**
-   * Input port that takes a map and computes percentage change with base value and emits it.
+   * Input data port that takes a map of &lt;key,value&gt;.
    */ 
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()

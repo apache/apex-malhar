@@ -81,7 +81,7 @@ public class InnerJoinOperator  implements Operator
 	protected ArrayList<Map<String, Object>> table2;
 	
   /**
-   * Input port 1.
+   * Input port 1 that takes a map of &lt;string,object&gt;.
    */
 	public final transient DefaultInputPort<Map<String, Object>> inport1 = new DefaultInputPort<Map<String, Object>>() {
 		@Override
@@ -98,7 +98,7 @@ public class InnerJoinOperator  implements Operator
 	};
 	
 	/**
-	 * Input port 2. 
+	 * Input port 2 that takes a map of &lt;string,object&gt;.
 	 */
 	public final transient DefaultInputPort<Map<String, Object>> inport2 = new DefaultInputPort<Map<String, Object>>() {
 		@Override
@@ -115,7 +115,7 @@ public class InnerJoinOperator  implements Operator
 	};
 	
 	/**
-	 * Output port.
+	 * Output port that emits a map of &lt;string,object&gt;.
 	 */
 	public final transient DefaultOutputPort<Map<String, Object>> outport =  
 			new DefaultOutputPort<Map<String, Object>>();

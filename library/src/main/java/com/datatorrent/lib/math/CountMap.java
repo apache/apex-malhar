@@ -55,7 +55,7 @@ public class CountMap<K, V> extends BaseKeyValueOperator<K, V>
 	protected HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
 	
 	/**
-	 * Input port that takes a map.&nbsp; It adds the values for each key and counts the number of occurrence of each key. 
+	 * Input port that takes a map of &lt;key,value&gt;. 
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()

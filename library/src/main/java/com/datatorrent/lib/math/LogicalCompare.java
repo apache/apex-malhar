@@ -22,7 +22,7 @@ import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.common.util.Pair;
 
 /**
- * This operator compares the two values in a given pair &lt;T,T&rt; object which are of the comparable property, and emits the pair on appropriate port denoting the result of the comparison.
+ * This operator compares the two values in a given pair &lt;T,T&gt; object which are of the comparable property, and emits the pair on appropriate port denoting the result of the comparison.
  * <p>
  * If the first value is equal to second value, then the pair is emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports.
  * If the first value is less than second value, then the pair is emitted on notEqualTo, lessThan and lessThanEqualTo ports.
@@ -51,7 +51,7 @@ public abstract class LogicalCompare<T extends Comparable<? super T>> extends
 		BaseOperator
 {
 	/**
-	 * Input port that takes a key, value pair and compares them.
+	 * Input port that takes a key, value pair for comparison.
 	 */
 	public final transient DefaultInputPort<Pair<T, T>> input = new DefaultInputPort<Pair<T, T>>()
 	{

@@ -76,18 +76,13 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 @OperatorAnnotation(partitionable = false)
 public class PigCrossOperator implements Operator
 {
-  /**
-   * Input port 1 tuples.
-   */
+ 
   private ArrayList<Map<String, Object>> input1Tuples;
   
-  /**
-   * Input port 2 tuples.
-   */
   private ArrayList<Map<String, Object>> input2Tuples;
   
   /**
-   * Input port 1.
+   * Input port 1 that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport1 = new DefaultInputPort<Map<String, Object>>()
   {
@@ -102,7 +97,7 @@ public class PigCrossOperator implements Operator
   };
  
   /**
-   * Input port 2.
+   * Input port 2 that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport2 = new DefaultInputPort<Map<String, Object>>()
   {
@@ -117,7 +112,7 @@ public class PigCrossOperator implements Operator
   };
 
   /**
-   * Output port.
+   * Output port that emits a map of &lt;String, Object&gt.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
   

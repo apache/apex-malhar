@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 
 /**
- * A derivation of BaseOperator that merges two streams with identical schema and emits the tuples to the output port in order. 
+ * An implementation of BaseOperator that merges two streams with identical schema and emits the tuples to the output port in order. 
  * 
  * <p>
  * This is a pass through operator<br>
@@ -41,7 +41,7 @@ import com.datatorrent.api.annotation.Stateless;
 public class StreamMerger<K> extends BaseOperator
 {
 	/**
-	 * Data port 1.
+	 * Data input port 1.
 	 */
   @InputPortFieldAnnotation(name = "data1")
  public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>()
@@ -57,7 +57,7 @@ public class StreamMerger<K> extends BaseOperator
   };
 
   /**
-   * Data port 2.
+   * Data input port 2.
    */
   @InputPortFieldAnnotation(name = "data2")
   public final transient DefaultInputPort<K> data2 = new DefaultInputPort<K>()

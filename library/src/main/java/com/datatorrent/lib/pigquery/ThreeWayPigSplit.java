@@ -19,7 +19,7 @@ import java.util.Map;
 
 /**
  * <p>
- * A derivation of BaseOperator that implements Pig split operator semantic. 
+ * An implementation of BaseOperator that implements Pig split operator semantic. 
  * <p>
  * A split into node creates multiple streams from a single stream. <br>
  * This operator implements following semantic.  <br>

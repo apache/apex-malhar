@@ -32,7 +32,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 
 /**
- * A derivation of BaseOperator that takes a json byte stream and emits a HashMap of key values. 
+ * An implementation of BaseOperator that takes a json byte stream and emits a HashMap of key values. 
  * <p>
  * This is a pass through operator<br>
  * <br>

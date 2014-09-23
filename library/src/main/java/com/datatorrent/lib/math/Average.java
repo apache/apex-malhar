@@ -44,7 +44,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 public class Average<V extends Number> extends BaseNumberValueOperator<V>
 {
 	/**
-	 * Input port that takes a number and computes sum and count for each tuple.
+	 * Input port that takes a number.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()

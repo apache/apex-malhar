@@ -62,7 +62,7 @@ public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>
 	protected HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 	
 	/**
-	 * Input port that takes a key value pair.&nbsp; It adds the value for each key and counts the number of occurrences of each key to compute the average.
+	 * Input port that takes a key value pair.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, ? extends Number>> data = new DefaultInputPort<KeyValPair<K, ? extends Number>>()

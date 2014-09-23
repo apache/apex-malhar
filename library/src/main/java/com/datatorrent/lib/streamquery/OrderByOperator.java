@@ -125,7 +125,7 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
   }
   
   /**
-   * Input port.
+   * Input port that takes a map of &lt;string,object&gt;.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>() {
     @Override
@@ -136,7 +136,7 @@ public class OrderByOperator implements Operator, Unifier<Map<String, Object>>
   };
   
   /**
-   * Output port.
+   * Output port that emits a map of &lt;string,object&gt;.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport =  new DefaultOutputPort<Map<String, Object>>()
       {

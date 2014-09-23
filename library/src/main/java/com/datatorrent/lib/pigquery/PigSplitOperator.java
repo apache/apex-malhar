@@ -23,7 +23,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * A derivation of BaseOperator that implements Pig Split operator semantic.  <br>
+ * An implementation of BaseOperator that implements Pig Split operator semantic.  <br>
  * <p>
  * Number of output ports are configured in class instance.
  *
@@ -52,7 +52,7 @@ public abstract class PigSplitOperator<T>  extends BaseOperator
   }
   
   /**
-   * Input port.
+   * Input port that checks if port is valid for emitting tuple.
    */
   public final transient DefaultInputPort<T> inport = new DefaultInputPort<T>() {
     @Override

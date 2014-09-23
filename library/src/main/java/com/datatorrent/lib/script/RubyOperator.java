@@ -24,7 +24,7 @@ import org.jruby.javasupport.JavaEmbedUtils.EvalUnit;
 import java.util.Map;
 
 /**
- * A derivation of ScriptOperator that executes ruby script on tuples
+ * An implementation of ScriptOperator that executes ruby script on tuples
  * <p>
  * @displayName: Ruby Operator
  * @category: script

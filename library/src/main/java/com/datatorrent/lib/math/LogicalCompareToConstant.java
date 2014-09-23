@@ -60,7 +60,7 @@ public class LogicalCompareToConstant<T extends Comparable<? super T>> extends
 	private T constant;
 
 	/**
-	 * Input port that takes a comparable and compares it with a constant.
+	 * Input port that takes a comparable to compare it with a constant.
 	 */
 	public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
 	{

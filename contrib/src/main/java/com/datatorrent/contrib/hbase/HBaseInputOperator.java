@@ -33,7 +33,9 @@ import java.io.IOException;
  */
 public abstract class HBaseInputOperator<T> extends HBaseOperatorBase implements InputOperator
 {
-
+  /**
+   * Output port that emits tuples into the DAG.
+   */
   @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 

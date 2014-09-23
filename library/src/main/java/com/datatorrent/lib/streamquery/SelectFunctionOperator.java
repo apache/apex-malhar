@@ -57,7 +57,7 @@ public class SelectFunctionOperator implements Operator
   private ArrayList<FunctionIndex> functions = new ArrayList<FunctionIndex>();
 
   /**
-   * Input port.
+   * Input port that takes a map of &lt;string,object&gt;.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
   {
@@ -106,7 +106,7 @@ public class SelectFunctionOperator implements Operator
   }
 
   /**
-   * Output port.
+   * Output port that emits a map of &lt;string,object&gt;.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
 

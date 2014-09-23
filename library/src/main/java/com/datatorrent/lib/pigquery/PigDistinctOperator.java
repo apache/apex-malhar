@@ -77,7 +77,7 @@ public class PigDistinctOperator implements Operator, Unifier<Map<String, Object
   HashSet<Map<String, Object>>  distinctSet;
   
   /**
-   * Input port 1.
+   * Input port that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
   {
@@ -92,7 +92,7 @@ public class PigDistinctOperator implements Operator, Unifier<Map<String, Object
   };
   
   /**
-   * Output port.
+   * Output port that emits a map of &lt;String, Object&gt.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport = 
       new DefaultOutputPort<Map<String, Object>>()

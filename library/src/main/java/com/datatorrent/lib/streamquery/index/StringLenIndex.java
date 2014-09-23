@@ -5,7 +5,7 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * <p>A derivation of Column Index that implements filter method using length of a string Index. </p>
+ * <p>An implementation of Column Index that implements filter method using length of a string Index. </p>
  * <p>
  * @displayName: String Length Index
  * @category: streamquery/index

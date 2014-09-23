@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- * A derivation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
+ * An implementation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
  * to create a new tuple that is emitted on output port data.
  * <p>
  * Takes a input stream event and adds to incoming keys to create a new tuple that is emitted on output port data.
@@ -116,6 +116,10 @@ public class EventClassifier extends BaseOperator
     }
     }
   };
+  
+  /**
+   * Output data port that emits a hashmap of &lt;string,double&gt;.
+   */
   public final transient DefaultOutputPort<HashMap<String, Double>> data = new DefaultOutputPort<HashMap<String, Double>>();
 ;
 
