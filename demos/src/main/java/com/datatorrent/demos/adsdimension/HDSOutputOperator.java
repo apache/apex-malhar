@@ -36,7 +36,9 @@ import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.contrib.hds.HDSBucketManager;
+import com.datatorrent.common.util.Slice;
+import com.datatorrent.contrib.hds.HDS;
+import com.datatorrent.contrib.hds.HDSWriter;
 import com.datatorrent.demos.adsdimension.AdInfo.AdInfoAggregateEvent;
 import com.datatorrent.demos.adsdimension.AdInfo.AdInfoAggregator;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
@@ -46,7 +48,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-public class HDSOutputOperator extends HDSBucketManager implements Partitioner<HDSOutputOperator>
+public class HDSOutputOperator extends HDSWriter implements Partitioner<HDSOutputOperator>
 {
   private static final Logger LOG = LoggerFactory.getLogger(HDSOutputOperator.class);
 
@@ -104,7 +106,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
   }
 
 
-  protected byte[] getKey(AdInfo event)
+  protected Slice getKey(AdInfo event)
   {
     if (debug) {
       StringBuilder keyBuilder = new StringBuilder(32);
@@ -112,7 +114,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
       keyBuilder.append("|publisherId:").append(event.publisherId);
       keyBuilder.append("|advertiserId:").append(event.advertiserId);
       keyBuilder.append("|adUnit:").append(event.adUnit);
-      return keyBuilder.toString().getBytes();
+      return HDS.SliceExt.toSlice(keyBuilder.toString().getBytes());
     }
 
     byte[] data = new byte[8 + 4 * 3];
@@ -123,7 +125,7 @@ public class HDSOutputOperator extends HDSBucketManager implements Partitioner<H
     keybb.putInt(event.getAdUnit());
     keybb.rewind();
     keybb.get(data);
-    return data;
+    return HDS.SliceExt.toSlice(data);
   }
 
 

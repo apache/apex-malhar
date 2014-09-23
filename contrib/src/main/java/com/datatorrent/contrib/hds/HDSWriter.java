@@ -54,7 +54,7 @@ import com.google.common.collect.Sets;
  * Note that currently changes are not flushed at a committed window boundary, hence uncommitted changes may be read
  * from data files after recovery, making the operator non-idempotent.
  */
-public class HDSBucketManager extends HDSReader implements CheckpointListener, Operator
+public class HDSWriter extends HDSReader implements CheckpointListener, Operator, HDS.Writer
 {
 
   private final transient HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
@@ -205,7 +205,8 @@ public class HDSBucketManager extends HDSReader implements CheckpointListener, O
    * @param key
    * @return
    */
-  protected byte[] getUncommitted(long bucketKey, Slice key)
+  @Override
+  public byte[] getUncommitted(long bucketKey, Slice key)
   {
     Bucket bucket = this.buckets.get(bucketKey);
     if (bucket != null) {
@@ -234,11 +235,12 @@ public class HDSBucketManager extends HDSReader implements CheckpointListener, O
     super.processQuery(query);
   }
 
-  public void put(long bucketKey, byte[] key, byte[] value) throws IOException
+  @Override
+  public void put(long bucketKey, Slice key, byte[] value) throws IOException
   {
     Bucket bucket = getBucket(bucketKey);
     bucket.wal.append(key, value);
-    bucket.writeCache.put(HDS.SliceExt.toSlice(key), value);
+    bucket.writeCache.put(key, value);
   }
 
   /**
@@ -475,7 +477,7 @@ public class HDSBucketManager extends HDSReader implements CheckpointListener, O
     return b.writeCache.size();
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(HDSBucketManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HDSWriter.class);
 
   /* Holds current file Id for WAL and current offset for WAL */
   private static class WalMeta

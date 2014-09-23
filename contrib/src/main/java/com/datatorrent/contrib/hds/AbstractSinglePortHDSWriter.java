@@ -41,7 +41,7 @@ import com.google.common.collect.Lists;
  * The derived class supplies the codec for partitioning and key-value serialization.
  * @param <EVENT>
  */
-public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSBucketManager implements Partitioner<AbstractSinglePortHDSWriter<EVENT>>
+public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter implements Partitioner<AbstractSinglePortHDSWriter<EVENT>>
 {
   public interface HDSCodec<EVENT> extends StreamCodec<EVENT>
   {
@@ -87,7 +87,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSBucketManage
   {
     byte[] key = codec.getKeyBytes(event);
     byte[] value = codec.getValueBytes(event);
-    super.put(getBucketKey(event), key, value);
+    super.put(getBucketKey(event), HDS.SliceExt.toSlice(key), value);
   }
 
   abstract protected Class<? extends HDSCodec<EVENT>> getCodecClass();
@@ -105,6 +105,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSBucketManage
       while (cls != null) {
         for (Field field : cls.getDeclaredFields()) {
           if (field.getType().isAssignableFrom(this.getClass())) {
+            field.setAccessible(true);
             field.set(this.codec, this);
           }
         }

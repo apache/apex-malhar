@@ -36,14 +36,14 @@ public class HDSReaderTest
 
   private void writeKey(HDSFileAccess fa, Slice key, String data) throws Exception
   {
-    HDSBucketManager hds = new HDSBucketManager();
+    HDSWriter hds = new HDSWriter();
     hds.setFileStore(fa);
     hds.setFlushSize(0); // flush after every key
 
     hds.setup(null);
     hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
     hds.beginWindow(1);
-    hds.put(HDSTest.getBucketKey(key), key.buffer, data.getBytes());
+    hds.put(HDSTest.getBucketKey(key), key, data.getBytes());
     hds.endWindow();
     hds.teardown();
   }

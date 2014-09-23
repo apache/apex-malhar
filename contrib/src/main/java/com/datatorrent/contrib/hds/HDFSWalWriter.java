@@ -20,6 +20,8 @@ import java.io.IOException;
 
 import org.apache.hadoop.fs.FSDataOutputStream;
 
+import com.datatorrent.common.util.Slice;
+
 
 public class HDFSWalWriter implements HDS.WALWriter
 {
@@ -48,10 +50,10 @@ public class HDFSWalWriter implements HDS.WALWriter
   }
 
   @Override
-  public void append(byte[] key, byte[] value) throws IOException
+  public void append(Slice key, byte[] value) throws IOException
   {
     out.writeInt(key.length);
-    out.write(key);
+    out.write(key.buffer, key.offset, key.length);
     out.writeInt(value.length);
     out.write(value);
   }

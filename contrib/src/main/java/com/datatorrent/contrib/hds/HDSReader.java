@@ -51,7 +51,7 @@ import com.google.common.collect.Maps;
  * Reader for historical data store.
  * Implements asynchronous read from backing files and query refresh.
  */
-public class HDSReader implements Operator
+public class HDSReader implements Operator, HDS.Reader
 {
   public static final String FNAME_WAL = "_WAL";
   public static final String FNAME_META = "_META";
@@ -233,7 +233,8 @@ public class HDSReader implements Operator
     }
   }
 
-  protected byte[] get(long bucketKey, Slice key) throws IOException
+  @Override
+  public byte[] get(long bucketKey, Slice key) throws IOException
   {
 
     BucketReader bucket = getReader(bucketKey);
