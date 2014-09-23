@@ -37,8 +37,6 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 
     @Override
     public void setup(OperatorContext context) {
-
-        URI uri = null;
         mode = context.getValue(context.PROCESSING_MODE);
         if (mode == ProcessingMode.EXACTLY_ONCE) {
             throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
@@ -47,7 +45,6 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
             tuples.clear();
         }
         super.setup(context);
-        // store.getInstance().flush();
     }
 
     @Override
@@ -66,7 +63,6 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
             insertOrUpdate(tuple);
 
         }
-
         tuples.clear();
     }
 

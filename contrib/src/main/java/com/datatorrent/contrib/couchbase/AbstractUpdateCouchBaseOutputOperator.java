@@ -54,13 +54,4 @@ public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractC
             }
         }
     }
-
-    public int getExpireTime() {
-        return expireTime;
-    }
-
-    public void setExpireTime(int expireTime) {
-        this.expireTime = expireTime;
-    }
-
 }

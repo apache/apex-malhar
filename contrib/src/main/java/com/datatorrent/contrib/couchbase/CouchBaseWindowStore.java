@@ -54,10 +54,12 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
         this.value = value;
     }
 
+    @Override
     public void setBucket(String bucketName) {
         super.setBucket(bucketName);
     }
 
+    @Override
     public CouchbaseClient getInstance() {
         return client;
     }
@@ -67,6 +69,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
      *
      * @param password
      */
+    @Override
     public void setPassword(String password) {
         super.setPassword(password);
     }

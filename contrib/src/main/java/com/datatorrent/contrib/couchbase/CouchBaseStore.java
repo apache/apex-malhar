@@ -10,6 +10,7 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,11 +24,13 @@ public class CouchBaseStore implements Connectable {
     protected transient String bucket;
     protected transient String password;
     protected transient CouchbaseClient client;
+    
+    @Nonnull
     protected String uriString;
-    protected Integer batch_size;
-    protected Integer max_tuples;
-    protected int blockTime;
-    protected int timeout;
+    protected Integer batch_size = 100;
+    protected Integer max_tuples = 1000;
+    protected int blockTime = 10000;
+    protected int timeout = 10000;
 
     public int getTimeout() {
         return timeout;
@@ -67,10 +70,6 @@ public class CouchBaseStore implements Connectable {
         client = null;
         bucket = "default";
         password = "";
-        batch_size = 100;
-        max_tuples = 1000;
-        blockTime = 10000;
-        timeout = 10000;
     }
 
     public CouchbaseClient getInstance() {
