@@ -35,6 +35,9 @@ import java.util.Map;
  */
 public class UnifierKeyValRange<K, V extends Number> implements Unifier<KeyValPair<K, HighLow<V>>>
 {
+  /**
+   * This is the output port that emits key value pairs which map keys to a minimum and maximum.
+   */
   public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> mergedport = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>();
 
   /**

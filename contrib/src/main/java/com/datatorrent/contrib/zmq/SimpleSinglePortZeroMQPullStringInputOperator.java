@@ -15,10 +15,6 @@
  */
 package com.datatorrent.contrib.zmq;
 
-import org.zeromq.ZMQ;
-
-import com.datatorrent.contrib.zmq.SimpleSinglePortZeroMQPullInputOperator;
-
 /**
  * This is a simple single port ZeroMQ input operator.&nbsp;
  * This simple operator will automatically receive data from a pusher,

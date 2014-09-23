@@ -36,6 +36,9 @@ import java.util.Map;
 public class UnifierHashMapRange<K, V extends Number> implements Unifier<HashMap<K, HighLow<V>>>
 {
   public HashMap<K, HighLow<V>> mergedTuple = new HashMap<K, HighLow<V>>();
+  /**
+   * This is the output port that emits key value pairs which map keys to a minimum and maximum.
+   */
   public final transient DefaultOutputPort<HashMap<K, HighLow<V>>> mergedport = new DefaultOutputPort<HashMap<K, HighLow<V>>>();
 
   /**

@@ -20,7 +20,7 @@ import com.datatorrent.api.annotation.*;
 import com.datatorrent.lib.util.BaseLineTokenizer;
 
 /**
- * Splits lines into tokens and emits token Strings on output port.
+ * This operator splits lines into tokens and emits token strings on the output port.
  * <p>
  * This module is a pass through. Ideal for applications like word count, or log
  * processing<br>
@@ -47,6 +47,9 @@ import com.datatorrent.lib.util.BaseLineTokenizer;
 @OperatorAnnotation(partitionable=true)
 public class LineTokenizer extends BaseLineTokenizer
 {
+  /**
+   * The is the output port that emits string tokens.
+   */
 	@OutputPortFieldAnnotation(name = "tokens")
 	public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>();
 

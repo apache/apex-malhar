@@ -98,7 +98,7 @@ public abstract class JDBCInputOperator<T> extends JDBCOperatorBase implements I
   public abstract String queryToRetrieveData();
 
   /**
-   * The output port that will emit tuple into DAG.
+   * This output port will emit tuples read from the database.
    */
   @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();

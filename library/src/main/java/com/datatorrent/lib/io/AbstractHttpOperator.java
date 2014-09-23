@@ -44,6 +44,10 @@ public abstract class AbstractHttpOperator<T> extends BaseOperator
   @NotNull
   protected String url;
   protected transient Client wsClient;
+
+  /**
+   * The input port which receives tuples for processing.
+   */
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override

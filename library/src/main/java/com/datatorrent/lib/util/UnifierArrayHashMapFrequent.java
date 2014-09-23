@@ -38,6 +38,9 @@ import java.util.Map;
 public class UnifierArrayHashMapFrequent<K> implements Unifier<ArrayList<HashMap<K, Integer>>>
 {
   HashMap<K, Integer> mergedTuple = new HashMap<K, Integer>();
+  /**
+   * This is the output port on which the smallest and largest values associated with each key are emitted.
+   */
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> mergedport = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>();
 
   Integer lval;

@@ -33,6 +33,9 @@ public class UnifierSumNumber<V extends Number> extends BaseNumberValueOperator<
 {
   private Double result = 0.0;
   private boolean doEmit = false;
+  /**
+   * This is the output port which emits a sum.
+   */
   public final transient DefaultOutputPort<V> mergedport = new DefaultOutputPort<V>();
 
   /**

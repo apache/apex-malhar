@@ -70,6 +70,9 @@ import java.util.Map;
 public class AllAfterMatchMap<K, V extends Number> extends
     BaseMatchOperator<K, V>
 {
+  /**
+   * The input port on which tuples are received.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
@@ -94,6 +97,9 @@ public class AllAfterMatchMap<K, V extends Number> extends
     }
   };
 
+  /**
+   * The output port on which all tuples after a match are emitted.
+   */
   @OutputPortFieldAnnotation(name = "allafter")
   public final transient DefaultOutputPort<HashMap<K, V>> allafter = new DefaultOutputPort<HashMap<K, V>>();
   boolean doemit = false;

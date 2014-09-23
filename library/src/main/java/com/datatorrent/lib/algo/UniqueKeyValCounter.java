@@ -57,6 +57,9 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 @OperatorAnnotation(partitionable = true)
 public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
 {
+  /**
+   * The input port that receives key value pairs.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>()
   {
@@ -71,6 +74,10 @@ public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
       }
     }
   };
+
+  /**
+   * The output port which emits key/unique value count pairs.
+   */
   @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<HashMap<HashMap<K,V>, Integer>> count = new DefaultOutputPort<HashMap<HashMap<K,V>, Integer>>()
   {

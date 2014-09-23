@@ -34,6 +34,10 @@ import com.datatorrent.api.Context.OperatorContext;
 public class RedisSumOper extends BaseOperator
 {
 	private ArrayList<Integer> collect;
+
+  /**
+   * This is the input port which receives integer tuples to be summed.
+   */
 	public final transient DefaultInputPort<Integer> inport = new DefaultInputPort<Integer>() {
 	    @Override
 	    public void process(Integer s) {
@@ -57,7 +61,9 @@ public class RedisSumOper extends BaseOperator
 		collect  = new ArrayList<Integer>();
 	}
 
-	// out port
+	/**
+   * This is the output port which emits the summed tuples.
+   */
 	public final transient DefaultOutputPort<Map<Integer, Integer>> outport = new DefaultOutputPort<Map<Integer, Integer>>();
 
 	@Override

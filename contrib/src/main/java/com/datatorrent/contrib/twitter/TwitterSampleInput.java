@@ -49,9 +49,21 @@ import com.datatorrent.api.InputOperator;
  */
 public class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener
 {
+  /**
+   * This is the output port on which the twitter status information is emitted.
+   */
   public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>();
+  /**
+   * This is the output port on which the twitter text is emitted.
+   */
   public final transient DefaultOutputPort<String> text = new DefaultOutputPort<String>();
+  /**
+   * This is the output port on which the twitter url is emitted.
+   */
   public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>();
+  /**
+   * This is the output port on which the twitter hashtags are emitted.
+   */
   public final transient DefaultOutputPort<String> hashtag = new DefaultOutputPort<String>();
 
   /* the following 3 ports are not implemented so far */

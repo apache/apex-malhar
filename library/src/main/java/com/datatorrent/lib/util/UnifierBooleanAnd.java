@@ -34,6 +34,10 @@ public class UnifierBooleanAnd implements Unifier<Boolean>
 {
   boolean result = true;
   boolean doemit = false;
+
+  /**
+   * This is the output port which emits the ANDED input tuples result.
+   */
   public final transient DefaultOutputPort<Boolean> mergedport = new DefaultOutputPort<Boolean>();
 
   /**

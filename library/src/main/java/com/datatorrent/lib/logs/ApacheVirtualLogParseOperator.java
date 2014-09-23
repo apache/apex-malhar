@@ -48,6 +48,9 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
 
     // default date format
     protected static final String dateFormat = "dd/MMM/yyyy:HH:mm:ss Z";
+    /**
+     *
+     */
     public final transient DefaultInputPort<String> data = new DefaultInputPort<String>() {
         @Override
         public void process(String s) {
@@ -58,17 +61,55 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
             }
         }
     };
+
+    /**
+     * This output port emits the IPAddresses contained in log file lines.
+     */
     public final transient DefaultOutputPort<String> outputIPAddress = new DefaultOutputPort<String>();
+    /**
+     * This output port emits URLs contained in log file lines.
+     */
     public final transient DefaultOutputPort<String> outputUrl = new DefaultOutputPort<String>();
+    /**
+     * This output port emits status codes contained in log file lines.
+     */
     public final transient DefaultOutputPort<String> outputStatusCode = new DefaultOutputPort<String>();
+    /**
+     * This output pot emits a Map for each log file line,
+     * which contains all the information extracted from the log file line.
+     */
     public final transient DefaultOutputPort<Map<String, Integer>> outputBytes = new DefaultOutputPort<Map<String, Integer>>();
+    /**
+     * This output port emits the referers contained in the log file lines.
+     */
     public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>();
+    /**
+     * This output port emits the agents contained in the log file lines.
+     */
     public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>();
+    /**
+     * This output port emits the servernames contained in the log file lines.
+     */
     public final transient DefaultOutputPort<String> outputServerName = new DefaultOutputPort<String>();
+    /**
+     * This output port emits the servernames contained in the log file lines.
+     */
     public final transient DefaultOutputPort<String> outputServerName1 = new DefaultOutputPort<String>();
+    /**
+     * This output port emits the status codes corresponding to each url in a log file line.
+     */
     public final transient DefaultOutputPort<Map<String, String>> outUrlStatus = new DefaultOutputPort<Map<String, String>>();
+    /**
+     * This output port emits the status associated with each server in a log file line.
+     */
     public final transient DefaultOutputPort<Map<String, String>> outServerStatus = new DefaultOutputPort<Map<String, String>>();
+    /**
+     * This output port emits client data usage contained in log file lines.
+     */
     public final transient DefaultOutputPort<Integer> clientDataUsage = new DefaultOutputPort<Integer>();
+    /**
+     * This output port emits the view counts contained in log file lines.
+     */
     public final transient DefaultOutputPort<Integer> viewCount = new DefaultOutputPort<Integer>();
 
     protected static String getAccessLogRegex() {

@@ -58,7 +58,7 @@ import java.util.Map;
 public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
 {
   /**
-   * Input port.
+   * The input port on which key value pairs are received.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
@@ -76,7 +76,9 @@ public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
   };
 
   /**
-   * Output port.
+   * The output port on which one of the tuples,
+   * which occurred the least number of times,
+   * is emitted.
    */
   @OutputPortFieldAnnotation(name = "least", optional = true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>()
@@ -91,7 +93,9 @@ public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
   };
 
   /**
-   * Output port.
+   * The output port on which all the tuples,
+   * which occurred the least number of times,
+   * is emitted.
    */
   @OutputPortFieldAnnotation(name = "list", optional = true)
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()

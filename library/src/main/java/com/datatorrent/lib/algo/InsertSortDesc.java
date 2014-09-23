@@ -64,7 +64,7 @@ import java.util.PriorityQueue;
 public class InsertSortDesc<K> extends AbstractBaseSortOperator<K>
 {
   /**
-   * Input port that takes in one tuple at a time
+   * The input port on which individual tuples are received for sorting.
    */
   @InputPortFieldAnnotation(name = "data", optional = true)
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
@@ -79,7 +79,7 @@ public class InsertSortDesc<K> extends AbstractBaseSortOperator<K>
     }
   };
   /**
-   * Input port that takes in an array of Objects to insert
+   * The input port on which lists of tuples are received for sorting.
    */
   @InputPortFieldAnnotation(name = "datalist", optional = true)
   public final transient DefaultInputPort<ArrayList<K>> datalist = new DefaultInputPort<ArrayList<K>>()
@@ -94,9 +94,15 @@ public class InsertSortDesc<K> extends AbstractBaseSortOperator<K>
     }
   };
 
+  /**
+   * The output port on which a sorted descending list of tuples is emitted.
+   */
   @OutputPortFieldAnnotation(name = "sort", optional = true)
   public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>();
   @OutputPortFieldAnnotation(name = "sorthash", optional = true)
+  /**
+   * This output port emits a map from tuples to a count of the number of times each tuple occurred in the application window.
+   */
   public final transient DefaultOutputPort<HashMap<K, Integer>> sorthash = new DefaultOutputPort<HashMap<K, Integer>>();
 
   @Override

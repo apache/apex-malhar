@@ -32,7 +32,9 @@ import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
  */
 public class BenchmarkPartitionableKafkaInputOperator extends AbstractPartitionableKafkaInputOperator
 {
-
+  /**
+   * The output port on which messages are emitted.
+   */
   public transient DefaultOutputPort<String>  oport = new DefaultOutputPort<String>();
 
   @Override

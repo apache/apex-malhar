@@ -22,7 +22,7 @@ import java.util.HashMap;
 
 /**
  * This operator filters the incoming stream of key value pairs by finding the value or values (if there is a tie),
- * for each key, that occurr the fewest number of times within each window.&nbsp;
+ * for each key, that occur the fewest number of times within each window.&nbsp;
  * Each key and its corresponding least values are emitted at the end of each window.
  * <p>
  * Occurrences of all values for each key is counted and at the end of window the least frequent values are emitted on output port least per key.
@@ -73,6 +73,9 @@ import java.util.HashMap;
  */
 public class LeastFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueMap<K, V>
 {
+  /**
+   * The output port on which the least frequent key value pairs are emitted.
+   */
   @OutputPortFieldAnnotation(name = "least")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> least = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>();
 

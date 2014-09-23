@@ -102,6 +102,9 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
     initializeLastProcessingOffset();
   }
 
+  /**
+   * This input port receives tuples that will be written out to Kafka.
+   */
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>() {
     @Override
     public void process(T tuple)

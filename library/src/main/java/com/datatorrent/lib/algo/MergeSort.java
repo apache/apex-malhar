@@ -66,7 +66,7 @@ public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 	private ArrayList<K> mergedList = null;
 
 	/**
-	 * Input port.
+	 * The input port which receives lists to be merged and sorted.
 	 */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>()
@@ -82,7 +82,7 @@ public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
   };
 
   /**
-   * Sorted list output port.
+   * The output port which emits merged and sorted lists.
    */
   @OutputPortFieldAnnotation(name = "sort")
   public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>() {

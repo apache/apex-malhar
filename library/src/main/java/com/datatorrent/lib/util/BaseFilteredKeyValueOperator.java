@@ -35,7 +35,7 @@ import java.util.HashMap;
  * </p>
  * @displayName Base Filtered Key Value
  * @category algorithm
- * @tags filter
+ * @tags filter, key value
  * @since 0.3.2
  */
 public class BaseFilteredKeyValueOperator<K, V> extends BaseKeyValueOperator<K, V>

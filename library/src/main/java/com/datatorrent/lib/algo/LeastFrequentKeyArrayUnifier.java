@@ -25,7 +25,7 @@ public class LeastFrequentKeyArrayUnifier<K> implements Unifier<ArrayList<HashMa
   private HashMap<K, Integer> leastMap  = new HashMap<K, Integer>();
 
   /**
-   * Default output port.
+   * The output port on which the least frequent tuple is emitted.
    */
   public final transient DefaultOutputPort<HashMap<K, Integer>> mergedport = new DefaultOutputPort<HashMap<K, Integer>>();
 

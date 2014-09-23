@@ -60,7 +60,13 @@ import javax.validation.constraints.Min;
  */
 public class RandomEventGenerator extends BaseOperator implements InputOperator
 {
+  /**
+   * The output port on which randomly generated integers are emitted as strings.
+   */
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>();
+  /**
+   * The output port on which randomly generated integers are emitted.
+   */
   public final transient DefaultOutputPort<Integer> integer_data = new DefaultOutputPort<Integer>();
   private int maxCountOfWindows = Integer.MAX_VALUE;
   @Min(1)

@@ -62,6 +62,9 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
     cacheManager = new CacheManager();
   }
 
+  /**
+   * The input port on which tuples are received.
+   */
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override

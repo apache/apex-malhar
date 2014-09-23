@@ -58,7 +58,7 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
 public class TopN<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V> implements Unifier<HashMap<K, ArrayList<V>>>
 {
   /**
-   * Output port.
+   * The output port which emits the top N values per key.
    */
   @OutputPortFieldAnnotation(name="top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>()

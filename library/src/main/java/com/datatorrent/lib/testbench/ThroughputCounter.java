@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
 /**
  * This operator expects incoming tuples to be of type HashMap&lt;String, Integer&gt;.&nbsp;
  * These values are throughput per window from upstream operators.&nbsp;
- * On end of window this total and average is emitted.
+ * At the end of the application window, the total and average throughput are emitted.
  * <p>
  * Benchmarks: This node has been benchmarked at over 5 million tuples/second in local/inline mode<br>
  * <b>Tuple Schema</b>
@@ -58,6 +58,9 @@ public class ThroughputCounter<K, V extends Number> extends BaseOperator
 {
   private static Logger log = LoggerFactory.getLogger(ThroughputCounter.class);
 
+  /**
+   * The input port which receives throughput information from upstream operators.
+   */
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
   {
     @Override
@@ -69,6 +72,9 @@ public class ThroughputCounter<K, V extends Number> extends BaseOperator
     }
   };
 
+  /**
+   * The output port which emits throughput statistics.
+   */
   public final transient DefaultOutputPort<HashMap<String,Number>> count = new DefaultOutputPort<HashMap<String, Number>>();
 
   public static final String OPORT_COUNT_TUPLE_AVERAGE = "avg";

@@ -45,6 +45,9 @@ import com.sun.jersey.api.client.WebResource;
 @ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
 public abstract class AbstractHttpInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable
 {
+  /**
+   * The output port which emits retrieved tuples.
+   */
   public final transient DefaultOutputPort<String> rawOutput = new DefaultOutputPort<String>();
   private static final Logger LOG = LoggerFactory.getLogger(AbstractHttpInputOperator.class);
   /**

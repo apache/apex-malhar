@@ -292,6 +292,9 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
     return null;
   }
 
+  /**
+   * This is the output port, which emits lines from the specified files.
+   */
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
 
   private static final Logger logger = LoggerFactory.getLogger(TailFsInputOperator.class);

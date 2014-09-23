@@ -46,13 +46,13 @@ import javax.validation.constraints.Min;
  * </p>
  * @displayName Abstract Base N Map
  * @category algorithm
- * @tags rank
+ * @tags rank, key value
  * @since 0.3.2
  */
 abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator<K,V>
 {
   /**
-   * Expects a HashMap<K,V> tuple
+   * This is the input port that receives key value pairs.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K,V>> data = new DefaultInputPort<Map<K,V>>()

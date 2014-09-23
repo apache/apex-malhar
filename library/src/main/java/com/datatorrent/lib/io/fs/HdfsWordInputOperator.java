@@ -31,7 +31,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 
 /**
- * This operator reads tuples of a specified byte size from an hdfs text file.
+ * This operator reads tuples of a specified byte size from an HDFS file.
  * <p></p>
  * @displayName HDFS Byte File Input
  * @category io
@@ -41,7 +41,9 @@ import com.datatorrent.common.util.DTThrowable;
  */
 public class HdfsWordInputOperator extends AbstractHDFSInputOperator
 {
-
+  /**
+   * This is the output port which emits bytes read from an HDFS file.
+   */
   @OutputPortFieldAnnotation(name = "HDFSOutput")
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>();
 

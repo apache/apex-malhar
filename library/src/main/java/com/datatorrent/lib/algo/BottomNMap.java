@@ -57,7 +57,7 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
 public class BottomNMap<K, V> extends AbstractBaseNNonUniqueOperatorMap<K, V>
 {
   /**
-   * Bottom tuples output port.
+   * The output port on which the bottom N tuples for each key are emitted.
    */
   @OutputPortFieldAnnotation(name = "bottom")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<V>>>()

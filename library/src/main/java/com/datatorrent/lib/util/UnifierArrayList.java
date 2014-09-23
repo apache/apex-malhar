@@ -63,7 +63,7 @@ public class UnifierArrayList<K> implements Unifier<ArrayList<K>>
   }
 
   /**
-   * Output port
+   * This is the output port that emits a merged list constructed from input lists.
    */
   public final transient DefaultOutputPort<ArrayList<K>> mergedport = new DefaultOutputPort<ArrayList<K>>();
 

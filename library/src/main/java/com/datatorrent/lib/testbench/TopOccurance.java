@@ -39,9 +39,14 @@ public class TopOccurance extends BaseOperator
 	private int n = 5;
 	private int threshHold = 5;
 
-  //out port
+  /**
+   *
+   */
 	public final transient DefaultOutputPort<Map<Integer, String>> outport = new DefaultOutputPort<Map<Integer, String>>();
-	public final transient DefaultOutputPort<Map<Integer, String>> gtThreshHold = new DefaultOutputPort<Map<Integer, String>>();
+	/**
+   *
+   */
+  public final transient DefaultOutputPort<Map<Integer, String>> gtThreshHold = new DefaultOutputPort<Map<Integer, String>>();
 
 	// input port
 	public final transient DefaultInputPort<Map<String, Integer>> inport =

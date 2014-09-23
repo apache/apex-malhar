@@ -71,7 +71,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
   private final Map<String, InformationExtractor> infoExtractors = new HashMap<String, InformationExtractor>();
   private transient Pattern accessLogPattern;
   /**
-   * Input log line port.
+   * This is the input port which receives apache log lines.
    */
   public final transient DefaultInputPort<String> data = new DefaultInputPort<String>()
   {
@@ -88,7 +88,9 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
 
   };
   /**
-   * Client IP address, output port.
+   * This is the output port which emits one tuple for each Apache log line.
+   * Each tuple is a Map whose keys represent various sections of a log line,
+   * and whose values represent the contents of those sections.
    */
   public final transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
 

@@ -65,7 +65,13 @@ public class MultiWindowDimensionAggregation implements Operator
 
   private transient List<Pattern> patternList;
   private transient int applicationWindowSize = 500;
+  /**
+   * This is the output port which emits aggregated dimensions.
+   */
   public final transient DefaultOutputPort<Map<String, DimensionObject<String>>> output = new DefaultOutputPort<Map<String, DimensionObject<String>>>();
+  /**
+   * This is the input port which receives multi dimensional data.
+   */
   public final transient DefaultInputPort<Map<String, Map<String, Number>>> data = new DefaultInputPort<Map<String, Map<String, Number>>>() {
     @Override
     public void process(Map<String, Map<String, Number>> tuple)

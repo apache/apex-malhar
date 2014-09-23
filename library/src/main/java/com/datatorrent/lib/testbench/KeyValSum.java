@@ -35,6 +35,10 @@ import com.datatorrent.api.Context.OperatorContext;
 public class KeyValSum extends BaseOperator
 {
 	private Map<String, Integer> collect;
+
+  /**
+   * This input port on which tuples are received.
+   */
 	public final transient DefaultInputPort<Map<String, Integer>> inport = new DefaultInputPort<Map<String, Integer>>() {
     @Override
     public void process(Map<String, Integer> s) {
@@ -67,7 +71,9 @@ public class KeyValSum extends BaseOperator
 		collect  = new HashMap<String, Integer>();
 	}
 
-	// out port
+	/**
+   * The output port on which sums are emitted.
+   */
 	public final transient DefaultOutputPort<Map<String, Integer>> outport = new DefaultOutputPort<Map<String, Integer>>();
 
 	@Override

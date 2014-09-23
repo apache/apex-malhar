@@ -26,7 +26,7 @@ import java.util.Random;
 import javax.validation.constraints.Min;
 
 /**
- * This operator takes a stream of values as input, and emits each tuple with a specified probability.
+ * This operator takes a stream of tuples as input, and emits each tuple with a specified probability.
  * <p>
  * Emits the tuple as per probability of pass rate out of total rate. <br>
  * <br>
@@ -63,6 +63,9 @@ import javax.validation.constraints.Min;
 @OperatorAnnotation(partitionable = true)
 public class Sampler<K> extends BaseKeyOperator<K>
 {
+  /**
+   * This is the input port which receives tuples.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
@@ -79,6 +82,10 @@ public class Sampler<K> extends BaseKeyOperator<K>
       sample.emit(cloneKey(tuple));
     }
   };
+
+  /**
+   * This is the output port which emits the sampled tuples.
+   */
   @OutputPortFieldAnnotation(name = "sample")
   public final transient DefaultOutputPort<K> sample = new DefaultOutputPort<K>();
 

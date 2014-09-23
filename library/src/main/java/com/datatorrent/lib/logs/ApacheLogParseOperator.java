@@ -59,9 +59,9 @@ import java.util.regex.Pattern;
 @OperatorAnnotation(partitionable=true)
 public class ApacheLogParseOperator extends BaseOperator
 {
-	/**
-	 * Input log line port.
-	 */
+  /**
+   * This is the input port which receives apache log lines.
+   */
 	public final transient DefaultInputPort<String> data = new DefaultInputPort<String>()
 	{
 		@Override

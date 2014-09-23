@@ -15,16 +15,12 @@
  */
 package com.datatorrent.lib.xml;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.*;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
+import javax.xml.parsers.*;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * This is the base implementation for an xml operator,
@@ -53,6 +49,10 @@ public abstract class AbstractXmlDOMOperator<T> extends BaseOperator
     }
   }
 
+  /**
+   * This port receives the tuples which will be parsed as xml.
+   */
+  @InputPortFieldAnnotation(name = "XMLInput")
   public transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override

@@ -52,7 +52,7 @@ public abstract class AbstractSinglePortMqttOutputOperator<T> extends AbstractMq
   public abstract void processTuple(T tuple);
 
   /**
-   * The input port
+   * This input port receives tuples, which will be written out to MQTT.
    */
   @InputPortFieldAnnotation(name = "in")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()

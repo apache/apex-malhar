@@ -51,6 +51,10 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
   private int scanIntervalInMilliSeconds = 1000;// the time interval for periodically scanning, Default is 1 sec = 1000ms
   private int fileCountPerEmit = 200; // the maximum number of file info records that will be output per emit
 
+  /**
+   * This output port emits FileInfoRecords, which provide path,
+   * type, and size information about the files scanned by the operator.
+   */
   public final transient DefaultOutputPort<FileInfoRecord> outport = new DefaultOutputPort<FileInfoRecord>();
   private transient FileAlterationObserver observer;
   private transient FAListener listener;

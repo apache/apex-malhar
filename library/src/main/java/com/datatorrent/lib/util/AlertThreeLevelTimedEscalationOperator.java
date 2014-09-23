@@ -33,8 +33,16 @@ public class AlertThreeLevelTimedEscalationOperator extends AlertEscalationOpera
   protected long levelOneAlertTime = 0;
   protected long levelTwoAlertTime = 0;
   protected long levelThreeAlertTime = 0;
+
+  /**
+   * This is the output port that emits tuples when the alert level 2 criteria is met.
+   */
   @OutputPortFieldAnnotation(name = "alert2", optional = true)
   public final transient DefaultOutputPort<Object> alert2 = new DefaultOutputPort<Object>();
+
+  /**
+   * This is the output port that emits tuples when the alert level 3 criteria is met.
+   */
   @OutputPortFieldAnnotation(name = "alert3", optional = true)
   public final transient DefaultOutputPort<Object> alert3 = new DefaultOutputPort<Object>();
 

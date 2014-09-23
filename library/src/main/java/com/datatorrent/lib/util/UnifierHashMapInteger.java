@@ -36,6 +36,9 @@ import java.util.Map;
 public class UnifierHashMapInteger<K> implements Unifier<HashMap<K, Integer>>
 {
   public HashMap<K, Integer> mergedTuple = new HashMap<K, Integer>();
+  /**
+   * This is the output port which emits key value pairs which map keys to sums.
+   */
   public final transient DefaultOutputPort<HashMap<K, Integer>> mergedport = new DefaultOutputPort<HashMap<K, Integer>>();
 
   /**

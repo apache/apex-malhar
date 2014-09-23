@@ -34,6 +34,9 @@ import com.datatorrent.api.Operator.Unifier;
 public class UnifierBooleanOr implements Unifier<Boolean>
 {
   boolean result = false;
+  /**
+   * This is the output port which emits the ORED tuple result.
+   */
   public final transient DefaultOutputPort<Boolean> mergedport = new DefaultOutputPort<Boolean>();
 
   /**

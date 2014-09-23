@@ -84,7 +84,7 @@ public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
   }
 
   /**
-   * Output port, unifier operator.
+   * The output port on which the first N key value pairs are emitted.
    */
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>();

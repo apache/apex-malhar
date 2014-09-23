@@ -64,11 +64,14 @@ import java.util.Map;
 @OperatorAnnotation(partitionable = true)
 public class MatchStringMap<K> extends BaseMatchOperator<K,String>
 {
+  /**
+   * The input port which receives incoming key value pairs.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
-     * Matchs tuple with the value and calls tupleMatched and tupleNotMatched based on if value matches
+     * Matches tuple with the value and calls tupleMatched and tupleNotMatched based on if value matches
      */
     @Override
     public void process(Map<K, String> tuple)
@@ -102,6 +105,9 @@ public class MatchStringMap<K> extends BaseMatchOperator<K,String>
     }
   };
 
+  /**
+   * The output port which emits filtered key value pairs.
+   */
   @OutputPortFieldAnnotation(name = "match", optional=true)
   public final transient DefaultOutputPort<HashMap<K, String>> match = new DefaultOutputPort<HashMap<K, String>>()
   {

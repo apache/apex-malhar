@@ -58,6 +58,9 @@ public abstract class AbstractSinglePortZeroMQOutputOperator<T> extends Abstract
    */
   public abstract void processTuple(T tuple);
 
+  /**
+   * This is the input port which provides the tuples that are written out to ZeroMQ.
+   */
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     @Override

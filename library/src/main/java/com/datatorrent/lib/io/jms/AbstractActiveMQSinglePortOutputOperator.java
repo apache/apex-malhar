@@ -88,7 +88,7 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
   }
 
   /**
-   * The single input port.
+   * This is an input port which receives tuples to be written out to an ActiveMQ message bus.
    */
   @InputPortFieldAnnotation(name = "ActiveMQInputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()

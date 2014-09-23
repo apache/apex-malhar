@@ -46,7 +46,7 @@ import org.fusesource.mqtt.client.Message;
 public abstract class AbstractSinglePortMqttInputOperator<T> extends AbstractMqttInputOperator
 {
   /**
-   * the output port
+   * This output port emits tuples, which were extracted from MQTT messages.
    */
   @OutputPortFieldAnnotation(name = "out")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();

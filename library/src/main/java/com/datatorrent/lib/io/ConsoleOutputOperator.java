@@ -38,6 +38,10 @@ import org.slf4j.LoggerFactory;
 public class ConsoleOutputOperator extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(ConsoleOutputOperator.class);
+
+  /**
+   * This is the input port which receives the tuples that will be written to stdout.
+   */
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override

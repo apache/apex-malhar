@@ -58,6 +58,9 @@ import javax.validation.constraints.NotNull;
 @OperatorAnnotation(partitionable = true)
 public class FilterValues<T> extends BaseOperator
 {
+  /**
+   * The input port on which tuples are recieved.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
   {
@@ -74,6 +77,10 @@ public class FilterValues<T> extends BaseOperator
       }
     }
   };
+
+  /**
+   * The output port on which tuples satisfying the filter are emitted.
+   */
   @OutputPortFieldAnnotation(name = "filter")
   public final transient DefaultOutputPort<T> filter = new DefaultOutputPort<T>();
 
