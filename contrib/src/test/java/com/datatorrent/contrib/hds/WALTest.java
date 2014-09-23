@@ -15,13 +15,15 @@
  */
 package com.datatorrent.contrib.hds;
 
+import com.datatorrent.common.util.Slice;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.ByteBufferOutput;
 import com.google.common.util.concurrent.MoreExecutors;
+
 import junit.framework.Assert;
+
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.RegexFileFilter;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +42,12 @@ public class WALTest
     byte[] val = new byte[len];
     rand.nextBytes(val);
     return val;
+  }
+
+  static Slice genRandomKey(int len) {
+    byte[] val = new byte[len];
+    rand.nextBytes(val);
+    return HDS.SliceExt.toSlice(val);
   }
 
   /**
@@ -62,7 +70,7 @@ public class WALTest
 
     HDFSWalWriter wWriter = new HDFSWalWriter(bfs, 1, "WAL-0");
     for (int i = 0; i < numTuples; i++) {
-      wWriter.append(genRandomByteArray(keySize), genRandomByteArray(valSize));
+      wWriter.append(genRandomKey(keySize), genRandomByteArray(valSize));
     }
     wWriter.close();
 
@@ -77,7 +85,7 @@ public class WALTest
       Assert.assertEquals("Key size ", keySize, keyVal.getKey().length);
       Assert.assertEquals("Value size ", valSize, keyVal.getValue().length);
     }
-
+    wReader.close();
     Assert.assertEquals("Write and read same number of tuples ", numTuples, read);
   }
 
@@ -99,7 +107,7 @@ public class WALTest
     int totalTuples = 100;
     int recoveryTuples = 30;
     for (int i = 0; i < totalTuples; i++) {
-      wWriter.append(genRandomByteArray(100), genRandomByteArray(100));
+      wWriter.append(genRandomKey(100), genRandomByteArray(100));
       if (i == recoveryTuples)
         offset = wWriter.logSize();
     }
@@ -113,6 +121,7 @@ public class WALTest
       read++;
       wReader.get();
     }
+    wReader.close();
 
     Assert.assertEquals("Number of tuples read after skipping", read, (totalTuples - recoveryTuples - 1));
   }
@@ -136,7 +145,7 @@ public class WALTest
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
-    HDSBucketManager hds = new HDSBucketManager();
+    HDSWriter hds = new HDSWriter();
     hds.setFileStore(bfs);
     hds.setKeyComparator(new HDSTest.SequenceComparator());
     hds.setFlushIntervalCount(5);
@@ -146,13 +155,13 @@ public class WALTest
     hds.writeExecutor = MoreExecutors.sameThreadExecutor();
 
     hds.beginWindow(0);
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
 
     hds.beginWindow(1);
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
     hds.forceWal();
 
@@ -177,18 +186,13 @@ public class WALTest
   {
     File file = new File("target/hds");
     FileUtils.deleteDirectory(file);
-    final long BUCKET1 = 1L;
-
-    File bucket1Dir = new File(file, Long.toString(BUCKET1));
-    File bucket1WalFile = new File(bucket1Dir, HDSWalManager.WAL_FILE_PREFIX + 1);
-    RegexFileFilter dataFileFilter = new RegexFileFilter("\\d+.*");
 
     FileUtils.deleteDirectory(file);
     HDSFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
-    HDSBucketManager hds = new HDSBucketManager();
+    HDSWriter hds = new HDSWriter();
     hds.setFileStore(bfs);
     hds.setKeyComparator(new HDSTest.SequenceComparator());
     hds.setFlushSize(3);
@@ -196,13 +200,13 @@ public class WALTest
     hds.writeExecutor = MoreExecutors.sameThreadExecutor();
 
     hds.beginWindow(1);
-    hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
-    hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(1, genRandomKey(500), genRandomByteArray(500));
+    hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
 
     hds.beginWindow(2);
-    hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
-    hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(1, genRandomKey(500), genRandomByteArray(500));
+    hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
 
     // Tuples added till this point is written to data files,
@@ -211,8 +215,8 @@ public class WALTest
     // but will be saved in WAL. These should get recovered when bucket
     // is initialized for use next time.
     hds.beginWindow(3);
-    hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
-    hds.put(1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(1, genRandomKey(500), genRandomByteArray(500));
+    hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
     hds.forceWal();
     hds.teardown();
@@ -223,7 +227,7 @@ public class WALTest
     kryo.writeObject(oo, hds);
     oo.flush();
     com.esotericsoftware.kryo.io.ByteBufferInput oi = new ByteBufferInput(oo.getByteBuffer());
-    HDSBucketManager newOperator = kryo.readObject(oi, HDSBucketManager.class);
+    HDSWriter newOperator = kryo.readObject(oi, HDSWriter.class);
 
     newOperator.setKeyComparator(new HDSTest.SequenceComparator());
     newOperator.setFlushIntervalCount(1);
@@ -236,14 +240,14 @@ public class WALTest
 
     // This should run recovery, as first tuple is added in bucket
     newOperator.beginWindow(3);
-    newOperator.put(1, genRandomByteArray(500), genRandomByteArray(500));
+    newOperator.put(1, genRandomKey(500), genRandomByteArray(500));
 
     // Number of tuples = tuples recovered (2) + tuple being added (1).
     Assert.assertEquals("Number of tuples in store ", 3, newOperator.unflushedData(1));
 
-    newOperator.put(1, genRandomByteArray(500), genRandomByteArray(500));
-    newOperator.put(1, genRandomByteArray(500), genRandomByteArray(500));
-    newOperator.put(1, genRandomByteArray(500), genRandomByteArray(500));
+    newOperator.put(1, genRandomKey(500), genRandomByteArray(500));
+    newOperator.put(1, genRandomKey(500), genRandomByteArray(500));
+    newOperator.put(1, genRandomKey(500), genRandomByteArray(500));
     newOperator.endWindow();
     newOperator.forceWal();
 
@@ -268,7 +272,7 @@ public class WALTest
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
-    HDSBucketManager hds = new HDSBucketManager();
+    HDSWriter hds = new HDSWriter();
     hds.setFileStore(bfs);
     hds.setKeyComparator(new HDSTest.SequenceComparator());
     // Flush at every window.
@@ -279,13 +283,13 @@ public class WALTest
     hds.writeExecutor = MoreExecutors.sameThreadExecutor();
 
     hds.beginWindow(1);
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
 
     hds.beginWindow(2);
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
     // log file will roll at this point because of limit on WAL file size,
     hds.endWindow();
 
@@ -293,8 +297,8 @@ public class WALTest
     Assert.assertEquals("New Wal-0 created ", wal0.exists(), true);
 
     hds.beginWindow(3);
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
-    hds.put(BUCKET1, genRandomByteArray(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
+    hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
     // Data till this point is committed to disk, and old WAL file WAL-0
     // is deleted, as all data from that file is committed.

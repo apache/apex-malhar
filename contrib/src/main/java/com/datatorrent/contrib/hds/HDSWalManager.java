@@ -178,7 +178,7 @@ public class HDSWalManager implements Closeable
     bfs.rename(bucketKey, WAL_FILE_PREFIX + walFileId + "-truncate", WAL_FILE_PREFIX + walFileId);
   }
 
-  public void append(byte[] key, byte[] value) throws IOException
+  public void append(Slice key, byte[] value) throws IOException
   {
     if (writer == null)
       writer = new HDFSWalWriter(bfs, bucketKey, WAL_FILE_PREFIX + walFileId);

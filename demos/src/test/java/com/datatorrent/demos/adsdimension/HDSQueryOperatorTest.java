@@ -26,6 +26,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
 import com.datatorrent.demos.adsdimension.HDSQueryOperator.HDSRangeQueryResult;
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -154,7 +155,7 @@ public class HDSQueryOperatorTest
 
     // Encode/decode using normal mode
     oper.setDebug(false);
-    byte[] keyBytes = oper.getKey(ae);
+    Slice keyBytes = oper.getKey(ae);
     byte[] valBytes = oper.getValue(ae);
     AdInfo.AdInfoAggregateEvent ae1 = oper.getAggregatesFromBytes(keyBytes, valBytes);
 

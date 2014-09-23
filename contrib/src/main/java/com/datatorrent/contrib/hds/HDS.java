@@ -23,6 +23,16 @@ import com.datatorrent.common.util.Slice;
 
 public interface HDS
 {
+  public interface Reader
+  {
+    byte[] get(long bucketKey, Slice key) throws IOException;
+  }
+
+  public interface Writer
+  {
+    void put(long bucketKey, Slice key, byte[] value) throws IOException;
+    byte[] getUncommitted(long bucketKey, Slice key);
+  }
 
   /**
    * A simple iterator type interface to read WAL
@@ -79,7 +89,7 @@ public interface HDS
      * @param value  value byte array.
      * @throws IOException
      */
-    public void append(byte[] key, byte[] value) throws IOException;
+    public void append(Slice key, byte[] value) throws IOException;
 
     /**
      * Flush data to persistent storage.

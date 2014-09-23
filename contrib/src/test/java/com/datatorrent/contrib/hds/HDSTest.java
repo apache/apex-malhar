@@ -86,7 +86,7 @@ public class HDSTest
     return r;
   }
 
-  private TreeMap<Slice, byte[]> readFile(HDSBucketManager bm, long bucketKey, String fileName) throws IOException
+  private TreeMap<Slice, byte[]> readFile(HDSWriter bm, long bucketKey, String fileName) throws IOException
   {
     TreeMap<Slice, byte[]> data = Maps.newTreeMap(bm.getKeyComparator());
     HDSFileReader reader = bm.getFileStore().getReader(bucketKey, fileName);
@@ -107,7 +107,7 @@ public class HDSTest
 
     bfs.setBasePath(file.getAbsolutePath());
 
-    HDSBucketManager hds = new HDSBucketManager();
+    HDSWriter hds = new HDSWriter();
     hds.setFileStore(bfs);
     //hds.setKeyComparator(new SequenceComparator());
     hds.setMaxFileSize(1); // limit to single entry per file
@@ -122,7 +122,7 @@ public class HDSTest
     Slice key1 = newKey(BUCKET1, 1);
     String data1 = "data01bucket1";
 
-    hds.put(BUCKET1, key1.buffer, data1.getBytes());
+    hds.put(BUCKET1, key1, data1.getBytes());
 
     HDSQuery q = new HDSQuery();
     q.bucketKey = BUCKET1;
@@ -142,7 +142,7 @@ public class HDSTest
 
     // replace value
     String data1Updated = data1 + "-update1";
-    hds.put(BUCKET1, key1.buffer, data1Updated.getBytes());
+    hds.put(BUCKET1, key1, data1Updated.getBytes());
 
     hds.processQuery(q); // write cache
     Assert.assertArrayEquals("uncommitted get2 " + key1, data1Updated.getBytes(), q.result);
@@ -156,11 +156,11 @@ public class HDSTest
     String data12 = "data02bucket1";
 
     Assert.assertEquals(BUCKET1, getBucketKey(key12));
-    hds.put(getBucketKey(key12), key12.buffer, data12.getBytes()); // key 2, bucket 1
+    hds.put(getBucketKey(key12), key12, data12.getBytes()); // key 2, bucket 1
 
     // new key added to existing range, due to size limit 2 data files will be written
     hds.endWindow();
-    File metaFile = new File(bucket1Dir, HDSBucketManager.FNAME_META);
+    File metaFile = new File(bucket1Dir, HDSWriter.FNAME_META);
     Assert.assertTrue("exists " + metaFile, metaFile.exists());
 
     files = bucket1Dir.list(dataFileFilter);
@@ -186,7 +186,7 @@ public class HDSTest
 
     HDSFileAccessFSImpl fa = new MockFileAccess();
     fa.setBasePath(file.getAbsolutePath());
-    HDSBucketManager hds = new HDSBucketManager();
+    HDSWriter hds = new HDSWriter();
     hds.setFileStore(fa);
     hds.setFlushSize(0); // flush after every key
 
@@ -194,7 +194,7 @@ public class HDSTest
     hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
     hds.beginWindow(1);
 
-    hds.put(getBucketKey(key), key.buffer, data.getBytes());
+    hds.put(getBucketKey(key), key, data.getBytes());
     byte[] val = hds.getUncommitted(getBucketKey(key), key);
     Assert.assertArrayEquals("getUncommitted", data.getBytes(), val);
 
@@ -223,7 +223,7 @@ public class HDSTest
 
     HDSFileAccessFSImpl fa = new MockFileAccess();
     fa.setBasePath(file.getAbsolutePath());
-    HDSBucketManager hds = new HDSBucketManager();
+    HDSWriter hds = new HDSWriter();
     hds.setFileStore(fa);
     hds.setFlushIntervalCount(0); // flush after every window
 
@@ -236,7 +236,7 @@ public class HDSTest
     long[] seqArray = { 5L, 1L, 3L, 4L, 2L };
     for (long seq : seqArray) {
       Slice key = newKey(BUCKETKEY, seq);
-      hds.put(BUCKETKEY, key.buffer, ("data"+seq).getBytes());
+      hds.put(BUCKETKEY, key, ("data"+seq).getBytes());
     }
     hds.endWindow();
 
@@ -278,7 +278,7 @@ public class HDSTest
       }
     };
     fa.setBasePath(file.getAbsolutePath());
-    HDSBucketManager hds = new HDSBucketManager();
+    HDSWriter hds = new HDSWriter();
     hds.setFileStore(fa);
     hds.setFlushIntervalCount(0); // flush after every window
 
@@ -291,7 +291,7 @@ public class HDSTest
     long[] seqArray = { 5L, 1L, 3L, 4L, 2L };
     for (long seq : seqArray) {
       Slice key = newKey(BUCKETKEY, seq);
-      hds.put(BUCKETKEY, key.buffer, ("data"+seq).getBytes());
+      hds.put(BUCKETKEY, key, ("data"+seq).getBytes());
     }
     hds.endWindow();
     endWindowComplete.countDown();
@@ -340,7 +340,7 @@ public class HDSTest
   {
     //Create HfileImpl
     HFileImpl hfi = new HFileImpl();
-    hfi.setComparator(new HDSBucketManager.DefaultKeyComparator());
+    hfi.setComparator(new HDSWriter.DefaultKeyComparator());
     testHDSFileAccess(hfi);
   }
 

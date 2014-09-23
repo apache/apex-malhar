@@ -30,7 +30,7 @@ public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte
 
   public static class BucketStreamCodec extends KryoSerializableStreamCodec<KeyValPair<byte[], byte[]>> implements HDSCodec<KeyValPair<byte[], byte[]>>
   {
-    public HDSTestOperator operator;
+    private HDSTestOperator operator;
 
     @Override
     public int getPartition(KeyValPair<byte[], byte[]> t)

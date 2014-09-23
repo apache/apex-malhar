@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.HDS;
 import com.datatorrent.demos.adsdimension.AdInfo.AdInfoAggregateEvent;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -155,7 +154,7 @@ public class HDSQueryOperator extends HDSOutputOperator
     // set query for each point in series
     query.prototype.timestamp = query.startTime;
     while (query.prototype.timestamp <= query.endTime) {
-      Slice key = HDS.SliceExt.toSlice(getKey(query.prototype));
+      Slice key = getKey(query.prototype);
       HDSQuery q = super.queries.get(key);
       if (q == null) {
         q = new HDSQuery();
@@ -177,17 +176,17 @@ public class HDSQueryOperator extends HDSOutputOperator
     rangeQueries.put(query.id, query);
   }
 
-  protected AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(byte[] key, byte[] value)
+  protected AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(Slice key, byte[] value)
   {
     if (key == null || value == null)
       return null;
 
     AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
     if (debug) {
-      return getAggregatesFromString(new String(key), new String(value));
+      return getAggregatesFromString(new String(key.buffer, key.offset, key.length), new String(value));
     }
 
-    java.nio.ByteBuffer bb = ByteBuffer.wrap(key);
+    java.nio.ByteBuffer bb = ByteBuffer.wrap(key.buffer, key.offset, key.length);
     ae.timestamp = bb.getLong();
     ae.publisherId = bb.getInt();
     ae.advertiserId = bb.getInt();
@@ -261,7 +260,7 @@ public class HDSQueryOperator extends HDSOutputOperator
         }
         // results from persistent store
         if (query.processed && query.result != null) {
-          AdInfo.AdInfoAggregateEvent ae = getAggregatesFromBytes(query.key.buffer, query.result);
+          AdInfo.AdInfoAggregateEvent ae = getAggregatesFromBytes(query.key, query.result);
           if (ae != null)
             res.data.add(ae);
         }
