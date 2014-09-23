@@ -196,9 +196,11 @@ public abstract class KafkaConsumer
 
   protected abstract Map<Integer, Long> getCurrentOffsets();
 
-  public final KafkaMeterStats getConsumerStats()
+  public KafkaMeterStats getConsumerStats()
   {
-    return statsSnapShot.getStats();
+    KafkaMeterStats stat = new KafkaMeterStats();
+    statsSnapShot.setupStats(stat);
+    return stat;
   }
 
   static class KafkaMeterStats implements Counters, Serializable
@@ -209,18 +211,14 @@ public abstract class KafkaConsumer
     private Map<Integer, double[]> _1minMovingAvgPerPartition = new HashMap<Integer, double[]>();
 
     private double[] _1minMovingAvg = new double[]{0,0};
+    
+    private Map<Integer, Long> offsetsForPartitions = new HashMap<Integer, Long>();
 
     public KafkaMeterStats()
     {
 
     }
 
-    public KafkaMeterStats(Map<Integer, double[]> _1minMovingAvgPerPartition, double[] _1minMovingRate)
-    {
-      super();
-      this.set_1minMovingAvgPerPartition(_1minMovingAvgPerPartition);
-      this.set_1minMovingAvg(_1minMovingRate);
-    }
 
     public Map<Integer, double[]> get_1minMovingAvgPerPartition()
     {
@@ -240,6 +238,16 @@ public abstract class KafkaConsumer
     public void set_1minMovingAvg(double[] _1minMovingAvg)
     {
       this._1minMovingAvg = _1minMovingAvg;
+    }
+
+    public void putOffsets(Map<Integer, Long> offsetTrack)
+    {
+      offsetsForPartitions.putAll(offsetTrack);
+    }
+    
+    public Map<Integer, Long> getOffsetsForPartitions()
+    {
+      return offsetsForPartitions;
     }
 
 }
@@ -338,7 +346,7 @@ public abstract class KafkaConsumer
       bytev[60] += bytes;
     };
 
-    public synchronized KafkaMeterStats getStats(){
+    public synchronized void setupStats(KafkaMeterStats stat){
       double[] _1minAvg = {(double)msgSec[60]/(double)last, (double)bytesSec[60]/(double)last};
       Map<Integer, double[]> _1minAvgPartition = new HashMap<Integer, double[]>();
       for (Entry<Integer, long[]> item : _1_min_msg_sum_par.entrySet()) {
@@ -347,7 +355,8 @@ public abstract class KafkaConsumer
         double[] _1minAvgPar = {(double)msgv[60]/(double)last, (double)bytev[60]/(double)last};
         _1minAvgPartition.put(item.getKey(), _1minAvgPar);
       }
-      return new KafkaMeterStats(_1minAvgPartition, _1minAvg);
+      stat.set_1minMovingAvgPerPartition(_1minAvgPartition);
+      stat.set_1minMovingAvg(_1minAvg);
     }
   }
 
