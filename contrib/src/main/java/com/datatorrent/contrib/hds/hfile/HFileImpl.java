@@ -87,14 +87,14 @@ public class HFileImpl extends HDSFileAccessFSImpl {
    * Get HFile cache configuration based on combination of global settings and configProperties.
    * @return
    */
-  public CacheConfig getCacheConfig() {
+  protected CacheConfig getCacheConfig() {
     if (cacheConfig == null ) {
       cacheConfig = new CacheConfig(getConfiguration());
     }
     return cacheConfig;
   }
 
-  public void setCacheConfig(CacheConfig conf) {
+  protected void setCacheConfig(CacheConfig conf) {
     this.cacheConfig = conf;
   }
 
