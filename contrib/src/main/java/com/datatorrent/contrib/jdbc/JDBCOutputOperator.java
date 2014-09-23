@@ -442,7 +442,7 @@ public abstract class JDBCOutputOperator<T> extends JDBCOperatorBase implements 
   /**
    * This input port receives tuples that will be written out to the database.
    */
-  @InputPortFieldAnnotation(name = "JDBCInput")
+  @InputPortFieldAnnotation(name = "inputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     /**

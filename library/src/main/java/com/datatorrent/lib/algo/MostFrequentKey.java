@@ -62,6 +62,9 @@ import java.util.HashMap;
 @OperatorAnnotation(partitionable = true)
 public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
 {
+  /**
+   * The input port which receives incoming tuples.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
@@ -74,6 +77,11 @@ public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
       processTuple(tuple);
     }
   };
+  /**
+   * The output port on which all the tuples,
+   * which occurred the most number of times,
+   * is emitted.
+   */
   @OutputPortFieldAnnotation(name = "most")
   public final transient DefaultOutputPort<HashMap<K, Integer>> most = new DefaultOutputPort<HashMap<K, Integer>>()
   {

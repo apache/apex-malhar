@@ -58,6 +58,9 @@ import java.util.Random;
  */
 public class FilterClassifier<T> extends BaseOperator
 {
+  /**
+   * The input port on which tuples are received.
+   */
   public final transient DefaultInputPort<HashMap<String, T>> data = new DefaultInputPort<HashMap<String, T>>()
   {
     @Override
@@ -104,6 +107,10 @@ public class FilterClassifier<T> extends BaseOperator
       }
     }
   };
+
+  /**
+   * The output port which emits filtered tuples.
+   */
   public final transient DefaultOutputPort<HashMap<String, T>> filter = new DefaultOutputPort<HashMap<String, T>>();
 
   HashMap<String, T> keys = new HashMap<String, T>();

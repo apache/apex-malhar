@@ -24,8 +24,11 @@ import java.util.HashMap;
 import javax.validation.constraints.NotNull;
 
 /**
- * Generates seeds and merges data as it comes in from input ports (data1, and data2).&nbsp;
- * The new tuple is emitted on the output ports string_data and hash_data.
+ * This operator receives data on two input ports (data1, and data2).&nbsp;
+ * Each incoming tuple is given a seed value
+ * and a key depending on which input port the tuple came from.&nbsp;
+ * Modified tuples are then emitted as strings on the string_data output port
+ * and as maps on the hash_data output port.
  * <p>
  * <br>
  * Examples of getting seed distributions include<br>
@@ -68,6 +71,9 @@ import javax.validation.constraints.NotNull;
  */
 public class SeedEventClassifier<T> extends BaseOperator
 {
+  /**
+   * An input port which receives incoming tuples.
+   */
   public final transient DefaultInputPort<T> data1 = new DefaultInputPort<T>()
   {
     @Override
@@ -76,6 +82,10 @@ public class SeedEventClassifier<T> extends BaseOperator
       emitTuple(key1, tuple);
     }
   };
+
+  /**
+   * An output port which receives incoming tuples.
+   */
   public final transient DefaultInputPort<T> data2 = new DefaultInputPort<T>()
   {
     @Override
@@ -84,7 +94,14 @@ public class SeedEventClassifier<T> extends BaseOperator
       emitTuple(key2, tuple);
     }
   };
+
+  /**
+   * An output port which emits modified tuples as a string.
+   */
   public final transient DefaultOutputPort<String> string_data = new DefaultOutputPort<String>();
+  /**
+   * An output port which emits modified tuples as a hashmap.
+   */
   public final transient DefaultOutputPort<HashMap<String, HashMap<String, T>>> hash_data = new DefaultOutputPort<HashMap<String, HashMap<String, T>>>();
 
   public void emitTuple(String key, T tuple)

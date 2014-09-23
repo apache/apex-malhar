@@ -62,6 +62,10 @@ public class SmtpOutputOperator extends BaseOperator
   protected String contentType = "text/plain";
   protected boolean useSsl = false;
   protected boolean setupCalled = false;
+
+  /**
+   * This is the output port which receives the tuples that will be output to an smtp server.
+   */
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override

@@ -56,7 +56,7 @@ public abstract class AbstractKafkaSinglePortInputOperator<T> extends AbstractKa
   /**
    * This output port emits tuples extracted from Kafka messages.
    */
-  @OutputPortFieldAnnotation(name = "KafkaOutput")
+  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

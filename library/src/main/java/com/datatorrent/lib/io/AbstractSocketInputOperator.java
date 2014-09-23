@@ -47,6 +47,10 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
   private transient Thread scanThread = new Thread(new SelectorScanner());
   private transient ByteBuffer byteBuffer;
   private transient Lock lock;
+
+  /**
+   * This is the output port which emits tuples read from a socket.
+   */
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   public int getByteBufferSize()

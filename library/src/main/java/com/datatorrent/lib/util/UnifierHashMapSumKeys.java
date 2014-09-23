@@ -36,6 +36,9 @@ import java.util.Map;
 public class UnifierHashMapSumKeys<K, V extends Number> extends BaseNumberKeyValueOperator<K,V> implements Unifier<HashMap<K, V>>
 {
   public HashMap<K, Double> mergedTuple = new HashMap<K, Double>();
+  /**
+   * This is the output port which emits key value pairs which map keys to sums.
+   */
   public final transient DefaultOutputPort<HashMap<K, V>> mergedport = new DefaultOutputPort<HashMap<K, V>>();
 
   @Override

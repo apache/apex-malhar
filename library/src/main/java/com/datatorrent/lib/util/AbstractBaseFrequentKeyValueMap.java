@@ -41,6 +41,9 @@ import org.apache.commons.lang.mutable.MutableInt;
  */
 public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValueOperator<K, V>
 {
+  /**
+   * This is the input port which receives key value pairs.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {

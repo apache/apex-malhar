@@ -36,7 +36,7 @@ import java.io.IOException;
 public abstract class AbstractStoreInputOperator<T, S extends Connectable> implements InputOperator
 {
   /**
-   * The output port.
+   * The output port on which tuples read form a store are emitted.
    */
   @OutputPortFieldAnnotation(name = "out")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();

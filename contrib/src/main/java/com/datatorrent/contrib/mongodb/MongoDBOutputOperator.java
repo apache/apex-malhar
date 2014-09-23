@@ -111,7 +111,7 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
   /**
    * This input port receives tuples which will be written to MongoDB.
    */
-  @InputPortFieldAnnotation(name = "MongoDBInput")
+  @InputPortFieldAnnotation(name = "inputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     @Override

@@ -66,6 +66,9 @@ import java.util.Map;
 @OperatorAnnotation(partitionable = true)
 public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
 {
+  /**
+   * The input port which receives incoming key value pairs.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
@@ -88,6 +91,10 @@ public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
       }
     }
   };
+
+  /**
+   * The output port which emits filtered key value pairs.
+   */
   @OutputPortFieldAnnotation(name = "match", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> match = new DefaultOutputPort<HashMap<K, V>>()
   {

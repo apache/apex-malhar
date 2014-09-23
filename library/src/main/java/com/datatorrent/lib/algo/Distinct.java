@@ -67,7 +67,7 @@ public class Distinct<K> extends BaseKeyOperator<K> implements Unifier<K>
   protected HashMap<K, Object> map = new HashMap<K, Object>();
 
   /**
-   * Input port.
+   * The input port on which tuples are received.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
@@ -87,7 +87,7 @@ public class Distinct<K> extends BaseKeyOperator<K> implements Unifier<K>
   };
 
   /**
-   *  Output for distinct values. </b>
+   *  The output port on which distinct values are emitted.
    */
   @OutputPortFieldAnnotation(name = "distinct")
   public final transient DefaultOutputPort<K> distinct = new DefaultOutputPort<K>()

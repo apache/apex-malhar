@@ -49,13 +49,15 @@ import com.datatorrent.api.Context.OperatorContext;
  *
  * @displayName Generate Random Apache Logs
  * @category io
- * @tags log, input operator, generated
+ * @tags log, input operator, generate
  *
  * @since 0.3.2
  */
 public class ApacheGenRandomLogs extends BaseOperator implements InputOperator
 {
-	// output port
+	/**
+   * This is the output port which emits generated log strings.
+   */
 	public final transient DefaultOutputPort<String> outport = new DefaultOutputPort<String>();
 
 	// server name/ip-address  random variable

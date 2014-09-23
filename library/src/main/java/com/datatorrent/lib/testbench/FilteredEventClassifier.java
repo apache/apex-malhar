@@ -26,9 +26,9 @@ import java.util.Map;
 import java.util.Random;
 
 /**
- *
- * Takes in a stream of data and filters the tuples.&nbsp;
- * It only emits tuples which satisfy the filter numbers provided on the output port filter.
+ * This operator takes in a stream of tuples
+ * and randomly emits them based on the specified total_filter and pass_filter values.&nbsp;
+ * Emitted tuples are modified based on the specified key map and key weights.
  * <p>
  * The aim is to create another stream representing a subsection of incoming load<p>
  * <br>
@@ -69,6 +69,9 @@ import java.util.Random;
  */
 public class FilteredEventClassifier<T> extends BaseOperator
 {
+  /**
+   * The input port on which tuples are received.
+   */
   public final transient DefaultInputPort<HashMap<String, T>> data = new DefaultInputPort<HashMap<String, T>>()
   {
     @Override
@@ -114,6 +117,10 @@ public class FilteredEventClassifier<T> extends BaseOperator
       }
     }
   };
+
+  /**
+   * The output port which emits filtered and modified tuples.
+   */
   public final transient DefaultOutputPort<HashMap<String, T>> filter = new DefaultOutputPort<HashMap<String, T>>();
   HashMap<String, T> keys = new HashMap<String, T>();
   HashMap<Integer, String> wtostr_index = new HashMap<Integer, String>();

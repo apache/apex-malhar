@@ -48,7 +48,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   protected long currentWindowId = -1;
   protected long committedWindowId = -1;
   /**
-   * The input port
+   * The input port on which tuples are received for writing.
    */
   @InputPortFieldAnnotation(name = "in", optional = true)
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()

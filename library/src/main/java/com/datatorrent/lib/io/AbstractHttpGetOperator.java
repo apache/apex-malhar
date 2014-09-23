@@ -39,6 +39,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  */
 public abstract class AbstractHttpGetOperator<INPUT, OUTPUT> extends AbstractHttpOperator<INPUT>
 {
+  /**
+   * The output port which emits retrieved tuples.
+   */
   @OutputPortFieldAnnotation(name = "output", optional = true)
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
 

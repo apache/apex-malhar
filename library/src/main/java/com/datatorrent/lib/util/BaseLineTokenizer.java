@@ -39,6 +39,9 @@ import javax.validation.constraints.NotNull;
  */
 public class BaseLineTokenizer extends BaseOperator
 {
+  /**
+   * This is the input port, which receives strings.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<String> data = new DefaultInputPort<String>()
   {

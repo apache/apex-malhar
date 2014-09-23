@@ -89,6 +89,9 @@ public class FtpInputOperator implements InputOperator
    */
   private boolean isGzip;
 
+  /**
+   * This is the output port which emits tuples read from and FTP server.
+   */
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
   private transient FTPClient ftp;
   private transient BufferedReader in;

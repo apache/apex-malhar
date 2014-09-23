@@ -27,7 +27,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 
 /**
- * This operator takes a stream of key value pairs each window, and outputs a set of inverted key value pairs at the end of each window.
+ * This operator takes a stream of key value pairs each window,
+ * and outputs a set of inverted key value pairs at the end of each window.&nbsp;
+ * The values in the key value pairs received by this operator are an array lists, which may multiple values.
  * <p>
  * Inverts the index and sends out the tuple on output port "index" at the end of the window.
  * </p>
@@ -59,7 +61,7 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
   protected HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
 
   /**
-   * Input port.
+   * The input port on which key value pairs are received.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, ArrayList<V>>> data = new DefaultInputPort<HashMap<K, ArrayList<V>>>()
@@ -83,7 +85,7 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
   };
 
   /**
-   * Output port.
+   * The output port or which inverted key value pairs are emitted.
    */
   @OutputPortFieldAnnotation(name = "index")
   public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>()

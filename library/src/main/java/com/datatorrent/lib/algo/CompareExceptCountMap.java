@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
- * This operator produces a count of how many tuples of value type Number satisfy a specified compare function.
+ * This operator produces a count of how many tuples of value type Number satisfy and do not satisfy a specified compare function.
  * <p>
  * A count is done on how many tuples of value type Number satisfy the compare function. The function is given by
  * "key", "value", and "cmp". If a tuple passed the test count is incremented. On end of window count is emitted on the output port "count".
@@ -64,7 +64,7 @@ import com.datatorrent.lib.util.UnifierSumNumber;
 public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
 {
   /**
-   * Match count output port.
+   * The output port on which the number of tuples satisfying the compare function is emitted.
    */
   @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>()
@@ -78,7 +78,7 @@ public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
 
 
   /**
-   * Not match count output port.
+   * The output port on which the number of tuples not satisfying the compare function is emitted.
    */
   @OutputPortFieldAnnotation(name = "except")
   public final transient DefaultOutputPort<Integer> except = new DefaultOutputPort<Integer>()

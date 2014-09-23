@@ -33,6 +33,10 @@ import com.datatorrent.api.Operator.Unifier;
 public class UnifierRange<V extends Number> implements Unifier<HighLow<V>>
 {
   public HighLow<V> mergedTuple = null;
+
+  /**
+   * This is the output port which emits the minimum and maximum.
+   */
   public final transient DefaultOutputPort<HighLow<V>> mergedport = new DefaultOutputPort<HighLow<V>>();
 
   /**

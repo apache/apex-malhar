@@ -95,7 +95,7 @@ public class RegexMatchMapOperator extends BaseOperator
 
   };
   /**
-   * Output port.
+   * The output port which emits a map from input string section names to input string section values.
    */
   public final transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
 

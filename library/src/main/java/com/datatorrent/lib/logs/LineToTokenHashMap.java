@@ -25,11 +25,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
+ * This operator splits string objects into tokens.&nbsp;
+ * A key value pair is emitted where the key is the first token in an input tuple
+ * and the value is a list of the other tokens in an input tuple., and emits as a HashMap where the first token.
  * <p>
- * Splits String objects into tokens, and emits as a HashMap.
- * <p>
- * First token in line is treated as key and rest are put into values array list. <br>
- * HashMap of token and array values are emitted on output port.
  * This module is a pass through<br>
  * <br>
  * <b>StateFull : No, </b> tokens are processed in current window. <br>
@@ -42,7 +41,7 @@ import java.util.HashMap;
  * <b>Properties</b>:<br>
  * <b>splitby</b>: The characters used to split the line. Default is ";\t "<br>
  * <b>splittokenby</b>: The characters used to split a token into key,val1,val2,.... Default is "", i.e. tokens are not split, and key=token, val=""<br>
- * <br>
+ * </p>
  *
  * @displayName Line To Token (HashMap)
  * @category logs
@@ -54,6 +53,9 @@ import java.util.HashMap;
 @OperatorAnnotation(partitionable=true)
 public class LineToTokenHashMap extends BaseLineTokenizer
 {
+  /**
+   * This output port emits the split strings.
+   */
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>()
   {

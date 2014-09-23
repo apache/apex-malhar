@@ -25,7 +25,8 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 
 /**
- * Writes tuples of a collection to the container's stdout.
+ * This output operator receives collections as tuples.&nbsp;
+ * The contents of each collection is written out to the container's stdout.
  * <p>
  * This is for specific use case for collection where I want to print each key
  * value pair in different line <br>
@@ -54,6 +55,10 @@ public class CollectionMultiConsoleOutputOperator<E> extends BaseOperator
   }
 
   private static final Logger logger = LoggerFactory.getLogger(CollectionMultiConsoleOutputOperator.class);
+
+  /**
+   * This input port which receives collection tuples.
+   */
   public final transient DefaultInputPort<Collection<E>> input = new DefaultInputPort<Collection<E>>() {
     @Override
     public void process(Collection<E> t)
@@ -84,5 +89,4 @@ public class CollectionMultiConsoleOutputOperator<E> extends BaseOperator
   {
     this.silent = silent;
   }
-
 }

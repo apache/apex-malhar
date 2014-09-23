@@ -25,8 +25,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * <p>
- * Splits String objects into tokens, and emits as an ArrayList.
+ * This operator splits string objects into tokens and sub tokens.&nbsp;
+ * This operator emits a list of tokens, as well as a map from tokens to sub tokens.
  * <p>
  * An ArrayList of all tkns are emitted on output port "tokens".
  * An ArrayList of all subtokens are emitted on port splittokens<p>
@@ -43,7 +43,7 @@ import org.slf4j.LoggerFactory;
  * <b>Properties</b>:<br>
  * <b>splitby</b>: The characters used to split the line. Default is ";\t "<br>
  * <b>splittokenby</b>: The characters used to split a token into key,val1,val2,.... If not specified the value is set to null. Default is "", i.e. tokens are not split<br>
- *
+ * </p>
  * @displayName Line To Token (ArrayList)
  * @category logs
  * @tags string
@@ -59,9 +59,10 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   protected transient HashMap<String, ArrayList<String>> smap = null;
   protected transient ArrayList<String> vals = null;
 
-	/**
-	 * Output token port.
-	 */
+
+  /**
+   * This emits the tokens a string is broken up into.
+   */
   @OutputPortFieldAnnotation(name = "tokens", optional = true)
   public final transient DefaultOutputPort<ArrayList<String>> tokens = new DefaultOutputPort<ArrayList<String>>()
   {
@@ -73,8 +74,8 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   };
 
   /**
-   * Output sub tokens port.
-   */
+	 * This output port emits a map from tokens to sub tokens.
+	 */
   @OutputPortFieldAnnotation(name = "splittokens", optional = true)
   public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens = new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>()
   {

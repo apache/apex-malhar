@@ -53,6 +53,10 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
   protected boolean append = true;
   protected int bufferSize = 0;
   protected int replication = 0;
+
+  /**
+   * This is the input port which receives tuples to be written out to HDFS.
+   */
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
   {
     @Override

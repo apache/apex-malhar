@@ -56,6 +56,9 @@ import com.datatorrent.lib.util.AbstractBaseFrequentKey;
 @OperatorAnnotation(partitionable = true)
 public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
 {
+  /**
+   * The input port on which tuples are received.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
@@ -70,7 +73,9 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
   };
 
   /**
-   * Output port, optional.
+   * The output port on which one of the tuples,
+   * which occurred the least number of times,
+   * is emitted.
    */
   @OutputPortFieldAnnotation(name = "least", optional=true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>()
@@ -85,7 +90,9 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
   };
 
   /**
-   * Output port.
+   * The output port on which all the tuples,
+   * which occurred the least number of times,
+   * is emitted.
    */
   @OutputPortFieldAnnotation(name = "list", optional=true)
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()

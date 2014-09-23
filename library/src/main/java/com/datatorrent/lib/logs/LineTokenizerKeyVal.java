@@ -22,7 +22,8 @@ import com.datatorrent.lib.util.UnifierHashMap;
 import java.util.HashMap;
 
 /**
- * Splits lines into tokens, and tokens into sub-tokens and emits key,val pairs in a HashMap.
+ * This operator splits lines into tokens, and tokens into sub-tokens.&nbsp;
+ * Emitted tuples are key value pairs where tokens are the keys and sub tokens are the values.
  * <p>
  * Useful to convert String (log lines) into a POJO (HashMap)
  * </p>
@@ -53,6 +54,10 @@ import java.util.HashMap;
 @OperatorAnnotation(partitionable=true)
 public class LineTokenizerKeyVal extends BaseLineTokenizer
 {
+  /**
+   * This output port emits key value pairs where the key is a token in an input string,
+   * and the value is a sub token of the key token.
+   */
   @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<HashMap<String, String>> tokens = new DefaultOutputPort<HashMap<String, String>>()
   {

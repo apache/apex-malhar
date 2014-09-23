@@ -71,6 +71,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractDimensionTimeBucketOperator.class);
+
+  /**
+   * This is the input port which receives tuples that are maps from strings to objects.
+   */
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>() {
     @Override
@@ -129,9 +133,9 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
     }
 
   };
+
   /**
-   * First String key is the bucket Second String key is the key Third String
-   * key is the field
+   * This is the output port which emits the processed data.
    */
   @OutputPortFieldAnnotation(name = "out", optional = false)
   public final transient DefaultOutputPort<Map<String, Map<String, Number>>> out = new DefaultOutputPort<Map<String, Map<String, Number>>>();

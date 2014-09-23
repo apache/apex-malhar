@@ -17,6 +17,7 @@ package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.KeyHashValPair;
@@ -26,7 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This operator counts the number of times a key exists in a window.&nbsp;A map from keys to counts is emitted at the end of each window.
+ * This operator counts the number of times a key exists in a window.&nbsp;
+ * A map from keys to counts is emitted at the end of each window.
  * <p></p>
  * @displayName Count Key Appearances
  * @category algorithm
@@ -34,11 +36,16 @@ import java.util.Map;
  *
  * @since 1.0.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
 {
 
   protected boolean cumulative = false;
 
+  /**
+   * An input port which receives incoming tuples.
+   */
   @InputPortFieldAnnotation(name = "data")
   public transient final DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
@@ -49,6 +56,9 @@ public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
     }
   };
 
+  /**
+   * An input port which receives incoming tuples.
+   */
   @InputPortFieldAnnotation(name = "data1", optional = true)
   public transient final DefaultInputPort<K> data1 = new DefaultInputPort<K>()
   {

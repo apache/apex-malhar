@@ -55,7 +55,7 @@ public abstract class AbstractSinglePortRabbitMQInputOperator<T> extends Abstrac
   /**
    * This is the output port on which tuples extracted from RabbitMQ messages are emitted.
    */
-  @OutputPortFieldAnnotation(name = "MQTTOutput")
+    @OutputPortFieldAnnotation(name = "outputPort")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

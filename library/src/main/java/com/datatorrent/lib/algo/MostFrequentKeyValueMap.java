@@ -22,8 +22,9 @@ import com.datatorrent.lib.util.AbstractBaseFrequentKeyValueMap;
 import java.util.HashMap;
 
 /**
- * This operator filters the incoming stream of key value pairs by finding the value or values (if there is a tie), for each key, that occur the largest number of times within each window.&nbsp;
- * Each key and its corresponding least values are emitted at the end of each window.
+ * This operator filters the incoming stream of key value pairs by finding the value or values (if there is a tie),
+ * for each key, that occur the largest number of times within each window.&nbsp;
+ * Each key and its corresponding most values are emitted at the end of each window.
  * <p>
  * Occurrences of all values for each key is counted and at the end of window the most frequent values are emitted on output port least per key
  * </p>
@@ -76,6 +77,9 @@ import java.util.HashMap;
 @OperatorAnnotation(partitionable = false)
 public class MostFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueMap<K, V>
 {
+  /**
+   * The output port which emits a map from keys to their most values.
+   */
   @OutputPortFieldAnnotation(name = "most")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> most = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>();
 

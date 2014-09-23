@@ -44,6 +44,9 @@ import com.datatorrent.api.DefaultOutputPort;
  */
 public class LocalFsInputOperator extends AbstractLocalFSInputOperator
 {
+  /**
+   * This is the output port which emits the lines read from a specified file.
+   */
   public final transient DefaultOutputPort<String> outport = new DefaultOutputPort<String>();
   private DataInputStream in;
   private BufferedReader br;

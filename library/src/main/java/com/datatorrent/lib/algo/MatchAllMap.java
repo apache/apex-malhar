@@ -67,6 +67,9 @@ import com.datatorrent.lib.util.UnifierBooleanAnd;
 @OperatorAnnotation(partitionable = true)
 public class MatchAllMap<K, V extends Number> extends BaseMatchOperator<K, V>
 {
+  /**
+   * The input port on which key value pairs are received.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
@@ -86,6 +89,10 @@ public class MatchAllMap<K, V extends Number> extends BaseMatchOperator<K, V>
       result = compareValue(val.doubleValue());
     }
   };
+
+  /**
+   * The output port on which true is emitted if all key value pairs satisfy the specified comparison function.
+   */
   @OutputPortFieldAnnotation(name = "all")
   public final transient DefaultOutputPort<Boolean> all = new DefaultOutputPort<Boolean>()
   {

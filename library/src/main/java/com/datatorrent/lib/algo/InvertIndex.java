@@ -27,7 +27,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * This operator takes a stream of key value pairs each window, and outputs a set of inverted key value pairs at the end of each window.
+ * This operator takes a stream of key value pairs each window,
+ * and outputs a set of inverted key value pairs at the end of each window.
  * <p>
  * Inverts the index and sends out the tuple on output port "index" at the end of the window.
  * </p>
@@ -60,7 +61,7 @@ public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V> implements Uni
   protected HashMap<V, ArrayList<K>> map = new HashMap<V, ArrayList<K>>();
 
   /**
-   * Input port.
+   * The input port on which key value pairs are received.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
@@ -81,7 +82,7 @@ public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V> implements Uni
   };
 
   /**
-   * Output port.
+   * The output port on which inverted key value pairs are emitted.
    */
   @OutputPortFieldAnnotation(name = "index")
   public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>()

@@ -36,6 +36,9 @@ import java.util.Map;
 public class UnifierMap<K, V> implements Unifier<Map<K, V>>
 {
   public Map<K, V> mergedTuple = new HashMap<K, V>();
+  /**
+   * This is the output port which emits a merged map.
+   */
   public final transient DefaultOutputPort<Map<K, V>> mergedport = new DefaultOutputPort<Map<K, V>>();
 
   /**

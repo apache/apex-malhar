@@ -50,7 +50,7 @@ public class BottomNUnifier<K, V> implements Unifier<HashMap<K, ArrayList<V>>>
   int n = 1;
 
   /**
-   * Default output port.
+   * The output port on which the bottom N tuples per key are emitted.
    */
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> mergedport = new DefaultOutputPort<HashMap<K, ArrayList<V>>>();
 

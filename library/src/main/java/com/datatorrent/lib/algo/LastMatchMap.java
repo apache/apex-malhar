@@ -69,7 +69,7 @@ public class LastMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
   protected HashMap<K, V> ltuple = null;
 
   /**
-   * Input port.
+   * The input port on which key value pairs are received.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
@@ -91,7 +91,7 @@ public class LastMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
   };
 
   /**
-   * Output port.
+   * The output port on which the last key value pair to satisfy the comparison function is emitted.
    */
   @OutputPortFieldAnnotation(name = "last")
   public final transient DefaultOutputPort<HashMap<K, V>> last = new DefaultOutputPort<HashMap<K, V>>();
