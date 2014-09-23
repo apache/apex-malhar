@@ -37,6 +37,9 @@ import com.datatorrent.api.DefaultInputPort;
  */
 public abstract class SingleVariableAbstractCalculus extends AbstractOutput
 {
+  /**
+   * Input number port.
+   */
   public final transient DefaultInputPort<Number> input = new DefaultInputPort<Number>()
   {
     @Override

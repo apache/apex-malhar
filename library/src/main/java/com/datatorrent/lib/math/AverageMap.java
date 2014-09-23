@@ -60,7 +60,7 @@ public class AverageMap<K, V extends Number> extends
 	protected HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 	
 	/**
-	 * Data input port.
+	 * Input port that takes a map.&nbsp; It adds the values for each key and counts the number of occurrences of each key to computes the average.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
@@ -97,7 +97,7 @@ public class AverageMap<K, V extends Number> extends
 	};
 	
 	/**
-	 *  Average output port.
+	 *  Average output port that emits a hashmap.
 	 */
 	public final transient DefaultOutputPort<HashMap<K, V>> average = new DefaultOutputPort<HashMap<K, V>>()
 	{

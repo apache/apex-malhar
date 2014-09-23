@@ -51,6 +51,9 @@ import org.apache.commons.lang.mutable.MutableDouble;
 public class MarginKeyVal<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>
 {
+        /**
+	 * Numerator input port that takes a key value pair.
+	 */
 	@InputPortFieldAnnotation(name = "numerator")
 	public final transient DefaultInputPort<KeyValPair<K, V>> numerator = new DefaultInputPort<KeyValPair<K, V>>()
 	{
@@ -72,6 +75,10 @@ public class MarginKeyVal<K, V extends Number> extends
 			return getKeyValPairStreamCodec();
 		}
 	};
+        
+        /**
+	 * Denominator input port that takes a key value pair.
+	 */
 	@InputPortFieldAnnotation(name = "denominator")
 	public final transient DefaultInputPort<KeyValPair<K, V>> denominator = new DefaultInputPort<KeyValPair<K, V>>()
 	{
@@ -114,6 +121,9 @@ public class MarginKeyVal<K, V extends Number> extends
 		val.add(tuple.getValue().doubleValue());
 	}
 
+        /**
+	 * Output margin port that emits Key Value pairs.
+	 */
 	@OutputPortFieldAnnotation(name = "margin")
 	public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>();
 

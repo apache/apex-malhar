@@ -63,7 +63,7 @@ public class RangeKeyVal<K, V extends Number> extends
 	protected HashMap<K, V> low = new HashMap<K, V>();
 	
 	/**
-	 * Input port.
+	 *  Input port that takes a key value pair.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
@@ -98,7 +98,7 @@ public class RangeKeyVal<K, V extends Number> extends
 	};
 
 	/**
-	 * Output port to send out the high low range.
+	 * Range output port to send out the high low range.
 	 */
 	@OutputPortFieldAnnotation(name = "range")
 	public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> range = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>()

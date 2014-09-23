@@ -46,9 +46,9 @@ import com.datatorrent.lib.util.KeyValPair;
  */
 public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
-	/**
-	 * Input port.
-	 */
+  /**
+   * Input port that takes a key value pair and compares to max and stores the new max.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {

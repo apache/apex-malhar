@@ -58,6 +58,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  */
 public class Change<V extends Number> extends BaseNumberValueOperator<V>
 {
+        /**
+	 * Input port that takes a number, processes and computes percentage change with base value and emits it.
+	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
 	{
@@ -74,6 +77,10 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
 			}
 		}
 	};
+        
+        /**
+	 * Input port that takes a number; It stores the value for base comparison.
+	 */
 	@InputPortFieldAnnotation(name = "base")
 	public final transient DefaultInputPort<V> base = new DefaultInputPort<V>()
 	{
@@ -92,13 +99,13 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
 	};
 	
 	/**
-	 * Change in value compared to base value.
+	 * Output port that emits change in value compared to base value.
 	 */
 	@OutputPortFieldAnnotation(name = "change", optional = true)
 	public final transient DefaultOutputPort<V> change = new DefaultOutputPort<V>();
 	
 	/**
-	 * Percent change in data value compared to base value.
+	 * Output port that emits percent change in data value compared to base value.
 	 */
 	@OutputPortFieldAnnotation(name = "percent", optional = true)
 	public final transient DefaultOutputPort<Double> percent = new DefaultOutputPort<Double>();

@@ -72,7 +72,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
 	protected boolean cumulative = false;
 
 	/**
-	 * Input port to receive data.
+	 * Input port to receive data.&nbsp; It computes sum and count for each tuple.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()

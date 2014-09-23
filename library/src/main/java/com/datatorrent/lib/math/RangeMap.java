@@ -60,13 +60,13 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
   protected HashMap<K,V> low = new HashMap<K,V>();
   
 	/**
-	 * Input key/value map port.
+	 * Input port that takes a map and computes new high and low values.
 	 */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
-     * Process each key and computes new high and low
+     * Process each key and computes new high and low.
      */
     @Override
     public void process(Map<K, V> tuple)

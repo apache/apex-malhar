@@ -80,9 +80,15 @@ import java.util.Map;
 @Stateless
 public class CompareExceptMap<K, V extends Number> extends MatchMap<K, V>
 {
+  /**
+   * Output port that emits a hashmap of matched tuples after comparison.
+   */
   @OutputPortFieldAnnotation(name = "compare", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
-
+  
+  /**
+   * Output port that emits a hashmap of non matching tuples after comparison.
+   */
   @OutputPortFieldAnnotation(name = "expect", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>()
   {

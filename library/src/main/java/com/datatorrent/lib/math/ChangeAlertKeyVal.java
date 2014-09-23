@@ -61,7 +61,7 @@ public class ChangeAlertKeyVal<K, V extends Number> extends
 	private HashMap<K, MutableDouble> basemap = new HashMap<K, MutableDouble>();
 
 	/**
-	 * Input port, key/value pair.
+	 * Input port that takes a key value pair and computes percentage change with base value and emits it.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
@@ -100,7 +100,7 @@ public class ChangeAlertKeyVal<K, V extends Number> extends
 	};
 	
 	/**
-	 * Key/Percent Change output port.
+	 * Key,Percent Change output port.
 	 */
 	@OutputPortFieldAnnotation(name = "alert")
 	public final transient DefaultOutputPort<KeyValPair<K, KeyValPair<V, Double>>> alert = new DefaultOutputPort<KeyValPair<K, KeyValPair<V, Double>>>();

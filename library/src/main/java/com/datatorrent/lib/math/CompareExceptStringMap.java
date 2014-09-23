@@ -58,9 +58,15 @@ import java.util.Map;
 @Stateless
 public class CompareExceptStringMap<K> extends MatchStringMap<K>
 {
+  /**
+   * Output port that emits a hashmap of matching string tuples after comparison.
+   */
   @OutputPortFieldAnnotation(name = "compare", optional=true)
   public final transient DefaultOutputPort<HashMap<K,String>> compare = match;
-
+ 
+  /**
+   * Output port that emits a hashmap of non matching string tuples after comparison.
+   */
   @OutputPortFieldAnnotation(name = "except", optional=true)
   public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>()
   {

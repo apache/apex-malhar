@@ -48,9 +48,9 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
   // transient field
   protected boolean flag = false;
   
-	/**
-	 * Input port.
-	 */
+	 /**
+          * Input port that takes a number and compares to min and stores the new min.
+          */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {

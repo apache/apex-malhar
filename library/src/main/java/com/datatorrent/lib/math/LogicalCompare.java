@@ -51,7 +51,7 @@ public abstract class LogicalCompare<T extends Comparable<? super T>> extends
 		BaseOperator
 {
 	/**
-	 * Value pair input port.
+	 * Input port that takes a key, value pair and compares them.
 	 */
 	public final transient DefaultInputPort<Pair<T, T>> input = new DefaultInputPort<Pair<T, T>>()
 	{

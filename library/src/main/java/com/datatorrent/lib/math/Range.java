@@ -75,7 +75,7 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
 	};
 
 	/**
-	 * Output range port, with high low unifier operator.
+	 * Output range port, which emits high low unifier operator.
 	 */
 	@OutputPortFieldAnnotation(name = "range")
 	public final transient DefaultOutputPort<HighLow<V>> range = new DefaultOutputPort<HighLow<V>>()
