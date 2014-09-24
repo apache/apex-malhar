@@ -240,6 +240,10 @@
           <artifactId>jetty-util</artifactId>
           <groupId>org.mortbay.jetty</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>commons-codec</artifactId>
+          <groupId>commons-codec</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
