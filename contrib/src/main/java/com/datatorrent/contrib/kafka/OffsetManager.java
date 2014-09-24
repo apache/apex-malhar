@@ -18,30 +18,31 @@ package com.datatorrent.contrib.kafka;
 import java.util.Map;
 
 /**
- * An offset manager interface used by  {@link AbstractPartitionableKafkaInputOperator} to notify any offset change from any of the operator instances
+ * An offset manager interface used by  {@link AbstractPartitionableKafkaInputOperator} to define the customized initial offsets and periodically update the current offsets of all the operators
  * <br>
- * It's also used to load the initial offset from user defined way. Ex. you could write offset to hdfs and load it back
+ * <br>
+ * Ex. you could write offset to hdfs and load it back when restart the application
  *
  */
 public interface OffsetManager
 {
 
-  /**
-   * A user defined way to load initial offset
-   */
-  public void loadInitialOffset();
 
   /**
-   * Get all the offset map for all kafka partitions
-   * @return Offset Map, kafka partition id as key, offset for each partition as value
-   */
-  public Map<Integer, Long> getAllOffset();
-
-
-  /**
-   * @param offsetsOfPartitions offsets for specified partitions
    * 
-   * It will be called if offset of specified partitions are changed
+   * Load initial offsets for all kafka partition
+   * <br>
+   * The method is called at the first attempt of creating partitions and the return value is used as initial offset for simple consumer
+   * 
+   * @return Map of Kafka partition id as key and offset as value
+   */
+  public Map<Integer, Long> loadInitialOffsets();
+
+
+  /**
+   * @param offsetsOfPartitions offsets for specified partitions, it is reported by individual operator instances
+   * <br>
+   * The method is called every {@link AbstractPartitionableKafkaInputOperator#getRepartitionCheckInterval()} to update the current offset
    */
   public void updateOffsets(Map<Integer, Long> offsetsOfPartitions);
 
