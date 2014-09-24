@@ -20,6 +20,9 @@ import java.io.IOException;
 
 import org.junit.rules.TestWatcher;
 
+import com.datatorrent.api.Operator.OutputPort;
+import com.datatorrent.api.Sink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -63,5 +66,12 @@ public class TestUtils
     Class<T> clazz = (Class<T>)src.getClass();
     return kryo.readObject(input, clazz);
   }
+
+  @SuppressWarnings({ "unchecked", "rawtypes" })
+  public static <T> void setSink(OutputPort<T> port, Sink<T> sink)
+  {
+     port.setSink((CollectorTestSink)sink);
+  }
+
 
 }
