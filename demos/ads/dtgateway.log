@@ -1,0 +1,41 @@
+2014-09-08 11:18:52,867 WARN org.apache.hadoop.util.NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+2014-09-08 11:18:53,404 INFO com.datatorrent.stram.StramLocalCluster: Buffer server started: /0:0:0:0:0:0:0:0:43437
+2014-09-08 11:18:53,426 INFO com.datatorrent.stram.StramLocalCluster: Started container container-0
+2014-09-08 11:18:53,427 INFO com.datatorrent.stram.StramLocalCluster: Started container container-1
+2014-09-08 11:18:53,428 INFO com.datatorrent.stram.StramLocalCluster: Started container container-2
+2014-09-08 11:18:53,428 INFO com.datatorrent.stram.StramLocalCluster: Started container container-3
+2014-09-08 11:18:53,429 INFO com.datatorrent.stram.StramLocalCluster: Started container container-4
+2014-09-08 11:18:53,429 INFO com.datatorrent.stram.StramLocalCluster: Started container container-5
+2014-09-08 11:18:53,430 INFO com.datatorrent.stram.StramLocalCluster: Started container container-6
+2014-09-08 11:18:53,430 INFO com.datatorrent.stram.StramLocalCluster: Started container container-7
+2014-09-08 11:18:53,431 INFO com.datatorrent.stram.StramLocalCluster: Started container container-8
+2014-09-08 11:18:53,431 INFO com.datatorrent.stram.StramLocalCluster: Started container container-9
+2014-09-08 11:18:53,432 INFO com.datatorrent.stram.StramLocalCluster: Started container container-10
+2014-09-08 11:18:53,432 INFO com.datatorrent.stram.StramLocalCluster: Started container container-11
+2014-09-08 11:18:53,458 INFO com.datatorrent.stram.StramLocalCluster: container-7 msg: [container-7] Entering heartbeat loop..
+2014-09-08 11:18:53,458 INFO com.datatorrent.stram.StramLocalCluster: container-6 msg: [container-6] Entering heartbeat loop..
+2014-09-08 11:18:53,459 INFO com.datatorrent.stram.StramLocalCluster: container-2 msg: [container-2] Entering heartbeat loop..
+2014-09-08 11:18:53,459 INFO com.datatorrent.stram.StramLocalCluster: container-5 msg: [container-5] Entering heartbeat loop..
+2014-09-08 11:18:53,459 INFO com.datatorrent.stram.StramLocalCluster: container-11 msg: [container-11] Entering heartbeat loop..
+2014-09-08 11:18:53,459 INFO com.datatorrent.stram.StramLocalCluster: container-10 msg: [container-10] Entering heartbeat loop..
+2014-09-08 11:18:53,459 INFO com.datatorrent.stram.StramLocalCluster: container-8 msg: [container-8] Entering heartbeat loop..
+2014-09-08 11:18:53,459 INFO com.datatorrent.stram.StramLocalCluster: container-4 msg: [container-4] Entering heartbeat loop..
+2014-09-08 11:18:53,459 INFO com.datatorrent.stram.StramLocalCluster: container-1 msg: [container-1] Entering heartbeat loop..
+2014-09-08 11:18:53,460 INFO com.datatorrent.stram.StramLocalCluster: container-3 msg: [container-3] Entering heartbeat loop..
+2014-09-08 11:18:53,460 INFO com.datatorrent.stram.StramLocalCluster: container-0 msg: [container-0] Entering heartbeat loop..
+2014-09-08 11:18:53,460 INFO com.datatorrent.stram.StramLocalCluster: container-9 msg: [container-9] Entering heartbeat loop..
+2014-09-08 11:18:54,542 WARN com.datatorrent.stram.engine.Node: Attribute{defaultValue=1, name=com.datatorrent.api.Context.OperatorContext.CHECKPOINT_WINDOW_COUNT, codec=com.datatorrent.api.StringCodec$Integer2String@6e75d758} is not exact multiple of Attribute{defaultValue=1, name=com.datatorrent.api.Context.OperatorContext.APPLICATION_WINDOW_COUNT, codec=com.datatorrent.api.StringCodec$Integer2String@6f347124} for operator SumCountMap{name=viewAggr}. This may cause side effects such as processing to begin without beginWindow preceding it in the first window after activation.
+2014-09-08 11:18:54,542 WARN com.datatorrent.stram.engine.Node: Attribute{defaultValue=1, name=com.datatorrent.api.Context.OperatorContext.CHECKPOINT_WINDOW_COUNT, codec=com.datatorrent.api.StringCodec$Integer2String@6e75d758} is not exact multiple of Attribute{defaultValue=1, name=com.datatorrent.api.Context.OperatorContext.APPLICATION_WINDOW_COUNT, codec=com.datatorrent.api.StringCodec$Integer2String@6f347124} for operator SumCountMap{name=clickAggr}. This may cause side effects such as processing to begin without beginWindow preceding it in the first window after activation.
+2014-09-08 11:19:13,435 INFO com.datatorrent.stram.StramLocalCluster: Application finished.
+2014-09-08 11:19:13,436 INFO com.datatorrent.stram.StramLocalCluster: container-8 msg: [container-8] Exiting heartbeat loop..
+2014-09-08 11:19:13,436 INFO com.datatorrent.stram.StramLocalCluster: container-5 msg: [container-5] Exiting heartbeat loop..
+2014-09-08 11:19:13,436 INFO com.datatorrent.stram.StramLocalCluster: container-2 msg: [container-2] Exiting heartbeat loop..
+2014-09-08 11:19:13,436 INFO com.datatorrent.stram.StramLocalCluster: container-1 msg: [container-1] Exiting heartbeat loop..
+2014-09-08 11:19:13,436 INFO com.datatorrent.stram.StramLocalCluster: container-6 msg: [container-6] Exiting heartbeat loop..
+2014-09-08 11:19:13,437 INFO com.datatorrent.stram.StramLocalCluster: container-7 msg: [container-7] Exiting heartbeat loop..
+2014-09-08 11:19:13,437 INFO com.datatorrent.stram.StramLocalCluster: container-0 msg: [container-0] Exiting heartbeat loop..
+2014-09-08 11:19:13,437 INFO com.datatorrent.stram.StramLocalCluster: container-11 msg: [container-11] Exiting heartbeat loop..
+2014-09-08 11:19:13,437 INFO com.datatorrent.stram.StramLocalCluster: container-9 msg: [container-9] Exiting heartbeat loop..
+2014-09-08 11:19:13,437 INFO com.datatorrent.stram.StramLocalCluster: container-4 msg: [container-4] Exiting heartbeat loop..
+2014-09-08 11:19:13,437 INFO com.datatorrent.stram.StramLocalCluster: container-3 msg: [container-3] Exiting heartbeat loop..
+2014-09-08 11:19:13,438 INFO com.datatorrent.stram.StramLocalCluster: container-10 msg: [container-10] Exiting heartbeat loop..

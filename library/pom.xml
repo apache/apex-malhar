@@ -16,6 +16,9 @@
 
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>
+    <!-- skip tests by default as they depend on manual setup -->
+    <skip.contrib.module.tests>true</skip.contrib.module.tests>
+        <skipTests>true</skipTests>
   </properties>
 
   <build>
