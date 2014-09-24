@@ -248,6 +248,10 @@
           <artifactId>commons-io</artifactId>
           <groupId>commons-io</groupId>
         </exclusion>
+        <exclusion>
+          <artifactId>commons-lang</artifactId>
+          <groupId>commons-lang</groupId>
+        </exclusion>
       </exclusions>
     </dependency>
     <dependency>
