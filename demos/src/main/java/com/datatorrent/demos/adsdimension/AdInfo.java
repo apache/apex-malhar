@@ -39,7 +39,7 @@ public class AdInfo implements Serializable
   long impressions;
   long clicks;
 
-  AdInfo()
+  public AdInfo()
   {
   }
 
@@ -101,6 +101,22 @@ public class AdInfo implements Serializable
   public long getClicks()
   {
     return clicks;
+  }
+
+  public void setClicks(long clicks) {
+    this.clicks = clicks;
+  }
+
+  public void setCost(double cost) {
+    this.cost = cost;
+  }
+
+  public void setRevenue(double revenue) {
+    this.revenue = revenue;
+  }
+
+  public void setImpressions(long impressions) {
+    this.impressions = impressions;
   }
 
   @Override
