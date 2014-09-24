@@ -5,7 +5,7 @@
   <parent>
     <artifactId>dt-framework</artifactId>
     <groupId>com.datatorrent</groupId>
-    <version>1.0.4-RC3</version>
+    <version>1.0.4-1</version>
   </parent>
 
   <artifactId>dt-flume</artifactId>
