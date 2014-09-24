@@ -99,7 +99,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   // Store the current collected kafka consumer stats
   private transient Map<Integer, List<KafkaMeterStats>> kafkaStatsHolder = new HashMap<Integer, List<KafkaConsumer.KafkaMeterStats>>();
   
-  private transient OffsetManager offsetManager = null;
+  private OffsetManager offsetManager = null;
 
   // To avoid uneven data stream, only allow at most 1 repartition in every 30 seconds
   private long repartitionInterval = 30000L;
