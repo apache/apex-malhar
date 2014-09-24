@@ -475,5 +475,5 @@ public abstract class AbstractXmlCartesianProduct<T> extends AbstractXmlDOMOpera
 
   protected abstract String getValue(Node node);
 
-  private CartesianProduct[] cartesianProducts;
+  private transient CartesianProduct[] cartesianProducts;
 }
