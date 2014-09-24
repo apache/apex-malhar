@@ -166,9 +166,9 @@
                           <include>org.apache.curator:curator-client:jar:2.3.0</include>
                           <include>org.apache.curator:curator-x-discovery:jar:2.3.0</include>
                           <include>org.apache.curator:curator-framework:jar:2.3.0</include>
-                          <include>org.apache.flume:flume-ng-sdk:jar:1.4.0</include>
-                          <include>org.apache.flume:flume-ng-core:jar:1.4.0</include>
-                          <include>org.apache.flume:flume-ng-configuration:jar:1.4.0</include>
+                          <include>org.apache.flume:flume-ng-sdk:jar:1.5.0</include>
+                          <include>org.apache.flume:flume-ng-core:jar:1.5.0</include>
+                          <include>org.apache.flume:flume-ng-configuration:jar:1.5.0</include>
                         </includes>
                       </dependency>
                     </mapping>
@@ -217,7 +217,7 @@
     <dependency>
       <groupId>org.apache.flume</groupId>
       <artifactId>flume-ng-core</artifactId>
-      <version>1.4.0</version>
+      <version>1.5.0</version>
       <exclusions>
         <exclusion>
           <!-- Curator requires later version of Guava -->
