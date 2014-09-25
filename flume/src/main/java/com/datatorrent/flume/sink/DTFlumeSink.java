@@ -285,6 +285,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
         component.setup(null);
       }
+      if (codec instanceof Component) {
+        @SuppressWarnings("unchecked")
+        Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)codec;
+        component.setup(null);
+      }
       eventloop = new DefaultEventLoop("EventLoop-" + id);
       server = new Server(id, discovery);
     }
@@ -298,8 +303,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       throw new RuntimeException(ex);
     }
 
-    // make it configurable
-    codec = new EventCodec();
     eventloop.start();
     eventloop.start(hostname, port, server);
     super.start();
@@ -321,8 +324,11 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         eventloop.stop(server);
         eventloop.stop();
 
-        codec = null;
-
+        if (codec instanceof Component){
+          @SuppressWarnings("unchecked")
+          Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)codec;
+          component.teardown();
+        }
         if (discovery instanceof Component) {
           @SuppressWarnings("unchecked")
           Component<com.datatorrent.api.Context> component = (Component<com.datatorrent.api.Context>)discovery;
@@ -425,7 +431,17 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       };
     }
 
+    @SuppressWarnings("unchecked")
+    StreamCodec<Event> lCodec = configure("codec", StreamCodec.class, context);
+    if (lCodec == null) {
+      codec = new EventCodec();
+    }
+    else {
+      codec = lCodec;
+    }
+
   }
+
   /* End Configurable Interface */
 
   @SuppressWarnings({"UseSpecificCatch", "BroadCatchBlock", "TooBroadCatch"})
