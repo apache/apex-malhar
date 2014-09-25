@@ -27,7 +27,7 @@ import java.util.TreeMap;
  * This is the chart operator that plots the average (mean) value of Y for each window.  X will be based on the timestamp derived from the window id
  * </p>
  * @displayName Time Series Average Chart
- * @category chart
+ * @category Charting
  * @tags output operator
  *
  * @param <K> The type of the key

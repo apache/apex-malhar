@@ -40,7 +40,7 @@ import java.util.ArrayList;
  * 2. getUnifierInstance : Get unifier operator instance for output port, (must return self instance).
  * </p>
  * @displayName Merge Sorted Lists (Number)
- * @category algorithm
+ * @category Algorithmic
  * @tags rank, numeric
  *
  * @since 0.3.3

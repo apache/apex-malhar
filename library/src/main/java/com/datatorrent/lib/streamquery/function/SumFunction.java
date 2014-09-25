@@ -10,9 +10,9 @@ import javax.validation.constraints.NotNull;
 /**
  * <p> An implementation of sql sum function. </p>
  * <p>
- * @displayName: Sum Function
- * @category: streamquery/function
- * @tag: sql sum, aggregate
+ * @displayName Sum Function
+ * @category Streamquery/Functions
+ * @tags sql sum, aggregate
  * @since 0.3.4
  */
 public class SumFunction extends FunctionIndex

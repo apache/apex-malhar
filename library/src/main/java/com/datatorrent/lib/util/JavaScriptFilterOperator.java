@@ -25,7 +25,7 @@ import org.slf4j.LoggerFactory;
  * This operator consumes tuples.&nbsp;If the tuples satisfy a specified Java Script filtering function, then they are emitted.
  * <p></p>
  * @displayName Java Script Filter
- * @category algorithm
+ * @category Algorithmic
  * @tags filter
  * @since 0.3.4
  */

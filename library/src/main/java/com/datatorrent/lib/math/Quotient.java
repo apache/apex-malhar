@@ -38,9 +38,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Properties : </b> <br>
  * <b>mult_by : </b>Multiply by value(default = 1). <br>
  * <br>
- * @displayname: Quotient
- * @category: math
- * @tags: division, sum, numeric
+ * @displayName Quotient
+ * @category Math
+ * @tags division, sum, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

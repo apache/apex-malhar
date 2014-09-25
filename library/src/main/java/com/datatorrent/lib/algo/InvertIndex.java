@@ -46,7 +46,7 @@ import java.util.Map;
  * </p>
  *
  * @displayName Invert Keyval Pairs
- * @category algorithm
+ * @category Algorithmic
  * @tags key value
  *
  * @since 0.3.2

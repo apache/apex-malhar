@@ -31,9 +31,9 @@ import org.apache.commons.lang.StringUtils;
  *   <b> column : </b> column name for first/last value.   <br>
  *   <b> alias  : </b> Alias name for output. <br>
  *   <b> isFirst : </b> return first value if true.
- * @displayName: First Last Function
- * @category: streamquery/function
- * @tag: sql first, sql last
+ * @displayName First Last Function
+ * @category Streamquery/Functions
+ * @tags sql first, sql last
  * @since 0.3.4
  */
 public class FirstLastFunction extends FunctionIndex

@@ -40,9 +40,9 @@ import com.datatorrent.lib.util.UnifierCountOccurKey;
  * <b>data</b>: expects KeyValPair&lt;K,V&gt;<br>
  * <b>count</b>: emits KeyValPair&lt;K,Integer&gt;</b><br>
  * <br>
- * @displayname: Count Key Value
- * @category: math
- * @tags: count, key value, aggregate
+ * @displayName Count Key Value
+ * @category Math
+ * @tags count, key value, aggregate
  * @since 0.3.3
  */
 public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>

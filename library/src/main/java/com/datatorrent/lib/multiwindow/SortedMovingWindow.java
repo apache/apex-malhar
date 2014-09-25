@@ -45,9 +45,9 @@ import com.google.common.base.Function;
  * by default: comparator is null which means the tuple must be comparable
  * <p></p>
  *
- * @displayName: Sorted Moving Window
- * @category: multiwindow
- * @tag: sort, list, function, sliding window
+ * @displayName Sorted Moving Window
+ * @category Multi-Window
+ * @tags sort, list, function, sliding window
  * @since 0.9.2
  */
 public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>

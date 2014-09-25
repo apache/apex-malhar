@@ -42,9 +42,9 @@ import java.util.Map;
  * <b>keyval</b>: emits Entry&lt;K,V&gt;<br>
  * <b>val</b>: emits V<br>
  * <br>
- * @displayName: Hash Map To Key Value Pair
- * @category: stream
- * @tag: hashmap, key value
+ * @displayName Hash Map To Key Value Pair
+ * @category Stream
+ * @tags hashmap, key value
  * @since 0.3.3
  */
 @Stateless

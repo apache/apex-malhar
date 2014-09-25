@@ -33,9 +33,9 @@ import java.util.ArrayList;
  * <b>Ports</b>:<br>
  * <b>data</b>: expects ArrayList&lt;K&gt;br> <b>item</b>: emits K<br>
  * 
- * @displayName: Array List To Item
- * @category: stream
- * @tag: arraylist, clone
+ * @displayName Array List To Item
+ * @category Stream
+ * @tags arraylist, clone
  * @since 0.3.3
  */
 @Stateless

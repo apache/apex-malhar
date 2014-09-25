@@ -54,7 +54,7 @@ import javax.validation.constraints.Min;
  * </p>
  *
  * @displayName Sampler
- * @category algorithm
+ * @category Algorithmic
  * @tags filter
  *
  * @since 0.3.2

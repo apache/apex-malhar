@@ -51,7 +51,7 @@ import javax.validation.constraints.NotNull;
  * </p>
  *
  * @displayName Filter Keyval Pairs By Key HashMap
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, key value
  *
  * @since 0.3.2

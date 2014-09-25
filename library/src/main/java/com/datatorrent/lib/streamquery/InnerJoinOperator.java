@@ -46,9 +46,9 @@ import com.datatorrent.lib.streamquery.index.Index;
  *  <b> table1Columns : </b> Columns to be selected from table1. <br>
  *  <b> table2Columns : </b> Columns to be selected from table2. <br>
  *  <br>
- * @displayName: Inner join
- * @category: streamquery
- * @tag: sql, inner join operator
+ * @displayName Inner join
+ * @category Streamquery
+ * @tags sql, inner join operator
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

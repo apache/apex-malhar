@@ -20,9 +20,9 @@ package com.datatorrent.lib.pigquery;
  * Limit operator which is similar to select top operator in stream query library. <br>
  * <p>
  * Please use operator : {@link com.datatorrent.lib.streamquery.SelectTopOperator}.
- * @displayName: Pig Limit
- * @category: pigquery
- * @tag: limit operator, top
+ * @displayName Pig Limit
+ * @category Pig Query
+ * @tags limit operator, top
  * @since 0.3.4
  */
 public class PigLimitOperator

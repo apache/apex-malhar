@@ -23,9 +23,9 @@ import javax.validation.constraints.NotNull;
    implementation of filter/getExpressionName functions.
  * <p>
  * Sub class will implement filter/getExpressionName functions.
- * @displayName: Unary Expression
- * @category: streamquery/index
- * @tag: unary, alias
+ * @displayName Unary Expression
+ * @category Streamquery/Index
+ * @tags unary, alias
  * @since 0.3.4
  */
 abstract public class UnaryExpression  implements Index

@@ -29,7 +29,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * Subclasses must implement the methods which retrieve data from and insert data into the chart.
  * <p></p>
  * @displayName Abstract XY Chart
- * @category chart
+ * @category Charting
  * @tags output operator
  *
  * @param <K> The type for the key

@@ -28,9 +28,9 @@ import com.datatorrent.api.Operator;
 /**
  * A {@link Unifier} implementation for {@link DimensionsComputation}.<br/>
  * <p>
- * @displayName: Dimension Computation Unifier Implementation
- * @category: statistics
- * @tag: event, dimension, aggregation, computation
+ * @displayName Dimension Computation Unifier Implementation
+ * @category Statistics
+ * @tags event, dimension, aggregation, computation
  * @param <EVENT>
  * @since 0.9.4
  */

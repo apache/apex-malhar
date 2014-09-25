@@ -37,9 +37,9 @@ import com.datatorrent.api.DefaultOutputPort;
  * <b>StateFull : Yes</b>, value are aggregated over application window. <br>
  * <b>Partitions : No</b>, no will yield wrong results. <br>
  * <br>+
- * @displayName: Median
- * @category: statistics
- * @tag: median operator, number
+ * @displayName Median
+ * @category Statistics
+ * @tags median operator, number
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)

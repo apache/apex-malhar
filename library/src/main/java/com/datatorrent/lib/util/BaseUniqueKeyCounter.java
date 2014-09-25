@@ -22,7 +22,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  * This operator counts the number of unique occurrences of tuples within each application window.
  * <p></p>
  * @displayName Base Unique Key Counter
- * @category algorithm
+ * @category Algorithmic
  * @tags count
  * @param <K>
  * @since 0.3.2

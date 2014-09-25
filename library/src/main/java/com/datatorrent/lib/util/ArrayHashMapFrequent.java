@@ -30,7 +30,7 @@ import java.util.Map;
  * The processing done is done with a sticky key partition, i.e. each one key belongs only to one partition.
  * </p>
  * @displayName Array Hash Map Frequent
- * @category algorithm
+ * @category Algorithmic
  * @tags numeric
  * @since 0.3.3
  */

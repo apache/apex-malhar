@@ -53,7 +53,7 @@ import java.util.HashMap;
  * <br>
  * </p>
  * @displayName Emit Most Frequent Value
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, count
  *
  * @since 0.3.2

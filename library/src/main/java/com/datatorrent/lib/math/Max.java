@@ -32,9 +32,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>data</b>: expects V extends Number<br>
  * <b>max</b>: emits V extends Number<br>
  * <br>
- * @displayname: Maximum
- * @category: math
- * @tags: maximum, numeric
+ * @displayName Maximum
+ * @category Math
+ * @tags maximum, numeric
  * @since 0.3.2
  */
 public class Max<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>

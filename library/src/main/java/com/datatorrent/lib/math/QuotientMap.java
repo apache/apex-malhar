@@ -55,9 +55,9 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * denominator. <br>
  * <b>mult_by :</b> Set multiply by constant value. <br>
  * <br>
- * @displayname: Quotient Map
- * @category: math
- * @tags: division, sum, map
+ * @displayName Quotient Map
+ * @category Math
+ * @tags division, sum, map
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

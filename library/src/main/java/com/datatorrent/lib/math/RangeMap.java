@@ -42,9 +42,9 @@ import com.datatorrent.lib.util.UnifierHashMapRange;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- * @displayname: Range Map
- * @category: math
- * @tags: range, number, comparison, map
+ * @displayName Range Map
+ * @category Math
+ * @tags range, number, comparison, map
  * @since 0.3.2
  */
 public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>

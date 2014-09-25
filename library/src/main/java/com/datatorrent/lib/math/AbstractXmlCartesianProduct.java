@@ -123,9 +123,9 @@ import java.util.List;
  *
  *    a1,a2:b1,b2|c1,c2:d1,d2|e1,e2,e3:f1
  *
- * @displayName: Abstract XML Cartesian Product
- * @category: math
- * @tag: cartesian product, xml, multiple products, dom operator
+ * @displayName Abstract XML Cartesian Product
+ * @category Math
+ * @tags cartesian product, xml, multiple products, dom operator
  * @since 1.0.1
  */
 public abstract class AbstractXmlCartesianProduct<T> extends AbstractXmlDOMOperator<T>

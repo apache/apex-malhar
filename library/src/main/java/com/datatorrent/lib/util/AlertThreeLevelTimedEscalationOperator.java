@@ -24,7 +24,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * then the tuple is emitted on the output port corresponding to that alert level.
  * <p></p>
  * @displayName Alert Three Level Timed Escalation
- * @category algorithm
+ * @category Algorithmic
  * @tags time, filter
  * @since 0.3.4
  */

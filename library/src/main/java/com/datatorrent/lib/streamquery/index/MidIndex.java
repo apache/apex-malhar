@@ -7,9 +7,9 @@ import javax.validation.constraints.NotNull;
 /**
  * <p>An implementation of Column Index that implements filter method based on mid index. </p>
  * <p>
- * @displayName: Mid Index
- * @category: streamquery/index
- * @tag: index
+ * @displayName Mid Index
+ * @category Streamquery/Index
+ * @tags index
  * @since 0.3.4
  */
 public class MidIndex extends ColumnIndex

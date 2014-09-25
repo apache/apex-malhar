@@ -40,9 +40,9 @@ import java.util.Collection;
  * <b>longResult</b>: emits Long<br>
  * <br>
  * 
- * @displayName: Abstract Aggregate Calculator
- * @category: math
- * @tag: aggregate, collection
+ * @displayName Abstract Aggregate Calculator
+ * @category Math
+ * @tags aggregate, collection
  * @since 0.3.3
  */
 public abstract class AbstractAggregateCalc<T extends Number> extends

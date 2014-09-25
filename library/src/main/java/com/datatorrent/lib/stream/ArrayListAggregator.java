@@ -34,9 +34,9 @@ import java.util.Collection;
  * <b>size</b>: The size of ArrayList. If specified the ArrayList is emitted the moment it reaches this size.
  *               If 0, the ArrayList is emitted in endWindow call. Default value is 0, </br>
  * <br>
- * @displayName: Abstract List Aggregator
- * @category: stream
- * @tag: list, aggregate, collection
+ * @displayName Abstract List Aggregator
+ * @category Stream
+ * @tags list, aggregate, collection
  * @param <T> Type of elements in the collection.<br>
  * @since 0.3.3
  */

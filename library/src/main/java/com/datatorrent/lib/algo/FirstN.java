@@ -50,7 +50,7 @@ import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
  * </p>
  *
  * @displayName First N Keyval Pairs Matching Key
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, key value
  *
  * @since 0.3.2

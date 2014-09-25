@@ -25,7 +25,7 @@ import javax.jms.TextMessage;
  * which consumes messages from an ActiveMQ message bus and emits strings.
  * <p></p>
  * @displayName Active MQ Single Port Input (String)
- * @category messaging
+ * @category Messaging
  * @tags jms, input operator, string
  *
  * @since 0.3.3

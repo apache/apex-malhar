@@ -54,7 +54,7 @@ import javax.validation.constraints.Min;
  * Compile time error checking includes<br>
  * </p>
  * @displayName Random Event Generator
- * @category testbench
+ * @category Testbench
  * @tags generate
  * @since 0.3.2
  */

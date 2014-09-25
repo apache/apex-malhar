@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * and the emitted map's values are another map from value fields to and accumulated value.
  * <p></p>
  * @displayName Dimension Time Bucket Sum
- * @category algorithm
+ * @category Algorithmic
  * @tags count, key value, numeric
  * @since 0.3.2
  */

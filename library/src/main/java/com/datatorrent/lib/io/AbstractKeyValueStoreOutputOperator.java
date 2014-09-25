@@ -34,7 +34,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * they must also implement the methods which handle transactions.
  * <p></p>
  * @displayName Abstract Keyval Store Input
- * @category store
+ * @category Store
  * @tags key value, input operator
  *
  * @since 0.3.2

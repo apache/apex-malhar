@@ -24,9 +24,9 @@ package com.datatorrent.lib.streamquery;
  * <b> Properties : </b> <br>
  * <b> isLeftJoin : </b> Left join flag. <br>
  * <b> isFullJoin : </b> Full join flag. <br>
- * @displayName: Outer Join
- * @category: streamquery
- * @tag: sql, outer join operator
+ * @displayName Outer Join
+ * @category Streamquery
+ * @tags sql, outer join operator
  * @since 0.3.4
  */
 public class OuterJoinOperator extends InnerJoinOperator

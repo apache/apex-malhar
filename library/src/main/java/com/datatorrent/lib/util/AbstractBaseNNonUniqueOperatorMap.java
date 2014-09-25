@@ -39,7 +39,7 @@ import java.util.Map;
  * Run time checks are:<br>
  * </p>
  * @displayName Abstract Base N Non Unique Map
- * @category algorithm
+ * @category Algorithmic
  * @tags rank
  * @since 0.3.2
  */

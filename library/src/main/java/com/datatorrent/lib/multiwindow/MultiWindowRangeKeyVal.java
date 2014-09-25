@@ -44,9 +44,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>windowSize i.e. N</b>: Number of streaming windows that define application window.<br>
  * <br>
  *
- * @displayName: Multi Window Range Key Value
- * @category: multiwindow
- * @tag: key value, range, numeric
+ * @displayName Multi Window Range Key Value
+ * @category Multi-Window
+ * @tags key value, range, numeric
  * @since 0.3.2
  */
 public class MultiWindowRangeKeyVal<K, V extends Number> extends RangeKeyVal<K, V>

@@ -30,9 +30,9 @@ import javax.validation.constraints.NotNull;
  * <b> rightCondition : </b> Right validate row condition. <br>
  * <b> logicalOr : </b> OR/AND logical metric flag. <br>
  * <br>
- * @displayName: Compound Condition
- * @category: streamquery/condition
- * @tag: sql condition, logical
+ * @displayName Compound Condition
+ * @category Streamquery/Condition
+ * @tags sql condition, logical
  * @since 0.3.4
  */
 public class CompoundCondition extends Condition

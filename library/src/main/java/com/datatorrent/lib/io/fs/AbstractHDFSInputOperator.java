@@ -30,7 +30,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName HDFS File Input
- * @category io
+ * @category Input/Output
  * @tags hdfs, file, input operator
  * @since 0.3.2
  */

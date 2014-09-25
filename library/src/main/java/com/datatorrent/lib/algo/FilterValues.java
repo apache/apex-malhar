@@ -49,7 +49,7 @@ import javax.validation.constraints.NotNull;
  * </p>
  *
  * @displayName Filter Values
- * @category algorithm
+ * @category Algorithmic
  * @tags filter
  *
  * @since 0.3.2

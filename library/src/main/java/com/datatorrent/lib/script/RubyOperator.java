@@ -26,9 +26,9 @@ import java.util.Map;
 /**
  * An implementation of ScriptOperator that executes ruby script on tuples
  * <p>
- * @displayName: Ruby Operator
- * @category: script
- * @tag: script operator, map, string
+ * @displayName Ruby Operator
+ * @category Scripting
+ * @tags script operator, map, string
  * @since 1.0.4
  */
 public class RubyOperator extends ScriptOperator {

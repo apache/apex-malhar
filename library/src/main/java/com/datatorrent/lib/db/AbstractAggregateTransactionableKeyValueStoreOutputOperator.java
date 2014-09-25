@@ -22,7 +22,7 @@ package com.datatorrent.lib.db;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract Aggregate Transactionable Store Output
- * @category store
+ * @category Store
  * @tags transactional, output operator, key value
  *
  * @param <T> The tuple type.

@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
  * <b>Benchmarks</b>: Not done as emit is done by sub-classes<br>
  * </p>
  * @displayName Base Number Key Value
- * @category algorithm
+ * @category Algorithmic
  * @tags numeric, key value
  * @since 0.3.2
  */

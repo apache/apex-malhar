@@ -33,7 +33,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * For non-idempotent operations (incrementing values in the store, etc).
  * <p></p>
  * @displayName Abstract Transactionable Store Output
- * @category store
+ * @category Store
  * @tags transactional, output operator
  *
  * @param <T> The type of the tuple

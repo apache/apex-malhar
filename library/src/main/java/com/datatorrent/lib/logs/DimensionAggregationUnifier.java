@@ -30,7 +30,7 @@ import com.datatorrent.api.Operator;
  * A Map from Strings to aggregated DimensionObjects is emitted by the unifier.
  * <p></p>
  * @displayName Dimension Aggregation Unifier
- * @category logs
+ * @category Logs
  * @tags aggregation, unifier
  *
  * @since 0.9.0

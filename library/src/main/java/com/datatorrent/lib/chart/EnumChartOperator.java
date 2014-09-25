@@ -25,7 +25,7 @@ import java.util.TreeMap;
  * Subclasses must implement the method which derives the x-axis from tuples.
  * <p></p>
  * @displayName Abstract Enum Chart Operator
- * @category chart
+ * @category Charting
  * @tags output operator
  *
  * @param <K> The type of the key

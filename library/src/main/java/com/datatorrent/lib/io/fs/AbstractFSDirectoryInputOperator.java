@@ -66,7 +66,7 @@ import org.slf4j.LoggerFactory;
  * files are processed. Retrying is disabled when maxRetryCount is set to zero.
  * </p>
  * @displayName FS Directory Scan Input
- * @category io
+ * @category Input/Output
  * @tags fs, file, input operator
  *
  * @param <T> The type of the object that this input operator reads.

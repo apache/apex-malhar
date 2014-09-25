@@ -28,7 +28,7 @@ import java.util.HashMap;
  * The processing is done with sticky key partitioning, i.e. each one key belongs only to one partition.
  * </p>
  * @displayName Unifier Hash Map
- * @category algorithm
+ * @category Algorithmic
  * @tags key value
  * @since 0.3.2
  */

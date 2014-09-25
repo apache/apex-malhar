@@ -46,7 +46,7 @@ import java.util.HashMap;
  * <br>
  * </p>
  * @displayName Filtered Line To Token HashMap
- * @category logs
+ * @category Logs
  * @tags string
  *
  * @since 0.3.3

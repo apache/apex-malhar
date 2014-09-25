@@ -25,7 +25,7 @@ import com.sun.jersey.api.client.WebResource;
  * Subclasses should implement the method used to convert tuples into query parameters.
  * <p></p>
  * @displayName Abstract Http Multivalued Query Input
- * @category io
+ * @category Input/Output
  * @tags http, input operator
  *
  * @param <INPUT>

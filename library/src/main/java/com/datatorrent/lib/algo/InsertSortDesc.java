@@ -52,7 +52,7 @@ import java.util.PriorityQueue;
  * <br>
  * </p>
  * @displayName Sort Descending
- * @category algorithm
+ * @category Algorithmic
  * @tags rank
  *
  * @since 0.3.2

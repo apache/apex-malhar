@@ -48,9 +48,9 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- * @displayname: Change Map
- * @category: math
- * @tags: change, key value, number, map
+ * @displayName Change Map
+ * @category Math
+ * @tags change, key value, number, map
  * @since 0.3.3
  */
 public class ChangeMap<K, V extends Number> extends

@@ -48,7 +48,7 @@ import org.slf4j.LoggerFactory;
  * <b>groupMap</b>: defines the mapping from the group ids to the names <br>
  * </p>
  * @displayName Apache Log Parse Map
- * @category logs
+ * @category Logs
  * @tags apache, regex
  *
  * @since 0.9.4

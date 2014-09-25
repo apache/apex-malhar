@@ -48,7 +48,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.22 (KHTML, like Gecko) Ubuntu Chromium/25.0.1364.160 Chrome/25.0.1364.160 Safari/537.22"
  *
  * @displayName Generate Random Apache Logs
- * @category io
+ * @category Input/Output
  * @tags log, input operator, generate
  *
  * @since 0.3.2

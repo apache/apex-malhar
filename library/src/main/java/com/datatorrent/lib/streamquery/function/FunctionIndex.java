@@ -28,9 +28,9 @@ import javax.validation.constraints.NotNull;
  * <b>Properties : </b> <br>
  * <b>column : </b> Column name for aggregation.
  * <b>alias : </b> Output value alias name.
- * @displayName: Function Index
- * @category: streamquery/function
- * @tag: sql aggregate
+ * @displayName Function Index
+ * @category Streamquery/Functions
+ * @tags sql aggregate
  * @since 0.3.4
  */
 abstract public class FunctionIndex 

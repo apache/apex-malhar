@@ -28,8 +28,8 @@ import org.xml.sax.InputSource;
  * Subclasses must implement the methods which are use to process the parsed XML.
  * <p></p>
  * @displayName Abstract XML DOM
- * @category xml
- * @tags
+ * @category XML
+ * @tags abstract, xml, dom
  *
  * @since 1.0.2
  */

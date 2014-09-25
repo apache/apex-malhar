@@ -29,7 +29,7 @@ import java.util.Map;
  * This unifier uses round robin partitioning.
  * </p>
  * @displayName Unifier Map
- * @category algorithm
+ * @category Algorithmic
  * @tags key value
  * @since 0.3.4
  */

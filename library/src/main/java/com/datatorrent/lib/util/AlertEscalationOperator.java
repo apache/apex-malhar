@@ -32,7 +32,7 @@ import java.util.Map;
  * the amount of time since the last alert interval is greater than the specified alert interval.
  * <p></p>
  * @displayName Alert Escalation
- * @category algorithm
+ * @category Algorithmic
  * @tags time, filter
  * @since 0.3.2
  */

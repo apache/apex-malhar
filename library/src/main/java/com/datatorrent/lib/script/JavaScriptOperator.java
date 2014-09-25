@@ -69,9 +69,9 @@ import javax.script.*;
  *
  * This operator does not checkpoint interpreted functions in the variable bindings because they are not serializable
  * Use setupScript() to define functions, and do NOT define or assign functions to variables at run time
- * @displayName: Java Script
- * @category: script
- * @tag: script operator, map, string
+ * @displayName Java Script
+ * @category Scripting
+ * @tags script operator, map, string
  * @since 0.3.2
  */
 public class JavaScriptOperator extends ScriptOperator

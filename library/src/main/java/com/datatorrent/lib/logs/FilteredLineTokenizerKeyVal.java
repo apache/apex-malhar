@@ -43,7 +43,7 @@ import java.util.HashMap;
  * </p>
  *
  * @displayName Filtered Line Tokenizer Key Value
- * @category logs
+ * @category Logs
  * @tags string, key value
  *
  * @since 0.3.3

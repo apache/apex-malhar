@@ -29,7 +29,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  * Subclasses should implement the methods used to emit lists and maps.
  * <p></p>
  * @displayName Abstract Base Sort
- * @category algorithm
+ * @category Algorithmic
  * @tags rank, count
  * @since 0.3.2
  */

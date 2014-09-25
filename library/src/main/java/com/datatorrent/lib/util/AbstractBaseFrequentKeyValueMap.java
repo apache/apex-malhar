@@ -35,7 +35,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  * <b>data</b>: expects Map<K, V><br>
  * </p>
  * @displayName Emit Winning Key Value Pair(s)
- * @category algorithm
+ * @category Algorithmic
  * @tags count, compare, key value
  * @since 0.3.2
  */

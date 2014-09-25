@@ -41,7 +41,7 @@ import javax.validation.constraints.Pattern;
  * none<br>
  * </p>
  * @displayName Abstract Base Match
- * @category algorithm
+ * @category Algorithmic
  * @tags compare
  * @since 0.3.2
  */

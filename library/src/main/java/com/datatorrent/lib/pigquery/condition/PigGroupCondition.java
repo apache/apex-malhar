@@ -23,9 +23,9 @@ import javax.validation.constraints.NotNull;
 /**
  * Interface for pig group by condition.  
  * <p>
- * @displayName: Pig Group Condition
- * @category: pigquery.condition
- * @tag: group, condition, map, string
+ * @displayName Pig Group Condition
+ * @category Pig Query
+ * @tags group, condition, map, string
  * @since 0.3.4
  */
 public interface PigGroupCondition

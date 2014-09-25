@@ -26,9 +26,9 @@ import java.util.List;
  * An implementation of the AbstractXmlKeyValueCartesianProduct operator that takes in the xml document
  * as a String input and outputs the cartesian product as Strings.
  * 
- * @displayname: Xml Key Value String Cartesian Product
- * @category: math
- * @tags: cartesian product, string, xml
+ * @displayName Xml Key Value String Cartesian Product
+ * @category Math
+ * @tags cartesian product, string, xml
  * @since 1.0.1
  */
 public class XmlKeyValueStringCartesianProduct extends AbstractXmlKeyValueCartesianProduct<String>

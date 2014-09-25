@@ -40,9 +40,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <b> condition : </b> Select condition for selecting rows. <br>
  * <b> columns : </b> Column names/aggregate functions for select. <br>
  * <br>
- * @displayName: Delete
- * @category: streamquery
- * @tag: sql delete operator
+ * @displayName Delete
+ * @category Streamquery
+ * @tags sql delete operator
  * @since 0.3.3
  */
 public class DeleteOperator extends BaseOperator

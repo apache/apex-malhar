@@ -44,9 +44,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <b>floatRemainder</b>: emits Float<br>
  * <b>errordata</b>: emits String<br>
  * <br>
- * @displayname: Division
- * @category: math
- * @tags: division, number, idempotent
+ * @displayName Division
+ * @category Math
+ * @tags division, number, idempotent
  * @since 0.3.2
  */
 public class Division extends BaseOperator

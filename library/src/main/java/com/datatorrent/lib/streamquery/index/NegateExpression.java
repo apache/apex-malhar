@@ -23,9 +23,9 @@ import javax.validation.constraints.Null;
 /**
  * An implementation of Unary Expression that implements filter method using negate metric sql semantic on column value.
  * <p>
- * @displayName: Negate Expression
- * @category: streamquery/index
- * @tag: expression, alias
+ * @displayName Negate Expression
+ * @category Streamquery/Index
+ * @tags expression, alias
  * @since 0.3.4
  */
 public class NegateExpression extends UnaryExpression

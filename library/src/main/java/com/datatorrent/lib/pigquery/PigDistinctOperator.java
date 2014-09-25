@@ -64,9 +64,9 @@ import com.datatorrent.api.Operator;
  * <b> inport : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> outport : </b> emits tuple of form Map&lt;String, Object&gt; <br>
  * 
- * @displayName: Pig Distinct
- * @category: pigquery
- * @tag: map, string, distinct operator
+ * @displayName Pig Distinct
+ * @category Pig Query
+ * @tags map, string, distinct operator
  * @since 0.3.4
  */
 public class PigDistinctOperator implements Operator, Unifier<Map<String, Object>>

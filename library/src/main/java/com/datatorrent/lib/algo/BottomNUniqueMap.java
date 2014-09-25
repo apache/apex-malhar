@@ -44,7 +44,7 @@ import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
  * </p>
  *
  * @displayName Bottom N Unifier Map
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, rank, unique, key value
  *
  * @since 0.3.3

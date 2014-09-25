@@ -24,9 +24,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *  <p>
  *  Common port declaration in operators.
  *
- * @displayName: Abstract Output
- * @category: math
- * @tag: output operator, multiple datatype
+ * @displayName Abstract Output
+ * @category Math
+ * @tags output operator, multiple datatype
  * @since 0.3.3
  */
 public abstract class AbstractOutput extends BaseOperator

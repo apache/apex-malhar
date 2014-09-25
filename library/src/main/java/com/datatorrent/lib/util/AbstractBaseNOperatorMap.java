@@ -45,7 +45,7 @@ import javax.validation.constraints.Min;
  * <b>Benchmark</b>: Not done as this is an abstract operator<br>
  * </p>
  * @displayName Abstract Base N Map
- * @category algorithm
+ * @category Algorithmic
  * @tags rank, key value
  * @since 0.3.2
  */

@@ -20,8 +20,8 @@ package com.datatorrent.lib.xml;
  * the tuple to the extending operator for processing.
  * <p></p>
  * @displayName XML DOM Operator
- * @category xml
- * @tags
+ * @category XML
+ * @tags xml, dom
  *
  * @since 1.0.4
  * @deprecated

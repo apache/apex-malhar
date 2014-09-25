@@ -52,7 +52,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * </p>
  *
  * @displayName Emit Distinct
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, unique
  *
  * @since 0.3.3

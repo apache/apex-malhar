@@ -35,9 +35,9 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <b>doubleAverage</b>: emits Double<br>
  * <b>floatAverage</b>: emits Float<br>
  * <br>
- * @displayname: Running Average
- * @category: math
- * @tags: average, numeric
+ * @displayName Running Average
+ * @category Math
+ * @tags average, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

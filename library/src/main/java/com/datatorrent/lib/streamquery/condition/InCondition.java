@@ -28,9 +28,9 @@ import javax.validation.constraints.NotNull;
  * <b>Properties : </b> <br>
  * <b> column : </b> Column name for which value is checked in values set. <br>
  * <b> inValues : </b> Set of values in which column value is checked. <br>
- * @displayName: In Condition
- * @category: streamquery/condition
- * @tag: sql condition
+ * @displayName In Condition
+ * @category Streamquery/Condition
+ * @tags sql condition
  * @since 0.3.4
  */
 public class InCondition extends Condition

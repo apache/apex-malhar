@@ -45,9 +45,9 @@ import java.util.HashMap;
  * Does the incoming HashMap have the key<br>
  * Is the value of the key a number<br>
  * <br>
- * @displayname: Compare String Map
- * @category: math
- * @tags: comparison, key value, string, map
+ * @displayName Compare String Map
+ * @category Math
+ * @tags comparison, key value, string, map
  * @since 0.3.2
  */
 @Stateless

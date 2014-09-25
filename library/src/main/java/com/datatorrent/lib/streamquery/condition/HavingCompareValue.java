@@ -30,9 +30,9 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
  * <b> Properties : </b>
  *  <b> compareValue : </b>  Value to be compared. <br>
  *  <b>  compareType : </b> Type of comparison -1 == lt, 0 == eq, 1 == gt. <br>
- * @displayName: Having Compare Value
- * @category: streamquery/condition
- * @tag: compare, sql condition
+ * @displayName Having Compare Value
+ * @category Streamquery/Condition
+ * @tags compare, sql condition
  * @since 0.3.4
  */
 @SuppressWarnings("rawtypes")

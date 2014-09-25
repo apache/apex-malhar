@@ -42,9 +42,9 @@ import javax.validation.constraints.Min;
  * <b>windowSize i.e. N</b>: Number of streaming windows that define application
  * window.<br>
  * <br>
- * @displayName: Multi Window Sum Key Value
- * @category: multiwindow
- * @tag: key value, sum, numeric
+ * @displayName Multi Window Sum Key Value
+ * @category Multi-Window
+ * @tags key value, sum, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

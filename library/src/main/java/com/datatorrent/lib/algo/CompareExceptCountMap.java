@@ -54,7 +54,7 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * </p>
  *
  * @displayName Count All Who Don't Compare Generic
- * @category algorithm
+ * @category Algorithmic
  * @tags count, key value
  *
  * @since 0.3.2

@@ -21,9 +21,9 @@ import javax.validation.constraints.NotNull;
  * <p>A base implementation of Generate interface.&nbsp; Subclasses should provide the 
    implementation of evaluate method. </p>
  *
- * @displayName: Binary Generate
- * @category: pigquery.generate
- * @tag: binary, string
+ * @displayName Binary Generate
+ * @category Pig Query
+ * @tags binary, string
  * @since 0.3.4
  */
 abstract public class BinaryGenerate implements Generate

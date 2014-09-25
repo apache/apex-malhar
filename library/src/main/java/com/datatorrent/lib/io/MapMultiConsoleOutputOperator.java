@@ -33,7 +33,7 @@ import com.datatorrent.api.DefaultInputPort;
  * <br>
  * </p>
  * @displayName Map Console Output
- * @category io
+ * @category Input/Output
  * @tags output operator
  *
  * @since 0.3.4

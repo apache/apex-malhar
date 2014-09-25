@@ -26,7 +26,7 @@ package com.datatorrent.lib.io.fs;
  * Serializes tuples into a HDFS file.<br/>
  * </p>
  * @displayName HDFS Rolling Byte Output
- * @category io
+ * @category Input/Output
  * @tags hdfs, files, output operator
  *
  * @since 0.9.4

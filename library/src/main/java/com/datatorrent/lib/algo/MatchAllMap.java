@@ -58,7 +58,7 @@ import com.datatorrent.lib.util.UnifierBooleanAnd;
  * </p>
  *
  * @displayName Emit All Matching Values (Number)
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, key value
  *
  * @since 0.3.2

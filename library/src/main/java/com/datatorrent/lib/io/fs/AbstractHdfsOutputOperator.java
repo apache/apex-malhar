@@ -27,7 +27,7 @@ package com.datatorrent.lib.io.fs;
  * are place holders.
  * </p>
  * @displayName HDFS Files Output
- * @category io
+ * @category Input/Output
  * @tags hdfs, file, output operator
  *
  * @since 0.9.4

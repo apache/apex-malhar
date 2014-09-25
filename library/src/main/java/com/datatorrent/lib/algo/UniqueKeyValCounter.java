@@ -48,7 +48,7 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * </p>
  *
  * @displayName Count Unique Keyval Pairs
- * @category algorithm
+ * @category Algorithmic
  * @tags count, key value
  *
  * @since 0.3.2

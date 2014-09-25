@@ -48,7 +48,7 @@ import java.util.Map;
  * </p>
  *
  * @displayName Emit Least Frequent Key
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, key value, count
  *
  * @since 0.3.2

@@ -26,7 +26,7 @@ import java.util.TreeMap;
  * Subclasses must implement the method which determines the y-axis value for a tuple.
  * <p></p>
  * @displayName Time Series Chart
- * @category chart
+ * @category Charting
  * @tags output operator
  *
  * @param <K> The type of the key

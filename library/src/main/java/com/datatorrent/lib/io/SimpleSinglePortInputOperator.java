@@ -31,7 +31,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * according to the operator lifecycle.
  * </p>
  * @displayName Asynchronous Input Processing
- * @category io
+ * @category Input/Output
  * @tags input operator
  *
  * @since 0.3.2

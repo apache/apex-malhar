@@ -49,7 +49,7 @@ import com.datatorrent.lib.util.AbstractBaseNNonUniqueOperatorMap;
  * </p>
  *
  * @displayName Bottom N
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, rank, key value
  *
  * @since 0.3.3
