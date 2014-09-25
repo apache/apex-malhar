@@ -1,5 +1,6 @@
 package com.datatorrent.contrib.couchbase;
 
+import com.datatorrent.common.util.DTThrowable;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import java.util.logging.Level;
@@ -13,47 +14,56 @@ import org.slf4j.LoggerFactory;
  *
  * @author prerna
  */
-public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractCouchBaseOutputOperator<T> {
+public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractCouchBaseOutputOperator<T>
+{
 
-    private transient OperationFuture<Boolean> future;
-    private static final Logger logger = LoggerFactory.getLogger(AbstractInsertCouchBaseOutputOperator.class);
+  private transient OperationFuture<Boolean> future;
+  private static final Logger logger = LoggerFactory.getLogger(AbstractInsertCouchBaseOutputOperator.class);
 
-    @Override
-    public void insertOrUpdate(T input) {
+  @Override
+  public void insertOrUpdate(T input)
+  {
 
-        String key = generatekey(input);
-        Object tuple = getObject(input);
-        ObjectMapper mapper = new ObjectMapper();
-        String value = new String();
-        try {
-            value = mapper.writeValueAsString(tuple);
-        } catch (IOException ex) {
-            java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        final CountDownLatch countLatch = new CountDownLatch(store.batch_size);
-
-        future = store.getInstance().set(key, value);
-        future.addListener(new OperationCompletionListener() {
-
-            @Override
-            public void onComplete(OperationFuture<?> f) throws Exception {
-                countLatch.countDown();
-                if (!((Boolean) f.get())) {
-                    throw new RuntimeException("Operation set failed");
-                }
-
-            }
-        });
-
-        if (num_tuples < store.batch_size) {
-            try {
-                countLatch.await();
-            } catch (InterruptedException ex) {
-                java.util.logging.Logger.getLogger(AbstractInsertCouchBaseOutputOperator.class.getName()).log(Level.SEVERE, null, ex);
-            }
-        }
-
+    String key = generatekey(input);
+    Object tuple = getObject(input);
+    ObjectMapper mapper = new ObjectMapper();
+    String value = new String();
+    try {
+      value = mapper.writeValueAsString(tuple);
     }
+    catch (IOException ex) {
+      logger.error("IO Exception", ex);
+      DTThrowable.rethrow(ex);
+    }
+
+    final CountDownLatch countLatch = new CountDownLatch(store.batch_size);
+
+    future = store.getInstance().set(key, value);
+    future.addListener(new OperationCompletionListener()
+    {
+
+      @Override
+      public void onComplete(OperationFuture<?> f) throws Exception
+      {
+        countLatch.countDown();
+        if (!((Boolean)f.get())) {
+          throw new RuntimeException("Operation set failed");
+        }
+
+      }
+
+    });
+
+    if (num_tuples < store.batch_size) {
+      try {
+        countLatch.await();
+      }
+      catch (InterruptedException ex) {
+        logger.error("Interrupted exception" + ex);
+        DTThrowable.rethrow(ex);
+      }
+    }
+
+  }
 
 }
