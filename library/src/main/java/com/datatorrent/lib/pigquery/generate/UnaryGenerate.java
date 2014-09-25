@@ -25,9 +25,9 @@ import javax.validation.constraints.NotNull;
  * <b>Properties : </b> <br>
  * <b>fieldName : </b> Field name or value argument. <br>
  * <b>aliasName : </b> Alias name for output value. <br>
- * @displayName: Generate Unary
- * @category: pigquery.generate
- * @tag: string, unary
+ * @displayName Generate Unary
+ * @category Pig Query
+ * @tags string, unary
  * @since 0.3.4
  */
 abstract public class UnaryGenerate  implements Generate 

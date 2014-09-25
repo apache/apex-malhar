@@ -27,7 +27,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * Subclasses should implement the filtering method.
  * <p></p>
  * @displayName Filter
- * @category algorithm
+ * @category Algorithmic
  * @tags filter
  * @since 0.3.4
  */

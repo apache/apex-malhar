@@ -31,9 +31,9 @@ import com.datatorrent.api.annotation.Stateless;
  * <b>doubleResult</b>: emits Double<br>
  * <b>floatResult</b>: emits Float<br>
  * <br>
- * @displayname: Square Calculus
- * @category: math
- * @tags:  numeric, square, multiplication
+ * @displayName Square Calculus
+ * @category Math
+ * @tags  numeric, square, multiplication
  * @since 0.3.3
  */
 @Stateless

@@ -46,7 +46,7 @@ import java.util.HashMap;
  * </p>
  *
  * @displayName Top N Unique Values Per Key
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, rank
  *
  * @since 0.3.2

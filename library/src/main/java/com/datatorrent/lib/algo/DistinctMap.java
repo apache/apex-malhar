@@ -45,7 +45,7 @@ import java.util.Map;
  * </p>
  *
  * @displayName Emit Distinct Keyval Pairs
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, unique, key value
  *
  * @since 0.3.2

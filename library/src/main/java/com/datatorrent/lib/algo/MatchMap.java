@@ -57,7 +57,7 @@ import java.util.Map;
  * </p>
  *
  * @displayName Emit Matching Keval Pairs (Number)
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, key value, numeric
  *
  * @since 0.3.2

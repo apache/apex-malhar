@@ -43,9 +43,9 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- * @displayname: Margin Key Value
- * @category: math
- * @tags: sum, division, numeric, key value
+ * @displayName Margin Key Value
+ * @category Math
+ * @tags sum, division, numeric, key value
  * @since 0.3.3
  */
 public class MarginKeyVal<K, V extends Number> extends

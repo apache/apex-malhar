@@ -6,11 +6,11 @@ import javax.validation.constraints.NotNull;
 
 /**
  * <p>An implementation of column index that implements filter method using Round Double Index. </p>
- * <p>
- *  @displayName: Round Double Index
- *  @category: streamquery/index
- *  @tag: alias, maths
- *  @since 0.3.4
+ * 
+ * @displayName Round Double Index
+ * @category Streamquery/Index
+ * @tags alias, maths
+ * @since 0.3.4
  */
 public class RoundDoubleIndex  extends ColumnIndex
 {

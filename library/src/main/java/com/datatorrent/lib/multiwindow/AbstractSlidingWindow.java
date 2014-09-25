@@ -35,9 +35,9 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * <b>windowSize</b>: Number of streaming window in this sliding window<br>
  * <br>
  * 
- * @displayName: Abstract Sliding Window
- * @category: multiwindow
- * @tag: sliding window, state
+ * @displayName Abstract Sliding Window
+ * @category Multi-Window
+ * @tags sliding window, state
  * @since 0.3.3
  */
 public abstract class AbstractSlidingWindow<T, S> extends BaseOperator

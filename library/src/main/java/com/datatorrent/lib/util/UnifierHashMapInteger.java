@@ -29,7 +29,7 @@ import java.util.Map;
  * The processing is done with sticky key partitioning, i.e. each one key belongs only to one partition.
  * </p>
  * @displayName Unifier Hash Map Integer
- * @category algorithm
+ * @category Algorithmic
  * @tags numeric
  * @since 0.3.2
  */

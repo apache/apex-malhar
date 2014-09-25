@@ -59,7 +59,7 @@ import java.util.HashMap;
  * </p>
  *
  * @displayName Emit Keyval Pairs Until Match (String)
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, key value, string
  *
  * @since 0.3.2

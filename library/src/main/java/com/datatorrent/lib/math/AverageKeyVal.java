@@ -48,9 +48,9 @@ import org.apache.commons.lang.mutable.MutableLong;
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
- * @displayname: Average Key Value
- * @category: math
- * @tags: average, number, end window, key value
+ * @displayName Average Key Value
+ * @category Math
+ * @tags average, number, end window, key value
  * @since 0.3.3
  */
 public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>

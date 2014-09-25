@@ -33,7 +33,7 @@ import com.datatorrent.api.InputOperator;
  * Subclasses should implement the methods required to read the files.
  * <p></p>
  * @displayName FS File Input
- * @category io
+ * @category Input/Output
  * @tags fs, directory, input operator
  *
  * @param <STREAM>

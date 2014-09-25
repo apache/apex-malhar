@@ -41,9 +41,9 @@ import com.datatorrent.common.util.Pair;
  * <b>lessThanEqualTo</b>: emits Pair&lt;T,T&gt;<br>
  * <b>lessThan</b>: emits Pair&lt;T,T&gt;<br>
  * <br>
- * @displayname: Logical Compare
- * @category: math
- * @tags: comparison, logical, key value
+ * @displayName Logical Compare
+ * @category Math
+ * @tags comparison, logical, key value
  * @since 0.3.3
  */
 @Stateless

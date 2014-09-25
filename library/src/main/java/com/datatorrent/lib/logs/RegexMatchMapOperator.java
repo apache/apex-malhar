@@ -68,7 +68,7 @@ import org.slf4j.LoggerFactory;
  * <b>regex</b>: defines the regex <br>
  *
  * @displayName Regex Match Map
- * @category logs
+ * @category Logs
  * @tags regex
  *
  * @since 1.0.5

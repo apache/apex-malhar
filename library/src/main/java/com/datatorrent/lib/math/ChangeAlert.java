@@ -45,9 +45,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <br>
- * @displayname: Change Alert
- * @category: math
- * @tags: change, key value, numeric, percentage
+ * @displayName Change Alert
+ * @category Math
+ * @tags change, key value, numeric, percentage
  * @since 0.3.3
  */
 public class ChangeAlert<V extends Number> extends BaseNumberValueOperator<V>

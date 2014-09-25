@@ -21,9 +21,9 @@ import java.util.Map;
 /**
  * <p>An implementation of Unary Generate that generates a name and provides implementation of evaluate method.</p>
  *
- * @displayName: Generate Name
- * @category: pigquery.generate
- * @tag: map, string, unary
+ * @displayName Generate Name
+ * @category Pig Query
+ * @tags map, string, unary
  * @since 0.3.4
  */
 public class GenerateName extends UnaryGenerate

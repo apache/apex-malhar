@@ -52,7 +52,7 @@ import java.util.Random;
  * <br>
  * </p>
  * @displayName Filter Classifier
- * @category testbench
+ * @category Testbench
  * @tags filter
  * @since 0.3.2
  */

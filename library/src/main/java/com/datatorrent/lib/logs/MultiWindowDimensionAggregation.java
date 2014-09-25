@@ -38,7 +38,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * This class aggregates the value of given dimension across windows.
  * <p></p>
  * @displayName Multi Window Dimension Aggregation
- * @category logs
+ * @category Logs
  * @tags aggregation
  *
  * @since 0.3.4

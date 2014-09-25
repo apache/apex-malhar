@@ -27,9 +27,9 @@ import java.util.Map;
 /**
  * An implementation of AbstractSqlStreamOperator that provides embedded derby sql input operator. 
  * <p>
- * @displayName: Derby Sql Stream
- * @category: streamquery
- * @tag: sql, in-memory, input operator
+ * @displayName Derby Sql Stream
+ * @category Streamquery
+ * @tags sql, in-memory, input operator
  * @since 0.3.2
  */
 public class DerbySqlStreamOperator extends AbstractSqlStreamOperator

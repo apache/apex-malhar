@@ -38,7 +38,7 @@ import com.datatorrent.lib.util.BaseLineTokenizer;
  * <br>
  * </p>
  * @displayName Line Tokenizer
- * @category logs
+ * @category Logs
  * @tags string
  *
  * @since 0.3.3

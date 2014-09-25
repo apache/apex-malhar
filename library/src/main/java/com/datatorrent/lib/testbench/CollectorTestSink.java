@@ -23,9 +23,9 @@ import java.util.List;
 /**
  * A sink implementation to collect expected test results. 
  * <p>
- * @displayName: Collector Test Sink
- * @category: testbench
- * @tag: sink
+ * @displayName Collector Test Sink
+ * @category Testbench
+ * @tags sink
  * @since 0.3.2
  */
 public class CollectorTestSink<T> implements Sink<T>

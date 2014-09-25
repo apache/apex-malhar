@@ -37,9 +37,9 @@ import com.datatorrent.api.*;
 /**
  * <p>An implementation of an operator that computes dimensions of events. </p>
  * <p>
- * @displayName: Dimension Computation
- * @category: statistics
- * @tag: event, dimension, aggregation, computation
+ * @displayName Dimension Computation
+ * @category Statistics
+ * @tags event, dimension, aggregation, computation
  * 
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  * @since 1.0.2

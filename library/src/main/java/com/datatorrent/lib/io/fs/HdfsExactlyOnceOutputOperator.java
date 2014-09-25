@@ -36,7 +36,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * the <window_id>.tmp file if it exists, creates new and starts writing to it.
  * </p>
  * @displayName HDFS Exactly Once Output
- * @category io
+ * @category Input/Output
  * @tags hdfs, files, output operator
  *
  * @since 1.0.2

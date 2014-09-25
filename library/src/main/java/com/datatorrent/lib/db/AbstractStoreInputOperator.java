@@ -26,7 +26,7 @@ import java.io.IOException;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract Store Input
- * @category store
+ * @category Store
  * @tags input operator
  *
  * @param <T> The tuple type

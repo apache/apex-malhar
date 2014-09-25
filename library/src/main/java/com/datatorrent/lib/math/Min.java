@@ -33,9 +33,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>min</b>: emits V extends Number<br>
  * <br>
  * <br>
- * @displayname: Minimum
- * @category: math
- * @tags: minimum, numeric
+ * @displayName Minimum
+ * @category Math
+ * @tags minimum, numeric
  * @since 0.3.2
  */
 public class Min<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>

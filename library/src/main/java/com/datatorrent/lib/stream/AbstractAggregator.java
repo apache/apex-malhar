@@ -35,9 +35,9 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <br>
  * <b>StateFull : Yes </b>, values are collected over application window. <br>
  * <b>Partitions : No</b>, will yield wrong results.
- * @displayName: Abstract Aggregator
- * @category: stream
- * @tag: aggregate
+ * @displayName Abstract Aggregator
+ * @category Stream
+ * @tags aggregate
  * @param <T>
  *          Aggregate tuple type.
  * @since 0.3.3

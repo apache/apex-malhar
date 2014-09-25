@@ -38,9 +38,9 @@ import java.util.Map;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- * @displayname: Minimum Map
- * @category: math
- * @tags: minimum, hash map, numeric
+ * @displayName Minimum Map
+ * @category Math
+ * @tags minimum, hash map, numeric
  * @since 0.3.2
  */
 public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V> implements Unifier<HashMap<K,V>>

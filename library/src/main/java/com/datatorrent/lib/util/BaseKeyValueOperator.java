@@ -25,7 +25,7 @@ import com.datatorrent.lib.codec.JavaSerializationStreamCodec;
  * This is an abstract operator that allows cloneKey and cloneValue to allow users to use mutable objects.
  * <p></p>
  * @displayName Base Key Value
- * @category algorithm
+ * @category Algorithmic
  * @tags key value
  * @since 0.3.2
  */

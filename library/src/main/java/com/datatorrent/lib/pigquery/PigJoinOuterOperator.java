@@ -45,9 +45,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <br>
  * <b>Properties : </b> <br>
  * <b> joinCondition : </b> Tuple join condition.
- * @displayName: Pig Outer Join
- * @category: pigquery
- * @tag: map, string, outer join operator
+ * @displayName Pig Outer Join
+ * @category Pig Query
+ * @tags map, string, outer join operator
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)

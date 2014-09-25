@@ -32,9 +32,9 @@ import com.datatorrent.api.annotation.Stateless;
  * <b>data2</b>: expects K<br>
  * <b>out</b>: emits K<br>
  * <br>
- * @displayName: Stream Merger
- * @category: stream
- * @tag: merge
+ * @displayName Stream Merger
+ * @category Stream
+ * @tags merge
  * @since 0.3.3
  */
 @Stateless

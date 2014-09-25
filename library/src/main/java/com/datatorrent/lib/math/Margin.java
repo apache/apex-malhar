@@ -41,9 +41,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Properties:<b>
  * <br>
  * <b>percent: </b>  output margin as percentage value.
- * @displayname: Margin
- * @category: math
- * @tags: sum, division, numeric
+ * @displayName Margin
+ * @category Math
+ * @tags sum, division, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

@@ -23,9 +23,9 @@ import javax.validation.constraints.NotNull;
  * A base class for select condition for selecting or filtering the rows.&nbsp; Subclasses should provide the 
    implementation to filter valid rows and valid joins.
  * <p>
- * @displayName: Condition
- * @category: streamquery/condition
- * @tag: sql condition, filter
+ * @displayName Condition
+ * @category Streamquery/Condition
+ * @tags sql condition, filter
  * @since 0.3.3
  */
 abstract public class Condition

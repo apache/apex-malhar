@@ -28,9 +28,9 @@ import com.datatorrent.lib.util.UnifierMap;
 
 /**
  * <p>An implementation of BaseOperator that implements Apache Pig ForEach Operator.</p>
- * @displayName: Pig ForEach
- * @category: pigquery
- * @tag: map, string, foreach operator
+ * @displayName Pig ForEach
+ * @category Pig Query
+ * @tags map, string, foreach operator
  * @since 0.3.4
  */
 public class PigForeachOperator extends BaseOperator

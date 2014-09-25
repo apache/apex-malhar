@@ -28,9 +28,9 @@ import javax.validation.constraints.NotNull;
  *<b> Properties : </b> <br>
  *<b> column : < /b> Column to be matched with regular expression. <br>
  *<b> pattern : </b> Regular expression pattern.<br>
- * @displayName: Like Condition
- * @category: streamquery/condition
- * @tag: sql, like condition, regular expression
+ * @displayName Like Condition
+ * @category Streamquery/Condition
+ * @tags sql, like condition, regular expression
  * @since 0.3.4
  */
 public class LikeCondition extends Condition

@@ -23,9 +23,9 @@ import javax.validation.constraints.NotNull;
 /**
  * <p>An implementation of an index that overrides filter method on basis on columns. </p>
  * <p>
- * @displayName: Column Index
- * @category: streamquery/index
- * @tag: alias
+ * @displayName Column Index
+ * @category Streamquery/Index
+ * @tags alias
  * @since 0.3.4
  */
 public class ColumnIndex implements Index

@@ -59,7 +59,7 @@ import java.util.Map;
  * </p>
  *
  * @displayName Emit All After Match (String)
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, compare, numeric, key value, string
  *
  * @since 0.3.2

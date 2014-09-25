@@ -39,7 +39,7 @@ import java.util.Set;
  * </p>
  *
  * @displayName Unique Values Per Key
- * @category algorithm
+ * @category Algorithmic
  * @tags count, key value
  *
  * @param <K>Type of Key objects</K>

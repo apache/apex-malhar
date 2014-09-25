@@ -37,7 +37,7 @@ import com.sun.jersey.api.client.WebResource;
  * Subclasses must implement the method which handles the response to the HTTP GET request.
  * <p></p>
  * @displayName Abstract Http Input
- * @category io
+ * @category Input/Output
  * @tags http, input operator
  *
  * @since 0.3.2

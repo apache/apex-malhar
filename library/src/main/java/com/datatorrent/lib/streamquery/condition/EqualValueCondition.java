@@ -26,9 +26,9 @@ import java.util.Map;
  *
  * <b> Properties : </b> <br>
  *  <b> equalMap : </b> Column equal value map store.
- * @displayName: Equal Value Condition
- * @category: streamquery/condition
- * @tag: sql condition
+ * @displayName Equal Value Condition
+ * @category Streamquery/Condition
+ * @tags sql condition
  * @since 0.3.4
  */
 public class EqualValueCondition extends Condition

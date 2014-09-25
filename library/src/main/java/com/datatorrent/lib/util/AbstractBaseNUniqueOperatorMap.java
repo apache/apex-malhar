@@ -25,7 +25,7 @@ import java.util.Map;
  * Subclasses should implement the methods which control the ordering and emission of tuples.
  * <p></p>
  * @displayName Abstract Base N Unique Map
- * @category algorithm
+ * @category Algorithmic
  * @tags rank
  * @since 0.3.2
  */

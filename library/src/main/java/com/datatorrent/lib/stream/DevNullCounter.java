@@ -38,9 +38,9 @@ import org.slf4j.LoggerFactory;
  * <b>Properties</b>: rollingwindowcount: Number of windows to average over.
  * Results are written to the log<br>
  * <br>
- * @displayName: Dev Null Counter
- * @category: stream
- * @tag: count
+ * @displayName Dev Null Counter
+ * @category Stream
+ * @tags count
  * @since 0.3.3
  */
 public class DevNullCounter<K> extends BaseOperator

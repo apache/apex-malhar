@@ -72,9 +72,9 @@ import java.util.Map;
  * </table>
  * <br>
  * <br>
- * @displayname: Compare Except Map
- * @category: math
- * @tags: comparison, key value, number, hash map
+ * @displayName Compare Except Map
+ * @category Math
+ * @tags comparison, key value, number, hash map
  * @since 0.3.2
  */
 @Stateless

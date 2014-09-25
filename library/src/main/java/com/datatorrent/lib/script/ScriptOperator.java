@@ -30,9 +30,9 @@ import javax.validation.constraints.NotNull;
    implementation of getting the bindings and process method. 
  * Interface for language script operator.
  * <p>
- * @displayName: Script
- * @category: script
- * @tag: script operator, map, string
+ * @displayName Script
+ * @category Scripting
+ * @tags script operator, map, string
  * @since 0.3.2
  */
 public abstract class ScriptOperator extends BaseOperator

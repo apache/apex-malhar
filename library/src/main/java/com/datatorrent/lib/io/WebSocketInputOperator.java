@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.
  * <p></p>
  * @displayName JSON Map Input
- * @category io
+ * @category Input/Output
  * @tags http, input operator
  *
  * @since 0.3.2

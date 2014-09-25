@@ -29,9 +29,9 @@ import com.datatorrent.api.DefaultOutputPort;
  *
  * <b>Properties : </b> <br>
  * <b>numOutPorts : </b> Number of output ports. <br>
- * @displayName: Pig Split
- * @category: pigquery
- * @tag: split operator, integer
+ * @displayName Pig Split
+ * @category Pig Query
+ * @tags split operator, integer
  * @since 0.3.4
  */
 public abstract class PigSplitOperator<T>  extends BaseOperator

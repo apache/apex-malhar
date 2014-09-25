@@ -51,9 +51,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <br>
  *
  * <br>
- * @displayname: Change
- * @category: math
- * @tags: change, key value, numeric, percentage
+ * @displayName Change
+ * @category Math
+ * @tags change, key value, numeric, percentage
  * @since 0.3.3
  */
 public class Change<V extends Number> extends BaseNumberValueOperator<V>

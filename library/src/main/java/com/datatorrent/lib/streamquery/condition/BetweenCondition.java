@@ -27,9 +27,9 @@ import javax.validation.constraints.NotNull;
  * <b> leftValue : </b> left range of column value. <br>
  * <b> rightValue : </b> right range od column value. <br>
  * <br>
- * @displayName: Between Condition
- * @category: streamquery/condition
- * @tag: sql condition
+ * @displayName Between Condition
+ * @category Streamquery/Condition
+ * @tags sql condition
  * @since 0.3.4
  */
 public class BetweenCondition  extends Condition

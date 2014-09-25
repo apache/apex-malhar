@@ -51,7 +51,7 @@ import java.util.ArrayList;
  * 2. getUnifierInstance : Get unifier operator instance for output port, (must return self instance).
  *
  * @displayName Merge Sorted Lists (Generic)
- * @category algorithm
+ * @category Algorithmic
  * @tags rank
  * </p>
  *

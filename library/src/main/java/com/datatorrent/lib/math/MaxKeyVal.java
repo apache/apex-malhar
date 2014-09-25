@@ -39,9 +39,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- * @displayname: Maximum Key Value
- * @category: math
- * @tags: maximum, numeric, key value
+ * @displayName Maximum Key Value
+ * @category Math
+ * @tags maximum, numeric, key value
  * @since 0.3.2
  */
 public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

@@ -29,9 +29,9 @@ import com.datatorrent.api.annotation.Stateless;
  * <b>Port</b>:<br>
  * <b>data</b>: expects K<br>
  * <br>
- * @displayName: Dev Null
- * @category: stream
- * @tag: debug, terminate
+ * @displayName Dev Null
+ * @category Stream
+ * @tags debug, terminate
  * @since 0.3.3
  */
 @Stateless

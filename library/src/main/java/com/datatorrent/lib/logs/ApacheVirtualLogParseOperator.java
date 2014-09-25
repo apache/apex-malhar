@@ -38,7 +38,7 @@ import java.util.regex.Pattern;
  * More output ports in this operator.
  * </p>
  * @displayName Apache Virtual Log Parse
- * @category logs
+ * @category Logs
  * @tags apache
  *
  * @since 0.3.2

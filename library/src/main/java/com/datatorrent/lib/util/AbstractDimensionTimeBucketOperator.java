@@ -64,7 +64,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * The value fields are keys with AGGREGATE-able values
  * </p>
  * @displayName Abstract Dimension Time Bucket
- * @category algorithm
+ * @category Algorithmic
  * @tags count, key value, numeric
  * @since 0.3.2
  */

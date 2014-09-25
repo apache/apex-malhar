@@ -35,9 +35,9 @@ import java.util.Collection;
  * <b>integerResult</b>: emits Integer<br>
  * <b>longResult</b>: emits Long<br>
  * <br>
- * @displayname: Sigma
- * @category: math
- * @tags: aggregate, numeric, collection
+ * @displayName Sigma
+ * @category Math
+ * @tags aggregate, numeric, collection
  * @param <T>
  * @since 0.3.3
  */

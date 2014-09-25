@@ -24,7 +24,7 @@ package com.datatorrent.lib.db;
  * come and commit the transaction at end window.
  * </p>
  * @displayName Abstract Pass Through Transactionable Store Output
- * @category store
+ * @category Store
  * @tags transactional, output operator
  *
  * @param <T> The tuple type

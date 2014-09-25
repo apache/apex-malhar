@@ -31,7 +31,7 @@ import com.datatorrent.lib.util.TopNSort;
  * and the bottom N of the ordered tuples per key are emitted on port "bottom" at the end of window.
  * <p></p>
  * @displayName Bottom N Unifier
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, rank, key value
  *
  * @since 0.3.3

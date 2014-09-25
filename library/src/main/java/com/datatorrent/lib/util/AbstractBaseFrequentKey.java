@@ -31,7 +31,7 @@ import org.apache.commons.lang.mutable.MutableInt;
  * </p>
  *
  * @displayName Emit Winning Value(s)
- * @category algorithm
+ * @category Algorithmic
  * @tags count, compare
  * @since 0.3.2
  */

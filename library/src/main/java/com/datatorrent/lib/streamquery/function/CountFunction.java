@@ -31,9 +31,9 @@ import org.apache.commons.lang.StringUtils;
  *   <b> Properties : </b> <br>
  *   <b> column : </b> column name for values count.   <br>
  *   <b> alias  : </b> Alias name for aggregate output. <br>
- * @displayName: Count Function
- * @category: streamquery/function
- * @tag: sql count
+ * @displayName Count Function
+ * @category Streamquery/Functions
+ * @tags sql count
  * @since 0.3.4
  */
 public class CountFunction extends FunctionIndex

@@ -43,7 +43,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * </ul>
  * </p>
  * @displayName Abstract DB Lookup Cache Backed
- * @category database
+ * @category Database
  * @tags cache, key value
  *
  * @param <T> type of tuples

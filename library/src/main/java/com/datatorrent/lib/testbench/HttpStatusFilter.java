@@ -30,7 +30,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * At the end of the application window each key and the number of times it occurred is emitted.
  * <p></p>
  * @displayName Http Status Filter
- * @category testbench
+ * @category Testbench
  * @tags filter, count
  * @since 0.3.2
  */

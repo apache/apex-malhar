@@ -50,7 +50,7 @@ import java.util.regex.Pattern;
  * <b>Properties</b>: none<br>
  * </p>
  * @displayName Apache Log Parse
- * @category logs
+ * @category Logs
  * @tags apache
  *
  * @since 0.3.3

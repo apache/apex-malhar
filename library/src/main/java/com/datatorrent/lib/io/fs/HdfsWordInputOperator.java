@@ -34,7 +34,7 @@ import com.datatorrent.common.util.DTThrowable;
  * This operator reads tuples of a specified byte size from an HDFS file.
  * <p></p>
  * @displayName HDFS Byte File Input
- * @category io
+ * @category Input/Output
  * @tags hdfs, file, input operator
  *
  * @since 0.9.4

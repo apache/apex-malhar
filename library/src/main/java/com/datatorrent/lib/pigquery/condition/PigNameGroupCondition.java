@@ -23,9 +23,9 @@ import javax.validation.constraints.NotNull;
 /**
  * An implementation of PigGroupCondition which groups tuples by column value.
  * <p>
- * @displayName: Pig Name Group Condition
- * @category: pigquery.condition
- * @tag: group, condition, map, string
+ * @displayName Pig Name Group Condition
+ * @category Pig Query
+ * @tags group, condition, map, string
  * @since 0.3.4
  */
 public class PigNameGroupCondition implements PigGroupCondition

@@ -34,7 +34,7 @@ import java.util.HashMap;
  * <b>Benchmarks</b>: Not done as there are no ports on this operator<br>
  * </p>
  * @displayName Base Filtered Key Value
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, key value
  * @since 0.3.2
  */

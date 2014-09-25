@@ -33,7 +33,7 @@ import com.datatorrent.api.DefaultInputPort;
  * Subclasses must implement the method which processes incoming tuples.
  * <p></p>
  * @displayName Abstract Http
- * @category io
+ * @category Input/Output
  * @tags http, input operator
  *
  * @param <T>

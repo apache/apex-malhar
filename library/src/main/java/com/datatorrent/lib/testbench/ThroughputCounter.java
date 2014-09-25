@@ -50,7 +50,7 @@ import org.slf4j.LoggerFactory;
  * Benchmarked at over 17 million tuples/second in local/in-line mode<br>
  * </p>
  * @displayName Throughput Counter
- * @category testbench
+ * @category Testbench
  * @tags count
  * @since 0.3.2
  */

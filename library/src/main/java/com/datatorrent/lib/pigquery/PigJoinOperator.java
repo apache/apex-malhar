@@ -80,9 +80,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <br>
  * <b>Properties : </b> <br>
  * <b> joinCondition : </b> Tuple join condition.
- * @displayName: Pig Inner Join
- * @category: pigquery
- * @tag: map, string, inner join operator
+ * @displayName Pig Inner Join
+ * @category Pig Query
+ * @tags map, string, inner join operator
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)

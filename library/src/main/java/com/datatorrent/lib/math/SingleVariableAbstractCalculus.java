@@ -29,9 +29,9 @@ import com.datatorrent.api.DefaultInputPort;
  * <b>integerResult</b>: emits Integer<br>
  * <b>doubleResult</b>: emits Double<br>
  * <b>floatResult</b>: emits Float<br>
- * @displayname: Single Variable Abstract Calculus
- * @category: math
- * @tags: numeric, single variable
+ * @displayName Single Variable Abstract Calculus
+ * @category Math
+ * @tags numeric, single variable
  * @param <T>
  * @since 0.3.2
  */

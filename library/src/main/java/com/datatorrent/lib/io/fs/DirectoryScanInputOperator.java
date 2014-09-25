@@ -37,7 +37,7 @@ import org.apache.commons.io.monitor.FileAlterationObserver;
  * </p>
  *
  * @displayName Local FS File Input
- * @category io
+ * @category Input/Output
  * @tags fs local, directory, input operator
  *
  * @since 0.9.4

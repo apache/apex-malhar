@@ -33,9 +33,9 @@ import java.util.Map;
  *
  * This would match to split into metric for Pig
  * </pre>
- * @displayName: Three Way Pig Split
- * @category: pigquery
- * @tag: split operator, map, string
+ * @displayName Three Way Pig Split
+ * @category Pig Query
+ * @tags split operator, map, string
  * @since 0.3.4
  */
 public class ThreeWayPigSplit  extends PigSplitOperator<Map<String, Integer>>

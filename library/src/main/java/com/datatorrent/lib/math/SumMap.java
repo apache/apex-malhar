@@ -43,9 +43,9 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <b>cumulative</b>: boolean flag, if set the sum is not cleared at the end of window, <br>
  * hence generating cumulative sum across streaming windows. Default is false.<br>
  * <br>
- * @displayname: Sum Map
- * @category: math
- * @tags:  numeric, sum, map
+ * @displayName Sum Map
+ * @category Math
+ * @tags  numeric, sum, map
  * @since 0.3.2
  */
 public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>

@@ -46,7 +46,7 @@ import com.datatorrent.lib.util.BaseKeyValueOperator;
  * </p>
  *
  * @displayName Invert Keyval Pairs (Array)
- * @category algorithm
+ * @category Algorithmic
  * @tags key value
  *
  * @since 0.3.2

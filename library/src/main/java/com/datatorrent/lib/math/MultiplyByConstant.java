@@ -40,9 +40,9 @@ import com.datatorrent.api.annotation.Stateless;
  * <b>Properties</b>:<br>
  * <b>multiplier</b>: Number to multiply input tuple with<br>
  * <br>
- * @displayname: Multiply By Constant
- * @category: math
- * @tags: multiplication, constant, numeric
+ * @displayName Multiply By Constant
+ * @category Math
+ * @tags multiplication, constant, numeric
  * @since 0.3.2
  */
 @Stateless

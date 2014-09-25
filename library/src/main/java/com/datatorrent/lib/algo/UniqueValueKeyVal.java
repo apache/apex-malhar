@@ -47,7 +47,7 @@ import com.datatorrent.lib.util.KeyValPair;
  * </p>
  *
  * @displayName Count Unique Values Per Key
- * @category algorithm
+ * @category Algorithmic
  * @tags count, key value
  *
  * @since 0.3.2

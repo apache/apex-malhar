@@ -30,9 +30,9 @@ import org.apache.commons.lang.StringUtils;
  *   <b> Properties : </b> <br>
  *   <b> column : </b> Aggregate over given column values.   <br>
  *   <b> alias  : </b> Alias name for aggregate output. <br>
- * @displayName: Average Function
- * @category: streamquery/function
- * @tag: sql average
+ * @displayName Average Function
+ * @category Streamquery/Functions
+ * @tags sql average
  * @since 0.3.4
  */
 public class AverageFunction  extends FunctionIndex

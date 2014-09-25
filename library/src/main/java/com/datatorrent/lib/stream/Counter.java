@@ -32,9 +32,9 @@ import com.datatorrent.api.Operator.Unifier;
  * <b>input</b>: expects Object<br>
  * <b>output</b>: emits Integer<br>
  * <br>
- * @displayName: Counter
- * @category: stream
- * @tag: integer, object, count
+ * @displayName Counter
+ * @category Stream
+ * @tags integer, object, count
  * @since 0.3.3
  */
 public class Counter implements Operator, Unifier<Integer>

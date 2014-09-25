@@ -29,7 +29,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract Store Output
- * @category store
+ * @category Store
  * @tags output operator
  *
  * @param <T> The tuple type

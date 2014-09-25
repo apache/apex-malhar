@@ -73,7 +73,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * </p>
  *
  * @displayName Count Unique Values
- * @category algorithm
+ * @category Algorithmic
  * @tags count
  *
  * @since 0.3.2

@@ -31,7 +31,7 @@ import java.util.Map;
  * A map from keys to counts is emitted at the end of each window.
  * <p></p>
  * @displayName Count Key Appearances
- * @category algorithm
+ * @category Algorithmic
  * @tags algorithm, count, key value
  *
  * @since 1.0.2

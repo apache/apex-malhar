@@ -47,7 +47,7 @@ import com.datatorrent.lib.util.AbstractBaseFrequentKey;
  * </p>
  *
  * @displayName Emit Least Frequent Value
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, count
  *
  * @since 0.3.3

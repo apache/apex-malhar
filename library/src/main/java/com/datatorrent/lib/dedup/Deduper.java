@@ -69,8 +69,8 @@ import com.datatorrent.lib.counters.BasicCounters;
  * </p>
  *
  * @displayName Deduper
- * @category dedup
- * @tags
+ * @category Deduplication
+ * @tags dedupe
  *
  * @param <INPUT>  type of input tuple
  * @param <OUTPUT> type of output tuple

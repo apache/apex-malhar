@@ -59,7 +59,7 @@ import com.datatorrent.lib.util.BaseKeyOperator;
  * </p>
  *
  * @displayName Filter Keyval Pairs
- * @category algorithm
+ * @category Algorithmic
  * @tags filter, key value
  *
  * @since 0.3.2

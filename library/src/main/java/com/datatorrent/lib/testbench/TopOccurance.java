@@ -29,7 +29,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * If the value of a pair is greater than the specified threshold then the tuple is emitted.
  * <p></p>
  * @displayName Top Occurance
- * @category testbench
+ * @category Testbench
  * @tags numeric, compare
  * @since 0.3.2
  */

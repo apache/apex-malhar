@@ -26,9 +26,9 @@ import javax.validation.constraints.NotNull;
  * Valid opName : '+', '-', '*', '/', '%'. <br>
  * see {@link com.datatorrent.lib.pigquery.generate.BinaryGenerate}.
  * 
- * @displayName: Arithmetic Generate
- * @category: pigquery.generate
- * @tag: arithmetic operation, map, string, addition, subtraction, multiplication, division, percentage 
+ * @displayName Arithmetic Generate
+ * @category Pig Query
+ * @tags arithmetic operation, map, string, addition, subtraction, multiplication, division, percentage 
  * @since 0.3.4
  */
 public class ArithmeticGenerate  extends BinaryGenerate

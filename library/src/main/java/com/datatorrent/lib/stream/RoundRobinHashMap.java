@@ -41,9 +41,9 @@ import java.util.HashMap;
  * <br>
  * <b>Properties</b>:<br>
  * <b>keys[]</b>: Set of keys to insert in the output tuple</b>
- * @displayName: Round Robin HashMap
- * @category: stream
- * @tag: key value, hashmap
+ * @displayName Round Robin HashMap
+ * @category Stream
+ * @tags key value, hashmap
  * @since 0.3.3
  */
 public class RoundRobinHashMap<K, V> extends BaseKeyValueOperator<K, V>

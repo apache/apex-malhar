@@ -21,9 +21,9 @@ import java.util.Map;
 /**
  * An implementation of Binary Generate that implements sum generation index expression.
  * <p>
- * @displayName: Generate Sum
- * @category: pigquery.generate
- * @tag: map, string, sum
+ * @displayName Generate Sum
+ * @category Pig Query
+ * @tags map, string, sum
  * @since 0.3.4
  */
 public class SumGenerate  extends BinaryGenerate

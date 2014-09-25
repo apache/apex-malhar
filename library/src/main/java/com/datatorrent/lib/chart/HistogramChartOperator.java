@@ -24,7 +24,7 @@ import java.util.TreeMap;
  * Subclasses of this operator must implement the method which determines the histogram bucket each tuple belongs to.
  * <p></p>
  * @displayName Abstract Histogram Chart
- * @category chart
+ * @category Charting
  * @tags output operator
  *
  * @param <K> The key type

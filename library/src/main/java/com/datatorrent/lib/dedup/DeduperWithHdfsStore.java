@@ -30,7 +30,7 @@ import com.datatorrent.lib.bucket.NonOperationalBucketStore;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName  HDFS Deduper
- * @category dedup
+ * @category Deduplication
  * @tags hdfs
  *
  * @since 0.9.5

@@ -63,9 +63,9 @@ import com.datatorrent.lib.util.UnifierMap;
  * <b>Properties : </b> <br>
  * <b>groupByCondition : </b> Group condition. <br>
  * <br>
- * @displayName: Pig Group
- * @category: pigquery
- * @tag: map, string, group operator, condition
+ * @displayName Pig Group
+ * @category Pig Query
+ * @tags map, string, group operator, condition
  * @since 0.3.4
  */
 public class PigGroupOperator  extends BaseOperator

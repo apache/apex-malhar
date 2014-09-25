@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * This operator outputs data to an smtp server.
  * <p></p>
  * @displayName Smtp Output
- * @category io
+ * @category Input/Output
  * @tags stmp, output operator
  *
  * @since 0.3.2

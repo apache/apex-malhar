@@ -40,7 +40,7 @@ import javax.validation.constraints.Pattern;
  * none<br>
  * </p>
  * @displayName Base Match
- * @category algorithm
+ * @category Algorithmic
  * @tags compare, filter, key value
  * @since 0.3.2
  */
