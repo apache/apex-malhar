@@ -63,7 +63,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
   private final transient HashMap<Long, Bucket> buckets = Maps.newHashMap();
   @VisibleForTesting
   protected transient ExecutorService writeExecutor;
-  private volatile transient Exception writerError;
+  private volatile transient Throwable writerError;
 
   private int maxFileSize = 128 * 1024 * 1024; // 128m
   private int maxWalFileSize = 64 * 1024 * 1024;
@@ -395,7 +395,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
             {
               try {
                 writeDataFiles(bucket);
-              } catch (Exception e) {
+              } catch (Throwable e) {
                 LOG.debug("Write error: {}", e.getMessage());
                 writerError = e;
               }
