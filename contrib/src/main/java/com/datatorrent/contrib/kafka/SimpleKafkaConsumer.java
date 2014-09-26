@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -198,16 +197,17 @@ public class SimpleKafkaConsumer extends KafkaConsumer
               if(isAlive && (metadataRetrievalRetry==-1 || retryCounter < metadataRetrievalRetry)){
                 logger.debug(Thread.currentThread().getName() + ": Update metadata for topic " + topic);
                 List<PartitionMetadata> pms =  KafkaMetadataUtil.getPartitionsForTopic(brokerSet, topic);
-                brokerSet.clear();
+                Set<String> newBrokerSet = new HashSet<String>();
                 PartitionMetadata leaderForPartition = null;
                 for (PartitionMetadata pm : pms) {
                   for (Broker b : pm.replicas()) {
-                    brokerSet.add(b.host() + ":" + b.port());
+                    newBrokerSet.add(b.host() + ":" + b.port());
                   }
                   if(pm.partitionId()==pid){
                     leaderForPartition = pm;
                   }
                 }
+                brokerSet = newBrokerSet;
                 if(leaderForPartition == null){
                   retryCounter++;
                   return;
@@ -288,6 +288,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   @Override
   protected void _stop()
   {
+    isAlive = false;
     for(int pid : simpleConsumerThreads.keySet()){
       simpleConsumerThreads.get(pid).close();
     }
