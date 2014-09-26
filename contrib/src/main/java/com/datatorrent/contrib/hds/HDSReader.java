@@ -236,9 +236,14 @@ public class HDSReader implements Operator, HDS.Reader
   @Override
   public byte[] get(long bucketKey, Slice key) throws IOException
   {
-
-    BucketReader bucket = getReader(bucketKey);
     for (int i=0; i<10; i++) {
+      BucketReader bucket = getReader(bucketKey);
+      BucketMeta bucketMeta = bucket.bucketMeta;
+      if (bucketMeta == null) {
+        // meta data invalidated
+        continue;
+      }
+
       Map.Entry<Slice, BucketFileMeta> floorEntry = bucket.bucketMeta.files.floorEntry(key);
       if (floorEntry == null) {
         // no file for this key
