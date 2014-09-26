@@ -6,6 +6,7 @@ package com.datatorrent.flume.storage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.util.HashMap;
+import java.util.Map;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -20,7 +21,6 @@ import org.apache.flume.event.EventBuilder;
 import com.datatorrent.api.StreamCodec;
 
 import com.datatorrent.common.util.Slice;
-import java.util.Map;
 
 /**
  * <p>EventCodec class.</p>
