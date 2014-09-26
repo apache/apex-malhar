@@ -20,6 +20,7 @@ import org.apache.flume.event.EventBuilder;
 import com.datatorrent.api.StreamCodec;
 
 import com.datatorrent.common.util.Slice;
+import java.util.Map;
 
 /**
  * <p>EventCodec class.</p>
@@ -44,8 +45,8 @@ public class EventCodec implements StreamCodec<Event>
     Input input = new Input(is);
 
     @SuppressWarnings("unchecked")
-    HashMap<String, String> headers = kryo.readObject(input, HashMap.class);
-    byte[] body = kryo.readObject(input, byte[].class);
+    HashMap<String, String> headers = kryo.readObjectOrNull(input, HashMap.class);
+    byte[] body = kryo.readObjectOrNull(input, byte[].class);
     return EventBuilder.withBody(body, headers);
   }
 
@@ -54,8 +55,15 @@ public class EventCodec implements StreamCodec<Event>
   {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     Output output = new Output(os);
-    kryo.writeObject(output, event.getHeaders());
-    kryo.writeObject(output, event.getBody());
+
+    Map<String, String> headers = event.getHeaders();
+    if (headers != null && headers.getClass() != HashMap.class) {
+      HashMap<String, String> tmp = new HashMap<String, String>(headers.size());
+      tmp.putAll(headers);
+      headers = tmp;
+    }
+    kryo.writeObjectOrNull(output, headers, HashMap.class);
+    kryo.writeObjectOrNull(output, event.getBody(), byte[].class);
     output.flush();
     final byte[] bytes = os.toByteArray();
     return new Slice(bytes, 0, bytes.length);
