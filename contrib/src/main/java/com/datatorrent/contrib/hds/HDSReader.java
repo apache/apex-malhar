@@ -233,6 +233,8 @@ public class HDSReader implements Operator, HDS.Reader
     }
   }
 
+  private static Slice GET_KEY = new Slice(null, 0, 0);
+
   @Override
   public byte[] get(long bucketKey, Slice key) throws IOException
   {
@@ -257,9 +259,14 @@ public class HDSReader implements Operator, HDS.Reader
         }
         Slice value = new Slice(null, 0,0);
         if (reader.seek(key)) {
-          reader.next(new Slice(null, 0, 0), value);
+          reader.next(GET_KEY, value);
         }
-        return value.buffer;
+        if (value.offset == 0) {
+          return value.buffer;
+        } else {
+          // this is inefficient, should return Slice
+          return Arrays.copyOfRange(value.buffer, value.offset, value.offset + value.length);
+        }
       } catch (IOException e) {
         // check for meta file update
         this.buckets.remove(bucketKey);
