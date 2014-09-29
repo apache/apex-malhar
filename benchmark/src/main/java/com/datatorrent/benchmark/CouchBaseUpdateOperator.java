@@ -6,16 +6,16 @@ import com.datatorrent.contrib.couchbase.AbstractUpdateCouchBaseOutputOperator;
  *
  * @author prerna
  */
-public class CouchBaseUpdateOperator extends AbstractUpdateCouchBaseOutputOperator<Integer> {
+public class CouchBaseUpdateOperator extends AbstractUpdateCouchBaseOutputOperator<String> {
 
     @Override
-    public String generatekey(Integer tuple) {
+    public String generateKey(String tuple) {
         return "abc";
     }
 
     @Override
-    public Object getObject(Integer tuple) {
-        tuple = 500;
+    public Object getObject(String tuple) {
+        tuple = "500";
         return tuple;
     }
 

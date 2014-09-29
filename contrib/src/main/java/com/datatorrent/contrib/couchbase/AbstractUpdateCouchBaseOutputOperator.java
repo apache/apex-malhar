@@ -24,7 +24,7 @@ public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractC
   @Override
   public void insertOrUpdate(T input)
   {
-    String key = generatekey(input);
+    String key = generateKey(input);
     Object tuple = getObject(input);
     ObjectMapper mapper = new ObjectMapper();
     String value = new String();

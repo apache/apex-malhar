@@ -69,7 +69,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     tuples.clear();
   }
 
-  public abstract String generatekey(T tuple);
+  public abstract String generateKey(T tuple);
 
   public abstract Object getObject(T tuple);
 

@@ -19,9 +19,13 @@ public class CouchBaseInputOperator extends AbstractCouchBaseInputOperator<Strin
     @Override
     public ArrayList<String> getKeys() {
        ArrayList<String> keys = new ArrayList<String>();
-       for(int i=0;i<100;i++){
-       keys.add("Key" + i*10);
-       }
+       keys.add("Key0");
+       keys.add("Key1");
+       keys.add("Key10");
+       keys.add("Key100");
+       keys.add("Key1000");
+       keys.add("Key10000");
+       keys.add("Key100000");
        return keys;
     }
     
