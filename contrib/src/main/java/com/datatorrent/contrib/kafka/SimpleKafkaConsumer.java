@@ -20,6 +20,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -143,8 +144,9 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   
   /**
    * Track offset for each partition, so operator could start from the last serialized state
+   * Use ConcurrentHashMap to avoid ConcurrentModificationException without blocking reads when updating in another thread(hashtable or synchronizedmap)
    */
-  private Map<Integer, Long> offsetTrack = new HashMap<Integer, Long>();
+  private ConcurrentHashMap<Integer, Long> offsetTrack = new ConcurrentHashMap<Integer, Long>();
 
   @Override
   public void create()
