@@ -29,6 +29,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Integer, 
 
   public MemsqlOutputOperator()
   {
+    this.setStore(new MemsqlStore());
   }
 
   @Override

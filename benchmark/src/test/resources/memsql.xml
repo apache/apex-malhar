@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+  <property>
+    <name>dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl</name>
+    <value>jdbc:mysql://node17.morado.com:3306/bench</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties</name>
+    <value>user:root,port:3306</value>
+    <description>The connection properties for the database.</description>
+  </property>
+  <property>
+    <name>dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.dbUrl</name>
+    <value>jdbc:mysql://node17.morado.com:3306/bench</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.connectionProperties</name>
+    <value>user:root,port:3306</value>
+    <description>The connection properties for the database.</description>
+  </property>
+</configuration>

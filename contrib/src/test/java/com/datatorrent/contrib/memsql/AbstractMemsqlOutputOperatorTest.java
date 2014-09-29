@@ -28,7 +28,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Random;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -56,16 +55,16 @@ public class AbstractMemsqlOutputOperatorTest
   public static final int DATABASE_SIZE = NUM_WINDOWS * BLAST_SIZE;
   public static final int BATCH_SIZE = DATABASE_SIZE / 5;
 
-  public static MemsqlStore createStore(Configuration conf,
-                                        String clazz,
-                                        boolean withDatabase)
+  public static MemsqlStore createStore(MemsqlStore memsqlStore, boolean withDatabase)
   {
-    String host = conf.get(clazz + ".host", HOST);
-    String user = conf.get(clazz + ".user", USER);
-    String port = conf.get(clazz + ".port", PORT);
-    String password = conf.get(clazz + ".password", null);
+    String host = HOST;
+    String user = USER;
+    String port = PORT;
 
-    MemsqlStore memsqlStore = new MemsqlStore();
+    if(memsqlStore == null) {
+      memsqlStore = new MemsqlStore();
+    }
+
     StringBuilder sb = new StringBuilder();
     String tempHost = HOST_PREFIX + host + ":" + PORT;
     if(withDatabase) {
@@ -79,22 +78,14 @@ public class AbstractMemsqlOutputOperatorTest
     sb.append("user:").append(user).append(",");
     sb.append("port:").append(port);
 
-    if(password != null) {
-      sb.append(",").append("password:").append(password);
-    }
-
     String properties = sb.toString();
     LOG.debug(properties);
     memsqlStore.setConnectionProperties(properties);
     return memsqlStore;
   }
 
-  public static void memsqlInitializeDatabase(Configuration conf, String clazz)
+  public static void memsqlInitializeDatabase(MemsqlStore memsqlStore)
   {
-    MemsqlStore memsqlStore = createStore(conf,
-                                          clazz,
-                                          false);
-
     memsqlStore.connect();
 
     try {
@@ -109,9 +100,7 @@ public class AbstractMemsqlOutputOperatorTest
 
     memsqlStore.disconnect();
 
-    memsqlStore = createStore(conf,
-                              clazz,
-                              true);
+    memsqlStore = createStore(null, true);
 
     memsqlStore.connect();
 
@@ -144,16 +133,14 @@ public class AbstractMemsqlOutputOperatorTest
 
   public static void cleanDatabase()
   {
-     memsqlInitializeDatabase(new Configuration(), "");
+     memsqlInitializeDatabase(createStore(null, false));
   }
 
   @Test
   public void testMemsqlOutputOperator()
   {
     cleanDatabase();
-    MemsqlStore memsqlStore = createStore(new Configuration(),
-                                          "",
-                                          true);
+    MemsqlStore memsqlStore = createStore(null, true);
 
     Random random = new Random();
     MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
