@@ -271,23 +271,21 @@ public class SmtpOutputOperator extends BaseOperator
   }
 
   /**
-   * @param recipientAddresses This sets the list of recipients. Format is to=abc@xyz.com,def@xyz.com;cc=pqr@xyz.com
+   * @param recipientAddresses : map from recipient type to comman separated list of addresses for e.g. to->abc@xyz.com,def@xyz;com
    */
-  public void setRecipients(String recipientAddresses)
+  public void setRecipients(Map<String, String> recipientAddresses)
   {
-    String[] splits = recipientAddresses.split(";");
-    for (String split : splits) {
-      String[] addresses = split.split("=|,");
-      if (addresses.length > 1) {
-        RecipientType type = RecipientType.valueOf(addresses[0].toUpperCase());
-        ArrayList<String> recipientList = recipients.get(type);
-        if (recipientList == null) {
-          recipientList = Lists.newArrayList();
-          recipients.put(type, recipientList);
-        }
-        for (int i = 1; i < addresses.length; i++) {
-          recipientList.add(addresses[i]);
-        }
+
+    for (Map.Entry<String, String> entry : recipientAddresses.entrySet()) {
+      RecipientType type = RecipientType.valueOf(entry.getKey().toUpperCase());
+      ArrayList<String> recipientList = recipients.get(type);
+      if (recipientList == null) {
+        recipientList = Lists.newArrayList();
+        recipients.put(type, recipientList);
+      }
+      String[] addresses = entry.getValue().split(",");
+      for (String address : addresses) {
+        recipientList.add(address);
       }
     }
     LOG.debug("recipients {}", recipients);

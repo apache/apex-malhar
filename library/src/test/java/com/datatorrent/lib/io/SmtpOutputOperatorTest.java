@@ -16,11 +16,14 @@
 package com.datatorrent.lib.io;
 
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import com.icegreen.greenmail.util.ServerSetup;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.mail.Message;
@@ -71,7 +74,10 @@ public class SmtpOutputOperatorTest
   @Test
   public void testSmtpOutputNode() throws Exception
   {
-    node.setRecipients("to=" + to + "," + cc + ";cc=" + cc);
+    Map<String,String> recipients = Maps.newHashMap();
+    recipients.put("to",to+","+cc);
+    recipients.put("cc",cc);
+    node.setRecipients(recipients);
     node.setup(null);
     Map<String, String> data = new HashMap<String, String>();
     data.put("alertkey", "alertvalue");
@@ -95,8 +101,9 @@ public class SmtpOutputOperatorTest
   @Test
   public void test() throws Exception
   {
-
-    node.setRecipients("to=" + to);
+    Map<String,String> recipients = Maps.newHashMap();
+    recipients.put("to",to);
+    node.setRecipients(recipients);
     node.setup(null);
     Map<String, String> data = new HashMap<String, String>();
     data.put("alertkey", "alertvalue");
