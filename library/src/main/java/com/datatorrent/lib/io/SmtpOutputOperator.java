@@ -186,15 +186,6 @@ public class SmtpOutputOperator extends BaseOperator
     reset();
   }
 
-  /*public void addRecipient(RecipientType type, String rec)
-  {
-    if (!recipientAddresses.containsKey(type)) {
-      recipientAddresses.put(type, new ArrayList<String>());
-    }
-    recipientAddresses.get(type).add(rec);
-    resetMessage();
-  }*/
-
   @Override
   public void setup(OperatorContext context)
   {
