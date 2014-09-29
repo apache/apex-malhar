@@ -15,14 +15,12 @@
  */
 package com.datatorrent.lib.io;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetupTest;
 import com.icegreen.greenmail.util.ServerSetup;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.mail.Message;
