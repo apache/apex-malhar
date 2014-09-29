@@ -19,16 +19,18 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
 
 /**
  * <p>SmtpOutputOperator class.</p>
@@ -40,24 +42,32 @@ public class SmtpOutputOperator extends BaseOperator
   public enum RecipientType
   {
     TO, CC, BCC
-  };
+  }
 
   private static final Logger LOG = LoggerFactory.getLogger(SmtpOutputOperator.class);
+  @NotNull
   protected String subject;
+  @NotNull
   protected String content;
-  protected transient Session session;
-  protected transient Message message;
+  @NotNull
   protected String from;
-  protected Map<RecipientType, ArrayList<String>> recAddresses = new HashMap<RecipientType, ArrayList<String>>();
-  protected transient Properties properties = System.getProperties();
-  protected transient Authenticator auth;
+  protected Map<RecipientType, ArrayList<String>> recipients = new HashMap<RecipientType, ArrayList<String>>();
+
   protected int smtpPort = 587;
+  @NotNull
   protected String smtpHost;
+  @NotNull
   protected String smtpUserName;
   protected String smtpPassword;
   protected String contentType = "text/plain";
   protected boolean useSsl = false;
   protected boolean setupCalled = false;
+
+  protected transient Properties properties = System.getProperties();
+  protected transient Authenticator auth;
+  protected transient Session session;
+  protected transient Message message;
+
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
@@ -177,10 +187,10 @@ public class SmtpOutputOperator extends BaseOperator
 
   public void addRecipient(RecipientType type, String rec)
   {
-    if (!recAddresses.containsKey(type)) {
-      recAddresses.put(type, new ArrayList<String>());
+    if (!recipients.containsKey(type)) {
+      recipients.put(type, new ArrayList<String>());
     }
-    recAddresses.get(type).add(rec);
+    recipients.get(type).add(rec);
     resetMessage();
   }
 
@@ -230,8 +240,8 @@ public class SmtpOutputOperator extends BaseOperator
     try {
       message = new MimeMessage(session);
       message.setFrom(new InternetAddress(from));
-      for (Map.Entry<RecipientType, ArrayList<String>> entry: recAddresses.entrySet()) {
-        for (String addr: entry.getValue()) {
+      for (Map.Entry<RecipientType, ArrayList<String>> entry : recipients.entrySet()) {
+        for (String addr : entry.getValue()) {
           Message.RecipientType mtype;
           switch (entry.getKey()) {
             case TO:
@@ -251,9 +261,35 @@ public class SmtpOutputOperator extends BaseOperator
       message.setSubject(subject);
     }
     catch (MessagingException ex) {
-      LOG.error(ex.toString());
+      throw new RuntimeException(ex);
     }
-
   }
 
+  public Map<RecipientType, ArrayList<String>> getRecipients()
+  {
+    return recipients;
+  }
+
+  /**
+   * @param recipientAddresses This sets the list of recipients. Format is to=abc@xyz.com,def@xyz.com;cc=pqr@xyz.com
+   */
+  public void setRecipients(String recipientAddresses)
+  {
+    String[] splits = recipientAddresses.split(";");
+    for (String split : splits) {
+      String[] addresses = split.split("=|,");
+      if (addresses.length > 1) {
+        RecipientType type = RecipientType.valueOf(addresses[0].toUpperCase());
+        ArrayList<String> recipientList = recipients.get(type);
+        if (recipientList == null) {
+          recipientList = Lists.newArrayList();
+          recipients.put(type, recipientList);
+        }
+        for (int i = 1; i < addresses.length; i++) {
+          recipientList.add(addresses[i]);
+        }
+      }
+    }
+    LOG.debug("recipients {}", recipients);
+  }
 }
