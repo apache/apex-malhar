@@ -58,7 +58,7 @@ public class CouchBaseTest {
         URI uri = null;
         CouchbaseClient client= null;
         try {
-            uri = new URI("http://node26.morado.com:8091/pools");
+            uri = new URI("http://node13.morado.com:8091/pools");
         } catch (URISyntaxException ex) {
             Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
         }
@@ -77,7 +77,7 @@ public class CouchBaseTest {
                       .setViewConnsPerNode(20) // allow 20 parallel http connections per node in the cluster
                     .buildCouchbaseConnection(baseURIs, "default", ""));*/
         } catch (IOException ex) {
-            Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
+           Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
         }
         client.flush();
 
@@ -114,7 +114,7 @@ public class CouchBaseTest {
           try {
              countLatch.await();
            } catch (InterruptedException ex) {
-            Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
+              Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
            }
    	}
         long stopTime = System.currentTimeMillis();
@@ -150,7 +150,6 @@ public class CouchBaseTest {
         //stopTime = System.currentTimeMillis();
         System.out.println("stop time after is set is " + stopTime);
         System.out.println("Threads after get are + " + Thread.activeCount());
-        Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, output.toString());
         client.shutdown();
 
     }

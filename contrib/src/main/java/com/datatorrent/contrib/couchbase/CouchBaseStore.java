@@ -3,6 +3,7 @@ package com.datatorrent.contrib.couchbase;
 import com.couchbase.client.CouchbaseClient;
 import com.datatorrent.lib.db.Connectable;
 import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
+import com.datatorrent.common.util.DTThrowable;
 import java.io.IOException;
 import java.net.URI;
 import java.util.Arrays;
@@ -137,6 +138,7 @@ public class CouchBaseStore implements Connectable
     }
     catch (IOException e) {
       logger.error("Error connecting to Couchbase: " + e.getMessage());
+      DTThrowable.rethrow(e);
     }
   }
 
@@ -154,3 +156,4 @@ public class CouchBaseStore implements Connectable
   }
 
 }
+

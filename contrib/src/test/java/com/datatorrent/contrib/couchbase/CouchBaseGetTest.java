@@ -52,11 +52,10 @@ public class CouchBaseGetTest {
         
         URI uri = null;
         try {
-            //uri = new URI("http://node26.morado.com::8091/pools");
-                        uri = new URI("http://node26.morado.com:8091/pools");
+             uri = new URI("http://node13.morado.com:8091/pools");
 
         } catch (URISyntaxException ex) {
-            Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
+          Logger.getLogger(CouchBaseTest.class.getName()).log(Level.SEVERE, null, ex);
         }
         baseURIs.add(uri);
         CouchbaseClient client = null;

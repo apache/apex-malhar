@@ -90,16 +90,14 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     super.connect();
 
     try {
-      clientMeta = new CouchbaseClient(new CouchbaseConnectionFactoryBuilder()
-              .setViewTimeout(30) // set the timeout to 30 seconds
-              .setViewWorkerSize(5) // use 5 worker threads instead of one
-              .setViewConnsPerNode(20) // allow 20 parallel http connections per node in the cluster
-              .buildCouchbaseConnection(baseURIs, "metadata", password));
-      //clientMeta = new CouchbaseClient(baseURIs, "metadata", "");
-
+      CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
+      cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
+      cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
+      clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, "metadata", password));
     }
     catch (IOException e) {
       logger.error("Error connecting to Couchbase: " + e.getMessage());
+       DTThrowable.rethrow(e);
     }
   }
 
@@ -239,3 +237,4 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   }
 
 }
+
