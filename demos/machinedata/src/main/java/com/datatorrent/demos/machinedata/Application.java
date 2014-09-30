@@ -24,6 +24,7 @@ import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.Operator.OutputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 import com.datatorrent.demos.machinedata.data.MachineKey;
 import com.datatorrent.demos.machinedata.operator.CalculatorOperator;
 import com.datatorrent.demos.machinedata.operator.MachineInfoAveragingOperator;
@@ -47,59 +48,43 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.5
  */
-@ApplicationAnnotation(name="MachineDataDemo")
+@ApplicationAnnotation(name = "MachineDataDemo")
 @SuppressWarnings("unused")
 public class Application implements StreamingApplication
 {
 
+  private static final Logger LOG = LoggerFactory.getLogger(Application.class);
 
-	private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-	
-	/**
-	 * This method returns new SmtpOutputOperator Operator
-	 * @param name the name of the operator in DAG
-	 * @param dag the DAG instance
-	 * @param conf the configuration object
-	 * @return SmtpOutputOperator
-	 */
-	private SmtpOutputOperator getSmtpOutputOperator(String name, DAG dag, Configuration conf)
-	{
-		SmtpOutputOperator mailOper = new SmtpOutputOperator();
-		String recipient = conf.get("machinedata.smtp.recipient", "gaurav@datatorrent.com");
-		mailOper.addRecipient(SmtpOutputOperator.RecipientType.TO, recipient);
-		dag.addOperator(name, mailOper);
-		return mailOper;
-	}
-	
-	/**
-	 * This function sets up the DAG for calculating the average
-	 * @param dag the DAG instance
-	 * @param conf the configuration instance
-	 * @return MachineInfoAveragingPrerequisitesOperator
-	 */
-	private MachineInfoAveragingPrerequisitesOperator addAverageCalculation(DAG dag, Configuration conf)
-	{
-		MachineInfoAveragingPrerequisitesOperator prereqAverageOper = dag.addOperator("Aggregator", MachineInfoAveragingPrerequisitesOperator.class);
-		MachineInfoAveragingOperator averageOperator = dag.addOperator("AverageCalculator", MachineInfoAveragingOperator.class);
-		RedisKeyValPairOutputOperator<MachineKey, Map<String, String>> redisAvgOperator = dag.addOperator("Persister", new RedisKeyValPairOutputOperator<MachineKey, Map<String, String>>());
-		dag.addStream("Average", averageOperator.outputPort, redisAvgOperator.input);
-		SmtpOutputOperator smtpOutputOperator = getSmtpOutputOperator("Alerter", dag, conf);
-		dag.addStream("Aggregates", prereqAverageOper.outputPort, averageOperator.inputPort);
-		dag.addStream("Alerts", averageOperator.smtpAlert, smtpOutputOperator.input);
-		return prereqAverageOper;
-	}
+  /**
+   * This function sets up the DAG for calculating the average
+   *
+   * @param dag  the DAG instance
+   * @param conf the configuration instance
+   * @return MachineInfoAveragingPrerequisitesOperator
+   */
+  private MachineInfoAveragingPrerequisitesOperator addAverageCalculation(DAG dag, Configuration conf)
+  {
+    MachineInfoAveragingPrerequisitesOperator prereqAverageOper = dag.addOperator("Aggregator", MachineInfoAveragingPrerequisitesOperator.class);
+    MachineInfoAveragingOperator averageOperator = dag.addOperator("AverageCalculator", MachineInfoAveragingOperator.class);
+    RedisKeyValPairOutputOperator<MachineKey, Map<String, String>> redisAvgOperator = dag.addOperator("Persister", new RedisKeyValPairOutputOperator<MachineKey, Map<String, String>>());
+    dag.addStream("Average", averageOperator.outputPort, redisAvgOperator.input);
+    SmtpOutputOperator smtpOutputOperator = dag.addOperator("Alerter", new SmtpOutputOperator());
+    dag.addStream("Aggregates", prereqAverageOper.outputPort, averageOperator.inputPort);
+    dag.addStream("Alerts", averageOperator.smtpAlert, smtpOutputOperator.input);
+    return prereqAverageOper;
+  }
 
-	/**
-	 * Create the DAG
-	 */
-	@Override
-	public void populateDAG(DAG dag, Configuration conf)
-	{	
-		InputReceiver randomGen = dag.addOperator("Receiver", InputReceiver.class);
-		DimensionGenerator dimensionGenerator = dag.addOperator("DimensionsGenerator", DimensionGenerator.class);
-		dag.addStream("Events",randomGen.outputInline,dimensionGenerator.inputPort);
-		MachineInfoAveragingPrerequisitesOperator prereqAverageOper = addAverageCalculation(dag, conf);
-		dag.addStream("DimensionalData", dimensionGenerator.outputInline, prereqAverageOper.inputPort);
-	}
-	
+  /**
+   * Create the DAG
+   */
+  @Override
+  public void populateDAG(DAG dag, Configuration conf)
+  {
+    InputReceiver randomGen = dag.addOperator("Receiver", InputReceiver.class);
+    DimensionGenerator dimensionGenerator = dag.addOperator("DimensionsGenerator", DimensionGenerator.class);
+    dag.addStream("Events", randomGen.outputInline, dimensionGenerator.inputPort);
+    MachineInfoAveragingPrerequisitesOperator prereqAverageOper = addAverageCalculation(dag, conf);
+    dag.addStream("DimensionalData", dimensionGenerator.outputInline, prereqAverageOper.inputPort);
+  }
+
 }

@@ -19,16 +19,19 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Properties;
+import java.util.*;
+
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 
 /**
  * <p>SmtpOutputOperator class.</p>
@@ -40,24 +43,32 @@ public class SmtpOutputOperator extends BaseOperator
   public enum RecipientType
   {
     TO, CC, BCC
-  };
+  }
 
   private static final Logger LOG = LoggerFactory.getLogger(SmtpOutputOperator.class);
-  protected String subject;
-  protected String content;
-  protected transient Session session;
-  protected transient Message message;
-  protected String from;
-  protected Map<RecipientType, ArrayList<String>> recAddresses = new HashMap<RecipientType, ArrayList<String>>();
+  @NotNull
+  private String subject;
+  @NotNull
+  private String content;
+  @NotNull
+  private String from;
+  private Map<String, String> recipients = Maps.newHashMap();
+
+  private int smtpPort = 587;
+  @NotNull
+  private String smtpHost;
+  @NotNull
+  private String smtpUserName;
+  private String smtpPassword;
+  private String contentType = "text/plain";
+  private boolean useSsl = false;
+  private boolean setupCalled = false;
+
   protected transient Properties properties = System.getProperties();
   protected transient Authenticator auth;
-  protected int smtpPort = 587;
-  protected String smtpHost;
-  protected String smtpUserName;
-  protected String smtpPassword;
-  protected String contentType = "text/plain";
-  protected boolean useSsl = false;
-  protected boolean setupCalled = false;
+  protected transient Session session;
+  protected transient Message message;
+
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
@@ -175,15 +186,6 @@ public class SmtpOutputOperator extends BaseOperator
     reset();
   }
 
-  public void addRecipient(RecipientType type, String rec)
-  {
-    if (!recAddresses.containsKey(type)) {
-      recAddresses.put(type, new ArrayList<String>());
-    }
-    recAddresses.get(type).add(rec);
-    resetMessage();
-  }
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -230,30 +232,45 @@ public class SmtpOutputOperator extends BaseOperator
     try {
       message = new MimeMessage(session);
       message.setFrom(new InternetAddress(from));
-      for (Map.Entry<RecipientType, ArrayList<String>> entry: recAddresses.entrySet()) {
-        for (String addr: entry.getValue()) {
-          Message.RecipientType mtype;
-          switch (entry.getKey()) {
-            case TO:
-              mtype = Message.RecipientType.TO;
-              break;
-            case CC:
-              mtype = Message.RecipientType.CC;
-              break;
-            case BCC:
-            default:
-              mtype = Message.RecipientType.BCC;
-              break;
-          }
-          message.addRecipient(mtype, new InternetAddress(addr));
+      for (Map.Entry<String, String> entry : recipients.entrySet()) {
+        RecipientType type = RecipientType.valueOf(entry.getKey().toUpperCase());
+        Message.RecipientType recipientType;
+        switch (type) {
+          case TO:
+            recipientType = Message.RecipientType.TO;
+            break;
+          case CC:
+            recipientType = Message.RecipientType.CC;
+            break;
+          case BCC:
+          default:
+            recipientType = Message.RecipientType.BCC;
+            break;
+        }
+        String[] addresses = entry.getValue().split(",");
+        for (String address : addresses) {
+          message.addRecipient(recipientType, new InternetAddress(address));
         }
       }
       message.setSubject(subject);
+      LOG.debug("all recipients {}", Arrays.toString(message.getAllRecipients()));
     }
     catch (MessagingException ex) {
-      LOG.error(ex.toString());
+      throw new RuntimeException(ex);
     }
-
   }
 
+  public Map<String, String> getRecipients()
+  {
+    return recipients;
+  }
+
+  /**
+   * @param recipients : map from recipient type to coma separated list of addresses for e.g. to->abc@xyz.com,def@xyz.com
+   */
+  public void setRecipients(Map<String, String> recipients)
+  {
+    this.recipients = recipients;
+    resetMessage();
+  }
 }
