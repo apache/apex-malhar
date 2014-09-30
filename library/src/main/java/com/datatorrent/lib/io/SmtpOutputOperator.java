@@ -24,6 +24,8 @@ import java.util.*;
 import javax.mail.*;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import javax.validation.Constraint;
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +54,7 @@ public class SmtpOutputOperator extends BaseOperator
   private String content;
   @NotNull
   private String from;
+
   private Map<String, String> recipients = Maps.newHashMap();
 
   private int smtpPort = 587;
@@ -68,23 +71,20 @@ public class SmtpOutputOperator extends BaseOperator
   protected transient Authenticator auth;
   protected transient Session session;
   protected transient Message message;
-  protected transient boolean isRecipientToSet;
 
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
     public void process(Object t)
     {
-      if (isRecipientToSet) {
-        try {
-          String mailContent = content.replace("{}", t.toString());
-          message.setContent(mailContent, contentType);
-          LOG.info("Sending email for tuple {}", t.toString());
-          Transport.send(message);
-        }
-        catch (MessagingException ex) {
-          LOG.error("Something wrong with sending email.", ex);
-        }
+      try {
+        String mailContent = content.replace("{}", t.toString());
+        message.setContent(mailContent, contentType);
+        LOG.info("Sending email for tuple {}", t.toString());
+        Transport.send(message);
+      }
+      catch (MessagingException ex) {
+        LOG.error("Something wrong with sending email.", ex);
       }
     }
   };
@@ -240,7 +240,6 @@ public class SmtpOutputOperator extends BaseOperator
         switch (type) {
           case TO:
             recipientType = Message.RecipientType.TO;
-            isRecipientToSet = true;
             break;
           case CC:
             recipientType = Message.RecipientType.CC;
@@ -275,5 +274,22 @@ public class SmtpOutputOperator extends BaseOperator
   {
     this.recipients = recipients;
     resetMessage();
+  }
+
+  @AssertTrue(message = "Please verify the recipients set")
+  private boolean isValid()
+  {
+    if (recipients.isEmpty()) {
+      return false;
+    }
+    for (Map.Entry<String, String> entry : recipients.entrySet()) {
+      if (entry.getKey().toUpperCase().equalsIgnoreCase("TO")) {
+        if (entry.getValue() != null && entry.getValue().length() > 0) {
+          return true;
+        }
+        return false;
+      }
+    }
+    return false;
   }
 }
