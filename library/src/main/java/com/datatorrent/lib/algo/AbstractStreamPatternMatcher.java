@@ -34,14 +34,14 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * <p>
- * This operator searches for a given state machine in the input stream.<br>
- * This takes a state machine which is a list of events that you want to find.<br>
- * For e.g. If the state machine is defined as “aa” and your input events arrive in following manner “a”, “a”, “a”, then this operator
- * will emit 2 matches for the given state machine. One matching tuple 1 and 2 and other matching 2 and 3.
+ * This operator searches for a given pattern in the input stream.<br>
+ * This takes a pattern which is a list of events that you want to find.<br>
+ * For e.g. If the pattern is defined as “aa” and your input events arrive in following manner “a”, “a”, “a”, then this operator
+ * will emit 2 matches for the given pattern. One matching tuple 1 and 2 and other matching 2 and 3.
  * </p>
  *
  * <br>
- * <b> StateFull : Yes, </b> State machine is found over application window(s). <br>
+ * <b> StateFull : Yes, </b> Pattern is found over application window(s). <br>
  * <b> Partitionable : No, </b> will yield wrong result. <br>
  *
  * <br>
@@ -50,39 +50,39 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  *
  * <br>
  * <b>Properties</b>:<br>
- * <b>states</b>: The states that needs to be searched<br>
+ * <b>pattern</b>: The pattern that needs to be searched<br>
  *
  * @param <T> event type
  */
 
 @OperatorAnnotation(partitionable = false)
-public abstract class AbstractStateMachine<T> extends BaseOperator
+public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
 {
   @NotNull
-  private StateMachine<T> stateMachine;
+  private Pattern<T> pattern;
 
   // this stores the partial matches found so far
   private ArrayList<List<T>> matchedPatterns;
   private int patternLength;
 
-  public AbstractStateMachine()
+  public AbstractStreamPatternMatcher()
   {
     matchedPatterns = Lists.newArrayList();
   }
 
-  public void setStateMachine(StateMachine<T> stateMachine)
+  public void setPattern(Pattern<T> pattern)
   {
-    this.stateMachine = stateMachine;
-    patternLength = stateMachine.getStates().length;
+    this.pattern = pattern;
+    patternLength = pattern.getStates().length;
     matchedPatterns.clear();
     for (int i = 0; i < patternLength; i++) {
       matchedPatterns.add(null);
     }
   }
 
-  public StateMachine<T> getStateMachine()
+  public Pattern<T> getPattern()
   {
-    return stateMachine;
+    return pattern;
   }
 
   public transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
@@ -90,18 +90,18 @@ public abstract class AbstractStateMachine<T> extends BaseOperator
     @Override
     public void process(T t)
     {
-      if (stateMachine == null) {
-        logger.error("Please set the state machine before searching");
+      if (pattern == null) {
+        logger.error("Please set the pattern before searching");
         return;
       }
-      //get the matches for input event in the state machine
-      List<Integer> matchingPositions = stateMachine.getPosition(t);
+      //get the matches for input event in the pattern
+      List<Integer> matchingPositions = pattern.getPosition(t);
       List<T> currentMatch;
 
       /**
        * Algorithm :
        * Store all the partial matches seen so far.
-       * Find the position(s) of the input event in the given state machine.
+       * Find the position(s) of the input event in the given pattern.
        * If there was no matching position then reset all the existing partial matches
        * For each of the matching position x, if there was a partial match till position x-1, then append the new event to this partial match.
        * Reset partial matches for all non matching positions
@@ -147,7 +147,7 @@ public abstract class AbstractStateMachine<T> extends BaseOperator
           patternPosition = matchingPositions.get(matchingPositionIndex);
         }
       }
-      // If the match is found at starting of state machine,then initialize the partial match
+      // If the match is found at starting of pattern state,then initialize the partial match
       if (patternPosition == 0) {
         currentMatch = Lists.newArrayList();
         currentMatch.add(t);
@@ -166,17 +166,17 @@ public abstract class AbstractStateMachine<T> extends BaseOperator
 
   public transient DefaultOutputPort<List<T>> outputPort = new DefaultOutputPort<List<T>>();
 
-  public static class StateMachine<T>
+  public static class Pattern<T>
   {
     private Map<T, List<Integer>> positionMap;
     private T[] states;
 
-    public StateMachine()
+    public Pattern()
     {
       positionMap = Maps.newHashMap();
     }
 
-    public StateMachine(T[] states)
+    public Pattern(T[] states)
     {
       this.states = states;
       positionMap = Maps.newHashMap();
@@ -184,7 +184,7 @@ public abstract class AbstractStateMachine<T> extends BaseOperator
     }
 
     /**
-     * This function pre-calculates the position of each of the state
+     * This function pre-calculates the position of each of the state in the pattern
      */
     private void populatePositionMap()
     {
@@ -214,5 +214,5 @@ public abstract class AbstractStateMachine<T> extends BaseOperator
     }
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(AbstractStateMachine.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractStreamPatternMatcher.class);
 }

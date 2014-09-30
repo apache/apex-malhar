@@ -17,7 +17,7 @@ package com.datatorrent.lib.algo;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.algo.AbstractStateMachine}<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.AbstractStreamPatternMatcher}<p>
  *
  */
 
@@ -35,10 +35,10 @@ import com.datatorrent.api.DefaultOutputPort;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
-public class AbstractStateMachineTest
+public class AbstractStreamPatternMatcherTest
 {
 
-  public static class StateMachine<T> extends AbstractStateMachine<T>
+  public static class StreamPatternMatcher<T> extends AbstractStreamPatternMatcher<T>
   {
     @Override
     public void processPatternFound(List<T> outputList)
@@ -49,24 +49,24 @@ public class AbstractStateMachineTest
     public transient DefaultOutputPort<List<T>> outputPort = new DefaultOutputPort<List<T>>();
   }
 
-  private StateMachine<Integer> stateMachineMatcher;
-  private AbstractStateMachine.StateMachine<Integer> stateMachine;
+  private StreamPatternMatcher<Integer> streamPatternMatcher;
+  private AbstractStreamPatternMatcher.Pattern<Integer> pattern;
   private Integer[] inputPattern;
   private CollectorTestSink<Object> sink;
 
   @Before
   public void setup()
   {
-    stateMachine = new AbstractStateMachine.StateMachine<Integer>();
-    stateMachineMatcher = new StateMachine<Integer>();
+    pattern = new AbstractStreamPatternMatcher.Pattern<Integer>();
+    streamPatternMatcher = new StreamPatternMatcher<Integer>();
     sink = new CollectorTestSink<Object>();
-    stateMachineMatcher.outputPort.setSink(sink);
+    streamPatternMatcher.outputPort.setSink(sink);
   }
 
   @After
   public void cleanup()
   {
-    stateMachineMatcher.teardown();
+    streamPatternMatcher.teardown();
     sink.collectedTuples.clear();
   }
 
@@ -74,20 +74,20 @@ public class AbstractStateMachineTest
   public void test() throws Exception
   {
     inputPattern = new Integer[]{0, 1, 0, 1, 2};
-    stateMachine.setStates(inputPattern);
-    stateMachineMatcher.setStateMachine(stateMachine);
-    stateMachineMatcher.setup(null);
-    stateMachineMatcher.beginWindow(0);
-    stateMachineMatcher.inputPort.process(0);
-    stateMachineMatcher.inputPort.process(1);
-    stateMachineMatcher.inputPort.process(1);
-    stateMachineMatcher.inputPort.process(0);
-    stateMachineMatcher.inputPort.process(1);
-    stateMachineMatcher.inputPort.process(0);
-    stateMachineMatcher.inputPort.process(1);
-    stateMachineMatcher.inputPort.process(2);
-    stateMachineMatcher.inputPort.process(1);
-    stateMachineMatcher.endWindow();
+    pattern.setStates(inputPattern);
+    streamPatternMatcher.setPattern(pattern);
+    streamPatternMatcher.setup(null);
+    streamPatternMatcher.beginWindow(0);
+    streamPatternMatcher.inputPort.process(0);
+    streamPatternMatcher.inputPort.process(1);
+    streamPatternMatcher.inputPort.process(1);
+    streamPatternMatcher.inputPort.process(0);
+    streamPatternMatcher.inputPort.process(1);
+    streamPatternMatcher.inputPort.process(0);
+    streamPatternMatcher.inputPort.process(1);
+    streamPatternMatcher.inputPort.process(2);
+    streamPatternMatcher.inputPort.process(1);
+    streamPatternMatcher.endWindow();
     Assert.assertEquals("The number of tuples emitted is one", 1, sink.collectedTuples.size());
     Assert.assertEquals("Matching the output pattern with input pattern", Arrays.asList(inputPattern), sink.collectedTuples.get(0));
   }
@@ -96,17 +96,17 @@ public class AbstractStateMachineTest
   public void testSimplePattern() throws Exception
   {
     inputPattern = new Integer[]{0, 0};
-    stateMachine.setStates(inputPattern);
-    stateMachineMatcher.setStateMachine(stateMachine);
-    stateMachineMatcher.setup(null);
-    stateMachineMatcher.beginWindow(0);
-    stateMachineMatcher.inputPort.process(0);
-    stateMachineMatcher.inputPort.process(0);
-    stateMachineMatcher.inputPort.process(0);
-    stateMachineMatcher.inputPort.process(1);
-    stateMachineMatcher.inputPort.process(0);
-    stateMachineMatcher.inputPort.process(0);
-    stateMachineMatcher.endWindow();
+    pattern.setStates(inputPattern);
+    streamPatternMatcher.setPattern(pattern);
+    streamPatternMatcher.setup(null);
+    streamPatternMatcher.beginWindow(0);
+    streamPatternMatcher.inputPort.process(0);
+    streamPatternMatcher.inputPort.process(0);
+    streamPatternMatcher.inputPort.process(0);
+    streamPatternMatcher.inputPort.process(1);
+    streamPatternMatcher.inputPort.process(0);
+    streamPatternMatcher.inputPort.process(0);
+    streamPatternMatcher.endWindow();
     Assert.assertEquals("The number of tuples emitted are three", 3, sink.collectedTuples.size());
     List<Integer> inputList = Arrays.asList(inputPattern);
     for (Object object : sink.collectedTuples) {
@@ -126,25 +126,25 @@ public class AbstractStateMachineTest
     for (int i = 0; i < patternSize; i++) {
       inputPattern[i] = (min + random.nextInt(max));
     }
-    stateMachine.setStates(inputPattern);
-    stateMachineMatcher.setStateMachine(stateMachine);
-    stateMachineMatcher.setup(null);
-    stateMachineMatcher.beginWindow(0);
+    pattern.setStates(inputPattern);
+    streamPatternMatcher.setPattern(pattern);
+    streamPatternMatcher.setup(null);
+    streamPatternMatcher.beginWindow(0);
     int numberOfIterations = 20;
     for (int i = 0; i < patternSize; i++) {
       for (int j = 0; j <= i; j++) {
-        stateMachineMatcher.inputPort.process(inputPattern[j]);
+        streamPatternMatcher.inputPort.process(inputPattern[j]);
       }
       for (int k = 0; k < numberOfIterations; k++) {
-        stateMachineMatcher.inputPort.process(max + min + random.nextInt(max));
+        streamPatternMatcher.inputPort.process(max + min + random.nextInt(max));
       }
       if (i % primeNumber == 0) {
         for (int j = 0; j < patternSize; j++) {
-          stateMachineMatcher.inputPort.process(inputPattern[j]);
+          streamPatternMatcher.inputPort.process(inputPattern[j]);
         }
       }
     }
-    stateMachineMatcher.endWindow();
+    streamPatternMatcher.endWindow();
     Assert.assertEquals("The number of tuples emitted ", 1 + patternSize / primeNumber, sink.collectedTuples.size());
     List<Integer> inputList = Arrays.asList(inputPattern);
     for (Object output : sink.collectedTuples) {
