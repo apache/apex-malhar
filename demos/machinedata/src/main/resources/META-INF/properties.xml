@@ -83,6 +83,11 @@
     <value>Alert!!!</value>
   </property>
   <property>
+    <name>dt.application.MachineDataDemo.operator.Alerter.smtpUserName
+    </name>
+    <value></value>
+  </property>
+  <property>
     <name>dt.application.MachineDataDemo.operator.Alerter.recipients.TO
     </name>
     <value></value>
