@@ -15,11 +15,6 @@
  */
 package com.datatorrent.lib.io;
 
-import com.google.common.collect.Maps;
-import com.icegreen.greenmail.util.GreenMail;
-import com.icegreen.greenmail.util.ServerSetupTest;
-import com.icegreen.greenmail.util.ServerSetup;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -32,6 +27,11 @@ import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
+
+import com.google.common.collect.Maps;
+import com.icegreen.greenmail.util.GreenMail;
+import com.icegreen.greenmail.util.ServerSetup;
+import com.icegreen.greenmail.util.ServerSetupTest;
 
 import com.datatorrent.api.StreamingApplication;
 
@@ -121,33 +121,6 @@ public class SmtpOutputOperatorTest
     Assert.assertTrue(expectedContent.equals(receivedContent));
     Assert.assertEquals(from, ((InternetAddress) messages[0].getFrom()[0]).getAddress());
     Assert.assertEquals(to, messages[0].getAllRecipients()[0].toString());
-  }
-
-  @Test
-  public void testEmptyRecipients() throws Exception
-  {
-    node.setup(null);
-    node.beginWindow(1000);
-    node.input.process(data);
-    node.endWindow();
-    Assert.assertTrue(greenMail.waitForIncomingEmail(5000, 0));
-    MimeMessage[] messages = greenMail.getReceivedMessages();
-    Assert.assertEquals(0, messages.length);
-  }
-
-  @Test
-  public void testOnlyCCRecipients() throws Exception
-  {
-    Map<String, String> recipients = Maps.newHashMap();
-    recipients.put("cc", cc);
-    node.setRecipients(recipients);
-    node.setup(null);
-    node.beginWindow(1000);
-    node.input.process(data);
-    node.endWindow();
-    Assert.assertTrue(greenMail.waitForIncomingEmail(5000, 0));
-    MimeMessage[] messages = greenMail.getReceivedMessages();
-    Assert.assertEquals(0, messages.length);
   }
 
   @Test
