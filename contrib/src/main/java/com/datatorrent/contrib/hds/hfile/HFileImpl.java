@@ -26,6 +26,8 @@ import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.KeyValue.KVComparator;
 import org.apache.hadoop.hbase.io.compress.Compression;
 import org.apache.hadoop.hbase.io.hfile.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -75,6 +77,7 @@ import java.util.TreeMap;
  */
 public class HFileImpl extends HDSFileAccessFSImpl {
 
+  private static final Logger LOG = LoggerFactory.getLogger(HFileImpl.class);
   private transient CacheConfig cacheConfig = null;
   private Comparator<Slice> comparator = null;
   private transient HFileContext context = null;
@@ -90,6 +93,8 @@ public class HFileImpl extends HDSFileAccessFSImpl {
   protected CacheConfig getCacheConfig() {
     if (cacheConfig == null ) {
       cacheConfig = new CacheConfig(getConfiguration());
+      LOG.debug("Cache config: {}", cacheConfig);
+      LOG.debug("Block cache capacity: {}m", (cacheConfig.getBlockCache().getFreeSize()-cacheConfig.getBlockCache().size())/(1024*1024));
     }
     return cacheConfig;
   }

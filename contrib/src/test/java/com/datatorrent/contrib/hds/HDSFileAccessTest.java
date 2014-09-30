@@ -117,6 +117,7 @@ public class HDSFileAccessTest
 
   private void testHFile(Algorithm calgo) throws IOException{
     HFileImpl himpl = new HFileImpl();
+    himpl.getConfigProperties().setProperty("hfile.block.cache.size", "0.5");
     himpl.setComparator(new HDSWriter.DefaultKeyComparator());
     HFileContext context = new HFileContext();
     context.setCompression(calgo);

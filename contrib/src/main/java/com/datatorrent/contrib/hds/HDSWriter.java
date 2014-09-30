@@ -148,29 +148,32 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
   {
     HDSFileWriter fw = null;
     BucketFileMeta fileMeta = null;
+    int keysWritten = 0;
     for (Map.Entry<Slice, byte[]> dataEntry : data.entrySet()) {
       if (fw == null) {
         // next file
         fileMeta = bucketMeta.addFile(bucket.bucketKey, dataEntry.getKey());
         LOG.debug("writing new data file {} {}", bucket.bucketKey, fileMeta.name);
         fw = this.store.getWriter(bucket.bucketKey, fileMeta.name + ".tmp");
+        keysWritten = 0;
       }
 
       fw.append(HDS.SliceExt.asArray(dataEntry.getKey()), dataEntry.getValue());
+      keysWritten++;
       if (fw.getBytesWritten() > this.maxFileSize) {
-
         // roll file
         fw.close();
         this.store.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
-        LOG.debug("created new data file {} {}", bucket.bucketKey, fileMeta.name);
+        LOG.debug("created data file {} {} with {} entries", bucket.bucketKey, fileMeta.name, keysWritten);
         fw = null;
+        keysWritten = 0;
       }
     }
 
     if (fw != null) {
       fw.close();
       this.store.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
-      LOG.debug("created new data file {} {}", bucket.bucketKey, fileMeta.name);
+      LOG.debug("created data file {} {} with {} entries", bucket.bucketKey, fileMeta.name, keysWritten);
     }
   }
 
@@ -275,6 +278,10 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
           bucketSeqStarts.remove(floorEntry.getKey());
         }
         floorFile.startKey = entry.getKey();
+        if (floorFile.startKey.length != floorFile.startKey.buffer.length) {
+          // normalize key for serialization
+          floorFile.startKey = floorFile.startKey.clone();
+        }
         bucketSeqStarts.put(floorFile.startKey, floorFile);
       }
 
@@ -308,6 +315,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
 
     // flush meta data for new files
     try {
+      LOG.debug("writing {} with {} file entries", FNAME_META, bucketMetaCopy.files.size());
       OutputStream os = store.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
       Output output = new Output(os);
       bucketMetaCopy.committedWid = windowId;
