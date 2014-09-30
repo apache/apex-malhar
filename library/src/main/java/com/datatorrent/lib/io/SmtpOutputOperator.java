@@ -68,23 +68,25 @@ public class SmtpOutputOperator extends BaseOperator
   protected transient Authenticator auth;
   protected transient Session session;
   protected transient Message message;
+  protected transient boolean isRecipientToSet;
 
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override
     public void process(Object t)
     {
-      try {
-        String mailContent = content.replace("{}", t.toString());
-        message.setContent(mailContent, contentType);
-        LOG.info("Sending email for tuple {}", t.toString());
-        Transport.send(message);
-      }
-      catch (MessagingException ex) {
-        LOG.error("Something wrong with sending email.", ex);
+      if (isRecipientToSet) {
+        try {
+          String mailContent = content.replace("{}", t.toString());
+          message.setContent(mailContent, contentType);
+          LOG.info("Sending email for tuple {}", t.toString());
+          Transport.send(message);
+        }
+        catch (MessagingException ex) {
+          LOG.error("Something wrong with sending email.", ex);
+        }
       }
     }
-
   };
 
   public String getSubject()
@@ -238,6 +240,7 @@ public class SmtpOutputOperator extends BaseOperator
         switch (type) {
           case TO:
             recipientType = Message.RecipientType.TO;
+            isRecipientToSet = true;
             break;
           case CC:
             recipientType = Message.RecipientType.CC;

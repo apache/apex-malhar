@@ -48,6 +48,7 @@ public class SmtpOutputOperatorTest
   String cc = "jenkinsCC@datatorrent.com";
   GreenMail greenMail = null;
   SmtpOutputOperator node;
+  Map<String, String> data;
 
   @Before
   public void setup() throws Exception
@@ -63,6 +64,8 @@ public class SmtpOutputOperatorTest
     node.setSmtpPassword("<password>");
     //node.setUseSsl(true);
     node.setSubject(subject);
+    data = new HashMap<String, String>();
+    data.put("alertkey", "alertvalue");
 
   }
 
@@ -82,8 +85,6 @@ public class SmtpOutputOperatorTest
     recipients.put("cc", cc);
     node.setRecipients(recipients);
     node.setup(null);
-    Map<String, String> data = new HashMap<String, String>();
-    data.put("alertkey", "alertvalue");
     node.beginWindow(1000);
     node.input.process(data);
     node.endWindow();
@@ -108,8 +109,6 @@ public class SmtpOutputOperatorTest
     recipients.put("to", to);
     node.setRecipients(recipients);
     node.setup(null);
-    Map<String, String> data = new HashMap<String, String>();
-    data.put("alertkey", "alertvalue");
     node.beginWindow(1000);
     node.input.process(data);
     node.endWindow();
@@ -122,6 +121,33 @@ public class SmtpOutputOperatorTest
     Assert.assertTrue(expectedContent.equals(receivedContent));
     Assert.assertEquals(from, ((InternetAddress) messages[0].getFrom()[0]).getAddress());
     Assert.assertEquals(to, messages[0].getAllRecipients()[0].toString());
+  }
+
+  @Test
+  public void testEmptyRecipients() throws Exception
+  {
+    node.setup(null);
+    node.beginWindow(1000);
+    node.input.process(data);
+    node.endWindow();
+    Assert.assertTrue(greenMail.waitForIncomingEmail(5000, 0));
+    MimeMessage[] messages = greenMail.getReceivedMessages();
+    Assert.assertEquals(0, messages.length);
+  }
+
+  @Test
+  public void testOnlyCCRecipients() throws Exception
+  {
+    Map<String, String> recipients = Maps.newHashMap();
+    recipients.put("cc", cc);
+    node.setRecipients(recipients);
+    node.setup(null);
+    node.beginWindow(1000);
+    node.input.process(data);
+    node.endWindow();
+    Assert.assertTrue(greenMail.waitForIncomingEmail(5000, 0));
+    MimeMessage[] messages = greenMail.getReceivedMessages();
+    Assert.assertEquals(0, messages.length);
   }
 
   @Test

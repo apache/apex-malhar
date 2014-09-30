@@ -85,7 +85,7 @@
   <property>
     <name>dt.application.MachineDataDemo.operator.Alerter.recipients.TO
     </name>
-    <value>support@datatorrent.com</value>
+    <value></value>
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.Alerter.content
