@@ -41,7 +41,7 @@
 				</executions>
 			</plugin>
     </plugins>
-  </build>  
+  </build>
   <dependencies>
     <dependency>
       <groupId>${project.groupId}</groupId>

@@ -87,17 +87,19 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public void connect() throws IOException
   {
+    System.out.println("bucket is" + bucket);
+     System.out.println("password is" + password);
     super.connect();
 
     try {
       CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
       cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
       cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
-      clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, "metadata", password));
+      clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucket, password));
     }
     catch (IOException e) {
       logger.error("Error connecting to Couchbase: " + e.getMessage());
-       DTThrowable.rethrow(e);
+      DTThrowable.rethrow(e);
     }
   }
 

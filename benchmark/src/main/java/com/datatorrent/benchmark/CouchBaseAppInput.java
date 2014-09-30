@@ -21,7 +21,6 @@ public class CouchBaseAppInput implements StreamingApplication {
         //couchbaseInput.getStore().setBucket("default");
         //couchbaseInput.getStore().setPassword("");
         WordCountOperator<String> counter = dag.addOperator("Counter", new WordCountOperator<String>());
-
         dag.addStream("Generator2Counter", couchbaseInput.outputPort, counter.input).setLocality(locality);
     }
 

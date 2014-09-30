@@ -23,12 +23,16 @@ public class CouchBaseStore implements Connectable
 {
 
   protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
-  protected transient String bucket;
-  protected transient String password;
+
+  @Nonnull
+  protected  String bucket;
+  @Nonnull
+  protected  String password;
   protected transient CouchbaseClient client;
 
   @Nonnull
   protected String uriString;
+
   protected Integer batch_size = 100;
   protected Integer max_tuples = 1000;
   protected int blockTime = 10000;
@@ -48,7 +52,10 @@ public class CouchBaseStore implements Connectable
   {
     return blockTime;
   }
-
+  public String getUriString()
+  {
+    return uriString;
+  }
   public void setBlockTime(int blockTime)
   {
     this.blockTime = blockTime;
@@ -80,8 +87,8 @@ public class CouchBaseStore implements Connectable
   public CouchBaseStore()
   {
     client = null;
-    bucket = "default";
-    password = "";
+   // bucket = "default";
+   // password = "";
   }
 
   public CouchbaseClient getInstance()
@@ -96,6 +103,7 @@ public class CouchBaseStore implements Connectable
 
   public void setBucket(String bucketName)
   {
+    logger.info("bucketname is" +bucketName);
     this.bucket = bucketName;
   }
 
@@ -106,6 +114,8 @@ public class CouchBaseStore implements Connectable
    */
   public void setPassword(String password)
   {
+    logger.info("password is" +password);
+
     this.password = password;
   }
 
@@ -122,6 +132,7 @@ public class CouchBaseStore implements Connectable
   {
     URI uri = null;
     for (String url: uriList) {
+
       try {
         uri = new URI("http", url, "/pools", null, null);
       }

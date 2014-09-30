@@ -28,7 +28,7 @@ public class CouchBaseAppUpdate implements StreamingApplication {
         CouchBaseUpdateOperator couchbaseUpdate = dag.addOperator("couchbaseUpdate", new CouchBaseUpdateOperator());
         // couchbaseUpdate.getStore().setBucket("default");
         // couchbaseUpdate.getStore().setPassword("");
-        dag.addStream("ss", rand.string_data, couchbaseUpdate.input).setLocality(locality);
+        dag.addStream("ss", rand.integer_data, couchbaseUpdate.input).setLocality(locality);
     }
 
 }
