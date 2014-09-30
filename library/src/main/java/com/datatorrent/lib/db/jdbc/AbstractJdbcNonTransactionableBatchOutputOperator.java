@@ -95,13 +95,6 @@ public abstract class AbstractJdbcNonTransactionableBatchOutputOperator<T, S ext
     if(mode==ProcessingMode.AT_MOST_ONCE){
       //Batch must be cleared to avoid writing same data twice
       tuples.clear();
-      //If the activation window is negative, then this is the first time
-      //the operator was started and we don't need to skip this first window.
-      //If the activation window is positive then this operator was restarted
-      //and we need to skip this first window.
-      Long activationWindowId = context.getValue(OperatorContext.ACTIVATION_WINDOW_ID);
-      LOG.debug("Activation window id: {}", activationWindowId);
-      skipWindow = activationWindowId >= 0;
     }
 
     try {
@@ -133,9 +126,6 @@ public abstract class AbstractJdbcNonTransactionableBatchOutputOperator<T, S ext
   public void endWindow()
   {
     super.endWindow();
-    //In at most once, if we needed to skip the first window after setup
-    //we do not need to skip anymore windows.
-    skipWindow = false;
 
     //This window is done so write it to the database.
     if(committedWindowId < currentWindowId) {
@@ -147,10 +137,6 @@ public abstract class AbstractJdbcNonTransactionableBatchOutputOperator<T, S ext
   @Override
   public void processTuple(T tuple)
   {
-    if(skipWindow) {
-      return;
-    }
-
     //Minimize duplicated data in the atleast once case
     if(committedWindowId >= currentWindowId) {
       return;
