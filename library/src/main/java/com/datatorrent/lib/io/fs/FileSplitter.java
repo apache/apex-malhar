@@ -18,6 +18,7 @@ package com.datatorrent.lib.io.fs;
 import java.io.IOException;
 import java.util.Iterator;
 
+import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 
 import org.apache.hadoop.fs.FileStatus;
@@ -38,7 +39,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
 {
   protected Long blockSize;
   protected transient int operatorId;
-  private long sequenceNo;
+  private int sequenceNo;
 
   public FileSplitter()
   {
@@ -50,14 +51,17 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
   public final transient DefaultOutputPort<FileMetadata> filesMetadataOutput = new DefaultOutputPort<FileMetadata>();
   public final transient DefaultOutputPort<BlockMetadata> blocksMetadataOutput = new DefaultOutputPort<BlockMetadata>();
 
+  @AssertTrue(message = "file splitter validations")
+  public boolean validate()
+  {
+    return blockSize == null || blockSize > 0;
+  }
+
   @Override
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
     operatorId = context.getId();
-    if (blockSize != null && blockSize < 0) {
-      throw new IllegalArgumentException("negative block size " + blockSize);
-    }
     if (blockSize == null) {
       blockSize = fs.getDefaultBlockSize(filePath);
     }
@@ -70,10 +74,10 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
 
     Iterator<String> pendingIterator = pendingFiles.iterator();
     while (pendingIterator.hasNext()) {
-      String filePath = pendingIterator.next();
-      LOG.debug("file {}", filePath);
+      String fPath = pendingIterator.next();
+      LOG.debug("file {}", fPath);
       try {
-        FileMetadata fileMetadata = buildFileMetadata(filePath);
+        FileMetadata fileMetadata = buildFileMetadata(fPath);
         filesMetadataOutput.emit(fileMetadata);
         Iterator<BlockMetadata> iterator = getBlockMetadataIterator(fileMetadata);
         while (iterator.hasNext()) {
@@ -84,7 +88,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
         throw new RuntimeException("creating metadata", e);
       }
       pendingIterator.remove();
-      processedFiles.add(filePath);
+      processedFiles.add(fPath);
     }
   }
 
@@ -102,20 +106,20 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
   /**
    * Creates file metadata and populates no. of blocks in the metadata.
    *
-   * @param filePath file-path
+   * @param fPath file-path
    * @return file-metadata
    * @throws IOException
    */
-  protected FileMetadata buildFileMetadata(String filePath) throws IOException
+  protected FileMetadata buildFileMetadata(String fPath) throws IOException
   {
-    currentFile = filePath;
-    Path path = new Path(filePath);
+    currentFile = fPath;
+    Path path = new Path(fPath);
 
     FileMetadata fileMetadata = readEntity();
     fileMetadata.setFileName(path.getName());
 
     FileStatus status = fs.getFileStatus(path);
-    int noOfBlocks = (int) Math.ceil(status.getLen() / (blockSize * 1.0));
+    int noOfBlocks = (int) ((status.getLen() / blockSize) + (((status.getLen() % blockSize) == 0) ? 0 : 1));
     if (fileMetadata.getDataOffset() >= status.getLen()) {
       noOfBlocks = 0;
     }
@@ -198,6 +202,10 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     }
   }
 
+  /**
+   * Represent the block metadata - file path, the file offset and length associated with the block and if it is the last
+   * block of the file.
+   */
   public static class BlockMetadata
   {
     private final long blockId;
@@ -217,6 +225,14 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
       isLastBlock = false;
     }
 
+    /**
+     * Constructs Block metadata
+     * @param offset      offset of the file in the block
+     * @param length      length of the file in the block
+     * @param filePath    file path
+     * @param blockId     block id
+     * @param isLastBlock true if this is the last block of file
+     */
     public BlockMetadata(long offset, long length, String filePath, long blockId, boolean isLastBlock)
     {
       this.filePath = filePath;
@@ -246,42 +262,66 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
       return (int) blockId;
     }
 
+    /**
+     * Returns the file path.
+     */
     public String getFilePath()
     {
       return filePath;
     }
 
+    /**
+     * Returns the block id.
+     */
     public long getBlockId()
     {
       return blockId;
     }
 
+    /**
+     * Returns the file offset associated with the block.
+     */
     public long getOffset()
     {
       return offset;
     }
 
+    /**
+     * Sets the offset of the file in the block.
+     */
     public void setOffset(long offset)
     {
       this.offset = offset;
     }
 
+    /**
+     * Returns the length of the file in the block.
+     */
     public long getLength()
     {
       return length;
     }
 
+    /**
+     * Sets the length of the file in the block.
+     */
     public void setLength(long length)
     {
       this.length = length;
     }
 
+    /**
+     * Returns if this is the last block in file.
+     */
     public boolean isLastBlock()
     {
       return isLastBlock;
     }
   }
 
+  /**
+   * Represents the file metadata - file path, name, no. of blocks, etc.
+   */
   public static class FileMetadata
   {
     @NotNull
@@ -299,72 +339,115 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
       discoverTime = System.currentTimeMillis();
     }
 
+    /**
+     * Constructs file metadata
+     * @param filePath  file path
+     */
     public FileMetadata(@NotNull String filePath)
     {
       this.filePath = filePath;
       discoverTime = System.currentTimeMillis();
     }
 
+    /**
+     * Returns the total number of blocks.
+     */
     public int getNumberOfBlocks()
     {
       return numberOfBlocks;
     }
 
+    /**
+     * Sets the total number of blocks.
+     */
     public void setNumberOfBlocks(int numberOfBlocks)
     {
       this.numberOfBlocks = numberOfBlocks;
     }
 
+    /**
+     * Returns the file name.
+     */
     public String getFileName()
     {
       return fileName;
     }
 
+    /**
+     * Sets the file name.
+     */
     public void setFileName(String fileName)
     {
       this.fileName = fileName;
     }
 
+    /**
+     * Sets the file path.
+     */
     public void setFilePath(String filePath)
     {
       this.filePath = filePath;
     }
 
+    /**
+     * Returns the file path.
+     */
     public String getFilePath()
     {
       return filePath;
     }
 
+    /**
+     * Returns the data offset.
+     */
     public long getDataOffset()
     {
       return dataOffset;
     }
 
+    /**
+     * Sets the data offset.
+     */
     public void setDataOffset(long offset)
     {
       this.dataOffset = offset;
     }
 
+    /**
+     * Returns the file length.
+     */
     public long getFileLength()
     {
       return fileLength;
     }
 
+    /**
+     * Sets the file length.
+     */
     public void setFileLength(long fileLength)
     {
       this.fileLength = fileLength;
     }
 
+    /**
+     * Returns the file discover time.
+     */
     public long getDiscoverTime()
     {
       return discoverTime;
     }
 
+    /**
+     * Returns the block ids associated with the file.
+     */
     public long[] getBlockIds()
     {
       return blockIds;
     }
 
+    /**
+     * Sets the blocks ids of the file.
+     */
     public void setBlockIds(long[] blockIds)
     {
       this.blockIds = blockIds;
