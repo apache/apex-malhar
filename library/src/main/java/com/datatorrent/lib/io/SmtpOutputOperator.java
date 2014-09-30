@@ -60,7 +60,6 @@ public class SmtpOutputOperator extends BaseOperator
   private int smtpPort = 587;
   @NotNull
   private String smtpHost;
-  @NotNull
   private String smtpUserName;
   private String smtpPassword;
   private String contentType = "text/plain";
@@ -283,7 +282,7 @@ public class SmtpOutputOperator extends BaseOperator
       return false;
     }
     for (Map.Entry<String, String> entry : recipients.entrySet()) {
-      if (entry.getKey().toUpperCase().equalsIgnoreCase("TO")) {
+      if (entry.getKey().toUpperCase().equalsIgnoreCase(RecipientType.TO.toString())) {
         if (entry.getValue() != null && entry.getValue().length() > 0) {
           return true;
         }
