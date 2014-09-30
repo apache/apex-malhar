@@ -112,6 +112,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     Path path = new Path(filePath);
 
     FileMetadata fileMetadata = readEntity();
+    fileMetadata.setFileName(path.getName());
 
     FileStatus status = fs.getFileStatus(path);
     int noOfBlocks = (int) Math.ceil(status.getLen() / (blockSize * 1.0));
@@ -197,7 +198,6 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
       boolean isLast = length >= fileMetadata.getFileLength();
       long lengthOfFileInBlock = isLast ? fileMetadata.getFileLength() : length;
       BlockMetadata blockMetadata = new BlockMetadata(pos, lengthOfFileInBlock, fileMetadata.getFilePath(), fileMetadata.getBlockIds()[blockNumber - 1], isLast);
-
       pos = lengthOfFileInBlock;
       return blockMetadata;
     }
@@ -212,7 +212,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
   public static class BlockMetadata
   {
     private final long blockId;
-    private final String fileName;
+    private final String filePath;
     //file offset associated with the block
     private long offset;
     //file length associated with the block
@@ -222,15 +222,15 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     protected BlockMetadata()
     {
       blockId = -1;
-      fileName = null;
+      filePath = null;
       offset = -1;
       length = -1;
       isLastBlock = false;
     }
 
-    public BlockMetadata(long offset, long length, String fileName, long blockId, boolean isLastBlock)
+    public BlockMetadata(long offset, long length, String filePath, long blockId, boolean isLastBlock)
     {
-      this.fileName = fileName;
+      this.filePath = filePath;
       this.blockId = blockId;
       this.offset = offset;
       this.length = length;
@@ -257,9 +257,9 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
       return (int) blockId;
     }
 
-    public String getFileName()
+    public String getFilePath()
     {
-      return fileName;
+      return filePath;
     }
 
     public long getBlockId()

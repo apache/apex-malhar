@@ -18,6 +18,7 @@ package com.datatorrent.lib.io.fs;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashSet;
+import java.util.Set;
 
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -44,6 +45,7 @@ public class FileSplitterTest
     public FileSplitter fileSplitter;
     public CollectorTestSink<Object> fileMetadataSink;
     public CollectorTestSink<Object> blockMetadataSink;
+    public Set<String> filePaths = Sets.newHashSet();
 
     @Override
     protected void starting(org.junit.runner.Description description)
@@ -51,7 +53,7 @@ public class FileSplitterTest
 
       String methodName = description.getMethodName();
       String className = description.getClassName();
-      this.dataDirectory = "target/" + className + "/" + methodName + "/recovery";
+      this.dataDirectory = "target/" + className + "/" + methodName;
 
       try {
         FileContext.getLocalFSFileContext().delete(new Path(new File(dataDirectory).getAbsolutePath()), true);
@@ -62,7 +64,9 @@ public class FileSplitterTest
             lines.add("f" + file + "l" + line);
           }
           allLines.addAll(lines);
-          FileUtils.write(new File(this.dataDirectory, "file" + file), StringUtils.join(lines, '\n'));
+          File created = new File(this.dataDirectory, "file" + file);
+          filePaths.add("file:" + created.getAbsolutePath());
+          FileUtils.write(created, StringUtils.join(lines, '\n'));
         }
       }
       catch (IOException e) {
@@ -106,6 +110,11 @@ public class FileSplitterTest
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
     Assert.assertEquals("File metadata", 2, testMeta.fileMetadataSink.collectedTuples.size());
+    for (Object fileMetada : testMeta.fileMetadataSink.collectedTuples) {
+      FileSplitter.FileMetadata metadata = (FileSplitter.FileMetadata) fileMetada;
+      Assert.assertTrue("path: " + metadata.getFilePath(), testMeta.filePaths.contains(metadata.getFilePath()));
+      Assert.assertNotNull("name: ", metadata.getFileName());
+    }
   }
 
   @Test
@@ -114,6 +123,10 @@ public class FileSplitterTest
     testMeta.fileSplitter.beginWindow(1);
     testMeta.fileSplitter.emitTuples();
     Assert.assertEquals("Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
+    for (Object blockMetadata : testMeta.blockMetadataSink.collectedTuples) {
+      FileSplitter.BlockMetadata metadata = (FileSplitter.BlockMetadata) blockMetadata;
+      Assert.assertTrue("path: " + metadata.getFilePath(), testMeta.filePaths.contains(metadata.getFilePath()));
+    }
   }
 
   @Test
