@@ -49,7 +49,7 @@ public class MemsqlInputBenchmark implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(MemsqlInputBenchmark.class);
   private static final int BLAST_SIZE = 10000;
-  private static final long SEED_SIZE = 10000000;
+  private static final long SEED_SIZE = 10000;
   private static final Locality LOCALITY = null;
 
   public String host = null;

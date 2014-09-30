@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+  <!--<property>
+    <name>dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.dbUrl</name>
+    <value>jdbc:mysql://127.0.0.1:3306/bench</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.connectionProperties</name>
+    <value>user:root,port:3306</value>
+    <description>The connection properties for the database.</description>
+  </property>-->
+  <property>
+    <name>dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl</name>
+    <value>jdbc:mysql://127.0.0.1:3306/bench</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties</name>
+    <value>user:root,port:3306</value>
+    <description>The connection properties for the database.</description>
+  </property><!--
+  <property>
+    <name>dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.blastSize</name>
+    <value>1000</value>
+    <description>The blast size</description>
+  </property>-->
+
+  <!--<property>
+    <name>dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.batchSize</name>
+    <value>1000</value>
+    <description>The batch size</description>
+  </property>-->
+</configuration>

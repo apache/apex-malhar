@@ -93,8 +93,10 @@ public class MemsqlOutputBenchmark implements StreamingApplication
     randomEventGenerator.setTuplesBlastIntervalMillis(TUPLE_BLAST_MILLIS);
     randomEventGenerator.setTuplesBlast(TUPLE_BLAST);
 
+    LOG.debug("Before making output operator");
     MemsqlOutputOperator memsqlOutputOperator = dag.addOperator("memsqlOutputOperator",
                                                                 new MemsqlOutputOperator());
+    LOG.debug("After making output operator");
 
     memsqlOutputOperator.setBatchSize(DEFAULT_BATCH_SIZE);
 

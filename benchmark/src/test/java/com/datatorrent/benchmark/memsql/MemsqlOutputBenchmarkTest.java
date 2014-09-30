@@ -17,6 +17,9 @@
 package com.datatorrent.benchmark.memsql;
 
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.common.util.DTThrowable;
+import java.io.IOException;
+import java.io.InputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -29,18 +32,18 @@ public class MemsqlOutputBenchmarkTest
   @Test
   public void testMethod() {
     Configuration conf = new Configuration();
-    conf.addResource(getClass().getResourceAsStream("/memsql.xml"));
+    InputStream inputStream = getClass().getResourceAsStream("/dt-site-memsql.xml");
+    conf.addResource(inputStream);
 
-    LOG.debug(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
+    LOG.debug(conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.dbUrl"));
     MemsqlOutputBenchmark app = new MemsqlOutputBenchmark();
+    LocalMode.runApp(app, conf, 200000);
+
     try {
-      LocalMode.runApp(app, conf, 200000);
+      inputStream.close();
     }
-    catch(RuntimeException e) {
-      e.getCause().printStackTrace();
-    }
-    catch(Exception e) {
-      e.printStackTrace();
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
     }
   }
 }

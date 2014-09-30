@@ -61,6 +61,7 @@ public class JdbcStore implements Connectable
 
   public void setDbUrl(@NotNull String dbUrl)
   {
+    logger.debug("setDbUrl {}:", dbUrl);
     this.dbUrl = dbUrl;
   }
 
