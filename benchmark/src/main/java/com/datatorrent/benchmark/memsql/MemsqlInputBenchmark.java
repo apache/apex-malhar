@@ -48,9 +48,8 @@ import org.slf4j.LoggerFactory;
 public class MemsqlInputBenchmark implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(MemsqlInputBenchmark.class);
-  private static final int BLAST_SIZE = 10000;
+
   private static final long SEED_SIZE = 10000;
-  private static final Locality LOCALITY = null;
 
   public String host = null;
 
@@ -58,12 +57,12 @@ public class MemsqlInputBenchmark implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     MemsqlStore memsqlStore = new MemsqlStore();
-    memsqlStore.setDbUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
+    memsqlStore.setDbUrl(conf.get("rootDbUrl"));
     memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties"));
 
     AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
 
-    memsqlStore.connect();
+    memsqlStore.setDbUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
 
     MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
     outputOperator.setStore(memsqlStore);
@@ -76,11 +75,13 @@ public class MemsqlInputBenchmark implements StreamingApplication
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
+    long seedSize = conf.getLong("seedSize", SEED_SIZE);
+
     outputOperator.setup(context);
     outputOperator.beginWindow(0);
 
     for(long valueCounter = 0;
-        valueCounter < SEED_SIZE;
+        valueCounter < seedSize;
         valueCounter++) {
       outputOperator.input.put(random.nextInt());
     }
@@ -88,20 +89,15 @@ public class MemsqlInputBenchmark implements StreamingApplication
     outputOperator.endWindow();
     outputOperator.teardown();
 
-    memsqlStore.disconnect();
-
 
     MemsqlInputOperator memsqlInputOperator = dag.addOperator("memsqlInputOperator",
                                                                 new MemsqlInputOperator());
-    memsqlInputOperator.setBlastSize(BLAST_SIZE);
-
-    memsqlInputOperator.setStore(memsqlStore);
 
     DevNull<Integer> devNull = dag.addOperator("devnull",
                                       new DevNull<Integer>());
 
     dag.addStream("memsqlconnector",
                   memsqlInputOperator.outputPort,
-                  devNull.data).setLocality(LOCALITY);
+                  devNull.data);
   }
 }

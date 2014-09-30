@@ -40,7 +40,7 @@ public abstract class AbstractJdbcNonTransactionableBatchOutputOperator<T, S ext
   public static final int DEFAULT_BATCH_SIZE = 1000;
 
   @Min(1)
-  private int batchSize;
+  private int batchSize = DEFAULT_BATCH_SIZE;
   private final List<T> tuples;
   private ProcessingMode mode;
   private transient boolean skipWindow = false;

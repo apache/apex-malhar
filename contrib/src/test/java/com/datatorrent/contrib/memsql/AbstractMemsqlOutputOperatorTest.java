@@ -100,8 +100,6 @@ public class AbstractMemsqlOutputOperatorTest
 
     memsqlStore.disconnect();
 
-    memsqlStore = createStore(null, true);
-
     memsqlStore.connect();
 
     try {

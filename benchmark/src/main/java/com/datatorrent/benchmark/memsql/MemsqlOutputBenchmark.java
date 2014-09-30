@@ -83,7 +83,7 @@ public class MemsqlOutputBenchmark implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     MemsqlStore memsqlStore = new MemsqlStore();
-    memsqlStore.setDbUrl(conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.dbUrl"));
+    memsqlStore.setDbUrl(conf.get("rootDbUrl"));
     memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.connectionProperties"));
 
     AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
@@ -100,9 +100,8 @@ public class MemsqlOutputBenchmark implements StreamingApplication
 
     memsqlOutputOperator.setBatchSize(DEFAULT_BATCH_SIZE);
 
-    StreamMeta streamMeta = dag.addStream("memsqlConnector",
-                                          randomEventGenerator.integer_data,
-                                          memsqlOutputOperator.input);
-    streamMeta.setLocality(LOCALITY);
+    dag.addStream("memsqlConnector",
+                  randomEventGenerator.integer_data,
+                  memsqlOutputOperator.input);
   }
 }

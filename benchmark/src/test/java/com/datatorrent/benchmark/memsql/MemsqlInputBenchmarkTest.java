@@ -17,10 +17,9 @@
 package com.datatorrent.benchmark.memsql;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.common.util.DTThrowable;
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.logging.Level;
+import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -37,26 +36,17 @@ public class MemsqlInputBenchmarkTest
     conf.addResource(inputStream);
 
     MemsqlInputBenchmark app = new MemsqlInputBenchmark();
-    LocalMode.runApp(app, conf, 20000);
-
-    /*LocalMode lm = LocalMode.newInstance();
+    LocalMode lm = LocalMode.newInstance();
 
     try {
       lm.prepareDAG(app, conf);
       LocalMode.Controller lc = lm.getController();
-      //lc.setHeartbeatMonitoringEnabled(false);
       lc.run(20000);
     }
     catch (Exception ex) {
       java.util.logging.Logger.getLogger(MemsqlInputBenchmarkTest.class.getName()).log(Level.SEVERE, null, ex);
-    }*/
-
-
-    try {
-      inputStream.close();
     }
-    catch (IOException ex) {
-      DTThrowable.rethrow(ex);
-    }
+
+    IOUtils.closeQuietly(inputStream);
   }
 }
