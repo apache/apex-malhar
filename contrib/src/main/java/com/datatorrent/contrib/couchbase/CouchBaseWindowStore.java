@@ -87,8 +87,6 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public void connect() throws IOException
   {
-    System.out.println("bucket is" + bucket);
-     System.out.println("password is" + password);
     super.connect();
 
     try {

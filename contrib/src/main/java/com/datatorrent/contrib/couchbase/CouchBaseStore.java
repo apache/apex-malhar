@@ -25,9 +25,9 @@ public class CouchBaseStore implements Connectable
   protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
 
   @Nonnull
-  protected  String bucket;
+  protected String bucket;
   @Nonnull
-  protected  String password;
+  protected String password;
   protected transient CouchbaseClient client;
 
   @Nonnull
@@ -52,10 +52,12 @@ public class CouchBaseStore implements Connectable
   {
     return blockTime;
   }
+
   public String getUriString()
   {
     return uriString;
   }
+
   public void setBlockTime(int blockTime)
   {
     this.blockTime = blockTime;
@@ -103,7 +105,7 @@ public class CouchBaseStore implements Connectable
 
   public void setBucket(String bucketName)
   {
-    logger.info("bucketname is" +bucketName);
+    logger.info("bucketname is" + bucketName);
     this.bucket = bucketName;
   }
 
@@ -114,7 +116,7 @@ public class CouchBaseStore implements Connectable
    */
   public void setPassword(String password)
   {
-    logger.info("password is" +password);
+    logger.info("password is" + password);
 
     this.password = password;
   }
@@ -167,4 +169,3 @@ public class CouchBaseStore implements Connectable
   }
 
 }
-
