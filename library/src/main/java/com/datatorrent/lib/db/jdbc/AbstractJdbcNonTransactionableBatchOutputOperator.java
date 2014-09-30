@@ -27,7 +27,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * A generic output operator which updates the database without using transactions
- * and batches writes to increase performance.
+ * and batches writes to increase performance. This operator satisfies the exactly once constraint
+ * when performing updates, but may not satisfy it when doing inserts.
  * @param <T> The type of tuples to be processed.
  * @param <S> The type of store to be used.
  *
@@ -91,11 +92,7 @@ public abstract class AbstractJdbcNonTransactionableBatchOutputOperator<T, S ext
 
     mode = context.getValue(OperatorContext.PROCESSING_MODE);
 
-    if(mode==ProcessingMode.EXACTLY_ONCE){
-      //Unsupported
-      throw new RuntimeException("This operator only supports atmost once and atleast once processing modes");
-    }
-    else if(mode==ProcessingMode.AT_MOST_ONCE){
+    if(mode==ProcessingMode.AT_MOST_ONCE){
       //Batch must be cleared to avoid writing same data twice
       tuples.clear();
       //If the activation window is negative, then this is the first time
