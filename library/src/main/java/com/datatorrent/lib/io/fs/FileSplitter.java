@@ -56,7 +56,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     super.setup(context);
     operatorId = context.getId();
     if (blockSize != null && blockSize < 0) {
-      throw new RuntimeException("negative block size " + blockSize);
+      throw new IllegalArgumentException("negative block size " + blockSize);
     }
     if (blockSize == null) {
       blockSize = fs.getDefaultBlockSize(filePath);
@@ -123,17 +123,6 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     fileMetadata.setNumberOfBlocks(noOfBlocks);
     populateBlockIds(fileMetadata);
     return fileMetadata;
-  }
-
-  @Override
-  public void teardown()
-  {
-    try {
-      fs.close();
-    }
-    catch (IOException ex) {
-      throw new RuntimeException("closing fs", ex);
-    }
   }
 
   protected void populateBlockIds(FileMetadata fileMetadata)
@@ -301,19 +290,19 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     private int numberOfBlocks;
     private long dataOffset;
     private long fileLength;
-    private final long creationTime;
+    private final long discoverTime;
     private long[] blockIds;
 
     protected FileMetadata()
     {
       filePath = null;
-      creationTime = System.currentTimeMillis();
+      discoverTime = System.currentTimeMillis();
     }
 
     public FileMetadata(@NotNull String filePath)
     {
       this.filePath = filePath;
-      creationTime = System.currentTimeMillis();
+      discoverTime = System.currentTimeMillis();
     }
 
     public int getNumberOfBlocks()
@@ -366,9 +355,9 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
       this.fileLength = fileLength;
     }
 
-    public long getCreationTime()
+    public long getDiscoverTime()
     {
-      return creationTime;
+      return discoverTime;
     }
 
     public long[] getBlockIds()
