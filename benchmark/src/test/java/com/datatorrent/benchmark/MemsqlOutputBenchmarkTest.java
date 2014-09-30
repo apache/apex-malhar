@@ -14,27 +14,22 @@
  * limitations under the License.
  */
 
-package com.datatorrent.benchmark.memsql;
+package com.datatorrent.benchmark;
 
 import com.datatorrent.api.LocalMode;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 public class MemsqlOutputBenchmarkTest
 {
-  private static final Logger LOG = LoggerFactory.getLogger(MemsqlOutputBenchmarkTest.class);
+  public static final String HOST = "node17.morado.com";
+  //public static final String HOST = "127.0.0.1";
 
   @Test
   public void testMethod() {
-    Configuration conf = new Configuration();
-    conf.addResource(getClass().getResourceAsStream("/memsql.xml"));
-
-    LOG.debug(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
     MemsqlOutputBenchmark app = new MemsqlOutputBenchmark();
+    app.host = HOST;
     try {
-      LocalMode.runApp(app, conf, 200000);
+      LocalMode.runApp(app, 200000);
     }
     catch(RuntimeException e) {
       e.getCause().printStackTrace();

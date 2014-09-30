@@ -189,6 +189,21 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
   }
 
   @Test
+  public void testExactlyOnce()
+  {
+    JdbcOperatorTest.cleanTable();
+    boolean threwException = false;
+    try {
+      createOperator(ProcessingMode.EXACTLY_ONCE);
+    }
+    catch(RuntimeException e){
+      threwException = true;
+    }
+
+    Assert.assertTrue("Should throw a runtime exception.", threwException);
+  }
+
+  @Test
   public void testAtLeastOnceFullBatch()
   {
     JdbcOperatorTest.cleanTable();

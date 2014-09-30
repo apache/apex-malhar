@@ -29,7 +29,6 @@ public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer, Me
 
   public MemsqlInputOperator()
   {
-    this.setStore(new MemsqlStore());
   }
 
   @Override

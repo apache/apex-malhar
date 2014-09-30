@@ -14,19 +14,15 @@
  * limitations under the License.
  */
 
-package com.datatorrent.benchmark.memsql;
+package com.datatorrent.benchmark;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.Operator.ProcessingMode;
+import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.memsql.*;
-import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.*;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.*;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.stream.DevNull;
-import java.util.Random;
+import java.sql.*;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +45,6 @@ public class MemsqlInputBenchmark implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(MemsqlInputBenchmark.class);
   private static final int BLAST_SIZE = 10000;
-  private static final long SEED_SIZE = 10000000;
   private static final Locality LOCALITY = null;
 
   public String host = null;
@@ -57,36 +52,37 @@ public class MemsqlInputBenchmark implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    MemsqlStore memsqlStore = new MemsqlStore();
-    memsqlStore.setDbUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
-    memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties"));
+    if(host != null) {
+      conf.set(this.getClass().getName() + ".host", host);
+    }
 
-    AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
+    MemsqlStore memsqlStore = AbstractMemsqlOutputOperatorTest.createStore(conf, this.getClass().getName(), true);
 
     memsqlStore.connect();
 
-    MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
-    outputOperator.setStore(memsqlStore);
-    outputOperator.setBatchSize(BATCH_SIZE);
+    boolean hasTestDB = false;
 
-    Random random = new Random();
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
-    attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
-    attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
-    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    try {
+      ResultSet resultSet = memsqlStore.getConnection().getMetaData().getCatalogs();
 
-    outputOperator.setup(context);
-    outputOperator.beginWindow(0);
-
-    for(long valueCounter = 0;
-        valueCounter < SEED_SIZE;
-        valueCounter++) {
-      outputOperator.input.put(random.nextInt());
+      while(resultSet.next())
+      {
+        String databaseName = resultSet.getString(1);
+        if(databaseName.equals(AbstractMemsqlOutputOperatorTest.DATABASE)) {
+          hasTestDB = true;
+        }
+      }
+    }
+    catch(SQLException ex)
+    {
+      LOG.error("Error while checking database.", ex);
+      return;
     }
 
-    outputOperator.endWindow();
-    outputOperator.teardown();
+    if(!hasTestDB) {
+      LOG.error("There is no test database to run off of. " +
+                "Please run MemsqlOutputBenchmark first before running this.");
+    }
 
     memsqlStore.disconnect();
 

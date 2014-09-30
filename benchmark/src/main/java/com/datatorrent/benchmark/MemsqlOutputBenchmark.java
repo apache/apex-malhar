@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.benchmark.memsql;
+package com.datatorrent.benchmark;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -82,11 +82,15 @@ public class MemsqlOutputBenchmark implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    MemsqlStore memsqlStore = new MemsqlStore();
-    memsqlStore.setDbUrl(conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.dbUrl"));
-    memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.connectionProperties"));
+    if(host != null) {
+      conf.set(this.getClass().getName() + ".host", host);
+    }
 
-    AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
+    AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(conf, this.getClass().getName());
+
+    MemsqlStore memsqlStore = AbstractMemsqlOutputOperatorTest.createStore(conf,
+                                                                           this.getClass().getName(),
+                                                                           true);
 
     CustomRandomEventGenerator randomEventGenerator = dag.addOperator("randomEventGenerator", new CustomRandomEventGenerator());
     randomEventGenerator.setMaxcountofwindows(MAX_WINDOW_COUNT);
@@ -96,6 +100,7 @@ public class MemsqlOutputBenchmark implements StreamingApplication
     MemsqlOutputOperator memsqlOutputOperator = dag.addOperator("memsqlOutputOperator",
                                                                 new MemsqlOutputOperator());
 
+    memsqlOutputOperator.setStore(memsqlStore);
     memsqlOutputOperator.setBatchSize(DEFAULT_BATCH_SIZE);
 
     StreamMeta streamMeta = dag.addStream("memsqlConnector",
