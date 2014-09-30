@@ -254,6 +254,54 @@ public class HDSTest
   }
 
   @Test
+  public void testSequentialWrite() throws Exception
+  {
+    File file = new File(testInfo.getDir());
+    FileUtils.deleteDirectory(file);
+
+    HDSFileAccessFSImpl fa = new MockFileAccess();
+    fa.setBasePath(file.getAbsolutePath());
+    HDSWriter hds = new HDSWriter();
+    hds.setFileStore(fa);
+    hds.setFlushIntervalCount(0); // flush after every window
+
+    long BUCKETKEY = 1;
+
+    hds.setup(null);
+    hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
+
+    long[] seqArray = { 1L, 2L, 3L, 4L, 5L };
+    long wid = 0;
+    for (long seq : seqArray) {
+      hds.beginWindow(++wid);
+      Slice key = newKey(BUCKETKEY, seq);
+      byte[] buffer = new byte[key.length+1];
+      buffer[0] = 9;
+      System.arraycopy(key.buffer, key.offset, buffer, 1, key.length);
+      key = new Slice(buffer, 1, key.length);
+      hds.put(BUCKETKEY, key, ("data"+seq).getBytes());
+      hds.endWindow();
+    }
+
+    HDSWriter.BucketMeta index = hds.loadBucketMeta(1);
+    Assert.assertEquals("index entries", 1, index.files.size());
+    for (Slice key : index.files.keySet()) {
+      Assert.assertEquals("index key normalized " + key, key.length, key.buffer.length);
+    }
+    hds.teardown();
+
+    HDSFileReader reader = fa.getReader(BUCKETKEY, "1-4");
+    Slice key = new Slice(null, 0, 0);
+    Slice value = new Slice(null, 0, 0);
+    long seq = 0;
+    while (reader.next(key, value)) {
+      seq++;
+      Assert.assertArrayEquals(("data"+seq).getBytes(), value.buffer);
+    }
+    Assert.assertEquals(5, seq);
+  }
+
+  @Test
   public void testWriteError() throws Exception
   {
     File file = new File(testInfo.getDir());

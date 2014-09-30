@@ -215,7 +215,7 @@ public class HDSReader implements Operator, HDS.Reader
     }
     // meta data can be invalidated on write without removing unaffected readers
     if (br.bucketMeta == null) {
-      LOG.debug("Reading bucket meta {}", bucketKey);
+      LOG.debug("Reading {} {}", bucketKey, FNAME_META);
       br.bucketMeta = loadBucketMeta(bucketKey);
     }
     return br;
@@ -255,6 +255,7 @@ public class HDSReader implements Operator, HDS.Reader
       try {
         HDSFileReader reader = bucket.readers.get(floorEntry.getValue().name);
         if (reader == null) {
+          LOG.debug("Opening file {} {}", bucketKey, floorEntry.getValue().name);
           bucket.readers.put(floorEntry.getValue().name, reader = store.getReader(bucketKey, floorEntry.getValue().name));
         }
         Slice value = new Slice(null, 0,0);
@@ -350,6 +351,10 @@ public class HDSReader implements Operator, HDS.Reader
     {
       BucketFileMeta bfm = new BucketFileMeta();
       bfm.name = Long.toString(bucketKey) + '-' + this.fileSeq++;
+      if (startKey.length != startKey.buffer.length) {
+        // normalize key for serialization
+        startKey = startKey.clone();
+      }
       bfm.startKey = startKey;
       files.put(startKey, bfm);
       return bfm;
