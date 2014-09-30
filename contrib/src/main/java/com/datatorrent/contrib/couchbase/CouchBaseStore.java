@@ -132,6 +132,9 @@ public class CouchBaseStore implements Connectable
   @Override
   public void connect() throws IOException
   {
+    logger.info("URL string is" + uriString);
+    logger.info("password is" + password);
+    logger.info("bucket is"+bucket);
     URI uri = null;
     for (String url: uriList) {
 
