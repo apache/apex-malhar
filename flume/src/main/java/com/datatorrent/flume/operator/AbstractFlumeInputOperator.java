@@ -14,8 +14,6 @@ import static java.lang.Thread.sleep;
 
 import javax.validation.constraints.NotNull;
 
-import com.esotericsoftware.kryo.Kryo;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,7 +22,6 @@ import org.apache.flume.Event;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery.Service;
@@ -41,7 +38,6 @@ import com.datatorrent.netlet.DefaultEventLoop;
  * @author Chetan Narsude <chetan@datatorrent.com>
  * @since 0.9.2
  */
-@ShipContainingJars(classes = {Event.class, Kryo.class})
 public abstract class AbstractFlumeInputOperator<T>
         implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener,
         Partitioner<AbstractFlumeInputOperator<T>>
@@ -258,11 +254,8 @@ public abstract class AbstractFlumeInputOperator<T>
       if (windowId != that.windowId) {
         return false;
       }
-      if (!Arrays.equals(address, that.address)) {
-        return false;
-      }
 
-      return true;
+      return Arrays.equals(address, that.address);
     }
 
     @Override
@@ -718,11 +711,8 @@ public abstract class AbstractFlumeInputOperator<T>
     if (!Arrays.equals(connectionSpecs, that.connectionSpecs)) {
       return false;
     }
-    if (recoveryAddresses != null ? !recoveryAddresses.equals(that.recoveryAddresses) : that.recoveryAddresses != null) {
-      return false;
-    }
 
-    return true;
+    return !(recoveryAddresses != null ? !recoveryAddresses.equals(that.recoveryAddresses) : that.recoveryAddresses != null);
   }
 
   @Override
