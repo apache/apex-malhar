@@ -34,7 +34,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  */
 public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends JdbcStore> extends AbstractStoreOutputOperator<T, S>
 {
-  private transient PreparedStatement updateCommand;
+  protected transient PreparedStatement updateCommand;
 
   @Override
   public void setup(Context.OperatorContext context)
@@ -49,7 +49,7 @@ public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends 
 
   /**
    * Sets the statement parameters and executes the update
-   * 
+   *
    * @param tuple the tuple being processed
    */
   public void processTuple(T tuple)
@@ -64,7 +64,7 @@ public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends 
 
   /**
    * Gets the statement which insert/update the table in the database.
-   * 
+   *
    * @return the sql statement to update a tuple in the database.
    */
   @Nonnull
@@ -72,7 +72,7 @@ public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends 
 
   /**
    * Sets the parameter of the insert/update statement with values from the tuple.
-   * 
+   *
    * @param statement
    *          update statement which was returned by {@link #getUpdateCommand()}
    * @param tuple

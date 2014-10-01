@@ -38,16 +38,16 @@ import com.google.common.collect.Lists;
 /**
  * Test for {@link AbstractJdbcNonTransactionableOutputOperator Operator}
  */
-public class JdbcNonTransanctionalOutputOperatorTest
+public class JdbcNonTransactionalOutputOperatorTest
 {
   public static final String DB_DRIVER = "org.hsqldb.jdbcDriver";
   public static final String URL = "jdbc:hsqldb:mem:test;sql.syntax_mys=true";
 
-  private static final String TABLE_NAME = "test_event_table";
-  private static String APP_ID = "JdbcOperatorTest";
-  private static int OPERATOR_ID = 0;
-  
-  private static class TestEvent
+  public static final String TABLE_NAME = "test_event_table";
+  public static final String APP_ID = "JdbcOperatorTest";
+  public static final int OPERATOR_ID = 0;
+
+  public static class TestEvent
   {
     int id;
 
@@ -61,7 +61,7 @@ public class JdbcNonTransanctionalOutputOperatorTest
   public static void setup()
   {
     try {
-      Class.forName(DB_DRIVER).newInstance(); 
+      Class.forName(DB_DRIVER).newInstance();
 
       Connection con = DriverManager.getConnection(URL);
       Statement stmt = con.createStatement();
@@ -74,7 +74,7 @@ public class JdbcNonTransanctionalOutputOperatorTest
     }
   }
 
-  private static void cleanTable()
+  public static void cleanTable()
   {
     try {
       Connection con = DriverManager.getConnection(URL);
@@ -82,15 +82,15 @@ public class JdbcNonTransanctionalOutputOperatorTest
 
       String cleanTable = "delete from " + TABLE_NAME;
       stmt.executeUpdate(cleanTable);
-    } 
+    }
     catch (SQLException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private static class TestOutputOperator extends AbstractJdbcNonTransactionableOutputOperator<TestEvent, JdbcStore>
+  public static class TestOutputOperator extends AbstractJdbcNonTransactionableOutputOperator<TestEvent, JdbcStore>
   {
-    private static final String INSERT_STMT = "INSERT INTO " + TABLE_NAME + " values (?)";
+    public static final String INSERT_STMT = "INSERT INTO " + TABLE_NAME + " values (?)";
 
     TestOutputOperator()
     {
@@ -138,12 +138,12 @@ public class JdbcNonTransanctionalOutputOperatorTest
     store.setDbDriver(DB_DRIVER);
     store.setDbUrl(URL);
     TestOutputOperator outputOperator = new TestOutputOperator();
-    
+
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
     outputOperator.setStore(store);
-    
+
     outputOperator.setup(context);
 
     List<TestEvent> events = Lists.newArrayList();
@@ -154,7 +154,7 @@ public class JdbcNonTransanctionalOutputOperatorTest
     outputOperator.beginWindow(0);
     for (TestEvent event : events) {
       outputOperator.input.process(event);
-    } 
+    }
     outputOperator.endWindow();
 
     Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());

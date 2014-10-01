@@ -41,8 +41,15 @@
 				</executions>
 			</plugin>
     </plugins>
-  </build>  
+  </build>
   <dependencies>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-library</artifactId>
@@ -190,6 +197,12 @@
       <groupId>org.apache.accumulo</groupId>
       <artifactId>accumulo-core</artifactId>
       <version>1.5.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.22</version>
       <optional>true</optional>
     </dependency>
   </dependencies>
