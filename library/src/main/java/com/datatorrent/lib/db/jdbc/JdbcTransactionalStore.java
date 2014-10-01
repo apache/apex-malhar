@@ -19,7 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import com.datatorrent.lib.db.TransactionableStore;
 import org.slf4j.Logger;
@@ -39,13 +39,13 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
   public static String DEFAULT_WINDOW_COL = "dt_window";
   public static String DEFAULT_META_TABLE = "dt_meta";
 
-  @Nonnull
+  @NotNull
   protected String metaTableAppIdColumn;
-  @Nonnull
+  @NotNull
   protected String metaTableOperatorIdColumn;
-  @Nonnull
+  @NotNull
   protected String metaTableWindowColumn;
-  @Nonnull
+  @NotNull
   private String metaTable;
 
   private boolean inTransaction;
@@ -70,7 +70,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
    *
    * @param metaTable meta table name.
    */
-  public void setMetaTable(@Nonnull String metaTable)
+  public void setMetaTable(@NotNull String metaTable)
   {
     this.metaTable = metaTable;
   }
@@ -81,7 +81,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
    *
    * @param appIdColumn application id column name.
    */
-  public void setMetaTableAppIdColumn(@Nonnull String appIdColumn)
+  public void setMetaTableAppIdColumn(@NotNull String appIdColumn)
   {
     this.metaTableAppIdColumn = appIdColumn;
   }
@@ -92,7 +92,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
    *
    * @param operatorIdColumn operator id column name.
    */
-  public void setMetaTableOperatorIdColumn(@Nonnull String operatorIdColumn)
+  public void setMetaTableOperatorIdColumn(@NotNull String operatorIdColumn)
   {
     this.metaTableOperatorIdColumn = operatorIdColumn;
   }
@@ -103,7 +103,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
    *
    * @param windowColumn window column name.
    */
-  public void setMetaTableWindowColumn(@Nonnull String windowColumn)
+  public void setMetaTableWindowColumn(@NotNull String windowColumn)
   {
     this.metaTableWindowColumn = windowColumn;
   }

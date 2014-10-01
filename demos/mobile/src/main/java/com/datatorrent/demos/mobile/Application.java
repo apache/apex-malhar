@@ -138,7 +138,7 @@ public class Application implements StreamingApplication
     dag.setAttribute(movementGen, OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
     ThroughputBasedPartitioner<PhoneMovementGenerator> partitioner = new ThroughputBasedPartitioner<PhoneMovementGenerator>();
-    partitioner.setCooldownMillis(90000);
+    partitioner.setCooldownMillis(45000);
     partitioner.setMaximumEvents(30000);
     partitioner.setMinimumEvents(10000);
     dag.setAttribute(movementGen,OperatorContext.STATS_LISTENERS, Arrays.asList(new StatsListener[]{partitioner}));
