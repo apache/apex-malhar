@@ -10,14 +10,13 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
-import static java.lang.Thread.sleep;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import org.apache.flume.Event;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.flume.Event;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
@@ -30,6 +29,8 @@ import com.datatorrent.flume.sink.Server;
 import com.datatorrent.flume.sink.Server.Command;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
+
+import static java.lang.Thread.sleep;
 
 /**
  * <p>Abstract AbstractFlumeInputOperator class.</p>
@@ -59,17 +60,26 @@ public abstract class AbstractFlumeInputOperator<T>
   private transient Client client;
   private transient long windowId;
   private transient byte[] address;
+  @Min(0)
+  private long maxEventsPerSecond;
+  //This is calculated from maxEventsPerSecond, App window count and streaming window size
+  private transient long maxEventsPerWindow;
 
   public AbstractFlumeInputOperator()
   {
     handoverBuffer = new ArrayBlockingQueue<Slice>(1024 * 5);
     connectionSpecs = new String[0];
     recoveryAddresses = new ArrayList<RecoveryAddress>();
+    maxEventsPerSecond = Long.MAX_VALUE;
   }
 
   @Override
   public void setup(OperatorContext context)
   {
+    long windowDurationMillis = context.getValue(OperatorContext.APPLICATION_WINDOW_COUNT) * context.getValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
+    maxEventsPerWindow = (long) (windowDurationMillis / 1000.0 * maxEventsPerSecond);
+    logger.debug("max-events per-second {} per-window {}", maxEventsPerSecond, maxEventsPerWindow);
+
     try {
       eventloop = new DefaultEventLoop("EventLoop-" + context.getId());
       eventloop.start();
@@ -112,8 +122,9 @@ public abstract class AbstractFlumeInputOperator<T>
   public void emitTuples()
   {
     int i = handoverBuffer.size();
-    if (i > 0) {
-      while (--i > 0) {
+    if (i > 0 && eventCounter < maxEventsPerWindow) {
+
+      while (--i > 0 && eventCounter < maxEventsPerWindow - 1) {
         final Slice slice = handoverBuffer.poll();
         slice.offset += 8;
         slice.length -= 8;
@@ -254,7 +265,6 @@ public abstract class AbstractFlumeInputOperator<T>
       if (windowId != that.windowId) {
         return false;
       }
-
       return Arrays.equals(address, that.address);
     }
 
@@ -385,6 +395,7 @@ public abstract class AbstractFlumeInputOperator<T>
         @SuppressWarnings("unchecked")
         AbstractFlumeInputOperator<T> operator = getClass().newInstance();
         operator.setCodec(codec);
+        operator.setMaxEventsPerSecond(maxEventsPerSecond);
         for (ArrayList<RecoveryAddress> lRecoveryAddresses : allRecoveryAddresses.values()) {
           operator.recoveryAddresses.addAll(lRecoveryAddresses);
         }
@@ -400,7 +411,7 @@ public abstract class AbstractFlumeInputOperator<T>
           @SuppressWarnings("unchecked")
           AbstractFlumeInputOperator<T> operator = getClass().newInstance();
           operator.setCodec(codec);
-
+          operator.setMaxEventsPerSecond(maxEventsPerSecond);
           String connectAddress = allConnectAddresses.get(i);
           operator.connectionSpecs = new String[] {connectAddress};
 
@@ -413,12 +424,6 @@ public abstract class AbstractFlumeInputOperator<T>
           partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
         }
       }
-    }
-    catch (Error er) {
-      throw er;
-    }
-    catch (RuntimeException re) {
-      throw re;
     }
     catch (IllegalAccessException ex) {
       throw new RuntimeException(ex);
@@ -592,7 +597,7 @@ public abstract class AbstractFlumeInputOperator<T>
             default:
               if (addresses.size() == map.size()) {
                 for (ConnectionStatus value : map.values()) {
-                  if (value == null || value.connected == false) {
+                  if (value == null || !value.connected) {
                     response.repartitionRequired = true;
                     break;
                   }
@@ -711,16 +716,26 @@ public abstract class AbstractFlumeInputOperator<T>
     if (!Arrays.equals(connectionSpecs, that.connectionSpecs)) {
       return false;
     }
+    return recoveryAddresses.equals(that.recoveryAddresses);
 
-    return !(recoveryAddresses != null ? !recoveryAddresses.equals(that.recoveryAddresses) : that.recoveryAddresses != null);
   }
 
   @Override
   public int hashCode()
   {
     int result = connectionSpecs != null ? Arrays.hashCode(connectionSpecs) : 0;
-    result = 31 * result + (recoveryAddresses != null ? recoveryAddresses.hashCode() : 0);
+    result = 31 * result + (recoveryAddresses.hashCode());
     return result;
+  }
+
+  public void setMaxEventsPerSecond(long maxEventsPerSecond)
+  {
+    this.maxEventsPerSecond = maxEventsPerSecond;
+  }
+
+  public long getMaxEventsPerSecond()
+  {
+    return maxEventsPerSecond;
   }
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractFlumeInputOperator.class);
