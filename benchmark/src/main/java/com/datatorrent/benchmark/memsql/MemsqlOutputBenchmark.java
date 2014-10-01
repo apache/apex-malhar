@@ -18,7 +18,6 @@ package com.datatorrent.benchmark.memsql;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.DAG.StreamMeta;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.memsql.*;

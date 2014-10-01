@@ -27,4 +27,9 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
  */
 public abstract class AbstractMemsqlInputOperator<T, S extends MemsqlStore> extends AbstractJdbcInputOperator<T, S>
 {
+  @SuppressWarnings("unchecked")
+  public AbstractMemsqlInputOperator()
+  {
+    this.setStore((S) new MemsqlStore());
+  }
 }

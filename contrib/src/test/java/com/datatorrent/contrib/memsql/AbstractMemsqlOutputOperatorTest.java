@@ -33,10 +33,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
 public class AbstractMemsqlOutputOperatorTest
 {
   private static transient final Logger LOG = LoggerFactory.getLogger(AbstractMemsqlOutputOperatorTest.class);
@@ -84,58 +80,46 @@ public class AbstractMemsqlOutputOperatorTest
     return memsqlStore;
   }
 
-  public static void memsqlInitializeDatabase(MemsqlStore memsqlStore)
+  public static void memsqlInitializeDatabase(MemsqlStore memsqlStore) throws SQLException
   {
     memsqlStore.connect();
 
-    try {
-      Statement statement = memsqlStore.getConnection().createStatement();
-      statement.executeUpdate("drop database if exists " + DATABASE);
-      statement.executeUpdate("create database " + DATABASE);
-        }
-    catch (SQLException ex) {
-      LOG.error("Error while preparing database", ex);
-      return;
-    }
+    Statement statement = memsqlStore.getConnection().createStatement();
+    statement.executeUpdate("drop database if exists " + DATABASE);
+    statement.executeUpdate("create database " + DATABASE);
 
     memsqlStore.disconnect();
 
     memsqlStore.connect();
 
-    try {
-      Statement statement = memsqlStore.getConnection().createStatement();
-      statement.executeUpdate("create table " +
-                              FQ_TABLE +
-                              "(" + INDEX_COLUMN +
-                              " INTEGER AUTO_INCREMENT PRIMARY KEY, " +
-                              DATA_COLUMN +
-                              " INTEGER)");
-      String createMetaTable = "CREATE TABLE IF NOT EXISTS " + DATABASE + "." + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( " +
-        JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, " +
-        JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, " +
-        JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, " +
-        "PRIMARY KEY (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") " +
-        ")";
+    statement = memsqlStore.getConnection().createStatement();
+    statement.executeUpdate("create table " +
+                            FQ_TABLE +
+                            "(" + INDEX_COLUMN +
+                            " INTEGER AUTO_INCREMENT PRIMARY KEY, " +
+                            DATA_COLUMN +
+                            " INTEGER)");
+    String createMetaTable = "CREATE TABLE IF NOT EXISTS " + DATABASE + "." + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( " +
+                             JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, " +
+                             JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, " +
+                             JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, " +
+                             "PRIMARY KEY (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") " +
+                             ")";
 
-      statement.executeUpdate(createMetaTable);
+    statement.executeUpdate(createMetaTable);
 
-      statement.close();
-    }
-    catch (SQLException ex) {
-      LOG.error("Error while preparing database", ex);
-      return;
-    }
+    statement.close();
 
     memsqlStore.disconnect();
   }
 
-  public static void cleanDatabase()
+  public static void cleanDatabase() throws SQLException
   {
      memsqlInitializeDatabase(createStore(null, false));
   }
 
   @Test
-  public void testMemsqlOutputOperator()
+  public void testMemsqlOutputOperator() throws SQLException
   {
     cleanDatabase();
     MemsqlStore memsqlStore = createStore(null, true);
@@ -174,15 +158,10 @@ public class AbstractMemsqlOutputOperatorTest
 
     int databaseSize = -1;
 
-    try {
-      Statement statement = memsqlStore.getConnection().createStatement();
-      ResultSet resultSet = statement.executeQuery("select count(*) from " + FQ_TABLE);
-      resultSet.next();
-      databaseSize = resultSet.getInt(1);
-    }
-    catch (SQLException ex) {
-      LOG.error("Error while determining database size.", ex);
-    }
+    Statement statement = memsqlStore.getConnection().createStatement();
+    ResultSet resultSet = statement.executeQuery("select count(*) from " + FQ_TABLE);
+    resultSet.next();
+    databaseSize = resultSet.getInt(1);
 
     memsqlStore.disconnect();
 

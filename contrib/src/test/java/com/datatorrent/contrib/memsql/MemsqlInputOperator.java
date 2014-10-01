@@ -18,7 +18,9 @@ package com.datatorrent.contrib.memsql;
 
 import com.datatorrent.api.Context.OperatorContext;
 import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.*;
-import java.sql.*;
+import java.sql.Statement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer, MemsqlStore>
 {
@@ -29,7 +31,6 @@ public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer, Me
 
   public MemsqlInputOperator()
   {
-    this.setStore(new MemsqlStore());
   }
 
   @Override

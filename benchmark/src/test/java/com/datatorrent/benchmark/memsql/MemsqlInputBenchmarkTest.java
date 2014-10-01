@@ -16,21 +16,19 @@
 
 package com.datatorrent.benchmark.memsql;
 
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.ProcessingMode;
-import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.contrib.memsql.*;
 import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.BATCH_SIZE;
-import com.datatorrent.contrib.memsql.MemsqlOutputOperator;
-import com.datatorrent.contrib.memsql.MemsqlStore;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.*;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import java.io.InputStream;
+import java.sql.SQLException;
 import java.util.Random;
-import java.util.logging.Level;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
@@ -43,7 +41,8 @@ public class MemsqlInputBenchmarkTest
   private static final long SEED_SIZE = 10000;
 
   @Test
-  public void testMethod() {
+  public void testMethod() throws SQLException
+  {
     Configuration conf = new Configuration();
     InputStream inputStream = getClass().getResourceAsStream("/dt-site-memsql.xml");
     conf.addResource(inputStream);
@@ -54,10 +53,9 @@ public class MemsqlInputBenchmarkTest
 
     AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
 
-    memsqlStore.setDbUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
-
     MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
-    outputOperator.setStore(memsqlStore);
+    outputOperator.getStore().setDbUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
+    outputOperator.getStore().setConnectionProperties(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties"));
     outputOperator.setBatchSize(BATCH_SIZE);
 
     Random random = new Random();
@@ -90,7 +88,7 @@ public class MemsqlInputBenchmarkTest
       lc.run(20000);
     }
     catch (Exception ex) {
-      java.util.logging.Logger.getLogger(MemsqlInputBenchmarkTest.class.getName()).log(Level.SEVERE, null, ex);
+      DTThrowable.rethrow(ex);
     }
 
     IOUtils.closeQuietly(inputStream);

@@ -54,8 +54,17 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
       Class.forName(DB_DRIVER).newInstance();
       con = DriverManager.getConnection(URL);
     }
-    catch (Throwable e) {
-      DTThrowable.rethrow(e);
+    catch (SQLException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    catch (ClassNotFoundException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    catch (InstantiationException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    catch (IllegalAccessException ex) {
+      DTThrowable.rethrow(ex);
     }
   }
 
@@ -68,8 +77,8 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
     try {
       con.close();
     }
-    catch (Throwable e) {
-      DTThrowable.rethrow(e);
+    catch (SQLException ex) {
+      DTThrowable.rethrow(ex);
     }
   }
 

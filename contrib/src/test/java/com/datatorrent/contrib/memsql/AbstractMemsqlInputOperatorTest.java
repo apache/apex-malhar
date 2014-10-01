@@ -26,10 +26,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
 public class AbstractMemsqlInputOperatorTest
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMemsqlInputOperatorTest.class);
@@ -60,7 +56,7 @@ public class AbstractMemsqlInputOperatorTest
   }
 
   @Test
-  public void TestMemsqlInputOperator()
+  public void TestMemsqlInputOperator() throws SQLException
   {
     cleanDatabase();
     populateDatabase(createStore(null, true));

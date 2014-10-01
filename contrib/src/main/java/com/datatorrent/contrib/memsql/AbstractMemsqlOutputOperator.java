@@ -27,4 +27,9 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableBatchOutputOper
  */
 public abstract class AbstractMemsqlOutputOperator<T, S extends MemsqlStore> extends AbstractJdbcNonTransactionableBatchOutputOperator<T, S>
 {
+  @SuppressWarnings("unchecked")
+  public AbstractMemsqlOutputOperator()
+  {
+    this.setStore((S) new MemsqlStore());
+  }
 }

@@ -17,10 +17,11 @@
 package com.datatorrent.benchmark.memsql;
 
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
 import com.datatorrent.contrib.memsql.MemsqlStore;
 import java.io.InputStream;
-import java.util.logging.Level;
+import java.sql.SQLException;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
@@ -32,7 +33,8 @@ public class MemsqlOutputBenchmarkTest
   private static final Logger LOG = LoggerFactory.getLogger(MemsqlOutputBenchmarkTest.class);
 
   @Test
-  public void testMethod() {
+  public void testMethod() throws SQLException
+  {
     Configuration conf = new Configuration();
     InputStream inputStream = getClass().getResourceAsStream("/dt-site-memsql.xml");
     conf.addResource(inputStream);
@@ -52,7 +54,7 @@ public class MemsqlOutputBenchmarkTest
       lc.run(20000);
     }
     catch (Exception ex) {
-      java.util.logging.Logger.getLogger(MemsqlInputBenchmarkTest.class.getName()).log(Level.SEVERE, null, ex);
+      DTThrowable.rethrow(ex);
     }
 
     IOUtils.closeQuietly(inputStream);
