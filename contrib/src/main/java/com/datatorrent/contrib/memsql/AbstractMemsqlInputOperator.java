@@ -21,15 +21,14 @@ import com.datatorrent.lib.db.jdbc.AbstractJdbcInputOperator;
 /**
  * This is an input operator that reads from a memsql database.
  * @param <T> The type of tuple to be processed.
- * @param <S> The connection store to use.
  *
  * @since 1.0.5
  */
-public abstract class AbstractMemsqlInputOperator<T, S extends MemsqlStore> extends AbstractJdbcInputOperator<T, S>
+public abstract class AbstractMemsqlInputOperator<T> extends AbstractJdbcInputOperator<T>
 {
   @SuppressWarnings("unchecked")
   public AbstractMemsqlInputOperator()
   {
-    this.setStore((S) new MemsqlStore());
+    this.setStore(new MemsqlStore());
   }
 }

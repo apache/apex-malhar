@@ -14,7 +14,7 @@
 
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>
-    <skipTests>true</skipTests>
+    <skipTests>false</skipTests>
   </properties>
 	<build>
 		<plugins>
