@@ -62,21 +62,16 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
   private Pattern<T> pattern;
 
   // this stores the partial matches found so far
-  private ArrayList<List<T>> matchedPatterns;
+  private int[] matchedPatterns;
   private int patternLength;
-
-  public AbstractStreamPatternMatcher()
-  {
-    matchedPatterns = Lists.newArrayList();
-  }
 
   public void setPattern(Pattern<T> pattern)
   {
     this.pattern = pattern;
     patternLength = pattern.getStates().length;
-    matchedPatterns.clear();
+    matchedPatterns = new int[patternLength];
     for (int i = 0; i < patternLength; i++) {
-      matchedPatterns.add(null);
+      matchedPatterns[i] = -1;
     }
   }
 
@@ -90,13 +85,10 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
     @Override
     public void process(T t)
     {
-      if (pattern == null) {
-        logger.error("Please set the pattern before searching");
-        return;
-      }
+
       //get the matches for input event in the pattern
       List<Integer> matchingPositions = pattern.getPosition(t);
-      List<T> currentMatch;
+      int currentMatch;
 
       /**
        * Algorithm :
@@ -110,7 +102,7 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
       // if there is no match then reset all the existing partial matches to null
       if (matchingPositions == null) {
         for (int i = 0; i < patternLength; i++) {
-          matchedPatterns.set(i, null);
+          matchedPatterns[i] = -1;
         }
         return;
       }
@@ -121,25 +113,24 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
       for (int i = 0; i < patternLength; ) {
         //Reset partial matches to null for all non matching positions
         while (i < patternLength - patternPosition) {
-          matchedPatterns.set(i, null);
+          matchedPatterns[i] = -1;
           i++;
         }
         if (i == patternLength) {
           break;
         }
-        currentMatch = matchedPatterns.get(i);
+        currentMatch = matchedPatterns[i];
         //If there was a partial match till position x-1, then append the new event to this partial match.
-        if (currentMatch != null) {
-          currentMatch.add(t);
-          matchedPatterns.set(i - 1, currentMatch);
-          matchedPatterns.set(i, null);
+        if (currentMatch != -1) {
+          matchedPatterns[i - 1] = ++currentMatch;
+          matchedPatterns[i] = -1;
         }
         matchingPositionIndex++;
         i++;
         //Reset partial matches to null for all non matching positions
         if (matchingPositionIndex == matchingPositionLength) {
           for (; i < patternLength; i++) {
-            matchedPatterns.set(i, null);
+            matchedPatterns[i] = -1;
           }
           break;
         }
@@ -149,22 +140,18 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
       }
       // If the match is found at starting of pattern state,then initialize the partial match
       if (patternPosition == 0) {
-        currentMatch = Lists.newArrayList();
-        currentMatch.add(t);
-        matchedPatterns.set(patternLength - 1, currentMatch);
+        matchedPatterns[patternLength - 1] = patternPosition;
       }
-      List<T> outputList = matchedPatterns.get(0);
+      currentMatch = matchedPatterns[0];
       // If the match is found process it
-      if (outputList != null) {
-        processPatternFound(outputList);
-        matchedPatterns.set(0, null);
+      if (currentMatch != -1) {
+        processPatternFound(pattern.getStates());
+        matchedPatterns[0] = -1;
       }
     }
   };
 
-  public abstract void processPatternFound(List<T> outputList);
-
-  public transient DefaultOutputPort<List<T>> outputPort = new DefaultOutputPort<List<T>>();
+  public abstract void processPatternFound(final T[] output);
 
   public static class Pattern<T>
   {

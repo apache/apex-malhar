@@ -41,12 +41,12 @@ public class AbstractStreamPatternMatcherTest
   public static class StreamPatternMatcher<T> extends AbstractStreamPatternMatcher<T>
   {
     @Override
-    public void processPatternFound(List<T> outputList)
+    public void processPatternFound(final T[] output)
     {
-      outputPort.emit(new ArrayList<T>(outputList));
+      outputPort.emit(output);
     }
 
-    public transient DefaultOutputPort<List<T>> outputPort = new DefaultOutputPort<List<T>>();
+    public transient DefaultOutputPort<T[]> outputPort = new DefaultOutputPort<T[]>();
   }
 
   private StreamPatternMatcher<Integer> streamPatternMatcher;
@@ -89,7 +89,7 @@ public class AbstractStreamPatternMatcherTest
     streamPatternMatcher.inputPort.process(1);
     streamPatternMatcher.endWindow();
     Assert.assertEquals("The number of tuples emitted is one", 1, sink.collectedTuples.size());
-    Assert.assertEquals("Matching the output pattern with input pattern", Arrays.asList(inputPattern), sink.collectedTuples.get(0));
+    Assert.assertEquals("Matching the output pattern with input pattern", inputPattern, sink.collectedTuples.get(0));
   }
 
   @Test
@@ -108,9 +108,8 @@ public class AbstractStreamPatternMatcherTest
     streamPatternMatcher.inputPort.process(0);
     streamPatternMatcher.endWindow();
     Assert.assertEquals("The number of tuples emitted are three", 3, sink.collectedTuples.size());
-    List<Integer> inputList = Arrays.asList(inputPattern);
     for (Object object : sink.collectedTuples) {
-      Assert.assertEquals("Matching the output pattern with input pattern", inputList, object);
+      Assert.assertEquals("Matching the output pattern with input pattern", inputPattern, object);
     }
   }
 
@@ -146,9 +145,8 @@ public class AbstractStreamPatternMatcherTest
     }
     streamPatternMatcher.endWindow();
     Assert.assertEquals("The number of tuples emitted ", 1 + patternSize / primeNumber, sink.collectedTuples.size());
-    List<Integer> inputList = Arrays.asList(inputPattern);
     for (Object output : sink.collectedTuples) {
-      Assert.assertEquals("Matching the output pattern with input pattern", inputList, output);
+      Assert.assertEquals("Matching the output pattern with input pattern", inputPattern, output);
     }
   }
 
