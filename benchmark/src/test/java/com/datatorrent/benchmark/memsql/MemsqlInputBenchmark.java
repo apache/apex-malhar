@@ -18,7 +18,7 @@ package com.datatorrent.benchmark.memsql;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.memsql.*;
+import com.datatorrent.contrib.memsql.MemsqlInputOperator;
 import com.datatorrent.lib.stream.DevNull;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;

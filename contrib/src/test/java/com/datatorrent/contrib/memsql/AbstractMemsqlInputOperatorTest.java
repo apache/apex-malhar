@@ -62,7 +62,7 @@ public class AbstractMemsqlInputOperatorTest
     populateDatabase(createStore(null, true));
 
     MemsqlInputOperator inputOperator = new MemsqlInputOperator();
-    createStore(inputOperator.getStore(), true);
+    createStore((MemsqlStore) inputOperator.getStore(), true);
     inputOperator.setBlastSize(BLAST_SIZE);
 
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();

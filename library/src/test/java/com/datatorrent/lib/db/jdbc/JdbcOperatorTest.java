@@ -122,7 +122,7 @@ public class JdbcOperatorTest
     }
   }
 
-  private static class TestInputOperator extends AbstractJdbcInputOperator<TestEvent, JdbcStore>
+  private static class TestInputOperator extends AbstractJdbcInputOperator<TestEvent>
   {
 
     private static final String retrieveQuery = "SELECT * FROM " + TABLE_NAME;

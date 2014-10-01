@@ -22,7 +22,7 @@ import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer, MemsqlStore>
+public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer>
 {
   private static final String SELECT_COUNT = "select count(*) from " + FQ_TABLE;
   private int blastSize = 1000;

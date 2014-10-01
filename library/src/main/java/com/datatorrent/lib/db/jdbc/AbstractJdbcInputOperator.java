@@ -37,10 +37,9 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * </p>
  *
  * @param <T> The tuple type
- * @param <S> The store type
  * @since 0.9.4
  */
-public abstract class AbstractJdbcInputOperator<T, S extends JdbcStore> extends AbstractStoreInputOperator<T, S>
+public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOperator<T, JdbcStore>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcInputOperator.class);
   Statement queryStatement = null;
