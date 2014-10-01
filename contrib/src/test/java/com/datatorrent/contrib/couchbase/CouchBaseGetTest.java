@@ -16,10 +16,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author prerna
- */
 public class CouchBaseGetTest
 {
   protected static final Logger logger = LoggerFactory.getLogger(CouchBaseGetTest.class);
@@ -55,7 +51,6 @@ public class CouchBaseGetTest
     URI uri = null;
     try {
       uri = new URI("http://node13.morado.com:8091/pools");
-
     }
     catch (URISyntaxException ex) {
       logger.error("Error connecting to Couchbase: " + ex.getMessage());
@@ -77,49 +72,20 @@ public class CouchBaseGetTest
     }
     client.flush();
     long startTime = System.currentTimeMillis();
-    System.out.println("start time before get is " + startTime);
+    logger.info("start time before get is " + startTime);
 
     for (int k = 0; k < 1000; k++) {
-      System.out.println("k " + k);
+      logger.info("k " + k);
 
       for (int i = 0; i < 100; i++) {
 
         String value = client.get("Key" + (k * 100 + i)).toString();
-        System.out.println("value is " + value);
+        logger.info("value is " + value);
       }
     }
     long stopTime = System.currentTimeMillis();
-
-        //System.out.println("stop time after set is" + stopTime);
-    //System.out.println("Threads after set are" + Thread.activeCount());
-    //startTime = System.currentTimeMillis();
-    //System.out.println("start time before get is " + startTime);
-    //int count = futures.size();
-    //System.out.println("count is " + count);
-
-    /*for(int j=0;j<count;j++)
-     {
-     String value = client.get("Key" + j*2).toString();
-     System.out.println("value is" + value);
-     }*/
-
-    /*while (!futures.isEmpty()) {
-     Iterator<OperationFuture<Boolean>> iter = futures.iterator();
-     while (iter.hasNext()) {
-     OperationFuture<Boolean> future = iter.next();
-     String key = future.getKey();
-     System.out.println("key is" + key);
-     String value = client.get(key).toString();
-     System.out.println("value is" + value);
-     if (future.isDone()) {
-     future.
-     iter.remove();
-     }
-     }
-     }*/
-    //stopTime = System.currentTimeMillis();
-    System.out.println("stop time after get is " + stopTime);
-    System.out.println("Threads after get are + " + Thread.activeCount());
+    logger.info("stop time after get is " + stopTime);
+    logger.info("Threads after get are + " + Thread.activeCount());
 
     client.shutdown();
 

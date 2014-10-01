@@ -6,17 +6,14 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
 import com.google.common.collect.Lists;
 import java.util.List;
 
-/**
- *
- * @author prerna
+/*
  * @param <T>
  */
 public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, CouchBaseWindowStore>
 {
-
   private List<T> tuples;
   private transient Operator.ProcessingMode mode;
-  protected static int num_tuples;
+  protected int num_tuples;
 
   public Operator.ProcessingMode getMode()
   {

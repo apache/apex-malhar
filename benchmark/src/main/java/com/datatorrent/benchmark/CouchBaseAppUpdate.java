@@ -7,11 +7,6 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
-/**
- *  *
- *   * @author prerna
- *
- */
 @ApplicationAnnotation(name = "CouchBaseAppUpdate")
 public class CouchBaseAppUpdate implements StreamingApplication {
 

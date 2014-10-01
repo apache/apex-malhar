@@ -1,13 +1,7 @@
- 
+
 package com.datatorrent.benchmark;
 
 import com.datatorrent.contrib.couchbase.AbstractInsertCouchBaseOutputOperator;
-
-/**
- *
- * @author prerna
- */
-
 
 public class CouchBaseOutputOperator extends AbstractInsertCouchBaseOutputOperator<Integer>{
 
@@ -23,7 +17,7 @@ public class CouchBaseOutputOperator extends AbstractInsertCouchBaseOutputOperat
       return tuple;
     }
 
-    
-    
-    
+
+
+
 }

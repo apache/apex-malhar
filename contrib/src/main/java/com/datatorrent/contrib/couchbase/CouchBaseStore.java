@@ -15,10 +15,6 @@ import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- *
- * @author prerna
- */
 public class CouchBaseStore implements Connectable
 {
 
@@ -28,11 +24,10 @@ public class CouchBaseStore implements Connectable
   protected String bucket;
   @Nonnull
   protected String password;
-  protected transient CouchbaseClient client;
-
   @Nonnull
   protected String uriString;
 
+  protected transient CouchbaseClient client;
   protected Integer batch_size = 100;
   protected Integer max_tuples = 1000;
   protected int blockTime = 10000;
@@ -89,8 +84,6 @@ public class CouchBaseStore implements Connectable
   public CouchBaseStore()
   {
     client = null;
-   // bucket = "default";
-   // password = "";
   }
 
   public CouchbaseClient getInstance()
@@ -105,7 +98,6 @@ public class CouchBaseStore implements Connectable
 
   public void setBucket(String bucketName)
   {
-    logger.info("bucketname is" + bucketName);
     this.bucket = bucketName;
   }
 
@@ -116,8 +108,6 @@ public class CouchBaseStore implements Connectable
    */
   public void setPassword(String password)
   {
-    logger.info("password is" + password);
-
     this.password = password;
   }
 
@@ -132,9 +122,6 @@ public class CouchBaseStore implements Connectable
   @Override
   public void connect() throws IOException
   {
-    logger.info("URL string is" + uriString);
-    logger.info("password is" + password);
-    logger.info("bucket is"+bucket);
     URI uri = null;
     for (String url: uriList) {
 

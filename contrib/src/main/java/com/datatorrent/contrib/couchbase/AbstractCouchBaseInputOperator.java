@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 /**
- *
- * @author prerna
  * @param <T>
  */
 public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore>
@@ -31,11 +29,9 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
     ArrayList<String> keys = getKeys();
     for (int i = 0; i < keys.size(); i++) {
       try {
-        // Return the result
         Object result = store.getInstance().get(keys.get(i));
         T tuple = getTuple(result);
         outputPort.emit(tuple);
-
       }
       catch (Exception ex) {
         try {

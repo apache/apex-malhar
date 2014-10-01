@@ -2,15 +2,11 @@ package com.datatorrent.benchmark;
 
 import com.datatorrent.contrib.couchbase.AbstractUpdateCouchBaseOutputOperator;
 
-/**
- *
- * @author prerna
- */
 public class CouchBaseUpdateOperator extends AbstractUpdateCouchBaseOutputOperator<Integer> {
 
     @Override
     public String generateKey(Integer tuple) {
-        return "abc";
+        return "yes" + tuple;
     }
 
     @Override
