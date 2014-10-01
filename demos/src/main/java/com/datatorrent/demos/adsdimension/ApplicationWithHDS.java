@@ -17,6 +17,9 @@ package com.datatorrent.demos.adsdimension;
 
 import java.util.concurrent.TimeUnit;
 
+import com.datatorrent.lib.counters.BasicCounters;
+import org.apache.commons.lang.mutable.Mutable;
+import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.Context;
@@ -140,6 +143,8 @@ public class ApplicationWithHDS implements StreamingApplication
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
     hdsOut.setFileStore(hdsFile);
     hdsOut.setAggregator(new AdInfoAggregator());
+    dag.getOperatorMeta("HDSOut").getAttributes().put(Context.OperatorContext.COUNTERS_AGGREGATOR,
+        new BasicCounters.LongAggregator< MutableLong >());
 
     KafkaSinglePortStringInputOperator queries = dag.addOperator("Query", new KafkaSinglePortStringInputOperator());
     queries.setConsumer(new SimpleKafkaConsumer());

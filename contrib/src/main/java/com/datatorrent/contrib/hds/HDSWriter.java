@@ -26,7 +26,9 @@ import java.util.concurrent.Executors;
 
 import javax.validation.constraints.Min;
 
+import com.datatorrent.lib.counters.BasicCounters;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,6 +73,20 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
   private int flushIntervalCount = 120;
 
   private final HashMap<Long, WalMeta> walMeta = Maps.newHashMap();
+
+  /**
+   * Counters for wal HDFS usage, currently tracking only
+   * number of bytes written to HDFS.
+   */
+  public static enum WALCounters
+  {
+    WAL_TOTAL_BYTES
+  }
+
+  protected BasicCounters<MutableLong> counters = new BasicCounters<MutableLong>(MutableLong.class);
+  protected MutableLong totalWalBytes = new MutableLong();
+
+  private transient OperatorContext context;
 
   /**
    * Size limit for data files. Files are rolled once the limit has been exceeded. The final size of a file can be
@@ -243,6 +259,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
   {
     Bucket bucket = getBucket(bucketKey);
     bucket.wal.append(key, value);
+    totalWalBytes.add(key.length + value.length);
     bucket.writeCache.put(key, value);
   }
 
@@ -350,6 +367,8 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
   {
     super.setup(context);
     writeExecutor = Executors.newSingleThreadScheduledExecutor(new NameableThreadFactory(this.getClass().getSimpleName() + "-Writer"));
+    this.context = context;
+    counters.setCounter(WALCounters.WAL_TOTAL_BYTES, totalWalBytes);
   }
 
   @Override
@@ -419,6 +438,9 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
     if (writerError != null) {
       throw new RuntimeException("Error while flushing write cache.", this.writerError);
     }
+
+    if (context != null)
+      context.setCounters(counters);
   }
 
   private WalMeta getWalMeta(long bucketKey)
