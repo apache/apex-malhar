@@ -16,8 +16,20 @@
 
 package com.datatorrent.benchmark.memsql;
 
+import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator.ProcessingMode;
+import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
+import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.BATCH_SIZE;
+import com.datatorrent.contrib.memsql.MemsqlOutputOperator;
+import com.datatorrent.contrib.memsql.MemsqlStore;
+import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.APP_ID;
+import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.OPERATOR_ID;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import java.io.InputStream;
+import java.util.Random;
 import java.util.logging.Level;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -28,12 +40,46 @@ import org.slf4j.LoggerFactory;
 public class MemsqlInputBenchmarkTest
 {
   private static final Logger LOG = LoggerFactory.getLogger(MemsqlInputBenchmarkTest.class);
+  private static final long SEED_SIZE = 10000;
 
   @Test
   public void testMethod() {
     Configuration conf = new Configuration();
     InputStream inputStream = getClass().getResourceAsStream("/dt-site-memsql.xml");
     conf.addResource(inputStream);
+
+    MemsqlStore memsqlStore = new MemsqlStore();
+    memsqlStore.setDbUrl(conf.get("rootDbUrl"));
+    memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties"));
+
+    AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
+
+    memsqlStore.setDbUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
+
+    MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
+    outputOperator.setStore(memsqlStore);
+    outputOperator.setBatchSize(BATCH_SIZE);
+
+    Random random = new Random();
+    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
+    attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+
+    long seedSize = conf.getLong("seedSize", SEED_SIZE);
+
+    outputOperator.setup(context);
+    outputOperator.beginWindow(0);
+
+    for(long valueCounter = 0;
+        valueCounter < seedSize;
+        valueCounter++) {
+      outputOperator.input.put(random.nextInt());
+    }
+
+    outputOperator.endWindow();
+    outputOperator.teardown();
 
     MemsqlInputBenchmark app = new MemsqlInputBenchmark();
     LocalMode lm = LocalMode.newInstance();

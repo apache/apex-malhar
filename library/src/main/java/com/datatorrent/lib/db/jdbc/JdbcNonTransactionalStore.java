@@ -69,24 +69,13 @@ public class JdbcNonTransactionalStore extends JdbcTransactionalStore
   @Override
   public long getCommittedWindowId(String appId, int operatorId)
   {
-    try {
-      lastWindowFetchCommand.setString(1, appId);
-      lastWindowFetchCommand.setInt(2, operatorId);
-      long lastWindow = -1;
-      ResultSet resultSet = lastWindowFetchCommand.executeQuery();
-      if (resultSet.next()) {
-        lastWindow = resultSet.getLong(1);
-      }
-      else {
-        lastWindowInsertCommand.setString(1, appId);
-        lastWindowInsertCommand.setInt(2, operatorId);
-        lastWindowInsertCommand.setLong(3, -1);
-        lastWindowInsertCommand.executeUpdate();
-      }
-      return lastWindow;
+    Long lastWindowCommit = getCommittedWindowIdHelper(appId, operatorId);
+
+    if(lastWindowCommit == null) {
+      return -1L;
     }
-    catch (SQLException ex) {
-      throw new RuntimeException(ex);
+    else {
+      return lastWindowCommit;
     }
   }
 

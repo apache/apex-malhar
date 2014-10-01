@@ -82,12 +82,6 @@ public class MemsqlOutputBenchmark implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    MemsqlStore memsqlStore = new MemsqlStore();
-    memsqlStore.setDbUrl(conf.get("rootDbUrl"));
-    memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.connectionProperties"));
-
-    AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
-
     CustomRandomEventGenerator randomEventGenerator = dag.addOperator("randomEventGenerator", new CustomRandomEventGenerator());
     randomEventGenerator.setMaxcountofwindows(MAX_WINDOW_COUNT);
     randomEventGenerator.setTuplesBlastIntervalMillis(TUPLE_BLAST_MILLIS);

@@ -17,6 +17,8 @@
 package com.datatorrent.benchmark.memsql;
 
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
+import com.datatorrent.contrib.memsql.MemsqlStore;
 import java.io.InputStream;
 import java.util.logging.Level;
 import org.apache.commons.io.IOUtils;
@@ -34,6 +36,12 @@ public class MemsqlOutputBenchmarkTest
     Configuration conf = new Configuration();
     InputStream inputStream = getClass().getResourceAsStream("/dt-site-memsql.xml");
     conf.addResource(inputStream);
+
+    MemsqlStore memsqlStore = new MemsqlStore();
+    memsqlStore.setDbUrl(conf.get("rootDbUrl"));
+    memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.connectionProperties"));
+
+    AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
 
     MemsqlOutputBenchmark app = new MemsqlOutputBenchmark();
     LocalMode lm = LocalMode.newInstance();

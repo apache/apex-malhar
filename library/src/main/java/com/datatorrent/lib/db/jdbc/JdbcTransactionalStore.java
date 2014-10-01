@@ -192,10 +192,41 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
   @Override
   public long getCommittedWindowId(String appId, int operatorId)
   {
+    Long lastWindow = getCommittedWindowIdHelper(appId, operatorId);
+
+    try {
+      if(lastWindow == null) {
+        lastWindowInsertCommand.close();
+        connection.commit();
+      }
+
+      lastWindowFetchCommand.close();
+      LOG.debug("Last window id: {}", lastWindow);
+
+      if(lastWindow == null) {
+        return -1L;
+      }
+      else {
+        return lastWindow;
+      }
+    }
+    catch (SQLException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  /**
+   * This is a helper method for loading the committed window Id.
+   * @param appId The application ID.
+   * @param operatorId The operator ID.
+   * @return The last committed window. If there is no previously committed window this will return null.
+   */
+  protected Long getCommittedWindowIdHelper(String appId, int operatorId)
+  {
     try {
       lastWindowFetchCommand.setString(1, appId);
       lastWindowFetchCommand.setInt(2, operatorId);
-      long lastWindow = -1;
+      Long lastWindow = null;
       ResultSet resultSet = lastWindowFetchCommand.executeQuery();
       if (resultSet.next()) {
         lastWindow = resultSet.getLong(1);
@@ -205,11 +236,7 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
         lastWindowInsertCommand.setInt(2, operatorId);
         lastWindowInsertCommand.setLong(3, -1);
         lastWindowInsertCommand.executeUpdate();
-        lastWindowInsertCommand.close();
-        connection.commit();
       }
-      lastWindowFetchCommand.close();
-      LOG.debug("Last window id: {}", lastWindow);
       return lastWindow;
     }
     catch (SQLException ex) {
@@ -229,7 +256,6 @@ public class JdbcTransactionalStore extends JdbcStore implements Transactionable
     catch (SQLException e) {
       throw new RuntimeException(e);
     }
-
   }
 
   @Override

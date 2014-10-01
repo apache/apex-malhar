@@ -49,47 +49,11 @@ public class MemsqlInputBenchmark implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(MemsqlInputBenchmark.class);
 
-  private static final long SEED_SIZE = 10000;
-
   public String host = null;
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    MemsqlStore memsqlStore = new MemsqlStore();
-    memsqlStore.setDbUrl(conf.get("rootDbUrl"));
-    memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties"));
-
-    AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
-
-    memsqlStore.setDbUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
-
-    MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
-    outputOperator.setStore(memsqlStore);
-    outputOperator.setBatchSize(BATCH_SIZE);
-
-    Random random = new Random();
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
-    attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
-    attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
-    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
-
-    long seedSize = conf.getLong("seedSize", SEED_SIZE);
-
-    outputOperator.setup(context);
-    outputOperator.beginWindow(0);
-
-    for(long valueCounter = 0;
-        valueCounter < seedSize;
-        valueCounter++) {
-      outputOperator.input.put(random.nextInt());
-    }
-
-    outputOperator.endWindow();
-    outputOperator.teardown();
-
-
     MemsqlInputOperator memsqlInputOperator = dag.addOperator("memsqlInputOperator",
                                                                 new MemsqlInputOperator());
 
