@@ -110,26 +110,26 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
       int patternPosition = matchingPositions.get(matchingPositionIndex);
       int matchingPositionLength = matchingPositions.size();
 
-      for (int i = 0; i < patternLength; ) {
+      for (int i = patternLength - 1; i > -1; ) {
         //Reset partial matches to null for all non matching positions
-        while (i < patternLength - patternPosition) {
+        while (i > (patternPosition - 1)) {
           matchedPatterns[i] = -1;
-          i++;
+          i--;
         }
-        if (i == patternLength) {
+        if (i == -1) {
           break;
         }
         currentMatch = matchedPatterns[i];
         //If there was a partial match till position x-1, then append the new event to this partial match.
         if (currentMatch != -1) {
-          matchedPatterns[i - 1] = ++currentMatch;
+          matchedPatterns[i + 1] = ++currentMatch;
           matchedPatterns[i] = -1;
         }
         matchingPositionIndex++;
-        i++;
+        i--;
         //Reset partial matches to null for all non matching positions
         if (matchingPositionIndex == matchingPositionLength) {
-          for (; i < patternLength; i++) {
+          for (; i > -1; i--) {
             matchedPatterns[i] = -1;
           }
           break;
@@ -140,13 +140,13 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
       }
       // If the match is found at starting of pattern state,then initialize the partial match
       if (patternPosition == 0) {
-        matchedPatterns[patternLength - 1] = patternPosition;
+        matchedPatterns[0] = 0;
       }
-      currentMatch = matchedPatterns[0];
+      currentMatch = matchedPatterns[patternLength - 1];
       // If the match is found process it
-      if (currentMatch != -1) {
+      if (currentMatch == patternLength - 1) {
         processPatternFound(pattern.getStates());
-        matchedPatterns[0] = -1;
+        matchedPatterns[patternLength - 1] = -1;
       }
     }
   };
