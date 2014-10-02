@@ -85,7 +85,7 @@
                 <configuration>
                   <license>Copyright &copy; 2014 DataTorrent, Inc.</license>
                   <version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
-                  <release>${parsedVersion.qualifier}</release>
+                  <release>${parsedVersion.qualifier}${parsedVersion.buildNumber}</release>
                   <workarea>target/sink-rpm</workarea>
                   <classifier>sink</classifier>
                   <name>datatorrent-flume-sink</name>
@@ -147,7 +147,7 @@
                 <configuration>
                   <version>${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}</version>
                   <license>Copyright &copy; 2014 DataTorrent, Inc.</license>
-                  <release>${parsedVersion.qualifier}</release>
+                  <release>${parsedVersion.qualifier}${parsedVersion.buildNumber}</release>
                   <workarea>target/operator-rpm</workarea>
                   <classifier>operator</classifier>
                   <name>datatorrent-flume-operator</name>
