@@ -27,6 +27,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
@@ -89,23 +90,23 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Min(0)
   protected long millisPreventingBucketEviction;
   protected boolean writeEventKeysOnly;
-  @Nonnull
+  @NotNull
   protected BucketStore<T> bucketStore;
-  @Nonnull
+  @NotNull
   protected final Map<Integer, Bucket<T>> dirtyBuckets;
   protected long committedWindow;
   //Not check-pointed
   //Indexed by bucketKey keys.
   protected transient Bucket<T>[] buckets;
-  @Nonnull
+  @NotNull
   protected transient Set<Integer> evictionCandidates;
   protected transient Listener<T> listener;
-  @Nonnull
+  @NotNull
   private transient final BlockingQueue<Long> eventQueue;
   private transient volatile boolean running;
-  @Nonnull
+  @NotNull
   private transient final Lock lock;
-  @Nonnull
+  @NotNull
   private transient final MinMaxPriorityQueue<Bucket<T>> bucketHeap;
 
   protected transient boolean doCounting;

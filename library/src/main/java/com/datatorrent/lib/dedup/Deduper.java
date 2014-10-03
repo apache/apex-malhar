@@ -21,6 +21,7 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
@@ -124,10 +125,10 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   };
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
   //Check-pointed state
-  @Nonnull
+  @NotNull
   protected BucketManager<INPUT> bucketManager;
   //bucketKey -> list of bucketData which belong to that bucket and are waiting for the bucket to be loaded.
-  @Nonnull
+  @NotNull
   protected final Map<Long, List<INPUT>> waitingEvents;
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
