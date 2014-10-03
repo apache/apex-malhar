@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.contrib.couchbase;
 
 import com.couchbase.client.CouchbaseClient;
@@ -16,7 +31,12 @@ import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * CouchBaseWindowStore which transactional support.
+ * It does not guarantee exactly once property.It only skips tuple
+ * processed in previous windows and provides at least once and at most once properties.
+ *
+ */
 public class CouchBaseWindowStore extends CouchBaseStore implements TransactionableStore
 {
 
