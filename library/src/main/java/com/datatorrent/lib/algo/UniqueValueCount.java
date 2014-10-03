@@ -54,7 +54,7 @@ public class UniqueValueCount<K> extends BaseOperator {
             }
             values.add(pair.getValue());
         }
-    } ;
+    };
 
     public transient DefaultOutputPort<KeyValPair<K,Integer>> output = new DefaultOutputPort<KeyValPair<K,Integer>>(){
         @Override

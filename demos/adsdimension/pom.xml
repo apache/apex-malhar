@@ -191,6 +191,13 @@
       </exclusions>
     </dependency>
     <dependency>
+      <scope>test</scope>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${datatorrent.version}</version>
+      <classifier>tests</classifier>
+    </dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-contrib</artifactId>
       <version>${datatorrent.version}</version>

@@ -39,7 +39,7 @@ public class AdInfo implements Serializable
   long impressions;
   long clicks;
 
-  AdInfo()
+  public AdInfo()
   {
   }
 
@@ -81,6 +81,42 @@ public class AdInfo implements Serializable
   public void setTimestamp(long timestamp)
   {
     this.timestamp = timestamp;
+  }
+
+  public double getCost()
+  {
+    return cost;
+  }
+
+  public double getRevenue()
+  {
+    return revenue;
+  }
+
+  public long getImpressions()
+  {
+    return impressions;
+  }
+
+  public long getClicks()
+  {
+    return clicks;
+  }
+
+  public void setClicks(long clicks) {
+    this.clicks = clicks;
+  }
+
+  public void setCost(double cost) {
+    this.cost = cost;
+  }
+
+  public void setRevenue(double revenue) {
+    this.revenue = revenue;
+  }
+
+  public void setImpressions(long impressions) {
+    this.impressions = impressions;
   }
 
   @Override
@@ -154,6 +190,15 @@ public class AdInfo implements Serializable
       }
 
       this.dimension = dimension;
+    }
+
+    /**
+     * Dimension specification for display in operator properties.
+     * @return
+     */
+    public String getDimension()
+    {
+      return dimension;
     }
 
     @Override
@@ -303,7 +348,7 @@ public class AdInfo implements Serializable
   {
     int aggregatorIndex;
 
-    private AdInfoAggregateEvent()
+    public AdInfoAggregateEvent()
     {
       //Used for kryo serialization
     }
