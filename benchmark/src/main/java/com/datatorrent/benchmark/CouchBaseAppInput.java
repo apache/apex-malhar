@@ -21,18 +21,27 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
-@ApplicationAnnotation(name="CouchBaseAppInput")
-public class CouchBaseAppInput implements StreamingApplication {
+/**
+ *
+ *Application to benchmark the performance of couchbase input operator.
+ *The number of tuples processed per second were around 18,000.
+ *
+ * @since 1.0.3
+ */
+@ApplicationAnnotation(name = "CouchBaseAppInput")
+public class CouchBaseAppInput implements StreamingApplication
+{
 
-    private final Locality locality = null;
+  private final Locality locality = null;
 
-    @Override
-    public void populateDAG(DAG dag, Configuration conf) {
-        CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", CouchBaseInputOperator.class);
+  @Override
+  public void populateDAG(DAG dag, Configuration conf)
+  {
+    CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", CouchBaseInputOperator.class);
         //couchbaseInput.getStore().setBucket("default");
-        //couchbaseInput.getStore().setPassword("");
-        WordCountOperator<String> counter = dag.addOperator("Counter", new WordCountOperator<String>());
-        dag.addStream("Generator2Counter", couchbaseInput.outputPort, counter.input).setLocality(locality);
-    }
+    //couchbaseInput.getStore().setPassword("");
+    WordCountOperator<String> counter = dag.addOperator("Counter", new WordCountOperator<String>());
+    dag.addStream("Generator2Counter", couchbaseInput.outputPort, counter.input).setLocality(locality);
+  }
 
 }

@@ -17,17 +17,25 @@ package com.datatorrent.benchmark;
 
 import com.datatorrent.contrib.couchbase.AbstractUpdateCouchBaseOutputOperator;
 
-public class CouchBaseUpdateOperator extends AbstractUpdateCouchBaseOutputOperator<Integer> {
+/**
+ * <p>CouchBaseUpdateOperator class.</p>
+ *
+ * @since 1.0.3
+ */
+public class CouchBaseUpdateOperator extends AbstractUpdateCouchBaseOutputOperator<Integer>
+{
 
-    @Override
-    public String generateKey(Integer tuple) {
-        return "yes" + tuple;
-    }
+  @Override
+  public String generateKey(Integer tuple)
+  {
+    return "yes" + tuple;
+  }
 
-    @Override
-    public Object getObject(Integer tuple) {
-        tuple = 500;
-        return tuple;
-    }
+  @Override
+  public Object getObject(Integer tuple)
+  {
+    tuple = 500;
+    return tuple;
+  }
 
 }

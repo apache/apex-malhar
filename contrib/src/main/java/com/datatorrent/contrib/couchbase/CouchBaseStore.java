@@ -31,7 +31,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * CouchBaseStore which provides connect methods to Couchbase.
+ * CouchBaseStore which provides connect methods to Couchbase data store.
  */
 public class CouchBaseStore implements Connectable
 {
