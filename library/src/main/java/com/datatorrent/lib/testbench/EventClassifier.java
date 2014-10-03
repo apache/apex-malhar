@@ -150,7 +150,7 @@ public class EventClassifier extends BaseOperator
     voper = value_operation.VOPR_MULT;
   }
 
-   void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
+   public void setKeyWeights(HashMap<String, ArrayList<Integer>> map)
   {
     if (inkeys == null) {
       inkeys = new HashMap<String, ArrayList<Integer>>();

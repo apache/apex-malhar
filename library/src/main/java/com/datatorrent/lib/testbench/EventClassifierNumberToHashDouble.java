@@ -22,6 +22,8 @@ import com.datatorrent.api.Context.OperatorContext;
 
 import java.util.HashMap;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Takes a in stream event and adds to incoming keys to create a new tuple that is emitted on output port data. The aim is to create a load with pair of keys<p>
@@ -56,6 +58,7 @@ import javax.validation.constraints.NotNull;
  */
 public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOperator
 {
+  private static final Logger logger = LoggerFactory.getLogger(EventClassifierNumberToHashDouble.class);
   public final transient DefaultInputPort<K> event = new DefaultInputPort<K>()
   {
     @Override
@@ -144,6 +147,7 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
    */
   public void setKey(String i)
   {
+    logger.debug("In setter of key");
     key = i;
   }
 
