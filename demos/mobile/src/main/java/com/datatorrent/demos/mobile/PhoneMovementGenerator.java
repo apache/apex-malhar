@@ -169,6 +169,15 @@ public class PhoneMovementGenerator extends BaseOperator
   private transient OperatorContext context;
   private final transient HashMap<Integer, HighLow<Integer>> newgps = new HashMap<Integer, HighLow<Integer>>();
 
+  public PhoneMovementGenerator()
+  {
+    this.commandCounters = new BasicCounters<MutableLong>(MutableLong.class);
+    addCommandCounter = new MutableLong();
+    addRangeCommandCounter = new MutableLong();
+    deleteCommandCounter = new MutableLong();
+    clearCommandCounter = new MutableLong();
+  }
+
   /**
    * @return the range of the phone numbers
    */
@@ -282,19 +291,10 @@ public class PhoneMovementGenerator extends BaseOperator
   public void setup(OperatorContext context)
   {
     this.context = context;
-    this.commandCounters = new BasicCounters<MutableLong>(MutableLong.class);
-    try {
-      this.addCommandCounter = commandCounters.findCounter(CommandCounters.ADD);
-      this.addRangeCommandCounter = commandCounters.findCounter(CommandCounters.ADD_RANGE);
-      this.deleteCommandCounter = commandCounters.findCounter(CommandCounters.DELETE);
-      this.clearCommandCounter = commandCounters.findCounter(CommandCounters.CLEAR);
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    }
+    commandCounters.setCounter(CommandCounters.ADD, addCommandCounter);
+    commandCounters.setCounter(CommandCounters.ADD_RANGE, addRangeCommandCounter);
+    commandCounters.setCounter(CommandCounters.DELETE, deleteCommandCounter);
+    commandCounters.setCounter(CommandCounters.CLEAR, clearCommandCounter);
   }
 
   /**

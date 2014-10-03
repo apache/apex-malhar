@@ -108,7 +108,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Nonnull
   private transient final MinMaxPriorityQueue<Bucket<T>> bucketHeap;
 
-  protected transient boolean count;
+  protected transient boolean doCounting;
   protected transient MutableLong numBucketsInMemory;
   protected transient MutableLong numEvictedBuckets;
   protected transient MutableLong numDeletedBuckets;
@@ -143,6 +143,12 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     maxNoOfBucketsInMemory = DEF_NUM_BUCKETS_MEM + 100;
     millisPreventingBucketEviction = DEF_MILLIS_PREVENTING_EVICTION;
     writeEventKeysOnly = true;
+
+    numBucketsInMemory = new MutableLong();
+    numEvictedBuckets = new MutableLong();
+    numDeletedBuckets = new MutableLong();
+    numEventsCommittedLastWindow = new MutableLong();
+    numEventsInMemory = new MutableLong();
   }
 
   /**
@@ -192,20 +198,12 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Override
   public void setBucketCounters(@Nonnull BasicCounters<MutableLong> bucketCounters)
   {
-    try {
-      numBucketsInMemory = bucketCounters.findCounter(CounterKeys.BUCKETS_IN_MEMORY);
-      numEvictedBuckets = bucketCounters.findCounter(CounterKeys.EVICTED_BUCKETS);
-      numDeletedBuckets = bucketCounters.findCounter(CounterKeys.DELETED_BUCKETS);
-      numEventsCommittedLastWindow = bucketCounters.findCounter(CounterKeys.EVENTS_COMMITTED_LAST_WINDOW);
-      numEventsInMemory = bucketCounters.findCounter(CounterKeys.EVENTS_IN_MEMORY);
-      count = true;
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    }
+    bucketCounters.setCounter(CounterKeys.BUCKETS_IN_MEMORY, numBucketsInMemory);
+    bucketCounters.setCounter(CounterKeys.EVICTED_BUCKETS, numEvictedBuckets);
+    bucketCounters.setCounter(CounterKeys.DELETED_BUCKETS, numDeletedBuckets);
+    bucketCounters.setCounter(CounterKeys.EVENTS_COMMITTED_LAST_WINDOW, numEventsCommittedLastWindow);
+    bucketCounters.setCounter(CounterKeys.EVENTS_IN_MEMORY, numBucketsInMemory);
+    doCounting = true;
   }
 
   @Override
@@ -248,7 +246,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
 
               listener.bucketOffLoaded(oldBucket.bucketKey);
               bucketStore.deleteBucket(bucketIdx);
-              if (count) {
+              if (doCounting) {
                 numDeletedBuckets.increment();
                 numBucketsInMemory.decrement();
                 numEventsRemoved += oldBucket.countOfUnwrittenEvents() + oldBucket.countOfWrittenEvents();
@@ -282,7 +280,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
                 evictionCandidates.remove(lruIdx);
                 buckets[lruIdx] = null;
                 listener.bucketOffLoaded(lruBucket.bucketKey);
-                if (count) {
+                if (doCounting) {
                   numEvictedBuckets.increment();
                   numBucketsInMemory.decrement();
                   numEventsRemoved += lruBucket.countOfUnwrittenEvents() + lruBucket.countOfWrittenEvents();
@@ -299,7 +297,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
             bucket.setWrittenEvents(bucketDataInStore);
             evictionCandidates.add(bucketIdx);
             listener.bucketLoaded(bucket);
-            if (count) {
+            if (doCounting) {
               numBucketsInMemory.increment();
               numEventsInMemory.add(bucketDataInStore.size() - numEventsRemoved);
             }
@@ -377,7 +375,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     }
 
     bucket.addNewEvent(event.getEventKey(), writeEventKeysOnly ? null : event);
-    if (count) {
+    if (doCounting) {
       numEventsInMemory.increment();
     }
   }
@@ -399,7 +397,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       bucket.transferDataFromMemoryToStore();
       evictionCandidates.add(entry.getKey());
     }
-    if (count) {
+    if (doCounting) {
       numEventsCommittedLastWindow.setValue(eventsCount);
     }
     try {

@@ -135,7 +135,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
-  protected transient BasicCounters<MutableLong> counters;
+  protected BasicCounters<MutableLong> counters;
   protected transient MutableLong numDuplicateEvents;
   private transient long currentWindow;
 
@@ -146,6 +146,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     partitionMask = 0;
 
     fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
+    numDuplicateEvents = new MutableLong();
+    counters = new BasicCounters<MutableLong>(MutableLong.class);
   }
 
   @Override
@@ -154,17 +156,10 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     this.context = context;
     this.currentWindow = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
-    counters = new BasicCounters<MutableLong>(MutableLong.class);
+
     bucketManager.setBucketCounters(counters);
-    try {
-      numDuplicateEvents = counters.findCounter(CounterKeys.DUPLICATE_EVENTS);
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    }
+    counters.setCounter(CounterKeys.DUPLICATE_EVENTS, numDuplicateEvents);
+
     bucketManager.startService(this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
     for (long bucketKey : waitingEvents.keySet()) {

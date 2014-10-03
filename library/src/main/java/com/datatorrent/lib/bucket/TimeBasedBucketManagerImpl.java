@@ -64,6 +64,10 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     daysSpan = DEF_DAYS_SPAN;
     bucketSpanInMillis = DEF_BUCKET_SPAN_MILLIS;
     lock = new Lock();
+
+    low = new MutableLong();
+    high = new MutableLong();
+    numIgnoredEvents = new MutableLong();
   }
 
   /**
@@ -127,17 +131,9 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   public void setBucketCounters(@Nonnull BasicCounters<MutableLong> bucketCounters)
   {
     super.setBucketCounters(bucketCounters);
-    try {
-      low = bucketCounters.findCounter(CounterKeys.LOW);
-      high = bucketCounters.findCounter(CounterKeys.HIGH);
-      numIgnoredEvents = bucketCounters.findCounter(CounterKeys.IGNORED_EVENTS);
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    }
+    bucketCounters.setCounter(CounterKeys.LOW, low);
+    bucketCounters.setCounter(CounterKeys.HIGH, high);
+    bucketCounters.setCounter(CounterKeys.IGNORED_EVENTS, numIgnoredEvents);
   }
 
   @Override
@@ -157,7 +153,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
         synchronized (lock) {
           time = (expiryTime += bucketSpanInMillis);
           endOBucketsInMillis += bucketSpanInMillis;
-          if (count) {
+          if (doCounting) {
             high.setValue(endOBucketsInMillis);
             low.setValue(expiryTime);
           }
@@ -179,7 +175,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   {
     long eventTime = event.getTime();
     if (eventTime < expiryTime) {
-      if (count) {
+      if (doCounting) {
         numIgnoredEvents.increment();
       }
       return -1;
@@ -191,7 +187,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
         long move = ((eventTime - endOBucketsInMillis) / bucketSpanInMillis + 1) * bucketSpanInMillis;
         expiryTime += move;
         endOBucketsInMillis += move;
-        if (count) {
+        if (doCounting) {
           high.setValue(endOBucketsInMillis);
           low.setValue(expiryTime);
         }
