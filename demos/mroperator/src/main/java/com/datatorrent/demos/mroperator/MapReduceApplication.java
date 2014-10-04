@@ -15,21 +15,15 @@
  */
 package com.datatorrent.demos.mroperator;
 
-import java.util.StringTokenizer;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.mapred.InputFormat;
-import org.apache.hadoop.mapred.Mapper;
-import org.apache.hadoop.mapred.Reducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.Context;
+import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAGContext;
-import com.datatorrent.api.StreamingApplication;
+import java.util.StringTokenizer;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.mapred.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>
@@ -38,12 +32,10 @@ import com.datatorrent.api.StreamingApplication;
  *
  * @since 0.9.0
  */
-@SuppressWarnings({ "deprecation" })
 @ApplicationAnnotation(name="MapReduceDemo")
 public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingApplication
 {
-
-  private static final Logger logger = LoggerFactory.getLogger(MapReduceApplication.class);
+  private static final Logger LOG = LoggerFactory.getLogger(MapReduceApplication.class);
 
   Class<? extends InputFormat<K1, V1>> inputFormat;
   Class<? extends Mapper<K1, V1, K2, V2>> mapClass;
@@ -94,11 +86,16 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
 
     String dirName = conf.get(this.getClass().getName() + ".inputDirName", "src/test/resources/wordcount/");
     String outputDirName = conf.get(this.getClass().getName() + ".outputDirName", "src/test/resources/output");
+
+    Path outputDirPath = new Path(outputDirName);
+    outputDirName = outputDirPath.getParent().toUri().getPath();
+
+    String outputFileName = outputDirPath.getName();
+
     int numberOfReducers = conf.getInt(this.getClass().getName() + ".numOfReducers", 1);
     int numberOfMaps = conf.getInt(this.getClass().getName() + ".numOfMaps", 2);
     String configurationfilePath = conf.get(this.getClass().getName() + ".configFile", "");
 
-    // logger.info("configfile {}", configurationfilePath);
     MapOperator<K1, V1, K2, V2> inputOperator = dag.addOperator("map", new MapOperator<K1, V1, K2, V2>());
     inputOperator.setInputFormatClass(inputFormat);
     inputOperator.setDirName(dirName);
@@ -124,8 +121,7 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
 
     HdfsKeyValOutputOperator<K2,V2> console = dag.addOperator("console", new HdfsKeyValOutputOperator<K2,V2>());
     console.setFilePath(outputDirName);
-    // ConsoleOutputOperator console = dag.addOperator("console", new
-    // ConsoleOutputOperator());
+    console.setOutputFileName(outputFileName);
 
     dag.addStream("input_map", inputOperator.output, reduceOpr.input);
     dag.addStream("input_count_map", inputOperator.outputCount, reduceOpr.inputCount);

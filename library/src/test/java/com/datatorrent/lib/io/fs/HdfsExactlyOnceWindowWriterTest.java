@@ -16,22 +16,17 @@
 package com.datatorrent.lib.io.fs;
 
 import java.io.*;
-
-import javax.annotation.Nonnull;
-
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.Attribute;
-import com.datatorrent.api.Context.OperatorContext;
-
 /**
- * Functional Test for {@link HdfsExactlyOnceOutputOperator}
+ * Functional Test for {@link HdfsExactlyOnceWindowWriter}
  */
-public class HdfsExactlyOnceOutputOperatorTest
+public class HdfsExactlyOnceWindowWriterTest
 {
   @Before
   public void setup()
@@ -45,7 +40,7 @@ public class HdfsExactlyOnceOutputOperatorTest
   @SuppressWarnings("unchecked")
   public void testOperator()
   {
-    HdfsExactlyOnceOutputOperator oper = new HdfsExactlyOnceOutputOperator();
+    HdfsExactlyOnceWindowWriter oper = new HdfsExactlyOnceWindowWriter();
     oper.setFilePath("target");
     oper.setup(new DummyContext(0));
     oper.beginWindow(0);
@@ -56,16 +51,11 @@ public class HdfsExactlyOnceOutputOperatorTest
     oper.beginWindow(1);
     oper.input.process("window 1");
     oper.teardown();
-    Assert.assertEquals("The number of lines in file target/0", 2, readFile("target/0", "window 0"));
-    Assert.assertEquals("The number of lines in file target/1.tmp", 1, readFile("target/1.tmp", "window 1"));
 
-    Assert.assertEquals("Checking the file target/1", false, checkFile("target/1"));
+    Assert.assertEquals("The number of lines in file target/0", 2, readFile("target/0", "window 0"));
+
 
     oper.setup(new DummyContext(0));
-    oper.beginWindow(0);
-    oper.input.process("window_new 0");
-    oper.input.process("window_new 0");
-    oper.endWindow();
 
     oper.beginWindow(1);
     oper.input.process("window_new 1");
@@ -110,7 +100,10 @@ public class HdfsExactlyOnceOutputOperatorTest
       }
       return count;
     }
-    catch (Exception e) {
+    catch (FileNotFoundException ex) {
+      return -1;
+    }
+    catch (IOException ex) {
       return -1;
     }
     finally {
@@ -140,54 +133,4 @@ public class HdfsExactlyOnceOutputOperatorTest
       file.delete();
     }
   }
-
-  public static class DummyContext implements OperatorContext
-  {
-    int id;
-    String applicationPath;
-    String applicationId;
-    AttributeMap attributes;
-
-    public DummyContext(int id)
-    {
-      this.id = id;
-    }
-
-    public DummyContext(int id, @Nonnull AttributeMap map)
-    {
-      this.id = id;
-      this.attributes = map;
-    }
-
-    @Override
-    public int getId()
-    {
-      return id;
-    }
-
-    @Override
-    public void setCounters(Object stats)
-    {
-    }
-
-    @Override
-    @SuppressWarnings("unchecked")
-    public <T> T getValue(Attribute<T> key)
-    {
-      T value = attributes.get(key);
-      if (value != null) {
-        return value;
-      }
-
-      return null;
-    }
-
-    @Override
-    public AttributeMap getAttributes()
-    {
-      return attributes;
-    }
-
-  }
-
 }

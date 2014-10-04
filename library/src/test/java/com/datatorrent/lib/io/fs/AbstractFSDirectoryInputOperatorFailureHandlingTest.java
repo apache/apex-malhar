@@ -29,20 +29,7 @@ import org.junit.rules.TestWatcher;
 
 public class AbstractFSDirectoryInputOperatorFailureHandlingTest
 {
-  public static class TestMeta extends TestWatcher
-  {
-    public String dir = null;
-
-    @Override
-    protected void starting(org.junit.runner.Description description)
-    {
-      String methodName = description.getMethodName();
-      String className = description.getClassName();
-      this.dir = "target/" + className + "/" + methodName;
-    }
-  };
-
-  @Rule public TestMeta testMeta = new TestMeta();
+  @Rule public IOTestHelper testMeta = new IOTestHelper();
 
   public static class TestFSDirectoryInputOperator extends AbstractFSDirectoryInputOperator<String>
   {

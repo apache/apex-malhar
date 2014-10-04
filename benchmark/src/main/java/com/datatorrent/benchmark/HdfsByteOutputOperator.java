@@ -13,63 +13,64 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.datatorrent.benchmark;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.hadoop.fs.Path;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.fs.AbstractHdfsRollingFileOutputOperator;
+import com.datatorrent.lib.io.fs.AbstractHDFSExactlyOnceWriter;
+import java.util.Arrays;
+import javax.validation.constraints.Min;
 
 /**
- * Adapter for writing byte arrays to HDFS
- * <p>
- * Serializes tuples into a HDFS file.<br/>
- * </p>
+ * This output operator receives
  *
  * @since 0.9.4
  */
-public class HdfsByteOutputOperator extends AbstractHdfsRollingFileOutputOperator<byte[]>
+public class HdfsByteOutputOperator extends AbstractHDFSExactlyOnceWriter<byte[], byte[]>
 {
+  /**
+   * The number of unique files to output tuples to.
+   */
+  @Min(1)
+  private int outputFileCount = 1;
+
+  @Override
+  protected byte[] convert(byte[] tuple)
+  {
+    //To change body of generated methods, choose Tools | Templates.
+    throw new UnsupportedOperationException("Not supported yet.");
+  }
 
   /**
-   * File name substitution parameter: The system assigned id of the operator instance, which is unique for the
-   * application.
+   * The file a tuple is written out to is determined by modding the hashcode of the
+   * tuple by the outputFileCount.
+   * @param tuple The input tuple to write out.
+   * @return The name of the file to write the tuple to.
    */
-  public static final String FNAME_SUB_CONTEXT_ID = "contextId";
-  /**
-   * File name substitution parameter: Index of part file when a file size limit is specified.
-   */
-  public static final String FNAME_SUB_PART_INDEX = "partIndex";
-
-  private int contextId;
-  private int index = 0;
-
   @Override
-  public Path nextFilePath()
+  protected String getFileName(byte[] tuple)
   {
-    Map<String, String> params = new HashMap<String, String>();
-    params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
-    params.put(FNAME_SUB_CONTEXT_ID, Integer.toString(contextId));
-    StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
-    index++;
-    return new Path(sub.replace(getFilePath().toString()));
+    return ((Integer) (Arrays.hashCode(tuple) % outputFileCount)).toString();
   }
 
   @Override
-  public void setup(OperatorContext context)
+  protected byte[] getBytesForTuple(byte[] tuple)
   {
-    contextId = context.getId();
-    super.setup(context);
+    for(int counter = 0;
+        counter < tuple.length;
+        counter++) {
+      tuple[counter] += 1;
+    }
+
+    return tuple;
   }
 
-  @Override
-  public byte[] getBytesForTuple(byte[] t)
+  public void setOutputFileCount(int outputFileCount)
   {
-    return t;
+    this.outputFileCount = outputFileCount;
   }
 
+  public int getOutputFileCount()
+  {
+    return outputFileCount;
+  }
 }

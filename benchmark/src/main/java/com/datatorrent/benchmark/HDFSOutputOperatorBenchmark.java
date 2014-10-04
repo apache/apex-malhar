@@ -15,10 +15,13 @@
  */
 package com.datatorrent.benchmark;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.counters.BasicCounters;
+import org.apache.commons.lang.mutable.MutableLong;
 
 
 import org.apache.hadoop.conf.Configuration;
@@ -32,93 +35,28 @@ import org.apache.hadoop.conf.Configuration;
  */
 
 @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkingApp")
-public abstract class HDFSOutputOperatorBenchmark
+public class HDFSOutputOperatorBenchmark implements StreamingApplication
 {
-  static abstract class AbstractApplication implements StreamingApplication
+  @Override
+  public void populateDAG(DAG dag, Configuration conf)
   {
-    public static final int QUEUE_CAPACITY = 32 * 1024;
+    String filePath = "HDFSOutputOperatorBenchmarkingApp/"
+            + System.currentTimeMillis();
 
-    @Override
-    public void populateDAG(DAG dag, Configuration conf)
-    {
-      RandomWordInputModule wordGenerator = dag.addOperator("wordGenerator", RandomWordInputModule.class);
-   
-      HdfsByteOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsByteOutputOperator());
-      hdfsOutputOperator.setFilePath("hdfsOperatorBenchmarking" + "/%(contextId)/transactions.out.part%(partIndex)");
-      hdfsOutputOperator.setAppend(false);
-   
-      dag.addStream("Generator2HDFSOutput", wordGenerator.output, hdfsOutputOperator.input).setLocality(getLocality());      
-    }
-    
-    public abstract Locality getLocality();
-    
-  }
-  
-  /**
-   * Let the engine decide how to best place the 2 operators.
-   */
-  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkNoLocality")
-  public static class NoLocality extends AbstractApplication
-  {
-    @Override
-    public Locality getLocality()
-    {
-      return null;
-    }
-  }
+    dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, 1000);
 
-  /**
-   * Place the 2 operators so that they are in the same Rack.
-   */
-  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkRackLocality")
-  public static class RackLocal extends AbstractApplication
-  {
-    @Override
-    public Locality getLocality()
-    {
-      return Locality.RACK_LOCAL;
-    }
-  }
+    RandomWordGenerator wordGenerator = dag.addOperator("wordGenerator", RandomWordGenerator.class);
 
-  /**
-   * Place the 2 operators so that they are in the same node.
-   */
-  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkNodeLocality")
-  public static class NodeLocal extends AbstractApplication
-  {
-    @Override
-    public Locality getLocality()
-    {
-      return Locality.NODE_LOCAL;
-    }
-  }
+    dag.getOperatorMeta("wordGenerator").getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, 10000);
+    dag.getOperatorMeta("wordGenerator").getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 1);
 
-  /**
-   * Place the 2 operators so that they are in the same container.
-   */
-  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkContainerLocality")
-  public static class ContainerLocal extends AbstractApplication
-  {
-    @Override
-    public Locality getLocality()
-    {
-      return Locality.CONTAINER_LOCAL;
-    }
-  }
+    HdfsByteOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsByteOutputOperator());
+    hdfsOutputOperator.setFilePath(filePath);
+    hdfsOutputOperator.setAppend(false);
+    dag.getOperatorMeta("hdfsOutputOperator").getAttributes().put(OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
-  /**
-   * Place the 2 operators so that they are in the same thread.
-   */
-  @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkThreadLocality")
-  public static class ThreadLocal extends AbstractApplication
-  {
-    @Override
-    public Locality getLocality()
-    {
-      return Locality.THREAD_LOCAL;
-    }
+    dag.addStream("Generator2HDFSOutput", wordGenerator.output, hdfsOutputOperator.input);
   }
-
 }
 
 

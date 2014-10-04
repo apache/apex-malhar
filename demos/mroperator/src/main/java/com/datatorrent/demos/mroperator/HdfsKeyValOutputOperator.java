@@ -15,9 +15,7 @@
  */
 package com.datatorrent.demos.mroperator;
 
-import org.apache.hadoop.fs.Path;
-
-import com.datatorrent.lib.io.fs.AbstractHdfsRollingFileOutputOperator;
+import com.datatorrent.lib.io.fs.AbstractHDFSExactlyOnceSingleFileWriter;
 import com.datatorrent.lib.util.KeyHashValPair;
 
 /**
@@ -26,26 +24,21 @@ import com.datatorrent.lib.util.KeyHashValPair;
  * Serializes tuples into a HDFS file.<br/>
  * </p>
  *
+ * @param <K> Key type
+ * @param <V> Value type
  * @since 0.9.4
  */
-public class HdfsKeyValOutputOperator<K,V> extends AbstractHdfsRollingFileOutputOperator<KeyHashValPair<K,V>>
+public class HdfsKeyValOutputOperator<K,V> extends AbstractHDFSExactlyOnceSingleFileWriter<KeyHashValPair<K,V>>
 {
-  
-  private Path path;
-
-  @Override
-  public Path nextFilePath()
-  {
-    if(path == null){
-      path = new Path(getFilePath());
-    }
-    return path;
-  }
-
   @Override
   public byte[] getBytesForTuple(KeyHashValPair<K,V> t)
   {
     return (t.toString()+"\n").getBytes();
   }
 
+  @Override
+  protected KeyHashValPair<K, V> convert(KeyHashValPair<K, V> tuple)
+  {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+  }
 }

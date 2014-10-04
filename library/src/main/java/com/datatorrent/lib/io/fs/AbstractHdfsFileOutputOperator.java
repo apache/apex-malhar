@@ -37,7 +37,10 @@ import javax.validation.constraints.NotNull;
  *
  * @param <INPUT> incoming tuple type
  * @since 1.0.2
+ * @deprecated This base implementation is not fault tolerant.
+ * Please extend AbstractHDFSExactlyOnceWriter for output operators instead.
  */
+@Deprecated
 public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
 {
   protected transient FSDataOutputStream fsOutput;
