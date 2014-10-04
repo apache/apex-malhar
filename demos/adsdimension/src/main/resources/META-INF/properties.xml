@@ -48,9 +48,17 @@
     <value>GenericDimensionsQueryResult</value>
   </property>
 
+  <!-- Ensure that Kafka connect address is set locally - deployment specific configuration -->
+  <property>
+    <name>dt.operator.Query.brokerSet</name>
+    <!-- <value>hostname:port</value> -->
+  </property>
+  <property>
+    <name>dt.operator.QueryResult.prop.configProperties(metadata.broker.list)</name>
+    <!-- <value>hostname:port</value> -->
+  </property>
 
   <!-- DimensionsComputationBenchmark is a limited application for testing of DimensionsComputation Operator -->
-
   <property>
     <name>dt.application.DimensionsComputationBenchmark.attr.CONTAINER_MEMORY_MB</name>
     <value>8192</value>
