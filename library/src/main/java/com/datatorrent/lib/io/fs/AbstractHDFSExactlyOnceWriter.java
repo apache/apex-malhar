@@ -30,8 +30,7 @@ import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import javax.annotation.Nonnull;
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.*;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
@@ -98,11 +97,6 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
   protected long totalBytesWritten = 0;
 
   /**
-   * Total time running in milliseconds.
-   */
-  protected long totalTimeRunning = 0;
-
-  /**
    * The replication level for your output files.
    */
   @Min(0)
@@ -112,13 +106,17 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
    * The maximum number of open files you can have in your streamsCache.
    */
   @Min(1)
-  protected int maxOpenFiles = DEFAULT_MAX_OPEN_FILES;;
+  protected int maxOpenFiles = DEFAULT_MAX_OPEN_FILES;
 
   /**
    * If rollingFile is set to true, the writer will rotate the file if it exceed the maxLength of bytes.
    */
-  @Min(1)
-  protected long maxLength = 1024 * 1024;
+  @AssertTrue(message="Validating maximum length")
+  private boolean validate(){
+    return maxLength == null || maxLength >= 1L;
+  }
+
+  protected Long maxLength = null;
 
   /**
    * True if the files will be of maximum size.
@@ -201,6 +199,8 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
   @Override
   public void setup(Context.OperatorContext context)
   {
+    rollingFile = maxLength >= 1L;
+
     //Getting required file system instance.
     try {
       fs = getFSInstance();
@@ -308,7 +308,7 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
                   fsOutput.write(buffer, 0, bytesToWrite);
                 }
 
-                flush(tmpFileName, fsOutput);
+                flush(fsOutput);
                 FileContext fileContext = FileContext.getFileContext(fs.getUri());
                 String tempTmpFilePath = getPartFileNamePri(filePath + File.separator + tmpFileName);
 
@@ -442,7 +442,6 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
   /**
    * This method rolls over to the next files.
    * @param fileName The file that you are rolling.
-   * @param fsOut The output stream which outputs to the current rolling file.
    * @throws IllegalArgumentException
    * @throws IOException
    * @throws ExecutionException
@@ -463,23 +462,16 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
    * This method is used to force buffers to be flushed at the end of the window.
    * flush must be used on a local file system, so an if statement checks to
    * make sure that hflush is used on local file systems.
-   * @param fileName
    * @param fsOutput
    * @throws IOException
    */
-  protected void flush(String fileName, FSDataOutputStream fsOutput) throws IOException
+  protected void flush(FSDataOutputStream fsOutput) throws IOException
   {
-    boolean isProbablyLocal;
-    try {
-      isProbablyLocal = fs.getScheme().equals("file");
-    }
-    catch(UnsupportedOperationException e) {
-      isProbablyLocal = true;
-    }
-
-    if (isProbablyLocal) {
+    if(fs instanceof LocalFileSystem ||
+       fs instanceof RawLocalFileSystem) {
       fsOutput.flush();
-    } else {
+    }
+    else {
       fsOutput.hflush();
     }
   }
@@ -603,7 +595,8 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
   }
 
   /**
-   * Sets the maximum length of a an output file in bytes, when in rolling mode.
+   * Sets the maximum length of a an output file in bytes. By default this is null,
+   * if this is not null then the output operator is in rolling mode.
    * @param maxLength The maximum length of an output file in bytes, when in rolling mode.
    */
   public void setMaxLength(long maxLength)
@@ -612,7 +605,8 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
   }
 
   /**
-   * Sets the maximum length of a an output file in bytes, when in rolling mode.
+   * Sets the maximum length of a an output file in bytes, when in rolling mode. By default
+   * this is null, if this is not null then the operator is in rolling mode.
    * @return The maximum length of an output file in bytes, when in rolling mode.
    */
   public long getMaxLength()
@@ -636,29 +630,6 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
   public int getMaxOpenFiles()
   {
     return this.maxOpenFiles;
-  }
-
-  /**
-   * This method return the rolling mode of the operator.
-   * @return True if the operator is in rolling mode or false otherwise.
-   */
-  public boolean isRollingFile()
-  {
-    return rollingFile;
-  }
-
-  /**
-   * Sets the rolling mode for the operator.
-   * When in rolling mode, the operator with continue writing to the files
-   * determined whose names are the file names returned by the getFilePath
-   * method with a '.#' appended to the end. Where the # represents a number.
-   * When the maximum length of a file is exceeded, the operator begines writing
-   * to a file whose name ends in '# + 1'.
-   * @param rollingFile If true then the operator is set to rolling mode.
-   */
-  public void setRollingFile(boolean rollingFile)
-  {
-    this.rollingFile = rollingFile;
   }
 
   public static enum Counters

@@ -37,7 +37,7 @@ public class HdfsStringOutputOperator extends AbstractHDFSExactlyOnceWriter<Stri
 
   public HdfsStringOutputOperator()
   {
-    setRollingFile(true);
+    setMaxLength(1024 * 1024);
   }
 
   @Override

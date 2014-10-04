@@ -582,7 +582,6 @@ public class AbstractHDFSExactlyOnceWriterTest
   {
     writer.setFilePath(testMeta.dir);
     writer.setMaxLength(4);
-    writer.setRollingFile(true);
 
     writer.setup(new DummyContext(0));
 
@@ -608,7 +607,6 @@ public class AbstractHDFSExactlyOnceWriterTest
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(true);
     writer.setMaxLength(4);
-    writer.setRollingFile(true);
 
     writer.setFilePath(testMeta.dir);
 
@@ -687,7 +685,6 @@ public class AbstractHDFSExactlyOnceWriterTest
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(false);
     writer.setMaxLength(4);
-    writer.setRollingFile(true);
 
     writer.setFilePath(testMeta.dir);
 
@@ -763,7 +760,6 @@ public class AbstractHDFSExactlyOnceWriterTest
     writer.setAppend(true);
     writer.setFilePath(testMeta.dir);
     writer.setMaxLength(4);
-    writer.setRollingFile(true);
 
     writer.setup(new DummyContext(0));
 
@@ -845,7 +841,6 @@ public class AbstractHDFSExactlyOnceWriterTest
     prepareTest();
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setMaxLength(4);
-    writer.setRollingFile(true);
     writer.setAppend(true);
 
     testMultiRollingFileCompletedWriteHelper(writer);
@@ -857,7 +852,6 @@ public class AbstractHDFSExactlyOnceWriterTest
     prepareTest();
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setMaxLength(4);
-    writer.setRollingFile(true);
     writer.setAppend(false);
 
     testMultiRollingFileCompletedWriteHelper(writer);
@@ -938,7 +932,6 @@ public class AbstractHDFSExactlyOnceWriterTest
     File meta = new File(testMeta.dir);
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
-    writer.setRollingFile(true);
 
     writer.setup(new DummyContext(0));
 
@@ -1027,7 +1020,6 @@ public class AbstractHDFSExactlyOnceWriterTest
     File meta = new File(testMeta.dir);
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
-    writer.setRollingFile(true);
 
     writer.setup(new DummyContext(0));
 
