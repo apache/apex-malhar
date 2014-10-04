@@ -20,7 +20,6 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.annotation.Nonnull;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.mutable.MutableLong;
@@ -62,7 +61,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * <li>The deduper then processes the waiting events in {@link #handleIdleTime()}</li>
  * </ol>
  * <li>
- * If the bucket is loaded, the operator drop the event if it is already present in the bucket; drops it otherwise.
+ * If the bucket is loaded, the operator drops the event if it is already present in the bucket; emits it otherwise.
  * </li>
  * </ol>
  * </p>
@@ -351,7 +350,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
    *
    * @param bucketManager {@link BucketManager} to be used by deduper.
    */
-  public void setBucketManager(@Nonnull BucketManager<INPUT> bucketManager)
+  public void setBucketManager(@NotNull BucketManager<INPUT> bucketManager)
   {
     this.bucketManager = Preconditions.checkNotNull(bucketManager, "storage manager");
   }
