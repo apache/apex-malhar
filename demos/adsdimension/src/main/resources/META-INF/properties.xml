@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+
+  <!-- GenericDimensionsApplication Demo Settings -->
+
+  <property>
+    <name>dt.application.GenericDimensionsApplication.attr.CONTAINER_MEMORY_MB</name>
+    <value>8192</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.attr.containerJvmOpts</name>
+    <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.port.*.attr.QUEUE_CAPACITY</name>
+    <value>32000</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.attr.INITIAL_PARTITION_COUNT</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.maxTuplesPerWindow</name>
+    <value>40000</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT</name>
+    <value>4</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.attr.INITIAL_PARTITION_COUNT</name>
+    <value>4</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.fileStore.basePath</name>
+    <value>GenericDimensionsApplication</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.prop.maxCacheSize</name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.Query.topic</name>
+    <value>GenericDimensionsQuery</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.QueryResult.topic</name>
+    <value>GenericDimensionsQueryResult</value>
+  </property>
+
+
+  <!-- DimensionsComputationBenchmark is a limited application for testing of DimensionsComputation Operator -->
+
+  <property>
+    <name>dt.application.DimensionsComputationBenchmark.attr.CONTAINER_MEMORY_MB</name>
+    <value>8192</value>
+  </property>
+  <property>
+    <name>dt.application.DimensionsComputationBenchmark.attr.containerJvmOpts</name>
+    <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
+  </property>
+
+
+</configuration>

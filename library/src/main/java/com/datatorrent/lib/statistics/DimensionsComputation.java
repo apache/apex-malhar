@@ -63,16 +63,20 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
     }
   };
 
+  public void processInputTuple(EVENT tuple)
+  {
+    for (int i = 0; i < aggregatorMaps.length; i++) {
+      aggregatorMaps[i].add(tuple, i);
+    }
+  }
+
   public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
   {
     @Override
     public void process(EVENT tuple)
     {
-      for (int i = 0; i < aggregatorMaps.length; i++) {
-        aggregatorMaps[i].add(tuple, i);
-      }
+      processInputTuple(tuple);
     }
-
   };
 
   public static interface AggregateEvent
