@@ -91,7 +91,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       Bucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
 
       if (bucket != null && bucket.containsEvent(tuple)) {
-        numDuplicateEvents.increment();
+        counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
         return;
       } //ignore event
 
@@ -136,7 +136,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
   protected BasicCounters<MutableLong> counters;
-  protected transient MutableLong numDuplicateEvents;
   private transient long currentWindow;
 
   public Deduper()
@@ -146,7 +145,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     partitionMask = 0;
 
     fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
-    numDuplicateEvents = new MutableLong();
     counters = new BasicCounters<MutableLong>(MutableLong.class);
   }
 
@@ -158,7 +156,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
 
     bucketManager.setBucketCounters(counters);
-    counters.setCounter(CounterKeys.DUPLICATE_EVENTS, numDuplicateEvents);
+    counters.setCounter(CounterKeys.DUPLICATE_EVENTS, new MutableLong());
 
     bucketManager.startService(this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
@@ -221,7 +219,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
               output.emit(convert(event));
             }
             else {
-              numDuplicateEvents.increment();
+              counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
             }
           }
         }

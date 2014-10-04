@@ -118,21 +118,21 @@ public class PhoneMovementGenerator extends BaseOperator
       String command = tuple.get(KEY_COMMAND);
       if (command != null) {
         if (command.equals(COMMAND_ADD)) {
-          addCommandCounter.increment();
+          commandCounters.getCounter(CommandCounters.ADD).increment();
           String phoneStr= tuple.get(KEY_PHONE);
           registerPhone(phoneStr);
         }
         else if (command.equals(COMMAND_ADD_RANGE)) {
-          addRangeCommandCounter.increment();
+          commandCounters.getCounter(CommandCounters.ADD_RANGE).increment();
           registerPhoneRange(tuple.get(KEY_START_PHONE), tuple.get(KEY_END_PHONE));
         }
         else if (command.equals(COMMAND_DELETE)) {
-          deleteCommandCounter.increment();
+          commandCounters.getCounter(CommandCounters.DELETE).increment();
           String phoneStr= tuple.get(KEY_PHONE);
           deregisterPhone(phoneStr);
         }
         else if (command.equals(COMMAND_CLEAR)) {
-          clearCommandCounter.increment();
+          commandCounters.getCounter(CommandCounters.CLEAR).increment();
           clearPhones();
         }
       }
@@ -161,21 +161,12 @@ public class PhoneMovementGenerator extends BaseOperator
 
   protected BasicCounters<MutableLong> commandCounters;
 
-  private transient MutableLong addCommandCounter;
-  private transient MutableLong addRangeCommandCounter;
-  private transient MutableLong deleteCommandCounter;
-  private transient MutableLong clearCommandCounter;
-
   private transient OperatorContext context;
   private final transient HashMap<Integer, HighLow<Integer>> newgps = new HashMap<Integer, HighLow<Integer>>();
 
   public PhoneMovementGenerator()
   {
     this.commandCounters = new BasicCounters<MutableLong>(MutableLong.class);
-    addCommandCounter = new MutableLong();
-    addRangeCommandCounter = new MutableLong();
-    deleteCommandCounter = new MutableLong();
-    clearCommandCounter = new MutableLong();
   }
 
   /**
@@ -291,10 +282,10 @@ public class PhoneMovementGenerator extends BaseOperator
   public void setup(OperatorContext context)
   {
     this.context = context;
-    commandCounters.setCounter(CommandCounters.ADD, addCommandCounter);
-    commandCounters.setCounter(CommandCounters.ADD_RANGE, addRangeCommandCounter);
-    commandCounters.setCounter(CommandCounters.DELETE, deleteCommandCounter);
-    commandCounters.setCounter(CommandCounters.CLEAR, clearCommandCounter);
+    commandCounters.setCounter(CommandCounters.ADD, new MutableLong());
+    commandCounters.setCounter(CommandCounters.ADD_RANGE, new MutableLong());
+    commandCounters.setCounter(CommandCounters.DELETE, new MutableLong());
+    commandCounters.setCounter(CommandCounters.CLEAR, new MutableLong());
   }
 
   /**
