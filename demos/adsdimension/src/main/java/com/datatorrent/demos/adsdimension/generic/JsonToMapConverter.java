@@ -33,7 +33,9 @@ import java.util.Map;
 
 
 /**
- * Converts incoming JSON tuple to Map<String,Object> representation.  Data types are converted as follows:
+ * Converts incoming JSON tuple to Map<String,Object> representation.
+ * <p>
+ * Data types are converted as follows:
  *
  *   object => LinkedHashMap<String,Object>
  *   array => ArrayList<Object>
@@ -43,7 +45,9 @@ import java.util.Map;
  *   true|false => Boolean
  *   null => null
  *
- *
+ * @displayName JSON to Map Converter
+ * @category Parsing
+ * @tags parsing, json, demo
  */
 @Stateless
 public class JsonToMapConverter extends BaseOperator {

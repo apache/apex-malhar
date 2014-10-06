@@ -60,15 +60,15 @@ public class GenericAppTest
     kafkaLauncher.stopZookeeper();
   }
 
-
   @Test
   public void testApplication() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
     Configuration conf = new Configuration(false);
+    conf.addResource("META-INF/properties.xml");
     conf.set("dt.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT", "1");
     conf.set("dt.operator.QueryResult.prop.configProperties(metadata.broker.list)", "localhost:9092");
-    conf.set("dt.operator.Store.fileStore.basePath", "target/HDSApplicationTestStore");
+    conf.set("dt.operator.DimensionsStore.fileStore.basePath", "target/HDSApplicationTestStore");
     conf.set("dt.operator.Query.brokerSet", "localhost:9092");
     conf.set("dt.operator.Query.topic", kafkaQueryTopic);
     conf.set("dt.operator.QueryResult.topic", kafkaQueryResultTopic);
