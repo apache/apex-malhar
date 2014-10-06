@@ -24,10 +24,9 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  *
- *Application to benchmark the performance of couchbase output operator.
- *The number of tuples processed per second were around 18,000.
+ * Application to benchmark the performance of couchbase output operator.
+ * The number of tuples processed per second were around 20,000.
  *
- * @since 1.0.3
  */
 @ApplicationAnnotation(name = "CouchBaseAppOutput")
 public class CouchBaseAppOutput implements StreamingApplication
@@ -45,7 +44,7 @@ public class CouchBaseAppOutput implements StreamingApplication
     rand.setMaxvalue(maxValue);
     rand.setTuplesBlast(200);
     CouchBaseOutputOperator couchbaseOutput = dag.addOperator("couchbaseOutput", new CouchBaseOutputOperator());
-        //couchbaseOutput.getStore().setBucket("default");
+    //couchbaseOutput.getStore().setBucket("default");
     //couchbaseOutput.getStore().setPassword("");
     dag.addStream("ss", rand.integer_data, couchbaseOutput.input).setLocality(locality);
   }

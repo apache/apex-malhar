@@ -23,10 +23,9 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
  *
- *Application to benchmark the performance of couchbase input operator.
- *The number of tuples processed per second were around 18,000.
+ * Application to benchmark the performance of couchbase input operator.
+ * The number of tuples processed per second were around 9000.
  *
- * @since 1.0.3
  */
 @ApplicationAnnotation(name = "CouchBaseAppInput")
 public class CouchBaseAppInput implements StreamingApplication
@@ -38,7 +37,7 @@ public class CouchBaseAppInput implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     CouchBaseInputOperator couchbaseInput = dag.addOperator("couchbaseInput", CouchBaseInputOperator.class);
-        //couchbaseInput.getStore().setBucket("default");
+    //couchbaseInput.getStore().setBucket("default");
     //couchbaseInput.getStore().setPassword("");
     WordCountOperator<String> counter = dag.addOperator("Counter", new WordCountOperator<String>());
     dag.addStream("Generator2Counter", couchbaseInput.outputPort, counter.input).setLocality(locality);
