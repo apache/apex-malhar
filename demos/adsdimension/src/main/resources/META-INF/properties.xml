@@ -49,14 +49,14 @@
   </property>
 
   <!-- Ensure that Kafka connect address is set locally - deployment specific configuration -->
-  <property>
-    <name>dt.operator.Query.brokerSet</name>
-    <!-- <value>hostname:port</value> -->
-  </property>
-  <property>
-    <name>dt.operator.QueryResult.prop.configProperties(metadata.broker.list)</name>
-    <!-- <value>hostname:port</value> -->
-  </property>
+  <!--<property>-->
+    <!--<name>dt.operator.Query.brokerSet</name>-->
+    <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
+  <!--</property>-->
+  <!--<property>-->
+    <!--<name>dt.operator.QueryResult.prop.configProperties(metadata.broker.list)</name>-->
+    <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
+  <!--</property>-->
 
   <!-- DimensionsComputationBenchmark is a limited application for testing of DimensionsComputation Operator -->
   <property>
