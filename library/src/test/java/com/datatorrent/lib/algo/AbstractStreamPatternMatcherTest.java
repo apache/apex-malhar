@@ -21,9 +21,6 @@ package com.datatorrent.lib.algo;
  *
  */
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Random;
 
 import junit.framework.Assert;
@@ -41,9 +38,9 @@ public class AbstractStreamPatternMatcherTest
   public static class StreamPatternMatcher<T> extends AbstractStreamPatternMatcher<T>
   {
     @Override
-    public void processPatternFound(final T[] output)
+    public void processPatternFound()
     {
-      outputPort.emit(output);
+      outputPort.emit(getPattern().getStates());
     }
 
     public transient DefaultOutputPort<T[]> outputPort = new DefaultOutputPort<T[]>();
@@ -57,7 +54,6 @@ public class AbstractStreamPatternMatcherTest
   @Before
   public void setup()
   {
-    pattern = new AbstractStreamPatternMatcher.Pattern<Integer>();
     streamPatternMatcher = new StreamPatternMatcher<Integer>();
     sink = new CollectorTestSink<Object>();
     streamPatternMatcher.outputPort.setSink(sink);
@@ -74,7 +70,7 @@ public class AbstractStreamPatternMatcherTest
   public void test() throws Exception
   {
     inputPattern = new Integer[]{0, 1, 0, 1, 2};
-    pattern.setStates(inputPattern);
+    pattern = new AbstractStreamPatternMatcher.Pattern<Integer>(inputPattern);
     streamPatternMatcher.setPattern(pattern);
     streamPatternMatcher.setup(null);
     streamPatternMatcher.beginWindow(0);
@@ -96,7 +92,7 @@ public class AbstractStreamPatternMatcherTest
   public void testSimplePattern() throws Exception
   {
     inputPattern = new Integer[]{0, 0};
-    pattern.setStates(inputPattern);
+    pattern = new AbstractStreamPatternMatcher.Pattern<Integer>(inputPattern);
     streamPatternMatcher.setPattern(pattern);
     streamPatternMatcher.setup(null);
     streamPatternMatcher.beginWindow(0);
@@ -125,7 +121,7 @@ public class AbstractStreamPatternMatcherTest
     for (int i = 0; i < patternSize; i++) {
       inputPattern[i] = (min + random.nextInt(max));
     }
-    pattern.setStates(inputPattern);
+    pattern = new AbstractStreamPatternMatcher.Pattern<Integer>(inputPattern);
     streamPatternMatcher.setPattern(pattern);
     streamPatternMatcher.setup(null);
     streamPatternMatcher.beginWindow(0);
