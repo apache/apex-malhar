@@ -40,6 +40,10 @@
     <value>5</value>
   </property>
   <property>
+    <name>dt.application.GenericDimensionsApplication.operator.QueryResult.prop.configProperties(serializer.class)</name>
+    <value>com.datatorrent.demos.adsdimension.KafkaJsonEncoder</value>
+  </property>
+  <property>
     <name>dt.application.GenericDimensionsApplication.operator.Query.topic</name>
     <value>GenericDimensionsQuery</value>
   </property>

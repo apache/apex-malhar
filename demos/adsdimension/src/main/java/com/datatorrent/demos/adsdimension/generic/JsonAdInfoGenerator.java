@@ -23,10 +23,13 @@ import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * Generates AdInfo events and sends them out in JSON format.
- *
+ * <p>
  * By default 10000 events are generated in every window.  See {@link com.datatorrent.demos.adsdimension.InputItemGenerator}
  * for additional details on tunable settings settings like blastCount, numPublishers, numAdvertisers, numAdUnits, etc.
  *
+ * @displayName JSON AdInfo Generator
+ * @category Input Generators
+ * @tags input, generator
  */
 public class JsonAdInfoGenerator extends InputItemGenerator
 {

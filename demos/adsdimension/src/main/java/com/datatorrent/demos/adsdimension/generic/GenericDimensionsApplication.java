@@ -29,69 +29,69 @@ import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 /**
  * DimensionsDemo run with HDS
  *
- * Example of configuration
+ * Following settings are provided with properties.xml set by default, but can be modified in local dt-site.xml
  <pre>
  {@code
- <property>
- <name>dt.application.GenericDimensionsDemo.class</name>
- <value>com.datatorrent.demos.adsdimension.GenericApplication</value>
- </property>
 
  <property>
- <name>dt.application.GenericDimensionsDemo.attr.containerMemoryMB</name>
+ <name>dt.application.GenericDimensionsApplication.attr.CONTAINER_MEMORY_MB</name>
  <value>8192</value>
  </property>
-
  <property>
- <name>dt.application.GenericDimensionsDemo.attr.containerJvmOpts</name>
+ <name>dt.application.GenericDimensionsApplication.attr.containerJvmOpts</name>
  <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
  </property>
-
  <property>
- <name>dt.application.GenericDimensionsDemo.port.*.attr.QUEUE_CAPACITY</name>
+ <name>dt.application.GenericDimensionsApplication.port.*.attr.QUEUE_CAPACITY</name>
  <value>32000</value>
  </property>
-
  <property>
- <name>dt.operator.InputGenerator.attr.INITIAL_PARTITION_COUNT</name>
+ <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.attr.INITIAL_PARTITION_COUNT</name>
+ <value>2</value>
+ </property>
+ <property>
+ <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.maxTuplesPerWindow</name>
+ <value>40000</value>
+ </property>
+ <property>
+ <name>dt.application.GenericDimensionsApplication.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT</name>
  <value>4</value>
  </property>
-
  <property>
- <name>dt.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT</name>
+ <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.attr.INITIAL_PARTITION_COUNT</name>
  <value>4</value>
  </property>
-
  <property>
- <name>dt.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
- <value>true</value>
+ <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.fileStore.basePath</name>
+ <value>GenericDimensionsApplication</value>
  </property>
-
  <property>
- <name>dt.operator.DimensionsStore.attr.INITIAL_PARTITION_COUNT</name>
- <value>4</value>
+ <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.prop.maxCacheSize</name>
+ <value>5</value>
  </property>
-
  <property>
- <name>dt.operator.DimensionsStore.fileStore.basePath</name>
- <value>GenericDimensionsStore</value>
+ <name>dt.application.GenericDimensionsApplication.operator.Query.topic</name>
+ <value>GenericDimensionsQuery</value>
  </property>
-
  <property>
- <name>dt.operator.Query.topic</name>
- <value>HDSQuery</value>
+ <name>dt.application.GenericDimensionsApplication.operator.QueryResult.topic</name>
+ <value>GenericDimensionsQueryResult</value>
  </property>
-
- <property>
- <name>dt.operator.QueryResult.topic</name>
- <value>HDSQueryResult</value>
- </property>
+ }
+ </pre>
+ *
+ *
+ *
+ * Following settings should be provided by user and modified to reflect local Kafka settings
+ *
+ *
+ <pre>
+ {@code
 
  <property>
  <name>dt.operator.Query.brokerSet</name>
  <value>localhost:9092</value>
  </property>
-
  <property>
  <name>dt.operator.QueryResult.prop.configProperties(metadata.broker.list)</name>
  <value>localhost:9092</value>
@@ -110,19 +110,13 @@ public class GenericDimensionsApplication implements StreamingApplication
   {
     JsonAdInfoGenerator input = dag.addOperator("InputGenerator", JsonAdInfoGenerator.class);
     JsonToMapConverter converter = dag.addOperator("Converter", JsonToMapConverter.class);
-
     GenericDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new GenericDimensionComputation());
 
     DimensionStoreOperator store = dag.addOperator("DimensionsStore", DimensionStoreOperator.class);
-    TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
-    store.setFileStore(hdsFile);
 
     KafkaSinglePortStringInputOperator queries = dag.addOperator("Query", new KafkaSinglePortStringInputOperator());
-    queries.setConsumer(new SimpleKafkaConsumer());
 
     KafkaSinglePortOutputOperator<Object, Object> queryResult = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
-    queryResult.getConfigProperties().put("serializer.class", com.datatorrent.demos.adsdimension.KafkaJsonEncoder.class.getName());
-
 
     dag.setInputPortAttribute(converter.input, Context.PortContext.PARTITION_PARALLEL, true);
     dag.setInputPortAttribute(dimensions.data, Context.PortContext.PARTITION_PARALLEL, true);

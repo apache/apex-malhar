@@ -21,13 +21,12 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter;
 import com.datatorrent.contrib.hds.HDS;
+import com.datatorrent.contrib.hds.tfile.TFileImpl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.codehaus.jackson.map.ObjectMapper;
-import org.codehaus.jackson.map.ObjectReader;
-import org.codehaus.jackson.type.TypeReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +34,32 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Dimensional Data Store
+ * <p>
+ * Operator receives dimensional aggregate data, and stores it to HDFS in by translating tuple data
+ * into key/value structure with specified event schema.
+ *
+ * Schema can be specified as a JSON string with following keys.
+ *
+ *   fields: Map of all the field names and their types.  Supported types: java.lang.(Integer, Long, Float, Double, String)
+ *   dimension: Array of dimensions with fields separated by colon, and time prefixed with time=.  Supported time units: MINUTES, HOURS, DAYS
+ *   aggregates: Fields to aggregate for specified dimensions.  Aggregates types can include: sum, avg, min, max
+ *   timestamp: Name of the timestamp field.  Data type should be Long with value in milliseconds since Jan 1, 1970 GMT.
+ *
+ * Example JSON schema for Ads demo:
+ *
+ *   {
+ *     "fields": {"publisherId":"java.lang.Integer", "advertiserId":"java.lang.Integer", "adUnit":"java.lang.Integer", "clicks":"java.lang.Long", "price":"java.lang.Long", "cost":"java.lang.Double", "revenue":"java.lang.Double", "timestamp":"java.lang.Long"},
+ *     "dimensions": ["time=MINUTES", "time=MINUTES:adUnit", "time=MINUTES:advertiserId", "time=MINUTES:publisherId", "time=MINUTES:advertiserId:adUnit", "time=MINUTES:publisherId:adUnit", "time=MINUTES:publisherId:advertiserId", "time=MINUTES:publisherId:advertiserId:adUnit"],
+ *     "aggregates": { "clicks": "sum", "price": "sum", "cost": "sum", "revenue": "sum"},
+ *     "timestamp": "timestamp"
+ *   }
+ *
+ * @displayName Dimensional Store
+ * @category Store
+ * @tags storage, hdfs, dimensions
+ */
 public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericAggregate>
 {
   protected final SortedMap<Long, Map<GenericAggregate, GenericAggregate>> cache = Maps.newTreeMap();
@@ -78,6 +103,12 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
   {
     this.eventSchemaJSON = eventSchemaJSON;
     setAggregator(new GenericAggregator(getEventSchema()));
+  }
+
+  // Initialize to use TFileImpl by default - to support simple App Builder drag-and-drop.
+  {
+    TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
+    setFileStore(hdsFile);
   }
 
   public EventSchema getEventSchema() {
