@@ -19,8 +19,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -144,8 +144,9 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   
   /**
    * Track offset for each partition, so operator could start from the last serialized state
+   * Use ConcurrentHashMap to avoid ConcurrentModificationException without blocking reads when updating in another thread(hashtable or synchronizedmap)
    */
-  private Map<Integer, Long> offsetTrack = new HashMap<Integer, Long>();
+  private ConcurrentHashMap<Integer, Long> offsetTrack = new ConcurrentHashMap<Integer, Long>();
 
   @Override
   public void create()
@@ -198,16 +199,17 @@ public class SimpleKafkaConsumer extends KafkaConsumer
               if(isAlive && (metadataRetrievalRetry==-1 || retryCounter < metadataRetrievalRetry)){
                 logger.debug(Thread.currentThread().getName() + ": Update metadata for topic " + topic);
                 List<PartitionMetadata> pms =  KafkaMetadataUtil.getPartitionsForTopic(brokerSet, topic);
-                brokerSet.clear();
+                Set<String> newBrokerSet = new HashSet<String>();
                 PartitionMetadata leaderForPartition = null;
                 for (PartitionMetadata pm : pms) {
                   for (Broker b : pm.replicas()) {
-                    brokerSet.add(b.host() + ":" + b.port());
+                    newBrokerSet.add(b.host() + ":" + b.port());
                   }
                   if(pm.partitionId()==pid){
                     leaderForPartition = pm;
                   }
                 }
+                brokerSet = newBrokerSet;
                 if(leaderForPartition == null){
                   retryCounter++;
                   return;
@@ -288,6 +290,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   @Override
   protected void _stop()
   {
+    isAlive = false;
     for(int pid : simpleConsumerThreads.keySet()){
       simpleConsumerThreads.get(pid).close();
     }
@@ -380,12 +383,26 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   }
   
   private void resetOffset(Map<Integer, Long> overrideOffset){
+    
     if(overrideOffset == null){
       return;
     }
-    for (Entry<Integer, Long> offset : offsetTrack.entrySet()) {
-      offset.setValue(overrideOffset.get(offset.getKey()));
+    offsetTrack.clear();
+    // set offset of the partitions assigned to this consumer
+    for (Integer pid: partitionIds) {
+      Long offsetForPar = overrideOffset.get(pid);
+      if (offsetForPar != null) {
+        offsetTrack.put(pid, offsetForPar);
+      }
     }
+  }
+  
+  @Override
+  public KafkaMeterStats getConsumerStats()
+  {
+    KafkaMeterStats stat = super.getConsumerStats();
+    stat.putOffsets(offsetTrack);
+    return stat;
   }
 
 

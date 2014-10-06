@@ -65,13 +65,16 @@ public class JdbcOperatorTest
     }
   }
 
-  private static void cleanTable()
+  public static void cleanTable()
   {
     try {
       Connection con = DriverManager.getConnection(URL);
       Statement stmt = con.createStatement();
 
       String cleanTable = "delete from " + TABLE_NAME;
+      stmt.executeUpdate(cleanTable);
+
+      cleanTable = "delete from " + JdbcTransactionalStore.DEFAULT_META_TABLE;
       stmt.executeUpdate(cleanTable);
     }
     catch (SQLException e) {

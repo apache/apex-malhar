@@ -66,7 +66,7 @@ public class UniqueValueCount<K> extends BaseOperator {
             }
             values.add(pair.getValue());
         }
-    } ;
+    };
 
   /**
    * The output port which emits key/unique value count pairs.

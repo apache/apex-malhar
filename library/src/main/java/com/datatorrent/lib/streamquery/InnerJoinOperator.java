@@ -49,48 +49,50 @@ import com.datatorrent.lib.streamquery.index.Index;
  * @displayName Inner join
  * @category Streamquery
  * @tags sql, inner join operator
+ *
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)
-public class InnerJoinOperator  implements Operator
+public class InnerJoinOperator implements Operator
 {
-	/**
-	 * Join Condition; 
-	 */
-	protected Condition joinCondition;
-	
-	/**
-	 * Table1 select columns.
-	 */
-	private ArrayList<Index> table1Columns = new ArrayList<Index>();
-	
-	/**
-	 * Table2 select columns.
-	 */
-	private ArrayList<Index> table2Columns = new ArrayList<Index>();
-	
+
+  /**
+   * Join Condition;
+   */
+  protected Condition joinCondition;
+
+  /**
+   * Table1 select columns.
+   */
+  private ArrayList<Index> table1Columns = new ArrayList<Index>();
+
+  /**
+   * Table2 select columns.
+   */
+  private ArrayList<Index> table2Columns = new ArrayList<Index>();
+
   /**
    * Collect data rows from input port 1.
    */
-	protected ArrayList<Map<String, Object>> table1;
-	
-	
-	/**
-	 * Collect data from input port 2. 
-	 */
-	protected ArrayList<Map<String, Object>> table2;
-	
+  protected ArrayList<Map<String, Object>> table1;
+
+  /**
+   * Collect data from input port 2.
+   */
+  protected ArrayList<Map<String, Object>> table2;
+
   /**
    * Input port 1 that takes a map of &lt;string,object&gt;.
    */
-	public final transient DefaultInputPort<Map<String, Object>> inport1 = new DefaultInputPort<Map<String, Object>>() {
-		@Override
-		public void process(Map<String, Object> tuple)
-		{
+  public final transient DefaultInputPort<Map<String, Object>> inport1 = new DefaultInputPort<Map<String, Object>>()
+  {
+    @Override
+    public void process(Map<String, Object> tuple)
+    {
       table1.add(tuple);
       for (int j = 0; j < table2.size(); j++) {
         if ((joinCondition == null)
-            || (joinCondition.isValidJoin(tuple, table2.get(j)))) {
+                || (joinCondition.isValidJoin(tuple, table2.get(j)))) {
           joinRows(tuple, table2.get(j));
         }
       }
@@ -107,7 +109,7 @@ public class InnerJoinOperator  implements Operator
 	    table2.add(tuple);
       for (int j = 0; j < table1.size(); j++) {
         if ((joinCondition == null)
-            || (joinCondition.isValidJoin(table1.get(j), tuple))) {
+                || (joinCondition.isValidJoin(table1.get(j), tuple))) {
           joinRows(table1.get(j), tuple);
         }
       }
@@ -122,79 +124,84 @@ public class InnerJoinOperator  implements Operator
 	
 	@Override
   public void setup(OperatorContext arg0)
-  { 
+  {
+    table1 = new ArrayList<Map<String, Object>>();
+    table2 = new ArrayList<Map<String, Object>>();
   }
 
-	@Override
+  @Override
   public void teardown()
-  { 
-  }
-
-	@Override
-  public void beginWindow(long arg0)
-  { 
-		table1 = new ArrayList<Map<String, Object>>();
-		table2 = new ArrayList<Map<String, Object>>();
-  }
-
-	@Override
-  public void endWindow()
   {
   }
 
-	/**
+  @Override
+  public void beginWindow(long arg0)
+  {
+  }
+
+  @Override
+  public void endWindow()
+  {
+    table1.clear();
+    table2.clear();
+  }
+
+  /**
    * @return the joinCondition
    */
   public Condition getJoinCondition()
   {
-	  return joinCondition;
+    return joinCondition;
   }
 
-	/**
+  /**
    * @param set joinCondition
    */
   public void setJoinCondition(Condition joinCondition)
   {
-	  this.joinCondition = joinCondition;
+    this.joinCondition = joinCondition;
   }
-  
+
   /**
-   *  Select table1 column name.
+   * Select table1 column name.
    */
-  public void selectTable1Column(Index column) {
-  	table1Columns.add(column);
+  public void selectTable1Column(Index column)
+  {
+    table1Columns.add(column);
   }
-  
+
   /**
    * Select table2 column name.
    */
-  public void selectTable2Column(Index column) {
+  public void selectTable2Column(Index column)
+  {
     table2Columns.add(column);
   }
-  
+
   /**
    * Join row from table1 and table2.
    */
   protected void joinRows(Map<String, Object> row1, Map<String, Object> row2)
   {
-    // joined row 
+    // joined row
     Map<String, Object> join = new HashMap<String, Object>();
-    
-    // filter table1 columns  
+
+    // filter table1 columns
     if (row1 != null) {
-      for (Index index : table1Columns) {
+      for (Index index: table1Columns) {
         index.filter(row1, join);
       }
     }
-    
-    // filter table1 columns  
+
+    // filter table1 columns
     if (row2 != null) {
-      for (Index index : table2Columns) {
+      for (Index index: table2Columns) {
         index.filter(row2, join);
       }
     }
-    
-    // emit row  
+
+    // emit row
     outport.emit(join);
   }
+
 }

@@ -29,6 +29,7 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import javax.validation.constraints.NotNull;
 
 /**
  * This is the base implementation of an HDFS output operator, which writes tuples to an HDFS file.&nbsp;
@@ -48,6 +49,7 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
   protected transient FSDataOutputStream fsOutput;
   protected transient BufferedOutputStream bufferedOutput;
   protected transient FileSystem fs;
+  @NotNull
   protected String filePath;
   protected long totalBytesWritten = 0;
   protected boolean append = true;
@@ -158,7 +160,7 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
    * @param filePath
    * The pattern of the output file
    */
-  public void setFilePath(String filePath)
+  public void setFilePath(@NotNull String filePath)
   {
     this.filePath = filePath;
   }

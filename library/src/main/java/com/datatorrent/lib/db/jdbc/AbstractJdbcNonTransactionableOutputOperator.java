@@ -39,7 +39,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  */
 public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends JdbcStore> extends AbstractStoreOutputOperator<T, S>
 {
-  private transient PreparedStatement updateCommand;
+  protected transient PreparedStatement updateCommand;
 
   @Override
   public void setup(Context.OperatorContext context)

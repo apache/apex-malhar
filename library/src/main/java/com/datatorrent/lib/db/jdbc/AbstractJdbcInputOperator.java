@@ -40,6 +40,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * @category Database
  * @tags input operator
  *
+ * @param <T> The tuple type
  * @since 0.9.4
  */
 public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOperator<T, JdbcStore>

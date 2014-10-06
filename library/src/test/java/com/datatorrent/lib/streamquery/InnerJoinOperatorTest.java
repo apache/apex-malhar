@@ -19,7 +19,6 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import com.datatorrent.lib.streamquery.InnerJoinOperator;
 import com.datatorrent.lib.streamquery.condition.Condition;
 import com.datatorrent.lib.streamquery.condition.JoinColumnEqualCondition;
 import com.datatorrent.lib.streamquery.index.ColumnIndex;
