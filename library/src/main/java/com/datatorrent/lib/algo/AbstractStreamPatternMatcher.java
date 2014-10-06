@@ -113,6 +113,12 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
     @NotNull
     private final T[] states;
 
+    //for kryo
+    private Pattern()
+    {
+      states = null;
+    }
+
     public Pattern(@NotNull T[] states)
     {
       this.states = states;

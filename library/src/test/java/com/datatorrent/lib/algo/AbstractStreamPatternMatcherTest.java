@@ -24,13 +24,19 @@ package com.datatorrent.lib.algo;
 import java.util.Random;
 
 import junit.framework.Assert;
+import org.apache.hadoop.conf.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 public class AbstractStreamPatternMatcherTest
 {
@@ -144,6 +150,32 @@ public class AbstractStreamPatternMatcherTest
     for (Object output : sink.collectedTuples) {
       Assert.assertEquals("Matching the output pattern with input pattern", inputPattern, output);
     }
+  }
+
+  public class TestApplication implements StreamingApplication
+  {
+    @Override
+    public void populateDAG(DAG dag, Configuration configuration)
+    {
+      inputPattern = new Integer[]{0, 1, 0, 1, 2};
+      pattern = new AbstractStreamPatternMatcher.Pattern<Integer>(inputPattern);
+      RandomEventGenerator generator = dag.addOperator("Generator", new RandomEventGenerator());
+      StreamPatternMatcher<Integer> matcher = dag.addOperator("Matcher", new StreamPatternMatcher<Integer>());
+      matcher.setPattern(pattern);
+      ConsoleOutputOperator outputOperator= dag.addOperator("Output",new ConsoleOutputOperator());
+      dag.addStream("events",generator.integer_data,matcher.inputPort);
+      dag.addStream("matched-patterns",matcher.outputPort,outputOperator.input);
+    }
+  }
+
+  @Test
+  public void testApplication() throws Exception
+  {
+    LocalMode lma = LocalMode.newInstance();
+    Configuration conf =new Configuration(false);
+    lma.prepareDAG(new TestApplication(), conf);
+    LocalMode.Controller lc = lma.getController();
+    lc.run(10000);
   }
 
 }
