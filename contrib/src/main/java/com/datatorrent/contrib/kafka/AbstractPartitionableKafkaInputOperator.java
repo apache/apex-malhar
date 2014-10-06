@@ -351,6 +351,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    */
   private boolean needPartition(BatchedOperatorStats stats)
   {
+    
+
+    if(repartitionCheckInterval < 0 || repartitionInterval < 0){
+      return false;
+    }
 
     long t = System.currentTimeMillis();
 
