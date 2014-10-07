@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import net.spy.memcached.internal.OperationCompletionListener;
 import net.spy.memcached.internal.OperationFuture;
 
 /**
@@ -30,20 +29,5 @@ public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractC
   public void processTupleCouchbase(String key, Object value)
   {
     future = store.getInstance().set(key, value);
-    future.addListener(new OperationCompletionListener()
-    {
-
-      @Override
-      public void onComplete(OperationFuture<?> f) throws Exception
-      {
-        countLatch.countDown();
-        if (!((Boolean)f.get())) {
-          throw new RuntimeException("Operation set failed");
-        }
-
-      }
-
-    });
   }
-
 }

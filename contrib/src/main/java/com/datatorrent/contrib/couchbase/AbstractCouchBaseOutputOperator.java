@@ -23,6 +23,8 @@ import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
+import net.spy.memcached.internal.OperationCompletionListener;
+import net.spy.memcached.internal.OperationFuture;
 import org.apache.accumulo.core.tabletserver.thrift.TabletClientService.startScan_args._Fields;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -42,8 +44,9 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   private List<T> tuples;
   private transient Operator.ProcessingMode mode;
   protected int num_tuples;
-  protected CountDownLatch countLatch;
+  protected transient CountDownLatch countLatch ;
   protected boolean isEndWindow;
+  protected transient OperationFuture<Boolean> future;
 
   public Operator.ProcessingMode getMode()
   {
@@ -59,7 +62,6 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   {
     tuples = Lists.newArrayList();
     store = new CouchBaseWindowStore();
-    countLatch = new CountDownLatch(store.batch_size);
   }
 
   @Override
@@ -105,6 +107,20 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
       DTThrowable.rethrow(ex);
     }
     processTupleCouchbase(key, value);
+    future.addListener(new OperationCompletionListener()
+    {
+
+      @Override
+      public void onComplete(OperationFuture<?> f) throws Exception
+      {
+        countLatch.countDown();
+        if (!((Boolean)f.get())) {
+          throw new RuntimeException("Operation set failed");
+        }
+
+      }
+
+    });
   }
 
   public List<T> getTuples()

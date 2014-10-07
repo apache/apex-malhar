@@ -17,8 +17,6 @@ package com.datatorrent.benchmark;
 
 /**
  * <p>CouchBaseInputOperator class.</p>
- *
- * @since 1.0.3
  */
 import com.datatorrent.contrib.couchbase.AbstractCouchBaseInputOperator;
 import java.util.ArrayList;

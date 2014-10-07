@@ -26,26 +26,9 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractCouchBaseOutputOperator<T>
 {
-  private transient OperationFuture<Boolean> future;
-
   @Override
   public void processTupleCouchbase(String key, Object value)
   {
     future = store.getInstance().add(key, value);
-    future.addListener(new OperationCompletionListener()
-    {
-
-      @Override
-      public void onComplete(OperationFuture<?> f) throws Exception
-      {
-        countLatch.countDown();
-        if (!((Boolean)f.get())) {
-          throw new RuntimeException("Operation add failed, Key being added is already present. ");
-        }
-
-      }
-
-    });
   }
-
 }
