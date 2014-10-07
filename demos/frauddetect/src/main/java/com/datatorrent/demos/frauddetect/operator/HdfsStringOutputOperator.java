@@ -17,7 +17,7 @@ package com.datatorrent.demos.frauddetect.operator;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAGContext;
-import com.datatorrent.lib.io.fs.AbstractHDFSExactlyOnceWriter;
+import com.datatorrent.lib.io.fs.AbstractFSWriter;
 
 import java.io.File;
 
@@ -29,7 +29,7 @@ import java.io.File;
  *
  * @since 0.9.4
  */
-public class HdfsStringOutputOperator extends AbstractHDFSExactlyOnceWriter<String, String>
+public class HdfsStringOutputOperator extends AbstractFSWriter<String, String>
 {
   private transient String outputFileName;
   private transient String contextId;
@@ -53,12 +53,6 @@ public class HdfsStringOutputOperator extends AbstractHDFSExactlyOnceWriter<Stri
   public byte[] getBytesForTuple(String t)
   {
     return t.getBytes();
-  }
-
-  @Override
-  protected String convert(String tuple)
-  {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 
   @Override

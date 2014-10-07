@@ -15,7 +15,7 @@
  */
 package com.datatorrent.demos.mroperator;
 
-import com.datatorrent.lib.io.fs.AbstractHDFSExactlyOnceSingleFileWriter;
+import com.datatorrent.lib.io.fs.AbstractFSSingleFileWriter;
 import com.datatorrent.lib.util.KeyHashValPair;
 
 /**
@@ -28,7 +28,7 @@ import com.datatorrent.lib.util.KeyHashValPair;
  * @param <V> Value type
  * @since 0.9.4
  */
-public class HdfsKeyValOutputOperator<K,V> extends AbstractHDFSExactlyOnceSingleFileWriter<KeyHashValPair<K,V>>
+public class HdfsKeyValOutputOperator<K,V> extends AbstractFSSingleFileWriter<KeyHashValPair<K,V>>
 {
   @Override
   public byte[] getBytesForTuple(KeyHashValPair<K,V> t)

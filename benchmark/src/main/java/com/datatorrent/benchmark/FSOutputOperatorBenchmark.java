@@ -15,6 +15,7 @@
  */
 package com.datatorrent.benchmark;
 
+import com.datatorrent.lib.testbench.RandomWordGenerator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.StreamingApplication;
@@ -35,7 +36,7 @@ import org.apache.hadoop.conf.Configuration;
  */
 
 @ApplicationAnnotation(name="HDFSOutputOperatorBenchmarkingApp")
-public class HDFSOutputOperatorBenchmark implements StreamingApplication
+public class FSOutputOperatorBenchmark implements StreamingApplication
 {
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -50,7 +51,7 @@ public class HDFSOutputOperatorBenchmark implements StreamingApplication
     dag.getOperatorMeta("wordGenerator").getMeta(wordGenerator.output).getAttributes().put(PortContext.QUEUE_CAPACITY, 10000);
     dag.getOperatorMeta("wordGenerator").getAttributes().put(OperatorContext.APPLICATION_WINDOW_COUNT, 1);
 
-    HdfsByteOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new HdfsByteOutputOperator());
+    FSByteOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new FSByteOutputOperator());
     hdfsOutputOperator.setFilePath(filePath);
     hdfsOutputOperator.setAppend(false);
     dag.getOperatorMeta("hdfsOutputOperator").getAttributes().put(OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
