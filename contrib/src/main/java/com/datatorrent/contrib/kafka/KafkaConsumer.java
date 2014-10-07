@@ -15,6 +15,8 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,7 +32,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
 
-import com.datatorrent.api.Context.Counters;
+import org.apache.commons.io.IOUtils;
 
 
 /**
@@ -38,7 +40,7 @@ import com.datatorrent.api.Context.Counters;
  *
  * @since 0.9.0
  */
-public abstract class KafkaConsumer
+public abstract class KafkaConsumer implements Closeable
 {
   protected final static String HIGHLEVEL_CONSUMER_ID_SUFFIX = "_stream_";
 
@@ -61,7 +63,7 @@ public abstract class KafkaConsumer
     this.brokerSet = brokerSet;
   }
 
-  private int consumerBuffer = 1024 * 1024;
+  private int cacheSize = 1024 * 1024;
 
   protected transient boolean isAlive = false;
 
@@ -99,7 +101,7 @@ public abstract class KafkaConsumer
    * This method is called in setup method of the operator
    */
   public void create(){
-    holdingBuffer = new ArrayBlockingQueue<Message>(consumerBuffer);
+    holdingBuffer = new ArrayBlockingQueue<Message>(cacheSize);
   };
 
   /**
@@ -113,14 +115,12 @@ public abstract class KafkaConsumer
   /**
    * The method is called in the deactivate method of the operator
    */
-  public void stop(){
+  public void stop() {
     isAlive = false;
     statsSnapShot.stop();
     holdingBuffer.clear();
-    _stop();
+    IOUtils.closeQuietly(this);
   };
-
-  abstract protected void _stop();
 
   /**
    * This method is called in teardown method of the operator
@@ -179,6 +179,16 @@ public abstract class KafkaConsumer
   {
     return initialOffset;
   }
+  
+  public int getCacheSize()
+  {
+    return cacheSize;
+  }
+  
+  public void setCacheSize(int cacheSize)
+  {
+    this.cacheSize = cacheSize;
+  }
 
 
   final protected void putMessage(int partition, Message msg) throws InterruptedException{
@@ -203,7 +213,7 @@ public abstract class KafkaConsumer
     return stat;
   }
 
-  static class KafkaMeterStats implements Counters, Serializable
+  static class KafkaMeterStats implements Serializable
   {
 
     private static final long serialVersionUID = -2867402654990209006L;
