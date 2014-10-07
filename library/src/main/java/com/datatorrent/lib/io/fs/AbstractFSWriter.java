@@ -55,6 +55,13 @@ import org.slf4j.LoggerFactory;
  * output to a single file
  * Application window length of 1 second
  *
+ * The operator writes 25 MB/s with the following configuration
+ *
+ * Container memory size=4G
+ * Tuple byte size of 32
+ * output to a single file
+ * Application window length of 30 seconds
+ *
  * @param <INPUT> This is the input tuple type.
  * @param <OUTPUT> This is the output tuple type.
  */
