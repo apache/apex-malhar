@@ -17,6 +17,7 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.Operator.ProcessingMode;
+import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
@@ -32,7 +33,7 @@ public class AbstractFSSingleFileWriterTest
 {
   private static final String SINGLE_FILE = "single.txt";
 
-  @Rule public IOTestHelper testMeta = new IOTestHelper();
+  @Rule public TestInfo testMeta = new TestInfo();
 
   /**
    * Dummy writer to store checkpointed state
@@ -119,7 +120,7 @@ public class AbstractFSSingleFileWriterTest
 
   private void prepareTest()
   {
-    File testDir = new File(testMeta.dir);
+    File testDir = new File(testMeta.getDir());
     FileUtils.deleteQuietly(testDir);
 
     testDir.mkdir();
@@ -149,7 +150,7 @@ public class AbstractFSSingleFileWriterTest
 
   private void testSingleFileCompletedWriteHelper(SingleHDFSExactlyOnceWriter writer)
   {
-    writer.setFilePath(testMeta.dir);
+    writer.setFilePath(testMeta.getDir());
 
     writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
 
@@ -165,7 +166,7 @@ public class AbstractFSSingleFileWriterTest
 
     writer.teardown();
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -187,7 +188,7 @@ public class AbstractFSSingleFileWriterTest
 
     testSingleFileFailedWriteHelper(writer);
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -211,7 +212,7 @@ public class AbstractFSSingleFileWriterTest
 
     testSingleFileFailedWriteHelper(writer);
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "4\n" +
                              "5\n" +
@@ -225,7 +226,7 @@ public class AbstractFSSingleFileWriterTest
 
   private void testSingleFileFailedWriteHelper(SingleHDFSExactlyOnceWriter writer)
   {
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
     writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));

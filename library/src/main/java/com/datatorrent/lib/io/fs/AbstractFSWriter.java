@@ -53,6 +53,7 @@ import org.slf4j.LoggerFactory;
  * Container memory size=4G
  * Tuple byte size of 32
  * output to a single file
+ * Application window length of 1 second
  *
  * @param <INPUT> This is the input tuple type.
  * @param <OUTPUT> This is the output tuple type.
@@ -79,8 +80,9 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   protected Map<String, MutableLong> counts;
 
   /**
-   * False if you want to overwrite files in case of operator restart.
-   * True if you want to append to files in case of restart.
+   * False if you want to overwrite files in case of operator restart, or when files are
+   * loaded into the cache.
+   * True if you want to append to files in case of restart, an when files are loaded into cache.
    */
   protected boolean append = true;
 
@@ -128,6 +130,13 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
    * True if the files will be of maximum size.
    */
   protected boolean rollingFile = false;
+
+  /**
+   * This specifies whether or not duplicates are removed from output files on recovery. An UnsupportedOperation
+   * exception is thrown if this is set to false when the OperatingMode is exactly once. This field is
+   * ignored when the OperatingMode is AT_MOST_ONCE because no clean up needs to be done in that case.
+   */
+  protected boolean cleanUpDuplicatesOnRecovery = true;
 
   /**
    * The file system used to write to.
@@ -237,6 +246,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
         }
       }
     };
+
     //Define cache
     CacheLoader<String, FSDataOutputStream> loader = new CacheLoader<String, FSDataOutputStream>()
     {
@@ -285,14 +295,21 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
     streamsCache = CacheBuilder.newBuilder().maximumSize(maxOpenFiles).removalListener(removalListener).build(loader);
 
+    // Duplicates need to be cleaned up in EXACTLY_ONCE mode.
+    if(!cleanUpDuplicatesOnRecovery &&
+       (context.getValue(OperatorContext.PROCESSING_MODE) == ProcessingMode.EXACTLY_ONCE)) {
+      throw new UnsupportedOperationException("cleanUpDuplicatesOnRecovery cannot be false " +
+                                              "when the processing mode is exactly once.");
+    }
+
     try {
       LOG.debug("File system class: {}", fs.getClass());
       LOG.debug("end-offsets {}", endOffsets);
 
       if(append) {
-        if((context.getValue(OperatorContext.PROCESSING_MODE) == ProcessingMode.EXACTLY_ONCE)) {
-          //Restore the files in case they were corrupted and the operator
-          //is running in append mode.
+        //Restore the files in case they were corrupted and the operator
+        //is running in append mode.
+        if(cleanUpDuplicatesOnRecovery) {
           Path writerPath = new Path(filePath);
           if (fs.exists(writerPath)) {
             for (String seenFileName : endOffsets.keySet()) {
@@ -617,6 +634,26 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   public boolean isAppend()
   {
     return this.append;
+  }
+
+  /**
+   * This sets the cleanUpDuplicatesOnRecovery flag.
+   * @param cleanUpDuplicatesOnRecovery This specifies whether or not duplicates are removed from output files on recovery. An UnsupportedOperation
+   * exception is thrown if this is set to false when the OperatingMode is exactly once. This field is
+   * ignored when the OperatingMode is AT_MOST_ONCE because no clean up needs to be done in that case.
+   */
+  public void setCleanUpDuplicatesOnRecovery(boolean cleanUpDuplicatesOnRecovery)
+  {
+    this.cleanUpDuplicatesOnRecovery = cleanUpDuplicatesOnRecovery;
+  }
+
+  /**
+   * This sets the cleanUpDuplicatesOnRecovery flag.
+   * @return This returns the cleanUpDuplicatesOnRecovery flag.
+   */
+  public boolean isCleanUpDuplicatesOnRecovery()
+  {
+    return cleanUpDuplicatesOnRecovery;
   }
 
   /**

@@ -20,6 +20,7 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
+import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
@@ -42,7 +43,7 @@ public class AbstractFSWriterTest
   private static final String EVEN_FILE = "even.txt";
   private static final String ODD_FILE = "odd.txt";
 
-  @Rule public IOTestHelper testMeta = new IOTestHelper();
+  @Rule public TestInfo testMeta = new TestInfo();
 
   /**
    * Simple writer which writes to two files.
@@ -53,12 +54,6 @@ public class AbstractFSWriterTest
     protected FileSystem getFSInstance() throws IOException
     {
       return FileSystem.getLocal(new Configuration()).getRaw();
-    }
-
-    @Override
-    protected Integer convert(Integer tuple)
-    {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
@@ -93,13 +88,6 @@ public class AbstractFSWriterTest
     }
 
     @Override
-    protected Integer convert(Integer tuple)
-    {
-      return tuple;
-      //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     protected String getFileName(Integer tuple)
     {
       return SINGLE_FILE;
@@ -128,13 +116,6 @@ public class AbstractFSWriterTest
     }
 
     @Override
-    protected byte[] convert(byte[] tuple)
-    {
-      return tuple;
-      //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-    @Override
     protected String getFileName(byte[] tuple)
     {
       return SINGLE_FILE;
@@ -156,13 +137,6 @@ public class AbstractFSWriterTest
     protected FileSystem getFSInstance() throws IOException
     {
       return FileSystem.getLocal(new Configuration()).getRaw();
-    }
-
-    @Override
-    protected Integer convert(Integer tuple)
-    {
-      //This is a dummy operator for checkpointing
-      throw new UnsupportedOperationException("Not supported yet.");
     }
 
     @Override
@@ -228,7 +202,7 @@ public class AbstractFSWriterTest
 
   private void prepareTest()
   {
-    File testDir = new File(testMeta.dir);
+    File testDir = new File(testMeta.getDir());
     FileUtils.deleteQuietly(testDir);
 
     testDir.mkdir();
@@ -339,6 +313,7 @@ public class AbstractFSWriterTest
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(true);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testSingleFileCompletedWriteHelper(writer,
                                        ProcessingMode.AT_LEAST_ONCE);
@@ -350,6 +325,7 @@ public class AbstractFSWriterTest
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(false);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testSingleFileCompletedWriteHelper(writer,
                                        ProcessingMode.AT_LEAST_ONCE);
@@ -358,7 +334,7 @@ public class AbstractFSWriterTest
   private void testSingleFileCompletedWriteHelper(SingleHDFSExactlyOnceWriter writer,
                                                   ProcessingMode mode)
   {
-    writer.setFilePath(testMeta.dir);
+    writer.setFilePath(testMeta.getDir());
     writer.setup(new DummyContext(0, mode));
 
     writer.beginWindow(0);
@@ -373,7 +349,7 @@ public class AbstractFSWriterTest
 
     writer.teardown();
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -395,7 +371,7 @@ public class AbstractFSWriterTest
     testSingleFileFailedWriteHelper(writer,
                                     ProcessingMode.EXACTLY_ONCE);
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -419,7 +395,7 @@ public class AbstractFSWriterTest
     testSingleFileFailedWriteHelper(writer,
                                     ProcessingMode.EXACTLY_ONCE);
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "4\n" +
                              "5\n" +
@@ -437,11 +413,12 @@ public class AbstractFSWriterTest
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(true);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testSingleFileFailedWriteHelper(writer,
                                     ProcessingMode.AT_LEAST_ONCE);
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -462,11 +439,12 @@ public class AbstractFSWriterTest
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(false);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testSingleFileFailedWriteHelper(writer,
                                     ProcessingMode.AT_LEAST_ONCE);
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "4\n" +
                              "5\n" +
@@ -481,7 +459,7 @@ public class AbstractFSWriterTest
   private void testSingleFileFailedWriteHelper(SingleHDFSExactlyOnceWriter writer,
                                                ProcessingMode mode)
   {
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setup(new DummyContext(0, mode));
 
@@ -566,6 +544,7 @@ public class AbstractFSWriterTest
     prepareTest();
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(true);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiFileCompletedWriteHelper(writer,
                                       ProcessingMode.AT_LEAST_ONCE);
@@ -578,6 +557,7 @@ public class AbstractFSWriterTest
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(true);
     writer.setMaxOpenFiles(1);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiFileCompletedWriteHelper(writer,
                                       ProcessingMode.AT_LEAST_ONCE);
@@ -589,6 +569,7 @@ public class AbstractFSWriterTest
     prepareTest();
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(false);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiFileCompletedWriteHelper(writer,
                                       ProcessingMode.AT_LEAST_ONCE);
@@ -601,6 +582,7 @@ public class AbstractFSWriterTest
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(false);
     writer.setMaxOpenFiles(1);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiFileCompletedWriteHelperCache1(writer,
                                             ProcessingMode.AT_LEAST_ONCE);
@@ -609,7 +591,7 @@ public class AbstractFSWriterTest
   private void testMultiFileCompletedWriteHelperCache1(EvenOddHDFSExactlyOnceWriter writer,
                                                        ProcessingMode mode)
   {
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
     writer.setup(new DummyContext(0, mode));
@@ -628,7 +610,7 @@ public class AbstractFSWriterTest
     writer.input.put(7);
     writer.endWindow();
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "6\n";
 
@@ -636,7 +618,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "7\n";
 
@@ -648,7 +630,7 @@ public class AbstractFSWriterTest
   private void testMultiFileCompletedWriteHelper(EvenOddHDFSExactlyOnceWriter writer,
                                                  ProcessingMode mode)
   {
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
     writer.setup(new DummyContext(0, mode));
@@ -667,7 +649,7 @@ public class AbstractFSWriterTest
     writer.input.put(7);
     writer.endWindow();
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "0\n" +
                              "2\n" +
@@ -678,7 +660,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "1\n" +
                       "3\n" +
@@ -699,7 +681,7 @@ public class AbstractFSWriterTest
 
     testMultiFileFailedWriteHelper(writer, ProcessingMode.EXACTLY_ONCE);
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "0\n" +
                              "2\n" +
@@ -710,7 +692,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "1\n" +
                       "3\n" +
@@ -732,7 +714,7 @@ public class AbstractFSWriterTest
 
     testMultiFileFailedWriteHelper(writer, ProcessingMode.EXACTLY_ONCE);
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "0\n" +
                              "2\n" +
@@ -743,7 +725,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "1\n" +
                       "3\n" +
@@ -764,7 +746,7 @@ public class AbstractFSWriterTest
 
     testMultiFileFailedWriteHelper(writer, ProcessingMode.EXACTLY_ONCE);
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "6\n" +
                              "8\n";
@@ -773,7 +755,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "7\n" +
                       "9\n";
@@ -793,7 +775,7 @@ public class AbstractFSWriterTest
 
     testMultiFileFailedWriteHelper(writer, ProcessingMode.EXACTLY_ONCE);
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "8\n";
 
@@ -801,7 +783,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "9\n";
 
@@ -816,10 +798,11 @@ public class AbstractFSWriterTest
     prepareTest();
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(true);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiFileFailedWriteHelper(writer, ProcessingMode.AT_LEAST_ONCE);
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "0\n" +
                              "2\n" +
@@ -831,7 +814,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "1\n" +
                       "3\n" +
@@ -851,10 +834,11 @@ public class AbstractFSWriterTest
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(true);
     writer.setMaxOpenFiles(1);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiFileFailedWriteHelper(writer, ProcessingMode.AT_LEAST_ONCE);
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "0\n" +
                              "2\n" +
@@ -866,7 +850,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "1\n" +
                       "3\n" +
@@ -885,10 +869,11 @@ public class AbstractFSWriterTest
     prepareTest();
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(false);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiFileFailedWriteHelper(writer, ProcessingMode.AT_LEAST_ONCE);
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "6\n" +
                              "8\n";
@@ -897,7 +882,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "7\n" +
                       "9\n";
@@ -914,10 +899,11 @@ public class AbstractFSWriterTest
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(false);
     writer.setMaxOpenFiles(1);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiFileFailedWriteHelper(writer, ProcessingMode.AT_LEAST_ONCE);
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "8\n";
 
@@ -925,7 +911,7 @@ public class AbstractFSWriterTest
                 evenFileName,
                 correctContents);
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "9\n";
 
@@ -937,7 +923,7 @@ public class AbstractFSWriterTest
   private void testMultiFileFailedWriteHelper(EvenOddHDFSExactlyOnceWriter writer,
                                               ProcessingMode mode)
   {
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
     writer.setup(new DummyContext(0, mode));
@@ -981,7 +967,7 @@ public class AbstractFSWriterTest
 
     //Rolling file 0
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -1014,7 +1000,7 @@ public class AbstractFSWriterTest
 
     //Rolling file 0
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -1041,13 +1027,14 @@ public class AbstractFSWriterTest
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(true);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testSingleRollingFileCompletedWriteHelper(writer,
                                               ProcessingMode.AT_LEAST_ONCE);
 
     //Rolling file 0
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -1074,13 +1061,14 @@ public class AbstractFSWriterTest
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(false);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testSingleRollingFileCompletedWriteHelper(writer,
                                               ProcessingMode.AT_LEAST_ONCE);
 
     //Rolling file 0
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -1104,7 +1092,7 @@ public class AbstractFSWriterTest
   private void testSingleRollingFileCompletedWriteHelper(SingleHDFSExactlyOnceWriter writer,
                                                          ProcessingMode mode)
   {
-    writer.setFilePath(testMeta.dir);
+    writer.setFilePath(testMeta.getDir());
     writer.setMaxLength(4);
 
     writer.setup(new DummyContext(0, mode));
@@ -1136,7 +1124,7 @@ public class AbstractFSWriterTest
 
     //Rolling file 0
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -1173,13 +1161,14 @@ public class AbstractFSWriterTest
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(true);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testSingleRollingFileFailedWriteHelper(writer,
                                            ProcessingMode.AT_LEAST_ONCE);
 
     //Rolling file 0
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -1223,7 +1212,7 @@ public class AbstractFSWriterTest
                                                       ProcessingMode mode)
   {
     writer.setMaxLength(4);
-    writer.setFilePath(testMeta.dir);
+    writer.setFilePath(testMeta.getDir());
     writer.setup(new DummyContext(0, mode));
 
     writer.beginWindow(0);
@@ -1271,7 +1260,7 @@ public class AbstractFSWriterTest
 
     //Rolling file 0
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -1307,13 +1296,14 @@ public class AbstractFSWriterTest
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(false);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testSingleRollingFileFailedWriteOverwriteHelper(writer,
                                                     ProcessingMode.AT_LEAST_ONCE);
 
     //Rolling file 0
 
-    String singleFileName = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     String correctContents = "0\n" +
                              "1\n" +
@@ -1347,7 +1337,7 @@ public class AbstractFSWriterTest
                                                                ProcessingMode mode)
   {
     writer.setMaxLength(4);
-    writer.setFilePath(testMeta.dir);
+    writer.setFilePath(testMeta.getDir());
     writer.setup(new DummyContext(0, mode));
 
     writer.beginWindow(0);
@@ -1387,7 +1377,7 @@ public class AbstractFSWriterTest
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(true);
-    writer.setFilePath(testMeta.dir);
+    writer.setFilePath(testMeta.getDir());
     writer.setMaxLength(4);
 
     writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
@@ -1433,7 +1423,7 @@ public class AbstractFSWriterTest
                       writer);
     writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
 
-    String singleFilePath = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFilePath = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     //Rolling file 0
 
@@ -1502,6 +1492,7 @@ public class AbstractFSWriterTest
     prepareTest();
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(true);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiRollingFileCompletedWriteHelper(writer, ProcessingMode.AT_LEAST_ONCE);
   }
@@ -1513,6 +1504,7 @@ public class AbstractFSWriterTest
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(true);
     writer.setMaxOpenFiles(1);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiRollingFileCompletedWriteHelper(writer, ProcessingMode.AT_LEAST_ONCE);
   }
@@ -1542,7 +1534,7 @@ public class AbstractFSWriterTest
                                                               ProcessingMode mode)
   {
     writer.setMaxLength(4);
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
     writer.setup(new DummyContext(0, mode));
@@ -1567,7 +1559,7 @@ public class AbstractFSWriterTest
 
     //Even file
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "6\n";
 
@@ -1577,7 +1569,7 @@ public class AbstractFSWriterTest
 
     //Odd file
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "7\n";
 
@@ -1590,7 +1582,7 @@ public class AbstractFSWriterTest
                                                         ProcessingMode mode)
   {
     writer.setMaxLength(4);
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
     writer.setup(new DummyContext(0, mode));
@@ -1615,7 +1607,7 @@ public class AbstractFSWriterTest
 
     //Even file
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "0\n" +
                              "2\n" +
@@ -1635,7 +1627,7 @@ public class AbstractFSWriterTest
 
     //Odd file
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "1\n" +
                       "3\n" +
@@ -1685,7 +1677,7 @@ public class AbstractFSWriterTest
 
     //Even file
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "0\n" +
                              "2\n" +
@@ -1705,7 +1697,7 @@ public class AbstractFSWriterTest
 
     //Odd file
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "1\n" +
                       "3\n" +
@@ -1730,6 +1722,7 @@ public class AbstractFSWriterTest
     prepareTest();
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(true);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiRollingFileFailedWriteAtLeastOnceHelper(writer,
                                                      ProcessingMode.AT_LEAST_ONCE);
@@ -1742,6 +1735,7 @@ public class AbstractFSWriterTest
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(true);
     writer.setMaxOpenFiles(1);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiRollingFileFailedWriteAtLeastOnceHelper(writer,
                                                      ProcessingMode.AT_LEAST_ONCE);
@@ -1755,7 +1749,7 @@ public class AbstractFSWriterTest
 
     //Even file
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "0\n" +
                              "2\n" +
@@ -1781,7 +1775,7 @@ public class AbstractFSWriterTest
 
     //Odd file
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "1\n" +
                       "3\n" +
@@ -1809,7 +1803,7 @@ public class AbstractFSWriterTest
   private void testMultiRollingFileFailedWriteHelper(EvenOddHDFSExactlyOnceWriter writer,
                                                      ProcessingMode mode)
   {
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
 
@@ -1880,6 +1874,7 @@ public class AbstractFSWriterTest
     prepareTest();
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(false);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiRollingFileFailedWriteOverwriteHelper(writer,
                                                    ProcessingMode.AT_LEAST_ONCE);
@@ -1892,6 +1887,7 @@ public class AbstractFSWriterTest
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     writer.setAppend(false);
     writer.setMaxOpenFiles(1);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     testMultiRollingFileFailedWriteOverwriteHelperCache1(writer,
                                                          ProcessingMode.AT_LEAST_ONCE);
@@ -1900,11 +1896,11 @@ public class AbstractFSWriterTest
   private void testMultiRollingFileFailedWriteOverwriteHelperCache1(EvenOddHDFSExactlyOnceWriter writer,
                                                                     ProcessingMode mode)
   {
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
 
-    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
+    writer.setup(new DummyContext(0, mode));
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -1920,7 +1916,7 @@ public class AbstractFSWriterTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
+    writer.setup(new DummyContext(0, mode));
 
     writer.beginWindow(1);
     writer.input.put(4);
@@ -1938,7 +1934,7 @@ public class AbstractFSWriterTest
 
     //Even file
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "6\n";
 
@@ -1948,7 +1944,7 @@ public class AbstractFSWriterTest
 
     //Odd file
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "7\n";
 
@@ -1960,11 +1956,11 @@ public class AbstractFSWriterTest
   private void testMultiRollingFileFailedWriteOverwriteHelper(EvenOddHDFSExactlyOnceWriter writer,
                                                               ProcessingMode mode)
   {
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setMaxLength(4);
 
-    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
+    writer.setup(new DummyContext(0, mode));
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -1980,7 +1976,7 @@ public class AbstractFSWriterTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
+    writer.setup(new DummyContext(0, mode));
 
     writer.beginWindow(1);
     writer.input.put(4);
@@ -1998,7 +1994,7 @@ public class AbstractFSWriterTest
 
     //Even file
 
-    String evenFileName = testMeta.dir + File.separator + EVEN_FILE;
+    String evenFileName = testMeta.getDir() + File.separator + EVEN_FILE;
 
     String correctContents = "4\n" +
                              "6\n" +
@@ -2016,7 +2012,7 @@ public class AbstractFSWriterTest
 
     //Odd file
 
-    String oddFileName = testMeta.dir + File.separator + ODD_FILE;
+    String oddFileName = testMeta.getDir() + File.separator + ODD_FILE;
 
     correctContents = "5\n" +
                       "7\n" +
@@ -2038,7 +2034,7 @@ public class AbstractFSWriterTest
   {
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setAppend(true);
     writer.setMaxLength(4);
@@ -2046,7 +2042,7 @@ public class AbstractFSWriterTest
     singleFileMultiRollingFailureHelper(writer,
                                         ProcessingMode.EXACTLY_ONCE);
 
-    String singleFilePath = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFilePath = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     //Rolling file 0
 
@@ -2092,7 +2088,7 @@ public class AbstractFSWriterTest
   {
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setAppend(false);
     writer.setMaxLength(4);
@@ -2100,7 +2096,7 @@ public class AbstractFSWriterTest
     singleFileMultiRollingFailureHelper(writer,
                                         ProcessingMode.EXACTLY_ONCE);
 
-    String singleFilePath = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFilePath = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     //Rolling file 0
 
@@ -2138,15 +2134,16 @@ public class AbstractFSWriterTest
     LOG.debug("singleFileMultiRollingFailureAtLeastOnce");
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setAppend(true);
     writer.setMaxLength(4);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     singleFileMultiRollingFailureHelper(writer,
                                         ProcessingMode.AT_LEAST_ONCE);
 
-    String singleFilePath = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFilePath = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     //Rolling file 0
 
@@ -2193,15 +2190,16 @@ public class AbstractFSWriterTest
   {
     prepareTest();
     SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
-    File meta = new File(testMeta.dir);
+    File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
     writer.setAppend(false);
     writer.setMaxLength(4);
+    writer.setCleanUpDuplicatesOnRecovery(false);
 
     singleFileMultiRollingFailureHelper(writer,
                                         ProcessingMode.AT_LEAST_ONCE);
 
-    String singleFilePath = testMeta.dir + File.separator + SINGLE_FILE;
+    String singleFilePath = testMeta.getDir() + File.separator + SINGLE_FILE;
 
     //Rolling file 0
 
@@ -2282,7 +2280,7 @@ public class AbstractFSWriterTest
   //@Test
   public void validateNothingWrongTest()
   {
-    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.dir),
+    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.getDir()),
                                                                 null,
                                                                 new SingleHDFSByteExactlyOnceWriter(),
                                                                 false);
@@ -2293,7 +2291,7 @@ public class AbstractFSWriterTest
   //@Test
   public void validateZeroMaxLengthTest()
   {
-    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.dir),
+    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.getDir()),
                                                                 0L,
                                                                 new SingleHDFSByteExactlyOnceWriter(),
                                                                 false);
@@ -2315,7 +2313,7 @@ public class AbstractFSWriterTest
   //@Test
   public void validateNegativeMaxLengthTest()
   {
-    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.dir),
+    ValidationTestApp validationTestApp = new ValidationTestApp(new File(testMeta.getDir()),
                                                                 -1L,
                                                                 new SingleHDFSByteExactlyOnceWriter(),
                                                                 false);

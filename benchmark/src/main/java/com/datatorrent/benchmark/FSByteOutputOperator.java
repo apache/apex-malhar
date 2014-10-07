@@ -33,13 +33,6 @@ public class FSByteOutputOperator extends AbstractFSWriter<byte[], byte[]>
   @Min(1)
   private int outputFileCount = 1;
 
-  @Override
-  protected byte[] convert(byte[] tuple)
-  {
-    //To change body of generated methods, choose Tools | Templates.
-    throw new UnsupportedOperationException("Not supported yet.");
-  }
-
   /**
    * The file a tuple is written out to is determined by modding the hashcode of the
    * tuple by the outputFileCount.

@@ -18,6 +18,7 @@ package com.datatorrent.lib.io.fs;
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.google.common.collect.*;
 import java.io.*;
 import java.util.*;
@@ -25,11 +26,10 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.*;
 import org.junit.*;
-import org.junit.rules.TestWatcher;
 
 public class AbstractFSDirectoryInputOperatorFailureHandlingTest
 {
-  @Rule public IOTestHelper testMeta = new IOTestHelper();
+  @Rule public TestInfo testMeta = new TestInfo();
 
   public static class TestFSDirectoryInputOperator extends AbstractFSDirectoryInputOperator<String>
   {
@@ -84,7 +84,7 @@ public class AbstractFSDirectoryInputOperatorFailureHandlingTest
   @Test
   public void testFailureHandling() throws Exception
   {
-    FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
+    FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.getDir()).getAbsolutePath()), true);
     HashSet<String> allLines = Sets.newHashSet();
     // Create files with 100 records.
     for (int file=0; file<10; file++) {
@@ -93,7 +93,7 @@ public class AbstractFSDirectoryInputOperatorFailureHandlingTest
         lines.add("f"+file+"l"+line);
       }
       allLines.addAll(lines);
-      FileUtils.write(new File(testMeta.dir, "file"+file), StringUtils.join(lines, '\n'));
+      FileUtils.write(new File(testMeta.getDir(), "file"+file), StringUtils.join(lines, '\n'));
     }
 
     Thread.sleep(10);
@@ -105,7 +105,7 @@ public class AbstractFSDirectoryInputOperatorFailureHandlingTest
     CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
     oper.output.setSink(sink);
 
-    oper.setDirectory(testMeta.dir);
+    oper.setDirectory(testMeta.getDir());
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
     oper.setup(null);
