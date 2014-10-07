@@ -1,0 +1,6 @@
+{ "productId": 1, "productCategory": 3 }
+{ "productId": 2, "productCategory": 1 }
+{ "productId": 3, "productCategory": 6 }
+{ "productId": 4, "productCategory": 10 }
+{ "productId": 5, "productCategory": 2 }
+{ "productId": 3, "productCategory": 1 }
