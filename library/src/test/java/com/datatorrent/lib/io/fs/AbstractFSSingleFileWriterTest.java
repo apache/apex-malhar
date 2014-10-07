@@ -16,6 +16,7 @@
 
 package com.datatorrent.lib.io.fs;
 
+import com.datatorrent.api.Operator.ProcessingMode;
 import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +28,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.junit.Rule;
 import org.junit.Test;
 
-public class AbstractHDFSExactlyOnceSingleFileWriterTest
+public class AbstractFSSingleFileWriterTest
 {
   private static final String SINGLE_FILE = "single.txt";
 
@@ -36,7 +37,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
   /**
    * Dummy writer to store checkpointed state
    */
-  private static class CheckPointWriter extends AbstractHDFSExactlyOnceSingleFileWriter<Integer>
+  private static class CheckPointWriter extends AbstractFSSingleFileWriter<Integer>
   {
     @Override
     protected byte[] getBytesForTuple(Integer tuple)
@@ -48,7 +49,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
   /**
    * Simple writer which writes to one file.
    */
-  private static class SingleHDFSExactlyOnceWriter extends AbstractHDFSExactlyOnceSingleFileWriter<Integer>
+  private static class SingleHDFSExactlyOnceWriter extends AbstractFSSingleFileWriter<Integer>
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -64,7 +65,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private CheckPointWriter checkpoint(AbstractHDFSExactlyOnceSingleFileWriter<Integer> writer)
+  private CheckPointWriter checkpoint(AbstractFSSingleFileWriter<Integer> writer)
   {
     CheckPointWriter checkPointWriter = new CheckPointWriter();
     checkPointWriter.append = writer.append;
@@ -101,7 +102,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private void restoreCheckPoint(CheckPointWriter checkPointWriter,
-                                 AbstractHDFSExactlyOnceSingleFileWriter<Integer> writer)
+                                 AbstractFSSingleFileWriter<Integer> writer)
   {
     writer.append = checkPointWriter.append;
     writer.counts = checkPointWriter.counts;
@@ -150,7 +151,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
   {
     writer.setFilePath(testMeta.dir);
 
-    writer.setup(new DummyContext(0));
+    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -171,7 +172,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
                              "2\n" +
                              "3\n";
 
-    AbstractHDFSExactlyOnceWriterTest.checkOutput(-1,
+    AbstractFSWriterTest.checkOutput(-1,
                                       singleFileName,
                                       correctContents);
   }
@@ -195,7 +196,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
                              "6\n" +
                              "7\n";
 
-    AbstractHDFSExactlyOnceWriterTest.checkOutput(-1,
+    AbstractFSWriterTest.checkOutput(-1,
                                       singleFileName,
                                       correctContents);
   }
@@ -217,7 +218,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
                              "6\n" +
                              "7\n";
 
-    AbstractHDFSExactlyOnceWriterTest.checkOutput(-1,
+    AbstractFSWriterTest.checkOutput(-1,
                                                   singleFileName,
                                                   correctContents);
   }
@@ -227,7 +228,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
     File meta = new File(testMeta.dir);
     writer.setFilePath(meta.getAbsolutePath());
 
-    writer.setup(new DummyContext(0));
+    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -243,7 +244,7 @@ public class AbstractHDFSExactlyOnceSingleFileWriterTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(new DummyContext(0));
+    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
 
     writer.beginWindow(1);
     writer.input.put(4);

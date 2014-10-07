@@ -24,14 +24,14 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.2
  */
-public class HdfsExactlyOnceWindowWriter extends AbstractHDFSExactlyOnceWriter<String, String>
+public class FSWindowWriter extends AbstractFSWriter<String, String>
 {
   private static final long serialVersionUID = 201405201214L;
-  private static final Logger LOG = LoggerFactory.getLogger(HdfsExactlyOnceWindowWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(FSWindowWriter.class);
 
   private transient String windowIdString;
 
-  public HdfsExactlyOnceWindowWriter()
+  public FSWindowWriter()
   {
     this.setAppend(false);
     this.setMaxOpenFiles(1);

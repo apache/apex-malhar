@@ -208,9 +208,8 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
 
   /**
    * This function returns the byte array for the given tuple.
-   *
-   * @param t
-   * @return
+   * @param t The tuple to convert into a byte array.
+   * @return The byte array for a given tuple.
    */
   protected abstract byte[] getBytesForTuple(INPUT t);
 

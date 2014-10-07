@@ -22,7 +22,7 @@ import javax.validation.constraints.NotNull;
  * This is a simple class that output all tuples to a single file.
  * @param <T> The type of the incoming tuples.
  */
-public abstract class AbstractHDFSExactlyOnceSingleFileWriter<T> extends AbstractHDFSExactlyOnceWriter<T, T>
+public abstract class AbstractFSSingleFileWriter<T> extends AbstractFSWriter<T, T>
 {
   /**
    * The name of the output file to write to.

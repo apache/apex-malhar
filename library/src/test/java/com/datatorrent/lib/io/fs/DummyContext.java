@@ -18,7 +18,11 @@ package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.AttributeMap.Attribute;
+import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.ProcessingMode;
+import java.util.Map.Entry;
+import java.util.Set;
 import javax.annotation.Nonnull;
 
 public class DummyContext implements OperatorContext
@@ -27,6 +31,13 @@ public class DummyContext implements OperatorContext
   String applicationPath;
   String applicationId;
   AttributeMap attributes;
+
+  public DummyContext(int id, ProcessingMode mode)
+  {
+    this.id = id;
+    this.attributes = new DefaultAttributeMap();
+    this.attributes.put(OperatorContext.PROCESSING_MODE, mode);
+  }
 
   public DummyContext(int id)
   {

@@ -18,7 +18,6 @@ package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.counters.BasicCounters;
@@ -53,14 +52,14 @@ import org.slf4j.LoggerFactory;
  *
  * Container memory size=4G
  * Tuple byte size of 32
+ * output to a single file
  *
  * @param <INPUT> This is the input tuple type.
  * @param <OUTPUT> This is the output tuple type.
  */
-@OperatorAnnotation(partitionable=false)
-public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseOperator
+public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractHDFSExactlyOnceWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractFSWriter.class);
 
   private static final String TMP_EXTENSION = ".tmp";
   private static final int COPY_BUFFER_SIZE = 1024;
@@ -112,10 +111,17 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
    * If rollingFile is set to true, the writer will rotate the file if it exceed the maxLength of bytes.
    */
   @AssertTrue(message="Validating maximum length")
-  private boolean validate(){
-    return maxLength == null || maxLength >= 1L;
+  public boolean isValidMaxLength(){
+    if(!(maxLength == null || maxLength >= 1L)) {
+      return false;
+    }
+
+    return true;
   }
 
+  /**
+   * The maximum length in bytes of a rolling file.
+   */
   protected Long maxLength = null;
 
   /**
@@ -171,7 +177,7 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
   @OutputPortFieldAnnotation(name = "output", optional = true)
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
 
-  public AbstractHDFSExactlyOnceWriter()
+  public AbstractFSWriter()
   {
     endOffsets = Maps.newHashMap();
     counts = Maps.newHashMap();
@@ -199,7 +205,8 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
   @Override
   public void setup(Context.OperatorContext context)
   {
-    rollingFile = maxLength >= 1L;
+    rollingFile = (maxLength != null) &&
+                  (maxLength >= 1L);
 
     //Getting required file system instance.
     try {
@@ -255,12 +262,14 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
             else {
               fs.delete(lfilepath, true);
               fsOutput = fs.create(lfilepath, (short) replication);
-              LOG.debug("creating {} with replication {}", lfilepath, replication);
             }
           }
           else {
             fsOutput = fs.create(lfilepath, (short) replication);
-            LOG.debug("creating {} with replication {}", lfilepath, replication);
+          }
+
+          if(!overwrite) {
+            endOffsets.get(filename).setValue(fs.getFileStatus(lfilepath).getLen());
           }
 
           LOG.debug("full path: {}", fs.getFileStatus(lfilepath).getPath());
@@ -281,55 +290,85 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
       LOG.debug("end-offsets {}", endOffsets);
 
       if(append) {
-        //Restore the files in case they were corrupted and the operator
-        //is running in append mode.
-        Path writerPath = new Path(filePath);
-        if (fs.exists(writerPath)) {
-          for (String seenFileName : endOffsets.keySet()) {
-            String seenFileNamePart = getPartFileNamePri(seenFileName);
-            LOG.debug("seenFileNamePart: {}", seenFileNamePart);
-            Path seenPartFilePath = new Path(filePath + "/" + seenFileNamePart);
-            if (fs.exists(seenPartFilePath)) {
-              LOG.debug("file exists {}", seenFileNamePart);
-              long offset = endOffsets.get(seenFileName).longValue();
-              FSDataInputStream inputStream = fs.open(seenPartFilePath);
-              FileStatus status = fs.getFileStatus(seenPartFilePath);
+        if((context.getValue(OperatorContext.PROCESSING_MODE) == ProcessingMode.EXACTLY_ONCE)) {
+          //Restore the files in case they were corrupted and the operator
+          //is running in append mode.
+          Path writerPath = new Path(filePath);
+          if (fs.exists(writerPath)) {
+            for (String seenFileName : endOffsets.keySet()) {
+              String seenFileNamePart = getPartFileNamePri(seenFileName);
+              LOG.debug("seenFileNamePart: {}", seenFileNamePart);
+              Path seenPartFilePath = new Path(filePath + "/" + seenFileNamePart);
+              if (fs.exists(seenPartFilePath)) {
+                LOG.debug("file exists {}", seenFileNamePart);
+                long offset = endOffsets.get(seenFileName).longValue();
+                FSDataInputStream inputStream = fs.open(seenPartFilePath);
+                FileStatus status = fs.getFileStatus(seenPartFilePath);
 
-              if (status.getLen() != offset) {
-                LOG.info("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
-                byte[] buffer = new byte[COPY_BUFFER_SIZE];
+                if (status.getLen() != offset) {
+                  LOG.info("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
+                  byte[] buffer = new byte[COPY_BUFFER_SIZE];
 
-                String tmpFileName = seenFileNamePart + TMP_EXTENSION;
-                FSDataOutputStream fsOutput = streamsCache.get(tmpFileName);
-                while (inputStream.getPos() < offset) {
-                  long remainingBytes = offset - inputStream.getPos();
-                  int bytesToWrite = remainingBytes < COPY_BUFFER_SIZE ? (int) remainingBytes : COPY_BUFFER_SIZE;
-                  inputStream.read(buffer);
-                  fsOutput.write(buffer, 0, bytesToWrite);
+                  String tmpFileName = seenFileNamePart + TMP_EXTENSION;
+                  FSDataOutputStream fsOutput = streamsCache.get(tmpFileName);
+                  while (inputStream.getPos() < offset) {
+                    long remainingBytes = offset - inputStream.getPos();
+                    int bytesToWrite = remainingBytes < COPY_BUFFER_SIZE ? (int) remainingBytes : COPY_BUFFER_SIZE;
+                    inputStream.read(buffer);
+                    fsOutput.write(buffer, 0, bytesToWrite);
+                  }
+
+                  flush(fsOutput);
+                  FileContext fileContext = FileContext.getFileContext(fs.getUri());
+                  String tempTmpFilePath = getPartFileNamePri(filePath + File.separator + tmpFileName);
+
+                  Path tmpFilePath = new Path(tempTmpFilePath);
+                  tmpFilePath = fs.getFileStatus(tmpFilePath).getPath();
+                  LOG.debug("temp file path {}, rolling file path {}",
+                            tmpFilePath.toString(),
+                            status.getPath().toString());
+                  fileContext.rename(tmpFilePath,
+                                     status.getPath(),
+                                     Options.Rename.OVERWRITE);
                 }
-
-                flush(fsOutput);
-                FileContext fileContext = FileContext.getFileContext(fs.getUri());
-                String tempTmpFilePath = getPartFileNamePri(filePath + File.separator + tmpFileName);
-
-                Path tmpFilePath = new Path(tempTmpFilePath);
-                tmpFilePath = fs.getFileStatus(tmpFilePath).getPath();
-                LOG.debug("temp file path {}, rolling file path {}",
-                          tmpFilePath.toString(),
-                          status.getPath().toString());
-                fileContext.rename(tmpFilePath,
-                                   status.getPath(),
-                                   Options.Rename.OVERWRITE);
               }
+            }
+          }
+        }
+
+        //If this operator is rolling, delete the left over future rolling files.
+        if(rollingFile) {
+          LOG.debug("Appending and rolling file at setup.");
+          for(String seenFileName: endOffsets.keySet()) {
+            Integer part = openPart.get(seenFileName).getValue() + 1;
+
+            while(true) {
+              Path seenPartFilePath = new Path(filePath + "/" +
+                                               getPartFileName(seenFileName, part));
+              if(!fs.exists(seenPartFilePath)) {
+                break;
+              }
+
+              fs.delete(seenPartFilePath, true);
+              part = part + 1;
+            }
+
+            Path seenPartFilePath = new Path(filePath + "/" +
+                                             getPartFileName(seenFileName,
+                                                             openPart.get(seenFileName).intValue()));
+
+            //Handle the case when restoring to a checkpoint where the current rolling file
+            //already has a length greater than max length.
+            if(//fs.exists(seenPartFilePath) &&
+               fs.getFileStatus(seenPartFilePath).getLen() > maxLength) {
+              LOG.debug("rotating file at setup.");
+              rotate(seenFileName);
             }
           }
         }
       }
       else {
-        //Reset the offsets if the operator is not running in append mode.
-        for(String seenFileName: endOffsets.keySet()) {
-          endOffsets.get(seenFileName).setValue(0L);
-        }
+        endOffsets.clear();
       }
 
       LOG.debug("setup completed");
@@ -500,9 +539,9 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
   /**
    * This method constructs the next rolling files name based on the
    * base file name and the number in the sequence of rolling files.
-   * @param fileName
-   * @param part
-   * @return
+   * @param fileName The base name of the file.
+   * @param part The part number of the rolling file.
+   * @return The rolling file name.
    */
   public String getPartFileName(String fileName,
                                 int part)
@@ -512,11 +551,15 @@ public abstract class AbstractHDFSExactlyOnceWriter<INPUT, OUTPUT> extends BaseO
 
   /**
    * This method converts incoming tuples to another type, which is then written to an output port.
+   * By default this method throws an UnsupportedOperationException and must be overridden.
    * @param tuple A tuple that was received on the operators output port.
    * @return An incoming tuple which was converted to another type and is ready to be emitted on the
    * operator's output port.
    */
-  protected abstract OUTPUT convert(INPUT tuple);
+  protected OUTPUT convert(INPUT tuple)
+  {
+    throw new UnsupportedOperationException("This method is not supported.");
+  }
 
   @Override
   public void endWindow()

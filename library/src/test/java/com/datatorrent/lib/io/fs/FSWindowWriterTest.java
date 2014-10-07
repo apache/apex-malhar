@@ -16,17 +16,15 @@
 package com.datatorrent.lib.io.fs;
 
 import java.io.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
- * Functional Test for {@link HdfsExactlyOnceWindowWriter}
+ * Functional Test for {@link FSWindowWriter}
  */
-public class HdfsExactlyOnceWindowWriterTest
+public class FSWindowWriterTest
 {
   @Before
   public void setup()
@@ -40,7 +38,7 @@ public class HdfsExactlyOnceWindowWriterTest
   @SuppressWarnings("unchecked")
   public void testOperator()
   {
-    HdfsExactlyOnceWindowWriter oper = new HdfsExactlyOnceWindowWriter();
+    FSWindowWriter oper = new FSWindowWriter();
     oper.setFilePath("target");
     oper.setup(new DummyContext(0));
     oper.beginWindow(0);
