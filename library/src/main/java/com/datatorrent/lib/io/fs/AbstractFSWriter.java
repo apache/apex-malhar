@@ -303,10 +303,9 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
     streamsCache = CacheBuilder.newBuilder().maximumSize(maxOpenFiles).removalListener(removalListener).build(loader);
 
     // Duplicates need to be cleaned up in EXACTLY_ONCE mode.
-    if(!cleanUpDuplicatesOnRecovery &&
-       (context.getValue(OperatorContext.PROCESSING_MODE) == ProcessingMode.EXACTLY_ONCE)) {
-      throw new UnsupportedOperationException("cleanUpDuplicatesOnRecovery cannot be false " +
-                                              "when the processing mode is exactly once.");
+    if(context.getValue(OperatorContext.PROCESSING_MODE) == ProcessingMode.EXACTLY_ONCE) {
+      assert cleanUpDuplicatesOnRecovery : "cleanUpDuplicatesOnRecovery cannot be false " +
+                                              "when the processing mode is exactly once.";
     }
 
     try {
