@@ -29,7 +29,7 @@
                 <updatePolicy>daily</updatePolicy>
             </releases>
         </repository>
-    
+
     </repositories>
 
     <build>
@@ -48,7 +48,7 @@
                     </execution>
                 </executions>
             </plugin>
-     
+
         </plugins>
     </build>
 
@@ -399,15 +399,10 @@
             <optional>true</optional>
         </dependency>
         <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-            <version>4.3</version>
-        </dependency>
-        <dependency>
             <groupId>com.couchbase.client</groupId>
             <artifactId>couchbase-client</artifactId>
             <version>1.4.4</version>
             <optional>true</optional>
-        </dependency>    
+        </dependency>
     </dependencies>
 </project>

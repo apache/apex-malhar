@@ -15,11 +15,8 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.common.util.DTThrowable;
 import net.spy.memcached.internal.OperationCompletionListener;
 import net.spy.memcached.internal.OperationFuture;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * AbstractUpdateCouchBaseOutputOperator which extends AbstractCouchBaseOutputOperator and implements add functionality of couchbase.
@@ -30,5 +27,20 @@ public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractC
   public void processTupleCouchbase(String key, Object value)
   {
     future = store.getInstance().add(key, value);
+    future.addListener(new OperationCompletionListener()
+    {
+
+      @Override
+      public void onComplete(OperationFuture<?> f) throws Exception
+      {
+        countLatch.countDown();
+        if (!((Boolean)f.get())) {
+          throw new RuntimeException("Operation set failed");
+        }
+
+      }
+
+    });
   }
+
 }

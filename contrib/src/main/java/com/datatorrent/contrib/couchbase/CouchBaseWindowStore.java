@@ -110,7 +110,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
       CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
       cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
       cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
-      clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, "default", password));
+      clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, "metadata", password));
     }
     catch (IOException e) {
       logger.error("Error connecting to Couchbase: " + e.getMessage());
