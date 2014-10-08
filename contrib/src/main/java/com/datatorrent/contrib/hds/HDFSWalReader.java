@@ -52,11 +52,11 @@ public class HDFSWalReader implements HDS.WALReader
     try {
       int keyLen = in.readInt();
       byte[] key = new byte[keyLen];
-      in.read(key);
+      in.readFully(key);
 
       int valLen = in.readInt();
       byte[] value = new byte[valLen];
-      in.read(value);
+      in.readFully(value);
 
       pair =  new MutableKeyValue(key, value);
       return true;
