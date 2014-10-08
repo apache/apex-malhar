@@ -18,18 +18,18 @@ package com.datatorrent.lib.io.fs;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.validation.constraints.NotNull;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
-import javax.validation.constraints.NotNull;
 
 /**
  * Base class for HDFS file output operators.
@@ -37,8 +37,7 @@ import javax.validation.constraints.NotNull;
  *
  * @param <INPUT> incoming tuple type
  * @since 1.0.2
- * @deprecated This base implementation is not fault tolerant.
- * Please extend AbstractHDFSExactlyOnceWriter for output operators instead.
+ * @deprecated This base implementation is not fault tolerant. Please extend {@link AbstractFSWriter} for output operators instead.
  */
 @Deprecated
 public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator

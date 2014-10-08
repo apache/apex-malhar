@@ -16,27 +16,38 @@
 
 package com.datatorrent.lib.io.fs;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.google.common.base.Strings;
-import com.google.common.cache.*;
-import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+
 import javax.annotation.Nonnull;
-import javax.validation.constraints.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Strings;
+import com.google.common.cache.*;
+import com.google.common.collect.Maps;
+
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.counters.BasicCounters;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
@@ -132,17 +143,15 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   protected int maxOpenFiles = DEFAULT_MAX_OPEN_FILES;
 
   /**
-   * The maximum length in bytes of a rolling file. The default value of this is zero.
-   * When the maxLength is zero the output is not in rolling mode. When the value is
-   * positive the output is in rolling mode.
+   * The maximum length in bytes of a rolling file. The default value of this is Long.MAX_VALUE
    */
-  @Min(0)
-  protected Long maxLength = 0L;
+  @Min(1)
+  protected Long maxLength = Long.MAX_VALUE;
 
   /**
-   * True if the files will be of maximum size.
+   * True if {@link #maxLength} < {@link Long#MAX_VALUE}
    */
-  protected boolean rollingFile = false;
+  protected transient boolean rollingFile = false;
 
   /**
    * The file system used to write to.
@@ -220,7 +229,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   @Override
   public void setup(Context.OperatorContext context)
   {
-    rollingFile = maxLength > 0L;
+    rollingFile = maxLength < Long.MAX_VALUE;
 
     //Getting required file system instance.
     try {
@@ -246,7 +255,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
             value.close();
           }
           catch (IOException e) {
-            DTThrowable.rethrow(e);
+            throw new RuntimeException(e);
           }
         }
       }
@@ -560,10 +569,10 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       LOG.debug("count of {} =  {}", fileName, count);
     }
     catch (IOException ex) {
-      DTThrowable.rethrow(ex);
+      throw new RuntimeException(ex);
     }
     catch (ExecutionException ex) {
-      DTThrowable.rethrow(ex);
+      throw new RuntimeException(ex);
     }
 
     if (output.isConnected()) {
