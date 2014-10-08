@@ -20,7 +20,6 @@ import com.google.common.collect.Lists;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 class GenericAggregate implements DimensionsComputation.AggregateEvent
@@ -213,7 +212,6 @@ public class GenericAggregator implements DimensionsComputation.Aggregator<Gener
   public void aggregate(GenericAggregate dest, GenericEvent src)
   {
     for(int i = 0; i < eventSchema.genericEventValues.size(); i++) {
-      Class type = eventSchema.getAggregateType(i);
       dest.aggregates[i] = apply(eventSchema.genericEventValues.get(i), dest.aggregates[i], src.values[i]);
     }
   }
@@ -223,7 +221,6 @@ public class GenericAggregator implements DimensionsComputation.Aggregator<Gener
   public void aggregate(GenericAggregate dest, GenericAggregate src)
   {
     for(int i = 0; i < eventSchema.genericEventValues.size(); i++) {
-      Class type = eventSchema.getAggregateType(i);
       dest.aggregates[i] = apply(eventSchema.genericEventValues.get(i), dest.aggregates[i], src.aggregates[i]);
     }
   }
@@ -258,11 +255,6 @@ public class GenericAggregator implements DimensionsComputation.Aggregator<Gener
       }
     }
     return null;
-  }
-
-  public EventSchema getEventSchema()
-  {
-    return eventSchema;
   }
 
   public String getDimension()

@@ -20,7 +20,6 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.sun.tools.javac.util.Assert;
 import org.apache.commons.io.IOUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -227,8 +226,8 @@ public class EnrichmentOperator extends BaseOperator
 
   private static class FileLoader
   {
-    private FileSystem fs;
-    private Path filePath;
+    private final FileSystem fs;
+    private final Path filePath;
 
     private FileLoader(String file) throws IOException
     {
@@ -242,7 +241,7 @@ public class EnrichmentOperator extends BaseOperator
     public long getModificationTime() throws IOException
     {
       FileStatus[] status = fs.listStatus(filePath);
-      Assert.check(status.length == 1);
+      assert (status.length == 1);
       return status[0].getModificationTime();
     }
 
