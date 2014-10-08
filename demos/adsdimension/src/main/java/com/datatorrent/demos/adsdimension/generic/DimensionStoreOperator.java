@@ -109,6 +109,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
   {
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
     setFileStore(hdsFile);
+    hdsFile.setBasePath("DefaultDimensionStore");
   }
 
   public EventSchema getEventSchema() {
