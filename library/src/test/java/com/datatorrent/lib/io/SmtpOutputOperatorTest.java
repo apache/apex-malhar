@@ -17,6 +17,7 @@ package com.datatorrent.lib.io;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.mail.Message;
 import javax.mail.internet.InternetAddress;
@@ -28,15 +29,13 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
 import com.google.common.collect.Maps;
 import com.icegreen.greenmail.util.GreenMail;
 import com.icegreen.greenmail.util.ServerSetup;
 import com.icegreen.greenmail.util.ServerSetupTest;
-
-import com.datatorrent.api.StreamingApplication;
-
-import com.datatorrent.stram.plan.logical.LogicalPlan;
-import com.datatorrent.stram.plan.logical.LogicalPlanConfiguration;
 
 public class SmtpOutputOperatorTest
 {
@@ -136,14 +135,19 @@ public class SmtpOutputOperatorTest
     conf.set(StreamingApplication.DT_PREFIX + "operator.o1.prop.recipients.TO", to + "," + cc);
     conf.set(StreamingApplication.DT_PREFIX + "operator.o1.prop.recipients.CC", cc);
 
-    LogicalPlan dag = new LogicalPlan();
-    SmtpOutputOperator o1 = dag.addOperator("o1", new SmtpOutputOperator());
-    LogicalPlanConfiguration pb = new LogicalPlanConfiguration();
-    pb.addFromConfiguration(conf);
+    final AtomicReference<SmtpOutputOperator> o1 = new AtomicReference<SmtpOutputOperator>();
+    StreamingApplication app = new StreamingApplication() {
+      @Override
+      public void populateDAG(DAG dag, Configuration conf)
+      {
+        o1.set(dag.addOperator("o1", new SmtpOutputOperator()));
+      }
+    };
 
-    pb.setOperatorProperties(dag, "testSetOperatorProperties");
-    Assert.assertEquals("checking TO list", to + "," + cc, o1.getRecipients().get("TO"));
-    Assert.assertEquals("checking CC list", cc, o1.getRecipients().get("CC"));
+    LocalMode lma = LocalMode.newInstance();
+    lma.prepareDAG(app, conf);
+    Assert.assertEquals("checking TO list", to + "," + cc, o1.get().getRecipients().get("TO"));
+    Assert.assertEquals("checking CC list", cc, o1.get().getRecipients().get("CC"));
 
   }
 }
