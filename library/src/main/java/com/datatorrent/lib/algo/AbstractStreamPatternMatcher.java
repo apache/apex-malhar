@@ -1,18 +1,18 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*   http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 package com.datatorrent.lib.algo;
 
 import java.util.Iterator;
@@ -32,9 +32,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 /**
  * <p>
  * This operator searches for a given pattern in the input stream.<br>
- * This takes a pattern which is a list of events that you want to find.<br>
  * For e.g. If the pattern is defined as “aa” and your input events arrive in following manner “a”, “a”, “a”, then this operator
- * will emit 2 matches for the given pattern. One matching tuple 1 and 2 and other matching 2 and 3.
+ * will emit 2 matches for the given pattern. One matching event 1 and 2 and other matching 2 and 3.
  * </p>
  *
  * <br>
@@ -55,13 +54,21 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 @OperatorAnnotation(partitionable = false)
 public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
 {
+  /**
+   * The pattern to be searched in the input stream of events
+   */
   @NotNull
   private Pattern<T> pattern;
 
-  // this stores the partial matches found so far
+  // this stores the index of the partial matches found so far
   private List<MutableInt> partialMatches = Lists.newLinkedList();
   private transient MutableInt patternLength;
 
+  /**
+   * Set the pattern that needs to be searched in the input stream of events
+   *
+   * @param pattern The pattern to be searched
+   */
   public void setPattern(Pattern<T> pattern)
   {
     this.pattern = pattern;
@@ -76,6 +83,11 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
     patternLength = new MutableInt(pattern.getStates().length - 1);
   }
 
+  /**
+   * Get the pattern that is searched in the input stream of events
+   *
+   * @return Returns the pattern searched
+   */
   public Pattern<T> getPattern()
   {
     return pattern;
@@ -86,6 +98,9 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
     @Override
     public void process(T t)
     {
+      if (pattern.checkState(t, 0)) {
+        partialMatches.add(new MutableInt(-1));
+      }
       if (partialMatches.size() > 0) {
         MutableInt tempInt;
         Iterator<MutableInt> itr = partialMatches.iterator();
@@ -95,21 +110,25 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
           if (!pattern.checkState(t, tempInt.intValue())) {
             itr.remove();
           }
+          else if (tempInt.equals(patternLength)) {
+            itr.remove();
+            processPatternFound();
+          }
         }
-      }
-      if (pattern.checkState(t, 0)) {
-        partialMatches.add(new MutableInt(0));
-      }
-      if (partialMatches.remove(patternLength)) {
-        processPatternFound();
       }
     }
   };
 
+  /**
+   * This function determines how to process the pattern found
+   */
   public abstract void processPatternFound();
 
   public static class Pattern<T>
   {
+    /**
+     * The states of the pattern
+     */
     @NotNull
     private final T[] states;
 
@@ -124,11 +143,23 @@ public abstract class AbstractStreamPatternMatcher<T> extends BaseOperator
       this.states = states;
     }
 
-    public boolean checkState(T t, int position)
+    /**
+     * Checks if the input state matches the state at index "index" of the pattern
+     *
+     * @param t     The input state
+     * @param index The index to match in the pattern
+     * @return True if the state exists at index "index" else false
+     */
+    public boolean checkState(T t, int index)
     {
-      return states[position].equals(t);
+      return states[index].equals(t);
     }
 
+    /**
+     * Get the states of the pattern
+     *
+     * @return The states of the pattern
+     */
     public T[] getStates()
     {
       return states;
