@@ -24,14 +24,14 @@ package com.datatorrent.lib.algo;
 import java.util.Random;
 
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
-
 import com.datatorrent.api.DefaultOutputPort;
 
-import junit.framework.Assert;
+
 
 public class AbstractStreamPatternMatcherTest
 {
