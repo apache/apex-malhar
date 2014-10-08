@@ -21,9 +21,9 @@ import java.io.*;
 import org.junit.*;
 
 /**
- * Functional Test for {@link FSWindowWriter}
+ * Functional Test for {@link AbstractFSWindowWriter}
  */
-public class FSWindowWriterTest
+public class AbstractFSWindowWriterTest
 {
   @Rule public TestInfo testMeta = new TestInfo();
 
@@ -33,12 +33,21 @@ public class FSWindowWriterTest
     deleteFile(testMeta.getDir() + "/2");
   }
 
+  public static class FSWindowWriterString extends AbstractFSWindowWriter<String, String>
+  {
+    @Override
+    protected byte[] getBytesForTuple(String tuple)
+    {
+      return (tuple + "\n").getBytes();
+    }
+  }
+
   @Test
   @SuppressWarnings("unchecked")
   public void testOperator()
   {
     prepareTest();
-    FSWindowWriter oper = new FSWindowWriter();
+    AbstractFSWindowWriter oper = new FSWindowWriterString();
     oper.setFilePath(testMeta.getDir());
     oper.setup(new DummyContext(0));
     oper.beginWindow(0);
@@ -89,7 +98,7 @@ public class FSWindowWriterTest
   public void testOperatorMidWindowRestore()
   {
     prepareTest();
-    FSWindowWriter oper = new FSWindowWriter();
+    AbstractFSWindowWriter oper = new FSWindowWriterString();
     oper.setFilePath(testMeta.getDir());
     oper.setup(new DummyContext(0));
     oper.beginWindow(0);

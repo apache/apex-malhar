@@ -24,40 +24,34 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.2
  */
-public class FSWindowWriter extends AbstractFSWriter<String, String>
+public abstract class AbstractFSWindowWriter<INPUT, OUTPUT> extends AbstractFSWriter<INPUT, OUTPUT>
 {
   private static final long serialVersionUID = 201405201214L;
-  private static final Logger LOG = LoggerFactory.getLogger(FSWindowWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractFSWindowWriter.class);
 
   private transient String windowIdString;
 
-  public FSWindowWriter()
+  public AbstractFSWindowWriter()
   {
     append = false;
     maxOpenFiles = 1;
   }
 
   @Override
-  public void beginWindow(long windowId)
+  public final void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
     windowIdString = Long.toString(windowId);
   }
 
   @Override
-  public void endWindow()
+  public final void endWindow()
   {
     endOffsets.remove(getFileName(null));
   }
 
   @Override
-  protected byte[] getBytesForTuple(String t)
-  {
-    return (t + "\n").getBytes();
-  }
-
-  @Override
-  protected final String getFileName(String tuple)
+  protected final String getFileName(INPUT tuple)
   {
     return windowIdString;
   }
