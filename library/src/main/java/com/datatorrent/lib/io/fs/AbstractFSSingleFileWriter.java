@@ -20,9 +20,10 @@ import javax.validation.constraints.NotNull;
 
 /**
  * This is a simple class that output all tuples to a single file.
- * @param <T> The type of the incoming tuples.
+ * @param <INPUT> The type of the incoming tuples.
+ * @param <OUTPUT>The type of the output tuples.
  */
-public abstract class AbstractFSSingleFileWriter<T> extends AbstractFSWriter<T, T>
+public abstract class AbstractFSSingleFileWriter<INPUT, OUTPUT> extends AbstractFSWriter<INPUT, OUTPUT>
 {
   /**
    * The name of the output file to write to.
@@ -31,13 +32,7 @@ public abstract class AbstractFSSingleFileWriter<T> extends AbstractFSWriter<T, 
   protected String outputFileName;
 
   @Override
-  protected T convert(T tuple)
-  {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-  }
-
-  @Override
-  protected String getFileName(T tuple)
+  protected String getFileName(INPUT tuple)
   {
     return outputFileName;
   }

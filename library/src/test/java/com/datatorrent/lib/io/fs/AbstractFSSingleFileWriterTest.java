@@ -16,11 +16,9 @@
 
 package com.datatorrent.lib.io.fs;
 
-import com.datatorrent.api.Operator.ProcessingMode;
-import com.datatorrent.lib.util.TestUtils.TestInfo;
-import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -28,6 +26,12 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.Rule;
 import org.junit.Test;
+
+import com.google.common.collect.Maps;
+
+import com.datatorrent.api.Operator.ProcessingMode;
+
+import com.datatorrent.lib.util.TestUtils.TestInfo;
 
 public class AbstractFSSingleFileWriterTest
 {
@@ -38,19 +42,19 @@ public class AbstractFSSingleFileWriterTest
   /**
    * Dummy writer to store checkpointed state
    */
-  private static class CheckPointWriter extends AbstractFSSingleFileWriter<Integer>
+  private static class CheckPointWriter extends AbstractFSSingleFileWriter<Integer, Integer>
   {
     @Override
     protected byte[] getBytesForTuple(Integer tuple)
     {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      throw new UnsupportedOperationException("Not supported yet.");
     }
   }
 
   /**
    * Simple writer which writes to one file.
    */
-  private static class SingleHDFSExactlyOnceWriter extends AbstractFSSingleFileWriter<Integer>
+  private static class SingleHDFSExactlyOnceWriter extends AbstractFSSingleFileWriter<Integer, Integer>
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -66,7 +70,7 @@ public class AbstractFSSingleFileWriterTest
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private CheckPointWriter checkpoint(AbstractFSSingleFileWriter<Integer> writer)
+  private CheckPointWriter checkpoint(AbstractFSSingleFileWriter<Integer, Integer> writer)
   {
     CheckPointWriter checkPointWriter = new CheckPointWriter();
     checkPointWriter.append = writer.append;
@@ -103,7 +107,7 @@ public class AbstractFSSingleFileWriterTest
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private void restoreCheckPoint(CheckPointWriter checkPointWriter,
-                                 AbstractFSSingleFileWriter<Integer> writer)
+                                 AbstractFSSingleFileWriter<Integer, Integer> writer)
   {
     writer.append = checkPointWriter.append;
     writer.counts = checkPointWriter.counts;
