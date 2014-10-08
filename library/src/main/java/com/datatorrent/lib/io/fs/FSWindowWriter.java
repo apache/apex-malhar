@@ -33,8 +33,8 @@ public class FSWindowWriter extends AbstractFSWriter<String, String>
 
   public FSWindowWriter()
   {
-    this.setAppend(false);
-    this.setMaxOpenFiles(1);
+    append = false;
+    maxOpenFiles = 1;
   }
 
   @Override
@@ -45,20 +45,38 @@ public class FSWindowWriter extends AbstractFSWriter<String, String>
   }
 
   @Override
+  public void endWindow()
+  {
+    endOffsets.remove(getFileName(null));
+  }
+
+  @Override
   protected byte[] getBytesForTuple(String t)
   {
     return (t + "\n").getBytes();
   }
 
   @Override
-  protected String convert(String tuple)
+  protected final String getFileName(String tuple)
   {
-    throw new UnsupportedOperationException("This operator does not support this feature.");
+    return windowIdString;
   }
 
   @Override
-  protected String getFileName(String tuple)
+  public final void setAppend(boolean append)
   {
-    return windowIdString;
+    throw new UnsupportedOperationException("This property cannot be set on this operator.");
+  }
+
+  @Override
+  public final void setMaxLength(long maxLength)
+  {
+    throw new UnsupportedOperationException("This property cannot be set on this operator.");
+  }
+
+  @Override
+  public final void setMaxOpenFiles(int maxOpenFiles)
+  {
+    throw new UnsupportedOperationException("This property cannot be set on this operator.");
   }
 }

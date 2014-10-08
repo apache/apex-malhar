@@ -23,7 +23,6 @@ import com.datatorrent.lib.testbench.RandomWordGenerator;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.google.common.collect.Maps;
 import java.io.*;
-import java.util.logging.Level;
 import javax.validation.ConstraintViolationException;
 import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
@@ -131,7 +130,8 @@ public class AbstractFSWriterTest
   /**
    * Dummy writer to store checkpointed state
    */
-  private static class CheckPointWriter extends AbstractFSWriter<Integer, Integer>
+  @SuppressWarnings("rawtypes")
+  public static class CheckPointWriter extends AbstractFSWriter
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -140,14 +140,14 @@ public class AbstractFSWriterTest
     }
 
     @Override
-    protected String getFileName(Integer tuple)
+    protected String getFileName(Object tuple)
     {
       //This is a dummy operator for checkpointing
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
-    protected byte[] getBytesForTuple(Integer tuple)
+    protected byte[] getBytesForTuple(Object tuple)
     {
       //This is a dummy operator for checkpointing
       throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
@@ -219,7 +219,7 @@ public class AbstractFSWriterTest
       DTThrowable.rethrow(ex);
     }
 
-    FileWriter fileWriter = null;
+    FileWriter fileWriter;
 
     try {
       fileWriter = new FileWriter(testFile);
@@ -231,29 +231,34 @@ public class AbstractFSWriterTest
     }
   }
 
+  /**
+   * This method checkpoints the given writer.
+   * @param writer The writer to checkpoint.
+   * @return Checkpointed writer.
+   */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private CheckPointWriter checkpoint(AbstractFSWriter<Integer, Integer> writer)
+  public static CheckPointWriter checkpoint(AbstractFSWriter writer)
   {
     CheckPointWriter checkPointWriter = new CheckPointWriter();
     checkPointWriter.append = writer.append;
     checkPointWriter.counts = Maps.newHashMap();
 
-    for(String keys: writer.counts.keySet()) {
+    for(Object keys: writer.counts.keySet()) {
       checkPointWriter.counts.put(keys,
-                                  new MutableLong(writer.counts.get(keys).longValue()));
+                                  new MutableLong(((MutableLong) writer.counts.get(keys)).longValue()));
     }
 
     checkPointWriter.endOffsets = Maps.newHashMap();
 
-    for(String keys: writer.endOffsets.keySet()) {
-      checkPointWriter.endOffsets.put(keys, new MutableLong(writer.endOffsets.get(keys).longValue()));
+    for(Object keys: writer.endOffsets.keySet()) {
+      checkPointWriter.endOffsets.put(keys, new MutableLong(((MutableLong) writer.endOffsets.get(keys)).longValue()));
     }
 
     checkPointWriter.openPart = Maps.newHashMap();
 
-    for(String keys: writer.openPart.keySet()) {
+    for(Object keys: writer.openPart.keySet()) {
       checkPointWriter.openPart.put(keys,
-                                    new MutableInt(writer.openPart.get(keys).intValue()));
+                                    new MutableInt(((MutableInt) writer.openPart.get(keys)).intValue()));
     }
 
     checkPointWriter.filePath = writer.filePath;
@@ -266,9 +271,14 @@ public class AbstractFSWriterTest
     return checkPointWriter;
   }
 
+  /**
+   * Restores the checkpointed writer.
+   * @param checkPointWriter The checkpointed writer.
+   * @param writer The writer to restore state into.
+   */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private void restoreCheckPoint(CheckPointWriter checkPointWriter,
-                                 AbstractFSWriter<Integer, Integer> writer)
+  public static void restoreCheckPoint(CheckPointWriter checkPointWriter,
+                                       AbstractFSWriter writer)
   {
     writer.append = checkPointWriter.append;
     writer.counts = checkPointWriter.counts;
