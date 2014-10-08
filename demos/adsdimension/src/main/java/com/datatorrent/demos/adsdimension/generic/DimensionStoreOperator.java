@@ -167,7 +167,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
   {
     public String id;
     public int numResults;
-    public Map<String, Object> keys;
+    public Map<String, String> keys;
     public long startTime;
     public long endTime;
   }
@@ -209,8 +209,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
     }
 
     @SuppressWarnings("unchecked")
-    GenericAggregate ae = new GenericAggregate(eventSchema.convertMapToGenericEvent(queryParams.keys));
-
+    GenericAggregate ae = new GenericAggregate(eventSchema.convertQueryKeysToGenericEvent(queryParams.keys));
 
     long bucketKey = getBucketKey(ae);
     if (!(super.partitions == null || super.partitions.contains((int)bucketKey))) {
