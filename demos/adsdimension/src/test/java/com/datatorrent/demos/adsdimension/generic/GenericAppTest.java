@@ -84,11 +84,12 @@ public class GenericAppTest
 
     //Write messages to kafkaQueryTopic
     KafkaTestProducer kafkaQuery = new KafkaTestProducer(kafkaQueryTopic);
+
+    // Query should be able to support keys of String or Number type
     String testQuery="{\n" +
         " \"id\": \"query1\",\n" +
-        " \"keys\": {\n" +
-        "  \"publisherId\": 1\n" +
-        " }\n" +
+        " \"keys\": {\"publisherId\": \"1\"},\n" +
+        " \"kafka\": {\"queryTopic\":\"GenericDimensionsQuery\",\"resultTopic\":\"GenericDimensionsQueryResult\"}" +
         "}";
 
     List<String> testQueryMessages = new ArrayList<String>();

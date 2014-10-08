@@ -238,15 +238,23 @@ public class GenericAggregator implements DimensionsComputation.Aggregator<Gener
       if (eventSchema.fields.get(metric).equals(Integer.class)) {
         int val1 = (o != null) ? ((Number)o).intValue() : 0;
         int val2 = (o1 != null) ? ((Number)o1).intValue() : 0;
-        return new Integer(val1 + val2);
+        return val1 + val2;
       } else if (eventSchema.fields.get(metric).equals(Long.class)) {
-        long val1 = (o != null) ? ((Number)o).longValue() : 0;
-        long val2 = (o1 != null) ? ((Number)o1).longValue() : 0;
-        return new Long(val1 + val2);
+        long val1 = (o != null) ? ((Number)o).longValue() : 0L;
+        long val2 = (o1 != null) ? ((Number)o1).longValue() : 0L;
+        return val1 + val2;
+      } else if (eventSchema.fields.get(metric).equals(Float.class)) {
+        float val1 = (o != null) ? ((Number)o).floatValue() : 0f;
+        float val2 = (o1 != null) ? ((Number)o1).floatValue() : 0f;
+        return val1 + val2;
       } else if (eventSchema.fields.get(metric).equals(Double.class)) {
-        double val1 = (o != null) ? ((Number)o).doubleValue() : 0;
-        double val2 = (o1 != null) ? ((Number)o1).doubleValue() : 0;
-        return new Double(val1 + val2);
+        double val1 = (o != null) ? ((Number)o).doubleValue() : 0d;
+        double val2 = (o1 != null) ? ((Number)o1).doubleValue() : 0d;
+        return val1 + val2;
+      } else if (eventSchema.fields.get(metric).equals(String.class)) {
+        String val1 = (o != null) ? (String)o : "";
+        String val2 = (o1 != null) ? (String)o1 : "";
+        return val1 + val2;
       }
     }
     return null;
