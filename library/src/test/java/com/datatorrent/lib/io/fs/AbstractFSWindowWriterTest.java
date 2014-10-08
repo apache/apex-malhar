@@ -47,7 +47,7 @@ public class AbstractFSWindowWriterTest
   public void testOperator()
   {
     prepareTest();
-    AbstractFSWindowWriter oper = new FSWindowWriterString();
+    FSWindowWriterString oper = new FSWindowWriterString();
     oper.setFilePath(testMeta.getDir());
     oper.setup(new DummyContext(0));
     oper.beginWindow(0);
@@ -98,7 +98,7 @@ public class AbstractFSWindowWriterTest
   public void testOperatorMidWindowRestore()
   {
     prepareTest();
-    AbstractFSWindowWriter oper = new FSWindowWriterString();
+    FSWindowWriterString oper = new FSWindowWriterString();
     oper.setFilePath(testMeta.getDir());
     oper.setup(new DummyContext(0));
     oper.beginWindow(0);
