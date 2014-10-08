@@ -29,7 +29,6 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import javax.validation.constraints.*;
 import org.apache.commons.lang.mutable.MutableLong;

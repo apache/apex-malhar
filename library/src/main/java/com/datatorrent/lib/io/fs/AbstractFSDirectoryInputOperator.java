@@ -445,7 +445,9 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     boolean fileFailed = false;
 
     try {
-      inputStream.close();
+      if(inputStream != null) {
+        inputStream.close();
+      }
     }
     catch (IOException ex) {
       savedException = ex;
