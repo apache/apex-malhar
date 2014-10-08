@@ -23,20 +23,15 @@ package com.datatorrent.lib.algo;
 
 import java.util.Random;
 
-import junit.framework.Assert;
-import org.apache.hadoop.conf.Configuration;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.StreamingApplication;
-
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
+
+import com.datatorrent.api.DefaultOutputPort;
+
+import junit.framework.Assert;
 
 public class AbstractStreamPatternMatcherTest
 {
