@@ -317,7 +317,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
     // write modified files
     for (Map.Entry<BucketFileMeta, Map<Slice, byte[]>> fileEntry : modifiedFiles.entrySet()) {
       BucketFileMeta fileMeta = fileEntry.getKey();
-      TreeMap<Slice, byte[]> fileData = Maps.newTreeMap(getKeyComparator());
+      TreeMap<Slice, byte[]> fileData = new TreeMap<Slice, byte[]>(getKeyComparator());
 
       if (fileMeta.name != null) {
         // load existing file

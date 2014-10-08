@@ -103,7 +103,7 @@ public class HDSTestApp implements StreamingApplication
     fs.setBasePath(file.toURI().toString());
     fs.init();
 
-    TreeMap<Slice, byte[]> data = Maps.newTreeMap(new HDSTest.SequenceComparator());
+    TreeMap<Slice, byte[]> data = new TreeMap<Slice, byte[]>(new HDSTest.SequenceComparator());
     fs.getReader(0, "0-0").readFully(data);
     Assert.assertArrayEquals("read key=" + new String(KEY0), DATA0.getBytes(), data.get(HDS.SliceExt.toSlice(KEY0)));
 

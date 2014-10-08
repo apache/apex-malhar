@@ -88,7 +88,7 @@ public class HDSTest
 
   private TreeMap<Slice, byte[]> readFile(HDSWriter bm, long bucketKey, String fileName) throws IOException
   {
-    TreeMap<Slice, byte[]> data = Maps.newTreeMap(bm.getKeyComparator());
+    TreeMap<Slice, byte[]> data = new TreeMap<Slice, byte[]>(bm.getKeyComparator());
     HDSFileReader reader = bm.getFileStore().getReader(bucketKey, fileName);
     reader.readFully(data);
     reader.close();

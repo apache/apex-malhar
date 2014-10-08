@@ -337,7 +337,7 @@ public class HDSReader implements Operator, HDS.Reader
   {
     protected BucketMeta(Comparator<Slice> cmp)
     {
-      files = Maps.newTreeMap(cmp);
+      files = new TreeMap<Slice, BucketFileMeta>(cmp);
     }
 
     @SuppressWarnings("unused")
