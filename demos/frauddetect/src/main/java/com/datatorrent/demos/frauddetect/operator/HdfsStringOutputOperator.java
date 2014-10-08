@@ -15,16 +15,11 @@
  */
 package com.datatorrent.demos.frauddetect.operator;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import org.apache.commons.lang.text.StrSubstitutor;
-import org.apache.hadoop.fs.Path;
-
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAGContext;
+import com.datatorrent.lib.io.fs.AbstractFSWriter;
 
-import com.datatorrent.lib.io.fs.AbstractHdfsRollingFileOutputOperator;
+import java.io.File;
 
 /**
  * Adapter for writing Strings to HDFS
@@ -34,44 +29,42 @@ import com.datatorrent.lib.io.fs.AbstractHdfsRollingFileOutputOperator;
  *
  * @since 0.9.4
  */
-public class HdfsStringOutputOperator extends AbstractHdfsRollingFileOutputOperator<String>
+public class HdfsStringOutputOperator extends AbstractFSWriter<String, String>
 {
-
-  /**
-   * File name substitution parameter: The system assigned id of the operator instance, which is unique for the
-   * application.
-   */
-  public static final String FNAME_SUB_CONTEXT_ID = "contextId";
-  /**
-   * File name substitution parameter: Index of part file when a file size limit is specified.
-   */
-  public static final String FNAME_SUB_PART_INDEX = "partIndex";
-
-  private String contextId;
+  private transient String outputFileName;
+  private transient String contextId;
   private int index = 0;
 
-  @Override
-  public Path nextFilePath()
+  public HdfsStringOutputOperator()
   {
-    Map<String, String> params = new HashMap<String, String>();
-    params.put(FNAME_SUB_PART_INDEX, String.valueOf(index));
-    params.put(FNAME_SUB_CONTEXT_ID, contextId);
-    StrSubstitutor sub = new StrSubstitutor(params, "%(", ")");
-    index++;
-    return new Path(sub.replace(getFilePath().toString()));
+    setMaxLength(1024 * 1024);
   }
 
   @Override
   public void setup(OperatorContext context)
   {
     contextId = context.getValue(DAGContext.APPLICATION_NAME);
+    outputFileName = File.separator + contextId +
+                     File.separator + "transactions.out.part";
     super.setup(context);
   }
-  
+
   @Override
   public byte[] getBytesForTuple(String t)
   {
     return t.getBytes();
   }
 
+  @Override
+  protected String getFileName(String tuple)
+  {
+    return outputFileName;
+  }
+
+  @Override
+  public String getPartFileName(String fileName,
+                                int part)
+  {
+    return fileName + part;
+  }
 }

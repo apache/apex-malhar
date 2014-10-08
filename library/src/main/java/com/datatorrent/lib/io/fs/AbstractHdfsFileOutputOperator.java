@@ -37,7 +37,10 @@ import javax.validation.constraints.NotNull;
  *
  * @param <INPUT> incoming tuple type
  * @since 1.0.2
+ * @deprecated This base implementation is not fault tolerant.
+ * Please extend AbstractHDFSExactlyOnceWriter for output operators instead.
  */
+@Deprecated
 public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
 {
   protected transient FSDataOutputStream fsOutput;
@@ -205,9 +208,8 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
 
   /**
    * This function returns the byte array for the given tuple.
-   *
-   * @param t
-   * @return
+   * @param t The tuple to convert into a byte array.
+   * @return The byte array for a given tuple.
    */
   protected abstract byte[] getBytesForTuple(INPUT t);
 

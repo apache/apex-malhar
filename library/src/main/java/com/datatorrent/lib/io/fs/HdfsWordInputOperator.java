@@ -15,16 +15,9 @@
  */
 package com.datatorrent.lib.io.fs;
 
-
-//import java.io.DataInputStream;
 import java.io.EOFException;
-//import java.io.FileInputStream;
-//import java.io.FileNotFoundException;
 import java.io.IOException;
-
 import org.apache.hadoop.fs.FSDataInputStream;
-
-
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
@@ -55,13 +48,13 @@ public class HdfsWordInputOperator extends AbstractHDFSInputOperator
     super.activate(ctx);
     String file = getFilePath();
     if (file != null) {
-      dis = openFile(file); 
+      dis = openFile(file);
     }
   }
-  
+
   /**
-   * Sets the size of the word to be read from the file. 
-   *  
+   * Sets the size of the word to be read from the file.
+   *
    * @param size the tupleSize to set
    */
   public void setTupleSize(int size)
@@ -87,16 +80,16 @@ public class HdfsWordInputOperator extends AbstractHDFSInputOperator
         for (int i = count--; i-- > 0;) {
           tupleBuffer =  new byte[tupleSizeLocalCopy];
           dis.readFully(0, tupleBuffer, 0, tupleSizeLocalCopy);
-          output.emit(tupleBuffer); 
+          output.emit(tupleBuffer);
         }
         firstTime = false;
       }else {
         tupleBuffer =  new byte[tupleSizeLocalCopy];
         dis.readFully(0, tupleBuffer, 0, tupleSizeLocalCopy);
-        output.emit(tupleBuffer); 
+        output.emit(tupleBuffer);
         count++;
       }
-    } 
+    }
     catch(EOFException e)
     {
       super.seek(dis,0);
@@ -104,7 +97,7 @@ public class HdfsWordInputOperator extends AbstractHDFSInputOperator
      DTThrowable.rethrow(e);
     }
   }
-  
+
   @Override
   public void beginWindow(long windowId)
   {
