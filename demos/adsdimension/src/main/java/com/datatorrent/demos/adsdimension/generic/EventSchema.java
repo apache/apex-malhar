@@ -171,6 +171,7 @@ public class EventSchema implements Serializable
   }
 
   public Object typeCast(String input, String fieldKey) {
+    if (input == null) return null;
     Class<?> c = getType(fieldKey);
 
     if (c.equals(Integer.class)) return Integer.valueOf(input);
@@ -220,6 +221,28 @@ public class EventSchema implements Serializable
         ga.aggregates[i] = defaultValue(genericEventValues.get(i));
     }
   }
+
+  GenericEvent convertQueryKeysToGenericEvent(Map<String, String> keys)
+  {
+    GenericEvent event = new GenericEvent();
+    event.keys = new Object[genericEventKeys.size()];
+    int idx = 0;
+    for(String key : genericEventKeys)
+    {
+      Object value = typeCast(keys.get(key), key);
+      event.keys[idx++] = (value == null) ? defaultValue(key) : value;
+    }
+
+    event.values = new Object[genericEventValues.size()];
+    idx = 0;
+    for(String key : genericEventValues)
+    {
+      event.values[idx++] = defaultValue(key);
+    }
+
+    return event;
+  }
+
 
   GenericEvent convertMapToGenericEvent(Map<String, Object> tuple)
   {
