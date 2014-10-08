@@ -43,9 +43,9 @@ import java.util.List;
  * are ignored till the processing window id becomes greater than the last processed window id.<br>
  *
  * <br>
- * @displayName: HBase Output
- * @category: store
- * @tag: output operator
+ * @displayName HBase Output
+ * @category Store
+ * @tags output operator
  * @param <T> The tuple type
  * @since 0.3.2
  */

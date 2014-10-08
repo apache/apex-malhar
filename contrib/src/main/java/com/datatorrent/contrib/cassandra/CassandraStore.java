@@ -31,9 +31,9 @@ import com.datatorrent.lib.db.Connectable;
 /**
  * A {@link Connectable} that uses cassandra to connect to stores and implements Connectable interface. 
  * <p>
- * @displayName: Cassandra Store
- * @category: store
- * @tag: store
+ * @displayName Cassandra Store
+ * @category Store
+ * @tags store
  * @since 1.0.2
  */
 public class CassandraStore implements Connectable

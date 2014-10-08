@@ -27,7 +27,7 @@ import org.zeromq.ZMQ;
  * Subclasses should implement the method which converts ZeroMQ byte messages into tuples.
  * <p></p>
  * @displayName Simple Single Port ZeroMQ Pull Input
- * @category messaging
+ * @category Messaging
  * @tags input operator
  * @since 0.3.2
  */

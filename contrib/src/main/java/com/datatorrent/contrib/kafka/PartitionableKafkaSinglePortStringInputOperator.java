@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
  * <p></p>
  *
  * @displayName Partitionable Kafka Single Port String Input
- * @category messaging
+ * @category Messaging
  * @tags input operator, string
  *
  * @since 0.9.0

@@ -29,9 +29,9 @@ import java.util.List;
  * <p>
  * Generic base output adaptor which writes tuples as they come without providing any transactional support.&nbsp; Subclasses should provide implementation for getting updated bins. 
  * </p>
- * @displayName: Abstract Aerospike Non Transactional Put
- * @category: db
- * @tag: output operator, put, non transactional
+ * @displayName Abstract Aerospike Non Transactional Put
+ * @category Database
+ * @tags output operator, put, non transactional
  * @param <T>type of tuple</T>
  * @since 1.0.4
  */

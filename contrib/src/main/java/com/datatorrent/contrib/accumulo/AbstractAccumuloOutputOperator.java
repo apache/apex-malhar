@@ -46,9 +46,9 @@ import com.google.common.collect.Lists;
  * restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when
  * the operator shutdown.
- * @displayName: Abstract Accumulo Output
- * @category: store
- * @tag: output operator
+ * @displayName Abstract Accumulo Output
+ * @category Store
+ * @tags output operator
  * @param <T>
  *            The tuple type
  * @since 1.0.4

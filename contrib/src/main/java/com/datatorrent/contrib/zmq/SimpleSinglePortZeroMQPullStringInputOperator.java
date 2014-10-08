@@ -21,7 +21,7 @@ package com.datatorrent.contrib.zmq;
  * and convert byte messages into strings which are then emitted as tuples.
  * <p></p>
  * @displayName Simple Single Port ZeroMQ Pull String Input
- * @category messaging
+ * @category Messaging
  * @tags output operator, string
  * @since 0.3.2
  */

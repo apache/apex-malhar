@@ -36,9 +36,9 @@ import net.sf.uadetector.UserAgentStringParser;
  * net.sf.uadetector.UserAgentStringParser.class
  * net.sf.uadetector.service.UADetectorServiceFactory.class
  * net.sf.qualitycheck.Check.class
- * @displayName: User Agent Extractor
- * @category: db
- * @tag: cache, extraction
+ * @displayName User Agent Extractor
+ * @category Database
+ * @tags cache, extraction
  * @since 0.9.4
  */
 public class UserAgentExtractor implements InformationExtractor

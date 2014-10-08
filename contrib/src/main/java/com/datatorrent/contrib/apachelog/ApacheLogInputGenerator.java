@@ -29,9 +29,9 @@ import org.slf4j.LoggerFactory;
 /**
  * An implementation of input operator and activation listener that simulates the apache logs.
  * <p>
- * @displayName: Apache Log Input Generator
- * @category: db
- * @tag: input operator, log
+ * @displayName Apache Log Input Generator
+ * @category Database
+ * @tags input operator, log
  * @since 0.9.4
  */
 public class ApacheLogInputGenerator implements InputOperator, ActivationListener<OperatorContext>

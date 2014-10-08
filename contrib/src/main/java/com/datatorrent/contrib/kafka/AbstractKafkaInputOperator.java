@@ -58,7 +58,7 @@ import java.util.Set;
  * </p>
  *
  * @displayName Abstract Kafka Input
- * @category messaging
+ * @category Messaging
  * @tags input operator
  *
  * @since 0.3.2

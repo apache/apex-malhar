@@ -44,9 +44,9 @@ import java.util.Map;
  * columnfamily address and column street of row xyz. Other values are inserted
  * similarly.
  * 
- * @displayName: HBase Name Value Csv Put
- * @category: store
- * @tag: output operator, put
+ * @displayName HBase Name Value Csv Put
+ * @category Store
+ * @tags output operator, put
  * @since 1.0.2
  */
 public class HBaseNameValueCsvPutOperator extends AbstractHBaseWindowPutOutputOperator<String> {

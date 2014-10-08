@@ -72,7 +72,7 @@ import java.util.Map;
  * </p>
  *
  * @displayName Abstract Exactly Once Kafka Output
- * @category messaging
+ * @category Messaging
  * @tags output operator
  *
  * @since 1.0.2

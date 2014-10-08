@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
  * @displayName Abstract MQTT Input
- * @category messaging
+ * @category Messaging
  * @tags input operator
  * @since 0.9.3
  */

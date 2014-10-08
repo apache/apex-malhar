@@ -29,9 +29,9 @@ import java.io.IOException;
  * store for the tuple in the table.<br>
  *
  * <br>
- * @displayName: HBase Append
- * @category: store
- * @tag: append, output operator
+ * @displayName HBase Append
+ * @category Store
+ * @tags append, output operator
  * @param <T> The tuple type
  * @since 0.3.2
  */

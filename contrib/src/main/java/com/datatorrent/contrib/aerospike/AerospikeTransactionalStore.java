@@ -32,9 +32,9 @@ import com.datatorrent.lib.db.TransactionableStore;
 /**
  * <p>Provides transaction support to the operators by implementing TransactionableStore abstract methods. </p>
  * 
- * @displayName: Aerospike Transactional Store
- * @category: db
- * @tag: store, transactional
+ * @displayName Aerospike Transactional Store
+ * @category Database
+ * @tags store, transactional
  * @since 1.0.4
  */
 public class AerospikeTransactionalStore extends AerospikeStore implements TransactionableStore {

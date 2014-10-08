@@ -42,7 +42,7 @@ import kafka.producer.KeyedMessage;
  * </p>
  *
  * @displayName Kafka Single Port Output
- * @category messaging
+ * @category Messaging
  * @tags output operator
  *
  * @since 0.3.2

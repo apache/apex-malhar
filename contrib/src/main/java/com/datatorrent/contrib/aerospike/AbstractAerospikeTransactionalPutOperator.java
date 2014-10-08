@@ -35,9 +35,9 @@ import java.util.List;
  * This is needed for the recovery. The operator writes a tuple at least once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
- * @displayName: Abstract Aerospike Transactional Put
- * @category: db
- * @tag: output operator, put, transactional
+ * @displayName Abstract Aerospike Transactional Put
+ * @category Database
+ * @tags output operator, put, transactional
  * @param <T>type of tuple</T>
  * @since 1.0.4
  */

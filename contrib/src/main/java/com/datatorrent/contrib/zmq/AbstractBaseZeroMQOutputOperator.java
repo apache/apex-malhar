@@ -51,7 +51,7 @@ import org.zeromq.ZMQ;
  * </table><br>
  * </p>
  * @displayName Abstract Base ZeroMQ Input
- * @category messaging
+ * @category Messaging
  * @tags output operator
  * @since 0.3.2
  */

@@ -33,9 +33,9 @@ import java.io.InterruptedIOException;
  * Note that since HBase doesn't support transactions this store cannot guarantee each tuple is written only once to
  * HBase in case the operator is restarted from an earlier checkpoint. It only tries to minimize the number of
  * duplicates limiting it to the tuples that were processed in the window when the operator shutdown.
- * @displayName: HBase Window Store
- * @category: store
- * @tag: store, transactional
+ * @displayName HBase Window Store
+ * @category Store
+ * @tags store, transactional
  * @since 1.0.2
  */
 public class HBaseWindowStore extends HBaseStore implements TransactionableStore {

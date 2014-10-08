@@ -45,9 +45,9 @@ import com.datatorrent.lib.db.TransactionableStore;
  * properties. It does not guarantee exactly once property.It only skips tuple
  * processed in previous windows
  * 
- * @displayName: Accumulo Window Store
- * @category: store
- * @tag: store
+ * @displayName Accumulo Window Store
+ * @category Store
+ * @tags store
  * @since 1.0.4
  */
 public class AccumuloWindowStore extends AccumuloStore implements TransactionableStore {

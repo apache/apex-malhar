@@ -29,9 +29,9 @@ import org.apache.hadoop.hbase.client.HTable;
  * the configuration to be used by the HBase operators.<br>
  * 
  * <br>
- * @displayName: HBase Operator Base
- * @category: store
- * @tag: base, properties
+ * @displayName HBase Operator Base
+ * @category Store
+ * @tags base, properties
  * @since 0.3.2
  */
 @ShipContainingJars(classes = {org.apache.hadoop.hbase.client.HTable.class})
