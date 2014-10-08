@@ -35,10 +35,4 @@ public class HdfsKeyValOutputOperator<K,V> extends AbstractFSSingleFileWriter<Ke
   {
     return (t.toString()+"\n").getBytes();
   }
-
-  @Override
-  protected KeyHashValPair<K, V> convert(KeyHashValPair<K, V> tuple)
-  {
-    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-  }
 }

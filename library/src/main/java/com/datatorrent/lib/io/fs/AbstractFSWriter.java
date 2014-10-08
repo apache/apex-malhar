@@ -26,8 +26,10 @@ import com.google.common.cache.*;
 import com.google.common.collect.Maps;
 import java.io.File;
 import java.io.IOException;
-import java.util.Map;
+import java.util.*;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
 import javax.annotation.Nonnull;
 import javax.validation.constraints.*;
 import org.apache.commons.lang.mutable.MutableLong;
@@ -41,10 +43,15 @@ import org.slf4j.LoggerFactory;
  * This base implementation for a fault tolerant HDFS output operator,
  * which can handle outputting to multiple files when the output file depends on the tuple.
  * The file a tuple is output to is determined by the getFilePath method. The operator can
- * also output files to rolling mode. In rolling mode file names have '.#' appended to the
- * end, where # is an integer. A maximum length for files is specified and
- * whenever the current output file size exceeds the maximum length, output is rolled over to a new
- * file whose name ends in '.#+1'.
+ * also output files to rolling mode. In rolling mode by default file names have '.#' appended to the
+ * end, where # is an integer. A maximum length for files is specified and whenever the current output
+ * file size exceeds the maximum length, output is rolled over to a new file whose name ends in '.#+1'.
+ * <br/>
+ * <br/>
+ * <b>Note:</b> This operator maintains internal state in a map of files names to offsets in the endOffsets
+ * field. If the user configures this operator to write to an enormous
+ * number of files, there is a risk that the operator will run out of memory. In such a case the
+ * user is responsible for maintaining the internal state to prevent the operator from running out
  *
  * BenchMark Results
  * -----------------
@@ -70,8 +77,18 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFSWriter.class);
 
   private static final String TMP_EXTENSION = ".tmp";
+
+  private static final int MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION = 25;
+
+  /**
+   * Size of the copy buffer used to restore files to checkpointed state.
+   */
   private static final int COPY_BUFFER_SIZE = 1024;
-  public final static int DEFAULT_MAX_OPEN_FILES = 10;
+
+  /**
+   * The default number of max open files.
+   */
+  public final static int DEFAULT_MAX_OPEN_FILES = 100;
 
   /**
    * Keyname to rolling file number.
@@ -87,9 +104,8 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   protected Map<String, MutableLong> counts;
 
   /**
-   * False if you want to overwrite files in case of operator restart, or when files are
-   * loaded into the cache.
-   * True if you want to append to files in case of restart, an when files are loaded into cache.
+   * False if you want to overwrite files which are encountered when the app starts.
+   * True if you want to append to existing files when the app starts.
    */
   protected boolean append = true;
 
@@ -117,33 +133,17 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   protected int maxOpenFiles = DEFAULT_MAX_OPEN_FILES;
 
   /**
-   * If rollingFile is set to true, the writer will rotate the file if it exceed the maxLength of bytes.
+   * The maximum length in bytes of a rolling file. The default value of this is zero.
+   * When the maxLength is zero the output is not in rolling mode. When the value is
+   * positive the output is in rolling mode.
    */
-  @AssertTrue(message="Validating maximum length")
-  public boolean isValidMaxLength(){
-    if(!(maxLength == null || maxLength >= 1L)) {
-      return false;
-    }
-
-    return true;
-  }
-
-  /**
-   * The maximum length in bytes of a rolling file.
-   */
-  protected Long maxLength = null;
+  @Min(0)
+  protected Long maxLength = 0L;
 
   /**
    * True if the files will be of maximum size.
    */
   protected boolean rollingFile = false;
-
-  /**
-   * This specifies whether or not duplicates are removed from output files on recovery. An UnsupportedOperation
-   * exception is thrown if this is set to false when the OperatingMode is exactly once. This field is
-   * ignored when the OperatingMode is AT_MOST_ONCE because no clean up needs to be done in that case.
-   */
-  protected boolean cleanUpDuplicatesOnRecovery = true;
 
   /**
    * The file system used to write to.
@@ -221,8 +221,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   @Override
   public void setup(Context.OperatorContext context)
   {
-    rollingFile = (maxLength != null) &&
-                  (maxLength >= 1L);
+    rollingFile = maxLength > 0L;
 
     //Getting required file system instance.
     try {
@@ -267,108 +266,128 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
         if (replication <= 0) {
           replication = fs.getDefaultReplication(lfilepath);
         }
-        boolean overwrite = !endOffsets.containsKey(filename);
 
-        LOG.debug("Overwriting file {}: {}", filename, overwrite);
+        boolean sawThisFileBefore = endOffsets.containsKey(filename);
+
         try {
           if (fs.exists(lfilepath)) {
-            if (append && !overwrite) {
+            if(sawThisFileBefore || append) {
+              FileStatus fileStatus = fs.getFileStatus(lfilepath);
+              MutableLong endOffset = endOffsets.get(filename);
+
+              if (endOffset != null) {
+                endOffset.setValue(fileStatus.getLen());
+              }
+              else {
+                endOffsets.put(filename, new MutableLong(fileStatus.getLen()));
+              }
+
               fsOutput = fs.append(lfilepath);
               LOG.debug("appending to {}", lfilepath);
             }
+            //We never saw this file before and we don't want to append
             else {
-              fs.delete(lfilepath, true);
-              fsOutput = fs.create(lfilepath, (short) replication);
+              //If the file is rolling we need to delete all its parts.
+              if(rollingFile) {
+                int part = 0;
+
+                while (true) {
+                  Path seenPartFilePath = new Path(filePath + "/"
+                          + getPartFileName(filename, part));
+                  if (!fs.exists(seenPartFilePath)) {
+                    break;
+                  }
+
+                  fs.delete(seenPartFilePath, true);
+                  part = part + 1;
+                }
+
+                fsOutput = fs.create(lfilepath, (short) replication);
+              }
+              //Not rolling is easy, just delete the file and create it again.
+              else {
+                fs.delete(lfilepath, true);
+                fsOutput = fs.create(lfilepath, (short) replication);
+              }
             }
           }
           else {
             fsOutput = fs.create(lfilepath, (short) replication);
           }
 
-          if(!overwrite) {
-            endOffsets.get(filename).setValue(fs.getFileStatus(lfilepath).getLen());
-          }
+          //Get the end offset of the file.
 
           LOG.debug("full path: {}", fs.getFileStatus(lfilepath).getPath());
-
           return fsOutput;
         }
         catch (IOException e) {
           DTThrowable.rethrow(e);
         }
+
         return null;
       }
     };
 
     streamsCache = CacheBuilder.newBuilder().maximumSize(maxOpenFiles).removalListener(removalListener).build(loader);
 
-    // Duplicates need to be cleaned up in EXACTLY_ONCE mode.
-    if(context.getValue(OperatorContext.PROCESSING_MODE) == ProcessingMode.EXACTLY_ONCE) {
-      assert cleanUpDuplicatesOnRecovery : "cleanUpDuplicatesOnRecovery cannot be false " +
-                                              "when the processing mode is exactly once.";
-    }
-
     try {
       LOG.debug("File system class: {}", fs.getClass());
       LOG.debug("end-offsets {}", endOffsets);
 
-      if(append) {
-        //Restore the files in case they were corrupted and the operator
-        //is running in append mode.
-        if(cleanUpDuplicatesOnRecovery) {
-          Path writerPath = new Path(filePath);
-          if (fs.exists(writerPath)) {
-            for (String seenFileName : endOffsets.keySet()) {
-              String seenFileNamePart = getPartFileNamePri(seenFileName);
-              LOG.debug("seenFileNamePart: {}", seenFileNamePart);
-              Path seenPartFilePath = new Path(filePath + "/" + seenFileNamePart);
-              if (fs.exists(seenPartFilePath)) {
-                LOG.debug("file exists {}", seenFileNamePart);
-                long offset = endOffsets.get(seenFileName).longValue();
-                FSDataInputStream inputStream = fs.open(seenPartFilePath);
-                FileStatus status = fs.getFileStatus(seenPartFilePath);
+      //Restore the files in case they were corrupted and the operator
+      Path writerPath = new Path(filePath);
+      if (fs.exists(writerPath)) {
+        for (String seenFileName: endOffsets.keySet()) {
+          String seenFileNamePart = getPartFileNamePri(seenFileName);
+          LOG.debug("seenFileNamePart: {}", seenFileNamePart);
+          Path seenPartFilePath = new Path(filePath + "/" + seenFileNamePart);
+          if (fs.exists(seenPartFilePath)) {
+            LOG.debug("file exists {}", seenFileNamePart);
+            long offset = endOffsets.get(seenFileName).longValue();
+            FSDataInputStream inputStream = fs.open(seenPartFilePath);
+            FileStatus status = fs.getFileStatus(seenPartFilePath);
 
-                if (status.getLen() != offset) {
-                  LOG.info("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
-                  byte[] buffer = new byte[COPY_BUFFER_SIZE];
+            if (status.getLen() != offset) {
+              LOG.info("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
+              byte[] buffer = new byte[COPY_BUFFER_SIZE];
 
-                  String tmpFileName = seenFileNamePart + TMP_EXTENSION;
-                  FSDataOutputStream fsOutput = streamsCache.get(tmpFileName);
-                  while (inputStream.getPos() < offset) {
-                    long remainingBytes = offset - inputStream.getPos();
-                    int bytesToWrite = remainingBytes < COPY_BUFFER_SIZE ? (int) remainingBytes : COPY_BUFFER_SIZE;
-                    inputStream.read(buffer);
-                    fsOutput.write(buffer, 0, bytesToWrite);
-                  }
-
-                  flush(fsOutput);
-                  FileContext fileContext = FileContext.getFileContext(fs.getUri());
-                  String tempTmpFilePath = getPartFileNamePri(filePath + File.separator + tmpFileName);
-
-                  Path tmpFilePath = new Path(tempTmpFilePath);
-                  tmpFilePath = fs.getFileStatus(tmpFilePath).getPath();
-                  LOG.debug("temp file path {}, rolling file path {}",
-                            tmpFilePath.toString(),
-                            status.getPath().toString());
-                  fileContext.rename(tmpFilePath,
-                                     status.getPath(),
-                                     Options.Rename.OVERWRITE);
-                }
+              String tmpFileName = seenFileNamePart + TMP_EXTENSION;
+              FSDataOutputStream fsOutput = streamsCache.get(tmpFileName);
+              while (inputStream.getPos() < offset) {
+                long remainingBytes = offset - inputStream.getPos();
+                int bytesToWrite = remainingBytes < COPY_BUFFER_SIZE ? (int)remainingBytes : COPY_BUFFER_SIZE;
+                inputStream.read(buffer);
+                fsOutput.write(buffer, 0, bytesToWrite);
               }
+
+              flush(fsOutput);
+              FileContext fileContext = FileContext.getFileContext(fs.getUri());
+              String tempTmpFilePath = getPartFileNamePri(filePath + File.separator + tmpFileName);
+
+              Path tmpFilePath = new Path(tempTmpFilePath);
+              tmpFilePath = fs.getFileStatus(tmpFilePath).getPath();
+              LOG.debug("temp file path {}, rolling file path {}",
+                        tmpFilePath.toString(),
+                        status.getPath().toString());
+              fileContext.rename(tmpFilePath,
+                                 status.getPath(),
+                                 Options.Rename.OVERWRITE);
             }
           }
         }
+      }
 
-        //If this operator is rolling, delete the left over future rolling files.
-        if(rollingFile) {
-          LOG.debug("Appending and rolling file at setup.");
-          for(String seenFileName: endOffsets.keySet()) {
+      //delete the left over future rolling files produced from the previous crashed instance
+      //of this operator.
+      if (rollingFile) {
+        for(String seenFileName: endOffsets.keySet()) {
+          try {
             Integer part = openPart.get(seenFileName).getValue() + 1;
 
-            while(true) {
-              Path seenPartFilePath = new Path(filePath + "/" +
-                                               getPartFileName(seenFileName, part));
-              if(!fs.exists(seenPartFilePath)) {
+            while (true) {
+              Path seenPartFilePath = new Path(filePath + "/"
+                      + getPartFileName(seenFileName, part));
+              if (!fs.exists(seenPartFilePath)) {
                 break;
               }
 
@@ -376,22 +395,24 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
               part = part + 1;
             }
 
-            Path seenPartFilePath = new Path(filePath + "/" +
-                                             getPartFileName(seenFileName,
-                                                             openPart.get(seenFileName).intValue()));
+            Path seenPartFilePath = new Path(filePath + "/"
+                    + getPartFileName(seenFileName,
+                                      openPart.get(seenFileName).intValue()));
 
             //Handle the case when restoring to a checkpoint where the current rolling file
             //already has a length greater than max length.
-            if(//fs.exists(seenPartFilePath) &&
-               fs.getFileStatus(seenPartFilePath).getLen() > maxLength) {
+            if (fs.getFileStatus(seenPartFilePath).getLen() > maxLength) {
               LOG.debug("rotating file at setup.");
               rotate(seenFileName);
             }
           }
+          catch (IOException e) {
+            DTThrowable.rethrow(e);
+          }
+          catch (ExecutionException e) {
+            DTThrowable.rethrow(e);
+          }
         }
-      }
-      else {
-        endOffsets.clear();
       }
 
       LOG.debug("setup completed");
@@ -416,22 +437,72 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   @Override
   public void teardown()
   {
-    try {
-      for(FSDataOutputStream outputStream: streamsCache.asMap().values()) {
+    ConcurrentMap<String, FSDataOutputStream> fileMap = streamsCache.asMap();
+    List<String> fileNames = new ArrayList<String>();
+    int numberOfFailures = 0;
+    IOException savedException = null;
+
+    //Close all the streams you can
+    for(String seenFileName: streamsCache.asMap().keySet()) {
+      FSDataOutputStream outputStream = fileMap.get(seenFileName);
+
+      try {
         outputStream.close();
       }
+      catch (IOException ex) {
+        //Count number of failures
+        numberOfFailures++;
+        //Add names of first N failed files to list
+        if(fileNames.size() < MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION) {
+          fileNames.add(seenFileName);
+          //save excpetion
+          savedException = ex;
+        }
+      }
+    }
 
+    //Try to close the file system
+    boolean fsFailed = false;
+
+    try {
       fs.close();
     }
     catch (IOException ex) {
-      DTThrowable.rethrow(ex);
+      //Closing file system failed
+      savedException = ex;
+      fsFailed = true;
+    }
+
+    //There was a failure closing resources
+    if (savedException != null) {
+      String errorMessage = "";
+
+      //File system failed to close
+      if(fsFailed) {
+        errorMessage += "Closing the fileSystem failed. ";
+      }
+
+      //Print names of atmost first N files that failed to close
+      if(!fileNames.isEmpty()) {
+        errorMessage += "The following files failed closing: ";
+      }
+
+      for(String seenFileName: fileNames) {
+        errorMessage += seenFileName + ", ";
+      }
+
+      if(numberOfFailures > MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION) {
+        errorMessage += (numberOfFailures - MAX_NUMBER_FILES_IN_TEARDOWN_EXCEPTION) +
+                        " more files failed.";
+      }
+
+      //Fail
+      throw new RuntimeException(errorMessage, savedException);
     }
 
     long currentTimeStamp = System.currentTimeMillis();
     totalTime += currentTimeStamp - lastTimeStamp;
     lastTimeStamp = currentTimeStamp;
-
-    streamsCache.asMap().clear();
   }
 
   /**
@@ -550,9 +621,59 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
     }
 
     MutableInt part = openPart.get(fileName);
+
     if (part == null) {
-      part = new MutableInt(0);
-      openPart.put(fileName, part);
+      //If in append mode find the last rolling file to append to.
+      if(append) {
+        int partCounter;
+
+        //Find the last existing rolling file.
+        for(partCounter = -1;;
+            partCounter++) {
+          String partFileName = getPartFileName(fileName, partCounter + 1);
+          Path lfilepath = new Path(filePath + File.separator + partFileName);
+
+          try {
+            if(!fs.exists(lfilepath)) {
+              break;
+            }
+          }
+          catch (IOException ex) {
+            DTThrowable.rethrow(ex);
+          }
+        }
+
+        //If there was no rolling file set the part number to zero.
+        if(partCounter == -1) {
+          partCounter = 0;
+        }
+
+        String partFileName = getPartFileName(fileName, partCounter);
+        Path lfilepath = new Path(filePath + File.separator + partFileName);
+
+        //Make sure the last rolling file does not exceed the maximum length,
+        //if it does move on to the next rolling file.
+        try {
+          if(fs.exists(lfilepath) &&
+             fs.getFileStatus(lfilepath).getLen() > maxLength) {
+            partCounter++;
+          }
+        }
+        catch (IOException ex) {
+          DTThrowable.rethrow(ex);
+        }
+
+        part = new MutableInt(partCounter);
+        openPart.put(fileName, part);
+      }
+      //If you are not in append mode then the first rolling file should have
+      //a part number of zero.
+      else {
+        part = new MutableInt(0);
+        openPart.put(fileName, part);
+      }
+
+      LOG.debug("First file part number {}", part);
     }
 
     return getPartFileName(fileName,
@@ -566,22 +687,23 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
    * @param part The part number of the rolling file.
    * @return The rolling file name.
    */
-  public String getPartFileName(String fileName,
-                                int part)
+  protected String getPartFileName(String fileName,
+                                   int part)
   {
     return fileName + "." + part;
   }
 
   /**
    * This method converts incoming tuples to another type, which is then written to an output port.
-   * By default this method throws an UnsupportedOperationException and must be overridden.
+   * By default this method throws an UnsupportedOperationException and must be overridden. This
+   * method is only called when the output port is connected.
    * @param tuple A tuple that was received on the operators output port.
    * @return An incoming tuple which was converted to another type and is ready to be emitted on the
    * operator's output port.
    */
   protected OUTPUT convert(INPUT tuple)
   {
-    throw new UnsupportedOperationException("This method is not supported.");
+    throw new UnsupportedOperationException("Since the output port is connected, this method needs to be overriden.");
   }
 
   @Override
@@ -612,8 +734,8 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
   /**
    * This method determines the file that a received tuple is written out to.
-   * @param tuple
-   * @return
+   * @param tuple The tuple which can be used to determine the output file name.
+   * @return The name of the file this tuple will be written out to.
    */
   protected abstract String getFileName(INPUT tuple);
 
@@ -640,26 +762,6 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   public boolean isAppend()
   {
     return this.append;
-  }
-
-  /**
-   * This sets the cleanUpDuplicatesOnRecovery flag.
-   * @param cleanUpDuplicatesOnRecovery This specifies whether or not duplicates are removed from output files on recovery. An UnsupportedOperation
-   * exception is thrown if this is set to false when the OperatingMode is exactly once. This field is
-   * ignored when the OperatingMode is AT_MOST_ONCE because no clean up needs to be done in that case.
-   */
-  public void setCleanUpDuplicatesOnRecovery(boolean cleanUpDuplicatesOnRecovery)
-  {
-    this.cleanUpDuplicatesOnRecovery = cleanUpDuplicatesOnRecovery;
-  }
-
-  /**
-   * This sets the cleanUpDuplicatesOnRecovery flag.
-   * @return This returns the cleanUpDuplicatesOnRecovery flag.
-   */
-  public boolean isCleanUpDuplicatesOnRecovery()
-  {
-    return cleanUpDuplicatesOnRecovery;
   }
 
   /**
