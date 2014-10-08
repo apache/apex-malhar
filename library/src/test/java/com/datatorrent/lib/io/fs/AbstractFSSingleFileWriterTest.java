@@ -134,22 +134,6 @@ public class AbstractFSSingleFileWriterTest
     writer.setAppend(true);
     writer.setOutputFileName(SINGLE_FILE);
 
-    testSingleFileCompletedWriteHelper(writer);
-  }
-
-  @Test
-  public void testSingleFileCompletedWriteOverwrite()
-  {
-    prepareTest();
-    SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
-    writer.setAppend(false);
-    writer.setOutputFileName(SINGLE_FILE);
-
-    testSingleFileCompletedWriteHelper(writer);
-  }
-
-  private void testSingleFileCompletedWriteHelper(SingleHDFSExactlyOnceWriter writer)
-  {
     writer.setFilePath(testMeta.getDir());
 
     writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
@@ -186,46 +170,6 @@ public class AbstractFSSingleFileWriterTest
     writer.setAppend(true);
     writer.setOutputFileName(SINGLE_FILE);
 
-    testSingleFileFailedWriteHelper(writer);
-
-    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
-
-    String correctContents = "0\n" +
-                             "1\n" +
-                             "4\n" +
-                             "5\n" +
-                             "6\n" +
-                             "7\n";
-
-    AbstractFSWriterTest.checkOutput(-1,
-                                      singleFileName,
-                                      correctContents);
-  }
-
-  @Test
-  public void testSingleFileFailedWriteOverwrite()
-  {
-    prepareTest();
-    SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
-    writer.setAppend(false);
-    writer.setOutputFileName(SINGLE_FILE);
-
-    testSingleFileFailedWriteHelper(writer);
-
-    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
-
-    String correctContents = "4\n" +
-                             "5\n" +
-                             "6\n" +
-                             "7\n";
-
-    AbstractFSWriterTest.checkOutput(-1,
-                                                  singleFileName,
-                                                  correctContents);
-  }
-
-  private void testSingleFileFailedWriteHelper(SingleHDFSExactlyOnceWriter writer)
-  {
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
@@ -258,5 +202,18 @@ public class AbstractFSSingleFileWriterTest
     writer.endWindow();
 
     writer.teardown();
+
+    String singleFileName = testMeta.getDir() + File.separator + SINGLE_FILE;
+
+    String correctContents = "0\n" +
+                             "1\n" +
+                             "4\n" +
+                             "5\n" +
+                             "6\n" +
+                             "7\n";
+
+    AbstractFSWriterTest.checkOutput(-1,
+                                      singleFileName,
+                                      correctContents);
   }
 }
