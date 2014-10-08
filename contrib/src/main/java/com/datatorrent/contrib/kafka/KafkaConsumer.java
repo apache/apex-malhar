@@ -16,13 +16,14 @@
 package com.datatorrent.contrib.kafka;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -33,7 +34,10 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
 
+import com.datatorrent.api.Context;
+import com.google.common.collect.Maps;
 
 /**
  * Base Kafka Consumer class used by kafka input operator
@@ -96,6 +100,8 @@ public abstract class KafkaConsumer implements Closeable
 
 
   protected transient SnapShot statsSnapShot = new SnapShot();
+  
+  protected transient KafkaMeterStats stats = new KafkaMeterStats();
 
   /**
    * This method is called in setup method of the operator
@@ -208,59 +214,150 @@ public abstract class KafkaConsumer implements Closeable
 
   public KafkaMeterStats getConsumerStats()
   {
-    KafkaMeterStats stat = new KafkaMeterStats();
-    statsSnapShot.setupStats(stat);
-    return stat;
+    statsSnapShot.setupStats(stats);
+    return stats;
   }
 
-  static class KafkaMeterStats implements Serializable
+  /**
+   * Counter class which gives the statistic value from the consumer
+   */
+  public static class KafkaMeterStats implements Serializable
   {
 
     private static final long serialVersionUID = -2867402654990209006L;
 
-    private Map<Integer, double[]> _1minMovingAvgPerPartition = new HashMap<Integer, double[]>();
+    /**
+     * A compact partition counter. The data collected for each partition is 4bytes brokerId + 1byte connected + 8bytes msg/s + 8bytes bytes/s + 8bytes offset
+     */
+    public ConcurrentHashMap<Integer, PartitionStats> partitionStats = new ConcurrentHashMap<Integer, PartitionStats>();
 
-    private double[] _1minMovingAvg = new double[]{0,0};
     
-    private Map<Integer, Long> offsetsForPartitions = new HashMap<Integer, Long>();
+    /**
+     * A compact overall counter. The data collected is 4bytes connection number + 8bytes aggregate msg/s + 8bytes aggregate bytes/s
+     */
+    public long totalMsgPerSec;
+    
+    public long totalBytesPerSec;
+    
 
     public KafkaMeterStats()
     {
 
     }
 
-
-    public Map<Integer, double[]> get_1minMovingAvgPerPartition()
+    public void set_1minMovingAvgPerPartition(int pid, long[] _1minAvgPar)
     {
-      return _1minMovingAvgPerPartition;
+      PartitionStats ps = putPartitionStatsIfNotPresent(pid);
+      ps.msgsPerSec = _1minAvgPar[0];
+      ps.bytesPerSec = _1minAvgPar[1];
     }
 
-    public void set_1minMovingAvgPerPartition(Map<Integer, double[]> _1minMovingAvgPerPartition)
+    public void set_1minMovingAvg(long[] _1minAvg)
     {
-      this._1minMovingAvgPerPartition = _1minMovingAvgPerPartition;
-    }
-
-    public double[] get_1minMovingAvg()
-    {
-      return _1minMovingAvg;
-    }
-
-    public void set_1minMovingAvg(double[] _1minMovingAvg)
-    {
-      this._1minMovingAvg = _1minMovingAvg;
-    }
-
-    public void putOffsets(Map<Integer, Long> offsetTrack)
-    {
-      offsetsForPartitions.putAll(offsetTrack);
+      totalMsgPerSec = _1minAvg[0];
+      totalBytesPerSec = _1minAvg[1];
     }
     
-    public Map<Integer, Long> getOffsetsForPartitions()
-    {
-      return offsetsForPartitions;
+    public void updateOffsets(Map<Integer, Long> offsets){
+      for (Entry<Integer, Long> os : offsets.entrySet()) {
+        PartitionStats ps = putPartitionStatsIfNotPresent(os.getKey());
+        ps.offset = os.getValue();
+      }
     }
 
-}
+    public int getConnections()
+    {
+      int r = 0;
+      for (PartitionStats ps : partitionStats.values()) {
+        if (!StringUtils.isEmpty(ps.brokerHost)) {
+          r++;
+        }
+      }
+      return r;
+    }
+
+    public void updatePartitionStats(int partitionId,int brokerId, String host)
+    {
+      PartitionStats ps = putPartitionStatsIfNotPresent(partitionId);
+      ps.brokerHost = host;
+      ps.brokerId = brokerId;
+    }
+    
+    private synchronized PartitionStats putPartitionStatsIfNotPresent(int pid){
+      PartitionStats ps = partitionStats.get(pid);
+      if (ps == null) {
+        ps = new PartitionStats();
+        partitionStats.put(pid, ps);
+      }
+      return ps;
+    }
+  }
+  
+  public static class KafkaMeterStatsUtil {
+    
+    public static Map<Integer, Long> getOffsetsForPartitions(KafkaMeterStats kafkaMeterStats)
+    {
+      Map<Integer, Long> result = Maps.newHashMap();
+      for (Entry<Integer, PartitionStats> item : kafkaMeterStats.partitionStats.entrySet()) {
+        result.put(item.getKey(), item.getValue().offset);
+      }
+      return result;
+    }
+    
+    public static Map<Integer, long[]> get_1minMovingAvgParMap(KafkaMeterStats kafkaMeterStats)
+    {
+      Map<Integer, long[]> result = Maps.newHashMap();
+      for (Entry<Integer, PartitionStats> item : kafkaMeterStats.partitionStats.entrySet()) {
+        result.put(item.getKey(), new long[]{item.getValue().msgsPerSec, item.getValue().bytesPerSec});
+      }
+      return result;
+    }
+    
+  }
+  
+  public static class KafkaMeterStatsAggregator implements Context.CountersAggregator, Serializable{
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = 729987800215151678L;
+
+    @Override
+    public Object aggregate(Collection<?> countersList)
+    {
+      KafkaMeterStats kms = new KafkaMeterStats();
+      for (Object o : countersList) {
+        if (o instanceof KafkaMeterStats){
+          KafkaMeterStats subKMS = (KafkaMeterStats)o;
+          kms.partitionStats.putAll(subKMS.partitionStats);
+          kms.totalBytesPerSec += subKMS.totalBytesPerSec;
+          kms.totalMsgPerSec += subKMS.totalMsgPerSec;
+        }
+      }
+      return kms;
+    }
+    
+  }
+  
+  public static class PartitionStats implements Serializable {
+
+
+    /**
+     * 
+     */
+    private static final long serialVersionUID = -6572690643487689766L;
+    
+    public int brokerId = -1;
+    
+    public long msgsPerSec;
+    
+    public long bytesPerSec;
+    
+    public long offset;
+    
+    public String brokerHost = "";
+    
+  }
 
 
 
@@ -293,7 +390,7 @@ public abstract class KafkaConsumer implements Closeable
      */
     private long[] bytesSec = new long[61];
 
-    private short last = 0;
+    private short last = 1;
 
     private ScheduledExecutorService service;
 
@@ -301,7 +398,7 @@ public abstract class KafkaConsumer implements Closeable
     {
       cursor = (cursor + 1) % 60;
       msgSec[60] -= msgSec[cursor];
-      bytesSec[60] -= msgSec[cursor];
+      bytesSec[60] -= bytesSec[cursor];
       msgSec[cursor] = 0;
       bytesSec[cursor] = 0;
       for (Entry<Integer, long[]> item : _1_min_msg_sum_par.entrySet()) {
@@ -357,15 +454,13 @@ public abstract class KafkaConsumer implements Closeable
     };
 
     public synchronized void setupStats(KafkaMeterStats stat){
-      double[] _1minAvg = {(double)msgSec[60]/(double)last, (double)bytesSec[60]/(double)last};
-      Map<Integer, double[]> _1minAvgPartition = new HashMap<Integer, double[]>();
+      long[] _1minAvg = {msgSec[60]/last, bytesSec[60]/last};
       for (Entry<Integer, long[]> item : _1_min_msg_sum_par.entrySet()) {
         long[] msgv =item.getValue();
         long[] bytev = _1_min_byte_sum_par.get(item.getKey());
-        double[] _1minAvgPar = {(double)msgv[60]/(double)last, (double)bytev[60]/(double)last};
-        _1minAvgPartition.put(item.getKey(), _1minAvgPar);
+        long[] _1minAvgPar = {msgv[60]/last, bytev[60]/last};
+        stat.set_1minMovingAvgPerPartition(item.getKey(), _1minAvgPar);
       }
-      stat.set_1minMovingAvgPerPartition(_1minAvgPartition);
       stat.set_1minMovingAvg(_1minAvg);
     }
   }

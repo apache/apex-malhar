@@ -174,6 +174,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
       if (defaultSelect || partitionIds.contains(part.partitionId())) {
         logger.info("Connecting to {}:{} [timeout:{}, buffersize:{}, clientId: {}]", part.leader().host(), part.leader().port(), timeout, bufferSize, clientName);
         simpleConsumerThreads.put(part.partitionId(), new AtomicReference<SimpleConsumer>(new SimpleConsumer(part.leader().host(), part.leader().port(), timeout, bufferSize, clientName)));
+        stats.updatePartitionStats(part.partitionId(), part.leader().id(), part.leader().host() + ":" + part.leader().port());
       }
     }
 
@@ -219,6 +220,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
                 // clean the consumer to reestablish the new connection
                 logger.info("Detected leader broker change, reconnecting to {}:{} for partition {}", pm.leader().host(), pm.leader().port(), pid);
                 cleanAndSet(pid, new SimpleConsumer(pm.leader().host(), pm.leader().port(), timeout, bufferSize, getClientName(pid)));
+                stats.updatePartitionStats(pid, pm.leader().id(), pm.leader().host() + ":" + pm.leader().port());
               }
             }
             brokerSet = newBrokerSet;
@@ -272,6 +274,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
                 if (fetchResponse.hasError() && fetchResponse.errorCode(topic, pid) == ErrorMapping.OffsetOutOfRangeCode()) {
                   // If OffsetOutOfRangeCode happen, it means all msgs have been consumed, clean the consumer and return
                   cleanAndSet(pid, null);
+                  stats.updatePartitionStats(pid, -1, "");
                   return;
                 } else if (fetchResponse.hasError()) {
                   // If error happen, assume
@@ -287,6 +290,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
               } catch (Exception e) {
                 logger.error("The consumer encounters an exception. Close the connection to partition {} ", pid, e);
                 cleanAndSet(pid, null);
+                stats.updatePartitionStats(pid, -1, "");
               }
             }
           } finally {
@@ -427,9 +431,8 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   @Override
   public KafkaMeterStats getConsumerStats()
   {
-    KafkaMeterStats stat = super.getConsumerStats();
-    stat.putOffsets(offsetTrack);
-    return stat;
+    stats.updateOffsets(offsetTrack);
+    return super.getConsumerStats();
   }
 
 

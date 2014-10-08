@@ -70,6 +70,9 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
   private int stickyKey = 0;
   
   private transient Runnable r = new Runnable() {
+    
+    Producer<String, String> producer = null;
+    
     @Override
     public void run()
     {
@@ -83,7 +86,9 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
 //      props.setProperty("send.buffer.bytes", "1048576");
       props.setProperty("topic.metadata.refresh.interval.ms", "100000");
 
-      Producer<String, String> producer = new Producer<String, String>(new ProducerConfig(props));
+      if (producer == null) {
+        producer = new Producer<String, String>(new ProducerConfig(props));
+      }
       long k = 0;
       
       while (k<msgsSecThread || !controlThroughput) {
@@ -94,7 +99,6 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
           k=0;
         }
       }
-      producer.close();
     }
   };
 
