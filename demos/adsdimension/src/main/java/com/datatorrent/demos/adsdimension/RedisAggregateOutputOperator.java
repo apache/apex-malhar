@@ -30,6 +30,9 @@ import com.datatorrent.lib.db.AbstractTransactionableStoreOutputOperator;
 /**
  * An {@link AbstractTransactionableStoreOutputOperator} that persists aggregated dimensions in the Redis store.<br/>
  *
+ * @displayName Redis Aggregate Output
+ * @category Output
+ * @tags redis, output operator
  * @since 0.9.4
  */
 public class RedisAggregateOutputOperator extends AbstractRedisAggregateOutputOperator<AdInfo>

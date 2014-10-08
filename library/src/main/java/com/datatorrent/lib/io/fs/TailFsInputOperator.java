@@ -44,7 +44,7 @@ import com.datatorrent.api.InputOperator;
  * <br>
  * </p>
  * @displayName Tail Input
- * @category Input/Output
+ * @category Input
  * @tags local fs, file, input operator
  * @since 0.9.4
  */

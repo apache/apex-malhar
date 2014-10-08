@@ -48,6 +48,13 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+/**
+ * DataTorrent HDS Output Operator
+ *
+ * @displayName HDS Output
+ * @category Output
+ * @tags hds, output operator
+ */
 public class HDSOutputOperator extends HDSWriter implements Partitioner<HDSOutputOperator>
 {
   private static final Logger LOG = LoggerFactory.getLogger(HDSOutputOperator.class);

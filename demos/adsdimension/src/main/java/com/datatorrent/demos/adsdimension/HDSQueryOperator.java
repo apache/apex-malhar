@@ -38,6 +38,13 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+/**
+ * DataTorrent HDS Query Operator
+ *
+ * @displayName HDS Query
+ * @category Store
+ * @tags hds, query
+ */
 public class HDSQueryOperator extends HDSOutputOperator
 {
   public final transient DefaultOutputPort<HDSRangeQueryResult> queryResult = new DefaultOutputPort<HDSRangeQueryResult>();

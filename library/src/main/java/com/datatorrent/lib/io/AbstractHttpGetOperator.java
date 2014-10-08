@@ -29,8 +29,8 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <p>
  * If the output port is connected, the response is processed
  * </p>
- * @displayName Abstract Http Query Input
- * @category Input/Output
+ * @displayName Abstract HTTP Query Input
+ * @category Input
  * @tags http, input operator
  *
  * @param <INPUT> tuple type of input port

@@ -24,8 +24,8 @@ import com.sun.jersey.api.client.WebResource;
  * which extracts query parameters from an incoming tuple and places the parameters in a multivalued map.&nbsp;
  * Subclasses should implement the method used to convert tuples into query parameters.
  * <p></p>
- * @displayName Abstract Http Multivalued Query Input
- * @category Input/Output
+ * @displayName Abstract HTTP Multivalued Query Input
+ * @category Input
  * @tags http, input operator
  *
  * @param <INPUT>

@@ -35,7 +35,7 @@ import com.datatorrent.api.DefaultInputPort;
  * <br>
  * </p>
  * @displayName Container Stdout Output
- * @category Input/Output
+ * @category Output
  * @tags output operator
  *
  * @since 0.3.4

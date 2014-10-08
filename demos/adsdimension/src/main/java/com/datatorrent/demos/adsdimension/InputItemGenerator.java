@@ -28,6 +28,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 /**
  * <p>InputItemGenerator class.</p>
  *
+ * @displayName Input Item Generator
+ * @category Input
+ * @tags generator, input operator
  * @since 0.3.2
  */
 public class InputItemGenerator implements InputOperator

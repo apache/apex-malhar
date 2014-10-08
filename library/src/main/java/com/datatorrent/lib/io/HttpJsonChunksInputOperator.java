@@ -38,8 +38,8 @@ import org.slf4j.LoggerFactory;
  * If second rawOutput is connected then content is streamed to this port as it is.
  * <br>
  * </p>
- * @displayName Http Json Chunks Input
- * @category Input/Output
+ * @displayName HTTP JSON Chunks Input
+ * @category Input
  * @tags http, input operator
  *
  * @since 0.9.4

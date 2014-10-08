@@ -33,22 +33,23 @@ import java.util.Map;
 
 
 /**
- * Converts incoming JSON tuple to Map<String,Object> representation.
+ * Converts incoming JSON tuple to Map&lt;String,Object&gt; representation.
  * <p>
  * Data types are converted as follows:
  *
- *   object => LinkedHashMap<String,Object>
- *   array => ArrayList<Object>
- *   string => String
- *   number (no fraction) => Integer, Long or BigInteger (smallest applicable)
- *   number (fraction) => Double (configurable to use BigDecimal)
- *   true|false => Boolean
- *   null => null
+ *   object =&gt; LinkedHashMap<String,Object>
+ *   array =&gt; ArrayList<Object>
+ *   string =&gt; String
+ *   number (no fraction) =&gt; Integer, Long or BigInteger (smallest applicable)
+ *   number (fraction) =&gt; Double (configurable to use BigDecimal)
+ *   true|false =&gt; Boolean
+ *   null =&gt; null
  *
  * @displayName JSON to Map Converter
  * @category Parsing
  * @tags parsing, json, demo
  */
+
 @Stateless
 public class JsonToMapConverter extends BaseOperator {
 

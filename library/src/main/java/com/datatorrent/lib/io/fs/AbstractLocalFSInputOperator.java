@@ -29,7 +29,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * Users need to implement getRecord to get HDFS input adapter to work as per their choice<br>
  * </p>
  * @displayName Local FS File Input
- * @category Input/Output
+ * @category Input
  * @tags local fs, file, input operator
  *
  * @since 0.3.2

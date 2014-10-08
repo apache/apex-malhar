@@ -27,8 +27,8 @@ import com.sun.jersey.api.client.WebResource;
  * <p>
  * If output port is connected, the response is emitted as {@link String} through the output port.
  * </p>
- * @displayName Http Get Map
- * @category Input/Output
+ * @displayName HTTP GET Map
+ * @category Input
  * @tags http, input operator
  *
  * @param <K> Type of key in input map tuple

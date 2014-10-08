@@ -39,7 +39,7 @@ import com.google.common.collect.Maps;
  * This operator outputs data to an smtp server.
  * <p></p>
  * @displayName Smtp Output
- * @category Input/Output
+ * @category Output
  * @tags stmp, output operator
  *
  * @since 0.3.2

@@ -37,7 +37,7 @@ import com.datatorrent.api.Partitioner;
  * Messages are distributed evenly to partitions.
  * <p></p>
  * @displayName Benchmark Partitionable Kafka Output
- * @category messaging
+ * @category Messaging
  * @tags output operator
  *
  * @since 0.9.3

@@ -24,7 +24,7 @@ import com.datatorrent.api.InputOperator;
  * <b>hostname</b></br> <b>port</b></br> <b>byteBufferSize</b></br> <b>scanIntervalInMilliSeconds</b></br>
  * </p>
  * @displayName Abstract Socket Input
- * @category Input/Output
+ * @category Input
  * @tags socket, input operator
  *
  * @param <T>

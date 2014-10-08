@@ -28,7 +28,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  * for additional details on tunable settings settings like blastCount, numPublishers, numAdvertisers, numAdUnits, etc.
  *
  * @displayName JSON AdInfo Generator
- * @category Input Generators
+ * @category Input
  * @tags input, generator
  */
 public class JsonAdInfoGenerator extends InputItemGenerator

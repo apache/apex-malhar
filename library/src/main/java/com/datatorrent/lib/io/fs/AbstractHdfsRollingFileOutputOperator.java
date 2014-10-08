@@ -32,7 +32,7 @@ import org.apache.hadoop.fs.Path;
  * </p>
  *
  * @displayName HDFS Rolling Output
- * @category Input/Output
+ * @category Output
  * @tags hdfs, file, output operator
  *
  * @param <T> input port tuple type

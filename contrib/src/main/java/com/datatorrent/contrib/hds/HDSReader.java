@@ -50,7 +50,12 @@ import com.google.common.collect.Maps;
 /**
  * Reader for historical data store.
  * Implements asynchronous read from backing files and query refresh.
+ *
+ * @displayName HDS Reader
+ * @category Input
+ * @tags hds, input operator
  */
+
 public class HDSReader implements Operator, HDS.Reader
 {
   public static final String FNAME_WAL = "_WAL";

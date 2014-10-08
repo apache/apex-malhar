@@ -51,7 +51,7 @@ import java.lang.reflect.Array;
  *  If DT gateway is not specified, it will use output data to console.
  * </p>
  * @displayName DT Widget Output
- * @category Input/Output
+ * @category Output
  * @tags dt, output operator
  *
  * @since 0.9.3

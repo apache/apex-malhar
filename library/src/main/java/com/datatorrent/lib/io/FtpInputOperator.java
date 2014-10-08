@@ -47,7 +47,7 @@ import com.datatorrent.api.InputOperator;
  * <b>isGzip</b>: If the format of the file is gzip.<br>
  * </p>
  * @displayName FTP Input
- * @category Input/Output
+ * @category Input
  * @tags ftp, input operator
  *
  * @since 0.9.4

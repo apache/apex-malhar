@@ -32,8 +32,8 @@ import com.datatorrent.api.DefaultInputPort;
  * This operator handles the creation and destruction of client connections.&nbsp;
  * Subclasses must implement the method which processes incoming tuples.
  * <p></p>
- * @displayName Abstract Http
- * @category Input/Output
+ * @displayName Abstract HTTP
+ * @category Input
  * @tags http, input operator
  *
  * @param <T>
