@@ -3,4 +3,5 @@
 { "productId": 3, "productCategory": 6 }
 { "productId": 4, "productCategory": 10 }
 { "productId": 5, "productCategory": 2 }
-{ "productId": 3, "productCategory": 1 }
+{ "productId": 6, "productCategory": 1 }
+{ "productId": 7, "productCategory": 1, "subCategory": 4 }

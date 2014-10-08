@@ -17,6 +17,8 @@ package com.datatorrent.demos.adsdimension.generic;
 
 import com.datatorrent.api.*;
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Predicates;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.sun.tools.javac.util.Assert;
 import org.apache.commons.io.IOUtils;
@@ -25,6 +27,7 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.codehaus.jackson.JsonProcessingException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.ObjectReader;
 import org.codehaus.jackson.type.TypeReference;
@@ -33,6 +36,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.NotNull;
 import java.io.*;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -84,6 +88,8 @@ public class EnrichmentOperator extends BaseOperator
   @NotNull
   private String lookupKey;
 
+  private String updateKeys;
+
   private transient long lastScanTimeStamp;
 
   private transient FileLoader loader;
@@ -91,6 +97,7 @@ public class EnrichmentOperator extends BaseOperator
   @VisibleForTesting
   protected transient Map<Object, Map<String, Object>> cache = Maps.newHashMap();
   private transient long lastKnownMtime;
+  private transient List<String> keyList = Lists.newArrayList();
 
   public String getFilePath()
   {
@@ -122,6 +129,16 @@ public class EnrichmentOperator extends BaseOperator
     this.lookupKey = lookupKey;
   }
 
+  public String getUpdateKeys()
+  {
+    return updateKeys;
+  }
+
+  public void setUpdateKeys(String updateKeys)
+  {
+    this.updateKeys = updateKeys;
+  }
+
   @Override public void setup(Context.OperatorContext context)
   {
     super.setup(context);
@@ -129,9 +146,12 @@ public class EnrichmentOperator extends BaseOperator
       loader = new FileLoader(filePath);
       reloadData();
       lastScanTimeStamp = System.currentTimeMillis();
+
+      if (updateKeys != null)
+        keyList = Lists.newArrayList(updateKeys.split(","));
+
     } catch (IOException ex) {
-      ex.printStackTrace();
-      throw new RuntimeException("Unable to initialize operator ");
+      throw new RuntimeException("Failed to load mappings from the file.");
     }
   }
 
@@ -147,7 +167,7 @@ public class EnrichmentOperator extends BaseOperator
         reloadData();
         lastScanTimeStamp = now;
       } catch (IOException ex) {
-
+        throw new RuntimeException("Failed to load mappings from the file.");
       }
     }
   }
@@ -168,14 +188,23 @@ public class EnrichmentOperator extends BaseOperator
     cache.clear();
     String line;
     while ((line = bin.readLine()) != null) {
-      Map<String, Object> tuple = reader.readValue(line);
-      if (tuple.containsKey(lookupKey)) {
-        Object searchVal = tuple.get(lookupKey);
-        cache.put(searchVal, tuple);
+      try {
+        Map<String, Object> tuple = reader.readValue(line);
+        updateLookupCache(tuple);
+      } catch (JsonProcessingException parseExp) {
+        logger.info("Unable to parse line {}", line);
       }
     }
     IOUtils.closeQuietly(bin);
     IOUtils.closeQuietly(in);
+  }
+
+  private void updateLookupCache(Map<String, Object> tuple)
+  {
+    if (tuple.containsKey(lookupKey)) {
+      Object searchVal = tuple.get(lookupKey);
+      cache.put(searchVal, tuple);
+    }
   }
 
   public transient DefaultInputPort<Map<String, Object>> inputPort = new DefaultInputPort<Map<String, Object>>()
@@ -185,8 +214,12 @@ public class EnrichmentOperator extends BaseOperator
       if (tuple.containsKey(lookupKey))
       {
         Object obj = tuple.get(lookupKey);
-        Map<String, Object> extendedAttrs = cache.get(obj);
-        tuple.putAll(extendedAttrs);
+        Map<String, Object> extendedTuple = cache.get(obj);
+        Map<String, Object> newAttributes = extendedTuple;
+        if (keyList.size() != 0) {
+           newAttributes = Maps.filterKeys(extendedTuple, Predicates.in(keyList));
+        }
+        tuple.putAll(newAttributes);
       }
       outputPort.emit(tuple);
     }
