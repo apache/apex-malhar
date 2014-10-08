@@ -148,12 +148,14 @@ public class HDSWalManager implements Closeable
       WALReader wReader = new HDFSWalReader(bfs, bucketKey, WAL_FILE_PREFIX + i);
       wReader.seek(offset);
       offset = 0;
-
+      int count = 0;
       while (wReader.advance()) {
         MutableKeyValue o = wReader.get();
         writeCache.put(HDS.SliceExt.toSlice(o.getKey()), o.getValue());
+        count++;
       }
       wReader.close();
+      logger.info("Recovered {} tuples from wal {}", count, i);
     }
 
     walFileId++;
