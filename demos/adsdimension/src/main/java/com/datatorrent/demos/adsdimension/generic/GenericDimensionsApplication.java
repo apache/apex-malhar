@@ -106,14 +106,11 @@ public class GenericDimensionsApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    JsonAdInfoGenerator input = dag.addOperator("InputGenerator", JsonAdInfoGenerator.class);
-    JsonToMapConverter converter = dag.addOperator("Converter", JsonToMapConverter.class);
-    GenericDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new GenericDimensionComputation());
-
-    DimensionStoreOperator store = dag.addOperator("DimensionsStore", DimensionStoreOperator.class);
-
+    JsonAdInfoGenerator input = dag.addOperator("Input", JsonAdInfoGenerator.class);
+    JsonToMapConverter converter = dag.addOperator("Parse", JsonToMapConverter.class);
+    GenericDimensionComputation dimensions = dag.addOperator("Compute", new GenericDimensionComputation());
+    DimensionStoreOperator store = dag.addOperator("Store", DimensionStoreOperator.class);
     KafkaSinglePortStringInputOperator queries = dag.addOperator("Query", new KafkaSinglePortStringInputOperator());
-
     KafkaSinglePortOutputOperator<Object, Object> queryResult = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
 
     dag.setInputPortAttribute(converter.input, Context.PortContext.PARTITION_PARALLEL, true);

@@ -46,8 +46,8 @@ import java.util.Map;
  *   null =&gt; null
  *
  * @displayName JSON to Map Converter
- * @category Parsing
- * @tags parsing, json, demo
+ * @category Stream
+ * @tags parser, json, demo, converter
  */
 
 @Stateless

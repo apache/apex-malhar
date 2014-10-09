@@ -28,7 +28,7 @@ import java.util.Map;
  *   }
 
  *
- * @displayName Dimension Computation
+ * @displayName Generic Dimension Computation
  * @category Math
  * @tags dimension, aggregation
  *
