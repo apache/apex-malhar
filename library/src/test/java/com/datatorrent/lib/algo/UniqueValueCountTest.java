@@ -18,7 +18,8 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 import com.google.common.collect.ImmutableMap;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
