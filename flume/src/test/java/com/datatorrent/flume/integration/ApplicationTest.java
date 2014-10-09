@@ -78,7 +78,7 @@ public class ApplicationTest implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAGContext.STREAMING_WINDOW_SIZE_MILLIS, 1000);
+    dag.setAttribute(com.datatorrent.api.Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS, 1000);
     FlumeInputOperator flume = dag.addOperator("FlumeOperator", new FlumeInputOperator());
     flume.setConnectAddresses(new String[]{"test:127.0.0.1:8080"});
     flume.setCodec(new EventCodec());
