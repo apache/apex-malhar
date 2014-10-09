@@ -79,7 +79,7 @@ public class EventSchema implements Serializable
   public static final String DEFAULT_SCHEMA_ADS = "{\n" +
           "  \"fields\": {\"publisherId\":\"java.lang.Integer\", \"advertiserId\":\"java.lang.Integer\", \"adUnit\":\"java.lang.Integer\", \"clicks\":\"java.lang.Long\", \"impressions\":\"java.lang.Long\", \"price\":\"java.lang.Long\", \"cost\":\"java.lang.Double\", \"revenue\":\"java.lang.Double\", \"timestamp\":\"java.lang.Long\"},\n" +
           "  \"dimensions\": [\"time=MINUTES\", \"time=MINUTES:adUnit\", \"time=MINUTES:advertiserId\", \"time=MINUTES:publisherId\", \"time=MINUTES:advertiserId:adUnit\", \"time=MINUTES:publisherId:adUnit\", \"time=MINUTES:publisherId:advertiserId\", \"time=MINUTES:publisherId:advertiserId:adUnit\"],\n" +
-          "  \"aggregates\": { \"clicks\": \"sum\", \"price\": \"sum\", \"cost\": \"sum\", \"revenue\": \"sum\"},\n" +
+          "  \"aggregates\": { \"impressions\": \"sum\", \"clicks\": \"sum\", \"price\": \"sum\", \"cost\": \"sum\", \"revenue\": \"sum\"},\n" +
           "  \"timestamp\": \"timestamp\"\n" +
           "}";
   public static final String DEFAULT_SCHEMA_SALES = "{\n" +
@@ -195,6 +195,7 @@ public class EventSchema implements Serializable
   }
 
 
+  @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.MULTI_LINE_STYLE);
   }
