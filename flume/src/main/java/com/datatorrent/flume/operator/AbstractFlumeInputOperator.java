@@ -33,14 +33,15 @@ import com.datatorrent.netlet.DefaultEventLoop;
 import static java.lang.Thread.sleep;
 
 /**
- * <p>Abstract AbstractFlumeInputOperator class.</p>
+ * <p>
+ * Abstract AbstractFlumeInputOperator class.</p>
  *
  * @param <T> Type of the output payload.
  * @author Chetan Narsude <chetan@datatorrent.com>
  * @since 0.9.2
  */
 public abstract class AbstractFlumeInputOperator<T>
-        implements InputOperator, ActivationListener<OperatorContext>, IdleTimeHandler, CheckpointListener,
+        implements InputOperator, Operator.ActivationListener<OperatorContext>, IdleTimeHandler, Operator.CheckpointListener,
         Partitioner<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
@@ -76,8 +77,8 @@ public abstract class AbstractFlumeInputOperator<T>
   @Override
   public void setup(OperatorContext context)
   {
-    long windowDurationMillis = context.getValue(OperatorContext.APPLICATION_WINDOW_COUNT) * context.getValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
-    maxEventsPerWindow = (long) (windowDurationMillis / 1000.0 * maxEventsPerSecond);
+    long windowDurationMillis = context.getValue(OperatorContext.APPLICATION_WINDOW_COUNT) * context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
+    maxEventsPerWindow = (long)(windowDurationMillis / 1000.0 * maxEventsPerSecond);
     logger.debug("max-events per-second {} per-window {}", maxEventsPerSecond, maxEventsPerWindow);
 
     try {
@@ -97,7 +98,7 @@ public abstract class AbstractFlumeInputOperator<T>
       logger.info("Discovered zero DTFlumeSink");
     }
     else if (connectionSpecs.length == 1) {
-      for (String connectAddresse : connectionSpecs) {
+      for (String connectAddresse: connectionSpecs) {
         logger.debug("Connection spec is {}", connectAddresse);
         String[] parts = connectAddresse.split(":");
         eventloop.connect(new InetSocketAddress(parts[1], Integer.parseInt(parts[2])), client = new Client(parts[0]));
@@ -340,7 +341,7 @@ public abstract class AbstractFlumeInputOperator<T>
 
     HashMap<String, ArrayList<RecoveryAddress>> allRecoveryAddresses = abandonedRecoveryAddresses.get();
     ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size() + incrementalCapacity);
-    for (Partition<AbstractFlumeInputOperator<T>> partition : partitions) {
+    for (Partition<AbstractFlumeInputOperator<T>> partition: partitions) {
       String[] lAddresses = partition.getPartitionedInstance().connectionSpecs;
       allConnectAddresses.addAll(Arrays.asList(lAddresses));
       for (int i = lAddresses.length; i-- > 0;) {
@@ -351,7 +352,7 @@ public abstract class AbstractFlumeInputOperator<T>
 
     if (discovered != null) {
       HashMap<String, String> connections = new HashMap<String, String>(discovered.size());
-      for (Service<byte[]> service : discovered) {
+      for (Service<byte[]> service: discovered) {
         String previousSpec = connections.get(service.getId());
         String newspec = service.getId() + ':' + service.getHost() + ':' + service.getPort();
         if (previousSpec == null) {
@@ -359,7 +360,7 @@ public abstract class AbstractFlumeInputOperator<T>
         }
         else {
           boolean found = false;
-          for (ConnectionStatus cs : partitionedInstanceStatus.get().values()) {
+          for (ConnectionStatus cs: partitionedInstanceStatus.get().values()) {
             if (previousSpec.equals(cs.spec) && !cs.connected) {
               connections.put(service.getId(), newspec);
               found = true;
@@ -396,11 +397,11 @@ public abstract class AbstractFlumeInputOperator<T>
         AbstractFlumeInputOperator<T> operator = getClass().newInstance();
         operator.setCodec(codec);
         operator.setMaxEventsPerSecond(maxEventsPerSecond);
-        for (ArrayList<RecoveryAddress> lRecoveryAddresses : allRecoveryAddresses.values()) {
+        for (ArrayList<RecoveryAddress> lRecoveryAddresses: allRecoveryAddresses.values()) {
           operator.recoveryAddresses.addAll(lRecoveryAddresses);
         }
         operator.connectionSpecs = new String[allConnectAddresses.size()];
-        for (int i = connectionSpecs.length; i-- > 0; ) {
+        for (int i = connectionSpecs.length; i-- > 0;) {
           connectionSpecs[i] = allConnectAddresses.get(i);
         }
 
@@ -442,7 +443,7 @@ public abstract class AbstractFlumeInputOperator<T>
     logger.debug("Partitioned Map: {}", partitions);
     HashMap<Integer, ConnectionStatus> map = partitionedInstanceStatus.get();
     map.clear();
-    for (Entry<Integer, Partition<AbstractFlumeInputOperator<T>>> entry : partitions.entrySet()) {
+    for (Entry<Integer, Partition<AbstractFlumeInputOperator<T>>> entry: partitions.entrySet()) {
       if (map.containsKey(entry.getKey())) {
         // what can be done here?
       }
@@ -560,7 +561,7 @@ public abstract class AbstractFlumeInputOperator<T>
 
       Object lastStat = null;
       List<OperatorStats> lastWindowedStats = stats.getLastWindowedStats();
-      for (OperatorStats os : lastWindowedStats) {
+      for (OperatorStats os: lastWindowedStats) {
         if (os.counters != null) {
           lastStat = os.counters;
           logger.debug("Received custom stats = {}", lastStat);
@@ -596,7 +597,7 @@ public abstract class AbstractFlumeInputOperator<T>
 
             default:
               if (addresses.size() == map.size()) {
-                for (ConnectionStatus value : map.values()) {
+                for (ConnectionStatus value: map.values()) {
                   if (value == null || !value.connected) {
                     response.repartitionRequired = true;
                     break;
