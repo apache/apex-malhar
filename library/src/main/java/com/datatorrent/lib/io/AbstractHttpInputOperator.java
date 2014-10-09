@@ -27,7 +27,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
@@ -38,7 +37,6 @@ import com.sun.jersey.api.client.WebResource;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes = {com.sun.jersey.api.client.ClientHandler.class})
 public abstract class AbstractHttpInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable
 {
   public final transient DefaultOutputPort<String> rawOutput = new DefaultOutputPort<String>();

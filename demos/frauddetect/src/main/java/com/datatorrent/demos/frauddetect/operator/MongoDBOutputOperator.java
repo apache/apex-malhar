@@ -21,7 +21,6 @@ import com.datatorrent.api.Context;
 import javax.validation.constraints.NotNull;
 
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.mongodb.*;
 import com.mongodb.util.JSON;
 import org.slf4j.Logger;
@@ -36,7 +35,6 @@ import java.util.List;
  *
  * @since 0.9.0
  */
-@ShipContainingJars(classes = {com.mongodb.MongoClient.class})
 public class MongoDBOutputOperator extends BaseOperator {
 
     @NotNull

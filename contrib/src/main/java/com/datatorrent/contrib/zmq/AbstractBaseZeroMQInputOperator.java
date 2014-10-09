@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
@@ -58,7 +57,6 @@ import java.util.concurrent.ArrayBlockingQueue;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes={org.zeromq.ZMQ.Socket.class})
 public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator implements InputOperator, ActivationListener<OperatorContext>
 {
   @SuppressWarnings("unused")

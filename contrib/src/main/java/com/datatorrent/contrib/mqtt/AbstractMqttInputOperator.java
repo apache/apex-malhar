@@ -18,7 +18,6 @@ package com.datatorrent.contrib.mqtt;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -31,7 +30,6 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.9.3
  */
-@ShipContainingJars(classes = {MQTT.class})
 public abstract class AbstractMqttInputOperator implements InputOperator, ActivationListener<OperatorContext>
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMqttInputOperator.class);
