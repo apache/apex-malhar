@@ -16,27 +16,27 @@
     <value>32000</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.attr.INITIAL_PARTITION_COUNT</name>
+    <name>dt.application.GenericDimensionsApplication.operator.Input.attr.INITIAL_PARTITION_COUNT</name>
     <value>2</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.maxTuplesPerWindow</name>
+    <name>dt.application.GenericDimensionsApplication.operator.Input.maxTuplesPerWindow</name>
     <value>40000</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.DimensionsComputation.attr.APPLICATION_WINDOW_COUNT</name>
+    <name>dt.application.GenericDimensionsApplication.operator.Compute.attr.APPLICATION_WINDOW_COUNT</name>
     <value>4</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.attr.INITIAL_PARTITION_COUNT</name>
+    <name>dt.application.GenericDimensionsApplication.operator.Store.attr.INITIAL_PARTITION_COUNT</name>
     <value>4</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.fileStore.basePath</name>
-    <value>GenericDimensionsApplication</value>
+    <name>dt.application.GenericDimensionsApplication.operator.Store.fileStore.basePath</name>
+    <value>GenericDimensionsStore</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.prop.maxCacheSize</name>
+    <name>dt.application.GenericDimensionsApplication.operator.Store.prop.maxCacheSize</name>
     <value>5</value>
   </property>
   <property>
