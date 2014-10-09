@@ -29,7 +29,6 @@ import com.datatorrent.contrib.hbase.HBaseStatePersistenceStrategy;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 

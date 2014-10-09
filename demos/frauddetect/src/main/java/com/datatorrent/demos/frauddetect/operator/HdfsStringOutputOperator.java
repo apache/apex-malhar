@@ -15,8 +15,8 @@
  */
 package com.datatorrent.demos.frauddetect.operator;
 
+import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAGContext;
 import com.datatorrent.lib.io.fs.AbstractFSWriter;
 
 import java.io.File;

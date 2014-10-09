@@ -15,11 +15,11 @@
  */
 package com.datatorrent.contrib.jdbc;
 
-import com.datatorrent.api.ActivationListener;
-import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.api.Operator.CheckpointListener;
 import java.util.HashMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import org.slf4j.Logger;

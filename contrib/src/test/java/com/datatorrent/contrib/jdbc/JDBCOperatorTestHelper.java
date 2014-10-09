@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.jdbc;
 
+import com.datatorrent.api.Attribute.AttributeMap;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,8 +25,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
+import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.DAG;
 
 

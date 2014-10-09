@@ -38,7 +38,7 @@ public class ApplicationLogGenerator implements StreamingApplication
     containingJars.add(net.sf.uadetector.service.UADetectorServiceFactory.class);
     containingJars.add(net.sf.qualitycheck.Check.class);
 
-    String oldlibjar = dag.getValue(DAGContext.LIBRARY_JARS);
+    String oldlibjar = dag.getValue(Context.DAGContext.LIBRARY_JARS);
     if (oldlibjar == null) {
       oldlibjar = "";
     }
@@ -50,7 +50,7 @@ public class ApplicationLogGenerator implements StreamingApplication
       }
       libjars.append(clazz.getProtectionDomain().getCodeSource().getLocation().toString());
     }
-    dag.setAttribute(DAGContext.LIBRARY_JARS, libjars.toString());
+    dag.setAttribute(Context.DAGContext.LIBRARY_JARS, libjars.toString());
   }
 
   @Override

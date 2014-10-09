@@ -22,8 +22,8 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.Attribute;
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 
 public class HBaseCsvMappingPutOperatorTest {

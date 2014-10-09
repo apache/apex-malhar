@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 package com.datatorrent.contrib.kafka;
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.StreamingApplication;
 
 import java.util.Properties;

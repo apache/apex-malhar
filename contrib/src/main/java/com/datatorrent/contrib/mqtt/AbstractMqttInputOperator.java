@@ -15,9 +15,9 @@
  */
 package com.datatorrent.contrib.mqtt;
 
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.annotation.ShipContainingJars;
 import java.util.HashMap;
 import java.util.Map;

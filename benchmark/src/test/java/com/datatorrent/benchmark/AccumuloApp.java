@@ -18,9 +18,7 @@ package com.datatorrent.benchmark;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.contrib.accumulo.AbstractAccumuloOutputOperator;
 import com.datatorrent.contrib.accumulo.AccumuloRowTupleGenerator;
@@ -48,8 +46,8 @@ public class AccumuloApp implements StreamingApplication {
     AccumuloRowTupleGenerator rtg = dag.addOperator("tuplegenerator",AccumuloRowTupleGenerator.class);
     TestAccumuloOutputOperator taop = dag.addOperator("testaccumulooperator", TestAccumuloOutputOperator.class);
     dag.addStream("ss", rtg.outputPort, taop.input);
-    AttributeMap attributes = dag.getAttributes();
-    attributes.put(DAGContext.CONTAINER_MEMORY_MB, 4096);
+    com.datatorrent.api.Attribute.AttributeMap attributes = dag.getAttributes();
+    attributes.put(com.datatorrent.api.Context.DAGContext.CONTAINER_MEMORY_MB, 4096);
     taop.getStore().setTableName("tab1");
     taop.getStore().setZookeeperHost("127.0.0.1");
     taop.getStore().setInstanceName("instance");

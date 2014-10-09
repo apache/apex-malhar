@@ -103,7 +103,7 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
 
     String configFileName = null;
     if (configurationfilePath != null && !configurationfilePath.isEmpty()) {
-      dag.setAttribute(DAGContext.LIBRARY_JARS, configurationfilePath);
+      dag.setAttribute(com.datatorrent.api.Context.DAGContext.LIBRARY_JARS, configurationfilePath);
       StringTokenizer configFileTokenizer = new StringTokenizer(configurationfilePath, "/");
       configFileName = configFileTokenizer.nextToken();
       while (configFileTokenizer.hasMoreTokens())

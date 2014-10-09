@@ -17,7 +17,7 @@ package com.datatorrent.contrib.cassandra;
 
 import com.datastax.driver.core.*;
 import com.datastax.driver.core.exceptions.DriverException;
-import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.DAG;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;

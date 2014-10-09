@@ -15,23 +15,19 @@
  */
 package com.datatorrent.contrib.zmq;
 
-import com.datatorrent.api.*;
-import com.datatorrent.contrib.zmq.AbstractSinglePortZeroMQOutputOperator;
-import com.datatorrent.api.ActivationListener;
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG.Locality;
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
+
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.Operator.ActivationListener;
 
 /**
  *

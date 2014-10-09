@@ -10,8 +10,7 @@ import java.util.Calendar;
 
 import javax.annotation.Nonnull;
 
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.Attribute;
+import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 
@@ -35,14 +34,14 @@ public class OperatorContextTestHelper
     int id;
     String applicationPath;
     String applicationId;
-    AttributeMap attributes;
+    com.datatorrent.api.Attribute.AttributeMap attributes;
 
     public TestIdOperatorContext(int id)
     {
       this.id = id;
     }
 
-    public TestIdOperatorContext(int id, @Nonnull AttributeMap map)
+    public TestIdOperatorContext(int id, @Nonnull com.datatorrent.api.Attribute.AttributeMap map)
     {
       this.id = id;
       this.attributes = map;
@@ -76,7 +75,7 @@ public class OperatorContextTestHelper
   private static class TestContext implements Context
   {
     @Override
-    public AttributeMap getAttributes()
+    public com.datatorrent.api.Attribute.AttributeMap getAttributes()
     {
       return null;
     }

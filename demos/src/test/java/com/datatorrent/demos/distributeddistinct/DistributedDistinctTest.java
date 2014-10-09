@@ -32,7 +32,6 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
@@ -149,7 +148,7 @@ public class DistributedDistinctTest
   {
     insertValues();
     Statement stmt = valueCounter.getStore().getConnection().createStatement();
-    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
     attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, 2L);
@@ -185,7 +184,7 @@ public class DistributedDistinctTest
     Connection con = DriverManager.getConnection(INMEM_DB_URL, new Properties());
     Statement stmt = con.createStatement();
     stmt.execute("CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (col1 INTEGER, col2 INTEGER, col3 BIGINT)");
-    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
     attributes.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);

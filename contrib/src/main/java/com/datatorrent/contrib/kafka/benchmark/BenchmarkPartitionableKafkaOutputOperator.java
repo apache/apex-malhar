@@ -23,10 +23,10 @@ import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
 
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.contrib.kafka.KafkaMetadataUtil;
 import com.yammer.metrics.Metrics;

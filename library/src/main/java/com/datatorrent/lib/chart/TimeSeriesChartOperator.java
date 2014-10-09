@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.chart;
 
-import com.datatorrent.api.DAGContext;
+import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
 
 import java.util.Map;

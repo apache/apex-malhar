@@ -21,10 +21,10 @@ import org.slf4j.LoggerFactory;
 import org.zeromq.ZMQ;
 
 import com.datatorrent.api.annotation.ShipContainingJars;
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.ActivationListener;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**

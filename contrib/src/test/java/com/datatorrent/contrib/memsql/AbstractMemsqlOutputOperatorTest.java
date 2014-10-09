@@ -16,7 +16,7 @@
 
 package com.datatorrent.contrib.memsql;
 
-import com.datatorrent.api.AttributeMap;
+import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;

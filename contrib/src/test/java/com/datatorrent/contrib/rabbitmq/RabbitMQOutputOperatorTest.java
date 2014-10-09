@@ -15,24 +15,21 @@
  */
 package com.datatorrent.contrib.rabbitmq;
 
-import com.datatorrent.api.*;
-import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQOutputOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.ActivationListener;
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.LocalMode;
-import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import com.rabbitmq.client.*;
+
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.Operator.ActivationListener;
 
 /**
  *

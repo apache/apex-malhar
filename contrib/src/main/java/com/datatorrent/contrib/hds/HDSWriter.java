@@ -32,9 +32,9 @@ import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.CheckpointListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.Operator.CheckpointListener;
 import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
