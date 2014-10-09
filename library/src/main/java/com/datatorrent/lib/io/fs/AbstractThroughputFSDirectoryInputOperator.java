@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * </p>
  *
  * @displayName FS Throughput Directory Scan Input
- * @category Input/Output
+ * @category Input
  * @tags hdfs, directory, input operator
  *
  * @since 1.0.4

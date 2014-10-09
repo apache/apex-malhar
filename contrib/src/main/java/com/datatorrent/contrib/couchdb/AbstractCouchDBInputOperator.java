@@ -48,9 +48,9 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * (like the current date) because that will break the caching of a view's result in CouchDb.
  * Also the {@link #getViewQuery()} method should return the same view stored in CouchDb every time.<br/>
  * </p>
- * @displayName: Abstract CouchDB Input
- * @category: db
- * @tag: input operator
+ * @displayName Abstract CouchDB Input
+ * @category Database
+ * @tags input operator
  * @param <T> Type of tuples which are generated</T>
  * @since 0.3.5
  */

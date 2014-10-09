@@ -26,7 +26,7 @@ import kafka.message.Message;
  * Subclasses should implement the methods which convert Kafka messages to tuples.
  * <p></p>
  * @displayName Abstract Partitionable Kafka Single Port Input
- * @category messaging
+ * @category Messaging
  * @tags input operator
  *
  * @since 0.9.0

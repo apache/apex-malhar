@@ -21,7 +21,7 @@ import com.datatorrent.lib.db.AbstractKeyValueStoreInputOperator;
  * This is the base implementation of a Redis input operator.
  * <p></p>
  * @displayName Abstract Redis Input
- * @category store
+ * @category Store
  * @tags input operator, key value
  *
  * @param <T> The tuple type.

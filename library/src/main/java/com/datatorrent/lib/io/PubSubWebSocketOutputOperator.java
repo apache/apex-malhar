@@ -24,7 +24,7 @@ import com.datatorrent.lib.util.PubSubWebSocketClient;
  * This operator writes maps as JSON objects to the given URL.
  * <p></p>
  * @displayName Pub Sub Web Socket Output
- * @category Input/Output
+ * @category Input
  * @tags http, input operator
  *
  * @param <T>

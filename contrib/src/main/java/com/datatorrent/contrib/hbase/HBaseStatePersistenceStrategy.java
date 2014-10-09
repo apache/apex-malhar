@@ -33,9 +33,9 @@ import java.io.IOException;
  * method to retrieve and save state that needs to be implemented by the implementor.<br>
  *
  * <br>
- * @displayName: HBase State Persistence Strategy
- * @category: store
- * @tag: persistence
+ * @displayName HBase State Persistence Strategy
+ * @category Store
+ * @tags persistence
  * @since 0.3.2
  */
 @Deprecated

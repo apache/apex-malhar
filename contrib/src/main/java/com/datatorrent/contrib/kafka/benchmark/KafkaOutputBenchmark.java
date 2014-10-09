@@ -34,7 +34,7 @@ public class KafkaOutputBenchmark implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "KafkaProducerBenchmark");
+    dag.setAttribute(DAG.APPLICATION_NAME, "KafkaOutputBenchmark");
     BenchmarkPartitionableKafkaOutputOperator bpkoo = dag.addOperator("KafkaBenchmarkProducer", BenchmarkPartitionableKafkaOutputOperator.class);
     bpkoo.setBrokerList(conf.get("kafka.brokerlist"));
     dag.setAttribute(bpkoo, OperatorContext.INITIAL_PARTITION_COUNT, 2);

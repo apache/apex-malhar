@@ -52,7 +52,7 @@ import java.sql.Statement;
  * </p>
  *
  * @displayName JDBC Input
- * @category database
+ * @category Database
  * @tags input operator
  *
  * @since 0.3.2

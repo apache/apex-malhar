@@ -43,7 +43,7 @@ import com.datatorrent.api.InputOperator;
  * Your twitter access token secret.
  * </p>
  * @displayName Twitter Input
- * @category web
+ * @category Web
  * @tags input operator
  * @since 0.3.2
  */

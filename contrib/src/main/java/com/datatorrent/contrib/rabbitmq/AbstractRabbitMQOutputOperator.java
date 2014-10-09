@@ -52,7 +52,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * </p>
  * @displayName Abstract RabbitMQ Output
- * @category messaging
+ * @category Messaging
  * @tags output operator
  *
  * @since 0.3.2

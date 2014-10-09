@@ -44,7 +44,7 @@ import com.datatorrent.common.util.DTThrowable;
  * &nbsp&nbsp The key will be dot concatenated nested key names <br>
  * &nbsp&nbsp eg: key: "agentinfo.os.name", value: "Ubuntu" <br>
  * <br>
- * @displayName Json Byte Array
+ * @displayName JSON Byte Array
  * @category Stream
  * @tags json, byte array
  * @since 0.9.4

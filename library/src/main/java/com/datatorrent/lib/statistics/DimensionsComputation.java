@@ -69,7 +69,14 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
       }
     }
   };
-  
+
+  protected void processInputTuple(EVENT tuple)
+  {
+    for (int i = 0; i < aggregatorMaps.length; i++) {
+      aggregatorMaps[i].add(tuple, i);
+    }
+  }
+
   /**
    * Input data port that takes an event.
    */
@@ -78,11 +85,8 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
     @Override
     public void process(EVENT tuple)
     {
-      for (int i = 0; i < aggregatorMaps.length; i++) {
-        aggregatorMaps[i].add(tuple, i);
-      }
+      processInputTuple(tuple);
     }
-
   };
 
   public static interface AggregateEvent

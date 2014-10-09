@@ -58,7 +58,7 @@ import java.util.Set;
  * </p>
  *
  * @displayName Abstract Kafka Input
- * @category messaging
+ * @category Messaging
  * @tags input operator
  *
  * @since 0.3.2
@@ -73,7 +73,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
   @NotNull
   @Valid
-  protected K consumer = null;
+  protected K consumer = (K)new SimpleKafkaConsumer();
 
   /**
    * Any concrete class derived from KafkaInputOperator has to implement this method

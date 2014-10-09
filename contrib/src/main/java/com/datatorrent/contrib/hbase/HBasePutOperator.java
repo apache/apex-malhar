@@ -30,9 +30,9 @@ import java.io.IOException;
  * the tuple in the table.<br>
  *
  * <br>
- * @displayName: HBase Put
- * @category: store
- * @tag: output operator, put
+ * @displayName HBase Put
+ * @category Store
+ * @tags output operator, put
  * @param <T> The tuple type
  * @since 0.3.2
  */

@@ -22,9 +22,9 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * <p>
  * An {@link AbstractStoreOutputOperator} saving tuples in the CouchDb.
  * Sub-classes provide the implementation of parsing document id from the tuple.
- * @displayName: Abstract CouchDB Output
- * @category: db
- * @tag: output operator
+ * @displayName Abstract CouchDB Output
+ * @category Database
+ * @tags output operator
  * @param <T> type of tuple </T>
  * @since 0.3.5
  */

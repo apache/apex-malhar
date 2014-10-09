@@ -40,9 +40,9 @@ import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
  * This is needed for the recovery. The operator writes a tuple exactly once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
- * @displayName: Abstract Cassandra Transactionable Output
- * @category: store
- * @tag: output operator, batch, transactionable
+ * @displayName Abstract Cassandra Transactionable Output
+ * @category Store
+ * @tags output operator, batch, transactionable
  * @param <T>type of tuple</T>
  * @since 1.0.2
  */

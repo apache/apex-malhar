@@ -53,7 +53,7 @@ import org.slf4j.LoggerFactory;
  * <br>
  * </p>
  * @displayName MongoDB Input
- * @category database
+ * @category Database
  * @tags input operator
  * @since 0.3.2
  */

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+
+  <!-- GenericDimensionsApplication Demo Settings -->
+
+  <property>
+    <name>dt.application.GenericDimensionsApplication.attr.CONTAINER_MEMORY_MB</name>
+    <value>8192</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.attr.containerJvmOpts</name>
+    <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.port.*.attr.QUEUE_CAPACITY</name>
+    <value>32000</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.Input.attr.INITIAL_PARTITION_COUNT</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.Input.maxTuplesPerWindow</name>
+    <value>40000</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.Compute.attr.APPLICATION_WINDOW_COUNT</name>
+    <value>4</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.Store.attr.INITIAL_PARTITION_COUNT</name>
+    <value>4</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.Store.fileStore.basePath</name>
+    <value>GenericDimensionsStore</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.Store.prop.maxCacheSize</name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.QueryResult.prop.configProperties(serializer.class)</name>
+    <value>com.datatorrent.demos.adsdimension.KafkaJsonEncoder</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.Query.topic</name>
+    <value>GenericDimensionsQuery</value>
+  </property>
+  <property>
+    <name>dt.application.GenericDimensionsApplication.operator.QueryResult.topic</name>
+    <value>GenericDimensionsQueryResult</value>
+  </property>
+
+  <!-- Ensure that Kafka connect address is set locally - deployment specific configuration -->
+  <!--<property>-->
+    <!--<name>dt.operator.Query.brokerSet</name>-->
+    <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
+  <!--</property>-->
+  <!--<property>-->
+    <!--<name>dt.operator.QueryResult.prop.configProperties(metadata.broker.list)</name>-->
+    <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
+  <!--</property>-->
+
+  <!-- DimensionsComputationBenchmark is a limited application for testing of DimensionsComputation Operator -->
+  <property>
+    <name>dt.application.DimensionsComputationBenchmark.attr.CONTAINER_MEMORY_MB</name>
+    <value>8192</value>
+  </property>
+  <property>
+    <name>dt.application.DimensionsComputationBenchmark.attr.containerJvmOpts</name>
+    <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
+  </property>
+
+
+</configuration>

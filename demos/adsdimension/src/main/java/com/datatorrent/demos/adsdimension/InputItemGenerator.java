@@ -28,6 +28,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 /**
  * <p>InputItemGenerator class.</p>
  *
+ * @displayName Input Item Generator
+ * @category Input
+ * @tags generator, input operator
  * @since 0.3.2
  */
 public class InputItemGenerator implements InputOperator
@@ -140,13 +143,13 @@ public class InputItemGenerator implements InputOperator
         timestamp = System.currentTimeMillis();
 
         /* 0 (zero) is used as the invalid value */
-        emitTuple(false, publisherId + 1, advertiserId + 1, adUnit + 1, cost, timestamp);
+        buildAndSend(false, publisherId + 1, advertiserId + 1, adUnit + 1, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
           double revenue = 0.5 + 0.5 * random.nextDouble();
           timestamp = System.currentTimeMillis();
           // generate fake click
-          emitTuple(true, publisherId + 1, advertiserId + 1, adUnit + 1, revenue, timestamp);
+          buildAndSend(true, publisherId + 1, advertiserId + 1, adUnit + 1, revenue, timestamp);
         }
       }
     }
@@ -155,7 +158,12 @@ public class InputItemGenerator implements InputOperator
     }
   }
 
-  private void emitTuple(boolean click, int publisherId, int advertiserId, int adUnit, double value, long timestamp)
+
+  public void emitTuple(AdInfo adInfo) {
+    this.outputPort.emit(adInfo);
+  }
+
+  private void buildAndSend(boolean click, int publisherId, int advertiserId, int adUnit, double value, long timestamp)
   {
     AdInfo adInfo = new AdInfo();
     adInfo.setPublisherId(publisherId);
@@ -170,7 +178,7 @@ public class InputItemGenerator implements InputOperator
       adInfo.impressions = 1;
     }
     adInfo.setTimestamp(timestamp);
-    this.outputPort.emit(adInfo);
+    emitTuple(adInfo);
   }
 
 }

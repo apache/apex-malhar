@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * </table><br>
  * </p>
  * @displayName Abstract RabbitMQ Input
- * @category messaging
+ * @category Messaging
  * @tags input operator
  *
  * @since 0.3.2

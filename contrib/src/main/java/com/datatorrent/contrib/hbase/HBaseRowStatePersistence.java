@@ -35,9 +35,9 @@ import java.io.IOException;
  * parameter name is used as the column name and the parameter value is used as the column value.<br>
  *
  * <br>
- * @displayName: HBase Row State Persistence
- * @category: store
- * @tag: get, put, persistence
+ * @displayName HBase Row State Persistence
+ * @category Store
+ * @tags get, put, persistence
  * @since 0.3.2
  */
 @Deprecated

@@ -35,9 +35,9 @@ import java.io.IOException;
  * the table and Put metric specifies where to store the state in the table.<br>
  *
  * <br>
- * @displayName: HBase Base State Persistence
- * @category: store
- * @tag: get, put, persistence
+ * @displayName HBase Base State Persistence
+ * @category Store
+ * @tags get, put, persistence
  * @since 0.3.2
  */
 @Deprecated

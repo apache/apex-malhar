@@ -22,6 +22,8 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.zip.GZIPInputStream;
 
+import javax.validation.constraints.NotNull;
+
 import org.apache.commons.net.ftp.FTPClient;
 
 import com.datatorrent.api.Context.OperatorContext;
@@ -32,7 +34,7 @@ import com.datatorrent.api.InputOperator;
  * This operator emits each line as different tuple for a give file hosted on a ftp server.
  * <p>
  * <b>Ports</b>:<br>
- * <b>outport</b>: emits &lt;String&gt;<br>
+ * <b>output</b>: emits &lt;String&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>filePath</b> : Path for file to be read. <br>
@@ -45,7 +47,7 @@ import com.datatorrent.api.InputOperator;
  * <b>isGzip</b>: If the format of the file is gzip.<br>
  * </p>
  * @displayName FTP Input
- * @category Input/Output
+ * @category Input
  * @tags ftp, input operator
  *
  * @since 0.9.4
@@ -63,6 +65,7 @@ public class FtpInputOperator implements InputOperator
   /**
    * The ftp server to which to connect
    */
+  @NotNull
   private String ftpServer;
   /**
    * The port of the ftp server
@@ -83,6 +86,7 @@ public class FtpInputOperator implements InputOperator
   /**
    * The file that needs to be read
    */
+  @NotNull
   private String filePath;
   /**
    * If the file format is gzip
@@ -110,16 +114,11 @@ public class FtpInputOperator implements InputOperator
   public void setup(OperatorContext arg0)
   {
     ftp = new FTPClient();
-    if (ftpServer == null) {
-      throw new RuntimeException("The ftp server can't be null");
-    }
-    if (filePath == null) {
-      throw new RuntimeException("The file Path can't be null");
-    }
     try {
       if (port != 0) {
         ftp.connect(ftpServer, port);
-      } else {
+      }
+      else {
         ftp.connect(ftpServer);
       }
       if (localPassiveMode) {
@@ -131,11 +130,13 @@ public class FtpInputOperator implements InputOperator
       if (isGzip) {
         GZIPInputStream gzis = new GZIPInputStream(is);
         reader = new InputStreamReader(gzis);
-      } else {
+      }
+      else {
         reader = new InputStreamReader(is);
       }
       in = new BufferedReader(reader);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       throw new RuntimeException(e);
 
     }
@@ -154,7 +155,8 @@ public class FtpInputOperator implements InputOperator
       if (in != null) {
         in.close();
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       throw new RuntimeException(e);
     }
 
@@ -168,16 +170,19 @@ public class FtpInputOperator implements InputOperator
       while (localCounter > 0) {
         String str = in.readLine();
         if (str == null) {
-        } else {
+        }
+        else {
           output.emit(str);
         }
         try {
           Thread.sleep(delay);
-        } catch (InterruptedException e) {
+        }
+        catch (InterruptedException e) {
         }
         --localCounter;
       }
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       throw new RuntimeException(e);
     }
   }
@@ -191,8 +196,7 @@ public class FtpInputOperator implements InputOperator
   }
 
   /**
-   * @param ftpServer
-   *          the ftpServer to set
+   * @param ftpServer the ftpServer to set
    */
   public void setFtpServer(String ftpServer)
   {
@@ -208,8 +212,7 @@ public class FtpInputOperator implements InputOperator
   }
 
   /**
-   * @param port
-   *          the port to set
+   * @param port the port to set
    */
   public void setPort(int port)
   {
@@ -225,8 +228,7 @@ public class FtpInputOperator implements InputOperator
   }
 
   /**
-   * @param localPassiveMode
-   *          the localPassiveMode to set
+   * @param localPassiveMode the localPassiveMode to set
    */
   public void setLocalPassiveMode(boolean localPassiveMode)
   {
@@ -245,8 +247,7 @@ public class FtpInputOperator implements InputOperator
   }
 
   /**
-   * @param userName
-   *          the userName to set
+   * @param userName the userName to set
    */
   public void setUserName(String userName)
   {
@@ -261,7 +262,8 @@ public class FtpInputOperator implements InputOperator
     if (password == null) {
       try {
         password = System.getProperty("user.name") + "@" + InetAddress.getLocalHost().getHostName();
-      } catch (UnknownHostException e) {
+      }
+      catch (UnknownHostException e) {
         throw new RuntimeException(e);
       }
     }
@@ -269,8 +271,7 @@ public class FtpInputOperator implements InputOperator
   }
 
   /**
-   * @param password
-   *          the password to set
+   * @param password the password to set
    */
   public void setPassword(String password)
   {
@@ -286,8 +287,7 @@ public class FtpInputOperator implements InputOperator
   }
 
   /**
-   * @param delay
-   *          the delay to set
+   * @param delay the delay to set
    */
   public void setDelay(long delay)
   {
@@ -303,8 +303,7 @@ public class FtpInputOperator implements InputOperator
   }
 
   /**
-   * @param numberOfTuples
-   *          the numberOfTuples to set
+   * @param numberOfTuples the numberOfTuples to set
    */
   public void setNumberOfTuples(int numberOfTuples)
   {
@@ -320,8 +319,7 @@ public class FtpInputOperator implements InputOperator
   }
 
   /**
-   * @param filePath
-   *          the filePath to set
+   * @param filePath the filePath to set
    */
   public void setFilePath(String filePath)
   {
@@ -337,8 +335,7 @@ public class FtpInputOperator implements InputOperator
   }
 
   /**
-   * @param isGzip
-   *          the isGzip to set
+   * @param isGzip the isGzip to set
    */
   public void setGzip(boolean isGzip)
   {

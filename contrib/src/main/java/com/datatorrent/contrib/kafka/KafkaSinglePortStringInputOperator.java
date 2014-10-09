@@ -24,7 +24,7 @@ import java.nio.ByteBuffer;
  * <p></p>
  *
  * @displayName Kafka Single Port String Input
- * @category messaging
+ * @category Messaging
  * @tags input operator, string
  *
  * @since 0.3.5

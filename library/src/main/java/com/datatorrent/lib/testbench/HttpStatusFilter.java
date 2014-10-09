@@ -29,7 +29,7 @@ import com.datatorrent.api.Context.OperatorContext;
  * The tuples are filtered based on their values, and then the number of times each key occurs is counted.&nbsp;
  * At the end of the application window each key and the number of times it occurred is emitted.
  * <p></p>
- * @displayName Http Status Filter
+ * @displayName HTTP Status Filter
  * @category Testbench
  * @tags filter, count
  * @since 0.3.2

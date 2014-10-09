@@ -27,9 +27,9 @@ import org.apache.hadoop.conf.Configuration;
  * An implementation of Streaming Application that generates apache log file on the fly and dumps the parsed data to output. 
  * 
  * <p>
- * @displayName: Application Log Generator
- * @category: db
- * @tag: streaming
+ * @displayName Application Log Generator
+ * @category Database
+ * @tags streaming
  * @since 0.9.4
  */
 public class ApplicationLogGenerator implements StreamingApplication

@@ -172,7 +172,6 @@
          </execution>
        </executions>
      </plugin>
-
     </plugins>
   </build>
 
@@ -451,7 +450,7 @@
     <dependency>
       <groupId>com.esotericsoftware.kryo</groupId>
       <artifactId>kryo</artifactId>
-      <version>2.23.0</version>
+      <version>2.24.0</version>
       <scope>provided</scope>
     </dependency>
     <dependency>

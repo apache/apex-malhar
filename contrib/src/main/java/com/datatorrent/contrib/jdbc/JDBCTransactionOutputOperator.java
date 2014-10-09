@@ -57,7 +57,7 @@ import java.sql.Statement;
  * </p>
  *
  * @displayName JDBC Transaction Output
- * @category database
+ * @category Database
  * @tags output operator
  *
  * @since 0.3.2

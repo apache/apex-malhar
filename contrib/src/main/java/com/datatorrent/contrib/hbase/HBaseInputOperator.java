@@ -25,9 +25,9 @@ import java.io.IOException;
  * A base implementation of hbase input operator which derives from HBaseOperatorBase. <br>
  * <p>
  * <br>
- * @displayName: HBase Input
- * @category: store
- * @tag: input operator
+ * @displayName HBase Input
+ * @category Store
+ * @tags input operator
  * @param <T> The tuple type
  * @since 0.3.2
  */

@@ -33,9 +33,9 @@ import org.slf4j.LoggerFactory;
  * IMPORTANT: The user of this extractor needs to include the jars which contain these classes in DAGContext.LIBRARY_JARS
  *
  * com.maxmind.geoip.LookupService.class
- * @displayName: Geo IP Extractor
- * @category: db
- * @tag: extraction, geo
+ * @displayName Geo IP Extractor
+ * @category Database
+ * @tags extraction, geo
  * @since 0.9.4
  */
 public class GeoIPExtractor implements InformationExtractor

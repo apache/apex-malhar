@@ -24,8 +24,8 @@ import javax.validation.constraints.NotNull;
  * Data of type {@link java.util.Map} is converted to JSON. All other types are sent in their {@link Object#toString()} representation.<br>
  * <br>
  * </p>
- * @displayName Http Output
- * @category Input/Output
+ * @displayName HTTP Output
+ * @category Output
  * @tags http, output operator
  *
  * @param <T>
