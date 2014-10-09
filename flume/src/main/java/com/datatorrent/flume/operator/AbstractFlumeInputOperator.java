@@ -41,7 +41,7 @@ import static java.lang.Thread.sleep;
  * @since 0.9.2
  */
 public abstract class AbstractFlumeInputOperator<T>
-        implements InputOperator, Operator.ActivationListener<OperatorContext>, IdleTimeHandler, Operator.CheckpointListener,
+        implements InputOperator, Operator.ActivationListener<OperatorContext>, Operator.IdleTimeHandler, Operator.CheckpointListener,
         Partitioner<AbstractFlumeInputOperator<T>>
 {
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
