@@ -16,20 +16,20 @@
 
 package com.datatorrent.lib.io.fs;
 
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.fs.AbstractFSWriterTest.FSTestWatcher;
 import java.io.File;
 import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.Description;
 
 import com.google.common.collect.Maps;
 
-import com.datatorrent.api.Operator.ProcessingMode;
 
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 
@@ -37,7 +37,28 @@ public class AbstractFSSingleFileWriterTest
 {
   private static final String SINGLE_FILE = "single.txt";
 
-  @Rule public TestInfo testMeta = new TestInfo();
+  @Rule public TestInfo testMeta = new PrivateTestWatcher();
+
+  public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
+                new OperatorContextTestHelper.TestIdOperatorContext(0);
+
+  private static SingleHDFSExactlyOnceWriter writer;
+
+  private static class PrivateTestWatcher extends FSTestWatcher
+  {
+    @Override
+    public void starting(Description description)
+    {
+      super.starting(description);
+      writer = new SingleHDFSExactlyOnceWriter();
+      writer.setAppend(true);
+      writer.setOutputFileName(SINGLE_FILE);
+
+      writer.setFilePath(getDir());
+
+      writer.setup(testOperatorContext);
+    }
+  }
 
   /**
    * Dummy writer to store checkpointed state
@@ -122,25 +143,15 @@ public class AbstractFSSingleFileWriterTest
     writer.outputFileName = checkPointWriter.outputFileName;
   }
 
-  private void prepareTest()
-  {
-    File testDir = new File(testMeta.getDir());
-    FileUtils.deleteQuietly(testDir);
-
-    testDir.mkdir();
-  }
-
   @Test
   public void testSingleFileCompletedWrite()
   {
-    prepareTest();
-    SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(true);
     writer.setOutputFileName(SINGLE_FILE);
 
     writer.setFilePath(testMeta.getDir());
 
-    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
+    writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -169,15 +180,13 @@ public class AbstractFSSingleFileWriterTest
   @Test
   public void testSingleFileFailedWrite()
   {
-    prepareTest();
-    SingleHDFSExactlyOnceWriter writer = new SingleHDFSExactlyOnceWriter();
     writer.setAppend(true);
     writer.setOutputFileName(SINGLE_FILE);
 
     File meta = new File(testMeta.getDir());
     writer.setFilePath(meta.getAbsolutePath());
 
-    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
+    writer.setup(testOperatorContext);
 
     writer.beginWindow(0);
     writer.input.put(0);
@@ -193,7 +202,7 @@ public class AbstractFSSingleFileWriterTest
 
     restoreCheckPoint(checkPointWriter,
                       writer);
-    writer.setup(new DummyContext(0, ProcessingMode.EXACTLY_ONCE));
+    writer.setup(testOperatorContext);
 
     writer.beginWindow(1);
     writer.input.put(4);

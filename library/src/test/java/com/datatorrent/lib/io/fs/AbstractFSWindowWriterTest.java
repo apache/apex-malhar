@@ -15,23 +15,38 @@
  */
 package com.datatorrent.lib.io.fs;
 
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.fs.AbstractFSWriterTest.CheckPointWriter;
+import com.datatorrent.lib.io.fs.AbstractFSWriterTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import java.io.*;
 import org.junit.*;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 /**
  * Functional Test for {@link AbstractFSWindowWriter}
  */
 public class AbstractFSWindowWriterTest
 {
-  @Rule public TestInfo testMeta = new TestInfo();
+  @Rule public TestInfo testMeta = new PrivateTestWatcher();
 
-  private void prepareTest() {
-    deleteFile(testMeta.getDir() + "/0");
-    deleteFile(testMeta.getDir() + "/1");
-    deleteFile(testMeta.getDir() + "/2");
+  private static FSWindowWriterString oper;
+
+  private static class PrivateTestWatcher extends FSTestWatcher
+  {
+    @Override
+    public void starting(Description description)
+    {
+      super.starting(description);
+      oper = new FSWindowWriterString();
+      oper.setFilePath(getDir());
+      oper.setup(testOperatorContext);
+    }
   }
+
+  public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
+                new OperatorContextTestHelper.TestIdOperatorContext(0);
 
   public static class FSWindowWriterString extends AbstractFSWindowWriter<String, String>
   {
@@ -46,10 +61,6 @@ public class AbstractFSWindowWriterTest
   @SuppressWarnings("unchecked")
   public void testOperator()
   {
-    prepareTest();
-    FSWindowWriterString oper = new FSWindowWriterString();
-    oper.setFilePath(testMeta.getDir());
-    oper.setup(new DummyContext(0));
     oper.beginWindow(0);
     oper.input.process("window 0");
     oper.input.process("window 0");
@@ -63,7 +74,7 @@ public class AbstractFSWindowWriterTest
 
     AbstractFSWriterTest.restoreCheckPoint(checkPoint, oper);
 
-    oper.setup(new DummyContext(0));
+    oper.setup(testOperatorContext);
 
     oper.beginWindow(1);
     oper.input.process("window_new 1");
@@ -97,10 +108,6 @@ public class AbstractFSWindowWriterTest
   @SuppressWarnings("unchecked")
   public void testOperatorMidWindowRestore()
   {
-    prepareTest();
-    FSWindowWriterString oper = new FSWindowWriterString();
-    oper.setFilePath(testMeta.getDir());
-    oper.setup(new DummyContext(0));
     oper.beginWindow(0);
     oper.input.process("0");
     oper.input.process("0");
@@ -116,7 +123,7 @@ public class AbstractFSWindowWriterTest
 
     AbstractFSWriterTest.restoreCheckPoint(checkPoint, oper);
 
-    oper.setup(new DummyContext(0));
+    oper.setup(testOperatorContext);
 
     oper.input.process("1");
     oper.input.process("1");
@@ -144,13 +151,5 @@ public class AbstractFSWindowWriterTest
                                      testMeta.getDir() + "/" + "2",
                                      "2\n" +
                                      "2\n");
-  }
-
-  private void deleteFile(String path)
-  {
-    File file = new File(path);
-    if (file.exists()) {
-      file.delete();
-    }
   }
 }
