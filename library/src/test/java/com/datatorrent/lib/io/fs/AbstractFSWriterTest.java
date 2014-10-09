@@ -25,7 +25,6 @@ import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.google.common.collect.Maps;
 import java.io.*;
 import javax.validation.ConstraintViolationException;
-import junit.framework.Assert;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;

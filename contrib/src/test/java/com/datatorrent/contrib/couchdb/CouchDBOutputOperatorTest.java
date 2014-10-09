@@ -18,9 +18,9 @@ package com.datatorrent.contrib.couchdb;
 import java.net.MalformedURLException;
 import java.util.Map;
 
-import junit.framework.Assert;
 import org.codehaus.jackson.JsonNode;
 import org.junit.AfterClass;
+import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
