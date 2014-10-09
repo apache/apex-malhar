@@ -60,6 +60,10 @@ import java.util.Map;
  * The tuple is modified as below before operator emits it on output port.
  * { amount=10.0, channelId=4, productId=3, productCategory=1 }
  * </p>
+ *
+ * @displayName Enrichment
+ * @category Database
+ * @tags enrichment, lookup
  */
 public class EnrichmentOperator extends BaseOperator
 {
