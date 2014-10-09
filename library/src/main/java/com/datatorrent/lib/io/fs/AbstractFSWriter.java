@@ -46,7 +46,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
-import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
@@ -236,7 +235,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       fs = getFSInstance();
     }
     catch (IOException ex) {
-      DTThrowable.rethrow(ex);
+      throw new RuntimeException(ex);
     }
 
     LOG.debug("FS class {}", fs.getClass());
@@ -329,10 +328,8 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
           return fsOutput;
         }
         catch (IOException e) {
-          DTThrowable.rethrow(e);
+          throw new RuntimeException(e);
         }
-
-        return null;
       }
     };
 
@@ -415,10 +412,10 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
             }
           }
           catch (IOException e) {
-            DTThrowable.rethrow(e);
+            throw new RuntimeException(e);
           }
           catch (ExecutionException e) {
-            DTThrowable.rethrow(e);
+            throw new RuntimeException(e);
           }
         }
       }
@@ -427,10 +424,10 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       LOG.debug("end-offsets {}", endOffsets);
     }
     catch (IOException e) {
-      DTThrowable.rethrow(e);
+      throw new RuntimeException(e);
     }
     catch (ExecutionException e) {
-      DTThrowable.rethrow(e);
+      throw new RuntimeException(e);
     }
 
     this.context = context;
@@ -647,7 +644,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
             }
           }
           catch (IOException ex) {
-            DTThrowable.rethrow(ex);
+            throw new RuntimeException(ex);
           }
         }
 
@@ -668,7 +665,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
           }
         }
         catch (IOException ex) {
-          DTThrowable.rethrow(ex);
+          throw new RuntimeException(ex);
         }
 
         part = new MutableInt(partCounter);
@@ -724,10 +721,10 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
         fsOutput.hflush();
       }
       catch (ExecutionException e) {
-        DTThrowable.rethrow(e);
+        throw new RuntimeException(e);
       }
       catch (IOException e) {
-        DTThrowable.rethrow(e);
+        throw new RuntimeException(e);
       }
     }
 
