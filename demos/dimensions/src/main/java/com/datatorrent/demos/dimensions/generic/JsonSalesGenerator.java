@@ -48,19 +48,6 @@ import java.util.Random;
  * @category Input
  * @tags input, generator, json
  */
-
-class SalesEvent {
-
-  /* dimension keys */
-  public int productId;
-  public int customerId;
-  public int channelId;
-  public int productCategory;
-  public long timestamp;
-  /* metrics */
-  public double amount;
-}
-
 public class JsonSalesGenerator implements InputOperator
 {
   @Min(1)
@@ -71,7 +58,7 @@ public class JsonSalesGenerator implements InputOperator
   private int maxChannelId = 5;
   @Min(0)
   private double minAmount = 0.99;
-  private double maxAmount = 1000.0;
+  private double maxAmount = 100.0;
 
   // Should not be included by default - only used for testing when running without enrichment operator
   private boolean addProductCategory = false;
@@ -81,6 +68,14 @@ public class JsonSalesGenerator implements InputOperator
   // Limit number of emitted tuples per window
   @Min(0)
   private long maxTuplesPerWindow = 40000;
+
+  // Maximum amount of deviation below the maximum tuples per window
+  @Min(0)
+  private int tuplesPerWindowDeviation = 1000;
+
+  // Number of windows to maintain the same deviation before selecting another
+  @Min(1)
+  private int tuplesPerWindowDeviationCycle = 120;
 
 
   /**
@@ -93,11 +88,15 @@ public class JsonSalesGenerator implements InputOperator
   private final Random random = new Random();
 
   private long tuplesCounter = 0;
+  private long tuplesPerCurrentWindow = maxTuplesPerWindow;
 
   @Override
   public void beginWindow(long windowId)
   {
     tuplesCounter = 0;
+    if (windowId % tuplesPerWindowDeviationCycle == 0) {
+      tuplesPerCurrentWindow = maxTuplesPerWindow - random.nextInt(tuplesPerWindowDeviation);
+    }
   }
 
   @Override
@@ -108,6 +107,7 @@ public class JsonSalesGenerator implements InputOperator
   @Override
   public void setup(Context.OperatorContext context)
   {
+    tuplesPerCurrentWindow = maxTuplesPerWindow;
   }
 
   @Override
@@ -118,7 +118,7 @@ public class JsonSalesGenerator implements InputOperator
   @Override
   public void emitTuples()
   {
-    while (tuplesCounter++ < maxTuplesPerWindow) {
+    while (tuplesCounter++ < tuplesPerCurrentWindow) {
       try {
 
         SalesEvent salesEvent = generateSalesEvent();
@@ -226,4 +226,24 @@ public class JsonSalesGenerator implements InputOperator
   public void setMaxProductCategories(int maxProductCategories) {
     this.maxProductCategories = maxProductCategories;
   }
+
+  public int getTuplesPerWindowDeviation() {
+    return tuplesPerWindowDeviation;
+  }
+
+  public void setTuplesPerWindowDeviation(int tuplesPerWindowDeviation) {
+    this.tuplesPerWindowDeviation = tuplesPerWindowDeviation;
+  }
+}
+
+class SalesEvent {
+
+  /* dimension keys */
+  public int productId;
+  public int customerId;
+  public int channelId;
+  public int productCategory;
+  public long timestamp;
+  /* metrics */
+  public double amount;
 }
