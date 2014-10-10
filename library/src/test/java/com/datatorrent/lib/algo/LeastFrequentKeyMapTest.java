@@ -18,8 +18,7 @@ package com.datatorrent.lib.algo;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;

@@ -15,17 +15,18 @@
  */
 package com.datatorrent.lib.multiwindow;
 
-import static junit.framework.Assert.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.google.common.collect.Lists;
 
 /**
  * Unit tests for
@@ -96,11 +97,11 @@ public class SlidingWindowTest
 		oper.data.process("b3");
 		oper.endWindow();
 
-		assertEquals("number emitted tuples", 4,
-				swinSink.collectedTuples.size());
+		Assert.assertEquals("number emitted tuples", 4,
+      swinSink.collectedTuples.size());
 		
-		assertEquals("Invalid second stream window state.", oper.getStreamingWindowState(1), Lists.newArrayList("a2", "b2"));
-		assertEquals("Invalid expired stream window state.", oper.lastExpiredWindowState, Lists.newArrayList("a0", "b0"));
+		Assert.assertEquals("Invalid second stream window state.", oper.getStreamingWindowState(1), Lists.newArrayList("a2", "b2"));
+		Assert.assertEquals("Invalid expired stream window state.", oper.lastExpiredWindowState, Lists.newArrayList("a0", "b0"));
 
 	}
 }

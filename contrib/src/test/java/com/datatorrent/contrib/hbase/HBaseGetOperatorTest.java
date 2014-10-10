@@ -15,15 +15,16 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.contrib.hbase.HBaseGetOperator;
+import java.util.List;
+
+import org.apache.hadoop.hbase.KeyValue;
+import org.apache.hadoop.hbase.client.Get;
+import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
-import java.util.List;
-import junit.framework.Assert;
-import org.apache.hadoop.hbase.KeyValue;
-import org.apache.hadoop.hbase.client.*;
-import org.apache.hadoop.hbase.util.Bytes;
-import org.junit.Test;
 
 /**
  *
@@ -73,7 +74,7 @@ public class HBaseGetOperatorTest
       //fail("The test case is a prototype.");
       // Check total number
       List<HBaseTuple> tuples = HBaseTupleCollector.tuples;
-      Assert.assertTrue( tuples.size() > 0);
+      Assert.assertTrue(tuples.size() > 0);
       HBaseTuple tuple = HBaseTestHelper.findTuple(tuples, "row0", "colfam0", "col-0");
       Assert.assertNotNull("Tuple", tuple);
       Assert.assertEquals("Tuple row", tuple.getRow(), "row0");
@@ -87,7 +88,8 @@ public class HBaseGetOperatorTest
       Assert.assertEquals("Tuple column family", tuple.getColFamily(), "colfam0");
       Assert.assertEquals("Tuple column name", tuple.getColName(), "col-499");
       Assert.assertEquals("Tuple column value", tuple.getColValue(), "val-0-499");
-    } catch (Exception ex) {
+    }
+    catch (Exception ex) {
       ex.printStackTrace();
       //logger.error(ex.getMessage());
       assert false;

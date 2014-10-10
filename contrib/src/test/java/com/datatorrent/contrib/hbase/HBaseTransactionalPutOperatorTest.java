@@ -17,9 +17,8 @@ package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
 import org.apache.hadoop.hbase.client.Put;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -90,7 +89,7 @@ public class HBaseTransactionalPutOperatorTest {
 
       Assert.assertNotNull("Tuple", tuple);
       Assert.assertEquals("Tuple row", tuple.getRow(), "row1");
-      Assert.assertEquals("Tuple column family", tuple.getColFamily(),"colfam0");
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(), "colfam0");
       Assert.assertEquals("Tuple column name", tuple.getColName(),"street");
       Assert.assertEquals("Tuple column value", tuple.getColValue(),"ts");
     } catch (IOException e) {

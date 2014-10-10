@@ -18,15 +18,14 @@ package com.datatorrent.lib.stream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * Functional test for {@link com.datatorrent.lib.testbench.ArrayListAggregator}
+ * Functional test for {@link com.datatorrent.lib.stream.ArrayListAggregator}
  */
 public class ConsolidatorKeyValTest
 {

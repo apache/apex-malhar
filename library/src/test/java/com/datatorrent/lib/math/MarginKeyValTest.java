@@ -15,11 +15,11 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.lib.math.MarginKeyVal;
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
-import junit.framework.Assert;
-import org.junit.Test;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.math.MarginKeyVal}.
@@ -63,19 +63,19 @@ public class MarginKeyValTest
 					.get(i)).getKey())) {
 				Assert.assertEquals("emitted value for 'a' was ", new Double(0),
 						((KeyValPair<String, Number>) marginSink.collectedTuples.get(i))
-								.getValue().doubleValue());
+								.getValue().doubleValue(), 0);
 			}
 			if ("b".equals(((KeyValPair<String, Number>) marginSink.collectedTuples
 					.get(i)).getKey())) {
 				Assert.assertEquals("emitted value for 'b' was ", new Double(0.5),
 						((KeyValPair<String, Number>) marginSink.collectedTuples.get(i))
-								.getValue().doubleValue());
+								.getValue().doubleValue(), 0);
 			}
 			if ("c".equals(((KeyValPair<String, Number>) marginSink.collectedTuples
 					.get(i)).getKey())) {
 				Assert.assertEquals("emitted value for 'c' was ", new Double(-1),
 						((KeyValPair<String, Number>) marginSink.collectedTuples.get(i))
-								.getValue().doubleValue());
+								.getValue().doubleValue(), 0);
 			}
 		}
 	}

@@ -18,8 +18,8 @@ package com.datatorrent.lib.math;
 /**
  * Copyright (c) 2012-2013 DataTorrent, Inc. All rights reserved.
  */
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.common.util.Pair;

@@ -21,7 +21,7 @@ import java.util.Map;
 
 import javax.annotation.Nullable;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.base.Predicate;
