@@ -153,6 +153,13 @@
       </exclusions>
     </dependency>
     <dependency>
+      <scope>test</scope>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${datatorrent.version}</version>
+      <classifier>tests</classifier>
+    </dependency>
+    <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>dt-engine</artifactId>
       <version>${datatorrent.version}</version>
