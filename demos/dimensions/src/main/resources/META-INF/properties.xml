@@ -39,16 +39,19 @@
     <name>dt.application.GenericDimensionsApplication.operator.Store.prop.maxCacheSize</name>
     <value>5</value>
   </property>
+
+
+  <!-- Settings for all Query and QueryResult operators -->
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.QueryResult.prop.configProperties(serializer.class)</name>
+    <name>dt.operator.QueryResult.prop.configProperties(serializer.class)</name>
     <value>com.datatorrent.demos.dimensions.ads.KafkaJsonEncoder</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.Query.topic</name>
+    <name>dt.operator.Query.topic</name>
     <value>GenericDimensionsQuery</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.QueryResult.topic</name>
+    <name>dt.operator.QueryResult.topic</name>
     <value>GenericDimensionsQueryResult</value>
   </property>
 
@@ -62,6 +65,9 @@
     <!--<name>dt.operator.QueryResult.prop.configProperties(metadata.broker.list)</name>-->
     <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
   <!--</property>-->
+
+
+
 
 
   <!-- Settings for all the apps -->
