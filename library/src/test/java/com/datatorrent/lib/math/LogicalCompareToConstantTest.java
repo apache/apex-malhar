@@ -18,10 +18,11 @@ package com.datatorrent.lib.math;
 /**
  * Copyright (c) 2012-2013 DataTorrent, Inc. All rights reserved.
  */
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 
 /**

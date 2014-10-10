@@ -15,8 +15,7 @@
  */
 package com.datatorrent.lib.math;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -75,6 +74,6 @@ public class ChangeAlertTest
       log.debug(o.toString());
       aval += map.getValue().doubleValue();
     }
-    Assert.assertEquals("change in a", 220.0, aval);
+    Assert.assertEquals("change in a", 220.0, aval,0);
   }
 }

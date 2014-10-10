@@ -17,7 +17,7 @@ package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,11 +26,13 @@ import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 
-public class HBaseNameValueCsvPutOperatorTest {
+public class HBaseNameValueCsvPutOperatorTest
+{
   private static final Logger logger = LoggerFactory.getLogger(HBaseNameValueCsvPutOperatorTest.class);
 
   @Test
-  public void testPut() throws Exception {
+  public void testPut() throws Exception
+  {
     try {
       HBaseTestHelper.startLocalCluster();
       HBaseTestHelper.clearHBase();
@@ -42,26 +44,31 @@ public class HBaseNameValueCsvPutOperatorTest {
       String s = "name=milind,st=patrick,ct=fremont,sa=cali";
       String s1 = "st=tasman,ct=sancla,name=milinda,sa=cali";
       propPutOperator.setMapping("name=row,st=colfam0.street,ct=colfam0.city,sa=colfam0.state");
-      propPutOperator.setup(new OperatorContext() {
+      propPutOperator.setup(new OperatorContext()
+      {
 
         @Override
-        public <T> T getValue(Attribute<T> key) {
+        public <T> T getValue(Attribute<T> key)
+        {
           return null;
         }
 
         @Override
-        public AttributeMap getAttributes() {
+        public AttributeMap getAttributes()
+        {
           return null;
         }
 
         @Override
-        public int getId() {
+        public int getId()
+        {
           // TODO Auto-generated method stub
           return 0;
         }
 
         @Override
-        public void setCounters(Object counters) {
+        public void setCounters(Object counters)
+        {
           // TODO Auto-generated method stub
 
         }
@@ -74,10 +81,11 @@ public class HBaseNameValueCsvPutOperatorTest {
       tuple = HBaseTestHelper.getHBaseTuple("milind", "colfam0", "street");
       Assert.assertNotNull("Tuple", tuple);
       Assert.assertEquals("Tuple row", tuple.getRow(), "milind");
-      Assert.assertEquals("Tuple column family", tuple.getColFamily(),"colfam0");
-      Assert.assertEquals("Tuple column name", tuple.getColName(),"street");
-      Assert.assertEquals("Tuple column value", tuple.getColValue(),"patrick");
-    } catch (IOException e) {
+      Assert.assertEquals("Tuple column family", tuple.getColFamily(), "colfam0");
+      Assert.assertEquals("Tuple column name", tuple.getColName(), "street");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(), "patrick");
+    }
+    catch (IOException e) {
 
       logger.error(e.getMessage());
     }

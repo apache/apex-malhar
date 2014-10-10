@@ -15,12 +15,11 @@
  */
 package com.datatorrent.lib.math;
 
-import junit.framework.Assert;
+import org.junit.Assert;
+import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.testbench.CountOccurance;
-
-import org.junit.Test;
 
 /**
  */

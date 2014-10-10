@@ -17,12 +17,11 @@ package com.datatorrent.contrib.jython;
 
 import java.util.HashMap;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
+import org.python.core.PyInteger;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import org.python.core.PyInteger;
 
 /**
  * Unit test for PythonOperator.

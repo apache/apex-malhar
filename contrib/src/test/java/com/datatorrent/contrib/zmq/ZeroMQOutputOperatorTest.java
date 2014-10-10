@@ -208,16 +208,16 @@ public class ZeroMQOutputOperatorTest
 
     lc.run();
 
-    junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
+    Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
     for (Map.Entry<String, Integer> e : receiver.dataMap.entrySet()) {
       if (e.getKey().equals("a")) {
-        junit.framework.Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
+        Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
       }
       else if (e.getKey().equals("b")) {
-        junit.framework.Assert.assertEquals("emitted value for 'b' was ", new Integer(20), e.getValue());
+        Assert.assertEquals("emitted value for 'b' was ", new Integer(20), e.getValue());
       }
       else if (e.getKey().equals("c")) {
-        junit.framework.Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
+        Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
       }
     }
     logger.debug("end of test");

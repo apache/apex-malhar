@@ -19,6 +19,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -149,7 +150,7 @@ public class JDBCRecoveryTest
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
 
-    junit.framework.Assert.assertEquals("Number of emitted tuples", expectedTuples, tupleCount);
+    Assert.assertEquals("Number of emitted tuples", expectedTuples, tupleCount);
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 
@@ -316,7 +317,7 @@ public class JDBCRecoveryTest
     lc.setHeartbeatMonitoringEnabled(false);
     lc.run();
 
-    junit.framework.Assert.assertEquals("Number of emitted tuples", expectedTuples, tupleCount);
+    Assert.assertEquals("Number of emitted tuples", expectedTuples, tupleCount);
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount));
   }
 

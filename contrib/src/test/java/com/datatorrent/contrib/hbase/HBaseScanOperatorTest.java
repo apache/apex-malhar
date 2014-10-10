@@ -15,18 +15,20 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.contrib.hbase.HBaseScanOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
 import java.util.List;
-import junit.framework.Assert;
-import org.apache.hadoop.hbase.client.*;
+
+import org.apache.hadoop.hbase.client.Result;
+import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.filter.ColumnPrefixFilter;
 import org.apache.hadoop.hbase.filter.Filter;
 import org.apache.hadoop.hbase.util.Bytes;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
 
 /**
  *

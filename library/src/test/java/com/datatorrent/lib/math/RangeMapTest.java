@@ -18,13 +18,13 @@ package com.datatorrent.lib.math;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Sink;
+
 import com.datatorrent.lib.util.HighLow;
 
 /**
@@ -125,8 +125,8 @@ public class RangeMapTest<V extends Number>
       }
     }
     node.endWindow();
-    Assert.assertEquals("high was ", new Double(999.0), rangeSink.high);
-    Assert.assertEquals("low was ", new Double(-10.0), rangeSink.low);
+    Assert.assertEquals("high was ", new Double(999.0), rangeSink.high, 0);
+    Assert.assertEquals("low was ", new Double(-10.0), rangeSink.low, 0);
     log.debug(String.format("\nTested %d tuples", numtuples));
   }
 }

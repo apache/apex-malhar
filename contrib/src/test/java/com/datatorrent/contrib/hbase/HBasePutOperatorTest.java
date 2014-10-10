@@ -15,13 +15,14 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.LocalMode;
-import junit.framework.Assert;
 import org.apache.hadoop.hbase.client.Put;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.LocalMode;
 
 /**
  *

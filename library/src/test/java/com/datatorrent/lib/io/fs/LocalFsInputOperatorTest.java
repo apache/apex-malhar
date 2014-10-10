@@ -16,11 +16,11 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.io.localfs.LocalFsInputOperator} <p>
+ * Functional tests for {@link com.datatorrent.lib.io.fs.LocalFsInputOperator} <p>
  */
 public class LocalFsInputOperatorTest
 {

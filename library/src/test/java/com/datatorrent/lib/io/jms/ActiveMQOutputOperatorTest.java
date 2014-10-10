@@ -15,18 +15,18 @@
  */
 package com.datatorrent.lib.io.jms;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.util.ActiveMQMessageListener;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
+import com.datatorrent.lib.util.ActiveMQMessageListener;
 
 /**
  * Test to verify ActiveMQ output operator adapter.

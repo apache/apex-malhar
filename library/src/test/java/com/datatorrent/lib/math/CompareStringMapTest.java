@@ -15,13 +15,13 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.lib.math.CompareStringMap;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
