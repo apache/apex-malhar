@@ -1,4 +1,4 @@
-package com.datatorrent.contrib.jdbc;
+package com.datatorrent.contrib.cassandra;
 
 import java.sql.Connection;
 import java.sql.DriverManager;

@@ -15,23 +15,21 @@
  */
 package com.datatorrent.demos.twitter;
 
-import java.sql.CallableStatement;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.List;
+
+import javax.annotation.Nonnull;
 
 import org.apache.hadoop.conf.Configuration;
-
 import twitter4j.Status;
 
-import com.datatorrent.contrib.jdbc.JDBCOperatorBase;
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.contrib.twitter.TwitterSampleInput;
+import com.datatorrent.lib.db.jdbc.AbstractJdbcTransactionableOutputOperator;
 
 /**
  * An application which connects to Twitter Sample Input and stores all the
@@ -65,75 +63,35 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 @ApplicationAnnotation(name="TwitterDumpDemo")
 public class TwitterDumpApplication implements StreamingApplication
 {
-  public static class Status2Database extends JDBCOutputOperator<Status>
+  public static class Status2Database extends AbstractJdbcTransactionableOutputOperator<Status>
   {
     public static final String INSERT_STATUS_STATEMENT = "insert into tweets (window_id, creation_date, text, userid) values (?, ?, ?, ?)";
-    public static final String SELECT_WINDOW_ID_STATEMENT = "select dt_window_id from dt_window_id_tracker where dt_application_id = ? and dt_operator_id = ?";
-    public static final String INSERT_WINDOW_ID_STATEMENT = "insert into dt_window_id_tracker (dt_application_id, dt_operator_id, dt_window_id) values (?, ?, ?)";
-    public static final String UPDATE_WINDOW_ID_STATEMENT = "update dt_window_id_tracker set dt_window_id = ? where dt_application_id = ? and dt_operator_id = ?";
-    private transient CallableStatement insertTuple;
-    private transient PreparedStatement lastWindowUpdateStmt;
 
-    @Override
-    protected PreparedStatement getBatchUpdateCommandFor(List<Status> tuples, long windowId) throws SQLException
+    public Status2Database()
     {
-      insertTuple.setLong(1, windowId);
+      store.setMetaTable("dt_window_id_tracker");
+      store.setMetaTableAppIdColumn("dt_application_id");
+      store.setMetaTableOperatorIdColumn("dt_operator_id");
+      store.setMetaTableWindowColumn("dt_window_id");
+    }
 
-      for (Status status : tuples) {
-        insertTuple.setDate(2, new java.sql.Date(status.getCreatedAt().getTime()));
-        insertTuple.setString(3, status.getText());
-        insertTuple.setString(4, status.getUser().getScreenName());
-        insertTuple.addBatch();
-      }
-
-      return insertTuple;
+    @Nonnull
+    @Override
+    protected String getUpdateCommand()
+    {
+      return INSERT_STATUS_STATEMENT;
     }
 
     @Override
-    protected long getLastPersistedWindow(OperatorContext context) throws Exception
+    protected void setStatementParameters(PreparedStatement statement, Status tuple) throws SQLException
     {
-      PreparedStatement stmt = jdbcConnector.getConnection().prepareStatement(SELECT_WINDOW_ID_STATEMENT);
-      stmt.setString(1, context.getValue(DAG.APPLICATION_ID));
-      stmt.setInt(2, context.getId());
-      long lastWindow = -1;
-      ResultSet resultSet = stmt.executeQuery();
-      if (resultSet.next()) {
-        lastWindow = resultSet.getLong(1);
-      }
-      else {
-        stmt = jdbcConnector.getConnection().prepareStatement(INSERT_WINDOW_ID_STATEMENT);
-        stmt.setString(1, context.getValue(DAG.APPLICATION_ID));
-        stmt.setInt(2, context.getId());
-        stmt.setLong(3, -1);
-        stmt.executeUpdate();
-      }
-      stmt.close();
-      return lastWindow;
+      statement.setLong(1, currentWindowId);
+
+      statement.setDate(2, new java.sql.Date(tuple.getCreatedAt().getTime()));
+      statement.setString(3, tuple.getText());
+      statement.setString(4, tuple.getUser().getScreenName());
+      statement.addBatch();
     }
-
-    @Override
-    protected void updateLastCommittedWindow(long window) throws Exception
-    {
-      lastWindowUpdateStmt.setLong(1, window);
-      lastWindowUpdateStmt.executeUpdate();
-    }
-
-    @Override
-    public void setup(OperatorContext context)
-    {
-      super.setup(context);
-      try {
-        insertTuple = jdbcConnector.getConnection().prepareCall(INSERT_STATUS_STATEMENT);
-
-        lastWindowUpdateStmt = jdbcConnector.getConnection().prepareStatement(UPDATE_WINDOW_ID_STATEMENT);
-        lastWindowUpdateStmt.setString(2, context.getValue(DAG.APPLICATION_ID));
-        lastWindowUpdateStmt.setInt(3, context.getId());
-      }
-      catch (SQLException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
   }
 
   @Override
@@ -144,13 +102,11 @@ public class TwitterDumpApplication implements StreamingApplication
     TwitterSampleInput twitterStream = dag.addOperator("TweetSampler", new TwitterSampleInput());
 
     //ConsoleOutputOperator dbWriter = dag.addOperator("DatabaseWriter", new ConsoleOutputOperator());
-    JDBCOperatorBase jdbcStore = new JDBCOperatorBase();
-    jdbcStore.setDbDriver("com.mysql.jdbc.Driver");
-    jdbcStore.setDbUrl("jdbc:mysql://node6.morado.com:3306/twitter");
-    jdbcStore.setUserName("twitter");
 
     Status2Database dbWriter = dag.addOperator("DatabaseWriter", new Status2Database());
-    dbWriter.setJdbcStore(jdbcStore);
+    dbWriter.getStore().setDbDriver("com.mysql.jdbc.Driver");
+    dbWriter.getStore().setDbUrl("jdbc:mysql://node6.morado.com:3306/twitter");
+    dbWriter.getStore().setConnectionProperties("user:twitter");
 
     dag.addStream("Statuses", twitterStream.status, dbWriter.input).setLocality(Locality.CONTAINER_LOCAL);
   }
