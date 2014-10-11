@@ -6,11 +6,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
+ * <p>ErrorMaskingEventCodec class.</p>
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
+ * @since 1.0.4
  */
-
-
 public class ErrorMaskingEventCodec extends EventCodec
 {
 
