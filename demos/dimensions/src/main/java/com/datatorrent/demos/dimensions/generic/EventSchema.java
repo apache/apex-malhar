@@ -38,25 +38,71 @@ import java.util.Set;
  *   aggregates: Fields to aggregate for specified dimensions.  Aggregates types can include: sum, avg, min, max
  *   timestamp: Name of the timestamp field.  Data type should be Long with value in milliseconds since Jan 1, 1970 GMT.
  *
- * Example JSON schema for Ads demo:
+ * JSON schema for Ads demo:
  *
  *   {
- *     "fields": {"publisherId":"java.lang.Integer", "advertiserId":"java.lang.Integer", "adUnit":"java.lang.Integer", "clicks":"java.lang.Long", "price":"java.lang.Long", "cost":"java.lang.Double", "revenue":"java.lang.Double", "timestamp":"java.lang.Long", "impressions":"java.lang.Long"},
- *     "dimensions": ["time=MINUTES", "time=MINUTES:adUnit", "time=MINUTES:advertiserId", "time=MINUTES:publisherId", "time=MINUTES:advertiserId:adUnit", "time=MINUTES:publisherId:adUnit", "time=MINUTES:publisherId:advertiserId", "time=MINUTES:publisherId:advertiserId:adUnit"],
- *     "aggregates": { "impressions": "sum", "clicks": "sum", "price": "sum", "cost": "sum", "revenue": "sum"},
- *     "timestamp": "timestamp"
- *   }
+ *    "fields": {
+ *      "publisherId": "java.lang.Integer",
+ *      "advertiserId": "java.lang.Integer",
+ *      "adUnit": "java.lang.Integer",
+ *      "clicks": "java.lang.Long",
+ *      "price": "java.lang.Long",
+ *      "cost": "java.lang.Double",
+ *      "revenue": "java.lang.Double",
+ *      "timestamp": "java.lang.Long",
+ *      "impressions": "java.lang.Long"
+ *    },
+ *    "dimensions": [
+ *      "time=MINUTES",
+ *      "time=MINUTES:adUnit",
+ *      "time=MINUTES:advertiserId",
+ *      "time=MINUTES:publisherId",
+ *      "time=MINUTES:advertiserId:adUnit",
+ *      "time=MINUTES:publisherId:adUnit",
+ *      "time=MINUTES:publisherId:advertiserId",
+ *      "time=MINUTES:publisherId:advertiserId:adUnit"
+ *    ],
+ *    "aggregates": {
+ *      "impressions": "sum",
+ *      "clicks": "sum",
+ *      "price": "sum",
+ *      "cost": "sum",
+ *      "revenue": "sum"
+ *    },
+ *    "timestamp": "timestamp"
+ *  }
  *
- * Example JSON schema for Sales demo:
+ * JSON schema for Sales demo:
  *
  *   {
- *     "fields": { "productId":"java.lang.Integer","customerId":"java.lang.Integer","channelId":"java.lang.Integer","productCategory":"java.lang.Integer","amount":"java.lang.Double","timestamp":"java.lang.Long"},
- *     "dimensions": ["time=MINUTES", "time=MINUTES:productCategory","time=MINUTES:channelId","time=MINUTES:productCategory:channelId"],
- *     "aggregates": {"amount":"sum"},
+ *     "fields": {
+ *       "timestamp": "java.lang.Long",
+ *       "productId": "java.lang.Integer",
+ *       "customerId": "java.lang.Integer",
+ *       "channelId": "java.lang.Integer",
+ *       "regionId": "java.lang.Integer",
+ *       "productCategory": "java.lang.Integer",
+ *       "amount": "java.lang.Double",
+ *       "discount": "java.lang.Double",
+ *       "tax": "java.lang.Double"
+ *     },
+ *     "dimensions": [
+ *       "time=MINUTES",
+ *       "time=MINUTES:productCategory",
+ *       "time=MINUTES:channelId",
+ *       "time=MINUTES:regionId",
+ *       "time=MINUTES:productCategory:channelId",
+ *       "time=MINUTES:productCategory:regionId",
+ *       "time=MINUTES:channelId:regionId",
+ *       "time=MINUTES:productCategory:channelId:regionId"
+ *     ],
+ *     "aggregates": {
+ *       "amount": "sum",
+ *       "discount": "sum",
+ *       "tax": "sum"
+ *     },
  *     "timestamp": "timestamp"
  *   }
- *
- *
  *
  */
 public class EventSchema implements Serializable
@@ -85,15 +131,63 @@ public class EventSchema implements Serializable
   transient private int valLen;
 
   public static final String DEFAULT_SCHEMA_ADS = "{\n" +
-          "  \"fields\": {\"publisherId\":\"java.lang.Integer\", \"advertiserId\":\"java.lang.Integer\", \"adUnit\":\"java.lang.Integer\", \"clicks\":\"java.lang.Long\", \"impressions\":\"java.lang.Long\", \"price\":\"java.lang.Long\", \"cost\":\"java.lang.Double\", \"revenue\":\"java.lang.Double\", \"timestamp\":\"java.lang.Long\"},\n" +
-          "  \"dimensions\": [\"time=MINUTES\", \"time=MINUTES:adUnit\", \"time=MINUTES:advertiserId\", \"time=MINUTES:publisherId\", \"time=MINUTES:advertiserId:adUnit\", \"time=MINUTES:publisherId:adUnit\", \"time=MINUTES:publisherId:advertiserId\", \"time=MINUTES:publisherId:advertiserId:adUnit\"],\n" +
-          "  \"aggregates\": { \"impressions\": \"sum\", \"clicks\": \"sum\", \"price\": \"sum\", \"cost\": \"sum\", \"revenue\": \"sum\"},\n" +
+          "  \"fields\": {\n" +
+          "    \"publisherId\": \"java.lang.Integer\",\n" +
+          "    \"advertiserId\": \"java.lang.Integer\",\n" +
+          "    \"adUnit\": \"java.lang.Integer\",\n" +
+          "    \"clicks\": \"java.lang.Long\",\n" +
+          "    \"price\": \"java.lang.Long\",\n" +
+          "    \"cost\": \"java.lang.Double\",\n" +
+          "    \"revenue\": \"java.lang.Double\",\n" +
+          "    \"timestamp\": \"java.lang.Long\",\n" +
+          "    \"impressions\": \"java.lang.Long\"\n" +
+          "  },\n" +
+          "  \"dimensions\": [\n" +
+          "    \"time=MINUTES\",\n" +
+          "    \"time=MINUTES:adUnit\",\n" +
+          "    \"time=MINUTES:advertiserId\",\n" +
+          "    \"time=MINUTES:publisherId\",\n" +
+          "    \"time=MINUTES:advertiserId:adUnit\",\n" +
+          "    \"time=MINUTES:publisherId:adUnit\",\n" +
+          "    \"time=MINUTES:publisherId:advertiserId\",\n" +
+          "    \"time=MINUTES:publisherId:advertiserId:adUnit\"\n" +
+          "  ],\n" +
+          "  \"aggregates\": {\n" +
+          "    \"impressions\": \"sum\",\n" +
+          "    \"clicks\": \"sum\",\n" +
+          "    \"price\": \"sum\",\n" +
+          "    \"cost\": \"sum\",\n" +
+          "    \"revenue\": \"sum\"\n" +
+          "  },\n" +
           "  \"timestamp\": \"timestamp\"\n" +
           "}";
   public static final String DEFAULT_SCHEMA_SALES = "{\n" +
-          "  \"fields\": {\"productId\":\"java.lang.Integer\",\"customerId\":\"java.lang.Integer\",\"channelId\":\"java.lang.Integer\",\"productCategory\":\"java.lang.Integer\",\"amount\":\"java.lang.Double\",\"timestamp\":\"java.lang.Long\"},\n" +
-          "  \"dimensions\": [\"time=MINUTES\", \"time=MINUTES:productCategory\",\"time=MINUTES:channelId\",\"time=MINUTES:productCategory:channelId\"],\n" +
-          "  \"aggregates\": { \"amount\": \"sum\" },\n" +
+          "  \"fields\": {\n" +
+          "    \"timestamp\": \"java.lang.Long\",\n" +
+          "    \"productId\": \"java.lang.Integer\",\n" +
+          "    \"customerId\": \"java.lang.Integer\",\n" +
+          "    \"channelId\": \"java.lang.Integer\",\n" +
+          "    \"regionId\": \"java.lang.Integer\",\n" +
+          "    \"productCategory\": \"java.lang.Integer\",\n" +
+          "    \"amount\": \"java.lang.Double\",\n" +
+          "    \"discount\": \"java.lang.Double\",\n" +
+          "    \"tax\": \"java.lang.Double\"\n" +
+          "  },\n" +
+          "  \"dimensions\": [\n" +
+          "    \"time=MINUTES\",\n" +
+          "    \"time=MINUTES:productCategory\",\n" +
+          "    \"time=MINUTES:channelId\",\n" +
+          "    \"time=MINUTES:regionId\",\n" +
+          "    \"time=MINUTES:productCategory:channelId\",\n" +
+          "    \"time=MINUTES:productCategory:regionId\",\n" +
+          "    \"time=MINUTES:channelId:regionId\",\n" +
+          "    \"time=MINUTES:productCategory:channelId:regionId\"\n" +
+          "  ],\n" +
+          "  \"aggregates\": {\n" +
+          "    \"amount\": \"sum\",\n" +
+          "    \"discount\": \"sum\",\n" +
+          "    \"tax\": \"sum\"\n" +
+          "  },\n" +
           "  \"timestamp\": \"timestamp\"\n" +
           "}";
 
