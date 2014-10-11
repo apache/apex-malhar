@@ -45,7 +45,6 @@ public class JsonSalesGeneratorTest {
     double minAmount = 0.99;
     double maxAmount = 100.00;
 
-
     JsonSalesGenerator oper = new JsonSalesGenerator();
     oper.setMaxTuplesPerWindow(minTuples);
     oper.setTuplesPerWindowDeviation(0);
