@@ -80,6 +80,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  *
  * @param <INPUT> This is the input tuple type.
  * @param <OUTPUT> This is the output tuple type.
+ * @since 1.0.4
  */
 public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 {
