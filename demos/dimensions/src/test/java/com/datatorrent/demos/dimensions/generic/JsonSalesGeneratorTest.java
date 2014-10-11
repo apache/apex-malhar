@@ -45,9 +45,9 @@ public class JsonSalesGeneratorTest {
     double minAmount = 0.99;
     double maxAmount = 100.00;
 
-
     JsonSalesGenerator oper = new JsonSalesGenerator();
     oper.setMaxTuplesPerWindow(minTuples);
+    oper.setTuplesPerWindowDeviation(0);
     oper.setMaxProductId(maxProductId);
     oper.setMaxCustomerId(maxCustomerId);
     oper.setMaxChannelId(maxChannelId);
@@ -107,6 +107,8 @@ public class JsonSalesGeneratorTest {
     oper.setMinAmount(minAmount);
     oper.setMaxAmount(maxAmount);
     oper.setAddProductCategory(true);
+    oper.setTuplesPerWindowDeviation(-10);
+
 
     CollectorTestSink<byte[]> sink = new CollectorTestSink<byte[]>();
     TestUtils.setSink(oper.jsonBytes, sink);

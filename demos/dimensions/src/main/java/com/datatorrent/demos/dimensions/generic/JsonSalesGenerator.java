@@ -39,8 +39,11 @@ import java.util.Random;
  *    "productId": 1,
  *    "customerId": 12345,
  *    "productCategory": 0,
+ *    "regionId": 2,
  *    "channelId": 3,
  *    "amount": 107.99,
+ *    "tax": 7.99,
+ *    "discount": 15.73,
  *    "timestamp": 1412897574000
  * }
  *
@@ -48,19 +51,6 @@ import java.util.Random;
  * @category Input
  * @tags input, generator, json
  */
-
-class SalesEvent {
-
-  /* dimension keys */
-  public int productId;
-  public int customerId;
-  public int channelId;
-  public int productCategory;
-  public long timestamp;
-  /* metrics */
-  public double amount;
-}
-
 public class JsonSalesGenerator implements InputOperator
 {
   @Min(1)
@@ -68,10 +58,14 @@ public class JsonSalesGenerator implements InputOperator
   @Min(1)
   private int maxCustomerId = 1000000;
   @Min(1)
-  private int maxChannelId = 5;
-  @Min(0)
+  private int maxChannelId = 3;
+  @Min(1)
+  private int maxRegionId = 10;
   private double minAmount = 0.99;
-  private double maxAmount = 1000.0;
+  private double maxAmount = 100.0;
+  private double maxTaxPercent = 0.10;
+  private double maxDiscountPercent = 0.75;
+
 
   // Should not be included by default - only used for testing when running without enrichment operator
   private boolean addProductCategory = false;
@@ -81,6 +75,14 @@ public class JsonSalesGenerator implements InputOperator
   // Limit number of emitted tuples per window
   @Min(0)
   private long maxTuplesPerWindow = 40000;
+
+  // Maximum amount of deviation below the maximum tuples per window
+  @Min(0)
+  private int tuplesPerWindowDeviation = 20000;
+
+  // Number of windows to maintain the same deviation before selecting another
+  @Min(1)
+  private int tuplesPerWindowDeviationCycle = 40;
 
 
   /**
@@ -93,11 +95,15 @@ public class JsonSalesGenerator implements InputOperator
   private final Random random = new Random();
 
   private long tuplesCounter = 0;
+  private long tuplesPerCurrentWindow = maxTuplesPerWindow;
 
   @Override
   public void beginWindow(long windowId)
   {
     tuplesCounter = 0;
+    if (windowId % tuplesPerWindowDeviationCycle == 0 && tuplesPerWindowDeviation > 0) {
+      tuplesPerCurrentWindow = maxTuplesPerWindow - random.nextInt(tuplesPerWindowDeviation);
+    }
   }
 
   @Override
@@ -108,6 +114,7 @@ public class JsonSalesGenerator implements InputOperator
   @Override
   public void setup(Context.OperatorContext context)
   {
+    tuplesPerCurrentWindow = maxTuplesPerWindow;
   }
 
   @Override
@@ -118,7 +125,7 @@ public class JsonSalesGenerator implements InputOperator
   @Override
   public void emitTuples()
   {
-    while (tuplesCounter++ < maxTuplesPerWindow) {
+    while (tuplesCounter++ < tuplesPerCurrentWindow) {
       try {
 
         SalesEvent salesEvent = generateSalesEvent();
@@ -136,7 +143,10 @@ public class JsonSalesGenerator implements InputOperator
     salesEvent.productId = randomId(maxProductId);
     salesEvent.customerId = randomId(maxCustomerId);
     salesEvent.channelId = randomId(maxChannelId);
+    salesEvent.regionId = 1 + (salesEvent.customerId % maxRegionId);
     salesEvent.amount = randomAmount(minAmount, maxAmount);
+    salesEvent.tax = randomPercent(salesEvent.amount, maxTaxPercent);
+    salesEvent.discount = randomPercent(salesEvent.amount, maxDiscountPercent);
     if (addProductCategory) {
       salesEvent.productCategory = 1 + (salesEvent.productId % maxProductCategories);
     }
@@ -160,6 +170,12 @@ public class JsonSalesGenerator implements InputOperator
       rawAmount = random.nextGaussian() * deviation + mean;
     } while (rawAmount < minAmount || rawAmount > maxAmount);
     return Math.floor(rawAmount * 100) / 100;
+  }
+
+  // Generate random tax given transaction amount
+  private double randomPercent(double amount, double percent) {
+    double tax = amount * ( random.nextDouble() * percent);
+    return Math.floor(tax * 100) / 100;
   }
 
 
@@ -226,4 +242,61 @@ public class JsonSalesGenerator implements InputOperator
   public void setMaxProductCategories(int maxProductCategories) {
     this.maxProductCategories = maxProductCategories;
   }
+
+  public int getTuplesPerWindowDeviation() {
+    return tuplesPerWindowDeviation;
+  }
+
+  public void setTuplesPerWindowDeviation(int tuplesPerWindowDeviation) {
+    this.tuplesPerWindowDeviation = tuplesPerWindowDeviation;
+  }
+
+  public int getTuplesPerWindowDeviationCycle() {
+    return tuplesPerWindowDeviationCycle;
+  }
+
+  public void setTuplesPerWindowDeviationCycle(int tuplesPerWindowDeviationCycle) {
+    this.tuplesPerWindowDeviationCycle = tuplesPerWindowDeviationCycle;
+  }
+
+  public int getMaxRegionId() {
+    return maxRegionId;
+  }
+
+  public void setMaxRegionId(int maxRegionId) {
+    this.maxRegionId = maxRegionId;
+  }
+
+  public double getMaxTaxPercent() {
+    return maxTaxPercent;
+  }
+
+  public void setMaxTaxPercent(double maxTaxPercent) {
+    if (maxTaxPercent > 0.0)
+      this.maxTaxPercent = maxTaxPercent;
+  }
+
+  public double getMaxDiscountPercent() {
+    return maxDiscountPercent;
+  }
+
+  public void setMaxDiscountPercent(double maxDiscountPercent) {
+    if (maxDiscountPercent > 0.0)
+      this.maxDiscountPercent = maxDiscountPercent;
+  }
+}
+
+class SalesEvent {
+
+  /* dimension keys */
+  public long timestamp;
+  public int productId;
+  public int customerId;
+  public int channelId;
+  public int regionId;
+  public int productCategory;
+  /* metrics */
+  public double amount;
+  public double discount;
+  public double tax;
 }
