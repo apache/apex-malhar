@@ -93,7 +93,7 @@ public class MemcacheStore implements KeyValueStore
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     throw new UnsupportedOperationException("Not supported yet.");
   }

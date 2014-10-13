@@ -118,9 +118,9 @@ public abstract class AbstractDBLookupCacheBackedOperator<T, S extends Connectab
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
-    return store.connected();
+    return store.isConnected();
   }
 
   @Override

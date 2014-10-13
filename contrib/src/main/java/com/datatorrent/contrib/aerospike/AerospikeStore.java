@@ -120,7 +120,7 @@ public class AerospikeStore implements Connectable {
   }
 
   @Override
-  public boolean connected() {
+  public boolean isConnected() {
     return !client.isConnected();
   }
 }

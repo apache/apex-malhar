@@ -109,7 +109,7 @@ public class CacheManagerTest
     }
 
     @Override
-    public boolean connected()
+    public boolean isConnected()
     {
       return true;
     }

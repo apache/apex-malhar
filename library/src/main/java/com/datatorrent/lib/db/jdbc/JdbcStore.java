@@ -156,13 +156,13 @@ public class JdbcStore implements Connectable
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     try {
       return !connection.isClosed();
     }
     catch (SQLException e) {
-      throw new RuntimeException("is connected", e);
+      throw new RuntimeException("is isConnected", e);
     }
   }
 

@@ -148,7 +148,7 @@ public class HBaseStore implements Connectable {
   }
 
   @Override
-  public boolean connected() {
+  public boolean isConnected() {
     // not applicable to hbase
     return false;
   }

@@ -20,7 +20,7 @@ import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.FQ
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Integer, MemsqlStore>
+public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Integer>
 {
   private static final String INSERT = "INSERT INTO " +
                                         FQ_TABLE +
