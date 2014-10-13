@@ -47,7 +47,7 @@ public abstract class AbstractFSWindowWriter<INPUT, OUTPUT> extends AbstractFSWr
   @Override
   public final void endWindow()
   {
-    endOffsets.remove(getFileName(null));
+    endOffsets.clear();
   }
 
   @Override
