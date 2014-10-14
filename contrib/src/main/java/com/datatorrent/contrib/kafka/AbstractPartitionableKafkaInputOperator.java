@@ -37,13 +37,11 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
-
 import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
-
+import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.*;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
-
 /**
  * This kafka input operator will be automatically partitioned per upstream kafka partition.<br> <br>
  * This is not real dynamic partition, The partition number is decided by number of partition set for the topic in kafka.<br> <br>
@@ -238,8 +236,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
           // Use first-fit decreasing algorithm to minimize the container number and somewhat balance the partition
           // try to balance the load and minimize the number of containers with each container's load under the threshold
-          // the partition based on the latest 15 minutes moving average
-          final Map<Integer, double[]> kPIntakeRate = new HashMap<Integer, double[]>();
+          // the partition based on the latest 1 minute moving average
+          Map<Integer, long[]> kPIntakeRate = new HashMap<Integer, long[]>();
           // get the offset for all partitions of each consumer
           Map<Integer, Long> offsetTrack = new HashMap<Integer, Long>();
           for (Partition<AbstractPartitionableKafkaInputOperator> partition : partitions) {
@@ -249,12 +247,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
             }
             offsetTrack.putAll(partition.getPartitionedInstance().consumer.getCurrentOffsets());
             // Get the latest stats
+            
             OperatorStats stat = partition.getStats().getLastWindowedStats().get(partition.getStats().getLastWindowedStats().size() - 1);
             if (stat.counters instanceof KafkaMeterStats) {
               KafkaMeterStats kms = (KafkaMeterStats) stat.counters;
-              for (Integer kParId : kms.get_1minMovingAvgPerPartition().keySet()) {
-                kPIntakeRate.put(kParId, kms.get_1minMovingAvgPerPartition().get(kParId));
-              }
+              kPIntakeRate.putAll(get_1minMovingAvgParMap(kms));
             }
           }
 
@@ -282,17 +279,17 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     return newPartitions;
   }
 
-  private List<PartitionInfo> firstFitDecreasingAlgo(final Map<Integer, double[]> kPIntakeRate)
+  private List<PartitionInfo> firstFitDecreasingAlgo(final Map<Integer, long[]> kPIntakeRate)
   {
     // (Decreasing) Sort the map by msgs/s and bytes/s in descending order
-    List<Entry<Integer, double[]>> sortedMapEntry = new LinkedList<Entry<Integer, double[]>>(kPIntakeRate.entrySet());
-    Collections.sort(sortedMapEntry, new Comparator<Entry<Integer, double[]>>()
+    List<Entry<Integer, long[]>> sortedMapEntry = new LinkedList<Entry<Integer, long[]>>(kPIntakeRate.entrySet());
+    Collections.sort(sortedMapEntry, new Comparator<Entry<Integer, long[]>>()
     {
       @Override
-      public int compare(Entry<Integer, double[]> firstEntry, Entry<Integer, double[]> secondEntry)
+      public int compare(Entry<Integer, long[]> firstEntry, Entry<Integer, long[]> secondEntry)
       {
-        double[] firstPair = firstEntry.getValue();
-        double[] secondPair = secondEntry.getValue();
+        long[] firstPair = firstEntry.getValue();
+        long[] secondPair = secondEntry.getValue();
         if (msgRateUpperBound == Long.MAX_VALUE || firstPair[0] == secondPair[0]) {
           return (int) (secondPair[1] - firstPair[1]);
         }
@@ -307,10 +304,10 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     // Each record has a set of kafka partition ids and the resource left for that operator after assigned the consumers for those partitions
     List<PartitionInfo> pif = new LinkedList<PartitionInfo>();
   outer:
-    for (Entry<Integer, double[]> entry : sortedMapEntry) {
-      double[] resourceRequired = entry.getValue();
+    for (Entry<Integer, long[]> entry : sortedMapEntry) {
+      long[] resourceRequired = entry.getValue();
       for (PartitionInfo r : pif) {
-        if (r.msgRateLeft > (long) resourceRequired[0] && r.byteRateLeft > (long) resourceRequired[1]) {
+        if (r.msgRateLeft > resourceRequired[0] && r.byteRateLeft > resourceRequired[1]) {
           // found first fit operator partition that has enough resource for this consumer
           // add consumer to the operator partition
           r.kpids.add(entry.getKey());
@@ -351,6 +348,11 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    */
   private boolean needPartition(BatchedOperatorStats stats)
   {
+    
+
+    if(repartitionCheckInterval < 0 || repartitionInterval < 0){
+      return false;
+    }
 
     long t = System.currentTimeMillis();
 
@@ -379,7 +381,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     //In every partition check interval, call offsetmanager to update the offsets
     if (offsetManager != null) {
       for (KafkaMeterStats kms : kmsList) {
-        offsetManager.updateOffsets(kms.getOffsetsForPartitions());
+        offsetManager.updateOffsets(getOffsetsForPartitions(kms));
       }
     }
     
@@ -432,9 +434,9 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     }
     int length = kafkaStatsHolder.get(kafkaStatsHolder.keySet().iterator().next()).size();
     for (int j = 0; j < length; j++) {
-      Map<Integer, double[]> kPIntakeRate = new HashMap<Integer, double[]>();
+      Map<Integer, long[]> kPIntakeRate = new HashMap<Integer, long[]>();
       for (Integer pid : kafkaStatsHolder.keySet()) {
-        kPIntakeRate.putAll(kafkaStatsHolder.get(pid).get(j).get_1minMovingAvgPerPartition());
+        kPIntakeRate.putAll(get_1minMovingAvgParMap(kafkaStatsHolder.get(pid).get(j)));
       }
       if (kPIntakeRate.size() == 0) {
         return false;
@@ -468,7 +470,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       @Override
       public boolean apply(KafkaMeterStats kms)
       {
-        return kms.get_1minMovingAvgPerPartition().size() > 1 && kms.get_1minMovingAvg()[0] > msgRateUpperBound;
+        // If there are more than 1 kafka partition and the total msg/s reach the limit
+        return kms.partitionStats.size() > 1 && kms.totalMsgPerSec > msgRateUpperBound;
       }
     });
 
@@ -478,7 +481,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       @Override
       public boolean apply(KafkaMeterStats kms)
       {
-        return kms.get_1minMovingAvgPerPartition().size() > 1 && kms.get_1minMovingAvg()[1] > byteRateUpperBound;
+        //If there are more than 1 kafka partition and the total bytes/s reach the limit
+        return kms.partitionStats.size() > 1 && kms.totalBytesPerSec > byteRateUpperBound;
       }
     });
 

@@ -117,7 +117,7 @@ public class SplunkStore implements Connectable{
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     if(service.getToken() == null)
       return false;

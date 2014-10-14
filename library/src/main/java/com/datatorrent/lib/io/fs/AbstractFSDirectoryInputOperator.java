@@ -33,7 +33,6 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -442,8 +441,42 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void teardown()
   {
-    IOUtils.closeQuietly(inputStream);
-    IOUtils.closeQuietly(fs);
+    IOException savedException = null;
+    boolean fileFailed = false;
+
+    try {
+      if(inputStream != null) {
+        inputStream.close();
+      }
+    }
+    catch (IOException ex) {
+      savedException = ex;
+      fileFailed = true;
+    }
+
+    boolean fsFailed = false;
+
+    try {
+      fs.close();
+    }
+    catch (IOException ex) {
+      savedException = ex;
+      fsFailed = true;
+    }
+
+    if(savedException != null) {
+      String errorMessage = "";
+
+      if(fileFailed) {
+        errorMessage += "Failed to close " + currentFile + ". ";
+      }
+
+      if(fsFailed) {
+        errorMessage += "Failed to close filesystem.";
+      }
+
+      throw new RuntimeException(errorMessage, savedException);
+    }
   }
 
   @Override

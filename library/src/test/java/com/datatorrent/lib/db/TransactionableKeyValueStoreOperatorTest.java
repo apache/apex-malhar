@@ -21,7 +21,6 @@ import java.util.Map;
 
 import org.junit.Assert;
 
-import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
@@ -55,7 +54,7 @@ public class TransactionableKeyValueStoreOperatorTest<S extends TransactionableK
     int operatorId = 0;
     operatorStore.removeCommittedWindowId(appId, operatorId);
 
-    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, appId);
 
     try {

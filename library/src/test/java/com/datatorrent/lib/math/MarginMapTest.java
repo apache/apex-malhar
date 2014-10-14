@@ -18,8 +18,7 @@ package com.datatorrent.lib.math;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -80,13 +79,13 @@ public class MarginMapTest
 					.doubleValue()));
 			if (e.getKey().equals("a")) {
 				Assert.assertEquals("emitted value for 'a' was ", new Double(0), e
-						.getValue().doubleValue());
+						.getValue().doubleValue(), 0);
 			} else if (e.getKey().equals("b")) {
 				Assert.assertEquals("emitted tuple for 'b' was ", new Double(0.5), e
-						.getValue().doubleValue());
+						.getValue().doubleValue(), 0);
 			} else if (e.getKey().equals("c")) {
 				Assert.assertEquals("emitted tuple for 'c' was ", new Double(-1.0), e
-						.getValue().doubleValue());
+						.getValue().doubleValue(), 0);
 			} else {
 				LOG.debug(String.format("key was %s", e.getKey()));
 			}

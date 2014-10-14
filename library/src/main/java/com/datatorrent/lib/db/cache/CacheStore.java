@@ -124,7 +124,7 @@ public class CacheStore implements CacheManager.Primary
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     return open;
   }

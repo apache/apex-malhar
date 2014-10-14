@@ -117,7 +117,7 @@ public class KeyValueStoreOperatorTest<S extends KeyValueStore>
   {
     OutputOperator<S> outputOperator = new OutputOperator<S>();
     try {
-      AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+      com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_ID, "test_appid");
       outputOperator.setStore(operatorStore);
       outputOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));

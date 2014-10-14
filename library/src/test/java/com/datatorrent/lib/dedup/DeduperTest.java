@@ -34,7 +34,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
-import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.lib.bucket.Bucket;
@@ -99,7 +98,7 @@ public class DeduperTest
     }
     events.add(new DummyEvent(5, calendar.getTimeInMillis()));
 
-    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
 
@@ -168,7 +167,7 @@ public class DeduperTest
   @Test
   public void testDeduperRedeploy() throws Exception
   {
-    AttributeMap.DefaultAttributeMap attributes = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
 

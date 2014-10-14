@@ -15,62 +15,79 @@
  */
 package com.datatorrent.lib.io;
 
-import junit.framework.Assert;
-
+import org.junit.After;
+import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.mockftpserver.fake.FakeFtpServer;
+import org.mockftpserver.fake.UserAccount;
+import org.mockftpserver.fake.filesystem.FileEntry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
+import org.mockftpserver.fake.filesystem.FileSystem;
+import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
+
 /**
  * Functional test for {
- * 
+ *
  * @linkcom.datatorrent.lib.io.FtpInputOperator .
- * 
  */
 public class FtpInputOperatorTest
 {
-  @Test
-  public void TestFtpInputOperator()
+  private FakeFtpServer fakeFtpServer;
+  private static final String HOME_DIR = "/";
+  private static final String FILE = "/dir/sample.txt";
+  private static final String CONTENTS = "abcdef 1234567890";
+  private int port;
+  private FtpInputOperator ftpInputOperator;
+
+  @Before
+  public void setup() throws Exception
   {
-    FtpInputOperator oper = new FtpInputOperator();
-    oper.setFtpServer("ita.ee.lbl.gov");
-    oper.setGzip(true);
-    oper.setFilePath("/traces/NASA_access_log_Aug95.gz");
-    oper.setLocalPassiveMode(true);
-    oper.setNumberOfTuples(10);
-    oper.setDelay(1);
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
-    oper.output.setSink(sink);
-    oper.setup(null);
-    oper.beginWindow(0);
-    oper.emitTuples();
-    oper.endWindow();
-    oper.teardown();
-    Assert.assertEquals(oper.getNumberOfTuples(), sink.collectedTuples.size());
-    for (int i = 0; i < sink.collectedTuples.size(); i++) {
-      LOG.debug((String)sink.collectedTuples.get(i));
+    fakeFtpServer = new FakeFtpServer();
+    fakeFtpServer.setServerControlPort(0);
+    FileSystem fileSystem = new UnixFakeFileSystem();
+    fileSystem.add(new FileEntry(FILE, CONTENTS));
+    fakeFtpServer.setFileSystem(fileSystem);
+    fakeFtpServer.addUserAccount(new UserAccount("testUser", "password", HOME_DIR));
+    fakeFtpServer.start();
+    port = fakeFtpServer.getServerControlPort();
+    ftpInputOperator = new FtpInputOperator();
+  }
+
+  @After
+  public void teardown() throws Exception
+  {
+    if (fakeFtpServer != null) {
+      fakeFtpServer.stop();
     }
+    ftpInputOperator.teardown();
   }
 
   @Test
-  public void TestNonGzipFtpInputOperator()
+  public void TestFtpInputOperator()
   {
-    FtpInputOperator oper = new FtpInputOperator();
-    oper.setFtpServer("ita.ee.lbl.gov");
-    oper.setFilePath("traces/BC-Readme.txt");
-    oper.setLocalPassiveMode(true);
-    oper.setNumberOfTuples(5);
-    oper.setDelay(1);
+    ftpInputOperator.setFtpServer("localhost");
+    ftpInputOperator.setPort(port);
+    ftpInputOperator.setFilePath(FILE);
+    ftpInputOperator.setLocalPassiveMode(true);
+    ftpInputOperator.setNumberOfTuples(10);
+    ftpInputOperator.setUserName("testUser");
+    ftpInputOperator.setPassword("password");
+    ftpInputOperator.setDelay(1);
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
-    oper.output.setSink(sink);
-    oper.setup(null);
-    oper.beginWindow(0);
-    oper.emitTuples();
-    oper.endWindow();
-    oper.teardown();
-    Assert.assertEquals(oper.getNumberOfTuples(), sink.collectedTuples.size());
+    ftpInputOperator.output.setSink(sink);
+    ftpInputOperator.setup(null);
+    ftpInputOperator.beginWindow(0);
+    ftpInputOperator.emitTuples();
+    ftpInputOperator.endWindow();
+    Assert.assertEquals(1, sink.collectedTuples.size());
+    for (int i = 0; i < sink.collectedTuples.size(); i++) {
+      Assert.assertEquals(CONTENTS, sink.collectedTuples.get(i));
+    }
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(FtpInputOperatorTest.class);

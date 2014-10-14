@@ -15,25 +15,18 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.Operator;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Properties;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-import junit.framework.Assert;
+
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.DAG.Locality;
 
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 {

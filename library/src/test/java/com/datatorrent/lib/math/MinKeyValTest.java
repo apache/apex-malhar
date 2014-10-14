@@ -17,8 +17,7 @@ package com.datatorrent.lib.math;
 
 import java.util.ArrayList;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.api.BaseOperator;
@@ -26,6 +25,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 

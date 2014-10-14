@@ -15,14 +15,14 @@
  */
 package com.datatorrent.lib.io.fs;
 
-
-
 import java.io.File;
 import java.io.IOException;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import junit.framework.Assert;
+
 import org.apache.commons.io.FileUtils;
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Units tests for DirectorySanInputOperator

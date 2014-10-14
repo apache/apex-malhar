@@ -138,7 +138,7 @@ public class RedisStore implements TransactionableKeyValueStore
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     return jedis != null && jedis.isConnected();
   }

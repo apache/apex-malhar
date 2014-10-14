@@ -32,7 +32,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *
  * @since 0.3.2
  */
-public class SimpleSinglePortInputOperator<T> extends BaseOperator implements InputOperator, ActivationListener<OperatorContext>
+public class SimpleSinglePortInputOperator<T> extends BaseOperator implements InputOperator, Operator.ActivationListener<OperatorContext>
 {
   private transient Thread ioThread;
   private transient boolean isActive = false;

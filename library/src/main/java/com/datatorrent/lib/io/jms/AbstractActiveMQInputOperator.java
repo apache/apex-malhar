@@ -15,9 +15,9 @@
  */
 package com.datatorrent.lib.io.jms;
 
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator.ActivationListener;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import javax.jms.JMSException;

@@ -17,7 +17,6 @@
 package com.datatorrent.benchmark.memsql;
 
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.ProcessingMode;
@@ -59,7 +58,7 @@ public class MemsqlInputBenchmarkTest
     outputOperator.setBatchSize(BATCH_SIZE);
 
     Random random = new Random();
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);

@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.IdleTimeHandler;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.Operator.IdleTimeHandler;
 import com.datatorrent.demos.mrmonitor.MRStatusObject.TaskObject;
 
 /**

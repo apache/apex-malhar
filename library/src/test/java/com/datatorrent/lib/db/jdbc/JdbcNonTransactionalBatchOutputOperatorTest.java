@@ -16,7 +16,6 @@
 
 package com.datatorrent.lib.db.jdbc;
 
-import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
@@ -122,7 +121,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     TestOutputOperator outputOperator = new TestOutputOperator();
 
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, processingMode);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
@@ -241,7 +240,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     ////
 
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
@@ -334,7 +333,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     ////
 
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
@@ -426,7 +425,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     ////
 
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_MOST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
@@ -495,7 +494,7 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
 
     ////
 
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_MOST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, 0L);
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);

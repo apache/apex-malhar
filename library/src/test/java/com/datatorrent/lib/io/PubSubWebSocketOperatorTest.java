@@ -19,11 +19,12 @@ import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Assert;
+
 
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
@@ -31,7 +32,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.concurrent.TimeoutException;
 
 /**
- * Tests for {@link com.datatorrent.lib.io.PubSubWebSocketInputOperatorTest} {@link com.datatorrent.lib.io.PubSubWebSocketOutputOperatorTest}
+ * Tests for {@link com.datatorrent.lib.io.PubSubWebSocketOutputOperator}
  */
 public class PubSubWebSocketOperatorTest
 {

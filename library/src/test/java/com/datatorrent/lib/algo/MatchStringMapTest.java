@@ -18,23 +18,21 @@ package com.datatorrent.lib.algo;
 import java.util.HashMap;
 import java.util.Map;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
- *
  * Functional tests for {@link com.datatorrent.lib.algo.MatchStringMap}<p>
- *
  */
 public class MatchStringMapTest
 {
   /**
    * Test node logic emits correct results
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testNodeProcessing() throws Exception
   {
@@ -58,7 +56,7 @@ public class MatchStringMapTest
 
     // One for each key
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
-    for (Map.Entry<String, String> e: ((HashMap<String, String>) matchSink.tuple).entrySet()) {
+    for (Map.Entry<String, String> e : ((HashMap<String, String>) matchSink.tuple).entrySet()) {
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", "2", e.getValue());
       }

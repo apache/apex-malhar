@@ -17,8 +17,6 @@ package com.datatorrent.demos.mroperator;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -30,12 +28,11 @@ import org.apache.hadoop.mapred.FileInputFormat;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.TextInputFormat;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.demos.mroperator.MapOperator;
-import com.datatorrent.demos.mroperator.WordCount;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 

@@ -15,13 +15,17 @@
  */
 package com.datatorrent.demos.ads;
 
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.ads.Application;
 import java.io.IOException;
+
 import javax.validation.ConstraintViolationException;
-import junit.framework.Assert;
+
 import org.apache.hadoop.conf.Configuration;
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.api.LocalMode;
+
+import com.datatorrent.demos.ads.Application;
 
 
 /**

@@ -15,11 +15,11 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.common.util.DTThrowable;
 import java.io.File;
 import java.util.concurrent.LinkedBlockingQueue;

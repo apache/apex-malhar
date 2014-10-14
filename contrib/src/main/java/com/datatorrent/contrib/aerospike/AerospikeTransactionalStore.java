@@ -26,7 +26,6 @@ import com.aerospike.client.query.IndexType;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
 import com.aerospike.client.task.IndexTask;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.lib.db.TransactionableStore;
 
 /**

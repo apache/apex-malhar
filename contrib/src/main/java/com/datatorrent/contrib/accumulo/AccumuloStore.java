@@ -201,7 +201,7 @@ public class AccumuloStore implements Connectable {
   }
 
   @Override
-  public boolean connected() {
+  public boolean isConnected() {
     // Not applicable for accumulo
     return false;
   }

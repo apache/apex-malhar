@@ -15,29 +15,22 @@
  */
 package com.datatorrent.contrib.mqtt;
 
-import com.datatorrent.api.ActivationListener;
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.Context.OperatorContext;
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutionException;
-import org.fusesource.mqtt.client.MQTT;
+
 import org.fusesource.mqtt.client.Message;
 import org.fusesource.mqtt.client.QoS;
 import org.fusesource.mqtt.client.Topic;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.Operator.ActivationListener;
 
 /**
  *
@@ -45,8 +38,8 @@ import org.slf4j.LoggerFactory;
 public class MqttOutputOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(MqttOutputOperatorTest.class);
-  private static Map<String, String> sendingData = new HashMap<String, String>();
-  private static Map<String, String> receivedData = new HashMap<String, String>();
+  private static final Map<String, String> sendingData = new HashMap<String, String>();
+  private static final Map<String, String> receivedData = new HashMap<String, String>();
   static int sentTuples = 0;
   final static int totalTuples = 9;
 
@@ -172,16 +165,16 @@ public class MqttOutputOperatorTest
     }
     lc.shutdown();
 
-    junit.framework.Assert.assertEquals("emitted value for testNum was ", 3, receivedData.size());
+    Assert.assertEquals("emitted value for testNum was ", 3, receivedData.size());
     for (Map.Entry<String, String> e : receivedData.entrySet()) {
       if (e.getKey().equals("testa")) {
-        junit.framework.Assert.assertEquals("emitted value for 'testa' was ", "2", e.getValue());
+        Assert.assertEquals("emitted value for 'testa' was ", "2", e.getValue());
       }
       else if (e.getKey().equals("testb")) {
-        junit.framework.Assert.assertEquals("emitted value for 'testb' was ", "20", e.getValue());
+        Assert.assertEquals("emitted value for 'testb' was ", "20", e.getValue());
       }
       else if (e.getKey().equals("testc")) {
-        junit.framework.Assert.assertEquals("emitted value for 'testc' was ", "1000", e.getValue());
+        Assert.assertEquals("emitted value for 'testc' was ", "1000", e.getValue());
       }
     }
 

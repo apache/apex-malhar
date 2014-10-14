@@ -11,7 +11,6 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import com.datatorrent.api.AttributeMap;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.common.util.DTThrowable;
@@ -174,7 +173,7 @@ public class JdbcOperatorTest
     transactionalStore.setDbDriver(DB_DRIVER);
     transactionalStore.setDbUrl(URL);
 
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
@@ -205,7 +204,7 @@ public class JdbcOperatorTest
     store.setDbDriver(DB_DRIVER);
     store.setDbUrl(URL);
 
-    AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 

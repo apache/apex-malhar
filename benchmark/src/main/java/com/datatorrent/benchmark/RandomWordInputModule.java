@@ -41,7 +41,7 @@ public class RandomWordInputModule implements InputOperator
 
   /**
    * Sets the size of the tuple to the specified size. The change to tuple size takes effect in next window.
-   * 
+   *
    * @param size
    *          the tupleSize to set
    */
@@ -64,7 +64,7 @@ public class RandomWordInputModule implements InputOperator
   /**
    * Sets the property that decides if the operator emits same tuple or creates new tuple for every emit. The change
    * takes effect in next window.
-   * 
+   *
    * @param isSameTuple
    *          the boolean value to set for 'emitSameTuple' property
    */
@@ -84,14 +84,14 @@ public class RandomWordInputModule implements InputOperator
     return emitSameTuple;
   }
 
-  
+
   /**
-   * Emits byte array of specified size. 
+   * Emits byte array of specified size.
    * Emits either the same byte array or creates new byte array every time
    * depending on the value of emitSameTuple property.
-   * Local copies of tupleSize and emitSameTuple are made to improve the 
+   * Local copies of tupleSize and emitSameTuple are made to improve the
    * performance.
-   * 
+   *
    */
   @Override
   public void emitTuples()

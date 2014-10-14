@@ -19,7 +19,6 @@ package com.datatorrent.contrib.aerospike;
 import javax.validation.constraints.NotNull;
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
-import com.datatorrent.api.annotation.ShipContainingJars;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
 import org.slf4j.Logger;
@@ -121,7 +120,7 @@ public class AerospikeStore implements Connectable {
   }
 
   @Override
-  public boolean connected() {
+  public boolean isConnected() {
     return !client.isConnected();
   }
 }
