@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.benchmark.Cassandra;
+package com.datatorrent.benchmark.cassandra;
 
 import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.lib.testbench.RandomEventGenerator;

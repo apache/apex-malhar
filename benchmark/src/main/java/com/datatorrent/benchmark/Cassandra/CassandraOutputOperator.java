@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.benchmark.Cassandra;
+package com.datatorrent.benchmark.cassandra;
 
 
 import com.datastax.driver.core.BoundStatement;

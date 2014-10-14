@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.benchmark.Aerospike;
+package com.datatorrent.benchmark.aerospike;
 
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.benchmark.aerospike.AerospikeOutputBenchmarkApplication;
 
 public class AerospikeBenchmarkAppTest {
 
