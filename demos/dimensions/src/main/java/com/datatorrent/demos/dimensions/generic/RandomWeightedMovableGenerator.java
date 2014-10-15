@@ -23,10 +23,14 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import java.util.*;
 
 /**
- * Given a collection of objects, produces the objects at random based on proportional
- * weights of each.  Supports random incremental changes to weighted distributions
- * of objects between minimum and maximum values.  Random increments are selected
- * using Gaussian distribution with moveDeviation step size multipler.
+ * Provides a mechanism for selecting from a fixed set of objects at random.  Each object's
+ * probability of being selected is directly proportional to corresponding weight.  This weight
+ * can be set automatically to default value, or specified manually as objects are added to the
+ * collection.  A move operation is supported, which allows for random adjustments to respective
+ * weights of each object, and changing its probability of being selected.  These probability
+ * re-distributions of object selection are bound with minWeight and maxWeight values.  Random
+ * increments during move operation are selected using Gaussian distribution with moveDeviation
+ * step size multiplier.
  *
  * @param <E> Any object to be returned in random weighted fashion
  */
