@@ -106,7 +106,8 @@ public class GenericDimensionsApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    JsonAdInfoGenerator input = dag.addOperator("Input", JsonAdInfoGenerator.class);
+    JsonSalesGenerator input = dag.addOperator("Input", JsonSalesGenerator.class);
+    input.setAddProductCategory(true);
     JsonToMapConverter converter = dag.addOperator("Parse", JsonToMapConverter.class);
     GenericDimensionComputation dimensions = dag.addOperator("Compute", new GenericDimensionComputation());
     DimensionStoreOperator store = dag.addOperator("Store", DimensionStoreOperator.class);
@@ -117,7 +118,7 @@ public class GenericDimensionsApplication implements StreamingApplication
     dag.setInputPortAttribute(dimensions.data, Context.PortContext.PARTITION_PARALLEL, true);
 
     // Removing setLocality(Locality.CONTAINER_LOCAL) from JSONStream and MapStream to isolate performance bottleneck
-    dag.addStream("JSONStream", input.jsonOutput, converter.input).setLocality(DAG.Locality.CONTAINER_LOCAL);
+    dag.addStream("JSONStream", input.jsonBytes, converter.input).setLocality(DAG.Locality.CONTAINER_LOCAL);
     dag.addStream("MapStream", converter.outputMap, dimensions.data).setLocality(DAG.Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, store.input);
     dag.addStream("Query", queries.outputPort, store.query);
