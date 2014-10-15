@@ -164,7 +164,7 @@ public class CouchBaseStore implements Connectable
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     // Not applicable for Couchbase
     return false;

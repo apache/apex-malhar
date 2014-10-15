@@ -16,7 +16,6 @@
 package com.datatorrent.lib.testbench;
 
 import com.datatorrent.api.Sink;
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,7 +26,6 @@ import org.apache.commons.lang.mutable.MutableInt;
  *
  * @since 0.3.2
  */
-@ShipContainingJars(classes={MutableInt.class})
 public class ArrayListTestSink<T> implements Sink<T>
 {
   public HashMap<Object, MutableInt> map = new HashMap<Object, MutableInt>();

@@ -15,46 +15,22 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.Sink;
-import com.datatorrent.lib.math.RangeKeyVal;
-import com.datatorrent.lib.util.HighLow;
-import com.datatorrent.lib.util.KeyValPair;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.api.Sink;
+
+import com.datatorrent.lib.util.HighLow;
+import com.datatorrent.lib.util.KeyValPair;
+
 /**
- *
  * Functional tests for {@link com.datatorrent.lib.math.RangeKeyVal}<p>
- *
  */
 public class RangeKeyValTest<V extends Number>
 {
   private static Logger log = LoggerFactory.getLogger(RangeKeyValTest.class);
-
-  @SuppressWarnings("rawtypes")
-  class TestSink implements Sink
-  {
-    double low = -1;
-    double high = -1;
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void put(Object payload)
-    {
-      KeyValPair<String, Object> tuple = (KeyValPair<String, Object>)payload;
-      HighLow<V> hl = (HighLow<V>)tuple.getValue();
-      high = hl.getHigh().doubleValue();
-      low = hl.getLow().doubleValue();
-    }
-
-    @Override
-    public int getCount(boolean reset)
-    {
-      throw new UnsupportedOperationException("Not supported yet.");
-    }
-  }
 
   /**
    * Test functional logic
@@ -72,7 +48,7 @@ public class RangeKeyValTest<V extends Number>
   /**
    * Test node logic emits correct results for each schema
    */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void testSchemaNodeProcessing(RangeKeyVal node, String type)
   {
     TestSink rangeSink = new TestSink();
@@ -106,8 +82,31 @@ public class RangeKeyValTest<V extends Number>
     }
 
     node.endWindow();
-    Assert.assertEquals("high was ", new Double(999.0), rangeSink.high);
-    Assert.assertEquals("low was ", new Double(-10.0), rangeSink.low);
+    Assert.assertEquals("high was ", new Double(999.0), rangeSink.high, 0);
+    Assert.assertEquals("low was ", new Double(-10.0), rangeSink.low, 0);
     log.debug(String.format("\nTested %d tuples", numtuples));
+  }
+
+  @SuppressWarnings("rawtypes")
+  class TestSink implements Sink
+  {
+    double low = -1;
+    double high = -1;
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void put(Object payload)
+    {
+      KeyValPair<String, Object> tuple = (KeyValPair<String, Object>) payload;
+      HighLow<V> hl = (HighLow<V>) tuple.getValue();
+      high = hl.getHigh().doubleValue();
+      low = hl.getLow().doubleValue();
+    }
+
+    @Override
+    public int getCount(boolean reset)
+    {
+      throw new UnsupportedOperationException("Not supported yet.");
+    }
   }
 }

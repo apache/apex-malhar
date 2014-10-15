@@ -149,6 +149,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
 
   }
 
+
   @Override
   public void removeCommittedWindowId(String appId, int operatorId)
   {

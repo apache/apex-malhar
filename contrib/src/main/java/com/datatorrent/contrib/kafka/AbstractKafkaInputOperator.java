@@ -18,10 +18,10 @@ package com.datatorrent.contrib.kafka;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.datatorrent.api.CheckpointListener;
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.api.Operator.CheckpointListener;
 
 import com.yammer.metrics.Metrics;
 

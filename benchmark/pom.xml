@@ -47,6 +47,13 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>malhar-library</artifactId>
+      <version>${project.version}</version>
       <type>jar</type>
     </dependency>
        <dependency>
@@ -205,15 +212,16 @@
         <optional>true</optional>
     </dependency>
     <dependency>
-    <groupId>org.apache.httpcomponents</groupId>
-    <artifactId>httpcore</artifactId>
-     <version>4.3</version>
-    </dependency>
-    <dependency>
     <groupId>com.couchbase.client</groupId>
     <artifactId>couchbase-client</artifactId>
     <version>1.4.4</version>
     <optional>true</optional>
   </dependency>
+    <dependency>
+      <groupId>mysql</groupId>
+      <artifactId>mysql-connector-java</artifactId>
+      <version>5.1.22</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 </project>

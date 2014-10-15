@@ -17,14 +17,13 @@ package com.datatorrent.lib.stream;
 
 import java.util.ArrayList;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CountTestSink;
 
 /**
- * Performance test for {@link com.datatorrent.lib.testbench.StreamDuplicater}<p>
+ * Performance test for {@link com.datatorrent.lib.stream.StreamDuplicater}<p>
  * Benchmarks: Currently does about ?? Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */

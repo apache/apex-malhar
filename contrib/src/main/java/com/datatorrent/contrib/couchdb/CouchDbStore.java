@@ -185,7 +185,7 @@ public class CouchDbStore implements Connectable
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     return dbConnector == null;
   }

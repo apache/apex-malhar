@@ -15,15 +15,15 @@
  */
 package com.datatorrent.contrib.accumulo;
 
-import junit.framework.Assert;
 
 import org.apache.accumulo.core.data.Mutation;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.Attribute;
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 
 public class AccumuloOutputOperatorTest {
@@ -81,7 +81,7 @@ public class AccumuloOutputOperatorTest {
     Assert.assertEquals("Tuple row", tuple.getRow(), "john");
     Assert.assertEquals("Tuple column family", tuple.getColFamily(),"colfam0");
     Assert.assertEquals("Tuple column name", tuple.getColName(),"street");
-    Assert.assertEquals("Tuple column value", tuple.getColValue(),"patrick");
+    Assert.assertEquals("Tuple column value", tuple.getColValue(), "patrick");
 
   }
   public static class TestAccumuloOutputOperator extends AbstractAccumuloOutputOperator<AccumuloTuple> {

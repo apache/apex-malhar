@@ -35,7 +35,7 @@ public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractC
       {
         countLatch.countDown();
         if (!((Boolean)f.get())) {
-          throw new RuntimeException("Operation set failed");
+          throw new RuntimeException("Operation update failed");
         }
 
       }

@@ -16,10 +16,10 @@
 package com.datatorrent.contrib.mongodb;
 
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;

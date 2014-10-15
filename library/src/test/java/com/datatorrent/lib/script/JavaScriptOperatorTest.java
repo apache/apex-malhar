@@ -17,45 +17,46 @@ package com.datatorrent.lib.script;
 
 import java.util.HashMap;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Functional tests for {@link com.datatorrent.lib.script.BashOperator}.
+ * Functional tests for {@link com.datatorrent.lib.script.JavaScriptOperator}.
  */
 public class JavaScriptOperatorTest
 {
-	@SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
-	public void testJavaOperator()
-	{
-		// Create bash operator instance (calculate suqare).
-		JavaScriptOperator oper = new JavaScriptOperator();
-		StringBuilder builder = new StringBuilder();
-		builder.append("val = val * val;");
-		oper.addSetupScript("function square() { return val*val;}");
-		oper.setInvoke("square");
-		oper.setPassThru(true);
+  public void testJavaOperator()
+  {
+    // Create bash operator instance (calculate suqare).
+    JavaScriptOperator oper = new JavaScriptOperator();
+    StringBuilder builder = new StringBuilder();
+    builder.append("val = val * val;");
+    oper.addSetupScript("function square() { return val*val;}");
+    oper.setInvoke("square");
+    oper.setPassThru(true);
     oper.setup(null);
-		CollectorTestSink sink = new CollectorTestSink();
-		oper.result.setSink(sink);
+    CollectorTestSink sink = new CollectorTestSink();
+    oper.result.setSink(sink);
 
-		// Add input sample data.
-		HashMap<String, Object> tuple = new HashMap<String, Object>();
-		tuple.put("val", new Integer(2));
+    // Add input sample data.
+    HashMap<String, Object> tuple = new HashMap<String, Object>();
+    tuple.put("val", new Integer(2));
 
-		// Process operator.
-		oper.beginWindow(0);
-		oper.inBindings.process(tuple);
-		oper.endWindow();
+    // Process operator.
+    oper.beginWindow(0);
+    oper.inBindings.process(tuple);
+    oper.endWindow();
 
-		// Validate value.
-		Assert.assertEquals("number emitted tuples", 1,  sink.collectedTuples.size());
-		for (Object o : sink.collectedTuples) { // count is 12
-        Assert.assertEquals("4.0 is expected", (Double)o, 4.0);
-		}
-	};
+    // Validate value.
+    Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
+    for (Object o : sink.collectedTuples) { // count is 12
+      Assert.assertEquals("4.0 is expected", (Double) o, 4.0, 0);
+    }
+  }
+
+  ;
 }

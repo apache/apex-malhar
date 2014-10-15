@@ -15,11 +15,10 @@
  */
 package com.datatorrent.demos.adsdimension;
 
-import com.datatorrent.api.DAG;
+
 import com.datatorrent.api.LocalMode;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
-import static org.junit.Assert.*;
 
 public class ApplicationTest
 {

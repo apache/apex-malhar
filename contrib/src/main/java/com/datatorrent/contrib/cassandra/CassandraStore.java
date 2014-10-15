@@ -154,7 +154,7 @@ public class CassandraStore implements Connectable
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     try {
       return !session.isClosed();

@@ -15,12 +15,11 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.lib.math.AverageKeyVal;
+import org.junit.Assert;
+import org.junit.Test;
+
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
-import junit.framework.Assert;
-
-import org.junit.Test;
 
 /**
  *

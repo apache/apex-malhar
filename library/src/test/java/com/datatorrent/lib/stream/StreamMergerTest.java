@@ -15,14 +15,13 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.lib.stream.StreamMerger;
-import com.datatorrent.lib.testbench.CountTestSink;
-
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.lib.testbench.CountTestSink;
+
 /**
- * Performance test for {@link com.datatorrent.lib.testbench.StreamMerger}<p>
+ * Performance test for {@link com.datatorrent.lib.stream.StreamMerger}<p>
  * Benchmarks: Currently does about 3 Million tuples/sec in debugging environment. Need to test on larger nodes<br>
  * <br>
  */

@@ -16,7 +16,6 @@
 package com.datatorrent.contrib.rabbitmq;
 
 import com.datatorrent.api.*;
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.rabbitmq.client.*;
@@ -61,7 +60,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractRabbitMQInputOperator<T>
     implements InputOperator,
-ActivationListener<OperatorContext>
+Operator.ActivationListener<OperatorContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractRabbitMQInputOperator.class);
   @NotNull

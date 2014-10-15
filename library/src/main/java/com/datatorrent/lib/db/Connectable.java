@@ -22,7 +22,6 @@ import java.io.IOException;
  *
  * @since 0.9.3
  */
-@Deprecated
 public interface Connectable
 {
   /**
@@ -44,5 +43,5 @@ public interface Connectable
    * 
    * @return
    */
-  public boolean connected();
+  public boolean isConnected();
 }

@@ -27,7 +27,6 @@ import org.ektorp.ViewResult;
 
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
-import com.datatorrent.api.annotation.ShipContainingJars;
 
 /**
  * Base class for CouchDb input adaptor.<br/>
@@ -52,7 +51,6 @@ import com.datatorrent.api.annotation.ShipContainingJars;
  * @param <T> Type of tuples which are generated</T>
  * @since 0.3.5
  */
-@ShipContainingJars(classes = {ViewQuery.class})
 public abstract class AbstractCouchDBInputOperator<T> extends AbstractStoreInputOperator<T, CouchDbStore>
 {
   @Min(0)

@@ -17,14 +17,13 @@ package com.datatorrent.demos.frauddetect;
 
 import java.io.Serializable;
 import java.net.URI;
-
 import org.apache.hadoop.conf.Configuration;
-
 import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAGContext;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.demos.frauddetect.operator.HdfsStringOutputOperator;
 import com.datatorrent.demos.frauddetect.operator.MongoDBOutputOperator;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -44,7 +43,7 @@ import com.datatorrent.lib.util.KeyValPair;
 @ApplicationAnnotation(name="FraudDetectDemo")
 public class Application implements StreamingApplication
 {
-  
+
 
   public PubSubWebSocketInputOperator getPubSubWebSocketInputOperator(String name, DAG dag, URI duri, String topic) throws Exception
   {
@@ -64,11 +63,10 @@ public class Application implements StreamingApplication
   public HdfsStringOutputOperator getHdfsOutputOperator(String name, DAG dag, String folderName)
   {
     HdfsStringOutputOperator oper = dag.addOperator("hdfs", HdfsStringOutputOperator.class);
-    oper.setFilePath(folderName + "/%(contextId)/transactions.out.part%(partIndex)");
-    oper.setBytesPerFile(1024 * 1024 * 1024);
+    oper.setFilePath(folderName);
+    oper.setMaxLength(1024 * 1024 * 1024);
     return oper;
   }
-
 
   public ConsoleOutputOperator getConsoleOperator(String name, DAG dag, String prefix, String format)
   {
@@ -77,12 +75,10 @@ public class Application implements StreamingApplication
     return oper;
   }
 
-  public static class KeyPartitionCodec<K, V> extends BaseKeyValueOperator.DefaultPartitionCodec<K,V> implements Serializable {}
+  public static class KeyPartitionCodec<K, V> extends BaseKeyValueOperator.DefaultPartitionCodec<K,V> implements Serializable {
+    private static final long serialVersionUID = 201410031623L;
+  }
 
-
-  /**
-   * Create the DAG
-   */
   @SuppressWarnings("unchecked")
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -101,11 +97,11 @@ public class Application implements StreamingApplication
       PubSubWebSocketOutputOperator binUserAlertwsOutput = getPubSubWebSocketOutputOperator("binUserAlertOutput", dag, duri, "demos.app.frauddetect.fraudAlert");
       PubSubWebSocketOutputOperator txSummaryWsOutput = getPubSubWebSocketOutputOperator("txSummaryWsOutput", dag, duri, "demos.app.frauddetect.txSummary");
       SlidingWindowSumKeyVal<KeyValPair<MerchantKey, String>, Integer> smsOperator = dag.addOperator("movingSum", SlidingWindowSumKeyVal.class);
- 
+
       MerchantTransactionGenerator txReceiver = dag.addOperator("txReceiver", MerchantTransactionGenerator.class);
       MerchantTransactionInputHandler txInputHandler = dag.addOperator("txInputHandler", new MerchantTransactionInputHandler());
       BankIdNumberSamplerOperator binSampler = dag.addOperator("bankInfoFraudDetector", BankIdNumberSamplerOperator.class);
-      
+
       MerchantTransactionBucketOperator txBucketOperator = dag.addOperator("txFilter", MerchantTransactionBucketOperator.class);
       RangeKeyVal rangeOperator = dag.addOperator("rangePerMerchant", new RangeKeyVal<MerchantKey, Long>());
       SimpleMovingAverage<MerchantKey, Long> smaOperator = dag.addOperator("smaPerMerchant", SimpleMovingAverage.class);
@@ -118,7 +114,7 @@ public class Application implements StreamingApplication
       MongoDBOutputOperator mongoBinAlertsOperator = dag.addOperator("mongoBinAlertsOutput", MongoDBOutputOperator.class);
       MongoDBOutputOperator mongoCcAlertsOperator = dag.addOperator("mongoCcAlertsOutput", MongoDBOutputOperator.class);
       MongoDBOutputOperator mongoAvgAlertsOperator = dag.addOperator("mongoAvgAlertsOutput", MongoDBOutputOperator.class);
-      
+
       dag.addStream("userTxStream", userTxWsInput.outputPort, txInputHandler.userTxInputPort);
       dag.addStream("transactions", txReceiver.txOutputPort, txBucketOperator.inputPort).setLocality(DAG.Locality.CONTAINER_LOCAL);
       dag.addStream("txData", txReceiver.txDataOutputPort, hdfsOutputOperator.input); // dump all tx into Hdfs
@@ -144,9 +140,9 @@ public class Application implements StreamingApplication
       dag.addStream("avgAlertsNotification", avgAlertingOperator.avgAlertNotificationPort, avgUserAlertwsOutput.input);
       dag.addStream("ccAlerts", ccSamplerOperator.ccAlertOutputPort, mongoCcAlertsOperator.inputPort);
       dag.addStream("ccAlertsNotification", ccSamplerOperator.ccAlertNotificationPort, ccUserAlertWsOutput.input);
-      
+
     } catch (Exception exc) {
-      exc.printStackTrace();
+      DTThrowable.rethrow(exc);
     }
   }
 }
