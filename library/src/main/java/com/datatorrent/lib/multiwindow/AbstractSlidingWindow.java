@@ -75,7 +75,7 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 	 *
 	 * @param i
 	 */
-	void setWindowSize(int windowSize)
+	public void setWindowSize(int windowSize)
 	{
 		this.windowSize = windowSize;
 	}
