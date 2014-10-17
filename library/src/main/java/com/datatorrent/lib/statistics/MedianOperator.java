@@ -27,7 +27,7 @@ import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * An implementation of BaseOperator that computes median of incoming data. <br>
- * <br>
+ * <p>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
  * <br>

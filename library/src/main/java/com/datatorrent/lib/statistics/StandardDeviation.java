@@ -26,7 +26,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * An implementation of BaseOperator that computes variance and standard deviation over incoming data. <br>
- * <br>
+ * <p>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
  * <br>

@@ -27,7 +27,7 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * An implementation of BaseOperator that calculates most frequent value occurring in incoming data. <br>
- * <br>
+ * <p>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
  * <br>

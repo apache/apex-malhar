@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 
 /**
  *  A derivation of Condition that validates row by checking if the given column name value lies between given left,right range. <br>
- * <br>
+ * <p>
  * <b>Properties : </b> <br>
  * <b> column : </b> Name of column. <br>
  * <b> leftValue : </b> left range of column value. <br>

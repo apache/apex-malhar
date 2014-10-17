@@ -26,6 +26,7 @@ import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * This operator collects integer tuples, then emits their sum at the end of the window.
+ *
  * @displayName Redis Sum Oper
  * @category Testbench
  * @tags count

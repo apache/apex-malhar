@@ -24,7 +24,7 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Calculates simple moving average (SMA) of last N window. <br>
- * <br>
+ * <p>
  * <b>StateFull : Yes</b>, operator store values  for n-1 th windows. <br>
  * <b>Partitions : No</b>, sum is not unified on output ports. <br>
  * <br>

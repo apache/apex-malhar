@@ -25,7 +25,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  * An implementation of BaseOperator that computes weighted mean of incoming data. <br>
- * <br>
+ * <p>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
  * <b>weight : </b> Current input data weight. <br>
