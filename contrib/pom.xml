@@ -579,5 +579,20 @@
       <version>2.4.4</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.rosuda</groupId>
+      <artifactId>jri</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.rosuda</groupId>
+      <artifactId>rengine</artifactId>
+      <version>1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>org.rosuda</groupId>
+      <artifactId>jriengine</artifactId>
+      <version>1.0</version>
+    </dependency>
   </dependencies>
 </project>
