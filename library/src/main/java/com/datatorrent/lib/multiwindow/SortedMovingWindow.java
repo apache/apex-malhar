@@ -64,7 +64,7 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
   private Comparator<T> comparator = null;
 
   @Override
-  void processDataTuple(T tuple)
+  protected void processDataTuple(T tuple)
   {
     tuplesInCurrentStreamWindow.add(tuple);
     K key = function.apply(tuple);

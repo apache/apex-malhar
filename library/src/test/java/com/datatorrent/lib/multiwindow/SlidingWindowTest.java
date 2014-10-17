@@ -42,8 +42,7 @@ public class SlidingWindowTest
 
 		ArrayList<String> tuples = new ArrayList<String>();
 
-		@Override
-		void processDataTuple(String tuple)
+		@Override protected void processDataTuple(String tuple)
 		{
 			tuples.add(tuple);
 		}

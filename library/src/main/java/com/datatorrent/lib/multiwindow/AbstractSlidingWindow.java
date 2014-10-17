@@ -80,7 +80,7 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 		this.windowSize = windowSize;
 	}
 
-	abstract void processDataTuple(T tuple);
+	abstract protected void processDataTuple(T tuple);
 
 	/**
 	 * Implement this method to create the state object needs to be kept in the sliding window 
