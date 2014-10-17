@@ -184,6 +184,9 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   public void setWriteEventKeysOnly(boolean writeEventKeysOnly)
   {
     this.writeEventKeysOnly = writeEventKeysOnly;
+    if(this.bucketStore !=null){
+      this.bucketStore.setWriteEventKeysOnly(writeEventKeysOnly);
+    }
   }
 
   @Override
