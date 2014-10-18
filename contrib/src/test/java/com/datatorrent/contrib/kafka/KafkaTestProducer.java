@@ -35,6 +35,8 @@ public class KafkaTestProducer implements Runnable
   private final Random rand = new Random();
   private boolean hasPartition = false;
   private List<String> messages;
+  
+  private String producerType = "async";
 
   public int getSendCount()
   {
@@ -64,7 +66,7 @@ public class KafkaTestProducer implements Runnable
     }
     props.setProperty("topic.metadata.refresh.interval.ms", "20000");
 
-    props.setProperty("producer.type", "async");
+    props.setProperty("producer.type", getProducerType());
 
     return new ProducerConfig(props);
   }
@@ -117,5 +119,15 @@ public class KafkaTestProducer implements Runnable
   public void close()
   {
     producer.close();
+  }
+
+  public String getProducerType()
+  {
+    return producerType;
+  }
+
+  public void setProducerType(String producerType)
+  {
+    this.producerType = producerType;
   }
 } // End of KafkaTestProducer
