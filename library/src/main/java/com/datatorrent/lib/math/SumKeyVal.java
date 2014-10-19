@@ -75,7 +75,6 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   /**
    * Input port that takes key value pairs and adds the values for each key.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
@@ -113,37 +112,37 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   /**
    * Output sum port.
    */
-  @OutputPortFieldAnnotation(name = "sum", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> sum = new DefaultOutputPort<KeyValPair<K, V>>();
 
   /**
    * Output double sum port.
    */
-  @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Double>> sumDouble = new DefaultOutputPort<KeyValPair<K, Double>>();
 
   /**
    * Output integer sum port.
    */
-  @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Integer>> sumInteger = new DefaultOutputPort<KeyValPair<K, Integer>>();
 
   /**
    * Output long sum port.
    */
-  @OutputPortFieldAnnotation(name = "sumLong", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Long>> sumLong = new DefaultOutputPort<KeyValPair<K, Long>>();
 
   /**
    * Output short sum port.
    */
-  @OutputPortFieldAnnotation(name = "sumShort", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Short>> sumShort = new DefaultOutputPort<KeyValPair<K, Short>>();
 
   /**
    * Output float sum port.
    */
-  @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Float>> sumFloat = new DefaultOutputPort<KeyValPair<K, Float>>();
 
   /**

@@ -52,7 +52,6 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
   /**
    * Numerator input port that takes a map.
    */  
-  @InputPortFieldAnnotation(name = "numerator")
   public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -68,7 +67,6 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
   /**
    * Denominator input port that takes a map.
    */
-  @InputPortFieldAnnotation(name = "denominator")
   public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -104,7 +102,6 @@ public class MarginMap<K, V extends Number> extends BaseNumberKeyValueOperator<K
   /*
    * Output margin port that emits hashmap.
    */
-  @OutputPortFieldAnnotation(name = "margin")
   public final transient DefaultOutputPort<HashMap<K, V>> margin = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override

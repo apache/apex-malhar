@@ -70,7 +70,6 @@ public class AllAfterMatchStringValueMap<K> extends
   /**
    * Input port on which tuples are received.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
@@ -106,7 +105,6 @@ public class AllAfterMatchStringValueMap<K> extends
   /**
    * The output port on which all tuples after a match are emitted.
    */
-  @OutputPortFieldAnnotation(name = "allafter")
   public final transient DefaultOutputPort<HashMap<K, String>> allafter = new DefaultOutputPort<HashMap<K, String>>();
   boolean doemit = false;
 

@@ -66,7 +66,6 @@ public class CompareExceptCountStringMap<K> extends MatchStringMap<K>
   /**
    * The output port on which the number of tuples satisfying the compare function is emitted.
    */
-  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>()
   {
     @Override
@@ -79,7 +78,6 @@ public class CompareExceptCountStringMap<K> extends MatchStringMap<K>
   /**
    * The output port on which the number of tuples not satisfying the compare function is emitted.
    */
-  @OutputPortFieldAnnotation(name = "except")
   public final transient DefaultOutputPort<Integer> except = new DefaultOutputPort<Integer>()
   {
     @Override

@@ -49,7 +49,6 @@ public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
 	/**
 	 * Input port which takes a key vaue pair and updates the value for each key if there is a new min.
 	 */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
@@ -85,7 +84,6 @@ public class MinKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   /**
    * Min value output port.
    */
-  @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<KeyValPair<K, V>> min = new DefaultOutputPort<KeyValPair<K, V>>();
   protected HashMap<K, V> mins = new HashMap<K, V>();
 

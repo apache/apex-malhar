@@ -54,7 +54,6 @@ public class BottomNUniqueMap<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
   /**
    * The output port on which the unique bottom n tuples per key are emitted.
    */
-  @OutputPortFieldAnnotation(name = "bottom")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>> bottom = new DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>>();
 
   /**

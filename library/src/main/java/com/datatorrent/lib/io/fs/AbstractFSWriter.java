@@ -197,7 +197,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   /**
    * This output port is optional and emits converted tuples.
    */
-  @OutputPortFieldAnnotation(name = "output", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
 
   public AbstractFSWriter()

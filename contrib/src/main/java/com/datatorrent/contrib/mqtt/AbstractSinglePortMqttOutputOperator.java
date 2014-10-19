@@ -54,7 +54,6 @@ public abstract class AbstractSinglePortMqttOutputOperator<T> extends AbstractMq
   /**
    * This input port receives tuples, which will be written out to MQTT.
    */
-  @InputPortFieldAnnotation(name = "in")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {
     @Override

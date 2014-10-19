@@ -33,7 +33,6 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class JsonAdInfoGenerator extends InputItemGenerator
 {
-  @OutputPortFieldAnnotation(name = "jsonBytes")
   public final transient DefaultOutputPort<byte[]> jsonOutput = new DefaultOutputPort<byte[]>();
   private static final ObjectMapper mapper = new ObjectMapper();
 

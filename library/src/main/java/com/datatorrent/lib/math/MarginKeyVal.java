@@ -54,7 +54,6 @@ public class MarginKeyVal<K, V extends Number> extends
         /**
 	 * Numerator input port that takes a key value pair.
 	 */
-	@InputPortFieldAnnotation(name = "numerator")
 	public final transient DefaultInputPort<KeyValPair<K, V>> numerator = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
@@ -79,7 +78,6 @@ public class MarginKeyVal<K, V extends Number> extends
         /**
 	 * Denominator input port that takes a key value pair.
 	 */
-	@InputPortFieldAnnotation(name = "denominator")
 	public final transient DefaultInputPort<KeyValPair<K, V>> denominator = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
@@ -124,7 +122,6 @@ public class MarginKeyVal<K, V extends Number> extends
         /**
 	 * Output margin port that emits Key Value pairs.
 	 */
-	@OutputPortFieldAnnotation(name = "margin")
 	public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>();
 
 	protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();

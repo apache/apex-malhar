@@ -48,7 +48,6 @@ public abstract class AbstractSinglePortMqttInputOperator<T> extends AbstractMqt
   /**
    * This output port emits tuples, which were extracted from MQTT messages.
    */
-  @OutputPortFieldAnnotation(name = "out")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

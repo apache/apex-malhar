@@ -50,7 +50,6 @@ public class StandardDeviation extends BaseOperator
   /**
    * Input data port that takes in a number.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>()
   {
     /**
@@ -66,13 +65,12 @@ public class StandardDeviation extends BaseOperator
   /**
    * Variance output port.
    */
-  @OutputPortFieldAnnotation(name = "variance", optional=true)
+  @OutputPortFieldAnnotation(optional=true)
   public final transient DefaultOutputPort<Number> variance = new DefaultOutputPort<Number>();
   
   /**
    * Standard deviation output port.
    */
-  @OutputPortFieldAnnotation(name = "standardDeviation")
   public final transient DefaultOutputPort<Number> standardDeviation = new DefaultOutputPort<Number>();
   
   /**

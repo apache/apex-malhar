@@ -30,7 +30,6 @@ public class HBaseRowStringGenerator extends BaseOperator implements InputOperat
 
   int rowCount;
 
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>();
 
   @Override

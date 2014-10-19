@@ -48,7 +48,7 @@ public class AlertEscalationOperator extends BaseOperator implements Partitioner
   /**
    * This is the input port which receives tuples.
    */
-  @InputPortFieldAnnotation(name = "in", optional = false)
+  @InputPortFieldAnnotation(optional = false)
   public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>()
   {
     @Override
@@ -62,7 +62,7 @@ public class AlertEscalationOperator extends BaseOperator implements Partitioner
   /**
    * This is the output port which emits a tuple when the alert criteria is met.
    */
-  @OutputPortFieldAnnotation(name = "alert", optional = false)
+  @OutputPortFieldAnnotation(optional = false)
   public final transient DefaultOutputPort<Object> alert = new DefaultOutputPort<Object>();
 
   public void processTuple(Object tuple)

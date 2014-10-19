@@ -96,31 +96,31 @@ public class WidgetOutputOperator extends BaseOperator
   /**
    * Tuples received on this input port will be sent to a Simple Widget for display.
    */
-  @InputPortFieldAnnotation(name="simple input", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient SimpleInputPort simpleInput = new SimpleInputPort(this);
 
   /**
    * Tuples received on this input port will be sent to a Time Series Widget for display.
    */
-  @InputPortFieldAnnotation(name="time series input", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient TimeseriesInputPort timeSeriesInput = new TimeseriesInputPort(this);
 
   /**
    * Tuples received on this input port will be sent to a Percentage Widget.
    */
-  @InputPortFieldAnnotation(name="percentage input", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient PercentageInputPort percentageInput = new PercentageInputPort(this);
 
   /**
    * Tuples received on this input port will be sent to a Top N Widget for display.
    */
-  @InputPortFieldAnnotation(name="topN input", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient TopNInputPort topNInput = new TopNInputPort(this);
 
   /**
    * Tuples received on this input port will be sent to a Pie Chart Widget for display.
    */
-  @InputPortFieldAnnotation(name="pieChart input", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient PiechartInputPort pieChartInput = new PiechartInputPort(this);
 
   protected transient boolean isWebSocketConnected = true;

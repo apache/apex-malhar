@@ -67,7 +67,6 @@ public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOpe
   /**
    * The output port that will emit tuples read from the database.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

@@ -58,7 +58,6 @@ public class TopNUnique<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
   /**
    * The output port which emits the top N unique values per key.
    */
-  @OutputPortFieldAnnotation(name = "top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>> top = new DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>>();
 
   /**

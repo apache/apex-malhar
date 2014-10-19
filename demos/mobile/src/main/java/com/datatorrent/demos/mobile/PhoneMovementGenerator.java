@@ -52,7 +52,6 @@ import com.datatorrent.lib.util.HighLow;
  */
 public class PhoneMovementGenerator extends BaseOperator
 {
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Integer> data = new DefaultInputPort<Integer>()
   {
     @Override
@@ -108,7 +107,7 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   };
 
-  @InputPortFieldAnnotation(name="phoneQuery", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient DefaultInputPort<Map<String,String>> phoneQuery = new DefaultInputPort<Map<String,String>>()
   {
     @Override
@@ -275,7 +274,6 @@ public class PhoneMovementGenerator extends BaseOperator
     LOG.info("Clearing phones");
   }
 
-  @OutputPortFieldAnnotation(name = "locationQueryResult")
   public final transient DefaultOutputPort<Map<String, String>> locationQueryResult = new DefaultOutputPort<Map<String, String>>();
 
   @Override

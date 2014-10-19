@@ -47,7 +47,6 @@ public class KeyValPairToHashMap<K, V> extends BaseKeyValueOperator<K, V>
 	/**
 	 * Input port that takes a key value pair.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, V>> keyval = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
@@ -65,6 +64,5 @@ public class KeyValPairToHashMap<K, V> extends BaseKeyValueOperator<K, V>
 	/**
 	 * key/value map output port.
 	 */
-	@OutputPortFieldAnnotation(name = "map")
 	public final transient DefaultOutputPort<HashMap<K, V>> map = new DefaultOutputPort<HashMap<K, V>>();
 }

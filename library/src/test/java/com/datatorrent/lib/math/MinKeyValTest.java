@@ -100,7 +100,6 @@ public class MinKeyValTest
 	public static class TestInputOperator extends BaseOperator implements
 			InputOperator
 	{
-		@OutputPortFieldAnnotation(name = "output")
 		public final transient DefaultOutputPort<KeyValPair<String, Integer>> output = new DefaultOutputPort<KeyValPair<String, Integer>>();
 		private transient boolean first = true;
 

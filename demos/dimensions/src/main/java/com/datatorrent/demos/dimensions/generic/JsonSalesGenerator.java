@@ -101,7 +101,6 @@ public class JsonSalesGenerator implements InputOperator
   /**
    * Outputs sales event in JSON format as a byte array
    */
-  @OutputPortFieldAnnotation(name = "jsonBytes")
   public final transient DefaultOutputPort<byte[]> jsonBytes = new DefaultOutputPort<byte[]>();
 
   private static final ObjectMapper mapper = new ObjectMapper().setSerializationInclusion(JsonSerialize.Inclusion.NON_NULL);

@@ -37,7 +37,6 @@ public class HdfsWordInputOperator extends AbstractHDFSInputOperator
   /**
    * This is the output port which emits bytes read from an HDFS file.
    */
-  @OutputPortFieldAnnotation(name = "HDFSOutput")
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>();
 
   private transient FSDataInputStream dis = null;

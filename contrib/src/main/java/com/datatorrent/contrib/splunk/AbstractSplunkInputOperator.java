@@ -75,7 +75,6 @@ public abstract class AbstractSplunkInputOperator<T> extends AbstractStoreInputO
   /**
    * The output port on which tuples read from Splunk are emitted.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   @Override

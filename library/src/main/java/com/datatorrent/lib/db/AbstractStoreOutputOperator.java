@@ -43,7 +43,7 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
   /**
    * The input port on which tuples are received for writing.
    */
-  @InputPortFieldAnnotation(name = "in", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override

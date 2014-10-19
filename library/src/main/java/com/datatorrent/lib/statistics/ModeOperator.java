@@ -52,7 +52,6 @@ public class ModeOperator<V extends Comparable<?>> extends BaseOperator
   /**
    * Input data port that takes comparable values.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
@@ -73,7 +72,6 @@ public class ModeOperator<V extends Comparable<?>> extends BaseOperator
   /**
    * Output port that emits most frequent value in incoming data.
    */
-  @OutputPortFieldAnnotation(name = "mean")
   public final transient DefaultOutputPort<V> mode = new DefaultOutputPort<V>();
   
   /**

@@ -34,24 +34,24 @@ public abstract class AbstractOutput extends BaseOperator
 	/**
 	 * Double type output.
 	 */
-	@OutputPortFieldAnnotation(name = "doubleResult", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<Double> doubleResult = new DefaultOutputPort<Double>();
 
 	/**
 	 * Float type output.
 	 */
-	@OutputPortFieldAnnotation(name = "floatResult", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<Float> floatResult = new DefaultOutputPort<Float>();
 
 	/**
 	 * Long type output.
 	 */
-	@OutputPortFieldAnnotation(name = "longResult", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<Long> longResult = new DefaultOutputPort<Long>();
 
 	/**
 	 * Integer type output.
 	 */
-	@OutputPortFieldAnnotation(name = "integerResult", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<Integer> integerResult = new DefaultOutputPort<Integer>();
 }

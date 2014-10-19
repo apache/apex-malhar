@@ -45,7 +45,6 @@ public class InputItemGenerator implements InputOperator
   @Min(1)
   private int blastCount = 10000;
   private final Random random = new Random();
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
   public double getExpectedClickThruRate()

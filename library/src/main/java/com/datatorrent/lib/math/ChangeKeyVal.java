@@ -63,7 +63,6 @@ public class ChangeKeyVal<K, V extends Number> extends
   /**
    * Input data port that takes key value pairs.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
@@ -89,7 +88,6 @@ public class ChangeKeyVal<K, V extends Number> extends
   /**
    * Base value input port, stored in base map for comparison.
    */
-  @InputPortFieldAnnotation(name = "base")
   public final transient DefaultInputPort<KeyValPair<K, V>> base = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
@@ -114,12 +112,12 @@ public class ChangeKeyVal<K, V extends Number> extends
   /**
    * Key, Change output port.
    */
-  @OutputPortFieldAnnotation(name = "change", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> change = new DefaultOutputPort<KeyValPair<K, V>>();
 
   /**
    * Key, Percentage Change pair output port.
    */
-  @OutputPortFieldAnnotation(name = "percent", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Double>> percent = new DefaultOutputPort<KeyValPair<K, Double>>();
 }

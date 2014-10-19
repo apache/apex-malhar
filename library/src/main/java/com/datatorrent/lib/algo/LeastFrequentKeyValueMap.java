@@ -76,7 +76,6 @@ public class LeastFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValue
   /**
    * The output port on which the least frequent key value pairs are emitted.
    */
-  @OutputPortFieldAnnotation(name = "least")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> least = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>();
 
   /**

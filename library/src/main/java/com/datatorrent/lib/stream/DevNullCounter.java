@@ -48,7 +48,6 @@ public class DevNullCounter<K> extends BaseOperator
         /**
 	 * Input port that takes objects to be counted in each window.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
 	{
 		/**

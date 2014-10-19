@@ -61,7 +61,6 @@ public class ChangeAlertKeyVal<K, V extends Number> extends
 	/**
 	 * Input data port that takes a key value pair.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
@@ -100,7 +99,6 @@ public class ChangeAlertKeyVal<K, V extends Number> extends
 	/**
 	 * Key,Percent Change output port.
 	 */
-	@OutputPortFieldAnnotation(name = "alert")
 	public final transient DefaultOutputPort<KeyValPair<K, KeyValPair<V, Double>>> alert = new DefaultOutputPort<KeyValPair<K, KeyValPair<V, Double>>>();
 
 	/**

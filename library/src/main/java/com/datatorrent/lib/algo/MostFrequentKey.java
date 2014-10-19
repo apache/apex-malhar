@@ -65,7 +65,6 @@ public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
   /**
    * The input port which receives incoming tuples.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
@@ -82,7 +81,6 @@ public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
    * which occurred the most number of times,
    * is emitted.
    */
-  @OutputPortFieldAnnotation(name = "most")
   public final transient DefaultOutputPort<HashMap<K, Integer>> most = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -96,7 +94,6 @@ public class MostFrequentKey<K> extends AbstractBaseFrequentKey<K>
   };
 
 
-  @OutputPortFieldAnnotation(name = "list")
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
   {
     @SuppressWarnings("rawtypes")

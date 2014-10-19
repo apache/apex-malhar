@@ -75,7 +75,7 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
   /**
    * This is the input port which receives tuples that are maps from strings to objects.
    */
-  @InputPortFieldAnnotation(name = "in", optional = false)
+  @InputPortFieldAnnotation(optional = false)
   public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>() {
     @Override
     public void process(Map<String, Object> tuple)
@@ -137,7 +137,7 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
   /**
    * This is the output port which emits the processed data.
    */
-  @OutputPortFieldAnnotation(name = "out", optional = false)
+  @OutputPortFieldAnnotation(optional = false)
   public final transient DefaultOutputPort<Map<String, Map<String, Number>>> out = new DefaultOutputPort<Map<String, Map<String, Number>>>();
   private List<String> dimensionKeyNames = new ArrayList<String>();
   private List<String> valueKeyNames = new ArrayList<String>();

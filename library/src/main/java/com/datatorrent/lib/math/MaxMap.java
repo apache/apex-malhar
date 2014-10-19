@@ -50,7 +50,6 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   /**
    * Input port that takes a hashmap and updates the value for each key if there is a new max.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
   {
     /**
@@ -87,7 +86,6 @@ public class MaxMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
   /**
    * Max value output port.
    */
-  @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<HashMap<K,V>> max = new DefaultOutputPort<HashMap<K,V>>()
   {
     @Override

@@ -58,7 +58,6 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
    * This output port emits key value pairs where the key is a token in an input string,
    * and the value is a sub token of the key token.
    */
-  @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<HashMap<String, String>> tokens = new DefaultOutputPort<HashMap<String, String>>()
   {
     @Override

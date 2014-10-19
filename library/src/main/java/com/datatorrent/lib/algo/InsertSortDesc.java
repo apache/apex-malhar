@@ -66,7 +66,7 @@ public class InsertSortDesc<K> extends AbstractBaseSortOperator<K>
   /**
    * The input port on which individual tuples are received for sorting.
    */
-  @InputPortFieldAnnotation(name = "data", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
@@ -81,7 +81,7 @@ public class InsertSortDesc<K> extends AbstractBaseSortOperator<K>
   /**
    * The input port on which lists of tuples are received for sorting.
    */
-  @InputPortFieldAnnotation(name = "datalist", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<ArrayList<K>> datalist = new DefaultInputPort<ArrayList<K>>()
   {
     /**
@@ -97,9 +97,9 @@ public class InsertSortDesc<K> extends AbstractBaseSortOperator<K>
   /**
    * The output port on which a sorted descending list of tuples is emitted.
    */
-  @OutputPortFieldAnnotation(name = "sort", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>();
-  @OutputPortFieldAnnotation(name = "sorthash", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   /**
    * This output port emits a map from tuples to a count of the number of times each tuple occurred in the application window.
    */

@@ -57,7 +57,6 @@ public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
   /**
    * The input port on which key value pairs are received.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -86,7 +85,6 @@ public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
   /**
    * The output port on which distinct key value pairs are emitted.
    */
-  @OutputPortFieldAnnotation(name = "distinct")
   public final transient DefaultOutputPort<HashMap<K, V>> distinct = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override

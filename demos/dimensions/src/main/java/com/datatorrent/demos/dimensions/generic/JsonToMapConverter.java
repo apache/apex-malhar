@@ -60,7 +60,6 @@ public class JsonToMapConverter extends BaseOperator {
   /**
    * Accepts JSON formatted byte arrays
    */
-  @InputPortFieldAnnotation(name = "jsonBytes")
   public final transient DefaultInputPort<byte[]> input = new DefaultInputPort<byte[]>()
   {
     @Override
@@ -80,7 +79,6 @@ public class JsonToMapConverter extends BaseOperator {
   /**
    * Output JSON converted to Map<string,Object>
    */
-  @OutputPortFieldAnnotation(name = "map")
   public final transient DefaultOutputPort<Map<String, Object>> outputMap = new DefaultOutputPort<Map<String, Object>>();
 
 }

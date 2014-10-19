@@ -51,7 +51,6 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
 	/**
 	 * Input data port that takes a hashmap and updates the value if there is a new minimum.
 	 */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
   {
     /**
@@ -88,7 +87,6 @@ public class MinMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   /**
    * Min value output port.
    */
-  @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<HashMap<K, V>> min = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override

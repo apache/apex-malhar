@@ -33,7 +33,6 @@ public class AbstractFSDirectoryInputOperatorFailureHandlingTest
 
   public static class TestFSDirectoryInputOperator extends AbstractFSDirectoryInputOperator<String>
   {
-    @OutputPortFieldAnnotation(name = "output")
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
     private transient BufferedReader br = null;
     int count = 0;

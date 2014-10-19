@@ -61,7 +61,6 @@ public class FirstMatchStringMap<K> extends BaseMatchOperator<K,String>
   /**
    * The port on which key value pairs are received.
    */
-  @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
@@ -100,7 +99,6 @@ public class FirstMatchStringMap<K> extends BaseMatchOperator<K,String>
   /**
    * The output port on which the first satisfying key value pair is emitted.
    */
-  @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, String>> first = new DefaultOutputPort<HashMap<K, String>>();
   boolean emitted = false;
 

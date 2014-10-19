@@ -61,7 +61,6 @@ public class MostFrequentKeyMap<K,V> extends AbstractBaseFrequentKey<K>
   /**
    * The input port which receives incoming key value pairs.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K,V>> data = new DefaultInputPort<Map<K,V>>()
   {
     /**
@@ -80,7 +79,6 @@ public class MostFrequentKeyMap<K,V> extends AbstractBaseFrequentKey<K>
    * which occurred the most number of times,
    * is emitted.
    */
-  @OutputPortFieldAnnotation(name = "most")
   public final transient DefaultOutputPort<HashMap<K, Integer>> most = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @Override
@@ -93,7 +91,6 @@ public class MostFrequentKeyMap<K,V> extends AbstractBaseFrequentKey<K>
   };
 
 
-  @OutputPortFieldAnnotation(name = "list")
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
   {
     @SuppressWarnings("rawtypes")

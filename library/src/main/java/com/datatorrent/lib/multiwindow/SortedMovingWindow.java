@@ -55,13 +55,12 @@ public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
   /**
    * Output port to emit sorted output.
    */
-  @OutputPortFieldAnnotation(name = "sortedOutput")
   public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
   
   /**
    * Output port to emit error output.
    */
-  @OutputPortFieldAnnotation(name = "errorOutput", error = true)
+  @OutputPortFieldAnnotation(error = true)
   public transient DefaultOutputPort<T> errorOutput = new DefaultOutputPort<T>();
   
   private Map<K, PriorityQueue<T>> sortedListInSlidingWin = new HashMap<K, PriorityQueue<T>>();

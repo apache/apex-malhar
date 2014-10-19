@@ -82,7 +82,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   /**
    * The input port on which events are received.
    */
-  @InputPortFieldAnnotation(name = "input", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
   {
     @Override

@@ -71,7 +71,6 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
   /**
    * Input port that takes tuples from the DAG.
    */
-  @InputPortFieldAnnotation(name="inputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>() {
 
     @Override

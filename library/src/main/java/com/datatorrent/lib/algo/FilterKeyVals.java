@@ -71,7 +71,6 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
   /**
    * The input port on which key value pairs are received.
    */
-  @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
   {
     /**
@@ -97,7 +96,6 @@ public class FilterKeyVals<K,V> extends BaseKeyOperator<K>
   /**
    * The output port on which filtered key value pairs are emitted.
    */
-  @OutputPortFieldAnnotation(name="filter")
   public final transient DefaultOutputPort<HashMap<K, V>> filter = new DefaultOutputPort<HashMap<K, V>>();
 
   @NotNull()

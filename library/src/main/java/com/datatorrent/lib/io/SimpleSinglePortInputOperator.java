@@ -44,7 +44,6 @@ public class SimpleSinglePortInputOperator<T> extends BaseOperator implements In
    * The single output port of this input operator.
    * Collects asynchronously emitted tuples and flushes in container thread.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
   final public transient BufferingOutputPort<T> outputPort;
 
   public SimpleSinglePortInputOperator(int portCapacity)

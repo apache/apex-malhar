@@ -46,7 +46,6 @@ public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
   /**
    * An input port which receives incoming tuples.
    */
-  @InputPortFieldAnnotation(name = "data")
   public transient final DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     @Override
@@ -59,7 +58,7 @@ public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
   /**
    * An input port which receives incoming tuples.
    */
-  @InputPortFieldAnnotation(name = "data1", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public transient final DefaultInputPort<K> data1 = new DefaultInputPort<K>()
   {
     @Override
@@ -69,7 +68,6 @@ public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
     }
   };
 
-  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<KeyHashValPair<K, Integer>> count
       = new DefaultOutputPort<KeyHashValPair<K, Integer>>()
   {

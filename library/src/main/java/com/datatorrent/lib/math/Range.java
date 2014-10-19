@@ -55,7 +55,6 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Input data port.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
 	{
 		/**
@@ -77,7 +76,6 @@ public class Range<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Output range port, which emits high low unifier operator.
 	 */
-	@OutputPortFieldAnnotation(name = "range")
 	public final transient DefaultOutputPort<HighLow<V>> range = new DefaultOutputPort<HighLow<V>>()
 	{
 		@Override

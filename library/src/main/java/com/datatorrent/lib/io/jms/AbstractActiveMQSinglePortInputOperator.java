@@ -54,7 +54,6 @@ public abstract class AbstractActiveMQSinglePortInputOperator<T> extends
 	/**
 	 * This is the single output port, which emits tuples read from ActiveMQ messages.
 	 */
-	@OutputPortFieldAnnotation(name = "outputPort")
 	public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
 	/**

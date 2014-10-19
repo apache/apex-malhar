@@ -59,7 +59,6 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
   /**
    * The input port on which tuples are received.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
@@ -77,7 +76,7 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
    * which occurred the least number of times,
    * is emitted.
    */
-  @OutputPortFieldAnnotation(name = "least", optional=true)
+  @OutputPortFieldAnnotation(optional=true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -94,7 +93,7 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
    * which occurred the least number of times,
    * is emitted.
    */
-  @OutputPortFieldAnnotation(name = "list", optional=true)
+  @OutputPortFieldAnnotation(optional=true)
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
   {
     @SuppressWarnings({ "rawtypes", "unchecked" })

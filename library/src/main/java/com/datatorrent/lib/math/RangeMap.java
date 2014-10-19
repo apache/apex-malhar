@@ -62,7 +62,6 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
 	/**
 	 * Input port that takes a map and computes new high and low values.
 	 */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -93,7 +92,6 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
   /**
    * Output range port.
    */
-  @OutputPortFieldAnnotation(name = "range")
   public final transient DefaultOutputPort<HashMap<K, HighLow<V>>> range = new DefaultOutputPort<HashMap<K, HighLow<V>>>()
   {
     @Override

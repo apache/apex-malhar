@@ -57,7 +57,6 @@ public class JsonByteArrayOperator extends BaseOperator
   /**
    * Input byte array port.
    */
-  @InputPortFieldAnnotation(name = "input")
   public final transient DefaultInputPort<byte[]> input = new DefaultInputPort<byte[]>()
   {
     private void getFlatMap(JSONObject jSONObject, Map<String, Object> map, String keyPrefix) throws Exception
@@ -121,16 +120,13 @@ public class JsonByteArrayOperator extends BaseOperator
   /**
    * Output hash map port.
    */
-  @OutputPortFieldAnnotation(name = "map")
   public final transient DefaultOutputPort<HashMap<String, Object>> outputMap = new DefaultOutputPort<HashMap<String, Object>>();
   /**
    * Output JSONObject port.
    */
-  @OutputPortFieldAnnotation(name = "jsonobject")
   public final transient DefaultOutputPort<JSONObject> outputJsonObject = new DefaultOutputPort<JSONObject>();
   /**
    * Output hash map port.
    */
-  @OutputPortFieldAnnotation(name = "flatmap")
   public final transient DefaultOutputPort<HashMap<String, Object>> outputFlatMap = new DefaultOutputPort<HashMap<String, Object>>();
 }

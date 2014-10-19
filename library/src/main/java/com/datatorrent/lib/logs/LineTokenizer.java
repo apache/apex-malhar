@@ -50,7 +50,6 @@ public class LineTokenizer extends BaseLineTokenizer
   /**
    * The is the output port that emits string tokens.
    */
-	@OutputPortFieldAnnotation(name = "tokens")
 	public final transient DefaultOutputPort<String> tokens = new DefaultOutputPort<String>();
 
 	/**

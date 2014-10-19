@@ -53,7 +53,6 @@ public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Numerator values input port.
 	 */
-	@InputPortFieldAnnotation(name = "numerator")
 	public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>()
 	{
 		/**
@@ -69,7 +68,6 @@ public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Denominator values input port.
 	 */
-	@InputPortFieldAnnotation(name = "denominator")
 	public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>()
 	{
 		/**
@@ -85,7 +83,6 @@ public class Quotient<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Quotient output port.
 	 */
-	@OutputPortFieldAnnotation(name = "quotient")
 	public final transient DefaultOutputPort<V> quotient = new DefaultOutputPort<V>();
 
 	public void setMult_by(int i)

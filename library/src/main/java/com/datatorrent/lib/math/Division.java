@@ -113,55 +113,55 @@ public class Division extends BaseOperator
   /**
    * Long quotient output port. 
    */
-  @OutputPortFieldAnnotation(name = "longQuotient", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Long> longQuotient = new DefaultOutputPort<Long>();
   
   /**
    * Integer quotient output port. 
    */
-  @OutputPortFieldAnnotation(name = "integerQuotient", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Integer> integerQuotient = new DefaultOutputPort<Integer>();
   
   /**
    * Double quotient output port. 
    */
-  @OutputPortFieldAnnotation(name = "doubleQuotient", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Double> doubleQuotient = new DefaultOutputPort<Double>();
 
   /**
    * Float quotient output port. 
    */
-  @OutputPortFieldAnnotation(name = "floatQuotient", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Float> floatQuotient = new DefaultOutputPort<Float>();
   
   /**
    * Long remainder output port. 
    */
-  @OutputPortFieldAnnotation(name = "longRemainder", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Long> longRemainder = new DefaultOutputPort<Long>();
   
   /**
    * Integer remainder output port. 
    */
-  @OutputPortFieldAnnotation(name = "integerRemainder", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Integer> integerRemainder = new DefaultOutputPort<Integer>();
  
   /**
    * Double remainder output port. 
    */
-  @OutputPortFieldAnnotation(name = "doubleRemainder", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Double> doubleRemainder = new DefaultOutputPort<Double>();
   
   /**
    * Float remainder output port. 
    */
-  @OutputPortFieldAnnotation(name = "floatRemainder", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Float> floatRemainder = new DefaultOutputPort<Float>();
   
   /**
    * Error data output port that emits a string.
    */
-  @OutputPortFieldAnnotation(name = "errorData", error = true)
+  @OutputPortFieldAnnotation(error = true)
   public final transient DefaultOutputPort<String> errordata = new DefaultOutputPort<String>();
 
 

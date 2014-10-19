@@ -56,7 +56,6 @@ public class LineToTokenHashMap extends BaseLineTokenizer
   /**
    * This output port emits the split strings.
    */
-  @OutputPortFieldAnnotation(name = "tokens")
   public final transient DefaultOutputPort<HashMap<String, ArrayList<String>>> tokens = new DefaultOutputPort<HashMap<String, ArrayList<String>>>()
   {
     @Override

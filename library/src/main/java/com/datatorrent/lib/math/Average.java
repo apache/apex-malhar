@@ -46,7 +46,6 @@ public class Average<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Input port that takes a number.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
 	{
 		/**
@@ -63,7 +62,6 @@ public class Average<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Output port that emits average as a number.
 	 */
-	@OutputPortFieldAnnotation(name = "average")
 	public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>();
 
 	protected double sums = 0;

@@ -54,7 +54,6 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
   /**
    * Input data port that takes a map of &lt;key,value&gt;.
    */ 
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -94,7 +93,6 @@ public class ChangeAlertMap<K, V extends Number> extends BaseNumberKeyValueOpera
   /**
    * Output port which emits a hashmap of key, percentage change. 
    */
-  @OutputPortFieldAnnotation(name = "alert")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V,Double>>> alert = new DefaultOutputPort<HashMap<K, HashMap<V,Double>>>();
 
   /**

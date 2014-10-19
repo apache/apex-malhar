@@ -49,7 +49,6 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   /**
    * Input port that takes a key value pair and compares to max and stores the new max.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
@@ -86,7 +85,6 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   /**
    * Max value output port.
    */
-  @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<KeyValPair<K, V>> max = new DefaultOutputPort<KeyValPair<K, V>>();
 
   protected HashMap<K, V> highs = new HashMap<K, V>();

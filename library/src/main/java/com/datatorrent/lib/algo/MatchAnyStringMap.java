@@ -70,7 +70,6 @@ public class MatchAnyStringMap<K> extends BaseMatchOperator<K, String>
   /**
    * The input port which receives key value pairs.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
@@ -103,7 +102,6 @@ public class MatchAnyStringMap<K> extends BaseMatchOperator<K, String>
   /**
    * The output port that emits true at the end of an application window if any tuple satisfies the comparison.
    */
-  @OutputPortFieldAnnotation(name = "any")
   public final transient DefaultOutputPort<Boolean> any = new DefaultOutputPort<Boolean>()
   {
     @Override

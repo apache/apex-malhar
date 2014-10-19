@@ -44,7 +44,6 @@ public class ArrayListToItem<K> extends BaseKeyOperator<K>
 	/**
 	 * Input data port that takes an arraylist.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<ArrayList<K>> data = new DefaultInputPort<ArrayList<K>>()
 	{
 		/**
@@ -62,6 +61,5 @@ public class ArrayListToItem<K> extends BaseKeyOperator<K>
 	/**
 	 * Output port that emits an array item.
 	 */
-	@OutputPortFieldAnnotation(name = "item")
 	public final transient DefaultOutputPort<K> item = new DefaultOutputPort<K>();
 }

@@ -83,7 +83,6 @@ public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integ
   /**
    * This input port receives incoming tuples.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
@@ -99,7 +98,6 @@ public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integ
   /**
    * This output port emits the number of unique tuples received within each application window.
    */
-  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<Integer> count = new DefaultOutputPort<Integer>()
   {
     @Override

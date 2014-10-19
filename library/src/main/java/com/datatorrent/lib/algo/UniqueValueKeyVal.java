@@ -58,7 +58,6 @@ public class UniqueValueKeyVal<K> extends BaseKeyOperator<K> implements  Unifier
   /**
    * The input port which receives key value pairs.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K,? extends Object>> data = new DefaultInputPort<KeyValPair<K,? extends Object>>()
   {
     /**
@@ -78,7 +77,6 @@ public class UniqueValueKeyVal<K> extends BaseKeyOperator<K> implements  Unifier
   /**
    * The output port which emits key/unique value count pairs.
    */
-  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<KeyValPair<K,Integer>> count = new DefaultOutputPort<KeyValPair<K,Integer>>();
 
   /**

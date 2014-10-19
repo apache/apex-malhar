@@ -69,7 +69,6 @@ public class Distinct<K> extends BaseKeyOperator<K> implements Unifier<K>
   /**
    * The input port on which tuples are received.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
@@ -89,7 +88,6 @@ public class Distinct<K> extends BaseKeyOperator<K> implements Unifier<K>
   /**
    *  The output port on which distinct values are emitted.
    */
-  @OutputPortFieldAnnotation(name = "distinct")
   public final transient DefaultOutputPort<K> distinct = new DefaultOutputPort<K>()
   {
     @Override

@@ -61,7 +61,6 @@ public abstract class AbstractAerospikeGetOperator<T> extends AbstractStoreInput
   /**
    * The output port that will emit tuple into DAG.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

@@ -52,7 +52,6 @@ public abstract class AbstractXmlDOMOperator<T> extends BaseOperator
   /**
    * This port receives the tuples which will be parsed as xml.
    */
-  @InputPortFieldAnnotation(name = "XMLInput")
   public transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override

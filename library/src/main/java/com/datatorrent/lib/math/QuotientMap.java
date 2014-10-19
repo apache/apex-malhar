@@ -87,7 +87,6 @@ public class QuotientMap<K, V extends Number> extends
 	/**
 	 * Numerator input port.
 	 */
-	@InputPortFieldAnnotation(name = "numerator")
 	public final transient DefaultInputPort<Map<K, V>> numerator = new DefaultInputPort<Map<K, V>>()
 	{
 		/**
@@ -103,7 +102,6 @@ public class QuotientMap<K, V extends Number> extends
 	/**
 	 * Denominator input port.
 	 */
-	@InputPortFieldAnnotation(name = "denominator")
 	public final transient DefaultInputPort<Map<K, V>> denominator = new DefaultInputPort<Map<K, V>>()
 	{
 		/**
@@ -119,7 +117,6 @@ public class QuotientMap<K, V extends Number> extends
 	/**
 	 * Quotient output port.
 	 */
-	@OutputPortFieldAnnotation(name = "quotient")
 	public final transient DefaultOutputPort<HashMap<K, Double>> quotient = new DefaultOutputPort<HashMap<K, Double>>();
 
 	/**

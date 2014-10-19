@@ -40,7 +40,6 @@ public class DevNull<K> extends BaseOperator
 	/**
 	 * Input any data type port.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
 	{
 		@Override

@@ -67,7 +67,6 @@ public class Margin<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Numerator input port.
 	 */
-	@InputPortFieldAnnotation(name = "numerator")
 	public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>()
 	{
 		/**
@@ -83,7 +82,6 @@ public class Margin<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Denominator input port.
 	 */
-	@InputPortFieldAnnotation(name = "denominator")
 	public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>()
 	{
 		/**
@@ -99,7 +97,6 @@ public class Margin<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Output margin port.
 	 */
-	@OutputPortFieldAnnotation(name = "margin")
 	public final transient DefaultOutputPort<V> margin = new DefaultOutputPort<V>();
 
 	/**

@@ -63,7 +63,6 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
   /**
    * The input port on which key value pairs are received.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<HashMap<K, ArrayList<V>>> data = new DefaultInputPort<HashMap<K, ArrayList<V>>>()
   {
     /**
@@ -87,7 +86,6 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
   /**
    * The output port or which inverted key value pairs are emitted.
    */
-  @OutputPortFieldAnnotation(name = "index")
   public final transient DefaultOutputPort<HashMap<V, ArrayList<K>>> index = new DefaultOutputPort<HashMap<V, ArrayList<K>>>()
   {
     @Override

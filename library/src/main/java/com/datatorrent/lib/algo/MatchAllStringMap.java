@@ -72,7 +72,6 @@ public class MatchAllStringMap<K> extends BaseMatchOperator<K, String>
   /**
    * The input port on which key value pairs are received.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
@@ -104,7 +103,6 @@ public class MatchAllStringMap<K> extends BaseMatchOperator<K, String>
   /**
    * The output port on which true is emitted if all key value pairs satisfy the specified comparison function.
    */
-  @OutputPortFieldAnnotation(name = "all")
   public final transient DefaultOutputPort<Boolean> all = new DefaultOutputPort<Boolean>()
   {
     @Override

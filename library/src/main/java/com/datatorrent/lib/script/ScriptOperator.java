@@ -40,7 +40,7 @@ public abstract class ScriptOperator extends BaseOperator
   /**
    * Input inBindings port that takes in a map of &lt;String, Object&gt.
    */
-  @InputPortFieldAnnotation(name = "inBindings", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<Map<String, Object>> inBindings = new DefaultInputPort<Map<String, Object>>()
   {
     @Override
@@ -54,13 +54,13 @@ public abstract class ScriptOperator extends BaseOperator
   /**
    * Output outBindings port that emits a map of &lt;String, Object&gt.
    */
-  @OutputPortFieldAnnotation(name = "outBindings", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Map<String, Object>> outBindings = new DefaultOutputPort<Map<String, Object>>();
   
   /**
    * Output result port that emits an object as the result.
    */
-  @OutputPortFieldAnnotation(name = "result", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Object> result = new DefaultOutputPort<Object>();
   protected boolean isPassThru = true;
   @NotNull

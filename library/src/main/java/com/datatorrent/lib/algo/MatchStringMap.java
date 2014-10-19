@@ -67,7 +67,6 @@ public class MatchStringMap<K> extends BaseMatchOperator<K,String>
   /**
    * The input port which receives incoming key value pairs.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
@@ -108,7 +107,7 @@ public class MatchStringMap<K> extends BaseMatchOperator<K,String>
   /**
    * The output port which emits filtered key value pairs.
    */
-  @OutputPortFieldAnnotation(name = "match", optional=true)
+  @OutputPortFieldAnnotation(optional=true)
   public final transient DefaultOutputPort<HashMap<K, String>> match = new DefaultOutputPort<HashMap<K, String>>()
   {
     @Override

@@ -71,7 +71,6 @@ public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
   /**
    * The input port on which key value pairs are received.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
   {
     /**
@@ -103,7 +102,6 @@ public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
   /**
    * The output port on which the last key value pair to satisfy the comparison function is emitted.
    */
-  @OutputPortFieldAnnotation(name = "last")
   public final transient DefaultOutputPort<HashMap<K, String>> last = new DefaultOutputPort<HashMap<K, String>>();
 
   /**

@@ -60,7 +60,6 @@ public class TopN<K, V> extends AbstractBaseNNonUniqueOperatorMap<K,V> implement
   /**
    * The output port which emits the top N values per key.
    */
-  @OutputPortFieldAnnotation(name="top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<V>>> top = new DefaultOutputPort<HashMap<K, ArrayList<V>>>()
   {
     @Override

@@ -42,7 +42,6 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
   /**
    * Input port that takes a number and compares to max and stores the new max.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
@@ -73,7 +72,6 @@ public class Max<V extends Number> extends BaseNumberValueOperator<V> implements
   /**
    * Max value output port.
    */
-  @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<V> max = new DefaultOutputPort<V>()
    {
     @Override

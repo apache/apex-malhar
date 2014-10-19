@@ -98,7 +98,6 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
   /**
    * The input port on which tuples for plotting are received.
    */
-  @InputPortFieldAnnotation(name = "in1")
   public final transient DefaultInputPort<Object> in1 = new DefaultInputPort<Object>()
   {
     @Override
@@ -112,7 +111,6 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
   /**
    * The output port of the chart operator.  The data of this will be shipped to the module that draws the chart.
    */
-  @OutputPortFieldAnnotation(name = "chart")
   public final transient ChartingOutputPort<Map<K, Map<X, Y>>> chart = new ChartingOutputPort<Map<K, Map<X, Y>>>();
 
   @Override

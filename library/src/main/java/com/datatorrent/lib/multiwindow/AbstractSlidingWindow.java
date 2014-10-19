@@ -45,7 +45,6 @@ public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
         /**
          * Input port for getting incoming data.
          */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
 	{
 		@Override

@@ -54,7 +54,6 @@ public abstract class AbstractSinglePortZeroMQInputOperator<T> extends AbstractB
   /**
    * This is the ouput port on which tuples extracted from ZeroMQ are emitted.
    */
-    @OutputPortFieldAnnotation(name = "outputPort")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

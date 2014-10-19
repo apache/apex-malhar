@@ -53,7 +53,6 @@ public class HashMapToKeyValPair<K, V> extends BaseKeyValueOperator<K, V>
 	/**
 	 * Input port that takes a hashmap of &lt;key,value&rt;.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
 	{
 		/**
@@ -80,18 +79,18 @@ public class HashMapToKeyValPair<K, V> extends BaseKeyValueOperator<K, V>
 	/**
 	 * Key output port.
 	 */
-	@OutputPortFieldAnnotation(name = "key", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<K> key = new DefaultOutputPort<K>();
 
 	/**
 	 * key/value pair output port.
 	 */
-	@OutputPortFieldAnnotation(name = "keyval", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, V>> keyval = new DefaultOutputPort<KeyValPair<K, V>>();
 
 	/**
 	 * Value output port.
 	 */
-	@OutputPortFieldAnnotation(name = "val", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<V> val = new DefaultOutputPort<V>();
 }

@@ -63,7 +63,6 @@ public class RoundRobinHashMap<K, V> extends BaseKeyValueOperator<K, V>
 	/**
 	 * Value input port.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
 	{
 		/**
@@ -90,7 +89,6 @@ public class RoundRobinHashMap<K, V> extends BaseKeyValueOperator<K, V>
 	/**
 	 * key/value map output port.
 	 */
-	@OutputPortFieldAnnotation(name = "map")
 	public final transient DefaultOutputPort<HashMap<K, V>> map = new DefaultOutputPort<HashMap<K, V>>();
 
 	/**

@@ -37,7 +37,6 @@ public abstract class AbstractPartitionableKafkaSinglePortInputOperator<T> exten
   /**
    * This output port emits tuples extracted from Kafka messages.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

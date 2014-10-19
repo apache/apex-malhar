@@ -63,7 +63,7 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   /**
    * This emits the tokens a string is broken up into.
    */
-  @OutputPortFieldAnnotation(name = "tokens", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<ArrayList<String>> tokens = new DefaultOutputPort<ArrayList<String>>()
   {
     @Override
@@ -76,7 +76,7 @@ public class LineToTokenArrayList extends BaseLineTokenizer
   /**
 	 * This output port emits a map from tokens to sub tokens.
 	 */
-  @OutputPortFieldAnnotation(name = "splittokens", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>> splittokens = new DefaultOutputPort<ArrayList<HashMap<String, ArrayList<String>>>>()
   {
     @Override

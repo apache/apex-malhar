@@ -54,7 +54,7 @@ public class AggregationsToRedisOperator<K, V> extends BaseOperator
     this.dimensionToKeyIndexMap = dimensionTodbIndexMap;
   }
 
-  @InputPortFieldAnnotation(name= "multiWindowDimensionInput", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient DefaultInputPort<HashMap<K, ArrayList<DimensionObject<String>>>> multiWindowDimensionInput = new DefaultInputPort<HashMap<K, ArrayList<DimensionObject<String>>>>()
   {
     @Override
@@ -78,7 +78,7 @@ public class AggregationsToRedisOperator<K, V> extends BaseOperator
     }
 
   };
-  @InputPortFieldAnnotation(name = "valueInput", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<V> valueInput = new DefaultInputPort<V>()
   {
     @Override

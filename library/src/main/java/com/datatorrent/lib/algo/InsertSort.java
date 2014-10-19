@@ -60,7 +60,7 @@ public class InsertSort<K> extends AbstractBaseSortOperator<K> implements
   /**
    * The input port on which individual tuples are received for sorting.
    */
-  @InputPortFieldAnnotation(name = "data", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
@@ -75,7 +75,7 @@ public class InsertSort<K> extends AbstractBaseSortOperator<K> implements
   /**
    * The input port on which lists of tuples are received for sorting.
    */
-  @InputPortFieldAnnotation(name = "datalist", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<ArrayList<K>> datalist = new DefaultInputPort<ArrayList<K>>()
   {
     /**
@@ -91,7 +91,6 @@ public class InsertSort<K> extends AbstractBaseSortOperator<K> implements
   /**
    * The output port on which a sorted ascending list of tuples is emitted.
    */
-  @OutputPortFieldAnnotation(name = "sort")
   public final transient DefaultOutputPort<ArrayList<K>> sort = new DefaultOutputPort<ArrayList<K>>()
   {
     @Override

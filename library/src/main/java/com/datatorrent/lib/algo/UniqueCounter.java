@@ -59,7 +59,6 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
   /**
    * The input port which receives incoming tuples.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
@@ -76,7 +75,6 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
   /**
    * The output port which emits a map from keys to the number of times they occurred within an application window.
    */
-  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @Override

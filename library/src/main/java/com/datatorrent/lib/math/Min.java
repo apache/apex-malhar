@@ -51,7 +51,6 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
 	 /**
           * Input port that takes a number and compares to min and stores the new min.
           */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
@@ -82,7 +81,6 @@ public class Min<V extends Number> extends BaseNumberValueOperator<V> implements
   /**
    * Min output port.
    */
-  @OutputPortFieldAnnotation(name = "min")
   public final transient DefaultOutputPort<V> min = new DefaultOutputPort<V>()
   {
     @Override

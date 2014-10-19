@@ -80,7 +80,6 @@ public class MostFrequentKeyValueMap<K, V> extends AbstractBaseFrequentKeyValueM
   /**
    * The output port which emits a map from keys to their most values.
    */
-  @OutputPortFieldAnnotation(name = "most")
   public final transient DefaultOutputPort<HashMap<K, HashMap<V, Integer>>> most = new DefaultOutputPort<HashMap<K, HashMap<V, Integer>>>();
 
   /**

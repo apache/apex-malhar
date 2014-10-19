@@ -52,9 +52,9 @@ public class CountVerifier implements Operator
     }
   };
 
-  @OutputPortFieldAnnotation(name = "success", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public transient final DefaultOutputPort<Integer> successPort = new DefaultOutputPort<Integer>();
-  @OutputPortFieldAnnotation(name = "failure", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public transient final DefaultOutputPort<Integer> failurePort = new DefaultOutputPort<Integer>();
 
   @Override

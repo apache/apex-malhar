@@ -63,7 +63,6 @@ public abstract class AbstractCassandraInputOperator<T> extends AbstractStoreInp
   /**
    * The output port that will emit tuple into DAG.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

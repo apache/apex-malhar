@@ -66,7 +66,6 @@ public class Sampler<K> extends BaseKeyOperator<K>
   /**
    * This is the input port which receives tuples.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
@@ -86,7 +85,6 @@ public class Sampler<K> extends BaseKeyOperator<K>
   /**
    * This is the output port which emits the sampled tuples.
    */
-  @OutputPortFieldAnnotation(name = "sample")
   public final transient DefaultOutputPort<K> sample = new DefaultOutputPort<K>();
 
   @Min(1)

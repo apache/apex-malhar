@@ -69,7 +69,7 @@ public class PhoneEntryOperator extends BaseOperator
     this.maxSeedPhoneNumber = number;
   }
 
-  @InputPortFieldAnnotation(name = "query", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<Map<String, String>> locationQuery = new DefaultInputPort<Map<String, String>>()
   {
     @Override
@@ -79,7 +79,6 @@ public class PhoneEntryOperator extends BaseOperator
     }
   };
 
-  @OutputPortFieldAnnotation(name = "seedPhones")
   public final transient DefaultOutputPort<Map<String, String>> seedPhones = new DefaultOutputPort<Map<String, String>>();
 
   @Override

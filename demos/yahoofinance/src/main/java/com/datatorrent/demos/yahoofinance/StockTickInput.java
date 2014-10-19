@@ -59,17 +59,17 @@ public class StockTickInput implements InputOperator
   /**
    * The output port to emit price.
    */
-  @OutputPortFieldAnnotation(name = "price", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<String, Double>> price = new DefaultOutputPort<KeyValPair<String, Double>>();
   /**
    * The output port to emit incremental volume.
    */
-  @OutputPortFieldAnnotation(name = "volume", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<String, Long>> volume = new DefaultOutputPort<KeyValPair<String, Long>>();
   /**
    * The output port to emit last traded time.
    */
-  @OutputPortFieldAnnotation(name = "time", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<String, String>> time = new DefaultOutputPort<KeyValPair<String, String>>();
 
   /**

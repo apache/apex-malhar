@@ -44,7 +44,6 @@ public abstract class AbstractBaseFrequentKeyValueMap<K, V> extends BaseKeyValue
   /**
    * This is the input port which receives key value pairs.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**

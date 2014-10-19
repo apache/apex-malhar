@@ -50,7 +50,6 @@ public class MedianOperator extends BaseOperator
   /**
    * Input data port that takes a number.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>()
   {
     /**
@@ -66,7 +65,6 @@ public class MedianOperator extends BaseOperator
   /**
    * Output port that emits median of incoming data.
    */
-  @OutputPortFieldAnnotation(name = "median")
   public final transient DefaultOutputPort<Number> median = new DefaultOutputPort<Number>();
   
   @Override

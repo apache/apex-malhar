@@ -162,7 +162,7 @@ public class HDSOutputOperator extends HDSWriter implements Partitioner<HDSOutpu
   /**
    * The input port
    */
-  @InputPortFieldAnnotation(name = "in", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<AdInfoAggregateEvent> input = new DefaultInputPort<AdInfoAggregateEvent>()
   {
     @Override

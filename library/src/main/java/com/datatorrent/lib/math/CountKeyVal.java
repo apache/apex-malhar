@@ -56,7 +56,6 @@ public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
 	/**
 	 * Input data port that takes key value pair.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
@@ -85,7 +84,7 @@ public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
 	/**
 	 * Key, occurrence value pair output port.
 	 */
-	@OutputPortFieldAnnotation(name = "count", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, Integer>> count = new DefaultOutputPort<KeyValPair<K, Integer>>()
 	{
 		@Override

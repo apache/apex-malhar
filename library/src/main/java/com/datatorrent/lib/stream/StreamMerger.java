@@ -43,7 +43,6 @@ public class StreamMerger<K> extends BaseOperator
 	/**
 	 * Data input port 1.
 	 */
-  @InputPortFieldAnnotation(name = "data1")
  public final transient DefaultInputPort<K> data1 = new DefaultInputPort<K>()
   {
     /**
@@ -59,7 +58,6 @@ public class StreamMerger<K> extends BaseOperator
   /**
    * Data input port 2.
    */
-  @InputPortFieldAnnotation(name = "data2")
   public final transient DefaultInputPort<K> data2 = new DefaultInputPort<K>()
   {
     /**
@@ -75,6 +73,5 @@ public class StreamMerger<K> extends BaseOperator
   /**
    * Output port.
    */
-  @OutputPortFieldAnnotation(name = "out")
   public final transient DefaultOutputPort<K> out = new DefaultOutputPort<K>();
 }

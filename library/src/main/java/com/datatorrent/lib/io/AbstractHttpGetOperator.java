@@ -42,7 +42,7 @@ public abstract class AbstractHttpGetOperator<INPUT, OUTPUT> extends AbstractHtt
   /**
    * The output port which emits retrieved tuples.
    */
-  @OutputPortFieldAnnotation(name = "output", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
 
   @Override

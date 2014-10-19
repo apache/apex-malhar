@@ -109,42 +109,39 @@ public class ConsolidatorKeyVal<K, V1, V2, V3, V4, V5> implements Operator
 	/**
 	 * V1 type value input port.
 	 */
-	@InputPortFieldAnnotation(name = "in1")
 	public final transient ConsolidatorInputPort<V1> in1 = new ConsolidatorInputPort<V1>(
 			this, 0);
 
 	/**
 	 * V2 type value input port.
 	 */
-	@InputPortFieldAnnotation(name = "in2")
 	public final transient ConsolidatorInputPort<V2> in2 = new ConsolidatorInputPort<V2>(
 			this, 1);
 
 	/**
 	 * V3 type value input port.
 	 */
-	@InputPortFieldAnnotation(name = "in3", optional = true)
+	@InputPortFieldAnnotation(optional = true)
 	public final transient ConsolidatorInputPort<V3> in3 = new ConsolidatorInputPort<V3>(
 			this, 2);
 
 	/**
 	 * V4 type value input port.
 	 */
-	@InputPortFieldAnnotation(name = "in4", optional = true)
+	@InputPortFieldAnnotation(optional = true)
 	public final transient ConsolidatorInputPort<V4> in4 = new ConsolidatorInputPort<V4>(
 			this, 3);
 
 	/**
 	 * V5 type value input port.
 	 */
-	@InputPortFieldAnnotation(name = "in5", optional = true)
+	@InputPortFieldAnnotation(optional = true)
 	public final transient ConsolidatorInputPort<V5> in5 = new ConsolidatorInputPort<V5>(
 			this, 4);
 
 	/**
 	 * Output port that emits a hashmap of &lt;key,arraylist&gt;.
 	 */
-	@OutputPortFieldAnnotation(name = "out")
 	public final transient DefaultOutputPort<HashMap<K, ArrayList<Object>>> out = new DefaultOutputPort<HashMap<K, ArrayList<Object>>>();
 
 	/**

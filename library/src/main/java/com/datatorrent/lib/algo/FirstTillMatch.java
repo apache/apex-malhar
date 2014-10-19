@@ -70,7 +70,6 @@ public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K, V>
   /**
    * The input port on which incoming key value pairs are received.
    */
-  @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()
   {
     /**
@@ -99,7 +98,6 @@ public class FirstTillMatch<K, V extends Number> extends BaseMatchOperator<K, V>
   /**
    * The output port on which key value pairs are emitted until the first match.
    */
-  @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>();
 
   /**

@@ -63,7 +63,6 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   /**
    * Input port that takes a map and adds the values for each key.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -95,7 +94,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   /**
    * Sum output port.
    */
-  @OutputPortFieldAnnotation(name = "sum", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, V>> sum = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override
@@ -108,7 +107,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   /**
    * Double sum output port.
    */
-  @OutputPortFieldAnnotation(name = "sumDouble", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, Double>> sumDouble = new DefaultOutputPort<HashMap<K, Double>>()
   {
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -124,7 +123,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   /**
    * Integer sum output port.
    */
-  @OutputPortFieldAnnotation(name = "sumInteger", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> sumInteger = new DefaultOutputPort<HashMap<K, Integer>>()
   {
   	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -140,7 +139,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   /**
    * Long sum output port.
    */
-  @OutputPortFieldAnnotation(name = "sumLong", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, Long>> sumLong = new DefaultOutputPort<HashMap<K, Long>>()
   {
   	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -156,7 +155,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   /**
    * Short sum output port.
    */
-  @OutputPortFieldAnnotation(name = "sumShort", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, Short>> sumShort = new DefaultOutputPort<HashMap<K, Short>>()
   {
   	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -172,7 +171,7 @@ public class SumMap<K, V extends Number> extends BaseNumberKeyValueOperator<K, V
   /**
    * Float sum output port.
    */
-  @OutputPortFieldAnnotation(name = "sumFloat", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, Float>> sumFloat = new DefaultOutputPort<HashMap<K, Float>>()
   {
   	@SuppressWarnings({ "rawtypes", "unchecked" })

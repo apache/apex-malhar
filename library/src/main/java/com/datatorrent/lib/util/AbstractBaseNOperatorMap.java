@@ -54,7 +54,6 @@ abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator
   /**
    * This is the input port that receives key value pairs.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K,V>> data = new DefaultInputPort<Map<K,V>>()
   {
     @Override

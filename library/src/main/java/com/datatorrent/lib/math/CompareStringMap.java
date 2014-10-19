@@ -56,6 +56,5 @@ public class CompareStringMap<K> extends MatchStringMap<K>
     /**
      * Output port that emits a hashmap of matching string tuples after comparison.
      */
-    @OutputPortFieldAnnotation(name = "compare")
     public final transient DefaultOutputPort<HashMap<K,String>> compare = match;
 }

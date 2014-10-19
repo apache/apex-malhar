@@ -44,7 +44,6 @@ public class HdfsTextFileInputOperator extends AbstractHDFSInputOperator
   /**
    * This is the output port which emits text read from an HDFS text file.
    */
-  @OutputPortFieldAnnotation(name = "HDFSOutput")
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
 
   private transient BufferedReader br = null;

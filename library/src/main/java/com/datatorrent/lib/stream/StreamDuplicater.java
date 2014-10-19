@@ -45,7 +45,6 @@ public class StreamDuplicater<K> extends BaseKeyOperator<K>
 	/**
 	 * Input data port.
 	 */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     /**
@@ -62,12 +61,10 @@ public class StreamDuplicater<K> extends BaseKeyOperator<K>
   /**
    * Output port 1 that emits duplicate of input stream.
    */
-  @OutputPortFieldAnnotation(name = "out1")
   public final transient DefaultOutputPort<K> out1 = new DefaultOutputPort<K>();
   
   /**
    * Output port 2 that emits duplicate of input stream.
    */
-  @OutputPortFieldAnnotation(name = "out2")
   public final transient DefaultOutputPort<K> out2 = new DefaultOutputPort<K>();
 }

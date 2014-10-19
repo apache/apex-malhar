@@ -119,7 +119,6 @@ public class MaxMapTest
 	public static class TestInputOperator extends BaseOperator implements
 			InputOperator
 	{
-		@OutputPortFieldAnnotation(name = "output")
 		public final transient DefaultOutputPort<HashMap<String, Integer>> output = new DefaultOutputPort<HashMap<String, Integer>>();
 		public transient boolean first = true;
 

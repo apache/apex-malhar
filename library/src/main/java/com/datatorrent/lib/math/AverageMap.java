@@ -62,7 +62,6 @@ public class AverageMap<K, V extends Number> extends
 	/**
 	 * Input data port that takes a map of &lt;key,value&gt;.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
 	{
 		/**

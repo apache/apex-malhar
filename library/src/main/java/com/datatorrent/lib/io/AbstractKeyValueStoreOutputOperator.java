@@ -58,7 +58,7 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
    * This input port receives tuples which are maps.
    * Each map may have many key value pairs.
    */
-  @InputPortFieldAnnotation(name = "in", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>()
   {
     @Override
@@ -74,7 +74,7 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
   /**
    * This input port receives tuples which are individual key value pairs.
    */
-  @InputPortFieldAnnotation(name = "ind", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient DefaultInputPort<KeyValPair<K, V>> inputInd = new DefaultInputPort<KeyValPair<K, V>>()
   {
     @Override

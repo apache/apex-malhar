@@ -61,7 +61,6 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
         /**
 	 * Input data port that takes a number.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
 	{
 		/**
@@ -81,7 +80,6 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
         /**
 	 * Input port that takes a number&nbsp; It stores the value for base comparison. 
 	 */
-	@InputPortFieldAnnotation(name = "base")
 	public final transient DefaultInputPort<V> base = new DefaultInputPort<V>()
 	{
 		/**
@@ -101,13 +99,13 @@ public class Change<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Output port that emits change in value compared to base value.
 	 */
-	@OutputPortFieldAnnotation(name = "change", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<V> change = new DefaultOutputPort<V>();
 	
 	/**
 	 * Output port that emits percent change in data value compared to base value.
 	 */
-	@OutputPortFieldAnnotation(name = "percent", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<Double> percent = new DefaultOutputPort<Double>();
 	
 	/**

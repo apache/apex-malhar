@@ -60,7 +60,6 @@ public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
   /**
    * The input port on which key value pairs are received.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -80,7 +79,7 @@ public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
    * which occurred the least number of times,
    * is emitted.
    */
-  @OutputPortFieldAnnotation(name = "least", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>()
   {
     @Override
@@ -97,7 +96,7 @@ public class LeastFrequentKeyMap<K, V> extends AbstractBaseFrequentKey<K>
    * which occurred the least number of times,
    * is emitted.
    */
-  @OutputPortFieldAnnotation(name = "list", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
       {
     @Override

@@ -64,7 +64,6 @@ public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>
 	/**
 	 * Input port that takes a key value pair.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, ? extends Number>> data = new DefaultInputPort<KeyValPair<K, ? extends Number>>()
 	{
 		/**
@@ -98,19 +97,19 @@ public class AverageKeyVal<K> extends BaseNumberKeyValueOperator<K, Number>
 	/**
 	 * Double average output port. 
 	 */
-	@OutputPortFieldAnnotation(name = "doubleAverage", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, Double>> doubleAverage = new DefaultOutputPort<KeyValPair<K, Double>>();
 	
 	/**
 	 * Integer average output port. 
 	 */
-	@OutputPortFieldAnnotation(name = "intAverage", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, Integer>> intAverage = new DefaultOutputPort<KeyValPair<K, Integer>>();
 	
 	/**
 	 * Long average output port. 
 	 */
-	@OutputPortFieldAnnotation(name = "longAverage", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, Long>> longAverage = new DefaultOutputPort<KeyValPair<K, Long>>();
 
 	/**

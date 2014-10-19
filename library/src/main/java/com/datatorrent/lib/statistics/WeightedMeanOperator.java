@@ -56,7 +56,6 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
   /**
    * Input data port that takes a number.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
   {
     /**
@@ -73,7 +72,6 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
   /**
    * Input weight port that takes a number.
    */
-  @InputPortFieldAnnotation(name = "weight")
   public final transient DefaultInputPort<V> weight = new DefaultInputPort<V>()
   {
     /**
@@ -89,7 +87,6 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
   /**
    * Output port that emits weighted mean.
    */
-  @OutputPortFieldAnnotation(name = "mean")
   public final transient DefaultOutputPort<V> mean = new DefaultOutputPort<V>();
   
   @Override
