@@ -25,6 +25,7 @@ import java.util.logging.Logger;
  * A store which is used to connect to a non transactional jdbc database.
  * This class contains helper methods to keep track of which window has
  * been committed.
+ *
  * @since 1.0.5
  */
 public class JdbcNonTransactionalStore extends JdbcTransactionalStore

@@ -5,8 +5,11 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * <p>StringCaseIndex class.</p>
- *
+ * <p>An implementation of Column Index that implements filter method using case of a string index. </p>
+ * 
+ * @displayName String Case Index
+ * @category Streamquery/Index
+ * @tags alias
  * @since 0.3.4
  */
 public class StringCaseIndex extends  ColumnIndex

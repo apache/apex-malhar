@@ -25,12 +25,10 @@ import com.datatorrent.lib.algo.MatchStringMap;
 import com.datatorrent.lib.util.UnifierHashMap;
 
 /**
- *
- * A compare metric is done on tuple sub-classed from Number based on the
- * property "key", "value", and "cmp", and not matched tuples are emitted. The
- * comparison is done by parsing double value from the String. Both output ports
- * are optional, but at least one has to be connected
+ * This operator does comparison on tuple sub-classed from String based on the property "key", "value", and "cmp", and not matched tuples are emitted.
  * <p>
+ * The comparison is done by parsing double value from the String.
+ * Both output ports are optional, but at least one has to be connected.
  * This module is a pass through<br>
  * <br>
  * StateFull : No, output is computed during current window. <br>
@@ -56,12 +54,17 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * Does the incoming HashMap have the key<br>
  * Is the value of the key a number<br>
  * <br>
- *
+ * @displayName Except String Map
+ * @category Math
+ * @tags comparison, string, key value
  * @since 0.3.3
  */
 @Stateless
 public class ExceptStringMap<K> extends MatchStringMap<K>
 {
+        /**
+         * Output port that emits non matching string tuples.
+         */
 	@OutputPortFieldAnnotation(name = "except")
 	public final transient DefaultOutputPort<HashMap<K, String>> except = new DefaultOutputPort<HashMap<K, String>>()
 	{

@@ -19,8 +19,10 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * ZeroMQ input adapter single port operator, which consume data from ZeroMQ message bus.<p><br>
- *
+ * This is the base implementation of a single port ZeroMQ input operator.&nbsp;
+ * This operator will behave like a subscriber that issues requests.&nbsp;
+ * Subclasses should implement the methods which convert ZeroMQ messages into tuples.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -41,12 +43,17 @@ import com.datatorrent.api.DefaultOutputPort;
  * <tr><td><b>400 thousand K,V pairs/s</td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Operator can emit about 400 thousand unique (k,v immutable pairs) tuples/sec as ZeroMQ DAG. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
- * <br>
- *
+ * </p>
+ * @displayName Abstract Single Port ZeroMQ Input
+ * @category Messaging
+ * @tags output operator
  * @since 0.3.2
  */
 public abstract class AbstractSinglePortZeroMQInputOperator<T> extends AbstractBaseZeroMQInputOperator
 {
+  /**
+   * This is the ouput port on which tuples extracted from ZeroMQ are emitted.
+   */
     @OutputPortFieldAnnotation(name = "outputPort")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 

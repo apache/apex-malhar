@@ -27,9 +27,9 @@ import com.datatorrent.lib.util.HighLow;
 import com.datatorrent.lib.util.UnifierHashMapRange;
 
 /**
+ * Emits the range for each key at the end of window. 
  * <p>
- * Emits the range for each key at the end of window. <br>
- * Application can allow or block keys by setting filter keys and inverse flag. <br>
+ * Application can allow or block keys by setting filter keys and inverse flag.
  * <br>
  * <b>StateFull : Yes</b>, values are computed over application window. <br>
  * <b>Partitions : Yes</b>, values are unified at output port. <br>
@@ -42,7 +42,9 @@ import com.datatorrent.lib.util.UnifierHashMapRange;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayName Range Map
+ * @category Math
+ * @tags range, number, comparison, map
  * @since 0.3.2
  */
 public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,V>
@@ -58,13 +60,13 @@ public class RangeMap<K, V extends Number> extends BaseNumberKeyValueOperator<K,
   protected HashMap<K,V> low = new HashMap<K,V>();
   
 	/**
-	 * Input key/value map port.
+	 * Input port that takes a map and computes new high and low values.
 	 */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
-     * Process each key and computes new high and low
+     * Process each key and computes new high and low.
      */
     @Override
     public void process(Map<K, V> tuple)

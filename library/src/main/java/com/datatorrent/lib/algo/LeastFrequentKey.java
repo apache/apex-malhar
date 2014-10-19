@@ -21,10 +21,14 @@ import java.util.HashMap;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseFrequentKey;
 
 /**
+ * This operator filters the incoming stream of values by emitting the value or values (if there is a tie)
+ * that occurred the fewest number of times within each window to the output port "list".&nbsp;
+ * One of the values is emitted to the output port "least" at the end of each window.
  * <p>
  * Occurrences of each tuple is counted and at the end of window any of the least frequent tuple is emitted on output port 'least'
  * All keys with same least frequency value least are emitted on output port 'list'.<br>
@@ -40,11 +44,21 @@ import com.datatorrent.lib.util.AbstractBaseFrequentKey;
  *               In case of tie any of the least key would be emitted<br>
  * <b>list</b>: emits ArrayList&lt;HashMap&lt;K,Integer&gt;(1)&gt, Where the list includes all the keys that are least frequent<br>
  * <br>
+ * </p>
+ *
+ * @displayName Emit Least Frequent Value
+ * @category Algorithmic
+ * @tags filter, count
  *
  * @since 0.3.3
  */
+
+@OperatorAnnotation(partitionable = true)
 public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
 {
+  /**
+   * The input port on which tuples are received.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
@@ -59,7 +73,9 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
   };
 
   /**
-   * Output port, optional.
+   * The output port on which one of the tuples,
+   * which occurred the least number of times,
+   * is emitted.
    */
   @OutputPortFieldAnnotation(name = "least", optional=true)
   public final transient DefaultOutputPort<HashMap<K, Integer>> least = new DefaultOutputPort<HashMap<K, Integer>>()
@@ -74,7 +90,9 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
   };
 
   /**
-   * Output port.
+   * The output port on which all the tuples,
+   * which occurred the least number of times,
+   * is emitted.
    */
   @OutputPortFieldAnnotation(name = "list", optional=true)
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()

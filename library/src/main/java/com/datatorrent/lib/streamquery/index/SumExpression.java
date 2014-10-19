@@ -21,8 +21,12 @@ import javax.validation.constraints.NotNull;
 
 
 /**
+ * Implements sum on column index. 
+ * <p>
  * Select index class for implementing sum column index.
- *
+ * @displayName Sum Expression
+ * @category Streamquery/Index
+ * @tags sum
  * @since 0.3.4
  */
 public class SumExpression extends BinaryExpression

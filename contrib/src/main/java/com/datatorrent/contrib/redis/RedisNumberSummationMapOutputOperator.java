@@ -19,10 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>RedisNumberSummationMapOutputOperator class.</p>
- * This class provides output adapter that takes a map of key type K and value type V, and if
- * V is a map, it will increment the values in the map in redis as hash, otherwise, it will increment the value
- * as is.
+ * This class provides an output adapter that takes maps as tuples.&nbsp;
+ * if the values in the tuples are maps, the operator will increment the values in the tuples in redis.&nbsp;
+ * Otherwise, it will increment the value as is.
+ * <p></p>
+ * @displayName Redis Number Summation Key Val Pair Output
+ * @category Store
+ * @tags output operator, key value
  *
  * @param <K> The key type
  * @param <V> The value type

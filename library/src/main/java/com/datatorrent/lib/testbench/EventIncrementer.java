@@ -24,19 +24,20 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Takes in a seed stream on port seed and then on increments this data based on increments on port increment. Data is immediately emitted on output port data.
+ * Creates a random movement by taking in a seed stream and incrementing this data. 
+ * <p>
+ * Takes in a seed stream on port seed and then increments this data on port increment. Data is immediately emitted on output port data.
  * Emits number of tuples on port count<p>
- * The aim is to create a random movement
+ * The aim is to create a random movement.
  * <br>
  * Examples of application includes<br>
  * random motion<br>
  * <br>
  * <br>
- * Description: tbd
  * <br>
  * <b>Tuple Schema</b>: Each tuple is HashMap<String, ArrayList> on both the ports. Currently other schemas are not supported<br>
  * <b>Port Interface</b><br>
- * <b>seed</b>: The seed data for setting up the incrementor data to work on<br>
+ * <b>seed</b>: The seed data for setting up the incrementer data to work on<br>
  * <b>increment</b>: Small random increments to the seed data. This now creates a randomized change in the seed<br>
  * <b>data</b>: Output of seed + increment<br>
  * <b>count</b>: Emits number of processed tuples per window<br>
@@ -50,11 +51,16 @@ import java.util.Map;
  * Processing tuples on seed port are at 3.5 Million tuples/sec<br>
  * Processing tuples on increment port are at 10 Million tuples/sec<br>
  * <br>
- *
+ * @displayName Event Generator
+ * @category Testbench
+ * @tags increment, hashmap
  * @since 0.3.2
  */
 public class EventIncrementer extends BaseOperator
 {
+   /**
+   * Input seed port that takes a hashmap of &lt;string,arraylist of integers&gt; which provides seed data for setting up the incrementer data to work on.
+   */
   public final transient DefaultInputPort<HashMap<String, ArrayList<Integer>>> seed = new DefaultInputPort<HashMap<String, ArrayList<Integer>>>()
   {
     @Override
@@ -80,6 +86,10 @@ public class EventIncrementer extends BaseOperator
       }
     }
   };
+  
+  /**
+   * Input increment port that takes a hashmap of &lt;string,hashmap of &lt;string,number&gt;&gt; which provides small random increments to the seed data.
+   */
   public final transient DefaultInputPort<HashMap<String, HashMap<String, Integer>>> increment = new DefaultInputPort<HashMap<String, HashMap<String, Integer>>>()
   {
     @Override
@@ -114,7 +124,15 @@ public class EventIncrementer extends BaseOperator
       }
     }
   };
+  
+  /**
+   * Output data port that emits a hashmap of &lt;string,string&gt; which is the addition of seed and increment.
+   */
   public final transient DefaultOutputPort<HashMap<String, String>> data = new DefaultOutputPort<HashMap<String, String>>();
+  
+  /**
+   * Output count port that emits a hashmap of &lt;string,integer&gt; which contains number of processed tuples per window.
+   */
   public final transient DefaultOutputPort<HashMap<String, Integer>> count = new DefaultOutputPort<HashMap<String, Integer>>();
   public static final String OPORT_COUNT_TUPLE_COUNT = "count";
   HashMap<String, ArrayList<KeyValPair<String, Double>>> vmap = new HashMap<String, ArrayList<KeyValPair<String, Double>>>();

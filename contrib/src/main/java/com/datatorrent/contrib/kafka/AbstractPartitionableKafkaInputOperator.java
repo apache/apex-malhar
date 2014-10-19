@@ -15,6 +15,8 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import com.datatorrent.api.Context.OperatorContext;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,23 +32,27 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import kafka.javaapi.PartitionMetadata;
 
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
+
 import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.*;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+
 /**
- * This kafka input operator will be automatically partitioned per upstream kafka partition.<br> <br>
- * This is not real dynamic partition, The partition number is decided by number of partition set for the topic in kafka.<br> <br>
- *
+ * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
+ * It will be dynamically partitioned based on the upstream kafka partition.
+ * <p>
  * <b>Partition Strategy:</b>
  * <p><b>1. ONE_TO_ONE partition</b> Each operator partition will consume from only one kafka partition </p>
  * <p><b>2. ONE_TO_MANY partition</b> Each operator partition consumer from multiple kafka partition with some hard ingestion rate limit</p>
@@ -73,9 +79,15 @@ import com.google.common.collect.Sets;
  * <p><b>ONLY APPMASTER</b> operator periodically check overall kafka partition layout and add operator partition due to kafka partition add(no delete supported by kafka for now)</p>
  * <br>
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Partitionable Kafka Input
+ * @category Messaging
+ * @tags input operator
  *
  * @since 0.9.0
  */
+@OperatorAnnotation(partitionable = true)
 public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements Partitioner<AbstractPartitionableKafkaInputOperator>, StatsListener
 {
 
@@ -97,7 +109,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   // Store the current collected kafka consumer stats
   private transient Map<Integer, List<KafkaMeterStats>> kafkaStatsHolder = new HashMap<Integer, List<KafkaConsumer.KafkaMeterStats>>();
-  
+
   private OffsetManager offsetManager = null;
 
   // Minimal interval between 2 (re)partition actions
@@ -134,8 +146,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
     // Operator partitions
     List<Partition<AbstractPartitionableKafkaInputOperator>> newPartitions = null;
-    
-    // initialize the offset 
+
+    // initialize the offset
     Map<Integer, Long> initOffset = null;
     if(isInitialParitition && offsetManager !=null){
       initOffset = offsetManager.loadInitialOffsets();
@@ -252,7 +264,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
             }
             offsetTrack.putAll(partition.getPartitionedInstance().consumer.getCurrentOffsets());
             // Get the latest stats
-            
+
             OperatorStats stat = partition.getStats().getLastWindowedStats().get(partition.getStats().getLastWindowedStats().size() - 1);
             if (stat.counters instanceof KafkaMeterStats) {
               KafkaMeterStats kms = (KafkaMeterStats) stat.counters;
@@ -325,8 +337,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       // didn't find the existing "operator" to assign this consumer
       PartitionInfo nr = new PartitionInfo();
       nr.kpids = Sets.newHashSet(entry.getKey());
-      nr.msgRateLeft = msgRateUpperBound == Long.MAX_VALUE ? msgRateUpperBound : msgRateUpperBound - (long) resourceRequired[0];
-      nr.byteRateLeft = byteRateUpperBound == Long.MAX_VALUE ? byteRateUpperBound : byteRateUpperBound - (long) resourceRequired[1];
+      nr.msgRateLeft = msgRateUpperBound == Long.MAX_VALUE ? msgRateUpperBound : msgRateUpperBound - resourceRequired[0];
+      nr.byteRateLeft = byteRateUpperBound == Long.MAX_VALUE ? byteRateUpperBound : byteRateUpperBound - resourceRequired[1];
       pif.add(nr);
     }
 
@@ -342,7 +354,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     resp.repartitionRequired = needPartition(stats.getOperatorId(), kstats);
     return resp;
   }
-  
+
   private void updateOffsets(List<KafkaMeterStats> kstats)
   {
     //In every partition check interval, call offsetmanager to update the offsets
@@ -377,21 +389,21 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     long t = System.currentTimeMillis();
 
     if (t - lastCheckTime < repartitionCheckInterval) {
-      // return false if it's within repartitionCheckInterval since last time it check the stats 
+      // return false if it's within repartitionCheckInterval since last time it check the stats
       return false;
     }
-    
+
     logger.debug("Use OffsetManager to update offsets");
     updateOffsets(kstats);
-    
-    
+
+
     if(repartitionInterval < 0){
       // if repartition is disabled
       return false;
     }
-    
+
     if(t - lastRepartitionTime < repartitionInterval) {
-      // return false if it's still within repartitionInterval since last (re)partition 
+      // return false if it's still within repartitionInterval since last (re)partition
       return false;
     }
 
@@ -593,27 +605,27 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   {
     this.consumer.initialOffset = initialOffset;
   }
-  
+
   public void setOffsetManager(OffsetManager offsetManager)
   {
     this.offsetManager = offsetManager;
   }
-  
+
   public void setRepartitionCheckInterval(long repartitionCheckInterval)
   {
     this.repartitionCheckInterval = repartitionCheckInterval;
   }
-  
+
   public long getRepartitionCheckInterval()
   {
     return repartitionCheckInterval;
   }
-  
+
   public void setRepartitionInterval(long repartitionInterval)
   {
     this.repartitionInterval = repartitionInterval;
   }
-  
+
   public long getRepartitionInterval()
   {
     return repartitionInterval;

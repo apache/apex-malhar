@@ -20,7 +20,8 @@ import com.datatorrent.api.DefaultInputPort;
 import java.util.Collection;
 
 /**
- *
+ * Aggregates input tuples that are collections of longs and double and emits result on four ports.
+ * <p>
  * Invokes two abstract functions aggregateLongs(Collection<T> collection), and
  * aggregateDoubles(Collection<T> collection) on input tuple and emits the
  * result on four ports, namely \"doubleResult\", \"floatResult\",
@@ -29,7 +30,7 @@ import java.util.Collection;
  * the output ports only if they are connected. This is done to avoid the cost
  * of calling the functions when some ports are not connected. integerResult and
  * floatResult get rounded results respectively.
- * <p>
+ * <br>
  * This is a pass through operator<br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Collection&lt;T extends Number&gt;<br>
@@ -38,7 +39,10 @@ import java.util.Collection;
  * <b>integerResult</b>: emits Integer<br>
  * <b>longResult</b>: emits Long<br>
  * <br>
- *
+ * 
+ * @displayName Abstract Aggregate Calculator
+ * @category Math
+ * @tags aggregate, collection
  * @since 0.3.3
  */
 public abstract class AbstractAggregateCalc<T extends Number> extends

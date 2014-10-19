@@ -23,12 +23,16 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * A simple Base class for input operator with a single output port without recovery.
+ * This an input operator which passes data from an asynchronous data source to a port processing thread.
  * <p>
- * Handles hand over from asynchronous input to port processing thread (tuples
+ * This operator handles hand over from asynchronous input to port processing thread (tuples
  * must be emitted by container thread). If derived class implements
  * {@link Runnable} to perform synchronous IO, this class will manage the thread
  * according to the operator lifecycle.
+ * </p>
+ * @displayName Asynchronous Input Processing
+ * @category Input
+ * @tags input operator
  *
  * @since 0.3.2
  */

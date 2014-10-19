@@ -26,8 +26,11 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
 
 /**
- *
- * Emits first N tuples of a particular key.<p>
+ * This operator filters the incoming stream of key value pairs by emitting the first N key value pairs with a specified key in each window.
+ * <p>
+ * Emits first N tuples of a particular key.
+ * </p>
+ * <p>
  * This module is a pass through module<br>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
@@ -44,11 +47,16 @@ import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
  * N: Has to be >= 1<br>
  * <br>
  * <br>
+ * </p>
+ *
+ * @displayName First N Keyval Pairs Matching Key
+ * @category Algorithmic
+ * @tags filter, key value
  *
  * @since 0.3.2
  */
 @OperatorAnnotation(partitionable = false)
-public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>  
+public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
 {
   /**
    * key count map.
@@ -76,11 +84,11 @@ public class FirstN<K,V> extends AbstractBaseNOperatorMap<K, V>
   }
 
   /**
-   * Output port, unifier operator.
+   * The output port on which the first N key value pairs are emitted.
    */
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>();
-  
+
   /**
    * Clears the cache to start anew in a new window
    */

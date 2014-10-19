@@ -24,9 +24,13 @@ import com.datatorrent.lib.util.BaseMatchOperator;
 import java.util.HashMap;
 
 /**
- *
+ * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
+ * and comparing those values to a specified number.&nbsp;The first key value pair, in each window, to satisfy the comparison is emitted.
+ * <p>
  * All key,val pairs with val of type String are emitted till the first match;  A compare metric is done based on the property "key", "value",
- * and "cmp". Then on no tuple is emitted in that window. The comparison is done by getting double value of the Number.<p>
+ * and "cmp". Then on no tuple is emitted in that window. The comparison is done by getting double value of the Number.
+ * </p>
+ * <p>
  * This module is a pass through<br>
  * <br>
  * <b>StateFull : Yes, </b> tuple are processed in current window. <br>
@@ -52,6 +56,11 @@ import java.util.HashMap;
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
  * <br>
+ * </p>
+ *
+ * @displayName Emit Keyval Pairs Until Match (String)
+ * @category Algorithmic
+ * @tags filter, key value, string
  *
  * @since 0.3.2
  */
@@ -62,9 +71,9 @@ public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
    * Tuple emit flag.
    */
   boolean emitted = false;
-  
+
   /**
-   * Input port.
+   * The input port on which incoming key value pairs are received.
    */
   @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<HashMap<K, String>> data = new DefaultInputPort<HashMap<K, String>>()
@@ -103,7 +112,7 @@ public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
   };
 
   /**
-   * Output port.
+   * The output port on which key value pairs are emitted until the first match.
    */
   @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, String>> first = new DefaultOutputPort<HashMap<K, String>>();

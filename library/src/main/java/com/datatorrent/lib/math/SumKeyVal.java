@@ -29,15 +29,18 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- *
- * Emits the sum of values for each key at the end of window. <p> This is an end window operator. Default unifier works as this operator follows sticky partition.<br> <br> <b>Ports</b>:<br>
+ * Emits the sum of values for each key at the end of window. 
+ * <p> 
+ * This is an end window operator. Default unifier works as this operator follows sticky partition.<br> <br> <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br> <b>sum</b>: emits KeyValPair&lt;K,V extends Number&gt;<br> <br> <b>Properties</b>:<br> <b>inverse</b>: If set to true the key in the
  * filter will block tuple<br> <b>filterBy</b>: List of keys to filter on<br>
  * <b>cumulative</b>: boolean flag, if set the sum is not cleared at the end of window, <br>
  * hence generating cumulative sum
  * across streaming windows. Default is false.<br>
  * <br>
- *
+ * @displayName Sum Key Value
+ * @category Math
+ * @tags  numeric, sum, key value
  * @since 0.3.2
  */
 public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
@@ -70,7 +73,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
   protected boolean cumulative = false;
 
   /**
-   * Input port to receive data.
+   * Input port that takes key value pairs and adds the values for each key.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()

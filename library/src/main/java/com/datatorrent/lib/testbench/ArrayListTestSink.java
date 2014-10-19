@@ -22,8 +22,11 @@ import java.util.HashMap;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * A sink implementation to collect expected test results in a HashMap
- *
+ * A sink implementation to collect expected test results in a HashMap. 
+ * <p>
+ * @displayName ArrayList Test Sink
+ * @category Testbench
+ * @tags sink
  * @since 0.3.2
  */
 public class ArrayListTestSink<T> implements Sink<T>

@@ -25,10 +25,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
+ * and comparing those values to a specified number.&nbsp;The last key value pair, in each window, to satisfy the comparison is emitted.
+ * <p>
  * A compare function is operated on a tuple value of type String based on the property "key", "value", and "cmp". Every tuple
  * is checked and the last one that passes the condition is send during end of window on port "last". The comparison is done by getting double
- * value from the Number<p>
+ * value from the Number.
+ * <p>
  * This module is an end of window module<br>
  * <br>
  * <b>StateFull : Yes, </b> tuple are compare across application window(s). <br>
@@ -49,6 +52,11 @@ import java.util.Map;
  * Value must be able to convert to a "double"<br>
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
+ * </p>
+ *
+ * @displayName Emit Last Match (Number)
+ * @category Algorithmic
+ * @tags filter, key value, string
  *
  * @since 0.3.2
  */
@@ -59,9 +67,9 @@ public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
    * Last tuple map.
    */
   protected HashMap<K, String> ltuple = null;
-  
+
   /**
-   * Input port.
+   * The input port on which key value pairs are received.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, String>> data = new DefaultInputPort<Map<K, String>>()
@@ -91,9 +99,9 @@ public class LastMatchStringMap<K> extends BaseMatchOperator<K, String>
       }
     }
   };
-  
+
   /**
-   * Output port.
+   * The output port on which the last key value pair to satisfy the comparison function is emitted.
    */
   @OutputPortFieldAnnotation(name = "last")
   public final transient DefaultOutputPort<HashMap<K, String>> last = new DefaultOutputPort<HashMap<K, String>>();

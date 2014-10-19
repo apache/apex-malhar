@@ -23,12 +23,18 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * Count unique occurrences of vals for every key within a window, and emits Key,Integer pairs tuple.<p>
+ * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
+ * At the end of each window each key/unique count pair is emitted.
+ * <p>
+ * Count unique occurrences of vals for every key within a window, and emits Key,Integer pairs tuple.
+ * </p>
+ * <p>
  * This is an end of window operator. It uses sticky key partition and default unifier<br>
  * <br>
  * <b>StateFull : Yes, </b> Tuple are aggregated across application window(s). <br>
@@ -38,11 +44,20 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>data</b>: expects KeyValPair&lt;K,V&gt;<br>
  * <b>count</b>: emits KeyValPair&lt;K,Integer&gt;<br>
  * <br>
+ * </p>
+ *
+ * @displayName Count Unique Values Per Key
+ * @category Algorithmic
+ * @tags count, key value
  *
  * @since 0.3.2
  */
+@OperatorAnnotation(partitionable = true)
 public class UniqueValueKeyVal<K> extends BaseKeyOperator<K> implements  Unifier<KeyValPair<K, Integer>>
 {
+  /**
+   * The input port which receives key value pairs.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K,? extends Object>> data = new DefaultInputPort<KeyValPair<K,? extends Object>>()
   {
@@ -60,6 +75,9 @@ public class UniqueValueKeyVal<K> extends BaseKeyOperator<K> implements  Unifier
       vals.add(tuple.getValue());
     }
   };
+  /**
+   * The output port which emits key/unique value count pairs.
+   */
   @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<KeyValPair<K,Integer>> count = new DefaultOutputPort<KeyValPair<K,Integer>>();
 
@@ -94,7 +112,7 @@ public class UniqueValueKeyVal<K> extends BaseKeyOperator<K> implements  Unifier
     if (vals == null) {
       vals = new HashSet<Object>();
       map.put(cloneKey(tuple.getKey()), vals);
-    } 
+    }
     vals.add(tuple.getValue());
   }
 }

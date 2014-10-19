@@ -21,8 +21,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
- * Calculate the running average of the input numbers and emit it at the end of
- * the window. This is an end of window operator<br>
+ * Calculate the running average of the input numbers and emit it at the end of the window. 
+ * <p>
+ * This is an end of window operator.<br>
  * <br>
  * <b>StateFull : Yes</b>, average is computed over application window. <br>
  * <b>Partitions : No</b>, will yield wrong results. <br>
@@ -34,7 +35,9 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <b>doubleAverage</b>: emits Double<br>
  * <b>floatAverage</b>: emits Float<br>
  * <br>
- *
+ * @displayName Running Average
+ * @category Math
+ * @tags average, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)

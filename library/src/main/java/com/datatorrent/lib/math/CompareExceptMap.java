@@ -24,11 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * A compare opertion is done based on the property "key", "value", and "compare". If the tuple
- * passed the test, it is emitted on the output port "compare". If the tuple fails it is emitted on port "except". The comparison is done by getting double
- * value from the Number. Both output ports are optional, but at least one has to be connected<p>
- *  * This module is a pass through<br>
+ * Operator compares based on the property "key", "value", and "compare".
+ * <p>
+ * The comparison is done by getting double value from the Number.
+ * Passed tuples are emitted on the output port "compare".&nbsp; 
+ * Failed tuples are emitted on port "except".
+ * Both output ports are optional, but at least one has to be connected.
+ * This module is a pass through<br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,V&gt;<br>
@@ -70,15 +72,23 @@ import java.util.Map;
  * </table>
  * <br>
  * <br>
- *
+ * @displayName Compare Except Map
+ * @category Math
+ * @tags comparison, key value, number, hash map
  * @since 0.3.2
  */
 @Stateless
 public class CompareExceptMap<K, V extends Number> extends MatchMap<K, V>
 {
+  /**
+   * Output port that emits a hashmap of matched tuples after comparison.
+   */
   @OutputPortFieldAnnotation(name = "compare", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
-
+  
+  /**
+   * Output port that emits a hashmap of non matching tuples after comparison.
+   */
   @OutputPortFieldAnnotation(name = "expect", optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>()
   {

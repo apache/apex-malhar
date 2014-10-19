@@ -20,16 +20,22 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator.Unifier;
 
 /**
- *
- * Combiner for an output port that emits object with <V> interface and has the processing done
- * with round robin partitioning. The final tuple is sum of all partition values
- *
+ * This unifier consumes numbers, and emits their sum at the end of each application window.
+ * <p>
+ * This unifier uses round robin partitioning.
+ * </p>
+ * @displayName Unifier Sum Number
+ * @category Algorithmic
+ * @tags numeric
  * @since 0.3.2
  */
 public class UnifierSumNumber<V extends Number> extends BaseNumberValueOperator<V> implements Unifier<V>
 {
   private Double result = 0.0;
   private boolean doEmit = false;
+  /**
+   * This is the output port which emits a sum.
+   */
   public final transient DefaultOutputPort<V> mergedport = new DefaultOutputPort<V>();
 
   /**

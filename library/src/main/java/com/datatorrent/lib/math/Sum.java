@@ -27,8 +27,8 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
+ * This operator implements Unifier interface and emits the sum of values at the end of window. 
  * <p>
- * Emits the sum of values at the end of window. <br>
  * This is an end of window operator. Application can turn this into accumulated
  * sum operator by setting cumulative flag to true. <br>
  * <b>StateFull : Yes</b>, sum is computed over application window >= 1. <br>
@@ -46,7 +46,9 @@ import com.datatorrent.lib.util.UnifierSumNumber;
  * <b>Properties: </b> <br>
  * <b>cumulative </b> Sum has to be cumulative. <br>
  * <br>
- *
+ * @displayName Sum
+ * @category Math
+ * @tags numeric, sum
  * @param <V>
  *          Generic number type parameter. <br>
  * @since 0.3.3
@@ -70,7 +72,7 @@ public class Sum<V extends Number> extends BaseNumberValueOperator<V> implements
 	protected boolean cumulative = false;
 
 	/**
-	 * Input port to receive data.
+	 * Input port to receive data.&nbsp; It computes sum and count for each tuple.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()

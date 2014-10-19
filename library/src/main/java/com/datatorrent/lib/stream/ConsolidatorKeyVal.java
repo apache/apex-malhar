@@ -29,8 +29,9 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * <p>
- * Operator aggregates key/value input from 5 ports of different types into
- * key/array list map, for each key. <br>
+ * An implementation of operator that Aggregates &lt;key,value&gt; input from five ports of different types into
+ * &lt;key,array list map&gt; for each key. <br>
+ * <p>
  * Operator emits key/array list map at end window, this end window operator. <br>
  * <br>
  * <b>StateFull : Yes</b>, values are collected over application window. <br>
@@ -39,7 +40,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>Ports : </b><br>
  * <b>Input(s) : </b> 5 max input ports, 3 are optional. <br>
  * <br>
- *
+ * @displayName Consolidator Key Value
+ * @category Stream
+ * @tags arraylist, key value
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)
@@ -139,7 +142,7 @@ public class ConsolidatorKeyVal<K, V1, V2, V3, V4, V5> implements Operator
 			this, 4);
 
 	/**
-	 * Key/array values map output port.
+	 * Output port that emits a hashmap of &lt;key,arraylist&gt;.
 	 */
 	@OutputPortFieldAnnotation(name = "out")
 	public final transient DefaultOutputPort<HashMap<K, ArrayList<Object>>> out = new DefaultOutputPort<HashMap<K, ArrayList<Object>>>();

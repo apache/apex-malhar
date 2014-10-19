@@ -27,8 +27,10 @@ import com.datatorrent.api.Operator.ActivationListener;
 import java.util.concurrent.ArrayBlockingQueue;
 
 /**
- * ZeroMQ input adapter operator, which consume data from ZeroMQ message bus.<p><br>
- *
+ * This is the base implementation of a ZeroMQ input operator.&nbsp;
+ * This operator will behave like a subscriber that issues requests.&nbsp;
+ * Subclasses should implement the methods which convert ZeroMQ messages into tuples.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -54,7 +56,10 @@ import java.util.concurrent.ArrayBlockingQueue;
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
  * <br>
- *
+ * </p>
+ * @displayName Abstract Base ZeroMQ Input
+ * @category Messaging
+ * @tags input operator
  * @since 0.3.2
  */
 public abstract class AbstractBaseZeroMQInputOperator extends BaseOperator implements InputOperator, ActivationListener<OperatorContext>

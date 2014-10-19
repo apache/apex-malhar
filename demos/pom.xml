@@ -14,7 +14,7 @@
 
   <modules>
     <module>machinedata</module>
-    <module>adsdimension</module>
+    <module>dimensions</module>
     <module>pi</module>
     <module>twitter</module>
     <module>yahoofinance</module>

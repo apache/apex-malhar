@@ -25,8 +25,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Abstract sql db input operator.
- *
+ * A base implementation of a BaseOperator that is a sql stream operator.&nbsp;  Subclasses should provide the 
+   implementation of how to process the tuples. 
+ * <p>
+ * Abstract sql db input operator. 
+ * <p>
+ * @displayName Abstract Sql Stream
+ * @category Streamquery
+ * @tags sql operator
  * @since 0.3.2
  */
 public abstract class AbstractSqlStreamOperator extends BaseOperator
@@ -70,6 +76,10 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
   protected String statement;
   protected ArrayList<InputSchema> inputSchemas = new ArrayList<InputSchema>(5);
   protected transient ArrayList<Object> bindings;
+  
+  /**
+   * Input bindings port that takes an arraylist of objects.
+   */
   @InputPortFieldAnnotation(name = "bindings", optional = true)
   public final transient DefaultInputPort<ArrayList<Object>> bindingsPort = new DefaultInputPort<ArrayList<Object>>()
   {
@@ -80,6 +90,10 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
+  
+  /**
+   * Input port in1 that takes a hashmap of &lt;string,object&gt;.
+   */
   @InputPortFieldAnnotation(name = "in1")
   public final transient DefaultInputPort<HashMap<String, Object>> in1 = new DefaultInputPort<HashMap<String, Object>>()
   {
@@ -90,6 +104,10 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
+  
+  /**
+   * Input port in2 that takes a hashmap of &lt;string,object&gt;.
+   */
   @InputPortFieldAnnotation(name = "in2", optional = true)
   public final transient DefaultInputPort<HashMap<String, Object>> in2 = new DefaultInputPort<HashMap<String, Object>>()
   {
@@ -100,6 +118,10 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
+  
+  /**
+   * Input port in3 that takes a hashmap of &lt;string,object&gt;.
+   */
   @InputPortFieldAnnotation(name = "in3", optional = true)
   public final transient DefaultInputPort<HashMap<String, Object>> in3 = new DefaultInputPort<HashMap<String, Object>>()
   {
@@ -110,6 +132,10 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
+  
+  /**
+   * Input port in4 that takes a hashmap of &lt;string,object&gt;.
+   */
   @InputPortFieldAnnotation(name = "in4", optional = true)
   public final transient DefaultInputPort<HashMap<String, Object>> in4 = new DefaultInputPort<HashMap<String, Object>>()
   {
@@ -120,6 +146,10 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
+  
+  /**
+   * Input port in5 that takes a hashmap of &lt;string,object&gt;.
+   */
   @InputPortFieldAnnotation(name = "in5", optional = true)
   public final transient DefaultInputPort<HashMap<String, Object>> in5 = new DefaultInputPort<HashMap<String, Object>>()
   {
@@ -130,6 +160,10 @@ public abstract class AbstractSqlStreamOperator extends BaseOperator
     }
 
   };
+  
+  /**
+   * Output result port that emits a hashmap of &lt;string,object&gt;.
+   */
   @OutputPortFieldAnnotation(name = "result", optional = true)
   public final transient DefaultOutputPort<HashMap<String, Object>> result = new DefaultOutputPort<HashMap<String, Object>>();
 

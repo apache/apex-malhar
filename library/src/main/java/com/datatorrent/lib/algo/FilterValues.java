@@ -19,6 +19,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 
@@ -26,9 +27,12 @@ import java.util.HashMap;
 import javax.validation.constraints.NotNull;
 
 /**
- *
+ * This operator filters the incoming stream of values by the specified set of filter values.
+ * <p>
  * Filters incoming stream and emits values as specified by the set of values to filter. If
- * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted. The values are expected to be immutable<p>
+ * property "inverse" is set to "true", then all keys except those specified by "keys" are emitted. The values are expected to be immutable.
+ * </p>
+ * <p>
  * This operator should not be used with mutable objects. If this operator has immutable Objects, override "cloneCopy" to ensure a new copy is sent out.
  * This is a pass through node<br>
  * <br>
@@ -42,12 +46,21 @@ import javax.validation.constraints.NotNull;
  * <b>Properties</b>:<br>
  * <b>keys</b>: The keys to pass through. Those not in the list are dropped. A comma separated list of keys<br>
  * <br>
+ * </p>
+ *
+ * @displayName Filter Values
+ * @category Algorithmic
+ * @tags filter
  *
  * @since 0.3.2
  */
 @Stateless
+@OperatorAnnotation(partitionable = true)
 public class FilterValues<T> extends BaseOperator
 {
+  /**
+   * The input port on which tuples are recieved.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
   {
@@ -64,6 +77,10 @@ public class FilterValues<T> extends BaseOperator
       }
     }
   };
+
+  /**
+   * The output port on which tuples satisfying the filter are emitted.
+   */
   @OutputPortFieldAnnotation(name = "filter")
   public final transient DefaultOutputPort<T> filter = new DefaultOutputPort<T>();
 

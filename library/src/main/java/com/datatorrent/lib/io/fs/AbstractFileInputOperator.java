@@ -28,13 +28,13 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
 
 /**
- *
- */
-/**
- * Input Adapter for reading from File<p>
- * <br>
- *
- * <br>
+ * This is the base implementation for an input operator,
+ * which reads from a file and produces tuples.&nbsp;
+ * Subclasses should implement the methods required to read the files.
+ * <p></p>
+ * @displayName FS File Input
+ * @category Input
+ * @tags fs, directory, input operator
  *
  * @param <STREAM>
  * @since 0.3.2

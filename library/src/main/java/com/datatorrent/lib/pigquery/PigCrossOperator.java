@@ -27,8 +27,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 
 
 /**
- * This class implements Apache Pig Cross operator semantic.
- *
+ * An implementation of Operator that implements Apache Pig Cross operator semantic.
+ * <p>
  * <pre>
  * Example
  * Suppose we have relations A and B.
@@ -67,24 +67,22 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <b> inport1 : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> inport2 : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> outport : </b> emits tuple of form Map&lt;String, Object&gt; <br>
- *
+ * 
+ * @displayName Pig Cross
+ * @category Pig Query
+ * @tags map, string, cross product operator
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)
 public class PigCrossOperator implements Operator
 {
-  /**
-   * Input port 1 tuples.
-   */
+ 
   private ArrayList<Map<String, Object>> input1Tuples;
   
-  /**
-   * Input port 2 tuples.
-   */
   private ArrayList<Map<String, Object>> input2Tuples;
   
   /**
-   * Input port 1.
+   * Input port 1 that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport1 = new DefaultInputPort<Map<String, Object>>()
   {
@@ -99,7 +97,7 @@ public class PigCrossOperator implements Operator
   };
  
   /**
-   * Input port 2.
+   * Input port 2 that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport2 = new DefaultInputPort<Map<String, Object>>()
   {
@@ -114,7 +112,7 @@ public class PigCrossOperator implements Operator
   };
 
   /**
-   * Output port.
+   * Output port that emits a map of &lt;String, Object&gt.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
   

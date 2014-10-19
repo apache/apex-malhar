@@ -30,8 +30,10 @@ import java.util.Iterator;
 import java.util.List;
 
 /**
- * The base class for HBase output operators. <br>
- *
+ * A base implementation of an operator that extends base class for Hbase operators.&nbsp; Subclasses should provide the 
+   implementation of processing the tuples. 
+ * Implements the base class for HBase output operators. <br>
+ * <p>
  * <br>
  * The output operator collects all the tuples that arrive in a window and writes them to
  * HBase in endWindow. The tuples are stored in an application specific manner. The concrete
@@ -41,7 +43,9 @@ import java.util.List;
  * are ignored till the processing window id becomes greater than the last processed window id.<br>
  *
  * <br>
- *
+ * @displayName HBase Output
+ * @category Store
+ * @tags output operator
  * @param <T> The tuple type
  * @since 0.3.2
  */
@@ -63,7 +67,10 @@ public abstract class HBaseOutputOperator<T> extends HBaseOperatorBase implement
   private transient long currentWindow;
 
   private transient HBaseStatePersistenceStrategy persistenceStrategy;
-
+  
+  /**
+   * Input port that takes tuples from the DAG.
+   */
   @InputPortFieldAnnotation(name="inputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>() {
 

@@ -15,33 +15,30 @@
  */
 package com.datatorrent.contrib.kafka.benchmark;
 
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Properties;
-
+import java.util.Map;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
-
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.contrib.kafka.KafkaMetadataUtil;
-import com.yammer.metrics.Metrics;
-
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 /**
- * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads
- * Messages are distributed evenly to partitions
- *
- * It will also be split to {@link #partitionNum} partitions
- * Please set the {@link #partitionNum} in property file to get optimized performance
+ * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads.&nbsp;
+ * Messages are distributed evenly to partitions.
+ * <p></p>
+ * @displayName Benchmark Partitionable Kafka Output
+ * @category Messaging
+ * @tags output operator
  *
  * @since 0.9.3
  */
@@ -60,19 +57,19 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
   private byte[] constantMsg = null;
 
   private int msgSize = 1024;
-  
+
   private transient ScheduledExecutorService ses = Executors.newScheduledThreadPool(5);
-  
-  private boolean controlThroughput = true;
-  
+
+  private final boolean controlThroughput = true;
+
   private int msgsSecThread = 1000;
-  
+
   private int stickyKey = 0;
-  
+
   private transient Runnable r = new Runnable() {
-    
+
     Producer<String, String> producer = null;
-    
+
     @Override
     public void run()
     {
@@ -90,7 +87,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
         producer = new Producer<String, String>(new ProducerConfig(props));
       }
       long k = 0;
-      
+
       while (k<msgsSecThread || !controlThroughput) {
         long key = (stickyKey >= 0 ? stickyKey : k);
         k++;
@@ -140,7 +137,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
   @Override
   public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, int pNum)
   {
-    
+
     ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitioner.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionNum);
 
     for (int i = 0; i < partitionNum; i++) {
@@ -164,10 +161,10 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
       constantMsg[i] = (byte) ('a' + i%26);
     }
 
-    
+
     for (int i = 0; i < threadNum; i++) {
       if(controlThroughput){
-        ses.scheduleAtFixedRate(r, 0, 1, TimeUnit.SECONDS); 
+        ses.scheduleAtFixedRate(r, 0, 1, TimeUnit.SECONDS);
       }
       else {
         ses.submit(r);
@@ -232,22 +229,22 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
   {
     return msgSize;
   }
-  
+
   public void setMsgsSecThread(int msgsSecThread)
   {
     this.msgsSecThread = msgsSecThread;
   }
-  
+
   public int getMsgsSecThread()
   {
     return msgsSecThread;
   }
-  
+
   public int getStickyKey()
   {
     return stickyKey;
   }
-  
+
   public void setStickyKey(int stickyKey)
   {
     this.stickyKey = stickyKey;

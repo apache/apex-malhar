@@ -16,33 +16,45 @@
 package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.*;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.KeyValPair;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
 import java.util.Map;
 import java.util.Set;
 
 /**
- *
+ * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
+ * At the end of each window each key, its count of unique values, and its set of unique values is emitted.
+ * <p>
  * Counts no. of unique values of a key within a window.<br>
- * Emits {@link InternalCountOutput} which contains the key, count of its unique values
- * and also the set of values.<br>
+ * Emits {@link InternalCountOutput} which contains the key, count of its unique values.<br>
  * When the operator is partitioned, the unifier uses the internal set of values to
  * compute the count of unique values again.<br>
  * <br>
  * Partitions: yes, uses {@link UniqueCountUnifier} to merge partitioned output.<br>
  * Stateful: no<br>
  * <br></br>
+ * </p>
+ *
+ * @displayName Unique Values Per Key
+ * @category Algorithmic
+ * @tags count, key value
  *
  * @param <K>Type of Key objects</K>
  * @since 0.3.5
  */
+
+@Stateless
+@OperatorAnnotation(partitionable = true)
 public class UniqueValueCount<K> extends BaseOperator {
 
     private final Map<K,Set<Object>>  interimUniqueValues;
 
-
+    /**
+     * The input port that receives key value pairs.
+     */
     public transient DefaultInputPort<KeyValPair<K,Object>> input = new DefaultInputPort<KeyValPair<K,Object>>() {
 
         @Override
@@ -56,6 +68,9 @@ public class UniqueValueCount<K> extends BaseOperator {
         }
     };
 
+  /**
+   * The output port which emits key/unique value count pairs.
+   */
     public transient DefaultOutputPort<KeyValPair<K,Integer>> output = new DefaultOutputPort<KeyValPair<K,Integer>>(){
         @Override
         @SuppressWarnings({"rawtypes","unchecked"})
@@ -149,4 +164,4 @@ public class UniqueValueCount<K> extends BaseOperator {
         public void teardown() {
         }
     }
-}	
+}

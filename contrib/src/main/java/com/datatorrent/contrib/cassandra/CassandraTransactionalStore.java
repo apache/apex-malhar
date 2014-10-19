@@ -24,8 +24,12 @@ import com.datastax.driver.core.exceptions.DriverException;
 import com.datatorrent.lib.db.TransactionableStore;
 
 /**
- * <p>CassandraTransactionalStore class which inherits CassandraStore class and provides transaction support to the operators.</p>
- *
+ * <p>Provides transaction support to the operators by implementing TransactionableStore abstract methods. </p>
+ * 
+ * <p>
+ * @displayName Cassandra Transactional Store
+ * @category Store
+ * @tags store, transactional
  * @since 1.0.2
  */
 public class CassandraTransactionalStore extends CassandraStore implements TransactionableStore {
