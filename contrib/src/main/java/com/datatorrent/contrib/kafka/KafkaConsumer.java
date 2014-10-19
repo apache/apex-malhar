@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -295,11 +296,13 @@ public abstract class KafkaConsumer implements Closeable
   
   public static class KafkaMeterStatsUtil {
     
-    public static Map<Integer, Long> getOffsetsForPartitions(KafkaMeterStats kafkaMeterStats)
+    public static Map<Integer, Long> getOffsetsForPartitions(List<KafkaMeterStats> kafkaMeterStats)
     {
       Map<Integer, Long> result = Maps.newHashMap();
-      for (Entry<Integer, PartitionStats> item : kafkaMeterStats.partitionStats.entrySet()) {
-        result.put(item.getKey(), item.getValue().offset);
+      for (KafkaMeterStats kms : kafkaMeterStats) {
+        for (Entry<Integer, PartitionStats> item : kms.partitionStats.entrySet()) {
+          result.put(item.getKey(), item.getValue().offset);
+        }
       }
       return result;
     }
