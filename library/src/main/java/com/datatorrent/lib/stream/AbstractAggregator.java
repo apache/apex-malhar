@@ -26,14 +26,18 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
+ * 
+ * A base implementation of an operator that aggregates tuples.&nbsp; Subclasses should provide the 
+   implementation to get a new collection of a given size. 
  * <p>
- * Abstract operator to aggregate tuples, if size of collection is 0 then all
- * tuples till end window are aggregated, otherwise collection is emitted as
+ * If size of collection is 0 then all tuples till end window are aggregated, otherwise collection is emitted as
  * soon as collection size reaches to given size. <br>
  * <br>
  * <b>StateFull : Yes </b>, values are collected over application window. <br>
  * <b>Partitions : No</b>, will yield wrong results.
- *
+ * @displayName Abstract Aggregator
+ * @category Stream
+ * @tags aggregate
  * @param <T>
  *          Aggregate tuple type.
  * @since 0.3.3
@@ -52,7 +56,7 @@ public abstract class AbstractAggregator<T> implements Operator
 	private int size = 0;
 
 	/**
-	 * Input port.
+	 * Input port that takes data to be added to a collection.
 	 */
 	public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
 	{
@@ -72,7 +76,7 @@ public abstract class AbstractAggregator<T> implements Operator
 	};
 
 	/**
-	 * Collection output port.
+	 * Output port that emits a collection.
 	 */
 	public final transient DefaultOutputPort<Collection<T>> output = new DefaultOutputPort<Collection<T>>();
 

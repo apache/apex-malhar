@@ -26,9 +26,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * An implementation of BaseKeyValueOperator that breaks a HashMap tuple into objects. 
+ * <p>
  * Takes a HashMap and emits its keys, keyvals, vals; used for breaking up a
- * HashMap tuple into objects (keys, vals, or key/val pairs)
+ * HashMap tuple into objects (keys, vals, or &lt;key,val&gt; pairs)
  * <p>
  * This is a pass through operator<br>
  * <br>
@@ -41,14 +42,16 @@ import java.util.Map;
  * <b>keyval</b>: emits Entry&lt;K,V&gt;<br>
  * <b>val</b>: emits V<br>
  * <br>
- *
+ * @displayName Hash Map To Key Value Pair
+ * @category Stream
+ * @tags hashmap, key value
  * @since 0.3.3
  */
 @Stateless
 public class HashMapToKeyValPair<K, V> extends BaseKeyValueOperator<K, V>
 {
 	/**
-	 * Input key/vale map port.
+	 * Input port that takes a hashmap of &lt;key,value&rt;.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<HashMap<K, V>> data = new DefaultInputPort<HashMap<K, V>>()

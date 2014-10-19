@@ -25,14 +25,20 @@ import java.util.List;
 /**
  * An implementation of the AbstractXmlKeyValueCartesianProduct operator that takes in the xml document
  * as a String input and outputs the cartesian product as Strings.
- *
+ * 
+ * @displayName Xml Key Value String Cartesian Product
+ * @category Math
+ * @tags cartesian product, string, xml
  * @since 1.0.1
  */
 public class XmlKeyValueStringCartesianProduct extends AbstractXmlKeyValueCartesianProduct<String>
 {
 
   InputSource source = new InputSource();
-
+  
+  /**
+   * Output port that emits cartesian product as Strings.
+   */
   @OutputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
 

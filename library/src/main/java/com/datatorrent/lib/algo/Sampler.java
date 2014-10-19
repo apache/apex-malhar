@@ -18,6 +18,7 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseKeyOperator;
@@ -25,11 +26,13 @@ import java.util.Random;
 import javax.validation.constraints.Min;
 
 /**
- *
- * Emits sample percentage tuples. <br>
+ * This operator takes a stream of tuples as input, and emits each tuple with a specified probability.
+ * <p>
  * Emits the tuple as per probability of pass rate out of total rate. <br>
  * <br>
- * An efficient filter to allow sample analysis of a stream. Very useful is the incoming stream has high throughput<p>
+ * An efficient filter to allow sample analysis of a stream. Very useful is the incoming stream has high throughput.
+ * </p>
+ * <p>
  * <br>
  * <b> StateFull : No, </b> tuple is processed in current window. <br>
  * <b> Partitions : Yes. </b> No state dependency among input tuples. <br>
@@ -48,12 +51,21 @@ import javax.validation.constraints.Min;
  * <br>
  * <b>Specific run time checks are</b>: None<br>
  * <br>
+ * </p>
+ *
+ * @displayName Sampler
+ * @category Algorithmic
+ * @tags filter
  *
  * @since 0.3.2
  */
 @Stateless
+@OperatorAnnotation(partitionable = true)
 public class Sampler<K> extends BaseKeyOperator<K>
 {
+  /**
+   * This is the input port which receives tuples.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
@@ -70,6 +82,10 @@ public class Sampler<K> extends BaseKeyOperator<K>
       sample.emit(cloneKey(tuple));
     }
   };
+
+  /**
+   * This is the output port which emits the sampled tuples.
+   */
   @OutputPortFieldAnnotation(name = "sample")
   public final transient DefaultOutputPort<K> sample = new DefaultOutputPort<K>();
 

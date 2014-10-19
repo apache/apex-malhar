@@ -36,13 +36,15 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Specific compile time checks</b>: None<br>
  * <b>Specific run time checks</b>: None<br>
  * <p>
- *
+ * @displayName Average
+ * @category Math
+ * @tags average, numeric, end window
  * @since 0.3.3
  */
 public class Average<V extends Number> extends BaseNumberValueOperator<V>
 {
 	/**
-	 * Input port
+	 * Input port that takes a number.
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
@@ -59,7 +61,7 @@ public class Average<V extends Number> extends BaseNumberValueOperator<V>
 	};
 
 	/**
-	 * Output port
+	 * Output port that emits average as a number.
 	 */
 	@OutputPortFieldAnnotation(name = "average")
 	public final transient DefaultOutputPort<V> average = new DefaultOutputPort<V>();

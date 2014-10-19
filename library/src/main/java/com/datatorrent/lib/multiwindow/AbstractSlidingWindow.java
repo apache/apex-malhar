@@ -26,20 +26,25 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  *
- * <p>A sliding window class that lets users access both states of all streaming window in CURRENT sliding window
- * and state of the expired streaming window from LAST sliding windows</p><br>
- *
+ * <p>Provides a sliding window class that lets users access both states of all streaming window in current sliding window
+ * and state of the expired streaming window from last sliding windows. </p>
+ * <p>
  * <b>Properties</b>:<br>
  * <b>T</b> is the tuple object the operator accept <br>
  * <b>S</b> is the state object kept in the sliding window <br>
  * <b>windowSize</b>: Number of streaming window in this sliding window<br>
  * <br>
- *
+ * 
+ * @displayName Abstract Sliding Window
+ * @category Multi-Window
+ * @tags sliding window, state
  * @since 0.3.3
  */
 public abstract class AbstractSlidingWindow<T, S> extends BaseOperator
 {
-  
+        /**
+         * Input port for getting incoming data.
+         */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<T> data = new DefaultInputPort<T>()
 	{

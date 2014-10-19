@@ -55,7 +55,12 @@ import com.google.common.collect.Sets;
  * <p>
  * Note that currently changes are not flushed at a committed window boundary, hence uncommitted changes may be read
  * from data files after recovery, making the operator non-idempotent.
+ *
+ * @displayName HDS Writer
+ * @category Output
+ * @tags hds, output operator
  */
+
 public class HDSWriter extends HDSReader implements CheckpointListener, Operator, HDS.Writer
 {
 

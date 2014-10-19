@@ -28,8 +28,8 @@ import com.datatorrent.lib.util.BaseKeyValueOperator;
 import com.datatorrent.lib.util.UnifierHashMapInteger;
 
 /**
- * Operator aggregates key/occurrence count in map from key/value map input
- * port. <br>
+ * Operator aggregates &lt;key,occurrence&gt; count in map from &lt;key,value&gt; map input port.
+ * <p>
  * Emits the count of occurrences of each key at the end of window. <br>
  * <br>
  * StateFull : Yes, each key occurrence are counted till end windows is seen. <br>
@@ -42,7 +42,9 @@ import com.datatorrent.lib.util.UnifierHashMapInteger;
  * <b>Properties</b>: <br>
  *  counts : Key occurrence aggregate map.
  * <br>
- *
+ * @displayName Count Map
+ * @category Math
+ * @tags count, key value, aggregate, map
  * @since 0.3.3
  */
 public class CountMap<K, V> extends BaseKeyValueOperator<K, V>
@@ -53,7 +55,7 @@ public class CountMap<K, V> extends BaseKeyValueOperator<K, V>
 	protected HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
 	
 	/**
-	 * Input port to receive data.
+	 * Input port that takes a map of &lt;key,value&gt;. 
 	 */
 	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
@@ -77,6 +79,9 @@ public class CountMap<K, V> extends BaseKeyValueOperator<K, V>
 		}
 	};
 
+        /**
+	 * Key, occurrence value hashmap output port.
+	 */
 	@OutputPortFieldAnnotation(name = "count")
 	public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>()
 	{

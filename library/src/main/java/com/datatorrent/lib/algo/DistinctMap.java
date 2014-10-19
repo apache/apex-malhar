@@ -18,6 +18,7 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 import com.datatorrent.lib.util.UnifierHashMap;
@@ -25,8 +26,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * Computes and emits distinct key,val pairs (i.e drops duplicates)<p>
+ * This operator computes and emits distinct key,val pairs (i.e drops duplicates).
+ * <p>
+ * Computes and emits distinct key,val pairs (i.e drops duplicates)
+ * </p>
+ * <p>
  * This is a pass through operator<br>
  * <br>
  * This module is same as a "FirstOf" metric on any key,val pair. At end of window all data is flushed.<br>
@@ -38,11 +42,21 @@ import java.util.Map;
  * <b>data</b>: Input data port expects Map&lt;K,V&gt;<br>
  * <b>distinct</b>: Output data port, emits HashMap&lt;K,V&gt;(1)<br>
  * <br>
+ * </p>
+ *
+ * @displayName Emit Distinct Keyval Pairs
+ * @category Algorithmic
+ * @tags filter, unique, key value
  *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
 {
+  /**
+   * The input port on which key value pairs are received.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
@@ -68,6 +82,10 @@ public class DistinctMap<K, V> extends BaseKeyValueOperator<K, V>
       }
     }
   };
+
+  /**
+   * The output port on which distinct key value pairs are emitted.
+   */
   @OutputPortFieldAnnotation(name = "distinct")
   public final transient DefaultOutputPort<HashMap<K, V>> distinct = new DefaultOutputPort<HashMap<K, V>>()
   {

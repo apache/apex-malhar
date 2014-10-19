@@ -36,8 +36,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * MongoDB output adapter operator, which send insertion data to nontransaction database.<p><br>
- *
+ * This is the base implementation for a non transactional output operator for MongoDB.&nbsp;
+ * Subclasses should implement the column mapping for writing tuples out to MongoDB.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: Can have one input port <br>
@@ -71,7 +72,10 @@ import org.slf4j.LoggerFactory;
  *
  * <b>Benchmarks</b>:
  * <br>
- *
+ * </p>
+ * @displayName MongoDB Output
+ * @category Database
+ * @tags output operator
  * @since 0.3.2
  */
 public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implements Operator
@@ -103,8 +107,9 @@ public abstract class MongoDBOutputOperator<T> extends MongoDBConnectable implem
    * @throws SQLException
    */
   public abstract void processTuple(T tuple);
+
   /**
-   * The input port.
+   * This input port receives tuples which will be written to MongoDB.
    */
   @InputPortFieldAnnotation(name = "inputPort")
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()

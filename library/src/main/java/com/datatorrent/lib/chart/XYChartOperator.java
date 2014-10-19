@@ -25,7 +25,12 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * This is the base class for all chart operators that draw charts that have two axes
+ * This is the base implementation for all chart operators that draw charts that have two axes.&nbsp;
+ * Subclasses must implement the methods which retrieve data from and insert data into the chart.
+ * <p></p>
+ * @displayName Abstract XY Chart
+ * @category Charting
+ * @tags output operator
  *
  * @param <K> The type for the key
  * @param <X> The type for the data points on the x-axis
@@ -91,7 +96,7 @@ public abstract class XYChartOperator<K, X, Y> extends ChartOperator
   }
 
   /**
-   * The input port of the chart operator.
+   * The input port on which tuples for plotting are received.
    */
   @InputPortFieldAnnotation(name = "in1")
   public final transient DefaultInputPort<Object> in1 = new DefaultInputPort<Object>()

@@ -29,11 +29,9 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
 
 /**
+ * This operator implements "tail -f" command.&nbsp;If the operator has reached the end of the file, it will wait till more
+ * data comes.
  * <p>
- * This operator implements "tail -f" command. If the operator has reached the end of the file, it will wait till more
- * data comes
- *
- * <br>
  * <b>Ports</b>:<br>
  * <b>outport</b>: emits &lt;String&gt;<br>
  * <br>
@@ -44,7 +42,10 @@ import com.datatorrent.api.Operator.ActivationListener;
  * <b>numberOfTuples</b>: number of tuples to be emitted in a single emit Tuple call.<br>
  * <b>end</b>: if the user wants to start tailing from end.<br>
  * <br>
- *
+ * </p>
+ * @displayName Tail Input
+ * @category Input
+ * @tags local fs, file, input operator
  * @since 0.9.4
  */
 public class TailFsInputOperator implements InputOperator, ActivationListener<OperatorContext>
@@ -291,6 +292,9 @@ public class TailFsInputOperator implements InputOperator, ActivationListener<Op
     return null;
   }
 
+  /**
+   * This is the output port, which emits lines from the specified files.
+   */
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
 
   private static final Logger logger = LoggerFactory.getLogger(TailFsInputOperator.class);

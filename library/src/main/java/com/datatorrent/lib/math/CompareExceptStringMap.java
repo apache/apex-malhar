@@ -24,11 +24,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * A compare metric is done on String tuple based on the property "key", "value", and "cmp" both matching and non matching tuples on emitted on respective ports. If the tuple
- * passed the test, it is emitted on the output port "compare". If the tuple fails it is emitted on port "except". The comparison is done parsing a double
- * value from the String. Both output ports are optional, but at least one has to be connected<p>
- *  * This module is a pass through<br>
+ * Operator compares String tuples based on the property "key", "value", and "cmp".&nbsp; Both matching and non matching tuples are emitted on respective ports. 
+ * 
+ * <p>
+ * If the tuple passed the test, it is emitted on the output port "compare".
+ * If the tuple fails it is emitted on port "except".
+ * The comparison is done parsing a double value from the String. 
+ * Both output ports are optional, but at least one has to be connected.
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects Map&lt;K,String&gt;<br>
@@ -48,15 +50,23 @@ import java.util.Map;
  * Does the incoming HashMap have the key<br>
  * Is the value of the key a number<br>
  * <br>
- *
+ * @displayName Compare Except String Map
+ * @category Math
+ * @tags comparison, key value, string, hash map
  * @since 0.3.2
  */
 @Stateless
 public class CompareExceptStringMap<K> extends MatchStringMap<K>
 {
+  /**
+   * Output port that emits a hashmap of matching string tuples after comparison.
+   */
   @OutputPortFieldAnnotation(name = "compare", optional=true)
   public final transient DefaultOutputPort<HashMap<K,String>> compare = match;
-
+ 
+  /**
+   * Output port that emits a hashmap of non matching string tuples after comparison.
+   */
   @OutputPortFieldAnnotation(name = "except", optional=true)
   public final transient DefaultOutputPort<HashMap<K,String>> except = new DefaultOutputPort<HashMap<K,String>>()
   {

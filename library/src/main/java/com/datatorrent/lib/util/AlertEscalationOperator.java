@@ -26,8 +26,14 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * <p>AlertEscalationOperator class.</p>
- *
+ * This operator consumes tuples.&nbsp;
+ * The operator only emits a tuple if,
+ * at the time the operator receives the tuple,
+ * the amount of time since the last alert interval is greater than the specified alert interval.
+ * <p></p>
+ * @displayName Alert Escalation
+ * @category Algorithmic
+ * @tags time, filter
  * @since 0.3.2
  */
 public class AlertEscalationOperator extends BaseOperator implements Partitioner<AlertEscalationOperator>
@@ -38,6 +44,10 @@ public class AlertEscalationOperator extends BaseOperator implements Partitioner
   protected long timeout = 5000; // 5 seconds
   protected long alertInterval = 0;
   protected boolean activated = true;
+
+  /**
+   * This is the input port which receives tuples.
+   */
   @InputPortFieldAnnotation(name = "in", optional = false)
   public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>()
   {
@@ -48,6 +58,10 @@ public class AlertEscalationOperator extends BaseOperator implements Partitioner
     }
 
   };
+
+  /**
+   * This is the output port which emits a tuple when the alert criteria is met.
+   */
   @OutputPortFieldAnnotation(name = "alert", optional = false)
   public final transient DefaultOutputPort<Object> alert = new DefaultOutputPort<Object>();
 

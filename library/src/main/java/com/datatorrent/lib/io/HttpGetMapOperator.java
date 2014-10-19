@@ -24,8 +24,12 @@ import com.sun.jersey.api.client.WebResource;
 /**
  * Operator to take in map of key value pairs and make a HTTP GET request with the key value pairs from the map
  * as query parameters in the request.
- *
+ * <p>
  * If output port is connected, the response is emitted as {@link String} through the output port.
+ * </p>
+ * @displayName HTTP GET Map
+ * @category Input
+ * @tags http, input operator
  *
  * @param <K> Type of key in input map tuple
  * @param <V> Type of value in input map tuple

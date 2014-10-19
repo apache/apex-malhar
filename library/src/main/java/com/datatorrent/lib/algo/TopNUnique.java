@@ -16,13 +16,18 @@
 package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Orders tuples per key and emits top N unique tuples per key on end of window<p>
+ * This operator orders tuples per key and emits the top N unique tuples per key at the end of the window.
+ * <p>
+ * Orders tuples per key and emits top N unique tuples per key on end of window.
+ * </p>
+ * <p>
  * This is an end of window module<br>
  * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
@@ -38,11 +43,21 @@ import java.util.HashMap;
  * <br>
  * <b>Specific run time checks are</b>: None<br>
  * <br>
+ * </p>
+ *
+ * @displayName Top N Unique Values Per Key
+ * @category Algorithmic
+ * @tags filter, rank
  *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = false)
 public class TopNUnique<K, V> extends AbstractBaseNUniqueOperatorMap<K, V>
 {
+  /**
+   * The output port which emits the top N unique values per key.
+   */
   @OutputPortFieldAnnotation(name = "top")
   public final transient DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>> top = new DefaultOutputPort<HashMap<K, ArrayList<HashMap<V,Integer>>>>();
 

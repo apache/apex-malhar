@@ -23,14 +23,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * ActiveMQ output adapter operator, which produce sends into ActiveMQ message bus.<p><br>
- *
+ * This is the base implementation of an ActiveMQ output operator.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
+ * <p>
  * This operator receives tuples from Malhar Streaming Platform through its input ports.
  * When the tuple is available in input ports it converts that to JMS message and send into
  * AMQ message bus. The concrete class of this has to implement the abstract method
  * how to convert tuple into JMS message.
- *
- * <br>
+ * </p>
+ * <p>
  * Ports:<br>
  * <b>Input</b>: Can have any number of input ports<br>
  * <b>Output</b>: No output port<br>
@@ -47,6 +48,10 @@ import org.slf4j.LoggerFactory;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ * @displayName Abstract Active MQ Output
+ * @category Messaging
+ * @tags jms, output operator
  *
  * @since 0.3.2
  */

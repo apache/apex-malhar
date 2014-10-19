@@ -28,7 +28,8 @@ import com.datatorrent.lib.util.KeyValPair;
 
 /**
  *
- * Emits at end of window maximum of all values sub-classed from Number for each key in KeyValPair. <p>
+ * This operator emits maximum of all values sub-classed from Number at end of window for each key in KeyValPair. 
+ * <p>
  * <br>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br>
@@ -38,14 +39,16 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayName Maximum Key Value
+ * @category Math
+ * @tags maximum, numeric, key value
  * @since 0.3.2
  */
 public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K, V>
 {
-	/**
-	 * Input port.
-	 */
+  /**
+   * Input port that takes a key value pair and compares to max and stores the new max.
+   */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {

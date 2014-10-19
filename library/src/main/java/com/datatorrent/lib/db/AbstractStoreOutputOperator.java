@@ -23,8 +23,14 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
- * This abstract class is for any implementation of an output adapter of non-transactional store {@link Connectable}
- * without the transactional exactly once feature.
+ * This is the base implementation of an output operator,
+ * which writes to a non-transactional store.&nbsp;
+ * This operator does not provide the exactly once guarantee.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
+ * <p></p>
+ * @displayName Abstract Store Output
+ * @category Store
+ * @tags output operator
  *
  * @param <T> The tuple type
  * @param <S> The store type
@@ -35,7 +41,7 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
   protected S store;
 
   /**
-   * The input port.
+   * The input port on which tuples are received for writing.
    */
   @InputPortFieldAnnotation(name = "in", optional = true)
   public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()

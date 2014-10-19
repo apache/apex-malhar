@@ -23,9 +23,9 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- *
- * A division metric is done on consecutive tuples on ports numerator and denominator. The operator is idempotent as the division is done
- * in order, i.e. the first number on denominator port would divide the first number on the numerator port.<p>
+ * This operator does division metric on consecutive tuples on ports.
+ * <p>
+ * The operator is idempotent as the division is done in order, i.e. the first number on denominator port would divide the first number on the numerator port.<p>
  * This is a pass through operator<br>
  * <br>
  * StateFull : No, quotient is calculated in current window.
@@ -44,7 +44,9 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  * <b>floatRemainder</b>: emits Float<br>
  * <b>errordata</b>: emits String<br>
  * <br>
- *
+ * @displayName Division
+ * @category Math
+ * @tags division, number, idempotent
  * @since 0.3.2
  */
 public class Division extends BaseOperator
@@ -107,31 +109,58 @@ public class Division extends BaseOperator
       }
     }
   };
-
+ 
+  /**
+   * Long quotient output port. 
+   */
   @OutputPortFieldAnnotation(name = "longQuotient", optional = true)
   public final transient DefaultOutputPort<Long> longQuotient = new DefaultOutputPort<Long>();
-
+  
+  /**
+   * Integer quotient output port. 
+   */
   @OutputPortFieldAnnotation(name = "integerQuotient", optional = true)
   public final transient DefaultOutputPort<Integer> integerQuotient = new DefaultOutputPort<Integer>();
-
+  
+  /**
+   * Double quotient output port. 
+   */
   @OutputPortFieldAnnotation(name = "doubleQuotient", optional = true)
   public final transient DefaultOutputPort<Double> doubleQuotient = new DefaultOutputPort<Double>();
 
+  /**
+   * Float quotient output port. 
+   */
   @OutputPortFieldAnnotation(name = "floatQuotient", optional = true)
   public final transient DefaultOutputPort<Float> floatQuotient = new DefaultOutputPort<Float>();
-
+  
+  /**
+   * Long remainder output port. 
+   */
   @OutputPortFieldAnnotation(name = "longRemainder", optional = true)
   public final transient DefaultOutputPort<Long> longRemainder = new DefaultOutputPort<Long>();
-
+  
+  /**
+   * Integer remainder output port. 
+   */
   @OutputPortFieldAnnotation(name = "integerRemainder", optional = true)
   public final transient DefaultOutputPort<Integer> integerRemainder = new DefaultOutputPort<Integer>();
-
+ 
+  /**
+   * Double remainder output port. 
+   */
   @OutputPortFieldAnnotation(name = "doubleRemainder", optional = true)
   public final transient DefaultOutputPort<Double> doubleRemainder = new DefaultOutputPort<Double>();
-
+  
+  /**
+   * Float remainder output port. 
+   */
   @OutputPortFieldAnnotation(name = "floatRemainder", optional = true)
   public final transient DefaultOutputPort<Float> floatRemainder = new DefaultOutputPort<Float>();
-
+  
+  /**
+   * Error data output port that emits a string.
+   */
   @OutputPortFieldAnnotation(name = "errorData", error = true)
   public final transient DefaultOutputPort<String> errordata = new DefaultOutputPort<String>();
 

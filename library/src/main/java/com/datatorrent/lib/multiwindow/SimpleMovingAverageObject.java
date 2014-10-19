@@ -20,8 +20,11 @@ import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
- * Information needed to calculate simple moving average.
- *
+ * Provides information needed to calculate simple moving average.
+ * 
+ * @displayName Simple Moving Average Object
+ * @category Multi-Window
+ * @tags average, sum, count
  * @since 0.3.2
  */
 public class SimpleMovingAverageObject

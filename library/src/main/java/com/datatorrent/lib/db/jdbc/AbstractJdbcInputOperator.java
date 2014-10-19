@@ -29,12 +29,16 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
- * Base JDBC input adapter operator, which reads data from persistence database through JAVA DataBase Connectivity (JDBC) API
- * and writes into output port(s).
- *
+ * This is a base implementation of a JDBC input operator.&nbsp;
+ * This operator reads data from a database through the JAVA DataBase Connectivity (JDBC) API
+ * and emits the data as tuples.&nbsp;
+ * Subclasses should implement the methods required to read the data from the database.
  * <p>
  * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(ResultSet)}.
  * </p>
+ * @displayName Abstract JDBC Input
+ * @category Database
+ * @tags input operator
  *
  * @param <T> The tuple type
  * @since 0.9.4
@@ -61,7 +65,7 @@ public abstract class AbstractJdbcInputOperator<T> extends AbstractStoreInputOpe
   public abstract String queryToRetrieveData();
 
   /**
-   * The output port that will emit tuple into DAG.
+   * The output port that will emit tuples read from the database.
    */
   @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();

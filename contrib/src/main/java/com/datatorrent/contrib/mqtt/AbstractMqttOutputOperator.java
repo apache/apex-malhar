@@ -24,8 +24,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * MQTT output adapter operator, which produces data to MQTT.<p><br>
- *
+ * This is the base implementation of an MQTT output operator.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
+ * <p></p>
+ * @displayName Abstract MQTT Output
+ * @category Messaging
+ * @tags output operator
  * @since 0.9.3
  */
 public class AbstractMqttOutputOperator extends BaseOperator

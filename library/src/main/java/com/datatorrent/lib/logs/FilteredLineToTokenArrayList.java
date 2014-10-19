@@ -15,11 +15,17 @@
  */
 package com.datatorrent.lib.logs;
 
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import java.util.HashMap;
 
 /**
- *
- * Splits String objects into tokens, and emits filtered keys as ArrayList. An ArrayList of all tokens that pass the filter are emitted<p>
+ * <p>
+ * Splits String objects into tokens, and emits filtered keys as and ArrayList.
+ * <p>
+ * An ArrayList of all tokens that pass the filter are emitted.
+ * </p>
+ * <p>
  * This module is a pass through<br>
  * <br>
  * <b>StateFull : No, </b> tokens are processed in current window. <br>
@@ -36,9 +42,15 @@ import java.util.HashMap;
  * <br>
  * <br>
  * <br>
+ * </p>
+ * @displayName Filtered Line To Token ArrayList
+ * @category Logs
+ * @tags string
  *
  * @since 0.3.2
  */
+@Stateless
+@OperatorAnnotation(partitionable=true)
 public class FilteredLineToTokenArrayList extends LineToTokenArrayList
 {
   HashMap<String, Object> filterBy = new HashMap<String, Object>();

@@ -26,9 +26,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * RabbitMQ input adapter operator, which consume data from RabbitMQ message bus.<p><br>
- *
- * <br>
+ * This is the base implementation of a RabbitMQ input operator.&nbsp;
+ * Subclasses should implement the methods which convert RabbitMQ messages to tuples.
+ * <p>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
  * <b>Output</b>: Can have any number of output ports<br>
@@ -54,7 +54,10 @@ import org.slf4j.LoggerFactory;
  * <tr><td><b>10 thousand K,V pairs/s</td><td>One tuple per key per window per port</td><td>In-bound rate is the main determinant of performance. Operator can emit about 10 thousand unique (k,v immutable pairs) tuples/sec as RabbitMQ DAG. Tuples are assumed to be
  * immutable. If you use mutable tuples and have lots of keys, the benchmarks may differ</td></tr>
  * </table><br>
- * <br>
+ * </p>
+ * @displayName Abstract RabbitMQ Input
+ * @category Messaging
+ * @tags input operator
  *
  * @since 0.3.2
  */

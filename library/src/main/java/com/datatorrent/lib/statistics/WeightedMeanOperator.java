@@ -24,8 +24,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
- * This operator computes weighted mean of incoming data. <br>
- * <br>
+ * An implementation of BaseOperator that computes weighted mean of incoming data. <br>
+ * <p>
  * <b>Input Port(s) : </b><br>
  * <b>data : </b> Data values input port. <br>
  * <b>weight : </b> Current input data weight. <br>
@@ -36,7 +36,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>StateFull : Yes</b>, value are aggregated over application window. <br>
  * <b>Partitions : No</b>, no will yeild wrong results. <br>
  * <br>
- *
+ * @displayName Weighted Mean
+ * @category Statistics
+ * @tags numeric, math, calculation, sum, count, mean operator, average
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)
@@ -52,7 +54,7 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
   private double currentWeight;
   
   /**
-   * Input data port.
+   * Input data port that takes a number.
    */
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<V> data = new DefaultInputPort<V>()
@@ -69,7 +71,7 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
   };
     
   /**
-   * Input weight port.
+   * Input weight port that takes a number.
    */
   @InputPortFieldAnnotation(name = "weight")
   public final transient DefaultInputPort<V> weight = new DefaultInputPort<V>()
@@ -85,7 +87,7 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
   };
   
   /**
-   * Output port
+   * Output port that emits weighted mean.
    */
   @OutputPortFieldAnnotation(name = "mean")
   public final transient DefaultOutputPort<V> mean = new DefaultOutputPort<V>();

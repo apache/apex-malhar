@@ -21,16 +21,22 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
 
 /**
- * This class just emit one constant msg for each kafka msg received
- * So we can track the throughput by msgs emitted per second in the stram platform
+ * This operator emits one constant message for each kafka message received.&nbsp;
+ * So we can track the throughput by messages emitted per second in the stram platform.
+ * <p></p>
+ * @displayName Benchmark Partitionable Kafka Input
+ * @category Messaging
+ * @tags input operator
  *
  * @since 0.9.3
  */
 public class BenchmarkPartitionableKafkaInputOperator extends AbstractPartitionableKafkaInputOperator
 {
-
+  /**
+   * The output port on which messages are emitted.
+   */
   public transient DefaultOutputPort<String>  oport = new DefaultOutputPort<String>();
-  
+
   @Override
   protected AbstractPartitionableKafkaInputOperator cloneOperator()
   {
@@ -42,5 +48,5 @@ public class BenchmarkPartitionableKafkaInputOperator extends AbstractPartitiona
   {
     oport.emit("Received");
   }
-  
+
 }

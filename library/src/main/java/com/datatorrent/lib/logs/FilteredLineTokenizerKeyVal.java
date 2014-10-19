@@ -15,12 +15,15 @@
  */
 package com.datatorrent.lib.logs;
 
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
 import java.util.HashMap;
 
 /**
+ * Splits lines into tokens, and tokens into sub-tokens and emits key,val pairs in a HashMap.&nbsp;
+ * Each token is emitted as a key value pair only if the key is allowed by the specified filter.
  * <p>
- * Splits the String tuples into tokens . Each token is emitted on output port "tokens" as key,val pair if the key exists in
- * the filterby. This module is a pass through. Ideal for applications like log
+ * This module is a pass through. Ideal for applications like log
  * processing where only a few keys are to be processed<br>
  * <br>
  * <b>StateFull : No, </b> tokens are processed in current window. <br>
@@ -37,16 +40,23 @@ import java.util.HashMap;
  * null<br>
  * <b>filterby</b>: Only emit the keys (comma separated) that are in filterby
  * <br>
+ * </p>
+ *
+ * @displayName Filtered Line Tokenizer Key Value
+ * @category Logs
+ * @tags string, key value
  *
  * @since 0.3.3
  */
+@Stateless
+@OperatorAnnotation(partitionable=true)
 public class FilteredLineTokenizerKeyVal extends LineTokenizerKeyVal
 {
 	HashMap<String, Object> filterBy = new HashMap<String, Object>(4);
 
 	/**
 	 * setter function for filterBy
-	 * 
+	 *
 	 * @param list
 	 *          list of keys for subtoken filters
 	 */
@@ -61,7 +71,7 @@ public class FilteredLineTokenizerKeyVal extends LineTokenizerKeyVal
 
 	/**
 	 * If the key is in the filter, returns true
-	 * 
+	 *
 	 * @param subtok
 	 * @return true if super.validToken (!isEmpty()) and filter has they token
 	 */

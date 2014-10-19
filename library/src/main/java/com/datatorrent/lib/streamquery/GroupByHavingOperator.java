@@ -31,7 +31,8 @@ import com.datatorrent.lib.streamquery.function.FunctionIndex;
 import com.datatorrent.lib.streamquery.index.ColumnIndex;
 
 /**
- * This operator provides sql group by query semantic on live data stream. <br>
+ * An implementation of BaseOperator that provides sql group by querying semantics on live data stream. <br>
+ * <p>
  * Stream rows satisfying given select condition are processed by group by
  * column names and aggregate column function. <br>
  * If having condition is specified for aggregate index(s), it must also be
@@ -53,7 +54,9 @@ import com.datatorrent.lib.streamquery.index.ColumnIndex;
  * <b> indexes : </b> Select column indexes. <br>
  * <b> havingConditions : </b> Having filter conditions for aggregate(s). <br>
  * <br>
- *
+ * @displayName GroupBy Having Operator
+ * @category Streamquery
+ * @tags sql, groupby operator, condition, index
  * @since 0.3.4
  */
 @OperatorAnnotation(partitionable = false)
@@ -109,7 +112,7 @@ public class GroupByHavingOperator extends BaseOperator
   }
 
   /**
-   * Input port.
+   * Input port that takes a map of &lt;string,object&gt;.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
   {
@@ -124,7 +127,7 @@ public class GroupByHavingOperator extends BaseOperator
   };
 
   /**
-   * Output port.
+   * Output port that emits a map of &lt;string,object&gt;.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
 

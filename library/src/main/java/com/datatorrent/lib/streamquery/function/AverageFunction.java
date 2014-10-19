@@ -23,13 +23,16 @@ import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * Class implements aggregate function semantic for select function  statement. <br>
+ * An implementation of function index that implements average function semantics. <br>
+ * <p>
  *   e.g : sql => SELECT AVG(column_name) FROM table_name. <br>
  *   <br>
  *   <b> Properties : </b> <br>
  *   <b> column : </b> Aggregate over given column values.   <br>
  *   <b> alias  : </b> Alias name for aggregate output. <br>
- *
+ * @displayName Average Function
+ * @category Streamquery/Functions
+ * @tags sql average
  * @since 0.3.4
  */
 public class AverageFunction  extends FunctionIndex
