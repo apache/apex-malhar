@@ -23,7 +23,7 @@ public class GoldenGateApp implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    SimpleKafkaConsumer simpleKafkaConsumer = new SimpleKafkaConsumer(Sets.newHashSet("node25.morado.com"),
+    SimpleKafkaConsumer simpleKafkaConsumer = new SimpleKafkaConsumer(Sets.newHashSet("node25.morado.com:9092"),
                                                                       "ggdemo",
                                                                       10000,
                                                                       100000,
