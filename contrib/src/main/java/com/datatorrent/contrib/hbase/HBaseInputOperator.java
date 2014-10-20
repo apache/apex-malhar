@@ -22,17 +22,20 @@ import com.datatorrent.api.InputOperator;
 import java.io.IOException;
 
 /**
- * The base class for HBase input operators.<br>
- *
+ * A base implementation of hbase input operator which derives from HBaseOperatorBase. <br>
+ * <p>
  * <br>
- *
+ * @displayName HBase Input
+ * @category Store
+ * @tags input operator
  * @param <T> The tuple type
  * @since 0.3.2
  */
 public abstract class HBaseInputOperator<T> extends HBaseOperatorBase implements InputOperator
 {
-
-  @OutputPortFieldAnnotation(name = "outputPort")
+  /**
+   * Output port that emits tuples into the DAG.
+   */
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   //protected abstract T getTuple(Result result);

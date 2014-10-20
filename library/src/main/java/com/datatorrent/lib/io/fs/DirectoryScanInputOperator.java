@@ -29,14 +29,16 @@ import org.apache.commons.io.monitor.FileAlterationListener;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
 /**
- *
- *
-/**
- * Input Adapter that scans for files in the specified local directory.
+ * This operator scans for files in a local directory and emits tuples read from the files.
+ * <p>
  * Since the operator can be deployed anywhere in the cluster the directory
  * to be scanned should be available on all nodes of the cluster.
  * Not to be used for HDFS.
- * <p>
+ * </p>
+ *
+ * @displayName Local FS File Input
+ * @category Input
+ * @tags fs local, directory, input operator
  *
  * @since 0.9.4
  */
@@ -49,6 +51,10 @@ public class DirectoryScanInputOperator extends BaseOperator implements InputOpe
   private int scanIntervalInMilliSeconds = 1000;// the time interval for periodically scanning, Default is 1 sec = 1000ms
   private int fileCountPerEmit = 200; // the maximum number of file info records that will be output per emit
 
+  /**
+   * This output port emits FileInfoRecords, which provide path,
+   * type, and size information about the files scanned by the operator.
+   */
   public final transient DefaultOutputPort<FileInfoRecord> outport = new DefaultOutputPort<FileInfoRecord>();
   private transient FileAlterationObserver observer;
   private transient FAListener listener;

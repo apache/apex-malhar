@@ -25,44 +25,53 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**
- * <p>TopOccurance class.</p>
- *
+ * This operator consumes key value pairs of strings and integers.&nbsp;
+ * If the value of a pair is greater than the specified threshold then the tuple is emitted.
+ * <p></p>
+ * @displayName Top Occurance
+ * @category Testbench
+ * @tags numeric, compare
  * @since 0.3.2
  */
 public class TopOccurance extends BaseOperator
 {
-	// n value  
+	// n value
 	private int n = 5;
 	private int threshHold = 5;
-	
-  //out port
+
+  /**
+   *
+   */
 	public final transient DefaultOutputPort<Map<Integer, String>> outport = new DefaultOutputPort<Map<Integer, String>>();
-	public final transient DefaultOutputPort<Map<Integer, String>> gtThreshHold = new DefaultOutputPort<Map<Integer, String>>();
-  
-	// input port    
-	public final transient DefaultInputPort<Map<String, Integer>> inport = 
+	/**
+   *
+   */
+  public final transient DefaultOutputPort<Map<Integer, String>> gtThreshHold = new DefaultOutputPort<Map<Integer, String>>();
+
+	// input port
+	public final transient DefaultInputPort<Map<String, Integer>> inport =
 			 new DefaultInputPort<Map<String, Integer>>() {
     @Override
-    public void process(Map<String, Integer> tuple) 
-    {	
+    public void process(Map<String, Integer> tuple)
+    {
       int numOuts = 0;
       if (tuple.size() < n)
-      {   
+      {
     	for (Map.Entry<String, Integer> entry : tuple.entrySet())
       	{
-      		Map<Integer, String> out = new HashMap<Integer, String>(); 
+      		Map<Integer, String> out = new HashMap<Integer, String>();
       		String value = new StringBuilder(entry.getKey()).append("##").append(entry.getValue()).toString();
       		out.put(numOuts++, value);
       		outport.emit(out);
       	}
       	while(numOuts < n)
       	{
-      		Map<Integer, String> out = new HashMap<Integer, String>(); 
+      		Map<Integer, String> out = new HashMap<Integer, String>();
       		out.put(numOuts++, "");
       		outport.emit(out);
       	}
       } else {
-    	  
+
 		ArrayList<Integer> values = new ArrayList<Integer>();
 		for (Map.Entry<String, Integer> entry : tuple.entrySet())
 		{
@@ -85,7 +94,7 @@ public class TopOccurance extends BaseOperator
 		  if (numOuts >= n) break;
 		}
       }
-      
+
       // output greater than threshhold
       numOuts = 1;
       for (Map.Entry<String, Integer> entry : tuple.entrySet())
@@ -123,5 +132,5 @@ public class TopOccurance extends BaseOperator
 	{
 		this.threshHold = threshHold;
 	}
-	
+
 }

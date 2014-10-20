@@ -30,9 +30,8 @@ import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.UnifierCountOccurKey;
 
 /**
+ * This Operator aggregates occurrence of keys in &lt;key,value&gt; pair at input port.&lt;Key,Occurrence count&gt; pair is emitted for each input on output port.
  * <p>
- * Operator aggregates occurrence of keys in key/value pair at input port. <br>
- * Key/Occurrence count value pair is emitted for each input on output port. <br>
  * <br>
  * StateFull : Yes, key occurrence is aggregated over windows. <br>
  * Partitions : Yes, count occurrence unifier at output port. <br>
@@ -41,7 +40,9 @@ import com.datatorrent.lib.util.UnifierCountOccurKey;
  * <b>data</b>: expects KeyValPair&lt;K,V&gt;<br>
  * <b>count</b>: emits KeyValPair&lt;K,Integer&gt;</b><br>
  * <br>
- *
+ * @displayName Count Key Value
+ * @category Math
+ * @tags count, key value, aggregate
  * @since 0.3.3
  */
 public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
@@ -53,14 +54,13 @@ public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
 	protected HashMap<K, MutableInt> counts = new HashMap<K, MutableInt>();
 
 	/**
-	 * Input port to receive data.
+	 * Input data port that takes key value pair.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
 		 * For each tuple (a key value pair): Adds the values for each key, Counts
-		 * the number of occurrence of each key, and
+		 * the number of occurrence of each key
 		 */
 		@Override
 		public void process(KeyValPair<K, V> tuple)
@@ -82,9 +82,9 @@ public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
 	};
 
 	/**
-	 * Key/occurrence value pair output port.
+	 * Key, occurrence value pair output port.
 	 */
-	@OutputPortFieldAnnotation(name = "count", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, Integer>> count = new DefaultOutputPort<KeyValPair<K, Integer>>()
 	{
 		@Override

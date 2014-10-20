@@ -28,8 +28,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
+ * Parse Apache log lines one line at a time.&nbsp;
+ * Regex (getAccessLogRegex) is used as a parser.&nbsp;
+ * The fields extracted include i/p (outputIPAddress), url (outputUrl),
+ * status code (outputStatusCode), bytes (outputBytes), referer (outputReferer),
+ * and agent (outputAgent).&nbsp;Each of the fields are emitted to a separate output port.
+ * <p>
  * Please refer to docs for {@link com.datatorrent.lib.logs.ApacheLogParseOperator} documentation.
  * More output ports in this operator.
+ * </p>
+ * @displayName Apache Virtual Log Parse
+ * @category Logs
+ * @tags apache
  *
  * @since 0.3.2
  */
@@ -38,6 +48,9 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
 
     // default date format
     protected static final String dateFormat = "dd/MMM/yyyy:HH:mm:ss Z";
+    /**
+     *
+     */
     public final transient DefaultInputPort<String> data = new DefaultInputPort<String>() {
         @Override
         public void process(String s) {
@@ -48,17 +61,55 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
             }
         }
     };
+
+    /**
+     * This output port emits the IPAddresses contained in log file lines.
+     */
     public final transient DefaultOutputPort<String> outputIPAddress = new DefaultOutputPort<String>();
+    /**
+     * This output port emits URLs contained in log file lines.
+     */
     public final transient DefaultOutputPort<String> outputUrl = new DefaultOutputPort<String>();
+    /**
+     * This output port emits status codes contained in log file lines.
+     */
     public final transient DefaultOutputPort<String> outputStatusCode = new DefaultOutputPort<String>();
+    /**
+     * This output pot emits a Map for each log file line,
+     * which contains all the information extracted from the log file line.
+     */
     public final transient DefaultOutputPort<Map<String, Integer>> outputBytes = new DefaultOutputPort<Map<String, Integer>>();
+    /**
+     * This output port emits the referers contained in the log file lines.
+     */
     public final transient DefaultOutputPort<String> outputReferer = new DefaultOutputPort<String>();
+    /**
+     * This output port emits the agents contained in the log file lines.
+     */
     public final transient DefaultOutputPort<String> outputAgent = new DefaultOutputPort<String>();
+    /**
+     * This output port emits the servernames contained in the log file lines.
+     */
     public final transient DefaultOutputPort<String> outputServerName = new DefaultOutputPort<String>();
+    /**
+     * This output port emits the servernames contained in the log file lines.
+     */
     public final transient DefaultOutputPort<String> outputServerName1 = new DefaultOutputPort<String>();
+    /**
+     * This output port emits the status codes corresponding to each url in a log file line.
+     */
     public final transient DefaultOutputPort<Map<String, String>> outUrlStatus = new DefaultOutputPort<Map<String, String>>();
+    /**
+     * This output port emits the status associated with each server in a log file line.
+     */
     public final transient DefaultOutputPort<Map<String, String>> outServerStatus = new DefaultOutputPort<Map<String, String>>();
+    /**
+     * This output port emits client data usage contained in log file lines.
+     */
     public final transient DefaultOutputPort<Integer> clientDataUsage = new DefaultOutputPort<Integer>();
+    /**
+     * This output port emits the view counts contained in log file lines.
+     */
     public final transient DefaultOutputPort<Integer> viewCount = new DefaultOutputPort<Integer>();
 
     protected static String getAccessLogRegex() {
@@ -102,7 +153,7 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
         accessLogEntryMatcher = accessLogPattern.matcher(line);
 
         if (accessLogEntryMatcher.matches()) {
-            
+
         	  serverName = accessLogEntryMatcher.group(1);
             ipAddr = accessLogEntryMatcher.group(2);
             url = accessLogEntryMatcher.group(6);
@@ -121,15 +172,15 @@ public class ApacheVirtualLogParseOperator extends BaseOperator {
             outputAgent.emit(agent);
             outputServerName.emit(serverName);
             outputServerName1.emit(serverName);
-            
+
             HashMap<String, String> urlStatus = new HashMap<String, String>();
             urlStatus.put(url, httpStatusCode);
             outUrlStatus.emit(urlStatus);
-            
+
             HashMap<String, String> serverStatus = new HashMap<String, String>();
             serverStatus.put(serverName, httpStatusCode);
             outServerStatus.emit(serverStatus);
-            
+
             clientDataUsage.emit((int)numOfBytes);
             viewCount.emit(new Integer(1));
         }

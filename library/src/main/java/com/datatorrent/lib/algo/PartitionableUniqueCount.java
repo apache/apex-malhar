@@ -17,6 +17,7 @@ package com.datatorrent.lib.algo;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.KeyHashValPair;
@@ -26,16 +27,25 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * <p>PartitionableUniqueCount class.</p>
+ * This operator counts the number of times a key exists in a window.&nbsp;
+ * A map from keys to counts is emitted at the end of each window.
+ * <p></p>
+ * @displayName Count Key Appearances
+ * @category Algorithmic
+ * @tags algorithm, count, key value
  *
  * @since 1.0.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
 {
 
   protected boolean cumulative = false;
 
-  @InputPortFieldAnnotation(name = "data")
+  /**
+   * An input port which receives incoming tuples.
+   */
   public transient final DefaultInputPort<K> data = new DefaultInputPort<K>()
   {
     @Override
@@ -45,7 +55,10 @@ public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
     }
   };
 
-  @InputPortFieldAnnotation(name = "data1", optional = true)
+  /**
+   * An input port which receives incoming tuples.
+   */
+  @InputPortFieldAnnotation(optional = true)
   public transient final DefaultInputPort<K> data1 = new DefaultInputPort<K>()
   {
     @Override
@@ -55,7 +68,6 @@ public class PartitionableUniqueCount<K> extends BaseUniqueKeyCounter<K>
     }
   };
 
-  @OutputPortFieldAnnotation(name = "count")
   public final transient DefaultOutputPort<KeyHashValPair<K, Integer>> count
       = new DefaultOutputPort<KeyHashValPair<K, Integer>>()
   {

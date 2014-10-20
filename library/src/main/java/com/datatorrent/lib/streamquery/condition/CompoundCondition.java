@@ -20,7 +20,8 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * Class for logical AND/OR select expression. <br>
+ * A derivation of Condition index that implements logical AND/OR select expression. <br>
+ * <p>
  * Class provides logical OR or AND function specified in parameters. User can implement
  * complex and/or expression by chaining operator itself.
  * <br>
@@ -29,7 +30,9 @@ import javax.validation.constraints.NotNull;
  * <b> rightCondition : </b> Right validate row condition. <br>
  * <b> logicalOr : </b> OR/AND logical metric flag. <br>
  * <br>
- *
+ * @displayName Compound Condition
+ * @category Streamquery/Condition
+ * @tags sql condition, logical
  * @since 0.3.4
  */
 public class CompoundCondition extends Condition

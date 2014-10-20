@@ -20,13 +20,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Tuples are ordered by key, and bottom N of the ordered tuples per key are emitted at the end of window<p>
- * This is an end of window module<br>
- * At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
+ * This is the base implementation of an operator,
+ * which orders tuples per key and emits the top N tuples per key at the end of the window.&nbsp;
+ * Subclasses should implement the methods which control the ordering and emission of tuples.
+ * <p>
+ * Thus the data set is windowed and no history is kept of previous windows<br>
  * <br>
  * <b>Ports</b>
- * <b>data</b>: Input data port expects HashMap<StriK,V> (<key, value><br>
- * <b>bottom</b>: Output data port, emits HashMap<K, ArrayList<V>> (<key, ArraList<values>>)<br>
+ * <b>data</b>: Input data port expects HashMap&lt;K,V&gt; (&lt;key, value&gt;)<br>
+ * <b>bottom</b>: Output data port, emits HashMap&lt;K,ArrayList&lt;V&gt;&gt; (&lt;key, ArrayList&lt;values&gt;&gt;)<br>
  * <b>Properties</b>:
  * <b>N</b>: The number of top values to be emitted per key<br>
  * <br>
@@ -35,8 +37,10 @@ import java.util.Map;
  * N: Has to be an integer<br>
  * <br>
  * Run time checks are:<br>
- * <br>
- *
+ * </p>
+ * @displayName Abstract Base N Non Unique Map
+ * @category Algorithmic
+ * @tags rank
  * @since 0.3.2
  */
 public abstract class AbstractBaseNNonUniqueOperatorMap<K, V> extends AbstractBaseNOperatorMap<K, V>

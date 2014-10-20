@@ -25,10 +25,9 @@ import com.datatorrent.lib.algo.MatchMap;
 import com.datatorrent.lib.util.UnifierHashMap;
 
 /**
+ * This operator does comparison on tuple sub-classed from Number based on the property "key", "value", and "cmp", and not matched tuples are emitted.
  * <p>
- * A compare metric is done on tuple sub-classed from Number based on the
- * property "key", "value", and "cmp", and not matched tuples are emitted. The
- * comparison is done by getting double value from the Number. Both output ports
+ * The comparison is done by getting double value from the Number. Both output ports
  * are optional, but at least one has to be connected
  * <p>
  * This module is a pass through<br>
@@ -56,13 +55,17 @@ import com.datatorrent.lib.util.UnifierHashMap;
  * <b>Run time checks</b>:<br>
  * Does the incoming HashMap have the key, Is the value of the key a number<br>
  * <br>
- *
+ * @displayName Except Map
+ * @category Math
+ * @tags comparison, Number
  * @since 0.3.3
  */
 @Stateless
 public class ExceptMap<K, V extends Number> extends MatchMap<K, V>
-{
-	@OutputPortFieldAnnotation(name = "except")
+{       
+        /**
+         * Output port that emits non matching number tuples.
+         */
 	public final transient DefaultOutputPort<HashMap<K, V>> except = new DefaultOutputPort<HashMap<K, V>>()
 	{
 		@Override

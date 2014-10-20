@@ -15,22 +15,21 @@
  */
 package com.datatorrent.lib.xml;
 
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.*;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
+import javax.xml.parsers.*;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
 /**
- * Operator that provides XML DOM parsing functionality.
- *
- * The operator parses incoming tuple using the Java XML DOM parser and passes the resultant Document object along with
- * the tuple to the extending operator for processing.
+ * This is the base implementation for an xml operator,
+ * which parses incoming tuples using the Java XML DOM parser.&nbsp;
+ * Subclasses must implement the methods which are use to process the parsed XML.
+ * <p></p>
+ * @displayName Abstract XML DOM
+ * @category XML
+ * @tags abstract, xml, dom
  *
  * @since 1.0.2
  */
@@ -50,6 +49,9 @@ public abstract class AbstractXmlDOMOperator<T> extends BaseOperator
     }
   }
 
+  /**
+   * This port receives the tuples which will be parsed as xml.
+   */
   public transient DefaultInputPort<T> input = new DefaultInputPort<T>()
   {
     @Override

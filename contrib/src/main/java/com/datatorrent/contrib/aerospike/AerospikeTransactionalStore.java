@@ -29,8 +29,11 @@ import com.aerospike.client.task.IndexTask;
 import com.datatorrent.lib.db.TransactionableStore;
 
 /**
- * <p>AerospikeTransactionalStore class which inherits AerospikeStore class and provides transaction support to the operators.</p>
- *
+ * <p>Provides transaction support to the operators by implementing TransactionableStore abstract methods. </p>
+ * 
+ * @displayName Aerospike Transactional Store
+ * @category Database
+ * @tags store, transactional
  * @since 1.0.4
  */
 public class AerospikeTransactionalStore extends AerospikeStore implements TransactionableStore {

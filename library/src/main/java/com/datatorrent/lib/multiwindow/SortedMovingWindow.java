@@ -31,27 +31,36 @@ import com.google.common.base.Function;
 
 /**
  *
- * <p>A sliding window class that sorts all incoming tuples within the window and emit them in the right order</p><br>
- * <p>Generally, Given tuples T, keys K, windows W. All T within Window W are split into |K| buckets and <br>
+ * Provides a sliding window class that sorts all incoming tuples within the window and emit them in the right order.
+ * <p>
+ * Generally, given tuples T, keys K, windows W. All T within Window W are split into |K| buckets and <br>
  * sort the bucket in the order that Tp_Ki < Tq_Ki if (comparator.compare(Tp_Ki, Tq_Ki) < 0 || ((Tp_Ki instance of Comparable) && Tp_Ki.compareTo(Tq_Ki) <0))</p>
  *
  * <b>Properties</b>:<br>
  * <b>T</b> is the tuple object the operator can process <br>
- * <b>K</b> is the key object used to categorize the tuples withint the sliding window<br>
+ * <b>K</b> is the key object used to categorize the tuples within the sliding window<br>
  * <b>function</b>: is used transform the tuple T to group key K. It's used to split all tuples into |K| group and sorted them in the group<br>
  * by default: function is SingleKeyMappingFunction which map all t to null (all tuples are grouped into one group)
  * <br><b>comparator</b>: is used to determine the order of the tuple<br>
  * by default: comparator is null which means the tuple must be comparable
  * <p></p>
  *
+ * @displayName Sorted Moving Window
+ * @category Multi-Window
+ * @tags sort, list, function, sliding window
  * @since 0.9.2
  */
 public class SortedMovingWindow<T, K> extends AbstractSlidingWindow<T, List<T>>
 {
-  @OutputPortFieldAnnotation(name = "sortedOutput")
+  /**
+   * Output port to emit sorted output.
+   */
   public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
-
-  @OutputPortFieldAnnotation(name = "errorOutput", error = true)
+  
+  /**
+   * Output port to emit error output.
+   */
+  @OutputPortFieldAnnotation(error = true)
   public transient DefaultOutputPort<T> errorOutput = new DefaultOutputPort<T>();
   
   private Map<K, PriorityQueue<T>> sortedListInSlidingWin = new HashMap<K, PriorityQueue<T>>();

@@ -31,8 +31,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 
 /**
- * This operator emits each line as different tuple for a given file hosted on a ftp server <br>
- *
+ * This operator emits each line as different tuple for a give file hosted on a ftp server.
+ * <p>
  * <b>Ports</b>:<br>
  * <b>output</b>: emits &lt;String&gt;<br>
  * <br>
@@ -45,7 +45,10 @@ import com.datatorrent.api.InputOperator;
  * <b>userName</b>: The user name used to login to ftp server. Default is anonymous.<br>
  * <b>password</b>: The password used to login to ftp server.<br>
  * <b>isGzip</b>: If the format of the file is gzip.<br>
- * <b>isGzip</b>: If the format of the file is gzip.<br>
+ * </p>
+ * @displayName FTP Input
+ * @category Input
+ * @tags ftp, input operator
  *
  * @since 0.9.4
  */
@@ -90,6 +93,9 @@ public class FtpInputOperator implements InputOperator
    */
   private boolean isGzip;
 
+  /**
+   * This is the output port which emits tuples read from and FTP server.
+   */
   public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
   private transient FTPClient ftp;
   private transient BufferedReader in;

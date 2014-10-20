@@ -22,20 +22,26 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import javax.validation.constraints.NotNull;
 
 /**
- *
- * Base class for splitting lines into tokens and tokens into sub-tokens. Base class for line split operators.<br>
- * processToken, and processSubToken are called for each token. Users should override calls backs to intercept at any level.<p>
- * This operator is a base class for pass through operators<br>
- * <br>
+ * This is an operator which consumes strings and splits them into tokens and sub-tokens.
+ * <p>
+ * processToken, and processSubToken are called for each token. Users should override calls backs to intercept at any level.
+ * This operator is a base class for pass through operators
+ * </p>
+ * <p>
  * Ideal for applications like word count
  * Ports:<br>
  * <b>data</b>: expects String<br>
- *
+ * </p>
+ * @displayName Base Line Tokenizer
+ * @category Algorithmic
+ * @tags string
  * @since 0.3.2
  */
 public class BaseLineTokenizer extends BaseOperator
 {
-  @InputPortFieldAnnotation(name = "data")
+  /**
+   * This is the input port, which receives strings.
+   */
   public final transient DefaultInputPort<String> data = new DefaultInputPort<String>()
   {
     /**

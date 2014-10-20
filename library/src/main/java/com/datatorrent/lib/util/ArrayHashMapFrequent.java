@@ -23,16 +23,24 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
- * Combiner for an output port that emits object with Map<K,V> interface and has the processing done
- * with sticky key partition, i.e. each one key belongs only to one partition. The final output of the
- * combiner is a simple merge into a single object that implements Map
- *
+ * This is an abstract operator which consumes key value pairs,
+ * where the key is an object and the value is an integer.&nbsp;
+ * The operator emits either the largest or smallest value associated with each key at the end of each application window.
+ * <p>
+ * The processing done is done with a sticky key partition, i.e. each one key belongs only to one partition.
+ * </p>
+ * @displayName Array Hash Map Frequent
+ * @category Algorithmic
+ * @tags numeric
  * @since 0.3.3
  */
 public class ArrayHashMapFrequent<K> implements Unifier<HashMap<K, Integer>>
 {
   HashMap<K, Integer> mergedTuple = new HashMap<K, Integer>();
+
+  /**
+   * This is the output port which emits either the largest or smallest value associated with each input tuple key.
+   */
   public final transient DefaultOutputPort<HashMap<K, Integer>> mergedport = new DefaultOutputPort<HashMap<K, Integer>>();
 
   Integer lval;

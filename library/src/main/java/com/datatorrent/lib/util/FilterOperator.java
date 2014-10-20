@@ -22,13 +22,21 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
- * Filter operator intended for use with alerts
- *
+ * This is the base implementation of an operator, which consumes tuples.&nbsp;
+ * If the tuples satisfy a specified filtering function, then they are emitted.&nbsp;
+ * Subclasses should implement the filtering method.
+ * <p></p>
+ * @displayName Filter
+ * @category Algorithmic
+ * @tags filter
  * @since 0.3.4
  */
 public abstract class FilterOperator extends BaseOperator
 {
-  @InputPortFieldAnnotation(name = "in", optional = false)
+  /**
+   * This is the input port on which tuples are received.
+   */
+  @InputPortFieldAnnotation(optional = false)
   public final transient DefaultInputPort<Object> in = new DefaultInputPort<Object>()
   {
     @Override
@@ -40,7 +48,11 @@ public abstract class FilterOperator extends BaseOperator
     }
 
   };
-  @OutputPortFieldAnnotation(name = "out", optional = false)
+
+  /**
+   * This is the output port, which emits tuples that satisfy the filter.
+   */
+  @OutputPortFieldAnnotation(optional = false)
   public final transient DefaultOutputPort<Object> out = new DefaultOutputPort<Object>();
 
   public abstract boolean satisfiesFilter(Object tuple);

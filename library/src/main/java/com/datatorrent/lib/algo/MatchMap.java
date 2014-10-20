@@ -18,6 +18,7 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.util.BaseMatchOperator;
@@ -26,10 +27,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- *
+ * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
+ * and comparing those values to a specified number.&nbsp;If a key value pair satisfies the comparison, then it is emitted.
+ * <p>
  * A compare function is imposed based on the property "key", "value", and "cmp". If the tuple
  * passed the test, it is emitted on the output port match. The comparison is done by getting double
- * value from the Number. Both output ports are optional, but at least one has to be connected<p>
+ * value from the Number. Both output ports are optional, but at least one has to be connected.
+ * </p>
+ * <p>
  * This module is a pass through<br>
  * <br>
  * <b>StateFull : No, </b> tuple is processed in current application window. <br>
@@ -49,13 +54,21 @@ import java.util.Map;
  * Value must be able to convert to a "double"<br>
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
+ * </p>
+ *
+ * @displayName Emit Matching Keval Pairs (Number)
+ * @category Algorithmic
+ * @tags filter, key value, numeric
  *
  * @since 0.3.2
  */
 @Stateless
+@OperatorAnnotation(partitionable = true)
 public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
 {
-  @InputPortFieldAnnotation(name = "data")
+  /**
+   * The input port which receives incoming key value pairs.
+   */
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -77,7 +90,11 @@ public class MatchMap<K,V extends Number> extends BaseMatchOperator<K, V>
       }
     }
   };
-  @OutputPortFieldAnnotation(name = "match", optional=true)
+
+  /**
+   * The output port which emits filtered key value pairs.
+   */
+  @OutputPortFieldAnnotation(optional=true)
   public final transient DefaultOutputPort<HashMap<K, V>> match = new DefaultOutputPort<HashMap<K, V>>()
   {
     @Override

@@ -63,7 +63,6 @@ public class CalculatorOperator extends BaseOperator
 
   private transient DateFormat dateFormat = new SimpleDateFormat();
 
-  @InputPortFieldAnnotation(name = "dataPort")
   public final transient DefaultInputPort<MachineInfo> dataPort = new DefaultInputPort<MachineInfo>()
   {
     @Override
@@ -82,16 +81,12 @@ public class CalculatorOperator extends BaseOperator
     }
   };
 
-  @OutputPortFieldAnnotation(name = "percentileOutputPort")
   public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> percentileOutputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>>();
 
-  @OutputPortFieldAnnotation(name = "sdOutputPort")
   public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>> sdOutputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Double>>>();
 
-  @OutputPortFieldAnnotation(name = "maxOutputPort")
   public final transient DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Integer>>> maxOutputPort = new DefaultOutputPort<KeyValPair<MachineKey, Map<ResourceType, Integer>>>();
 
-  @OutputPortFieldAnnotation(name = "smtpOutputPort")
   public transient DefaultOutputPort<String> smtpAlert = new DefaultOutputPort<String>();
 
   private void addDataToCache(MachineInfo tuple)

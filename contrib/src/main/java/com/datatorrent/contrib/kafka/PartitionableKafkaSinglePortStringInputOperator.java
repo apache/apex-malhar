@@ -15,15 +15,22 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.nio.ByteBuffer;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import kafka.message.Message;
 
+import java.nio.ByteBuffer;
+
 /**
- * A simple partitionable kafka single port string input operator.
- * It consumes the kafka message as string and emit to 1 output port
+ * Kafka input adapter operator with a single output port, which consumes String data from the Kafka message bus.
+ * <p></p>
+ *
+ * @displayName Partitionable Kafka Single Port String Input
+ * @category Messaging
+ * @tags input operator, string
  *
  * @since 0.9.0
  */
+@OperatorAnnotation(partitionable = true)
 public class PartitionableKafkaSinglePortStringInputOperator extends AbstractPartitionableKafkaSinglePortInputOperator<String>
 {
   /**

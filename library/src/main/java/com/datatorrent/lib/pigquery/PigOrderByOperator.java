@@ -16,10 +16,13 @@
 package com.datatorrent.lib.pigquery;
 
 /**
- * This operator implements pig order by semantic on live steam.  <br>
+ * Implements pig order by semantic on live steam.  <br>
+ * <p>
  * This semantic same as sql stream query  order by  operator. <br>
  * Please use operator  {@link com.datatorrent.lib.streamquery.OrderByOperator}
- *
+ * @displayName Pig OrderBy
+ * @category Pig Query
+ * @tags orderby operator
  * @since 0.3.4
  */
 public class PigOrderByOperator 

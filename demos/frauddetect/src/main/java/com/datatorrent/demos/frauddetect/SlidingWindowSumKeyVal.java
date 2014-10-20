@@ -34,23 +34,23 @@ public class SlidingWindowSumKeyVal<K, V extends Number> extends AbstractSliding
   	/**
 	 * Output port to emit simple moving average (SMA) of last N window as Double.
 	 */
-	@OutputPortFieldAnnotation(name = "doubleSum", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, Double>> doubleSum = new DefaultOutputPort<KeyValPair<K, Double>>();
 	/**
 	 * Output port to emit simple moving average (SMA) of last N window as Float.
 	 */
-	@OutputPortFieldAnnotation(name = "floatSum", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, Float>> floatSum = new DefaultOutputPort<KeyValPair<K, Float>>();
 	/**
 	 * Output port to emit simple moving average (SMA) of last N window as Long.
 	 */
-	@OutputPortFieldAnnotation(name = "longSum", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, Long>> longSum = new DefaultOutputPort<KeyValPair<K, Long>>();
 	/**
 	 * Output port to emit simple moving average (SMA) of last N window as
 	 * Integer.
 	 */
-	@OutputPortFieldAnnotation(name = "integerSum", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<KeyValPair<K, Integer>> integerSum = new DefaultOutputPort<KeyValPair<K, Integer>>();
 
 

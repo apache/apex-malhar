@@ -29,7 +29,13 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
- * Input adapter for storing in coming data tuples in in data hash map.
+ * This is the base implementation of an input operator for a key value store.&nbsp;
+ * Subclasses must implement the methods used to retrieve data from and put data into the store,
+ * they must also implement the methods which handle transactions.
+ * <p></p>
+ * @displayName Abstract Keyval Store Input
+ * @category Store
+ * @tags key value, input operator
  *
  * @since 0.3.2
  */
@@ -48,7 +54,11 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
     this.continueOnError = continueOnError;
   }
 
-  @InputPortFieldAnnotation(name = "in", optional=true)
+  /**
+   * This input port receives tuples which are maps.
+   * Each map may have many key value pairs.
+   */
+  @InputPortFieldAnnotation(optional=true)
   public final transient DefaultInputPort<Map<K, V>> input = new DefaultInputPort<Map<K, V>>()
   {
     @Override
@@ -61,7 +71,10 @@ public abstract class AbstractKeyValueStoreOutputOperator<K, V> extends BaseOper
 
   };
 
-  @InputPortFieldAnnotation(name = "ind", optional=true)
+  /**
+   * This input port receives tuples which are individual key value pairs.
+   */
+  @InputPortFieldAnnotation(optional=true)
   public final transient DefaultInputPort<KeyValPair<K, V>> inputInd = new DefaultInputPort<KeyValPair<K, V>>()
   {
     @Override

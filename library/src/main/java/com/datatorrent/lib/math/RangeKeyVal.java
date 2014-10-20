@@ -29,8 +29,8 @@ import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.UnifierKeyValRange;
 
 /**
+ *  This operator emits the range for each key at the end of window. 
  * <p>
- * Emits the range for each key at the end of window. <br>
  * <br>
  * <b>StateFull : Yes</b>, values are computed over application window. <br>
  * <b>Partitions : Yes, </b> high/low values are each key is unified at output port. <br>
@@ -43,7 +43,9 @@ import com.datatorrent.lib.util.UnifierKeyValRange;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayName Range Key Value
+ * @category Math
+ * @tags range, number, comparison, key value
  * @since 0.3.3
  */
 public class RangeKeyVal<K, V extends Number> extends
@@ -61,9 +63,8 @@ public class RangeKeyVal<K, V extends Number> extends
 	protected HashMap<K, V> low = new HashMap<K, V>();
 	
 	/**
-	 * Input port.
+	 *  Input port that takes a key value pair.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
@@ -96,9 +97,8 @@ public class RangeKeyVal<K, V extends Number> extends
 	};
 
 	/**
-	 * Output port to send out the high low range.
+	 * Range output port to send out the high low range.
 	 */
-	@OutputPortFieldAnnotation(name = "range")
 	public final transient DefaultOutputPort<KeyValPair<K, HighLow<V>>> range = new DefaultOutputPort<KeyValPair<K, HighLow<V>>>()
 	{
 		@Override

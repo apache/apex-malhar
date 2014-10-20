@@ -15,6 +15,8 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import com.datatorrent.api.Context.OperatorContext;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -30,22 +32,27 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import kafka.javaapi.PartitionMetadata;
 
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
+
 import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.*;
+
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+
 /**
- * This kafka input operator will be automatically partitioned per upstream kafka partition.<br> <br>
- * This is not real dynamic partition, The partition number is decided by number of partition set for the topic in kafka.<br> <br>
- *
+ * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
+ * It will be dynamically partitioned based on the upstream kafka partition.
+ * <p>
  * <b>Partition Strategy:</b>
  * <p><b>1. ONE_TO_ONE partition</b> Each operator partition will consume from only one kafka partition </p>
  * <p><b>2. ONE_TO_MANY partition</b> Each operator partition consumer from multiple kafka partition with some hard ingestion rate limit</p>
@@ -72,9 +79,15 @@ import com.google.common.collect.Sets;
  * <p><b>ONLY APPMASTER</b> operator periodically check overall kafka partition layout and add operator partition due to kafka partition add(no delete supported by kafka for now)</p>
  * <br>
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Partitionable Kafka Input
+ * @category Messaging
+ * @tags input operator
  *
  * @since 0.9.0
  */
+@OperatorAnnotation(partitionable = true)
 public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKafkaInputOperator<KafkaConsumer> implements Partitioner<AbstractPartitionableKafkaInputOperator>, StatsListener
 {
 
@@ -96,13 +109,14 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   // Store the current collected kafka consumer stats
   private transient Map<Integer, List<KafkaMeterStats>> kafkaStatsHolder = new HashMap<Integer, List<KafkaConsumer.KafkaMeterStats>>();
-  
+
   private OffsetManager offsetManager = null;
 
-  // To avoid uneven data stream, only allow at most 1 repartition in every 30 seconds
+  // Minimal interval between 2 (re)partition actions
   private long repartitionInterval = 30000L;
 
-  // Check the collected stats at most once every 5 seconds
+  // Minimal interval between checking collected stats and decide whether it needs to repartition or not.
+  // And minimal interval between 2 offset updates
   private long repartitionCheckInterval = 5000L;
 
   private transient long lastCheckTime = 0L;
@@ -114,6 +128,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   @Override
   public void partitioned(Map<Integer, Partition<AbstractPartitionableKafkaInputOperator>> partitions)
   {
+    // update the last repartition time
+    lastRepartitionTime = System.currentTimeMillis();
   }
 
   @Override
@@ -130,11 +146,12 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
     // Operator partitions
     List<Partition<AbstractPartitionableKafkaInputOperator>> newPartitions = null;
-    
-    // initialize the offset 
+
+    // initialize the offset
     Map<Integer, Long> initOffset = null;
     if(isInitialParitition && offsetManager !=null){
       initOffset = offsetManager.loadInitialOffsets();
+      logger.info("Initial offsets: {} ", "{ " + Joiner.on(", ").useForNull("").withKeyValueSeparator(": ").join(initOffset) + " }");
     }
 
     switch (strategy) {
@@ -247,7 +264,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
             }
             offsetTrack.putAll(partition.getPartitionedInstance().consumer.getCurrentOffsets());
             // Get the latest stats
-            
+
             OperatorStats stat = partition.getStats().getLastWindowedStats().get(partition.getStats().getLastWindowedStats().size() - 1);
             if (stat.counters instanceof KafkaMeterStats) {
               KafkaMeterStats kms = (KafkaMeterStats) stat.counters;
@@ -320,8 +337,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       // didn't find the existing "operator" to assign this consumer
       PartitionInfo nr = new PartitionInfo();
       nr.kpids = Sets.newHashSet(entry.getKey());
-      nr.msgRateLeft = msgRateUpperBound == Long.MAX_VALUE ? msgRateUpperBound : msgRateUpperBound - (long) resourceRequired[0];
-      nr.byteRateLeft = byteRateUpperBound == Long.MAX_VALUE ? byteRateUpperBound : byteRateUpperBound - (long) resourceRequired[1];
+      nr.msgRateLeft = msgRateUpperBound == Long.MAX_VALUE ? msgRateUpperBound : msgRateUpperBound - resourceRequired[0];
+      nr.byteRateLeft = byteRateUpperBound == Long.MAX_VALUE ? byteRateUpperBound : byteRateUpperBound - resourceRequired[1];
       pif.add(nr);
     }
 
@@ -333,93 +350,112 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   {
 
     Response resp = new Response();
-    resp.repartitionRequired = needPartition(stats);
+    List<KafkaMeterStats> kstats = extractKafkaStats(stats);
+    resp.repartitionRequired = needPartition(stats.getOperatorId(), kstats);
     return resp;
   }
 
-  /**
-   * This method must be synchronized because whether the operator needs to be repartitioned depends on the kafka stats cache
-   * So it must keep it from changing by other stats reporting threads
-   * But this method should return very quickly at most time because the expensive algorithm used to check the repartition condition
-   * only get called every 5s
-   *
-   * @param stats
-   * @return
-   */
-  private boolean needPartition(BatchedOperatorStats stats)
+  private void updateOffsets(List<KafkaMeterStats> kstats)
   {
-    
-
-    if(repartitionCheckInterval < 0 || repartitionInterval < 0){
-      return false;
+    //In every partition check interval, call offsetmanager to update the offsets
+    if (offsetManager != null) {
+      offsetManager.updateOffsets(getOffsetsForPartitions(kstats));
     }
+  }
 
-    long t = System.currentTimeMillis();
-
-    if (t - lastRepartitionTime < repartitionInterval || t - lastCheckTime < repartitionCheckInterval) {
-      // ignore the stats reported and return immediately if it's within repartioinInterval since last repartition 
-      // or if it's still within repartitionCheckInterval seconds since last check
-      return false;
-    }
-
-    //preprocess the stats
+  private List<KafkaMeterStats> extractKafkaStats(BatchedOperatorStats stats)
+  {
+  //preprocess the stats
     List<KafkaMeterStats> kmsList = new LinkedList<KafkaConsumer.KafkaMeterStats>();
     for (OperatorStats os : stats.getLastWindowedStats()) {
       if (os != null && os.counters instanceof KafkaMeterStats) {
         kmsList.add((KafkaMeterStats) os.counters);
       }
     }
-    kafkaStatsHolder.put(stats.getOperatorId(), kmsList);
+    return kmsList;
+  }
+
+  /**
+   *
+   * Check whether the operator needs repartition based on reported stats
+   *
+   * @param stats
+   * @return true if repartition is required
+   * false if repartition is not required
+   */
+  private boolean needPartition(int opid, List<KafkaMeterStats> kstats)
+  {
+
+    long t = System.currentTimeMillis();
+
+    if (t - lastCheckTime < repartitionCheckInterval) {
+      // return false if it's within repartitionCheckInterval since last time it check the stats
+      return false;
+    }
+
+    logger.debug("Use OffsetManager to update offsets");
+    updateOffsets(kstats);
+
+
+    if(repartitionInterval < 0){
+      // if repartition is disabled
+      return false;
+    }
+
+    if(t - lastRepartitionTime < repartitionInterval) {
+      // return false if it's still within repartitionInterval since last (re)partition
+      return false;
+    }
+
+
+    kafkaStatsHolder.put(opid, kstats);
 
     if (kafkaStatsHolder.size() != currentPartitionInfo.size() || currentPartitionInfo.size() == 0) {
       // skip checking if the operator hasn't collected all the stats from all the current partitions
       return false;
     }
 
-    lastCheckTime = t;
+    try {
 
-    //In every partition check interval, call offsetmanager to update the offsets
-    if (offsetManager != null) {
-      for (KafkaMeterStats kms : kmsList) {
-        offsetManager.updateOffsets(getOffsetsForPartitions(kms));
-      }
-    }
-    
-    // monitor if new kafka partition added
-    {
-      Set<Integer> existingIds = new HashSet<Integer>();
-      for (PartitionInfo pio : currentPartitionInfo) {
-        existingIds.addAll(pio.kpids);
-      }
+      // monitor if new kafka partition added
+      {
+        Set<Integer> existingIds = new HashSet<Integer>();
+        for (PartitionInfo pio : currentPartitionInfo) {
+          existingIds.addAll(pio.kpids);
+        }
 
-      for (PartitionMetadata metadata : KafkaMetadataUtil.getPartitionsForTopic(consumer.brokerSet, consumer.getTopic())) {
-        if (!existingIds.contains(metadata.partitionId())) {
-          newWaitingPartition.add(metadata.partitionId());
+        for (PartitionMetadata metadata : KafkaMetadataUtil.getPartitionsForTopic(consumer.brokerSet, consumer.getTopic())) {
+          if (!existingIds.contains(metadata.partitionId())) {
+            newWaitingPartition.add(metadata.partitionId());
+          }
+        }
+        if (newWaitingPartition.size() != 0) {
+          // found new kafka partition
+          lastRepartitionTime = t;
+          return true;
         }
       }
-      if (newWaitingPartition.size() != 0) {
-        // found new kafka partition
-        lastRepartitionTime = t;
-        return true;
+
+      if (strategy == PartitionStrategy.ONE_TO_ONE) {
+        return false;
       }
-    }
 
-    if (strategy == PartitionStrategy.ONE_TO_ONE) {
-      return false;
-    }
+      // This is expensive part and only every repartitionCheckInterval it will check existing the overall partitions
+      // and see if there is more optimal solution
+      // The decision is made by 2 constraint
+      // Hard constraint which is upper bound overall msgs/s or bytes/s
+      // Soft constraint which is more optimal solution
 
-    // This is expensive part and only every repartitionCheckInterval it will check existing the overall partitions and see if there is more optimal solution
-    // The decision is made by 2 constraint
-    // Hard constraint which is upper bound overall msgs/s or bytes/s
-    // Soft constraint which is more optimal solution
-
-    boolean b = breakHardConstraint(kmsList) || breakSoftConstraint();
-    if (b) {
-      currentPartitionInfo.clear();
-      kafkaStatsHolder.clear();
-      lastRepartitionTime = t;
+      boolean b = breakHardConstraint(kstats) || breakSoftConstraint();
+      if (b) {
+        currentPartitionInfo.clear();
+        kafkaStatsHolder.clear();
+      }
+      return b;
+    } finally {
+      // update last  check time
+      lastCheckTime = System.currentTimeMillis();
     }
-    return b;
   }
 
   /**
@@ -569,27 +605,27 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   {
     this.consumer.initialOffset = initialOffset;
   }
-  
+
   public void setOffsetManager(OffsetManager offsetManager)
   {
     this.offsetManager = offsetManager;
   }
-  
+
   public void setRepartitionCheckInterval(long repartitionCheckInterval)
   {
     this.repartitionCheckInterval = repartitionCheckInterval;
   }
-  
+
   public long getRepartitionCheckInterval()
   {
     return repartitionCheckInterval;
   }
-  
+
   public void setRepartitionInterval(long repartitionInterval)
   {
     this.repartitionInterval = repartitionInterval;
   }
-  
+
   public long getRepartitionInterval()
   {
     return repartitionInterval;

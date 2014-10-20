@@ -29,7 +29,6 @@ InputOperator {
 
   int rowCount;
 
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<AccumuloTuple> outputPort = new DefaultOutputPort<AccumuloTuple>();
 
   @Override

@@ -194,7 +194,6 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
     /**
      * Two input ports.
      */
-    @InputPortFieldAnnotation(name = "ActiveMQInputPort1")
     public final transient DefaultInputPort<String> inputPort1 = new DefaultInputPort<String>()
     {
       @Override
@@ -210,7 +209,6 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
         }
       }
     };
-    @InputPortFieldAnnotation(name = "ActiveMQInputPort2")
     public final transient DefaultInputPort<Integer> inputPort2 = new DefaultInputPort<Integer>()
     {
       @Override

@@ -19,8 +19,11 @@ import java.util.Map;
 
 
 /**
- * <p>GenerateName class.</p>
+ * <p>An implementation of Unary Generate that generates a name and provides implementation of evaluate method.</p>
  *
+ * @displayName Generate Name
+ * @category Pig Query
+ * @tags map, string, unary
  * @since 0.3.4
  */
 public class GenerateName extends UnaryGenerate

@@ -23,14 +23,15 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
+ * This operator sums the division of numerator and denominator value arriving at input ports. 
  * <p>
- * Operator sums numerator and denominator value arriving at input ports. <br>
- * Margin Formula : (1 - numerator/denominator). <br>
- * If percent flag is set than margin is emitted as percentage. <br>
+ * <br>
+ * Margin Formula used by this operator: 1 - numerator/denominator.<br>
+ * If percent flag is set then margin is emitted as percentage.
  * <br>
  * StateFull : Yes, numerator and denominator are summed for application
  * windows. <br>
- * Partitions : No, will yield worng margin result, no unifier on output port. <br>
+ * Partitions : No, will yield wrong margin result, no unifier on output port. <br>
  * <br>
  * <b>Ports</b>:<br>
  * <b>numerator</b>: expects V extends Number<br>
@@ -40,7 +41,9 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
  * <b>Properties:<b>
  * <br>
  * <b>percent: </b>  output margin as percentage value.
- *
+ * @displayName Margin
+ * @category Math
+ * @tags sum, division, numeric
  * @since 0.3.3
  */
 @OperatorAnnotation(partitionable = false)
@@ -64,7 +67,6 @@ public class Margin<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Numerator input port.
 	 */
-	@InputPortFieldAnnotation(name = "numerator")
 	public final transient DefaultInputPort<V> numerator = new DefaultInputPort<V>()
 	{
 		/**
@@ -80,7 +82,6 @@ public class Margin<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Denominator input port.
 	 */
-	@InputPortFieldAnnotation(name = "denominator")
 	public final transient DefaultInputPort<V> denominator = new DefaultInputPort<V>()
 	{
 		/**
@@ -96,7 +97,6 @@ public class Margin<V extends Number> extends BaseNumberValueOperator<V>
 	/**
 	 * Output margin port.
 	 */
-	@OutputPortFieldAnnotation(name = "margin")
 	public final transient DefaultOutputPort<V> margin = new DefaultOutputPort<V>();
 
 	/**

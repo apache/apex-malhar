@@ -28,8 +28,8 @@ import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.commons.lang.mutable.MutableInt;
 
 /**
+ * Emits the sum and count of values for each key at the end of window.
  * <p>
- * Emits the sum, and count of values for each key at the end of window.
  * Application accumulate sum across streaming window by setting cumulative flag
  * to true. <br>
  * This is an end of window operator<br>
@@ -50,7 +50,9 @@ import org.apache.commons.lang.mutable.MutableInt;
  * window, <br>
  * hence generating cumulative sum across streaming windows. Default is false.<br>
  * <br>
- *
+ * @displayName Sum Count Map
+ * @category Math
+ * @tags  number, sum, counting, map
  * @since 0.3.3
  */
 public class SumCountMap<K, V extends Number> extends
@@ -72,9 +74,8 @@ public class SumCountMap<K, V extends Number> extends
 	protected boolean cumulative = false;
 
 	/**
-	 * Input port to receive data.
+	 * Input port that takes a map.&nbsp; It adds the values for each key and counts the number of occurrences for each key.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
 	{
 		/**
@@ -111,9 +112,9 @@ public class SumCountMap<K, V extends Number> extends
 	};
 
 	/**
-	 * Key/sum map output port.
+	 * Key,sum map output port.
 	 */
-	@OutputPortFieldAnnotation(name = "sum", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<HashMap<K, V>> sum = new DefaultOutputPort<HashMap<K, V>>()
 	{
 		@Override
@@ -124,9 +125,9 @@ public class SumCountMap<K, V extends Number> extends
 	};
 
 	/**
-	 * key/double sum map output port.
+	 * Key,double sum map output port.
 	 */
-	@OutputPortFieldAnnotation(name = "sumDouble", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<HashMap<K, Double>> sumDouble = new DefaultOutputPort<HashMap<K, Double>>()
 	{
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -140,9 +141,9 @@ public class SumCountMap<K, V extends Number> extends
 	};
 
 	/**
-	 * key/integer sum output port.
+	 * Key,integer sum output port.
 	 */
-	@OutputPortFieldAnnotation(name = "sumInteger", optional = true)
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<HashMap<K, Integer>> sumInteger = new DefaultOutputPort<HashMap<K, Integer>>()
 	{
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -155,10 +156,11 @@ public class SumCountMap<K, V extends Number> extends
 		}
 	};
 
-	/**
-   * 
-   */
-	@OutputPortFieldAnnotation(name = "sumLong", optional = true)
+	
+        /**
+	 * Key,long sum output port.
+	 */
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<HashMap<K, Long>> sumLong = new DefaultOutputPort<HashMap<K, Long>>()
 	{
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -170,8 +172,11 @@ public class SumCountMap<K, V extends Number> extends
 			return ret;
 		}
 	};
-
-	@OutputPortFieldAnnotation(name = "sumShort", optional = true)
+        
+        /**
+	 * Key,short sum output port.
+	 */
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<HashMap<K, Short>> sumShort = new DefaultOutputPort<HashMap<K, Short>>()
 	{
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -183,7 +188,11 @@ public class SumCountMap<K, V extends Number> extends
 			return ret;
 		}
 	};
-	@OutputPortFieldAnnotation(name = "sumFloat", optional = true)
+        
+        /**
+	 * Key,float sum output port.
+	 */
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<HashMap<K, Float>> sumFloat = new DefaultOutputPort<HashMap<K, Float>>()
 	{
 		@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -195,8 +204,11 @@ public class SumCountMap<K, V extends Number> extends
 			return ret;
 		}
 	};
-
-	@OutputPortFieldAnnotation(name = "count", optional = true)
+        
+        /**
+	 * Key,integer sum output port.
+	 */
+	@OutputPortFieldAnnotation(optional = true)
 	public final transient DefaultOutputPort<HashMap<K, Integer>> count = new DefaultOutputPort<HashMap<K, Integer>>()
 	{
 		@Override

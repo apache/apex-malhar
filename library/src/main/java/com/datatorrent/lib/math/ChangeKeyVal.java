@@ -28,12 +28,10 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**
+ * Operator compares &lt;key,value&gt; pairs arriving at data and base input ports and stores &lt;key,value&gt; pairs arriving at base port in hash map across the windows.
  * <p/>
- * <br>Operator takes input from two ports - data and base. It stores kay/value pairs arriving at base
- * port in <code>basemap</code> across the windows.</br>
- * <br>The key/value pairs that arrive at data port are compared with base value if the key exists in the <code>basemap</code>.</br>
- * <br>Change value/percent are emitted on separate ports.</br>
- * <p/>
+ * The &lt;key,value&gt; pairs that arrive at data port are compared with base value if the key exists in the hash map.&nbsp;
+ * Change value and percentage are emitted on separate ports.
  * StateFull : Yes, base map values are stored across windows. <br>
  * Partitions : Yes, values on the base port are replicated across all partitions. However the order of tuples on the
  * output stream may change.
@@ -49,6 +47,9 @@ import com.datatorrent.lib.util.KeyValPair;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  *
+ * @displayName Change Key Value
+ * @category Math
+ * @tags change, key value
  * @since 0.3.3
  */
 public class ChangeKeyVal<K, V extends Number> extends
@@ -60,9 +61,8 @@ public class ChangeKeyVal<K, V extends Number> extends
   private HashMap<K, MutableDouble> basemap = new HashMap<K, MutableDouble>();
 
   /**
-   * Data tuples input port.
+   * Input data port that takes key value pairs.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<KeyValPair<K, V>> data = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
@@ -86,9 +86,8 @@ public class ChangeKeyVal<K, V extends Number> extends
   };
 
   /**
-   * Base value port, stored in base map for comparison.
+   * Base value input port, stored in base map for comparison.
    */
-  @InputPortFieldAnnotation(name = "base")
   public final transient DefaultInputPort<KeyValPair<K, V>> base = new DefaultInputPort<KeyValPair<K, V>>()
   {
     /**
@@ -111,14 +110,14 @@ public class ChangeKeyVal<K, V extends Number> extends
   };
 
   /**
-   * Key/Change output port.
+   * Key, Change output port.
    */
-  @OutputPortFieldAnnotation(name = "change", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, V>> change = new DefaultOutputPort<KeyValPair<K, V>>();
 
   /**
-   * key/percent change pair output port.
+   * Key, Percentage Change pair output port.
    */
-  @OutputPortFieldAnnotation(name = "percent", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<KeyValPair<K, Double>> percent = new DefaultOutputPort<KeyValPair<K, Double>>();
 }

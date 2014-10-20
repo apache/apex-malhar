@@ -36,7 +36,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 /**
- * <p>SmtpOutputOperator class.</p>
+ * This operator outputs data to an smtp server.
+ * <p></p>
+ * @displayName Smtp Output
+ * @category Output
+ * @tags stmp, output operator
  *
  * @since 0.3.2
  */
@@ -71,6 +75,9 @@ public class SmtpOutputOperator extends BaseOperator
   protected transient Session session;
   protected transient Message message;
 
+  /**
+   * This is the port which receives the tuples that will be output to an smtp server.
+   */
   public final transient DefaultInputPort<Object> input = new DefaultInputPort<Object>()
   {
     @Override

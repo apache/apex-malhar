@@ -22,8 +22,10 @@ import kafka.message.Message;
 
 
 /**
- * Kafka input adapter operator with single output port, which consume data from Kafka message bus.<p><br>
- *
+ * This is the base implementation of the Kafka input operator with a single output port,
+ * which consumes data from the Kafka message bus.&nbsp;
+ * Subclasses should implement the methods which convert Kafka messages to tuples.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: No input port<br>
@@ -41,15 +43,19 @@ import kafka.message.Message;
  * Benchmarks:<br>
  * TBD<br>
  * <br>
+ * </p>
+ *
+ * @displayName Abstract Kafka Single Port Input
+ * @category Messaging
+ * @tags input operator
  *
  * @since 0.3.2
  */
 public abstract class AbstractKafkaSinglePortInputOperator<T> extends AbstractKafkaInputOperator<KafkaConsumer>
 {
   /**
-   * The single output port.
+   * This output port emits tuples extracted from Kafka messages.
    */
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

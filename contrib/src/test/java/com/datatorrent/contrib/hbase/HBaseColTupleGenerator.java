@@ -29,7 +29,6 @@ public class HBaseColTupleGenerator extends BaseOperator implements InputOperato
 
   int colCount;
 
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<HBaseTuple> outputPort = new DefaultOutputPort<HBaseTuple>();
 
   @Override

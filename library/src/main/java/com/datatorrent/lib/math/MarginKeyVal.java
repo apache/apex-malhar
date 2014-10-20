@@ -28,10 +28,10 @@ import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  *
- * Adds all values for each key in "numerator" and "denominator", and at the end
- * of window emits the margin for each key (1 - numerator/denominator).
+ * This operator adds all values for each key in "numerator" and "denominator", and emits the margin for each key at the end of window.
  * <p>
  * <br>
+ * Margin Formula used by this operator: 1 - numerator/denominator.
  * The values are added for each key within the window and for each stream.<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -43,13 +43,17 @@ import org.apache.commons.lang.mutable.MutableDouble;
  * <b>inverse</b>: if set to true the key in the filter will block tuple<br>
  * <b>filterBy</b>: List of keys to filter on<br>
  * <br>
- *
+ * @displayName Margin Key Value
+ * @category Math
+ * @tags sum, division, numeric, key value
  * @since 0.3.3
  */
 public class MarginKeyVal<K, V extends Number> extends
 		BaseNumberKeyValueOperator<K, V>
 {
-	@InputPortFieldAnnotation(name = "numerator")
+        /**
+	 * Numerator input port that takes a key value pair.
+	 */
 	public final transient DefaultInputPort<KeyValPair<K, V>> numerator = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
@@ -70,7 +74,10 @@ public class MarginKeyVal<K, V extends Number> extends
 			return getKeyValPairStreamCodec();
 		}
 	};
-	@InputPortFieldAnnotation(name = "denominator")
+        
+        /**
+	 * Denominator input port that takes a key value pair.
+	 */
 	public final transient DefaultInputPort<KeyValPair<K, V>> denominator = new DefaultInputPort<KeyValPair<K, V>>()
 	{
 		/**
@@ -112,7 +119,9 @@ public class MarginKeyVal<K, V extends Number> extends
 		val.add(tuple.getValue().doubleValue());
 	}
 
-	@OutputPortFieldAnnotation(name = "margin")
+        /**
+	 * Output margin port that emits Key Value pairs.
+	 */
 	public final transient DefaultOutputPort<KeyValPair<K, V>> margin = new DefaultOutputPort<KeyValPair<K, V>>();
 
 	protected HashMap<K, MutableDouble> numerators = new HashMap<K, MutableDouble>();

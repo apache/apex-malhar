@@ -24,7 +24,8 @@ import com.datatorrent.lib.streamquery.condition.Condition;
 
 
 /**
- * Class to implement Apache Pig filter statement semantic. <br>
+ * An implementation of BaseOperator that implements Apache Pig filter statement semantic. <br>
+ * <p>
  * Stream rows passing condition are emitted on output port stream. <br>
  * <br>
  * <b>StateFull : NO,</b> all row data is processed in current time window. <br>
@@ -38,7 +39,9 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * <br>
  * <b> Properties : <b> <br>
  * <b> condition : </b> Select condition for selecting rows. <br>
- *
+ * @displayName Pig Filter
+ * @category Pig Query
+ * @tags map, string, filter operator
  * @since 0.3.4
  */
 public class PigFilterOperator  extends BaseOperator
@@ -67,7 +70,7 @@ public class PigFilterOperator  extends BaseOperator
   }
   
   /**
-   * Input port.
+   * Input port that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
   {
@@ -81,7 +84,7 @@ public class PigFilterOperator  extends BaseOperator
   };
   
   /**
-   * Output port.
+   * Output port that emits a map of &lt;String, Object&gt.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport = new DefaultOutputPort<Map<String, Object>>();
 }
