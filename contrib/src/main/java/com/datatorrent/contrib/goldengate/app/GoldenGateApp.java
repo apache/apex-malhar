@@ -9,15 +9,13 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.goldengate.lib.KafkaInput;
-import com.datatorrent.contrib.kafka.KafkaConsumer;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.google.common.collect.Sets;
 import java.util.HashSet;
-import java.util.Set;
 import org.apache.hadoop.conf.Configuration;
 
-@ApplicationAnnotation(name="GoldenGateToMySQLDemo")
+@ApplicationAnnotation(name="GoldenGateDemo")
 public class GoldenGateApp implements StreamingApplication
 {
   @Override
