@@ -1,0 +1,11 @@
+mvn install:install-file -Dfile=ggaddons-11.2.1.0.0.004.jar -DgroupId=com.oracle -DartifactId=ggaddons -Dversion=11.2.1.0.0.004 -Dpackaging=jar
+mvn install:install-file -Dfile=ggcache-11.2.1.0.0.004.jar -DgroupId=com.oracle -DartifactId=ggcache -Dversion=11.2.1.0.0.004 -Dpackaging=jar
+mvn install:install-file -Dfile=ggcmdui-11.2.1.0.0.004.jar -DgroupId=com.oracle -DartifactId=ggcmdui -Dversion=11.2.1.0.0.004 -Dpackaging=jar
+
+mvn install:install-file -Dfile=ggcoh-11.2.1.0.0.004.jar -DgroupId=com.oracle -DartifactId=ggcoh -Dversion=11.2.1.0.0.004 -Dpackaging=jar
+mvn install:install-file -Dfile=ggdbutil-11.2.1.0.0.004.jar -DgroupId=com.oracle -DartifactId=ggdbutil -Dversion=11.2.1.0.0.004 -Dpackaging=jar
+mvn install:install-file -Dfile=ggjms-11.2.1.0.0.004.jar -DgroupId=com.oracle -DartifactId=ggjms -Dversion=11.2.1.0.0.004 -Dpackaging=jar
+
+mvn install:install-file -Dfile=ggtrail-11.2.1.0.0.004.jar -DgroupId=com.oracle -DartifactId=ggtrail -Dversion=11.2.1.0.0.004 -Dpackaging=jar
+mvn install:install-file -Dfile=gguserexitapi-11.2.1.0.0.004.jar -DgroupId=com.oracle -DartifactId=gguserexitapi -Dversion=11.2.1.0.0.004 -Dpackaging=jar
+mvn install:install-file -Dfile=ggutil-11.2.1.0.0.004.jar -DgroupId=com.oracle -DartifactId=ggutil -Dversion=11.2.1.0.0.004 -Dpackaging=jar

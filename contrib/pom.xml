@@ -184,6 +184,51 @@
       <type>test-jar</type>
     </dependency>
     <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggaddons</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggcache</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggcmdui</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggcoh</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggdbutil</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggjms</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggtrail</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>gguserexitapi</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggutil</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
       <groupId>org.apache.kafka</groupId>
       <artifactId>kafka_2.10</artifactId>
       <version>0.8.1.1</version>
