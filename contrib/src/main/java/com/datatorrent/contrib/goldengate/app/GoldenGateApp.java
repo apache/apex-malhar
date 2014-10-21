@@ -23,6 +23,7 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
@@ -46,12 +47,11 @@ public class GoldenGateApp implements StreamingApplication
 
     JdbcStore store = new JdbcStore();
     store.setDbDriver("oracle.jdbc.driver.OracleDriver");
-    store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521");
+    store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521:xe");
     store.setConnectionProperties("user:ogguser,password:dt");
 
     OracleDBOutputOperator db = new OracleDBOutputOperator();
     db.setStore(store);
-
     dag.addOperator("oracledb", db);
 
     ////
@@ -62,8 +62,9 @@ public class GoldenGateApp implements StreamingApplication
     ////
 
     dag.addStream("display", kafkaInput.outputPort, console.input);
-
     dag.addStream("inputtodb", kafkaInput.employeePort, db.input);
+
+    ////
 
     KafkaSinglePortStringInputOperator queryInput = dag.addOperator("QueryInput", KafkaSinglePortStringInputOperator.class);
     QueryProcessor queryProcessor = dag.addOperator("QueryProcessor", GoldenGateQueryProcessor.class);
