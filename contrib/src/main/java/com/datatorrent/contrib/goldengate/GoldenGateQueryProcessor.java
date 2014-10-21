@@ -40,7 +40,9 @@ public class GoldenGateQueryProcessor extends QueryProcessor
 
   private static final String[] TABLE_HEADERS = {"Employee ID", "Name", "Department"};
 
-  private String getQuery = "select from ? order by eid count ?";
+  private String getQuery = "select * from ? order by eid limit ?";
+
+  private String filePath;
 
   protected JdbcStore store;
 
@@ -89,6 +91,16 @@ public class GoldenGateQueryProcessor extends QueryProcessor
       logger.error("Error closing statements", e);
     }
     store.disconnect();
+  }
+
+  public String getFilePath()
+  {
+    return filePath;
+  }
+
+  public void setFilePath(String filePath)
+  {
+    this.filePath = filePath;
   }
 
   @Override
@@ -143,6 +155,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor
 
   public void processGetLatestFileContents(GetLatestFileContentsQuery query, QueryResults results) {
     String filePath = query.filePath;
+    if (filePath == null) filePath = this.filePath;
     int numberLines = query.numberLines;
     try {
       EvictingQueue<String> queue = EvictingQueue.create(numberLines);
