@@ -28,7 +28,7 @@ public class GoldenGateApp implements StreamingApplication
                                                                       "ggdemo_client",
                                                                       new HashSet<Integer>());
     KafkaInput kafkaInput = new KafkaInput();
-    kafkaInput.setTopic("ggdemo");
+    //kafkaInput.setTopic("ggdemo");
     kafkaInput.setConsumer(simpleKafkaConsumer);
     dag.addOperator("kafkaInput", kafkaInput);
 
