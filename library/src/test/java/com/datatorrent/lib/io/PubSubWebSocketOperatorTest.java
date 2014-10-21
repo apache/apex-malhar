@@ -97,7 +97,7 @@ public class PubSubWebSocketOperatorTest
 
     @SuppressWarnings("unchecked")
     Map<String, String> tuple = (Map<String, String>)sink.collectedTuples.get(0);
-    Assert.assertEquals("Expects {\"hello\":\"world\"} as data", tuple.get("hello"), "world");
+    Assert.assertEquals("Expects {\"hello\":\"world\"} as data", "world", tuple.get("hello"));
 
     inputOperator.deactivate();
 
