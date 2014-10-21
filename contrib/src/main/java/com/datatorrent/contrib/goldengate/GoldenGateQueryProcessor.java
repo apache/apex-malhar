@@ -40,7 +40,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor
 
   private static final String[] TABLE_HEADERS = {"Employee ID", "Name", "Department"};
 
-  private String getQuery = "select from ? order by eid count ?";
+  private String getQuery = "select * from ? order by eid limit ?";
 
   private String filePath;
 
