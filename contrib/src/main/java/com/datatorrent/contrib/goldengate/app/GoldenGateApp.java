@@ -94,7 +94,8 @@ public class GoldenGateApp implements StreamingApplication
     Properties configProperties = new Properties();
     configProperties.setProperty("serializer", "kafka.serializer.StringEncoder");
     configProperties.setProperty("metadata.broker.list", "node25.morado.com:9092");
-    
+    queryOutput.setConfigProperties(configProperties);
+
     dag.addStream("queries", queryInput.outputPort, queryProcessor.queryInput);
     dag.addStream("results", queryProcessor.queryOutput, queryOutput.inputPort);
   }
