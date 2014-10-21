@@ -60,6 +60,11 @@ public class GoldenGateQueryProcessor extends QueryProcessor
     return store;
   }
 
+  public void setStore(JdbcStore store)
+  {
+    this.store = store;
+  }
+
   @Override
   public void setup(Context.OperatorContext context)
   {
