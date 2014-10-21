@@ -52,7 +52,6 @@ public class GoldenGateApp implements StreamingApplication
 
     OracleDBOutputOperator db = new OracleDBOutputOperator();
     db.setStore(store);
-
     dag.addOperator("oracledb", db);
 
     ////
@@ -63,8 +62,9 @@ public class GoldenGateApp implements StreamingApplication
     ////
 
     dag.addStream("display", kafkaInput.outputPort, console.input);
-
     dag.addStream("inputtodb", kafkaInput.employeePort, db.input);
+
+    ////
 
     /*KafkaSinglePortStringInputOperator queryInput = dag.addOperator("QueryInput", KafkaSinglePortStringInputOperator.class);
     QueryProcessor queryProcessor = dag.addOperator("QueryProcessor", GoldenGateQueryProcessor.class);

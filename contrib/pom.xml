@@ -33,6 +33,45 @@
 
   <build>
     <plugins>
+                  <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.6</version>
+            <executions>
+                <execution>
+                    <id>copy-dependencies</id>
+                    <phase>install</phase>
+                    <goals>
+                        <goal>copy-dependencies</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>target/dist</outputDirectory>
+                        <overWriteIfNewer>true</overWriteIfNewer>
+                        <includeArtifactIds>
+                            commons-compress,kafka_2.10,metrics-core,scala-library,super-csv,zkclient,zookeeper,malhar-library,malhar-contrib
+                        </includeArtifactIds>
+                    </configuration>
+                </execution>
+                <execution>
+                    <id>copy</id>
+                    <phase>install</phase>
+                    <goals>
+                        <goal>copy</goal>
+                    </goals>
+                    <configuration>
+                        <outputDirectory>target/dist</outputDirectory>
+                        <overWriteIfNewer>true</overWriteIfNewer>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>${project.groupId}</groupId>
+                                <artifactId>${project.artifactId}</artifactId>
+                                <version>${project.version}</version>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+          </plugin>
       <!-- Publish tests jar -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -187,6 +226,11 @@
       <groupId>com.oracle</groupId>
       <artifactId>ggaddons</artifactId>
       <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>jdbc</artifactId>
+      <version>11.2.0.1.0</version>
     </dependency>
     <dependency>
       <groupId>com.oracle</groupId>
