@@ -9,7 +9,9 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.goldengate.lib.KafkaInput;
+import com.datatorrent.contrib.goldengate.lib.OracleDBOutputOperator;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
+import com.datatorrent.lib.db.jdbc.JdbcStore;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.google.common.collect.Sets;
 import java.util.HashSet;
@@ -28,9 +30,20 @@ public class GoldenGateApp implements StreamingApplication
                                                                       "ggdemo_client",
                                                                       new HashSet<Integer>());
     KafkaInput kafkaInput = new KafkaInput();
-    //kafkaInput.setTopic("ggdemo");
     kafkaInput.setConsumer(simpleKafkaConsumer);
     dag.addOperator("kafkaInput", kafkaInput);
+
+    ////
+
+    JdbcStore store = new JdbcStore();
+    store.setDbDriver("oracle.jdbc.driver.OracleDriver");
+    store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521");
+    store.setConnectionProperties("user:ogguser,password:dt");
+
+    OracleDBOutputOperator db = new OracleDBOutputOperator();
+    db.setStore(store);
+
+    dag.addOperator("oracledb", db);
 
     ////
 
@@ -40,5 +53,6 @@ public class GoldenGateApp implements StreamingApplication
     ////
 
     dag.addStream("display", kafkaInput.outputPort, console.input);
+    dag.addStream("inputtodb", kafkaInput.employeePort, db.input);
   }
 }
