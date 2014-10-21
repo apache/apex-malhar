@@ -15,31 +15,35 @@
  */
 package com.datatorrent.contrib.hds;
 
+import java.io.IOException;
+import java.lang.management.ManagementFactory;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Random;
+import java.util.TreeMap;
+import java.util.concurrent.TimeUnit;
+
 import com.google.common.base.Stopwatch;
 
-import junit.framework.Assert;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
-import org.apache.hadoop.hbase.HConstants;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.io.compress.Compression;
-import org.apache.hadoop.io.*;
 import org.apache.hadoop.hbase.io.hfile.*;
+import org.apache.hadoop.io.*;
 import org.apache.hadoop.io.file.tfile.TFile;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner;
 import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner.Entry;
-import org.junit.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
-import java.lang.management.MemoryMXBean;
-import java.util.*;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-import java.lang.management.ManagementFactory;
+import junit.framework.Assert;
 
 /**
  * Performance testing of various Hadoop files, including HFile, TFile, MapFile, Plain
@@ -129,7 +133,7 @@ public class HadoopFilePerformanceTest {
     String testKey = testSize + "," + fileType.name() + "-" + testType;
     long fileSize = hdfs.getContentSummary(fileType.filepath()).getSpaceConsumed();
     testSummary.put(testKey, "" + elapsedMS + "," + fileSize);
-    return String.format("%,d", timer.elapsedTime(TimeUnit.NANOSECONDS)) + " ns ( " + timer.toString(6) + " )";
+    return String.format("%,d", timer.elapsedTime(TimeUnit.NANOSECONDS)) + " ns ( " + timer.toString() + " )";
   }
 
 
