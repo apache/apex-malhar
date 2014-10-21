@@ -23,6 +23,7 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
@@ -46,7 +47,7 @@ public class GoldenGateApp implements StreamingApplication
 
     JdbcStore store = new JdbcStore();
     store.setDbDriver("oracle.jdbc.driver.OracleDriver");
-    store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521");
+    store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521:ogguser");
     store.setConnectionProperties("user:ogguser,password:dt");
 
     OracleDBOutputOperator db = new OracleDBOutputOperator();
