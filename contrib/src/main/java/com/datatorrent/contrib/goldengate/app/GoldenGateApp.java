@@ -66,11 +66,11 @@ public class GoldenGateApp implements StreamingApplication
 
     dag.addStream("inputtodb", kafkaInput.employeePort, db.input);
 
-    KafkaSinglePortStringInputOperator queryInput = dag.addOperator("QueryInput", KafkaSinglePortStringInputOperator.class);
+    /*KafkaSinglePortStringInputOperator queryInput = dag.addOperator("QueryInput", KafkaSinglePortStringInputOperator.class);
     QueryProcessor queryProcessor = dag.addOperator("QueryProcessor", GoldenGateQueryProcessor.class);
     KafkaSinglePortOutputOperator<Object, Object> queryOutput = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
 
     dag.addStream("queries", queryInput.outputPort, queryProcessor.queryInput);
-    dag.addStream("results", queryProcessor.queryOutput, queryOutput.inputPort);
+    dag.addStream("results", queryProcessor.queryOutput, queryOutput.inputPort);*/
   }
 }
