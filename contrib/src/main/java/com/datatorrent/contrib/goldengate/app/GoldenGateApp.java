@@ -92,7 +92,7 @@ public class GoldenGateApp implements StreamingApplication
     KafkaSinglePortOutputOperator<Object, Object> queryOutput = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
 
     Properties configProperties = new Properties();
-    configProperties.setProperty("serializer", "kafka.serializer.StringEncoder");
+    configProperties.setProperty("serializer.class", "kafka.serializer.StringEncoder");
     configProperties.setProperty("metadata.broker.list", "node25.morado.com:9092");
     queryOutput.setConfigProperties(configProperties);
 
