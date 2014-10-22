@@ -27,6 +27,7 @@ public class KafkaInput extends KafkaSinglePortStringInputOperator
   @Override
   public void setup(OperatorContext context)
   {
+    super.setup(context);
     mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS"));
   }
 
