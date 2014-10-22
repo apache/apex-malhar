@@ -50,12 +50,12 @@ public class PubSubWebSocketOperatorTest
 
     URI uri = new URI("ws://localhost:19090/pubsub");
 
-    PubSubWebSocketOutputOperator<Map<String, String>> outputOperator = new PubSubWebSocketOutputOperator<Map<String, String>>();
+    PubSubWebSocketOutputOperator<Object> outputOperator = new PubSubWebSocketOutputOperator<Object>();
     outputOperator.setName("testOutputOperator");
     outputOperator.setUri(uri);
     outputOperator.setTopic("testTopic");
 
-    PubSubWebSocketInputOperator inputOperator = new PubSubWebSocketInputOperator();
+    PubSubWebSocketInputOperator<Object> inputOperator = new PubSubWebSocketInputOperator<Object>();
     inputOperator.setName("testInputOperator");
     inputOperator.setUri(uri);
     inputOperator.addTopic("testTopic");
@@ -83,8 +83,11 @@ public class PubSubWebSocketOperatorTest
     data.put("hello", "world");
     outputOperator.input.process(data);
 
+    String stringData = "StringMessage";
+    outputOperator.input.process(stringData);
+
     int timeoutMillis = 2000;
-    while (sink.collectedTuples.isEmpty() && timeoutMillis > 0) {
+    while (sink.collectedTuples.size() < 2 && timeoutMillis > 0) {
       inputOperator.emitTuples();
       timeoutMillis -= 20;
       Thread.sleep(20);
@@ -93,11 +96,14 @@ public class PubSubWebSocketOperatorTest
     outputOperator.endWindow();
     inputOperator.endWindow();
 
-    Assert.assertTrue("tuple emitted", sink.collectedTuples.size() > 0);
+    Assert.assertTrue("tuples emitted", sink.collectedTuples.size() > 1);
 
     @SuppressWarnings("unchecked")
     Map<String, String> tuple = (Map<String, String>)sink.collectedTuples.get(0);
     Assert.assertEquals("Expects {\"hello\":\"world\"} as data", "world", tuple.get("hello"));
+
+    String stringResult = (String)sink.collectedTuples.get(1);
+    Assert.assertEquals("Expects {\"hello\":\"world\"} as data", stringData, stringResult);
 
     inputOperator.deactivate();
 
@@ -107,4 +113,5 @@ public class PubSubWebSocketOperatorTest
     server.stop();
 
   }
+
 }
