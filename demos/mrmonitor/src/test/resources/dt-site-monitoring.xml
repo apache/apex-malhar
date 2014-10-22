@@ -1,6 +1,10 @@
 <?xml version="1.0"?>
 <configuration>
   <property>
+    <name>dt.attr.GATEWAY_CONNECT_ADDRESS</name>
+    <value>localhost:19090</value>
+  </property>
+  <property>
     <name>dt.application.MRMonitoringDemo.operator.JobMonitor.attr.INITIAL_PARTITION_COUNT</name>
     <value>1</value>
   </property>

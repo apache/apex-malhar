@@ -15,10 +15,17 @@
  */
 package com.datatorrent.demos.mobile;
 
+import java.net.InetSocketAddress;
+
 import org.apache.hadoop.conf.Configuration;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
+
+import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 
 public class ApplicationTest
 {
@@ -32,13 +39,21 @@ public class ApplicationTest
   @Test
   public void testGetApplication() throws Exception
   {
-    Application app = new Application();
     Configuration conf = new Configuration(false);
     conf.addResource("dt-site-mobile.xml");
+    String[] connection = conf.get("dt.attr.GATEWAY_CONNECT_ADDRESS").split(":");
+    Server server = new Server(new InetSocketAddress(connection[0], Integer.parseInt(connection[1])));
+    SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
+    ServletHolder sh = new ServletHolder(servlet);
+    ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+    contextHandler.addServlet(sh, "/pubsub");
+    contextHandler.addServlet(sh, "/*");
+    server.start();
+    Application app = new Application();
     LocalMode lma = LocalMode.newInstance();
     lma.prepareDAG(app, conf);
     LocalMode.Controller lc = lma.getController();
     lc.run(10000);
-
+    server.stop();
   }
 }

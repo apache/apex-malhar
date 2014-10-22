@@ -5,6 +5,10 @@
     <description>An alias for the application</description>
   </property>
   <property>
+    <name>dt.attr.GATEWAY_CONNECT_ADDRESS</name>
+    <value>localhost:19090</value>
+  </property>
+  <property>
     <name>dt.application.MobileDemo.coolDownMillis</name>
     <value>45000</value>
   </property>
