@@ -5,10 +5,12 @@
 
 package com.datatorrent.contrib.goldengate.lib;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 import com.goldengate.atg.datasource.DsOperation.OpType;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import kafka.message.Message;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -20,6 +22,12 @@ public class KafkaInput extends  KafkaSinglePortStringInputOperator
   public final transient DefaultOutputPort<Employee> employeePort = new DefaultOutputPort<Employee>();
 
   private transient ObjectMapper mapper = new ObjectMapper();
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS"));
+  }
 
   @Override
   public String getTuple(Message message)
