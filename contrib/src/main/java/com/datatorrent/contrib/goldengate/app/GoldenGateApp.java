@@ -7,8 +7,6 @@ package com.datatorrent.contrib.goldengate.app;
 
 import java.util.Properties;
 
-import com.google.common.collect.Sets;
-
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.lib.io.ConsoleOutputOperator;
@@ -19,7 +17,6 @@ import com.datatorrent.contrib.goldengate.lib.KafkaInput;
 import com.datatorrent.contrib.goldengate.lib.OracleDBOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
-import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
@@ -33,18 +30,6 @@ public class GoldenGateApp implements StreamingApplication
   {
     KafkaInput kafkaInput = new KafkaInput();
     dag.addOperator("kafkaInput", kafkaInput);
-
-    SimpleKafkaConsumer consumer = new SimpleKafkaConsumer(Sets.newHashSet("node25.morado.com:9092"),
-                                                          "ggdemo",
-                                                          10000,
-                                                          100000,
-                                                          "ggdemo_client", Sets.newHashSet(0));
-    kafkaInput.setConsumer(consumer);
-
-    JdbcStore store = new JdbcStore();
-    store.setDbDriver("oracle.jdbc.driver.OracleDriver");
-    store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521:xe");
-    store.setConnectionProperties("user:ogguser,password:dt");
 
     ////
 
