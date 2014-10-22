@@ -23,9 +23,9 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import java.util.Properties;
 
 @ApplicationAnnotation(name="GoldenGateDemo")
 public class GoldenGateApp implements StreamingApplication
@@ -67,8 +67,34 @@ public class GoldenGateApp implements StreamingApplication
     ////
 
     KafkaSinglePortStringInputOperator queryInput = dag.addOperator("QueryInput", KafkaSinglePortStringInputOperator.class);
-    QueryProcessor queryProcessor = dag.addOperator("QueryProcessor", GoldenGateQueryProcessor.class);
+
+    SimpleKafkaConsumer inputConsumer = new SimpleKafkaConsumer(Sets.newHashSet("node25.morado.com:9092"),
+                                                                      "GoldenGateQuery",
+                                                                      10000,
+                                                                      100000,
+                                                                      "GoldenGateQuery_client",
+                                                                      new HashSet<Integer>());
+
+    queryInput.setConsumer(inputConsumer);
+
+    //
+
+    GoldenGateQueryProcessor queryProcessor = dag.addOperator("QueryProcessor", GoldenGateQueryProcessor.class);
+
+    JdbcStore queryStore = new JdbcStore();
+    store.setDbDriver("oracle.jdbc.driver.OracleDriver");
+    store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521:xe");
+    store.setConnectionProperties("user:ogguser,password:dt");
+    queryProcessor.setStore(queryStore);
+
+    //
+
     KafkaSinglePortOutputOperator<Object, Object> queryOutput = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
+
+    Properties configProperties = new Properties();
+    configProperties.setProperty("serializer.class", "kafka.serializer.StringEncoder");
+    configProperties.setProperty("metadata.broker.list", "node25.morado.com:9092");
+    queryOutput.setConfigProperties(configProperties);
 
     dag.addStream("queries", queryInput.outputPort, queryProcessor.queryInput);
     dag.addStream("results", queryProcessor.queryOutput, queryOutput.inputPort);
