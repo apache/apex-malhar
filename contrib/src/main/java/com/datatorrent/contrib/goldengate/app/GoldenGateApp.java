@@ -5,17 +5,16 @@
 
 package com.datatorrent.contrib.goldengate.app;
 
-import java.util.HashSet;
+import java.util.Properties;
 
 import com.google.common.collect.Sets;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.lib.db.jdbc.JdbcStore;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 import com.datatorrent.contrib.goldengate.GoldenGateQueryProcessor;
-import com.datatorrent.contrib.goldengate.QueryProcessor;
+import com.datatorrent.contrib.goldengate.KafkaJsonEncoder;
 import com.datatorrent.contrib.goldengate.lib.KafkaInput;
 import com.datatorrent.contrib.goldengate.lib.OracleDBOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
@@ -25,7 +24,6 @@ import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import java.util.Properties;
 
 @ApplicationAnnotation(name="GoldenGateDemo")
 public class GoldenGateApp implements StreamingApplication
@@ -76,7 +74,7 @@ public class GoldenGateApp implements StreamingApplication
     KafkaSinglePortOutputOperator<Object, Object> queryOutput = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
 
     Properties configProperties = new Properties();
-    configProperties.setProperty("serializer.class", "kafka.serializer.StringEncoder");
+    configProperties.setProperty("serializer.class", KafkaJsonEncoder.class.getName());
     configProperties.setProperty("metadata.broker.list", "node25.morado.com:9092");
     queryOutput.setConfigProperties(configProperties);
 

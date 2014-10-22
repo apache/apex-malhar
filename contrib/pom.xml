@@ -48,7 +48,7 @@
                         <outputDirectory>target/dist</outputDirectory>
                         <overWriteIfNewer>true</overWriteIfNewer>
                         <includeArtifactIds>
-                            commons-compress,kafka_2.10,metrics-core,scala-library,super-csv,zkclient,zookeeper,malhar-library,malhar-contrib,jdbc
+                            commons-compress,kafka_2.10,metrics-core,scala-library,super-csv,zkclient,zookeeper,malhar-library,malhar-contrib,jdbc,guava
                         </includeArtifactIds>
                     </configuration>
                 </execution>
@@ -435,6 +435,10 @@
         <exclusion>
           <artifactId>jetty-util</artifactId>
           <groupId>org.mortbay.jetty</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>guava</artifactId>
+          <groupId>com.google.guava</groupId>
         </exclusion>
       </exclusions>
     </dependency>

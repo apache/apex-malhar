@@ -42,7 +42,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
 
   private static final String[] TABLE_HEADERS = {"Employee ID", "Name", "Department"};
 
-  private String getQuery = "select * from %s order by eid limit ?";
+  private String getQuery = "select * from (select * from %s order by eid desc) where rownum < ?";
 
   private String filePath;
 
@@ -88,6 +88,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
       public PreparedStatement load(String s) throws Exception
       {
         String getTableQuery = String.format(getQuery, s);
+        logger.info("Get query {}", getTableQuery);
         return store.getConnection().prepareStatement(getTableQuery);
       }
     });
@@ -136,13 +137,6 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
   protected Class<? extends Query> getQueryClass(JsonNode json)
   {
     logger.info("JSON {}", json);
-    try {
-      GetRecentTableEntriesQuery getQuery = new GetRecentTableEntriesQuery();
-      String s = mapper.writeValueAsString(getQuery);
-      logger.info("Query as JSON {}", s);
-    } catch (IOException e) {
-      DTThrowable.rethrow(e);
-    }
     Class<? extends Query> queryClass = null;
     String selector = json.get("selector").getTextValue();
     if (selector != null) {
@@ -166,12 +160,13 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
   }
 
   public void processGetRecentTableEntries(GetRecentTableEntriesQuery query, QueryResults results) {
-    logger.info("Query info {} {}", query.tableName, query.numberEntries);
+    logger.info("Get recent entries query info {} {}", query.tableName, query.numberEntries);
     String tableName = query.tableName;
     int numberEntries = query.numberEntries;
     try {
       PreparedStatement getStatement = statements.get(tableName);
-      getStatement.setInt(1, numberEntries);
+      getStatement.setInt(1, numberEntries+1);
+      logger.info("query {}", getStatement);
       ResultSet resultSet = getStatement.executeQuery();
       List<Object[]> rows = new ArrayList<Object[]>();
       while (resultSet.next()) {
@@ -183,7 +178,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
       }
       TableData resultsData = new TableData();
       resultsData.headers = TABLE_HEADERS;
-      resultsData.rows = rows.toArray(resultsData.rows);
+      resultsData.rows = rows.toArray(new Object[0][0]);
       results.setData(resultsData);
       results.setType(TABLE_DATA);
     } catch (SQLException e) {
@@ -194,6 +189,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
   }
 
   public void processGetLatestFileContents(GetLatestFileContentsQuery query, QueryResults results) {
+    logger.info("File contents query info {} {}", query.filePath, query.numberLines);
     String filePath = query.filePath;
     if (filePath == null) filePath = this.filePath;
     int numberLines = query.numberLines;
@@ -206,10 +202,10 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
         queue.add(line);
       }
       ContentData contentData = new ContentData();
-      contentData.lines = queue.toArray(contentData.lines);
+      contentData.lines = queue.toArray(new String[0]);
       results.setData(contentData);
       results.setType(CONTENT_DATA);
-      inputStream.close();
+      reader.close();
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
