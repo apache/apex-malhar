@@ -101,7 +101,7 @@ public class FileQueryProcessor extends QueryProcessor
       contentData.lines = queue.toArray(new String[0]);
       results.setData(contentData);
       results.setType(CONTENT_DATA);
-      reader.close();
+      logger.info("result lines {}", contentData.lines.length);
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     } finally {

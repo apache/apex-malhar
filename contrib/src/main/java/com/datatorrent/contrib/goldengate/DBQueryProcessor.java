@@ -137,6 +137,7 @@ public class DBQueryProcessor extends QueryProcessor implements RemovalListener<
       resultsData.rows = rows.toArray(new Object[0][0]);
       results.setData(resultsData);
       results.setType(TABLE_DATA);
+      logger.info("result rows {}", resultsData.rows.length);
     } catch (SQLException e) {
       DTThrowable.rethrow(e);
     } catch (ExecutionException e) {
