@@ -58,7 +58,7 @@ public class PubSubWebSocketOperatorTest
     PubSubWebSocketInputOperator<Object> inputOperator = new PubSubWebSocketInputOperator<Object>();
     inputOperator.setName("testInputOperator");
     inputOperator.setUri(uri);
-    inputOperator.addTopic("testTopic");
+    inputOperator.setTopic("testTopic");
 
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     inputOperator.outputPort.setSink(sink);
