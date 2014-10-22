@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.dimensions.ads;
+package com.datatorrent.contrib.kafka;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
