@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
+import com.datatorrent.contrib.kafka.KafkaJsonEncoder;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
