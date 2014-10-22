@@ -36,6 +36,12 @@ public class GoldenGateApp implements StreamingApplication
     KafkaInput kafkaInput = new KafkaInput();
     dag.addOperator("kafkaInput", kafkaInput);
 
+    SimpleKafkaConsumer consumer = new SimpleKafkaConsumer(Sets.newHashSet("node25.morado.com:9092"),
+                                                          "ggdemo",
+                                                          10000,
+                                                          100000,
+                                                          "ggdemo_client", new HashSet<Integer>());
+
     ////
 
     OracleDBOutputOperator db = new OracleDBOutputOperator();
