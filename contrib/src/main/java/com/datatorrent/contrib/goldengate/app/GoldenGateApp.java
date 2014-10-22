@@ -30,25 +30,10 @@ public class GoldenGateApp implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    KafkaInput kafkaInput = new KafkaInput();
-    dag.addOperator("GoldenGateInput", KafkaInput.class);
-
-    ////
-
-    OracleDBOutputOperator db = new OracleDBOutputOperator();
-    dag.addOperator("OracleReplicator", db);
-
-    ////
-
-    ConsoleOutputOperator console = new ConsoleOutputOperator();
-    dag.addOperator("Console", console);
-
-    ////
-
-    CSVFileOutput csvFileOutput = new CSVFileOutput();
-    dag.addOperator("CSVReplicator", csvFileOutput);
-
-    ////
+    KafkaInput kafkaInput = dag.addOperator("GoldenGateInput", KafkaInput.class);
+    OracleDBOutputOperator db = dag.addOperator("OracleReplicator", OracleDBOutputOperator.class);
+    ConsoleOutputOperator console = dag.addOperator("Console", ConsoleOutputOperator.class);
+    CSVFileOutput csvFileOutput = dag.addOperator("CSVReplicator", CSVFileOutput.class);
 
     dag.addStream("GoldenGateConsoleStream", kafkaInput.outputPort, console.input);
     dag.addStream("OracleReplicatorStream", kafkaInput.employeePort, db.input);
