@@ -19,8 +19,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.mobile.Application;
-
 
 public class ApplicationTest
 {
@@ -34,13 +32,13 @@ public class ApplicationTest
   @Test
   public void testGetApplication() throws Exception
   {
-	  Application app = new Application();
-		Configuration conf =new Configuration(false);
-		conf.addResource("dt-site-mobile.xml");
-	    LocalMode lma = LocalMode.newInstance();
-	    lma.prepareDAG(app, conf);
-	    LocalMode.Controller lc = lma.getController();
-	    lc.run(10000);
-   
+    Application app = new Application();
+    Configuration conf = new Configuration(false);
+    conf.addResource("dt-site-mobile.xml");
+    LocalMode lma = LocalMode.newInstance();
+    lma.prepareDAG(app, conf);
+    LocalMode.Controller lc = lma.getController();
+    lc.run(10000);
+
   }
 }
