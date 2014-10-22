@@ -35,12 +35,12 @@ import com.datatorrent.api.*;
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
- * AbstractBlockReader helps to parallelize reading at block level.<br/>
- * If works on {@link FileSplitter.BlockMetadata} which provides the block details.<br/>
+ * AbstractBlockReader processes a block of data from a bigger file.<br/>
+ * It works on {@link FileSplitter.BlockMetadata} which provides the block details and can be used to parallelize the processing of data within a file.<br/>
  *
  * <p/>
- * If a record is split between blocks then the reader would continue reading ahead of the block boundary until the record is complete.
- * In that scenario when the next block is parsed, the first record would be partial and so ignored.
+ * If a record is split across blocks then the reader continues reading across the block boundary until the record is completely read.
+ * In that scenario when the next block is parsed, the first record would be partial and so is ignored.
  *
  * <p/>
  * Properties that can be set on AbstractBlockReader:<br/>
@@ -54,7 +54,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <R> type of records.
  */
 public abstract class AbstractBlockReader<R> extends BaseOperator implements
-  Partitioner<AbstractBlockReader<R>>, StatsListener, Operator.IdleTimeHandler
+        Partitioner<AbstractBlockReader<R>>, StatsListener, Operator.IdleTimeHandler
 {
   protected int operatorId;
   protected transient long windowId;
@@ -80,7 +80,6 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   protected int partitionMask;
 
   //Stats-listener and partition-er properties
-
   /**
    * Controls stats collections. Default : true
    */
@@ -112,22 +111,21 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     public void process(FileSplitter.BlockMetadata blockMetadata)
     {
       LOG.debug("block {}", blockMetadata.hashCode());
-      blockQueue.add(blockMetadata);
-
       if (blocksPerWindow < threshold) {
-        FileSplitter.BlockMetadata top = blockQueue.poll();
-        if (top != null) {
+        try {
+          blocksMetadataOutput.emit(blockMetadata);
+          processBlockMetadata(blockMetadata);
           blocksPerWindow++;
-          try {
-            blocksMetadataOutput.emit(top);
-            processBlockMetadata(top);
-          }
-          catch (IOException e) {
-            throw new RuntimeException(e);
-          }
+        }
+        catch (IOException e) {
+          throw new RuntimeException(e);
         }
       }
+      else {
+        blockQueue.add(blockMetadata);
+      }
     }
+
   };
 
   public AbstractBlockReader()
@@ -176,7 +174,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   @Override
   public void handleIdleTime()
   {
-    if (blockQueue.isEmpty()) {
+    if (blockQueue.isEmpty() || blocksPerWindow >= threshold) {
       /* nothing to do here, so sleep for a while to avoid busy loop */
       try {
         Thread.sleep(sleepTimeMillis);
@@ -185,18 +183,19 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
         throw new RuntimeException(ie);
       }
     }
-    while (blocksPerWindow < threshold && blockQueue.peek() != null) {
-      FileSplitter.BlockMetadata top = blockQueue.poll();
-      if (top != null) {
-        blocksPerWindow++;
+    else {
+      do {
+        FileSplitter.BlockMetadata top = blockQueue.poll();
         try {
           blocksMetadataOutput.emit(top);
           processBlockMetadata(top);
+          blocksPerWindow++;
         }
         catch (IOException e) {
           throw new RuntimeException(e);
         }
       }
+      while (blocksPerWindow < threshold && !blockQueue.isEmpty());
     }
   }
 
@@ -360,7 +359,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
       for (int i = lastWindowedStats.size() - 1; i >= 0; i--) {
         if (lastWindowedStats.get(i).counters != null) {
           @SuppressWarnings("unchecked")
-          BasicCounters<MutableLong> basicCounters = (BasicCounters<MutableLong>) lastWindowedStats.get(i).counters;
+          BasicCounters<MutableLong> basicCounters = (BasicCounters<MutableLong>)lastWindowedStats.get(i).counters;
           operatorBacklog += basicCounters.getCounter(ReaderCounterKeys.BACKLOG).longValue();
           break;
         }
@@ -374,7 +373,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
 
     LOG.debug("nextMillis = {}", nextMillis);
     long totalBacklog = 0;
-    for (Map.Entry<Integer, Long> backlog : backlogPerOperator.entrySet()) {
+    for (Map.Entry<Integer, Long> backlog: backlogPerOperator.entrySet()) {
       totalBacklog += backlog.getValue();
     }
     LOG.debug("backlog {} partitionCount {}", totalBacklog, partitionCount);
@@ -557,6 +556,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
       record = null;
       usedBytes = -1;
     }
+
   }
 
   /**
@@ -590,6 +590,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     {
       return record;
     }
+
   }
 
   public static enum ReaderCounterKeys
@@ -606,14 +607,14 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   {
     protected int bufferSize;
 
-    private transient ByteArrayOutputStream lineBuilder;
-    private transient ByteArrayOutputStream emptyBuilder;
-    private transient ByteArrayOutputStream tmpBuilder;
+    private final transient ByteArrayOutputStream lineBuilder;
+    private final transient ByteArrayOutputStream emptyBuilder;
+    private final transient ByteArrayOutputStream tmpBuilder;
 
     private transient byte[] buffer;
     private transient String strBuffer;
     private transient int posInStr;
-    private transient Entity entity;
+    private final transient Entity entity;
 
     public AbstractLineReader()
     {
@@ -637,7 +638,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     {
       super.partitioned(integerPartitionMap);
       for (Partition<AbstractBlockReader<R>> partition : integerPartitionMap.values()) {
-        ((AbstractLineReader<R>) partition.getPartitionedInstance()).bufferSize = bufferSize;
+        ((AbstractLineReader<R>)partition.getPartitionedInstance()).bufferSize = bufferSize;
       }
     }
 
@@ -745,4 +746,3 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   private static final Logger LOG = LoggerFactory.getLogger(AbstractBlockReader.class);
 
 }
-

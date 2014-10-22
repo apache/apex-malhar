@@ -180,7 +180,7 @@ public class AbstractBlockReaderTest
 
   public static final class BlockReader extends AbstractBlockReader.AbstractLineReader<String>
   {
-    private Pattern datePattern = Pattern.compile("\\d{2}?/\\d{2}?/\\d{4}?");
+    private final Pattern datePattern = Pattern.compile("\\d{2}?/\\d{2}?/\\d{4}?");
     SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
 
     @Override
