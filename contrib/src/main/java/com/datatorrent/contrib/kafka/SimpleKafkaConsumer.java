@@ -186,6 +186,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
     super.start();
 
     logger.info("kafka-consumer-" + topic + "-%d");
+    logger.info("simpleConsumerThreads size {}", simpleConsumerThreads.size());
     // thread to consume the kafka data
     kafkaConsumerExecutor = Executors.newFixedThreadPool(simpleConsumerThreads.size(), new ThreadFactoryBuilder().setNameFormat("kafka-consumer-" + topic + "-%d").build());
 
