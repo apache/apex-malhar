@@ -40,7 +40,7 @@ public class GoldenGateApp implements StreamingApplication
                                                           "ggdemo",
                                                           10000,
                                                           100000,
-                                                          "ggdemo_client", new HashSet<Integer>(0));
+                                                          "ggdemo_client", Sets.newHashSet(0));
     kafkaInput.setConsumer(consumer);
 
     ////
