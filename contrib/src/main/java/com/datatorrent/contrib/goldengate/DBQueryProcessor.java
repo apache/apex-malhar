@@ -97,15 +97,12 @@ public class DBQueryProcessor extends QueryProcessor implements RemovalListener<
   }
 
   @Override
-  protected Class<? extends Query> getQueryClass(JsonNode json)
+  protected Class<? extends Query> getQueryClass(String selector, JsonNode json)
   {
     logger.info("JSON {}", json);
     Class<? extends Query> queryClass = null;
-    String selector = json.get("selector").getTextValue();
-    if (selector != null) {
-      if (selector.equals(GET_RECENT_TABLE_ENTRIES)) {
-        queryClass = GetRecentTableEntriesQuery.class;
-      }
+    if (selector.equals(GET_RECENT_TABLE_ENTRIES)) {
+      queryClass = GetRecentTableEntriesQuery.class;
     }
     return queryClass;
   }
