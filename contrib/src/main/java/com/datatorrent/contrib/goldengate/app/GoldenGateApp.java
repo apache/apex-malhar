@@ -85,7 +85,7 @@ public class GoldenGateApp implements StreamingApplication
     store.setDbDriver("oracle.jdbc.driver.OracleDriver");
     store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521:xe");
     store.setConnectionProperties("user:ogguser,password:dt");
-    queryProcessor.setStore(queryStore);
+    //queryProcessor.setStore(queryStore);
 
     //
 
