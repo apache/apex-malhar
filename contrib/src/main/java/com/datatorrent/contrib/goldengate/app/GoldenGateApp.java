@@ -5,17 +5,24 @@
 
 package com.datatorrent.contrib.goldengate.app;
 
+import java.util.Properties;
+
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+
+import com.datatorrent.contrib.goldengate.DBQueryProcessor;
+import com.datatorrent.contrib.goldengate.FileQueryProcessor;
+import com.datatorrent.contrib.goldengate.KafkaJsonEncoder;
+import com.datatorrent.contrib.goldengate.lib.CSVFileOutput;
+import com.datatorrent.contrib.goldengate.lib.KafkaInput;
+import com.datatorrent.contrib.goldengate.lib.OracleDBOutputOperator;
+import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
+import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.goldengate.GoldenGateQueryProcessor;
-import com.datatorrent.contrib.goldengate.KafkaJsonEncoder;
-import com.datatorrent.contrib.goldengate.lib.*;
-import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
-import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import java.util.Properties;
-import org.apache.hadoop.conf.Configuration;
 
 @ApplicationAnnotation(name="GoldenGateDemo")
 public class GoldenGateApp implements StreamingApplication
@@ -51,22 +58,27 @@ public class GoldenGateApp implements StreamingApplication
 
     ////
 
-    KafkaSinglePortStringInputOperator queryInput = dag.addOperator("QueryInput", KafkaSinglePortStringInputOperator.class);
-
-    //
-
-    GoldenGateQueryProcessor queryProcessor = dag.addOperator("QueryProcessor", GoldenGateQueryProcessor.class);
-
-    //
-
-    KafkaSinglePortOutputOperator<Object, Object> queryOutput = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
+    KafkaSinglePortStringInputOperator dbQueryInput = dag.addOperator("DBQuery", KafkaSinglePortStringInputOperator.class);
+    DBQueryProcessor dbQueryProcessor = dag.addOperator("DBQueryProcessor", DBQueryProcessor.class);
+    KafkaSinglePortOutputOperator<Object, Object> dbQueryOutput = dag.addOperator("DBQueryResponse", new KafkaSinglePortOutputOperator<Object, Object>());
 
     Properties configProperties = new Properties();
     configProperties.setProperty("serializer.class", KafkaJsonEncoder.class.getName());
     configProperties.setProperty("metadata.broker.list", "node25.morado.com:9092");
-    queryOutput.setConfigProperties(configProperties);
+    dbQueryOutput.setConfigProperties(configProperties);
 
-    dag.addStream("queries", queryInput.outputPort, queryProcessor.queryInput);
-    dag.addStream("results", queryProcessor.queryOutput, queryOutput.inputPort);
+    dag.addStream("dbQueries", dbQueryInput.outputPort, dbQueryProcessor.queryInput);
+    dag.addStream("dbRows", dbQueryProcessor.queryOutput, dbQueryOutput.inputPort);
+
+    ////
+
+    KafkaSinglePortStringInputOperator fileQueryInput = dag.addOperator("FileQuery", KafkaSinglePortStringInputOperator.class);
+    FileQueryProcessor fileQueryProcessor = dag.addOperator("FileQueryProcessor", FileQueryProcessor.class);
+    KafkaSinglePortOutputOperator<Object, Object> fileQueryOutput = dag.addOperator("FileQueryResponse", new KafkaSinglePortOutputOperator<Object, Object>());
+
+    fileQueryOutput.setConfigProperties(configProperties);
+
+    dag.addStream("fileQueries", fileQueryInput.outputPort, fileQueryProcessor.queryInput);
+    dag.addStream("fileData", fileQueryProcessor.queryOutput, fileQueryOutput.inputPort);
   }
 }

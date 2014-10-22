@@ -77,14 +77,22 @@ public abstract class QueryProcessor extends BaseOperator
   {
     logger.debug("process query {}", queryString);
     try {
-      // Not efficient reading json twice
       JsonNode json = mapper.readTree(queryString);
-      Class<? extends Query> queryClass = getQueryClass(json);
-
-      if (queryClass != null) {
-        Query query = mapper.readValue(queryString, queryClass);
-        setQueryProperties(query, json);
-        processQuery(query);
+      JsonNode idJson = json.get("id");
+      JsonNode keys = json.get("keys");
+      if ((idJson != null) && (keys != null)) {
+        String id = idJson.getTextValue();
+        JsonNode selectorJson = keys.get("selector");
+        if (selectorJson != null) {
+          String selector = selectorJson.getTextValue();
+          Class<? extends Query> queryClass = getQueryClass(selector, keys);
+          if (queryClass != null) {
+            Query query = mapper.readValue(keys, queryClass);
+            query.id = id;
+            setQueryProperties(query, keys);
+            processQuery(query);
+          }
+        }
       }
     }
     catch (Exception ex) {
@@ -112,7 +120,7 @@ public abstract class QueryProcessor extends BaseOperator
   protected void setQueryProperties(Query query, JsonNode json) {
   }
 
-  protected abstract Class<? extends Query> getQueryClass(JsonNode json);
+  protected abstract Class<? extends Query> getQueryClass(String selector, JsonNode json);
 
   protected abstract void executeQuery(Query query, QueryResults results);
 

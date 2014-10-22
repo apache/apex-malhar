@@ -1,8 +1,5 @@
 package com.datatorrent.contrib.goldengate;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -11,16 +8,10 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 import com.google.common.cache.*;
-import com.google.common.collect.EvictingQueue;
 
 import org.codehaus.jackson.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.lib.db.jdbc.JdbcStore;
 
@@ -31,40 +22,24 @@ import com.datatorrent.common.util.DTThrowable;
 /**
  * Created by Pramod Immaneni <pramod@datatorrent.com> on 10/21/14.
  */
-public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalListener<String, PreparedStatement>
+public class DBQueryProcessor extends QueryProcessor implements RemovalListener<String, PreparedStatement>
 {
-  private static final Logger logger = LoggerFactory.getLogger(GoldenGateQueryProcessor.class);
+  private static final Logger logger = LoggerFactory.getLogger(DBQueryProcessor.class);
   private static final String GET_RECENT_TABLE_ENTRIES = "GET_RECENT_TABLE_ENTRIES";
-  private static final String GET_LATEST_FILE_CONTENTS = "GET_LATEST_FILE_CONTENTS";
 
   private static final String TABLE_DATA = "TABLE";
-  private static final String CONTENT_DATA = "CONTENT";
 
   private static final String[] TABLE_HEADERS = {"Employee ID", "Name", "Department"};
 
   private String getQuery = "select * from (select * from %s order by eid desc) where rownum < ?";
 
-  private String filePath;
-
   protected JdbcStore store;
-
-  private transient FileSystem fs;
   private transient LoadingCache<String, PreparedStatement> statements;
   private int statementSize = 100;
 
-  public GoldenGateQueryProcessor()
+  public DBQueryProcessor()
   {
     store = new JdbcStore();
-  }
-
-  public JdbcStore getStore()
-  {
-    return store;
-  }
-
-  public void setStore(JdbcStore store)
-  {
-    this.store = store;
   }
 
   public int getStatementSize()
@@ -75,6 +50,16 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
   public void setStatementSize(int statementSize)
   {
     this.statementSize = statementSize;
+  }
+
+  public JdbcStore getStore()
+  {
+    return store;
+  }
+
+  public void setStore(JdbcStore store)
+  {
+    this.store = store;
   }
 
   @Override
@@ -92,26 +77,14 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
         return store.getConnection().prepareStatement(getTableQuery);
       }
     });
-    try {
-      fs = FileSystem.get(new Configuration());
-    } catch (IOException e) {
-      DTThrowable.rethrow(e);
-    }
   }
 
   @Override
   public void teardown()
   {
-    try {
-      fs.close();
-    } catch (IOException e) {
-      logger.error("Error closing filesystem", e);
-    }
     statements.cleanUp();
     store.disconnect();
   }
-
-
 
   @Override
   public void onRemoval(RemovalNotification<String, PreparedStatement> notification)
@@ -123,28 +96,13 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
     }
   }
 
-  public String getFilePath()
-  {
-    return filePath;
-  }
-
-  public void setFilePath(String filePath)
-  {
-    this.filePath = filePath;
-  }
-
   @Override
-  protected Class<? extends Query> getQueryClass(JsonNode json)
+  protected Class<? extends Query> getQueryClass(String selector, JsonNode json)
   {
-    logger.info("JSON {}", json);
+    logger.info("Selector {} JSON {}", selector, json);
     Class<? extends Query> queryClass = null;
-    String selector = json.get("selector").getTextValue();
-    if (selector != null) {
-      if (selector.equals(GET_RECENT_TABLE_ENTRIES)) {
-        queryClass = GetRecentTableEntriesQuery.class;
-      } else if (selector.equals(GET_LATEST_FILE_CONTENTS)) {
-        queryClass = GetLatestFileContentsQuery.class;
-      }
+    if (selector.equals(GET_RECENT_TABLE_ENTRIES)) {
+      queryClass = GetRecentTableEntriesQuery.class;
     }
     return queryClass;
   }
@@ -154,8 +112,6 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
   {
     if (query instanceof GetRecentTableEntriesQuery) {
       processGetRecentTableEntries((GetRecentTableEntriesQuery)query, results);
-    } else if (query instanceof GetLatestFileContentsQuery) {
-      processGetLatestFileContents((GetLatestFileContentsQuery)query, results);
     }
   }
 
@@ -181,33 +137,11 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
       resultsData.rows = rows.toArray(new Object[0][0]);
       results.setData(resultsData);
       results.setType(TABLE_DATA);
+      logger.info("result rows {}", resultsData.rows.length);
     } catch (SQLException e) {
       DTThrowable.rethrow(e);
     } catch (ExecutionException e) {
       e.printStackTrace();
-    }
-  }
-
-  public void processGetLatestFileContents(GetLatestFileContentsQuery query, QueryResults results) {
-    logger.info("File contents query info {} {}", query.filePath, query.numberLines);
-    String filePath = query.filePath;
-    if (filePath == null) filePath = this.filePath;
-    int numberLines = query.numberLines;
-    try {
-      EvictingQueue<String> queue = EvictingQueue.create(numberLines);
-      FSDataInputStream inputStream = fs.open(new Path(filePath));
-      BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
-      String line = null;
-      while ((line = reader.readLine()) != null) {
-        queue.add(line);
-      }
-      ContentData contentData = new ContentData();
-      contentData.lines = queue.toArray(new String[0]);
-      results.setData(contentData);
-      results.setType(CONTENT_DATA);
-      reader.close();
-    } catch (IOException e) {
-      DTThrowable.rethrow(e);
     }
   }
 
@@ -226,29 +160,10 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
     }
   }
 
-  public static class GetLatestFileContentsQuery extends Query
-  {
-    public String filePath;
-    public int numberLines;
-
-    @Override
-    public String toString()
-    {
-      return "GetLatestFileContentsQuery{" +
-              "fileName='" + filePath + '\'' +
-              ", numberLines=" + numberLines +
-              '}';
-    }
-  }
   public static class TableData implements QueryResults.Data
   {
     public String[] headers;
     public Object[][] rows;
-  }
-
-  public static class ContentData implements QueryResults.Data
-  {
-    public String[] lines;
   }
 
 }
