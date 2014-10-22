@@ -48,7 +48,7 @@
                         <outputDirectory>target/dist</outputDirectory>
                         <overWriteIfNewer>true</overWriteIfNewer>
                         <includeArtifactIds>
-                            commons-compress,kafka_2.10,metrics-core,scala-library,super-csv,zkclient,zookeeper,malhar-library,malhar-contrib,jdbc,guava
+                            commons-compress,kafka_2.10,metrics-core,scala-library,super-csv,zkclient,zookeeper,malhar-library,malhar-contrib,jdbc,guava,ggaddons,ggcache,ggcmdui,ggcoh,ggdbutil,ggjms,ggtrail,gguserexitapi,ggutil
                         </includeArtifactIds>
                     </configuration>
                 </execution>
