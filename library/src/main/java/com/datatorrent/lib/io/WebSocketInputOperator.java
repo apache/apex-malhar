@@ -24,7 +24,6 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -138,7 +137,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
   @SuppressWarnings("unchecked")
   protected T convertMessage(String message) throws IOException
   {
-    return (T)mapper.readValue(message, HashMap.class);
+    return (T)mapper.readValue(message, Object.class);
   }
 
   private transient MonitorThread monThread;
