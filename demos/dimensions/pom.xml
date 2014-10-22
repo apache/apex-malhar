@@ -4,7 +4,7 @@
 
   <groupId>com.datatorrent</groupId>
   <version>1.0-SNAPSHOT</version>
-  <artifactId>dimensions-demo</artifactId>
+  <artifactId>dimensions-demo-thomas</artifactId>
   <packaging>jar</packaging>
 
   <name>DataTorrent Dimensions Demos</name>

@@ -15,15 +15,11 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
-import java.nio.ByteBuffer;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -45,7 +41,7 @@ import com.google.common.collect.Sets;
  * @category Store
  * @tags hds, query
  */
-public class HDSQueryOperator extends HDSOutputOperator
+public class HDSQueryOperator extends AdsDimensionStoreOperator
 {
   public final transient DefaultOutputPort<HDSRangeQueryResult> queryResult = new DefaultOutputPort<HDSRangeQueryResult>();
 
@@ -161,7 +157,7 @@ public class HDSQueryOperator extends HDSOutputOperator
     // set query for each point in series
     query.prototype.timestamp = query.startTime;
     while (query.prototype.timestamp <= query.endTime) {
-      Slice key = getKey(query.prototype);
+      Slice key = new Slice(getKey(query.prototype));
       HDSQuery q = super.queries.get(key);
       if (q == null) {
         q = new HDSQuery();
@@ -181,56 +177,6 @@ public class HDSQueryOperator extends HDSOutputOperator
     }
     LOG.debug("Queries: {}", query.points);
     rangeQueries.put(query.id, query);
-  }
-
-  protected AdInfo.AdInfoAggregateEvent getAggregatesFromBytes(Slice key, byte[] value)
-  {
-    if (key == null || value == null)
-      return null;
-
-    AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
-    if (debug) {
-      return getAggregatesFromString(new String(key.buffer, key.offset, key.length), new String(value));
-    }
-
-    java.nio.ByteBuffer bb = ByteBuffer.wrap(key.buffer, key.offset, key.length);
-    ae.timestamp = bb.getLong();
-    ae.publisherId = bb.getInt();
-    ae.advertiserId = bb.getInt();
-    ae.adUnit = bb.getInt();
-
-    bb = ByteBuffer.wrap(value);
-    ae.clicks = bb.getLong();
-    ae.cost = bb.getDouble();
-    ae.impressions = bb.getLong();
-    ae.revenue = bb.getDouble();
-    return ae;
-  }
-
-  protected AdInfo.AdInfoAggregateEvent getAggregatesFromString(String key, String value)
-  {
-    AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
-    Pattern p = Pattern.compile("([^|]*)\\|publisherId:(\\d+)\\|advertiserId:(\\d+)\\|adUnit:(\\d+)");
-    Matcher m = p.matcher(key);
-    m.find();
-    try {
-      Date date = sdf.parse(m.group(1));
-      ae.timestamp = date.getTime();
-    } catch (Exception ex) {
-      ae.timestamp = 0;
-    }
-    ae.publisherId = Integer.valueOf(m.group(2));
-    ae.advertiserId = Integer.valueOf(m.group(3));
-    ae.adUnit = Integer.valueOf(m.group(4));
-
-    p = Pattern.compile("\\|clicks:(.*)\\|cost:(.*)\\|impressions:(.*)\\|revenue:(.*)");
-    m = p.matcher(value);
-    m.find();
-    ae.clicks = Long.valueOf(m.group(1));
-    ae.cost = Double.valueOf(m.group(2));
-    ae.impressions = Long.valueOf(m.group(3));
-    ae.revenue = Double.valueOf(m.group(4));
-    return ae;
   }
 
   @Override
@@ -267,7 +213,7 @@ public class HDSQueryOperator extends HDSOutputOperator
         }
         // results from persistent store
         if (query.processed && query.result != null) {
-          AdInfo.AdInfoAggregateEvent ae = getAggregatesFromBytes(query.key, query.result);
+          AdInfo.AdInfoAggregateEvent ae = super.codec.fromKeyValue(query.key, query.result);
           if (ae != null)
             res.data.add(ae);
         }

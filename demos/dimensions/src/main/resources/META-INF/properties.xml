@@ -40,6 +40,23 @@
     <value>5</value>
   </property>
 
+  <!-- Settings for AdsDimensionsDemoWithHDS -->
+  <property>
+    <name>dt.application.AdsDimensionsDemoWithHDS.operator.Store.fileStore.basePath</name>
+    <value>AdsDimensionsWithHDSDemo/Store</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoWithHDS.useWebSockets</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoWithHDS.operator.Query.topic</name>
+    <value>AdsQuery</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoWithHDS.operator.QueryResult.topic</name>
+    <value>AdsQueryResult</value>
+  </property>
 
   <!-- Settings for all Query and QueryResult operators -->
   <property>
@@ -65,9 +82,6 @@
     <!--<name>dt.operator.QueryResult.prop.configProperties(metadata.broker.list)</name>-->
     <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
   <!--</property>-->
-
-
-
 
 
   <!-- Settings for all the apps -->

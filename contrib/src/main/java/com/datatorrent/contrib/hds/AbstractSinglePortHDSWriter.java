@@ -30,6 +30,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StreamCodec;
+import com.datatorrent.common.util.Slice;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -47,7 +48,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
   {
     byte[] getKeyBytes(EVENT event);
     byte[] getValueBytes(EVENT event);
-    EVENT fromKeyValue(byte[] key, byte[] value);
+    EVENT fromKeyValue(Slice key, byte[] value);
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractSinglePortHDSWriter.class);

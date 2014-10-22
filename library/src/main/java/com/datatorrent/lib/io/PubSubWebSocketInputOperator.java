@@ -51,6 +51,11 @@ public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
     topics.add(topic);
   }
 
+  public HashSet<String> getTopics()
+  {
+    return topics;
+  }
+
   @SuppressWarnings("unchecked")
   @Override
   protected T convertMessage(String message) throws IOException
