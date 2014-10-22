@@ -110,6 +110,14 @@ public class GoldenGateQueryProcessor extends QueryProcessor
   @Override
   protected Class<? extends Query> getQueryClass(JsonNode json)
   {
+    logger.info("JSON {}", json);
+    try {
+      GetRecentTableEntriesQuery getQuery = new GetRecentTableEntriesQuery();
+      String s = mapper.writeValueAsString(getQuery);
+      logger.info("Query as JSON {}", s);
+    } catch (IOException e) {
+      DTThrowable.rethrow(e);
+    }
     Class<? extends Query> queryClass = null;
     String selector = json.get("selector").getTextValue();
     if (selector != null) {
@@ -133,6 +141,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor
   }
 
   public void processGetRecentTableEntries(GetRecentTableEntriesQuery query, QueryResults results) {
+    logger.info("Query info {} {}", query.tableName, query.numberEntries);
     String tableName = query.tableName;
     int numberEntries = query.numberEntries;
     try {

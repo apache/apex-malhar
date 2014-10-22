@@ -33,7 +33,7 @@ import com.datatorrent.common.util.DTThrowable;
  */
 public abstract class QueryProcessor extends BaseOperator
 {
-  private transient ObjectMapper mapper;
+  protected transient ObjectMapper mapper;
   private transient Map<Query, Long> queries = new HashMap<Query, Long>();
   private transient long currentWindowId;
   private long queryExpiryWindows = 30;
