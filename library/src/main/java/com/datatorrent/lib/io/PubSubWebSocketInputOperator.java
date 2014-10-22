@@ -17,8 +17,9 @@ package com.datatorrent.lib.io;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +39,7 @@ import com.datatorrent.lib.util.PubSubWebSocketClient;
 public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
 {
   private static final Logger LOG = LoggerFactory.getLogger(PubSubWebSocketInputOperator.class);
-  private final HashSet<String> topics = new HashSet<String>();
+  private String topic = null;
   private transient PubSubMessageCodec<Object> codec;
 
   public PubSubWebSocketInputOperator()
@@ -46,14 +47,15 @@ public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
     this.codec = new PubSubMessageCodec<Object>(mapper);
   }
 
-  public void addTopic(String topic)
+  public void setTopic(String topic)
   {
-    topics.add(topic);
+    this.topic = topic;
   }
 
-  public HashSet<String> getTopics()
+  @NotNull
+  public String getTopic()
   {
-    return topics;
+    return topic;
   }
 
   @SuppressWarnings("unchecked")
@@ -69,9 +71,7 @@ public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
   {
     super.run();
     try {
-      for (String topic: topics) {
-        connection.sendTextMessage(PubSubWebSocketClient.constructSubscribeMessage(topic, codec));
-      }
+      connection.sendTextMessage(PubSubWebSocketClient.constructSubscribeMessage(topic, codec));
     }
     catch (IOException ex) {
       LOG.error("Exception caught", ex);

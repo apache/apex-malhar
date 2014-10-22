@@ -69,7 +69,7 @@
   <!-- Settings for all Query and QueryResult operators -->
   <property>
     <name>dt.operator.QueryResult.prop.configProperties(serializer.class)</name>
-    <value>com.datatorrent.demos.dimensions.ads.KafkaJsonEncoder</value>
+    <value>com.datatorrent.contrib.kafka.KafkaJsonEncoder</value>
   </property>
 
   <!-- Ensure that Kafka connect address is set locally - deployment specific configuration -->

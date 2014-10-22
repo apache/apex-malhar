@@ -49,7 +49,7 @@ public class Application implements StreamingApplication
   {
     PubSubWebSocketInputOperator reqin = dag.addOperator(name, new PubSubWebSocketInputOperator());
     reqin.setUri(duri);
-    reqin.addTopic(topic);
+    reqin.setTopic(topic);
     return reqin;
   }
 

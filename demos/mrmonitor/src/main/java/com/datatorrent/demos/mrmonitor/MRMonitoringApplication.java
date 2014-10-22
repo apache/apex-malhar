@@ -66,7 +66,7 @@ public class MRMonitoringApplication implements StreamingApplication
 
     PubSubWebSocketInputOperator wsIn = dag.addOperator("Input-Query-Operator", new PubSubWebSocketInputOperator());
     wsIn.setUri(uri);
-    wsIn.addTopic("contrib.summit.mrDebugger.mrDebuggerQuery");
+    wsIn.setTopic("contrib.summit.mrDebugger.mrDebuggerQuery");
 
     MapToMRObjectOperator convertorOper = dag.addOperator("Input-Query-Conversion-Operator", new MapToMRObjectOperator());
     dag.addStream("queryConversion", wsIn.outputPort, convertorOper.input).setLocality(Locality.CONTAINER_LOCAL);
