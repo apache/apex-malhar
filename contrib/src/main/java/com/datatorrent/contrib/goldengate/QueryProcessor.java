@@ -78,14 +78,17 @@ public abstract class QueryProcessor extends BaseOperator
     logger.debug("process query {}", queryString);
     try {
       JsonNode json = mapper.readTree(queryString);
+      JsonNode idJson = json.get("id");
       JsonNode keys = json.get("keys");
-      if (keys != null) {
+      if ((idJson != null) && (keys != null)) {
+        String id = idJson.getTextValue();
         JsonNode selectorJson = keys.get("selector");
         if (selectorJson != null) {
           String selector = selectorJson.getTextValue();
           Class<? extends Query> queryClass = getQueryClass(selector, keys);
           if (queryClass != null) {
             Query query = mapper.readValue(keys, queryClass);
+            query.id = id;
             setQueryProperties(query, keys);
             processQuery(query);
           }
