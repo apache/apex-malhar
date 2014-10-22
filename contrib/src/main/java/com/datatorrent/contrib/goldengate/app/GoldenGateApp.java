@@ -31,7 +31,7 @@ public class GoldenGateApp implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     KafkaInput kafkaInput = new KafkaInput();
-    dag.addOperator("GoldenGateInput", kafkaInput);
+    dag.addOperator("GoldenGateInput", KafkaInput.class);
 
     ////
 
@@ -46,8 +46,6 @@ public class GoldenGateApp implements StreamingApplication
     ////
 
     CSVFileOutput csvFileOutput = new CSVFileOutput();
-    csvFileOutput.setFilePath("/user/tim");
-    csvFileOutput.setOutputFileName("dtv.csv");
     dag.addOperator("CSVReplicator", csvFileOutput);
 
     ////
