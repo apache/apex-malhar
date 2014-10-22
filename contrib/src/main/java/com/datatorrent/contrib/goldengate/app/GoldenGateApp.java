@@ -30,27 +30,10 @@ public class GoldenGateApp implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    KafkaInput kafkaInput = new KafkaInput();
-    dag.addOperator("kafkaInput", kafkaInput);
-
-    ////
-
-    OracleDBOutputOperator db = new OracleDBOutputOperator();
-    dag.addOperator("oracledb", db);
-
-    ////
-
-    ConsoleOutputOperator console = new ConsoleOutputOperator();
-    dag.addOperator("console", console);
-
-    ////
-
-    CSVFileOutput csvFileOutput = new CSVFileOutput();
-    csvFileOutput.setFilePath("/user/tim");
-    csvFileOutput.setOutputFileName("dtv.csv");
-    dag.addOperator("csv", csvFileOutput);
-
-    ////
+    KafkaInput kafkaInput = dag.addOperator("kafkaInput", KafkaInput.class);
+    OracleDBOutputOperator db = dag.addOperator("oracledb", OracleDBOutputOperator.class);
+    ConsoleOutputOperator console = dag.addOperator("console", ConsoleOutputOperator.class);
+    CSVFileOutput csvFileOutput = dag.addOperator("csv", CSVFileOutput.class);
 
     dag.addStream("display", kafkaInput.outputPort, console.input);
     dag.addStream("inputtodb", kafkaInput.employeePort, db.input);
@@ -69,6 +52,8 @@ public class GoldenGateApp implements StreamingApplication
 
     dag.addStream("dbQueries", dbQueryInput.outputPort, dbQueryProcessor.queryInput);
     dag.addStream("dbRows", dbQueryProcessor.queryOutput, dbQueryOutput.inputPort);
+
+    ////
 
     KafkaSinglePortStringInputOperator fileQueryInput = dag.addOperator("FileQuery", KafkaSinglePortStringInputOperator.class);
     FileQueryProcessor fileQueryProcessor = dag.addOperator("FileQueryProcessor", FileQueryProcessor.class);
