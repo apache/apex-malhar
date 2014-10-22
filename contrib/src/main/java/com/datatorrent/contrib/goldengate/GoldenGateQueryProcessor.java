@@ -52,7 +52,6 @@ public class GoldenGateQueryProcessor extends QueryProcessor
   public GoldenGateQueryProcessor()
   {
     store = new JdbcStore();
-    store.setDbDriver("oracle.jdbc.driver.OracleDriver");
   }
 
   public JdbcStore getStore()
