@@ -46,7 +46,7 @@ public class GoldenGateApp implements StreamingApplication
 
     dag.addStream("display", kafkaInput.outputPort, console.input);
     dag.addStream("inputtodb", kafkaInput.employeePort, db.input);
-    dag.addStream("csvstream", kafkaInput.employeePort, csvFileOutput.input);
+    dag.addStream("csvstream", kafkaInput.employeePort1, csvFileOutput.input);
 
     ////
 

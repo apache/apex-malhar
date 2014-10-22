@@ -21,6 +21,7 @@ public class KafkaInput extends KafkaSinglePortStringInputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(KafkaInput.class);
   public final transient DefaultOutputPort<Employee> employeePort = new DefaultOutputPort<Employee>();
+  public final transient DefaultOutputPort<Employee> employeePort1 = new DefaultOutputPort<Employee>();
 
   private transient ObjectMapper mapper = new ObjectMapper();
 
@@ -69,6 +70,7 @@ public class KafkaInput extends KafkaSinglePortStringInputOperator
       employee.did = Integer.parseInt(cols[2].getAfterValue());
 
       employeePort.emit(employee);
+      employeePort1.emit(employee);
     }
   }
 }
