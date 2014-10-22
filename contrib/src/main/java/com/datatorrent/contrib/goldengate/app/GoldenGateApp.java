@@ -33,25 +33,12 @@ public class GoldenGateApp implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    SimpleKafkaConsumer simpleKafkaConsumer = new SimpleKafkaConsumer(Sets.newHashSet("node25.morado.com:9092"),
-                                                                      "ggdemo",
-                                                                      10000,
-                                                                      100000,
-                                                                      "ggdemo_client",
-                                                                      new HashSet<Integer>());
     KafkaInput kafkaInput = new KafkaInput();
-    kafkaInput.setConsumer(simpleKafkaConsumer);
     dag.addOperator("kafkaInput", kafkaInput);
 
     ////
 
-    JdbcStore store = new JdbcStore();
-    store.setDbDriver("oracle.jdbc.driver.OracleDriver");
-    store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521:xe");
-    store.setConnectionProperties("user:ogguser,password:dt");
-
     OracleDBOutputOperator db = new OracleDBOutputOperator();
-    db.setStore(store);
     dag.addOperator("oracledb", db);
 
     ////
@@ -68,24 +55,9 @@ public class GoldenGateApp implements StreamingApplication
 
     KafkaSinglePortStringInputOperator queryInput = dag.addOperator("QueryInput", KafkaSinglePortStringInputOperator.class);
 
-    SimpleKafkaConsumer inputConsumer = new SimpleKafkaConsumer(Sets.newHashSet("node25.morado.com:9092"),
-                                                                      "GoldenGateQuery",
-                                                                      10000,
-                                                                      100000,
-                                                                      "GoldenGateQuery_client",
-                                                                      new HashSet<Integer>());
-
-    queryInput.setConsumer(inputConsumer);
-
     //
 
     GoldenGateQueryProcessor queryProcessor = dag.addOperator("QueryProcessor", GoldenGateQueryProcessor.class);
-
-    JdbcStore queryStore = new JdbcStore();
-    store.setDbDriver("oracle.jdbc.driver.OracleDriver");
-    store.setDbUrl("jdbc:oracle:thin:@node25.morado.com:1521:xe");
-    store.setConnectionProperties("user:ogguser,password:dt");
-    queryProcessor.setStore(queryStore);
 
     //
 

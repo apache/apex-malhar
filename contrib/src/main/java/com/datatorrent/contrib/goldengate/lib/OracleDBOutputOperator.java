@@ -19,6 +19,20 @@ public class OracleDBOutputOperator extends AbstractJdbcNonTransactionableOutput
   private static final String INSERT = "INSERT INTO PROCESSEDEMPLOYEE" +
                                         " (EID, NAME, DEPARTMENT)" +
                                         " values (?, ?, ?)";
+  public OracleDBOutputOperator()
+  {
+    store = new JdbcStore();
+  }
+
+  public JdbcStore getStore()
+  {
+    return store;
+  }
+
+  public void setStore(JdbcStore store)
+  {
+    this.store = store;
+  }
 
   @Override
   protected String getUpdateCommand()
