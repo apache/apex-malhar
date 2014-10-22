@@ -80,8 +80,9 @@ public abstract class QueryProcessor extends BaseOperator
       JsonNode json = mapper.readTree(queryString);
       JsonNode keys = json.get("keys");
       if (keys != null) {
-        String selector = keys.get("selector").getTextValue();
-        if (selector != null) {
+        JsonNode selectorJson = keys.get("selector");
+        if (selectorJson != null) {
+          String selector = selectorJson.getTextValue();
           Class<? extends Query> queryClass = getQueryClass(selector, keys);
           if (queryClass != null) {
             Query query = mapper.readValue(keys, queryClass);
