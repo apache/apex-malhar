@@ -19,27 +19,27 @@ import com.goldengate.atg.datasource.meta.TableMetaData;
  * An Example of serialize the goldengate transaction operation object<br>
  * The default goldengate objects(DsTransaction, DsOperation, etc) are not serializable in most ways.<br>
  * This example use the equivalent {@link _DsTransaction} objects that can be (de)serialized using any popular framework(In this case json format)
- * 
+ *
  */
 public class JSonFormatter extends DsFormatterAdapter
 {
-  
+
   private static final Logger log = Logger.getLogger(JSonFormatter.class);
-  
+
   static {
     log.setLevel(Level.ALL);
   }
-//  
+//
 //  private static String seperator = "\n=====\n";
-//  
+//
   @Override
   public void init(DsConfiguration conf, DsMetaData meta)
   {
     super.init(conf, meta);
     setSourceDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
-    setTargetDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS");
+    setTargetDateFormat("yyyy-MM-dd HH:mm:ss");
   }
-  
+
   private ObjectMapper mapper = new ObjectMapper();
   {
     mapper.setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSSSSS"));
@@ -48,7 +48,7 @@ public class JSonFormatter extends DsFormatterAdapter
 
   @Override
   public void formatOp(DsTransaction tran, DsOperation op, TableMetaData tmd, PrintWriter pw)
-  { 
+  {
     // Comment out this for op mode
 //    try {
 //      log.info("Tran time" + tran.getStartTxTimeAsString() + "###" + tran.getReadTimeAsString());
@@ -63,15 +63,15 @@ public class JSonFormatter extends DsFormatterAdapter
 //      log.error("Error serialize object", e);
 //    }
   }
-  
+
   @Override
   public void endTx(DsTransaction tx, DsMetaData dbMeta, PrintWriter output)
   {
     super.endTx(tx, dbMeta, output);
   }
 
-  
-  
+
+
   @Override
   public void formatTx(DsTransaction tran, DsMetaData dma, PrintWriter pw)
   {
@@ -84,9 +84,9 @@ public class JSonFormatter extends DsFormatterAdapter
     } catch (Exception e) {
       log.error("Error serialize object", e);
     }
-    
+
   }
-  
-  
+
+
 
 }
