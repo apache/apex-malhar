@@ -35,10 +35,10 @@ import com.datatorrent.lib.util.PubSubWebSocketClient;
  *
  * @since 0.3.2
  */
-public class PubSubWebSocketInputOperator extends WebSocketInputOperator
+public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
 {
   private static final Logger LOG = LoggerFactory.getLogger(PubSubWebSocketInputOperator.class);
-  private HashSet<String> topics = new HashSet<String>();
+  private final HashSet<String> topics = new HashSet<String>();
   private transient PubSubMessageCodec<Object> codec;
 
   public PubSubWebSocketInputOperator()
@@ -53,10 +53,10 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
 
   @SuppressWarnings("unchecked")
   @Override
-  protected Map<String, String> convertMessageToMap(String message) throws IOException
+  protected T convertMessage(String message) throws IOException
   {
     Map<String, Object> map = mapper.readValue(message, HashMap.class);
-    return (Map<String, String>)map.get("data");
+    return (T)map.get("data");
   }
 
   @Override
