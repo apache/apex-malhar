@@ -185,7 +185,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
       }
       TableData resultsData = new TableData();
       resultsData.headers = TABLE_HEADERS;
-      resultsData.rows = rows.toArray(resultsData.rows);
+      resultsData.rows = rows.toArray(new Object[][]);
       results.setData(resultsData);
       results.setType(TABLE_DATA);
     } catch (SQLException e) {
@@ -208,7 +208,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
         queue.add(line);
       }
       ContentData contentData = new ContentData();
-      contentData.lines = queue.toArray(contentData.lines);
+      contentData.lines = queue.toArray(new String[]);
       results.setData(contentData);
       results.setType(CONTENT_DATA);
       inputStream.close();
