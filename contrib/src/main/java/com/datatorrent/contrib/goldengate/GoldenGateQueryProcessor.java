@@ -42,7 +42,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
 
   private static final String[] TABLE_HEADERS = {"Employee ID", "Name", "Department"};
 
-  private String getQuery = "select * from %s order by eid limit ?";
+  private String getQuery = "select * from %s order by eid limit ?;";
 
   private String filePath;
 
@@ -88,6 +88,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
       public PreparedStatement load(String s) throws Exception
       {
         String getTableQuery = String.format(getQuery, s);
+        logger.info("Get query {}", getTableQuery);
         return store.getConnection().prepareStatement(getTableQuery);
       }
     });
@@ -172,6 +173,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
     try {
       PreparedStatement getStatement = statements.get(tableName);
       getStatement.setInt(1, numberEntries);
+      logger.info("query {}", getStatement);
       ResultSet resultSet = getStatement.executeQuery();
       List<Object[]> rows = new ArrayList<Object[]>();
       while (resultSet.next()) {
