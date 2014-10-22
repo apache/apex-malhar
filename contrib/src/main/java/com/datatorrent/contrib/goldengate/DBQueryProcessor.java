@@ -37,6 +37,10 @@ public class DBQueryProcessor extends QueryProcessor implements RemovalListener<
   private transient LoadingCache<String, PreparedStatement> statements;
   private int statementSize = 100;
 
+  public DBQueryProcessor()
+  {
+    store = new JdbcStore();
+  }
 
   public int getStatementSize()
   {
@@ -46,11 +50,6 @@ public class DBQueryProcessor extends QueryProcessor implements RemovalListener<
   public void setStatementSize(int statementSize)
   {
     this.statementSize = statementSize;
-  }
-
-  public DBQueryProcessor()
-  {
-    store = new JdbcStore();
   }
 
   public JdbcStore getStore()
