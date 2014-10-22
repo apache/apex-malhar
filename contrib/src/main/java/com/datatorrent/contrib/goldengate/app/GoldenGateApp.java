@@ -39,7 +39,8 @@ public class GoldenGateApp implements StreamingApplication
     ////
 
     CSVFileOutput csvFileOutput = new CSVFileOutput();
-    csvFileOutput.setOutputFileName("/user/tim/dtv.csv");
+    csvFileOutput.setFilePath("/user/tim");
+    csvFileOutput.setOutputFileName("dtv.csv");
     dag.addOperator("csv", csvFileOutput);
 
     ////
