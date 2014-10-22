@@ -7,7 +7,7 @@ package com.datatorrent.contrib.goldengate.lib;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
+import com.datatorrent.contrib.kafka.PartitionableKafkaSinglePortStringInputOperator;
 import com.goldengate.atg.datasource.DsOperation.OpType;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -16,7 +16,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class KafkaInput extends  KafkaSinglePortStringInputOperator
+public class KafkaInput extends PartitionableKafkaSinglePortStringInputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(KafkaInput.class);
   public final transient DefaultOutputPort<Employee> employeePort = new DefaultOutputPort<Employee>();
