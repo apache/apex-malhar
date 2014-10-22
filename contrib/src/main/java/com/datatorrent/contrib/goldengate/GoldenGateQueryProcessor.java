@@ -137,13 +137,6 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
   protected Class<? extends Query> getQueryClass(JsonNode json)
   {
     logger.info("JSON {}", json);
-    try {
-      GetRecentTableEntriesQuery getQuery = new GetRecentTableEntriesQuery();
-      String s = mapper.writeValueAsString(getQuery);
-      logger.info("Query as JSON {}", s);
-    } catch (IOException e) {
-      DTThrowable.rethrow(e);
-    }
     Class<? extends Query> queryClass = null;
     String selector = json.get("selector").getTextValue();
     if (selector != null) {
@@ -167,7 +160,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
   }
 
   public void processGetRecentTableEntries(GetRecentTableEntriesQuery query, QueryResults results) {
-    logger.info("Query info {} {}", query.tableName, query.numberEntries);
+    logger.info("Get recent entries query info {} {}", query.tableName, query.numberEntries);
     String tableName = query.tableName;
     int numberEntries = query.numberEntries;
     try {
@@ -196,6 +189,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
   }
 
   public void processGetLatestFileContents(GetLatestFileContentsQuery query, QueryResults results) {
+    logger.info("File contents query info {} {}", query.filePath, query.numberLines);
     String filePath = query.filePath;
     if (filePath == null) filePath = this.filePath;
     int numberLines = query.numberLines;
@@ -211,7 +205,7 @@ public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalL
       contentData.lines = queue.toArray(new String[0]);
       results.setData(contentData);
       results.setType(CONTENT_DATA);
-      inputStream.close();
+      reader.close();
     } catch (IOException e) {
       DTThrowable.rethrow(e);
     }
