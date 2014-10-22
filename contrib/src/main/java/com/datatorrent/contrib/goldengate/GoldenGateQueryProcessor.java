@@ -8,7 +8,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
+import com.google.common.cache.*;
 import com.google.common.collect.EvictingQueue;
 
 import org.codehaus.jackson.JsonNode;
@@ -29,7 +31,7 @@ import com.datatorrent.common.util.DTThrowable;
 /**
  * Created by Pramod Immaneni <pramod@datatorrent.com> on 10/21/14.
  */
-public class GoldenGateQueryProcessor extends QueryProcessor
+public class GoldenGateQueryProcessor extends QueryProcessor implements RemovalListener<String, PreparedStatement>
 {
   private static final Logger logger = LoggerFactory.getLogger(GoldenGateQueryProcessor.class);
   private static final String GET_RECENT_TABLE_ENTRIES = "GET_RECENT_TABLE_ENTRIES";
@@ -40,14 +42,15 @@ public class GoldenGateQueryProcessor extends QueryProcessor
 
   private static final String[] TABLE_HEADERS = {"Employee ID", "Name", "Department"};
 
-  private String getQuery = "select * from ? order by eid limit ?";
+  private String getQuery = "select * from %s order by eid limit ?";
 
   private String filePath;
 
   protected JdbcStore store;
 
-  private transient PreparedStatement getStatement;
   private transient FileSystem fs;
+  private transient LoadingCache<String, PreparedStatement> statements;
+  private int statementSize = 100;
 
   public GoldenGateQueryProcessor()
   {
@@ -64,16 +67,30 @@ public class GoldenGateQueryProcessor extends QueryProcessor
     this.store = store;
   }
 
+  public int getStatementSize()
+  {
+    return statementSize;
+  }
+
+  public void setStatementSize(int statementSize)
+  {
+    this.statementSize = statementSize;
+  }
+
   @Override
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
     store.connect();
-    try {
-      getStatement = store.getConnection().prepareStatement(getQuery);
-    } catch (SQLException e) {
-      DTThrowable.rethrow(e);
-    }
+    statements = CacheBuilder.newBuilder().maximumSize(statementSize).removalListener(this).build(new CacheLoader<String, PreparedStatement>()
+    {
+      @Override
+      public PreparedStatement load(String s) throws Exception
+      {
+        String getTableQuery = String.format(getQuery, s);
+        return store.getConnection().prepareStatement(getTableQuery);
+      }
+    });
     try {
       fs = FileSystem.get(new Configuration());
     } catch (IOException e) {
@@ -89,12 +106,20 @@ public class GoldenGateQueryProcessor extends QueryProcessor
     } catch (IOException e) {
       logger.error("Error closing filesystem", e);
     }
-    try {
-      getStatement.close();
-    } catch (SQLException e) {
-      logger.error("Error closing statements", e);
-    }
+    statements.cleanUp();
     store.disconnect();
+  }
+
+
+
+  @Override
+  public void onRemoval(RemovalNotification<String, PreparedStatement> notification)
+  {
+    try {
+      notification.getValue().close();
+    } catch (SQLException e) {
+      DTThrowable.rethrow(e);
+    }
   }
 
   public String getFilePath()
@@ -145,8 +170,8 @@ public class GoldenGateQueryProcessor extends QueryProcessor
     String tableName = query.tableName;
     int numberEntries = query.numberEntries;
     try {
-      getStatement.setString(1, tableName);
-      getStatement.setInt(2, numberEntries);
+      PreparedStatement getStatement = statements.get(tableName);
+      getStatement.setInt(1, numberEntries);
       ResultSet resultSet = getStatement.executeQuery();
       List<Object[]> rows = new ArrayList<Object[]>();
       while (resultSet.next()) {
@@ -163,6 +188,8 @@ public class GoldenGateQueryProcessor extends QueryProcessor
       results.setType(TABLE_DATA);
     } catch (SQLException e) {
       DTThrowable.rethrow(e);
+    } catch (ExecutionException e) {
+      e.printStackTrace();
     }
   }
 
