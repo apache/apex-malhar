@@ -4,7 +4,7 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.collect.Maps;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import org.slf4j.Logger;

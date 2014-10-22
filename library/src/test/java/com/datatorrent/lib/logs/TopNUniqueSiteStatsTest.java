@@ -17,7 +17,7 @@ package com.datatorrent.lib.logs;
 
 import java.util.HashMap;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.junit.Test;

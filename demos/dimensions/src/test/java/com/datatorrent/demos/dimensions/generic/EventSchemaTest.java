@@ -16,7 +16,7 @@
 
 package com.datatorrent.demos.dimensions.generic;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.slf4j.Logger;

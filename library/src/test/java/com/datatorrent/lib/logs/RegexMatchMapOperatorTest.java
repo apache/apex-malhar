@@ -19,7 +19,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.Map;
 import java.util.HashMap;
 import java.util.ArrayList;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

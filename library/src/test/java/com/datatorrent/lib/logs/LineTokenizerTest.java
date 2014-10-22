@@ -18,7 +18,7 @@ package com.datatorrent.lib.logs;
 import com.datatorrent.lib.logs.LineTokenizer;
 import com.datatorrent.lib.testbench.HashTestSink;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**

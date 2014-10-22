@@ -17,7 +17,7 @@ package com.datatorrent.contrib.hbase;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.apache.hadoop.hbase.client.Append;
 import org.junit.Test;
 import org.slf4j.Logger;

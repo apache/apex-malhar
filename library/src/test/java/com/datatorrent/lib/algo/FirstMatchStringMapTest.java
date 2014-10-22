@@ -19,7 +19,7 @@ import com.datatorrent.lib.algo.FirstMatchStringMap;
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 import java.util.HashMap;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**

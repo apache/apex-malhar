@@ -17,7 +17,7 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import java.util.HashMap;
 import java.util.Map;

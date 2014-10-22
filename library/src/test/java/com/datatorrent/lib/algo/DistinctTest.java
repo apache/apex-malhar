@@ -18,7 +18,7 @@ package com.datatorrent.lib.algo;
 import com.datatorrent.lib.algo.Distinct;
 import com.datatorrent.lib.testbench.HashTestSink;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 /**
