@@ -17,6 +17,8 @@ package com.datatorrent.lib.io;
 
 import java.io.IOException;
 
+import javax.validation.constraints.NotNull;
+
 import com.datatorrent.lib.util.PubSubMessageCodec;
 import com.datatorrent.lib.util.PubSubWebSocketClient;
 
@@ -38,6 +40,12 @@ public class PubSubWebSocketOutputOperator<T> extends WebSocketOutputOperator<T>
   public void setTopic(String topic)
   {
     this.topic = topic;
+  }
+
+  @NotNull
+  public String getTopic()
+  {
+    return topic;
   }
 
   @Override

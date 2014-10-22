@@ -157,16 +157,16 @@ public class HDSQueryOperatorTest
 
     // Encode/decode using normal mode
     oper.setDebug(false);
-    Slice keyBytes = oper.getKey(ae);
+    Slice keyBytes = new Slice(oper.getKey(ae));
     byte[] valBytes = oper.getValue(ae);
-    AdInfo.AdInfoAggregateEvent ae1 = oper.getAggregatesFromBytes(keyBytes, valBytes);
+    AdInfo.AdInfoAggregateEvent ae1 = oper.bytesToAggregate(keyBytes, valBytes);
 
 
     // Encode/decode using debug mode
     oper.setDebug(true);
-    keyBytes = oper.getKey(ae);
+    keyBytes = new Slice(oper.getKey(ae));
     valBytes = oper.getValue(ae);
-    AdInfo.AdInfoAggregateEvent ae2 = oper.getAggregatesFromBytes(keyBytes, valBytes);
+    AdInfo.AdInfoAggregateEvent ae2 = oper.bytesToAggregate(keyBytes, valBytes);
 
     Assert.assertEquals(ae, ae1);
     Assert.assertEquals(ae, ae2);

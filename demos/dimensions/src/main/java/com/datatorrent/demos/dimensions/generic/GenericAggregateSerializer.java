@@ -15,8 +15,8 @@
  */
 package com.datatorrent.demos.dimensions.generic;
 
+import com.datatorrent.common.util.Slice;
 import com.google.common.collect.Maps;
-
 
 import java.nio.ByteBuffer;
 import java.util.Map;
@@ -157,13 +157,13 @@ public class GenericAggregateSerializer {
     return bb.array();
   }
 
-  public GenericAggregate fromBytes(byte[] keyBytes, byte[] valBytes)
+  public GenericAggregate fromBytes(Slice key, byte[] valBytes)
   {
     GenericAggregate event = new GenericAggregate();
     event.keys = new Object[eventSchema.genericEventKeys.size()];
     event.aggregates = new Object[eventSchema.genericEventValues.size()];
 
-    ByteBuffer bb = ByteBuffer.wrap(keyBytes);
+    ByteBuffer bb = ByteBuffer.wrap(key.buffer, key.offset, key.length);
 
     // Deserialize timestamp
     event.timestamp = (Long)fieldSerializers.get(eventSchema.getClass(eventSchema.getTimestamp())).readField(bb);

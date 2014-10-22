@@ -207,7 +207,6 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
       return;
     }
 
-    @SuppressWarnings("unchecked")
     GenericAggregate ae = new GenericAggregate(eventSchema.convertQueryKeysToGenericEvent(queryParams.keys));
 
     long bucketKey = getBucketKey(ae);
@@ -335,7 +334,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
         }
         // results from persistent store
         if (query.processed && query.result != null) {
-          GenericAggregate ga = codec.fromKeyValue(query.key.buffer, query.result);
+          GenericAggregate ga = codec.fromKeyValue(query.key, query.result);
           if (ga.aggregates != null)
             res.data.add(eventSchema.convertAggregateEventToMap(ga));
         }

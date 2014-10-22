@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.hds;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
 import com.google.common.base.Preconditions;
@@ -57,9 +58,9 @@ public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte
     }
 
     @Override
-    public KeyValPair<byte[], byte[]> fromKeyValue(byte[] key, byte[] value)
+    public KeyValPair<byte[], byte[]> fromKeyValue(Slice key, byte[] value)
     {
-      return new KeyValPair<byte[], byte[]>(key, value);
+      return new KeyValPair<byte[], byte[]>(key.buffer, value);
     }
   }
 

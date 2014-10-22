@@ -17,6 +17,7 @@ package com.datatorrent.demos.mobile;
 
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang.mutable.MutableLong;
@@ -30,7 +31,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -166,7 +166,7 @@ public class Application implements StreamingApplication
     PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("LocationResults", new PubSubWebSocketOutputOperator<Object>());
     wsOut.setUri(uri);
 
-    PubSubWebSocketInputOperator wsIn = dag.addOperator("QueryLocation", new PubSubWebSocketInputOperator());
+    PubSubWebSocketInputOperator<Map<String, String>> wsIn = dag.addOperator("QueryLocation", new PubSubWebSocketInputOperator<Map<String, String>>());
     wsIn.setUri(uri);
 
     dag.addStream("Results", movementGen.locationQueryResult, wsOut.input);
