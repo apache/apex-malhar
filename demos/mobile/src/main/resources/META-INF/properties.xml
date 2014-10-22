@@ -8,8 +8,7 @@
     <value>30000</value>
   </property>
   <property>
-    <name>dt.application.MobileDemo.minThroughput
-    </name>
+    <name>dt.application.MobileDemo.minThroughput</name>
     <value>10000</value>
   </property>
   <property>
@@ -41,11 +40,11 @@
     <value>32768</value>
   </property>
   <property>
-    <name>dt.application.MobileDemo.operator.LocationResults.topic</name>
+    <name>dt.application.MobileDemo.operator.LocationResults.prop.topic</name>
     <value>demos.mobile.phoneLocationQueryResult</value>
   </property>
   <property>
-    <name>dt.application.MobileDemo.operator.QueryLocation.topic</name>
+    <name>dt.application.MobileDemo.operator.QueryLocation.prop.topic</name>
     <value>demos.mobile.phoneLocationQuery</value>
   </property>
   <property>

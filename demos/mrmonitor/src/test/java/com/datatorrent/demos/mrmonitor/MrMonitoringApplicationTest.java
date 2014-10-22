@@ -15,10 +15,10 @@
  */
 package com.datatorrent.demos.mrmonitor;
 
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.demos.mrmonitor.MRMonitoringApplication;
 
 /**
  * <p>MapReduceDebuggerApplicationTest class.</p>
@@ -26,12 +26,20 @@ import com.datatorrent.demos.mrmonitor.MRMonitoringApplication;
  * @since 0.3.4
  */
 
-public class MapReduceDebuggerApplicationTest {
+public class MrMonitoringApplicationTest
+{
 
-	@Test
-	public void testSomeMethod() throws Exception {
-		LocalMode.runApp(new MRMonitoringApplication(), 100000);
-	}
-
+  @Test
+  public void testApplication() throws Exception
+  {
+    MRMonitoringApplication application = new MRMonitoringApplication();
+    Configuration conf = new Configuration(false);
+    conf.addResource("dt-site-monitoring.xml");
+    System.out.println(conf);
+    LocalMode lma = LocalMode.newInstance();
+    lma.prepareDAG(application, conf);
+    LocalMode.Controller lc = lma.getController();
+    lc.run(10000);
+  }
 
 }
