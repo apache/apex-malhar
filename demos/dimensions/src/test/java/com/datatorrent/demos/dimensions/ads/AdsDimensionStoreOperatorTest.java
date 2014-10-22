@@ -19,8 +19,6 @@ import java.io.File;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
-import com.datatorrent.demos.dimensions.ads.AdInfo;
-import com.datatorrent.demos.dimensions.ads.HDSQueryOperator;
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
@@ -30,12 +28,12 @@ import org.junit.Test;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
-import com.datatorrent.demos.dimensions.ads.HDSQueryOperator.HDSRangeQueryResult;
+import com.datatorrent.demos.dimensions.ads.AdsDimensionStoreOperator.HDSRangeQueryResult;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.util.concurrent.MoreExecutors;
 
-public class HDSQueryOperatorTest
+public class AdsDimensionStoreOperatorTest
 {
   @Rule
   public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
@@ -45,7 +43,7 @@ public class HDSQueryOperatorTest
     File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
 
-    HDSQueryOperator hdsOut = new HDSQueryOperator() {
+    AdsDimensionStoreOperator hdsOut = new AdsDimensionStoreOperator() {
       @Override
       public void setup(OperatorContext arg0)
       {
@@ -63,7 +61,7 @@ public class HDSQueryOperatorTest
 
     hdsOut.setDebug(false);
 
-    CollectorTestSink<HDSQueryOperator.HDSRangeQueryResult> queryResults = new CollectorTestSink<HDSQueryOperator.HDSRangeQueryResult>();
+    CollectorTestSink<AdsDimensionStoreOperator.HDSRangeQueryResult> queryResults = new CollectorTestSink<AdsDimensionStoreOperator.HDSRangeQueryResult>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> tmp = (CollectorTestSink) queryResults;
     hdsOut.queryResult.setSink(tmp);
@@ -118,7 +116,7 @@ public class HDSQueryOperatorTest
     hdsOut.query.process(query.toString());
 
     Assert.assertEquals("rangeQueries " + hdsOut.rangeQueries, 1, hdsOut.rangeQueries.size());
-    HDSQueryOperator.HDSRangeQuery aq = hdsOut.rangeQueries.values().iterator().next();
+    AdsDimensionStoreOperator.HDSRangeQuery aq = hdsOut.rangeQueries.values().iterator().next();
     Assert.assertEquals("numTimeUnits " + hdsOut.rangeQueries, baseMinute, aq.startTime);
 
     hdsOut.endWindow();
@@ -153,7 +151,7 @@ public class HDSQueryOperatorTest
     ae.cost = 1.0;
     ae.revenue = 1.5;
 
-    HDSQueryOperator oper = new HDSQueryOperator();
+    AdsDimensionStoreOperator oper = new AdsDimensionStoreOperator();
 
     // Encode/decode using normal mode
     oper.setDebug(false);

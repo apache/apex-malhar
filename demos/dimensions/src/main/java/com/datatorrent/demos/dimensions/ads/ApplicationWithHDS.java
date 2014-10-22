@@ -145,12 +145,11 @@ public class ApplicationWithHDS implements StreamingApplication
     }
     dimensions.setAggregators(aggregators);
 
-    HDSQueryOperator hdsOut = dag.addOperator("Store", HDSQueryOperator.class);
+    AdsDimensionStoreOperator store = dag.addOperator("Store", AdsDimensionStoreOperator.class);
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
-    hdsOut.setFileStore(hdsFile);
-    hdsOut.setAggregator(new AdInfoAggregator());
-    dag.getOperatorMeta("Store").getAttributes().put(Context.OperatorContext.COUNTERS_AGGREGATOR,
-        new BasicCounters.LongAggregator< MutableLong >());
+    store.setFileStore(hdsFile);
+    store.setAggregator(new AdInfoAggregator());
+    dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
 
     Operator.OutputPort<String> queryPort;
     Operator.InputPort<Object> queryResultPort;
@@ -174,9 +173,9 @@ public class ApplicationWithHDS implements StreamingApplication
     }
 
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("DimensionalData", dimensions.output, hdsOut.input);
-    dag.addStream("Query", queryPort, hdsOut.query);
-    dag.addStream("QueryResult", hdsOut.queryResult, queryResultPort);
+    dag.addStream("DimensionalData", dimensions.output, store.input);
+    dag.addStream("Query", queryPort, store.query);
+    dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }
 
 }
