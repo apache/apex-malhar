@@ -5,22 +5,17 @@
 
 package com.datatorrent.contrib.goldengate.app;
 
-import java.util.Properties;
-
-import org.apache.hadoop.conf.Configuration;
-
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-
-import com.datatorrent.contrib.goldengate.GoldenGateQueryProcessor;
-import com.datatorrent.contrib.goldengate.KafkaJsonEncoder;
-import com.datatorrent.contrib.goldengate.lib.KafkaInput;
-import com.datatorrent.contrib.goldengate.lib.OracleDBOutputOperator;
-import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
-import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
-
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.contrib.goldengate.GoldenGateQueryProcessor;
+import com.datatorrent.contrib.goldengate.KafkaJsonEncoder;
+import com.datatorrent.contrib.goldengate.lib.*;
+import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
+import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import java.util.Properties;
+import org.apache.hadoop.conf.Configuration;
 
 @ApplicationAnnotation(name="GoldenGateDemo")
 public class GoldenGateApp implements StreamingApplication
@@ -43,8 +38,15 @@ public class GoldenGateApp implements StreamingApplication
 
     ////
 
+    CSVFileOutput csvFileOutput = new CSVFileOutput();
+    csvFileOutput.setOutputFileName("/user/tim/dtv.csv");
+    dag.addOperator("csv", csvFileOutput);
+
+    ////
+
     dag.addStream("display", kafkaInput.outputPort, console.input);
     dag.addStream("inputtodb", kafkaInput.employeePort, db.input);
+    dag.addStream("csvstream", kafkaInput.employeePort, csvFileOutput.input);
 
     ////
 
