@@ -17,8 +17,9 @@ package com.datatorrent.lib.io;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
+
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,10 +36,10 @@ import com.datatorrent.lib.util.PubSubWebSocketClient;
  *
  * @since 0.3.2
  */
-public class PubSubWebSocketInputOperator extends WebSocketInputOperator
+public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
 {
   private static final Logger LOG = LoggerFactory.getLogger(PubSubWebSocketInputOperator.class);
-  private HashSet<String> topics = new HashSet<String>();
+  private String topic = null;
   private transient PubSubMessageCodec<Object> codec;
 
   public PubSubWebSocketInputOperator()
@@ -46,17 +47,23 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
     this.codec = new PubSubMessageCodec<Object>(mapper);
   }
 
-  public void addTopic(String topic)
+  public void setTopic(String topic)
   {
-    topics.add(topic);
+    this.topic = topic;
+  }
+
+  @NotNull
+  public String getTopic()
+  {
+    return topic;
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  protected Map<String, String> convertMessageToMap(String message) throws IOException
+  protected T convertMessage(String message) throws IOException
   {
     Map<String, Object> map = mapper.readValue(message, HashMap.class);
-    return (Map<String, String>)map.get("data");
+    return (T)map.get("data");
   }
 
   @Override
@@ -64,9 +71,7 @@ public class PubSubWebSocketInputOperator extends WebSocketInputOperator
   {
     super.run();
     try {
-      for (String topic: topics) {
-        connection.sendTextMessage(PubSubWebSocketClient.constructSubscribeMessage(topic, codec));
-      }
+      connection.sendTextMessage(PubSubWebSocketClient.constructSubscribeMessage(topic, codec));
     }
     catch (IOException ex) {
       LOG.error("Exception caught", ex);

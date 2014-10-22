@@ -16,6 +16,7 @@
 
 package com.datatorrent.demos.dimensions.generic;
 
+import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
@@ -36,7 +37,7 @@ public class GenericAggregateCodec extends KryoSerializableStreamCodec<GenericAg
   }
 
   @Override
-  public GenericAggregate fromKeyValue(byte[] key, byte[] value)
+  public GenericAggregate fromKeyValue(Slice key, byte[] value)
   {
     GenericAggregate aggr = operator.serializer.fromBytes(key, value);
     return aggr;

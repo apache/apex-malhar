@@ -17,12 +17,15 @@ package com.datatorrent.demos.dimensions.ads;
 
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.demos.dimensions.ads.Application;
+
 import org.apache.hadoop.conf.Configuration;
+import org.junit.Ignore;
 import org.junit.Test;
 
 public class ApplicationTest
 {
 
+  @Ignore
   @Test
   public void testApplication()
   {
