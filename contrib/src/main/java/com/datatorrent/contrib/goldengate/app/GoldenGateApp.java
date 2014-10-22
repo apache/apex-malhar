@@ -12,6 +12,7 @@ import org.apache.hadoop.conf.Configuration;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 import com.datatorrent.contrib.goldengate.DBQueryProcessor;
+import com.datatorrent.contrib.goldengate.FileQueryProcessor;
 import com.datatorrent.contrib.goldengate.KafkaJsonEncoder;
 import com.datatorrent.contrib.goldengate.lib.CSVFileOutput;
 import com.datatorrent.contrib.goldengate.lib.KafkaInput;
@@ -70,7 +71,7 @@ public class GoldenGateApp implements StreamingApplication
     dag.addStream("dbRows", dbQueryProcessor.queryOutput, dbQueryOutput.inputPort);
 
     KafkaSinglePortStringInputOperator fileQueryInput = dag.addOperator("FileQuery", KafkaSinglePortStringInputOperator.class);
-    DBQueryProcessor fileQueryProcessor = dag.addOperator("FileQueryProcessor", DBQueryProcessor.class);
+    FileQueryProcessor fileQueryProcessor = dag.addOperator("FileQueryProcessor", FileQueryProcessor.class);
     KafkaSinglePortOutputOperator<Object, Object> fileQueryOutput = dag.addOperator("FileQueryResponse", new KafkaSinglePortOutputOperator<Object, Object>());
 
     fileQueryOutput.setConfigProperties(configProperties);
