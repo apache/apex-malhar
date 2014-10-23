@@ -15,9 +15,6 @@
  */
 package com.datatorrent.demos.mrmonitor;
 
-import java.net.InetSocketAddress;
-import java.net.URI;
-
 import org.apache.hadoop.conf.Configuration;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
