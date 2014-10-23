@@ -156,7 +156,7 @@
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${datatorrent.version}</version>
-      <type>test-jar</type>
+      <classifier>tests</classifier>
       <scope>test</scope>
       <exclusions>
         <exclusion>
