@@ -15,12 +15,12 @@
  */
 package com.datatorrent.demos.mobile;
 
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -52,17 +52,16 @@ public class ApplicationTest
   {
     Configuration conf = new Configuration(false);
     conf.addResource("dt-site-mobile.xml");
-    String gatewayAddress = conf.get("dt.attr.GATEWAY_CONNECT_ADDRESS");
-    LOG.info("gatewayAddress {}", gatewayAddress);
-    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-    String[] connection = gatewayAddress.split(":");
-    Server server = new Server(new InetSocketAddress(connection[0], Integer.parseInt(connection[1])));
+    Server server = new Server(0);
     SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
     ServletHolder sh = new ServletHolder(servlet);
     ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
     contextHandler.addServlet(sh, "/pubsub");
     contextHandler.addServlet(sh, "/*");
     server.start();
+    Connector connector[] = server.getConnectors();
+    conf.set("dt.attr.GATEWAY_CONNECT_ADDRESS", "localhost:" + connector[0].getLocalPort());
+    URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
 
     PubSubWebSocketOutputOperator<Object> outputOperator = new PubSubWebSocketOutputOperator<Object>();
     outputOperator.setName("testOutputOperator");

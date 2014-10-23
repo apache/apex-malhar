@@ -4,10 +4,10 @@
     <value>com.datatorrent.demos.mobile.Application</value>
     <description>An alias for the application</description>
   </property>
-  <property>
+  <!--property>
     <name>dt.attr.GATEWAY_CONNECT_ADDRESS</name>
     <value>localhost:19090</value>
-  </property>
+  </property-->
   <property>
     <name>dt.application.MobileDemo.totalSeedNumbers</name>
     <value>0</value>

@@ -16,8 +16,10 @@
 package com.datatorrent.demos.mrmonitor;
 
 import java.net.InetSocketAddress;
+import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -41,14 +43,16 @@ public class MrMonitoringApplicationTest
   {
     Configuration conf = new Configuration(false);
     conf.addResource("dt-site-monitoring.xml");
-    String[] connection = conf.get("dt.attr.GATEWAY_CONNECT_ADDRESS").split(":");
-    Server server = new Server(new InetSocketAddress(connection[0], Integer.parseInt(connection[1])));
+    Server server = new Server(0);
     SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
     ServletHolder sh = new ServletHolder(servlet);
     ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
     contextHandler.addServlet(sh, "/pubsub");
     contextHandler.addServlet(sh, "/*");
     server.start();
+    Connector connector[] = server.getConnectors();
+    conf.set("dt.attr.GATEWAY_CONNECT_ADDRESS", "localhost:" + connector[0].getLocalPort());
+
     MRMonitoringApplication application = new MRMonitoringApplication();
     LocalMode lma = LocalMode.newInstance();
     lma.prepareDAG(application, conf);

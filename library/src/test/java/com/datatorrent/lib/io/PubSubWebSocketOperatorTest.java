@@ -15,12 +15,12 @@
  */
 package com.datatorrent.lib.io;
 
-import java.net.InetSocketAddress;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeoutException;
 
-
+import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -29,7 +29,6 @@ import org.junit.Test;
 
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Tests for {@link com.datatorrent.lib.io.PubSubWebSocketOutputOperator}
@@ -39,16 +38,17 @@ public class PubSubWebSocketOperatorTest
 
   @Test
   @SuppressWarnings("SleepWhileInLoop")
-  public void testPubSubWebSocket() throws Exception {
-    Server server = new Server(new InetSocketAddress("localhost", 19090));
+  public void testPubSubWebSocket() throws Exception
+  {
+    Server server = new Server(0);
     SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
     ServletHolder sh = new ServletHolder(servlet);
     ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
     contextHandler.addServlet(sh, "/pubsub");
     contextHandler.addServlet(sh, "/*");
     server.start();
-
-    URI uri = new URI("ws://localhost:19090/pubsub");
+    Connector connector[] = server.getConnectors();
+    URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
 
     PubSubWebSocketOutputOperator<Object> outputOperator = new PubSubWebSocketOutputOperator<Object>();
     outputOperator.setName("testOutputOperator");
@@ -99,10 +99,10 @@ public class PubSubWebSocketOperatorTest
     Assert.assertTrue("tuples emitted", sink.collectedTuples.size() > 1);
 
     @SuppressWarnings("unchecked")
-    Map<String, String> tuple = (Map<String, String>)sink.collectedTuples.get(0);
+    Map<String, String> tuple = (Map<String, String>) sink.collectedTuples.get(0);
     Assert.assertEquals("Expects {\"hello\":\"world\"} as data", "world", tuple.get("hello"));
 
-    String stringResult = (String)sink.collectedTuples.get(1);
+    String stringResult = (String) sink.collectedTuples.get(1);
     Assert.assertEquals("Expects {\"hello\":\"world\"} as data", stringData, stringResult);
 
     inputOperator.deactivate();
