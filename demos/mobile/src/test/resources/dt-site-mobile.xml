@@ -9,6 +9,10 @@
     <value>localhost:19090</value>
   </property>
   <property>
+    <name>dt.application.MobileDemo.totalSeedNumbers</name>
+    <value>0</value>
+  </property>
+  <property>
     <name>dt.application.MobileDemo.coolDownMillis</name>
     <value>45000</value>
   </property>
@@ -18,7 +22,7 @@
   </property>
   <property>
     <name>dt.application.MobileDemo.minThroughput</name>
-    <value>10000</value>
+    <value>1</value>
   </property>
   <property>
     <name>dt.application.MobileDemo.operator.Receiver.tuplesBlast</name>
@@ -42,7 +46,7 @@
   </property>
   <property>
     <name>dt.application.MobileDemo.operator.LocationFinder.attr.INITIAL_PARTITION_COUNT</name>
-    <value>2</value>
+    <value>1</value>
   </property>
   <property>
     <name>dt.application.MobileDemo.operator.LocationFinder.inputport.data.attr.QUEUE_CAPACITY</name>
@@ -50,11 +54,11 @@
   </property>
   <property>
     <name>dt.application.MobileDemo.operator.LocationResults.topic</name>
-    <value>demos.mobile.phoneLocationQueryResult</value>
+    <value>resultTopic</value>
   </property>
   <property>
     <name>dt.application.MobileDemo.operator.QueryLocation.topic</name>
-    <value>demos.mobile.phoneLocationQuery</value>
+    <value>queryTopic</value>
   </property>
   <property>
     <name>dt.application.MobileDemo.attr.CONTAINER_MEMORY_MB</name>

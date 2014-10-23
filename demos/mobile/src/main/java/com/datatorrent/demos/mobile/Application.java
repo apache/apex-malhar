@@ -31,6 +31,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -116,8 +117,6 @@ public class Application implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.DEBUG, true);
-
     String lPhoneRange = conf.get(PHONE_RANGE_PROP, null);
     if (lPhoneRange != null) {
       String[] tokens = lPhoneRange.split("-");
@@ -142,20 +141,15 @@ public class Application implements StreamingApplication
     dag.setAttribute(movementGen, OperatorContext.STATS_LISTENERS, Arrays.asList(new StatsListener[]{partitioner}));
     dag.setAttribute(movementGen, OperatorContext.PARTITIONER, partitioner);
 
-    // default partitioning: first connected stream to movementGen will be partitioned
-    dag.addStream("Phone-Data", phones.integer_data, movementGen.data);
-
     // generate seed numbers
     Random random = new Random();
     int maxPhone = phoneRange.getMaximum() - phoneRange.getMinimum();
     int phonesToDisplay = conf.getInt(TOTAL_SEED_NOS, 10);
-
     for (int i = phonesToDisplay; i-- > 0; ) {
       int phoneNo = phoneRange.getMinimum() + random.nextInt(maxPhone + 1);
       LOG.info("seed no: " + phoneNo);
       movementGen.phoneRegister.add(phoneNo);
     }
-
     // done generating data
     LOG.info("Finished generating seed data.");
 
@@ -169,9 +163,10 @@ public class Application implements StreamingApplication
     PubSubWebSocketInputOperator<Map<String, String>> wsIn = dag.addOperator("QueryLocation", new PubSubWebSocketInputOperator<Map<String, String>>());
     wsIn.setUri(uri);
 
+    // default partitioning: first connected stream to movementGen will be partitioned
+    dag.addStream("Phone-Data", phones.integer_data, movementGen.data);
     dag.addStream("Results", movementGen.locationQueryResult, wsOut.input);
     dag.addStream("Query", wsIn.outputPort, movementGen.phoneQuery);
-
   }
 
 }
