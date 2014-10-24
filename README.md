@@ -3,6 +3,7 @@ Malhar
 Malhar repository contains open source operator and codec library that can be used with the DataTorrent platform to build Realtime streaming applications. In addition to the library there are benchmark, contrib, demos, webdemos and samples folders available. Demos contain demo applications built using the library operators. Webdemos contain webpages for the demos. Benchmark contains performance testing applications. Contrib contains additional operators that interface with third party softwares. Samples contain some sample code that shows how to use the library operators.
 
 [![Build Status](https://travis-ci.org/DataTorrent/Malhar.png?branch=master)](https://travis-ci.org/DataTorrent/Malhar)
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/DataTorrent/Malhar)
 
 Contributing
 ------------
