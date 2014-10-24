@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -43,7 +43,7 @@ public class HBaseCsvMappingApplication implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     HBaseRowStringGenerator row = dag.addOperator("rand", new HBaseRowStringGenerator());
-  
+
 
     HBaseCsvMappingPutOperator csvMappingPutOperator = dag.addOperator("HBaseoper", new HBaseCsvMappingPutOperator());
     csvMappingPutOperator.getStore().setTableName("table1");
@@ -53,6 +53,6 @@ public class HBaseCsvMappingApplication implements StreamingApplication
     dag.addStream("hbasestream",row.outputPort, csvMappingPutOperator.input).setLocality(locality);
   }
 
- 
+
 
 }
