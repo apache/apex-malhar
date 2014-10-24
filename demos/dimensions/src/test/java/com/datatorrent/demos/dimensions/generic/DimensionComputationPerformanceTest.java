@@ -75,7 +75,7 @@ public class DimensionComputationPerformanceTest
     GenericDimensionComputation dimensions = new GenericDimensionComputation();
     dimensions.setEventSchemaJSON(TEST_SCHEMA_JSON);
     dimensions.setup(null);
-    KryoSerializableStreamCodec codec = new KryoSerializableStreamCodec();
+    KryoSerializableStreamCodec<Object> codec = new KryoSerializableStreamCodec<Object>();
     codec.register(HashMap.class);
     long start_time = System.currentTimeMillis();
     for(int i = 0; i < count; i++)
@@ -91,7 +91,7 @@ public class DimensionComputationPerformanceTest
       Slice slice = codec.toByteArray(tuple);
       Object o = codec.fromByteArray(slice);
 
-      dimensions.data.process((Map<String, Object>) o);
+      dimensions.data.process(o);
     }
     return System.currentTimeMillis() - start_time;
   }

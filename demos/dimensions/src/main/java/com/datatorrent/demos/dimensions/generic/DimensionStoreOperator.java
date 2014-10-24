@@ -150,7 +150,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
     @Override
     public String toString()
     {
-      return "HDSRangeQuery{" +
+      return "TimeSeriesQuery{" +
           "id='" + id + '\'' +
           ", windowCountdown=" + windowCountdown +
           ", startTime=" + startTime +

@@ -58,7 +58,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
 {
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionStoreOperator.class);
 
-  public final transient DefaultOutputPort<HDSRangeQueryResult> queryResult = new DefaultOutputPort<HDSRangeQueryResult>();
+  public final transient DefaultOutputPort<TimeSeriesQueryResult> queryResult = new DefaultOutputPort<TimeSeriesQueryResult>();
 
   @InputPortFieldAnnotation(optional=true)
   public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
@@ -87,7 +87,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
   private AdInfoAggregator aggregator;
 
   @VisibleForTesting
-  protected transient final Map<String, HDSRangeQuery> rangeQueries = Maps.newConcurrentMap();
+  protected transient final Map<String, TimeSeriesQuery> timeSeriesQueries = Maps.newConcurrentMap();
   private transient ObjectMapper mapper = null;
   private long defaultTimeWindow = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES);
 
@@ -349,7 +349,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
       return;
     }
 
-    HDSRangeQuery query = new HDSRangeQuery();
+    TimeSeriesQuery query = new TimeSeriesQuery();
     query.id = queryParams.id;
     query.prototype = ae;
     query.windowCountdown = 30;
@@ -390,22 +390,22 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
       query.prototype.timestamp += query.intervalTimeUnit.toMillis(1);
     }
     LOG.debug("Queries: {}", query.points);
-    rangeQueries.put(query.id, query);
+    timeSeriesQueries.put(query.id, query);
   }
 
   protected void processTimeSeriesQueries()
   {
-    Iterator<Map.Entry<String, HDSRangeQuery>> it = this.rangeQueries.entrySet().iterator();
+    Iterator<Map.Entry<String, TimeSeriesQuery>> it = this.timeSeriesQueries.entrySet().iterator();
     while (it.hasNext()) {
-      Map.Entry<String, HDSRangeQuery> e = it.next();
-      HDSRangeQuery rangeQuery = e.getValue();
+      Map.Entry<String, TimeSeriesQuery> e = it.next();
+      TimeSeriesQuery rangeQuery = e.getValue();
       if (--rangeQuery.windowCountdown < 0) {
         LOG.debug("Removing expired query {}", rangeQuery);
         it.remove(); // query expired
         continue;
       }
 
-      HDSRangeQueryResult res = new HDSRangeQueryResult();
+      TimeSeriesQueryResult res = new TimeSeriesQueryResult();
       res.id = rangeQuery.id;
       res.countDown = rangeQuery.windowCountdown;
       res.data = Lists.newArrayListWithExpectedSize(rangeQuery.points.size());
@@ -437,7 +437,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
     }
   }
 
-  static class HDSRangeQuery
+  static class TimeSeriesQuery
   {
     public String id;
     public int windowCountdown;
@@ -449,7 +449,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
 
     @Override public String toString()
     {
-      return "HDSRangeQuery{" +
+      return "TimeSeriesQuery{" +
           "id='" + id + '\'' +
           ", windowCountdown=" + windowCountdown +
           ", startTime=" + startTime +
@@ -470,7 +470,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
     public long endTime;
   }
 
-  static public class HDSRangeQueryResult
+  static public class TimeSeriesQueryResult
   {
     public String id;
     public long countDown;

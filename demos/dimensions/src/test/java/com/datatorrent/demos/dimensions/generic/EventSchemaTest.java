@@ -17,7 +17,6 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import org.junit.Assert;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,6 @@ import org.slf4j.LoggerFactory;
 
 public class EventSchemaTest {
   private static final Logger LOG = LoggerFactory.getLogger(EventSchemaTest.class);
-  private static final ObjectMapper mapper = new ObjectMapper();
 
   @Test
   public void testCreateFromJSON() throws Exception {

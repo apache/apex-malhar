@@ -28,7 +28,7 @@ import org.junit.Test;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
-import com.datatorrent.demos.dimensions.ads.AdsDimensionStoreOperator.HDSRangeQueryResult;
+import com.datatorrent.demos.dimensions.ads.AdsDimensionStoreOperator.TimeSeriesQueryResult;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.util.concurrent.MoreExecutors;
@@ -61,7 +61,7 @@ public class AdsDimensionStoreOperatorTest
 
     hdsOut.setDebug(false);
 
-    CollectorTestSink<AdsDimensionStoreOperator.HDSRangeQueryResult> queryResults = new CollectorTestSink<AdsDimensionStoreOperator.HDSRangeQueryResult>();
+    CollectorTestSink<AdsDimensionStoreOperator.TimeSeriesQueryResult> queryResults = new CollectorTestSink<AdsDimensionStoreOperator.TimeSeriesQueryResult>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> tmp = (CollectorTestSink) queryResults;
     hdsOut.queryResult.setSink(tmp);
@@ -115,14 +115,14 @@ public class AdsDimensionStoreOperatorTest
 
     hdsOut.query.process(query.toString());
 
-    Assert.assertEquals("rangeQueries " + hdsOut.rangeQueries, 1, hdsOut.rangeQueries.size());
-    AdsDimensionStoreOperator.HDSRangeQuery aq = hdsOut.rangeQueries.values().iterator().next();
-    Assert.assertEquals("numTimeUnits " + hdsOut.rangeQueries, baseMinute, aq.startTime);
+    Assert.assertEquals("timeSeriesQueries " + hdsOut.timeSeriesQueries, 1, hdsOut.timeSeriesQueries.size());
+    AdsDimensionStoreOperator.TimeSeriesQuery aq = hdsOut.timeSeriesQueries.values().iterator().next();
+    Assert.assertEquals("numTimeUnits " + hdsOut.timeSeriesQueries, baseMinute, aq.startTime);
 
     hdsOut.endWindow();
 
     Assert.assertEquals("queryResults " + queryResults.collectedTuples, 1, queryResults.collectedTuples.size());
-    HDSRangeQueryResult r = queryResults.collectedTuples.iterator().next();
+    TimeSeriesQueryResult r = queryResults.collectedTuples.iterator().next();
     Assert.assertEquals("result points " + r, 2, r.data.size());
 
     // ae1 object is stored as referenced in cache, and when new tuple is aggregated,

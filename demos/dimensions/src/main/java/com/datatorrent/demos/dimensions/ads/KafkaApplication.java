@@ -88,11 +88,11 @@ public class KafkaApplication implements StreamingApplication
     }
 
     dimensions.setAggregators(aggregators);
-    DimensionsComputationUnifierImpl unifier = new DimensionsComputationUnifierImpl();
+    DimensionsComputationUnifierImpl<AdInfo, AdInfo.AdInfoAggregateEvent> unifier = new DimensionsComputationUnifierImpl<AdInfo, AdInfo.AdInfoAggregateEvent>();
     unifier.setAggregators(aggregators);
     dimensions.setUnifier(unifier);
 
-    KafkaSinglePortOutputOperator kafka = dag.addOperator("Kafka", new KafkaSinglePortOutputOperator<String, AdInfo>());
+    KafkaSinglePortOutputOperator<String, AdInfo> kafka = dag.addOperator("Kafka", new KafkaSinglePortOutputOperator<String, AdInfo>());
 
     // Set default Kafka topic for writing output messages
     kafka.setTopic("adsdimensions");

@@ -114,7 +114,7 @@ public class DimensionStoreOperatorTest
 
     hdsOut.query.process(query.toString());
 
-    Assert.assertEquals("rangeQueries " + hdsOut.rangeQueries, 1, hdsOut.rangeQueries.size());
+    Assert.assertEquals("timeSeriesQueries " + hdsOut.rangeQueries, 1, hdsOut.rangeQueries.size());
     DimensionStoreOperator.HDSRangeQuery aq = hdsOut.rangeQueries.values().iterator().next();
     Assert.assertEquals("numTimeUnits " + hdsOut.rangeQueries, baseMinute, aq.startTime);
 
@@ -205,7 +205,7 @@ public class DimensionStoreOperatorTest
 
     hdsOut.query.process(query.toString());
 
-    Assert.assertEquals("rangeQueries " + hdsOut.rangeQueries, 1, hdsOut.rangeQueries.size());
+    Assert.assertEquals("timeSeriesQueries " + hdsOut.rangeQueries, 1, hdsOut.rangeQueries.size());
     DimensionStoreOperator.HDSRangeQuery aq = hdsOut.rangeQueries.values().iterator().next();
     Assert.assertEquals("numTimeUnits " + hdsOut.rangeQueries, baseMinute, aq.startTime);
 
@@ -303,7 +303,7 @@ public class DimensionStoreOperatorTest
 
     hdsOut.query.process(query.toString());
 
-    Assert.assertEquals("rangeQueries " + hdsOut.rangeQueries, 1, hdsOut.rangeQueries.size());
+    Assert.assertEquals("timeSeriesQueries " + hdsOut.rangeQueries, 1, hdsOut.rangeQueries.size());
     DimensionStoreOperator.HDSRangeQuery aq = hdsOut.rangeQueries.values().iterator().next();
     Assert.assertEquals("numTimeUnits " + hdsOut.rangeQueries, baseMinute, aq.startTime);
 
@@ -426,7 +426,7 @@ public class DimensionStoreOperatorTest
 
       hdsOut.query.process(query.toString());
     }
-    Assert.assertEquals("rangeQueries " + hdsOut.rangeQueries, 8, hdsOut.rangeQueries.size());
+    Assert.assertEquals("timeSeriesQueries " + hdsOut.rangeQueries, 8, hdsOut.rangeQueries.size());
     hdsOut.endWindow();
 
     Assert.assertEquals("queryResults " + queryResults.collectedTuples, 8, queryResults.collectedTuples.size());
