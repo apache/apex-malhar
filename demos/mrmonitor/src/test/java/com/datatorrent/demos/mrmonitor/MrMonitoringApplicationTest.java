@@ -16,9 +16,15 @@
 package com.datatorrent.demos.mrmonitor;
 
 import org.apache.hadoop.conf.Configuration;
+import org.eclipse.jetty.server.Connector;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.servlet.ServletContextHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Test;
 
 import com.datatorrent.api.LocalMode;
+
+import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 
 /**
  * <p>MapReduceDebuggerApplicationTest class.</p>
@@ -32,14 +38,24 @@ public class MrMonitoringApplicationTest
   @Test
   public void testApplication() throws Exception
   {
-    MRMonitoringApplication application = new MRMonitoringApplication();
     Configuration conf = new Configuration(false);
     conf.addResource("dt-site-monitoring.xml");
-    System.out.println(conf);
+    Server server = new Server(0);
+    SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
+    ServletHolder sh = new ServletHolder(servlet);
+    ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
+    contextHandler.addServlet(sh, "/pubsub");
+    contextHandler.addServlet(sh, "/*");
+    server.start();
+    Connector connector[] = server.getConnectors();
+    conf.set("dt.attr.GATEWAY_CONNECT_ADDRESS", "localhost:" + connector[0].getLocalPort());
+
+    MRMonitoringApplication application = new MRMonitoringApplication();
     LocalMode lma = LocalMode.newInstance();
     lma.prepareDAG(application, conf);
     LocalMode.Controller lc = lma.getController();
     lc.run(10000);
+    server.stop();
   }
 
 }
