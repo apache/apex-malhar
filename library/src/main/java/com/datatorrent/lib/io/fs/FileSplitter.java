@@ -334,7 +334,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     private int numberOfBlocks;
     private long dataOffset;
     private long fileLength;
-    private final long discoverTime;
+    private long discoverTime;
     private long[] blockIds;
 
     protected FileMetadata()
@@ -439,6 +439,14 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     public long getDiscoverTime()
     {
       return discoverTime;
+    }
+
+    /**
+     * Sets the discover time.
+     */
+    public void setDiscoverTime(long discoverTime)
+    {
+      this.discoverTime = discoverTime;
     }
 
     /**
