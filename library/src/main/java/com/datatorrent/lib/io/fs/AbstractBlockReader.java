@@ -61,6 +61,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   protected transient FileSystem fs;
   protected transient Configuration configuration;
   protected transient FSDataInputStream inputStream;
+  protected transient FileSplitter.BlockMetadata currentBlockMetadata;
 
   /**
    * Limit on the no. of blocks to be processed in a window. By default {@link Integer#MAX_VALUE}
@@ -209,6 +210,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
 
   protected void processBlockMetadata(FileSplitter.BlockMetadata blockMetadata) throws IOException
   {
+    currentBlockMetadata = blockMetadata;
     long blockStartTime = System.currentTimeMillis();
     final long blockLength = blockMetadata.getLength();
 
