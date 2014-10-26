@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,7 +18,6 @@ package com.datatorrent.lib.testbench;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Context.OperatorContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -29,7 +28,7 @@ import org.slf4j.LoggerFactory;
 
 /**
  *
- * Generates synthetic load. Creates tuples and keeps emitting them on the output port "data"
+ * Generates synthetic load.&nbsp; Creates tuples and keeps emitting them on the output port "data".
  * <p>
  * <br>
  * The load is generated as per config parameters. This class is mainly meant for testing

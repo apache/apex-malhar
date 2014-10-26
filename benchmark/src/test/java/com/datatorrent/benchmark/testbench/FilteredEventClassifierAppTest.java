@@ -23,26 +23,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Benchmark Test for EventGenerator Operator in local mode.
+ * Benchmark Test for FilteredEventClassifierApp Operator in local mode.
  */
-public class EventGeneratorAppTest
+public class FilteredEventClassifierAppTest
 {
   @Test
-  public void testEventGeneratorApp() throws Exception
+  public void testFilterClassifierApp() throws Exception
   {
-    Logger logger = LoggerFactory.getLogger(EventGeneratorAppTest.class);
+    Logger logger = LoggerFactory.getLogger(FilteredEventClassifierAppTest.class);
     Configuration conf = new Configuration();
-
     LocalMode lm = LocalMode.newInstance();
-
     InputStream is = getClass().getResourceAsStream("/dt-site-testbench.xml");
     conf.addResource(is);
-
-    conf.get("dt.application.EventGeneratorApp.operator.eventGenerator.keysHelper");
-    conf.get("dt.application.EventGeneratorApp.operator.eventGenerator.weightsHelper");
-    conf.get("dt.application.EventGeneratorApp.operator.eventGenerator.valuesHelper");
+    conf.get("dt.application.FilteredEventClassifierApp.operator.hmapOper.keys");
+    conf.get("dt.application.FilteredEventClassifierApp.operator.hmapOper.numKeys");
     try {
-      lm.prepareDAG(new EventGeneratorApp(), conf);
+      lm.prepareDAG(new FilteredEventClassifierApp(), conf);
       LocalMode.Controller lc = lm.getController();
       lc.run(20000);
     }

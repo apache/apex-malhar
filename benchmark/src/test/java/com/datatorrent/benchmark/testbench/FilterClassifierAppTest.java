@@ -16,33 +16,30 @@
 package com.datatorrent.benchmark.testbench;
 
 import com.datatorrent.api.LocalMode;
+import com.datatorrent.benchmark.testbench.EventClassifierApp;
+import com.datatorrent.benchmark.testbench.EventClassifierNumberToHashDoubleAppTest;
 import java.io.InputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 /**
- * Benchmark Test for EventGenerator Operator in local mode.
+ * Benchmark Test for FilterClassifierApp Operator in local mode.
  */
-public class EventGeneratorAppTest
+public class FilterClassifierAppTest
 {
   @Test
-  public void testEventGeneratorApp() throws Exception
+  public void testFilterClassifierApp() throws Exception
   {
-    Logger logger = LoggerFactory.getLogger(EventGeneratorAppTest.class);
+    Logger logger = LoggerFactory.getLogger(FilterClassifierAppTest.class);
     Configuration conf = new Configuration();
-
     LocalMode lm = LocalMode.newInstance();
-
     InputStream is = getClass().getResourceAsStream("/dt-site-testbench.xml");
     conf.addResource(is);
-
-    conf.get("dt.application.EventGeneratorApp.operator.eventGenerator.keysHelper");
-    conf.get("dt.application.EventGeneratorApp.operator.eventGenerator.weightsHelper");
-    conf.get("dt.application.EventGeneratorApp.operator.eventGenerator.valuesHelper");
+    conf.get("dt.application.FilterClassifier.operator.hmapOper.keys");
+    conf.get("dt.application.FilterClassifier.operator.hmapOper.numKeys");
     try {
-      lm.prepareDAG(new EventGeneratorApp(), conf);
+      lm.prepareDAG(new FilterClassifierApp(), conf);
       LocalMode.Controller lc = lm.getController();
       lc.run(20000);
     }
@@ -51,4 +48,5 @@ public class EventGeneratorAppTest
     }
     is.close();
   }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,9 @@ package com.datatorrent.benchmark.testbench;
 import com.datatorrent.api.LocalMode;
 import java.io.InputStream;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.log4j.Logger;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Benchmark Test for EventClassifierNumberToHashDouble Operator in local mode.
@@ -29,7 +30,7 @@ public class EventClassifierNumberToHashDoubleAppTest
   @Test
   public void testEventClassifierNumberToHashDoubleApp() throws Exception
   {
-    Logger logger = Logger.getLogger(EventClassifierNumberToHashDoubleAppTest.class);
+    Logger logger = LoggerFactory.getLogger(EventClassifierNumberToHashDoubleAppTest.class);
     Configuration conf = new Configuration();
     LocalMode lm = LocalMode.newInstance();
     InputStream is = getClass().getResourceAsStream("/dt-site-testbench.xml");
@@ -43,10 +44,8 @@ public class EventClassifierNumberToHashDoubleAppTest
       lc.run(20000);
     }
     catch (Exception ex) {
-       logger.info(ex.getCause());
+       logger.info(ex.getMessage());
     }
-
     is.close();
   }
-
 }

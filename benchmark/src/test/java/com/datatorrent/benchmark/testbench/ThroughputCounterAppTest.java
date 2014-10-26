@@ -23,26 +23,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Benchmark Test for EventGenerator Operator in local mode.
+ * Benchmark Test for ThroughputCounterApp Operator in local mode.
  */
-public class EventGeneratorAppTest
+public class ThroughputCounterAppTest
 {
   @Test
-  public void testEventGeneratorApp() throws Exception
+  public void testThroughputCounterApp() throws Exception
   {
-    Logger logger = LoggerFactory.getLogger(EventGeneratorAppTest.class);
+    Logger logger = LoggerFactory.getLogger(ThroughputCounterAppTest.class);
     Configuration conf = new Configuration();
-
     LocalMode lm = LocalMode.newInstance();
-
     InputStream is = getClass().getResourceAsStream("/dt-site-testbench.xml");
     conf.addResource(is);
-
-    conf.get("dt.application.EventGeneratorApp.operator.eventGenerator.keysHelper");
-    conf.get("dt.application.EventGeneratorApp.operator.eventGenerator.weightsHelper");
-    conf.get("dt.application.EventGeneratorApp.operator.eventGenerator.valuesHelper");
+    conf.get("dt.application.ThroughputCounterApp.operator.hmapOper.keys");
+    conf.get("dt.application.ThroughputCounterApp.operator.hmapOper.numKeys");
     try {
-      lm.prepareDAG(new EventGeneratorApp(), conf);
+      lm.prepareDAG(new ThroughputCounterApp(), conf);
       LocalMode.Controller lc = lm.getController();
       lc.run(20000);
     }

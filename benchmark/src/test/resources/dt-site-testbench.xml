@@ -1,10 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
   <property>
+    <name>dt.application.EventClassifierApp.operator.hmapOper.keys</name>
+    <value>ia,ib,ic,id</value>
+  </property>
+  <property>
+    <name>dt.application.EventClassifierApp.operator.hmapOper.numKeys</name>
+    <value>4</value>
+  </property>
+  <property>
+    <name>dt.application.FilterClassifier.operator.hmapOper.keys</name>
+    <value>ia,ib,ic,id</value>
+  </property>
+  <property>
+    <name>dt.application.FilterClassifier.operator.hmapOper.numKeys</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.application.FilteredEventClassifierApp.operator.hmapOper.keys</name>
+    <value>ia,ib,ic,id</value>
+  </property>
+  <property>
+    <name>dt.application.FilteredEventClassifierApp.operator.hmapOper.numKeys</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.application.EventIncrementerApp.operator.hmapOper.seed</name>
+    <value>a</value>
+  </property>
+  <property>
+    <name>dt.application.EventIncrementerApp.operator.hmapOper.keys</name>
+    <value>a,b</value>
+  </property>
+  <property>
+    <name>dt.application.EventIncrementerApp.operator.hmapOper.numKeys</name>
+    <value>2</value>
+  </property>
+  <property>
+    <name>dt.application.ThroughputCounterApp.operator.hmapOper.keys</name>
+    <value>a,b</value>
+  </property>
+  <property>
+    <name>dt.application.ThroughputCounterApp.operator.hmapOper.numKeys</name>
+    <value>2</value>
+  </property>
+  <property>
     <name>dt.application.EventGeneratorApp.operator.eventGenerator.keysHelper</name>
     <value>a,b,c,d</value>
   </property>
-   <property>
+  <property>
     <name>dt.application.EventGeneratorApp.operator.eventGenerator.weightsHelper</name>
     <value>10,20,30,40</value>
   </property>

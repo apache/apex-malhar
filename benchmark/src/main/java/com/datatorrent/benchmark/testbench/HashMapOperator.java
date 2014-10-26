@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,78 +18,98 @@ package com.datatorrent.benchmark.testbench;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.lib.testbench.EventGenerator;
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * HashMap Input Operator used as a helper in testbench benchmarking apps.
  */
 public class HashMapOperator implements InputOperator
 {
+  private String keys = null;
+  private static final Logger logger = LoggerFactory.getLogger(EventGenerator.class);
+  private String[] keysArray = {"a","b","c","d"};
   public final transient DefaultOutputPort<HashMap<String, Double>> hmap_data = new DefaultOutputPort<HashMap<String, Double>>();
   public final transient DefaultOutputPort<HashMap<String, ArrayList<Integer>>> hmapList_data = new DefaultOutputPort<HashMap<String, ArrayList<Integer>>>();
   public final transient DefaultOutputPort<HashMap<String, HashMap<String, Integer>>> hmapMap_data = new DefaultOutputPort<HashMap<String, HashMap<String, Integer>>>();
   public final transient DefaultOutputPort<HashMap<String, Integer>> hmapInt_data = new DefaultOutputPort<HashMap<String, Integer>>();
+  private int numTuples = 1000;
+  private String seed = "a";
+  private int numKeys = 2;
+
+  public String getSeed()
+  {
+    return seed;
+  }
+
+  public void setSeed(String seed)
+  {
+    this.seed = seed;
+  }
+
+  public String getKeys()
+  {
+    return keys;
+  }
+
+  public void setKeys(String keys)
+  {
+    logger.debug("in hash map key setter");
+    this.keys = keys;
+    keysArray = keys.split(",");
+  }
 
   @Override
   public void emitTuples()
   {
-    HashMap<String, Double> hmap = new HashMap<String, Double>();
-    HashMap<String, ArrayList<Integer>> hmapList = new HashMap<String, ArrayList<Integer>>();
-    HashMap<String, HashMap<String, Integer>> hmapMap = new HashMap<String, HashMap<String, Integer>>();
-    ArrayList<Integer> list = new ArrayList<Integer>();
-    HashMap<String, Integer> hmapMapTemp;
-    int numTuples = 1000;
-    Integer aval = 1000;
-    Integer bval = 100;
-
-    HashMap<String, ArrayList<Integer>> stuple = new HashMap<String, ArrayList<Integer>>();
-    //int numtuples = 100000000; // For benchmarking
-    int numtuples = 1000;
-    String seed1 = "a";
-    ArrayList val = new ArrayList();
-    val.add(10);
-    val.add(20);
-    stuple.put(seed1, val);
-     if (hmapList_data.isConnected()) {
-        hmapList_data.emit(stuple);
-      }
-    for (int i = 0; i < numTuples; i++) {
-      hmap.clear();
-      //list.clear();
-      //hmapList.clear();
-      hmapMapTemp = new HashMap<String, Integer>();
-      hmapMap.clear();
-      hmap.put("ia", 2.0);
-      hmap.put("ib", 20.0);
-      hmap.put("ic", 1000.0);
-      hmap.put("id", 1000.0);
-      if (hmap_data.isConnected()) {
+    if (hmap_data.isConnected()) {
+      HashMap<String, Double> hmap = new HashMap<String, Double>();
+      for (int i = 0; i < numTuples; i++) {
+        hmap.clear();
+        for (int j = 0; j < numKeys; j++) {
+          hmap.put(keysArray[j], 2.0 + j * 20);
+        }
         hmap_data.emit(hmap);
       }
+    }
 
-      //list.add(i);
-      //hmapList.put("x", list);
-      //list.add(20);
-      //hmapList.put("y", list);
-
-
-
-      hmapMapTemp.put("a", aval);
-      hmapMapTemp.put("b", bval);
-
-      if (hmapInt_data.isConnected()) {
-        hmapInt_data.emit(hmapMapTemp);
-      }
-
-      hmapMap.put("x", hmapMapTemp);
-      hmapMap.put("y", hmapMapTemp);
-
-      if (hmapMap_data.isConnected()) {
+    if (hmapMap_data.isConnected()) {
+      HashMap<String, HashMap<String, Integer>> hmapMap = new HashMap<String, HashMap<String, Integer>>();
+      for (int i = 0; i < numTuples; i++) {
+        hmapMap.clear();
+        HashMap<String, Integer> hmapMapTemp = new HashMap<String, Integer>();
+        for (int j = 0; j < numKeys; j++) {
+          hmapMapTemp.put(keysArray[j], 100 * j);
+        }
+         for (int j = 0; j < numKeys; j++) {
+          hmapMap.put(keysArray[j], hmapMapTemp);
+        }
         hmapMap_data.emit(hmapMap);
       }
     }
 
+    if (hmapList_data.isConnected()) {
+      HashMap<String, ArrayList<Integer>> stuple = new HashMap<String, ArrayList<Integer>>();
+      ArrayList val = new ArrayList();
+      for (int i = 1; i < 10; i++) {
+        val.add(i);
+      }
+      stuple.put(seed, val);
+      hmapList_data.emit(stuple);
+    }
+
+    if (hmapInt_data.isConnected()) {
+        for (int i = 0; i < numTuples; i++) {
+        HashMap<String, Integer> hmapMapTemp = new HashMap<String, Integer>();
+        for (int j = 0; j < numKeys; j++) {
+          hmapMapTemp.put(keysArray[j], 100 * j);
+        }
+        hmapInt_data.emit(hmapMapTemp);
+      }
+    }
   }
 
   @Override
