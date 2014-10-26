@@ -27,7 +27,7 @@ import org.apache.hadoop.conf.Configuration;
 
 /**
  * Benchmark App for EventGenerator Operator.
- * This operator is benchmarked to emit 1,360,000 tuples/sec on cluster node.
+ * This operator is benchmarked to emit 1,500,000 tuples/sec on cluster node.
  */
 @ApplicationAnnotation(name = "EventGeneratorApp")
 public class EventGeneratorApp implements StreamingApplication

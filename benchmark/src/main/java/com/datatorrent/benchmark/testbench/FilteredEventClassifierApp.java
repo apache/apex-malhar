@@ -18,6 +18,7 @@ package com.datatorrent.benchmark.testbench;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.testbench.FilteredEventClassifier;
 import java.util.ArrayList;
@@ -28,6 +29,7 @@ import org.apache.hadoop.conf.Configuration;
  * Benchmark App for FilteredEventClassifier Operator.
  * This operator is benchmarked to emit 900K tuples/sec on cluster node.
  */
+@ApplicationAnnotation(name = "FilteredEventClassifierApp")
 public class FilteredEventClassifierApp implements StreamingApplication
 {
   //do same as test for this class
