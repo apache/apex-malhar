@@ -48,6 +48,7 @@ public abstract class AbstractFSWindowWriter<INPUT, OUTPUT> extends AbstractFSWr
   public final void endWindow()
   {
     endOffsets.clear();
+    streamsCache.invalidateAll();
   }
 
   @Override
