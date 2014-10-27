@@ -55,16 +55,12 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
   public final transient DefaultOutputPort<FileMetadata> filesMetadataOutput = new DefaultOutputPort<FileMetadata>();
   public final transient DefaultOutputPort<BlockMetadata> blocksMetadataOutput = new DefaultOutputPort<BlockMetadata>();
 
-  @AssertTrue(message = "file splitter validations")
-  public boolean validate()
-  {
-    return blockSize == null || blockSize > 0;
-  }
-
   @Override
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
+    assert blockSize == null || blockSize > 0 : "invalid block size";
+
     operatorId = context.getId();
     if (blockSize == null) {
       blockSize = fs.getDefaultBlockSize(filePath);
