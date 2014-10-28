@@ -44,7 +44,7 @@ public abstract class AbstractJdbcNonTransactionableBatchOutputOperator<T, S ext
   private final List<T> tuples;
   private ProcessingMode mode;
   private transient boolean skipWindow = false;
-  private transient long currentWindowId;
+  private long currentWindowId;
   private transient long committedWindowId;
   private transient String appId;
   private transient int operatorId;
