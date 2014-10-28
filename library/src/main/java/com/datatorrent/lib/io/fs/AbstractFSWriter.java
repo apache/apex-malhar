@@ -79,6 +79,10 @@ import com.datatorrent.lib.counters.BasicCounters;
  * output to a single file
  * Application window length of 30 seconds
  *
+ * @displayName FS Writer
+ * @category Output
+ * @tags fs, file, output operator
+ *
  * @param <INPUT> This is the input tuple type.
  * @param <OUTPUT> This is the output tuple type.
  */

@@ -20,6 +20,11 @@ import javax.validation.constraints.NotNull;
 
 /**
  * This is a simple class that output all tuples to a single file.
+ *
+ * @displayName FS Single File Writer
+ * @category Output
+ * @tags fs, file, output operator
+ *
  * @param <INPUT> The type of the incoming tuples.
  * @param <OUTPUT>The type of the output tuples.
  */

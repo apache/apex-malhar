@@ -22,6 +22,10 @@ import org.slf4j.LoggerFactory;
  * This output operator writes the data received in each window to a file exactly once.
  * All the data received by this operator within a window is written out to a file whose name is the same as the id of the window.
  *
+ * @displayName FS Window Writer
+ * @category Output
+ * @tags fs, file, output operator
+ *
  * @since 1.0.2
  */
 public abstract class AbstractFSWindowWriter<INPUT, OUTPUT> extends AbstractFSWriter<INPUT, OUTPUT>
