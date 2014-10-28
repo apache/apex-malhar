@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,34 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.benchmark;
+package com.datatorrent.benchmark.algo;
 
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.Context.PortContext;
-
-import java.io.IOException;
-
 import org.apache.hadoop.conf.Configuration;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
  * Test the DAG declaration in local mode.
  */
-public class ApplicationFixedTest
+public class UniqueValueCountBenchmarkTest
 {
   @Test
-  public void testApplication() throws IOException, Exception
+  public void testApplication() throws Exception
   {
     LocalMode lma = LocalMode.newInstance();
-    new ApplicationFixed().populateDAG(lma.getDAG(), new Configuration(false));
-
-    DAG dag = lma.cloneDAG();
-    FixedTuplesInputOperator wordGenerator = (FixedTuplesInputOperator)dag.getOperatorMeta("WordGenerator").getOperator();
-    Assert.assertEquals("Queue Capacity", ApplicationFixed.QUEUE_CAPACITY, (int)dag.getMeta(wordGenerator).getMeta(wordGenerator.output).getValue(PortContext.QUEUE_CAPACITY));
-
+    new UniqueValueCountBenchmarkApplication().populateDAG(lma.getDAG(), new Configuration(false));
     LocalMode.Controller lc = lma.getController();
-    lc.run(60000);
+    lc.run(10000);
   }
 }
+

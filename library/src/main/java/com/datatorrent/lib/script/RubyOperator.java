@@ -33,12 +33,12 @@ import java.util.Map;
  */
 public class RubyOperator extends ScriptOperator {
 
-  public enum Type
+  public static enum Type
   {
     EVAL, INVOKE
   };
 
-  protected Type type = Type.EVAL;
+  protected transient Type type = Type.EVAL;
   protected transient Object evalResult;
   private transient ScriptingContainer sc = null;
   private transient EvalUnit unit;
