@@ -16,12 +16,13 @@
 
 package com.datatorrent.lib.script;
 
-import com.datatorrent.api.Context.OperatorContext;
+import java.util.Map;
+
 import org.jruby.embed.LocalVariableBehavior;
 import org.jruby.embed.ScriptingContainer;
 import org.jruby.javasupport.JavaEmbedUtils.EvalUnit;
 
-import java.util.Map;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * An implementation of ScriptOperator that executes ruby script on tuples
@@ -33,12 +34,12 @@ import java.util.Map;
  */
 public class RubyOperator extends ScriptOperator {
 
-  public static enum Type
+  public enum Type
   {
     EVAL, INVOKE
   };
 
-  protected transient Type type = Type.EVAL;
+  protected Type type = Type.EVAL;
   protected transient Object evalResult;
   private transient ScriptingContainer sc = null;
   private transient EvalUnit unit;
