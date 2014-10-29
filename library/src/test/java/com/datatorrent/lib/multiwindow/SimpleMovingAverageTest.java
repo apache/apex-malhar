@@ -15,11 +15,15 @@
  */
 package com.datatorrent.lib.multiwindow;
 
+import java.util.List;
+
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
 
 /**
  * Functional test for {@link com.datatorrent.lib.multiwindow.SimpleMovingAverage}. <p>
@@ -50,10 +54,10 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 2, sink.collectedTuples.size());
-    KeyValPair<String, Double> pair = (KeyValPair<String, Double>) sink.collectedTuples.get(0);
-    Assert.assertEquals("1st b sma", 52.5, pair.getValue(), 0);
-    pair = (KeyValPair<String, Double>) sink.collectedTuples.get(1);
-    Assert.assertEquals("1st a sma", 31.5, pair.getValue(), 0);
+    List<KeyValPair<String, Double>> outputList = Lists.newArrayList();
+    outputList.add(new KeyValPair<String, Double>("b", 52.5));
+    outputList.add(new KeyValPair<String, Double>("a", 31.5));
+    Assert.assertEquals("SMA", outputList, sink.collectedTuples);
 
     oper.beginWindow(1);
     oper.data.process(new KeyValPair<String, Double>("a", ++val));
@@ -62,10 +66,9 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 4, sink.collectedTuples.size());
-    pair = (KeyValPair<String, Double>) sink.collectedTuples.get(2);
-    Assert.assertEquals("2nd b sma", 53.5, pair.getValue(), 0);
-    pair = (KeyValPair<String, Double>) sink.collectedTuples.get(3);
-    Assert.assertEquals("2nd a sma", 32.5, pair.getValue(), 0);
+    outputList.add(new KeyValPair<String, Double>("b", 53.5));
+    outputList.add(new KeyValPair<String, Double>("a", 32.5));
+    Assert.assertEquals("SMA", outputList, sink.collectedTuples);
 
     oper.beginWindow(2);
     oper.data.process(new KeyValPair<String, Double>("a", ++val));
@@ -74,10 +77,9 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 6, sink.collectedTuples.size());
-    pair = (KeyValPair<String, Double>) sink.collectedTuples.get(4);
-    Assert.assertEquals("2nd b sma", 54.5, pair.getValue(), 0);
-    pair = (KeyValPair<String, Double>) sink.collectedTuples.get(5);
-    Assert.assertEquals("2nd a sma", 33.5, pair.getValue(), 0);
+    outputList.add(new KeyValPair<String, Double>("b", 54.5));
+    outputList.add(new KeyValPair<String, Double>("a", 33.5));
+    Assert.assertEquals("SMA", outputList, sink.collectedTuples);
 
     oper.beginWindow(3);
     oper.data.process(new KeyValPair<String, Double>("a", ++val));
@@ -86,9 +88,8 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 8, sink.collectedTuples.size());
-    pair = (KeyValPair<String, Double>) sink.collectedTuples.get(4);
-    Assert.assertEquals("2nd b sma", 54.5, pair.getValue(), 0);
-    pair = (KeyValPair<String, Double>) sink.collectedTuples.get(5);
-    Assert.assertEquals("2nd a sma", 33.5, pair.getValue(), 0);
+    outputList.add(new KeyValPair<String, Double>("b", 56.5));
+    outputList.add(new KeyValPair<String, Double>("a", 35.5));
+    Assert.assertEquals("SMA", outputList, sink.collectedTuples);
   }
 }
