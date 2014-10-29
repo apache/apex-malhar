@@ -32,6 +32,7 @@ import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
+import com.datatorrent.lib.algo.StatelessThroughputBasedPartitioner;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
@@ -134,7 +135,7 @@ public class Application implements StreamingApplication
     PhoneMovementGenerator movementGen = dag.addOperator("LocationFinder", PhoneMovementGenerator.class);
     dag.setAttribute(movementGen, OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
-    ThroughputBasedPartitioner<PhoneMovementGenerator> partitioner = new ThroughputBasedPartitioner<PhoneMovementGenerator>();
+    StatelessThroughputBasedPartitioner<PhoneMovementGenerator> partitioner = new StatelessThroughputBasedPartitioner<PhoneMovementGenerator>();
     partitioner.setCooldownMillis(conf.getLong(COOL_DOWN_MILLIS, 45000));
     partitioner.setMaximumEvents(conf.getLong(MAX_THROUGHPUT, 30000));
     partitioner.setMinimumEvents(conf.getLong(MIN_THROUGHPUT, 10000));

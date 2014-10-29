@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.mobile;
+package com.datatorrent.lib.algo;
 
 import java.io.Serializable;
 import java.util.*;
@@ -29,25 +29,32 @@ import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StatsListener;
 
 /**
- * This does the partition of the operator based on the throughput.
+ * <p>
+ * This does the partition of the operator based on the throughput. This partitioner doesn't copy the state during the repartitioning
  * The max and min throughput can be controlled by the properties
+ * </p>
  *
- * </br>
- * <b>maximumEvents:</b> The maximum throughput above which the operator will be repartitioned</br>
- * <b>minimumEvents:</b> The minimum throughput below which the operators will be merged</br>
- * <b>cooldownMillis:</b> The time for the operators to stabilize before next partitioning if required</br>
- * <b></b></br>
+ *
+ * <b>Properties</b>:<br>
+ * <b>maximumEvents:</b> The maximum throughput above which the operator will be repartitioned<br>
+ * <b>minimumEvents:</b> The minimum throughput below which the operators will be merged<br>
+ * <b>cooldownMillis:</b> The time for the operators to stabilize before next partitioning if required<br>
+ * <br>
+ *
+ * @param <T> Operator type
  *
  * @since 1.0.2
  */
-public class ThroughputBasedPartitioner<T extends Operator> implements StatsListener, Partitioner<T>, Serializable
+public class StatelessThroughputBasedPartitioner<T extends Operator> implements StatsListener, Partitioner<T>, Serializable
 {
+  private static final Logger logger = LoggerFactory.getLogger(StatelessThroughputBasedPartitioner.class);
   private long maximumEvents;
   private long minimumEvents;
   private long cooldownMillis = 2000;
   private long nextMillis;
   private long partitionNextMillis;
   private boolean repartition;
+  private transient HashMap<Integer, BatchedOperatorStats> partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
 
   @Override
   public Response processStats(BatchedOperatorStats stats)
@@ -91,7 +98,7 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
     }
     else {
       // repartition call
-      logger.debug("repartition call for phone movement operator");
+      logger.debug("repartition call for operator");
       if (System.currentTimeMillis() < partitionNextMillis) {
         return partitions;
       }
@@ -214,8 +221,4 @@ public class ThroughputBasedPartitioner<T extends Operator> implements StatsList
   {
     this.cooldownMillis = cooldownMillis;
   }
-
-  private transient HashMap<Integer, BatchedOperatorStats> partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
-
-  private static final Logger logger = LoggerFactory.getLogger(ThroughputBasedPartitioner.class);
 }

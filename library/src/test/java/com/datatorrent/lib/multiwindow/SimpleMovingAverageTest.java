@@ -15,15 +15,11 @@
  */
 package com.datatorrent.lib.multiwindow;
 
-import java.util.List;
-
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.util.KeyValPair;
-
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.google.common.collect.Lists;
+import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * Functional test for {@link com.datatorrent.lib.multiwindow.SimpleMovingAverage}. <p>
