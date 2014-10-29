@@ -54,10 +54,15 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 2, sink.collectedTuples.size());
-    List<KeyValPair<String, Double>> outputList = Lists.newArrayList();
-    outputList.add(new KeyValPair<String, Double>("b", 52.5));
-    outputList.add(new KeyValPair<String, Double>("a", 31.5));
-    Assert.assertEquals("SMA", outputList, sink.collectedTuples);
+    for (int i = 0; i < 2; i++) {
+      KeyValPair<String, Double> pair = (KeyValPair<String, Double>) sink.collectedTuples.get(i);
+      if (pair.getKey().equals("a")) {
+        Assert.assertEquals("a SMA", 31.5, pair.getValue(), 0);
+      }
+      else {
+        Assert.assertEquals("b SMA", 52.5, pair.getValue(), 0);
+      }
+    }
 
     oper.beginWindow(1);
     oper.data.process(new KeyValPair<String, Double>("a", ++val));
@@ -66,9 +71,15 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 4, sink.collectedTuples.size());
-    outputList.add(new KeyValPair<String, Double>("b", 53.5));
-    outputList.add(new KeyValPair<String, Double>("a", 32.5));
-    Assert.assertEquals("SMA", outputList, sink.collectedTuples);
+    for (int i = 2; i < 4; i++) {
+      KeyValPair<String, Double> pair = (KeyValPair<String, Double>) sink.collectedTuples.get(i);
+      if (pair.getKey().equals("a")) {
+        Assert.assertEquals("a SMA", 32.5, pair.getValue(), 0);
+      }
+      else {
+        Assert.assertEquals("b SMA", 53.5, pair.getValue(), 0);
+      }
+    }
 
     oper.beginWindow(2);
     oper.data.process(new KeyValPair<String, Double>("a", ++val));
@@ -77,9 +88,15 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 6, sink.collectedTuples.size());
-    outputList.add(new KeyValPair<String, Double>("b", 54.5));
-    outputList.add(new KeyValPair<String, Double>("a", 33.5));
-    Assert.assertEquals("SMA", outputList, sink.collectedTuples);
+    for (int i = 4; i < 6; i++) {
+      KeyValPair<String, Double> pair = (KeyValPair<String, Double>) sink.collectedTuples.get(i);
+      if (pair.getKey().equals("a")) {
+        Assert.assertEquals("a SMA", 33.5, pair.getValue(), 0);
+      }
+      else {
+        Assert.assertEquals("b SMA", 54.5, pair.getValue(), 0);
+      }
+    }
 
     oper.beginWindow(3);
     oper.data.process(new KeyValPair<String, Double>("a", ++val));
@@ -88,8 +105,14 @@ public class SimpleMovingAverageTest
     oper.data.process(new KeyValPair<String, Double>("b", ++val2));
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 8, sink.collectedTuples.size());
-    outputList.add(new KeyValPair<String, Double>("b", 56.5));
-    outputList.add(new KeyValPair<String, Double>("a", 35.5));
-    Assert.assertEquals("SMA", outputList, sink.collectedTuples);
+    for (int i = 6; i < 8; i++) {
+      KeyValPair<String, Double> pair = (KeyValPair<String, Double>) sink.collectedTuples.get(i);
+      if (pair.getKey().equals("a")) {
+        Assert.assertEquals("a SMA", 35.5, pair.getValue(), 0);
+      }
+      else {
+        Assert.assertEquals("b SMA", 56.5, pair.getValue(), 0);
+      }
+    }
   }
 }
