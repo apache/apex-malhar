@@ -18,10 +18,13 @@ package com.datatorrent.lib.testbench;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator;
 import com.datatorrent.lib.util.KeyValPair;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,7 +116,7 @@ public class SeedEventGenerator extends BaseOperator implements InputOperator
     }
     // done generating data
     LOG.info("Finished generating data.");
-    throw new RuntimeException(new InterruptedException("Finished generating data."));
+    Operator.Util.shutdown();
   }
 
   /**
