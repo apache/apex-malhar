@@ -15,11 +15,14 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractStoreInputOperator;
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
+
+import com.datatorrent.lib.db.AbstractStoreInputOperator;
+
+import com.datatorrent.api.Context;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * AbstractCouchBaseInputOperator which extends AbstractStoreInputOperator.
@@ -42,10 +45,10 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   @Override
   public void emitTuples()
   {
-    ArrayList<String> keys = getKeys();
-    for (int i = 0; i < keys.size(); i++) {
+    List<String> keys = getKeys();
+    for (String key : keys) {
       try {
-        Object result = store.getInstance().get(keys.get(i));
+        Object result = store.getInstance().get(key);
         T tuple = getTuple(result);
         outputPort.emit(tuple);
       }
@@ -64,6 +67,6 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
 
   public abstract T getTuple(Object object);
 
-  public abstract ArrayList<String> getKeys();
+  public abstract List<String> getKeys();
 
 }

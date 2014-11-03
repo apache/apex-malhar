@@ -15,20 +15,24 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.couchbase.client.CouchbaseClient;
-import com.datatorrent.lib.db.Connectable;
-import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
-import com.datatorrent.common.util.DTThrowable;
 import java.io.IOException;
 import java.net.URI;
-import java.util.Arrays;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Nonnull;
+
+import com.couchbase.client.CouchbaseClient;
+import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.db.Connectable;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * CouchBaseStore which provides connect methods to Couchbase data store.
@@ -46,10 +50,11 @@ public class CouchBaseStore implements Connectable
   protected String uriString;
 
   protected transient CouchbaseClient client;
-  protected Integer batch_size = 100;
-  protected Integer max_tuples = 1000;
+  protected Integer batchSize = 100;
+  protected Integer maxTuples = 1000;
   protected int blockTime = 10000;
   protected int timeout = 10000;
+  protected int shutdownTimeout = 60;
 
   public int getTimeout()
   {
@@ -76,28 +81,37 @@ public class CouchBaseStore implements Connectable
     this.blockTime = blockTime;
   }
 
-  public Integer getMax_tuples()
+  public Integer getMaxTuples()
   {
-    return max_tuples;
+    return maxTuples;
   }
 
-  public void setMax_tuples(Integer max_tuples)
+  public void setMaxTuples(Integer maxTuples)
   {
-    this.max_tuples = max_tuples;
+    this.maxTuples = maxTuples;
   }
 
-  public Integer getBatch_size()
+  public Integer getBatchSize()
   {
-    return batch_size;
+    return batchSize;
   }
 
-  public void setBatch_size(Integer batch_size)
+  public void setBatchSize(Integer batchSize)
   {
-    this.batch_size = batch_size;
+    this.batchSize = batchSize;
   }
 
-  List<String> uriList = new ArrayList<String>();
-  List<URI> baseURIs = new ArrayList<URI>();
+  public int getShutdownTimeout()
+  {
+    return shutdownTimeout;
+  }
+
+  public void setShutdownTimeout(int shutdownTimeout)
+  {
+    this.shutdownTimeout = shutdownTimeout;
+  }
+
+  transient List<URI> baseURIs = new ArrayList<URI>();
 
   public CouchBaseStore()
   {
@@ -133,21 +147,19 @@ public class CouchBaseStore implements Connectable
   {
     logger.info("In setter method of URI");
     this.uriString = uriString;
-    String[] tokens = uriString.split(",");
-    uriList.addAll(Arrays.asList(tokens));
   }
 
   @Override
   public void connect() throws IOException
   {
+    String[] tokens = uriString.split(",");
     URI uri = null;
-    for (String url: uriList) {
-
+    for (String url : tokens) {
       try {
         uri = new URI("http", url, "/pools", null, null);
       }
       catch (URISyntaxException ex) {
-        logger.error(ex.getMessage());
+        DTThrowable.rethrow(ex);
       }
       baseURIs.add(uri);
     }
@@ -173,7 +185,7 @@ public class CouchBaseStore implements Connectable
   @Override
   public void disconnect() throws IOException
   {
-    client.shutdown(60, TimeUnit.SECONDS);
+    client.shutdown(shutdownTimeout, TimeUnit.SECONDS);
   }
 
 }

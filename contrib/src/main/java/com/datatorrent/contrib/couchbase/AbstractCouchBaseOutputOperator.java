@@ -15,18 +15,24 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
-import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import net.spy.memcached.internal.OperationFuture;
+
+import com.google.common.collect.Lists;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
+
+import com.datatorrent.common.util.DTThrowable;
+
+import net.spy.memcached.internal.OperationFuture;
 
 /**
  * AbstractCouchBaseOutputOperator which extends Transactionable Store Output Operator.
@@ -74,7 +80,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 
   @Override
   public void beginWindow(long windowId){
-     countLatch = new CountDownLatch(store.batch_size);
+     countLatch = new CountDownLatch(store.batchSize);
      num_tuples = 0;
      isEndWindow = false;
      super.beginWindow(windowId);
@@ -85,7 +91,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   {
     tuples.add(tuple);
     setTuple(tuple);
-    if ((num_tuples < store.batch_size) || isEndWindow) {
+    if ((num_tuples < store.batchSize) || isEndWindow) {
       waitForBatch();
     }
   }
