@@ -50,8 +50,9 @@ public class GenericAggregateCodec extends KryoSerializableStreamCodec<GenericAg
     int hashCode = 1;
     for(Object o : aggr.keys)
     {
-      if (o != null)
+      if (o != null) {
         hashCode = hashCode * prime + o.hashCode();
+      }
     }
     return hashCode;
   }

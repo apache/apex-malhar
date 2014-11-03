@@ -15,16 +15,17 @@
  */
 package com.datatorrent.lib.math;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.lang.mutable.MutableDouble;
+
+import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
+import com.datatorrent.lib.util.KeyValPair;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
-import com.datatorrent.lib.util.KeyValPair;
-import java.util.HashMap;
-import java.util.Map;
-import org.apache.commons.lang.mutable.MutableDouble;
 
 /**
  *
@@ -69,12 +70,12 @@ public class MarginKeyVal<K, V extends Number> extends
 		 * Set StreamCodec used for partitioning.
 		 */
 		@Override
-		public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+		public StreamCodec<KeyValPair<K, V>> getStreamCodec()
 		{
 			return getKeyValPairStreamCodec();
 		}
 	};
-        
+
         /**
 	 * Denominator input port that takes a key value pair.
 	 */
@@ -93,7 +94,7 @@ public class MarginKeyVal<K, V extends Number> extends
 		 * Set StreamCodec used for partitioning.
 		 */
 		@Override
-		public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+		public StreamCodec<KeyValPair<K, V>> getStreamCodec()
 		{
 			return getKeyValPairStreamCodec();
 		}
@@ -101,7 +102,7 @@ public class MarginKeyVal<K, V extends Number> extends
 
 	/**
 	 * Adds the value for each key.
-	 * 
+	 *
 	 * @param tuple
 	 * @param map
 	 */
@@ -130,7 +131,7 @@ public class MarginKeyVal<K, V extends Number> extends
 
 	/**
 	 * getter function for percent
-	 * 
+	 *
 	 * @return percent
 	 */
 	public boolean getPercent()
@@ -140,7 +141,7 @@ public class MarginKeyVal<K, V extends Number> extends
 
 	/**
 	 * setter function for percent
-	 * 
+	 *
 	 * @param val
 	 *          sets percent
 	 */

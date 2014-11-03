@@ -81,14 +81,6 @@ public class RomeSyndicationOperatorTest
       {
         entries.add(tuple);
       }
-
-      /*
-       @Override
-       public Class<? extends StreamCodec<SyndEntry>> getStreamCodec() {
-       Class c = JavaSerializationStreamCodec.class;
-       return (Class<? extends StreamCodec<SyndEntry>>)c;
-       }
-       */
     };
   }
 

@@ -2,6 +2,7 @@ package com.datatorrent.lib.codec;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Serializable;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -16,10 +17,10 @@ import com.datatorrent.common.util.Slice;
  * This codec is used for serializing the objects of class which are Kryo serializable.
  * It is needed when custom static partitioning is required.
  *
- * @param <T> Type of the object which gets serialized/deserialized using this  codec.
+ * @param <T> Type of the object which gets serialized/deserialized using this codec.
  * @since 0.9.0
  */
-public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
+public class KryoSerializableStreamCodec<T> implements StreamCodec<T>, Serializable
 {
   protected transient final Kryo kryo;
 
@@ -74,4 +75,6 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>
   {
     return t.hashCode();
   }
+
+  private static final long serialVersionUID = 201411031402L;
 }

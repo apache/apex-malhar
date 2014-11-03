@@ -20,17 +20,17 @@ import java.util.Map;
 
 import org.apache.commons.lang.mutable.MutableDouble;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.StreamCodec;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.StreamCodec;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 /**
- * Emits the sum of values for each key at the end of window. 
- * <p> 
+ * Emits the sum of values for each key at the end of window.
+ * <p>
  * This is an end window operator. Default unifier works as this operator follows sticky partition.<br> <br> <b>Ports</b>:<br>
  * <b>data</b>: expects KeyValPair&lt;K,V extends Number&gt;<br> <b>sum</b>: emits KeyValPair&lt;K,V extends Number&gt;<br> <br> <b>Properties</b>:<br> <b>inverse</b>: If set to true the key in the
  * filter will block tuple<br> <b>filterBy</b>: List of keys to filter on<br>
@@ -102,7 +102,7 @@ public class SumKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
      * Stream codec used for partitioning.
      */
     @Override
-    public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+    public StreamCodec<KeyValPair<K, V>> getStreamCodec()
     {
       return getKeyValPairStreamCodec();
     }

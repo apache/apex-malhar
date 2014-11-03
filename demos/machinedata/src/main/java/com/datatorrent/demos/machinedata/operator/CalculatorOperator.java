@@ -15,28 +15,28 @@
  */
 package com.datatorrent.demos.machinedata.operator;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
-import com.datatorrent.demos.machinedata.data.*;
-import com.datatorrent.demos.machinedata.util.DataTable;
-import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-
-import com.google.common.base.Objects;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
-
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+
+import com.google.common.base.Objects;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+
+import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
+import com.datatorrent.lib.util.KeyValPair;
+
+import com.datatorrent.api.*;
+
+import com.datatorrent.demos.machinedata.data.*;
+import com.datatorrent.demos.machinedata.util.DataTable;
 
 /**
  * <p>
@@ -75,9 +75,9 @@ public class CalculatorOperator extends BaseOperator
      * Stream codec used for partitioning.
      */
     @Override
-    public Class<? extends StreamCodec<MachineInfo>> getStreamCodec()
+    public StreamCodec<MachineInfo> getStreamCodec()
     {
-      return MachineInfoStreamCodec.class;
+      return new MachineInfoStreamCodec();
     }
   };
 
@@ -258,7 +258,7 @@ public class CalculatorOperator extends BaseOperator
     this.maxThreshold = threshold;
   }
 
-  public static class MachineInfoStreamCodec extends KryoSerializableStreamCodec<MachineInfo>
+  public static class MachineInfoStreamCodec extends KryoSerializableStreamCodec<MachineInfo> implements Serializable
   {
     public MachineInfoStreamCodec()
     {
@@ -270,5 +270,7 @@ public class CalculatorOperator extends BaseOperator
     {
       return Objects.hashCode(o.getMachineKey().getCustomer(), o.getMachineKey().getOs(), o.getMachineKey().getProduct(), o.getMachineKey().getSoftware1(), o.getMachineKey().getSoftware2(), o.getMachineKey().getSoftware3());
     }
+
+    private static final long serialVersionUID = 201411031403L;
   }
 }

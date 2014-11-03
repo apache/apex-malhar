@@ -260,9 +260,9 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
   }
 
   @Override
-  protected Class<? extends HDSCodec<GenericAggregate>> getCodecClass()
+  protected HDSCodec<GenericAggregate> getCodec()
   {
-    return GenericAggregateCodec.class;
+    return new GenericAggregateCodec();
   }
 
   @Override
