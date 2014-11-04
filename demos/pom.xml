@@ -26,6 +26,7 @@
     <module>uniquecount</module>
     <module>visualdata</module>
     <module>distributedistinct</module>
+    <module>goldengate-demo</module>
   </modules>
 
 </project>
