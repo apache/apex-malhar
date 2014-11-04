@@ -22,10 +22,10 @@ import com.datatorrent.lib.algo.MatchMap;
 import java.util.HashMap;
 
 /**
- *
- * A compare metric is done on tuple subclassed from Number based on the property "key", "value", and "cmp", and matching tuples are emitted. If the tuple
- * passed the test, it is emitted on the output port "compare". The comparison is done by getting double value from the Number.
- * Both output ports are optional, but at least one has to be connected<p>
+ * This operator compares tuples subclassed from Number based on the property "key", "value", and "cmp", and matching tuples are emitted.
+ * <p>
+ * If the tuple passed the test, it is emitted on the output port "compare".&nbsp; The comparison is done by getting double value from the Number.
+ * Both output ports are optional, but at least one has to be connected.
  * This module is a pass through<br>
  * <br>
  * <b>Ports</b>:<br>
@@ -68,12 +68,16 @@ import java.util.HashMap;
  * </table>
  * <br>
  * <br>
- *
+ * @displayName Compare Map
+ * @category Math
+ * @tags comparison, key value, numeric, map
  * @since 0.3.2
  */
 @Stateless
 public class CompareMap<K, V extends Number> extends MatchMap<K,V>
 {
-    @OutputPortFieldAnnotation(name = "compare")
+    /**
+     * Output port that emits a hashmap of matching number tuples after comparison.
+     */
     public final transient DefaultOutputPort<HashMap<K, V>> compare = match;
 }

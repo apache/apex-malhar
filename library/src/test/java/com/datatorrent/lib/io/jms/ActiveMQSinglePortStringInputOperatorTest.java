@@ -15,16 +15,10 @@
  */
 package com.datatorrent.lib.io.jms;
 
-import javax.jms.Connection;
-import javax.jms.DeliveryMode;
-import javax.jms.Destination;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
-
-import junit.framework.Assert;
+import javax.jms.*;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;

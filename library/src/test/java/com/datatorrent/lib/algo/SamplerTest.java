@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.algo;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

@@ -38,10 +38,16 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.TransactionableStore;
 
 /**
- * Provides transactional support.Not intended for true transactional
+ * Provides transactional support by implementing TransactionableStore abstract methods. 
+ * 
+ * <p>
+ * Not intended for true transactional
  * properties. It does not guarantee exactly once property.It only skips tuple
  * processed in previous windows
- *
+ * 
+ * @displayName Accumulo Window Store
+ * @category Store
+ * @tags store
  * @since 1.0.4
  */
 public class AccumuloWindowStore extends AccumuloStore implements TransactionableStore {

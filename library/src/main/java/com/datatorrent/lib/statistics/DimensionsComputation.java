@@ -35,8 +35,12 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
 
 /**
- * <p>DimensionsComputation class.</p>
- *
+ * <p>An implementation of an operator that computes dimensions of events. </p>
+ * <p>
+ * @displayName Dimension Computation
+ * @category Statistics
+ * @tags event, dimension, aggregation, computation
+ * 
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  * @since 1.0.2
  */
@@ -48,7 +52,10 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   {
     this.unifier = unifier;
   }
-
+  
+  /**
+   * Output port that emits an aggregate of events.
+   */
   public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>()
   {
     @Override
@@ -63,16 +70,23 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
     }
   };
 
+  protected void processInputTuple(EVENT tuple)
+  {
+    for (int i = 0; i < aggregatorMaps.length; i++) {
+      aggregatorMaps[i].add(tuple, i);
+    }
+  }
+
+  /**
+   * Input data port that takes an event.
+   */
   public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
   {
     @Override
     public void process(EVENT tuple)
     {
-      for (int i = 0; i < aggregatorMaps.length; i++) {
-        aggregatorMaps[i].add(tuple, i);
-      }
+      processInputTuple(tuple);
     }
-
   };
 
   public static interface AggregateEvent

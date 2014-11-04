@@ -17,8 +17,7 @@ package com.datatorrent.lib.math;
 
 import java.util.HashMap;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +106,7 @@ public class ChangeAlertMapTest
 				}
 			}
 		}
-		Assert.assertEquals("change in a", 10.0, aval);
-		Assert.assertEquals("change in a", 70.0, bval);
+		Assert.assertEquals("change in a", 10.0, aval,0);
+		Assert.assertEquals("change in a", 70.0, bval,0);
 	}
 }

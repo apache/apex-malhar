@@ -15,24 +15,23 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.lib.math.CountMap;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.lib.testbench.CollectorTestSink;
+
 /**
- *
  * Functional tests for {@link com.datatorrent.lib.math.CountMap}<p>
- *
  */
 public class CountMapTest
 {
   /**
    * Test operator logic emits correct results.
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testNodeProcessing()
   {
@@ -82,10 +81,10 @@ public class CountMapTest
 
     // payload should be 1 bag of tuples with keys "a", "b", "c", "d", "e"
     Assert.assertEquals("number emitted tuples", 1, countSink.collectedTuples.size());
-    for (Object o: countSink.collectedTuples) {
-      HashMap<String, Integer> output = (HashMap<String, Integer>)o;
-      for (Map.Entry<String, Integer> e: output.entrySet()) {
-        Integer val = (Integer)e.getValue();
+    for (Object o : countSink.collectedTuples) {
+      HashMap<String, Integer> output = (HashMap<String, Integer>) o;
+      for (Map.Entry<String, Integer> e : output.entrySet()) {
+        Integer val = (Integer) e.getValue();
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", 4, val.intValue());
         }

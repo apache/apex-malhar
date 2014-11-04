@@ -20,7 +20,7 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
@@ -43,10 +43,8 @@ import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
- * <p>
- * Drops duplicate events.
- * </p>
- *
+ * This is the base implementation of a deduper, which drops duplicate events.&nbsp;
+ * Subclasses must implement the convert method which turns input tuples into output tuples.
  * <p>
  * Processing of an event involves:
  * <ol>
@@ -61,7 +59,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * <li>The deduper then processes the waiting events in {@link #handleIdleTime()}</li>
  * </ol>
  * <li>
- * If the bucket is loaded, the operator drop the event if it is already present in the bucket; drops it otherwise.
+ * If the bucket is loaded, the operator drops the event if it is already present in the bucket; emits it otherwise.
  * </li>
  * </ol>
  * </p>
@@ -70,14 +68,21 @@ import com.datatorrent.lib.counters.BasicCounters;
  * Based on the assumption that duplicate events fall in the same bucket.
  * </p>
  *
+ * @displayName Deduper
+ * @category Deduplication
+ * @tags dedupe
+ *
  * @param <INPUT>  type of input tuple
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
 public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
-  implements Operator, BucketManager.Listener<INPUT>, IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
+  implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
-  @InputPortFieldAnnotation(name = "input", optional = true)
+  /**
+   * The input port on which events are received.
+   */
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
   {
     @Override
@@ -91,7 +96,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       Bucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
 
       if (bucket != null && bucket.containsEvent(tuple)) {
-        numDuplicateEvents.increment();
+        counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
         return;
       } //ignore event
 
@@ -122,12 +127,15 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     }
 
   };
+  /**
+   * The output port on which deduped events are emitted.
+   */
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
   //Check-pointed state
-  @Nonnull
+  @NotNull
   protected BucketManager<INPUT> bucketManager;
   //bucketKey -> list of bucketData which belong to that bucket and are waiting for the bucket to be loaded.
-  @Nonnull
+  @NotNull
   protected final Map<Long, List<INPUT>> waitingEvents;
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
@@ -135,8 +143,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
-  protected transient BasicCounters<MutableLong> counters;
-  protected transient MutableLong numDuplicateEvents;
+  protected BasicCounters<MutableLong> counters;
   private transient long currentWindow;
 
   public Deduper()
@@ -146,6 +153,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     partitionMask = 0;
 
     fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
+    counters = new BasicCounters<MutableLong>(MutableLong.class);
   }
 
   @Override
@@ -154,17 +162,10 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     this.context = context;
     this.currentWindow = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
-    counters = new BasicCounters<MutableLong>(MutableLong.class);
+
     bucketManager.setBucketCounters(counters);
-    try {
-      numDuplicateEvents = counters.findCounter(CounterKeys.DUPLICATE_EVENTS);
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    }
+    counters.setCounter(CounterKeys.DUPLICATE_EVENTS, new MutableLong());
+
     bucketManager.startService(this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
     for (long bucketKey : waitingEvents.keySet()) {
@@ -226,7 +227,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
               output.emit(convert(event));
             }
             else {
-              numDuplicateEvents.increment();
+              counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
             }
           }
         }
@@ -355,7 +356,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
    *
    * @param bucketManager {@link BucketManager} to be used by deduper.
    */
-  public void setBucketManager(@Nonnull BucketManager<INPUT> bucketManager)
+  public void setBucketManager(@NotNull BucketManager<INPUT> bucketManager)
   {
     this.bucketManager = Preconditions.checkNotNull(bucketManager, "storage manager");
   }

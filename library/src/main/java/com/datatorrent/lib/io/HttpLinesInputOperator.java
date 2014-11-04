@@ -22,8 +22,11 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 
 /**
- * Incoming data is interpreted as lines of plain text and each tuple output is a line in the content
- * <br>
+ * Incoming data is interpreted as lines of plain text and each tuple output is a line in the content.
+ * <p></p>
+ * @displayName HTTP Lines Input
+ * @category Input
+ * @tags http, input operator
  *
  * @since 0.9.4
  */

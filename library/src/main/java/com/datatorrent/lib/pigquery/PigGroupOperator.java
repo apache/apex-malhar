@@ -30,7 +30,8 @@ import com.datatorrent.lib.util.UnifierMap;
 
 
 /**
- * Class implements Apache Pig Group operator sematic. <br>
+ * An implementation of BaseOperator that implements Apache Pig Group operator semantic. <br>
+ * <p>
  * This operator does not support Group All semantic. <br>
  * <pre>
  * B = GROUP A BY age;
@@ -62,7 +63,9 @@ import com.datatorrent.lib.util.UnifierMap;
  * <b>Properties : </b> <br>
  * <b>groupByCondition : </b> Group condition. <br>
  * <br>
- *
+ * @displayName Pig Group
+ * @category Pig Query
+ * @tags map, string, group operator, condition
  * @since 0.3.4
  */
 public class PigGroupOperator  extends BaseOperator
@@ -83,7 +86,7 @@ public class PigGroupOperator  extends BaseOperator
   }
   
   /**
-   * Input port.
+   * Input port that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
   {
@@ -95,7 +98,7 @@ public class PigGroupOperator  extends BaseOperator
   };
   
   /**
-   * Output port.
+   * Output port that emits a map of &lt;Object, List&lt;Map&lt;String, Object&gt;&gt;&gt;.
    */
   public final transient DefaultOutputPort<Map<Object, List<Map<String, Object>>>> outport = 
       new DefaultOutputPort<Map<Object, List<Map<String, Object>>>>()

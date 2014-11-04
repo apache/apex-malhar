@@ -15,15 +15,16 @@
  */
 package com.datatorrent.lib.testbench;
 
-import com.datatorrent.api.Sink;
-import com.datatorrent.lib.testbench.EventClassifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Sink;
 
 /**
  * Functional test for {@link com.datatorrent.lib.testbench.EventClassifier} for three configuration><p>

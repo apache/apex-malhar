@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.io;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.io.ApacheGenRandomLogs;

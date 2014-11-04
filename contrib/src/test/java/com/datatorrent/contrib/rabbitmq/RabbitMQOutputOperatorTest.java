@@ -15,24 +15,22 @@
  */
 package com.datatorrent.contrib.rabbitmq;
 
-import com.datatorrent.api.*;
-import com.datatorrent.contrib.rabbitmq.AbstractSinglePortRabbitMQOutputOperator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.ActivationListener;
-import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.LocalMode;
-import com.rabbitmq.client.*;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.LoggerFactory;
+
+import com.rabbitmq.client.*;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.Operator.ActivationListener;
 
 /**
  *
@@ -229,16 +227,16 @@ public class RabbitMQOutputOperatorTest
     }
     lc.shutdown();
 
-    junit.framework.Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
+    Assert.assertEquals("emitted value for testNum was ", testNum * 3, receiver.count);
     for (Map.Entry<String, Integer> e : receiver.dataMap.entrySet()) {
       if (e.getKey().equals("a")) {
-        junit.framework.Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
+        Assert.assertEquals("emitted value for 'a' was ", new Integer(2), e.getValue());
       }
       else if (e.getKey().equals("b")) {
-        junit.framework.Assert.assertEquals("emitted value for 'b' was ", new Integer(20), e.getValue());
+        Assert.assertEquals("emitted value for 'b' was ", new Integer(20), e.getValue());
       }
       else if (e.getKey().equals("c")) {
-        junit.framework.Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
+        Assert.assertEquals("emitted value for 'c' was ", new Integer(1000), e.getValue());
       }
     }
     logger.debug("end of test");

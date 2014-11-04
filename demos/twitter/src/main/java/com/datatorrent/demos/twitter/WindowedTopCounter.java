@@ -46,7 +46,6 @@ public class WindowedTopCounter<T> extends BaseOperator
   /**
    * Input port on which map objects containing keys with their respective frequency as values will be accepted.
    */
-  @InputPortFieldAnnotation(name = "input")
   public final transient DefaultInputPort<Map<T, Integer>> input = new DefaultInputPort<Map<T, Integer>>()
   {
     @Override
@@ -66,7 +65,6 @@ public class WindowedTopCounter<T> extends BaseOperator
   /**
    * Output port on which a map object containing most frequently occurring keys with their frequency will be emitted.
    */
-  @OutputPortFieldAnnotation(name = "output")
   public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>();
   private PriorityQueue<SlidingContainer<T>> topCounter;
   private int windows;

@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.mongodb;
 
+import com.datatorrent.api.Attribute.AttributeMap;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -26,8 +27,7 @@ import org.slf4j.LoggerFactory;
 
 import com.mongodb.DBCursor;
 
-import com.datatorrent.api.AttributeMap;
-import com.datatorrent.api.AttributeMap.DefaultAttributeMap;
+import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;

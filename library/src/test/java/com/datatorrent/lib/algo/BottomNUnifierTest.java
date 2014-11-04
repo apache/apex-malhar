@@ -20,7 +20,7 @@ import java.util.HashMap;
 
 import org.junit.Test;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 

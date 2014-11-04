@@ -19,9 +19,13 @@ import javax.validation.constraints.NotNull;
 
 
 /**
- * Abstract class to filter row by expression index.
+ * A base implementation of an index that filters row by unary expression.&nbsp; Subclasses should provide the 
+   implementation of filter/getExpressionName functions.
+ * <p>
  * Sub class will implement filter/getExpressionName functions.
- *
+ * @displayName Unary Expression
+ * @category Streamquery/Index
+ * @tags unary, alias
  * @since 0.3.4
  */
 abstract public class UnaryExpression  implements Index

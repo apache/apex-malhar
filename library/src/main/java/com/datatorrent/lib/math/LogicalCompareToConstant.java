@@ -21,11 +21,10 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.Stateless;
 
 /**
- * Compare the constant to the incoming tuple emit it on one or more of the
- * output ports accordingly.
+ * This operator does a logical comparison of a constant with a tuple.
  * <p>
  *
- * @see LogicalCompare If the constant is equal to tuple, then the pair is
+ * @see If the constant is equal to tuple, then the pair is
  *      emitted on equalTo, greaterThanEqualTo, and lessThanEqualTo ports. If
  *      the constant is less than tuple, then the pair is emitted on notEqualTo,
  *      lessThan and lessThanEqualTo ports. If the constant is greater than
@@ -45,6 +44,9 @@ import com.datatorrent.api.annotation.Stateless;
  *      <b>lessThanEqualTo</b>: emits T<br>
  *      <b>lessThan</b>: emits T<br>
  *      <br>
+ * @displayName Logical Compare To Constant
+ * @category Math
+ * @tags comparison, logical, key value, constant
  * @since 0.3.3
  */
 @Stateless
@@ -58,7 +60,7 @@ public class LogicalCompareToConstant<T extends Comparable<? super T>> extends
 	private T constant;
 
 	/**
-	 * Tuple input port.
+	 * Input port that takes a comparable to compare it with a constant.
 	 */
 	public final transient DefaultInputPort<T> input = new DefaultInputPort<T>()
 	{

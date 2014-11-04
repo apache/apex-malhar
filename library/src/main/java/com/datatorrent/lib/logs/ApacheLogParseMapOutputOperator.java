@@ -25,13 +25,14 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Parse Apache log lines one line at a time. logRegex is used as a parser. The fields extracted are defined as a
- * property
+ * This operator parses apache logs one line at a time (each tuple is a log line), using the given regex.&nbsp;
+ * A mapping from log line sections to values is created for each log line and emitted.
  * <p>
  * This is a pass through operator<br>
  * <br>
@@ -45,10 +46,15 @@ import org.slf4j.LoggerFactory;
  * <b>Properties</b>:<br>
  * <b>logRegex</b>: defines the regex <br>
  * <b>groupMap</b>: defines the mapping from the group ids to the names <br>
+ * </p>
+ * @displayName Apache Log Parse Map
+ * @category Logs
+ * @tags apache, regex
  *
  * @since 0.9.4
  */
 @Stateless
+@OperatorAnnotation(partitionable = true)
 public class ApacheLogParseMapOutputOperator extends BaseOperator
 {
   /**
@@ -65,7 +71,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
   private final Map<String, InformationExtractor> infoExtractors = new HashMap<String, InformationExtractor>();
   private transient Pattern accessLogPattern;
   /**
-   * Input log line port.
+   * This is the input port which receives apache log lines.
    */
   public final transient DefaultInputPort<String> data = new DefaultInputPort<String>()
   {
@@ -82,7 +88,9 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
 
   };
   /**
-   * Client IP address, output port.
+   * This is the output port which emits one tuple for each Apache log line.
+   * Each tuple is a Map whose keys represent various sections of a log line,
+   * and whose values represent the contents of those sections.
    */
   public final transient DefaultOutputPort<Map<String, Object>> output = new DefaultOutputPort<Map<String, Object>>();
 

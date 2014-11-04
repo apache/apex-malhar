@@ -15,16 +15,17 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.lib.stream.RoundRobinHashMap;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.testbench.CollectorTestSink;
+
 /**
- * Functional test for {@link com.datatorrent.lib.testbench.RoundRobinHashMap}.
+ * Functional test for {@link com.datatorrent.lib.stream.RoundRobinHashMap}.
  */
 public class RoundRobinHashMapTest
 {

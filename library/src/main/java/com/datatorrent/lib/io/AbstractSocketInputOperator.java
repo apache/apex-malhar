@@ -9,18 +9,23 @@ import java.util.*;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 
 /**
- * This is abstract class for socket input operator.</br>
- *
+ * This is the base implementation for an input operator which reads from a network socket.&nbsp;
+ * Subclasses must implement the method that is used to process incoming bytes from the socket.
+ * <p>
  * <b>Ports</b>:</br> <b>outputPort</b>: emits &lt;<T></T>&gt;<br>
  * <br>
  * <b>Properties</b>:<br>
  * <b>hostname</b></br> <b>port</b></br> <b>byteBufferSize</b></br> <b>scanIntervalInMilliSeconds</b></br>
+ * </p>
+ * @displayName Abstract Socket Input
+ * @category Input
+ * @tags socket, input operator
  *
  * @param <T>
  * @since 0.9.5
@@ -42,6 +47,10 @@ public abstract class AbstractSocketInputOperator<T> implements InputOperator, A
   private transient Thread scanThread = new Thread(new SelectorScanner());
   private transient ByteBuffer byteBuffer;
   private transient Lock lock;
+
+  /**
+   * This is the output port which emits tuples read from a socket.
+   */
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   public int getByteBufferSize()

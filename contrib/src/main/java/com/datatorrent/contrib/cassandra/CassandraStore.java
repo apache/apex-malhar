@@ -29,8 +29,11 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
 
 /**
- * A {@link Connectable} that uses cassandra to connect to stores.
- *
+ * A {@link Connectable} that uses cassandra to connect to stores and implements Connectable interface. 
+ * <p>
+ * @displayName Cassandra Store
+ * @category Store
+ * @tags store
  * @since 1.0.2
  */
 public class CassandraStore implements Connectable
@@ -154,7 +157,7 @@ public class CassandraStore implements Connectable
   }
 
   @Override
-  public boolean connected()
+  public boolean isConnected()
   {
     try {
       return !session.isClosed();

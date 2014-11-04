@@ -60,22 +60,22 @@ public class DemoValueGenerator extends BaseOperator implements InputOperator {
     }
     
 
-    @OutputPortFieldAnnotation(name="simple output", optional=false)
+    @OutputPortFieldAnnotation(optional=false)
     public final transient DefaultOutputPort<TimeSeriesData[]> simpleOutput = new DefaultOutputPort<TimeSeriesData[]>();
     
-    @OutputPortFieldAnnotation(name="simple output2", optional=false)
+    @OutputPortFieldAnnotation(optional=false)
     public final transient DefaultOutputPort<TimeSeriesData[]> simpleOutput2 = new DefaultOutputPort<TimeSeriesData[]>();
     
-    @OutputPortFieldAnnotation(name="top 10 output", optional=false)
+    @OutputPortFieldAnnotation(optional=false)
     public final transient DefaultOutputPort<HashMap<String, Number> > top10Output = new DefaultOutputPort<HashMap<String, Number>>();
     
-    @OutputPortFieldAnnotation(name="percentage output", optional=false)
+    @OutputPortFieldAnnotation(optional=false)
     public final transient DefaultOutputPort<Integer> percentageOutput = new DefaultOutputPort<Integer>();
     
-    @OutputPortFieldAnnotation(name="progress output", optional=false)
+    @OutputPortFieldAnnotation(optional=false)
     public final transient DefaultOutputPort<Integer> progressOutput = new DefaultOutputPort<Integer>();
     
-    @OutputPortFieldAnnotation(name="piechart output", optional=false)
+    @OutputPortFieldAnnotation(optional=false)
     public final transient DefaultOutputPort<HashMap<String, Number>> pieChartOutput = new DefaultOutputPort<HashMap<String, Number>>();
 
     public DemoValueGenerator() {

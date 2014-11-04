@@ -20,8 +20,11 @@ import java.util.Map;
 import javax.validation.constraints.NotNull;
 
 /**
- * Interface to define sql select statement indexes for column names/aggregate.
- *
+ * Interface to define sql select statement indexes for column names,aggregate.
+ * <p>
+ * @displayName Index
+ * @category Streamquery/Index
+ * @tags index
  * @since 0.3.2
  */
 public interface Index

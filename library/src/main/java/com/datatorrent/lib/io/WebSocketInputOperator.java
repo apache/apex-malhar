@@ -24,8 +24,6 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
@@ -36,15 +34,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- *
- * Reads via WebSocket from given URL as input stream<p>
- * <br>
- * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.<br>
- * <br>
+ * Reads via WebSocket from given URL as input stream.&nbsp;
+ * Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.
+ * <p></p>
+ * @displayName JSON Map Input
+ * @category Input
+ * @tags http, input operator
  *
  * @since 0.3.2
  */
-public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<String, String>> implements Runnable
+public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> implements Runnable
 {
   private static final Logger LOG = LoggerFactory.getLogger(WebSocketInputOperator.class);
   /**
@@ -136,9 +135,9 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
   }
 
   @SuppressWarnings("unchecked")
-  protected Map<String, String> convertMessageToMap(String message) throws IOException
+  protected T convertMessage(String message) throws IOException
   {
-    return mapper.readValue(message, HashMap.class);
+    return (T)mapper.readValue(message, Object.class);
   }
 
   private transient MonitorThread monThread;
@@ -190,7 +189,7 @@ public class WebSocketInputOperator extends SimpleSinglePortInputOperator<Map<St
         {
           LOG.debug("Got: " + string);
           try {
-            Map<String, String> o = convertMessageToMap(string);
+            T o = convertMessage(string);
             outputPort.emit(o);
           }
           catch (IOException ex) {

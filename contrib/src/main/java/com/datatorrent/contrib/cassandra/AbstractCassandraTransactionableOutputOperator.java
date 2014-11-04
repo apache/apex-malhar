@@ -25,11 +25,11 @@ import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
 
 /**
  * <p>
- * Generic Cassandra Output Adaptor which creates a transaction at the start of window.<br/>
- * Executes batch of cql updates and closes the transaction at the end of the window.
+ * Generic base output adaptor which creates a transaction at the start of window.&nbsp; Subclasses should provide implementation for getting the update statement.  <br/>
  * </p>
  *
  * <p>
+ * Executes batch of CQL updates and closes the transaction at the end of the window.
  * Each tuple corresponds to an CQL update statement. The operator groups the updates in a batch
  * and submits them with one call to the database. Batch processing improves performance considerably and also provides atomicity.<br/>
  * The size of a batch is equal to the size of the window.
@@ -40,7 +40,9 @@ import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
  * This is needed for the recovery. The operator writes a tuple exactly once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
- *
+ * @displayName Abstract Cassandra Transactionable Output
+ * @category Store
+ * @tags output operator, batch, transactionable
  * @param <T>type of tuple</T>
  * @since 1.0.2
  */

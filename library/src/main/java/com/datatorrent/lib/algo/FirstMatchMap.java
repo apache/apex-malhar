@@ -26,9 +26,13 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseMatchOperator;
 
 /**
- *
+ * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
+ * and comparing those values to a specified number.&nbsp;The first key value pair, in each window, to satisfy the comparison is emitted.
+ * <p>
  * A compare metric on a Number tuple based on the property "key", "value", and "cmp"; the first match is emitted.
- *  The comparison is done by getting double value from the Number.<p>
+ *  The comparison is done by getting double value from the Number.
+ * </p>
+ * <p>
  * This module is a pass through<br>
  * The operators by default assumes immutable keys. If the key is mutable, use cloneKey to make a copy<br>
  * <br>
@@ -50,21 +54,26 @@ import com.datatorrent.lib.util.BaseMatchOperator;
  * Value must be able to convert to a "double"<br>
  * Compare string, if specified, must be one of "lte", "lt", "eq", "neq", "gt", "gte"<br>
  * <br>
+ * </p>
+ *
+ * @displayName Emit First Match (Number)
+ * @category Algorithmic
+ * @tags filter, key value, numeric
  *
  * @since 0.3.2
  */
+
 @OperatorAnnotation(partitionable = false)
-public class FirstMatchMap<K, V extends Number> extends BaseMatchOperator<K,V> 
+public class FirstMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
 {
   /**
    * Tuple emitted flag.
    */
   boolean emitted = false;
-  
+
   /**
-   * Input port.
+   * The port on which key value pairs are received.
    */
-  @InputPortFieldAnnotation(name="data")
   public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
   {
     /**
@@ -89,9 +98,8 @@ public class FirstMatchMap<K, V extends Number> extends BaseMatchOperator<K,V>
   };
 
   /**
-   * Output port, unifier operator.
+   * The output port on which the first satisfying key value pair is emitted.
    */
-  @OutputPortFieldAnnotation(name="first")
   public final transient DefaultOutputPort<HashMap<K, V>> first = new DefaultOutputPort<HashMap<K, V>>();
 
   /**

@@ -16,10 +16,10 @@
 package com.datatorrent.contrib.mongodb;
 
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 
 import com.mongodb.DBCursor;
 import com.mongodb.DBObject;
@@ -30,8 +30,9 @@ import java.net.UnknownHostException;
 import org.slf4j.LoggerFactory;
 
 /**
- * MongoDB input adapter operator, which send query data from database.<p><br>
- * <p/>
+ * This is the base implementation of a MongoDB input operator.&nbsp;
+ * Subclasses should implement the methods that convert MongoDB data into tuples.
+ * <p>
  * <br>
  * Ports:<br>
  * <b>Input</b>: no input port <br>
@@ -50,7 +51,10 @@ import org.slf4j.LoggerFactory;
  * <br>
  * <b>Benchmarks</b>:
  * <br>
- *
+ * </p>
+ * @displayName MongoDB Input
+ * @category Database
+ * @tags input operator
  * @since 0.3.2
  */
 public abstract class MongoDBInputOperator<T> extends MongoDBConnectable implements InputOperator, ActivationListener<OperatorContext>
@@ -59,7 +63,10 @@ public abstract class MongoDBInputOperator<T> extends MongoDBConnectable impleme
   private String table;
   private DBObject query;
   private transient DBCursor resultCursor;
-  @OutputPortFieldAnnotation(name = "outputPort")
+
+  /**
+   * This is the output port which emits tuples read from MongoDB.
+   */
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
   /**

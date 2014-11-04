@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.BaseOperator;
-import com.datatorrent.api.DAGContext;
+import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Context.OperatorContext;
@@ -31,10 +31,15 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
+ * This is the base implementation of an operator.&nbsp;
+ * The operator consumes tuples which are maps from fields to objects.&nbsp;
+ * One field in each tuple is considered a "time" field,
+ * one or more fields are considered "dimensions",
+ * one or more fields are considered "value" fields.&nbsp;
+ * This operator outputs a map at the end of each window whose keys are a combination of the "time" and "dimension" fields.&nbsp;
+ * The value of the map is another map whose keys are "value" fields and whose values are a numeric metric.&nbsp;
+ * Subclasses must implement the methods used to process the time, dimension, and value fields.
  * <p>
- * Abstract AbstractDimensionTimeBucketOperator class.
- * </p>
- *
  * This operator takes in a Map of key value pairs, and output the expanded key value pairs from the dimensions.
  * The user of this class is supposed to:
  * - provide the time key name in the map by calling setTimeKeyName
@@ -57,13 +62,20 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
  *
  * Note that in most cases, the dimensions are keys with DISCRETE values
  * The value fields are keys with AGGREGATE-able values
- *
+ * </p>
+ * @displayName Abstract Dimension Time Bucket
+ * @category Algorithmic
+ * @tags count, key value, numeric
  * @since 0.3.2
  */
 public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractDimensionTimeBucketOperator.class);
-  @InputPortFieldAnnotation(name = "in", optional = false)
+
+  /**
+   * This is the input port which receives tuples that are maps from strings to objects.
+   */
+  @InputPortFieldAnnotation(optional = false)
   public final transient DefaultInputPort<Map<String, Object>> in = new DefaultInputPort<Map<String, Object>>() {
     @Override
     public void process(Map<String, Object> tuple)
@@ -121,11 +133,11 @@ public abstract class AbstractDimensionTimeBucketOperator extends BaseOperator
     }
 
   };
+
   /**
-   * First String key is the bucket Second String key is the key Third String
-   * key is the field
+   * This is the output port which emits the processed data.
    */
-  @OutputPortFieldAnnotation(name = "out", optional = false)
+  @OutputPortFieldAnnotation(optional = false)
   public final transient DefaultOutputPort<Map<String, Map<String, Number>>> out = new DefaultOutputPort<Map<String, Map<String, Number>>>();
   private List<String> dimensionKeyNames = new ArrayList<String>();
   private List<String> valueKeyNames = new ArrayList<String>();

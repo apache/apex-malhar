@@ -22,7 +22,12 @@ import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import java.io.IOException;
 
 /**
- * This abstract class is for any implementation of an input adapter of a store {@link Connectable}
+ * This is the base implementation of an input adapter which reads from a store.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
+ * <p></p>
+ * @displayName Abstract Store Input
+ * @category Store
+ * @tags input operator
  *
  * @param <T> The tuple type
  * @param <S> The store type
@@ -31,9 +36,8 @@ import java.io.IOException;
 public abstract class AbstractStoreInputOperator<T, S extends Connectable> implements InputOperator
 {
   /**
-   * The output port.
+   * The output port on which tuples read form a store are emitted.
    */
-  @OutputPortFieldAnnotation(name = "out")
   final public transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
   protected S store;
   /**

@@ -100,7 +100,7 @@ public class DimensionOperator extends BaseOperator implements Partitioner<Dimen
   {
     super.setup(context);
     if (context != null) {
-      windowWidth = context.getValue(DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
+      windowWidth = context.getValue(Context.DAGContext.STREAMING_WINDOW_SIZE_MILLIS);
     }
 
     LogstreamPropertyRegistry.setInstance(registry);

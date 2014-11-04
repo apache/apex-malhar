@@ -16,7 +16,8 @@
 package com.datatorrent.lib.statistics;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
 
 /**

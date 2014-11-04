@@ -131,7 +131,7 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
   }
 
   @Override
-  protected void _stop()
+  public void close()
   {
     if(standardConsumer!=null)
       standardConsumer.shutdown();

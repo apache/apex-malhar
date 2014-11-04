@@ -26,14 +26,14 @@ import org.slf4j.LoggerFactory;
 import twitter4j.*;
 import twitter4j.conf.ConfigurationBuilder;
 
-import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
 
 /**
- * Read input from Twitter. <p> <br>
- *
+ * This is an input operator for Twitter.
+ * <p>
  * This test can only be run from command line using command line interface script.
  * You need to set twitter authentication credentials in $HOME/.dt/dt-site.xml file in order to run this.
  * The authentication requires following 4 information.
@@ -41,14 +41,29 @@ import com.datatorrent.api.InputOperator;
  * Your application consumer secret,
  * Your twitter access token, and
  * Your twitter access token secret.
- *
+ * </p>
+ * @displayName Twitter Input
+ * @category Web
+ * @tags input operator
  * @since 0.3.2
  */
 public class TwitterSampleInput implements InputOperator, ActivationListener<OperatorContext>, StatusListener
 {
+  /**
+   * This is the output port on which the twitter status information is emitted.
+   */
   public final transient DefaultOutputPort<Status> status = new DefaultOutputPort<Status>();
+  /**
+   * This is the output port on which the twitter text is emitted.
+   */
   public final transient DefaultOutputPort<String> text = new DefaultOutputPort<String>();
+  /**
+   * This is the output port on which the twitter url is emitted.
+   */
   public final transient DefaultOutputPort<String> url = new DefaultOutputPort<String>();
+  /**
+   * This is the output port on which the twitter hashtags are emitted.
+   */
   public final transient DefaultOutputPort<String> hashtag = new DefaultOutputPort<String>();
 
   /* the following 3 ports are not implemented so far */

@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import net.spy.memcached.internal.OperationCompletionListener;
@@ -75,37 +76,20 @@ public class CouchBaseSetTest
   public void test()
   {
     URI uri = null;
+    ArrayList<URI> nodes = new ArrayList<URI>();
+
+    // Add one or more nodes of your cluster (exchange the IP with yours)
+    nodes.add(URI.create("http://127.0.0.1:8091/pools"));
+
+    // Try to connect to the client
     CouchbaseClient client = null;
     try {
-      uri = new URI("http://node13.morado.com:8091/pools");
+      client = new CouchbaseClient(nodes, "default", "");
+    } catch (Exception e) {
+      System.err.println("Error connecting to Couchbase: " + e.getMessage());
+      System.exit(1);
     }
-    catch (URISyntaxException ex) {
-      logger.error("Error connecting to Couchbase: " + ex.getMessage());
-      DTThrowable.rethrow(ex.getCause());
-    }
-    baseURIs.add(uri);
-    try {
-      CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
-      cfb.setOpTimeout(10000);  // wait up to 10 seconds for an operation to succeed
-      cfb.setOpQueueMaxBlockTime(10000); // wait up to 1 second when trying to enqueue an operation
-
-      client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, "default", "default", ""));
-    }
-    catch (IOException ex) {
-      logger.error("Error connecting to Couchbase: " + ex.getMessage());
-      DTThrowable.rethrow(ex.getCause());
-    }
-    if (client != null) {
-      client.flush();
-    }
-
-    final AtomicInteger j = new AtomicInteger();
-    long startTime = System.currentTimeMillis();
-    logger.info("start time before set is " + startTime);
-    for (int k = 0; k < 10000; k++) {
-      logger.info("k " + k);
-      final CountDownLatch countLatch = new CountDownLatch(100);
-      for (int i = 0; i < 100; i++) {
+      /*for (int i = 0; i < 100; i++) {
 
         final OperationFuture<Boolean> future = client.set("Key" + (k * 100 + i), i);
         future.addListener(new OperationCompletionListener()
@@ -130,13 +114,17 @@ public class CouchBaseSetTest
       catch (InterruptedException ex) {
         logger.error("Error connecting to Couchbase: " + ex.getMessage());
         DTThrowable.rethrow(ex.getCause());
-      }
+      }*/
+      TestPojo obj = new TestPojo();
+      obj.setName("prerna");
+      obj.setPhone(123344555);
+      HashMap<String,Integer> map = new HashMap<String, Integer>();
+      map.put("prer", 12345);
+      client.set("key", obj);
     }
     long stopTime = System.currentTimeMillis();
-    logger.info("stop time after is set is " + stopTime);
-    logger.info("Threads after get are + " + Thread.activeCount());
-    client.shutdown();
 
-  }
+
+ 
 
 }

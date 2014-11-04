@@ -8,3 +8,4 @@ target/
 /front/dist_tmp
 *.iml
 npm-debug.log
+nb-configuration.xml

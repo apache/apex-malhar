@@ -28,8 +28,8 @@ import com.datatorrent.api.Operator;
 
 
 /**
- * Implements pig distinct operator semantic.
- *
+ * An implementation of Operator and Unifier that implements pig distinct operator semantic.
+ *<p>
  * <pre>
  * Example
  *
@@ -63,7 +63,10 @@ import com.datatorrent.api.Operator;
  * <b>Ports : </b> <br>
  * <b> inport : </b> expects tuple of form Map&lt;String, Object&gt; <br>
  * <b> outport : </b> emits tuple of form Map&lt;String, Object&gt; <br>
- *
+ * 
+ * @displayName Pig Distinct
+ * @category Pig Query
+ * @tags map, string, distinct operator
  * @since 0.3.4
  */
 public class PigDistinctOperator implements Operator, Unifier<Map<String, Object>>
@@ -74,7 +77,7 @@ public class PigDistinctOperator implements Operator, Unifier<Map<String, Object
   HashSet<Map<String, Object>>  distinctSet;
   
   /**
-   * Input port 1.
+   * Input port that takes map of &lt;String, Object&gt.
    */
   public final transient DefaultInputPort<Map<String, Object>> inport = new DefaultInputPort<Map<String, Object>>()
   {
@@ -89,7 +92,7 @@ public class PigDistinctOperator implements Operator, Unifier<Map<String, Object
   };
   
   /**
-   * Output port.
+   * Output port that emits a map of &lt;String, Object&gt.
    */
   public final transient DefaultOutputPort<Map<String, Object>> outport = 
       new DefaultOutputPort<Map<String, Object>>()

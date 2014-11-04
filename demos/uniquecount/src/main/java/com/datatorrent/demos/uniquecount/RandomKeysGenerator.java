@@ -43,10 +43,10 @@ public class RandomKeysGenerator implements InputOperator
   private Date date = new Date();
   private long start;
 
-  @OutputPortFieldAnnotation(name="keys", optional = false)
+  @OutputPortFieldAnnotation(optional = false)
   public transient DefaultOutputPort<Integer> outPort = new DefaultOutputPort<Integer>();
 
-  @OutputPortFieldAnnotation(name="verification", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public transient DefaultOutputPort<KeyHashValPair<Integer, Integer>> verificationPort =
       new DefaultOutputPort<KeyHashValPair<Integer, Integer>>();
 

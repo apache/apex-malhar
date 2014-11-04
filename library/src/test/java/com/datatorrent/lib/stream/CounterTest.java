@@ -15,13 +15,13 @@
  */
 package com.datatorrent.lib.stream;
 
-import com.datatorrent.lib.stream.Counter;
-import com.datatorrent.lib.testbench.CountTestSink;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.lib.testbench.CountTestSink;
+
 /**
- * Functional test for {@link com.datatorrent.lib.testbench.Counter}<p>
+ * Functional test for {@link com.datatorrent.lib.stream.Counter}<p>
  * <br>
  */
 public class CounterTest {

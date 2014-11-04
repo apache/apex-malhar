@@ -23,9 +23,13 @@ import java.util.Map;
 import javax.validation.constraints.Min;
 
 /**
- * Abstract class for basic topN operators; users need to provide processTuple, beginWindow, and endWindow to implement TopN operator<p>
+ * This is the base implementation for the Top N sorting operators.&nbsp;
+ * A concrete operator should be created from this skeleton implementation.
+ * <p>
+ * Users need to provide processTuple, beginWindow, and endWindow to implement TopN operator
  * This is an end of window module. At the end of window all data is flushed. Thus the data set is windowed and no history is kept of previous windows<br>
- * <br>
+ * </p>
+ * <p>
  * <b>Ports</b>:<br>
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
  * <b>top</b>: emits HashMap&lt;K,ArrayList&lt;V&gt;&gt;<br>
@@ -39,15 +43,17 @@ import javax.validation.constraints.Min;
  * <b>Specific run time checks are</b>: None<br>
  * <br>
  * <b>Benchmark</b>: Not done as this is an abstract operator<br>
- *
+ * </p>
+ * @displayName Abstract Base N Map
+ * @category Algorithmic
+ * @tags rank, key value
  * @since 0.3.2
  */
 abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator<K,V>
 {
   /**
-   * Expects a HashMap<K,V> tuple
+   * This is the input port that receives key value pairs.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Map<K,V>> data = new DefaultInputPort<Map<K,V>>()
   {
     @Override

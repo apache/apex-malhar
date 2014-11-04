@@ -163,17 +163,18 @@ public class CouchBaseStore implements Connectable
     }
   }
 
-  @Override
-  public boolean connected()
-  {
-    // Not applicable for Couchbase
-    return false;
-  }
+  
 
   @Override
   public void disconnect() throws IOException
   {
     client.shutdown(60, TimeUnit.SECONDS);
+  }
+
+  @Override
+  public boolean isConnected()
+  {
+    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 
 }

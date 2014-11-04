@@ -18,26 +18,34 @@ package com.datatorrent.lib.io.fs;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.validation.constraints.NotNull;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
-import javax.validation.constraints.NotNull;
 
 /**
- * Base class for HDFS file output operators.
+ * This is the base implementation of an HDFS output operator, which writes tuples to an HDFS file.&nbsp;
+ * Subclasses should implement the methods required to process and serialize the tuples.
+ * <p>
  * Contains base implementations for setup, teardown, open file and close file.
+ * </p>
+ * @displayName HDFS File Output
+ * @category Output
+ * @tags hdfs, file, output operator
  *
  * @param <INPUT> incoming tuple type
  * @since 1.0.2
+ * @deprecated This base implementation is not fault tolerant. Please extend {@link AbstractFSWriter} for output operators instead.
  */
+@Deprecated
 public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
 {
   protected transient FSDataOutputStream fsOutput;
@@ -49,6 +57,10 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
   protected boolean append = true;
   protected int bufferSize = 0;
   protected int replication = 0;
+
+  /**
+   * This is the input port which receives tuples to be written out to HDFS.
+   */
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
   {
     @Override
@@ -205,9 +217,8 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
 
   /**
    * This function returns the byte array for the given tuple.
-   *
-   * @param t
-   * @return
+   * @param t The tuple to convert into a byte array.
+   * @return The byte array for a given tuple.
    */
   protected abstract byte[] getBytesForTuple(INPUT t);
 

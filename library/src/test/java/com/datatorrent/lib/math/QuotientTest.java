@@ -15,12 +15,13 @@
  */
 package com.datatorrent.lib.math;
 
-import com.datatorrent.api.Sink;
-import com.datatorrent.lib.math.Quotient;
 import java.util.ArrayList;
 import java.util.List;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.api.Sink;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.math.Quotient}

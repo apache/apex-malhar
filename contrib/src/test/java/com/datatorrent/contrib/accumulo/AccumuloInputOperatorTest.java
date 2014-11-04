@@ -18,8 +18,6 @@ package com.datatorrent.contrib.accumulo;
 import java.util.List;
 import java.util.Map.Entry;
 
-import junit.framework.Assert;
-
 import org.apache.accumulo.core.client.Connector;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.client.TableNotFoundException;
@@ -27,12 +25,14 @@ import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Range;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.Authorizations;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
+
 import com.datatorrent.common.util.DTThrowable;
 
 public class AccumuloInputOperatorTest {
@@ -76,7 +76,7 @@ public class AccumuloInputOperatorTest {
       Assert.assertEquals("Tuple row", tuple.getRow(), "row499");
       Assert.assertEquals("Tuple column family", tuple.getColFamily(),"colfam0");
       Assert.assertEquals("Tuple column name", tuple.getColName(),"col-0");
-      Assert.assertEquals("Tuple column value", tuple.getColValue(),"val-499-0");
+      Assert.assertEquals("Tuple column value", tuple.getColValue(), "val-499-0");
     } catch (Exception ex) {
       logger.error(ex.getMessage());
       assert false;

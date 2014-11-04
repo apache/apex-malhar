@@ -18,8 +18,6 @@ package com.datatorrent.benchmark;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.benchmark.ApplicationFixed;
-import com.datatorrent.benchmark.FixedTuplesInputOperator;
 
 import java.io.IOException;
 

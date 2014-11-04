@@ -15,16 +15,13 @@
  */
 package com.datatorrent.demos.mroperator;
 
-import junit.framework.Assert;
-
 import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.Text;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.demos.mroperator.ReduceOperator;
-import com.datatorrent.demos.mroperator.WordCount;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyHashValPair;
 
@@ -63,7 +60,7 @@ public class ReduceOperatorTest {
 		oper.input.process(new KeyHashValPair<Text, IntWritable>(new Text("two"), new IntWritable(1)));
 		oper.inputCount.process(new KeyHashValPair<Integer, Integer>(1, -1));
 		oper.endWindow();
-		Assert.assertEquals("number emitted tuples", 2,	sortSink.collectedTuples.size());
+		Assert.assertEquals("number emitted tuples", 2, sortSink.collectedTuples.size());
 		for (Object o : sortSink.collectedTuples) {
       logger.debug(o.toString());
     }

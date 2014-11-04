@@ -52,7 +52,6 @@ import com.datatorrent.lib.util.HighLow;
  */
 public class PhoneMovementGenerator extends BaseOperator
 {
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Integer> data = new DefaultInputPort<Integer>()
   {
     @Override
@@ -108,7 +107,7 @@ public class PhoneMovementGenerator extends BaseOperator
     }
   };
 
-  @InputPortFieldAnnotation(name="phoneQuery", optional=true)
+  @InputPortFieldAnnotation(optional=true)
   public final transient DefaultInputPort<Map<String,String>> phoneQuery = new DefaultInputPort<Map<String,String>>()
   {
     @Override
@@ -118,21 +117,21 @@ public class PhoneMovementGenerator extends BaseOperator
       String command = tuple.get(KEY_COMMAND);
       if (command != null) {
         if (command.equals(COMMAND_ADD)) {
-          addCommandCounter.increment();
+          commandCounters.getCounter(CommandCounters.ADD).increment();
           String phoneStr= tuple.get(KEY_PHONE);
           registerPhone(phoneStr);
         }
         else if (command.equals(COMMAND_ADD_RANGE)) {
-          addRangeCommandCounter.increment();
+          commandCounters.getCounter(CommandCounters.ADD_RANGE).increment();
           registerPhoneRange(tuple.get(KEY_START_PHONE), tuple.get(KEY_END_PHONE));
         }
         else if (command.equals(COMMAND_DELETE)) {
-          deleteCommandCounter.increment();
+          commandCounters.getCounter(CommandCounters.DELETE).increment();
           String phoneStr= tuple.get(KEY_PHONE);
           deregisterPhone(phoneStr);
         }
         else if (command.equals(COMMAND_CLEAR)) {
-          clearCommandCounter.increment();
+          commandCounters.getCounter(CommandCounters.CLEAR).increment();
           clearPhones();
         }
       }
@@ -161,13 +160,13 @@ public class PhoneMovementGenerator extends BaseOperator
 
   protected BasicCounters<MutableLong> commandCounters;
 
-  private transient MutableLong addCommandCounter;
-  private transient MutableLong addRangeCommandCounter;
-  private transient MutableLong deleteCommandCounter;
-  private transient MutableLong clearCommandCounter;
-
   private transient OperatorContext context;
   private final transient HashMap<Integer, HighLow<Integer>> newgps = new HashMap<Integer, HighLow<Integer>>();
+
+  public PhoneMovementGenerator()
+  {
+    this.commandCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  }
 
   /**
    * @return the range of the phone numbers
@@ -275,26 +274,16 @@ public class PhoneMovementGenerator extends BaseOperator
     LOG.info("Clearing phones");
   }
 
-  @OutputPortFieldAnnotation(name = "locationQueryResult")
   public final transient DefaultOutputPort<Map<String, String>> locationQueryResult = new DefaultOutputPort<Map<String, String>>();
 
   @Override
   public void setup(OperatorContext context)
   {
     this.context = context;
-    this.commandCounters = new BasicCounters<MutableLong>(MutableLong.class);
-    try {
-      this.addCommandCounter = commandCounters.findCounter(CommandCounters.ADD);
-      this.addRangeCommandCounter = commandCounters.findCounter(CommandCounters.ADD_RANGE);
-      this.deleteCommandCounter = commandCounters.findCounter(CommandCounters.DELETE);
-      this.clearCommandCounter = commandCounters.findCounter(CommandCounters.CLEAR);
-    }
-    catch (IllegalAccessException e) {
-      throw new RuntimeException(e);
-    }
-    catch (InstantiationException e) {
-      throw new RuntimeException(e);
-    }
+    commandCounters.setCounter(CommandCounters.ADD, new MutableLong());
+    commandCounters.setCounter(CommandCounters.ADD_RANGE, new MutableLong());
+    commandCounters.setCounter(CommandCounters.DELETE, new MutableLong());
+    commandCounters.setCounter(CommandCounters.CLEAR, new MutableLong());
   }
 
   /**

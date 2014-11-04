@@ -15,13 +15,14 @@
  */
 package com.datatorrent.contrib.zmq;
 
-import org.zeromq.ZMQ;
-
-import com.datatorrent.contrib.zmq.SimpleSinglePortZeroMQPullInputOperator;
-
 /**
- * <p>SimpleSinglePortZeroMQPullStringInputOperator class.</p>
- *
+ * This is a simple single port ZeroMQ input operator.&nbsp;
+ * This simple operator will automatically receive data from a pusher,
+ * and convert byte messages into strings which are then emitted as tuples.
+ * <p></p>
+ * @displayName Simple Single Port ZeroMQ Pull String Input
+ * @category Messaging
+ * @tags output operator, string
  * @since 0.3.2
  */
 public class SimpleSinglePortZeroMQPullStringInputOperator extends SimpleSinglePortZeroMQPullInputOperator<String>

@@ -15,11 +15,7 @@
  */
 package com.datatorrent.demos.mrmonitor;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
 
 import org.codehaus.jettison.json.JSONArray;
@@ -31,8 +27,9 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.IdleTimeHandler;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.Operator.IdleTimeHandler;
+
 import com.datatorrent.demos.mrmonitor.MRStatusObject.TaskObject;
 
 /**
@@ -47,101 +44,6 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   private static final Logger LOG = LoggerFactory.getLogger(MRJobStatusOperator.class);
 
   private static final String JOB_PREFIX = "job_";
-  /**
-   * This is time in Ms before making new request for data
-   */
-  private int sleepTime = 100;
-  /**
-   * This is the number of consecutive windows of no change before the job is removed from map
-   */
-  private int maxRetrials = 10;
-
-  /**
-   * The number of minutes for which the status history of map and reduce tasks is stored
-   */
-  private int statusHistoryCount = 60;
-
-  public int getStatusHistoryCount()
-  {
-    return statusHistoryCount;
-  }
-
-  public void setStatusHistoryCount(int statusHistoryCount)
-  {
-    this.statusHistoryCount = statusHistoryCount;
-    if (jobMap != null && jobMap.size() > 0) {
-      for (Entry<String, MRStatusObject> entry : jobMap.entrySet()) {
-        entry.getValue().setStatusHistoryCount(statusHistoryCount);
-      }
-    }
-
-  }
-
-  public int getSleepTime()
-  {
-    return sleepTime;
-  }
-
-  public void setSleepTime(int sleepTime)
-  {
-    this.sleepTime = sleepTime;
-  }
-
-  /*
-   * each input string is a map of the following format {"app_id":<>,"hadoop_version":<>,"api_version":<>,"command":<>,
-   * "hostname":<>,"hs_port":<>,"rm_port":<>,"job_id":<>}
-   */
-  public final transient DefaultInputPort<MRStatusObject> input = new DefaultInputPort<MRStatusObject>() {
-    @Override
-    public void process(MRStatusObject mrStatusObj)
-    {
-
-      if (jobMap == null) {
-        jobMap = new HashMap<String, MRStatusObject>();
-      }
-
-      if (jobMap.size() >= maxMapSize) {
-        return;
-      }
-
-      if ("delete".equalsIgnoreCase(mrStatusObj.getCommand())) {
-        removeJob(mrStatusObj.getJobId());
-        JSONObject outputJsonObject = new JSONObject();
-        try {
-          outputJsonObject.put("id", mrStatusObj.getJobId());
-          outputJsonObject.put("removed", "true");
-          output.emit(outputJsonObject.toString());
-        } catch (JSONException e) {
-          LOG.warn("Error creating JSON: {}", e.getMessage());
-        }
-        return;
-      }
-      if ("clear".equalsIgnoreCase(mrStatusObj.getCommand())) {
-        clearMap();
-        return;
-      }
-
-      if (jobMap.get(mrStatusObj.getJobId()) != null) {
-        mrStatusObj = jobMap.get(mrStatusObj.getJobId());
-      }
-      if (mrStatusObj.getHadoopVersion() == 2) {
-        getJsonForJob(mrStatusObj);
-      } else if (mrStatusObj.getHadoopVersion() == 1) {
-        getJsonForLegacyJob(mrStatusObj);
-      }
-      mrStatusObj.setStatusHistoryCount(statusHistoryCount);
-      iterator = jobMap.values().iterator();
-      emitHelper(mrStatusObj);
-    }
-  };
-
-  private Map<String, MRStatusObject> jobMap = new HashMap<String, MRStatusObject>();
-
-  /**
-   * This represents the maximum number of jobs the single instance of this operator is going to server at any time
-   */
-  private int maxMapSize = Constants.MAX_MAP_SIZE;
-
   /**
    * This outputs the meta information of the job
    */
@@ -158,10 +60,95 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
    * This outputs the counter information of the job
    */
   public final transient DefaultOutputPort<String> counterOutput = new DefaultOutputPort<String>();
+  /**
+   * This is time in Ms before making new request for data
+   */
+  private transient int sleepTime = 100;
+  /**
+   * This is the number of consecutive windows of no change before the job is removed from map
+   */
+  private int maxRetrials = 10;
+  /**
+   * The number of minutes for which the status history of map and reduce tasks is stored
+   */
+  private int statusHistoryTime = 60;
+  private Map<String, MRStatusObject> jobMap = new HashMap<String, MRStatusObject>();
+  /**
+   * This represents the maximum number of jobs the single instance of this operator is going to server at any time
+   */
+  private int maxJobs = Constants.MAX_NUMBER_OF_JOBS;
+  private transient Iterator<MRStatusObject> iterator;
+
+  /*
+   * each input string is a map of the following format {"app_id":<>,"hadoop_version":<>,"api_version":<>,"command":<>,
+   * "hostname":<>,"hs_port":<>,"rm_port":<>,"job_id":<>}
+   */
+  public final transient DefaultInputPort<MRStatusObject> input = new DefaultInputPort<MRStatusObject>()
+  {
+    @Override
+    public void process(MRStatusObject mrStatusObj)
+    {
+
+      if (jobMap == null) {
+        jobMap = new HashMap<String, MRStatusObject>();
+      }
+
+      if (jobMap.size() >= maxJobs) {
+        return;
+      }
+
+      if ("delete".equalsIgnoreCase(mrStatusObj.getCommand())) {
+        removeJob(mrStatusObj.getJobId());
+        JSONObject outputJsonObject = new JSONObject();
+        try {
+          outputJsonObject.put("id", mrStatusObj.getJobId());
+          outputJsonObject.put("removed", "true");
+          output.emit(outputJsonObject.toString());
+        }
+        catch (JSONException e) {
+          LOG.warn("Error creating JSON: {}", e.getMessage());
+        }
+        return;
+      }
+      if ("clear".equalsIgnoreCase(mrStatusObj.getCommand())) {
+        clearMap();
+        return;
+      }
+
+      if (jobMap.get(mrStatusObj.getJobId()) != null) {
+        mrStatusObj = jobMap.get(mrStatusObj.getJobId());
+      }
+      if (mrStatusObj.getHadoopVersion() == 2) {
+        getJsonForJob(mrStatusObj);
+      }
+      else if (mrStatusObj.getHadoopVersion() == 1) {
+        getJsonForLegacyJob(mrStatusObj);
+      }
+      mrStatusObj.setStatusHistoryCount(statusHistoryTime);
+      iterator = jobMap.values().iterator();
+      emitHelper(mrStatusObj);
+    }
+  };
+
+  public int getStatusHistoryTime()
+  {
+    return statusHistoryTime;
+  }
+
+  public void setStatusHistoryTime(int statusHistoryTime)
+  {
+    this.statusHistoryTime = statusHistoryTime;
+    if (jobMap != null && jobMap.size() > 0) {
+      for (Entry<String, MRStatusObject> entry : jobMap.entrySet()) {
+        entry.getValue().setStatusHistoryCount(statusHistoryTime);
+      }
+    }
+
+  }
 
   /**
    * This method gets the latest status of the job from the Resource Manager for jobs submitted on hadoop 2.x version
-   * 
+   *
    * @param statusObj
    */
   private void getJsonForJob(MRStatusObject statusObj)
@@ -197,7 +184,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
   /**
    * This method is used to collect the metric information about the job
-   * 
+   *
    * @param statusObj
    */
   private void getCounterInfoForJob(MRStatusObject statusObj)
@@ -214,7 +201,8 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
     if (jsonObj != null) {
       if (statusObj.getMetricObject() == null) {
         statusObj.setMetricObject(new TaskObject(jsonObj));
-      } else if (!statusObj.getMetricObject().getJsonString().equalsIgnoreCase(jsonObj.toString())) {
+      }
+      else if (!statusObj.getMetricObject().getJsonString().equalsIgnoreCase(jsonObj.toString())) {
         statusObj.getMetricObject().setJson(jsonObj);
         statusObj.getMetricObject().setModified(true);
       }
@@ -224,7 +212,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   /**
    * This method gets the latest status of the tasks for a job from the Resource Manager for jobs submitted on hadoop
    * 2.x version
-   * 
+   *
    * @param statusObj
    */
   private void getJsonsForTasks(MRStatusObject statusObj)
@@ -261,7 +249,8 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
               continue;
             }
             reduceTaskOject.put(taskObj.getString(Constants.TASK_ID), new TaskObject(taskObj));
-          } else {
+          }
+          else {
             if (mapTaskOject.get(taskObj.getString(Constants.TASK_ID)) != null) {
               TaskObject tempTaskObj = mapTaskOject.get(taskObj.getString(Constants.TASK_ID));
               if (tempTaskObj.getJsonString().equals(taskObj.toString())) {
@@ -277,7 +266,8 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
         }
         statusObj.setMapJsonObject(mapTaskOject);
         statusObj.setReduceJsonObject(reduceTaskOject);
-      } catch (Exception e) {
+      }
+      catch (Exception e) {
         LOG.info("exception: {}", e.getMessage());
       }
     }
@@ -286,7 +276,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
   /**
    * This method gets the latest status of the job from the Task Manager for jobs submitted on hadoop 1.x version
-   * 
+   *
    * @param statusObj
    */
   private void getJsonForLegacyJob(MRStatusObject statusObj)
@@ -296,8 +286,9 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
     String responseBody = MRUtil.getJsonForURL(url);
 
     JSONObject jsonObj = MRUtil.getJsonObject(responseBody);
-    if (jsonObj == null)
+    if (jsonObj == null) {
       return;
+    }
 
     if (jobMap.get(statusObj.getJobId()) != null) {
       MRStatusObject tempObj = jobMap.get(statusObj.getJobId());
@@ -322,7 +313,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
   /**
    * This method gets the latest status of the tasks for a job from the Task Manager for jobs submitted on hadoop 1.x
    * version
-   * 
+   *
    * @param statusObj
    * @param type
    */
@@ -332,10 +323,12 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       JSONObject jobJson = statusObj.getJsonObject();
       int totalTasks = ((JSONObject) ((JSONObject) jobJson.get(type + "TaskSummary")).get("taskStats")).getInt("numTotalTasks");
       Map<String, TaskObject> taskMap;
-      if (type.equalsIgnoreCase("map"))
+      if (type.equalsIgnoreCase("map")) {
         taskMap = statusObj.getMapJsonObject();
-      else
+      }
+      else {
         taskMap = statusObj.getReduceJsonObject();
+      }
 
       int totalPagenums = (totalTasks / Constants.MAX_TASKS) + 1;
       String baseUrl = "http://" + statusObj.getUri() + ":" + statusObj.getRmPort() + "/jobtasks.jsp?type=" + type + "&format=json&jobid=job_" + statusObj.getJobId() + "&pagenum=";
@@ -346,8 +339,9 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
         String responseBody = MRUtil.getJsonForURL(url);
 
         JSONObject jsonObj = MRUtil.getJsonObject(responseBody);
-        if (jsonObj == null)
+        if (jsonObj == null) {
           return;
+        }
 
         JSONArray taskJsonArray = jsonObj.getJSONArray("tasksInfo");
 
@@ -372,24 +366,26 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
         }
       }
 
-      if (type.equalsIgnoreCase("map"))
+      if (type.equalsIgnoreCase("map")) {
         statusObj.setMapJsonObject(taskMap);
-      else
+      }
+      else {
         statusObj.setReduceJsonObject(taskMap);
-    } catch (Exception e) {
+      }
+    }
+    catch (Exception e) {
       LOG.info(e.getMessage());
     }
 
   }
-
-  private transient Iterator<MRStatusObject> iterator;
 
   @Override
   public void handleIdleTime()
   {
     try {
       Thread.sleep(sleepTime);//
-    } catch (InterruptedException ie) {
+    }
+    catch (InterruptedException ie) {
       // If this thread was intrrupted by nother thread
     }
     if (!iterator.hasNext()) {
@@ -398,17 +394,20 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
     if (iterator.hasNext()) {
       MRStatusObject obj = iterator.next();
-      if (obj.getHadoopVersion() == 2)
+      if (obj.getHadoopVersion() == 2) {
         getJsonForJob(obj);
-      else if (obj.getHadoopVersion() == 1)
+      }
+      else if (obj.getHadoopVersion() == 1) {
         getJsonForLegacyJob(obj);
+      }
     }
   }
 
   @Override
-  public void setup(OperatorContext arg0)
+  public void setup(OperatorContext context)
   {
     iterator = jobMap.values().iterator();
+    sleepTime = context.getValue(OperatorContext.SPIN_MILLIS);
   }
 
   @Override
@@ -427,7 +426,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
       obj.setModified(false);
       output.emit(obj.getJsonObject().toString());
       JSONObject outputJsonObject = new JSONObject();
-      
+
       outputJsonObject.put("id", JOB_PREFIX + obj.getJobId());
       outputJsonObject.put("mapHistory", new JSONArray(obj.getMapStatusHistory()));
       outputJsonObject.put("reduceHistory", new JSONArray(obj.getReduceStatusHistory()));
@@ -443,8 +442,8 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
       for (Map.Entry<String, TaskObject> mapEntry : obj.getMapJsonObject().entrySet()) {
         TaskObject json = mapEntry.getValue();
-          json.setModified(false);
-          arr.put(json.getJson());        
+        json.setModified(false);
+        arr.put(json.getJson());
       }
 
       outputJsonObject.put("tasks", arr);
@@ -456,14 +455,15 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
       for (Map.Entry<String, TaskObject> mapEntry : obj.getReduceJsonObject().entrySet()) {
         TaskObject json = mapEntry.getValue();
-          json.setModified(false);
-          arr.put(json.getJson());
+        json.setModified(false);
+        arr.put(json.getJson());
       }
 
       outputJsonObject.put("tasks", arr);
       reduceOutput.emit(outputJsonObject.toString());
       obj.setRetrials(0);
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       LOG.warn("error creating json {}", e.getMessage());
     }
 
@@ -540,14 +540,17 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
         if (!modified) {
           if (obj.getRetrials() >= maxRetrials) {
             delList.add(obj.getJobId());
-          } else {
+          }
+          else {
             obj.setRetrials(obj.getRetrials() + 1);
           }
-        } else {
+        }
+        else {
           obj.setRetrials(0);
         }
       }
-    } catch (Exception ex) {
+    }
+    catch (Exception ex) {
       LOG.warn("error creating json {}", ex.getMessage());
     }
 
@@ -562,7 +565,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
   /**
    * This method removes the job from the map
-   * 
+   *
    * @param jobId
    */
   public void removeJob(String jobId)
@@ -586,27 +589,27 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
   /**
    * This returns the maximum number of jobs the single instance of this operator is going to server at any time
-   * 
+   *
    * @return
    */
-  public int getMaxMapSize()
+  public int getMaxJobs()
   {
-    return maxMapSize;
+    return maxJobs;
   }
 
   /**
    * This sets the maximum number of jobs the single instance of this operator is going to server at any time
-   * 
-   * @param maxMapSize
+   *
+   * @param maxJobs
    */
-  public void setMaxMapSize(int maxMapSize)
+  public void setMaxJobs(int maxJobs)
   {
-    this.maxMapSize = maxMapSize;
+    this.maxJobs = maxJobs;
   }
 
   /**
    * This sets the number of consecutive windows of no change before the job is removed from map
-   * 
+   *
    * @return
    */
   public int getMaxRetrials()
@@ -616,7 +619,7 @@ public class MRJobStatusOperator implements Operator, IdleTimeHandler
 
   /**
    * This returns the number of consecutive windows of no change before the job is removed from map
-   * 
+   *
    * @param maxRetrials
    */
   public void setMaxRetrials(int maxRetrials)

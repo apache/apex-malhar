@@ -15,18 +15,18 @@
  */
 package com.datatorrent.lib.io.jms;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.util.ActiveMQMessageListener;
-
 import javax.jms.JMSException;
 import javax.jms.Message;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
+import com.datatorrent.lib.util.ActiveMQMessageListener;
 
 /**
  * Test to verify ActiveMQ output operator adapter.
@@ -194,7 +194,6 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
     /**
      * Two input ports.
      */
-    @InputPortFieldAnnotation(name = "ActiveMQInputPort1")
     public final transient DefaultInputPort<String> inputPort1 = new DefaultInputPort<String>()
     {
       @Override
@@ -210,7 +209,6 @@ public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
         }
       }
     };
-    @InputPortFieldAnnotation(name = "ActiveMQInputPort2")
     public final transient DefaultInputPort<Integer> inputPort2 = new DefaultInputPort<Integer>()
     {
       @Override

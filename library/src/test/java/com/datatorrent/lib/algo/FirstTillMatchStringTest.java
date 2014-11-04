@@ -17,7 +17,7 @@ package com.datatorrent.lib.algo;
 
 import java.util.HashMap;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 

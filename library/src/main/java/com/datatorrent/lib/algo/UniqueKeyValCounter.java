@@ -23,12 +23,18 @@ import org.apache.commons.lang.mutable.MutableInt;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseUniqueKeyValueCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
 /**
- * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple. <p>
+ * This operator counts the unique occurrences of key value pairs within each window,
+ * and emits a map from key value pairs to counts at the end of each window.
+ * <p>
+ * Count unique occurrences of key,val pairs within a window, and emits one HashMap tuple.
+ * </p>
+ * <p>
  * This is an end of window operator<br>
  * <br>
  * <b>StateFull : yes, </b> Tuples are aggregated over application window(s). <br>
@@ -39,12 +45,21 @@ import com.datatorrent.lib.util.UnifierHashMapSumKeys;
  * <b>data</b>: expects HashMap&lt;K,V&gt;<br>
  * <b>count</b>: emits HashMap&lt;HashMap&lt;K,V&gt;(1),Integer&gt;(1)<br>
  * <br>
+ * </p>
+ *
+ * @displayName Count Unique Keyval Pairs
+ * @category Algorithmic
+ * @tags count, key value
  *
  * @since 0.3.2
  */
+
+@OperatorAnnotation(partitionable = true)
 public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
 {
-  @InputPortFieldAnnotation(name = "data")
+  /**
+   * The input port that receives key value pairs.
+   */
   public final transient DefaultInputPort<HashMap<K,V>> data = new DefaultInputPort<HashMap<K,V>>()
   {
     /**
@@ -58,7 +73,10 @@ public class UniqueKeyValCounter<K,V> extends BaseUniqueKeyValueCounter<K,V>
       }
     }
   };
-  @OutputPortFieldAnnotation(name = "count")
+
+  /**
+   * The output port which emits key/unique value count pairs.
+   */
   public final transient DefaultOutputPort<HashMap<HashMap<K,V>, Integer>> count = new DefaultOutputPort<HashMap<HashMap<K,V>, Integer>>()
   {
     @Override

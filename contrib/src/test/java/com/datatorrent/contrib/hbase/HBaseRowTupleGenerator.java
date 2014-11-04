@@ -30,7 +30,6 @@ public class HBaseRowTupleGenerator extends BaseOperator implements InputOperato
 
   int rowCount;
 
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<HBaseTuple> outputPort = new DefaultOutputPort<HBaseTuple>();
 
   @Override

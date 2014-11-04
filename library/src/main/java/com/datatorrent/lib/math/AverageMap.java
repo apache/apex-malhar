@@ -46,7 +46,9 @@ import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
  * <b>Specific run time checks</b>: None<br>
  * <p>
  * <br>
- *
+ * @displayName Average Map
+ * @category Math
+ * @tags average, numeric, end window, key value, aggregate
  * @since 0.3.3
  */
 public class AverageMap<K, V extends Number> extends
@@ -58,9 +60,8 @@ public class AverageMap<K, V extends Number> extends
 	protected HashMap<K, MutableLong> counts = new HashMap<K, MutableLong>();
 	
 	/**
-	 * Data input port.
+	 * Input data port that takes a map of &lt;key,value&gt;.
 	 */
-	@InputPortFieldAnnotation(name = "data")
 	public final transient DefaultInputPort<Map<K, V>> data = new DefaultInputPort<Map<K, V>>()
 	{
 		/**
@@ -95,7 +96,7 @@ public class AverageMap<K, V extends Number> extends
 	};
 	
 	/**
-	 *  Average output port.
+	 *  Average output port that emits a hashmap.
 	 */
 	public final transient DefaultOutputPort<HashMap<K, V>> average = new DefaultOutputPort<HashMap<K, V>>()
 	{

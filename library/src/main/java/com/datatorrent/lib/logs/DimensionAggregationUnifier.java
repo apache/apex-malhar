@@ -26,7 +26,12 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 
 /**
- * <p>DimensionAggregationUnifier class.</p>
+ * This unifier ingests tuples that are Maps from Strings to DimensionObjects and sums the corresponding DimensionObjects.&nbsp;
+ * A Map from Strings to aggregated DimensionObjects is emitted by the unifier.
+ * <p></p>
+ * @displayName Dimension Aggregation Unifier
+ * @category Logs
+ * @tags aggregation, unifier
  *
  * @since 0.9.0
  */
