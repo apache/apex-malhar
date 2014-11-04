@@ -55,8 +55,8 @@ public class KafkaTestProducer implements Runnable
   private ProducerConfig createProducerConfig()
   {
     Properties props = new Properties();
-    props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
-    props.setProperty("key.serializer.class", "kafka.serializer.StringEncoder");
+    props.setProperty("serialize.class", "kafka.serialize.StringEncoder");
+    props.setProperty("key.serialize.class", "kafka.serialize.StringEncoder");
 //    props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER1_PORT );
     if(hasPartition){
       props.put("metadata.broker.list", "localhost:"+KafkaOperatorTestBase.TEST_KAFKA_BROKER1_PORT + ",localhost:" + KafkaOperatorTestBase.TEST_KAFKA_BROKER2_PORT);

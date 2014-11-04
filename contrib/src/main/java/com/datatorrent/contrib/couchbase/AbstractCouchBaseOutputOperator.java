@@ -28,15 +28,15 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator;
 
 import com.datatorrent.common.util.DTThrowable;
 
+import net.spy.memcached.internal.OperationCompletionListener;
 import net.spy.memcached.internal.OperationFuture;
 
 /**
  * AbstractCouchBaseOutputOperator which extends Transactionable Store Output Operator.
- * Classes extending from this operator should implement the abstract functionality of generateKey, getObject and insertOrUpdate.
+ * Classes extending from this operator should implement the abstract functionality of generateKey, getValue and insertOrUpdate.
  * Insert and Update couchbase operators extend from this class.
  * If the processing mode is EXACTLY ONCE, then in case of update the functionality will always be correct since it will overwrite the same keys
  * but for inserts there might be duplicates when operator fails.
@@ -46,21 +46,9 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
   private List<T> tuples;
-  private transient Operator.ProcessingMode mode;
-  protected int num_tuples;
+  protected int numTuples;
   protected transient CountDownLatch countLatch ;
-  protected boolean isEndWindow;
-  protected transient OperationFuture<Boolean> future;
-
-  public Operator.ProcessingMode getMode()
-  {
-    return mode;
-  }
-
-  public void setMode(Operator.ProcessingMode mode)
-  {
-    this.mode = mode;
-  }
+  protected CouchBaseSerializer serializer;
 
   public AbstractCouchBaseOutputOperator()
   {
@@ -71,7 +59,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void setup(OperatorContext context)
   {
-    mode = context.getValue(context.PROCESSING_MODE);
+    ProcessingMode mode = context.getValue(context.PROCESSING_MODE);
     if (mode == ProcessingMode.AT_MOST_ONCE) {
       tuples.clear();
     }
@@ -81,8 +69,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void beginWindow(long windowId){
      countLatch = new CountDownLatch(store.batchSize);
-     num_tuples = 0;
-     isEndWindow = false;
+     numTuples = 0;
      super.beginWindow(windowId);
   }
 
@@ -91,26 +78,18 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   {
     tuples.add(tuple);
     setTuple(tuple);
-    if ((num_tuples < store.batchSize) || isEndWindow) {
-      waitForBatch();
-    }
+    waitForBatch(false);
   }
 
   public void setTuple(T tuple)
   {
-    num_tuples++;
+    numTuples++;
     String key = generateKey(tuple);
-    Object input = getObject(tuple);
-    ObjectMapper mapper = new ObjectMapper();
-    String value = new String();
-    try {
-      value = mapper.writeValueAsString(input);
+    Object value = getValue(tuple);
+    if (serializer != null) {
+      value = serializer.serialize(value);
     }
-    catch (IOException ex) {
-      logger.error("IO Exception", ex);
-      DTThrowable.rethrow(ex);
-    }
-    processTupleCouchbase(key, value);
+    processKeyValue(key, value);
   }
 
   public List<T> getTuples()
@@ -121,27 +100,72 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void storeAggregate()
   {
-    isEndWindow = true;
-    waitForBatch();
-    tuples.clear();
+    waitForBatch(true);
   }
 
-  public void waitForBatch()
+  public void waitForBatch(boolean endWindow)
   {
-    try {
-      countLatch.await();
+    if ((numTuples >= store.batchSize) || endWindow) {
+      try {
+        countLatch.await();
+      } catch (InterruptedException ex) {
+        logger.error("Interrupted exception" + ex);
+        DTThrowable.rethrow(ex);
+      }
+      tuples.clear();
+      numTuples = 0;
     }
-    catch (InterruptedException ex) {
-      logger.error("Interrupted exception" + ex);
-      DTThrowable.rethrow(ex);
+  }
+
+  protected class CompletionListener implements OperationCompletionListener
+  {
+    @Override
+    public void onComplete(OperationFuture<?> f) throws Exception
+    {
+      if (!((Boolean)f.get())) {
+        throw new RuntimeException("Operation failed " + f);
+      }
+      countLatch.countDown();
     }
-    tuples.clear();
+  }
+
+  public static class CouchBaseJSONSerializer implements CouchBaseSerializer {
+
+    private ObjectMapper mapper;
+
+    public CouchBaseJSONSerializer() {
+      mapper = new ObjectMapper();
+    }
+
+    @Override
+    public String serialize(Object o)
+    {
+      String value = null;
+      try {
+        value = mapper.writeValueAsString(o);
+      }
+      catch (IOException ex) {
+        logger.error("IO Exception", ex);
+        DTThrowable.rethrow(ex);
+      }
+      return value;
+    }
+  }
+
+  public CouchBaseSerializer getSerializer()
+  {
+    return serializer;
+  }
+
+  public void setSerializer(CouchBaseSerializer serializer)
+  {
+    this.serializer = serializer;
   }
 
   public abstract String generateKey(T tuple);
 
-  public abstract Object getObject(T tuple);
+  public abstract Object getValue(T tuple);
 
-  protected abstract void processTupleCouchbase(String key, Object value);
+  protected abstract void processKeyValue(String key, Object value);
 
 }

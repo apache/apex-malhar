@@ -15,20 +15,19 @@
  */
 package com.datatorrent.contrib.couchbase;
 
+import java.io.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
-import java.util.concurrent.TimeUnit;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.db.TransactionableStore;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.db.TransactionableStore;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * CouchBaseWindowStore which transactional support.
@@ -147,39 +146,6 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     return false;
   }
 
-  public static byte[] toBytes(String object)
-  {
-    ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    DataOutputStream dos = new DataOutputStream(baos);
-    byte[] result = null;
-    try {
-      dos.writeChars(object);
-      result = baos.toByteArray();
-      dos.close();
-    }
-    catch (IOException e) {
-      logger.error("error converting to byte array");
-      DTThrowable.rethrow(e);
-    }
-    return result;
-  }
-
-  public static String toString(byte[] b)
-  {
-    ByteArrayInputStream baos = new ByteArrayInputStream(b);
-    DataInputStream dos = new DataInputStream(baos);
-    String result = null;
-    try {
-      result = dos.readLine();
-      dos.close();
-    }
-    catch (IOException e) {
-      logger.error("error converting to long");
-      DTThrowable.rethrow(e);
-    }
-    return result;
-  }
-
   public static long toLong(byte[] b)
   {
     ByteArrayInputStream baos = new ByteArrayInputStream(b);
@@ -216,7 +182,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public void disconnect() throws IOException
   {
-    clientMeta.shutdown(60, TimeUnit.SECONDS);
+    clientMeta.shutdown(shutdownTimeout, TimeUnit.SECONDS);
     super.disconnect();
   }
 

@@ -31,7 +31,7 @@ public class CouchBaseOutputOperator extends AbstractInsertCouchBaseOutputOperat
   }
 
   @Override
-  public Object getObject(Integer tuple)
+  public Object getValue(Integer tuple)
   {
     tuple = 500;
     return tuple;

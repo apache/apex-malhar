@@ -143,7 +143,7 @@ public class KafkaExactlyOnceOutputOperatorTest extends KafkaOperatorTestBase
     final SimpleKafkaExactOnceOutputOperator node = dag.addOperator("Kafka message producer", SimpleKafkaExactOnceOutputOperator.class);
     
     Properties props = new Properties();
-    props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
+    props.setProperty("serialize.class", "kafka.serialize.StringEncoder");
     props.put("metadata.broker.list", "localhost:9092");
     props.setProperty("producer.type", "async");
     props.setProperty("queue.buffering.max.ms", "200");

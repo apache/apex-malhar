@@ -74,8 +74,8 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
     public void run()
     {
       Properties props = new Properties();
-      props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
-      props.setProperty("key.serializer.class", "kafka.serializer.StringEncoder");
+      props.setProperty("serialize.class", "kafka.serialize.StringEncoder");
+      props.setProperty("key.serialize.class", "kafka.serialize.StringEncoder");
       props.put("metadata.broker.list", brokerList);
 //      props.put("metadata.broker.list", "localhost:9092");
       props.setProperty("partitioner.class", KafkaTestPartitioner.class.getCanonicalName());

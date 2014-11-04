@@ -168,7 +168,7 @@ public class ApplicationWithHDS implements StreamingApplication
       queries.setConsumer(new SimpleKafkaConsumer());
       queryPort = queries.outputPort;
       KafkaSinglePortOutputOperator<Object, Object> queryResult = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
-      queryResult.getConfigProperties().put("serializer.class", KafkaJsonEncoder.class.getName());
+      queryResult.getConfigProperties().put("serialize.class", KafkaJsonEncoder.class.getName());
       queryResultPort = queryResult.inputPort;
     }
 

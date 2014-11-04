@@ -34,7 +34,7 @@ public class SplunkInputFromForwarderTest {
     Properties props = new Properties();
 
     props.put("metadata.broker.list", "127.0.0.1:9092");
-    props.put("serializer.class", "kafka.serializer.StringEncoder");
+    props.put("serialize.class", "kafka.serialize.StringEncoder");
     props.put("request.required.acks", "1");
     iff.setConfigProperties(props);
     iff.setPort(6789);
