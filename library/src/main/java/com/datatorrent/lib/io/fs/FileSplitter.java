@@ -18,7 +18,6 @@ package com.datatorrent.lib.io.fs;
 import java.io.IOException;
 import java.util.Iterator;
 
-import javax.validation.constraints.AssertTrue;
 import javax.validation.constraints.NotNull;
 
 import org.apache.hadoop.fs.FileStatus;
