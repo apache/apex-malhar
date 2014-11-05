@@ -26,7 +26,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,42 +38,15 @@ import org.slf4j.LoggerFactory;
  */
 public class CouchBaseWindowStore extends CouchBaseStore implements TransactionableStore
 {
-
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseWindowStore.class);
-  private transient String key;
-  private transient Object value;
   private static final transient String DEFAULT_LAST_WINDOW_PREFIX = "last_window";
-  private transient byte[] keyBytes;
-  private transient byte[] valueBytes;
-
   private transient String lastWindowValue;
-  private transient byte[] lastWindowValueBytes;
   protected transient CouchbaseClient clientMeta;
 
   public CouchBaseWindowStore()
   {
     clientMeta = null;
     lastWindowValue = DEFAULT_LAST_WINDOW_PREFIX;
-  }
-
-  public String getKey()
-  {
-    return key;
-  }
-
-  public void setKey(String key)
-  {
-    this.key = key;
-  }
-
-  public Object getValue()
-  {
-    return clientMeta.get(key);
-  }
-
-  public void setValue(Object value)
-  {
-    this.value = value;
   }
 
   @Override
@@ -137,14 +109,13 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     byte[] WindowIdBytes = toBytes(windowId);
     String key = appId + "_" + operatorId + "_" + lastWindowValue;
     try {
-      java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, baseURIs.toString());
       clientMeta.set(key, WindowIdBytes).get();
     }
     catch (InterruptedException ex) {
-      java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, null, ex);
+      DTThrowable.rethrow(ex);
     }
     catch (ExecutionException ex) {
-      java.util.logging.Logger.getLogger(CouchBaseWindowStore.class.getName()).log(Level.SEVERE, null, ex);
+      DTThrowable.rethrow(ex);
     }
 
   }
@@ -153,31 +124,26 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public void removeCommittedWindowId(String appId, int operatorId)
   {
-    // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
   public void beginTransaction()
   {
-    // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
   public void commitTransaction()
   {
-    //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
   public void rollbackTransaction()
   {
-    // throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
   }
 
   @Override
   public boolean isInTransaction()
   {
-    //  throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     return false;
   }
 
@@ -255,4 +221,3 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   }
 
 }
-
