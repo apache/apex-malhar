@@ -24,6 +24,9 @@
     <module>mrmonitor</module>
     <module>mroperator</module>
     <module>uniquecount</module>
+    <module>visualdata</module>
+    <module>distributedistinct</module>
+    <module>r</module>
   </modules>
 
 </project>
