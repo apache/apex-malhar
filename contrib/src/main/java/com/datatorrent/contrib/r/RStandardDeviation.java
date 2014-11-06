@@ -28,7 +28,6 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
@@ -59,7 +58,6 @@ public class RStandardDeviation extends BaseOperator
   /**
    * Input data port.
    */
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>() {
     /**
      * Computes sum and count with each tuple
@@ -75,13 +73,12 @@ public class RStandardDeviation extends BaseOperator
   /**
    * Variance output port
    */
-  @OutputPortFieldAnnotation(name = "variance", optional = true)
+  @OutputPortFieldAnnotation(optional = true)
   public final transient DefaultOutputPort<Number> variance = new DefaultOutputPort<Number>();
 
   /**
    * Standard deviation output port
    */
-  @OutputPortFieldAnnotation(name = "standardDeviation")
   public final transient DefaultOutputPort<Number> standardDeviation = new DefaultOutputPort<Number>();
 
   @Override

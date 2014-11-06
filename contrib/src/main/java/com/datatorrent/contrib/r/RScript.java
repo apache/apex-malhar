@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.script.ScriptOperator;
 
@@ -168,35 +167,27 @@ public class RScript extends ScriptOperator
   }
 
   // Output port on which an int type of value is returned.
-  @OutputPortFieldAnnotation(name = "intOutput")
   public final transient DefaultOutputPort<Integer> intOutput = new DefaultOutputPort<Integer>();
 
   // Output port on which an double type of value is returned.
-  @OutputPortFieldAnnotation(name = "doubleOutput")
   public final transient DefaultOutputPort<Double> doubleOutput = new DefaultOutputPort<Double>();
 
   // Output port on which an string type of value is returned.
-  @OutputPortFieldAnnotation(name = "strOutput")
   public final transient DefaultOutputPort<String> strOutput = new DefaultOutputPort<String>();
 
   // Output port on which a boolean type of value is returned.
-  @OutputPortFieldAnnotation(name = "boolOutput")
   public final transient DefaultOutputPort<Boolean> boolOutput = new DefaultOutputPort<Boolean>();
 
   // Output port on which an array of type int is returned.
-  @OutputPortFieldAnnotation(name = "intArrayOutput")
   public final transient DefaultOutputPort<Integer[]> intArrayOutput = new DefaultOutputPort<Integer[]>();
 
   // Output port on which an array of type double is returned.
-  @OutputPortFieldAnnotation(name = "doubleArrayOutput")
   public final transient DefaultOutputPort<Double[]> doubleArrayOutput = new DefaultOutputPort<Double[]>();
 
   // Output port on which an array of type str is returned.
-  @OutputPortFieldAnnotation(name = "strArrayOutput")
   public final transient DefaultOutputPort<String[]> strArrayOutput = new DefaultOutputPort<String[]>();
 
   // Output port on which an array of type boolean is returned.
-  @OutputPortFieldAnnotation(name = "boolArrayOutput")
   public final transient DefaultOutputPort<Boolean[]> boolArrayOutput = new DefaultOutputPort<Boolean[]>();
 
   /**

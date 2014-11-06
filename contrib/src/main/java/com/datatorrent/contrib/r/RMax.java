@@ -28,8 +28,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
@@ -54,7 +52,6 @@ public class RMax<V extends Number> extends BaseNumberValueOperator<Number> impl
   private static Logger log = LoggerFactory.getLogger(RMax.class);
   REngineConnectable connectable;
 
-  @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>() {
     /**
      * Adds the tuple to the numList
@@ -76,7 +73,6 @@ public class RMax<V extends Number> extends BaseNumberValueOperator<Number> impl
     numList.add(tuple);
   }
 
-  @OutputPortFieldAnnotation(name = "max")
   public final transient DefaultOutputPort<Number> max = new DefaultOutputPort<Number>() {
     @Override
     public Unifier<Number> getUnifier()
