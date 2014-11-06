@@ -16,8 +16,8 @@
 
 package com.datatorrent.contrib.r;
 
-import junit.framework.Assert;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -44,7 +44,7 @@ public class RStandardDeviationOperatorTest
 
     Assert.assertEquals("Must be one tuple in sink", variance.collectedTuples.size(), 1);
     Assert.assertEquals("Must be one tuple in sink", deviation.collectedTuples.size(), 1);
-    System.out.println(variance.collectedTuples.get(0));
-    System.out.println(deviation.collectedTuples.get(0));
+    Assert.assertEquals("Mismatch in variance  ", new Double(13.333),(Double) variance.collectedTuples.get(0), 0.001);
+    Assert.assertEquals("Mismatch in deviation ", new Double(3.6514), (Double) deviation.collectedTuples.get(0), 0.001);
   }
 }

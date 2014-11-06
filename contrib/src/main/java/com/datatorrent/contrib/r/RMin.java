@@ -16,13 +16,10 @@
 
 package com.datatorrent.contrib.r;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.RuntimeErrorException;
-
-import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REngine;
 import org.rosuda.REngine.REngineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +30,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
@@ -52,7 +50,7 @@ import com.datatorrent.lib.util.BaseNumberValueOperator;
 public class RMin<V extends Number> extends BaseNumberValueOperator<Number> implements Unifier<Number>
 {
   private List<Number> numList = new ArrayList<Number>();
-  private transient REngine rengine;
+  REngineConnectable connectable;
 
   private static Logger log = LoggerFactory.getLogger(RMin.class);
 
@@ -94,20 +92,12 @@ public class RMin<V extends Number> extends BaseNumberValueOperator<Number> impl
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
-
     try {
-      String[] args = { "--vanilla" };
-      this.rengine = REngine.getLastEngine();
-      if (this.rengine == null) {
-        // new R-engine
-        this.rengine = REngine.engineForClass("org.rosuda.REngine.JRI.JRIEngine", args, null, false);
-        log.info("Creating new Rengine");
-      } else {
-        log.info("Got last Rengine");
-      }
-    } catch (Exception exc) {
-      log.error("Exception: ", exc);
-      throw new RuntimeErrorException(null, exc.toString());
+      connectable = new REngineConnectable();
+      connectable.connect();
+    } catch (IOException ioe) {
+      log.error("Exception: ", ioe);
+      DTThrowable.rethrow(ioe);
     }
 
   }
@@ -118,10 +108,13 @@ public class RMin<V extends Number> extends BaseNumberValueOperator<Number> impl
   @Override
   public void teardown()
   {
-
-    if (rengine != null) {
-      rengine.close();
+    try {
+      connectable.disconnect();
+    } catch (IOException ioe) {
+      log.error("Exception: ", ioe);
+      DTThrowable.rethrow(ioe);
     }
+
   }
 
   /**
@@ -141,24 +134,22 @@ public class RMin<V extends Number> extends BaseNumberValueOperator<Number> impl
     }
 
     try {
-      rengine.assign("numList", values);
+      connectable.getRengine().assign("numList", values);
     } catch (REngineException e) {
       log.error("Exception: ", e);
-      e.printStackTrace();
+      DTThrowable.rethrow(e);
     }
 
     double rMin = 0;
     try {
-      rMin = rengine.parseAndEval("min(numList)").asDouble();
-    } catch (REngineException e) {
+      rMin = connectable.getRengine().parseAndEval("min(numList)").asDouble();
+      connectable.getRengine().parseAndEval("rm(list = setdiff(ls(), lsf.str()))");
+    } catch (Exception e) {
       log.error("Exception: ", e);
-      e.printStackTrace();
-    } catch (REXPMismatchException e) {
-      log.error("Exception: ", e);
-      e.printStackTrace();
+      DTThrowable.rethrow(e);
     }
 
-    log.debug(String.format("\nMin is : " + rMin));
+    log.debug(String.format("Min is : " + rMin));
 
     min.emit(rMin);
     numList.clear();

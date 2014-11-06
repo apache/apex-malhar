@@ -1,13 +1,12 @@
 package com.datatorrent.contrib.r;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
-import junit.framework.Assert;
-
-import org.junit.Test;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import org.junit.Assert;
+import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 public class RScriptOperatorBooleanTest
 {

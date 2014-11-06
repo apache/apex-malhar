@@ -21,23 +21,20 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.Map;
 
-import javax.management.RuntimeErrorException;
 import javax.validation.constraints.NotNull;
 
 import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPDouble;
 import org.rosuda.REngine.REXPInteger;
 import org.rosuda.REngine.REXPLogical;
-import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REXPString;
-import org.rosuda.REngine.REngine;
-import org.rosuda.REngine.REngineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.script.ScriptOperator;
 
 /**
@@ -114,7 +111,8 @@ public class RScript extends ScriptOperator
 
   protected String scriptFilePath;
 
-  private transient REngine rengine;
+  REngineConnectable connectable;
+
   private static Logger log = LoggerFactory.getLogger(RScript.class);
 
   public RScript()
@@ -218,29 +216,13 @@ public class RScript extends ScriptOperator
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
-
     try {
-      String[] args = { "--vanilla" };
-      this.rengine = REngine.getLastEngine();
-      if (this.rengine == null) {
-        // new R-engine
-        this.rengine = REngine.engineForClass("org.rosuda.REngine.JRI.JRIEngine", args, null, false);
-        log.info("Creating new Rengine");
-      } else {
-        log.info("Got last Rengine");
-      }
-      REXP result = rengine.parseAndEval(super.script);
-    } catch (REngineException e) {
+      connectable = new REngineConnectable();
+      connectable.connect();
+      REXP result = connectable.getRengine().parseAndEval(super.script);
+    } catch (Exception e) {
       log.error("Exception: ", e);
-      e.printStackTrace();
-      throw new RuntimeErrorException(null, e.toString());
-    } catch (REXPMismatchException e) {
-      log.error("Exception: ", e);
-      e.printStackTrace();
-      throw new RuntimeErrorException(null, e.toString());
-    } catch (Exception exc) {
-      log.error("Exception: ", exc);
-      throw new RuntimeErrorException(null, exc.toString());
+      DTThrowable.rethrow(e);
     }
   }
 
@@ -250,9 +232,11 @@ public class RScript extends ScriptOperator
   @Override
   public void teardown()
   {
-
-    if (rengine != null) {
-      rengine.close();
+    try {
+      connectable.disconnect();
+    } catch (IOException ioe) {
+      log.error("Exception: ", ioe);
+      DTThrowable.rethrow(ioe);
     }
   }
 
@@ -277,9 +261,9 @@ public class RScript extends ScriptOperator
       }
 
       reader.close();
-    } catch (IOException ex) {
-      log.error(String.format("\nError reading the R script"));
-      ex.printStackTrace();
+    } catch (IOException ioe) {
+      log.error("Exception: ", ioe);
+      DTThrowable.rethrow(ioe);
     }
     return fileData.toString();
 
@@ -303,44 +287,44 @@ public class RScript extends ScriptOperator
         case REXP_INT:
           int[] iArr = new int[1];
           iArr[0] = (Integer) value;
-          rengine.assign(key, new REXPInteger(iArr));
+          connectable.getRengine().assign(key, new REXPInteger(iArr));
           break;
         case REXP_DOUBLE:
           double[] dArr = new double[1];
           dArr[0] = (Double) value;
-          rengine.assign(key, new REXPDouble(dArr));
+          connectable.getRengine().assign(key, new REXPDouble(dArr));
           break;
         case REXP_STR:
           String[] sArr = new String[1];
           sArr[0] = (String) value;
-          rengine.assign(key, new REXPString(sArr));
+          connectable.getRengine().assign(key, new REXPString(sArr));
           break;
         case REXP_BOOL:
           Boolean[] bArr = new Boolean[1];
           bArr[0] = (Boolean) value;
-          rengine.assign(key, new REXPLogical(bArr[0]));
+          connectable.getRengine().assign(key, new REXPLogical(bArr[0]));
           break;
         case REXP_ARRAY_INT:
-          rengine.assign(key, new REXPInteger((int[]) value));
+          connectable.getRengine().assign(key, new REXPInteger((int[]) value));
           break;
         case REXP_ARRAY_DOUBLE:
-          rengine.assign(key, new REXPDouble((double[]) value));
+          connectable.getRengine().assign(key, new REXPDouble((double[]) value));
           break;
         case REXP_ARRAY_STR:
-          rengine.assign(key, new REXPString((String[]) value));
+          connectable.getRengine().assign(key, new REXPString((String[]) value));
           break;
         case REXP_ARRAY_BOOL:
-          rengine.assign(key, new REXPLogical((boolean[]) value));
+          connectable.getRengine().assign(key, new REXPLogical((boolean[]) value));
           break;
         default:
           throw new IllegalArgumentException("Unsupported data type ... ");
         }
       }
 
-      REXP result = rengine.parseAndEval(getReturnVariable() + "<-" + getFunctionName() + "()");
-      REXP retVal = rengine.parseAndEval(getReturnVariable());
+      REXP result = connectable.getRengine().parseAndEval(getReturnVariable() + "<-" + getFunctionName() + "()");
+      REXP retVal = connectable.getRengine().parseAndEval(getReturnVariable());
       // Clear R workspace, except functions.
-      rengine.parseAndEval("rm(list = setdiff(ls(), lsf.str()))");
+      connectable.getRengine().parseAndEval("rm(list = setdiff(ls(), lsf.str()))");
 
       // Get the returned value and emit it on the appropriate output port depending
       // on its datatype.
@@ -399,9 +383,9 @@ public class RScript extends ScriptOperator
       } else {
         throw new IllegalArgumentException("Unsupported data type returned ... ");
       }
-    } catch (Exception exc) {
-      log.error("Rexc: ", exc);
-      exc.printStackTrace();
+    } catch (Exception e) {
+      log.error("Exception: ", e);
+      DTThrowable.rethrow(e);
     }
   }
 

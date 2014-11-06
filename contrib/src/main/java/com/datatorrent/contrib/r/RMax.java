@@ -16,13 +16,10 @@
 
 package com.datatorrent.contrib.r;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.management.RuntimeErrorException;
-
-import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REngine;
 import org.rosuda.REngine.REngineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +30,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
@@ -53,8 +51,8 @@ public class RMax<V extends Number> extends BaseNumberValueOperator<Number> impl
 {
   private List<Number> numList = new ArrayList<Number>();
 
-  private transient REngine rengine;
   private static Logger log = LoggerFactory.getLogger(RMax.class);
+  REngineConnectable connectable;
 
   @InputPortFieldAnnotation(name = "data")
   public final transient DefaultInputPort<Number> data = new DefaultInputPort<Number>() {
@@ -95,21 +93,14 @@ public class RMax<V extends Number> extends BaseNumberValueOperator<Number> impl
   {
 
     super.setup(context);
-
     try {
-      String[] args = { "--vanilla" };
-      this.rengine = REngine.getLastEngine();
-      if (this.rengine == null) {
-        // new R-engine
-        this.rengine = REngine.engineForClass("org.rosuda.REngine.JRI.JRIEngine", args, null, false);
-        log.info("Creating new Rengine");
-      } else {
-        log.info("Got last Rengine");
-      }
-    } catch (Exception exc) {
-      log.error("Exception: ", exc);
-      throw new RuntimeErrorException(null, exc.toString());
+      connectable = new REngineConnectable();
+      connectable.connect();
+    } catch (IOException ioe) {
+      log.error("Exception: ", ioe);
+      DTThrowable.rethrow(ioe);
     }
+
   }
 
   /*
@@ -119,9 +110,13 @@ public class RMax<V extends Number> extends BaseNumberValueOperator<Number> impl
   public void teardown()
   {
 
-    if (rengine != null) {
-      rengine.close();
+    try {
+      connectable.disconnect();
+    } catch (IOException ioe) {
+      log.error("Exception: ", ioe);
+      DTThrowable.rethrow(ioe);
     }
+
   }
 
   /**
@@ -142,25 +137,23 @@ public class RMax<V extends Number> extends BaseNumberValueOperator<Number> impl
     }
 
     try {
-      rengine.assign("numList", values);
+      connectable.getRengine().assign("numList", values);
 
     } catch (REngineException e) {
-      e.printStackTrace();
+      log.error("Exception: ", e);
+      DTThrowable.rethrow(e);
     }
 
     double rMax = 0;
     try {
-      rMax = rengine.parseAndEval("max(numList)").asDouble();
-      rengine.parseAndEval("rm(list = setdiff(ls(), lsf.str()))");
-    } catch (REngineException e) {
+      rMax = connectable.getRengine().parseAndEval("max(numList)").asDouble();
+      connectable.getRengine().parseAndEval("rm(list = setdiff(ls(), lsf.str()))");
+    } catch (Exception e) {
       log.error("Exception: ", e);
-      e.printStackTrace();
-    } catch (REXPMismatchException e) {
-      log.error("Exception: ", e);
-      e.printStackTrace();
+      DTThrowable.rethrow(e);
     }
 
-    log.debug(String.format("\nMax is : " + rMax));
+    log.debug(String.format("Max is : " + rMax));
 
     max.emit(rMax);
     numList.clear();

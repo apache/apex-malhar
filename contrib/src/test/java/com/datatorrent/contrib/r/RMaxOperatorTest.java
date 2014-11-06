@@ -16,11 +16,10 @@
 
 package com.datatorrent.contrib.r;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 public class RMaxOperatorTest
 {
@@ -36,7 +35,7 @@ public class RMaxOperatorTest
     oper.max.setSink(maxSink);
 
     oper.setup(null);
-    oper.beginWindow(0); //
+    oper.beginWindow(0);
 
     Double a = new Double(2.0);
     Double b = new Double(20.0);
@@ -66,10 +65,10 @@ public class RMaxOperatorTest
     oper.data.process(b);
     a = 23.0;
     oper.data.process(a);
-    oper.endWindow(); //
+    oper.endWindow();
     oper.teardown();
 
-    Assert.assertEquals("number emitted tuples", 1, maxSink.count);
-    Assert.assertEquals("emitted high value was ", new Double(1000.0), maxSink.tuple);
+    Assert.assertEquals("Number of emitted tuples ", 1, maxSink.count);
+    Assert.assertEquals("Mismatch in Max value: ", new Double(1000.0), maxSink.tuple);
   }
 }

@@ -583,16 +583,19 @@
       <groupId>org.rosuda</groupId>
       <artifactId>jri</artifactId>
       <version>1.0</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.rosuda</groupId>
       <artifactId>rengine</artifactId>
       <version>1.0</version>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.rosuda</groupId>
       <artifactId>jriengine</artifactId>
       <version>1.0</version>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 </project>

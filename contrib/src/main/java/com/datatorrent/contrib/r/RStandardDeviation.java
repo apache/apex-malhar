@@ -16,6 +16,7 @@
 
 package com.datatorrent.contrib.r;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,6 +33,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * This operator computes variance and standard deviation over incoming data using R functions <br>
@@ -53,7 +55,7 @@ public class RStandardDeviation extends BaseOperator
 {
 
   private List<Number> values = new ArrayList<Number>();
-  private transient REngine rengine;
+  REngineConnectable connectable;
 
   private static Logger log = LoggerFactory.getLogger(RStandardDeviation.class);
   /**
@@ -88,19 +90,12 @@ public class RStandardDeviation extends BaseOperator
   public void setup(Context.OperatorContext context)
   {
     super.setup(context);
-
     try {
-      String[] args = { "--vanilla" };
-      this.rengine = REngine.getLastEngine();
-      if (this.rengine == null) {
-        // new R-engine
-        this.rengine = REngine.engineForClass("org.rosuda.REngine.JRI.JRIEngine", args, null, false);
-        log.info("Creating new Rengine");
-      } else {
-        log.info("Got last Rengine");
-      }
-    } catch (Exception exc) {
-      log.error("Exception: ", exc);
+      connectable = new REngineConnectable();
+      connectable.connect();
+    } catch (IOException ioe) {
+      log.error("Exception: ", ioe);
+      DTThrowable.rethrow(ioe);
     }
   }
 
@@ -110,9 +105,11 @@ public class RStandardDeviation extends BaseOperator
   @Override
   public void teardown()
   {
-
-    if (rengine != null) {
-      rengine.close();
+    try {
+      connectable.disconnect();
+    } catch (IOException ioe) {
+      log.error("Exception: ", ioe);
+      DTThrowable.rethrow(ioe);
     }
   }
 
@@ -133,20 +130,21 @@ public class RStandardDeviation extends BaseOperator
       vector[i] = values.get(i).doubleValue();
     }
     try {
-      rengine.assign("values", vector);
+      connectable.getRengine().assign("values", vector);
     } catch (REngineException e) {
-      e.printStackTrace();
+      log.error("Exception: ", e);
+      DTThrowable.rethrow(e);
     }
 
     double rStandardDeviation = 0;
     double rVariance = 0;
     try {
-      rStandardDeviation = rengine.parseAndEval("sd(values)").asDouble();
-      rVariance = rengine.parseAndEval("var(values)").asDouble();
-    } catch (REngineException e) {
-      e.printStackTrace();
-    } catch (REXPMismatchException e) {
-      e.printStackTrace();
+      rStandardDeviation = connectable.getRengine().parseAndEval("sd(values)").asDouble();
+      rVariance = connectable.getRengine().parseAndEval("var(values)").asDouble();
+      connectable.getRengine().parseAndEval("rm(list = setdiff(ls(), lsf.str()))");
+    } catch (Exception e) {
+      log.error("Exception: ", e);
+      DTThrowable.rethrow(e);
     }
 
     variance.emit(rVariance);

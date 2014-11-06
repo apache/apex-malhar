@@ -16,8 +16,7 @@
 
 package com.datatorrent.contrib.r;
 
-import junit.framework.Assert;
-
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
@@ -66,7 +65,7 @@ public class RMinOperatorTest
     oper.data.process(b);
     a = 23.0;
     oper.data.process(a);
-    oper.endWindow(); //
+    oper.endWindow();
     oper.teardown();
 
     Assert.assertEquals("number emitted tuples", 1, minSink.count);
