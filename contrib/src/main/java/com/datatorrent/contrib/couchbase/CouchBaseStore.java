@@ -116,6 +116,9 @@ public class CouchBaseStore implements Connectable
   public CouchBaseStore()
   {
     client = null;
+    password = "";
+    bucket = "default";
+
   }
 
   public CouchbaseClient getInstance()

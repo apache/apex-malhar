@@ -42,6 +42,26 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   private transient String lastWindowValue;
   protected transient CouchbaseClient clientMeta;
   protected String bucketMeta;
+
+  public String getBucketMeta()
+  {
+    return bucketMeta;
+  }
+
+  public void setBucketMeta(String bucketMeta)
+  {
+    this.bucketMeta = bucketMeta;
+  }
+
+  public String getPasswordMeta()
+  {
+    return passwordMeta;
+  }
+
+  public void setPasswordMeta(String passwordMeta)
+  {
+    this.passwordMeta = passwordMeta;
+  }
   protected String passwordMeta;
 
   public CouchBaseWindowStore()
@@ -52,15 +72,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     passwordMeta = "";
   }
 
-  public void setBucketMeta(String bucketName)
-  {
-    bucketMeta = bucketName;
-  }
 
-  public void setPasswordMeta(String passwordMeta)
-  {
-    this.passwordMeta = passwordMeta;
-  }
 
   public CouchbaseClient getMetaInstance()
   {
