@@ -11,10 +11,11 @@
   <artifactId>malhar-contrib</artifactId>
   <name>Contrib Library</name>
   <packaging>jar</packaging>
+
   <properties>
     <!-- skip tests by default as they depend on manual setup -->
     <skip.contrib.module.tests>false</skip.contrib.module.tests>
-    <skipTests>false</skipTests>
+    <skipTests>true</skipTests>
   </properties>
   <repositories>
     <repository>
@@ -67,11 +68,11 @@
         </executions>
       </plugin>
       <!-- generate javdoc -->
-      <!--<plugin>
+     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <executions>
-           generate xml javadoc
+         <!-- generate xml javadoc -->
           <execution>
             <id>xml-doclet</id>
             <phase>generate-resources</phase>
@@ -89,7 +90,7 @@
               </docletArtifact>
             </configuration>
           </execution>
-           generate default javadoc jar with custom tags
+         <!-- generate default javadoc jar with custom tags -->
           <execution>
             <id>attach-sources</id>
             <goals>
@@ -117,7 +118,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>-->
+     </plugin>
       <!-- Transform xml javadoc to stripped down version containing only class/interface comments and tags-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>
@@ -285,6 +286,13 @@
       <groupId>com.whalin</groupId>
       <artifactId>Memcached-Java-Client</artifactId>
       <version>3.0.1</version>
+      <type>jar</type>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.simple-spring-memcached</groupId>
+      <artifactId>spymemcached</artifactId>
+      <version>2.8.4</version>
       <type>jar</type>
       <optional>true</optional>
     </dependency>
@@ -526,16 +534,5 @@
       <version>1.4.4</version>
       <optional>true</optional>
     </dependency>
-
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
-      <version>4.3</version>
-    </dependency>
-    <dependency>
-	<groupId>org.apache.httpcomponents</groupId>
-	<artifactId>httpcore-nio</artifactId>
-	<version>4.3</version>
-</dependency>
   </dependencies>
 </project>

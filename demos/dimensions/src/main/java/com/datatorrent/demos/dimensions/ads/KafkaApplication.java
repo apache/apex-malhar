@@ -98,7 +98,7 @@ public class KafkaApplication implements StreamingApplication
     kafka.setTopic("adsdimensions");
     // Set default properties based on http://kafka.apache.org/documentation.html#producerconfigs
     Properties kafkaProps = kafka.getConfigProperties();
-    kafkaProps.setProperty("serializer.class", KafkaStringEncoder.class.getName());
+    kafkaProps.setProperty("serialize.class", KafkaStringEncoder.class.getName());
 
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, kafka.inputPort);

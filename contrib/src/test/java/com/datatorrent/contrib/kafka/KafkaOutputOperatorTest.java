@@ -146,7 +146,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
     KafkaSinglePortOutputOperator node = dag.addOperator("KafkaMessageProducer", KafkaSinglePortOutputOperator.class);
 
     Properties props = new Properties();
-    props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
+    props.setProperty("serialize.class", "kafka.serialize.StringEncoder");
     props.put("metadata.broker.list", "invalidhost:9092");
     props.setProperty("producer.type", "async");
     props.setProperty("queue.buffering.max.ms", "200");

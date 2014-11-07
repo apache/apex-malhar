@@ -16,9 +16,6 @@
 
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>
-    <!-- skip tests by default as they depend on manual setup -->
-    <skip.contrib.module.tests>true</skip.contrib.module.tests>
-        <skipTests>true</skipTests>
   </properties>
 
   <build>
@@ -57,12 +54,12 @@
             </execution>
           </executions>
        </plugin>
-      <!-- generate javdoc
+      <!-- generate javdoc -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-javadoc-plugin</artifactId>
         <executions>
-           generate xml javadoc
+          <!-- generate xml javadoc -->
           <execution>
             <id>xml-doclet</id>
             <phase>generate-resources</phase>
@@ -79,8 +76,8 @@
                 <version>1.0.4</version>
               </docletArtifact>
             </configuration>
-       </execution>
-          < generate default javadoc jar with custom tags
+          </execution>
+          <!-- generate default javadoc jar with custom tags -->
           <execution>
             <id>attach-sources</id>
             <goals>
@@ -108,7 +105,7 @@
             </configuration>
           </execution>
         </executions>
-      </plugin>-->
+      </plugin>
       <!-- Transform xml javadoc to stripped down version containing only class/interface comments and tags-->
       <plugin>
         <groupId>org.codehaus.mojo</groupId>

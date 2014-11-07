@@ -35,7 +35,7 @@ public class KafkaTestProducer implements Runnable
   private final Random rand = new Random();
   private boolean hasPartition = false;
   private List<String> messages;
-  
+
   private String producerType = "async";
 
   public int getSendCount()

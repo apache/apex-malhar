@@ -15,21 +15,20 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.couchbase.client.CouchbaseClient;
-import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
-import com.datatorrent.common.util.DTThrowable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+
+import com.couchbase.client.CouchbaseClient;
+import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
+
+import org.junit.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * CouchBaseGetTest class which implements unit tests for Couchbase get functionality.
@@ -68,7 +67,7 @@ public class CouchBaseGetTest
 
     URI uri = null;
     try {
-      uri = new URI("http://node13.morado.com:8091/pools");
+      uri = new URI("http://localhost:8091/pools");
     }
     catch (URISyntaxException ex) {
       logger.error("Error connecting to Couchbase: " + ex.getMessage());
