@@ -7,13 +7,14 @@
   <artifactId>r-demo</artifactId>
   <packaging>jar</packaging>
 
+ <name>DataTorrent R Demo</name>
+  <description>DataTorrent demo applications for using R.</description>
+
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
-    <datatorrent.version>1.0.5-SNAPSHOT</datatorrent.version>
+    <datatorrent.version>2.0.0-SNAPSHOT</datatorrent.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
   </properties>
-
-  <name>DataTorrent R Demo</name>
 
   <!-- repository to provide the DataTorrent artifacts -->
   <repositories>
@@ -33,7 +34,7 @@
       <name>DataTorrent Early Access Program Snapshot Repository</name>
       <url>https://www.datatorrent.com/maven/content/repositories/snapshots/</url>
     </repository>
-    <repository>
+       <repository>
       <id>datatorrent-3rd-party</id>
       <name>Embedded repository for dependencies not available online</name>
       <url>https://www.datatorrent.com/maven/content/repositories/thirdparty</url>
@@ -68,22 +69,6 @@
            <showDeprecation>true</showDeprecation>
            <showWarnings>true</showWarnings>
          </configuration>
-       </plugin>
-       <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>2.5</version>
-        <configuration>
-          <archive>
-            <index>true</index>
-            <manifestEntries>
-              <Class-Path>${datatorrent.apppackage.classpath}</Class-Path>
-              <DT-Engine-Version>${datatorrent.version}</DT-Engine-Version>
-              <DT-App-Package-Name>${project.artifactId}</DT-App-Package-Name>
-              <DT-App-Package-Version>${project.version}</DT-App-Package-Version>
-            </manifestEntries>
-          </archive>
-        </configuration>
        </plugin>
        <plugin>
          <artifactId>maven-dependency-plugin</artifactId>
@@ -131,13 +116,24 @@
                <goal>single</goal>
              </goals>
              <configuration>
-               <finalName>${project.build.finalName}</finalName>
+               <finalName>DTApp-${project.artifactId}-${project.version}</finalName>
+               <appendAssemblyId>false</appendAssemblyId>
                <descriptors>
                  <descriptor>src/assemble/appPackage.xml</descriptor>
                </descriptors>
                <archiverConfig>
                  <defaultDirectoryMode>0755</defaultDirectoryMode>
                </archiverConfig>
+               <archive>
+                 <manifestEntries>
+                   <Class-Path>${datatorrent.apppackage.classpath}</Class-Path>
+                   <DT-Engine-Version>${datatorrent.version}</DT-Engine-Version>
+                   <DT-App-Package-Name>${project.artifactId}</DT-App-Package-Name>
+                   <DT-App-Package-Version>${project.version}</DT-App-Package-Version>
+                   <DT-App-Package-Display-Name>${project.name}</DT-App-Package-Display-Name>
+                   <DT-App-Package-Description>${project.description}</DT-App-Package-Description>
+                 </manifestEntries>
+               </archive>
              </configuration>
            </execution>
          </executions>
@@ -170,7 +166,7 @@
       <version>4.10</version>
       <scope>test</scope>
     </dependency>
-    <dependency>
+        <dependency>
       <groupId>org.rosuda</groupId>
       <artifactId>jri</artifactId>
       <version>1.0</version>
@@ -197,7 +193,4 @@
       </exclusions>
     </dependency>
   </dependencies>
-
 </project>
-
-

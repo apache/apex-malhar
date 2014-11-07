@@ -2,18 +2,18 @@
 <configuration>
 <!--properties for R demo  -->
   <property>
-        <name>dt.application.oldfaithful.class</name>
+        <name>dt.application.OldFaithfulApplication.class</name>
         <value>com.datatorrent.demos.oldfaithful.OldFaithfulApplication</value>
         <description>An alias for OldFaithful application</description>
   </property>
 
   <property>
-        <name>dt.application.oldfaithful.operator.rScriptOp.attr.MEMORY_MB</name>
+        <name>dt.application.OldFaithfulApplication.operator.rScriptOp.attr.MEMORY_MB</name>
         <value>1024</value>
   </property>
   
   <property>
-        <name>dt.application.oldfaithful.attr.CONTAINER_MEMORY_MB</name>
+        <name>dt.application.OldFaithfulApplication.attr.CONTAINER_MEMORY_MB</name>
         <value>1024</value>
   </property>
 

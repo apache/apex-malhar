@@ -31,7 +31,7 @@ import com.datatorrent.contrib.r.RScript;
 public class FaithfulRScript extends RScript
 {
 
-  private List<FaithfulKey> readingsList = new ArrayList<FaithfulKey>();
+  private transient List<FaithfulKey> readingsList = new ArrayList<FaithfulKey>();
   private int elapsedTime;
   private static final Logger LOG = LoggerFactory.getLogger(FaithfulRScript.class);
 
@@ -45,7 +45,7 @@ public class FaithfulRScript extends RScript
     super(rScriptFilePath, rFunction, returnVariable);
   }
 
-  @InputPortFieldAnnotation(name = "faithfulInput", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<FaithfulKey> faithfulInput = new DefaultInputPort<FaithfulKey>() {
     @Override
     public void process(FaithfulKey tuple)
@@ -58,7 +58,7 @@ public class FaithfulRScript extends RScript
 
   };
 
-  @InputPortFieldAnnotation(name = "inputElapsedTime", optional = true)
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<Integer> inputElapsedTime = new DefaultInputPort<Integer>() {
     @Override
     public void process(Integer eT)

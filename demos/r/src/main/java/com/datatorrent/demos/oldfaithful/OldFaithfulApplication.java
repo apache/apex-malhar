@@ -49,7 +49,6 @@ public class OldFaithfulApplication implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
 
-    dag.setAttribute(DAG.APPLICATION_NAME, "OldFaithfulApplication");
     InputGenerator randomInputGenerator = dag.addOperator("rand", new InputGenerator());
     FaithfulRScript rScriptOp = dag.addOperator("rScriptOp", new FaithfulRScript("com/datatorrent/demos/oldfaithful/eruptionModel.R", "eruptionModel", "retVal"));
     ConsoleOutputOperator consoles = dag.addOperator("consoles", new ConsoleOutputOperator());

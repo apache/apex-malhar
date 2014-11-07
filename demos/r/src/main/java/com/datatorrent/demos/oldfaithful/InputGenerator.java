@@ -24,7 +24,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 // The InputGenerator operator is used to generate input for the 'Old Faithful Geyser" application.
 // This application accepts readings for the waiting time and the subsequent eruption duration
@@ -40,14 +39,12 @@ public class InputGenerator implements InputOperator
 
   @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(InputGenerator.class);
-  private int blastCount = 100000; // TODO - Increased for testing
+  private int blastCount = 1000;
   private Random random = new Random();
   private static int emitCount = 0;
 
-  @OutputPortFieldAnnotation(name = "outputPort")
   public final transient DefaultOutputPort<FaithfulKey> outputPort = new DefaultOutputPort<FaithfulKey>();
 
-  @OutputPortFieldAnnotation(name = "elapsedTime")
   public final transient DefaultOutputPort<Integer> elapsedTime = new DefaultOutputPort<Integer>();
 
   public void setBlastCount(int blastCount)
@@ -87,7 +84,7 @@ public class InputGenerator implements InputOperator
     }
     try {
       // Slowdown input generation
-      if (emitCount++ % 37 == 0) {
+      if (emitCount++ % 97 == 0) {
         Thread.sleep(1);
       }
     } catch (InterruptedException e) {

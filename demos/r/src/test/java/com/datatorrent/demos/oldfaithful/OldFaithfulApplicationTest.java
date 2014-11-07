@@ -16,13 +16,13 @@
 
 package com.datatorrent.demos.oldfaithful;
 
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.common.util.DTThrowable;
-
 import org.apache.hadoop.conf.Configuration;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.LocalMode;
 
 public class OldFaithfulApplicationTest
 {
@@ -39,10 +39,10 @@ public class OldFaithfulApplicationTest
     try {
       LocalMode.Controller lc = lma.getController();
       lc.setHeartbeatMonitoringEnabled(false);
-      lc.run(50000);
+      lc.run(5000);
     } catch (Exception e) {
       LOG.error("Exception: ", e);
-      DTThrowable.rethrow(e);
+      Assert.fail("Unexpected exception.");
     }
   }
 }
