@@ -156,9 +156,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
   }
 
   @Override
-  protected Class<? extends HDSCodec<AdInfoAggregateEvent>> getCodecClass()
+  protected HDSCodec<AdInfoAggregateEvent> getCodec()
   {
-    return AdInfoAggregateCodec.class;
+    return new AdInfoAggregateCodec();
   }
 
   @Override
@@ -326,6 +326,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
       result = prime * result + t.publisherId;
       return result;
     }
+        private static final long serialVersionUID = 201411031407L;
+
   }
 
   protected void registerTimeSeriesQuery(String queryString) throws Exception
@@ -456,6 +458,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
           ", endTime=" + endTime +
           '}';
     }
+
+    private static final long serialVersionUID = 201411031407L;
   }
 
   /**

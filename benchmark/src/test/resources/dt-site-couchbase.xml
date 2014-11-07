@@ -22,7 +22,7 @@
   </property>
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.bucket</name>
-    <value>default</value>
+    <value>new</value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.password</name>
@@ -59,7 +59,7 @@
   </property>
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.bucket</name>
-    <value>default</value>
+    <value>new</value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.password</name>
@@ -72,7 +72,7 @@
   </property>
   <property>
     <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.bucket</name>
-    <value>default</value>
+    <value>new</value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.password</name>
