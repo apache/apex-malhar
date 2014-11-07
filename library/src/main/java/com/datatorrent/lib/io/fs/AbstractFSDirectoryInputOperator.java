@@ -91,7 +91,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   transient protected int skipCount = 0;
   private transient OperatorContext context;
 
-  private BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
   protected MutableLong globalNumberOfFailures = new MutableLong();
   protected MutableLong localNumberOfFailures = new MutableLong();
   protected MutableLong globalNumberOfRetries = new MutableLong();
@@ -403,7 +403,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void setup(OperatorContext context)
   {
-    globalProcessedFileCount.setValue((long) processedFiles.size());
+    globalProcessedFileCount.setValue(processedFiles.size());
     LOG.debug("Setup processed file count: {}", globalProcessedFileCount);
     this.context = context;
 
@@ -873,12 +873,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       this.regex = null;
     }
 
-    public Pattern getRegex() {
-      if (this.regex == null && this.filePatternRegexp != null)
-        this.regex = Pattern.compile(this.filePatternRegexp);
-      return this.regex;
-    }
-
     public int getPartitionCount() {
       return partitionCount;
     }
@@ -887,12 +881,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       return partitionIndex;
     }
 
+    protected Pattern getRegex() {
+      if (this.regex == null && this.filePatternRegexp != null)
+        this.regex = Pattern.compile(this.filePatternRegexp);
+      return this.regex;
+    }
+
     public LinkedHashSet<Path> scan(FileSystem fs, Path filePath, Set<String> consumedFiles)
     {
-      if (filePatternRegexp != null && this.regex == null) {
-        this.regex = Pattern.compile(this.filePatternRegexp);
-      }
-
       LinkedHashSet<Path> pathSet = Sets.newLinkedHashSet();
       try {
         LOG.debug("Scanning {} with pattern {}", filePath, this.filePatternRegexp);
@@ -940,10 +936,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
           return false;
         }
       }
-      if (filePatternRegexp != null && this.regex == null) {
-        regex = Pattern.compile(this.filePatternRegexp);
-      }
-
+      Pattern regex = this.getRegex();
       if (regex != null)
       {
         Matcher matcher = regex.matcher(filePathStr);

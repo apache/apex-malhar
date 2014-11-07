@@ -283,7 +283,7 @@ public class EventSchema implements Serializable
     else return input;
   }
 
-  public static Map<Class,Object> DEFAULT_VALUES = Maps.newHashMap();
+  public static Map<Class<?>,Object> DEFAULT_VALUES = Maps.newHashMap();
   static {
     DEFAULT_VALUES.put(Integer.class, 0);
     DEFAULT_VALUES.put(Long.class, 0L);
@@ -388,7 +388,7 @@ public class EventSchema implements Serializable
   }
 
 
-  public Class getAggregateType(int i)
+  public Class<?> getAggregateType(int i)
   {
     return getType(genericEventValues.get(i));
   }

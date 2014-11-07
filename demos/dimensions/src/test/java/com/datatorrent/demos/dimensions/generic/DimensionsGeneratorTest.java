@@ -1,7 +1,7 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.google.common.collect.Lists;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 

@@ -44,6 +44,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import com.datatorrent.lib.counters.BasicCounters;
@@ -78,9 +79,14 @@ import com.datatorrent.lib.counters.BasicCounters;
  * output to a single file
  * Application window length of 30 seconds
  *
+ * @displayName FS Writer
+ * @category Output
+ * @tags fs, file, output operator
+ *
  * @param <INPUT> This is the input tuple type.
  * @param <OUTPUT> This is the output tuple type.
  */
+@OperatorAnnotation(checkpointableWithinAppWindow = false)
 public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFSWriter.class);
@@ -540,8 +546,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
       if(currentOffset == null) {
         currentOffset = new MutableLong(0);
-        endOffsets.put(fileName,
-                       currentOffset);
+        endOffsets.put(fileName, currentOffset);
       }
 
       currentOffset.add(tupleBytes.length);

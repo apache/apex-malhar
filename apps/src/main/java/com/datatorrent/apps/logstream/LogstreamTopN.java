@@ -98,9 +98,9 @@ public class LogstreamTopN extends TopN<String, DimensionObject<String>> impleme
   }
 
   @Override
-  protected Class<? extends StreamCodec<Map<String, DimensionObject<String>>>> getStreamCodec()
+  protected StreamCodec<Map<String, DimensionObject<String>>> getStreamCodec()
   {
-    return LogstreamTopNStreamCodec.class;
+    return new LogstreamTopNStreamCodec();
   }
 
   @Override
@@ -200,6 +200,7 @@ public class LogstreamTopN extends TopN<String, DimensionObject<String>> impleme
       return ret;
     }
 
-  }
+    private static final long serialVersionUID = 201411031411L;
+}
 
 }

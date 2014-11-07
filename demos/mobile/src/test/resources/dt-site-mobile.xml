@@ -1,63 +1,66 @@
 <configuration>
- <property>
-	<name>dt.application.MobileDemo.class</name>
-	<value>com.datatorrent.demos.mobile.Application</value>
-	<description>An alias for the application</description>
-</property>
- <property>
-	<name>dt.application.MobileDemo.operator.phonegen.tuplesBlast</name>
-	<value>200</value>
-</property>
- <property>
-	<name>dt.application.MobileDemo.operator.phonegen.tuplesBlastIntervalMillis</name>
-	<value>5</value>
-</property>
-<property>
-	<name>dt.application.MobileDemo.operator.phonegen.outputport.integer_data.attr.QUEUE_CAPACITY
-	</name>
-	<value>32768</value>
-</property>
- <property>
-	<name>dt.application.MobileDemo.operator.pmove.range</name>
-	<value>20</value>
-</property>
- <property>
-	<name>dt.application.MobileDemo.operator.pmove.threshold</name>
-	<value>80</value>
-</property>
- <property>
-	<name>dt.application.MobileDemo.operator.pmove.attr.INITIAL_PARTITION_COUNT
-	</name>
-	<value>2</value> 
-</property>
-<property>
-	<name>dt.application.MobileDemo.operator.pmove.attr.PARTITION_TPS_MIN
-	</name>
-	<value>10000</value> 
-</property>
-<property>
-	<name>dt.application.MobileDemo.operator.pmove.attr.PARTITION_TPS_MAX
-	</name>
-	<value>30000</value> 
-</property>
-<property>
-	<name>dt.application.MobileDemo.operator.pmove.inputport.data.attr.QUEUE_CAPACITY
-	</name>
-	<value>32768</value>
-</property>
- <property>
-    <name>dt.application.MobileDemo.stream.consoledata.locality</name>
-    <value>CONTAINER_LOCAL</value>
- </property>
- <property>
-	<name>dt.application.MobileDemo.operator.phoneLocationQueryResultWS.topic</name>
-	<value>demos.mobile.phoneLocationQueryResult</value>
-</property>
-<property>
-	<name>dt.application.MobileDemo.operator.phoneLocationQueryWS.topic</name>
-	<value>demos.mobile.phoneLocationQuery</value>
-</property>
- <property>
+  <property>
+    <name>dt.application.MobileDemo.class</name>
+    <value>com.datatorrent.demos.mobile.Application</value>
+    <description>An alias for the application</description>
+  </property>
+  <!--property>
+    <name>dt.attr.GATEWAY_CONNECT_ADDRESS</name>
+    <value>localhost:19090</value>
+  </property-->
+  <property>
+    <name>dt.application.MobileDemo.totalSeedNumbers</name>
+    <value>0</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.coolDownMillis</name>
+    <value>45000</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.maxThroughput</name>
+    <value>30000</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.minThroughput</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.Receiver.tuplesBlast</name>
+    <value>200</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.Receiver.tuplesBlastIntervalMillis</name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.Receiver.outputport.integer_data.attr.QUEUE_CAPACITY</name>
+    <value>32768</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.LocationFinder.range</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.LocationFinder.threshold</name>
+    <value>80</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.LocationFinder.attr.INITIAL_PARTITION_COUNT</name>
+    <value>1</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.LocationFinder.inputport.data.attr.QUEUE_CAPACITY</name>
+    <value>32768</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.LocationResults.topic</name>
+    <value>resultTopic</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.QueryLocation.topic</name>
+    <value>queryTopic</value>
+  </property>
+  <property>
     <name>dt.application.MobileDemo.attr.CONTAINER_MEMORY_MB</name>
     <value>2048</value>
   </property>

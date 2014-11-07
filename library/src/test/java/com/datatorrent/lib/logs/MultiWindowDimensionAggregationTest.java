@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.lang.Number;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.commons.lang.mutable.MutableDouble;
 import org.junit.Test;

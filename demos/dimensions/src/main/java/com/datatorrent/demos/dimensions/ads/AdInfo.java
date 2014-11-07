@@ -346,6 +346,7 @@ public class AdInfo implements Serializable
 
   public static class AdInfoAggregateEvent extends AdInfo implements DimensionsComputation.AggregateEvent
   {
+    private static final long serialVersionUID = 1L;
     int aggregatorIndex;
 
     public AdInfoAggregateEvent()

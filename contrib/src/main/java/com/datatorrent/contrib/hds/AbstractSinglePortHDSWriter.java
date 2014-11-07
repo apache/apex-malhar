@@ -22,6 +22,11 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.collect.Lists;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,10 +35,8 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StreamCodec;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.google.common.collect.Lists;
+
+import com.datatorrent.common.util.Slice;
 
 /**
  * Operator that receives data on port and writes it to the data store.
@@ -47,7 +50,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
   {
     byte[] getKeyBytes(EVENT event);
     byte[] getValueBytes(EVENT event);
-    EVENT fromKeyValue(byte[] key, byte[] value);
+    EVENT fromKeyValue(Slice key, byte[] value);
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractSinglePortHDSWriter.class);
@@ -72,9 +75,9 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
     }
 
     @Override
-    public Class<? extends StreamCodec<EVENT>> getStreamCodec()
+    public StreamCodec<EVENT> getStreamCodec()
     {
-      return getCodecClass();
+      return getCodec();
     }
   };
 
@@ -90,7 +93,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
     super.put(getBucketKey(event), HDS.SliceExt.toSlice(key), value);
   }
 
-  abstract protected Class<? extends HDSCodec<EVENT>> getCodecClass();
+  abstract protected HDSCodec<EVENT> getCodec();
 
   @Override
   public void setup(OperatorContext arg0)
@@ -98,7 +101,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
     LOG.debug("Store {} with partitions {} {}", super.getFileStore(), new PartitionKeys(this.partitionMask, this.partitions));
     super.setup(arg0);
     try {
-      this.codec = getCodecClass().newInstance();
+      this.codec = getCodec();
       // inject the operator reference, if such field exists
       // TODO: replace with broader solution
       Class<?> cls = this.codec.getClass();
@@ -128,17 +131,17 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
     }
 
     int totalCount = partitions.size() + incrementalCapacity;
-    Kryo kryo = new Kryo();
+    Kryo lKryo = new Kryo();
     Collection<Partition<AbstractSinglePortHDSWriter<EVENT>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
     for (int i = 0; i < totalCount; i++) {
       // Kryo.copy fails as it attempts to clone transient fields (input port)
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Output output = new Output(bos);
-      kryo.writeObject(output, this);
+      lKryo.writeObject(output, this);
       output.close();
-      Input input = new Input(bos.toByteArray());
+      Input lInput = new Input(bos.toByteArray());
       @SuppressWarnings("unchecked")
-      AbstractSinglePortHDSWriter<EVENT> oper = kryo.readObject(input, this.getClass());
+      AbstractSinglePortHDSWriter<EVENT> oper = lKryo.readObject(lInput, this.getClass());
       newPartitions.add(new DefaultPartition<AbstractSinglePortHDSWriter<EVENT>>(oper));
     }
 

@@ -18,17 +18,16 @@ package com.datatorrent.lib.math;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.StreamCodec;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.StreamCodec;
+
 /**
  *
- * This operator emits maximum of all values sub-classed from Number at end of window for each key in KeyValPair. 
+ * This operator emits maximum of all values sub-classed from Number at end of window for each key in KeyValPair.
  * <p>
  * <br>
  * <b>Ports</b>:<br>
@@ -76,12 +75,12 @@ public class MaxKeyVal<K, V extends Number> extends BaseNumberKeyValueOperator<K
      * Set StreamCodec used for partitioning.
      */
     @Override
-    public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+    public StreamCodec<KeyValPair<K, V>> getStreamCodec()
     {
       return getKeyValPairStreamCodec();
     }
   };
-  
+
   /**
    * Max value output port.
    */

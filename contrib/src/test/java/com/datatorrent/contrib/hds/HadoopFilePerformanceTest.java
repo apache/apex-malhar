@@ -17,7 +17,7 @@ package com.datatorrent.contrib.hds;
 
 import com.google.common.base.Stopwatch;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.hadoop.conf.Configuration;

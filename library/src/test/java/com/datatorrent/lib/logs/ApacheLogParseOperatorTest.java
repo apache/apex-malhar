@@ -17,7 +17,7 @@ package com.datatorrent.lib.logs;
 
 import com.datatorrent.lib.logs.ApacheLogParseOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

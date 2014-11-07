@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.testbench;
 
+import com.datatorrent.api.Operator.ShutdownException;
 import com.datatorrent.lib.testbench.SeedEventGenerator;
 
 import org.junit.Test;
@@ -62,10 +63,8 @@ public class SeedEventGeneratorTest
     node.beginWindow(1);
     try {
       node.emitTuples();
-    } catch (RuntimeException re) {
-      if ( !(re.getCause() instanceof InterruptedException)) {
-        throw re;
-      }
+    } catch (ShutdownException re) {
+      // this one is expected!
     }
     node.endWindow();
     node.teardown();

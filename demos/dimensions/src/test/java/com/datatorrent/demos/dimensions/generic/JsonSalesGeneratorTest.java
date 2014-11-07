@@ -21,7 +21,7 @@ package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
-import junit.framework.Assert;
+import org.junit.Assert;
 import org.codehaus.jackson.JsonParser;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Test;

@@ -15,17 +15,22 @@
  */
 package com.datatorrent.contrib.hds;
 
-import com.datatorrent.api.Context.OperatorContext;
+
+import com.google.common.base.Preconditions;
+
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
-import com.google.common.base.Preconditions;
+
+import com.datatorrent.api.Context.OperatorContext;
+
+import com.datatorrent.common.util.Slice;
 
 public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>
 {
   @Override
-  protected Class<? extends com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter.HDSCodec<KeyValPair<byte[], byte[]>>> getCodecClass()
+  protected com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter.HDSCodec<KeyValPair<byte[], byte[]>> getCodec()
   {
-    return BucketStreamCodec.class;
+    return new BucketStreamCodec();
   }
 
   public static class BucketStreamCodec extends KryoSerializableStreamCodec<KeyValPair<byte[], byte[]>> implements HDSCodec<KeyValPair<byte[], byte[]>>
@@ -38,7 +43,7 @@ public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte
       int length = t.getKey().length;
       int hash = 0;
       for (int i = length-4; i > 0 && i < length; i++) {
-        hash = hash << 8;
+        hash <<= 8;
         hash += t.getKey()[i];
       }
       return hash;
@@ -57,9 +62,9 @@ public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte
     }
 
     @Override
-    public KeyValPair<byte[], byte[]> fromKeyValue(byte[] key, byte[] value)
+    public KeyValPair<byte[], byte[]> fromKeyValue(Slice key, byte[] value)
     {
-      return new KeyValPair<byte[], byte[]>(key, value);
+      return new KeyValPair<byte[], byte[]>(key.buffer, value);
     }
   }
 

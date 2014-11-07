@@ -150,7 +150,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
     @Override
     public String toString()
     {
-      return "HDSRangeQuery{" +
+      return "TimeSeriesQuery{" +
           "id='" + id + '\'' +
           ", windowCountdown=" + windowCountdown +
           ", startTime=" + startTime +
@@ -207,7 +207,6 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
       return;
     }
 
-    @SuppressWarnings("unchecked")
     GenericAggregate ae = new GenericAggregate(eventSchema.convertQueryKeysToGenericEvent(queryParams.keys));
 
     long bucketKey = getBucketKey(ae);
@@ -261,9 +260,9 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
   }
 
   @Override
-  protected Class<? extends HDSCodec<GenericAggregate>> getCodecClass()
+  protected HDSCodec<GenericAggregate> getCodec()
   {
-    return GenericAggregateCodec.class;
+    return new GenericAggregateCodec();
   }
 
   @Override
@@ -335,7 +334,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
         }
         // results from persistent store
         if (query.processed && query.result != null) {
-          GenericAggregate ga = codec.fromKeyValue(query.key.buffer, query.result);
+          GenericAggregate ga = codec.fromKeyValue(query.key, query.result);
           if (ga.aggregates != null)
             res.data.add(eventSchema.convertAggregateEventToMap(ga));
         }

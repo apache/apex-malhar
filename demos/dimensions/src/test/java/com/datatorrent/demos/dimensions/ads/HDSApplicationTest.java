@@ -69,7 +69,7 @@ public class HDSApplicationTest
 
     conf.set("dt.operator.QueryResult.prop.configProperties(metadata.broker.list)", "localhost:9092");
 
-    conf.set("dt.operator.HDSOut.fileStore.basePath", "target/HDSApplicationTestStore");
+    conf.set("dt.operator.Store.fileStore.basePath", "target/HDSApplicationTestStore");
 
     conf.set("dt.operator.Query.brokerSet", "localhost:9092");
     conf.set("dt.operator.Query.topic", kafkaQueryTopic);

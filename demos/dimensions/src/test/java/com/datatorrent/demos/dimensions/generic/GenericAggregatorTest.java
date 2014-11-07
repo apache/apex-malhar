@@ -286,9 +286,8 @@ public class GenericAggregatorTest
 
 
   @Test
-  public void dimensionComputationTest() {
-    EventSchema eventSchema = GenericAggregateSerializerTest.getEventSchema();
-
+  public void dimensionComputationTest()
+  {
     GenericDimensionComputation dimensions = new GenericDimensionComputation();
     dimensions.setEventSchemaJSON(GenericAggregateSerializerTest.TEST_SCHEMA_JSON);
     dimensions.setup(null);

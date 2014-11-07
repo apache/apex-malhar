@@ -22,6 +22,8 @@ import com.datatorrent.api.Context.OperatorContext;
 
 import java.util.HashMap;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of BaseOperator that creates a load with pair of keys by taking in an input stream event and adding to incoming keys
@@ -61,6 +63,7 @@ import javax.validation.constraints.NotNull;
  */
 public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOperator
 {
+  private static final Logger logger = LoggerFactory.getLogger(EventClassifierNumberToHashDouble.class);
   public final transient DefaultInputPort<K> event = new DefaultInputPort<K>()
   {
     @Override
@@ -153,6 +156,7 @@ public class EventClassifierNumberToHashDouble<K extends Number> extends BaseOpe
    */
   public void setKey(String i)
   {
+    logger.debug("In setter of key");
     key = i;
   }
 

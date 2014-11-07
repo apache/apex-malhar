@@ -1,7 +1,9 @@
 package com.datatorrent.demos.dimensions.generic;
 
+import com.datatorrent.common.util.Slice;
 import com.google.common.collect.Maps;
-import junit.framework.Assert;
+
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -57,7 +59,7 @@ public class GenericAggregateSerializerTest
     GenericAggregate event = new GenericAggregate(eventSchema.convertMapToGenericEvent(eventMap));
 
     /* serialize and deserialize object */
-    byte[] keyBytes = ser.getKey(event);
+    Slice keyBytes = new Slice(ser.getKey(event));
     byte[] valBytes = ser.getValue(event);
 
     GenericAggregate ga = ser.fromBytes(keyBytes, valBytes);
@@ -96,7 +98,7 @@ public class GenericAggregateSerializerTest
     GenericAggregate event = new GenericAggregate(eventSchema.convertMapToGenericEvent(eventMap));
 
     /* serialize and deserialize object */
-    byte[] keyBytes = ser.getKey(event);
+    Slice keyBytes = new Slice(ser.getKey(event));
     byte[] valBytes = ser.getValue(event);
 
     GenericAggregate ga = ser.fromBytes(keyBytes, valBytes);

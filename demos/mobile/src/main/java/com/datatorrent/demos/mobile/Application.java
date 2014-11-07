@@ -15,24 +15,28 @@
  */
 package com.datatorrent.demos.mobile;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.StatsListener;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.io.*;
-import com.datatorrent.lib.testbench.RandomEventGenerator;
 import java.net.URI;
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Random;
-import org.apache.commons.lang.StringUtils;
+
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.Range;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StatsListener;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.lib.algo.StatelessThroughputBasedPartitioner;
+import com.datatorrent.lib.counters.BasicCounters;
+import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
+import com.datatorrent.lib.testbench.RandomEventGenerator;
 
 /**
  * Mobile Demo Application:
@@ -95,25 +99,25 @@ import org.slf4j.LoggerFactory;
  * phoneLocationQueryResult: {phone=5556101, location=(5,9), queryId=q3}
  * </pre>
  *
- *  * <b>Application DAG : </b><br>
+ * * <b>Application DAG : </b><br>
  * <img src="doc-files/mobile.png" width=600px > <br>
  *
  * @since 0.3.2
  */
-@ApplicationAnnotation(name="MobileDemo")
+@ApplicationAnnotation(name = "MobileDemo")
 public class Application implements StreamingApplication
 {
+  public static final String PHONE_RANGE_PROP = "dt.application.MobileDemo.phoneRange";
+  public static final String TOTAL_SEED_NOS = "dt.application.MobileDemo.totalSeedNumbers";
+  public static final String COOL_DOWN_MILLIS = "dt.application.MobileDemo.coolDownMillis";
+  public static final String MAX_THROUGHPUT = "dt.application.MobileDemo.maxThroughput";
+  public static final String MIN_THROUGHPUT = "dt.application.MobileDemo.minThroughput";
   private static final Logger LOG = LoggerFactory.getLogger(Application.class);
-  public static final String PHONE_RANGE_PROP = com.datatorrent.demos.mobile.Application.class.getName() + ".phoneRange";
-  public static final String TOTAL_SEED_NOS = com.datatorrent.demos.mobile.Application.class.getName() + ".totalSeedNumbers";
-
   private Range<Integer> phoneRange = Range.between(5550000, 5559999);
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.DEBUG, true);
-
     String lPhoneRange = conf.get(PHONE_RANGE_PROP, null);
     if (lPhoneRange != null) {
       String[] tokens = lPhoneRange.split("-");
@@ -124,68 +128,46 @@ public class Application implements StreamingApplication
     }
     LOG.debug("Phone range {}", this.phoneRange);
 
-    RandomEventGenerator phones = dag.addOperator("phonegen", RandomEventGenerator.class);
+    RandomEventGenerator phones = dag.addOperator("Receiver", RandomEventGenerator.class);
     phones.setMinvalue(this.phoneRange.getMinimum());
     phones.setMaxvalue(this.phoneRange.getMaximum());
-    phones.setTuplesBlast(200);
-    phones.setTuplesBlastIntervalMillis(5);
-    dag.setOutputPortAttribute(phones.integer_data, PortContext.QUEUE_CAPACITY, 32 * 1024);
 
-    PhoneMovementGenerator movementGen = dag.addOperator("pmove", PhoneMovementGenerator.class);
-    movementGen.setRange(20);
-    movementGen.setThreshold(80);
-    dag.setAttribute(movementGen, OperatorContext.INITIAL_PARTITION_COUNT, 2);
+    PhoneMovementGenerator movementGen = dag.addOperator("LocationFinder", PhoneMovementGenerator.class);
     dag.setAttribute(movementGen, OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
-    ThroughputBasedPartitioner<PhoneMovementGenerator> partitioner = new ThroughputBasedPartitioner<PhoneMovementGenerator>();
-    partitioner.setCooldownMillis(45000);
-    partitioner.setMaximumEvents(30000);
-    partitioner.setMinimumEvents(10000);
-    dag.setAttribute(movementGen,OperatorContext.STATS_LISTENERS, Arrays.asList(new StatsListener[]{partitioner}));
-    dag.setAttribute(movementGen,OperatorContext.PARTITIONER, partitioner);
-    dag.setInputPortAttribute(movementGen.data, PortContext.QUEUE_CAPACITY, 32 * 1024);
-
-    // default partitioning: first connected stream to movementGen will be partitioned
-    dag.addStream("phonedata", phones.integer_data, movementGen.data);
+    StatelessThroughputBasedPartitioner<PhoneMovementGenerator> partitioner = new StatelessThroughputBasedPartitioner<PhoneMovementGenerator>();
+    partitioner.setCooldownMillis(conf.getLong(COOL_DOWN_MILLIS, 45000));
+    partitioner.setMaximumEvents(conf.getLong(MAX_THROUGHPUT, 30000));
+    partitioner.setMinimumEvents(conf.getLong(MIN_THROUGHPUT, 10000));
+    dag.setAttribute(movementGen, OperatorContext.STATS_LISTENERS, Arrays.asList(new StatsListener[]{partitioner}));
+    dag.setAttribute(movementGen, OperatorContext.PARTITIONER, partitioner);
 
     // generate seed numbers
     Random random = new Random();
     int maxPhone = phoneRange.getMaximum() - phoneRange.getMinimum();
-    int phonesToDisplay = conf.getInt(TOTAL_SEED_NOS,10);
-
+    int phonesToDisplay = conf.getInt(TOTAL_SEED_NOS, 10);
     for (int i = phonesToDisplay; i-- > 0; ) {
       int phoneNo = phoneRange.getMinimum() + random.nextInt(maxPhone + 1);
       LOG.info("seed no: " + phoneNo);
       movementGen.phoneRegister.add(phoneNo);
     }
-
     // done generating data
     LOG.info("Finished generating seed data.");
 
     String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    if (!StringUtils.isEmpty(gatewayAddress)) {
-      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-      LOG.info("WebSocket with gateway at: {}", gatewayAddress);
+    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+    LOG.info("WebSocket with gateway at: {}", gatewayAddress);
 
-      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("phoneLocationQueryResultWS", new PubSubWebSocketOutputOperator<Object>());
-      wsOut.setUri(uri);
-      wsOut.setTopic("demos.mobile.phoneLocationQueryResult");
+    PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("LocationResults", new PubSubWebSocketOutputOperator<Object>());
+    wsOut.setUri(uri);
 
-      PubSubWebSocketInputOperator wsIn = dag.addOperator("phoneLocationQueryWS", new PubSubWebSocketInputOperator());
-      wsIn.setUri(uri);
-      wsIn.addTopic("demos.mobile.phoneLocationQuery");
+    PubSubWebSocketInputOperator<Map<String, String>> wsIn = dag.addOperator("QueryLocation", new PubSubWebSocketInputOperator<Map<String, String>>());
+    wsIn.setUri(uri);
 
-      dag.addStream("consoledata", movementGen.locationQueryResult, wsOut.input);
-      dag.addStream("query", wsIn.outputPort, movementGen.phoneQuery);
-    }
-    else {
-      // for testing purposes without server
-      movementGen.phoneRegister.add(5554995);
-      movementGen.phoneRegister.add(5556101);
-      ConsoleOutputOperator out = dag.addOperator("phoneLocationQueryResult", new ConsoleOutputOperator());
-      out.setStringFormat("phoneLocationQueryResult" + ": %s");
-      dag.addStream("consoledata", movementGen.locationQueryResult, out.input);
-    }
+    // default partitioning: first connected stream to movementGen will be partitioned
+    dag.addStream("Phone-Data", phones.integer_data, movementGen.data);
+    dag.addStream("Results", movementGen.locationQueryResult, wsOut.input);
+    dag.addStream("Query", wsIn.outputPort, movementGen.phoneQuery);
   }
 
 }

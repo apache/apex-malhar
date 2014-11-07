@@ -20,7 +20,7 @@ import java.util.Map;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
-import junit.framework.Assert;
+import org.junit.Assert;
 
 import org.junit.Test;
 import org.slf4j.Logger;
