@@ -59,7 +59,11 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   {
     return client;
   }
-
+  
+  public CouchbaseClient getMetaInstance()
+  {
+    return clientMeta;
+  }
   /**
    * setter for password
    *
@@ -92,9 +96,12 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public long getCommittedWindowId(String appId, int operatorId)
   {
+    logger.info("in getCommittedWindowId");
     byte[] value = null;
     String key = appId + "_" + operatorId + "_" + lastWindowValue;
+    logger.info("key is" + key);
     value = (byte[])clientMeta.get(key);
+    logger.info("value is" + value);
     if (value != null) {
       long longval = toLong(value);
       return longval;
@@ -105,6 +112,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public void storeCommittedWindowId(String appId, int operatorId, long windowId)
   {
+    logger.info("in storeCommittedWindowId");
     byte[] WindowIdBytes = toBytes(windowId);
     String key = appId + "_" + operatorId + "_" + lastWindowValue;
     try {

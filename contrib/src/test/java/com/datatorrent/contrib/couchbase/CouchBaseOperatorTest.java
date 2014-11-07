@@ -16,18 +16,20 @@ import org.junit.*;
 import org.python.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.datatorrent.contrib.couchbase.AbstractCouchBaseOutputOperator.CouchBaseJSONSerializer;
+
 
 public class CouchBaseOperatorTest
 {
 
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseOperatorTest.class);
   private static String APP_ID = "CouchBaseOperatorTest";
-  private static String bucket = "default";
+  private static String bucket = "new";
   private static String password = "";
   private static int OPERATOR_ID = 0;
   protected static ArrayList<URI> nodes = new ArrayList<URI>();
-  protected static ArrayList<String> keyList = new ArrayList<String>();
-  private static String uri = "127.0.0.1:8091";
+  protected static ArrayList<String> keyList;
+  private static String uri = "node13.morado.com:8091,node14.morado.com:8091";
 
   private static class TestEvent implements Serializable
   {
@@ -50,16 +52,16 @@ public class CouchBaseOperatorTest
     CouchBaseWindowStore store = new CouchBaseWindowStore();
     store.setBucket(bucket);
     store.setPassword(password);
-
     store.setUriString(uri);
+    keyList = new ArrayList<String>();
     try {
       store.connect();
     }
     catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
-
     store.getInstance().flush();
+    store.getMetaInstance().flush();
     CouchBaseOutputOperator outputOperator = new CouchBaseOutputOperator();
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
@@ -68,23 +70,36 @@ public class CouchBaseOperatorTest
     outputOperator.setStore(store);
 
     outputOperator.setup(context);
-
+    CouchBaseJSONSerializer serializer = new CouchBaseJSONSerializer();
+    outputOperator.setSerializer(serializer);
     List<TestEvent> events = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
       events.add(new TestEvent("key" + i, i));
+      keyList.add("key" + i);
     }
-
+    
+   logger.info("keylist is " + keyList.toString());
     outputOperator.beginWindow(0);
+logger.info("after begin window");
     for (TestEvent event: events) {
+logger.info("before process window");
+      outputOperator.generateKey(event);
+      outputOperator.getValue(event);
       outputOperator.input.process(event);
+logger.info("after process window");
     }
+logger.info("before endwindow");
     outputOperator.endWindow();
-
-    Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
+logger.info("after endwindow");
+     Map<String, Object> keyValues = store.getInstance().getBulk(keyList);
+      logger.info("keyValues is" + keyValues.toString());
+      logger.info("size is " + keyValues.size());
+    int k = outputOperator.getNumOfEventsInStore();
+    Assert.assertEquals("rows in db", 10, keyValues.size());
 
   }
-
-  @Test
+  
+  
   public void TestCouchBaseUpdateOutputOperator()
   {
     CouchBaseWindowStore store = new CouchBaseWindowStore();
@@ -99,13 +114,13 @@ public class CouchBaseOperatorTest
     catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
-
+    store.getInstance().flush();
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
     CouchBaseUpdateOperator updateOperator = new CouchBaseUpdateOperator();
-
+    keyList = new ArrayList<String>();
     updateOperator.setStore(store);
 
     updateOperator.setup(context);
@@ -113,20 +128,22 @@ public class CouchBaseOperatorTest
     List<TestEvent> events = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
       events.add(new TestEvent("key" + i, i));
+      keyList.add("key" + i);
     }
 
     updateOperator.beginWindow(0);
     for (TestEvent event: events) {
-      updateOperator.input.put(event);
+      updateOperator.generateKey(event);
+      updateOperator.getValue(event);
+      updateOperator.input.process(event);
     }
     updateOperator.endWindow();
     Assert.assertEquals("rows in db", 10, updateOperator.getNumOfEventsInStore());
   }
 
-  @Test
   public void TestCouchBaseInputOperator()
   {
-    CouchBaseStore store = new CouchBaseStore();
+    CouchBaseWindowStore store = new CouchBaseWindowStore();
     store.setBucket(bucket);
     store.setPassword(password);
     store.setUriString(uri);
@@ -151,12 +168,10 @@ public class CouchBaseOperatorTest
 
     inputOperator.setup(context);
     inputOperator.beginWindow(0);
-    for (int i = 0; i < 100; i++) {
-      inputOperator.emitTuples();
-    }
+    inputOperator.emitTuples();
     inputOperator.endWindow();
 
-    Assert.assertEquals("rows from db", 100, sink.collectedTuples.size());
+    Assert.assertEquals("tuples in couchbase", 100, sink.collectedTuples.size());
   }
 
   public static class TestInputOperator extends AbstractCouchBaseInputOperator<String>
@@ -180,7 +195,7 @@ public class CouchBaseOperatorTest
     {
       String key = null;
       Integer value = null;
-
+      logger.info("number of events is" + numEvents);
       for (int i = 0; i < numEvents; i++) {
         key = String.valueOf("Key" + i * 10);
         keyList.add(key);
@@ -213,17 +228,15 @@ public class CouchBaseOperatorTest
     @Override
     public String generateKey(TestEvent tuple)
     {
-      tuple.key = "new";
       return tuple.key;
     }
 
     @Override
-    public Object getObject(TestEvent tuple)
+    public Object getValue(TestEvent tuple)
     {
       tuple.value = 20;
       return tuple.value;
     }
-
   }
 
   private static class CouchBaseUpdateOperator extends AbstractUpdateCouchBaseOutputOperator<TestEvent>
@@ -239,13 +252,11 @@ public class CouchBaseOperatorTest
     @Override
     public String generateKey(TestEvent tuple)
     {
-      tuple.key = "update";
       return tuple.key;
-
     }
 
     @Override
-    public Object getObject(TestEvent tuple)
+    public Object getValue(TestEvent tuple)
     {
       tuple.value = 100;
       return tuple.value;
@@ -254,4 +265,6 @@ public class CouchBaseOperatorTest
   }
 
 }
+
+
 

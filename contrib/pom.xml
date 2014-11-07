@@ -15,7 +15,7 @@
   <properties>
     <!-- skip tests by default as they depend on manual setup -->
     <skip.contrib.module.tests>false</skip.contrib.module.tests>
-    <skipTests>true</skipTests>
+    <skipTests>false</skipTests>
   </properties>
   <repositories>
     <repository>
@@ -528,5 +528,15 @@
       <version>1.4.4</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+          <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                      <version>4.3</version>
+                          </dependency>
+                              <dependency>
+                              	<groupId>org.apache.httpcomponents</groupId>
+                              		<artifactId>httpcore-nio</artifactId>
+                              			<version>4.3</version>
+                              			</dependency>
   </dependencies>
 </project>

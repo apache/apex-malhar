@@ -17,7 +17,6 @@ package com.datatorrent.contrib.couchbase;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
 
 import com.google.common.collect.Lists;
 
@@ -47,7 +46,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
   private List<T> tuples;
   protected int numTuples;
-  protected transient CountDownLatch countLatch ;
+  protected transient Latch countLatch ;
   protected CouchBaseSerializer serializer;
 
   public AbstractCouchBaseOutputOperator()
@@ -68,7 +67,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 
   @Override
   public void beginWindow(long windowId){
-     countLatch = new CountDownLatch(store.batchSize);
+     countLatch = new Latch(store.batchSize);
      numTuples = 0;
      super.beginWindow(windowId);
   }
@@ -76,6 +75,8 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void processTuple(T tuple)
   {
+    logger.info("in processTuple");
+    logger.info("tuple is" + tuple.toString());
     tuples.add(tuple);
     setTuple(tuple);
     waitForBatch(false);
@@ -84,11 +85,15 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   public void setTuple(T tuple)
   {
     numTuples++;
+    logger.info("number of tuples is" + numTuples);
     String key = generateKey(tuple);
+    logger.info("key is " + key);
     Object value = getValue(tuple);
+    logger.info("value before serialization is " + value);
     if (serializer != null) {
       value = serializer.serialize(value);
     }
+    logger.info("value after serialization is" + value);
     processKeyValue(key, value);
   }
 
@@ -100,6 +105,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void storeAggregate()
   {
+    logger.info("in storeaggregate");
     waitForBatch(true);
   }
 
@@ -107,13 +113,14 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   {
     if ((numTuples >= store.batchSize) || endWindow) {
       try {
-        countLatch.await();
+        logger.info("in endwindow");
+        countLatch.await(store.batchSize - numTuples);
       } catch (InterruptedException ex) {
         logger.error("Interrupted exception" + ex);
         DTThrowable.rethrow(ex);
       }
       tuples.clear();
-      numTuples = 0;
+      //numTuples = 0;
     }
   }
 
@@ -168,4 +175,37 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 
   protected abstract void processKeyValue(String key, Object value);
 
+  private class Latch {
+  private final Object synchObj = new Object();
+  private int count;
+
+  public Latch(int noThreads) {
+    synchronized (synchObj) {
+      logger.info("count is " + count);
+      this.count = noThreads;
+    }
+  }
+  public void await(int difference) throws InterruptedException {
+    synchronized (synchObj) {
+     logger.info("store.batchsize is " + store.batchSize);
+     logger.info("numTuples is " + numTuples);
+      while (count > difference){
+        logger.info("count is" + count);
+        synchObj.wait();
+      }
+    }
+  }
+  public void countDown() {
+    synchronized (synchObj) {
+      logger.info("count is" + count);
+      logger.info("store.batchsize is" + store.batchSize);
+      logger.info("numTuples is " + numTuples);
+      if (--count <= 0) {
+      logger.info("count is" +count);
+        synchObj.notifyAll();
+      }
+    }
+  }
 }
+}
+
