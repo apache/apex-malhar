@@ -18,18 +18,17 @@ package com.datatorrent.lib.math;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.StreamCodec;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 import com.datatorrent.lib.util.HighLow;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.UnifierKeyValRange;
 
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.StreamCodec;
+
 /**
- *  This operator emits the range for each key at the end of window. 
+ *  This operator emits the range for each key at the end of window.
  * <p>
  * <br>
  * <b>StateFull : Yes</b>, values are computed over application window. <br>
@@ -56,12 +55,12 @@ public class RangeKeyVal<K, V extends Number> extends
 	 * key/high value map.
 	 */
 	protected HashMap<K, V> high = new HashMap<K, V>();
-	
+
 	/**
 	 * key/low value map.
 	 */
 	protected HashMap<K, V> low = new HashMap<K, V>();
-	
+
 	/**
 	 *  Input port that takes a key value pair.
 	 */
@@ -90,7 +89,7 @@ public class RangeKeyVal<K, V extends Number> extends
 		}
 
 		@Override
-		public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+		public StreamCodec<KeyValPair<K, V>> getStreamCodec()
 		{
 			return getKeyValPairStreamCodec();
 		}

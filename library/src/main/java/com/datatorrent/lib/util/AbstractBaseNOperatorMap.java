@@ -15,12 +15,12 @@
  */
 package com.datatorrent.lib.util;
 
+import java.util.Map;
+
+import javax.validation.constraints.Min;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.StreamCodec;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
-import java.util.Map;
-import javax.validation.constraints.Min;
 
 /**
  * This is the base implementation for the Top N sorting operators.&nbsp;
@@ -63,9 +63,9 @@ abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator
     }
 
     @Override
-    public Class<? extends StreamCodec<Map<K, V>>> getStreamCodec()
+    public StreamCodec<Map<K, V>> getStreamCodec()
     {
-      Class<? extends StreamCodec<Map<K, V>>> streamCodec = AbstractBaseNOperatorMap.this.getStreamCodec();
+      StreamCodec<Map<K, V>> streamCodec = AbstractBaseNOperatorMap.this.getStreamCodec();
       if (streamCodec == null) {
         return super.getStreamCodec();
       } else {
@@ -107,7 +107,7 @@ abstract public class AbstractBaseNOperatorMap<K,V> extends BaseKeyValueOperator
   /*
    * Provides ability for implemented operators to provide their own stream codec
    */
-  protected Class<? extends StreamCodec<Map<K, V>>> getStreamCodec()
+  protected StreamCodec<Map<K, V>> getStreamCodec()
   {
     return null;
   }

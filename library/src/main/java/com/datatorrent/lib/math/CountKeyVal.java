@@ -75,7 +75,7 @@ public class CountKeyVal<K, V> extends BaseKeyValueOperator<K, V>
 		}
 
 		@Override
-		public Class<? extends StreamCodec<KeyValPair<K, V>>> getStreamCodec()
+		public StreamCodec<KeyValPair<K, V>> getStreamCodec()
 		{
 			return getKeyValPairStreamCodec();
 		}

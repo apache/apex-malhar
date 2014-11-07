@@ -71,9 +71,9 @@ public class DimensionOperator extends BaseOperator implements Partitioner<Dimen
     }
 
     @Override
-    public Class<? extends StreamCodec<Map<String, Object>>> getStreamCodec()
+    public StreamCodec<Map<String, Object>> getStreamCodec()
     {
-      return DimensionOperatorStreamCodec.class;
+      return new DimensionOperatorStreamCodec();
     }
 
   };
@@ -568,6 +568,7 @@ public class DimensionOperator extends BaseOperator implements Partitioner<Dimen
 
     }
 
+    private static final long serialVersionUID = 1L;
   }
 
 }
