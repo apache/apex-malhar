@@ -22,10 +22,18 @@
   </property>
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.bucket</name>
-    <value>new</value>
+    <value>default</value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.password</name>
+    <value>""</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.bucketMeta</name>
+    <value>default</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.passwordMeta</name>
     <value>""</value>
   </property>
   <property>
@@ -59,23 +67,38 @@
   </property>
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.bucket</name>
-    <value>new</value>
+    <value>default</value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.password</name>
     <value>""</value>
   </property>
-
+  <property>
+    <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.bucketMeta</name>
+    <value>default</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.passwordMeta</name>
+    <value>""</value>
+  </property>
   <property>
     <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.uriString</name>
     <value>node13.morado.com:8091,node14.morado.com:8091</value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.bucket</name>
-    <value>new</value>
+    <value>default</value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.password</name>
+    <value>""</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.bucketMeta</name>
+    <value>default</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.passwordMeta</name>
     <value>""</value>
   </property>
   <property>
