@@ -41,41 +41,32 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   private static final transient String DEFAULT_LAST_WINDOW_PREFIX = "last_window";
   private transient String lastWindowValue;
   protected transient CouchbaseClient clientMeta;
+  protected String bucketMeta;
+  protected String passwordMeta;
 
   public CouchBaseWindowStore()
   {
     clientMeta = null;
     lastWindowValue = DEFAULT_LAST_WINDOW_PREFIX;
+    bucketMeta = "default";
+    passwordMeta = "";
   }
 
-  @Override
-  public void setBucket(String bucketName)
+  public void setBucketMeta(String bucketName)
   {
-    super.setBucket(bucketName);
+    bucketMeta = bucketName;
   }
 
-  @Override
-  public CouchbaseClient getInstance()
+  public void setPasswordMeta(String passwordMeta)
   {
-    return client;
+    this.passwordMeta = passwordMeta;
   }
-  
+
   public CouchbaseClient getMetaInstance()
   {
     return clientMeta;
   }
-  /**
-   * setter for password
-   *
-   * @param password
-   */
-  @Override
-  public void setPassword(String password)
-  {
-    super.setPassword(password);
-  }
 
-  //public void connect() throws IOException
   @Override
   public void connect() throws IOException
   {
@@ -85,7 +76,8 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
       CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
       cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
       cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
-      clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, "metadata", password));
+      clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs,bucketMeta, passwordMeta));
+      //clientMeta = new CouchbaseClient(baseURIs, "default", "");
     }
     catch (IOException e) {
       logger.error("Error connecting to Couchbase: " + e.getMessage());

@@ -290,13 +290,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>com.google.code.simple-spring-memcached</groupId>
-      <artifactId>spymemcached</artifactId>
-      <version>2.8.4</version>
-      <type>jar</type>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>org.fusesource.mqtt-client</groupId>
       <artifactId>mqtt-client</artifactId>
       <version>1.6</version>
@@ -515,6 +508,12 @@
       <artifactId>libthrift</artifactId>
       <version>0.9.0</version>
       <optional>true</optional>
+      <exclusions>
+            <exclusion>
+                      <groupId>org.apache.httpcomponents</groupId>
+                                <artifactId>httpcore</artifactId>
+                                      </exclusion>
+                                            </exclusions>
     </dependency>
     <dependency>
       <groupId>com.aerospike</groupId>
