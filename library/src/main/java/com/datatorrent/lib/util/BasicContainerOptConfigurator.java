@@ -1,3 +1,19 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 package com.datatorrent.lib.util;
 
 import java.util.List;
@@ -20,9 +36,9 @@ import com.datatorrent.api.DAG;
  * This aggregates the heap size configurations for Xmx, Xms, Xss. If Xmx is not set for an operator, it is set to 75% of the operator memory <br>
  * For other JVM options it assumes that they are all set same for all operators deployed in container. If JVM options are set on only one operator in the container,then those configurations will be applied to all the operators deployed in the container
  */
-public class DefaultContainerOptConfigurator implements Context.ContainerOptConfigurator
+public class BasicContainerOptConfigurator implements Context.ContainerOptConfigurator
 {
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultContainerOptConfigurator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(BasicContainerOptConfigurator.class);
   private static final String XMX = "-Xmx";
   private static final String XMS = "-Xms";
   private static final String XSS = "-Xss";
@@ -42,7 +58,7 @@ public class DefaultContainerOptConfigurator implements Context.ContainerOptConf
     List<Map<String, Object>> jvmOptsList = Lists.newArrayList();
     for (DAG.OperatorMeta operatorMeta : operatorMetaList) {
       Map<String, Object> operatorMap = parseJvmOpts(operatorMeta.getValue(Context.OperatorContext.JVM_OPTIONS), operatorMeta.getValue(Context.OperatorContext.MEMORY_MB));
-      LOG.info("property map for operator {}",operatorMap);
+      LOG.info("property map for operator {}", operatorMap);
       Set<String> operatorPropertySet = (Set<String>) operatorMap.get(GENERIC);
       if (genericProperties == null) {
         genericProperties = operatorPropertySet;
