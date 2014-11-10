@@ -2,15 +2,15 @@ package com.datatorrent.lib.codec;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.base.Preconditions;
-
 import com.datatorrent.api.StreamCodec;
-
 import com.datatorrent.common.util.Slice;
 
 /**
@@ -22,10 +22,17 @@ import com.datatorrent.common.util.Slice;
  */
 public class KryoSerializableStreamCodec<T> implements StreamCodec<T>, Serializable
 {
-  protected transient final Kryo kryo;
+  protected transient Kryo kryo;
 
   public KryoSerializableStreamCodec()
   {
+    this.kryo = new Kryo();
+    this.kryo.setClassLoader(Thread.currentThread().getContextClassLoader());
+  }
+
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+  {
+    in.defaultReadObject();
     this.kryo = new Kryo();
     this.kryo.setClassLoader(Thread.currentThread().getContextClassLoader());
   }
@@ -65,6 +72,7 @@ public class KryoSerializableStreamCodec<T> implements StreamCodec<T>, Serializa
   {
     ByteArrayOutputStream os = new ByteArrayOutputStream();
     Output output = new Output(os);
+
     kryo.writeClassAndObject(output, info);
     output.flush();
     return new Slice(os.toByteArray(), 0, os.toByteArray().length);
