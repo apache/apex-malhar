@@ -111,17 +111,28 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 
   public void waitForBatch(boolean endWindow)
   {
-    if ((numTuples >= store.batchSize) || endWindow) {
+    if ((numTuples >= store.batchSize) && !endWindow) {
       try {
-        logger.info("in endwindow");
-        countLatch.await(store.batchSize - numTuples);
+        logger.info("not in endwindow");
+        countLatch.await(numTuples-store.batchSize);
       } catch (InterruptedException ex) {
         logger.error("Interrupted exception" + ex);
         DTThrowable.rethrow(ex);
       }
       tuples.clear();
-      //numTuples = 0;
     }
+    else if(endWindow)
+    {
+       try {
+        logger.info("In endwindow");
+        countLatch.await(store.timeout);
+      } catch (InterruptedException ex) {
+        logger.error("Interrupted exception" + ex);
+        DTThrowable.rethrow(ex);
+      }
+      tuples.clear();
+    }
+
   }
 
   protected class CompletionListener implements OperationCompletionListener
