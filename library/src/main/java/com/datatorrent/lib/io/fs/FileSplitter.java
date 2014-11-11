@@ -53,7 +53,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
   protected IdempotentStorageManager idempotentStorageManager;
 
   protected transient long currentWindowId;
-  protected transient List<String> currentWindowState;
+  protected transient List<String> currentWindowRecoveryState;
 
   public FileSplitter()
   {
@@ -61,7 +61,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     pendingFiles = Sets.newLinkedHashSet();
     blockSize = null;
     idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    currentWindowState = Lists.newArrayList();
+    currentWindowRecoveryState = Lists.newArrayList();
   }
 
   public final transient DefaultOutputPort<FileMetadata> filesMetadataOutput = new DefaultOutputPort<FileMetadata>();
@@ -124,7 +124,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     Iterator<String> pendingIterator = pendingFiles.iterator();
     while (pendingIterator.hasNext()) {
       String fPath = pendingIterator.next();
-      currentWindowState.add(fPath);
+      currentWindowRecoveryState.add(fPath);
       LOG.debug("file {}", fPath);
       try {
         FileMetadata fileMetadata = buildFileMetadata(fPath);
@@ -145,13 +145,15 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
   public void endWindow()
   {
     super.endWindow();
-    try {
-      idempotentStorageManager.save(currentWindowState, operatorId, currentWindowId);
-      currentWindowState.clear();
+    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+      try {
+        idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+      }
+      catch (IOException e) {
+        throw new RuntimeException("saving recovery", e);
+      }
     }
-    catch (IOException e) {
-      throw new RuntimeException("saving recovery", e);
-    }
+    currentWindowRecoveryState.clear();
   }
 
   /**
