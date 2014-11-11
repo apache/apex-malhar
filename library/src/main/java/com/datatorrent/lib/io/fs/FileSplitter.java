@@ -32,6 +32,7 @@ import com.google.common.collect.Sets;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.lib.io.IdempotentStorageManager;
 
@@ -43,6 +44,7 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
  * @category Input
  * @tags file, input operator
  */
+@OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.FileMetadata> implements Operator.CheckpointListener
 {
   protected Long blockSize;
