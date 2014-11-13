@@ -43,7 +43,7 @@ import com.datatorrent.common.util.DTThrowable;
 public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, CouchBaseWindowStore>
 {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
-  protected ConcurrentHashMap<OperationFuture, Long> mapFuture;
+  protected transient ConcurrentHashMap<OperationFuture, Long> mapFuture;
   protected int numTuples;
   protected transient Latch countLatch;
   protected CouchBaseSerializer serializer;
@@ -132,6 +132,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
       }
       catch (InterruptedException ex) {
         logger.error("Interrupted exception" + ex);
+        DTThrowable.rethrow(ex);
       }
     }
   }
@@ -218,7 +219,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
       synchronized (synchObj) {
         startTms = System.currentTimeMillis();
 
-        logger.info("difference is" + difference);
+        //logger.info("difference is" + difference);
         if (difference >= 0) {
           while (count > difference) {
             if (difference > 0) {
@@ -230,7 +231,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
                 logger.error("Timeout error");
                 throw new TimeoutException();
               }
-              logger.info("elapsedTime is " + elapsedTime);
+              //logger.info("elapsedTime is " + elapsedTime);
             }
             if (difference <= 0) {
               synchObj.wait(timeout);

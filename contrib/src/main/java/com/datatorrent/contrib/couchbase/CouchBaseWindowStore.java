@@ -38,10 +38,10 @@ import com.datatorrent.common.util.DTThrowable;
 public class CouchBaseWindowStore extends CouchBaseStore implements TransactionableStore
 {
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseWindowStore.class);
-  private static final transient String DEFAULT_LAST_WINDOW_PREFIX = "last_window";
-  private transient String lastWindowValue;
+  private static final String DEFAULT_LAST_WINDOW_PREFIX = "last_window";
+  private static String lastWindowValue;
   protected transient CouchbaseClient clientMeta;
-  protected String bucketMeta;
+  protected static String bucketMeta;
 
   public String getBucketMeta()
   {
@@ -100,7 +100,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public long getCommittedWindowId(String appId, int operatorId)
   {
-    logger.info("in getCommittedWindowId");
+    //logger.info("in getCommittedWindowId");
     byte[] value = null;
     String key = appId + "_" + operatorId + "_" + lastWindowValue;
     logger.info("key is" + key);
@@ -116,7 +116,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public void storeCommittedWindowId(String appId, int operatorId, long windowId)
   {
-    logger.info("in storeCommittedWindowId");
+    //logger.info("in storeCommittedWindowId");
     byte[] WindowIdBytes = toBytes(windowId);
     String key = appId + "_" + operatorId + "_" + lastWindowValue;
     try {
