@@ -70,6 +70,9 @@ public class CouchBaseOutputOperatorTest
     store.setBucket(bucket);
     store.setPassword(password);
     store.setUriString(uri);
+    store.setBatchSize(100);
+    store.setMaxTuples(1000);
+    store.setTimeout(10000);
     keyList = new ArrayList<String>();
     try {
       store.connect();

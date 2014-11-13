@@ -16,9 +16,11 @@
 package com.datatorrent.contrib.couchbase;
 
 import java.io.IOException;
-import java.util.List;
-
-import com.google.common.collect.Lists;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
+import java.util.concurrent.TimeoutException;
+import net.spy.memcached.internal.OperationCompletionListener;
+import net.spy.memcached.internal.OperationFuture;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -29,9 +31,6 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
 import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.common.util.DTThrowable;
-
-import net.spy.memcached.internal.OperationCompletionListener;
-import net.spy.memcached.internal.OperationFuture;
 
 /**
  * AbstractCouchBaseOutputOperator which extends Transactionable Store Output Operator.
@@ -44,40 +43,54 @@ import net.spy.memcached.internal.OperationFuture;
 public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, CouchBaseWindowStore>
 {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
-  private List<T> tuples;
+  protected ConcurrentHashMap<OperationFuture, Long> mapFuture;
   protected int numTuples;
-  protected transient Latch countLatch ;
+  protected transient Latch countLatch;
   protected CouchBaseSerializer serializer;
+  protected ConcurrentSkipListMap<Long, T> mapTuples;
+  protected long id = 0;
+  protected transient OperationFuture<Boolean> future;
+  private transient CompletionListener listener;
 
   public AbstractCouchBaseOutputOperator()
   {
-    tuples = Lists.newArrayList();
+    mapFuture = new ConcurrentHashMap<OperationFuture, Long>();
+    mapTuples = new ConcurrentSkipListMap<Long, T>();
     store = new CouchBaseWindowStore();
+    listener = new CompletionListener();
+
   }
 
   @Override
   public void setup(OperatorContext context)
   {
     ProcessingMode mode = context.getValue(context.PROCESSING_MODE);
-    if (mode == ProcessingMode.AT_MOST_ONCE) {
-      tuples.clear();
+    if (mode == ProcessingMode.AT_MOST_ONCE || mode == ProcessingMode.AT_LEAST_ONCE) {
+      //map must be cleared to avoid writing same data twice
+      mapFuture.clear();
+    }
+
+    //atleast once, check leftovers in map and send them to couchbase.
+    if (!mapTuples.isEmpty()) {
+      T[] tuplesLeft = (T[])mapTuples.values().toArray();
+      for (int i = 0; i < tuplesLeft.length; i++) {
+        processTuple(tuplesLeft[i]);
+      }
     }
     super.setup(context);
   }
 
   @Override
-  public void beginWindow(long windowId){
-     countLatch = new Latch(store.batchSize);
-     numTuples = 0;
-     super.beginWindow(windowId);
+  public void beginWindow(long windowId)
+  {
+    countLatch = new Latch(store.batchSize);
+    numTuples = 0;
+    super.beginWindow(windowId);
   }
 
   @Override
   public void processTuple(T tuple)
   {
-    logger.info("in processTuple");
-    logger.info("tuple is" + tuple.toString());
-    tuples.add(tuple);
     setTuple(tuple);
     waitForBatch(false);
   }
@@ -85,54 +98,42 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   public void setTuple(T tuple)
   {
     numTuples++;
-    logger.info("number of tuples is" + numTuples);
+    id++;
     String key = generateKey(tuple);
-    logger.info("key is " + key);
     Object value = getValue(tuple);
-    logger.info("value before serialization is " + value);
     if (serializer != null) {
       value = serializer.serialize(value);
     }
-    logger.info("value after serialization is" + value);
-    processKeyValue(key, value);
-  }
-
-  public List<T> getTuples()
-  {
-    return tuples;
+    future = processKeyValue(key, value);
+    future.addListener(listener);
+    mapFuture.put(future, id);
+    if (!mapTuples.containsKey(id)) {
+      mapTuples.put(id, tuple);
+    }
   }
 
   @Override
   public void storeAggregate()
   {
-    logger.info("in storeaggregate");
     waitForBatch(true);
+    id = 0;
   }
 
   public void waitForBatch(boolean endWindow)
   {
-    if ((numTuples >= store.batchSize) && !endWindow) {
+    int difference = numTuples - store.batchSize;
+    if (difference >= 0 || endWindow) {
       try {
-        logger.info("not in endwindow");
-        countLatch.await(numTuples-store.batchSize);
-      } catch (InterruptedException ex) {
-        logger.error("Interrupted exception" + ex);
+        countLatch.await(difference, store.timeout);
+      }
+      catch (TimeoutException ex) {
+        logger.error("Timeout exception" + ex);
         DTThrowable.rethrow(ex);
       }
-      tuples.clear();
-    }
-    else if(endWindow)
-    {
-       try {
-        logger.info("In endwindow");
-        countLatch.await(store.timeout);
-      } catch (InterruptedException ex) {
+      catch (InterruptedException ex) {
         logger.error("Interrupted exception" + ex);
-        DTThrowable.rethrow(ex);
       }
-      tuples.clear();
     }
-
   }
 
   protected class CompletionListener implements OperationCompletionListener
@@ -143,15 +144,26 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
       if (!((Boolean)f.get())) {
         throw new RuntimeException("Operation failed " + f);
       }
+      long idProcessed = mapFuture.get(f);
+      //listID.remove(idProcessed);
+      if (mapTuples.containsKey(idProcessed)) {
+        mapTuples.remove(idProcessed);
+      }
+      if (mapFuture.containsKey(f)) {
+        mapFuture.remove(f);
+      }
       countLatch.countDown();
     }
+
   }
 
-  public static class CouchBaseJSONSerializer implements CouchBaseSerializer {
+  public static class CouchBaseJSONSerializer implements CouchBaseSerializer
+  {
 
     private ObjectMapper mapper;
 
-    public CouchBaseJSONSerializer() {
+    public CouchBaseJSONSerializer()
+    {
       mapper = new ObjectMapper();
     }
 
@@ -168,6 +180,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
       }
       return value;
     }
+
   }
 
   public CouchBaseSerializer getSerializer()
@@ -184,39 +197,59 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 
   public abstract Object getValue(T tuple);
 
-  protected abstract void processKeyValue(String key, Object value);
+  protected abstract OperationFuture processKeyValue(String key, Object value);
 
-  private class Latch {
-  private final Object synchObj = new Object();
-  private int count;
+  private class Latch
+  {
+    private final Object synchObj = new Object();
+    private int count;
+    private long startTms = 0L;
+    boolean wasSignalled = false;
 
-  public Latch(int noThreads) {
-    synchronized (synchObj) {
-      logger.info("count is " + count);
-      this.count = noThreads;
-    }
-  }
-  public void await(int difference) throws InterruptedException {
-    synchronized (synchObj) {
-     logger.info("store.batchsize is " + store.batchSize);
-     logger.info("numTuples is " + numTuples);
-      while (count > difference){
-        logger.info("count is" + count);
-        synchObj.wait();
+    public Latch(int noThreads)
+    {
+      synchronized (synchObj) {
+        this.count = noThreads;
       }
     }
-  }
-  public void countDown() {
-    synchronized (synchObj) {
-      logger.info("count is" + count);
-      logger.info("store.batchsize is" + store.batchSize);
-      logger.info("numTuples is " + numTuples);
-      if (--count <= 0) {
-      logger.info("count is" +count);
-        synchObj.notifyAll();
+
+    public void await(int difference, long timeout) throws InterruptedException, TimeoutException
+    {
+      synchronized (synchObj) {
+        startTms = System.currentTimeMillis();
+
+        logger.info("difference is" + difference);
+        if (difference >= 0) {
+          while (count > difference) {
+            if (difference > 0) {
+              long elapsedTime = System.currentTimeMillis() - startTms;
+              if (elapsedTime > 0) {
+                synchObj.wait(timeout - elapsedTime);
+              }
+              else {
+                logger.error("Timeout error");
+                throw new TimeoutException();
+              }
+              logger.info("elapsedTime is " + elapsedTime);
+            }
+            if (difference <= 0) {
+              synchObj.wait(timeout);
+            }
+          }
+        }
       }
     }
-  }
-}
-}
 
+    public void countDown()
+    {
+      synchronized (synchObj) {
+        if (--count <= 0) {
+          wasSignalled = true;
+          synchObj.notifyAll();
+        }
+      }
+    }
+
+  }
+
+}

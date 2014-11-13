@@ -53,15 +53,15 @@ public class CouchBaseStore implements Connectable
   protected Integer batchSize = 100;
   protected Integer maxTuples = 1000;
   protected int blockTime = 10000;
-  protected int timeout = 10000;
+  protected long timeout = 10000;
   protected int shutdownTimeout = 60;
 
-  public int getTimeout()
+  public long getTimeout()
   {
     return timeout;
   }
 
-  public void setTimeout(int timeout)
+  public void setTimeout(long timeout)
   {
     this.timeout = timeout;
   }

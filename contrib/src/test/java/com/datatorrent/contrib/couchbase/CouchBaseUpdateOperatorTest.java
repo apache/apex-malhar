@@ -54,8 +54,10 @@ public class CouchBaseUpdateOperatorTest
 
     store.setBucket(bucket);
     store.setPassword(password);
-
     store.setUriString(uri);
+    store.setBatchSize(100);
+    store.setMaxTuples(1000);
+    store.setTimeout(10000);
     try {
       store.connect();
     }
@@ -111,6 +113,7 @@ public class CouchBaseUpdateOperatorTest
       tuple.value = 100;
       return tuple.value;
     }
+
 
   }
 

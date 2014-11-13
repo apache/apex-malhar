@@ -15,8 +15,6 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.api.Context;
-
 import net.spy.memcached.internal.OperationFuture;
 
 /**
@@ -24,21 +22,13 @@ import net.spy.memcached.internal.OperationFuture;
  */
 public abstract class AbstractUpdateCouchBaseOutputOperator<T> extends AbstractCouchBaseOutputOperator<T>
 {
-
-  private transient CompletionListener listener;
-
   @Override
-  public void setup(Context.OperatorContext context)
+  public OperationFuture processKeyValue(String key, Object value)
   {
-    super.setup(context);
-    listener = new CompletionListener();
-  }
-
-  @Override
-  public void processKeyValue(String key, Object value)
-  {
-    OperationFuture<Boolean> future = store.getInstance().add(key, value);
-    future.addListener(listener);
+    future = store.getInstance().replace(key, value);
+    if(!future.getStatus().isSuccess())
+    future = store.getInstance().add(key, value);
+    return future;
   }
 
 }

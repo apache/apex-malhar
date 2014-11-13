@@ -48,6 +48,7 @@ public class CouchBaseInputOperatorTest
   public void TestCouchBaseInputOperator()
   {
     CouchBaseWindowStore store = new CouchBaseWindowStore();
+    keyList = new ArrayList<String>();
     store.setBucket(bucket);
     store.setPassword(password);
     store.setUriString(uri);
