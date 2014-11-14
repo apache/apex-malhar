@@ -76,31 +76,5 @@ public class CouchBaseBenchmarkTest
     }
     is.close();
   }
-
-  @Test
-  public void testCouchBaseAppUpdate() throws Exception
-  {
-    Configuration conf = new Configuration();
-    InputStream is = getClass().getResourceAsStream("/dt-site-couchbase.xml");
-    conf.addResource(is);
-    conf.get("dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.uriString");
-    conf.get("dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.bucket");
-    conf.get("dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.password");
-    conf.get("dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.max_tuples");
-    conf.get("dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.batch_size");
-    conf.get("dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.blocktime");
-    conf.get("dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.timeout");
-    LocalMode lm = LocalMode.newInstance();
-
-    try {
-      lm.prepareDAG(new CouchBaseAppInput(), conf);
-      LocalMode.Controller lc = lm.getController();
-      lc.run(20000);
-    }
-    catch (Exception ex) {
-      logger.info(ex.getCause());
-    }
-    is.close();
-  }
-
+  
 }

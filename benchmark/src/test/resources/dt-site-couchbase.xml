@@ -81,42 +81,5 @@
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.passwordMeta</name>
     <value>""</value>
   </property>
-  <property>
-    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.uriString</name>
-    <value>node13.morado.com:8091,node14.morado.com:8091</value>
-  </property>
-  <property>
-    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.bucket</name>
-    <value>default</value>
-  </property>
-  <property>
-    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.password</name>
-    <value>""</value>
-  </property>
-  <property>
-    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.bucketMeta</name>
-    <value>default</value>
-  </property>
-  <property>
-    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.passwordMeta</name>
-    <value>""</value>
-  </property>
-  <property>
-    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.max_tuples</name>
-    <value>1000</value>
-  </property>
-
-  <property>
-    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.batch_size</name>
-    <value>100</value>
-  </property>
-  <property>
-    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.blocktime</name>
-    <value>10000</value>
-  </property>
-  <property>
-    <name>dt.application.CouchBaseAppUpdate.operator.couchbaseUpdate.store.timeout</name>
-    <value>10000</value>
-  </property>
 </configuration>
 
