@@ -18,7 +18,7 @@
 
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.uriString</name>
-    <value>node13.morado.com:8091,node14.morado.com:8091</value>
+    <value>localhost:8091,localhost:8091</value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.bucket</name>
@@ -55,7 +55,7 @@
 
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.uriString</name>
-    <value>node13.morado.com:8091,node14.morado.com:8091</value>
+    <value>localhost:8091,localhost:8091</value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.blocktime</name>

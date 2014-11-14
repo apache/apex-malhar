@@ -13,28 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.benchmark;
+package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.contrib.couchbase.AbstractCouchBaseSetOperator;
+import net.spy.memcached.internal.OperationFuture;
 
 /**
- * <p>CouchBaseOutputOperator class.</p>
- *
+ * AbstractCouchBaseSetOperator which extends AbstractCouchBaseOutputOperator and implements set functionality of couchbase.
  */
-public class CouchBaseOutputOperator extends AbstractCouchBaseSetOperator<Integer>
+public abstract class AbstractCouchBaseSetOperator<T> extends AbstractCouchBaseOutputOperator<T>
 {
-
   @Override
-  public String generateKey(Integer tuple)
+  public OperationFuture processKeyValue(String key, Object value)
   {
-    return "Key" + tuple;
+    future = store.getInstance().set(key, value);
+    return future;
   }
-
-  @Override
-  public Object getValue(Integer tuple)
-  {
-    tuple = 500;
-    return tuple;
-  }
-
 }

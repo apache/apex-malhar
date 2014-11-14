@@ -15,17 +15,31 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import net.spy.memcached.internal.OperationFuture;
+import com.datatorrent.common.util.DTThrowable;
+import java.io.IOException;
+import org.codehaus.jackson.map.ObjectMapper;
 
-/**
- * AbstractInsertCouchBaseOutputOperator which extends AbstractCouchBaseOutputOperator and implements set functionality of couchbase.
- */
-public abstract class AbstractInsertCouchBaseOutputOperator<T> extends AbstractCouchBaseOutputOperator<T>
+public class CouchBaseJSONSerializer implements CouchBaseSerializer
 {
-  @Override
-  public OperationFuture processKeyValue(String key, Object value)
+
+  private ObjectMapper mapper;
+
+  public CouchBaseJSONSerializer()
   {
-    future = store.getInstance().set(key, value);
-    return future;
+    mapper = new ObjectMapper();
   }
+
+  @Override
+  public String serialize(Object o)
+  {
+    String value = null;
+    try {
+      value = mapper.writeValueAsString(o);
+    }
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    return value;
+  }
+
 }

@@ -118,7 +118,7 @@ public class CouchBaseOutputOperatorTest
 
   }
 
-  private static class CouchBaseOutputOperator extends AbstractInsertCouchBaseOutputOperator<TestEvent>
+  private static class CouchBaseOutputOperator extends AbstractCouchBaseSetOperator<TestEvent>
   {
 
     public int getNumOfEventsInStore()
