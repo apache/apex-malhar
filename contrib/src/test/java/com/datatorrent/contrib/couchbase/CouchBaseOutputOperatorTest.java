@@ -65,7 +65,6 @@ public class CouchBaseOutputOperatorTest
   @Test
   public void TestCouchBaseOutputOperator()
   {
-
     CouchBaseWindowStore store = new CouchBaseWindowStore();
     store.setBucket(bucket);
     store.setPassword(password);
@@ -93,7 +92,7 @@ public class CouchBaseOutputOperatorTest
     CouchBaseJSONSerializer serializer = new CouchBaseJSONSerializer();
     outputOperator.setSerializer(serializer);
     List<TestEvent> events = Lists.newArrayList();
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 1000; i++) {
       events.add(new TestEvent("key" + i, i));
       keyList.add("key" + i);
     }
@@ -115,7 +114,7 @@ public class CouchBaseOutputOperatorTest
     logger.info("keyValues is" + keyValues.toString());
     logger.info("size is " + keyValues.size());
     int k = outputOperator.getNumOfEventsInStore();
-    Assert.assertEquals("rows in db", 10, keyValues.size());
+    Assert.assertEquals("rows in couchbase", 1000, keyValues.size());
 
   }
 

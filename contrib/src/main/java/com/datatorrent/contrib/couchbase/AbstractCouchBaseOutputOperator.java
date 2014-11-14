@@ -31,6 +31,9 @@ import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperato
 import com.datatorrent.api.Context.OperatorContext;
 
 import com.datatorrent.common.util.DTThrowable;
+import java.util.Iterator;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.logging.Level;
 
 /**
  * AbstractCouchBaseOutputOperator which extends Transactionable Store Output Operator.
@@ -44,8 +47,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
   protected transient ConcurrentHashMap<OperationFuture, Long> mapFuture;
-  protected int numTuples;
-  protected transient Latch countLatch;
+  protected transient AtomicInteger numTuples;
   protected CouchBaseSerializer serializer;
   protected ConcurrentSkipListMap<Long, T> mapTuples;
   protected long id = 0;
@@ -67,14 +69,14 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     ProcessingMode mode = context.getValue(context.PROCESSING_MODE);
     if (mode == ProcessingMode.AT_MOST_ONCE || mode == ProcessingMode.AT_LEAST_ONCE) {
       //map must be cleared to avoid writing same data twice
-      mapFuture.clear();
+      mapTuples.clear();
     }
 
     //atleast once, check leftovers in map and send them to couchbase.
     if (!mapTuples.isEmpty()) {
-      T[] tuplesLeft = (T[])mapTuples.values().toArray();
-      for (int i = 0; i < tuplesLeft.length; i++) {
-        processTuple(tuplesLeft[i]);
+      Iterator itr = mapTuples.values().iterator();
+      while (itr.hasNext()) {
+        processTuple((T)itr.next());
       }
     }
     super.setup(context);
@@ -83,21 +85,28 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void beginWindow(long windowId)
   {
-    countLatch = new Latch(store.batchSize);
-    numTuples = 0;
+    numTuples = new AtomicInteger(0);
     super.beginWindow(windowId);
   }
 
   @Override
   public void processTuple(T tuple)
   {
+    while (numTuples.get() >= store.batchSize) {
+      synchronized (numTuples) {
+        try {
+          numTuples.wait(store.timeout);
+        }
+        catch (InterruptedException ex) {
+          logger.info(AbstractCouchBaseOutputOperator.class.getName() + ex);
+        }
+      }
+    }
     setTuple(tuple);
-    waitForBatch(false);
   }
 
   public void setTuple(T tuple)
   {
-    numTuples++;
     id++;
     String key = generateKey(tuple);
     Object value = getValue(tuple);
@@ -110,31 +119,23 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     if (!mapTuples.containsKey(id)) {
       mapTuples.put(id, tuple);
     }
+    numTuples.incrementAndGet();
   }
 
   @Override
   public void storeAggregate()
   {
-    waitForBatch(true);
-    id = 0;
-  }
-
-  public void waitForBatch(boolean endWindow)
-  {
-    int difference = numTuples - store.batchSize;
-    if (difference >= 0 || endWindow) {
+    if(numTuples.get()>0){
+    synchronized (numTuples) {
       try {
-        countLatch.await(difference, store.timeout);
-      }
-      catch (TimeoutException ex) {
-        logger.error("Timeout exception" + ex);
-        DTThrowable.rethrow(ex);
+        numTuples.wait(store.timeout);
       }
       catch (InterruptedException ex) {
-        logger.error("Interrupted exception" + ex);
-        DTThrowable.rethrow(ex);
+        logger.info(AbstractCouchBaseOutputOperator.class.getName() + ex);
       }
     }
+    }
+    id = 0;
   }
 
   protected class CompletionListener implements OperationCompletionListener
@@ -153,7 +154,10 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
       if (mapFuture.containsKey(f)) {
         mapFuture.remove(f);
       }
-      countLatch.countDown();
+      numTuples.decrementAndGet();
+      synchronized (numTuples) {
+        numTuples.notify();
+      }
     }
 
   }
@@ -200,57 +204,56 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 
   protected abstract OperationFuture processKeyValue(String key, Object value);
 
-  private class Latch
-  {
-    private final Object synchObj = new Object();
-    private int count;
-    private long startTms = 0L;
-    boolean wasSignalled = false;
+  /*private class Latch
+   {
+   private final Object synchObj = new Object();
+   private int count;
+   private long startTms = 0L;
+   boolean wasSignalled = false;
 
-    public Latch(int noThreads)
-    {
-      synchronized (synchObj) {
-        this.count = noThreads;
-      }
-    }
+   public Latch(int noThreads)
+   {
+   synchronized (synchObj) {
+   this.count = noThreads;
+   }
+   }
 
-    public void await(int difference, long timeout) throws InterruptedException, TimeoutException
-    {
-      synchronized (synchObj) {
-        startTms = System.currentTimeMillis();
+   public void await(int difference, long timeout) throws InterruptedException, TimeoutException
+   {
+   synchronized (synchObj) {
+   startTms = System.currentTimeMillis();
 
-        //logger.info("difference is" + difference);
-        if (difference >= 0) {
-          while (count > difference) {
-            if (difference > 0) {
-              long elapsedTime = System.currentTimeMillis() - startTms;
-              if (elapsedTime > 0) {
-                synchObj.wait(timeout - elapsedTime);
-              }
-              else {
-                logger.error("Timeout error");
-                throw new TimeoutException();
-              }
-              //logger.info("elapsedTime is " + elapsedTime);
-            }
-            if (difference <= 0) {
-              synchObj.wait(timeout);
-            }
-          }
-        }
-      }
-    }
+   //logger.info("difference is" + difference);
+   if (difference >= 0) {
+   while (count > difference) {
+   if (difference > 0) {
+   long elapsedTime = System.currentTimeMillis() - startTms;
+   if (elapsedTime > 0) {
+   synchObj.wait(timeout - elapsedTime);
+   }
+   else {
+   logger.error("Timeout error");
+   throw new TimeoutException();
+   }
+   //logger.info("elapsedTime is " + elapsedTime);
+   }
+   if (difference <= 0) {
+   synchObj.wait(timeout);
+   }
+   }
+   }
+   }
+   }
 
-    public void countDown()
-    {
-      synchronized (synchObj) {
-        if (--count <= 0) {
-          wasSignalled = true;
-          synchObj.notifyAll();
-        }
-      }
-    }
+   public void countDown()
+   {
+   synchronized (synchObj) {
+   if (--count <= 0) {
+   wasSignalled = true;
+   synchObj.notifyAll();
+   }
+   }
+   }
 
-  }
-
+   }*/
 }

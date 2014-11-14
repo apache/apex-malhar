@@ -88,7 +88,7 @@ public class CouchBaseUpdateOperatorTest
       updateOperator.input.process(event);
     }
     updateOperator.endWindow();
-    Assert.assertEquals("rows in db", 10, updateOperator.getNumOfEventsInStore());
+    Assert.assertEquals("rows in couchbase", 10, updateOperator.getNumOfEventsInStore());
   }
 
   private static class CouchBaseUpdateOperator extends AbstractUpdateCouchBaseOutputOperator<TestEvent>
