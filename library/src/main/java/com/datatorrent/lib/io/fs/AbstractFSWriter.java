@@ -186,7 +186,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   /**
    * File output counters.
    */
-  private BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
 
   /**
    * This input port receives incoming tuples.
@@ -530,13 +530,13 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       return;
     }
 
-    LOG.debug("file {}, hash {}, filecount {}",
-              fileName,
-              fileName.hashCode(),
-              this.openPart.get(fileName));
+    //LOG.debug("file {}, hash {}, filecount {}",
+    //          fileName,
+    //          fileName.hashCode(),
+    //          this.openPart.get(fileName));
 
     try {
-      LOG.debug("end-offsets {}", endOffsets);
+      //LOG.debug("end-offsets {}", endOffsets);
 
       FSDataOutputStream fsOutput = streamsCache.get(fileName);
       byte[] tupleBytes = getBytesForTuple(tuple);
@@ -551,9 +551,9 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
       currentOffset.add(tupleBytes.length);
 
-      LOG.debug("end-offsets {}", endOffsets);
-      LOG.debug("tuple: {}", tuple.toString());
-      LOG.debug("current position {}, max length {}", currentOffset.longValue(), maxLength);
+      //LOG.debug("end-offsets {}", endOffsets);
+      //LOG.debug("tuple: {}", tuple.toString());
+      //LOG.debug("current position {}, max length {}", currentOffset.longValue(), maxLength);
 
       if (rollingFile && currentOffset.longValue() > maxLength) {
         LOG.debug("Rotating file {} {}", fileName, currentOffset.longValue());
@@ -568,7 +568,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
       count.add(1);
 
-      LOG.debug("count of {} =  {}", fileName, count);
+      //LOG.debug("count of {} =  {}", fileName, count);
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
