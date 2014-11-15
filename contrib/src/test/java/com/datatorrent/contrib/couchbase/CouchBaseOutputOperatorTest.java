@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
-import com.datatorrent.contrib.couchbase.AbstractCouchBaseOutputOperator.CouchBaseJSONSerializer;
 
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.DAG;
@@ -40,13 +39,13 @@ public class CouchBaseOutputOperatorTest
 {
 
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseOutputOperatorTest.class);
-  private static String APP_ID = "CouchBaseOperatorTest";
-  private static String bucket = "new";
+  private static String APP_ID = "CouchBaseOutputOperatorTest";
+  private static String bucket = "default";
   private static String password = "";
   private static int OPERATOR_ID = 0;
   protected static ArrayList<URI> nodes = new ArrayList<URI>();
   protected static ArrayList<String> keyList;
-  private static String uri = "node13.morado.com:8091,node14.morado.com:8091";
+  private static String uri = "127.0.0.1:8091";
 
   public static class TestEvent implements Serializable
   {

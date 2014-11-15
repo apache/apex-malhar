@@ -37,7 +37,7 @@ public class CouchBaseInputOperatorTest
 {
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseInputOperatorTest.class);
   private static String APP_ID = "CouchBaseInputOperatorTest";
-  private static String bucket = "new";
+  private static String bucket = "default";
   private static String password = "";
   private static int OPERATOR_ID = 0;
   protected static ArrayList<URI> nodes = new ArrayList<URI>();

@@ -15,25 +15,19 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import java.io.IOException;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import net.spy.memcached.internal.OperationCompletionListener;
 import net.spy.memcached.internal.OperationFuture;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 import com.datatorrent.api.Context.OperatorContext;
-
-import com.datatorrent.common.util.DTThrowable;
-import java.util.Iterator;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.logging.Level;
 
 /**
  * AbstractCouchBaseOutputOperator which extends Transactionable Store Output Operator.
@@ -92,7 +86,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void processTuple(T tuple)
   {
-    waitForBatch(false);
+    waitForBatch(store.batchSize);
     setKeyValueInCouchBase(tuple);
   }
 
@@ -116,22 +110,24 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void storeAggregate()
   {
-    waitForBatch(true);
+    waitForBatch(0);
     id = 0;
   }
 
-  public void waitForBatch(boolean isEndWindow)
+  public void waitForBatch(int sizeOfQueue)
   {
-    while ((numTuples.get() > store.batchSize) || (isEndWindow && (numTuples.get() > 0))) {
-      long startTms = System.currentTimeMillis();
+    long startTms = System.currentTimeMillis();
+    long endTime = startTms + store.timeout;
+    while (numTuples.get() > sizeOfQueue){
       synchronized (numTuples) {
         try {
-          long elapsedTime = System.currentTimeMillis() - startTms;
-          numTuples.wait(store.timeout - elapsedTime);
+          long elapsedTime = System.currentTimeMillis() - endTime;
+          numTuples.wait(elapsedTime);
         }
         catch (InterruptedException ex) {
           logger.info(AbstractCouchBaseOutputOperator.class.getName() + ex);
         }
+        endTime = startTms + store.timeout;
       }
     }
 
