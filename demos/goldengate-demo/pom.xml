@@ -14,7 +14,7 @@
 
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
-    <datatorrent.version>1.0.4</datatorrent.version>
+    <datatorrent.version>2.0.0-SNAPSHOT</datatorrent.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
   </properties>
 
@@ -142,23 +142,11 @@
   </build>
 
   <dependencies>
-    <!-- add your dependencies here -->
     <dependency>
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${datatorrent.version}</version>
-      <!--
-           If you know your application do not need the transitive dependencies that are pulled in by malhar-library,
-           Uncomment the following to reduce the size of your app package.
-      -->
-      <!--
-      <exclusions>
-        <exclusion>
-          <groupId>*</groupId>
-          <artifactId>*</artifactId>
-        </exclusion>
-      </exclusions>
-      -->
+      <type>jar</type>
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
@@ -171,6 +159,56 @@
       <artifactId>junit</artifactId>
       <version>4.10</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggaddons</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>jdbc</artifactId>
+      <version>11.2.0.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggcache</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggcmdui</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggcoh</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggdbutil</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggjms</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggtrail</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>gguserexitapi</artifactId>
+      <version>11.2.1.0.0.004</version>
+    </dependency>
+    <dependency>
+      <groupId>com.oracle</groupId>
+      <artifactId>ggutil</artifactId>
+      <version>11.2.1.0.0.004</version>
     </dependency>
   </dependencies>
 

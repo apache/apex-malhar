@@ -5,6 +5,7 @@
 
 package com.datatorrent.demos.goldengate;
 
+import com.datatorrent.lib.io.fs.AbstractFSSingleFileWriter;
 
 public class CSVFileOutput extends AbstractFSSingleFileWriter<Employee, Employee>
 {
