@@ -158,6 +158,13 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
     currentWindowRecoveryState.clear();
   }
 
+  @Override
+  public void teardown()
+  {
+    super.teardown();
+    idempotentStorageManager.teardown();
+  }
+
   /**
    * Can be overridden for creating block metadata of a type that extends {@link BlockMetadata}
    */
