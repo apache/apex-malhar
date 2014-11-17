@@ -1,16 +1,16 @@
-package com.datatorrent.contrib.goldengate;
+package com.datatorrent.demos.goldengate;
 
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.contrib.goldengate.lib.AbstractDFSLineTailInput;
+import com.datatorrent.demos.goldengate.utils._DsColumn;
+import com.datatorrent.demos.goldengate.utils._DsOperation;
+import com.datatorrent.demos.goldengate.utils._DsTransaction;
+import com.datatorrent.demos.goldengate.utils._TableName;
+import com.goldengate.atg.datasource.DsOperation;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-
 import javax.validation.constraints.NotNull;
-
-import com.goldengate.atg.datasource.DsOperation;
-
-import com.datatorrent.demos.goldengate.utils.*;
-
-import com.datatorrent.api.DefaultOutputPort;
 
 /**
  * Created by Pramod Immaneni <pramod@datatorrent.com> on 10/28/14.

@@ -1,23 +1,19 @@
-package com.datatorrent.contrib.goldengate;
+package com.datatorrent.demos.goldengate;
 
+import com.datatorrent.api.Context;
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.contrib.goldengate.QueryProcessor.Query;
+import com.datatorrent.contrib.goldengate.QueryProcessor.QueryResults;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
-
-import com.google.common.collect.EvictingQueue;
-
-import org.codehaus.jackson.JsonNode;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
-
-import com.datatorrent.api.Context;
-
-import com.datatorrent.common.util.DTThrowable;
+import org.codehaus.jackson.JsonNode;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Created by Pramod Immaneni <pramod@datatorrent.com> on 10/22/14.

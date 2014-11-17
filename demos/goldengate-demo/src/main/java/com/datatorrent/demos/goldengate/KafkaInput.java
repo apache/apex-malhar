@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.contrib.goldengate.lib;
+package com.datatorrent.demos.goldengate;
 
 import com.datatorrent.demos.goldengate.utils._DsTransaction;
 import com.datatorrent.demos.goldengate.utils._DsOperation;

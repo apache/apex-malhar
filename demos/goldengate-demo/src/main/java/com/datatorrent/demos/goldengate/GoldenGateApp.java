@@ -3,19 +3,15 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.contrib.goldengate.app;
+package com.datatorrent.demos.goldengate;
 
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.contrib.goldengate.CSVTransactionInput;
 import com.datatorrent.contrib.goldengate.DBQueryProcessor;
-import com.datatorrent.contrib.goldengate.FileQueryProcessor;
 import com.datatorrent.contrib.goldengate.KafkaJsonEncoder;
-import com.datatorrent.contrib.goldengate.lib.CSVFileOutput;
 import com.datatorrent.contrib.goldengate.lib.GoldenGateJMSOutputOperator;
-import com.datatorrent.contrib.goldengate.lib.KafkaInput;
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 

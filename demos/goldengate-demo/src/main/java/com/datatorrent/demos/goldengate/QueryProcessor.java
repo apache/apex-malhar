@@ -2,7 +2,7 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.datatorrent.contrib.goldengate;
+package com.datatorrent.demos.goldengate;
 
 import java.util.HashMap;
 import java.util.Iterator;

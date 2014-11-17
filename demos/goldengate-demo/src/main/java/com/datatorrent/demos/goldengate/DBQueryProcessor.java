@@ -1,23 +1,22 @@
-package com.datatorrent.contrib.goldengate;
+package com.datatorrent.demos.goldengate;
 
+import com.datatorrent.api.Context;
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.db.jdbc.JdbcStore;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
-import com.google.common.cache.*;
-
 import org.codehaus.jackson.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.datatorrent.lib.db.jdbc.JdbcStore;
-
-import com.datatorrent.api.Context;
-
-import com.datatorrent.common.util.DTThrowable;
 
 /**
  * Created by Pramod Immaneni <pramod@datatorrent.com> on 10/21/14.
