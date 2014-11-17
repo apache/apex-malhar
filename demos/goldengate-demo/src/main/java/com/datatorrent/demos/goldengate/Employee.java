@@ -3,10 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.contrib.goldengate.lib;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
+package com.datatorrent.demos.goldengate;
 
 public class Employee
 {

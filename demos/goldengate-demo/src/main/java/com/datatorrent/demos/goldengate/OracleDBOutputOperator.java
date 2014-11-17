@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.contrib.goldengate.lib;
+package com.datatorrent.demos.goldengate;
 
 import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableOutputOperator;
 import com.datatorrent.lib.db.jdbc.JdbcStore;

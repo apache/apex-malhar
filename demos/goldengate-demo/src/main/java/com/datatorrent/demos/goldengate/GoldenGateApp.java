@@ -5,19 +5,13 @@
 
 package com.datatorrent.demos.goldengate;
 
-import java.util.Properties;
-
-import org.apache.hadoop.conf.Configuration;
-
-import com.datatorrent.contrib.goldengate.DBQueryProcessor;
-import com.datatorrent.contrib.goldengate.KafkaJsonEncoder;
-import com.datatorrent.contrib.goldengate.lib.GoldenGateJMSOutputOperator;
-import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
-import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
-
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
+import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
+import java.util.Properties;
+import org.apache.hadoop.conf.Configuration;
 
 @ApplicationAnnotation(name="GoldenGateDemo")
 public class GoldenGateApp implements StreamingApplication

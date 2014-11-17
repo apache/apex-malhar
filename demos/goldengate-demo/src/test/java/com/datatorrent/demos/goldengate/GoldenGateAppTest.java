@@ -1,7 +1,6 @@
-package com.datatorrent.contrib.goldengate;
+package com.datatorrent.demos.goldengate;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.contrib.goldengate.app.GoldenGateApp;
 import org.junit.Test;
 
 public class GoldenGateAppTest

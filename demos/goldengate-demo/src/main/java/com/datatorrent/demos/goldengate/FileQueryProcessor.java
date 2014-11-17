@@ -2,8 +2,6 @@ package com.datatorrent.demos.goldengate;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.contrib.goldengate.QueryProcessor.Query;
-import com.datatorrent.contrib.goldengate.QueryProcessor.QueryResults;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
