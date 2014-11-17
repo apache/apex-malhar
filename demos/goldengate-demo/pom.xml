@@ -6,7 +6,7 @@
     <groupId>com.datatorrent</groupId>
     <version>2.0.0-SNAPSHOT</version>
   </parent>
-  
+
   <groupId>com.datatorrent</groupId>
   <version>2.0-SNAPSHOT</version>
   <artifactId>goldengate-demo</artifactId>
@@ -18,7 +18,7 @@
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
   </properties>
 
-  <name>My DataTorrent Application</name>
+  <name>DataTorrent Golden Gate Demo</name>
 
   <!-- repository to provide the DataTorrent artifacts -->
   <repositories>
@@ -133,7 +133,7 @@
                </descriptors>
                <archiverConfig>
                  <defaultDirectoryMode>0755</defaultDirectoryMode>
-               </archiverConfig>                  
+               </archiverConfig>
              </configuration>
            </execution>
          </executions>
@@ -147,11 +147,11 @@
       <groupId>com.datatorrent</groupId>
       <artifactId>malhar-library</artifactId>
       <version>${datatorrent.version}</version>
-      <!-- 
+      <!--
            If you know your application do not need the transitive dependencies that are pulled in by malhar-library,
-           Uncomment the following to reduce the size of your app package. 
+           Uncomment the following to reduce the size of your app package.
       -->
-      <!--    
+      <!--
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
