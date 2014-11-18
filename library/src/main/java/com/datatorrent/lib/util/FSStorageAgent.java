@@ -30,8 +30,6 @@ import org.apache.hadoop.fs.*;
 import com.datatorrent.api.StorageAgent;
 import com.datatorrent.api.annotation.Stateless;
 
-import com.datatorrent.stram.util.FSUtil;
-
 public class FSStorageAgent implements StorageAgent, Serializable
 {
   protected static final String STATELESS_CHECKPOINT_WINDOW_ID = Long.toHexString(Stateless.WINDOW_ID);
@@ -56,8 +54,17 @@ public class FSStorageAgent implements StorageAgent, Serializable
       logger.debug("Initialize storage agent with {}.", path);
       Path lPath = new Path(path);
       fs = FileSystem.newInstance(lPath.toUri(), conf == null ? new Configuration() : conf);
-      if (FSUtil.mkdirs(fs, lPath)) {
-        fs.setWorkingDirectory(lPath);
+
+      try {
+        if (fs.mkdirs(lPath)) {
+          fs.setWorkingDirectory(lPath);
+        }
+      }
+      catch (IOException e) {
+        // some file system (MapR) throw exception if folder exists
+        if (!fs.exists(lPath)) {
+          throw e;
+        }
       }
     }
     catch (IOException ex) {

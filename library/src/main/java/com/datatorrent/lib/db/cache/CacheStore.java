@@ -23,9 +23,9 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
-import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.collect.Lists;
@@ -40,23 +40,28 @@ import com.google.common.collect.Lists;
  * <li>Entry expiry time: the entries epire after the specified duration.</li>
  * <li>Cache cleanup interval: the interval at which the cache is cleaned up of expired entries periodically.</li>
  * </ul>
- * These properties of the cache are encapsulated in {@link CacheProperties}.<br/>
  *
  * @since 0.9.2
  */
 public class CacheStore implements CacheManager.Primary
 {
+
+  @Min(0)
+  protected long maxCacheSize = 2000;
+
+  @Min(0)
+  protected int entryExpiryDurationInMillis = 60000; //1 minute
+
+  @Min(0)
+  protected int cacheCleanupIntervalInMillis = 60500; //.5 seconds after entries are expired
+
   @NotNull
-  protected CacheProperties cacheProperties;
+  protected ExpiryType entryExpiryStrategy = ExpiryType.EXPIRE_AFTER_ACCESS;
 
   private transient ScheduledExecutorService cleanupScheduler;
   private transient Cache<Object, Object> cache;
   private transient boolean open;
 
-  public CacheStore()
-  {
-    cacheProperties = new CacheProperties();
-  }
 
   @Override
   public void put(Object key, Object value)
@@ -102,14 +107,13 @@ public class CacheStore implements CacheManager.Primary
   public void connect() throws IOException
   {
     open = true;
-    Preconditions.checkNotNull(cacheProperties.entryExpiryStrategy, "expiryType");
 
     CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
-    if (cacheProperties.entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_ACCESS) {
-      cacheBuilder.expireAfterAccess(cacheProperties.entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
+    if (entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_ACCESS) {
+      cacheBuilder.expireAfterAccess(entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
     }
-    else if (cacheProperties.entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {
-      cacheBuilder.expireAfterWrite(cacheProperties.entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
+    else if (entryExpiryStrategy == ExpiryType.EXPIRE_AFTER_WRITE) {
+      cacheBuilder.expireAfterWrite(entryExpiryDurationInMillis, TimeUnit.MILLISECONDS);
     }
     cache = cacheBuilder.build();
     this.cleanupScheduler = Executors.newScheduledThreadPool(1);
@@ -120,7 +124,7 @@ public class CacheStore implements CacheManager.Primary
       {
         cache.cleanUp();
       }
-    }, cacheProperties.cacheCleanupIntervalInMillis, cacheProperties.cacheCleanupIntervalInMillis, TimeUnit.MILLISECONDS);
+    }, cacheCleanupIntervalInMillis, cacheCleanupIntervalInMillis, TimeUnit.MILLISECONDS);
   }
 
   @Override
@@ -136,14 +140,44 @@ public class CacheStore implements CacheManager.Primary
     cleanupScheduler.shutdown();
   }
 
-  public void setCacheProperties(CacheProperties cacheProperties)
+  /**
+   * Sets the max size of cache.
+   *
+   * @param maxCacheSize the max size of cache in memory.
+   */
+  public void setMaxCacheSize(long maxCacheSize)
   {
-    this.cacheProperties = cacheProperties;
+    this.maxCacheSize = maxCacheSize;
   }
 
-  public CacheProperties getCacheProperties()
+  /**
+   * Sets the cache entry expiry strategy.
+   *
+   * @param expiryType the cache entry expiry strategy.
+   */
+  public void setEntryExpiryStrategy(ExpiryType expiryType)
   {
-    return this.cacheProperties;
+    this.entryExpiryStrategy = expiryType;
+  }
+
+  /**
+   * Sets the expiry time of cache entries in millis.
+   *
+   * @param durationInMillis the duration after which a cache entry is expired.
+   */
+  public void setEntryExpiryDurationInMillis(int durationInMillis)
+  {
+    this.entryExpiryDurationInMillis = durationInMillis;
+  }
+
+  /**
+   * Sets the interval at which cache is cleaned up regularly.
+   *
+   * @param durationInMillis the duration after which cache is cleaned up regularly.
+   */
+  public void setCacheCleanupInMillis(int durationInMillis)
+  {
+    this.cacheCleanupIntervalInMillis = durationInMillis;
   }
 
   /**
