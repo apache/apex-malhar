@@ -1,10 +1,23 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.demos.goldengate.utils;
 
 import java.io.PrintWriter;
 import java.text.SimpleDateFormat;
 
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonGenerator;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -14,24 +27,18 @@ import com.goldengate.atg.datasource.DsTransaction;
 import com.goldengate.atg.datasource.format.DsFormatterAdapter;
 import com.goldengate.atg.datasource.meta.DsMetaData;
 import com.goldengate.atg.datasource.meta.TableMetaData;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An Example of serialize the goldengate transaction operation object<br>
  * The default goldengate objects(DsTransaction, DsOperation, etc) are not serializable in most ways.<br>
  * This example use the equivalent {@link _DsTransaction} objects that can be (de)serialized using any popular framework(In this case json format)
- *
  */
 public class JSonFormatter extends DsFormatterAdapter
 {
+  private static final Logger log = LoggerFactory.getLogger(JSonFormatter.class);
 
-  private static final Logger log = Logger.getLogger(JSonFormatter.class);
-
-  static {
-    log.setLevel(Level.ALL);
-  }
-//
-//  private static String seperator = "\n=====\n";
-//
   @Override
   public void init(DsConfiguration conf, DsMetaData meta)
   {
@@ -49,19 +56,6 @@ public class JSonFormatter extends DsFormatterAdapter
   @Override
   public void formatOp(DsTransaction tran, DsOperation op, TableMetaData tmd, PrintWriter pw)
   {
-    // Comment out this for op mode
-//    try {
-//      log.info("Tran time" + tran.getStartTxTimeAsString() + "###" + tran.getReadTimeAsString());
-//      _DsTransaction _dt = new _DsTransaction();
-//      _dt.readFromDsTransaction(tran);
-//      mapper.writeValue(pw, _dt);
-//      pw.write(seperator);
-//      mapper.writeValue(pw, op);
-//      pw.write(seperator);
-//      mapper.writeValue(pw, tmd);
-//    } catch (Exception e) {
-//      log.error("Error serialize object", e);
-//    }
   }
 
   @Override
@@ -70,12 +64,9 @@ public class JSonFormatter extends DsFormatterAdapter
     super.endTx(tx, dbMeta, output);
   }
 
-
-
   @Override
   public void formatTx(DsTransaction tran, DsMetaData dma, PrintWriter pw)
   {
-    // works for tx mode
     try {
       log.info("Tran time" + tran.getStartTxTimeAsString() + "###" + tran.getReadTimeAsString());
       _DsTransaction _dt = new _DsTransaction();
@@ -84,9 +75,5 @@ public class JSonFormatter extends DsFormatterAdapter
     } catch (Exception e) {
       log.error("Error serialize object", e);
     }
-
   }
-
-
-
 }

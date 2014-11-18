@@ -1,3 +1,18 @@
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 package com.datatorrent.demos.goldengate;
 
 import com.datatorrent.api.Context;
@@ -19,15 +34,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Created by Pramod Immaneni <pramod@datatorrent.com> on 10/21/14.
+ * This operator processes queries on the database containing employee data.
  */
 public class DBQueryProcessor extends QueryProcessor implements RemovalListener<String, PreparedStatement>
 {
   private static final Logger logger = LoggerFactory.getLogger(DBQueryProcessor.class);
   private static final String GET_RECENT_TABLE_ENTRIES = "GET_RECENT_TABLE_ENTRIES";
-
   private static final String TABLE_DATA = "TABLE";
-
   private static final String[] TABLE_HEADERS = {"Employee ID", "Name", "Department"};
 
   private String getQuery = "select * from (select * from %s order by eid desc) where rownum < ?";

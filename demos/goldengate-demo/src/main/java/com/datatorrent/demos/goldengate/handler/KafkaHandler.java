@@ -1,11 +1,23 @@
-package com.datatorrent.contrib.goldengate.lib;
+/*
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.datatorrent.demos.goldengate.handler;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Properties;
-
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
 
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
@@ -19,8 +31,8 @@ import com.goldengate.atg.datasource.DsTransaction;
 import com.goldengate.atg.datasource.GGDataSource.Status;
 import com.goldengate.atg.datasource.format.DsFormatter;
 import com.goldengate.atg.datasource.meta.DsMetaData;
-
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An example of java plugin for goldengate. <br>
@@ -34,7 +46,7 @@ import com.goldengate.atg.datasource.meta.DsMetaData;
  *  gg.handler.kafkahandler.type=com.datatorrent.rainier.demo1.ogg.KafkaHandler
  *  gg.handler.kafkahandler.dateFormat=yyyy-MM-dd HH:mm:ss.SSSSSS
  *  # work only for transaction mode
- *  gg.handler.kafkahandler.mode=tx  
+ *  gg.handler.kafkahandler.mode=tx
  *  # send message in sql format gg.handler.kafkahandler.format=com.goldengate.atg.datasource.format.SqlFormatter
  *  gg.handler.kafkahandler.format=com.datatorrent.rainier.demo1.ogg.JSonFormatter  # send message in json format
  *  gg.handler.kafkahandler.broker=broker1:9092,broker2:9092
@@ -46,32 +58,17 @@ import com.goldengate.atg.datasource.meta.DsMetaData;
  */
 public class KafkaHandler extends AbstractHandler
 {
-  
-  
-  private static final Logger log = Logger.getLogger(KafkaHandler.class);
-
-  static {
-    log.setLevel(Level.ALL);
-  }
+  private static final Logger log = LoggerFactory.getLogger(KafkaHandler.class);
 
   private Producer<String, String> producer;
-
   private String topic = "oggmsg";
-
   private String broker;
-
   private String partitioner;
-
   private String producertype = "async";
-
   private String serializer = "kafka.serializer.StringEncoder";
-
   private String keySerializer = "kafka.serializer.StringEncoder";
-
   private DsFormatter format = null;
-
   private PrintWriter pw;
-
   private StringBuffer sb;
 
   public void setPartitioner(String partitioner)
@@ -103,12 +100,12 @@ public class KafkaHandler extends AbstractHandler
   {
     this.keySerializer = keySerializer;
   }
-  
+
   public DsFormatter getFormat()
   {
     return format;
   }
-  
+
   public void setFormat(String format) throws Exception
   {
     this.format = (DsFormatter) Class.forName(format).newInstance();
@@ -149,7 +146,6 @@ public class KafkaHandler extends AbstractHandler
   public Status operationAdded(DsEvent de, DsTransaction dst, DsOperation dso)
   {
     log.debug("Add operation" + de + ",   " + dso);
-//    getFormat().formatOp(dst, dso, de.getMetaData().getTableMetaData(dso.getTableName()), pw);
     return super.operationAdded(de, dst, dso);
   }
 
@@ -159,7 +155,7 @@ public class KafkaHandler extends AbstractHandler
     log.debug("Rollback the transaction " + e + ",   " + tx);
     return super.transactionRollback(e, tx);
   }
-  
+
   @Override
   public Status transactionCommit(DsEvent de, DsTransaction tran)
   {
@@ -169,10 +165,10 @@ public class KafkaHandler extends AbstractHandler
       log.debug("Format the operation " + dsOperation);
       getFormat().formatOp(tran, dsOperation, de.getMetaData().getTableMetaData(dsOperation.getTableName()), pw);
     }
-    
+
     log.debug("End the transaction ");
     getFormat().endTx(tran, de.getMetaData(), pw);
-    
+
     log.debug("Format the transaction with " + getFormat());
     getFormat().formatTx(tran, de.getMetaData(), pw);
     log.debug("sending msg: " + sb.toString());
@@ -181,7 +177,7 @@ public class KafkaHandler extends AbstractHandler
     sb.delete(0, sb.length());
     return super.transactionCommit(de, tran);
   }
-  
+
   @Override
   public Status transactionBegin(DsEvent e, DsTransaction tx)
   {
@@ -196,6 +192,4 @@ public class KafkaHandler extends AbstractHandler
   {
     return "Not implemented yet";
   }
-
-
 }
