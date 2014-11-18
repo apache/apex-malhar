@@ -134,6 +134,16 @@
                <archiverConfig>
                  <defaultDirectoryMode>0755</defaultDirectoryMode>
                </archiverConfig>
+               <archive>
+                 <manifestEntries>
+                   <Class-Path>${datatorrent.apppackage.classpath}</Class-Path>
+                   <DT-Engine-Version>${datatorrent.version}</DT-Engine-Version>
+                   <DT-App-Package-Name>${project.artifactId}</DT-App-Package-Name>
+                   <DT-App-Package-Version>${project.version}</DT-App-Package-Version>
+                   <DT-App-Package-Display-Name>${project.name}</DT-App-Package-Display-Name>
+                   <DT-App-Package-Description>${project.description}</DT-App-Package-Description>
+                 </manifestEntries>
+               </archive>
              </configuration>
            </execution>
          </executions>
