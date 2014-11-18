@@ -12,6 +12,7 @@ import org.apache.hadoop.fs.Path;
 import org.codehaus.jackson.JsonNode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import com.google.common.collect.EvictingQueue;
 
 /**
  * Created by Pramod Immaneni <pramod@datatorrent.com> on 10/22/14.
