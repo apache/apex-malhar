@@ -29,6 +29,7 @@
     <module>distributedistinct</module>
     <!-- Requires ojdbc and goldengate jars which cannot be hosted -->
     <!-- To build download jars and install with installgg, and installjdbc scripts -->
+    <!-- Which are in the same directory as this pom -->
     <module>goldengate-demo</module>
   </modules>
 
