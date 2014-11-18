@@ -12,27 +12,6 @@
   <packaging>pom</packaging>
   <name>Demos</name>
 
-  <!-- All modules should be listed here and in the dt-demos-all profile below -->
-  <modules>
-    <module>machinedata</module>
-    <module>dimensions</module>
-    <module>pi</module>
-    <module>twitter</module>
-    <module>yahoofinance</module>
-    <module>frauddetect</module>
-    <module>mobile</module>
-    <module>wordcount</module>
-    <module>mrmonitor</module>
-    <module>mroperator</module>
-    <module>uniquecount</module>
-    <module>visualdata</module>
-    <module>distributedistinct</module>
-    <!-- Requires ojdbc and goldengate jars which cannot be hosted -->
-    <!-- To build download jars and install with installgg, and installjdbc scripts -->
-    <!-- Which are in the same directory as this pom -->
-    <module>goldengate-demo</module>
-  </modules>
-
   <profiles>
     <!-- Modules which don't require licensed jars should be built by default -->
     <profile>
@@ -73,6 +52,9 @@
         <module>uniquecount</module>
         <module>visualdata</module>
         <module>distributedistinct</module>
+        <!-- Requires ojdbc and goldengate jars which cannot be hosted -->
+        <!-- To build download jars and install with installgg, and installjdbc scripts -->
+        <!-- Which are in the same directory as this pom -->
         <module>goldengate-demo</module>
       </modules>
     </profile>
