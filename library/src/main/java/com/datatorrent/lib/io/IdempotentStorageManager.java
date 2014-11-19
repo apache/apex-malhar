@@ -78,7 +78,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
    * @param windowId
    * @throws IOException
    */
-  public void delete(int operatorId, long windowId) throws IOException;
+  public void deleteUpTo(int operatorId, long windowId) throws IOException;
 
   /**
    * This informs the idempotent storage manager that operator is partitioned so that it can set properties and distribute state.
@@ -178,6 +178,12 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
     }
 
     @Override
+    public void delete(int operatorId, long windowId) throws IOException
+    {
+      storageAgent.delete(operatorId, windowId);
+    }
+
+    @Override
     public Map<Integer, Object> load(long windowId) throws IOException
     {
       Set<Integer> operators = replayState.get(windowId);
@@ -194,6 +200,10 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
     @Override
     public long[] getWindowIds(int operatorId) throws IOException
     {
+      Path operatorPath = new Path(appPath, String.valueOf(operatorId));
+      if (!fs.exists(operatorPath) || fs.listStatus(operatorPath).length == 0) {
+        return null;
+      }
       return storageAgent.getWindowIds(operatorId);
     }
 
@@ -205,7 +215,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
      * @throws IOException
      */
     @Override
-    public void delete(int operatorId, long windowId) throws IOException
+    public void deleteUpTo(int operatorId, long windowId) throws IOException
     {
       //deleting the replay state
       if (windowId <= largestRecoveryWindow && deletedOperators != null && !deletedOperators.isEmpty()) {
@@ -357,6 +367,11 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
 
     @Override
     public void delete(int operatorId, long windowId) throws IOException
+    {
+    }
+
+    @Override
+    public void deleteUpTo(int operatorId, long windowId) throws IOException
     {
     }
 

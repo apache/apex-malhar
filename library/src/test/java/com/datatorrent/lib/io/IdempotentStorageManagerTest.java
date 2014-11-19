@@ -17,7 +17,6 @@ package com.datatorrent.lib.io;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -176,7 +175,7 @@ public class IdempotentStorageManagerTest
 
     testMeta.storageManager.partitioned(Lists.<IdempotentStorageManager>newArrayList(testMeta.storageManager), Sets.newHashSet(2, 3));
     testMeta.storageManager.setup(testMeta.context);
-    testMeta.storageManager.delete(1, 1);
+    testMeta.storageManager.deleteUpTo(1, 1);
 
     Path appPath = new Path(testMeta.recoveryPath + '/' + testMeta.context.getValue(DAG.APPLICATION_ID));
     FileSystem fs = FileSystem.newInstance(appPath.toUri(), new Configuration());

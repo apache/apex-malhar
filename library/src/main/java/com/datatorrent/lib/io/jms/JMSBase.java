@@ -30,7 +30,8 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Maps;
 
 /**
- * Base class for any ActiveMQ input or output adapter operator. <p><br>
+ * Base class for any JMS input or output adapter operator.
+ * <p/>
  * Operators should not be derived from this,
  * rather from AbstractActiveMQInputOperator or AbstractActiveMQSinglePortInputOperator or AbstractActiveMQOutputOperator
  * or AbstractActiveMQSinglePortOutputOperator. This creates connection with active MQ broker.<br>
@@ -63,9 +64,9 @@ import com.google.common.collect.Maps;
  *
  * @since 0.3.2
  */
-public class ActiveMQBase
+public class JMSBase
 {
-  private static final Logger logger = LoggerFactory.getLogger(ActiveMQBase.class);
+  private static final Logger logger = LoggerFactory.getLogger(JMSBase.class);
   private transient Connection connection;
   private transient Session session;
   private transient Destination destination;
@@ -360,9 +361,7 @@ public class ActiveMQBase
     session = connection.createSession(transacted, getSessionAckMode(ackMode));
 
     // Create destination
-    destination = topic
-                  ? session.createTopic(subject)
-                  : session.createQueue(subject);
+    destination = topic ? session.createTopic(subject) : session.createQueue(subject);
   }
 
   /**

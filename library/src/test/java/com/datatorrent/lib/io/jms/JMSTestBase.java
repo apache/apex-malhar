@@ -26,22 +26,21 @@ import javax.jms.TextMessage;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.broker.BrokerService;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 
+import com.datatorrent.stram.util.FSUtil;
+
 /**
- * Base class for Active MQ operators test
+ * Base class for JMS operators test. <br/>
  * Setup the Active MQ service to serve the test
  */
-public class ActiveMQOperatorTestBase
+public class JMSTestBase
 {
   public static String AMQ_BROKER_URL = "brokerURL";
   private BrokerService broker;
 
-  public ActiveMQOperatorTestBase()
-  {
-    super();
-  }
 
   /**
    * Start ActiveMQ broker from the Testcase.
@@ -53,7 +52,7 @@ public class ActiveMQOperatorTestBase
     broker = new BrokerService();
     String brokerName = "ActiveMQOutputOperator-broker";
     broker.setBrokerName(brokerName);
-    broker.getPersistenceAdapter().setDirectory(new File("target/test-data/activemq-data/" + broker.getBrokerName() + "/KahaDB"));
+    broker.getPersistenceAdapter().setDirectory(new File("target/activemq-data/" + broker.getBrokerName() + "/KahaDB").getAbsoluteFile());
     broker.addConnector("tcp://localhost:61617?broker.persistent=false");
     broker.getSystemUsage().getStoreUsage().setLimit(1024 * 1024 * 1024);  // 1GB
     broker.getSystemUsage().getTempUsage().setLimit(100 * 1024 * 1024);    // 100MB
@@ -99,6 +98,7 @@ public class ActiveMQOperatorTestBase
   public void afterTest() throws Exception
   {
     broker.stop();
+    FileUtils.deleteDirectory(new File("target/activemq-data").getAbsoluteFile());
   }
 
 }
