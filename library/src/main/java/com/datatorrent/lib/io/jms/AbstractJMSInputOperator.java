@@ -40,6 +40,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.counters.BasicCounters;
@@ -67,6 +68,7 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
  * @tags jms, input operator
  * @since 0.3.2
  */
+@OperatorAnnotation(checkpointableWithinAppWindow = false)
 public abstract class AbstractJMSInputOperator<T> extends JMSBase implements InputOperator, ActivationListener<OperatorContext>,
   MessageListener, ExceptionListener, Operator.IdleTimeHandler, Operator.CheckpointListener
 {
