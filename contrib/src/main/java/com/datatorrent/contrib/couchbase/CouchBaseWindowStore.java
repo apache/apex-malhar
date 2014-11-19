@@ -62,6 +62,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   {
     this.passwordMeta = passwordMeta;
   }
+
   protected String passwordMeta;
 
   public CouchBaseWindowStore()
@@ -71,8 +72,6 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     bucketMeta = "default";
     passwordMeta = "";
   }
-
-
 
   public CouchbaseClient getMetaInstance()
   {
@@ -88,8 +87,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
       CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
       cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
       cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
-      clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs,bucketMeta, passwordMeta));
-      //clientMeta = new CouchbaseClient(baseURIs, "default", "");
+      clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucketMeta, passwordMeta));
     }
     catch (IOException e) {
       logger.error("Error connecting to Couchbase: " + e.getMessage());
@@ -130,7 +128,6 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
     }
 
   }
-
 
   @Override
   public void removeCommittedWindowId(String appId, int operatorId)

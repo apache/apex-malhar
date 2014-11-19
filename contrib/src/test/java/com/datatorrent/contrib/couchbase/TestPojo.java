@@ -15,10 +15,11 @@
  */
 package com.datatorrent.contrib.couchbase;
 
+import java.io.Serializable;
 import java.util.HashMap;
 
 
-public class TestPojo
+public class TestPojo implements Serializable
 {
   private String name;
 

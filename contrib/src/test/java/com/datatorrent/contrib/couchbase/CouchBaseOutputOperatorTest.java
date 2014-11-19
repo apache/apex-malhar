@@ -51,12 +51,36 @@ public class CouchBaseOutputOperatorTest
   {
 
     String key;
+
+    public String getKey()
+    {
+      return key;
+    }
+
+    public void setKey(String key)
+    {
+      this.key = key;
+    }
+
+    public Integer getValue()
+    {
+      return value;
+    }
+
+    public void setValue(Integer value)
+    {
+      this.value = value;
+    }
     Integer value;
+
+    TestEvent(){
+
+    }
 
     TestEvent(String key, int val)
     {
       this.key = key;
-      this.value = value;
+      this.value = new Integer(value);
     }
 
   }
@@ -68,7 +92,7 @@ public class CouchBaseOutputOperatorTest
     store.setBucket(bucket);
     store.setPassword(password);
     store.setUriString(uri);
-    store.setBatchSize(100);
+    store.setQueueSize(100);
     store.setMaxTuples(1000);
     store.setTimeout(10000);
     keyList = new ArrayList<String>();
@@ -101,8 +125,8 @@ public class CouchBaseOutputOperatorTest
     logger.info("after begin window");
     for (TestEvent event: events) {
       logger.info("before process window");
-      outputOperator.generateKey(event);
-      outputOperator.getValue(event);
+      //outputOperator.generateKey(event);
+      //outputOperator.getValue(event);
       outputOperator.input.process(event);
       logger.info("after process window");
     }
@@ -137,7 +161,7 @@ public class CouchBaseOutputOperatorTest
     @Override
     public Object getValue(TestEvent tuple)
     {
-      tuple.value = 20;
+      //tuple.value = 20;
       return tuple.value;
     }
 

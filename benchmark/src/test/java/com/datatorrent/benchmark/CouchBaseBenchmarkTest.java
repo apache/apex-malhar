@@ -36,7 +36,7 @@ public class CouchBaseBenchmarkTest
     conf.get("dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.password");
     conf.get("dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.bucket");
     conf.get("dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.max_tuples");
-    conf.get("dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.batch_size");
+    conf.get("dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.queueSize");
     conf.get("dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.blocktime");
     conf.get("dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.timeout");
     LocalMode lm = LocalMode.newInstance();
@@ -76,5 +76,5 @@ public class CouchBaseBenchmarkTest
     }
     is.close();
   }
-  
+
 }

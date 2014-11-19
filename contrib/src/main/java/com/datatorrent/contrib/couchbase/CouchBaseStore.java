@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.Connectable;
 
 import com.datatorrent.common.util.DTThrowable;
+import javax.validation.constraints.Min;
 
 /**
  * CouchBaseStore which provides connect methods to Couchbase data store.
@@ -50,9 +51,20 @@ public class CouchBaseStore implements Connectable
   protected String uriString;
 
   protected transient CouchbaseClient client;
-  protected Integer batchSize = 100;
+  @Min(1)
+  protected Integer queueSize = 100;
+
+  public Integer getQueueSize()
+  {
+    return queueSize;
+  }
+
+  public void setQueueSize(Integer queueSize)
+  {
+    this.queueSize = queueSize;
+  }
   protected Integer maxTuples = 1000;
-  protected int blockTime = 10000;
+  protected int blockTime = 1000;
   protected long timeout = 10000;
   protected int shutdownTimeout = 60;
 
@@ -91,15 +103,7 @@ public class CouchBaseStore implements Connectable
     this.maxTuples = maxTuples;
   }
 
-  public Integer getBatchSize()
-  {
-    return batchSize;
-  }
 
-  public void setBatchSize(Integer batchSize)
-  {
-    this.batchSize = batchSize;
-  }
 
   public int getShutdownTimeout()
   {
@@ -171,6 +175,7 @@ public class CouchBaseStore implements Connectable
       cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
       cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
       client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucket, password));
+      //client = new CouchbaseClient(baseURIs, "default", "");
     }
     catch (IOException e) {
       logger.error("Error connecting to Couchbase: " + e.getMessage());

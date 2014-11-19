@@ -16,18 +16,13 @@
 package com.datatorrent.contrib.couchbase;
 
 import com.couchbase.client.CouchbaseClient;
-import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
-import com.datatorrent.common.util.DTThrowable;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.CountDownLatch;
-import net.spy.memcached.internal.OperationCompletionListener;
 import net.spy.memcached.internal.OperationFuture;
+import net.spy.memcached.internal.OperationCompletionListener;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,10 +39,13 @@ public class CouchBaseSetTest
   protected static final Logger logger = LoggerFactory.getLogger(CouchBaseSetTest.class);
   public static List<Object> tuples;
   List<URI> baseURIs = new ArrayList<URI>();
+  OperationFuture<Boolean> future;
+  CouchbaseClient client = null;
+  private CompletionListener listener;
 
   public CouchBaseSetTest()
   {
-
+    listener = new CompletionListener();
     tuples = new ArrayList<Object>();
   }
 
@@ -79,52 +77,75 @@ public class CouchBaseSetTest
     ArrayList<URI> nodes = new ArrayList<URI>();
 
     // Add one or more nodes of your cluster (exchange the IP with yours)
-    nodes.add(URI.create("http://127.0.0.1:8091/pools"));
+    nodes.add(URI.create("http://localhost:8091/pools"));
 
     // Try to connect to the client
-    CouchbaseClient client = null;
     try {
       client = new CouchbaseClient(nodes, "default", "");
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       System.err.println("Error connecting to Couchbase: " + e.getMessage());
       System.exit(1);
     }
-      /*for (int i = 0; i < 100; i++) {
+    /*for (int i = 0; i < 100; i++) {
 
-        final OperationFuture<Boolean> future = client.set("Key" + (k * 100 + i), i);
-        future.addListener(new OperationCompletionListener()
-        {
+     final OperationFuture<Boolean> future = client.set("Key" + (k * 100 + i), i);
+     future.addListener(new OperationCompletionListener()
+     {
 
-          @Override
-          public void onComplete(OperationFuture<?> f) throws Exception
-          {
-            countLatch.countDown();
-            if (!((Boolean)f.get())) {
-              logger.info("Noway");
-            }
-            j.incrementAndGet();
+     @Override
+     public void onComplete(OperationFuture<?> f) throws Exception
+     {
+     countLatch.countDown();
+     if (!((Boolean)f.get())) {
+     logger.info("Noway");
+     }
+     j.incrementAndGet();
 
-          }
+     }
 
-        });
+     });
+     }
+     try {
+     countLatch.await();
+     }
+     catch (InterruptedException ex) {
+     logger.error("Error connecting to Couchbase: " + ex.getMessage());
+     DTThrowable.rethrow(ex.getCause());
+     }*/
+    TestPojo obj = new TestPojo();
+    obj.setName("prerna");
+    obj.setPhone(123344555);
+    HashMap<String, Integer> map = new HashMap<String, Integer>();
+    map.put("prer", 12345);
+    obj.setMap(map);
+    long starttime = System.currentTimeMillis();
+    //for (int i = 0; i < 10000; i++) {
+      future = processKeyValue("key" , obj);
+      future.addListener(listener);
+    //}
+
+  }
+
+  long stopTime = System.currentTimeMillis();
+
+  public OperationFuture processKeyValue(String key, Object value)
+  {
+    future = client.set(key, value);
+    return future;
+  }
+
+  protected class CompletionListener implements OperationCompletionListener
+  {
+    @Override
+    public void onComplete(OperationFuture<?> f) throws Exception
+    {
+      if (!((Boolean)f.get())) {
+        logger.error("Operation failed " + f);
       }
-      try {
-        countLatch.await();
-      }
-      catch (InterruptedException ex) {
-        logger.error("Error connecting to Couchbase: " + ex.getMessage());
-        DTThrowable.rethrow(ex.getCause());
-      }*/
-      TestPojo obj = new TestPojo();
-      obj.setName("prerna");
-      obj.setPhone(123344555);
-      HashMap<String,Integer> map = new HashMap<String, Integer>();
-      map.put("prer", 12345);
-      client.set("key", obj);
+      logger.info("Operation completed");
     }
-    long stopTime = System.currentTimeMillis();
 
-
- 
+  }
 
 }

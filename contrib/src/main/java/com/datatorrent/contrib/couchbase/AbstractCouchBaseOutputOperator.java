@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * AbstractCouchBaseOutputOperator which extends Transactionable Store Output Operator.
@@ -41,12 +42,13 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
 {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
   protected transient ConcurrentHashMap<OperationFuture, Long> mapFuture;
-  protected transient AtomicInteger numTuples;
+  protected AtomicInteger numTuples;
   protected CouchBaseSerializer serializer;
   protected ConcurrentSkipListMap<Long, T> mapTuples;
   protected long id = 0;
   protected transient OperationFuture<Boolean> future;
   private transient CompletionListener listener;
+  private transient boolean failure;
 
   public AbstractCouchBaseOutputOperator()
   {
@@ -54,18 +56,20 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     mapTuples = new ConcurrentSkipListMap<Long, T>();
     store = new CouchBaseWindowStore();
     listener = new CompletionListener();
-
+    numTuples = new AtomicInteger(0);
   }
 
   @Override
   public void setup(OperatorContext context)
   {
     ProcessingMode mode = context.getValue(context.PROCESSING_MODE);
-    if (mode == ProcessingMode.AT_MOST_ONCE || mode == ProcessingMode.AT_LEAST_ONCE) {
+    if (mode == ProcessingMode.AT_MOST_ONCE) {
       //map must be cleared to avoid writing same data twice
-      mapTuples.clear();
+      if (numTuples.get() == 0) {
+        mapTuples.clear();
+      }
     }
-
+    numTuples.set(0);
     //atleast once, check leftovers in map and send them to couchbase.
     if (!mapTuples.isEmpty()) {
       Iterator itr = mapTuples.values().iterator();
@@ -79,14 +83,14 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void beginWindow(long windowId)
   {
-    numTuples = new AtomicInteger(0);
+    numTuples.set(0);
     super.beginWindow(windowId);
   }
 
   @Override
   public void processTuple(T tuple)
   {
-    waitForBatch(store.batchSize);
+    waitForQueueSize(store.queueSize - 1);
     setKeyValueInCouchBase(tuple);
   }
 
@@ -100,6 +104,9 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     }
     future = processKeyValue(key, value);
     future.addListener(listener);
+    if (failure) {
+      throw new RuntimeException("Operation Failed");
+    }
     mapFuture.put(future, id);
     if (!mapTuples.containsKey(id)) {
       mapTuples.put(id, tuple);
@@ -110,24 +117,34 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void storeAggregate()
   {
-    waitForBatch(0);
+    waitForQueueSize(0);
     id = 0;
   }
 
-  public void waitForBatch(int sizeOfQueue)
+  public void waitForQueueSize(int sizeOfQueue)
   {
     long startTms = System.currentTimeMillis();
-    long endTime = startTms + store.timeout;
-    while (numTuples.get() > sizeOfQueue){
+    long elapsedTime = 0;
+    while (numTuples.get() > sizeOfQueue) {
       synchronized (numTuples) {
         try {
-          long elapsedTime = System.currentTimeMillis() - endTime;
-          numTuples.wait(elapsedTime);
+          elapsedTime = System.currentTimeMillis() - startTms;
+          if (elapsedTime > store.timeout) {
+            logger.info("elapsed time is greater");
+            break;
+          }
+          else {
+            numTuples.wait(store.timeout - elapsedTime);
+          }
         }
         catch (InterruptedException ex) {
-          logger.info(AbstractCouchBaseOutputOperator.class.getName() + ex);
+          DTThrowable.rethrow(ex);
         }
-        endTime = startTms + store.timeout;
+      }
+      elapsedTime = System.currentTimeMillis() - startTms;
+      if (elapsedTime > store.timeout) {
+        logger.info("elapsed time is greater");
+        break;
       }
     }
 
@@ -139,7 +156,9 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     public void onComplete(OperationFuture<?> f) throws Exception
     {
       if (!((Boolean)f.get())) {
-        throw new RuntimeException("Operation failed " + f);
+        logger.error("Operation failed " + f);
+        failure = true;
+        return;
       }
       long idProcessed = mapFuture.get(f);
       //listID.remove(idProcessed);
