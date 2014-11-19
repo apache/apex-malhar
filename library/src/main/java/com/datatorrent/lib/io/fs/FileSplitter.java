@@ -96,9 +96,14 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
   {
     //assumption is that FileSplitter is always statically partitioned. This operator doesn't do
     //much work therefore dynamic partitioning of it is not needed.
+
     try {
       @SuppressWarnings("unchecked")
       List<String> recoveredData = (List<String>) idempotentStorageManager.load(operatorId, windowId);
+      if (recoveredData == null) {
+        //This could happen when there are multiple physical instances and one of them is ahead in processing windows.
+        return;
+      }
       for (String recoveredPath : recoveredData) {
         processedFiles.add(recoveredPath);
         FileMetadata fileMetadata = buildFileMetadata(recoveredPath);

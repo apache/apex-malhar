@@ -98,6 +98,7 @@ public class IdempotentStorageManagerTest
     data.put(2, "two");
     data.put(3, "three");
     testMeta.storageManager.save(data, 1, 1);
+    testMeta.storageManager.setup(testMeta.context);
     @SuppressWarnings("unchecked")
     Map<Integer, String> decoded = (Map<Integer, String>) testMeta.storageManager.load(1, 1);
     Assert.assertEquals("dataOf1", data, decoded);
@@ -118,7 +119,7 @@ public class IdempotentStorageManagerTest
 
     testMeta.storageManager.save(dataOf1, 1, 1);
     testMeta.storageManager.save(dataOf2, 2, 1);
-
+    testMeta.storageManager.setup(testMeta.context);
     Map<Integer, Object> decodedStates = testMeta.storageManager.load(1);
     Assert.assertEquals("no of states", 2, decodedStates.size());
     for (Integer operatorId : decodedStates.keySet()) {

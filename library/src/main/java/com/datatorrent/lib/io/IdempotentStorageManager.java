@@ -170,16 +170,22 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
     @Override
     public Object load(int operatorId, long windowId) throws IOException
     {
+      Set<Integer> operators = replayState.get(windowId);
+      if (operators == null || !operators.contains(operatorId)) {
+        return null;
+      }
       return storageAgent.load(operatorId, windowId);
     }
 
     @Override
     public Map<Integer, Object> load(long windowId) throws IOException
     {
+      Set<Integer> operators = replayState.get(windowId);
+      if (operators == null) {
+        return null;
+      }
       Map<Integer, Object> data = Maps.newHashMap();
-      FileStatus[] fileStatuses = fs.listStatus(appPath);
-      for (FileStatus operatorDirStatus : fileStatuses) {
-        int operatorId = Integer.parseInt(operatorDirStatus.getPath().getName());
+      for (int operatorId : operators) {
         data.put(operatorId, load(operatorId, windowId));
       }
       return data;
