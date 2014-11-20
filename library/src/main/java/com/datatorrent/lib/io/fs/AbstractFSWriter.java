@@ -227,6 +227,7 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
   @Override
   public void setup(Context.OperatorContext context)
   {
+    LOG.debug("setup initiated");
     rollingFile = maxLength < Long.MAX_VALUE;
 
     //Getting required file system instance.
@@ -239,8 +240,7 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
 
     LOG.debug("FS class {}", fs.getClass());
 
-    //Setting listener for debugging
-    LOG.debug("setup initiated");
+    //When an entry is removed from the cache, removal listener is notified and it closes the output stream.
     RemovalListener<String, FSDataOutputStream> removalListener = new RemovalListener<String, FSDataOutputStream>()
     {
       @Override
