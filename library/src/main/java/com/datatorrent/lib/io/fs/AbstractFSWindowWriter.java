@@ -51,7 +51,7 @@ public abstract class AbstractFSWindowWriter<INPUT> extends AbstractFSWriter<INP
   @Override
   public void endWindow()
   {
-    closeFileAndRemove(windowIdString);
+    closeFile(windowIdString);
   }
 
   @Override
