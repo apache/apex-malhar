@@ -19,9 +19,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.fs.AbstractFSWriterTest.CheckPointWriter;
 import com.datatorrent.lib.io.fs.AbstractFSWriterTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
-import java.io.*;
 import org.junit.*;
-import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
 /**
@@ -48,7 +46,7 @@ public class AbstractFSWindowWriterTest
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
                 new OperatorContextTestHelper.TestIdOperatorContext(0);
 
-  public static class FSWindowWriterString extends AbstractFSWindowWriter<String, String>
+  public static class FSWindowWriterString extends AbstractFSWindowWriter<String>
   {
     @Override
     protected byte[] getBytesForTuple(String tuple)
