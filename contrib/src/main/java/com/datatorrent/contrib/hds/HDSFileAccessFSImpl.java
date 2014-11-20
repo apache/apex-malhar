@@ -16,9 +16,12 @@
 package com.datatorrent.contrib.hds;
 
 import java.io.IOException;
+import java.util.List;
+import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import com.beust.jcommander.internal.Lists;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -40,6 +43,24 @@ abstract public class HDSFileAccessFSImpl implements HDSFileAccess
 
   public HDSFileAccessFSImpl()
   {
+  }
+
+  private List<HDSFileExporter> fileExporters = Lists.newArrayList();
+
+  @Override
+  public void registerExporter(HDSFileExporter exporter){
+    fileExporters.add(exporter);
+  }
+
+  public void clearExporters() {
+    fileExporters.clear();
+  }
+
+  @Override
+  public void exportFiles(long bucketKey, Set<String> filesAdded, Set<String> filesToDelete) throws IOException {
+    for(HDSFileExporter exporter: fileExporters) {
+      exporter.exportFiles(getBucketPath(bucketKey), filesAdded, filesToDelete);
+    }
   }
 
   public String getBasePath()

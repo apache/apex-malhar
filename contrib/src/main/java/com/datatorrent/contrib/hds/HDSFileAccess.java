@@ -19,6 +19,7 @@ import java.io.Closeable;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.util.Set;
 import java.util.TreeMap;
 
 import com.datatorrent.common.util.Slice;
@@ -53,8 +54,6 @@ public interface HDSFileAccess extends Closeable
      * @param data
      * @throws IOException
      */
-    //Move to
-    // void readFully(TreeMap<Slice, Slice> data) throws IOException;
     void readFully(TreeMap<Slice, byte[]> data) throws IOException;
 
     /**
@@ -116,5 +115,20 @@ public interface HDSFileAccess extends Closeable
    * work just based on OutputStream), construction of the writer is part of the file system abstraction itself.
    */
   public HDSFileWriter getWriter(long bucketKey, String fileName) throws IOException;
+
+  /**
+   * Register an exporter
+   */
+  public void registerExporter(HDSFileExporter exporter);
+
+  /**
+   * Remove all registered exporters
+   */
+  public void clearExporters();
+
+  /**
+   * Callback to perform exports on newly flushed files.
+   */
+  public void exportFiles(long bucketKey, Set<String> filesAdded, Set<String> filesToDelete) throws IOException;
 
 }

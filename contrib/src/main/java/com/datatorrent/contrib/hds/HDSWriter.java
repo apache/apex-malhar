@@ -17,10 +17,7 @@ package com.datatorrent.contrib.hds;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -43,6 +40,9 @@ import com.esotericsoftware.kryo.io.Output;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
+import org.apache.hadoop.hive.ql.io.orc.OrcFile;
+
 
 /**
  * Writes data to buckets. Can be sub-classed as operator or used in composite pattern.
@@ -165,10 +165,11 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
    * @param data
    * @throws IOException
    */
-  private void writeFile(Bucket bucket, BucketMeta bucketMeta, TreeMap<Slice, byte[]> data) throws IOException
+  private Set<String> writeFile(Bucket bucket, BucketMeta bucketMeta, TreeMap<Slice, byte[]> data) throws IOException
   {
     HDSFileWriter fw = null;
     BucketFileMeta fileMeta = null;
+    HashSet<String> filesAdded = Sets.newHashSet();
     int keysWritten = 0;
     for (Map.Entry<Slice, byte[]> dataEntry : data.entrySet()) {
       if (fw == null) {
@@ -185,6 +186,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
         // roll file
         fw.close();
         this.store.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+        filesAdded.add(fileMeta.name);
         LOG.debug("created data file {} {} with {} entries", bucket.bucketKey, fileMeta.name, keysWritten);
         fw = null;
         keysWritten = 0;
@@ -194,8 +196,10 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
     if (fw != null) {
       fw.close();
       this.store.rename(bucket.bucketKey, fileMeta.name + ".tmp", fileMeta.name);
+      filesAdded.add(fileMeta.name);
       LOG.debug("created data file {} {} with {} entries", bucket.bucketKey, fileMeta.name, keysWritten);
     }
+    return filesAdded;
   }
 
   private Bucket getBucket(long bucketKey) throws IOException
@@ -317,6 +321,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
       fileUpdates.put(entry.getKey(), entry.getValue());
     }
 
+    HashSet<String> filesAdded = Sets.newHashSet();
     HashSet<String> filesToDelete = Sets.newHashSet();
 
     // write modified files
@@ -335,8 +340,11 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
       // apply updates
       fileData.putAll(fileEntry.getValue());
       // new file
-      writeFile(bucket, bucketMetaCopy, fileData);
+      filesAdded.addAll(writeFile(bucket, bucketMetaCopy, fileData));
     }
+
+    // Export
+    store.exportFiles(bucket.bucketKey, filesAdded, filesToDelete);
 
     // flush meta data for new files
     try {
