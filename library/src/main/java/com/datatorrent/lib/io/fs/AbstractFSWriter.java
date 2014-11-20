@@ -565,9 +565,9 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
    * @throws IOException
    * @throws ExecutionException
    */
-  private void rotate(String fileName) throws IllegalArgumentException,
-                                              IOException,
-                                              ExecutionException
+  protected void rotate(String fileName) throws IllegalArgumentException,
+                                                IOException,
+                                                ExecutionException
   {
     counts.remove(fileName);
     streamsCache.invalidate(fileName);
