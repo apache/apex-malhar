@@ -28,7 +28,7 @@ import com.datatorrent.lib.util.KeyHashValPair;
  * @param <V> Value type
  * @since 0.9.4
  */
-public class HdfsKeyValOutputOperator<K, V> extends AbstractFSSingleFileWriter<KeyHashValPair<K, V>, KeyHashValPair<K, V>>
+public class HdfsKeyValOutputOperator<K, V> extends AbstractFSSingleFileWriter<KeyHashValPair<K, V>>
 {
   @Override
   public byte[] getBytesForTuple(KeyHashValPair<K,V> t)

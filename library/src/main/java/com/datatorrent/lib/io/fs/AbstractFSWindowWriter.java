@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.2
  */
-public abstract class AbstractFSWindowWriter<INPUT, OUTPUT> extends AbstractFSWriter<INPUT, OUTPUT>
+public abstract class AbstractFSWindowWriter<INPUT> extends AbstractFSWriter<INPUT>
 {
   private static final long serialVersionUID = 201405201214L;
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFSWindowWriter.class);
@@ -42,39 +42,38 @@ public abstract class AbstractFSWindowWriter<INPUT, OUTPUT> extends AbstractFSWr
   }
 
   @Override
-  public final void beginWindow(long windowId)
+  public void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
     windowIdString = Long.toString(windowId);
   }
 
   @Override
-  public final void endWindow()
+  public void endWindow()
   {
-    endOffsets.clear();
-    streamsCache.invalidateAll();
+    closeFile(windowIdString);
   }
 
   @Override
-  protected final String getFileName(INPUT tuple)
+  protected String getFileName(INPUT tuple)
   {
     return windowIdString;
   }
 
   @Override
-  public final void setAppend(boolean append)
+  public void setAppend(boolean append)
   {
     throw new UnsupportedOperationException("This property cannot be set on this operator.");
   }
 
   @Override
-  public final void setMaxLength(long maxLength)
+  public void setMaxLength(long maxLength)
   {
     throw new UnsupportedOperationException("This property cannot be set on this operator.");
   }
 
   @Override
-  public final void setMaxOpenFiles(int maxOpenFiles)
+  public void setMaxOpenFiles(int maxOpenFiles)
   {
     throw new UnsupportedOperationException("This property cannot be set on this operator.");
   }
