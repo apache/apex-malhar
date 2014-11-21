@@ -13,26 +13,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.mroperator;
+package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.lib.io.fs.AbstractFSSingleFileWriter;
-import com.datatorrent.lib.util.KeyHashValPair;
+import com.datatorrent.common.util.DTThrowable;
+import java.io.IOException;
+import org.codehaus.jackson.map.ObjectMapper;
 
-/**
- * Adapter for writing KeyHashValPair objects to HDFS
- * <p>
- * Serializes tuples into a HDFS file.<br/>
- * </p>
- *
- * @param <K> Key type
- * @param <V> Value type
- * @since 0.9.4
- */
-public class HdfsKeyValOutputOperator<K, V> extends AbstractFSSingleFileWriter<KeyHashValPair<K, V>>
+public class CouchBaseJSONSerializer implements CouchBaseSerializer
 {
-  @Override
-  public byte[] getBytesForTuple(KeyHashValPair<K,V> t)
+
+  private ObjectMapper mapper;
+
+  public CouchBaseJSONSerializer()
   {
-    return (t.toString()+"\n").getBytes();
+    mapper = new ObjectMapper();
   }
+
+  @Override
+  public String serialize(Object o)
+  {
+    String value = null;
+    try {
+      value = mapper.writeValueAsString(o);
+    }
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    return value;
+  }
+
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.io.fs;
+package com.datatorrent.contrib.couchbase;
 
-/**
- * File Info Record that contains file name, file type and file size.<p>
- * <br>
- *
- * @since 0.9.3
- */
-public class FileInfoRecord
+
+public interface CouchBaseSerializer
 {
-  private String filePathName;
-  private String fileType;
-  private long fileSize;
-  
-  FileInfoRecord(){}
-  
-  FileInfoRecord(String fileCompleteName, String fileType, long fileSize)
-  {
-    this.filePathName = fileCompleteName;
-    this.fileType = fileType;
-    this.fileSize = fileSize;
-  }
+  public Object serialize(Object o);
 }

@@ -13,26 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.mroperator;
+package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.lib.io.fs.AbstractFSSingleFileWriter;
-import com.datatorrent.lib.util.KeyHashValPair;
+import net.spy.memcached.internal.OperationFuture;
 
 /**
- * Adapter for writing KeyHashValPair objects to HDFS
- * <p>
- * Serializes tuples into a HDFS file.<br/>
- * </p>
- *
- * @param <K> Key type
- * @param <V> Value type
- * @since 0.9.4
+ * AbstractCouchBaseSetOperator which extends AbstractCouchBaseOutputOperator and implements set functionality of couchbase.
  */
-public class HdfsKeyValOutputOperator<K, V> extends AbstractFSSingleFileWriter<KeyHashValPair<K, V>>
+public abstract class AbstractCouchBaseSetOperator<T> extends AbstractCouchBaseOutputOperator<T>
 {
   @Override
-  public byte[] getBytesForTuple(KeyHashValPair<K,V> t)
+  public OperationFuture processKeyValue(String key, Object value)
   {
-    return (t.toString()+"\n").getBytes();
+    OperationFuture<Boolean> future = store.getInstance().set(key, value);
+    return future;
   }
 }

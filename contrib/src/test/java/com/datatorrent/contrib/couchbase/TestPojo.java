@@ -13,26 +13,47 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.mroperator;
+package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.lib.io.fs.AbstractFSSingleFileWriter;
-import com.datatorrent.lib.util.KeyHashValPair;
+import java.io.Serializable;
+import java.util.HashMap;
 
-/**
- * Adapter for writing KeyHashValPair objects to HDFS
- * <p>
- * Serializes tuples into a HDFS file.<br/>
- * </p>
- *
- * @param <K> Key type
- * @param <V> Value type
- * @since 0.9.4
- */
-public class HdfsKeyValOutputOperator<K, V> extends AbstractFSSingleFileWriter<KeyHashValPair<K, V>>
+
+public class TestPojo implements Serializable
 {
-  @Override
-  public byte[] getBytesForTuple(KeyHashValPair<K,V> t)
+  private String name;
+
+  public String getName()
   {
-    return (t.toString()+"\n").getBytes();
+    return name;
   }
+
+  public void setName(String name)
+  {
+    this.name = name;
+  }
+
+  public HashMap<String, Integer> getMap()
+  {
+    return map;
+  }
+
+  public void setMap(HashMap<String, Integer> map)
+  {
+    this.map = map;
+  }
+
+  public Integer getPhone()
+  {
+    return phone;
+  }
+
+  public void setPhone(Integer phone)
+  {
+    this.phone = phone;
+  }
+  private HashMap<String,Integer> map;
+  private Integer phone;
+
+
 }

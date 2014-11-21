@@ -29,7 +29,7 @@ import java.io.File;
  *
  * @since 0.9.4
  */
-public class HdfsStringOutputOperator extends AbstractFSWriter<String, String>
+public class HdfsStringOutputOperator extends AbstractFSWriter<String>
 {
   private transient String outputFileName;
   private transient String contextId;

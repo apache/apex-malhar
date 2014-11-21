@@ -63,7 +63,7 @@ public class AbstractFSSingleFileWriterTest
   /**
    * Dummy writer to store checkpointed state
    */
-  private static class CheckPointWriter extends AbstractFSSingleFileWriter<Integer, Integer>
+  private static class CheckPointWriter extends AbstractFSSingleFileWriter<Integer>
   {
     @Override
     protected byte[] getBytesForTuple(Integer tuple)
@@ -75,7 +75,7 @@ public class AbstractFSSingleFileWriterTest
   /**
    * Simple writer which writes to one file.
    */
-  private static class SingleHDFSExactlyOnceWriter extends AbstractFSSingleFileWriter<Integer, Integer>
+  private static class SingleHDFSExactlyOnceWriter extends AbstractFSSingleFileWriter<Integer>
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -91,7 +91,7 @@ public class AbstractFSSingleFileWriterTest
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private CheckPointWriter checkpoint(AbstractFSSingleFileWriter<Integer, Integer> writer)
+  private CheckPointWriter checkpoint(AbstractFSSingleFileWriter<Integer> writer)
   {
     CheckPointWriter checkPointWriter = new CheckPointWriter();
     checkPointWriter.append = writer.append;
@@ -128,7 +128,7 @@ public class AbstractFSSingleFileWriterTest
 
   @SuppressWarnings({"unchecked", "rawtypes"})
   private void restoreCheckPoint(CheckPointWriter checkPointWriter,
-                                 AbstractFSSingleFileWriter<Integer, Integer> writer)
+                                 AbstractFSSingleFileWriter<Integer> writer)
   {
     writer.append = checkPointWriter.append;
     writer.counts = checkPointWriter.counts;
