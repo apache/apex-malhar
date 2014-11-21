@@ -18,9 +18,6 @@ package com.datatorrent.contrib.couchbase;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import net.spy.memcached.internal.OperationCompletionListener;
 import net.spy.memcached.internal.OperationFuture;
 
@@ -49,7 +46,6 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   protected CouchBaseSerializer serializer;
   protected TreeMap<Long, T> mapTuples;
   protected long id = 0;
-  protected transient OperationFuture<Boolean> future;
   private transient CompletionListener listener;
   private transient boolean failure;
   private transient Object syncObj;
@@ -110,7 +106,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     if (serializer != null) {
       value = serializer.serialize(value);
     }
-    future = processKeyValue(key, value);
+    OperationFuture<Boolean> future = processKeyValue(key, value);
     synchronized (syncObj) {
       future.addListener(listener);
       mapFuture.put(future, id);
