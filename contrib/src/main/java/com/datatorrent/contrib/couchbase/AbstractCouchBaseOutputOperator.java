@@ -15,7 +15,9 @@
  */
 package com.datatorrent.contrib.couchbase;
 
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,6 +30,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.AbstractAggregateTransactionableStoreOutputOperator;
 
 import com.datatorrent.api.Context.OperatorContext;
+
 import com.datatorrent.common.util.DTThrowable;
 
 /**
@@ -41,22 +44,23 @@ import com.datatorrent.common.util.DTThrowable;
 public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, CouchBaseWindowStore>
 {
   private static final transient Logger logger = LoggerFactory.getLogger(AbstractCouchBaseOutputOperator.class);
-  protected transient ConcurrentHashMap<OperationFuture, Long> mapFuture;
-  protected AtomicInteger numTuples;
+  protected transient HashMap<OperationFuture, Long> mapFuture;
+  protected int numTuples;
   protected CouchBaseSerializer serializer;
-  protected ConcurrentSkipListMap<Long, T> mapTuples;
+  protected TreeMap<Long, T> mapTuples;
   protected long id = 0;
   protected transient OperationFuture<Boolean> future;
   private transient CompletionListener listener;
   private transient boolean failure;
+  private transient Object syncObj;
 
   public AbstractCouchBaseOutputOperator()
   {
-    mapFuture = new ConcurrentHashMap<OperationFuture, Long>();
-    mapTuples = new ConcurrentSkipListMap<Long, T>();
+    mapFuture = new HashMap<OperationFuture, Long>();
+    mapTuples = new TreeMap<Long, T>();
     store = new CouchBaseWindowStore();
     listener = new CompletionListener();
-    numTuples = new AtomicInteger(0);
+    numTuples = 0;
   }
 
   @Override
@@ -65,11 +69,11 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     ProcessingMode mode = context.getValue(context.PROCESSING_MODE);
     if (mode == ProcessingMode.AT_MOST_ONCE) {
       //map must be cleared to avoid writing same data twice
-      if (numTuples.get() == 0) {
+      if (numTuples == 0) {
         mapTuples.clear();
       }
     }
-    numTuples.set(0);
+    numTuples = 0;
     //atleast once, check leftovers in map and send them to couchbase.
     if (!mapTuples.isEmpty()) {
       Iterator itr = mapTuples.values().iterator();
@@ -83,13 +87,16 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   @Override
   public void beginWindow(long windowId)
   {
-    numTuples.set(0);
+    numTuples = 0;
     super.beginWindow(windowId);
   }
 
   @Override
   public void processTuple(T tuple)
   {
+    if (failure) {
+      throw new RuntimeException("Operation Failed");
+    }
     waitForQueueSize(store.queueSize - 1);
     setKeyValueInCouchBase(tuple);
   }
@@ -97,21 +104,21 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   public void setKeyValueInCouchBase(T tuple)
   {
     id++;
-    String key = generateKey(tuple);
+    String key = getKey(tuple);
     Object value = getValue(tuple);
     if (serializer != null) {
       value = serializer.serialize(value);
     }
     future = processKeyValue(key, value);
-    future.addListener(listener);
-    if (failure) {
-      throw new RuntimeException("Operation Failed");
+    synchronized (syncObj) {
+      future.addListener(listener);
+      mapFuture.put(future, id);
+      if (!mapTuples.containsKey(id)) {
+        mapTuples.put(id, tuple);
+      }
+      numTuples++;
     }
-    mapFuture.put(future, id);
-    if (!mapTuples.containsKey(id)) {
-      mapTuples.put(id, tuple);
-    }
-    numTuples.incrementAndGet();
+
   }
 
   @Override
@@ -125,29 +132,29 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   {
     long startTms = System.currentTimeMillis();
     long elapsedTime = 0;
-    while (numTuples.get() > sizeOfQueue) {
-      synchronized (numTuples) {
-        try {
+    while (numTuples > sizeOfQueue) {
+      synchronized (syncObj) {
+        if (numTuples > sizeOfQueue) {
+          try {
+            elapsedTime = System.currentTimeMillis() - startTms;
+            if (elapsedTime >= store.timeout) {
+              throw new RuntimeException("Timed out waiting for space in queue");
+            }
+            else {
+              syncObj.wait(store.timeout - elapsedTime);
+            }
+          }
+          catch (InterruptedException ex) {
+            DTThrowable.rethrow(ex);
+          }
+
           elapsedTime = System.currentTimeMillis() - startTms;
-          if (elapsedTime > store.timeout) {
-            logger.info("elapsed time is greater");
-            break;
-          }
-          else {
-            numTuples.wait(store.timeout - elapsedTime);
+          if (elapsedTime >= store.timeout) {
+            throw new RuntimeException("Timed out waiting for space in queue");
           }
         }
-        catch (InterruptedException ex) {
-          DTThrowable.rethrow(ex);
-        }
-      }
-      elapsedTime = System.currentTimeMillis() - startTms;
-      if (elapsedTime > store.timeout) {
-        logger.info("elapsed time is greater");
-        break;
       }
     }
-
   }
 
   protected class CompletionListener implements OperationCompletionListener
@@ -160,17 +167,12 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
         failure = true;
         return;
       }
-      long idProcessed = mapFuture.get(f);
-      //listID.remove(idProcessed);
-      if (mapTuples.containsKey(idProcessed)) {
+      synchronized (syncObj) {
+        long idProcessed = mapFuture.get(f);
         mapTuples.remove(idProcessed);
-      }
-      if (mapFuture.containsKey(f)) {
         mapFuture.remove(f);
-      }
-      numTuples.decrementAndGet();
-      synchronized (numTuples) {
-        numTuples.notify();
+        numTuples--;
+        syncObj.notify();
       }
     }
 
@@ -186,7 +188,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
     this.serializer = serializer;
   }
 
-  public abstract String generateKey(T tuple);
+  public abstract String getKey(T tuple);
 
   public abstract Object getValue(T tuple);
 

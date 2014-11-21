@@ -125,7 +125,7 @@ public class CouchBaseOutputOperatorTest
     logger.info("after begin window");
     for (TestEvent event: events) {
       logger.info("before process window");
-      //outputOperator.generateKey(event);
+      //outputOperator.getKey(event);
       //outputOperator.getValue(event);
       outputOperator.input.process(event);
       logger.info("after process window");
@@ -153,7 +153,7 @@ public class CouchBaseOutputOperatorTest
     }
 
     @Override
-    public String generateKey(TestEvent tuple)
+    public String getKey(TestEvent tuple)
     {
       return tuple.key;
     }

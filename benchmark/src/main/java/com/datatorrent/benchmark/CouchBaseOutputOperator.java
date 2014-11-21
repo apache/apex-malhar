@@ -25,7 +25,7 @@ public class CouchBaseOutputOperator extends AbstractCouchBaseSetOperator<Intege
 {
 
   @Override
-  public String generateKey(Integer tuple)
+  public String getKey(Integer tuple)
   {
     return "Key" + tuple;
   }
