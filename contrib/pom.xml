@@ -290,13 +290,6 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-      <groupId>com.google.code.simple-spring-memcached</groupId>
-      <artifactId>spymemcached</artifactId>
-      <version>2.8.4</version>
-      <type>jar</type>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
       <groupId>org.fusesource.mqtt-client</groupId>
       <artifactId>mqtt-client</artifactId>
       <version>1.6</version>
@@ -511,15 +504,33 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-     <groupId>org.apache.thrift</groupId>
-     <artifactId>libthrift</artifactId>
-     <version>0.9.0</version>
-     <optional>true</optional>
-   </dependency>
-   <dependency>
+      <groupId>org.apache.thrift</groupId>
+      <artifactId>libthrift</artifactId>
+      <version>0.9.0</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpcore</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
       <groupId>com.aerospike</groupId>
       <artifactId>aerospike-client</artifactId>
       <version>3.0.26</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>net.spy</groupId>
+      <artifactId>spymemcached</artifactId>
+      <version>2.11.4</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>com.couchbase.client</groupId>
+      <artifactId>couchbase-client</artifactId>
+      <version>1.4.4</version>
       <optional>true</optional>
     </dependency>
   </dependencies>
