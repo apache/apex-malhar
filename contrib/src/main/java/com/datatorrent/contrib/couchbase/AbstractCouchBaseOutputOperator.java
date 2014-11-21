@@ -133,9 +133,10 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
   {
     long startTms = System.currentTimeMillis();
     long elapsedTime = 0;
-    synchronized (syncObj) {
     while (numTuples > sizeOfQueue) {
-            try {
+      synchronized (syncObj) {
+        if (numTuples > sizeOfQueue) {
+          try {
             elapsedTime = System.currentTimeMillis() - startTms;
             if (elapsedTime >= store.timeout) {
               throw new RuntimeException("Timed out waiting for space in queue");
@@ -147,6 +148,7 @@ public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggrega
           catch (InterruptedException ex) {
             DTThrowable.rethrow(ex);
           }
+        }
       }
       elapsedTime = System.currentTimeMillis() - startTms;
       if (elapsedTime >= store.timeout) {
