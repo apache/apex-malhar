@@ -25,7 +25,7 @@ public abstract class AbstractCouchBaseSetOperator<T> extends AbstractCouchBaseO
   @Override
   public OperationFuture processKeyValue(String key, Object value)
   {
-    future = store.getInstance().set(key, value);
+    OperationFuture<Boolean> future = store.getInstance().set(key, value);
     return future;
   }
 }
