@@ -591,23 +591,21 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
   }
 
   /**
-   * This method will close a file and remove the file from the operator's offset
-   * history. If a file which has been closed and removed is accessed at a later time, all of
-   * its contents are overwritten. The child operator should not call this method
-   * on rolling files. An alternative way to close the file is to call streamsCache.invalidate(fileName).
-   * This will trigger a remove listener to close the file for you.
+   * This method will close a file.<br/>
+   * If {@link #append} is false then it removes the file from the operator's offset history.<br/>
+   *
+   * The child operator should not call this method on rolling files.
    * @param fileName The name of the file to close and remove.
    */
   protected void closeFile(String fileName)
   {
-    if(!endOffsets.containsKey(fileName))
-    {
-      throw new IllegalArgumentException("The file " +
-                                         fileName +
-                                         " was never opened.");
+    if (!endOffsets.containsKey(fileName)) {
+      throw new IllegalArgumentException("The file " + fileName + " was never opened.");
     }
-
-    endOffsets.remove(fileName);
+    if (!append) {
+      endOffsets.remove(fileName);
+    }
+    //triggers the RemoveListener#onRemoval() method.
     streamsCache.invalidate(fileName);
   }
 
