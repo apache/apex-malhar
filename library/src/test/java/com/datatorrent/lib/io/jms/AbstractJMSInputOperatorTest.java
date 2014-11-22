@@ -112,48 +112,25 @@ public class AbstractJMSInputOperatorTest
   }
 
   @Test
-  public void testTuplesBlast() throws Exception
+  public void testRecoveryAndIdempotency() throws Exception
   {
-    testMeta.operator.setTuplesBlast(10);
-    produceMsg(20);
+    produceMsg(100);
     Thread.sleep(1000);
     testMeta.operator.beginWindow(1);
     testMeta.operator.emitTuples();
     testMeta.operator.endWindow();
-    Assert.assertEquals("num of messages in window 1", 10, testMeta.sink.collectedTuples.size());
 
-    Thread.sleep(1000);
-    testMeta.sink.collectedTuples.clear();
-    testMeta.operator.beginWindow(2);
-    testMeta.operator.emitTuples();
-    testMeta.operator.endWindow();
-    Assert.assertEquals("num of messages in window 2", 10, testMeta.sink.collectedTuples.size());
-  }
-
-  @Test
-  public void testRecoveryAndIdempotency() throws Exception
-  {
-    testMeta.operator.setTuplesBlast(10);
-    produceMsg(100);
-    for (int i = 1; i <= 10; i++) {
-      Thread.sleep(1000);
-      testMeta.operator.beginWindow(i);
-      testMeta.operator.emitTuples();
-      testMeta.operator.endWindow();
-    }
     //failure and then re-deployment of operator
     testMeta.sink.collectedTuples.clear();
     testMeta.operator.setup(testMeta.context);
     testMeta.operator.activate(testMeta.context);
 
-    Assert.assertEquals("largest recovery window", 10, testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 1, testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
 
-    for (int i = 1; i <= 10; i++) {
-      testMeta.operator.beginWindow(i);
-      testMeta.operator.endWindow();
-      Assert.assertEquals("num of messages in window " + i, 10, testMeta.sink.collectedTuples.size());
-      testMeta.sink.collectedTuples.clear();
-    }
+    testMeta.operator.beginWindow(1);
+    testMeta.operator.endWindow();
+    Assert.assertEquals("num of messages in window 1", 100, testMeta.sink.collectedTuples.size());
+    testMeta.sink.collectedTuples.clear();
   }
 
   @Test

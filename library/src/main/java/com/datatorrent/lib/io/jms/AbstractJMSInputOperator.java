@@ -32,7 +32,6 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.google.common.util.concurrent.Monitor;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
@@ -59,7 +58,7 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
  * it will not be fault-tolerant as well.
  * <p/>
  * Configurations:<br/>
- * <b>tuplesBlast</b>: Number of tuples emitted in each window.<br/>
+ * <b>bufferSize</b>: Controls the holding buffer size.<br/>
  * <b>consumerName</b>: Name that identifies the subscription.<br/>
  *
  * @param <T> type of tuple emitted
@@ -72,11 +71,11 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
 public abstract class AbstractJMSInputOperator<T> extends JMSBase implements InputOperator, ActivationListener<OperatorContext>,
   MessageListener, ExceptionListener, Operator.IdleTimeHandler, Operator.CheckpointListener
 {
-  protected static final int TUPLES_BLAST_DEFAULT = 10 * 1024; // 10k
+  protected static final int DEFAULT_BUFFER_SIZE = 10 * 1024; // 10k
 
   //Configurations:
   @Min(1)
-  private int tuplesBlast = TUPLES_BLAST_DEFAULT;
+  private int bufferSize = DEFAULT_BUFFER_SIZE;
   private String consumerName;
 
   protected final transient ArrayBlockingQueue<Message> holdingBuffer;
@@ -93,15 +92,15 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
   private transient long spinMillis;
 
   private final transient AtomicReference<Throwable> throwable;
-  protected transient final Monitor monitor;
-  protected transient final Monitor.Guard canConsumeMore;
 
   @NotNull
   protected IdempotentStorageManager idempotentStorageManager;
   private transient long[] operatorRecoveredWindows;
   protected transient long currentWindowId;
+  protected transient int emitCount;
 
   private transient final Set<String> pendingAck;
+  private transient final Lock lock;
 
   public final transient DefaultOutputPort<T> output = new DefaultOutputPort<T>();
 
@@ -112,44 +111,28 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
     pendingAck = Sets.newHashSet();
     idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
 
-    monitor = new Monitor();
-    canConsumeMore = new Monitor.Guard(monitor)
-    {
-      @Override
-      public boolean isSatisfied()
-      {
-        return currentWindowRecoveryState.size() + holdingBuffer.size() < tuplesBlast;
-      }
-    };
+    lock = new Lock();
 
     //Creating the buffer & recovery list of the size of tuples blast because more messages cannot be consumed and acknowledged
     // than what is emitted per window.
-    currentWindowRecoveryState = Maps.newHashMapWithExpectedSize(tuplesBlast);
-    holdingBuffer = new ArrayBlockingQueue<Message>(tuplesBlast)
+    currentWindowRecoveryState = Maps.newHashMapWithExpectedSize(bufferSize);
+    holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize)
     {
       private static final long serialVersionUID = 201411151139L;
 
       @Override
       public boolean add(Message message)
       {
-        try {
-          //This ensures that number of tuples within a window will never be > tuplesBlast.
-          //Also a message is not consumed during saving recovery state and acknowledgement in the end window.
-          monitor.enterWhen(canConsumeMore);
-          return messageConsumed(message) && super.add(message);
+        synchronized (lock) {
+          try {
+            return messageConsumed(message) && super.add(message);
+          }
+          catch (JMSException e) {
+            LOG.error("message consumption", e);
+            throwable.set(e);
+            throw new RuntimeException(e);
+          }
         }
-        catch (InterruptedException e) {
-          LOG.error("monitor interrupted", e);
-          throwable.set(e);
-        }
-        catch (JMSException e) {
-          LOG.error("message consumption", e);
-          throwable.set(e);
-        }
-        finally {
-          monitor.leave();
-        }
-        return false;
       }
     };
   }
@@ -182,6 +165,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
     catch (JMSException ex) {
       LOG.error(ex.getLocalizedMessage());
       throwable.set(ex);
+      throw new RuntimeException(ex);
     }
   }
 
@@ -196,6 +180,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
     cleanup();
     LOG.error(ex.getLocalizedMessage());
     throwable.set(ex);
+    throw new RuntimeException(ex);
   }
 
   @Override
@@ -296,8 +281,9 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
     }
 
     Message msg;
-    while ((msg = holdingBuffer.poll()) != null) {
+    while (emitCount < bufferSize && (msg = holdingBuffer.poll()) != null) {
       processMessage(msg);
+      emitCount++;
       lastMsg = msg;
     }
   }
@@ -352,40 +338,46 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
   public void endWindow()
   {
     if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
-      monitor.enter();
-      boolean stateSaved = false;
-      boolean ackCompleted = false;
-      try {
-        //No more messages can be consumed now. so we will call emit tuples once more
-        //so that any pending messages can be emitted.
-        emitTuples();
-        idempotentStorageManager.save(currentWindowRecoveryState, context.getId(), currentWindowId);
-        stateSaved = true;
+      synchronized (lock) {
+        boolean stateSaved = false;
+        boolean ackCompleted = false;
+        try {
+          //No more messages can be consumed now. so we will call emit tuples once more
+          //so that any pending messages can be emitted.
+          Message msg;
+          while ((msg = holdingBuffer.poll()) != null) {
+            processMessage(msg);
+            emitCount++;
+            lastMsg = msg;
+          }
+          idempotentStorageManager.save(currentWindowRecoveryState, context.getId(), currentWindowId);
+          stateSaved = true;
 
-        currentWindowRecoveryState.clear();
-        if (lastMsg != null) {
-          acknowledge();
-        }
-        ackCompleted = true;
-        pendingAck.clear();
-      }
-      catch (Throwable t) {
-        if (!ackCompleted) {
-          LOG.info("recovery of {} for {} should not exist", context.getId(), currentWindowId, t);
-        }
-        DTThrowable.rethrow(t);
-      }
-      finally {
-        monitor.leave();
-        if (stateSaved && !ackCompleted) {
-          try {
-            idempotentStorageManager.delete(context.getId(), currentWindowId);
+          currentWindowRecoveryState.clear();
+          if (lastMsg != null) {
+            acknowledge();
           }
-          catch (IOException e) {
-            LOG.error("unable to delete corrupted state", e);
+          ackCompleted = true;
+          pendingAck.clear();
+        }
+        catch (Throwable t) {
+          if (!ackCompleted) {
+            LOG.info("confirm recovery of {} for {} does not exist", context.getId(), currentWindowId, t);
+          }
+          DTThrowable.rethrow(t);
+        }
+        finally {
+          if (stateSaved && !ackCompleted) {
+            try {
+              idempotentStorageManager.delete(context.getId(), currentWindowId);
+            }
+            catch (IOException e) {
+              LOG.error("unable to delete corrupted state", e);
+            }
           }
         }
       }
+      emitCount = 0; //reset emit count
     }
     else if (operatorRecoveredWindows != null && currentWindowId < operatorRecoveredWindows[operatorRecoveredWindows.length - 1]) {
       //pendingAck is not cleared for the last replayed window of this operator. This is because there is
@@ -463,21 +455,21 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
   protected abstract T convert(Message message);
 
   /**
-   * @return the tuplesBlast
+   * @return the bufferSize
    */
-  public int getTuplesBlast()
+  public int getBufferSize()
   {
-    return tuplesBlast;
+    return bufferSize;
   }
 
   /**
    * Sets the number of tuples emitted in each burst.
    *
-   * @param tuplesBlast the number of tuples to emit in each burst.
+   * @param bufferSize the number of tuples to emit in each burst.
    */
-  public void setTuplesBlast(int tuplesBlast)
+  public void setBufferSize(int bufferSize)
   {
-    this.tuplesBlast = tuplesBlast;
+    this.bufferSize = bufferSize;
   }
 
   /**
@@ -519,6 +511,10 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
   public static enum CounterKeys
   {
     RECEIVED, REDELIVERED
+  }
+
+  private static class Lock
+  {
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractJMSInputOperator.class);
