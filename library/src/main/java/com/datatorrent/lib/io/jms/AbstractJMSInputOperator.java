@@ -75,10 +75,10 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
 
   //Configurations:
   @Min(1)
-  private int bufferSize = DEFAULT_BUFFER_SIZE;
+  protected int bufferSize = DEFAULT_BUFFER_SIZE;
   private String consumerName;
 
-  protected final transient ArrayBlockingQueue<Message> holdingBuffer;
+  protected transient ArrayBlockingQueue<Message> holdingBuffer;
   protected final transient Map<String, T> currentWindowRecoveryState;
 
   protected transient Message lastMsg;
