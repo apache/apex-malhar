@@ -236,7 +236,7 @@ public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.
   public void committed(long windowId)
   {
     try {
-      idempotentStorageManager.delete(operatorId, windowId);
+      idempotentStorageManager.deleteUpTo(operatorId, windowId);
     }
     catch (IOException e) {
       throw new RuntimeException("deleting state", e);

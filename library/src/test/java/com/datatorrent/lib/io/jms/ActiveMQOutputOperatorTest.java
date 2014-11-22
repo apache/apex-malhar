@@ -24,7 +24,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 import com.datatorrent.lib.util.ActiveMQMessageListener;
 
@@ -32,7 +31,7 @@ import com.datatorrent.lib.util.ActiveMQMessageListener;
  * Test to verify ActiveMQ output operator adapter.
  *
  */
-public class ActiveMQOutputOperatorTest extends ActiveMQOperatorTestBase
+public class ActiveMQOutputOperatorTest extends JMSTestBase
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQOutputOperatorTest.class);
   public static int tupleCount = 0;

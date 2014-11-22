@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-public class ActiveMQProducerBase extends ActiveMQBase
+public class ActiveMQProducerBase extends JMSBase
 {
   private static final Logger logger = LoggerFactory.getLogger(ActiveMQProducerBase.class);
   private transient MessageProducer producer;
