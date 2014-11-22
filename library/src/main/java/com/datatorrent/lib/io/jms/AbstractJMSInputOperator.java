@@ -295,15 +295,15 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
    */
   protected void processMessage(Message message)
   {
-    T payload = convert(message);
-    if (payload != null) {
-      try {
+    try {
+      T payload = convert(message);
+      if (payload != null) {
         currentWindowRecoveryState.put(message.getJMSMessageID(), payload);
+        output.emit(payload);
       }
-      catch (JMSException e) {
-        throw new RuntimeException("processing msg", e);
-      }
-      output.emit(payload);
+    }
+    catch (JMSException e) {
+      throw new RuntimeException("processing msg", e);
     }
   }
 
@@ -452,7 +452,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
    * @param message
    * @return newly constructed tuple from the message.
    */
-  protected abstract T convert(Message message);
+  protected abstract T convert(Message message) throws JMSException;
 
   /**
    * @return the bufferSize

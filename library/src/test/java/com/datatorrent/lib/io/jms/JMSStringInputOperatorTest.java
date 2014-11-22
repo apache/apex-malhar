@@ -39,15 +39,15 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Tests for {@link AbstractJMSInputOperator}
+ * Tests for {@link JMSStringInputOperator}
  */
-public class AbstractJMSInputOperatorTest
+public class JMSStringInputOperatorTest
 {
   public static class TestMeta extends TestWatcher
   {
     String baseDir;
     String recoveryDir;
-    JMSInput operator;
+    JMSStringInputOperator operator;
     CollectorTestSink<Object> sink;
     Context.OperatorContext context;
     JMSTestBase testBase;
@@ -71,7 +71,7 @@ public class AbstractJMSInputOperatorTest
       attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
-      operator = new JMSInput();
+      operator = new JMSStringInputOperator();
       operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
       ((IdempotentStorageManager.FSIdempotentStorageManager) operator.getIdempotentStorageManager()).setRecoveryPath(recoveryDir);
 
@@ -136,7 +136,7 @@ public class AbstractJMSInputOperatorTest
   @Test
   public void testFailureAfterPersistenceAndBeforeRecovery() throws Exception
   {
-    testMeta.operator = new JMSInput()
+    testMeta.operator = new JMSStringInputOperator()
     {
       @Override
       protected void acknowledge() throws JMSException
@@ -198,21 +198,5 @@ public class AbstractJMSInputOperatorTest
 
   }
 
-  private static class JMSInput extends AbstractJMSInputOperator<String>
-  {
-
-    @Override
-    protected String convert(Message message)
-    {
-      TextMessage txtMsg = (TextMessage) message;
-      try {
-        return txtMsg.getText();
-      }
-      catch (JMSException e) {
-        throw new RuntimeException(e);
-      }
-    }
-  }
-
-  private static transient final Logger LOG = LoggerFactory.getLogger(AbstractJMSInputOperatorTest.class);
+  private static transient final Logger LOG = LoggerFactory.getLogger(JMSStringInputOperatorTest.class);
 }
