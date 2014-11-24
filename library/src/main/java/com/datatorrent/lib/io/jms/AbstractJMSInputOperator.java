@@ -113,9 +113,8 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
 
     lock = new Lock();
 
-    //Creating the buffer & recovery list of the size of tuples blast because more messages cannot be consumed and acknowledged
-    // than what is emitted per window.
-    currentWindowRecoveryState = Maps.newHashMapWithExpectedSize(bufferSize);
+    //Recovery state is a linked hash map to maintain the order of tuples.
+    currentWindowRecoveryState = Maps.newLinkedHashMap();
     holdingBuffer = new ArrayBlockingQueue<Message>(bufferSize)
     {
       private static final long serialVersionUID = 201411151139L;
