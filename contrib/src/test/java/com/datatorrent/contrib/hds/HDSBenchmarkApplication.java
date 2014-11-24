@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.nio.ByteBuffer;
+import java.util.Random;
 import java.util.TreeMap;
 
 import org.apache.commons.io.FileUtils;
@@ -52,13 +53,14 @@ import com.google.common.collect.Lists;
 public class HDSBenchmarkApplication implements StreamingApplication
 {
   @Override
-  public void populateDAG(DAG dag, Configuration arg1)
+  public void populateDAG(DAG dag, Configuration conf)
   {
-    StatsListener sl = new TestStatsListener();
+    TestStatsListener sl = new TestStatsListener();
+    sl.adjustRate = conf.getBoolean("dt.hdsbench.adjustRate", false);
     TestGenerator gen = dag.addOperator("Generator", new TestGenerator());
-    dag.setAttribute(gen, OperatorContext.STATS_LISTENERS, Lists.newArrayList(sl));
+    dag.setAttribute(gen, OperatorContext.STATS_LISTENERS, Lists.newArrayList((StatsListener)sl));
     TestStoreOperator store = dag.addOperator("Store", new TestStoreOperator());
-    dag.setAttribute(store, OperatorContext.STATS_LISTENERS, Lists.newArrayList(sl));
+    dag.setAttribute(store, OperatorContext.STATS_LISTENERS, Lists.newArrayList((StatsListener)sl));
     HDSFileAccessFSImpl hfa = new HFileImpl();
     hfa.setBasePath(this.getClass().getSimpleName());
     store.setFileStore(hfa);
@@ -73,6 +75,8 @@ public class HDSBenchmarkApplication implements StreamingApplication
     byte[] val = ByteBuffer.allocate(1000).putLong(1234).array();
     int rate = 20000;
     int emitCount = 0;
+    private final Random random = new Random();
+    private int range = 1000*60; // one minute range of hot keys
 
     public int getEmitBatchSize()
     {
@@ -94,6 +98,16 @@ public class HDSBenchmarkApplication implements StreamingApplication
       this.rate = rate;
     }
 
+    public int getRange()
+    {
+      return range;
+    }
+
+    public void setRange(int range)
+    {
+      this.range = range;
+    }
+
     @Override
     public void beginWindow(long windowId)
     {
@@ -106,7 +120,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
     {
       long timestamp = System.currentTimeMillis();
       for (int i=0; i<emitBatchSize && emitCount < rate; i++) {
-        byte[] key = ByteBuffer.allocate(16).putLong(timestamp).putLong(i).array();
+        byte[] key = ByteBuffer.allocate(16).putLong((timestamp - timestamp % range) + random.nextInt(range)).putLong(i).array();
         data.emit(new KeyValPair<byte[], byte[]>(key, val));
         emitCount++;
       }
@@ -133,6 +147,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
     long resumewid;
     int rate;
     int queueSize;
+    boolean adjustRate;
 
     @Override
     public Response processStats(BatchedOperatorStats stats)
@@ -157,10 +172,12 @@ public class HDSBenchmarkApplication implements StreamingApplication
           LOG.debug("uwid-dwid {} skip {} rate {}, queueSize {}", uwId-dwId, resumewid-dwId, rate, queueSize);
           // upstream operator
           uwId = os.windowId;
-          Response rsp = new Response();
-          cmd.rate = resumewid < dwId ? rate : 0;
-          rsp.operatorCommands = Lists.newArrayList(cmd);
-          return rsp;
+          if (adjustRate) {
+            Response rsp = new Response();
+            cmd.rate = resumewid < dwId ? rate : 0;
+            rsp.operatorCommands = Lists.newArrayList(cmd);
+            return rsp;
+          }
         }
       }
       return null;
