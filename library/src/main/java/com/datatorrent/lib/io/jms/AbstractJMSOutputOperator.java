@@ -40,18 +40,6 @@ import org.slf4j.LoggerFactory;
  * <b>Input</b>: Can have any number of input ports<br>
  * <b>Output</b>: No output port<br>
  * <br>
- * Properties:<br>
- * None<br>
- * <br>
- * Compile time checks:<br>
- * None<br>
- * <br>
- * Run time checks:<br>
- * None<br>
- * <br>
- * Benchmarks:<br>
- * TBD<br>
- * <br>
  * </p>
  * @displayName Abstract Active MQ Output
  * @category Messaging
