@@ -37,6 +37,7 @@ import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -410,7 +411,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     try {
       filePath = new Path(directory);
       configuration = new Configuration();
-      fs = FileSystem.newInstance(filePath.toUri(), configuration);
+      fs = getFSInstance();
       if(!unfinishedFiles.isEmpty()) {
         retryFailedFile(unfinishedFiles.poll());
         skipCount = 0;
@@ -447,6 +448,17 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     fileCounters.setCounter(FileCounters.PENDING_FILES,
                             pendingFileCount);
 
+  }
+
+  /**
+   * Override this method to change the FileSystem instance that is used by the operator.
+   *
+   * @return A FileSystem object.
+   * @throws IOException
+   */
+  protected FileSystem getFSInstance() throws IOException
+  {
+    return FileSystem.newInstance(filePath.toUri(), configuration);
   }
 
   @Override

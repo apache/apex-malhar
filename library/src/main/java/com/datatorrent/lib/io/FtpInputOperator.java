@@ -49,9 +49,11 @@ import com.datatorrent.api.InputOperator;
  * @displayName FTP Input
  * @category Input
  * @tags ftp, input operator
+ * @deprecated use {@link AbstractFTPDirectoryInputOperator}
  *
  * @since 0.9.4
  */
+@Deprecated
 public class FtpInputOperator implements InputOperator
 {
   /**
