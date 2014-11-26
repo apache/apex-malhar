@@ -45,7 +45,10 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
+import com.datatorrent.api.annotation.Stateless;
+
 import com.datatorrent.lib.counters.BasicCounters;
+import org.apache.hadoop.fs.permission.FsPermission;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
@@ -96,6 +99,26 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
    * Size of the copy buffer used to restore files to checkpointed state.
    */
   private static final int COPY_BUFFER_SIZE = 1024;
+  private long windowIDOfCompletedPart = Stateless.WINDOW_ID;
+
+  @Nonnull
+  protected int fsPermission = 0777;
+
+  public int getFsPermission()
+  {
+    return fsPermission;
+  }
+
+  public void setFsPermission(int fsPermission)
+  {
+    this.fsPermission = fsPermission;
+  }
+
+  @Override
+  public void beginWindow(long windowId){
+    super.beginWindow(windowId);
+    windowIDOfCompletedPart = windowId;
+  }
 
   /**
    * The default number of max open files.
@@ -321,6 +344,8 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
             fsOutput = fs.create(lfilepath, (short) replication);
           }
 
+          fs.setPermission(lfilepath, FsPermission.createImmutable((short)fsPermission));
+
           //Get the end offset of the file.
 
           LOG.debug("full path: {}", fs.getFileStatus(lfilepath).getPath());
@@ -537,6 +562,10 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
 
       currentOffset.add(tupleBytes.length);
 
+      LOG.debug("end-offsets {}", endOffsets);
+      LOG.debug("tuple: {}", tuple.toString());
+      LOG.debug("current position {}, max length {}", currentOffset.longValue(), maxLength);
+
       if (rollingFile && currentOffset.longValue() > maxLength) {
         LOG.debug("Rotating file {} {}", fileName, currentOffset.longValue());
         rotate(fileName);
@@ -577,17 +606,7 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
     LOG.debug("Part file index: {}", openPart);
     endOffsets.get(fileName).setValue(0L);
 
-    rotateHook(getPartFileName(fileName, rotatedFileIndex));
-  }
-
-  /**
-   * This hook is called after a rolling file part has filled up and is closed. The hook is passed
-   * the name of the file part that has just completed closed.
-   * @param finishedFile The name of the file part that has just completed and closed.
-   */
-  protected void rotateHook(String finishedFile)
-  {
-    //Do nothing by default
+    rotateHook(getPartFileName(fileName, rotatedFileIndex),windowIDOfCompletedPart);
   }
 
   /**
@@ -608,6 +627,18 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
     //triggers the RemoveListener#onRemoval() method.
     streamsCache.invalidate(fileName);
   }
+
+   /**
+   * This hook is called after a rolling file part has filled up and is closed. The hook is passed
+   * the name of the file part that has just completed closed.
+   * @param finishedFile The name of the file part that has just completed and closed.
+   */
+   protected  void rotateHook(String finishedFile,long windowId)
+   {
+     LOG.info("finished file is {}, windowId when this file was completed {}" + finishedFile + windowId);
+   }
+
+
 
   /**
    * This method is used to force buffers to be flushed at the end of the window.

@@ -39,7 +39,9 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 public abstract class AbstractStoreOutputOperator<T, S extends Connectable> extends BaseOperator
 {
   protected S store;
-
+  public AbstractStoreOutputOperator(){
+    
+  }
   /**
    * The input port on which tuples are received for writing.
    */

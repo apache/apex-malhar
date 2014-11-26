@@ -31,6 +31,7 @@ public class RandomWordGenerator implements InputOperator
    * The output port on which byte arrays are emitted.
    */
   public final transient DefaultOutputPort<byte[]> output = new DefaultOutputPort<byte[]>();
+  public final transient DefaultOutputPort<String> outputString = new DefaultOutputPort<String>();
 
   /**
    * The default number of tuples emitted per window.
@@ -83,14 +84,21 @@ public class RandomWordGenerator implements InputOperator
   @Override
   public void emitTuples()
   {
-    for(;
-        tupleCounter < tuplesPerWindow;
-        tupleCounter++)
-    {
-      byte[] bytes = new byte[tupleByteSize];
-      random.nextBytes(bytes);
-      output.emit(bytes);
+    if (output.isConnected()) {
+      for (;
+              tupleCounter < tuplesPerWindow;
+              tupleCounter++) {
+        byte[] bytes = new byte[tupleByteSize];
+        random.nextBytes(bytes);
+        output.emit(bytes);
+      }
     }
+    if (outputString.isConnected()) {
+      for(int i = 0;i<100;i++){
+        outputString.emit(("hive" + random.nextInt(100) + ""));
+      }
+    }
+
   }
 
   @Override
@@ -105,6 +113,7 @@ public class RandomWordGenerator implements InputOperator
 
   /**
    * Sets the number of tuples emitted per application window.
+   *
    * @param tuplesPerWindow The number of tuples emitted per application window.
    */
   public void setTuplesPerWindow(int tuplesPerWindow)
@@ -114,6 +123,7 @@ public class RandomWordGenerator implements InputOperator
 
   /**
    * Gets the number of tuples emitted per application window.
+   *
    * @return The number of tuples emitted per application window.
    */
   public int getTuplesPerWindow()
@@ -123,6 +133,7 @@ public class RandomWordGenerator implements InputOperator
 
   /**
    * Sets the number of bytes in the emitted byte array tuples.
+   *
    * @param tupleByteSize The number of bytes in the emitted byte array tuples.
    */
   public void setTupleByteSize(int tupleByteSize)
@@ -132,10 +143,12 @@ public class RandomWordGenerator implements InputOperator
 
   /**
    * Gets the number of bytes in the emitted byte array tuples.
+   *
    * @return The number of bytes in the emitted byte array tuples.
    */
   public int getTupleByteSize()
   {
     return tupleByteSize;
   }
+
 }
