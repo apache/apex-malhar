@@ -16,10 +16,6 @@
 package com.datatorrent.lib.io.jms;
 
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,17 +46,10 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.3.2
  */
-public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends AbstractActiveMQOutputOperator
+public abstract class AbstractJMSSinglePortOutputOperator<T> extends AbstractJMSOutputOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQSinglePortOutputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractJMSSinglePortOutputOperator.class);
   long countMessages = 0;  // Number of messages produced so far
-
-  /**
-   * Convert tuple into JMS message. Tuple can be any Java Object.
-   * @param tuple
-   * @return Message
-   */
-  protected abstract Message createMessage(T tuple);
 
   /**
    * Convert to and send message.
@@ -77,14 +66,7 @@ public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends Abstra
       return; // Stop sending messages after max limit.
     }
 
-    try {
-      Message msg = createMessage(tuple);
-      getProducer().send(msg);
-      //logger.debug("process message {}", tuple.toString());
-    }
-    catch (JMSException ex) {
-      throw new RuntimeException("Failed to send message", ex);
-    }
+    sendMessage(tuple);
   }
 
   /**

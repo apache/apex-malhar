@@ -87,7 +87,7 @@ public class JMSTestBase
     session.close();
     connection.close();
   }
-  
+
   @Before
   public void beforTest() throws Exception
   {
@@ -100,5 +100,4 @@ public class JMSTestBase
     broker.stop();
     FileUtils.deleteDirectory(new File("target/activemq-data").getAbsoluteFile());
   }
-
 }
