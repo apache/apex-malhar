@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+  <property>
+    <name>rootDbUrl</name>
+    <value>jdbc:hive2://localhost:10000</value>
+    <description>Root DbUrl.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.store.filepath</name>
+    <value>/tmp</value>
+    <description>Filepath</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.store.operatorpath</name>
+    <value>/tmp</value>
+    <description>OperatorPath</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.fsPermission</name>
+    <value>0777</value>
+    <description>Permission</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.maxOpenFiles</name>
+    <value>100</value>
+    <description>Max open files</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.store.connectionProperties</name>
+    <value>user:"",password:""</value>
+    <description>The connection properties for the database.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.store.filepath</name>
+    <value>/tmp</value>
+    <description>Filepath</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.store.dbUrl</name>
+    <value>jdbc:hive2://localhost:10000/default</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.tablename</name>
+    <value>temp</value>
+    <description>Tablename for string operator</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.delimiter</name>
+    <value>:</value>
+    <description>Delimiter for map</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.store.operatorpath</name>
+    <value>/tmp</value>
+    <description>OperatorPath</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.tablename</name>
+    <value>tempMap</value>
+    <description>Tablename for map operator</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.store.dbUrl</name>
+    <value>jdbc:hive2://localhost:10000/default</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.fsPermission</name>
+    <value>0777</value>
+    <description>Permission</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.store.connectionProperties</name>
+    <value>user:"",password:""</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.maxOpenFiles</name>
+    <value>100</value>
+    <description>Max open files</description>
+  </property>
+</configuration>

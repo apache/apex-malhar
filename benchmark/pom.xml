@@ -16,30 +16,30 @@
     <maven.deploy.skip>false</maven.deploy.skip>
     <skipTests>true</skipTests>
   </properties>
-	<build>
-		<plugins>
-			<plugin>
-				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4</version>
-				<executions>
-					<execution>
-						<id>distro-assembly</id>
-						<phase>package</phase>
-						<goals>
-							<goal>single</goal>
-						</goals>
-						<configuration>
-							<finalName>${project.build.finalName}</finalName>
-							<descriptors>
-								<descriptor>assemble.xml</descriptor>
-							</descriptors>
-							<archiverConfig>
-								<defaultDirectoryMode>0755</defaultDirectoryMode>
-							</archiverConfig>
-						</configuration>
-					</execution>
-				</executions>
-			</plugin>
+  <build>
+    <plugins>
+      <plugin>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.4</version>
+        <executions>
+          <execution>
+            <id>distro-assembly</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <finalName>${project.build.finalName}</finalName>
+              <descriptors>
+                <descriptor>assemble.xml</descriptor>
+              </descriptors>
+              <archiverConfig>
+                <defaultDirectoryMode>0755</defaultDirectoryMode>
+              </archiverConfig>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
     </plugins>
   </build>
   <dependencies>
@@ -56,7 +56,7 @@
       <version>${project.version}</version>
       <type>jar</type>
     </dependency>
-       <dependency>
+    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-contrib</artifactId>
       <version>${project.version}</version>
@@ -65,7 +65,7 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-contrib</artifactId>
       <version>${project.version}</version>
-       <classifier>tests</classifier>
+      <classifier>tests</classifier>
       <scope>test</scope>
     </dependency>
     <dependency>
@@ -92,7 +92,7 @@
         </exclusion>
       </exclusions>
     </dependency>
-        <dependency>
+    <dependency>
       <groupId>com.datastax.cassandra</groupId>
       <artifactId>cassandra-driver-core</artifactId>
       <version>2.0.2</version>
@@ -187,13 +187,13 @@
         </exclusion-->
       </exclusions>
     </dependency>
-     <dependency>
+    <dependency>
       <groupId>net.sf.supercsv</groupId>
       <artifactId>super-csv</artifactId>
       <version>2.2.0</version>
       <optional>true</optional>
     </dependency>
-      <dependency>
+    <dependency>
       <groupId>org.apache.accumulo</groupId>
       <artifactId>accumulo-core</artifactId>
       <version>1.5.1</version>
@@ -215,6 +215,29 @@
       <groupId>com.couchbase.client</groupId>
       <artifactId>couchbase-client</artifactId>
       <version>1.4.4</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-jdbc</artifactId>
+      <version>0.13.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-exec</artifactId>
+      <version>0.13.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-service</artifactId>
+      <version>0.13.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.thrift</groupId>
+      <artifactId>libthrift</artifactId>
+      <version>0.9.0</version>
       <optional>true</optional>
     </dependency>
   </dependencies>
