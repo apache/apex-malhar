@@ -33,15 +33,15 @@ import com.google.common.collect.Maps;
  * Base class for any JMS input or output adapter operator.
  * <p/>
  * Operators should not be derived from this,
- * rather from AbstractActiveMQInputOperator or AbstractActiveMQSinglePortInputOperator or AbstractActiveMQOutputOperator
- * or AbstractActiveMQSinglePortOutputOperator. This creates connection with active MQ broker.<br>
+ * rather from AbstractJMSInputOperator or AbstractJMSSinglePortInputOperator or AbstractJMSOutputOperator
+ * or AbstractJMSSinglePortOutputOperator. This creates connection with a JMS broker.<br>
  *
  * <br>
  * Ports:<br>
  * None<br>
  * <br>
  * Properties:<br>
- * <b>connectionFactoryClass</b>: Connection factory of the JMS provider (default is ActiveMQ)<br>
+ * <b>connectionFactoryClass</b>: Connection factory of the JMS provider (Default is ActiveMQ)<br>
  * <b>connectionFactoryProperties</b>: Properties to initialize the connection factory (consult your providers documentation)<br>
  * <b>ackMode</b>: message acknowledgment mode<br>
  * <b>clientId</b>: client id<br>
@@ -222,7 +222,7 @@ public class JMSBase
   }
 
   /**
-   * Sets the batch for the ActiveMQ operator. ActiveMQ can acknowledge receipt
+   * Sets the batch for the JMS operator. JMS can acknowledge receipt
    * of messages back to the broker in batches (to improve performance).
    *
    * @param batch the size of the batch
@@ -326,7 +326,7 @@ public class JMSBase
   }
 
   /**
-   *  Connection specific setup for ActiveMQ.
+   *  Connection specific setup for JMS.
    *
    *  @throws JMSException
    */

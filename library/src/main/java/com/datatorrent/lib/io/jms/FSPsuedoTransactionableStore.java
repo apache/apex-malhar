@@ -25,11 +25,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is an ActiveMQ store which stores committed window ids in a file. This is not a true
+ * This is a JMS store which stores committed window ids in a file. This is not a true
  * transactionable store because there is a chance that a failure may occur in between storing the
  * committed window and committing the JMS transaction. A failure in such a scenario could cause JMS Messages
  * to be missed or duplicated. However, the chance of this is very small. If you need 100% reliability use
- * the {@link ActiveMQTransactionableStore}.
+ * the {@link JMSTransactionableStore}.
  */
 public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
 {

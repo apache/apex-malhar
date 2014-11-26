@@ -23,7 +23,7 @@ import com.datatorrent.lib.db.TransactionableStore;
 public abstract class JMSBaseTransactionableStore implements TransactionableStore
 {
   /**
-   * ActiveMQ base class.
+   * JMS base class.
    */
   private transient JMSBase base;
   /**

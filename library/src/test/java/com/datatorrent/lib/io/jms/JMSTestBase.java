@@ -30,11 +30,9 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
 
-import com.datatorrent.stram.util.FSUtil;
-
 /**
  * Base class for JMS operators test. <br/>
- * Setup the Active MQ service to serve the test
+ * Setup the JMS service to serve the test
  */
 public class JMSTestBase
 {
@@ -43,11 +41,11 @@ public class JMSTestBase
 
 
   /**
-   * Start ActiveMQ broker from the Testcase.
+   * Start JMS broker from the Testcase.
    *
    * @throws Exception
    */
-  private void startActiveMQService() throws Exception
+  private void startJMSService() throws Exception
   {
     broker = new BrokerService();
     String brokerName = "ActiveMQOutputOperator-broker";
@@ -91,7 +89,7 @@ public class JMSTestBase
   @Before
   public void beforTest() throws Exception
   {
-    startActiveMQService();
+    startJMSService();
   }
 
   @After

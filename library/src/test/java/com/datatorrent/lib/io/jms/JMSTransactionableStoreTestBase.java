@@ -8,7 +8,7 @@ package com.datatorrent.lib.io.jms;
 import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
-import com.datatorrent.lib.io.jms.JMSOutputOperatorTest.ActiveMQStringSinglePortOutputOperator;
+import com.datatorrent.lib.io.jms.JMSOutputOperatorTest.JMSStringSinglePortOutputOperator;
 import com.datatorrent.lib.util.ActiveMQMessageListener;
 import java.io.File;
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
   public static final String APP_ID = "appId";
   public static final int OPERATOR_ID = 1;
   public static JMSBaseTransactionableStore store;
-  public static ActiveMQStringSinglePortOutputOperator outputOperator;
+  public static JMSStringSinglePortOutputOperator outputOperator;
   public static Class<? extends JMSBaseTransactionableStore> storeClass;
 
   public static TestIdOperatorContext testOperatorContext;
@@ -76,7 +76,7 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
    */
   private void createOperator()
   {
-    outputOperator = new ActiveMQStringSinglePortOutputOperator();
+    outputOperator = new JMSStringSinglePortOutputOperator();
 
     try {
       store = storeClass.newInstance();

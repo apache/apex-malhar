@@ -20,7 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the base implementation of a single port ActiveMQ output operator.&nbsp;
+ * This is the base implementation of a single port JMS output operator.&nbsp;
  * A concrete operator should be created from this skeleton implementation.
  * <p>
  * Ports:<br>
@@ -40,7 +40,7 @@ import org.slf4j.LoggerFactory;
  * TBD<br>
  * <br>
  * </p>
- * @displayName Abstract Active MQ Single Port Output
+ * @displayName Abstract JMS Single Port Output
  * @category Messaging
  * @tags jms, output operator
  *
@@ -70,7 +70,7 @@ public abstract class AbstractJMSSinglePortOutputOperator<T> extends AbstractJMS
   }
 
   /**
-   * This is an input port which receives tuples to be written out to an ActiveMQ message bus.
+   * This is an input port which receives tuples to be written out to an JMS message bus.
    */
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {

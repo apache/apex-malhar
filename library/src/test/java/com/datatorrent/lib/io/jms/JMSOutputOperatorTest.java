@@ -35,7 +35,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Test to verify ActiveMQ output operator adapter.
+ * Test to verify JMS output operator adapter.
  */
 public class JMSOutputOperatorTest extends JMSTestBase
 {
@@ -47,7 +47,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public static final String CLIENT_ID = "Client1";
   public static final String APP_ID = "appId";
   public static final int OPERATOR_ID = 1;
-  public static ActiveMQStringSinglePortOutputOperator outputOperator;
+  public static JMSStringSinglePortOutputOperator outputOperator;
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext;
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContextAMO;
   public static final int HALF_BATCH_SIZE = 5;
@@ -92,11 +92,11 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public TestMeta testMeta = new TestMeta();
 
   /**
-   * Concrete class of ActiveMQStringSinglePortOutputOperator for testing.
+   * Concrete class of JMSStringSinglePortOutputOperator for testing.
    */
-  public static class ActiveMQStringSinglePortOutputOperator extends AbstractJMSSinglePortOutputOperator<String>
+  public static class JMSStringSinglePortOutputOperator extends AbstractJMSSinglePortOutputOperator<String>
   {
-    public ActiveMQStringSinglePortOutputOperator()
+    public JMSStringSinglePortOutputOperator()
     {
       this.setBatch(10);
     }
@@ -120,7 +120,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
       return msg;
     }
-  } // End of ActiveMQStringSinglePortOutputOperator
+  } // End of JMSStringSinglePortOutputOperator
 
   /**
    * This is a helper method to create the output operator. Note this cannot be
@@ -134,7 +134,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
   private void createOperator(boolean topic, OperatorContext context, int maxMessages)
   {
-    outputOperator = new ActiveMQStringSinglePortOutputOperator();
+    outputOperator = new JMSStringSinglePortOutputOperator();
     outputOperator.getConnectionFactoryProperties().put("userName", "");
     outputOperator.getConnectionFactoryProperties().put("password", "");
     outputOperator.getConnectionFactoryProperties().put("brokerURL", "tcp://localhost:61617");
@@ -151,17 +151,17 @@ public class JMSOutputOperatorTest extends JMSTestBase
   }
 
   /**
-   * Test AbstractActiveMQOutputOperator (i.e. an output adapter for ActiveMQ, aka producer).
-   * This module sends data into an ActiveMQ message bus.
+   * Test AbstractJMSOutputOperator (i.e. an output adapter for JMS, aka producer).
+   * This module sends data into an JMS message bus.
    *
-   * [Generate tuple] ==> [send tuple through ActiveMQ output adapter(i.e. producer) into ActiveMQ message bus]
-   * ==> [receive data in outside ActiveMQ listener]
+   * [Generate tuple] ==> [send tuple through JMS output adapter(i.e. producer) into JMS message bus]
+   * ==> [receive data in outside JMS listener]
    *
    * @throws Exception
    */
   //@Ignore
   @Test
-  public void testActiveMQOutputOperator1() throws Exception
+  public void testJMSOutputOperator1() throws Exception
   {
     // Setup a message listener to receive the message
     final ActiveMQMessageListener listener = new ActiveMQMessageListener();
@@ -202,7 +202,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
    */
   ////@Ignore
   @Test
-  public void testActiveMQOutputOperator2() throws Exception
+  public void testJMSOutputOperator2() throws Exception
   {
     // Setup a message listener to receive the message
     final ActiveMQMessageListener listener = new ActiveMQMessageListener();
@@ -251,7 +251,6 @@ public class JMSOutputOperatorTest extends JMSTestBase
       listener.setupConnection();
     }
     catch (JMSException ex) {
-      throw new RuntimeException(ex);
     }
 
     listener.run();
@@ -738,9 +737,9 @@ public class JMSOutputOperatorTest extends JMSTestBase
   }
 
   /**
-   * Concrete class of ActiveMQStringSinglePortOutputOperator2 for testing.
+   * Concrete class of JMSStringSinglePortOutputOperator2 for testing.
    */
-  public static class ActiveMQMultiPortOutputOperator extends AbstractJMSOutputOperator
+  public static class JMSMultiPortOutputOperator extends AbstractJMSOutputOperator
   {
     /**
      * Two input ports.
@@ -776,10 +775,10 @@ public class JMSOutputOperatorTest extends JMSTestBase
 
       return msg;
     }
-  } 
+  }
   //@Ignore
   @Test
-  public void testActiveMQMultiPortOutputOperator() throws Exception
+  public void testJMSMultiPortOutputOperator() throws Exception
   {
     // Setup a message listener to receive the message
     final ActiveMQMessageListener listener = new ActiveMQMessageListener();
@@ -788,8 +787,8 @@ public class JMSOutputOperatorTest extends JMSTestBase
     listener.run();
 
     // Malhar module to send message
-    ActiveMQMultiPortOutputOperator node = new ActiveMQMultiPortOutputOperator();
-    // Set configuration parameters for ActiveMQ
+    JMSMultiPortOutputOperator node = new JMSMultiPortOutputOperator();
+    // Set configuration parameters for JMS
 
     node.getConnectionFactoryProperties().put("userName", "");
     node.getConnectionFactoryProperties().put("password", "");
