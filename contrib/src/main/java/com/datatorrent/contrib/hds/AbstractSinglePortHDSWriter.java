@@ -81,6 +81,13 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
     }
   };
 
+  /**
+   * Storage bucket for the given event. Only one partition can write to a storage bucket and by default it is
+   * identified by the partition id.
+   *
+   * @param event
+   * @return
+   */
   protected long getBucketKey(EVENT event)
   {
     return (codec.getPartition(event) & partitionMask);
