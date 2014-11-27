@@ -43,6 +43,8 @@ public interface HDSFileAccess extends Closeable
   void rename(long bucketKey, String oldName, String newName) throws IOException;
   void delete(long bucketKey, String fileName) throws IOException;
 
+  long getFileSize(long bucketKey, String s) throws IOException;
+
   /**
    * HDS Data File Format Reader
    */
