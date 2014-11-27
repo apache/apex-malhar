@@ -141,7 +141,6 @@ public class JMSOutputOperatorTest extends JMSTestBase
     outputOperator.setAckMode("CLIENT_ACKNOWLEDGE");
     outputOperator.setClientId(CLIENT_ID);
     outputOperator.setSubject("TEST.FOO");
-    outputOperator.setMaximumSendMessages(maxMessages);
     outputOperator.setMessageSize(255);
     outputOperator.setBatch(BATCH_SIZE);
     outputOperator.setTopic(topic);
@@ -183,12 +182,10 @@ public class JMSOutputOperatorTest extends JMSTestBase
     outputOperator.endWindow();
     outputOperator.teardown();
 
-    final long emittedCount = 15; //tupleCount < node.getMaximumSendMessages() ? tupleCount : node.getMaximumSendMessages();
-
     Thread.sleep(500);
 
     // Check values send vs received
-    Assert.assertEquals("Number of emitted tuples", emittedCount, listener.receivedData.size());
+    Assert.assertEquals("Number of emitted tuples", maxTuple, listener.receivedData.size());
     logger.debug(String.format("Number of emitted tuples: %d", listener.receivedData.size()));
     Assert.assertEquals("First tuple", "testString 1", listener.receivedData.get(1));
 
@@ -226,13 +223,10 @@ public class JMSOutputOperatorTest extends JMSTestBase
     outputOperator.endWindow();
     outputOperator.teardown();
 
-    final long emittedCount = tupleCount < outputOperator.getMaximumSendMessages() ?
-                              tupleCount : outputOperator.getMaximumSendMessages();
-
     Thread.sleep(500);
 
     // Check values send vs received
-    Assert.assertEquals("Number of emitted tuples", emittedCount, listener.receivedData.size());
+    Assert.assertEquals("Number of emitted tuples", maxTuple, listener.receivedData.size());
     logger.debug(String.format("Number of emitted tuples: %d", listener.receivedData.size()));
     Assert.assertEquals("First tuple", "testString 1", listener.receivedData.get(1));
 
@@ -796,7 +790,6 @@ public class JMSOutputOperatorTest extends JMSTestBase
     node.setAckMode("CLIENT_ACKNOWLEDGE");
     node.setClientId("Client1");
     node.setSubject("TEST.FOO");
-    node.setMaximumSendMessages(0);
     node.setMessageSize(255);
     node.setBatch(10);
     node.setTopic(false);

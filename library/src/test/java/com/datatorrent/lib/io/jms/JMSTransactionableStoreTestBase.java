@@ -94,7 +94,6 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     outputOperator.setAckMode("CLIENT_ACKNOWLEDGE");
     outputOperator.setClientId(CLIENT_ID);
     outputOperator.setSubject("TEST.FOO");
-    outputOperator.setMaximumSendMessages(15);
     outputOperator.setMessageSize(255);
     outputOperator.setBatch(1);
     outputOperator.setTopic(false);

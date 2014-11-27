@@ -49,23 +49,13 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractJMSSinglePortOutputOperator<T> extends AbstractJMSOutputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractJMSSinglePortOutputOperator.class);
-  long countMessages = 0;  // Number of messages produced so far
-
+  
   /**
    * Convert to and send message.
    * @param tuple
    */
   protected void processTuple(T tuple)
   {
-    countMessages++;
-
-    if (countMessages > maxSendMessage && maxSendMessage != 0) {
-      if (countMessages == maxSendMessage + 1) {
-        logger.warn("Reached maximum send messages of {}", maxSendMessage);
-      }
-      return; // Stop sending messages after max limit.
-    }
-
     sendMessage(tuple);
   }
 

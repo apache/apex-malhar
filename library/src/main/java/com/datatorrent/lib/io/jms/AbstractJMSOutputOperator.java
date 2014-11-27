@@ -50,7 +50,6 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractJMSOutputOperator extends JMSBase implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractJMSOutputOperator.class);
-  long maxSendMessage = 0; // max send limit
 
   /**
    * Use this field to getStore() tuples from which messages are created.
@@ -74,9 +73,6 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
 
   private transient MessageProducer producer;
   private JMSBaseTransactionableStore store = new JMSTransactionableStore();
-
-  // Config parameters that user can set.
-  private long maximumSendMessages = 0; // 0 means unlimitted
 
   /**
    * Implement Component Interface.
@@ -129,8 +125,6 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
 
     committedWindowId = getStore().getCommittedWindowId(appId, operatorId);
     logger.debug("committedWindowId {}", committedWindowId);
-    maxSendMessage = getMaximumSendMessages();
-
     logger.debug("End of setup store in transaction: {}", getStore().isInTransaction());
   }
 
@@ -248,24 +242,6 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
   public JMSBaseTransactionableStore getStore()
   {
     return store;
-  }
-
-  /**
-   * @return the maximum sent messages
-   */
-  public long getMaximumSendMessages()
-  {
-    return maximumSendMessages;
-  }
-
-  /**
-   * Sets the maximum number of messages that can be sent.
-   *
-   * @param maximumSendMessages the max limit on messages sent
-   */
-  public void setMaximumSendMessages(long maximumSendMessages)
-  {
-    this.maximumSendMessages = maximumSendMessages;
   }
 
   /**
