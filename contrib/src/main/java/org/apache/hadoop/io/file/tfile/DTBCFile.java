@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
-
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.io.output.ByteArrayOutputStream;
@@ -40,7 +39,6 @@ import org.apache.hadoop.io.BytesWritable;
 import org.apache.hadoop.io.compress.Compressor;
 import org.apache.hadoop.io.compress.Decompressor;
 import org.apache.hadoop.io.file.tfile.CompareUtils.Scalar;
-import org.apache.hadoop.io.file.tfile.Utils;
 import org.apache.hadoop.io.file.tfile.Utils.Version;
 import org.apache.hadoop.io.file.tfile.CompareUtils.ScalarComparator;
 import org.apache.hadoop.io.file.tfile.CompareUtils.ScalarLong;
@@ -499,6 +497,12 @@ final class DTBCFile {
     final Version version;
     //
     private ByteArrayOutputStream baos;
+    private ArrayList<String> cacheKeys;
+
+    public ArrayList<String> getCacheKeys()
+    {
+      return cacheKeys;
+    }
 
     /**
      * Intermediate class that maintain the state of a Readable Compression
@@ -661,7 +665,7 @@ final class DTBCFile {
       this.conf = conf;
       // A reader buffer to read the block
       baos = new ByteArrayOutputStream(DTFile.getFSInputBufferSize(conf) * 2);
-
+      this.cacheKeys = new ArrayList<String>();
       // move the cursor to the beginning of the tail, containing: offset to the
       // meta block index, version and magic
       fin.seek(fileLength - Magic.size() - Version.size() - Long.SIZE
@@ -719,7 +723,9 @@ final class DTBCFile {
      */
     @Override
     public void close() {
-      // nothing to be done now
+      // Delete buffers in cache for this reader.
+      CacheManager.invalidateKeys(cacheKeys);
+      cacheKeys.clear();
     }
 
     /**
@@ -776,7 +782,9 @@ final class DTBCFile {
         if(br==null){
           RBlockState rbs = new RBlockState(compressAlgo, in, region, conf, this);
           br = new BlockReader(rbs);
-          CacheManager.put(region.getOffset() + this.toString(), br);
+          String cacheKey = region.getOffset() + this.toString();
+          CacheManager.put(cacheKey, br);
+          cacheKeys.add(cacheKey);
         } else {
          br.renew();
         }

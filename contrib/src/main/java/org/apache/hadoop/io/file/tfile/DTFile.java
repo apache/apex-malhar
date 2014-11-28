@@ -154,13 +154,18 @@ public class DTFile {
   private static final String FS_OUTPUT_BUF_SIZE_ATTR =
       "tfile.fs.output.buffer.size";
 
+  public static final int DEFAULT_INPUT_FS_BUF_SIZE = 256 * 1024;
+
   static int getChunkBufferSize(Configuration conf) {
     int ret = conf.getInt(CHUNK_BUF_SIZE_ATTR, 1024 * 1024);
     return (ret > 0) ? ret : 1024 * 1024;
   }
 
   static int getFSInputBufferSize(Configuration conf) {
-    return conf.getInt(FS_INPUT_BUF_SIZE_ATTR, 256 * 1024);
+    int buffserSize = conf.getInt(FS_INPUT_BUF_SIZE_ATTR, DEFAULT_INPUT_FS_BUF_SIZE);
+    if (buffserSize <= 0)
+      buffserSize = DEFAULT_INPUT_FS_BUF_SIZE;
+    return buffserSize;
   }
 
   static int getFSOutputBufferSize(Configuration conf) {
