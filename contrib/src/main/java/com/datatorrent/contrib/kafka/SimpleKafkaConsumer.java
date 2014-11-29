@@ -386,6 +386,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
     SimpleKafkaConsumer  skc = new SimpleKafkaConsumer(brokerSet, topic, timeout, bufferSize, clientId, partitionIds);
     skc.initialOffset = this.initialOffset;
     skc.resetOffset(startOffset);
+    skc.setCacheSize(getCacheSize());
     return skc;
   }
 
