@@ -17,9 +17,10 @@
 package org.apache.hadoop.io.file.tfile;
 
 import java.lang.management.ManagementFactory;
+import java.util.Collection;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.io.file.tfile.DTBCFile.Reader.BlockReader;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.Weigher;
@@ -43,8 +44,19 @@ public class CacheManager
   public static final float DEFAULT_HEAP_MEMORY_PERCENTAGE = 0.25f;
   
   private static Cache<String, BlockReader> singleCache;
-  
-  
+
+  private static boolean enableStats = false;
+
+  public static final Cache<String, BlockReader> buildCache(CacheBuilder builder) {
+    if (singleCache != null) {
+      singleCache.cleanUp();
+    }
+    if (enableStats)
+      builder.recordStats();
+    singleCache = builder.build();
+    return singleCache;
+  }
+
   /**
    * (Re)Create the cache by limiting the maximum entries
    * @param concurrencyLevel
@@ -53,30 +65,30 @@ public class CacheManager
    * @return
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, int maximunSize){
-    singleCache = CacheBuilder.newBuilder().
+    CacheBuilder builder = CacheBuilder.newBuilder().
         concurrencyLevel(concurrencyLevel).
         initialCapacity(initialCapacity).
-        maximumSize(maximunSize).build();
-    return singleCache;
+        maximumSize(maximunSize);
+
+    return buildCache(builder);
   }
   
-  
+
   /**
    * (Re)Create the cache by limiting the memory(in bytes)
    * @param concurrencyLevel
    * @param initialCapacity
-   * @param maximumWeight
+   * @param maximumMemory
    * @return
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, long maximumMemory){
-    if (singleCache != null) {
-      singleCache.cleanUp();
-    }
-    singleCache = CacheBuilder.newBuilder().
+
+    CacheBuilder builder = CacheBuilder.newBuilder().
         concurrencyLevel(concurrencyLevel).
         initialCapacity(initialCapacity).
-        maximumWeight(maximumMemory).weigher(new KVWeigher()).build();
-    return singleCache;
+        maximumWeight(maximumMemory).weigher(new KVWeigher());
+
+    return buildCache(builder);
   }
   
   /**
@@ -87,22 +99,19 @@ public class CacheManager
    * @return
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, float heapMemPercentage){
-    if (singleCache != null) {
-      singleCache.cleanUp();
-    }
-    singleCache = CacheBuilder.newBuilder().
+    CacheBuilder builder = CacheBuilder.newBuilder().
         concurrencyLevel(concurrencyLevel).
         initialCapacity(initialCapacity).
-        maximumWeight((long) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * heapMemPercentage)).weigher(new KVWeigher()).build();
-    return singleCache;
+        maximumWeight((long) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * heapMemPercentage)).weigher(new KVWeigher());
+    return buildCache(builder);
   }
   
   public static final void createDefaultCache(){
-    if (singleCache != null) {
-      singleCache.cleanUp();
-    }
+
     long availableMemory = (long) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * DEFAULT_HEAP_MEMORY_PERCENTAGE);
-    singleCache = CacheBuilder.newBuilder().maximumWeight(availableMemory).weigher(new KVWeigher()).build();
+    CacheBuilder<String, BlockReader> builder = CacheBuilder.newBuilder().maximumWeight(availableMemory).weigher(new KVWeigher());
+
+    singleCache = buildCache(builder);
   }
   
   public static final void put(String key, BlockReader blk){
@@ -111,15 +120,26 @@ public class CacheManager
     }
     singleCache.put(key, blk);
   }
-  
+
   public static final BlockReader get(String key){
     if (singleCache == null) {
       return null;
     }
     return singleCache.getIfPresent(key);
   }
-  
-  
+
+  public static final void invalidateKeys(Collection<String> keys)
+  {
+    if (singleCache != null)
+      singleCache.invalidateAll(keys);
+  }
+
+  public static final long getCacheSize() {
+    if (singleCache != null)
+      return singleCache.size();
+    return 0;
+  }
+
   public static final class KVWeigher implements Weigher<String, BlockReader> {
     
     @Override
@@ -132,7 +152,15 @@ public class CacheManager
     
   }
 
-  
+  @VisibleForTesting
+  protected static Cache<String, BlockReader> getCache() {
+    return singleCache;
+  }
+
+  public static final void setEnableStats(boolean enable) {
+    enableStats = enable;
+  }
+
   public static void main(String[] args)
   {
     
