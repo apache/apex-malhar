@@ -114,4 +114,14 @@ public class HDSTestApp implements StreamingApplication
     fs.close();
   }
 
+  @Test
+  public void testCodec()
+  {
+    HDSTestOperator.BucketStreamCodec codec = new HDSTestOperator.BucketStreamCodec();
+    Slice s = codec.toByteArray(new KeyValPair<byte[], byte[]>(KEY0, DATA0.getBytes()));
+
+    HDSTestOperator.BucketStreamCodec codec2 = new HDSTestOperator.BucketStreamCodec();
+    codec2.fromByteArray(s);
+  }
+
 }

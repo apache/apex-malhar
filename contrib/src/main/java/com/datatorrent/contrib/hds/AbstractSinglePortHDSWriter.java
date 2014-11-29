@@ -97,7 +97,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
   {
     byte[] key = codec.getKeyBytes(event);
     byte[] value = codec.getValueBytes(event);
-    super.put(getBucketKey(event), HDS.SliceExt.toSlice(key), value);
+    super.put(getBucketKey(event), new Slice(key), value);
   }
 
   abstract protected HDSCodec<EVENT> getCodec();

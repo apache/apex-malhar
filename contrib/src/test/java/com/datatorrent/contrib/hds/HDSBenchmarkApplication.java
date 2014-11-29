@@ -201,7 +201,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
   @Rule
   public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
 
-  @Test
+  //@Test
   public void test() throws Exception
   {
     File file = new File(testInfo.getDir());
