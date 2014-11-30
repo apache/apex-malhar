@@ -72,7 +72,7 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
   private ProcessingMode mode;
 
   private transient MessageProducer producer;
-  private JMSBaseTransactionableStore store = new JMSTransactionableStore();
+  protected JMSBaseTransactionableStore store = new JMSTransactionableStore();
 
   /**
    * Implement Component Interface.
@@ -86,12 +86,11 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
     operatorId = context.getId();
 
     logger.debug("Application Id {} operatorId {}", appId, operatorId);
-    logger.debug("Store class {}", getStore().getClass());
 
-    getStore().setBase(this);
-    getStore().setAppId(appId);
-    getStore().setOperatorId(operatorId);
-    transacted = getStore().isTransactable();
+    store.setBase(this);
+    store.setAppId(appId);
+    store.setOperatorId(operatorId);
+    transacted = store.isTransactable();
 
     try {
       createConnection();
@@ -104,7 +103,7 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
     logger.debug("Session is null {}:", getSession() == null);
 
     try {
-      getStore().connect();
+      store.connect();
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -123,9 +122,9 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
       messageBatch.add(createMessage(tempObject));
     }
 
-    committedWindowId = getStore().getCommittedWindowId(appId, operatorId);
+    committedWindowId = store.getCommittedWindowId(appId, operatorId);
     logger.debug("committedWindowId {}", committedWindowId);
-    logger.debug("End of setup store in transaction: {}", getStore().isInTransaction());
+    logger.debug("End of setup store in transaction: {}", store.isInTransaction());
   }
 
   @Override
@@ -136,7 +135,7 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
 
     logger.debug("beginning teardown");
     try {
-      getStore().disconnect();
+      store.disconnect();
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -154,9 +153,8 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
-    getStore().beginTransaction();
+    store.beginTransaction();
     logger.debug("Transaction started for window {}", windowId);
-    logger.debug("Store class {}", getStore().getClass());
   }
 
   @Override
@@ -164,27 +162,25 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
   {
     logger.debug("Ending window {}", currentWindowId);
 
-    if(getStore().isExactlyOnce()) {
+    if(store.isExactlyOnce()) {
       //Store committed window and data in same transaction
       if (committedWindowId < currentWindowId) {
-        logger.debug("{}", getStore().getClass());
-        getStore().storeCommittedWindowId(appId, operatorId, currentWindowId);
+        store.storeCommittedWindowId(appId, operatorId, currentWindowId);
         committedWindowId = currentWindowId;
       }
 
       flushBatch();
-      getStore().commitTransaction();
+      store.commitTransaction();
     }
     else {
       //For transactionable stores which cannot support exactly once, At least
       //once can be insured by for storing the data and then the committed window
       //id.
       flushBatch();
-      getStore().commitTransaction();
+      store.commitTransaction();
 
       if (committedWindowId < currentWindowId) {
-        logger.debug("{}", getStore().getClass());
-        getStore().storeCommittedWindowId(appId, operatorId, currentWindowId);
+        store.storeCommittedWindowId(appId, operatorId, currentWindowId);
         committedWindowId = currentWindowId;
       }
     }
@@ -235,7 +231,6 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
 
   public void setStore(JMSBaseTransactionableStore store)
   {
-    logger.debug("Store set {}", store.getClass());
     this.store = store;
   }
 

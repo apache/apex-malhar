@@ -42,7 +42,7 @@ public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
   /**
    * The name of the committed window file.
    */
-  public static final String COMMITTED_WINDOW_FILE = "DT_CMT";
+  public static final String COMMITTED_WINDOW_DIR = "DT_CMT";
   /**
    * The temporary file extension for committed windows.
    */
@@ -111,16 +111,11 @@ public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
   @Override
   public long getCommittedWindowId(String appId, int operatorId)
   {
-    Path path = getOperatorRecoveryPath(appId, operatorId);
-
-    if(logger.isDebugEnabled()) {
-      logger.debug("Working directory path {}", fs.getWorkingDirectory());
-      logger.debug("Recovery directory path {}", path);
-    }
+    Path recoveryPath = getOperatorRecoveryPath(appId, operatorId);
 
     try {
       //No committed window stored, return negative invalid window.
-      if(!fs.exists(path))
+      if(!fs.exists(recoveryPath))
       {
         return Stateless.WINDOW_ID;
       }
@@ -129,34 +124,44 @@ public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
       throw new RuntimeException(ex);
     }
 
+    long maxWindow = Long.MIN_VALUE;
+
     try {
-      //Read committed winodw from file.
-      FSDataInputStream inputStream = fs.open(path);
-      return inputStream.readLong();
+      FileStatus[] windowFiles = fs.listStatus(recoveryPath);
+
+      for(FileStatus fileStatus: windowFiles) {
+        String windowString = fileStatus.getPath().getName();
+        long tempWindow = Long.parseLong(windowString);
+
+        if(maxWindow < tempWindow) {
+          maxWindow = tempWindow;
+        }
+      }
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
     }
+
+    return maxWindow;
   }
 
   @Override
   public void storeCommittedWindowId(String appId, int operatorId, long windowId)
   {
-    Path path = getOperatorRecoveryPath(appId, operatorId);
-    Path pathTMP = getOperatorRecoveryTMPPath(appId, operatorId);
+    Path recoveryPath = getOperatorRecoveryPath(appId, operatorId);
+    Path windowPath = getOperatorWindowRecoveryPath(appId, operatorId, windowId);
+    String windowString = Long.toString(windowId);
 
     try {
-      FSDataOutputStream output = fs.create(pathTMP, true);
-      output.writeLong(windowId);
-      output.close();
-    }
-    catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
+      fs.create(windowPath);
+      FileStatus[] windowFiles = fs.listStatus(recoveryPath);
 
-    try {
-      fs.delete(path, true);
-      fs.rename(pathTMP, path);
+      for(FileStatus fileStatus: windowFiles) {
+        Path tempPath = fileStatus.getPath();
+        if(!tempPath.getName().equals(windowString)) {
+          fs.delete(tempPath, true);
+        }
+      }
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
@@ -168,8 +173,6 @@ public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
   {
     try {
       fs.delete(getOperatorRecoveryPath(appId, operatorId).getParent(),
-                true);
-      fs.delete(getOperatorRecoveryTMPPath(appId, operatorId).getParent(),
                 true);
     }
     catch (IOException ex) {
@@ -243,33 +246,33 @@ public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
     return false;
   }
 
-  /**
-   * Helper method to get the path where the windowId is stored.
-   * @param appId The id of the application.
-   * @param operatorId The operator id of the application.
-   * @return The path where the windowId is stored.
-   */
-  private Path getOperatorRecoveryPath(String appId, int operatorId)
+  private Path getOperatorRecoveryPath(String appId,
+                                       int operatorId)
   {
     Path path = new Path(DEFAULT_RECOVERY_DIRECTORY + "/" +
-                         appId + "/" + operatorId + "/" +
-                         COMMITTED_WINDOW_FILE);
+                         appId + "/" +
+                         operatorId + "/" +
+                         COMMITTED_WINDOW_DIR);
 
     return path;
   }
 
   /**
-   * Helper method to get the path where the windowId is temporarily stored.
+   * Helper method to get the path where the windowId is stored.
    * @param appId The id of the application.
    * @param operatorId The operator id of the application.
-   * @return The path where the windowId is temporarily stored.
+   * @param windowId The id of the current window.
+   * @return The path where the windowId is stored.
    */
-  private Path getOperatorRecoveryTMPPath(String appId, int operatorId)
+  private Path getOperatorWindowRecoveryPath(String appId,
+                                       int operatorId,
+                                       long windowId)
   {
     Path path = new Path(DEFAULT_RECOVERY_DIRECTORY + "/" +
-                         appId + "/" + operatorId + "/" +
-                         COMMITTED_WINDOW_FILE +
-                         TEMP_FILE_EXTENSION);
+                         appId + "/" +
+                         operatorId + "/" +
+                         COMMITTED_WINDOW_DIR + "/" +
+                         windowId);
 
     return path;
   }
