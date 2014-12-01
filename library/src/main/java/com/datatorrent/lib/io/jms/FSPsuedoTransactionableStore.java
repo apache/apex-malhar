@@ -43,10 +43,6 @@ public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
    * The name of the committed window file.
    */
   public static final String COMMITTED_WINDOW_DIR = "DT_CMT";
-  /**
-   * The temporary file extension for committed windows.
-   */
-  public static final String TEMP_FILE_EXTENSION = ".tmp";
 
   /**
    * Indicates whether the store is connected or not.

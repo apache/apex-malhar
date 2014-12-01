@@ -38,10 +38,6 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
    */
   private transient boolean connected = false;
   /**
-   * Indicates whether the connected helper is connected or not.
-   */
-  private transient boolean connectedHelper = false;
-  /**
    * Indicates whether the store is in a transaction or not.
    */
   private transient boolean inTransaction = false;
