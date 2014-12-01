@@ -33,15 +33,15 @@ import com.google.common.collect.Maps;
  * Base class for any JMS input or output adapter operator.
  * <p/>
  * Operators should not be derived from this,
- * rather from AbstractActiveMQInputOperator or AbstractActiveMQSinglePortInputOperator or AbstractActiveMQOutputOperator
- * or AbstractActiveMQSinglePortOutputOperator. This creates connection with active MQ broker.<br>
+ * rather from AbstractJMSInputOperator or AbstractJMSSinglePortInputOperator or AbstractJMSOutputOperator
+ * or AbstractJMSSinglePortOutputOperator. This creates connection with a JMS broker.<br>
  *
  * <br>
  * Ports:<br>
  * None<br>
  * <br>
  * Properties:<br>
- * <b>connectionFactoryClass</b>: Connection factory of the JMS provider (default is ActiveMQ)<br>
+ * <b>connectionFactoryClass</b>: Connection factory of the JMS provider (Default is ActiveMQ)<br>
  * <b>connectionFactoryProperties</b>: Properties to initialize the connection factory (consult your providers documentation)<br>
  * <b>ackMode</b>: message acknowledgment mode<br>
  * <b>clientId</b>: client id<br>
@@ -80,11 +80,11 @@ public class JMSBase
   private int messageSize = 255;
   private boolean durable = false;
   private boolean topic = false;
-  private boolean transacted = false;
   private boolean verbose = false;
+  protected boolean transacted = true;
 
   /**
-   * @return the connection 
+   * @return the connection
    */
   public Connection getConnection()
   {
@@ -92,7 +92,7 @@ public class JMSBase
   }
 
   /**
-   * @return the session 
+   * @return the session
    */
   public Session getSession()
   {
@@ -100,7 +100,7 @@ public class JMSBase
   }
 
   /**
-   * @return the destination 
+   * @return the destination
    */
   public Destination getDestination()
   {
@@ -131,7 +131,7 @@ public class JMSBase
   {
     this.connectionFactoryProperties = connectionFactoryProperties;
   }
-  
+
   /**
    * @deprecated Use {@link #getConnectionFactoryProperties} to set properties supported by the connection factory.
    */
@@ -160,7 +160,7 @@ public class JMSBase
   }
 
   /**
-   * @return the message acknowledgment mode 
+   * @return the message acknowledgment mode
    */
   public String getAckMode()
   {
@@ -169,7 +169,7 @@ public class JMSBase
 
   /**
    * Sets the message acknowledgment mode.
-   * 
+   *
    * @param ackMode the message acknowledgment mode to set
    */
   public void setAckMode(String ackMode)
@@ -187,7 +187,7 @@ public class JMSBase
 
   /**
    * Sets the client id.
-   * 
+   *
    * @param clientId the id to set for the client
    */
   public void setClientId(String clientId)
@@ -202,10 +202,10 @@ public class JMSBase
   {
     return subject;
   }
-  
+
   /**
    * Sets the name of the destination.
-   * 
+   *
    * @param subject the name of the destination to set
    */
   public void setSubject(String subject)
@@ -222,9 +222,9 @@ public class JMSBase
   }
 
   /**
-   * Sets the batch for the ActiveMQ operator. ActiveMQ can acknowledge receipt 
+   * Sets the batch for the JMS operator. JMS can acknowledge receipt
    * of messages back to the broker in batches (to improve performance).
-   * 
+   *
    * @param batch the size of the batch
    */
   public void setBatch(int batch)
@@ -242,8 +242,8 @@ public class JMSBase
 
   /**
    * Sets the size of the message.
-   * 
-   * @param messageSize the size of the message 
+   *
+   * @param messageSize the size of the message
    */
   public void setMessageSize(int messageSize)
   {
@@ -261,7 +261,7 @@ public class JMSBase
   /**
    * Sets the durability feature. Durable queues keep messages around persistently
    * for any suitable consumer to consume them.
-   * 
+   *
    * @param durable the flag to set to the durability feature
    */
   public void setDurable(boolean durable)
@@ -270,7 +270,7 @@ public class JMSBase
   }
 
   /**
-   * @return the topic 
+   * @return the topic
    */
   public boolean isTopic()
   {
@@ -279,30 +279,12 @@ public class JMSBase
 
   /**
    * Sets of the destination is a topic or a queue.
-   * 
+   *
    * @param topic the flag to set the destination to topic or queue.
    */
   public void setTopic(boolean topic)
   {
     this.topic = topic;
-  }
-
-  /**
-   * @return the transacted 
-   */
-  public boolean isTransacted()
-  {
-    return transacted;
-  }
-
-  /**
-   * Sets if the messages should be transacted or not.
-   * 
-   * @param transacted the flag to set whether the messages should be transacted or not
-   */
-  public void setTransacted(boolean transacted)
-  {
-    this.transacted = transacted;
   }
 
   public boolean isVerbose()
@@ -312,8 +294,8 @@ public class JMSBase
 
   /**
    * Sets the verbose option.
-   * 
-   * @param verbose the flag to set to enable verbose option 
+   *
+   * @param verbose the flag to set to enable verbose option
    */
   public void setVerbose(boolean verbose)
   {
@@ -344,7 +326,7 @@ public class JMSBase
   }
 
   /**
-   *  Connection specific setup for ActiveMQ.
+   *  Connection specific setup for JMS.
    *
    *  @throws JMSException
    */
@@ -355,7 +337,10 @@ public class JMSBase
     if (durable && clientId != null) {
       connection.setClientID(clientId);
     }
+
+    logger.debug("Before starting connection.");
     connection.start();
+    logger.debug("After starting connection.");
 
     // Create session
     session = connection.createSession(transacted, getSessionAckMode(ackMode));
@@ -365,7 +350,7 @@ public class JMSBase
   }
 
   /**
-   * Implement connection factory lookup. 
+   * Implement connection factory lookup.
    */
   protected ConnectionFactory getConnectionFactory()
   {
@@ -380,13 +365,14 @@ public class JMSBase
         cf = new org.apache.activemq.ActiveMQConnectionFactory();
       }
       BeanUtils.populate(cf, connectionFactoryProperties);
+      logger.debug("creation successful.");
       return cf;
     }
     catch (Exception e) {
       throw new RuntimeException("Failed to create connection factory.", e);
     }
   }
-  
+
   /**
    *  cleanup connection resources.
    */
@@ -401,5 +387,13 @@ public class JMSBase
     catch (JMSException ex) {
       logger.debug(ex.getLocalizedMessage());
     }
+  }
+
+  /**
+   * @return the transacted
+   */
+  public boolean isTransacted()
+  {
+    return transacted;
   }
 }
