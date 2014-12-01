@@ -384,6 +384,9 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   {
     // create different client for same partition
     SimpleKafkaConsumer  skc = new SimpleKafkaConsumer(brokerSet, topic, timeout, bufferSize, clientId, partitionIds);
+    skc.setCacheSize(getCacheSize());
+    skc.setMetadataRefreshInterval(getMetadataRefreshInterval());
+    skc.setMetadataRefreshRetryLimit(getMetadataRefreshRetryLimit());
     skc.initialOffset = this.initialOffset;
     skc.resetOffset(startOffset);
     return skc;
