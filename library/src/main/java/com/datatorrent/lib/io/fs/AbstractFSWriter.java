@@ -45,8 +45,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
-import com.datatorrent.api.annotation.Stateless;
-
 import com.datatorrent.lib.counters.BasicCounters;
 import org.apache.hadoop.fs.permission.FsPermission;
 
@@ -99,26 +97,9 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
    * Size of the copy buffer used to restore files to checkpointed state.
    */
   private static final int COPY_BUFFER_SIZE = 1024;
-  private long windowIDOfCompletedPart = Stateless.WINDOW_ID;
 
   @Nonnull
-  protected int fsPermission = 0777;
-
-  public int getFsPermission()
-  {
-    return fsPermission;
-  }
-
-  public void setFsPermission(int fsPermission)
-  {
-    this.fsPermission = fsPermission;
-  }
-
-  @Override
-  public void beginWindow(long windowId){
-    super.beginWindow(windowId);
-    windowIDOfCompletedPart = windowId;
-  }
+  protected int filePermission = 0777;
 
   /**
    * The default number of max open files.
@@ -344,7 +325,7 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
             fsOutput = fs.create(lfilepath, (short) replication);
           }
 
-          fs.setPermission(lfilepath, FsPermission.createImmutable((short)fsPermission));
+          fs.setPermission(lfilepath, FsPermission.createImmutable((short)filePermission));
 
           //Get the end offset of the file.
 
@@ -562,10 +543,6 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
 
       currentOffset.add(tupleBytes.length);
 
-      LOG.debug("end-offsets {}", endOffsets);
-      LOG.debug("tuple: {}", tuple.toString());
-      LOG.debug("current position {}, max length {}", currentOffset.longValue(), maxLength);
-
       if (rollingFile && currentOffset.longValue() > maxLength) {
         LOG.debug("Rotating file {} {}", fileName, currentOffset.longValue());
         rotate(fileName);
@@ -606,7 +583,7 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
     LOG.debug("Part file index: {}", openPart);
     endOffsets.get(fileName).setValue(0L);
 
-    rotateHook(getPartFileName(fileName, rotatedFileIndex),windowIDOfCompletedPart);
+    rotateHook(getPartFileName(fileName, rotatedFileIndex));
   }
 
   /**
@@ -633,9 +610,9 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
    * the name of the file part that has just completed closed.
    * @param finishedFile The name of the file part that has just completed and closed.
    */
-   protected  void rotateHook(String finishedFile,long windowId)
+   protected  void rotateHook(String finishedFile)
    {
-     LOG.info("finished file is {}, windowId when this file was completed {}" + finishedFile + windowId);
+     LOG.info("finished file is {}" , finishedFile);
    }
 
 
@@ -855,6 +832,23 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
   {
     return this.maxOpenFiles;
   }
+
+  /**
+   * Get the permission on the file which is being written.
+   */
+  public int getFilePermission()
+  {
+    return filePermission;
+  }
+
+  /**
+   * Set the permission on the file which is being written.
+   */
+  public void setFilePermission(int filePermission)
+  {
+    this.filePermission = filePermission;
+  }
+
 
   public static enum Counters
   {

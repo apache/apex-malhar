@@ -54,13 +54,22 @@ public abstract class AbstractHiveHDFS<T, S extends HiveStore> extends AbstractS
   private transient long maxWindowsWithNoData = 100;
   private int countEmptyWindow;
   private transient boolean isEmptyWindow;
-
-  protected Long maxLength = Long.MAX_VALUE;
+  private long windowIDOfCompletedPart = Stateless.WINDOW_ID;
 
   @Nonnull
   protected String tablename;
 
   public HDFSRollingOutputOperator hdfsOp;
+
+  public HDFSRollingOutputOperator getHdfsOp()
+  {
+    return hdfsOp;
+  }
+
+  public void setHdfsOp(HDFSRollingOutputOperator hdfsOp)
+  {
+    this.hdfsOp = hdfsOp;
+  }
 
   public AbstractHiveHDFS()
   {
@@ -70,39 +79,23 @@ public abstract class AbstractHiveHDFS<T, S extends HiveStore> extends AbstractS
     countEmptyWindow = 0;
   }
 
-  public Long getMaxLength()
+  @Override
+  public void beginWindow(long windowId)
   {
-    return hdfsOp.getMaxLength();
-  }
-
-  public void setMaxLength(Long maxLength)
-  {
-    hdfsOp.setMaxLength(maxLength);
-  }
-
-  public int getPermission()
-  {
-    return hdfsOp.getFsPermission();
-  }
-
-  public void setPermission(int permission)
-  {
-    hdfsOp.setFsPermission(permission);
+    isEmptyWindow = true;
+    windowIDOfCompletedPart = windowId;
   }
 
   @Override
   public void committed(long windowId)
   {
     committedWindowId = windowId;
-    logger.info("committedwindow is {}, now send tuples to hive" + committedWindowId);
     Iterator<String> iter = filenames.keySet().iterator();
     while (iter.hasNext()) {
       String fileMoved = iter.next();
       long window = filenames.get(fileMoved);
-      logger.info("windowid is " + window);
       if (committedWindowId >= window) {
         processHiveFile(fileMoved);
-        logger.info("remove this file from map" + fileMoved);
         iter.remove();
       }
     }
@@ -133,7 +126,6 @@ public abstract class AbstractHiveHDFS<T, S extends HiveStore> extends AbstractS
   public void processTuple(T tuple)
   {
     isEmptyWindow = false;
-    logger.info("writing to file");
     hdfsOp.input.process(tuple);
   }
 
@@ -144,12 +136,8 @@ public abstract class AbstractHiveHDFS<T, S extends HiveStore> extends AbstractS
     operatorId = context.getId();
     hdfsOp.setFilePath(store.filepath + "/" + appId + "/" + operatorId);
     store.setOperatorpath(store.filepath + "/" + appId + "/" + operatorId);
-    logger.info("Filepath is" + store.filepath);
-    logger.info("operator path is" + store.operatorpath);
     super.setup(context);
     hdfsOp.setup(context);
-    logger.info("committed window id from callback is {} " + committedWindowId);
-    logger.debug("AppId {} OperatorId {}", appId, operatorId);
     isEmptyWindow = true;
   }
 
@@ -158,14 +146,6 @@ public abstract class AbstractHiveHDFS<T, S extends HiveStore> extends AbstractS
   {
     hdfsOp.teardown();
     super.teardown();
-  }
-
-  @Override
-  public void beginWindow(long windowId)
-  {
-    isEmptyWindow = true;
-    hdfsOp.beginWindow(windowId);
-    logger.debug("committed window from callback {}", committedWindowId);
   }
 
   @Override
@@ -188,17 +168,14 @@ public abstract class AbstractHiveHDFS<T, S extends HiveStore> extends AbstractS
 
   public void processHiveFile(String fileMoved)
   {
-    logger.info("in process hive file");
     logger.info("processing {} file", fileMoved);
     String command = getInsertCommand(store.getOperatorpath() + "/" + fileMoved);
-    logger.info("command is" + command);
     Statement stmt;
     try {
       stmt = store.getConnection().createStatement();
       stmt.execute(command);
     }
     catch (SQLException ex) {
-      logger.info(AbstractHiveHDFS.class.getName() + " " + ex.getMessage());
       DTThrowable.rethrow(ex);
     }
   }
@@ -211,12 +188,13 @@ public abstract class AbstractHiveHDFS<T, S extends HiveStore> extends AbstractS
   protected String getInsertCommand(String filepath)
   {
     String command = null;
-    logger.info("filepath is {}",filepath);
-    if(!hdfsOp.isHDFSLocation())
-    command = "load data inpath '" + filepath + "'OVERWRITE into table " + tablename;
-    else
-    command = "load data local inpath '" + filepath + "'OVERWRITE into table " + tablename;
-    logger.info("command is {}" + command);
+    if (!hdfsOp.isHDFSLocation()) {
+      command = "load data inpath '" + filepath + "'OVERWRITE into table " + tablename;
+    }
+    else {
+      command = "load data local inpath '" + filepath + "'OVERWRITE into table " + tablename;
+    }
+    logger.info("command is {}" , command);
 
     return command;
 

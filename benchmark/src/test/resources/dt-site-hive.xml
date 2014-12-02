@@ -18,14 +18,14 @@
     <description>OperatorPath</description>
   </property>
   <property>
-    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.fsPermission</name>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.filePermission</name>
     <value>0777</value>
     <description>Permission</description>
   </property>
   <property>
-    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.maxOpenFiles</name>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.maxLength</name>
     <value>100</value>
-    <description>Max open files</description>
+    <description>Max Length</description>
   </property>
   <property>
     <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveInsertOperator.store.connectionProperties</name>
@@ -68,7 +68,7 @@
     <description>Test database connector string.</description>
   </property>
   <property>
-    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.fsPermission</name>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.filePermission</name>
     <value>0777</value>
     <description>Permission</description>
   </property>
@@ -78,8 +78,8 @@
     <description>Test database connector string.</description>
   </property>
   <property>
-    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.maxOpenFiles</name>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.maxLength</name>
     <value>100</value>
-    <description>Max open files</description>
+    <description>Max Length</description>
   </property>
 </configuration>

@@ -28,6 +28,9 @@ import org.apache.hadoop.fs.RawLocalFileSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * An implementation of FS Writer that writes text files to hdfs which are inserted into hive.
+ */
 public class HDFSRollingOutputOperator<T> extends AbstractFSWriter<T>
   {
     private transient String outputFileName;
@@ -65,9 +68,9 @@ public class HDFSRollingOutputOperator<T> extends AbstractFSWriter<T>
     }
 
     @Override
-    protected void rotateHook(String finishedFile,long windowId)
+    protected void rotateHook(String finishedFile)
     {
-      hive.filenames.put(finishedFile, windowId);
+      hive.filenames.put(finishedFile, hive.committedWindowId);
     }
 
 

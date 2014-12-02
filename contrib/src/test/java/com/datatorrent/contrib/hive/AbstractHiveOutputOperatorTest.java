@@ -130,7 +130,7 @@ public class AbstractHiveOutputOperatorTest
     HiveInsertOperator outputOperator = new HiveInsertOperator();
     outputOperator.setStore(hiveStore);
     outputOperator.setTablename(tablename);
-    outputOperator.setPermission(0777);
+    outputOperator.hdfsOp.setFilePermission(0777);
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
@@ -180,6 +180,7 @@ public class AbstractHiveOutputOperatorTest
     hiveStore.setFilepath("/tmp");
     HiveMapInsertOperator outputOperator = new HiveMapInsertOperator();
     outputOperator.setStore(hiveStore);
+    outputOperator.hdfsOp.setFilePermission(0777);
 
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);

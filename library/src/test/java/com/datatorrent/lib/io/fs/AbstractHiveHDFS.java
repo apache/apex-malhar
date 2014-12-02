@@ -3,6 +3,7 @@ package com.datatorrent.lib.io.fs;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.CheckpointListener;
+import com.datatorrent.api.annotation.Stateless;
 import java.util.HashMap;
 
 public abstract class AbstractHiveHDFS<T> implements CheckpointListener
@@ -15,6 +16,8 @@ public abstract class AbstractHiveHDFS<T> implements CheckpointListener
   protected String tablename;
   private long checkpointedWindowId = -1;
   private long committedWindowId = -1;
+  protected long windowIDOfCompletedPart = Stateless.WINDOW_ID;
+
 
   public String getFilepath()
   {
@@ -53,7 +56,7 @@ public abstract class AbstractHiveHDFS<T> implements CheckpointListener
 
   public void beginWindow(long windowId)
   {
-    hdfsOp.beginWindow(windowId);
+    windowIDOfCompletedPart = windowId;
   }
 
   public void endWindow()
