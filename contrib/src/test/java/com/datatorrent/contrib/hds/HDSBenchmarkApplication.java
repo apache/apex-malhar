@@ -211,7 +211,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
     conf.set("dt.operator.Store.fileStore.basePath", file.toURI().toString());
     //conf.set("dt.operator.Store.flushSize", "0");
     conf.set("dt.operator.Store.flushIntervalCount", "1");
-    conf.set("dt.operator.Generator.attr.PARTITIONER", "com.datatorrent.lib.algo.StatelessPartitioner:2");
+    conf.set("dt.operator.Generator.attr.PARTITIONER", "com.datatorrent.lib.partitioner.StatelessPartitioner:2");
 
     lma.prepareDAG(new HDSTestApp(), conf);
     LocalMode.Controller lc = lma.getController();
