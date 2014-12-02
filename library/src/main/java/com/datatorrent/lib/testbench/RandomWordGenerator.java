@@ -95,7 +95,7 @@ public class RandomWordGenerator implements InputOperator
     }
     if (outputString.isConnected()) {
       for(int i = 0;i<100;i++){
-        outputString.emit(("hive" + random.nextInt(100) + ""));
+        outputString.emit((random.nextInt(100) + ""));
       }
     }
 

@@ -227,7 +227,7 @@ public class AbstractHiveOutputOperatorTest
     hiveStore.disconnect();
 
     Assert.assertEquals("Numer of tuples in database",
-                        100,
+                        22,
                         databaseSize);
   }
 
