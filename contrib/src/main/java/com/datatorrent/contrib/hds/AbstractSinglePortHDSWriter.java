@@ -95,7 +95,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
    * identified by the partition id.
    *
    * @param event
-   * @return
+   * @return The bucket key.
    */
   protected long getBucketKey(EVENT event)
   {

@@ -115,7 +115,7 @@ public class KafkaApplication implements StreamingApplication
      * Encodes a single AdInfo object as a string in CSV format with following fields:
      *      publisherId, advertiserId, adUnit, timestamp, cost, revenue, impressions, clicks
      * @param adInfo
-     * @return
+     * @return The bytes of the encoded AdInfo object.
      */
     @Override
     public byte[] toBytes(AdInfo adInfo) {

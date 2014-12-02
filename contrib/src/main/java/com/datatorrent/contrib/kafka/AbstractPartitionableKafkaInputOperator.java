@@ -460,7 +460,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   /**
    * Check to see if there is other more optimal(less partition) partition assignment based on current statistics
    *
-   * @return
+   * @return True if all windowed stats indicate different partition size we need to adjust the partition.
    */
   private boolean breakSoftConstraint()
   {
@@ -489,7 +489,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    * Check if all the statistics within the windows break the upper bound hard limit in msgs/s or bytes/s
    *
    * @param kmss
-   * @return
+   * @return True if all the statistics within the windows break the upper bound hard limit in msgs/s or bytes/s.
    */
   private boolean breakHardConstraint(List<KafkaMeterStats> kmss)
   {

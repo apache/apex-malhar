@@ -82,7 +82,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
    * Size limit for data files. Files are rolled once the limit has been exceeded. The final size of a file can be
    * larger than the limit by the size of the last/single entry written to it.
    *
-   * @return
+   * @return The size limit for data files.
    */
   public int getMaxFileSize()
   {
@@ -98,7 +98,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
    * Size limit for WAL files. Files are rolled once the limit has been exceeded. The final size of a file can be larger
    * than the limit, as files are rolled at end of the operator window.
    *
-   * @return
+   * @return The size limit for WAL files.
    */
   public int getMaxWalFileSize()
   {
@@ -113,7 +113,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
   /**
    * The number of changes collected in memory before flushing to persistent storage.
    *
-   * @return
+   * @return The number of changes collected in memory before flushing to persistent storage.
    */
   public int getFlushSize()
   {
@@ -129,7 +129,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
    * Cached writes are flushed to persistent storage periodically. The interval is specified as count of windows and
    * establishes the maximum latency for changes to be written while below the {@link #flushSize} threshold.
    *
-   * @return
+   * @return The flush interval count.
    */
   @Min(value = 1)
   public int getFlushIntervalCount()
@@ -228,7 +228,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
    * Lookup in write cache (data not flushed/committed to files).
    * @param bucketKey
    * @param key
-   * @return
+   * @return uncommitted.
    */
   @Override
   public byte[] getUncommitted(long bucketKey, Slice key)
@@ -482,7 +482,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
    * Get meta data from cache or load it on first access
    *
    * @param bucketKey
-   * @return
+   * @return The bucket meta.
    */
   private BucketMeta getMeta(long bucketKey)
   {

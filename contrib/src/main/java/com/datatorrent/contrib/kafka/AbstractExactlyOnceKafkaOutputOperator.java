@@ -185,7 +185,7 @@ public abstract class AbstractExactlyOnceKafkaOutputOperator<T, K, V> extends Ab
   /**
    * Tell the operator how to convert a input tuple to a kafka key value pair
    * @param tuple
-   * @return
+   * @return A kafka key value pair.
    */
   protected abstract Pair<K, V> tupleToKeyValue(T tuple);
 

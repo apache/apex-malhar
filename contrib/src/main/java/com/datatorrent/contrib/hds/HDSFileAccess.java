@@ -101,7 +101,7 @@ public interface HDSFileAccess extends Closeable
 
     /**
      * Returns number of bytes written to the underlying stream.
-     * @return
+     * @return The bytes written.
      * @throws IOException
      */
     long getBytesWritten() throws IOException;

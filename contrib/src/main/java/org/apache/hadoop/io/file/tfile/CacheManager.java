@@ -38,11 +38,11 @@ import com.google.common.cache.Weigher;
 public class CacheManager
 {
   public static final int STRING_OVERHEAD = 64;
-  
+
   public static final int BLOCK_READER_OVERHEAD = 368;
-  
+
   public static final float DEFAULT_HEAP_MEMORY_PERCENTAGE = 0.25f;
-  
+
   private static Cache<String, BlockReader> singleCache;
 
   private static boolean enableStats = false;
@@ -62,7 +62,7 @@ public class CacheManager
    * @param concurrencyLevel
    * @param initialCapacity
    * @param maximunSize
-   * @return
+   * @return The cache.
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, int maximunSize){
     CacheBuilder builder = CacheBuilder.newBuilder().
@@ -72,14 +72,14 @@ public class CacheManager
 
     return buildCache(builder);
   }
-  
+
 
   /**
    * (Re)Create the cache by limiting the memory(in bytes)
    * @param concurrencyLevel
    * @param initialCapacity
    * @param maximumMemory
-   * @return
+   * @return The cache.
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, long maximumMemory){
 
@@ -90,13 +90,13 @@ public class CacheManager
 
     return buildCache(builder);
   }
-  
+
   /**
    * (Re)Create the cache by limiting percentage of the total heap memory
    * @param concurrencyLevel
    * @param initialCapacity
    * @param heapMemPercentage
-   * @return
+   * @return The cache.
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, float heapMemPercentage){
     CacheBuilder builder = CacheBuilder.newBuilder().
@@ -105,7 +105,7 @@ public class CacheManager
         maximumWeight((long) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * heapMemPercentage)).weigher(new KVWeigher());
     return buildCache(builder);
   }
-  
+
   public static final void createDefaultCache(){
 
     long availableMemory = (long) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * DEFAULT_HEAP_MEMORY_PERCENTAGE);
@@ -113,7 +113,7 @@ public class CacheManager
 
     singleCache = buildCache(builder);
   }
-  
+
   public static final void put(String key, BlockReader blk){
     if (singleCache == null) {
       createDefaultCache();
@@ -141,15 +141,15 @@ public class CacheManager
   }
 
   public static final class KVWeigher implements Weigher<String, BlockReader> {
-    
+
     @Override
     public int weigh(String key, BlockReader value)
     {
-      return (STRING_OVERHEAD + BLOCK_READER_OVERHEAD) + 
-          key.getBytes().length + 
+      return (STRING_OVERHEAD + BLOCK_READER_OVERHEAD) +
+          key.getBytes().length +
           value.getBlockDataInputStream().getBuf().length;
     }
-    
+
   }
 
   @VisibleForTesting
@@ -163,15 +163,15 @@ public class CacheManager
 
   public static void main(String[] args)
   {
-    
+
     //code to eitsmate the overhead of the instance of the key value objects
-    // it depends on hbase file 
-//    System.out.println(ClassSize.estimateBase(BlockReader.class, true) + 
-//        ClassSize.estimateBase(Algorithm.class, true) + 
+    // it depends on hbase file
+//    System.out.println(ClassSize.estimateBase(BlockReader.class, true) +
+//        ClassSize.estimateBase(Algorithm.class, true) +
 //        ClassSize.estimateBase(RBlockState.class, true) +
-//        ClassSize.estimateBase(ReusableByteArrayInputStream.class, true) + 
+//        ClassSize.estimateBase(ReusableByteArrayInputStream.class, true) +
 //        ClassSize.estimateBase(BlockRegion.class, true));
-//    
+//
 //    System.out.println(
 //        ClassSize.estimateBase(String.class, true));
   }
