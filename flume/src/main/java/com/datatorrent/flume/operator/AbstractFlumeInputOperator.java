@@ -332,15 +332,15 @@ public abstract class AbstractFlumeInputOperator<T>
   }
 
   @Override
-  public Collection<Partition<AbstractFlumeInputOperator<T>>> definePartitions(Collection<Partition<AbstractFlumeInputOperator<T>>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractFlumeInputOperator<T>>> definePartitions(Collection<Partition<AbstractFlumeInputOperator<T>>> partitions, int partitionCnt)
   {
     Collection<Service<byte[]>> discovered = discoveredFlumeSinks.get();
-    if (discovered == null && incrementalCapacity == 0) {
+    if (discovered == null && partitionCnt == 0) {
       return partitions;
     }
 
     HashMap<String, ArrayList<RecoveryAddress>> allRecoveryAddresses = abandonedRecoveryAddresses.get();
-    ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size() + incrementalCapacity);
+    ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size() + partitionCnt);
     for (Partition<AbstractFlumeInputOperator<T>> partition: partitions) {
       String[] lAddresses = partition.getPartitionedInstance().connectionSpecs;
       allConnectAddresses.addAll(Arrays.asList(lAddresses));
