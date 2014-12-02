@@ -45,7 +45,7 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
  </property>
  <property>
  <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.attr.PARTITIONER</name>
- <value>com.datatorrent.lib.algo.StatelessPartitioner:2</value>
+ <value>com.datatorrent.lib.partitioner.StatelessPartitioner:2</value>
  </property>
  <property>
  <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.maxTuplesPerWindow</name>
@@ -57,7 +57,7 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
  </property>
  <property>
  <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.attr.PARTITIONER</name>
- <value>com.datatorrent.lib.algo.StatelessPartitioner:4</value>
+ <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
  </property>
  <property>
  <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.fileStore.basePath</name>
@@ -124,5 +124,5 @@ public class GenericDimensionsApplication implements StreamingApplication
     dag.addStream("Query", queries.outputPort, store.query);
     dag.addStream("QueryResult", store.queryResult, queryResult.inputPort);
   }
-  
+
 }

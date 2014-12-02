@@ -17,7 +17,7 @@
   </property>
   <property>
     <name>dt.application.GenericDimensionsApplication.operator.Input.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.algo.StatelessPartitioner:2</value>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:2</value>
   </property>
   <property>
     <name>dt.application.GenericDimensionsApplication.operator.Input.maxTuplesPerWindow</name>
@@ -29,7 +29,7 @@
   </property>
   <property>
     <name>dt.application.GenericDimensionsApplication.operator.Store.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.algo.StatelessPartitioner:4</value>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
   </property>
   <property>
     <name>dt.application.GenericDimensionsApplication.operator.Store.fileStore.basePath</name>

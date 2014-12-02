@@ -49,7 +49,7 @@ import org.apache.hadoop.conf.Configuration;
 
  <property>
  <name>dt.operator.InputGenerator.attr.PARTITIONER</name>
- <value>com.datatorrent.lib.algo.StatelessPartitioner:8</value>
+ <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
  </property>
 
  <property>
@@ -64,7 +64,7 @@ import org.apache.hadoop.conf.Configuration;
 
  <property>
  <name>dt.operator.Store.attr.PARTITIONER</name>
- <value>com.datatorrent.lib.algo.StatelessPartitioner:4</value>
+ <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
  </property>
 
  <property>
