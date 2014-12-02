@@ -79,7 +79,7 @@ public class CouchBaseGetTest
     try {
       CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
       cfb.setOpTimeout(10000);  // wait up to 10 seconds for an operation to succeed
-      cfb.setOpQueueMaxBlockTime(5000); // wait up to 10 second when trying to enqueue an operation
+      cfb.setOpQueueMaxBlockTime(5000); // wait up to 5 second when trying to enqueue an operation
       client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, "default", "default"));
     }
     catch (IOException ex) {
