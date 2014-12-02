@@ -103,8 +103,12 @@ public class LogstreamTopN extends TopN<String, DimensionObject<String>> impleme
     return new LogstreamTopNStreamCodec();
   }
 
+  /**
+   * <b>Note:</b> This partitioner does not support parallel partitioning.<br/><br/>
+   * {@inheritDoc}
+   */
   @Override
-  public Collection<Partition<LogstreamTopN>> definePartitions(Collection<Partition<LogstreamTopN>> partitions, int incrementalCapacity)
+  public Collection<Partition<LogstreamTopN>> definePartitions(Collection<Partition<LogstreamTopN>> partitions, int partitionCnt)
   {
     ArrayList<Partition<LogstreamTopN>> newPartitions = new ArrayList<Partition<LogstreamTopN>>();
     String[] filters = registry.list(LogstreamUtil.FILTER);

@@ -43,7 +43,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator.PartitionStrategy;
 
@@ -55,29 +54,29 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     // This class want to initialize several kafka brokers for multiple partitions
     hasMultiPartition = true;
   }
-  
+
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaPartitionableInputOperatorTest.class);
   static List<String> collectedTuples = new LinkedList<String>();
   static final int totalCount = 100;
   static CountDownLatch latch;
   static final String OFFSET_FILE = ".offset";
 
-  
+
   public static class TestOffsetManager implements OffsetManager{
 
     private final transient Map<Integer, Long> offsets = Collections.synchronizedMap(new HashMap<Integer, Long>());
-    
+
     private String filename = null;
-    
+
     private transient FileSystem fs = FileSystem.get(new Configuration());
 
     private transient FileContext fc = FileContext.getFileContext(fs.getUri());
-    
+
     public TestOffsetManager() throws IOException
     {
-      
+
     }
-    
+
     @Override
     public Map<Integer, Long> loadInitialOffsets()
     {
@@ -89,9 +88,9 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     @Override
     public void updateOffsets(Map<Integer, Long> offsetsOfPartitions)
     {
-      
+
       offsets.putAll(offsetsOfPartitions);
-      
+
       try {
         Path tmpFile = new Path(filename + ".tmp");
         Path dataFile = new Path(filename);
@@ -102,12 +101,12 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
         out.close();
         fc.rename(tmpFile, dataFile, Rename.OVERWRITE);
       } catch (Exception e) {
-        
+
       }
-      
+
       countdownLatch();
     }
-    
+
     private void countdownLatch()
     {
       if (latch.getCount() == 1) {
@@ -127,16 +126,16 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     {
       this.filename = filename;
     }
-    
+
     public String getFilename()
     {
       return filename;
     }
-    
+
   }
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
-   * 
+   *
    * @param <T>
    */
   public static class CollectorModule extends BaseOperator
@@ -172,13 +171,13 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
       }
     }
   }
-  
+
   /**
    * Test OffsetManager update offsets in Simple Consumer
-   * 
+   *
    * [Generate send 100 messages to Kafka] ==> [wait until the offsets has been updated to 102 or timeout after 30s which means offset has not been updated]
-   * 
-   * 
+   *
+   *
    * @throws Exception
    */
   @Test
@@ -193,21 +192,21 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
       cleanFile();
     }
   }
-  
+
   private void cleanFile()
   {
     try {
       FileSystem.get(new Configuration()).delete(new Path(TEST_TOPIC + OFFSET_FILE), true);
     } catch (IOException e) {
-      
+
     }
   }
 
   public void testPartitionableInputOperator(KafkaConsumer consumer) throws Exception{
-    
+
     // Set to 3 because we want to make sure END_TUPLE from both 2 partitions are received and offsets has been updated to 102
     latch = new CountDownLatch(3);
-    
+
     // Start producer
     KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC, true);
     p.setProducerType("sync");
@@ -222,17 +221,17 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
 
     // Create KafkaSinglePortStringInputOperator
     PartitionableKafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", PartitionableKafkaSinglePortStringInputOperator.class);
-    
-    
+
+
     TestOffsetManager tfm = new TestOffsetManager();
-    
+
     tfm.setFilename(TEST_TOPIC + OFFSET_FILE);
-    
+
+    node.setInitialPartitionCount(1);
     node.setOffsetManager(tfm);
-    
     node.setStrategy(PartitionStrategy.ONE_TO_MANY.toString());
     node.setRepartitionInterval(-1);
-    
+
     //set topic
     consumer.setTopic(TEST_TOPIC);
     //set the brokerlist used to initialize the partition
@@ -243,9 +242,6 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     consumer.setInitialOffset("earliest");
 
     node.setConsumer(consumer);
-    
-    // Set the partition
-    dag.setAttribute(node, OperatorContext.INITIAL_PARTITION_COUNT, 1);
 
     // Create Test tuple collector
     CollectorModule collector = dag.addOperator("TestMessageCollector", new CollectorModule());
@@ -258,15 +254,15 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     lc.setHeartbeatMonitoringEnabled(true);
 
     lc.runAsync();
-    
+
     // Wait 30s for consumer finish consuming all the messages and offsets has been updated to 100
     assertTrue("TIMEOUT: 30s ", latch.await(30000, TimeUnit.MILLISECONDS));
-    
-    
+
+
     // Check results
     assertEquals("Tuple count", totalCount -10 -10, collectedTuples.size());
     logger.debug(String.format("Number of emitted tuples: %d", collectedTuples.size()));
-    
+
     p.close();
     lc.shutdown();
   }

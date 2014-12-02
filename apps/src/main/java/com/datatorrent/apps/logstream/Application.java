@@ -583,11 +583,6 @@ public class Application implements StreamingApplication
     RabbitMQLogsInputOperator syslogLogInput = dag.addOperator("SyslogLogInput", RabbitMQLogsInputOperator.class);
     RabbitMQLogsInputOperator systemLogInput = dag.addOperator("SystemLogInput", RabbitMQLogsInputOperator.class);
 
-    // dynamically partition based on number of incoming tuples from the queue
-    //dag.setAttribute(apacheLogInput, OperatorContext.INITIAL_PARTITION_COUNT, 2);
-    //dag.setAttribute(apacheLogInput, OperatorContext.PARTITION_TPS_MIN, 1000);
-    //dag.setAttribute(apacheLogInput, OperatorContext.PARTITION_TPS_MAX, 3000);
-
     /*
      * Convert incoming JSON structures to flattened map objects
      */

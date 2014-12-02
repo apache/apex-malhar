@@ -15,28 +15,29 @@
  */
 package com.datatorrent.benchmark.kafka;
 
+import com.datatorrent.api.LocalMode;
+import java.io.InputStream;
 import org.apache.hadoop.conf.Configuration;
+import org.junit.Test;
 
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
-
-/**
- * An stream app to produce msg to cluster
- *
- * @since 0.9.3
- */
-@ApplicationAnnotation(name="KafkaOutputBenchmark")
-public class KafkaOutputBenchmark implements StreamingApplication
+public class KafkaInputBenchmarkTest
 {
-
-  @Override
-  public void populateDAG(DAG dag, Configuration conf)
+  @Test
+  public void testBenchmark()
   {
-    dag.setAttribute(DAG.APPLICATION_NAME, "KafkaOutputBenchmark");
-    BenchmarkPartitionableKafkaOutputOperator bpkoo = dag.addOperator("KafkaBenchmarkProducer", BenchmarkPartitionableKafkaOutputOperator.class);
-    bpkoo.setBrokerList(conf.get("kafka.brokerlist"));
-    bpkoo.setPartitionCount(2);
-  }
+    Configuration conf = new Configuration();
+    InputStream inputStream = getClass().getResourceAsStream("/dt-site-kafka.xml");
+    conf.addResource(inputStream);
 
+    LocalMode lma = LocalMode.newInstance();
+
+    try {
+      lma.prepareDAG(new KafkaInputBenchmark(), conf);
+      LocalMode.Controller lc = lma.getController();
+      lc.run(30000);
+    }
+    catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
+  }
 }

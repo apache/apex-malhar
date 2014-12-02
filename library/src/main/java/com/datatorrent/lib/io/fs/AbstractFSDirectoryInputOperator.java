@@ -658,11 +658,11 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   }
 
   @Override
-  public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractFSDirectoryInputOperator<T>>> definePartitions(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int partitionCnt)
   {
     lastRepartition = System.currentTimeMillis();
 
-    int totalCount = computedNewPartitionCount(partitions, incrementalCapacity);
+    int totalCount = computedNewPartitionCount(partitions, partitionCnt);
 
     LOG.debug("Computed new partitions: {}", totalCount);
 

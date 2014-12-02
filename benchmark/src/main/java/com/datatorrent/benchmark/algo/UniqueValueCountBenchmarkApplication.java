@@ -20,6 +20,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.PartitionableUniqueCount;
+import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.algo.UniqueCounterValue;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
@@ -41,7 +42,6 @@ public class UniqueValueCountBenchmarkApplication implements StreamingApplicatio
   @Override
   public void populateDAG(DAG dag, Configuration entries)
   {
-
     dag.setAttribute(dag.APPLICATION_NAME, "UniqueValueCountDemo");
     dag.setAttribute(dag.DEBUG, true);
 
@@ -50,12 +50,11 @@ public class UniqueValueCountBenchmarkApplication implements StreamingApplicatio
     RandomEventGenerator randGen = dag.addOperator("randomgen", new RandomEventGenerator());
     randGen.setMaxvalue(999999);
     randGen.setTuplesBlastIntervalMillis(50);
-    dag.setAttribute(randGen, Context.OperatorContext.INITIAL_PARTITION_COUNT, 3);
+    dag.setAttribute(randGen, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<RandomEventGenerator>(3));
 
     /* Initialize with three partition to start with */
-    // UniqueCount1 uniqCount = dag.addOperator("uniqevalue", new UniqueCount1());
     PartitionableUniqueCount<Integer> uniqCount = dag.addOperator("uniqevalue", new PartitionableUniqueCount<Integer>());
-    dag.setAttribute(uniqCount, Context.OperatorContext.INITIAL_PARTITION_COUNT, 3);
+    dag.setAttribute(uniqCount, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<PartitionableUniqueCount<Integer>>(3));
     dag.setInputPortAttribute(uniqCount.data, Context.PortContext.PARTITION_PARALLEL, true);
     uniqCount.setCumulative(false);
 
@@ -66,5 +65,4 @@ public class UniqueValueCountBenchmarkApplication implements StreamingApplicatio
     dag.addStream("consoutput", uniqCount.count, counter.data);
     dag.addStream("final", counter.count, output.input);
   }
-
 }

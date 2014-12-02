@@ -15,13 +15,11 @@
  */
 package com.datatorrent.demos.dimensions.generic;
 
-import com.datatorrent.lib.stream.DevNullCounter;
-
-import org.apache.hadoop.conf.Configuration;
-
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.stream.DevNullCounter;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * DimensionsDemo run with HDS
@@ -50,8 +48,8 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  </property>
 
  <property>
- <name>dt.operator.InputGenerator.attr.INITIAL_PARTITION_COUNT</name>
- <value>8</value>
+ <name>dt.operator.InputGenerator.attr.PARTITIONER</name>
+ <value>com.datatorrent.lib.algo.StatelessPartitioner:8</value>
  </property>
 
  <property>
@@ -65,8 +63,8 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  </property>
 
  <property>
- <name>dt.operator.Store.attr.INITIAL_PARTITION_COUNT</name>
- <value>4</value>
+ <name>dt.operator.Store.attr.PARTITIONER</name>
+ <value>com.datatorrent.lib.algo.StatelessPartitioner:4</value>
  </property>
 
  <property>

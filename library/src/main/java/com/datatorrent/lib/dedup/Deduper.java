@@ -19,7 +19,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang.mutable.MutableLong;
@@ -145,6 +145,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   private transient OperatorContext context;
   protected BasicCounters<MutableLong> counters;
   private transient long currentWindow;
+  @Min(1)
+  private int partitionCount = 1;
 
   public Deduper()
   {
@@ -154,6 +156,16 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
     fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
     counters = new BasicCounters<MutableLong>(MutableLong.class);
+  }
+
+  public void setPartitionCount(int partitionCount)
+  {
+    this.partitionCount = partitionCount;
+  }
+
+  public int getPartitionCount()
+  {
+    return partitionCount;
   }
 
   @Override
@@ -252,12 +264,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   {
   }
 
-  public Collection<Partition<Deduper<INPUT, OUTPUT>>> rebalancePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions)
-  {
-    /* we do not re-balance since we do not know how to do it */
-    return partitions;
-  }
-
   @Override
   public void partitioned(Map<Integer, Partition<Deduper<INPUT, OUTPUT>>> partitions)
   {
@@ -265,10 +271,17 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
   @Override
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
-  public Collection<Partition<Deduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions, int incrementalCapacity)
+  public Collection<Partition<Deduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions, int partitionCnt)
   {
-    if (incrementalCapacity == 0) {
-      return rebalancePartitions(partitions);
+    final int finalCapacity;
+
+    //Do parallel partitioning
+    if(partitionCnt != 0) {
+      finalCapacity = partitionCnt;
+    }
+    //Do normal partitioning
+    else {
+      finalCapacity = partitionCount;
     }
 
     //Collect the state here
@@ -294,7 +307,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       partition.getPartitionedInstance().waitingEvents.clear();
     }
 
-    final int finalCapacity = partitions.size() + incrementalCapacity;
     partitions.clear();
 
     Collection<Partition<Deduper<INPUT, OUTPUT>>> newPartitions = Lists.newArrayListWithCapacity(finalCapacity);

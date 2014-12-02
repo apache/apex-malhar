@@ -18,7 +18,6 @@ package com.datatorrent.contrib.hds;
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.TreeMap;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
@@ -33,7 +32,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.util.KeyValPair;
-import com.google.common.collect.Maps;
 
 @ApplicationAnnotation(name="HDSTestApp")
 public class HDSTestApp implements StreamingApplication
@@ -75,7 +73,7 @@ public class HDSTestApp implements StreamingApplication
     conf.set("dt.operator.Store.fileStore.basePath", file.toURI().toString());
     //conf.set("dt.operator.Store.flushSize", "0");
     conf.set("dt.operator.Store.flushIntervalCount", "1");
-    conf.set("dt.operator.Store.attr.INITIAL_PARTITION_COUNT", "2");
+    conf.set("dt.operator.Store.partitionCount", "2");
 
     lma.prepareDAG(new HDSTestApp(), conf);
     LocalMode.Controller lc = lma.getController();

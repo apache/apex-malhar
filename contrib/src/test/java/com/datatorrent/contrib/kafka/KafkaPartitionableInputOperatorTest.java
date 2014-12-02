@@ -25,7 +25,6 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG.Locality;
 
 /**
@@ -34,13 +33,13 @@ import com.datatorrent.api.DAG.Locality;
  */
 public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 {
-  
+
   public KafkaPartitionableInputOperatorTest()
   {
     // This class want to initialize several kafka brokers for multiple partitions
     hasMultiPartition = true;
   }
-  
+
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaPartitionableInputOperatorTest.class);
   static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
   static AtomicInteger tupleCount = new AtomicInteger();
@@ -48,7 +47,7 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
-   * 
+   *
    * @param <T>
    */
   public static class CollectorModule<T> extends BaseOperator
@@ -88,18 +87,18 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
       }
     }
   }
-  
+
   /**
    * Test AbstractKafkaSinglePortInputOperator (i.e. an input adapter for
    * Kafka, aka consumer). This module receives data from an outside test
    * generator through Kafka message bus and feed that data into Malhar
    * streaming platform.
-   * 
+   *
    * [Generate message and send that to Kafka message bus] ==> [Receive that
    * message through Kafka input adapter(i.e. consumer) and send using
    * emitTuples() interface on output port during onMessage call]
-   * 
-   * 
+   *
+   *
    * @throws Exception
    */
   @Test
@@ -109,7 +108,7 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
     SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
     testPartitionableInputOperator(consumer);
   }
-  
+
   @Test
   public void testPartitionableHighlevelConsumerInputOperator() throws Exception
   {
@@ -120,14 +119,14 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
     HighlevelKafkaConsumer consumer = new HighlevelKafkaConsumer(props);
     testPartitionableInputOperator(consumer);
   }
-  
+
   public void testPartitionableInputOperator(KafkaConsumer consumer) throws Exception{
-    
+
     // Set to 2 because we want to make sure END_TUPLE from both 2 partitions are received
     latch = new CountDownLatch(2);
-    
+
     int totalCount = 10000;
-    
+
     // Start producer
     KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC, true);
     p.setSendCount(totalCount);
@@ -139,7 +138,8 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 
     // Create KafkaSinglePortStringInputOperator
     PartitionableKafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", PartitionableKafkaSinglePortStringInputOperator.class);
-    
+    node.setInitialPartitionCount(1);
+
     //set topic
     consumer.setTopic(TEST_TOPIC);
     //set the brokerlist used to initialize the partition
@@ -150,9 +150,6 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
     consumer.setInitialOffset("earliest");
 
     node.setConsumer(consumer);
-    
-    // Set the partition
-    dag.setAttribute(node, OperatorContext.INITIAL_PARTITION_COUNT, 1);
 
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
@@ -165,17 +162,17 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
     lc.setHeartbeatMonitoringEnabled(false);
 
     lc.runAsync();
-    
+
     // Wait 30s for consumer finish consuming all the messages
     Assert.assertTrue("TIMEOUT: 30s ", latch.await(30000, TimeUnit.MILLISECONDS));
-    
+
     // Check results
     Assert.assertEquals("Collections size", 1, collections.size());
     Assert.assertEquals("Tuple count", totalCount, collections.get(collector.inputPort.id).size());
     logger.debug(String.format("Number of emitted tuples: %d", collections.get(collector.inputPort.id).size()));
-    
+
     p.close();
     lc.shutdown();
   }
-  
+
 }
