@@ -128,8 +128,12 @@ public class AlertEscalationOperator extends BaseOperator implements Partitioner
   {
   }
 
+  /**
+   * <b>Note:</b> This partitioner does not support parallel partitioning.<br/><br/>
+   * {@inheritDoc}
+   */
   @Override
-  public Collection<Partition<AlertEscalationOperator>> definePartitions(Collection<Partition<AlertEscalationOperator>> partitions, int incrementalCapacity)
+  public Collection<Partition<AlertEscalationOperator>> definePartitions(Collection<Partition<AlertEscalationOperator>> partitions, int partitionCnt)
   {
     // prevent partitioning
     List<Partition<AlertEscalationOperator>> newPartitions = new ArrayList<Partition<AlertEscalationOperator>>(1);

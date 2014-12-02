@@ -16,21 +16,22 @@
 package com.datatorrent.benchmark.kafka;
 
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Properties;
-import java.util.Map;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import kafka.javaapi.producer.Producer;
-import kafka.producer.KeyedMessage;
-import kafka.producer.ProducerConfig;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.Partitioner;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Properties;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+import javax.validation.constraints.Min;
+import kafka.javaapi.producer.Producer;
+import kafka.producer.KeyedMessage;
+import kafka.producer.ProducerConfig;
 
 /**
  * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads.&nbsp;
@@ -47,7 +48,8 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
 
   private String topic = "benchmark";
 
-  private int partitionNum = 5;
+  @Min(1)
+  private int partitionCount = 5;
 
   private String brokerList = "localhost:9092";
 
@@ -134,15 +136,19 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
   {
   }
 
+  /**
+   * <b>Note:</b> This partitioner does not support parallel partitioning.<br/><br/>
+   * {@inheritDoc}
+   */
   @Override
-  public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, int pNum)
+  public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, int partitionCnt)
   {
 
-    ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitioner.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionNum);
+    ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitioner.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionCount);
 
-    for (int i = 0; i < partitionNum; i++) {
+    for (int i = 0; i < partitionCount; i++) {
       BenchmarkPartitionableKafkaOutputOperator bpkoo = new BenchmarkPartitionableKafkaOutputOperator();
-      bpkoo.setPartitionNum(partitionNum);
+      bpkoo.setPartitionCount(partitionCount);
       bpkoo.setTopic(topic);
       bpkoo.setBrokerList(brokerList);
       bpkoo.setStickyKey(i);
@@ -190,14 +196,14 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
     this.topic = topic;
   }
 
-  public int getPartitionNum()
+  public int getPartitionCount()
   {
-    return partitionNum;
+    return partitionCount;
   }
 
-  public void setPartitionNum(int partitionNum)
+  public void setPartitionCount(int partitionCount)
   {
-    this.partitionNum = partitionNum;
+    this.partitionCount = partitionCount;
   }
 
   public String getBrokerList()

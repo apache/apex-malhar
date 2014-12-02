@@ -26,7 +26,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -212,7 +211,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
     conf.set("dt.operator.Store.fileStore.basePath", file.toURI().toString());
     //conf.set("dt.operator.Store.flushSize", "0");
     conf.set("dt.operator.Store.flushIntervalCount", "1");
-    conf.set("dt.operator.Generator.attr.INITIAL_PARTITION_COUNT", "2");
+    conf.set("dt.operator.Generator.attr.PARTITIONER", "com.datatorrent.lib.algo.StatelessPartitioner:2");
 
     lma.prepareDAG(new HDSTestApp(), conf);
     LocalMode.Controller lc = lma.getController();

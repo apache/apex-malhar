@@ -118,6 +118,7 @@ public class RabbitMQLogsInputOperator extends AbstractSinglePortRabbitMQInputOp
   }
 
   /**
+   * <b>Note:</b> This partitioner does not support parallel partitioning.<br/><br/>
    * Partitions count will be the number of input routing keys.
    * Each partition receives tuples from its routing key.
    *
@@ -126,7 +127,7 @@ public class RabbitMQLogsInputOperator extends AbstractSinglePortRabbitMQInputOp
    * @return
    */
   @Override
-  public Collection<Partition<RabbitMQLogsInputOperator>> definePartitions(Collection<Partition<RabbitMQLogsInputOperator>> partitions, int incrementalCapacity)
+  public Collection<Partition<RabbitMQLogsInputOperator>> definePartitions(Collection<Partition<RabbitMQLogsInputOperator>> partitions, int partitionCnt)
   {
     if (routingKeys == null || routingKeys.length == 0) {
       return partitions;

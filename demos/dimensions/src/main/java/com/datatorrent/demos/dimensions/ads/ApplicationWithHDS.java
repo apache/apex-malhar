@@ -15,17 +15,6 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
-import com.datatorrent.contrib.kafka.KafkaJsonEncoder;
-import java.net.URI;
-import java.util.concurrent.TimeUnit;
-
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-
-import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.hadoop.conf.Configuration;
-
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -33,11 +22,19 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.contrib.kafka.KafkaJsonEncoder;
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
+import com.datatorrent.lib.counters.BasicCounters;
+import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.statistics.DimensionsComputation;
+import java.net.URI;
+import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.hadoop.conf.Configuration;
 
 /**
  * An AdsDimensionsDemo run with HDS
@@ -66,8 +63,8 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
  </property>
 
  <property>
- <name>dt.operator.InputGenerator.attr.INITIAL_PARTITION_COUNT</name>
- <value>8</value>
+ <name>dt.operator.InputGenerator.attr.PARTITIONER</name>
+ <value>com.datatorrent.lib.algo.StatelessPartitioner:8</value>
  </property>
 
  <property>
@@ -81,8 +78,8 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
  </property>
 
  <property>
- <name>dt.operator.HDSOut.attr.INITIAL_PARTITION_COUNT</name>
- <value>4</value>
+ <name>dt.operator.HDSOut.attr.PARTITIONER</name>
+ <value>com.datatorrent.lib.algo.StatelessPartitioner:4</value>
  </property>
 
  <property>

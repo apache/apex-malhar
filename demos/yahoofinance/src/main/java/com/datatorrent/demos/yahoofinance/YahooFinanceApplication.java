@@ -95,8 +95,8 @@ import org.apache.hadoop.conf.Configuration;
  *
  * Scaling Options : <br>
  * <ul>
- * <li>Volume operator can be replicated using 'INITIAL_PARTITION_COUNT' options
- * on operator.</li>
+ * <li>Volume operator can be replicated using a {@link StatelessPartitioner}
+ * on an operator.</li>
  * <li>Range value operator can replicated but using proper unifier
  * operator(read App Dev Guide).</li>
  * <li>Slinging window operator can be replicated with proper unifier operator.</li>

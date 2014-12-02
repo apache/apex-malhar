@@ -268,9 +268,13 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     }
   }
 
+  /**
+   * <b>Note:</b> This partitioner does not support parallel partitioning.<br/><br/>
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Partition<AbstractBlockReader<R>>> definePartitions(Collection<Partition<AbstractBlockReader<R>>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractBlockReader<R>>> definePartitions(Collection<Partition<AbstractBlockReader<R>>> partitions, int partitionCnt)
   {
     if (partitions.iterator().next().getStats() == null) {
       //First time when define partitions is called

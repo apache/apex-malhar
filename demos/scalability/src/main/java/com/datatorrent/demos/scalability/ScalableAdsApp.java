@@ -15,18 +15,15 @@
  */
 package com.datatorrent.demos.scalability;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.algo.StatelessPartitioner;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.MapMultiConsoleOutputOperator;
-
-import java.util.Map;
-
-import org.apache.commons.lang.mutable.MutableDouble;
 import org.apache.hadoop.conf.Configuration;
 
 /**
@@ -59,7 +56,7 @@ public class ScalableAdsApp implements StreamingApplication
 
     InputItemGenerator input = dag.addOperator("input", InputItemGenerator.class);
     dag.setOutputPortAttribute(input.outputPort, PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);
-    dag.setAttribute(input, OperatorContext.INITIAL_PARTITION_COUNT, partitions);
+    dag.setAttribute(input, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<InputItemGenerator>(partitions));
 
     InputDimensionGenerator inputDimension = dag.addOperator("inputDimension", InputDimensionGenerator.class);
     dag.setInputPortAttribute(inputDimension.inputPort, PortContext.PARTITION_PARALLEL, true);
@@ -77,7 +74,9 @@ public class ScalableAdsApp implements StreamingApplication
 
     //MapMultiConsoleOutputOperator<AggrKey, Object> console = dag.addOperator("console", MapMultiConsoleOutputOperator.class);
     ConsoleOutputOperator console = dag.addOperator("console", ConsoleOutputOperator.class);
-    dag.setAttribute(console, OperatorContext.INITIAL_PARTITION_COUNT, partitions_agg);
+    dag.setAttribute(console,
+                     Context.OperatorContext.PARTITIONER,
+                     new StatelessPartitioner<InputItemGenerator>(partitions_agg));
     console.silent= true;
     console.setDebug(false);
     dag.setInputPortAttribute(console.input, PortContext.QUEUE_CAPACITY, QUEUE_CAPACITY);

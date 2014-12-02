@@ -20,6 +20,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.algo.PartitionableUniqueCount;
+import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.util.KeyValPair;
 import org.apache.hadoop.conf.Configuration;
@@ -43,7 +44,8 @@ public class UniqueKeyValCountDemo implements StreamingApplication
     PartitionableUniqueCount<KeyValPair<String, Object>> uniqCount =
         dag.addOperator("uniqevalue", new PartitionableUniqueCount<KeyValPair<String, Object>>());
     uniqCount.setCumulative(false);
-    dag.setAttribute(uniqCount, Context.OperatorContext.INITIAL_PARTITION_COUNT, 3);
+    dag.setAttribute(randGen, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<PartitionableUniqueCount<KeyValPair<String, Object>>>(3));
+
     ConsoleOutputOperator output = dag.addOperator("output", new ConsoleOutputOperator());
 
     dag.addStream("datain", randGen.outPort, uniqCount.data);
