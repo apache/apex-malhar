@@ -44,9 +44,8 @@ public class RedisStore implements TransactionableKeyValueStore
   private transient int timeOut = 30000;
 
   /**
-   * Gets the host.
    *
-   * @return
+   * @return redis host.
    */
   public String getHost()
   {
@@ -56,7 +55,7 @@ public class RedisStore implements TransactionableKeyValueStore
   /**
    * Sets the host.
    *
-   * @param host
+   * @param host redis host.
    */
   public void setHost(String host)
   {
@@ -64,9 +63,8 @@ public class RedisStore implements TransactionableKeyValueStore
   }
 
   /**
-   * Gets the port.
    *
-   * @return
+   * @return redis port.
    */
   public int getPort()
   {
@@ -76,7 +74,7 @@ public class RedisStore implements TransactionableKeyValueStore
   /**
    * Sets the port.
    *
-   * @param port
+   * @param port redis port.
    */
   public void setPort(int port)
   {
@@ -84,9 +82,8 @@ public class RedisStore implements TransactionableKeyValueStore
   }
 
   /**
-   * Gets the DB index.
    *
-   * @return
+   * @return db index.
    */
   public int getDbIndex()
   {
@@ -96,7 +93,7 @@ public class RedisStore implements TransactionableKeyValueStore
   /**
    * Sets the DB index.
    *
-   * @param dbIndex
+   * @param dbIndex database index.
    */
   public void setDbIndex(int dbIndex)
   {
@@ -104,9 +101,8 @@ public class RedisStore implements TransactionableKeyValueStore
   }
 
   /**
-   * Gets the key expiry time.
    *
-   * @return
+   * @return expiry time of keys.
    */
   public int getKeyExpiryTime()
   {
@@ -116,7 +112,7 @@ public class RedisStore implements TransactionableKeyValueStore
   /**
    * Sets the key expiry time.
    *
-   * @param keyExpiryTime
+   * @param keyExpiryTime expiry time.
    */
   public void setKeyExpiryTime(int keyExpiryTime)
   {
@@ -174,7 +170,7 @@ public class RedisStore implements TransactionableKeyValueStore
    * Note that it does NOT work with hash values or list values
    *
    * @param key
-   * @return
+   * @return value of the key.
    */
   @Override
   public Object get(Object key)
@@ -190,7 +186,7 @@ public class RedisStore implements TransactionableKeyValueStore
    * Note that it does NOT work with hash values or list values
    *
    * @param keys
-   * @return
+   * @return values of all the keys.
    */
   @SuppressWarnings("unchecked")
   @Override

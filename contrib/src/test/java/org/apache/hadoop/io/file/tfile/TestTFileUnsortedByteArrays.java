@@ -19,7 +19,6 @@ package org.apache.hadoop.io.file.tfile;
 
 import java.io.IOException;
 
-import junit.framework.Assert;
 import junit.framework.TestCase;
 
 import org.apache.hadoop.conf.Configuration;
@@ -29,6 +28,7 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader;
 import org.apache.hadoop.io.file.tfile.DTFile.Writer;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner;
+import org.junit.Assert;
 
 public class TestTFileUnsortedByteArrays extends TestCase {
   private static String ROOT =
