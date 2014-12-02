@@ -80,7 +80,7 @@ public class BasicCounters<T extends Number & Mutable> implements Serializable
    * Returns the counter if it exists; null otherwise
    *
    * @param counterKey
-   * @return
+   * @return counter corresponding to the counter key.
    */
   public synchronized T getCounter(Enum<?> counterKey)
   {
@@ -101,7 +101,7 @@ public class BasicCounters<T extends Number & Mutable> implements Serializable
   /**
    * Returns an immutable copy of all the counters.
    *
-   * @return
+   * @return an immutable copy of the counters.
    */
   public synchronized ImmutableMap<Enum<?>, T> getCopy()
   {
