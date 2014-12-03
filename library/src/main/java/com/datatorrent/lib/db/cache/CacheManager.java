@@ -17,7 +17,6 @@ package com.datatorrent.lib.db.cache;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 import javax.annotation.Nonnull;
@@ -73,7 +72,6 @@ public class CacheManager implements Closeable
 
       String[] parts = refreshTime.split("[:\\s]");
 
-      SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss z");
       Calendar timeToRefresh = Calendar.getInstance();
       timeToRefresh.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parts[0]));
       if (parts.length >= 2) {

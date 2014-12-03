@@ -16,25 +16,6 @@
 package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.Context.OperatorContext;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import kafka.javaapi.PartitionMetadata;
-
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.Stats.OperatorStats;
@@ -48,6 +29,22 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterators;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import javax.validation.constraints.Min;
+import kafka.javaapi.PartitionMetadata;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
@@ -125,6 +122,9 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   private transient List<Integer> newWaitingPartition = new LinkedList<Integer>();
 
+  @Min(1)
+  private int initialPartitionCount = 1;
+
   @Override
   public void partitioned(Map<Integer, Partition<AbstractPartitionableKafkaInputOperator>> partitions)
   {
@@ -133,7 +133,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   }
 
   @Override
-  public Collection<Partition<AbstractPartitionableKafkaInputOperator>> definePartitions(Collection<Partition<AbstractPartitionableKafkaInputOperator>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractPartitionableKafkaInputOperator>> definePartitions(Collection<Partition<AbstractPartitionableKafkaInputOperator>> partitions, int partitionCnt)
   {
 
     // check if it's the initial partition
@@ -208,8 +208,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
         if (isInitialParitition) {
           lastRepartitionTime = System.currentTimeMillis();
           logger.info("[ONE_TO_MANY]: Initializing partition(s)");
-          // Initial partition
-          int size = incrementalCapacity + 1;
+          int size = initialPartitionCount;
           @SuppressWarnings("unchecked")
           Set<Integer>[] pIds = new Set[size];
           newPartitions = new ArrayList<Partition<AbstractPartitionableKafkaInputOperator>>(size);
@@ -461,7 +460,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   /**
    * Check to see if there is other more optimal(less partition) partition assignment based on current statistics
    *
-   * @return
+   * @return True if all windowed stats indicate different partition size we need to adjust the partition.
    */
   private boolean breakSoftConstraint()
   {
@@ -490,7 +489,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    * Check if all the statistics within the windows break the upper bound hard limit in msgs/s or bytes/s
    *
    * @param kmss
-   * @return
+   * @return True if all the statistics within the windows break the upper bound hard limit in msgs/s or bytes/s.
    */
   private boolean breakHardConstraint(List<KafkaMeterStats> kmss)
   {
@@ -579,6 +578,16 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
      * TODO implement this later
      */
     ONE_TO_MANY_HEURISTIC
+  }
+
+  public void setInitialPartitionCount(int partitionCount)
+  {
+    this.initialPartitionCount = initialPartitionCount;
+  }
+
+  public int getInitialPartitionCount()
+  {
+    return initialPartitionCount;
   }
 
   public long getMsgRateUpperBound()

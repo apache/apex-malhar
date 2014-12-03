@@ -120,7 +120,7 @@ public class HDSReader implements Operator, HDS.Reader
   /**
    * Compare keys for sequencing as secondary level of organization within buckets.
    * In most cases it will be implemented using a time stamp as leading component.
-   * @return
+   * @return The key comparator.
    */
   public Comparator<Slice> getKeyComparator()
   {

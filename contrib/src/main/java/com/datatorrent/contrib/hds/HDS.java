@@ -99,19 +99,19 @@ public interface HDS
 
     /**
      * Return count of byte which may not be flushed to persistent storage.
-     * @return
+     * @return The count of byte which may not be flushed to persistent storage.
      */
     public long getUnflushedCount();
 
     /**
      * Returns offset of the file, till which data is known to be persisted on the disk.
-     * @return
+     * @return The offset of the file, till which data is known to be persisted on the disk.
      */
     public long getCommittedLen();
 
     /**
      * Returns file size, last part of the file may not be persisted on disk.
-     * @return
+     * @return The file size, last part of the file may not be persisted on disk.
      */
     public long logSize();
   }

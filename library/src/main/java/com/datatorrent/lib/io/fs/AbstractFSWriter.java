@@ -43,9 +43,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import com.datatorrent.lib.counters.BasicCounters;
 
@@ -84,10 +82,9 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @tags fs, file, output operator
  *
  * @param <INPUT> This is the input tuple type.
- * @param <OUTPUT> This is the output tuple type.
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
+public abstract class AbstractFSWriter<INPUT> extends BaseOperator
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFSWriter.class);
 
@@ -109,10 +106,12 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
    * Keyname to rolling file number.
    */
   protected Map<String, MutableInt> openPart;
+
   /**
    * Keyname to offset of the current rolling file.
    */
   protected Map<String, MutableLong> endOffsets;
+
   /**
    * Keyname to counts.
    */
@@ -186,7 +185,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   /**
    * File output counters.
    */
-  private BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
 
   /**
    * This input port receives incoming tuples.
@@ -199,12 +198,6 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       processTuple(tuple);
     }
   };
-
-  /**
-   * This output port is optional and emits converted tuples.
-   */
-  @OutputPortFieldAnnotation(optional = true)
-  public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
 
   public AbstractFSWriter()
   {
@@ -234,6 +227,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   @Override
   public void setup(Context.OperatorContext context)
   {
+    LOG.debug("setup initiated");
     rollingFile = maxLength < Long.MAX_VALUE;
 
     //Getting required file system instance.
@@ -246,8 +240,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
     LOG.debug("FS class {}", fs.getClass());
 
-    //Setting listener for debugging
-    LOG.debug("setup initiated");
+    //When an entry is removed from the cache, removal listener is notified and it closes the output stream.
     RemovalListener<String, FSDataOutputStream> removalListener = new RemovalListener<String, FSDataOutputStream>()
     {
       @Override
@@ -530,14 +523,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       return;
     }
 
-    LOG.debug("file {}, hash {}, filecount {}",
-              fileName,
-              fileName.hashCode(),
-              this.openPart.get(fileName));
-
     try {
-      LOG.debug("end-offsets {}", endOffsets);
-
       FSDataOutputStream fsOutput = streamsCache.get(fileName);
       byte[] tupleBytes = getBytesForTuple(tuple);
       fsOutput.write(tupleBytes);
@@ -551,10 +537,6 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
       currentOffset.add(tupleBytes.length);
 
-      LOG.debug("end-offsets {}", endOffsets);
-      LOG.debug("tuple: {}", tuple.toString());
-      LOG.debug("current position {}, max length {}", currentOffset.longValue(), maxLength);
-
       if (rollingFile && currentOffset.longValue() > maxLength) {
         LOG.debug("Rotating file {} {}", fileName, currentOffset.longValue());
         rotate(fileName);
@@ -567,18 +549,12 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       }
 
       count.add(1);
-
-      LOG.debug("count of {} =  {}", fileName, count);
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
     }
     catch (ExecutionException ex) {
       throw new RuntimeException(ex);
-    }
-
-    if (output.isConnected()) {
-      output.emit(convert(tuple));
     }
   }
 
@@ -589,16 +565,48 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
    * @throws IOException
    * @throws ExecutionException
    */
-  private void rotate(String fileName) throws IllegalArgumentException,
-                                                       IOException,
-                                                       ExecutionException
+  protected void rotate(String fileName) throws IllegalArgumentException,
+                                                IOException,
+                                                ExecutionException
   {
     counts.remove(fileName);
     streamsCache.invalidate(fileName);
     MutableInt mi = openPart.get(fileName);
+    int rotatedFileIndex = mi.getValue();
     mi.add(1);
     LOG.debug("Part file index: {}", openPart);
     endOffsets.get(fileName).setValue(0L);
+
+    rotateHook(getPartFileName(fileName, rotatedFileIndex));
+  }
+
+  /**
+   * This hook is called after a rolling file part has filled up and is closed. The hook is passed
+   * the name of the file part that has just completed closed.
+   * @param finishedFile The name of the file part that has just completed and closed.
+   */
+  protected void rotateHook(String finishedFile)
+  {
+    //Do nothing by default
+  }
+
+  /**
+   * This method will close a file.<br/>
+   * If {@link #append} is false then it removes the file from the operator's offset history.<br/>
+   *
+   * The child operator should not call this method on rolling files.
+   * @param fileName The name of the file to close and remove.
+   */
+  protected void closeFile(String fileName)
+  {
+    if (!endOffsets.containsKey(fileName)) {
+      throw new IllegalArgumentException("The file " + fileName + " was never opened.");
+    }
+    if (!append) {
+      endOffsets.remove(fileName);
+    }
+    //triggers the RemoveListener#onRemoval() method.
+    streamsCache.invalidate(fileName);
   }
 
   /**
@@ -701,19 +709,6 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
                                    int part)
   {
     return fileName + "." + part;
-  }
-
-  /**
-   * This method converts incoming tuples to another type, which is then written to an output port.
-   * By default this method throws an UnsupportedOperationException and must be overridden. This
-   * method is only called when the output port is connected.
-   * @param tuple A tuple that was received on the operators output port.
-   * @return An incoming tuple which was converted to another type and is ready to be emitted on the
-   * operator's output port.
-   */
-  protected OUTPUT convert(INPUT tuple)
-  {
-    throw new UnsupportedOperationException("Since the output port is connected, this method needs to be overriden.");
   }
 
   @Override

@@ -31,7 +31,6 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.*;
-import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,7 +68,7 @@ public class AbstractFSWriterTest
   /**
    * Simple writer which writes to two files.
    */
-  private static class EvenOddHDFSExactlyOnceWriter extends AbstractFSWriter<Integer, Integer>
+  private static class EvenOddHDFSExactlyOnceWriter extends AbstractFSWriter<Integer>
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -100,7 +99,7 @@ public class AbstractFSWriterTest
   /**
    * Simple writer which writes to one file.
    */
-  private static class SingleHDFSExactlyOnceWriter extends AbstractFSWriter<Integer, Integer>
+  private static class SingleHDFSExactlyOnceWriter extends AbstractFSWriter<Integer>
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -124,7 +123,7 @@ public class AbstractFSWriterTest
   /**
    * Simple writer which writes byte array tuples to one file.
    */
-  private static class SingleHDFSByteExactlyOnceWriter extends AbstractFSWriter<byte[], byte[]>
+  private static class SingleHDFSByteExactlyOnceWriter extends AbstractFSWriter<byte[]>
   {
     public SingleHDFSByteExactlyOnceWriter()
     {
@@ -185,11 +184,11 @@ public class AbstractFSWriterTest
     private final File testDir;
     private final Long maxLength;
     @SuppressWarnings("rawtypes")
-    private final AbstractFSWriter<byte[], byte[]> fsWriter;
+    private final AbstractFSWriter<byte[]> fsWriter;
 
     public ValidationTestApp(File testDir,
                              Long maxLength,
-                             AbstractFSWriter<byte[], byte[]> fsWriter)
+                             AbstractFSWriter<byte[]> fsWriter)
     {
       this.testDir = testDir;
       this.maxLength = maxLength;

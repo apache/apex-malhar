@@ -10,7 +10,7 @@
 
   <artifactId>malhar-apps</artifactId>
   <name>Apps</name>
-  <packaging>jar</packaging>
+  <packaging>pom</packaging>
 
   <properties>
     <maven.deploy.skip>false</maven.deploy.skip>

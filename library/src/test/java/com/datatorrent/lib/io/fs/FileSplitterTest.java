@@ -32,7 +32,11 @@ import org.junit.runner.Description;
 
 import com.google.common.collect.Sets;
 
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.DAG;
+
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 public class FileSplitterTest
@@ -64,7 +68,7 @@ public class FileSplitterTest
             lines.add("f" + file + "l" + line);
           }
           allLines.addAll(lines);
-          File created = new File(this.dataDirectory, "file" + file);
+          File created = new File(this.dataDirectory, "file" + file + ".txt");
           filePaths.add("file:" + created.getAbsolutePath());
           FileUtils.write(created, StringUtils.join(lines, '\n'));
         }
@@ -76,8 +80,10 @@ public class FileSplitterTest
       this.fileSplitter = new FileSplitter();
 
       AbstractFSDirectoryInputOperator.DirectoryScanner scanner = new AbstractFSDirectoryInputOperator.DirectoryScanner();
+      scanner.setFilePatternRegexp(".*[.]txt");
       fileSplitter.setScanner(scanner);
       fileSplitter.setDirectory(dataDirectory);
+      fileSplitter.setIdempotentStorageManager(new IdempotentStorageManager.NoopIdempotentStorageManager());
       fileSplitter.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
 
       fileMetadataSink = new CollectorTestSink<Object>();
@@ -138,9 +144,35 @@ public class FileSplitterTest
 
     int noOfBlocks = 0;
     for (int file = 0; file < 2; file++) {
-      File testFile = new File(testMeta.dataDirectory, "file" + file);
+      File testFile = new File(testMeta.dataDirectory, "file" + file + ".txt");
       noOfBlocks += (int) Math.ceil(testFile.length() / (2 * 1.0));
     }
     Assert.assertEquals("Blocks", noOfBlocks, testMeta.blockMetadataSink.collectedTuples.size());
+  }
+
+  @Test
+  public void testIdempotency()
+  {
+    Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.DAGContext.APPLICATION_ID, "FileSplitterTest");
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
+
+    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    fsIdempotentStorageManager.setRecoveryPath(testMeta.dataDirectory + '/' + "recovery");
+    testMeta.fileSplitter.setIdempotentStorageManager(fsIdempotentStorageManager);
+
+    testMeta.fileSplitter.setup(context);
+    //will emit window 1 from data directory
+    testFileMetadata();
+    testMeta.fileMetadataSink.clear();
+    testMeta.blockMetadataSink.clear();
+
+    testMeta.fileSplitter.setup(context);
+    testMeta.fileSplitter.beginWindow(1);
+    Assert.assertEquals("Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
+    for (Object blockMetadata : testMeta.blockMetadataSink.collectedTuples) {
+      FileSplitter.BlockMetadata metadata = (FileSplitter.BlockMetadata) blockMetadata;
+      Assert.assertTrue("path: " + metadata.getFilePath(), testMeta.filePaths.contains(metadata.getFilePath()));
+    }
   }
 }

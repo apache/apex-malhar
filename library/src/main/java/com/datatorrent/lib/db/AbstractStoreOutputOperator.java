@@ -56,7 +56,7 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
 
   /**
    * Gets the store.
-   * @return
+   * @return the store.
    */
   public S getStore()
   {
@@ -65,7 +65,7 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
 
   /**
    * Sets the store.
-   * @param store
+   * @param store a {@link Connectable}.
    */
   public void setStore(S store)
   {
@@ -95,13 +95,14 @@ public abstract class AbstractStoreOutputOperator<T, S extends Connectable> exte
       store.disconnect();
     }
     catch (IOException ex) {
+      throw new RuntimeException(ex);
     }
   }
 
   /**
    * Processes the incoming tuple, presumably store the data in the tuple to the store
    *
-   * @param tuple
+   * @param tuple a tuple.
    */
   public abstract void processTuple(T tuple);
 

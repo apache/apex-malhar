@@ -15,24 +15,22 @@
  */
 package com.datatorrent.lib.statistics;
 
-import java.io.*;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.Map.Entry;
-
-import gnu.trove.map.hash.TCustomHashMap;
-import gnu.trove.strategy.HashingStrategy;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.*;
+import gnu.trove.map.hash.TCustomHashMap;
+import gnu.trove.strategy.HashingStrategy;
+import java.io.*;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.Map.Entry;
+import javax.validation.constraints.Min;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * <p>An implementation of an operator that computes dimensions of events. </p>
@@ -40,7 +38,7 @@ import com.datatorrent.api.*;
  * @displayName Dimension Computation
  * @category Statistics
  * @tags event, dimension, aggregation, computation
- * 
+ *
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
  * @since 1.0.2
  */
@@ -52,7 +50,7 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   {
     this.unifier = unifier;
   }
-  
+
   /**
    * Output port that emits an aggregate of events.
    */
@@ -208,19 +206,37 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
 
   public static class PartitionerImpl<EVENT,AGGREGATE extends AggregateEvent> implements Partitioner<DimensionsComputation<EVENT, AGGREGATE>>
   {
+    @Min(1)
+    private int partitionCount;
+
+    public void setPartitionCount(int partitionCount)
+    {
+      this.partitionCount = partitionCount;
+    }
+
+    public int getPartitionCount()
+    {
+      return partitionCount;
+    }
+
     @Override
     public void partitioned(Map<Integer, Partition<DimensionsComputation<EVENT, AGGREGATE>>> partitions)
     {
     }
 
     @Override
-    public Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> partitions, int incrementalCapacity)
+    public Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> partitions, int partitionCnt)
     {
-      if (incrementalCapacity == 0) {
-        return partitions;
-      }
+      int newPartitionsCount;
 
-      int newPartitionsCount = partitions.size() + incrementalCapacity;
+      //Do parallel partitioning
+      if(partitionCnt != 0) {
+        newPartitionsCount = partitionCnt;
+      }
+      //Do normal partitioning
+      else {
+        newPartitionsCount = partitionCount;
+      }
 
       LinkedHashMap<Aggregator<EVENT, AGGREGATE>, DimensionsComputation<EVENT, AGGREGATE>> map = new LinkedHashMap<Aggregator<EVENT, AGGREGATE>, DimensionsComputation<EVENT, AGGREGATE>>(newPartitionsCount);
       for (Partition<DimensionsComputation<EVENT, AGGREGATE>> partition : partitions) {

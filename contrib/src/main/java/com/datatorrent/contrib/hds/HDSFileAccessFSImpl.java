@@ -82,6 +82,7 @@ abstract public class HDSFileAccessFSImpl implements HDSFileAccess
     return new Path(basePath, Long.toString(bucketKey));
   }
 
+  @Override
   public long getFileSize(long bucketKey, String fileName) throws IOException {
     return fs.getFileStatus(getFilePath(bucketKey, fileName)).getLen();
   }

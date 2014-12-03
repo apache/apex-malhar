@@ -25,7 +25,7 @@ import javax.validation.constraints.Min;
  *
  * @since 0.9.4
  */
-public class FSByteOutputOperator extends AbstractFSWriter<byte[], byte[]>
+public class FSByteOutputOperator extends AbstractFSWriter<byte[]>
 {
   /**
    * The number of unique files to output tuples to.

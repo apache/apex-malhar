@@ -194,7 +194,7 @@ public class AdInfo implements Serializable
 
     /**
      * Dimension specification for display in operator properties.
-     * @return
+     * @return The dimension.
      */
     public String getDimension()
     {

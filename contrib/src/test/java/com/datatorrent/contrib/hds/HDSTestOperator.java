@@ -17,12 +17,9 @@ package com.datatorrent.contrib.hds;
 
 
 import com.google.common.base.Preconditions;
-
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
-
 import com.datatorrent.api.Context.OperatorContext;
-
 import com.datatorrent.common.util.Slice;
 
 public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>
@@ -35,7 +32,8 @@ public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte
 
   public static class BucketStreamCodec extends KryoSerializableStreamCodec<KeyValPair<byte[], byte[]>> implements HDSCodec<KeyValPair<byte[], byte[]>>
   {
-    private HDSTestOperator operator;
+    private static final long serialVersionUID = 1L;
+    private transient HDSTestOperator operator;
 
     @Override
     public int getPartition(KeyValPair<byte[], byte[]> t)
