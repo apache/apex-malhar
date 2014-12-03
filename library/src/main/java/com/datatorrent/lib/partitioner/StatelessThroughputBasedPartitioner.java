@@ -15,17 +15,20 @@
  */
 package com.datatorrent.lib.partitioner;
 
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.Operator;
-import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.StatsListener;
-import com.google.common.collect.Sets;
 import java.io.Serializable;
 import java.util.*;
 
 import javax.validation.constraints.Min;
+
+import com.google.common.collect.Sets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.StatsListener;
 
 /**
  * <p>
@@ -122,7 +125,7 @@ public class StatelessThroughputBasedPartitioner<T extends Operator> implements 
   }
 
   @Override
-  public Collection<Partition<T>> definePartitions(Collection<Partition<T>> partitions, int partitionCnt)
+  public Collection<Partition<T>> definePartitions(Collection<Partition<T>> partitions, int incrementalCapacity)
   {
     if (partitionedInstanceStatus == null || partitionedInstanceStatus.isEmpty()) {
       // first call
@@ -133,7 +136,7 @@ public class StatelessThroughputBasedPartitioner<T extends Operator> implements 
       partitionNextMillis = System.currentTimeMillis() + 2 * cooldownMillis;
       nextMillis = partitionNextMillis;
       //This is now broken cannot return null. Refer to StatelessPartitioner
-      return new StatelessPartitioner<T>(initialPartitionCount).definePartitions(partitions, partitionCnt);
+      return new StatelessPartitioner<T>(initialPartitionCount).definePartitions(partitions, incrementalCapacity);
     }
     else {
       // repartition call
