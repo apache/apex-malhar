@@ -18,7 +18,7 @@
 	<value>900000000</value>
 </property>
 <property>
-	<name>dt.application.PiDemo.attr.CONTAINER_MEMORY_MB</name>
+	<name>dt.application.PiDemo.operator.*.attr.MEMORY_MB</name>
 	<value>512</value>
 </property>
 <!-- prperties for pi library demo -->
@@ -35,7 +35,7 @@
 	<value>2</value>
 </property>
 <property>
-	<name>dt.application.PiLibraryDemo.attr.CONTAINER_MEMORY_MB</name>
+	<name>dt.application.PiLibraryDemo.operator.*.attr.MEMORY_MB</name>
 	<value>512</value>
 </property>
 <!--

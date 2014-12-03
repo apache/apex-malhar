@@ -4,7 +4,7 @@
   <!-- GenericDimensionsApplication Demo Settings -->
 
   <property>
-    <name>dt.application.GenericDimensionsApplication.attr.CONTAINER_MEMORY_MB</name>
+    <name>dt.application.GenericDimensionsApplication.operator.*.attr.MEMORY_MB</name>
     <value>4096</value>
   </property>
   <property>
@@ -84,7 +84,7 @@
 
   <!-- Settings for all the apps -->
   <property>
-    <name>dt.attr.CONTAINER_MEMORY_MB</name>
+    <name>dt.operator.*.attr.MEMORY_MB</name>
     <value>4096</value>
   </property>
   <property>

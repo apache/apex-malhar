@@ -138,7 +138,7 @@
      <value>32000</value>
   </property>
  <property>
-    <name>dt.application.FraudDetectDemo.attr.CONTAINER_MEMORY_MB</name>
+    <name>dt.application.FraudDetectDemo.operator.*.attr.MEMORY_MB</name>
     <value>2048</value>
   </property>
 
