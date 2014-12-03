@@ -15,15 +15,16 @@
  */
 package com.datatorrent.lib.util;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 /**
  * This operator consumes tuples.&nbsp;
@@ -133,7 +134,7 @@ public class AlertEscalationOperator extends BaseOperator implements Partitioner
    * {@inheritDoc}
    */
   @Override
-  public Collection<Partition<AlertEscalationOperator>> definePartitions(Collection<Partition<AlertEscalationOperator>> partitions, int partitionCnt)
+  public Collection<Partition<AlertEscalationOperator>> definePartitions(Collection<Partition<AlertEscalationOperator>> partitions, int incrementalCapacity)
   {
     // prevent partitioning
     List<Partition<AlertEscalationOperator>> newPartitions = new ArrayList<Partition<AlertEscalationOperator>>(1);

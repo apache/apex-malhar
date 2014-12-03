@@ -15,15 +15,6 @@
  */
 package com.datatorrent.demos.distributeddistinct;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.Partitioner;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.algo.UniqueValueCount;
-import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
-import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -31,10 +22,25 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
+
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.algo.UniqueValueCount;
+import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
+import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
+
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Partitioner;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * <p>
@@ -188,13 +194,13 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
    * rollback, each partition will only clear the data that it is responsible for.
    */
   @Override
-  public Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> definePartitions(Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> partitions, int partitionCnt)
+  public Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> definePartitions(Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> partitions, int incrementalCapacity)
   {
     final int finalCapacity;
 
     //In the case of parallel partitioning
-    if(partitionCnt != 0) {
-      finalCapacity = partitionCnt;
+    if(incrementalCapacity != 0) {
+      finalCapacity = incrementalCapacity;
     }
     //Do normal partitioning
     else {

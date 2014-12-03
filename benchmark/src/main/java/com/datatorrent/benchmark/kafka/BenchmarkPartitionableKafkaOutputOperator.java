@@ -16,11 +16,6 @@
 package com.datatorrent.benchmark.kafka;
 
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Operator.ActivationListener;
-import com.datatorrent.api.Partitioner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
@@ -28,10 +23,17 @@ import java.util.Properties;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import javax.validation.constraints.Min;
 import kafka.javaapi.producer.Producer;
 import kafka.producer.KeyedMessage;
 import kafka.producer.ProducerConfig;
+
+import javax.validation.constraints.Min;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Operator.ActivationListener;
+import com.datatorrent.api.Partitioner;
 
 /**
  * This operator keep sending constant messages(1kb each) in {@link #threadNum} threads.&nbsp;
@@ -141,7 +143,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
    * {@inheritDoc}
    */
   @Override
-  public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, int partitionCnt)
+  public Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> definePartitions(Collection<Partition<BenchmarkPartitionableKafkaOutputOperator>> partitions, int incrementalCapacity)
   {
 
     ArrayList<Partition<BenchmarkPartitionableKafkaOutputOperator>> newPartitions = new ArrayList<Partitioner.Partition<BenchmarkPartitionableKafkaOutputOperator>>(partitionCount);

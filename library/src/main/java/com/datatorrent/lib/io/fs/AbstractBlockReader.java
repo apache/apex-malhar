@@ -274,7 +274,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
    */
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Partition<AbstractBlockReader<R>>> definePartitions(Collection<Partition<AbstractBlockReader<R>>> partitions, int partitionCnt)
+  public Collection<Partition<AbstractBlockReader<R>>> definePartitions(Collection<Partition<AbstractBlockReader<R>>> partitions, int incrementalCapacity)
   {
     if (partitions.iterator().next().getStats() == null) {
       //First time when define partitions is called
