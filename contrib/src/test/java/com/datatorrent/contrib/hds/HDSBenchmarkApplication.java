@@ -47,6 +47,7 @@ import com.datatorrent.contrib.hds.hfile.HFileImpl;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.collect.Lists;
+import com.datatorrent.api.Context;
 
 @ApplicationAnnotation(name="HDSBenchmarkApplication")
 public class HDSBenchmarkApplication implements StreamingApplication
@@ -64,6 +65,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
     hfa.setBasePath(this.getClass().getSimpleName());
     store.setFileStore(hfa);
     dag.setInputPortAttribute(store.input, PortContext.PARTITION_PARALLEL, true);
+    dag.getOperatorMeta("Store").getAttributes().put(Context.OperatorContext.COUNTERS_AGGREGATOR, new HDSWriter.BucketIOStatAggregator());
     dag.addStream("Events", gen.data, store.input).setLocality(Locality.THREAD_LOCAL);
   }
 
