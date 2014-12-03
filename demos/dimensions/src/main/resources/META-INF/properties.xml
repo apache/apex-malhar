@@ -8,10 +8,6 @@
     <value>4096</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.attr.containerJvmOpts</name>
-    <value>-server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
-  </property>
-  <property>
     <name>dt.application.GenericDimensionsApplication.port.*.attr.QUEUE_CAPACITY</name>
     <value>32000</value>
   </property>
