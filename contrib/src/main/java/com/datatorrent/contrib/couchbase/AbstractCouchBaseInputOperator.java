@@ -21,14 +21,23 @@ import java.util.List;
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Partitioner;
 
 import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
+import com.esotericsoftware.kryo.Kryo;
+import org.apache.commons.io.output.ByteArrayOutputStream;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.collect.Lists;
+import java.util.Collection;
 
 /**
  * AbstractCouchBaseInputOperator which extends AbstractStoreInputOperator.
  * Classes extending from this operator should implement the abstract functionality of getTuple and getKeys.
  */
-public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore>
+public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore>  implements Partitioner<AbstractCouchBaseInputOperator<T>>
 {
 
   public AbstractCouchBaseInputOperator()
@@ -68,5 +77,41 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   public abstract T getTuple(Object object);
 
   public abstract List<String> getKeys();
+
+  @Override
+  public Collection<Partition<AbstractCouchBaseInputOperator<T>>> definePartitions(Collection<Partition<AbstractCouchBaseInputOperator<T>>> partitions, int incrementalCapacity)
+  {
+    List<String> keys = getKeys();
+    int totalCount = partitions.size() + incrementalCapacity;
+    int numPartitions = keys.size() % totalCount;
+    Collection<Partition<AbstractCouchBaseInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(numPartitions);
+    Kryo kryo = new Kryo();
+    for (int i = 0; i < numPartitions; i++) {
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      Output output = new Output(bos);
+      kryo.writeObject(output, this);
+      output.close();
+      Input lInput = new Input(bos.toByteArray());
+      @SuppressWarnings("unchecked")
+      AbstractCouchBaseInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
+      oper.setStore(this.store);
+      newPartitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<T>>(oper));
+    }
+
+    return newPartitions;
+
+  }
+
+
+  public static class CouchBaseStreamCodec<T> extends KryoSerializableStreamCodec<T>
+  {
+    @Override
+    public int getPartition(T tuple)
+    {
+      return tuple.hashCode();
+    }
+
+  }
+
 
 }
