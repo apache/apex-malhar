@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
+import com.couchbase.client.vbucket.config.Config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public class CouchBaseStore implements Connectable
 {
 
   protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
+  protected Config conf;
 
   @Nonnull
   protected String bucket;
@@ -175,6 +177,7 @@ public class CouchBaseStore implements Connectable
       cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
       cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
       client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucket, password));
+      conf = cfb.getVBucketConfig();
       //client = new CouchbaseClient(baseURIs, "default", "");
     }
     catch (IOException e) {

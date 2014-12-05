@@ -32,13 +32,29 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import java.util.Collection;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AbstractCouchBaseInputOperator which extends AbstractStoreInputOperator.
  * Classes extending from this operator should implement the abstract functionality of getTuple and getKeys.
  */
-public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore>  implements Partitioner<AbstractCouchBaseInputOperator<T>>
+public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore> implements Partitioner<AbstractCouchBaseInputOperator<T>>
 {
+  //need to save this,hence non transient.
+  protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
+
+  private int partitionId;
+
+  public int getPartitionId()
+  {
+    return partitionId;
+  }
+
+  public void setPartitionId(int partitionId)
+  {
+    this.partitionId = partitionId;
+  }
 
   public AbstractCouchBaseInputOperator()
   {
@@ -55,22 +71,24 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   public void emitTuples()
   {
     List<String> keys = getKeys();
-    for (String key : keys) {
-      try {
-        Object result = store.getInstance().get(key);
-        T tuple = getTuple(result);
-        outputPort.emit(tuple);
-      }
-      catch (Exception ex) {
+    for (String key: keys) {
+      logger.info("store configuration is {}" , store.conf.toString());
         try {
-          store.disconnect();
+          Object result = store.getInstance().get(key);
+          T tuple = getTuple(result);
+          outputPort.emit(tuple);
         }
-        catch (IOException ex1) {
-          DTThrowable.rethrow(ex1);
+        catch (Exception ex) {
+          try {
+            store.disconnect();
+          }
+          catch (IOException ex1) {
+            DTThrowable.rethrow(ex1);
+          }
+          DTThrowable.rethrow(ex);
         }
-        DTThrowable.rethrow(ex);
       }
-    }
+
 
   }
 
@@ -81,9 +99,9 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   @Override
   public Collection<Partition<AbstractCouchBaseInputOperator<T>>> definePartitions(Collection<Partition<AbstractCouchBaseInputOperator<T>>> partitions, int incrementalCapacity)
   {
-    List<String> keys = getKeys();
-    int totalCount = partitions.size() + incrementalCapacity;
-    int numPartitions = keys.size() % totalCount;
+    //int totalCount = partitions.size() + incrementalCapacity;
+    int totalCount = store.getInstance().getNumVBuckets();
+    int numPartitions = store.conf.getServersCount();
     Collection<Partition<AbstractCouchBaseInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(numPartitions);
     Kryo kryo = new Kryo();
     for (int i = 0; i < numPartitions; i++) {
@@ -94,24 +112,12 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
       Input lInput = new Input(bos.toByteArray());
       @SuppressWarnings("unchecked")
       AbstractCouchBaseInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
-      oper.setStore(this.store);
+      // oper.setStore(this.store);
       newPartitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<T>>(oper));
     }
 
     return newPartitions;
 
   }
-
-
-  public static class CouchBaseStreamCodec<T> extends KryoSerializableStreamCodec<T>
-  {
-    @Override
-    public int getPartition(T tuple)
-    {
-      return tuple.hashCode();
-    }
-
-  }
-
 
 }
