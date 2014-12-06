@@ -32,6 +32,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import java.util.Collection;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,20 +42,23 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore> implements Partitioner<AbstractCouchBaseInputOperator<T>>
 {
+
   //need to save this,hence non transient.
   protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
 
-  private int partitionId;
+  private int serverIndex;
 
-  public int getPartitionId()
+  public int getServerIndex()
   {
-    return partitionId;
+    return serverIndex;
   }
 
-  public void setPartitionId(int partitionId)
+  public void setServerIndex(int serverIndex)
   {
-    this.partitionId = partitionId;
+    this.serverIndex = serverIndex;
   }
+
+
 
   public AbstractCouchBaseInputOperator()
   {
@@ -71,8 +75,12 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   public void emitTuples()
   {
     List<String> keys = getKeys();
+    logger.info("store configuration is {}" , store.conf.toString());
     for (String key: keys) {
-      logger.info("store configuration is {}" , store.conf.toString());
+      //if(store.conf.getMaster(store.conf.getVbucketByKey(key))){
+        int master = store.conf.getMaster(store.conf.getVbucketByKey(key));
+        if(master == getServerIndex()){
+        logger.debug("master is {}",master);
         try {
           Object result = store.getInstance().get(key);
           T tuple = getTuple(result);
@@ -87,14 +95,20 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
           }
           DTThrowable.rethrow(ex);
         }
+        }
       }
-
+  //  }
 
   }
 
   public abstract T getTuple(Object object);
 
   public abstract List<String> getKeys();
+
+  @Override
+  public void partitioned(Map<Integer, Partition<AbstractCouchBaseInputOperator<T>>> partitions){
+
+  }
 
   @Override
   public Collection<Partition<AbstractCouchBaseInputOperator<T>>> definePartitions(Collection<Partition<AbstractCouchBaseInputOperator<T>>> partitions, int incrementalCapacity)
@@ -112,6 +126,7 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
       Input lInput = new Input(bos.toByteArray());
       @SuppressWarnings("unchecked")
       AbstractCouchBaseInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
+      oper.setServerIndex(i);
       // oper.setStore(this.store);
       newPartitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<T>>(oper));
     }
