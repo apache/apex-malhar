@@ -32,20 +32,16 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
  {@code
 
  <property>
- <name>dt.application.GenericDimensionsApplication.attr.CONTAINER_MEMORY_MB</name>
+ <name>dt.application.GenericDimensionsApplication.operator.*.attr.MEMORY_MB</name>
  <value>8192</value>
- </property>
- <property>
- <name>dt.application.GenericDimensionsApplication.attr.containerJvmOpts</name>
- <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
  </property>
  <property>
  <name>dt.application.GenericDimensionsApplication.port.*.attr.QUEUE_CAPACITY</name>
  <value>32000</value>
  </property>
  <property>
- <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.attr.INITIAL_PARTITION_COUNT</name>
- <value>2</value>
+ <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.attr.PARTITIONER</name>
+ <value>com.datatorrent.lib.partitioner.StatelessPartitioner:2</value>
  </property>
  <property>
  <name>dt.application.GenericDimensionsApplication.operator.InputGenerator.maxTuplesPerWindow</name>
@@ -56,8 +52,8 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
  <value>4</value>
  </property>
  <property>
- <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.attr.INITIAL_PARTITION_COUNT</name>
- <value>4</value>
+ <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.attr.PARTITIONER</name>
+ <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
  </property>
  <property>
  <name>dt.application.GenericDimensionsApplication.operator.DimensionsStore.fileStore.basePath</name>

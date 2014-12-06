@@ -20,27 +20,30 @@ import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import org.apache.commons.lang.mutable.MutableLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.DTThrowable;
+import org.apache.commons.lang.mutable.MutableLong;
+
 import com.datatorrent.lib.bucket.Bucket;
 import com.datatorrent.lib.bucket.BucketManager;
 import com.datatorrent.lib.bucket.Bucketable;
 import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.counters.BasicCounters;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * This is the base implementation of a deduper, which drops duplicate events.&nbsp;
@@ -145,6 +148,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   private transient OperatorContext context;
   protected BasicCounters<MutableLong> counters;
   private transient long currentWindow;
+  @Min(1)
+  private int partitionCount = 1;
 
   public Deduper()
   {
@@ -154,6 +159,16 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
     fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
     counters = new BasicCounters<MutableLong>(MutableLong.class);
+  }
+
+  public void setPartitionCount(int partitionCount)
+  {
+    this.partitionCount = partitionCount;
+  }
+
+  public int getPartitionCount()
+  {
+    return partitionCount;
   }
 
   @Override
@@ -252,12 +267,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   {
   }
 
-  public Collection<Partition<Deduper<INPUT, OUTPUT>>> rebalancePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions)
-  {
-    /* we do not re-balance since we do not know how to do it */
-    return partitions;
-  }
-
   @Override
   public void partitioned(Map<Integer, Partition<Deduper<INPUT, OUTPUT>>> partitions)
   {
@@ -267,8 +276,15 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
   public Collection<Partition<Deduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions, int incrementalCapacity)
   {
-    if (incrementalCapacity == 0) {
-      return rebalancePartitions(partitions);
+    final int finalCapacity;
+
+    //Do parallel partitioning
+    if(incrementalCapacity != 0) {
+      finalCapacity = incrementalCapacity;
+    }
+    //Do normal partitioning
+    else {
+      finalCapacity = partitionCount;
     }
 
     //Collect the state here
@@ -294,7 +310,6 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       partition.getPartitionedInstance().waitingEvents.clear();
     }
 
-    final int finalCapacity = partitions.size() + incrementalCapacity;
     partitions.clear();
 
     Collection<Partition<Deduper<INPUT, OUTPUT>>> newPartitions = Lists.newArrayListWithCapacity(finalCapacity);

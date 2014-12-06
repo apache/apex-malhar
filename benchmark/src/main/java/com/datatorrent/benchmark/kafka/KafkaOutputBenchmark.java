@@ -19,7 +19,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 /**
@@ -37,7 +36,7 @@ public class KafkaOutputBenchmark implements StreamingApplication
     dag.setAttribute(DAG.APPLICATION_NAME, "KafkaOutputBenchmark");
     BenchmarkPartitionableKafkaOutputOperator bpkoo = dag.addOperator("KafkaBenchmarkProducer", BenchmarkPartitionableKafkaOutputOperator.class);
     bpkoo.setBrokerList(conf.get("kafka.brokerlist"));
-    dag.setAttribute(bpkoo, OperatorContext.INITIAL_PARTITION_COUNT, 2);
+    bpkoo.setPartitionCount(2);
   }
 
 }

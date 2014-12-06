@@ -16,15 +16,11 @@
 package com.datatorrent.lib.io.jms;
 
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
-import javax.jms.JMSException;
-import javax.jms.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * This is the base implementation of a single port ActiveMQ output operator.&nbsp;
+ * This is the base implementation of a single port JMS output operator.&nbsp;
  * A concrete operator should be created from this skeleton implementation.
  * <p>
  * Ports:<br>
@@ -44,51 +40,27 @@ import org.slf4j.LoggerFactory;
  * TBD<br>
  * <br>
  * </p>
- * @displayName Abstract Active MQ Single Port Output
+ * @displayName Abstract JMS Single Port Output
  * @category Messaging
  * @tags jms, output operator
  *
  * @since 0.3.2
  */
-public abstract class AbstractActiveMQSinglePortOutputOperator<T> extends AbstractActiveMQOutputOperator
+public abstract class AbstractJMSSinglePortOutputOperator<T> extends AbstractJMSOutputOperator
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractActiveMQSinglePortOutputOperator.class);
-  long countMessages = 0;  // Number of messages produced so far
-
-  /**
-   * Convert tuple into JMS message. Tuple can be any Java Object.
-   * @param tuple
-   * @return Message
-   */
-  protected abstract Message createMessage(T tuple);
-
+  private static final Logger logger = LoggerFactory.getLogger(AbstractJMSSinglePortOutputOperator.class);
+  
   /**
    * Convert to and send message.
    * @param tuple
    */
   protected void processTuple(T tuple)
   {
-    countMessages++;
-
-    if (countMessages > maxSendMessage && maxSendMessage != 0) {
-      if (countMessages == maxSendMessage + 1) {
-        logger.warn("Reached maximum send messages of {}", maxSendMessage);
-      }
-      return; // Stop sending messages after max limit.
-    }
-
-    try {
-      Message msg = createMessage(tuple);
-      getProducer().send(msg);
-      //logger.debug("process message {}", tuple.toString());
-    }
-    catch (JMSException ex) {
-      throw new RuntimeException("Failed to send message", ex);
-    }
+    sendMessage(tuple);
   }
 
   /**
-   * This is an input port which receives tuples to be written out to an ActiveMQ message bus.
+   * This is an input port which receives tuples to be written out to an JMS message bus.
    */
   public final transient DefaultInputPort<T> inputPort = new DefaultInputPort<T>()
   {

@@ -39,9 +39,8 @@ public interface Connectable
   public void disconnect() throws IOException;
 
   /**
-   * Returns whether the service is connected.
-   * 
-   * @return
+   *
+   * @return returns whether the service is connected.
    */
   public boolean isConnected();
 }

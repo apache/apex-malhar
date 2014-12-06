@@ -17,12 +17,9 @@ package com.datatorrent.contrib.hds;
 
 
 import com.google.common.base.Preconditions;
-
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
-
 import com.datatorrent.api.Context.OperatorContext;
-
 import com.datatorrent.common.util.Slice;
 
 public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>

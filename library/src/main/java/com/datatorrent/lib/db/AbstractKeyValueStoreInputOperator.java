@@ -38,7 +38,7 @@ public abstract class AbstractKeyValueStoreInputOperator<T, S extends KeyValueSt
   /**
    * Adds the key to the list of keys to be fetched for each window
    *
-   * @param key
+   * @param key a key.
    */
   public void addKey(Object key)
   {
@@ -61,8 +61,8 @@ public abstract class AbstractKeyValueStoreInputOperator<T, S extends KeyValueSt
   /**
    * Implementations should provide the way of converting from a map of key value pairs from the store to a tuple.
    *
-   * @param o
-   * @return
+   * @param o map of keys and values.
+   * @return tuple.
    */
   public abstract T convertToTuple(Map<Object, Object> o);
 

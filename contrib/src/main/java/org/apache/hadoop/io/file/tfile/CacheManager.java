@@ -17,9 +17,10 @@
 package org.apache.hadoop.io.file.tfile;
 
 import java.lang.management.ManagementFactory;
+import java.util.Collection;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.apache.hadoop.io.file.tfile.DTBCFile.Reader.BlockReader;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.Weigher;
@@ -37,113 +38,140 @@ import com.google.common.cache.Weigher;
 public class CacheManager
 {
   public static final int STRING_OVERHEAD = 64;
-  
+
   public static final int BLOCK_READER_OVERHEAD = 368;
-  
+
   public static final float DEFAULT_HEAP_MEMORY_PERCENTAGE = 0.25f;
-  
+
   private static Cache<String, BlockReader> singleCache;
-  
-  
+
+  private static boolean enableStats = false;
+
+  public static final Cache<String, BlockReader> buildCache(CacheBuilder builder) {
+    if (singleCache != null) {
+      singleCache.cleanUp();
+    }
+    if (enableStats)
+      builder.recordStats();
+    singleCache = builder.build();
+    return singleCache;
+  }
+
   /**
    * (Re)Create the cache by limiting the maximum entries
    * @param concurrencyLevel
    * @param initialCapacity
    * @param maximunSize
-   * @return
+   * @return The cache.
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, int maximunSize){
-    singleCache = CacheBuilder.newBuilder().
+    CacheBuilder builder = CacheBuilder.newBuilder().
         concurrencyLevel(concurrencyLevel).
         initialCapacity(initialCapacity).
-        maximumSize(maximunSize).build();
-    return singleCache;
+        maximumSize(maximunSize);
+
+    return buildCache(builder);
   }
-  
-  
+
+
   /**
    * (Re)Create the cache by limiting the memory(in bytes)
    * @param concurrencyLevel
    * @param initialCapacity
-   * @param maximumWeight
-   * @return
+   * @param maximumMemory
+   * @return The cache.
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, long maximumMemory){
-    if (singleCache != null) {
-      singleCache.cleanUp();
-    }
-    singleCache = CacheBuilder.newBuilder().
+
+    CacheBuilder builder = CacheBuilder.newBuilder().
         concurrencyLevel(concurrencyLevel).
         initialCapacity(initialCapacity).
-        maximumWeight(maximumMemory).weigher(new KVWeigher()).build();
-    return singleCache;
+        maximumWeight(maximumMemory).weigher(new KVWeigher());
+
+    return buildCache(builder);
   }
-  
+
   /**
    * (Re)Create the cache by limiting percentage of the total heap memory
    * @param concurrencyLevel
    * @param initialCapacity
    * @param heapMemPercentage
-   * @return
+   * @return The cache.
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, float heapMemPercentage){
-    if (singleCache != null) {
-      singleCache.cleanUp();
-    }
-    singleCache = CacheBuilder.newBuilder().
+    CacheBuilder builder = CacheBuilder.newBuilder().
         concurrencyLevel(concurrencyLevel).
         initialCapacity(initialCapacity).
-        maximumWeight((long) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * heapMemPercentage)).weigher(new KVWeigher()).build();
-    return singleCache;
+        maximumWeight((long) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * heapMemPercentage)).weigher(new KVWeigher());
+    return buildCache(builder);
   }
-  
+
   public static final void createDefaultCache(){
-    if (singleCache != null) {
-      singleCache.cleanUp();
-    }
+
     long availableMemory = (long) (ManagementFactory.getMemoryMXBean().getHeapMemoryUsage().getMax() * DEFAULT_HEAP_MEMORY_PERCENTAGE);
-    singleCache = CacheBuilder.newBuilder().maximumWeight(availableMemory).weigher(new KVWeigher()).build();
+    CacheBuilder<String, BlockReader> builder = CacheBuilder.newBuilder().maximumWeight(availableMemory).weigher(new KVWeigher());
+
+    singleCache = buildCache(builder);
   }
-  
+
   public static final void put(String key, BlockReader blk){
     if (singleCache == null) {
       createDefaultCache();
     }
     singleCache.put(key, blk);
   }
-  
+
   public static final BlockReader get(String key){
     if (singleCache == null) {
       return null;
     }
     return singleCache.getIfPresent(key);
   }
-  
-  
+
+  public static final void invalidateKeys(Collection<String> keys)
+  {
+    if (singleCache != null)
+      singleCache.invalidateAll(keys);
+  }
+
+  public static final long getCacheSize() {
+    if (singleCache != null)
+      return singleCache.size();
+    return 0;
+  }
+
   public static final class KVWeigher implements Weigher<String, BlockReader> {
-    
+
     @Override
     public int weigh(String key, BlockReader value)
     {
-      return (STRING_OVERHEAD + BLOCK_READER_OVERHEAD) + 
-          key.getBytes().length + 
+      return (STRING_OVERHEAD + BLOCK_READER_OVERHEAD) +
+          key.getBytes().length +
           value.getBlockDataInputStream().getBuf().length;
     }
-    
+
   }
 
-  
+  @VisibleForTesting
+  protected static Cache<String, BlockReader> getCache() {
+    return singleCache;
+  }
+
+  public static final void setEnableStats(boolean enable) {
+    enableStats = enable;
+  }
+
   public static void main(String[] args)
   {
-    
+
     //code to eitsmate the overhead of the instance of the key value objects
-    // it depends on hbase file 
-//    System.out.println(ClassSize.estimateBase(BlockReader.class, true) + 
-//        ClassSize.estimateBase(Algorithm.class, true) + 
+    // it depends on hbase file
+//    System.out.println(ClassSize.estimateBase(BlockReader.class, true) +
+//        ClassSize.estimateBase(Algorithm.class, true) +
 //        ClassSize.estimateBase(RBlockState.class, true) +
-//        ClassSize.estimateBase(ReusableByteArrayInputStream.class, true) + 
+//        ClassSize.estimateBase(ReusableByteArrayInputStream.class, true) +
 //        ClassSize.estimateBase(BlockRegion.class, true));
-//    
+//
 //    System.out.println(
 //        ClassSize.estimateBase(String.class, true));
   }

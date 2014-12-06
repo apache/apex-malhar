@@ -26,8 +26,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.Min;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.Path;
@@ -49,10 +52,12 @@ import org.apache.hadoop.mapred.TextInputFormat;
 
 import com.datatorrent.lib.io.fs.AbstractHDFSInputOperator;
 import com.datatorrent.lib.util.KeyHashValPair;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
+
 import com.datatorrent.demos.mroperator.ReporterImpl.ReporterType;
 
 /**
@@ -83,6 +88,8 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   public final transient DefaultOutputPort<KeyHashValPair<Integer, Integer>> outputCount = new DefaultOutputPort<KeyHashValPair<Integer, Integer>>();
   public final transient DefaultOutputPort<KeyHashValPair<K2, V2>> output = new DefaultOutputPort<KeyHashValPair<K2, V2>>();
   private transient JobConf jobConf;
+  @Min(1)
+  private int partitionCount = 1;
 
   public Class<? extends InputSplit> getInputSplitClass()
   {
@@ -113,6 +120,16 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   {
     this.dirName = dirName;
     super.setFilePath(dirName);
+  }
+
+  public int getPartitionCount()
+  {
+    return partitionCount;
+  }
+
+  public void setPartitionCount(int partitionCount)
+  {
+    this.partitionCount = partitionCount;
   }
 
   @Override
@@ -290,6 +307,8 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
   @Override
   public Collection<Partition<MapOperator<K1, V1, K2, V2>>> definePartitions(Collection<Partition<MapOperator<K1, V1, K2, V2>>> partitions, int incrementalCapacity)
   {
+    int tempPartitionCount = partitionCount;
+
     Collection c = partitions;
     Collection<Partition<MapOperator<K1, V1, K2, V2>>> operatorPartitions = c;
     Partition<MapOperator<K1, V1, K2, V2>> template;
@@ -300,7 +319,7 @@ public class MapOperator<K1, V1, K2, V2> extends AbstractHDFSInputOperator imple
     if (outstream.size() == 0) {
       InputSplit[] splits;
       try {
-        splits = getSplits(new JobConf(conf), incrementalCapacity + 1, template.getPartitionedInstance().getDirName());
+        splits = getSplits(new JobConf(conf), tempPartitionCount, template.getPartitionedInstance().getDirName());
       }
       catch (Exception e1) {
         logger.info(" can't get splits {}", e1.getMessage());

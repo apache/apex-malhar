@@ -88,7 +88,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
 
   /**
    * Get HFile cache configuration based on combination of global settings and configProperties.
-   * @return
+   * @return The cache config.
    */
   protected CacheConfig getCacheConfig() {
     if (cacheConfig == null ) {
@@ -142,7 +142,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
   /**
    * Creates new context with override options for compression, and blockSize.  To configure other
    * settings supported by {@link org.apache.hadoop.hbase.io.hfile.HFileContext} use setContext method.
-   * @return
+   * @return The HFileContext.
    */
   public HFileContext buildContext() {
     return new HFileContextBuilder()
@@ -165,7 +165,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
   /**
    * Returns global {@link org.apache.hadoop.conf.Configuration} object with additional properties set based on
    * contents of configProperties.
-   * @return
+   * @return The configuration.
    */
   public Configuration getConfiguration() {
     Configuration conf = fs.getConf();
@@ -181,7 +181,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
    * Creates and returns a new HFile writer.
    * @param bucketKey
    * @param fileName
-   * @return
+   * @return The file writer.
    * @throws IOException
    */
   @Override
@@ -231,7 +231,7 @@ public class HFileImpl extends HDSFileAccessFSImpl {
    * Creates and returns a new HFile reader.
    * @param bucketKey
    * @param fileName
-   * @return
+   * @return The reader.
    * @throws IOException
    */
   @Override

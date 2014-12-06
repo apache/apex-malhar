@@ -460,8 +460,12 @@ public class DimensionOperator extends BaseOperator implements Partitioner<Dimen
     }
   }
 
+  /**
+   * <b>Note:</b> This partitioner does not support parallel partitioning.<br/><br/>
+   * {@inheritDoc}
+   */
   @Override
-  public Collection<Partition<DimensionOperator>> definePartitions(Collection<Partition<DimensionOperator>> partitions, int incrementalCapacity)
+  public Collection<Partition<DimensionOperator>> definePartitions(Collection<Partition<DimensionOperator>> partitions, int partitionCnt)
   {
     ArrayList<Partition<DimensionOperator>> newPartitions = new ArrayList<Partition<DimensionOperator>>();
     String[] filters = registry.list(LogstreamUtil.FILTER);

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<configuration>
+
+  <property>
+    <name>dt.operator.KafkaBenchmarkConsumer.consumer.topic</name>
+    <value>kafkaInputConsumerBenchmark</value>
+  </property>
+
+  <property>
+    <name>dt.operator.KafkaBenchmarkProducer.consumer.topic</name>
+    <value>kafkaInputConsumerBenchmark</value>
+  </property>
+
+  <property>
+    <name>kafka.brokerlist</name>
+    <value>localhost:9092</value>
+  </property>
+
+</configuration>
+

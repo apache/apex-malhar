@@ -26,7 +26,6 @@ import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Rule;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,6 +47,7 @@ import com.datatorrent.contrib.hds.hfile.HFileImpl;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.collect.Lists;
+import com.datatorrent.api.Context;
 
 @ApplicationAnnotation(name="HDSBenchmarkApplication")
 public class HDSBenchmarkApplication implements StreamingApplication
@@ -65,6 +65,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
     hfa.setBasePath(this.getClass().getSimpleName());
     store.setFileStore(hfa);
     dag.setInputPortAttribute(store.input, PortContext.PARTITION_PARALLEL, true);
+    dag.getOperatorMeta("Store").getAttributes().put(Context.OperatorContext.COUNTERS_AGGREGATOR, new HDSWriter.BucketIOStatAggregator());
     dag.addStream("Events", gen.data, store.input).setLocality(Locality.THREAD_LOCAL);
   }
 
@@ -201,7 +202,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
   @Rule
   public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
 
-  @Test
+  //@Test
   public void test() throws Exception
   {
     File file = new File(testInfo.getDir());
@@ -212,7 +213,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
     conf.set("dt.operator.Store.fileStore.basePath", file.toURI().toString());
     //conf.set("dt.operator.Store.flushSize", "0");
     conf.set("dt.operator.Store.flushIntervalCount", "1");
-    conf.set("dt.operator.Generator.attr.INITIAL_PARTITION_COUNT", "2");
+    conf.set("dt.operator.Generator.attr.PARTITIONER", "com.datatorrent.lib.partitioner.StatelessPartitioner:2");
 
     lma.prepareDAG(new HDSTestApp(), conf);
     LocalMode.Controller lc = lma.getController();

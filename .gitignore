@@ -9,3 +9,4 @@ target/
 *.iml
 npm-debug.log
 nb-configuration.xml
+hadoop.log

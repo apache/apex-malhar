@@ -16,8 +16,8 @@
 package com.datatorrent.demos.mroperator;
 
 import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import java.util.StringTokenizer;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
@@ -99,7 +99,7 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
     MapOperator<K1, V1, K2, V2> inputOperator = dag.addOperator("map", new MapOperator<K1, V1, K2, V2>());
     inputOperator.setInputFormatClass(inputFormat);
     inputOperator.setDirName(dirName);
-    dag.setAttribute(inputOperator, OperatorContext.INITIAL_PARTITION_COUNT, numberOfMaps);
+    dag.setAttribute(inputOperator, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<MapOperator<K1, V1, K2, V2>>(numberOfMaps));
 
     String configFileName = null;
     if (configurationfilePath != null && !configurationfilePath.isEmpty()) {
@@ -117,7 +117,9 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
     ReduceOperator<K2, V2, K2, V2> reduceOpr = dag.addOperator("reduce", new ReduceOperator<K2, V2, K2, V2>());
     reduceOpr.setReduceClass(reduceClass);
     reduceOpr.setConfigFile(configFileName);
-    dag.setAttribute(reduceOpr, Context.OperatorContext.INITIAL_PARTITION_COUNT, numberOfReducers);
+    dag.setAttribute(reduceOpr,
+                     Context.OperatorContext.PARTITIONER,
+                     new StatelessPartitioner<ReduceOperator<K2, V2, K2, V2>>(numberOfReducers));
 
     HdfsKeyValOutputOperator<K2,V2> console = dag.addOperator("console", new HdfsKeyValOutputOperator<K2,V2>());
     console.setFilePath(outputDirName);

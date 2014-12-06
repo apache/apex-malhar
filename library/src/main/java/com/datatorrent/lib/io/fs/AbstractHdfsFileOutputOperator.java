@@ -170,7 +170,7 @@ public abstract class AbstractHdfsFileOutputOperator<INPUT> extends BaseOperator
   /**
    * This returns the pattern of the output file
    *
-   * @return
+   * @return The pattern of the output file.
    */
   public String getFilePath()
   {

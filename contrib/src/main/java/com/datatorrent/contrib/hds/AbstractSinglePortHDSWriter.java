@@ -22,10 +22,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import com.google.common.collect.Lists;
+import javax.validation.constraints.Min;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -35,8 +32,11 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.api.StreamCodec;
-
 import com.datatorrent.common.util.Slice;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.collect.Lists;
 
 /**
  * Operator that receives data on port and writes it to the data store.
@@ -61,6 +61,8 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
 
   protected transient HDSCodec<EVENT> codec;
 
+  @Min(1)
+  private int partitionCount = 1;
 
   public final transient DefaultInputPort<EVENT> input = new DefaultInputPort<EVENT>()
   {
@@ -81,12 +83,22 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
     }
   };
 
+  public void setPartitionCount(int partitionCount)
+  {
+    this.partitionCount = partitionCount;
+  }
+
+  public int getPartitionCount()
+  {
+    return partitionCount;
+  }
+
   /**
    * Storage bucket for the given event. Only one partition can write to a storage bucket and by default it is
    * identified by the partition id.
    *
    * @param event
-   * @return
+   * @return The bucket key.
    */
   protected long getBucketKey(EVENT event)
   {
@@ -97,7 +109,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
   {
     byte[] key = codec.getKeyBytes(event);
     byte[] value = codec.getValueBytes(event);
-    super.put(getBucketKey(event), HDS.SliceExt.toSlice(key), value);
+    super.put(getBucketKey(event), new Slice(key), value);
   }
 
   abstract protected HDSCodec<EVENT> getCodec();
@@ -137,7 +149,17 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter imple
       return partitions;
     }
 
-    int totalCount = partitions.size() + incrementalCapacity;
+    int totalCount;
+
+    //Get the size of the partition for parallel partitioning
+    if(incrementalCapacity != 0) {
+      totalCount = incrementalCapacity;
+    }
+    //Do normal partitioning
+    else {
+      totalCount = partitionCount;
+    }
+
     Kryo lKryo = new Kryo();
     Collection<Partition<AbstractSinglePortHDSWriter<EVENT>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
     for (int i = 0; i < totalCount; i++) {

@@ -16,10 +16,6 @@
 	<name>dt.application.PiLibraryDemo.operator.PairXY.size</name>
 	<value>2</value>
 </property>
-<property>
-	<name>dt.application.PiLibraryDemo.attr.CONTAINER_MEMORY_MB</name>
-	<value>512</value>
-</property>
 <!--
 <property>
 	<name>dt.application.PiLibraryDemo.operator.AnalyzeLocation.constant</name>

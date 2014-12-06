@@ -268,6 +268,10 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     }
   }
 
+  /**
+   * <b>Note:</b> This partitioner does not support parallel partitioning.<br/><br/>
+   * {@inheritDoc}
+   */
   @SuppressWarnings("unchecked")
   @Override
   public Collection<Partition<AbstractBlockReader<R>>> definePartitions(Collection<Partition<AbstractBlockReader<R>>> partitions, int incrementalCapacity)
@@ -443,7 +447,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
    * Any concrete subclass needs to provide an implementation for validating whether a record is partial or intact.<br/>
    *
    * @param record
-   * @return
+   * @return true for a valid record; false otherwise;
    */
   protected abstract boolean isRecordValid(R record);
 

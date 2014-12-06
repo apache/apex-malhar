@@ -154,8 +154,7 @@ public interface BucketManager<T extends Bucketable>
    * @param partitionKeysToManagers mapping of partition keys to {@link BucketManager}s of new partitions.
    * @param partitionMask           partition mask to find which partition an event belongs to.
    */
-  void definePartitions(List<BucketManager<T>> oldManagers, Map<Integer, BucketManager<T>> partitionKeysToManagers,
-                        int partitionMask);
+  void definePartitions(List<BucketManager<T>> oldManagers, Map<Integer, BucketManager<T>> partitionKeysToManagers, int partitionMask);
 
   /**
    * Callback interface for {@link BucketManager} for load and off-load operations.

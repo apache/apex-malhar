@@ -55,7 +55,7 @@ public class MemcacheStore implements KeyValueStore
   /**
    * Gets the key expiry time.
    *
-   * @return
+   * @return The key expiry time.
    */
   public int getKeyExpiryTime()
   {
@@ -103,7 +103,7 @@ public class MemcacheStore implements KeyValueStore
    * Note that it does NOT work with hash values or list values
    *
    * @param key
-   * @return
+   * @return The value.
    */
   @Override
   public Object get(Object key)
@@ -116,7 +116,7 @@ public class MemcacheStore implements KeyValueStore
    * Note that it does NOT work with hash values or list values
    *
    * @param keys
-   * @return
+   * @return All values for the given keys.
    */
   @SuppressWarnings("unchecked")
   @Override

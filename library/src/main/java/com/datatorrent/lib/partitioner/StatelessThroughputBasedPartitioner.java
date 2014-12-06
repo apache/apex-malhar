@@ -13,15 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.algo;
+package com.datatorrent.lib.partitioner;
 
 import java.io.Serializable;
 import java.util.*;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import javax.validation.constraints.Min;
 
 import com.google.common.collect.Sets;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Operator;
@@ -48,6 +50,8 @@ import com.datatorrent.api.StatsListener;
 public class StatelessThroughputBasedPartitioner<T extends Operator> implements StatsListener, Partitioner<T>, Serializable
 {
   private static final Logger logger = LoggerFactory.getLogger(StatelessThroughputBasedPartitioner.class);
+  private static final long serialVersionUID = 201412021109L;
+
   private long maximumEvents;
   private long minimumEvents;
   private long cooldownMillis = 2000;
@@ -55,6 +59,43 @@ public class StatelessThroughputBasedPartitioner<T extends Operator> implements 
   private long partitionNextMillis;
   private boolean repartition;
   private transient HashMap<Integer, BatchedOperatorStats> partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
+  @Min(1)
+  private int initialPartitionCount = 0;
+
+  /**
+   * This creates a partitioner which begins with only one partition.
+   */
+  public StatelessThroughputBasedPartitioner()
+  {
+  }
+
+  /**
+   * This constructor is used to create the partitioner from a property.
+   * @param value A string which is an integer of the number of partitions to begin with
+   */
+  public StatelessThroughputBasedPartitioner(String value)
+  {
+    this(Integer.parseInt(value));
+  }
+
+  /**
+   * This creates a partitioner which creates partitonCount partitions.
+   * @param initialPartitionCount The number of partitions to begin with.
+   */
+  public StatelessThroughputBasedPartitioner(int initialPartitionCount)
+  {
+    this.initialPartitionCount = initialPartitionCount;
+  }
+
+  public void setInitialPartitionCount(int initialPartitionCount)
+  {
+    this.initialPartitionCount = initialPartitionCount;
+  }
+
+  public int getInitialPartitionCount()
+  {
+    return initialPartitionCount;
+  }
 
   @Override
   public Response processStats(BatchedOperatorStats stats)
@@ -94,7 +135,8 @@ public class StatelessThroughputBasedPartitioner<T extends Operator> implements 
       }
       partitionNextMillis = System.currentTimeMillis() + 2 * cooldownMillis;
       nextMillis = partitionNextMillis;
-      return null;
+      //This is now broken cannot return null. Refer to StatelessPartitioner
+      return new StatelessPartitioner<T>(initialPartitionCount).definePartitions(partitions, incrementalCapacity);
     }
     else {
       // repartition call

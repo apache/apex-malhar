@@ -38,8 +38,7 @@ public interface Transactionable
   public void rollbackTransaction();
 
   /**
-   * Returns whether currently is in a transaction.
-   * @return
+   * @return returns whether currently is in a transaction.
    */
   public boolean isInTransaction();
 }

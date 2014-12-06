@@ -69,7 +69,6 @@ import com.datatorrent.api.Operator.CheckpointListener;
 //SimpleConsumer is kafka consumer client used by this operator, zkclient is used by high-level kafka consumer
 public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>, CheckpointListener
 {
-  @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
 
   private int tuplesBlast = 1024 * 1024;
@@ -104,6 +103,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void setup(OperatorContext context)
   {
+    logger.debug("consumer {} topic {} cacheSize {}", consumer, consumer.getTopic(), consumer.getCacheSize());
     consumer.create();
   }
 

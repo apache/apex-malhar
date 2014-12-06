@@ -23,8 +23,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.util.Random;
 
-import junit.framework.Assert;
-
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
@@ -36,6 +34,7 @@ import org.apache.hadoop.io.file.tfile.DTFile.Writer;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader.Location;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -600,9 +599,9 @@ public class TestDTFileByteArrays {
   /**
    * Insert some leading 0's in front of the value, to make the keys sorted.
    * 
-   * @param prefix
-   * @param value
-   * @return
+   * @param prefix prefix
+   * @param value  value
+   * @return sorted key
    */
   static String composeSortedKey(String prefix, int value) {
     return String.format("%s%010d", prefix, value);

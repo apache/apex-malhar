@@ -24,21 +24,23 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
+
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import com.datatorrent.lib.algo.UniqueValueCount;
+import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
+import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.algo.UniqueValueCount;
-import com.datatorrent.lib.algo.UniqueValueCount.InternalCountOutput;
-import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
 
 /**
  * <p>
@@ -58,17 +60,28 @@ import com.datatorrent.lib.db.jdbc.JDBCLookupCacheBackedOperator;
  */
 public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedOperator<InternalCountOutput<V>> implements Partitioner<UniqueValueCountAppender<V>>
 {
-
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
   protected transient long windowID;
   protected transient boolean batch;
+  @Min(1)
+  private int partitionCount = 1;
 
   public UniqueValueCountAppender()
 
   {
     partitionKeys = Sets.newHashSet(0);
     partitionMask = 0;
+  }
+
+  public void setPartitionCount(int partitionCount)
+  {
+    this.partitionCount = partitionCount;
+  }
+
+  public int getPartitionCount()
+  {
+    return partitionCount;
   }
 
   @Override
@@ -183,11 +196,17 @@ public abstract class UniqueValueCountAppender<V> extends JDBCLookupCacheBackedO
   @Override
   public Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> definePartitions(Collection<com.datatorrent.api.Partitioner.Partition<UniqueValueCountAppender<V>>> partitions, int incrementalCapacity)
   {
-    if (incrementalCapacity == 0) {
-      return partitions;
+    final int finalCapacity;
+
+    //In the case of parallel partitioning
+    if(incrementalCapacity != 0) {
+      finalCapacity = incrementalCapacity;
+    }
+    //Do normal partitioning
+    else {
+      finalCapacity = partitionCount;
     }
 
-    final int finalCapacity = partitions.size() + incrementalCapacity;
     UniqueValueCountAppender<V> anOldOperator = partitions.iterator().next().getPartitionedInstance();
     partitions.clear();
 

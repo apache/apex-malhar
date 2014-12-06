@@ -15,16 +15,6 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import com.datatorrent.api.Context.CountersAggregator;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultPartition;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.Partitioner;
-import com.datatorrent.api.StatsListener;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.esotericsoftware.kryo.Kryo;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,15 +22,30 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
 import javax.validation.constraints.NotNull;
+
+import com.esotericsoftware.kryo.Kryo;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
 import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocalFileSystem;
 import org.apache.hadoop.fs.Path;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.counters.BasicCounters;
+
+import com.datatorrent.api.Context.CountersAggregator;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.StatsListener;
 
 /**
  * This is the base implementation of a directory input operator, which scans a directory for files.&nbsp;
@@ -234,8 +239,7 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
    * <p/>
    * @since 1.0.4
    */
-  public final static class FileCountersAggregator implements CountersAggregator,
-                                                        Serializable
+  public final static class FileCountersAggregator implements CountersAggregator, Serializable
   {
     private static final long serialVersionUID = 201409041428L;
     MutableLong totalLocalProcessedFiles = new MutableLong();
@@ -284,8 +288,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   }
 
   protected long lastRepartition = 0;
-  private transient boolean emit = true;
-  protected boolean idempotentEmit = false;
   /* List of unfinished files */
   protected Queue<FailedFile> unfinishedFiles = new LinkedList<FailedFile>();
   /* List of failed file */
@@ -354,24 +356,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   public void setEmitBatchSize(int emitBatchSize)
   {
     this.emitBatchSize = emitBatchSize;
-  }
-
-  /**
-   * Sets whether the operator is idempotent or not.
-   * @param idempotentEmit If this is true, then the operator
-   */
-  public void setIdempotentEmit(boolean idempotentEmit)
-  {
-    this.idempotentEmit = idempotentEmit;
-  }
-
-  /**
-   *
-   * @return
-   */
-  public boolean isIdempotentEmit()
-  {
-    return idempotentEmit;
   }
 
   /**
@@ -505,7 +489,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void beginWindow(long windowId)
   {
-    emit = true;
   }
 
   @Override
@@ -527,64 +510,54 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   @Override
   public void emitTuples()
   {
-    //emit will be true if the operator is not idempotent. If the operator is
-    //idempotent then emit will be true the first time emitTuples is called
-    //within a window and false the other times emit tuples is called within a
-    //window
-    if(emit)
-    {
-      if (inputStream == null) {
-        try {
-          if(!unfinishedFiles.isEmpty()) {
-            retryFailedFile(unfinishedFiles.poll());
+    if (inputStream == null) {
+      try {
+        if (!unfinishedFiles.isEmpty()) {
+          retryFailedFile(unfinishedFiles.poll());
+        }
+        else if (!pendingFiles.isEmpty()) {
+          String newPathString = pendingFiles.iterator().next();
+          pendingFiles.remove(newPathString);
+          this.inputStream = openFile(new Path(newPathString));
+        }
+        else if (!failedFiles.isEmpty()) {
+          retryFailedFile(failedFiles.poll());
+        }
+        else {
+          scanDirectory();
+        }
+      }
+      catch (IOException ex) {
+        failureHandling(ex);
+      }
+    }
+
+    if (inputStream != null) {
+      try {
+        int counterForTuple = 0;
+        while (counterForTuple++ < emitBatchSize) {
+          T line = readEntity();
+          if (line == null) {
+            LOG.info("done reading file ({} entries).", offset);
+            closeFile(inputStream);
+            break;
           }
-          else if (!pendingFiles.isEmpty()) {
-            String newPathString = pendingFiles.iterator().next();
-            pendingFiles.remove(newPathString);
-            this.inputStream = openFile(new Path(newPathString));
-          }
-          else if (!failedFiles.isEmpty()) {
-            retryFailedFile(failedFiles.poll());
+
+          // If skipCount is non zero, then failed file recovery is going on, skipCount is
+          // used to prevent already emitted records from being emitted again during recovery.
+          // When failed file is open, skipCount is set to the last read offset for that file.
+          //
+          if (skipCount == 0) {
+            offset++;
+            emit(line);
           }
           else {
-            scanDirectory();
+            skipCount--;
           }
-        } catch (IOException ex) {
-          failureHandling(ex);
         }
       }
-
-      if (inputStream != null) {
-        try {
-          int counterForTuple = 0;
-          while (counterForTuple++ < emitBatchSize) {
-            T line = readEntity();
-            if (line == null) {
-              LOG.info("done reading file ({} entries).", offset);
-              closeFile(inputStream);
-              break;
-            }
-
-            // If skipCount is non zero, then failed file recovery is going on, skipCount is
-            // used to prevent already emitted records from being emitted again during recovery.
-            // When failed file is open, skipCount is set to the last read offset for that file.
-            //
-            if (skipCount == 0) {
-              offset++;
-              emit(line);
-            }
-            else
-              skipCount--;
-          }
-        } catch (IOException e) {
-          failureHandling(e);
-        }
-      }
-      //If the operator is idempotent, do nothing on other calls to emittuples
-      //within the same window
-      if(idempotentEmit)
-      {
-        emit = false;
+      catch (IOException e) {
+        failureHandling(e);
       }
     }
   }
