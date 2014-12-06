@@ -29,8 +29,13 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Partitioner.Partition;
 
 import com.datatorrent.common.util.DTThrowable;
+import com.google.common.collect.Lists;
+import java.util.Collection;
+import java.util.List;
 import org.junit.Test;
 
 public class CouchBaseInputOperatorTest
@@ -42,7 +47,7 @@ public class CouchBaseInputOperatorTest
   private static int OPERATOR_ID = 0;
   protected static ArrayList<URI> nodes = new ArrayList<URI>();
   protected static ArrayList<String> keyList;
-  private static String uri = "node13.morado.com:8091,node14.morado.com:8091";
+  private static String uri = "127.0.0.1:8091";
 
   @Test
   public void TestCouchBaseInputOperator()
@@ -70,7 +75,9 @@ public class CouchBaseInputOperatorTest
 
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     inputOperator.outputPort.setSink(sink);
-
+    List<Partition<AbstractCouchBaseInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<String>>(inputOperator));
+    Collection<Partition<AbstractCouchBaseInputOperator<String>>> newPartitions = inputOperator.definePartitions(partitions, 1);
     inputOperator.setup(context);
     inputOperator.beginWindow(0);
     inputOperator.emitTuples();
