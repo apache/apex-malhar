@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,10 +30,12 @@ import org.junit.Test;
 import static org.junit.Assert.*;
 
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
-import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileWriter;
-import com.datatorrent.contrib.hds.hfile.HFileImpl;
-import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
+import com.datatorrent.contrib.hdht.HDHTWriter;
+import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileReader;
+import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileWriter;
+import com.datatorrent.contrib.hdht.hfile.HFileImpl;
+import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 
 /**
  * Unit Test for HFile/TFile Writer/Reader With/Without compression.
@@ -43,7 +45,7 @@ import com.datatorrent.contrib.hds.tfile.TFileImpl;
  * To test reader, there is test cases for both sequential read and random read(existing/non-existing key)
  *
  */
-public class HDSFileAccessTest
+public class HDHTFileAccessTest
 {
   private byte[][] keys;
 
@@ -118,7 +120,7 @@ public class HDSFileAccessTest
   private void testHFile(Algorithm calgo) throws IOException{
     HFileImpl himpl = new HFileImpl();
     himpl.getConfigProperties().setProperty("hfile.block.cache.size", "0.5");
-    himpl.setComparator(new HDSWriter.DefaultKeyComparator());
+    himpl.setComparator(new HDHTWriter.DefaultKeyComparator());
     HFileContext context = new HFileContext();
     context.setCompression(calgo);
     himpl.setContext(context);
@@ -127,7 +129,7 @@ public class HDSFileAccessTest
     testRandomRead(0, himpl, "HFileUnit" + calgo);
   }
 
-  private void writeFile(long bucketKey, HDSFileAccessFSImpl hfa, String fileName) throws IOException
+  private void writeFile(long bucketKey, HDHTFileAccessFSImpl hfa, String fileName) throws IOException
   {
     File file = new File(testFileDir);
     FileUtils.deleteDirectory(file);
@@ -141,7 +143,7 @@ public class HDSFileAccessTest
     out.close();
   }
 
-  private void testSeqRead(long bucketKey, HDSFileAccessFSImpl hfa, String fileName) throws IOException
+  private void testSeqRead(long bucketKey, HDHTFileAccessFSImpl hfa, String fileName) throws IOException
   {
     HDSFileReader in = hfa.getReader(bucketKey, fileName);
     Slice tkey = new Slice(null, 0, 0);
@@ -155,7 +157,7 @@ public class HDSFileAccessTest
     in.close();
   }
 
-  private void testRandomRead(long bucketKey, HDSFileAccessFSImpl hfa, String fileName) throws IOException
+  private void testRandomRead(long bucketKey, HDHTFileAccessFSImpl hfa, String fileName) throws IOException
   {
     HDSFileReader in = hfa.getReader(bucketKey, fileName);
     Slice tkey = new Slice(null, 0, 0);
@@ -164,14 +166,14 @@ public class HDSFileAccessTest
     // seek to existing key k
     // seek() method should move to key[i] where key[i] = k
     // so next "next()" would return key[i] which is equal to k
-    in.seek(HDS.SliceExt.toSlice(new byte[] { 1 }));
+    in.seek(new Slice(new byte[] { 1 }));
     assertTrue(in.next(tkey, tval));
     assertEquals("Value is not as expected", values[1], new String(Arrays.copyOfRange(tval.buffer, tval.offset, tval.offset + tval.length)));
 
     // If seek to non-existing key k
     // seek() method should move to key[i] where key[i-1] < k and key[i] > k
     // so next "next()"  would return first key[i] which is greater than k
-    assertFalse(in.seek(HDS.SliceExt.toSlice(new byte[] { 2 })));
+    assertFalse(in.seek(new Slice(new byte[] { 2 })));
     in.next(tkey, tval);
     assertEquals("Value is not as expected", values[2], new String(Arrays.copyOfRange(tval.buffer, tval.offset, tval.offset + tval.length)));
     in.close();

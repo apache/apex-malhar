@@ -38,7 +38,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregateEvent;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
@@ -132,7 +132,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
   }
 
   /**
-   * Perform aggregation in memory until HDS flush threshold is reached.
+   * Perform aggregation in memory until HDHT flush threshold is reached.
    * Avoids WAL writes for most of the aggregation.
    */
   @Override

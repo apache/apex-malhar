@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -25,6 +25,7 @@ import java.util.concurrent.Executors;
 import javax.validation.constraints.Min;
 
 import com.datatorrent.api.Context;
+
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 import org.slf4j.Logger;
@@ -35,8 +36,8 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.Operator.CheckpointListener;
 import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
-import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileWriter;
+import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileReader;
+import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileWriter;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
@@ -54,12 +55,12 @@ import com.google.common.collect.Sets;
  * Note that currently changes are not flushed at a committed window boundary, hence uncommitted changes may be read
  * from data files after recovery, making the operator non-idempotent.
  *
- * @displayName HDS Writer
+ * @displayName HDHT Writer
  * @category Output
  * @tags hds, output operator
  */
 
-public class HDSWriter extends HDSReader implements CheckpointListener, Operator, HDS.Writer
+public class HDHTWriter extends HDHTReader implements CheckpointListener, Operator, HDHT.Writer
 {
 
   private final transient HashMap<Long, BucketMeta> metaCache = Maps.newHashMap();
@@ -167,7 +168,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
         keysWritten = 0;
       }
 
-      fw.append(HDS.SliceExt.asArray(dataEntry.getKey()), dataEntry.getValue());
+      fw.append(dataEntry.getKey().toByteArray(), dataEntry.getValue());
       keysWritten++;
       if (fw.getBytesWritten() > this.maxFileSize) {
         ioStats.dataFilesWritten++;
@@ -205,7 +206,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
 
       BucketMeta bmeta = getMeta(bucketKey);
       WalMeta wmeta = getWalMeta(bucketKey);
-      bucket.wal = new HDSWalManager(this.store, bucketKey, wmeta.fileId, wmeta.offset);
+      bucket.wal = new HDHTWalManager(this.store, bucketKey, wmeta.fileId, wmeta.offset);
       bucket.wal.setMaxWalFileSize(maxWalFileSize);
       BucketIOStats ioStats = getOrCretaStats(bucketKey);
       if (ioStats != null)
@@ -506,7 +507,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
     private HashMap<Slice, byte[]> writeCache = Maps.newHashMap();
     // keys that are being flushed to data files
     private HashMap<Slice, byte[]> frozenWriteCache = Maps.newHashMap();
-    private HDSWalManager wal;
+    private HDHTWalManager wal;
     private long committedLSN;
     private long tailId;
     private long tailOffset;
@@ -527,7 +528,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
     return b.writeCache.size();
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(HDSWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HDHTWriter.class);
 
   /* Holds current file Id for WAL and current offset for WAL */
   private static class WalMeta
@@ -548,6 +549,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
   @JsonSerialize
   public static class BucketIOStats implements Serializable
   {
+    private static final long serialVersionUID = 201412091454L;
     /* Bytes written to the WAL till now */
     public long walBytesWritten;
     /* Number of times WAL was flushed */
@@ -611,7 +613,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
     {
       BucketIOStats ioStats = getOrCretaStats(bucket.bucketKey);
       /* fill in stats for WAL */
-      HDSWalManager.WalStats walStats = bucket.wal.getCounters();
+      HDHTWalManager.WalStats walStats = bucket.wal.getCounters();
       ioStats.walBytesWritten = walStats.totalBytes;
       ioStats.walFlushCount = walStats.flushCounts;
       ioStats.walFlushTime = walStats.flushDuration;
@@ -623,6 +625,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
 
   @JsonSerialize
   public static class AggregatedBucketIOStats implements Serializable {
+    private static final long serialVersionUID = 201412091454L;
     public BucketIOStats globalStats = new BucketIOStats();
     /* Individual bucket stats */
     public Map<Long, BucketIOStats> aggregatedStats = Maps.newHashMap();
@@ -630,11 +633,14 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
 
   public static class BucketIOStatAggregator implements Serializable, Context.CountersAggregator
   {
+    private static final long serialVersionUID = 201412091454L;
+
     @Override public Object aggregate(Collection<?> countersList)
     {
       AggregatedBucketIOStats aggStats = new AggregatedBucketIOStats();
       for(Object o : countersList)
       {
+        @SuppressWarnings("unchecked")
         Map<Long, BucketIOStats> statMap = (Map<Long, BucketIOStats>)o;
         for(Long bId : statMap.keySet())
         {
@@ -667,7 +673,7 @@ public class HDSWriter extends HDSReader implements CheckpointListener, Operator
   }
 
   /* A map holding stats for each bucket written by this partition */
-  private HashMap<Long, BucketIOStats> bucketStats = Maps.newHashMap();
+  private final HashMap<Long, BucketIOStats> bucketStats = Maps.newHashMap();
 
   private BucketIOStats getOrCretaStats(long bucketKey)
   {

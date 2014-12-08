@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.File;
 import java.nio.ByteBuffer;
 import java.util.TreeMap;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
@@ -31,10 +32,11 @@ import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.Slice;
+import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 import com.datatorrent.lib.util.KeyValPair;
 
-@ApplicationAnnotation(name="HDSTestApp")
-public class HDSTestApp implements StreamingApplication
+@ApplicationAnnotation(name="HDHTAppTest")
+public class HDHTAppTest implements StreamingApplication
 {
   private static final String DATA0 = "data0";
   private static final String DATA1 = "data1";
@@ -57,7 +59,7 @@ public class HDSTestApp implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     Generator generator = dag.addOperator("Generator", new Generator());
-    HDSTestOperator store = dag.addOperator("Store", new HDSTestOperator());
+    HDHTTestOperator store = dag.addOperator("Store", new HDHTTestOperator());
     store.setFileStore(new MockFileAccess());
     dag.addStream("Generator2Store", generator.output, store.input);
   }
@@ -75,7 +77,7 @@ public class HDSTestApp implements StreamingApplication
     conf.set("dt.operator.Store.flushIntervalCount", "1");
     conf.set("dt.operator.Store.partitionCount", "2");
 
-    lma.prepareDAG(new HDSTestApp(), conf);
+    lma.prepareDAG(new HDHTAppTest(), conf);
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();
@@ -97,17 +99,17 @@ public class HDSTestApp implements StreamingApplication
     Assert.assertTrue("exists " + wal0, wal0.exists() && wal0.exists());
     Assert.assertTrue("exists " + wal1, wal1.exists() && wal1.exists());
 
-    HDSFileAccessFSImpl fs = new MockFileAccess();
+    HDHTFileAccessFSImpl fs = new MockFileAccess();
     fs.setBasePath(file.toURI().toString());
     fs.init();
 
-    TreeMap<Slice, byte[]> data = new TreeMap<Slice, byte[]>(new HDSTest.SequenceComparator());
+    TreeMap<Slice, byte[]> data = new TreeMap<Slice, byte[]>(new HDHTWriterTest.SequenceComparator());
     fs.getReader(0, "0-0").readFully(data);
-    Assert.assertArrayEquals("read key=" + new String(KEY0), DATA0.getBytes(), data.get(HDS.SliceExt.toSlice(KEY0)));
+    Assert.assertArrayEquals("read key=" + new String(KEY0), DATA0.getBytes(), data.get(new Slice(KEY0)));
 
     data.clear();
     fs.getReader(1, "1-0").readFully(data);
-    Assert.assertArrayEquals("read key=" + new String(KEY1), DATA1.getBytes(), data.get(HDS.SliceExt.toSlice(KEY1)));
+    Assert.assertArrayEquals("read key=" + new String(KEY1), DATA1.getBytes(), data.get(new Slice(KEY1)));
 
     fs.close();
   }
@@ -115,10 +117,10 @@ public class HDSTestApp implements StreamingApplication
   @Test
   public void testCodec()
   {
-    HDSTestOperator.BucketStreamCodec codec = new HDSTestOperator.BucketStreamCodec();
+    HDHTTestOperator.BucketStreamCodec codec = new HDHTTestOperator.BucketStreamCodec();
     Slice s = codec.toByteArray(new KeyValPair<byte[], byte[]>(KEY0, DATA0.getBytes()));
 
-    HDSTestOperator.BucketStreamCodec codec2 = new HDSTestOperator.BucketStreamCodec();
+    HDHTTestOperator.BucketStreamCodec codec2 = new HDHTTestOperator.BucketStreamCodec();
     codec2.fromByteArray(s);
   }
 

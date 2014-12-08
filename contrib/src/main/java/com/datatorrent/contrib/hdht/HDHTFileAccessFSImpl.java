@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.IOException;
 
@@ -32,13 +32,13 @@ import com.datatorrent.common.util.DTThrowable;
 /**
  * Hadoop file system backed store.
  */
-abstract public class HDSFileAccessFSImpl implements HDSFileAccess
+abstract public class HDHTFileAccessFSImpl implements HDHTFileAccess
 {
   @NotNull
   private String basePath;
   protected transient FileSystem fs;
 
-  public HDSFileAccessFSImpl()
+  public HDHTFileAccessFSImpl()
   {
   }
 

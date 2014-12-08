@@ -13,16 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import com.datatorrent.common.util.Slice;
+import com.datatorrent.contrib.hdht.HDFSWalReader;
+import com.datatorrent.contrib.hdht.HDFSWalWriter;
+import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
+import com.datatorrent.contrib.hdht.HDHTWriter;
+import com.datatorrent.contrib.hdht.MutableKeyValue;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.ByteBufferOutput;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Assert;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -47,7 +51,7 @@ public class WALTest
   static Slice genRandomKey(int len) {
     byte[] val = new byte[len];
     rand.nextBytes(val);
-    return HDS.SliceExt.toSlice(val);
+    return new Slice(val);
   }
 
   /**
@@ -60,7 +64,7 @@ public class WALTest
   public void testWalWriteAndRead() throws IOException
   {
     FileUtils.deleteDirectory(file);
-    HDSFileAccessFSImpl bfs = new MockFileAccess();
+    HDHTFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
@@ -97,7 +101,7 @@ public class WALTest
   public void testWalSkip() throws IOException
   {
     FileUtils.deleteDirectory(file);
-    HDSFileAccessFSImpl bfs = new MockFileAccess();
+    HDHTFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
@@ -141,13 +145,13 @@ public class WALTest
     FileUtils.deleteDirectory(file);
     final long BUCKET1 = 1L;
 
-    HDSFileAccessFSImpl bfs = new MockFileAccess();
+    HDHTFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
-    HDSWriter hds = new HDSWriter();
+    HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(bfs);
-    hds.setKeyComparator(new HDSTest.SequenceComparator());
+    hds.setKeyComparator(new HDHTWriterTest.SequenceComparator());
     hds.setFlushIntervalCount(5);
     hds.setFlushSize(1000);
     hds.setMaxWalFileSize(1024);
@@ -188,13 +192,13 @@ public class WALTest
     FileUtils.deleteDirectory(file);
 
     FileUtils.deleteDirectory(file);
-    HDSFileAccessFSImpl bfs = new MockFileAccess();
+    HDHTFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
-    HDSWriter hds = new HDSWriter();
+    HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(bfs);
-    hds.setKeyComparator(new HDSTest.SequenceComparator());
+    hds.setKeyComparator(new HDHTWriterTest.SequenceComparator());
     hds.setFlushSize(3);
     hds.setup(null);
     hds.writeExecutor = MoreExecutors.sameThreadExecutor();
@@ -227,9 +231,9 @@ public class WALTest
     kryo.writeObject(oo, hds);
     oo.flush();
     com.esotericsoftware.kryo.io.ByteBufferInput oi = new ByteBufferInput(oo.getByteBuffer());
-    HDSWriter newOperator = kryo.readObject(oi, HDSWriter.class);
+    HDHTWriter newOperator = kryo.readObject(oi, HDHTWriter.class);
 
-    newOperator.setKeyComparator(new HDSTest.SequenceComparator());
+    newOperator.setKeyComparator(new HDHTWriterTest.SequenceComparator());
     newOperator.setFlushIntervalCount(1);
     newOperator.setFlushSize(3);
     newOperator.setup(null);
@@ -268,13 +272,13 @@ public class WALTest
     FileUtils.deleteDirectory(file);
     final long BUCKET1 = 1L;
 
-    HDSFileAccessFSImpl bfs = new MockFileAccess();
+    HDHTFileAccessFSImpl bfs = new MockFileAccess();
     bfs.setBasePath(file.getAbsolutePath());
     bfs.init();
 
-    HDSWriter hds = new HDSWriter();
+    HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(bfs);
-    hds.setKeyComparator(new HDSTest.SequenceComparator());
+    hds.setKeyComparator(new HDHTWriterTest.SequenceComparator());
     // Flush at every window.
     hds.setFlushIntervalCount(2);
     hds.setFlushSize(1000);

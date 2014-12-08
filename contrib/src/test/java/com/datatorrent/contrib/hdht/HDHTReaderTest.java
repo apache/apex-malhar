@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.File;
 import java.util.List;
@@ -24,26 +24,30 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.HDSReader.HDSQuery;
+import com.datatorrent.contrib.hdht.HDHTFileAccess;
+import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
+import com.datatorrent.contrib.hdht.HDHTReader;
+import com.datatorrent.contrib.hdht.HDHTWriter;
+import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.MoreExecutors;
 
-public class HDSReaderTest
+public class HDHTReaderTest
 {
   @Rule
   public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
 
-  private void writeKey(HDSFileAccess fa, Slice key, String data) throws Exception
+  private void writeKey(HDHTFileAccess fa, Slice key, String data) throws Exception
   {
-    HDSWriter hds = new HDSWriter();
+    HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(fa);
     hds.setFlushSize(0); // flush after every key
 
     hds.setup(null);
     hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
     hds.beginWindow(1);
-    hds.put(HDSTest.getBucketKey(key), key, data.getBytes());
+    hds.put(HDHTWriterTest.getBucketKey(key), key, data.getBytes());
     hds.endWindow();
     hds.teardown();
   }
@@ -54,13 +58,13 @@ public class HDSReaderTest
     File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
 
-    HDSFileAccessFSImpl fa = new MockFileAccess();
+    HDHTFileAccessFSImpl fa = new MockFileAccess();
     fa.setBasePath(file.getAbsolutePath());
 
-    Slice key0 = HDSTest.newKey(1, 0);
+    Slice key0 = HDHTWriterTest.newKey(1, 0);
     String data0 = "data0";
 
-    Slice key1 = HDSTest.newKey(1, 1);
+    Slice key1 = HDHTWriterTest.newKey(1, 1);
     String data1 = "data1";
 
     writeKey(fa, key0, data0);
@@ -68,7 +72,7 @@ public class HDSReaderTest
 
     // setup the reader instance
     final List<HDSQuery> results = Lists.newArrayList();
-    HDSReader reader = new HDSReader() {
+    HDHTReader reader = new HDHTReader() {
       @Override
       protected void emitQueryResult(HDSQuery query)
       {
@@ -82,7 +86,7 @@ public class HDSReaderTest
     reader.beginWindow(1);
 
     HDSQuery q = new HDSQuery();
-    q.bucketKey = HDSTest.getBucketKey(key1);
+    q.bucketKey = HDHTWriterTest.getBucketKey(key1);
     q.keepAliveCount = 1;
     q.key = key1;
 
@@ -108,9 +112,9 @@ public class HDSReaderTest
     // unknown key
     results.clear();
 
-    Slice key2 = HDSTest.newKey(1, 2);
+    Slice key2 = HDHTWriterTest.newKey(1, 2);
     HDSQuery q2 = new HDSQuery();
-    q2.bucketKey = HDSTest.getBucketKey(key2);
+    q2.bucketKey = HDHTWriterTest.getBucketKey(key2);
     q2.keepAliveCount = 1;
     q2.key = key2;
 
@@ -130,17 +134,17 @@ public class HDSReaderTest
     File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
 
-    HDSFileAccessFSImpl fa = new MockFileAccess();
+    HDHTFileAccessFSImpl fa = new MockFileAccess();
     fa.setBasePath(file.getAbsolutePath());
 
-    Slice key = HDSTest.newKey(1, 1);
+    Slice key = HDHTWriterTest.newKey(1, 1);
     String data = "data1";
 
     writeKey(fa, key, data);
 
     // setup the reader instance
     final List<HDSQuery> results = Lists.newArrayList();
-    HDSReader reader = new HDSReader() {
+    HDHTReader reader = new HDHTReader() {
       @Override
       protected void emitQueryResult(HDSQuery query)
       {
@@ -154,7 +158,7 @@ public class HDSReaderTest
     reader.beginWindow(1);
 
     HDSQuery q = new HDSQuery();
-    q.bucketKey = HDSTest.getBucketKey(key);
+    q.bucketKey = HDHTWriterTest.getBucketKey(key);
     q.keepAliveCount = 2;
     q.key = key;
 

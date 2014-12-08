@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import com.datatorrent.common.util.Slice;
 
 
-public class HDFSWalWriter implements HDS.WALWriter
+public class HDFSWalWriter implements HDHT.WALWriter
 {
   transient DataOutputStream out;
   long committedOffset;
@@ -31,7 +31,7 @@ public class HDFSWalWriter implements HDS.WALWriter
   long bucketKey;
   String name;
 
-  public HDFSWalWriter(HDSFileAccess bfs, long bucketKey, String name) throws IOException
+  public HDFSWalWriter(HDHTFileAccess bfs, long bucketKey, String name) throws IOException
   {
     this.bucketKey = bucketKey;
     this.name = name;

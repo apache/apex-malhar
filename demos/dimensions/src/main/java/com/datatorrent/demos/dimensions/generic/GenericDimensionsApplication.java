@@ -25,7 +25,7 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 
 /**
- * DimensionsDemo run with HDS
+ * DimensionsDemo run with HDHT
  *
  * Following settings are provided with properties.xml set by default, but can be modified in local dt-site.xml
  <pre>

@@ -27,7 +27,7 @@ import org.junit.Test;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.demos.dimensions.ads.AdsDimensionStoreOperator.TimeSeriesQueryResult;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;

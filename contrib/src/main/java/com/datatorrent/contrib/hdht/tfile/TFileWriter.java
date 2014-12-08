@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds.tfile;
+package com.datatorrent.contrib.hdht.tfile;
 
 import java.io.IOException;
 
@@ -21,7 +21,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.io.file.tfile.TFile.Writer;
 
-import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileWriter;
+import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileWriter;
 
 public final class TFileWriter implements HDSFileWriter
 {

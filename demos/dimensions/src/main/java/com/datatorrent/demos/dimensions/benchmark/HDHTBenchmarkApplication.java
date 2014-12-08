@@ -19,8 +19,9 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.hds.HDSWriter;
-import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.contrib.hdht.HDHTWriter;
+import com.datatorrent.contrib.hdht.tfile.TFileImpl;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.file.tfile.DTFile;
 
@@ -39,7 +40,7 @@ public class HDHTBenchmarkApplication implements StreamingApplication
     TFileImpl.DTFileImpl hdsFile = new TFileImpl.DTFileImpl();
     hdsFile.setBasePath("WALBenchMarkDir");
     hdsOut.setFileStore(hdsFile);
-    dag.getOperatorMeta("Store").getAttributes().put(Context.OperatorContext.COUNTERS_AGGREGATOR, new HDSWriter.BucketIOStatAggregator());
+    dag.getOperatorMeta("Store").getAttributes().put(Context.OperatorContext.COUNTERS_AGGREGATOR, new HDHTWriter.BucketIOStatAggregator());
 
     dag.addStream("s1", gen.out, hdsOut.input).setLocality(DAG.Locality.THREAD_LOCAL);
   }

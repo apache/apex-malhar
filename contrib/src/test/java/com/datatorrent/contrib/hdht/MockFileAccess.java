@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -29,6 +29,7 @@ import org.apache.commons.lang.mutable.MutableInt;
 
 import com.datatorrent.common.util.Pair;
 import com.datatorrent.common.util.Slice;
+import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -39,7 +40,7 @@ import com.google.common.collect.Sets;
 /**
  * File storage for testing.
  */
-public class MockFileAccess extends HDSFileAccessFSImpl
+public class MockFileAccess extends HDHTFileAccessFSImpl
 {
   private final transient Kryo kryo = new Kryo();
 

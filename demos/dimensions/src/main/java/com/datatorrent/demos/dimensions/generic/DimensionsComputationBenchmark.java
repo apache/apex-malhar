@@ -22,7 +22,7 @@ import com.datatorrent.lib.stream.DevNullCounter;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * DimensionsDemo run with HDS
+ * DimensionsDemo run with HDHT
  *
  * Example of configuration
  <pre>

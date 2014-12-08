@@ -13,20 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 
-public class HDFSWalReader implements HDS.WALReader
+public class HDFSWalReader implements HDHT.WALReader
 {
   DataInputStream in;
   private boolean eof = false;
   MutableKeyValue pair = null;
   String name;
 
-  public HDFSWalReader(HDSFileAccess bfs, long bucketKey, String name) throws IOException
+  public HDFSWalReader(HDHTFileAccess bfs, long bucketKey, String name) throws IOException
   {
     this.name = name;
     in = bfs.getInputStream(bucketKey, name);

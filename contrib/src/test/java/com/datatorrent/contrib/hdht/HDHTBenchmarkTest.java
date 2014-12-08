@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,14 +43,16 @@ import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.hfile.HFileImpl;
+import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
+import com.datatorrent.contrib.hdht.HDHTWriter;
+import com.datatorrent.contrib.hdht.hfile.HFileImpl;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.collect.Lists;
 import com.datatorrent.api.Context;
 
-@ApplicationAnnotation(name="HDSBenchmarkApplication")
-public class HDSBenchmarkApplication implements StreamingApplication
+@ApplicationAnnotation(name="HDHTBenchmarkTest")
+public class HDHTBenchmarkTest implements StreamingApplication
 {
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -61,11 +63,11 @@ public class HDSBenchmarkApplication implements StreamingApplication
     dag.setAttribute(gen, OperatorContext.STATS_LISTENERS, Lists.newArrayList((StatsListener)sl));
     TestStoreOperator store = dag.addOperator("Store", new TestStoreOperator());
     dag.setAttribute(store, OperatorContext.STATS_LISTENERS, Lists.newArrayList((StatsListener)sl));
-    HDSFileAccessFSImpl hfa = new HFileImpl();
+    HDHTFileAccessFSImpl hfa = new HFileImpl();
     hfa.setBasePath(this.getClass().getSimpleName());
     store.setFileStore(hfa);
     dag.setInputPortAttribute(store.input, PortContext.PARTITION_PARALLEL, true);
-    dag.getOperatorMeta("Store").getAttributes().put(Context.OperatorContext.COUNTERS_AGGREGATOR, new HDSWriter.BucketIOStatAggregator());
+    dag.getOperatorMeta("Store").getAttributes().put(Context.OperatorContext.COUNTERS_AGGREGATOR, new HDHTWriter.BucketIOStatAggregator());
     dag.addStream("Events", gen.data, store.input).setLocality(Locality.THREAD_LOCAL);
   }
 
@@ -128,7 +130,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
     }
   }
 
-  public static class TestStoreOperator extends HDSTestOperator
+  public static class TestStoreOperator extends HDHTTestOperator
   {
     @Override
     protected void processEvent(KeyValPair<byte[], byte[]> event) throws IOException
@@ -215,7 +217,7 @@ public class HDSBenchmarkApplication implements StreamingApplication
     conf.set("dt.operator.Store.flushIntervalCount", "1");
     conf.set("dt.operator.Generator.attr.PARTITIONER", "com.datatorrent.lib.partitioner.StatelessPartitioner:2");
 
-    lma.prepareDAG(new HDSTestApp(), conf);
+    lma.prepareDAG(new HDHTAppTest(), conf);
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();
@@ -237,11 +239,11 @@ public class HDSBenchmarkApplication implements StreamingApplication
     Assert.assertTrue("exists " + wal0, wal0.exists() && wal0.exists());
     Assert.assertTrue("exists " + wal1, wal1.exists() && wal1.exists());
 
-    HDSFileAccessFSImpl fs = new MockFileAccess();
+    HDHTFileAccessFSImpl fs = new MockFileAccess();
     fs.setBasePath(file.toURI().toString());
     fs.init();
 
-    TreeMap<Slice, byte[]> data = new TreeMap<Slice, byte[]>(new HDSTest.SequenceComparator());
+    TreeMap<Slice, byte[]> data = new TreeMap<Slice, byte[]>(new HDHTWriterTest.SequenceComparator());
     fs.getReader(0, "0-0").readFully(data);
     Assert.assertFalse(data.isEmpty());
 

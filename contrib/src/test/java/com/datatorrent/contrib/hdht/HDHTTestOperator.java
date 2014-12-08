@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 
 import com.google.common.base.Preconditions;
@@ -21,11 +21,12 @@ import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.Slice;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
 
-public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>
+public class HDHTTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>
 {
   @Override
-  protected com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter.HDSCodec<KeyValPair<byte[], byte[]>> getCodec()
+  protected com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter.HDSCodec<KeyValPair<byte[], byte[]>> getCodec()
   {
     return new BucketStreamCodec();
   }
@@ -33,7 +34,7 @@ public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte
   public static class BucketStreamCodec extends KryoSerializableStreamCodec<KeyValPair<byte[], byte[]>> implements HDSCodec<KeyValPair<byte[], byte[]>>
   {
     private static final long serialVersionUID = 1L;
-    private transient HDSTestOperator operator;
+    private transient HDHTTestOperator operator;
 
     @Override
     public int getPartition(KeyValPair<byte[], byte[]> t)

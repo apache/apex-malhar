@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds.tfile;
+package com.datatorrent.contrib.hdht.tfile;
 
 import java.io.IOException;
 
@@ -25,17 +25,17 @@ import org.apache.hadoop.io.file.tfile.TFile;
 import org.apache.hadoop.io.file.tfile.TFile.Reader;
 import org.apache.hadoop.io.file.tfile.TFile.Writer;
 
-import com.datatorrent.contrib.hds.HDSFileAccessFSImpl;
+import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 
 /**
- * A TFile wrapper with HDSFileAccess API
+ * A TFile wrapper with HDHTFileAccess API
  * <ul>
  * <li>{@link TFileImpl.DefaultTFileImpl} return default TFile {@link Reader} and {@link Writer} for IO operations</li> 
  * <li>{@link TFileImpl.DTFileImpl} return DTFile {@link org.apache.hadoop.io.file.tfile.DTFile.Reader}(which is faster than default TFile reader) and {@link Writer} for IO operations</li> 
  * </ul>
  *
  */
-public abstract class TFileImpl extends HDSFileAccessFSImpl
+public abstract class TFileImpl extends HDHTFileAccessFSImpl
 {
   private int minBlockSize = 64 * 1024;
 

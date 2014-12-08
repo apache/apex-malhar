@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -28,8 +28,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.HDS.WALReader;
-import com.datatorrent.contrib.hds.HDS.WALWriter;
+import com.datatorrent.contrib.hdht.HDHT.WALReader;
+import com.datatorrent.contrib.hdht.HDHT.WALWriter;
 import com.google.common.collect.Maps;
 
 /**
@@ -62,7 +62,7 @@ import com.google.common.collect.Maps;
  *   duplicate tuples.
  *
  */
-public class HDSWalManager implements Closeable
+public class HDHTWalManager implements Closeable
 {
   public static final String WAL_FILE_PREFIX = "_WAL-";
 
@@ -71,7 +71,7 @@ public class HDSWalManager implements Closeable
     this.bucketKey = bucketKey;
   }
 
-  public void restoreStats(HDSWriter.BucketIOStats ioStats)
+  public void restoreStats(HDHTWriter.BucketIOStats ioStats)
   {
     if (stats != null) {
       stats.flushCounts = ioStats.walFlushCount;
@@ -95,7 +95,7 @@ public class HDSWalManager implements Closeable
   public TreeMap<Long, WindowEntry> windowIndex = Maps.newTreeMap();
 
   /* Backing file system for WAL */
-  transient HDSFileAccess bfs;
+  transient HDHTFileAccess bfs;
 
   /*
    * If maximum number of bytes allowed to be written to file between flush,
@@ -124,14 +124,14 @@ public class HDSWalManager implements Closeable
   private long committedLength = 0;
 
   @SuppressWarnings("unused")
-  private HDSWalManager() {}
+  private HDHTWalManager() {}
 
-  public HDSWalManager(HDSFileAccess bfs, long bucketKey) {
+  public HDHTWalManager(HDHTFileAccess bfs, long bucketKey) {
     this.bfs = bfs;
     this.bucketKey = bucketKey;
   }
 
-  public HDSWalManager(HDSFileAccess bfs, long bucketKey, long fileId, long offset) {
+  public HDHTWalManager(HDHTFileAccess bfs, long bucketKey, long fileId, long offset) {
     this.bfs = bfs;
     this.bucketKey = bucketKey;
     this.walFileId = fileId;
@@ -161,7 +161,7 @@ public class HDSWalManager implements Closeable
       int count = 0;
       while (wReader.advance()) {
         MutableKeyValue o = wReader.get();
-        writeCache.put(HDS.SliceExt.toSlice(o.getKey()), o.getValue());
+        writeCache.put(new Slice(o.getKey()), o.getValue());
         count++;
       }
       wReader.close();
@@ -311,12 +311,12 @@ public class HDSWalManager implements Closeable
     return committedLength;
   }
 
-  public void setFileStore(HDSFileAccess bfs)
+  public void setFileStore(HDHTFileAccess bfs)
   {
     this.bfs = bfs;
   }
 
-  private static transient final Logger logger = LoggerFactory.getLogger(HDSWalManager.class);
+  private static transient final Logger logger = LoggerFactory.getLogger(HDHTWalManager.class);
 
   /**
    * Stats related functionality
@@ -329,7 +329,7 @@ public class HDSWalManager implements Closeable
     public long totalKeys;
   }
 
-  private WalStats stats = new WalStats();
+  private final WalStats stats = new WalStats();
 
   public WalStats getCounters() {
     return stats;

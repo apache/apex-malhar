@@ -2379,7 +2379,7 @@ public class DTFile {
         .toString(), DTBCFile.API_VERSION.toString());
     if (args.length == 0) {
       System.out
-          .println("Usage: java ... com.datatorrent.contrib.hds.tfile.withcache.TFile tfile-path [tfile-path ...]");
+          .println("Usage: java ... com.datatorrent.contrib.hdht.tfile.withcache.TFile tfile-path [tfile-path ...]");
       System.exit(0);
     }
     Configuration conf = new Configuration();

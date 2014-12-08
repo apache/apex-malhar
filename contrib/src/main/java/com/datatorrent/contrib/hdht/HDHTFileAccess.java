@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.Closeable;
 import java.io.DataInputStream;
@@ -26,7 +26,7 @@ import com.datatorrent.common.util.Slice;
 /**
  * Abstraction for file system and format interaction.
  */
-public interface HDSFileAccess extends Closeable
+public interface HDHTFileAccess extends Closeable
 {
   void init();
 
@@ -46,7 +46,7 @@ public interface HDSFileAccess extends Closeable
   long getFileSize(long bucketKey, String s) throws IOException;
 
   /**
-   * HDS Data File Format Reader
+   * HDHT Data File Format Reader
    */
   interface HDSFileReader extends Closeable
   {
@@ -88,7 +88,7 @@ public interface HDSFileAccess extends Closeable
   }
 
   /**
-   * HDS Data File Format Writer
+   * HDHT Data File Format Writer
    */
   interface HDSFileWriter extends Closeable {
     /**

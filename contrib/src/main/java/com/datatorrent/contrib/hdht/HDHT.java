@@ -13,15 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.Closeable;
 import java.io.IOException;
-import java.util.Arrays;
 
 import com.datatorrent.common.util.Slice;
 
-public interface HDS
+public interface HDHT
 {
   public interface Reader
   {
@@ -114,22 +113,6 @@ public interface HDS
      * @return The file size, last part of the file may not be persisted on disk.
      */
     public long logSize();
-  }
-
-  /**
-   * Utility methods to be added to {@link Slice}
-   */
-  public final static class SliceExt
-  {
-    public static byte[] asArray(Slice slice)
-    {
-      return Arrays.copyOfRange(slice.buffer, slice.offset, slice.offset + slice.length);
-    }
-
-    public static Slice toSlice(byte[] bytes)
-    {
-      return new Slice(bytes, 0, bytes.length);
-    }
   }
 
 }

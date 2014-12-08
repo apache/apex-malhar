@@ -21,7 +21,7 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.contrib.kafka.KafkaJsonEncoder;
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
@@ -31,13 +31,15 @@ import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.statistics.DimensionsComputation;
+
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * An AdsDimensionsDemo run with HDS
+ * An AdsDimensionsDemo run with HDHT
  *
  * Example of configuration
  <pre>

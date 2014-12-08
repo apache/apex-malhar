@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -41,7 +41,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.NameableThreadFactory;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
+import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileReader;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.google.common.annotations.VisibleForTesting;
@@ -51,12 +51,12 @@ import com.google.common.collect.Maps;
  * Reader for historical data store.
  * Implements asynchronous read from backing files and query refresh.
  *
- * @displayName HDS Reader
+ * @displayName HDHT Reader
  * @category Input
  * @tags hds, input operator
  */
 
-public class HDSReader implements Operator, HDS.Reader
+public class HDHTReader implements Operator, HDHT.Reader
 {
   public static final String FNAME_WAL = "_WAL";
   public static final String FNAME_META = "_META";
@@ -81,14 +81,14 @@ public class HDSReader implements Operator, HDS.Reader
     }
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(HDSReader.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HDHTReader.class);
 
   protected final transient Kryo kryo = new Kryo();
   @NotNull
   protected Comparator<Slice> keyComparator = new DefaultKeyComparator();
   @Valid
   @NotNull
-  protected HDSFileAccess store;
+  protected HDHTFileAccess store;
 
   public BucketMeta loadBucketMeta(long bucketKey)
   {
@@ -113,7 +113,7 @@ public class HDSReader implements Operator, HDS.Reader
   protected transient ExecutorService queryExecutor;
   private volatile transient Exception executorError;
 
-  public HDSReader()
+  public HDHTReader()
   {
   }
 
@@ -133,12 +133,12 @@ public class HDSReader implements Operator, HDS.Reader
   }
 
 
-  public HDSFileAccess getFileStore()
+  public HDHTFileAccess getFileStore()
   {
     return store;
   }
 
-  public void setFileStore(HDSFileAccess fileStore)
+  public void setFileStore(HDHTFileAccess fileStore)
   {
     this.store = fileStore;
   }

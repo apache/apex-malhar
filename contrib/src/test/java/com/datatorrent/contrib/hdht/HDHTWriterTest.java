@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,19 +31,21 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
-import com.datatorrent.contrib.hds.HDSReader.HDSQuery;
-import com.datatorrent.contrib.hds.hfile.HFileImpl;
-import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
+import com.datatorrent.contrib.hdht.HDHTWalManager;
+import com.datatorrent.contrib.hdht.HDHTWriter;
+import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileReader;
+import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
+import com.datatorrent.contrib.hdht.hfile.HFileImpl;
+import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
-import com.google.common.collect.Maps;
 import com.google.common.util.concurrent.MoreExecutors;
 
 /**
  * Tests for bucket management
  */
-public class HDSTest
+public class HDHTWriterTest
 {
   @Rule
   public final TestUtils.TestInfo testInfo = new TestUtils.TestInfo();
@@ -86,7 +88,7 @@ public class HDSTest
     return r;
   }
 
-  private TreeMap<Slice, byte[]> readFile(HDSWriter bm, long bucketKey, String fileName) throws IOException
+  private TreeMap<Slice, byte[]> readFile(HDHTWriter bm, long bucketKey, String fileName) throws IOException
   {
     TreeMap<Slice, byte[]> data = new TreeMap<Slice, byte[]>(bm.getKeyComparator());
     HDSFileReader reader = bm.getFileStore().getReader(bucketKey, fileName);
@@ -95,19 +97,19 @@ public class HDSTest
     return data;
   }
 
-  private void testHDSFileAccess(HDSFileAccessFSImpl bfs) throws Exception
+  private void testHDSFileAccess(HDHTFileAccessFSImpl bfs) throws Exception
   {
     File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
     final long BUCKET1 = 1L;
 
     File bucket1Dir = new File(file, Long.toString(BUCKET1));
-    File bucket1WalFile = new File(bucket1Dir, HDSWalManager.WAL_FILE_PREFIX + 0);
+    File bucket1WalFile = new File(bucket1Dir, HDHTWalManager.WAL_FILE_PREFIX + 0);
     RegexFileFilter dataFileFilter = new RegexFileFilter("\\d+.*");
 
     bfs.setBasePath(file.getAbsolutePath());
 
-    HDSWriter hds = new HDSWriter();
+    HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(bfs);
     //hds.setKeyComparator(new SequenceComparator());
     hds.setMaxFileSize(1); // limit to single entry per file
@@ -160,7 +162,7 @@ public class HDSTest
 
     // new key added to existing range, due to size limit 2 data files will be written
     hds.endWindow();
-    File metaFile = new File(bucket1Dir, HDSWriter.FNAME_META);
+    File metaFile = new File(bucket1Dir, HDHTWriter.FNAME_META);
     Assert.assertTrue("exists " + metaFile, metaFile.exists());
 
     files = bucket1Dir.list(dataFileFilter);
@@ -184,9 +186,9 @@ public class HDSTest
     Slice key = newKey(1, 1);
     String data = "data1";
 
-    HDSFileAccessFSImpl fa = new MockFileAccess();
+    HDHTFileAccessFSImpl fa = new MockFileAccess();
     fa.setBasePath(file.getAbsolutePath());
-    HDSWriter hds = new HDSWriter();
+    HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(fa);
     hds.setFlushSize(0); // flush after every key
 
@@ -221,9 +223,9 @@ public class HDSTest
     File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
 
-    HDSFileAccessFSImpl fa = new MockFileAccess();
+    HDHTFileAccessFSImpl fa = new MockFileAccess();
     fa.setBasePath(file.getAbsolutePath());
-    HDSWriter hds = new HDSWriter();
+    HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(fa);
     hds.setFlushIntervalCount(0); // flush after every window
 
@@ -259,9 +261,9 @@ public class HDSTest
     File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
 
-    HDSFileAccessFSImpl fa = new MockFileAccess();
+    HDHTFileAccessFSImpl fa = new MockFileAccess();
     fa.setBasePath(file.getAbsolutePath());
-    HDSWriter hds = new HDSWriter();
+    HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(fa);
     hds.setFlushIntervalCount(0); // flush after every window
 
@@ -283,7 +285,7 @@ public class HDSTest
       hds.endWindow();
     }
 
-    HDSWriter.BucketMeta index = hds.loadBucketMeta(1);
+    HDHTWriter.BucketMeta index = hds.loadBucketMeta(1);
     Assert.assertEquals("index entries", 1, index.files.size());
     for (Slice key : index.files.keySet()) {
       Assert.assertEquals("index key normalized " + key, key.length, key.buffer.length);
@@ -311,7 +313,7 @@ public class HDSTest
     final CountDownLatch endWindowComplete = new CountDownLatch(1);
     final CountDownLatch writerActive = new CountDownLatch(1);
 
-    HDSFileAccessFSImpl fa = new MockFileAccess() {
+    HDHTFileAccessFSImpl fa = new MockFileAccess() {
       @Override
       public HDSFileWriter getWriter(long bucketKey, String fileName) throws IOException
       {
@@ -326,7 +328,7 @@ public class HDSTest
       }
     };
     fa.setBasePath(file.getAbsolutePath());
-    HDSWriter hds = new HDSWriter();
+    HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(fa);
     hds.setFlushIntervalCount(0); // flush after every window
 
@@ -362,7 +364,7 @@ public class HDSTest
   public void testDefaultHDSFileAccess() throws Exception
   {
     // Create default HDSFileAccessImpl
-    HDSFileAccessFSImpl bfs = new MockFileAccess();
+    HDHTFileAccessFSImpl bfs = new MockFileAccess();
     testHDSFileAccess(bfs);
   }
 
@@ -388,7 +390,7 @@ public class HDSTest
   {
     //Create HfileImpl
     HFileImpl hfi = new HFileImpl();
-    hfi.setComparator(new HDSWriter.DefaultKeyComparator());
+    hfi.setComparator(new HDHTWriter.DefaultKeyComparator());
     testHDSFileAccess(hfi);
   }
 

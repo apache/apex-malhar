@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds;
+package com.datatorrent.contrib.hdht;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -44,7 +44,7 @@ import com.google.common.collect.Lists;
  * The derived class supplies the codec for partitioning and key-value serialization.
  * @param <EVENT>
  */
-public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter implements Partitioner<AbstractSinglePortHDSWriter<EVENT>>
+public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDHTWriter implements Partitioner<AbstractSinglePortHDSWriter<EVENT>>
 {
   public interface HDSCodec<EVENT> extends StreamCodec<EVENT>
   {

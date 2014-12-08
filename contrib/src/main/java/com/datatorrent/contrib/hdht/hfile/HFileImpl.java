@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.hds.hfile;
+package com.datatorrent.contrib.hdht.hfile;
 
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.HDSFileAccessFSImpl;
+import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 import com.google.common.base.Preconditions;
 
 import org.apache.hadoop.conf.Configuration;
@@ -36,7 +36,7 @@ import java.util.Properties;
 import java.util.TreeMap;
 
 /**
- * Implements HFile backed Historic Data Store (HDS) key/value storage access.
+ * Implements HFile backed Historic Data Store (HDHT) key/value storage access.
  *
  * Key tuning parameters include data block size, which can affect caching and random access performance, and
  * use of compression, which can affect access speed and storage space used.
@@ -75,7 +75,7 @@ import java.util.TreeMap;
  *   </property>
  *
  */
-public class HFileImpl extends HDSFileAccessFSImpl {
+public class HFileImpl extends HDHTFileAccessFSImpl {
 
   private static final Logger LOG = LoggerFactory.getLogger(HFileImpl.class);
   private transient CacheConfig cacheConfig = null;
