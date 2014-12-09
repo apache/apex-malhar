@@ -34,9 +34,9 @@ import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-public class HDSApplicationTest
+public class HDHTApplicationTest
 {
-  private static final Logger LOG = LoggerFactory.getLogger(HDSApplicationTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(HDHTApplicationTest.class);
   private final KafkaOperatorTestBase kafkaLauncher = new KafkaOperatorTestBase();
 
   private static final String kafkaQueryTopic = "HDSApplicationQuery";
@@ -79,7 +79,7 @@ public class HDSApplicationTest
     conf.set("dt.operator.InputGenerator.numPublishers", "2");
     conf.set("dt.loggers.level", "server.*:INFO");
 
-    lma.prepareDAG(new ApplicationWithHDS(), conf);
+    lma.prepareDAG(new ApplicationWithHDHT(), conf);
     LocalMode.Controller lc = lma.getController();
     lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();
