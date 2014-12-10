@@ -113,10 +113,10 @@ import org.apache.hadoop.conf.Configuration;
  </pre>
  *
  */
-@ApplicationAnnotation(name=ApplicationWithHDS.APP_NAME)
-public class ApplicationWithHDS implements StreamingApplication
+@ApplicationAnnotation(name=ApplicationWithHDHT.APP_NAME)
+public class ApplicationWithHDHT implements StreamingApplication
 {
-  public static final String APP_NAME = "AdsDimensionsDemoWithHDS";
+  public static final String APP_NAME = "AdsDimensionsDemoWithHDHT";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
 
   @Override
