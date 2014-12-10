@@ -66,7 +66,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
 
-  private int tuplesBlast = 1024;
   @Min(1)
   private int maxTuplesPerWindow = Integer.MAX_VALUE;
   private transient int emitCount = 0;
@@ -81,16 +80,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
    * @param message
    */
   protected abstract void emitTuple(Message message);
-
-  public int getTuplesBlast()
-  {
-    return tuplesBlast;
-  }
-
-  public void setTuplesBlast(int tuplesBlast)
-  {
-    this.tuplesBlast = tuplesBlast;
-  }
 
   public int getMaxTuplesPerWindow()
   {
@@ -181,9 +170,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     int count = consumer.messageSize();
     if (maxTuplesPerWindow > 0) {
       count = Math.min(count, maxTuplesPerWindow - emitCount);
-    }
-    if (count > tuplesBlast) {
-      count = tuplesBlast;
     }
     for (int i = 0; i < count; i++) {
       emitTuple(consumer.pollMessage());

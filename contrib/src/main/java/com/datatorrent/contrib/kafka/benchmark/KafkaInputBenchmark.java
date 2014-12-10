@@ -84,7 +84,7 @@ public class KafkaInputBenchmark implements StreamingApplication
     }
     
     
-    bpkio.setTuplesBlast(1024 * 1024);
+    //bpkio.setTuplesBlast(1024 * 1024);
     bpkio.setConsumer(consumer);
     bpkio = dag.addOperator("KafkaBenchmarkConsumer", bpkio);
 
