@@ -536,7 +536,6 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     newOp.byteRateUpperBound = this.byteRateUpperBound;
     newOp.strategy = this.strategy;
     newOp.setMaxTuplesPerWindow(getMaxTuplesPerWindow());
-    newOp.setTuplesBlast(getTuplesBlast());
     return newOp;
   }
 
