@@ -23,12 +23,12 @@ import com.datatorrent.api.ActivationListener;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
 
-import com.yammer.metrics.Metrics;
-
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import kafka.message.Message;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -66,8 +66,10 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
 
-  private int tuplesBlast = 1024 * 1024;
-
+  private int tuplesBlast = 1024;
+  @Min(1)
+  private int maxTuplesPerWindow = Integer.MAX_VALUE;
+  private transient int emitCount = 0;
   @NotNull
   @Valid
   protected K consumer = null;
@@ -88,6 +90,16 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void setTuplesBlast(int tuplesBlast)
   {
     this.tuplesBlast = tuplesBlast;
+  }
+
+  public int getMaxTuplesPerWindow()
+  {
+    return maxTuplesPerWindow;
+  }
+
+  public void setMaxTuplesPerWindow(int maxTuplesPerWindow)
+  {
+    this.maxTuplesPerWindow = maxTuplesPerWindow;
   }
 
   /**
@@ -117,6 +129,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void beginWindow(long windowId)
   {
+    emitCount = 0;
   }
 
   /**
@@ -145,7 +158,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void activate(OperatorContext ctx)
   {
-    // Don't start thread here! 
+    // Don't start thread here!
     // Because how many threads we want to start for kafka consumer depends on the type of kafka client and the message metadata(topic/partition/replica)
     consumer.start();
   }
@@ -165,10 +178,17 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void emitTuples()
   {
-    int bufferLength = consumer.messageSize();
-    for (int i = tuplesBlast < bufferLength ? tuplesBlast : bufferLength; i-- > 0; ) {
+    int count = consumer.messageSize();
+    if (maxTuplesPerWindow > 0) {
+      count = Math.min(count, maxTuplesPerWindow - emitCount);
+    }
+    if (count > tuplesBlast) {
+      count = tuplesBlast;
+    }
+    for (int i = 0; i < count; i++) {
       emitTuple(consumer.pollMessage());
     }
+    emitCount += count;
   }
 
   public void setConsumer(K consumer)
@@ -181,7 +201,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     return consumer;
   }
 
-  //add topic as operator property 
+  //add topic as operator property
   public void setTopic(String topic)
   {
     this.consumer.setTopic(topic);

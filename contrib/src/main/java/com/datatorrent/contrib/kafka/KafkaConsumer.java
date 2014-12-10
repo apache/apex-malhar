@@ -68,7 +68,7 @@ public abstract class KafkaConsumer implements Closeable
     this.brokerSet = brokerSet;
   }
 
-  private int cacheSize = 1024 * 1024;
+  private int cacheSize = 1024;
 
   protected transient boolean isAlive = false;
 
@@ -101,7 +101,7 @@ public abstract class KafkaConsumer implements Closeable
 
 
   protected transient SnapShot statsSnapShot = new SnapShot();
-  
+
   protected transient KafkaMeterStats stats = new KafkaMeterStats();
 
   /**
@@ -186,12 +186,12 @@ public abstract class KafkaConsumer implements Closeable
   {
     return initialOffset;
   }
-  
+
   public int getCacheSize()
   {
     return cacheSize;
   }
-  
+
   public void setCacheSize(int cacheSize)
   {
     this.cacheSize = cacheSize;
@@ -232,14 +232,14 @@ public abstract class KafkaConsumer implements Closeable
      */
     public ConcurrentHashMap<Integer, PartitionStats> partitionStats = new ConcurrentHashMap<Integer, PartitionStats>();
 
-    
+
     /**
      * A compact overall counter. The data collected is 4bytes connection number + 8bytes aggregate msg/s + 8bytes aggregate bytes/s
      */
     public long totalMsgPerSec;
-    
+
     public long totalBytesPerSec;
-    
+
 
     public KafkaMeterStats()
     {
@@ -258,7 +258,7 @@ public abstract class KafkaConsumer implements Closeable
       totalMsgPerSec = _1minAvg[0];
       totalBytesPerSec = _1minAvg[1];
     }
-    
+
     public void updateOffsets(Map<Integer, Long> offsets){
       for (Entry<Integer, Long> os : offsets.entrySet()) {
         PartitionStats ps = putPartitionStatsIfNotPresent(os.getKey());
@@ -283,7 +283,7 @@ public abstract class KafkaConsumer implements Closeable
       ps.brokerHost = host;
       ps.brokerId = brokerId;
     }
-    
+
     private synchronized PartitionStats putPartitionStatsIfNotPresent(int pid){
       PartitionStats ps = partitionStats.get(pid);
       if (ps == null) {
@@ -293,9 +293,9 @@ public abstract class KafkaConsumer implements Closeable
       return ps;
     }
   }
-  
+
   public static class KafkaMeterStatsUtil {
-    
+
     public static Map<Integer, Long> getOffsetsForPartitions(List<KafkaMeterStats> kafkaMeterStats)
     {
       Map<Integer, Long> result = Maps.newHashMap();
@@ -306,7 +306,7 @@ public abstract class KafkaConsumer implements Closeable
       }
       return result;
     }
-    
+
     public static Map<Integer, long[]> get_1minMovingAvgParMap(KafkaMeterStats kafkaMeterStats)
     {
       Map<Integer, long[]> result = Maps.newHashMap();
@@ -315,13 +315,13 @@ public abstract class KafkaConsumer implements Closeable
       }
       return result;
     }
-    
+
   }
-  
+
   public static class KafkaMeterStatsAggregator implements Context.CountersAggregator, Serializable{
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = 729987800215151678L;
 
@@ -339,27 +339,27 @@ public abstract class KafkaConsumer implements Closeable
       }
       return kms;
     }
-    
+
   }
-  
+
   public static class PartitionStats implements Serializable {
 
 
     /**
-     * 
+     *
      */
     private static final long serialVersionUID = -6572690643487689766L;
-    
+
     public int brokerId = -1;
-    
+
     public long msgsPerSec;
-    
+
     public long bytesPerSec;
-    
+
     public long offset;
-    
+
     public String brokerHost = "";
-    
+
   }
 
 
@@ -386,12 +386,12 @@ public abstract class KafkaConsumer implements Closeable
     /**
      * total msg for each sec, msgSec[60] is total msg for a min
      */
-    private long[] msgSec = new long[61];
+    private final long[] msgSec = new long[61];
 
     /**
      * total bytes for each sec, bytesSec[60] is total bytes for a min
      */
-    private long[] bytesSec = new long[61];
+    private final long[] bytesSec = new long[61];
 
     private short last = 1;
 

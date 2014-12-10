@@ -97,7 +97,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   // Store the current collected kafka consumer stats
   private transient Map<Integer, List<KafkaMeterStats>> kafkaStatsHolder = new HashMap<Integer, List<KafkaConsumer.KafkaMeterStats>>();
-  
+
   private OffsetManager offsetManager = null;
 
   // Minimal interval between 2 (re)partition actions
@@ -134,8 +134,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
     // Operator partitions
     List<Partition<AbstractPartitionableKafkaInputOperator>> newPartitions = null;
-    
-    // initialize the offset 
+
+    // initialize the offset
     Map<Integer, Long> initOffset = null;
     if(isInitialParitition && offsetManager !=null){
       initOffset = offsetManager.loadInitialOffsets();
@@ -252,7 +252,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
             }
             offsetTrack.putAll(partition.getPartitionedInstance().consumer.getCurrentOffsets());
             // Get the latest stats
-            
+
             OperatorStats stat = partition.getStats().getLastWindowedStats().get(partition.getStats().getLastWindowedStats().size() - 1);
             if (stat.counters instanceof KafkaMeterStats) {
               KafkaMeterStats kms = (KafkaMeterStats) stat.counters;
@@ -325,8 +325,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       // didn't find the existing "operator" to assign this consumer
       PartitionInfo nr = new PartitionInfo();
       nr.kpids = Sets.newHashSet(entry.getKey());
-      nr.msgRateLeft = msgRateUpperBound == Long.MAX_VALUE ? msgRateUpperBound : msgRateUpperBound - (long) resourceRequired[0];
-      nr.byteRateLeft = byteRateUpperBound == Long.MAX_VALUE ? byteRateUpperBound : byteRateUpperBound - (long) resourceRequired[1];
+      nr.msgRateLeft = msgRateUpperBound == Long.MAX_VALUE ? msgRateUpperBound : msgRateUpperBound - resourceRequired[0];
+      nr.byteRateLeft = byteRateUpperBound == Long.MAX_VALUE ? byteRateUpperBound : byteRateUpperBound - resourceRequired[1];
       pif.add(nr);
     }
 
@@ -342,7 +342,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     resp.repartitionRequired = needPartition(stats.getOperatorId(), kstats);
     return resp;
   }
-  
+
   private void updateOffsets(List<KafkaMeterStats> kstats)
   {
     //In every partition check interval, call offsetmanager to update the offsets
@@ -377,21 +377,21 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     long t = System.currentTimeMillis();
 
     if (t - lastCheckTime < repartitionCheckInterval) {
-      // return false if it's within repartitionCheckInterval since last time it check the stats 
+      // return false if it's within repartitionCheckInterval since last time it check the stats
       return false;
     }
-    
+
     logger.debug("Use OffsetManager to update offsets");
     updateOffsets(kstats);
-    
-    
+
+
     if(repartitionInterval < 0){
       // if repartition is disabled
       return false;
     }
-    
+
     if(t - lastRepartitionTime < repartitionInterval) {
-      // return false if it's still within repartitionInterval since last (re)partition 
+      // return false if it's still within repartitionInterval since last (re)partition
       return false;
     }
 
@@ -520,6 +520,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     newOp.msgRateUpperBound = this.msgRateUpperBound;
     newOp.byteRateUpperBound = this.byteRateUpperBound;
     newOp.strategy = this.strategy;
+    newOp.setMaxTuplesPerWindow(getMaxTuplesPerWindow());
+    newOp.setTuplesBlast(getTuplesBlast());
     return newOp;
   }
 
@@ -593,27 +595,27 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   {
     this.consumer.initialOffset = initialOffset;
   }
-  
+
   public void setOffsetManager(OffsetManager offsetManager)
   {
     this.offsetManager = offsetManager;
   }
-  
+
   public void setRepartitionCheckInterval(long repartitionCheckInterval)
   {
     this.repartitionCheckInterval = repartitionCheckInterval;
   }
-  
+
   public long getRepartitionCheckInterval()
   {
     return repartitionCheckInterval;
   }
-  
+
   public void setRepartitionInterval(long repartitionInterval)
   {
     this.repartitionInterval = repartitionInterval;
   }
-  
+
   public long getRepartitionInterval()
   {
     return repartitionInterval;
