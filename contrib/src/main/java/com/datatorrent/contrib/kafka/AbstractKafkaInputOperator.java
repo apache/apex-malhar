@@ -19,6 +19,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import kafka.message.Message;
@@ -71,8 +72,10 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
 
-  private int tuplesBlast = 1024 * 1024;
-
+  private int tuplesBlast = 1024;
+  @Min(1)
+  private int maxTuplesPerWindow = Integer.MAX_VALUE;
+  private transient int emitCount = 0;
   @NotNull
   @Valid
   protected KafkaConsumer consumer = new SimpleKafkaConsumer();
@@ -93,6 +96,16 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void setTuplesBlast(int tuplesBlast)
   {
     this.tuplesBlast = tuplesBlast;
+  }
+
+  public int getMaxTuplesPerWindow()
+  {
+    return maxTuplesPerWindow;
+  }
+
+  public void setMaxTuplesPerWindow(int maxTuplesPerWindow)
+  {
+    this.maxTuplesPerWindow = maxTuplesPerWindow;
   }
 
   /**
@@ -122,6 +135,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void beginWindow(long windowId)
   {
+    emitCount = 0;
   }
 
   /**
@@ -170,10 +184,17 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void emitTuples()
   {
-    int bufferLength = consumer.messageSize();
-    for (int i = tuplesBlast < bufferLength ? tuplesBlast : bufferLength; i-- > 0; ) {
+    int count = consumer.messageSize();
+    if (maxTuplesPerWindow > 0) {
+      count = Math.min(count, maxTuplesPerWindow - emitCount);
+    }
+    if (count > tuplesBlast) {
+      count = tuplesBlast;
+    }
+    for (int i = 0; i < count; i++) {
       emitTuple(consumer.pollMessage());
     }
+    emitCount += count;
   }
 
   public void setConsumer(K consumer)
