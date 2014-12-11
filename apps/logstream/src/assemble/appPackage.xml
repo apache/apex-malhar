@@ -3,15 +3,15 @@
     xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.2 http://maven.apache.org/xsd/assembly-1.1.2.xsd">
   <id>appPackage</id>
   <formats>
-    <format>zip</format>
+    <format>jar</format>
   </formats>
   <includeBaseDirectory>false</includeBaseDirectory>
-  <files>
+  <!--files>
     <file>
       <source>${basedir}/target/META-INF/MANIFEST.MF</source>
       <outputDirectory>/META-INF</outputDirectory>
     </file>
-  </files>
+  </files-->
   <fileSets>
     <fileSet>
       <directory>${basedir}/target/</directory>
@@ -34,6 +34,10 @@
     <fileSet>
       <directory>${basedir}/src/main/resources/META-INF</directory>
       <outputDirectory>/META-INF</outputDirectory>
+    </fileSet>
+    <fileSet>
+      <directory>${basedir}/src/main/resources/app</directory>
+      <outputDirectory>/app</outputDirectory>
     </fileSet>
   </fileSets>
 
