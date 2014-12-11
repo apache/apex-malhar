@@ -51,7 +51,6 @@ public class AbstractFSSingleFileWriterTest
     {
       super.starting(description);
       writer = new SingleHDFSExactlyOnceWriter();
-      writer.setAppend(true);
       writer.setOutputFileName(SINGLE_FILE);
 
       writer.setFilePath(getDir());
@@ -94,7 +93,6 @@ public class AbstractFSSingleFileWriterTest
   private CheckPointWriter checkpoint(AbstractFSSingleFileWriter<Integer> writer)
   {
     CheckPointWriter checkPointWriter = new CheckPointWriter();
-    checkPointWriter.append = writer.append;
     checkPointWriter.counts = Maps.newHashMap();
 
     for(String keys: writer.counts.keySet()) {
@@ -130,7 +128,6 @@ public class AbstractFSSingleFileWriterTest
   private void restoreCheckPoint(CheckPointWriter checkPointWriter,
                                  AbstractFSSingleFileWriter<Integer> writer)
   {
-    writer.append = checkPointWriter.append;
     writer.counts = checkPointWriter.counts;
     writer.endOffsets = checkPointWriter.endOffsets;
     writer.openPart = checkPointWriter.openPart;
@@ -146,7 +143,6 @@ public class AbstractFSSingleFileWriterTest
   @Test
   public void testSingleFileCompletedWrite()
   {
-    writer.setAppend(true);
     writer.setOutputFileName(SINGLE_FILE);
 
     writer.setFilePath(testMeta.getDir());
@@ -180,7 +176,6 @@ public class AbstractFSSingleFileWriterTest
   @Test
   public void testSingleFileFailedWrite()
   {
-    writer.setAppend(true);
     writer.setOutputFileName(SINGLE_FILE);
 
     File meta = new File(testMeta.getDir());
