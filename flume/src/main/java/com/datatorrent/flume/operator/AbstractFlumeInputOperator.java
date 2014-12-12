@@ -408,11 +408,12 @@ public abstract class AbstractFlumeInputOperator<T>
         partitions.add(new DefaultPartition<AbstractFlumeInputOperator<T>>(operator));
       }
       else {
+        long maxEventsPerSecondPerOperator = maxEventsPerSecond/allConnectAddresses.size();
         for (int i = allConnectAddresses.size(); i-- > 0;) {
           @SuppressWarnings("unchecked")
           AbstractFlumeInputOperator<T> operator = getClass().newInstance();
           operator.setCodec(codec);
-          operator.setMaxEventsPerSecond(maxEventsPerSecond);
+          operator.setMaxEventsPerSecond(maxEventsPerSecondPerOperator);
           String connectAddress = allConnectAddresses.get(i);
           operator.connectionSpecs = new String[] {connectAddress};
 
