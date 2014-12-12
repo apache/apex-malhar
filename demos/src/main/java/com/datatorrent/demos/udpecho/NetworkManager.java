@@ -32,8 +32,8 @@ public class NetworkManager implements Runnable
   private long selTimeout = 1000;
   private volatile Exception selEx;
 
-  private Map<ConnectionInfo, SelectableChannel> channels;
-  private Map<SelectableChannel, Collection<ChannelAction>> channelActions;
+  private Map<ConnectionInfo, ChannelConfiguration> channels;
+  private Map<SelectableChannel, ChannelConfiguration> channelConfigurations;
 
   public static NetworkManager getInstance() throws IOException
   {
@@ -49,44 +49,47 @@ public class NetworkManager implements Runnable
 
   private NetworkManager() throws IOException
   {
-    channels = new HashMap<ConnectionInfo, SelectableChannel>();
-    channelActions = new HashMap<SelectableChannel, Collection<ChannelAction>>();
+    channels = new HashMap<ConnectionInfo, ChannelConfiguration>();
+    channelConfigurations = new HashMap<SelectableChannel, ChannelConfiguration>();
   }
 
-  public synchronized <T extends SelectableChannel> ChannelAction<T> registerAction(int port, ConnectionType type, ChannelListener<T> listener, int ops) throws IOException
+  public synchronized <SOCKET> ChannelAction<SOCKET> registerAction(int port, ConnectionType type, ChannelListener<SOCKET> listener, int ops) throws IOException
   {
     boolean startProc = (channels.size() == 0);
+    SelectableChannel channel = null;
     SocketAddress address = new InetSocketAddress(port);
     ConnectionInfo connectionInfo = new ConnectionInfo();
     connectionInfo.address = address;
     connectionInfo.connectionType = type;
-    SelectableChannel channel = channels.get(connectionInfo);
-    if (channel == null) {
+    ChannelConfiguration channelConfiguration = channels.get(connectionInfo);
+    if (channelConfiguration == null) {
+      Object osocket = null;
       if (type == ConnectionType.TCP) {
         Socket socket = new Socket();
         socket.bind(address);
         channel = socket.getChannel();
+        osocket = socket;
       } else if (type == ConnectionType.UDP) {
         DatagramSocket socket = new DatagramSocket();
         socket.bind(address);
         channel = socket.getChannel();
+        osocket = socket;
       }
       if (channel == null) {
         throw new IOException("Unsupported connection type");
       }
-      channels.put(connectionInfo, channel);
+      channelConfiguration = new ChannelConfiguration();
+      channelConfiguration.actions = new ConcurrentLinkedQueue<ChannelAction>();
+      channelConfiguration.channel = channel;
+      channelConfiguration.socket = osocket;
+      channelConfiguration.connectionInfo = connectionInfo;
+      channels.put(connectionInfo, channelConfiguration);
+      channelConfigurations.put(channel, channelConfiguration);
     }
     ChannelAction channelAction = new ChannelAction();
-    channelAction.channel = channel;
-    channelAction.connectionInfo = connectionInfo;
     channelAction.listener = listener;
     channelAction.ops = ops;
-    Collection<ChannelAction> actions = channelActions.get(channel);
-    if (actions == null) {
-      actions = new ConcurrentLinkedQueue<ChannelAction>();
-      channelActions.put(channel, actions);
-    }
-    actions.add(channelAction);
+    channelConfiguration.actions.add(channelAction);
     if (startProc) {
       startProcess();
     }
@@ -96,13 +99,13 @@ public class NetworkManager implements Runnable
 
   public synchronized void unregisterAction(ChannelAction action) throws IOException, InterruptedException
   {
-    SelectableChannel channel = action.channel;
-    Collection<ChannelAction> actions = channelActions.get(channel);
-    if (actions != null) {
-      actions.remove(action);
-      if (actions.size() == 0) {
-        ConnectionInfo connectionInfo = action.connectionInfo;
-        channelActions.remove(channel);
+    ChannelConfiguration channelConfiguration = action.channelConfiguration;
+    SelectableChannel channel = channelConfiguration.channel;
+    if (channelConfiguration != null) {
+      channelConfiguration.actions.remove(action);
+      if (channelConfiguration.actions.size() == 0) {
+        ConnectionInfo connectionInfo = channelConfiguration.connectionInfo;
+        channelConfigurations.remove(channel);
         channels.remove(connectionInfo);
         channel.close();
       }
@@ -137,7 +140,8 @@ public class NetworkManager implements Runnable
           Set<SelectionKey> selectionKeys = selector.selectedKeys();
           for (SelectionKey selectionKey : selectionKeys) {
             int readyOps = selectionKey.readyOps();
-            Collection<ChannelAction> actions = channelActions.get(selectionKey.channel());
+            ChannelConfiguration channelConfiguration = channelConfigurations.get(selectionKey.channel());
+            Collection<ChannelAction> actions = channelConfiguration.actions;
             for (ChannelAction action : actions) {
               if ((readyOps & action.ops) != 0) {
                 action.listener.ready(action, readyOps);
@@ -152,14 +156,20 @@ public class NetworkManager implements Runnable
     }
   }
 
-  public static interface ChannelListener<T extends SelectableChannel> {
-    public void ready(ChannelAction<T> action, int readyOps);
+  public static interface ChannelListener<SOCKET> {
+    public void ready(ChannelAction<SOCKET> action, int readyOps);
   }
 
-  public static class ChannelAction<T extends SelectableChannel> {
-    public T channel;
+  public static class ChannelConfiguration<SOCKET> {
+    public SelectableChannel channel;
+    public SOCKET socket;
     public ConnectionInfo connectionInfo;
-    public ChannelListener<T> listener;
+    public Collection<ChannelAction> actions;
+  }
+
+  public static class ChannelAction<SOCKET> {
+    public ChannelConfiguration<SOCKET> channelConfiguration;
+    public ChannelListener<SOCKET> listener;
     public int ops;
   }
 

@@ -1,8 +1,9 @@
 package com.datatorrent.demos.udpecho;
 
 import java.io.IOException;
+import java.net.DatagramSocket;
+import java.net.SocketAddress;
 import java.nio.ByteBuffer;
-import java.nio.channels.DatagramChannel;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
@@ -18,22 +19,24 @@ public class MessageResponder extends BaseOperator
 
   private int port = 7000;
   private int maxMesgSize = 512;
-  private transient NetworkManager.ChannelAction<DatagramChannel> action;
+  private transient NetworkManager.ChannelAction<DatagramSocket> action;
   private transient ByteBuffer buffer;
 
-  public transient final DefaultInputPort<String> messageInput = new DefaultInputPort<String>()
+  public transient final DefaultInputPort<Message> messageInput = new DefaultInputPort<Message>()
   {
     @Override
-    public void process(String message)
+    public void process(Message message)
     {
-      message = responseHeader + message;
-      buffer.put(message.getBytes());
+      String sendMesg = responseHeader + message.message;
+      SocketAddress address = message.socketAddress;
+      buffer.put(sendMesg.getBytes());
       buffer.flip();
       try {
-        action.channel.send(buffer, null);
+        action.channelConfiguration.socket.getChannel().send(buffer, address);
       } catch (IOException e) {
         throw new RuntimeException(e);
       }
+      buffer.clear();
     }
   };
 
