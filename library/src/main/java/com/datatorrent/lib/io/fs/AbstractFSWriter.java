@@ -118,12 +118,6 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
   protected Map<String, MutableLong> counts;
 
   /**
-   * False if you want to overwrite files which are encountered when the app starts.
-   * True if you want to append to existing files when the app starts.
-   */
-  protected boolean append = true;
-
-  /**
    * The path of the directory to where files are written.
    */
   @NotNull
@@ -277,7 +271,7 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
 
         try {
           if (fs.exists(lfilepath)) {
-            if(sawThisFileBefore || append) {
+            if(sawThisFileBefore) {
               FileStatus fileStatus = fs.getFileStatus(lfilepath);
               MutableLong endOffset = endOffsets.get(filename);
 
@@ -592,7 +586,6 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
 
   /**
    * This method will close a file.<br/>
-   * If {@link #append} is false then it removes the file from the operator's offset history.<br/>
    *
    * The child operator should not call this method on rolling files.
    * @param fileName The name of the file to close and remove.
@@ -602,9 +595,7 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
     if (!endOffsets.containsKey(fileName)) {
       throw new IllegalArgumentException("The file " + fileName + " was never opened.");
     }
-    if (!append) {
-      endOffsets.remove(fileName);
-    }
+
     //triggers the RemoveListener#onRemoval() method.
     streamsCache.invalidate(fileName);
   }
@@ -641,56 +632,8 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
     MutableInt part = openPart.get(fileName);
 
     if (part == null) {
-      //If in append mode find the last rolling file to append to.
-      if(append) {
-        int partCounter;
-
-        //Find the last existing rolling file.
-        for(partCounter = -1;;
-            partCounter++) {
-          String partFileName = getPartFileName(fileName, partCounter + 1);
-          Path lfilepath = new Path(filePath + File.separator + partFileName);
-
-          try {
-            if(!fs.exists(lfilepath)) {
-              break;
-            }
-          }
-          catch (IOException ex) {
-            throw new RuntimeException(ex);
-          }
-        }
-
-        //If there was no rolling file set the part number to zero.
-        if(partCounter == -1) {
-          partCounter = 0;
-        }
-
-        String partFileName = getPartFileName(fileName, partCounter);
-        Path lfilepath = new Path(filePath + File.separator + partFileName);
-
-        //Make sure the last rolling file does not exceed the maximum length,
-        //if it does move on to the next rolling file.
-        try {
-          if(fs.exists(lfilepath) &&
-             fs.getFileStatus(lfilepath).getLen() > maxLength) {
-            partCounter++;
-          }
-        }
-        catch (IOException ex) {
-          throw new RuntimeException(ex);
-        }
-
-        part = new MutableInt(partCounter);
-        openPart.put(fileName, part);
-      }
-      //If you are not in append mode then the first rolling file should have
-      //a part number of zero.
-      else {
-        part = new MutableInt(0);
-        openPart.put(fileName, part);
-      }
-
+      part = new MutableInt(0);
+      openPart.put(fileName, part);
       LOG.debug("First file part number {}", part);
     }
 
@@ -750,24 +693,6 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
    * @return The received tuple in byte form.
    */
   protected abstract byte[] getBytesForTuple(INPUT tuple);
-
-  /**
-   * This method determines whether or not the operator runs in append mode.
-   * @param append If the operator is in append mode then previously existing files with the same name will be appended to
-   */
-  public void setAppend(boolean append)
-  {
-    this.append = append;
-  }
-
-  /**
-   * Returns whether or not this operator is running in append mode.
-   * @return True if the operator is appending. False otherwise.
-   */
-  public boolean isAppend()
-  {
-    return this.append;
-  }
 
   /**
    * Sets the path of the working directory where files are being written.
