@@ -42,12 +42,16 @@ public class MessageReceiver implements InputOperator, NetworkManager.ChannelLis
         DatagramChannel channel = action.channelConfiguration.channel;
         SocketAddress address = channel.receive(buffer);
         if (address != null) {
+          /*
           StringBuilder sb = new StringBuilder();
           buffer.rewind();
           while (buffer.hasRemaining()) {
             sb.append(buffer.getChar());
           }
           String mesg = sb.toString();
+          */
+          buffer.flip();
+          String mesg = new String(buffer.array(), 0, buffer.limit());
           logger.info("Message {}", mesg);
           Message message = new Message();
           message.message = mesg;
