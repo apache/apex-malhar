@@ -22,6 +22,7 @@ import java.util.Set;
 import javax.validation.constraints.NotNull;
 
 import com.beust.jcommander.internal.Lists;
+import com.beust.jcommander.internal.Sets;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FSDataOutputStream;
@@ -45,7 +46,8 @@ abstract public class HDSFileAccessFSImpl implements HDSFileAccess
   {
   }
 
-  private List<HDSFileExporter> fileExporters = Lists.newArrayList();
+
+  private Set<HDSFileExporter> fileExporters = Sets.newHashSet();
 
   @Override
   public void registerExporter(HDSFileExporter exporter){
@@ -59,7 +61,7 @@ abstract public class HDSFileAccessFSImpl implements HDSFileAccess
   @Override
   public void exportFiles(long bucketKey, Set<String> filesAdded, Set<String> filesToDelete) throws IOException {
     for(HDSFileExporter exporter: fileExporters) {
-      exporter.exportFiles(getBucketPath(bucketKey), filesAdded, filesToDelete);
+      exporter.exportFiles(this, bucketKey, filesAdded, filesToDelete);
     }
   }
 
@@ -67,7 +69,6 @@ abstract public class HDSFileAccessFSImpl implements HDSFileAccess
   {
     return basePath;
   }
-
   public void setBasePath(String path)
   {
     this.basePath = path;

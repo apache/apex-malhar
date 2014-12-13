@@ -17,6 +17,7 @@ package com.datatorrent.demos.dimensions.benchmark;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hds.HDSCodec;
 import com.datatorrent.contrib.hds.MutableKeyValue;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 

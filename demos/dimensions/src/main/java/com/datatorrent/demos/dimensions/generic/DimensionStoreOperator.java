@@ -21,6 +21,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter;
 import com.datatorrent.contrib.hds.HDS;
+import com.datatorrent.contrib.hds.HDSCodec;
 import com.datatorrent.contrib.hds.tfile.TFileImpl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;

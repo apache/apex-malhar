@@ -25,7 +25,7 @@ import com.datatorrent.common.util.Slice;
 public class HDSTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>
 {
   @Override
-  protected com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter.HDSCodec<KeyValPair<byte[], byte[]>> getCodec()
+  protected HDSCodec<KeyValPair<byte[], byte[]>> getCodec()
   {
     return new BucketStreamCodec();
   }

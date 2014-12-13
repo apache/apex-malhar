@@ -43,12 +43,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDSWriter implements Partitioner<AbstractSinglePortHDSWriter<EVENT>>
 {
-  public interface HDSCodec<EVENT> extends StreamCodec<EVENT>
-  {
-    byte[] getKeyBytes(EVENT event);
-    byte[] getValueBytes(EVENT event);
-    EVENT fromKeyValue(Slice key, byte[] value);
-  }
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractSinglePortHDSWriter.class);
 

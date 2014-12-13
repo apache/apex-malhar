@@ -30,6 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.datatorrent.contrib.hds.HDSCodec;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -275,7 +276,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
     return ae;
   }
 
-  public static class AdInfoAggregateCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent> implements AbstractSinglePortHDSWriter.HDSCodec<AdInfoAggregateEvent>
+  public static class AdInfoAggregateCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent> implements HDSCodec<AdInfoAggregateEvent>
   {
     public AdsDimensionStoreOperator operator;
 
