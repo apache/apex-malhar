@@ -19,14 +19,14 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter;
-import com.datatorrent.contrib.hds.HDS;
-import com.datatorrent.contrib.hds.HDSCodec;
-import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.contrib.hdht.HDHTCodec;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -238,7 +238,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
     // set query for each point in series
     query.prototype.setTimestamp(query.startTime);
     while (query.prototype.getTimestamp() <= query.endTime) {
-      Slice key = HDS.SliceExt.toSlice(codec.getKeyBytes(query.prototype));
+      Slice key = new Slice(codec.getKeyBytes(query.prototype));
       HDSQuery q = super.queries.get(key);
       if (q == null) {
         q = new HDSQuery();
@@ -261,7 +261,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
   }
 
   @Override
-  protected HDSCodec<GenericAggregate> getCodec()
+  protected HDHTCodec<GenericAggregate> getCodec()
   {
     return new GenericAggregateCodec();
   }
@@ -291,7 +291,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
   {
     super.endWindow();
 
-    // flush final aggregates to HDS
+    // flush final aggregates to HDHT
     int expiredEntries = cache.size() - maxCacheSize;
     while(expiredEntries-- > 0){
 

@@ -19,28 +19,31 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-
-import org.apache.commons.lang.mutable.MutableLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.datatorrent.common.util.DTThrowable;
+import org.apache.commons.lang.mutable.MutableLong;
+
 import com.datatorrent.lib.bucket.Bucket;
 import com.datatorrent.lib.bucket.BucketManager;
 import com.datatorrent.lib.bucket.Bucketable;
 import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.counters.BasicCounters;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * This is the base implementation of a deduper, which drops duplicate events.&nbsp;
@@ -271,13 +274,13 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
   @Override
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
-  public Collection<Partition<Deduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions, int partitionCnt)
+  public Collection<Partition<Deduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions, int incrementalCapacity)
   {
     final int finalCapacity;
 
     //Do parallel partitioning
-    if(partitionCnt != 0) {
-      finalCapacity = partitionCnt;
+    if(incrementalCapacity != 0) {
+      finalCapacity = incrementalCapacity;
     }
     //Do normal partitioning
     else {

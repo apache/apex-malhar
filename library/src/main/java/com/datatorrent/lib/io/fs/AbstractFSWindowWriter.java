@@ -37,7 +37,6 @@ public abstract class AbstractFSWindowWriter<INPUT> extends AbstractFSWriter<INP
 
   public AbstractFSWindowWriter()
   {
-    append = false;
     maxOpenFiles = 1;
   }
 
@@ -58,12 +57,6 @@ public abstract class AbstractFSWindowWriter<INPUT> extends AbstractFSWriter<INP
   protected String getFileName(INPUT tuple)
   {
     return windowIdString;
-  }
-
-  @Override
-  public void setAppend(boolean append)
-  {
-    throw new UnsupportedOperationException("This property cannot be set on this operator.");
   }
 
   @Override

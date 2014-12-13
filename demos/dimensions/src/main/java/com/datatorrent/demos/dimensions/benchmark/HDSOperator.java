@@ -16,9 +16,9 @@
 package com.datatorrent.demos.dimensions.benchmark;
 
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter;
-import com.datatorrent.contrib.hds.HDSCodec;
-import com.datatorrent.contrib.hds.MutableKeyValue;
+import com.datatorrent.contrib.hdht.HDHTCodec;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.MutableKeyValue;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class HDSOperator extends AbstractSinglePortHDSWriter<MutableKeyValue>
 
   private boolean readModifyWriteMode = false;
 
-  public static class MutableKeyValCodec extends KryoSerializableStreamCodec<MutableKeyValue> implements HDSCodec<MutableKeyValue>
+  public static class MutableKeyValCodec extends KryoSerializableStreamCodec<MutableKeyValue> implements HDHTCodec<MutableKeyValue>
   {
     @Override public byte[] getKeyBytes(MutableKeyValue mutableKeyValue)
     {
@@ -65,7 +65,7 @@ public class HDSOperator extends AbstractSinglePortHDSWriter<MutableKeyValue>
   }
 
 
-  @Override protected HDSCodec<MutableKeyValue> getCodec()
+  @Override protected HDHTCodec<MutableKeyValue> getCodec()
   {
     return new MutableKeyValCodec();
   }

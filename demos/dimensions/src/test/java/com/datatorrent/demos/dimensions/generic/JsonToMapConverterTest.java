@@ -78,9 +78,9 @@ public class JsonToMapConverterTest {
       } else if (value instanceof Long) {
         Assert.assertEquals("emitted map." + key, value.longValue(), testTuple.get(key).longValue());
       } else if (value instanceof Float) {
-        Assert.assertEquals("emitted map." + key, value.floatValue(), testTuple.get(key).floatValue());
+        Assert.assertEquals("emitted map." + key, value.floatValue(), testTuple.get(key).floatValue(), 0);
       } else if (value instanceof Double) {
-        Assert.assertEquals("emitted map." + key, value.doubleValue(), testTuple.get(key).doubleValue());
+        Assert.assertEquals("emitted map." + key, value.doubleValue(), testTuple.get(key).doubleValue(), 0);
       } else {
         Assert.assertEquals("emitted map." + key, value, testTuple.get(key));
       }

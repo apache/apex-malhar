@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import com.datatorrent.contrib.hds.HDSCodec;
+import com.datatorrent.contrib.hdht.HDHTCodec;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,7 +39,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregateEvent;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
@@ -133,7 +133,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
   }
 
   /**
-   * Perform aggregation in memory until HDS flush threshold is reached.
+   * Perform aggregation in memory until HDHT flush threshold is reached.
    * Avoids WAL writes for most of the aggregation.
    */
   @Override
@@ -157,7 +157,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
   }
 
   @Override
-  protected HDSCodec<AdInfoAggregateEvent> getCodec()
+  protected HDHTCodec<AdInfoAggregateEvent> getCodec()
   {
     return new AdInfoAggregateCodec();
   }
@@ -276,7 +276,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
     return ae;
   }
 
-  public static class AdInfoAggregateCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent> implements HDSCodec<AdInfoAggregateEvent>
+  public static class AdInfoAggregateCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent> implements HDHTCodec<AdInfoAggregateEvent>
   {
     public AdsDimensionStoreOperator operator;
 

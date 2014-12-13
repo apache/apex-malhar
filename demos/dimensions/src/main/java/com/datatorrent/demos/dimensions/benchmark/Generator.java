@@ -19,9 +19,10 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.contrib.hds.MutableKeyValue;
+import com.datatorrent.contrib.hdht.MutableKeyValue;
 
 import javax.validation.constraints.Min;
+
 import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;

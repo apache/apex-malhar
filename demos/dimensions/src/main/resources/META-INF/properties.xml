@@ -4,12 +4,8 @@
   <!-- GenericDimensionsApplication Demo Settings -->
 
   <property>
-    <name>dt.application.GenericDimensionsApplication.attr.CONTAINER_MEMORY_MB</name>
+    <name>dt.application.GenericDimensionsApplication.operator.*.attr.MEMORY_MB</name>
     <value>4096</value>
-  </property>
-  <property>
-    <name>dt.application.GenericDimensionsApplication.attr.containerJvmOpts</name>
-    <value>-server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
   </property>
   <property>
     <name>dt.application.GenericDimensionsApplication.port.*.attr.QUEUE_CAPACITY</name>
@@ -48,21 +44,21 @@
     <value>GenericDimensionsQueryResult</value>
   </property>
 
-  <!-- Settings for AdsDimensionsDemoWithHDS -->
+  <!-- Settings for AdsDimensionsDemoWithHDHT -->
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDS.operator.Store.fileStore.basePath</name>
+    <name>dt.application.AdsDimensionsDemoWithHDHT.operator.Store.fileStore.basePath</name>
     <value>AdsDimensionsWithHDSDemo/Store</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDS.useWebSockets</name>
+    <name>dt.application.AdsDimensionsDemoWithHDHT.useWebSockets</name>
     <value>true</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDS.operator.Query.topic</name>
+    <name>dt.application.AdsDimensionsDemoWithHDHT.operator.Query.topic</name>
     <value>AdsQuery</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDS.operator.QueryResult.topic</name>
+    <name>dt.application.AdsDimensionsDemoWithHDHT.operator.QueryResult.topic</name>
     <value>AdsQueryResult</value>
   </property>
 
@@ -84,7 +80,7 @@
 
   <!-- Settings for all the apps -->
   <property>
-    <name>dt.attr.CONTAINER_MEMORY_MB</name>
+    <name>dt.operator.*.attr.MEMORY_MB</name>
     <value>4096</value>
   </property>
   <property>

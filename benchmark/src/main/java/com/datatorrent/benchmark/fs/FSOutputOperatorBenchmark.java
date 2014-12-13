@@ -53,7 +53,6 @@ public class FSOutputOperatorBenchmark implements StreamingApplication
 
     FSByteOutputOperator hdfsOutputOperator = dag.addOperator("hdfsOutputOperator", new FSByteOutputOperator());
     hdfsOutputOperator.setFilePath(filePath);
-    hdfsOutputOperator.setAppend(false);
     dag.getOperatorMeta("hdfsOutputOperator").getAttributes().put(OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
     dag.addStream("Generator2HDFSOutput", wordGenerator.output, hdfsOutputOperator.input);

@@ -25,19 +25,15 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 
 /**
- * DimensionsDemo run with HDS
+ * DimensionsDemo run with HDHT
  *
  * Following settings are provided with properties.xml set by default, but can be modified in local dt-site.xml
  <pre>
  {@code
 
  <property>
- <name>dt.application.GenericDimensionsApplication.attr.CONTAINER_MEMORY_MB</name>
+ <name>dt.application.GenericDimensionsApplication.operator.*.attr.MEMORY_MB</name>
  <value>8192</value>
- </property>
- <property>
- <name>dt.application.GenericDimensionsApplication.attr.containerJvmOpts</name>
- <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps</value>
  </property>
  <property>
  <name>dt.application.GenericDimensionsApplication.port.*.attr.QUEUE_CAPACITY</name>

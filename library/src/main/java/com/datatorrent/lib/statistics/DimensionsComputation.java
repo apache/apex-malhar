@@ -15,22 +15,27 @@
  */
 package com.datatorrent.lib.statistics;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
+import java.io.*;
+import java.lang.reflect.Array;
+import java.util.*;
+import java.util.Map.Entry;
+
+import javax.validation.constraints.Min;
+
 import com.esotericsoftware.kryo.DefaultSerializer;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import gnu.trove.map.hash.TCustomHashMap;
-import gnu.trove.strategy.HashingStrategy;
-import java.io.*;
-import java.lang.reflect.Array;
-import java.util.*;
-import java.util.Map.Entry;
-import javax.validation.constraints.Min;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import gnu.trove.map.hash.TCustomHashMap;
+import gnu.trove.strategy.HashingStrategy;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * <p>An implementation of an operator that computes dimensions of events. </p>
@@ -225,13 +230,13 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
     }
 
     @Override
-    public Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> partitions, int partitionCnt)
+    public Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> partitions, int incrementalCapacity)
     {
       int newPartitionsCount;
 
       //Do parallel partitioning
-      if(partitionCnt != 0) {
-        newPartitionsCount = partitionCnt;
+      if(incrementalCapacity != 0) {
+        newPartitionsCount = incrementalCapacity;
       }
       //Do normal partitioning
       else {
