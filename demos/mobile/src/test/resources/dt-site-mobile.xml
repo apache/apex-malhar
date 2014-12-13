@@ -61,7 +61,7 @@
     <value>queryTopic</value>
   </property>
   <property>
-    <name>dt.application.MobileDemo.attr.CONTAINER_MEMORY_MB</name>
+    <name>dt.operator.*.attr.MEMORY_MB</name>
     <value>2048</value>
   </property>
   <property>

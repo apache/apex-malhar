@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.hdht;
 
+import com.datatorrent.contrib.hdht.HDHTFileAccess;
 import java.io.IOException;
 import java.util.Set;
 
@@ -23,5 +24,5 @@ import java.util.Set;
  */
 public interface HDSFileExporter
 {
-  void exportFiles(HDSFileAccess store, long bucketKey, Set<String> filesAdded, Set<String> filesRemoved) throws IOException;
+  void exportFiles(HDHTFileAccess store, long bucketKey, Set<String> filesAdded, Set<String> filesRemoved) throws IOException;
 }

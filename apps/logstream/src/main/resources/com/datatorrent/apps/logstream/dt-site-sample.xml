@@ -14,7 +14,7 @@
   </property>
 
   <property>
-     <name>dt.attr.CONTAINER_MEMORY_MB</name>
+     <name>dt.operator.*.attr.MEMORY_MB</name>
      <value>512</value>
   </property>
 

@@ -22,8 +22,8 @@ import com.beust.jcommander.internal.Sets;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTCodec;
-import com.datatorrent.contrib.hds.HDSFileAccess;
-import com.datatorrent.contrib.hds.HDSFileAccess.HDSFileReader;
+import com.datatorrent.contrib.hdht.HDHTFileAccess;
+import com.datatorrent.contrib.hdht.HDHTFileAccess.*;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -232,7 +232,7 @@ public abstract class AbstractHiveORCExporter<EVENT> extends AbstractHDHTFileExp
   }
 
   @Override
-  public void exportFiles(HDSFileAccess store, long bucketKey, Set<String> filesAdded, Set<String> filesRemoved) throws IOException {
+  public void exportFiles(HDHTFileAccess store, long bucketKey, Set<String> filesAdded, Set<String> filesRemoved) throws IOException {
 
     HDSFileReader reader = null;
     HDHTCodec<EVENT> codec = getCodec();
