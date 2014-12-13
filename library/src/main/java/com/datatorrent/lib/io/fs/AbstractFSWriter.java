@@ -181,7 +181,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
   /**
    * File output counters.
    */
-  private BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
 
   /**
    * This input port receives incoming tuples.
@@ -595,6 +595,25 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
     mi.add(1);
     LOG.debug("Part file index: {}", openPart);
     endOffsets.get(fileName).setValue(0L);
+  }
+
+  /**
+   * This method will close a file.<br/>
+   * If {@link #append} is false then it removes the file from the operator's offset history.<br/>
+   *
+   * The child operator should not call this method on rolling files.
+   * @param fileName The name of the file to close and remove.
+   */
+  protected void closeFile(String fileName)
+  {
+    if (!endOffsets.containsKey(fileName)) {
+      throw new IllegalArgumentException("The file " + fileName + " was never opened.");
+    }
+    if (!append) {
+      endOffsets.remove(fileName);
+    }
+    //triggers the RemoveListener#onRemoval() method.
+    streamsCache.invalidate(fileName);
   }
 
   /**
