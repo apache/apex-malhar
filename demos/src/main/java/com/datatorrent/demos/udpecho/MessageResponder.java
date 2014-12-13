@@ -17,7 +17,7 @@ public class MessageResponder extends BaseOperator
 
   private String responseHeader = "Response: ";
 
-  private int port = 7000;
+  private int port = 9000;
   private int maxMesgSize = 512;
   private transient NetworkManager.ChannelAction<DatagramSocket> action;
   private transient ByteBuffer buffer;

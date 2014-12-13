@@ -5,9 +5,7 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketAddress;
-import java.nio.channels.SelectableChannel;
-import java.nio.channels.SelectionKey;
-import java.nio.channels.Selector;
+import java.nio.channels.*;
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -19,7 +17,6 @@ import org.slf4j.LoggerFactory;
  */
 public class NetworkManager implements Runnable
 {
-
   private static final Logger logger = LoggerFactory.getLogger(NetworkManager.class);
 
   public static enum ConnectionType { TCP, UDP };
@@ -63,17 +60,21 @@ public class NetworkManager implements Runnable
     connectionInfo.connectionType = type;
     ChannelConfiguration channelConfiguration = channels.get(connectionInfo);
     if (channelConfiguration == null) {
-      Object osocket = null;
+      Object socket = null;
       if (type == ConnectionType.TCP) {
-        Socket socket = new Socket();
-        socket.bind(address);
-        channel = socket.getChannel();
-        osocket = socket;
+        SocketChannel schannel = SocketChannel.open();
+        schannel.configureBlocking(false);
+        Socket ssocket = schannel.socket();
+        ssocket.bind(address);
+        socket = ssocket;
+        channel = schannel;
       } else if (type == ConnectionType.UDP) {
-        DatagramSocket socket = new DatagramSocket();
-        socket.bind(address);
-        channel = socket.getChannel();
-        osocket = socket;
+        DatagramChannel dchannel = DatagramChannel.open();
+        dchannel.configureBlocking(false);
+        DatagramSocket dsocket = dchannel.socket();
+        dsocket.bind(address);
+        socket = dsocket;
+        channel = dchannel;
       }
       if (channel == null) {
         throw new IOException("Unsupported connection type");
@@ -81,19 +82,22 @@ public class NetworkManager implements Runnable
       channelConfiguration = new ChannelConfiguration();
       channelConfiguration.actions = new ConcurrentLinkedQueue<ChannelAction>();
       channelConfiguration.channel = channel;
-      channelConfiguration.socket = osocket;
+      channelConfiguration.socket = socket;
       channelConfiguration.connectionInfo = connectionInfo;
       channels.put(connectionInfo, channelConfiguration);
       channelConfigurations.put(channel, channelConfiguration);
     }
     ChannelAction channelAction = new ChannelAction();
+    channelAction.channelConfiguration = channelConfiguration;
     channelAction.listener = listener;
     channelAction.ops = ops;
     channelConfiguration.actions.add(channelAction);
     if (startProc) {
       startProcess();
     }
-    channel.register(selector, ops);
+    if (listener != null) {
+      channel.register(selector, ops);
+    }
     return channelAction;
   }
 
@@ -143,7 +147,7 @@ public class NetworkManager implements Runnable
             ChannelConfiguration channelConfiguration = channelConfigurations.get(selectionKey.channel());
             Collection<ChannelAction> actions = channelConfiguration.actions;
             for (ChannelAction action : actions) {
-              if ((readyOps & action.ops) != 0) {
+              if (((readyOps & action.ops) != 0) && (action.listener != null)) {
                 action.listener.ready(action, readyOps);
               }
             }

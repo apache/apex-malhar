@@ -5,6 +5,9 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.nio.channels.SelectionKey;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
@@ -14,6 +17,7 @@ import com.datatorrent.api.InputOperator;
  */
 public class MessageReceiver implements InputOperator, NetworkManager.ChannelListener<DatagramSocket>
 {
+  private static final Logger logger = LoggerFactory.getLogger(MessageReceiver.class);
 
   private transient NetworkManager.ChannelAction<DatagramSocket> action;
 
@@ -21,7 +25,7 @@ public class MessageReceiver implements InputOperator, NetworkManager.ChannelLis
   //private transient ByteBuffer buffer;
   private transient DatagramPacket packet;
 
-  private int port = 7000;
+  private int port = 9000;
   private int maxMesgSize = 512;
   private int inactiveWait = 10;
   private boolean readReady = false;
@@ -48,6 +52,7 @@ public class MessageReceiver implements InputOperator, NetworkManager.ChannelLis
           buffer.clear();
         }*/
         String mesg = new String(packet.getData(), packet.getOffset(), packet.getLength());
+        logger.info("Message {}", mesg);
         Message message = new Message();
         message.message = mesg;
         message.socketAddress = packet.getSocketAddress();
