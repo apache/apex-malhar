@@ -151,6 +151,7 @@ public class NetworkManager implements Runnable
               }
             }
           }
+          selectionKeys.clear();
         }
       }
     } catch (IOException e) {
