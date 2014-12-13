@@ -1,8 +1,9 @@
 package com.datatorrent.demos.udpecho;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
+import java.net.SocketAddress;
+import java.nio.ByteBuffer;
+import java.nio.channels.DatagramChannel;
 import java.nio.channels.SelectionKey;
 
 import org.slf4j.Logger;
@@ -15,15 +16,15 @@ import com.datatorrent.api.InputOperator;
 /**
  * Created by Pramod Immaneni <pramod@datatorrent.com> on 12/11/14.
  */
-public class MessageReceiver implements InputOperator, NetworkManager.ChannelListener<DatagramSocket>
+public class MessageReceiver implements InputOperator, NetworkManager.ChannelListener<DatagramChannel>
 {
   private static final Logger logger = LoggerFactory.getLogger(MessageReceiver.class);
 
-  private transient NetworkManager.ChannelAction<DatagramSocket> action;
+  private transient NetworkManager.ChannelAction<DatagramChannel> action;
 
   //Need the sender info, using a packet for now instead of the buffer
-  //private transient ByteBuffer buffer;
-  private transient DatagramPacket packet;
+  private transient ByteBuffer buffer;
+  //private transient DatagramPacket packet;
 
   private int port = 9000;
   private int maxMesgSize = 512;
@@ -35,28 +36,27 @@ public class MessageReceiver implements InputOperator, NetworkManager.ChannelLis
   {
     boolean emitData = false;
     if (readReady) {
-      DatagramSocket socket = action.channelConfiguration.socket;
+      //DatagramSocket socket = action.channelConfiguration.socket;
       try {
-        socket.receive(packet);
-        /*
-        DatagramChannel channel = action.channel;
-        int read = channel.read(buffer);
-        if (read > 0) {
+        //socket.receive(packet);
+        DatagramChannel channel = action.channelConfiguration.channel;
+        SocketAddress address = channel.receive(buffer);
+        if (address != null) {
           StringBuilder sb = new StringBuilder();
-          buffer.flip();
+          buffer.rewind();
           while (buffer.hasRemaining()) {
             sb.append(buffer.getChar());
           }
-          messageOutput.emit(sb.toString());
+          String mesg = sb.toString();
+          logger.info("Message {}", mesg);
+          Message message = new Message();
+          message.message = mesg;
+          message.socketAddress = address;
+          messageOutput.emit(message);
           emitData = true;
           buffer.clear();
-        }*/
-        String mesg = new String(packet.getData(), packet.getOffset(), packet.getLength());
-        logger.info("Message {}", mesg);
-        Message message = new Message();
-        message.message = mesg;
-        message.socketAddress = packet.getSocketAddress();
-        messageOutput.emit(message);
+        }
+        //String mesg = new String(packet.getData(), packet.getOffset(), packet.getLength());
       } catch (IOException e) {
         throw new RuntimeException("Error reading from channel", e);
       }
@@ -64,10 +64,10 @@ public class MessageReceiver implements InputOperator, NetworkManager.ChannelLis
       readReady = false;
     }
     if (!emitData) {
-      synchronized (packet) {
+      synchronized (buffer) {
         try {
           if (!readReady) {
-            packet.wait(inactiveWait);
+            buffer.wait(inactiveWait);
           }
         } catch (InterruptedException e) {
           throw new RuntimeException(e);
@@ -94,9 +94,9 @@ public class MessageReceiver implements InputOperator, NetworkManager.ChannelLis
   public void setup(Context.OperatorContext context)
   {
     try {
-      byte[] mesgData = new byte[maxMesgSize];
-      packet = new DatagramPacket(mesgData, maxMesgSize);
-      //buffer = ByteBuffer.allocate(maxMesgSize);
+      //byte[] mesgData = new byte[maxMesgSize];
+      //packet = new DatagramPacket(mesgData, maxMesgSize);
+      buffer = ByteBuffer.allocate(maxMesgSize);
       action = NetworkManager.getInstance().registerAction(port, NetworkManager.ConnectionType.UDP, this, SelectionKey.OP_READ);
     } catch (IOException e) {
       throw new RuntimeException("Error initializing receiver", e);
@@ -114,11 +114,11 @@ public class MessageReceiver implements InputOperator, NetworkManager.ChannelLis
   }
 
   @Override
-  public void ready(NetworkManager.ChannelAction<DatagramSocket> action, int readyOps)
+  public void ready(NetworkManager.ChannelAction<DatagramChannel> action, int readyOps)
   {
-    synchronized (packet) {
+    synchronized (buffer) {
       readReady = true;
-      packet.notify();
+      buffer.notify();
     }
   }
 

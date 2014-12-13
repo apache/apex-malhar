@@ -50,13 +50,13 @@ public class NetworkManager implements Runnable
     channelConfigurations = new HashMap<SelectableChannel, ChannelConfiguration>();
   }
 
-  public synchronized <SOCKET> ChannelAction<SOCKET> registerAction(int port, ConnectionType type, ChannelListener<SOCKET> listener, int ops) throws IOException
+  public synchronized <T extends SelectableChannel> ChannelAction<T> registerAction(int port, ConnectionType type, ChannelListener<T> listener, int ops) throws IOException
   {
     boolean startProc = (channels.size() == 0);
     SelectableChannel channel = null;
     SocketAddress address = new InetSocketAddress(port);
     ConnectionInfo connectionInfo = new ConnectionInfo();
-    connectionInfo.address = address;
+    connectionInfo.address =  address;
     connectionInfo.connectionType = type;
     ChannelConfiguration channelConfiguration = channels.get(connectionInfo);
     if (channelConfiguration == null) {
@@ -82,7 +82,6 @@ public class NetworkManager implements Runnable
       channelConfiguration = new ChannelConfiguration();
       channelConfiguration.actions = new ConcurrentLinkedQueue<ChannelAction>();
       channelConfiguration.channel = channel;
-      channelConfiguration.socket = socket;
       channelConfiguration.connectionInfo = connectionInfo;
       channels.put(connectionInfo, channelConfiguration);
       channelConfigurations.put(channel, channelConfiguration);
@@ -160,20 +159,19 @@ public class NetworkManager implements Runnable
     }
   }
 
-  public static interface ChannelListener<SOCKET> {
-    public void ready(ChannelAction<SOCKET> action, int readyOps);
+  public static interface ChannelListener<T extends SelectableChannel> {
+    public void ready(ChannelAction<T> action, int readyOps);
   }
 
-  public static class ChannelConfiguration<SOCKET> {
-    public SelectableChannel channel;
-    public SOCKET socket;
+  public static class ChannelConfiguration<T extends SelectableChannel> {
+    public T channel;
     public ConnectionInfo connectionInfo;
     public Collection<ChannelAction> actions;
   }
 
-  public static class ChannelAction<SOCKET> {
-    public ChannelConfiguration<SOCKET> channelConfiguration;
-    public ChannelListener<SOCKET> listener;
+  public static class ChannelAction<T extends SelectableChannel> {
+    public ChannelConfiguration<T> channelConfiguration;
+    public ChannelListener<T> listener;
     public int ops;
   }
 
