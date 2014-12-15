@@ -300,8 +300,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
                 int part = 0;
 
                 while (true) {
-                  Path seenPartFilePath = new Path(filePath + "/"
-                          + getPartFileName(filename, part));
+                  Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + getPartFileName(filename, part));
                   if (!fs.exists(seenPartFilePath)) {
                     break;
                   }
@@ -389,8 +388,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
             Integer part = openPart.get(seenFileName).getValue() + 1;
 
             while (true) {
-              Path seenPartFilePath = new Path(filePath + "/"
-                      + getPartFileName(seenFileName, part));
+              Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + getPartFileName(seenFileName, part));
               if (!fs.exists(seenPartFilePath)) {
                 break;
               }
@@ -399,8 +397,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
               part = part + 1;
             }
 
-            Path seenPartFilePath = new Path(filePath + "/"
-                    + getPartFileName(seenFileName,
+            Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + getPartFileName(seenFileName,
                                       openPart.get(seenFileName).intValue()));
 
             //Handle the case when restoring to a checkpoint where the current rolling file
