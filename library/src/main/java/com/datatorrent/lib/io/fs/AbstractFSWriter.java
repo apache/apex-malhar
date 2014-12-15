@@ -16,7 +16,6 @@
 
 package com.datatorrent.lib.io.fs;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -272,7 +271,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       public FSDataOutputStream load(String filename)
       {
         String partFileName = getPartFileNamePri(filename);
-        Path lfilepath = new Path(filePath + File.separator + partFileName);
+        Path lfilepath = new Path(filePath + Path.SEPARATOR + partFileName);
 
         FSDataOutputStream fsOutput;
 
@@ -301,8 +300,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
                 int part = 0;
 
                 while (true) {
-                  Path seenPartFilePath = new Path(filePath + "/"
-                          + getPartFileName(filename, part));
+                  Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + getPartFileName(filename, part));
                   if (!fs.exists(seenPartFilePath)) {
                     break;
                   }
@@ -347,7 +345,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
         for (String seenFileName: endOffsets.keySet()) {
           String seenFileNamePart = getPartFileNamePri(seenFileName);
           LOG.debug("seenFileNamePart: {}", seenFileNamePart);
-          Path seenPartFilePath = new Path(filePath + File.separator + seenFileNamePart);
+          Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + seenFileNamePart);
           if (fs.exists(seenPartFilePath)) {
             LOG.debug("file exists {}", seenFileNamePart);
             long offset = endOffsets.get(seenFileName).longValue();
@@ -358,7 +356,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
               LOG.info("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
               byte[] buffer = new byte[COPY_BUFFER_SIZE];
 
-              Path tmpFilePath = new Path(filePath + File.separator+ seenFileNamePart + TMP_EXTENSION);
+              Path tmpFilePath = new Path(filePath + Path.SEPARATOR + seenFileNamePart + TMP_EXTENSION);
               FSDataOutputStream fsOutput = fs.create(tmpFilePath, (short) replication);
               while (inputStream.getPos() < offset) {
                 long remainingBytes = offset - inputStream.getPos();
@@ -390,8 +388,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
             Integer part = openPart.get(seenFileName).getValue() + 1;
 
             while (true) {
-              Path seenPartFilePath = new Path(filePath + "/"
-                      + getPartFileName(seenFileName, part));
+              Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + getPartFileName(seenFileName, part));
               if (!fs.exists(seenPartFilePath)) {
                 break;
               }
@@ -400,8 +397,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
               part = part + 1;
             }
 
-            Path seenPartFilePath = new Path(filePath + "/"
-                    + getPartFileName(seenFileName,
+            Path seenPartFilePath = new Path(filePath + Path.SEPARATOR + getPartFileName(seenFileName,
                                       openPart.get(seenFileName).intValue()));
 
             //Handle the case when restoring to a checkpoint where the current rolling file
@@ -649,7 +645,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
         for(partCounter = -1;;
             partCounter++) {
           String partFileName = getPartFileName(fileName, partCounter + 1);
-          Path lfilepath = new Path(filePath + File.separator + partFileName);
+          Path lfilepath = new Path(filePath + Path.SEPARATOR + partFileName);
 
           try {
             if(!fs.exists(lfilepath)) {
@@ -667,7 +663,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
         }
 
         String partFileName = getPartFileName(fileName, partCounter);
-        Path lfilepath = new Path(filePath + File.separator + partFileName);
+        Path lfilepath = new Path(filePath + Path.SEPARATOR + partFileName);
 
         //Make sure the last rolling file does not exceed the maximum length,
         //if it does move on to the next rolling file.
