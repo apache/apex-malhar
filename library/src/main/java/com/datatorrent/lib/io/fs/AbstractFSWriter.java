@@ -347,7 +347,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
         for (String seenFileName: endOffsets.keySet()) {
           String seenFileNamePart = getPartFileNamePri(seenFileName);
           LOG.debug("seenFileNamePart: {}", seenFileNamePart);
-          Path seenPartFilePath = new Path(filePath + "/" + seenFileNamePart);
+          Path seenPartFilePath = new Path(filePath + File.separator + seenFileNamePart);
           if (fs.exists(seenPartFilePath)) {
             LOG.debug("file exists {}", seenFileNamePart);
             long offset = endOffsets.get(seenFileName).longValue();
@@ -358,7 +358,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
               LOG.info("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
               byte[] buffer = new byte[COPY_BUFFER_SIZE];
 
-              Path tmpFilePath = new Path(filePath, seenFileNamePart + TMP_EXTENSION);
+              Path tmpFilePath = new Path(filePath + File.separator+ seenFileNamePart + TMP_EXTENSION);
               FSDataOutputStream fsOutput = fs.create(tmpFilePath, (short) replication);
               while (inputStream.getPos() < offset) {
                 long remainingBytes = offset - inputStream.getPos();
@@ -369,12 +369,15 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
               flush(fsOutput);
               fsOutput.close();
+              inputStream.close();
 
               FileContext fileContext = FileContext.getFileContext(fs.getUri());
               LOG.debug("temp file path {}, rolling file path {}", tmpFilePath.toString(), status.getPath().toString());
               fileContext.rename(tmpFilePath, status.getPath(), Options.Rename.OVERWRITE);
             }
-            inputStream.close();
+            else {
+              inputStream.close();
+            }
           }
         }
       }
