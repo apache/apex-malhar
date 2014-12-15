@@ -239,6 +239,10 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       throw new RuntimeException(ex);
     }
 
+    if (replication <= 0) {
+      replication = fs.getDefaultReplication(new Path(filePath));
+    }
+
     LOG.debug("FS class {}", fs.getClass());
 
     //Setting listener for debugging
@@ -271,9 +275,6 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
         Path lfilepath = new Path(filePath + File.separator + partFileName);
 
         FSDataOutputStream fsOutput;
-        if (replication <= 0) {
-          replication = fs.getDefaultReplication(lfilepath);
-        }
 
         boolean sawThisFileBefore = endOffsets.containsKey(filename);
 
@@ -325,7 +326,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
           //Get the end offset of the file.
 
-          LOG.debug("full path: {}", fs.getFileStatus(lfilepath).getPath());
+          LOG.info("opened: {}", fs.getFileStatus(lfilepath).getPath());
           return fsOutput;
         }
         catch (IOException e) {
@@ -357,8 +358,8 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
               LOG.info("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
               byte[] buffer = new byte[COPY_BUFFER_SIZE];
 
-              String tmpFileName = seenFileNamePart + TMP_EXTENSION;
-              FSDataOutputStream fsOutput = streamsCache.get(tmpFileName);
+              Path tmpFilePath = new Path(filePath, seenFileNamePart + TMP_EXTENSION);
+              FSDataOutputStream fsOutput = fs.create(tmpFilePath, (short) replication);
               while (inputStream.getPos() < offset) {
                 long remainingBytes = offset - inputStream.getPos();
                 int bytesToWrite = remainingBytes < COPY_BUFFER_SIZE ? (int)remainingBytes : COPY_BUFFER_SIZE;
@@ -367,18 +368,13 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
               }
 
               flush(fsOutput);
-              FileContext fileContext = FileContext.getFileContext(fs.getUri());
-              String tempTmpFilePath = getPartFileNamePri(filePath + File.separator + tmpFileName);
+              fsOutput.close();
 
-              Path tmpFilePath = new Path(tempTmpFilePath);
-              tmpFilePath = fs.getFileStatus(tmpFilePath).getPath();
-              LOG.debug("temp file path {}, rolling file path {}",
-                        tmpFilePath.toString(),
-                        status.getPath().toString());
-              fileContext.rename(tmpFilePath,
-                                 status.getPath(),
-                                 Options.Rename.OVERWRITE);
+              FileContext fileContext = FileContext.getFileContext(fs.getUri());
+              LOG.debug("temp file path {}, rolling file path {}", tmpFilePath.toString(), status.getPath().toString());
+              fileContext.rename(tmpFilePath, status.getPath(), Options.Rename.OVERWRITE);
             }
+            inputStream.close();
           }
         }
       }
@@ -425,9 +421,6 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       LOG.debug("end-offsets {}", endOffsets);
     }
     catch (IOException e) {
-      throw new RuntimeException(e);
-    }
-    catch (ExecutionException e) {
       throw new RuntimeException(e);
     }
 
@@ -525,13 +518,10 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
       return;
     }
 
-    LOG.debug("file {}, hash {}, filecount {}",
-              fileName,
-              fileName.hashCode(),
-              this.openPart.get(fileName));
+    // LOG.debug("file {}, hash {}, filecount {}", fileName, fileName.hashCode(), this.openPart.get(fileName));
 
     try {
-      LOG.debug("end-offsets {}", endOffsets);
+      // LOG.debug("end-offsets {}", endOffsets);
 
       FSDataOutputStream fsOutput = streamsCache.get(fileName);
       byte[] tupleBytes = getBytesForTuple(tuple);
@@ -547,9 +537,9 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
       currentOffset.add(tupleBytes.length);
 
-      LOG.debug("end-offsets {}", endOffsets);
-      LOG.debug("tuple: {}", tuple.toString());
-      LOG.debug("current position {}, max length {}", currentOffset.longValue(), maxLength);
+      // LOG.debug("end-offsets {}", endOffsets);
+      // LOG.debug("tuple: {}", tuple.toString());
+      // LOG.debug("current position {}, max length {}", currentOffset.longValue(), maxLength);
 
       if (rollingFile && currentOffset.longValue() > maxLength) {
         LOG.debug("Rotating file {} {}", fileName, currentOffset.longValue());
@@ -564,7 +554,7 @@ public abstract class AbstractFSWriter<INPUT, OUTPUT> extends BaseOperator
 
       count.add(1);
 
-      LOG.debug("count of {} =  {}", fileName, count);
+      // LOG.debug("count of {} =  {}", fileName, count);
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
