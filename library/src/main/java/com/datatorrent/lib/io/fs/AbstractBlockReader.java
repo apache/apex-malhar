@@ -158,11 +158,22 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     sleepTimeMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
     configuration = new Configuration();
     try {
-      fs = FileSystem.newInstance(configuration);
+      fs = getFSInstance();
     }
     catch (IOException e) {
       throw new RuntimeException("creating fs", e);
     }
+  }
+
+  /**
+   * Override this method to change the FileSystem instance that is used by the operator.
+   *
+   * @return A FileSystem object.
+   * @throws IOException
+   */
+  protected FileSystem getFSInstance() throws IOException
+  {
+    return FileSystem.newInstance(configuration);
   }
 
   @Override
@@ -725,7 +736,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     /**
      * Sets the buffer size of read.
      *
-     * @param bufferSize
+     * @param bufferSize size of the buffer
      */
     public void setBufferSize(int bufferSize)
     {
