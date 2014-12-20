@@ -17,10 +17,10 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
-public class GenericAggregateCodec extends KryoSerializableStreamCodec<GenericAggregate> implements AbstractSinglePortHDSWriter.HDSCodec<GenericAggregate>
+public class GenericAggregateCodec extends KryoSerializableStreamCodec<GenericAggregate> implements AbstractSinglePortHDHTWriter.HDSCodec<GenericAggregate>
 {
   public DimensionStoreOperator operator;
 
