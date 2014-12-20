@@ -577,22 +577,6 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
   }
 
   /**
-   * This method will close a file.<br/>
-   *
-   * The child operator should not call this method on rolling files.
-   * @param fileName The name of the file to close and remove.
-   */
-  protected void closeFile(String fileName)
-  {
-    if (!endOffsets.containsKey(fileName)) {
-      throw new IllegalArgumentException("The file " + fileName + " was never opened.");
-    }
-
-    //triggers the RemoveListener#onRemoval() method.
-    streamsCache.invalidate(fileName);
-  }
-
-  /**
    * This method is used to force buffers to be flushed at the end of the window.
    * flush must be used on a local file system, so an if statement checks to
    * make sure that hflush is used on local file systems.
