@@ -118,7 +118,8 @@ public class HDHTWriterTest
     hds.setup(null);
     hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
 
-    hds.beginWindow(10);
+    long windowId = 1;
+    hds.beginWindow(windowId);
     Assert.assertFalse("exists " + bucket1WalFile, bucket1WalFile.exists());
 
     Slice key1 = newKey(BUCKET1, 1);
@@ -137,6 +138,10 @@ public class HDHTWriterTest
     Assert.assertTrue("exists " + bucket1WalFile, bucket1WalFile.exists() && bucket1WalFile.isFile());
 
     hds.endWindow();
+    hds.checkpointed(windowId);
+    hds.committed(windowId);
+    hds.beginWindow(++windowId);
+
     String[] files = bucket1Dir.list(dataFileFilter);
     Assert.assertEquals("" + Arrays.asList(files), 1, files.length);
     files = bucket1Dir.list(dataFileFilter);
@@ -150,6 +155,10 @@ public class HDHTWriterTest
     Assert.assertArrayEquals("uncommitted get2 " + key1, data1Updated.getBytes(), q.result);
 
     hds.endWindow();
+    hds.checkpointed(windowId);
+    hds.committed(windowId);
+    hds.beginWindow(++windowId);
+
     files = bucket1Dir.list(dataFileFilter);
     Assert.assertEquals("" + Arrays.asList(files), 1, files.length);
     Assert.assertArrayEquals("cold read key=" + key1, data1Updated.getBytes(), readFile(hds, BUCKET1, "1-1").get(key1));
@@ -162,6 +171,9 @@ public class HDHTWriterTest
 
     // new key added to existing range, due to size limit 2 data files will be written
     hds.endWindow();
+    hds.checkpointed(windowId);
+    hds.committed(windowId);
+
     File metaFile = new File(bucket1Dir, HDHTWriter.FNAME_META);
     Assert.assertTrue("exists " + metaFile, metaFile.exists());
 
@@ -201,7 +213,14 @@ public class HDHTWriterTest
     Assert.assertArrayEquals("getUncommitted", data.getBytes(), val);
 
     hds.endWindow();
+    val = hds.getUncommitted(getBucketKey(key), key);
+    Assert.assertArrayEquals("getUncommitted after endWindow", data.getBytes(), val);
 
+    hds.checkpointed(1);
+    val = hds.getUncommitted(getBucketKey(key), key);
+    Assert.assertArrayEquals("getUncommitted after checkpoint", data.getBytes(), val);
+
+    hds.committed(1);
     val = hds.getUncommitted(getBucketKey(key), key);
     Assert.assertNull("getUncommitted", val);
 
@@ -241,6 +260,8 @@ public class HDHTWriterTest
       hds.put(BUCKETKEY, key, ("data"+seq).getBytes());
     }
     hds.endWindow();
+    hds.checkpointed(1);
+    hds.committed(1);
 
     hds.teardown();
 
@@ -283,10 +304,17 @@ public class HDHTWriterTest
       key = new Slice(buffer, 1, key.length);
       hds.put(BUCKETKEY, key, ("data"+seq).getBytes());
       hds.endWindow();
+      hds.checkpointed(wid);
+    }
+    HDHTWriter.BucketMeta index = hds.loadBucketMeta(1);
+    Assert.assertEquals("index entries endWindow", 0, index.files.size());
+
+    for (int i=1; i<=wid; i++) {
+      hds.committed(i);
+      index = hds.loadBucketMeta(1);
+      Assert.assertEquals("index entries committed", 1, index.files.size());
     }
 
-    HDHTWriter.BucketMeta index = hds.loadBucketMeta(1);
-    Assert.assertEquals("index entries", 1, index.files.size());
     for (Slice key : index.files.keySet()) {
       Assert.assertEquals("index key normalized " + key, key.length, key.buffer.length);
     }
@@ -344,6 +372,8 @@ public class HDHTWriterTest
       hds.put(BUCKETKEY, key, ("data"+seq).getBytes());
     }
     hds.endWindow();
+    hds.checkpointed(1);
+    hds.committed(1);
     endWindowComplete.countDown();
 
     try {

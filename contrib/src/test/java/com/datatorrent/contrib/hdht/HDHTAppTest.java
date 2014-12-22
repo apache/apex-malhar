@@ -25,6 +25,8 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context.DAGContext;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
@@ -60,6 +62,7 @@ public class HDHTAppTest implements StreamingApplication
   {
     Generator generator = dag.addOperator("Generator", new Generator());
     HDHTTestOperator store = dag.addOperator("Store", new HDHTTestOperator());
+    dag.setAttribute(DAGContext.CHECKPOINT_WINDOW_COUNT, 1);
     store.setFileStore(new MockFileAccess());
     dag.addStream("Generator2Store", generator.output, store.input);
   }

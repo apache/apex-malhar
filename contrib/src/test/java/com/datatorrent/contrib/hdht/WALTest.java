@@ -207,11 +207,14 @@ public class WALTest
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
+    hds.checkpointed(1);
 
     hds.beginWindow(2);
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
+    hds.checkpointed(2);
+    hds.committed(2);
 
     // Tuples added till this point is written to data files,
     //
@@ -222,6 +225,8 @@ public class WALTest
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
+    hds.checkpointed(2);
+    hds.committed(2);
     hds.forceWal();
     hds.teardown();
 
@@ -304,6 +309,8 @@ public class WALTest
     hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
     hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
+    hds.checkpointed(3);
+    hds.committed(3);
     // Data till this point is committed to disk, and old WAL file WAL-0
     // is deleted, as all data from that file is committed.
     hds.forceWal();
