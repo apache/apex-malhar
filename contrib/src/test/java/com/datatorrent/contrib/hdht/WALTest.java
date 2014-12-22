@@ -21,6 +21,7 @@ import com.datatorrent.contrib.hdht.HDFSWalWriter;
 import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 import com.datatorrent.contrib.hdht.HDHTWriter;
 import com.datatorrent.contrib.hdht.MutableKeyValue;
+import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.ByteBufferOutput;
@@ -231,12 +232,7 @@ public class WALTest
     hds.teardown();
 
     /* Get a check-pointed state of the WAL */
-    Kryo kryo = new Kryo();
-    com.esotericsoftware.kryo.io.ByteBufferOutput oo = new ByteBufferOutput(100000);
-    kryo.writeObject(oo, hds);
-    oo.flush();
-    com.esotericsoftware.kryo.io.ByteBufferInput oi = new ByteBufferInput(oo.getByteBuffer());
-    HDHTWriter newOperator = kryo.readObject(oi, HDHTWriter.class);
+    HDHTWriter newOperator = TestUtils.clone(new Kryo(), hds);
 
     newOperator.setKeyComparator(new HDHTWriterTest.SequenceComparator());
     newOperator.setFlushIntervalCount(1);
