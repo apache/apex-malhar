@@ -28,7 +28,6 @@ import com.datatorrent.flume.storage.Storage;
 import com.datatorrent.netlet.DefaultEventLoop;
 import com.datatorrent.netlet.NetletThrowable;
 import com.datatorrent.netlet.NetletThrowable.NetletRuntimeException;
-import org.tukaani.xz.ARMThumbOptions;
 
 /**
  * DTFlumeSink is a flume sink developed to ingest the data into DataTorrent DAG
