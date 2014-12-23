@@ -22,11 +22,13 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.CountDownLatch;
+
 import kafka.consumer.ConsumerConfig;
 import kafka.consumer.ConsumerIterator;
 import kafka.consumer.KafkaStream;
 import kafka.javaapi.consumer.ConsumerConnector;
 import kafka.message.Message;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -113,6 +115,11 @@ public class KafkaTestConsumer implements Runnable
       holdingBuffer.add(msg);
       receiveCount++;
       logger.debug("Consuming {}, receiveCount= {}", getMessage(msg), receiveCount);
+      try {
+        Thread.sleep(50);
+      } catch (InterruptedException e) {
+        break;
+      }
     }
     logger.debug("DONE consuming");
   }

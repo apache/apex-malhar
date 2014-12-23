@@ -61,7 +61,7 @@ public class HDHTAppTest implements StreamingApplication
   {
     Generator generator = dag.addOperator("Generator", new Generator());
     HDHTTestOperator store = dag.addOperator("Store", new HDHTTestOperator());
-    dag.setAttribute(DAGContext.CHECKPOINT_WINDOW_COUNT, 1);
+    dag.setAttribute(DAGContext.CHECKPOINT_WINDOW_COUNT, 2);
     store.setFileStore(new MockFileAccess());
     dag.addStream("Generator2Store", generator.output, store.input);
   }

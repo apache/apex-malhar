@@ -81,7 +81,7 @@ public class HDHTApplicationTest
 
     lma.prepareDAG(new ApplicationWithHDHT(), conf);
     LocalMode.Controller lc = lma.getController();
-    lc.setHeartbeatMonitoringEnabled(false);
+    //lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();
 
     //Write messages to kafkaQueryTopic
