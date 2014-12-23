@@ -99,6 +99,7 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
         if(master == getServerIndex()){
         logger.info("master is {}",master);
         try {
+          logger.info("urlstring is {}", urlString);
           Object result = store.getPartitionInstance(urlString).get(key);
           T tuple = getTuple(result);
           outputPort.emit(tuple);
@@ -145,6 +146,7 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
       AbstractCouchBaseInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
       oper.setServerIndex(i);
       oper.setUrlString(list.get(i).toString());
+      logger.info("oper {} urlstring is {}" , i , oper.getUrlString());
       // oper.setStore(this.store);
       newPartitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<T>>(oper));
     }
