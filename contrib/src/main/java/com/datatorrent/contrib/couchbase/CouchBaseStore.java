@@ -34,6 +34,7 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.Connectable;
 
 import com.datatorrent.common.util.DTThrowable;
+import java.util.logging.Level;
 import javax.validation.constraints.Min;
 
 /**
@@ -65,6 +66,7 @@ public class CouchBaseStore implements Connectable
   {
     this.queueSize = queueSize;
   }
+
   protected Integer maxTuples = 1000;
   protected int blockTime = 1000;
   protected long timeout = 10000;
@@ -105,8 +107,6 @@ public class CouchBaseStore implements Connectable
     this.maxTuples = maxTuples;
   }
 
-
-
   public int getShutdownTimeout()
   {
     return shutdownTimeout;
@@ -130,6 +130,25 @@ public class CouchBaseStore implements Connectable
   public CouchbaseClient getInstance()
   {
     return client;
+  }
+
+  public CouchbaseClient getPartitionInstance(String serverURL)
+  {
+    ArrayList<URI> nodes = new ArrayList<URI>();
+    try {
+      nodes.add(new URI(serverURL));
+    }
+    catch (URISyntaxException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    CouchbaseClient clientPartition = null;
+    try {
+      clientPartition = new CouchbaseClient(nodes, "default", "");
+    }
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    return clientPartition;
   }
 
   public void addNodes(URI url)
@@ -163,7 +182,7 @@ public class CouchBaseStore implements Connectable
   {
     String[] tokens = uriString.split(",");
     URI uri = null;
-    for (String url : tokens) {
+    for (String url: tokens) {
       try {
         uri = new URI("http", url, "/pools", null, null);
       }
@@ -186,7 +205,6 @@ public class CouchBaseStore implements Connectable
     }
   }
 
-
   @Override
   public boolean isConnected()
   {
@@ -199,6 +217,5 @@ public class CouchBaseStore implements Connectable
   {
     client.shutdown(shutdownTimeout, TimeUnit.SECONDS);
   }
-
 
 }

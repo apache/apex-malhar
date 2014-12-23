@@ -31,6 +31,8 @@ import org.apache.commons.io.output.ByteArrayOutputStream;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
 import org.slf4j.Logger;
@@ -47,6 +49,17 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
 
   private int serverIndex;
+  private String urlString;
+
+  public String getUrlString()
+  {
+    return urlString;
+  }
+
+  public void setUrlString(String urlString)
+  {
+    this.urlString = urlString;
+  }
 
   public int getServerIndex()
   {
@@ -57,7 +70,6 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   {
     this.serverIndex = serverIndex;
   }
-
 
 
   public AbstractCouchBaseInputOperator()
@@ -80,9 +92,9 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
       //if(store.conf.getMaster(store.conf.getVbucketByKey(key))){
         int master = store.conf.getMaster(store.conf.getVbucketByKey(key));
         if(master == getServerIndex()){
-        logger.debug("master is {}",master);
+        logger.info("master is {}",master);
         try {
-          Object result = store.getInstance().get(key);
+          Object result = store.getPartitionInstance(urlString).get(key);
           T tuple = getTuple(result);
           outputPort.emit(tuple);
         }
@@ -113,9 +125,8 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   @Override
   public Collection<Partition<AbstractCouchBaseInputOperator<T>>> definePartitions(Collection<Partition<AbstractCouchBaseInputOperator<T>>> partitions, int incrementalCapacity)
   {
-    //int totalCount = partitions.size() + incrementalCapacity;
-    int totalCount = store.getInstance().getNumVBuckets();
     int numPartitions = store.conf.getServersCount();
+    List<URL> list = store.conf.getCouchServers();
     Collection<Partition<AbstractCouchBaseInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(numPartitions);
     Kryo kryo = new Kryo();
     for (int i = 0; i < numPartitions; i++) {
@@ -127,6 +138,7 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
       @SuppressWarnings("unchecked")
       AbstractCouchBaseInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
       oper.setServerIndex(i);
+      oper.setUrlString(list.get(i).toString());
       // oper.setStore(this.store);
       newPartitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<T>>(oper));
     }
