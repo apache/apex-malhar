@@ -44,21 +44,21 @@
     <value>GenericDimensionsQueryResult</value>
   </property>
 
-  <!-- Settings for AdsDimensionsDemoWithHDS -->
+  <!-- Settings for AdsDimensionsDemoWithHDHT -->
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDS.operator.Store.fileStore.basePath</name>
+    <name>dt.application.AdsDimensionsDemoWithHDHT.operator.Store.fileStore.basePath</name>
     <value>AdsDimensionsWithHDSDemo/Store</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDS.useWebSockets</name>
+    <name>dt.application.AdsDimensionsDemoWithHDHT.useWebSockets</name>
     <value>true</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDS.operator.Query.topic</name>
+    <name>dt.application.AdsDimensionsDemoWithHDHT.operator.Query.topic</name>
     <value>AdsQuery</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDS.operator.QueryResult.topic</name>
+    <name>dt.application.AdsDimensionsDemoWithHDHT.operator.QueryResult.topic</name>
     <value>AdsQueryResult</value>
   </property>
 

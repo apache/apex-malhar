@@ -28,7 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.contrib.hds.tfile.TFileImpl;
+import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.demos.dimensions.generic.DimensionStoreOperator.HDSRangeQueryResult;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
@@ -220,9 +220,9 @@ public class DimensionStoreOperatorTest
     //Assert.assertEquals("clicks", ae1.clicks + ae2.clicks, r.data.get(0).clicks);
     Assert.assertEquals("clicks", 30L, r.data.get(0).get("clicks"));
     Assert.assertEquals("clicks", eventSchema.getValue(ae3, "clicks"), r.data.get(1).get("clicks"));
-    // when data is returned from HDS, all keys are part of response,
+    // when data is returned from HDHT, all keys are part of response,
     // not present keys will have 0 values.
-    Assert.assertEquals("from HDS", 0, r.data.get(0).get("adId"));
+    Assert.assertEquals("from HDHT", 0, r.data.get(0).get("adId"));
     // when data is returned from Cache, not specified keys will not
     // be present in the map.
     Assert.assertEquals("from cache", 0, r.data.get(1).get("adId"));

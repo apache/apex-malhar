@@ -17,7 +17,7 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hds.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
 public class GenericAggregateCodec extends KryoSerializableStreamCodec<GenericAggregate> implements AbstractSinglePortHDSWriter.HDSCodec<GenericAggregate>
