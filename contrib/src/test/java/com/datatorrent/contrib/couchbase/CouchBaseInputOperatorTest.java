@@ -33,9 +33,14 @@ import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner.Partition;
 
 import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator;
+import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperatorTest.TestFSDirectoryInputOperator;
 import com.google.common.collect.Lists;
-import java.util.Collection;
-import java.util.List;
+import com.google.common.collect.Sets;
+import java.util.*;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
 import org.junit.Test;
 
 public class CouchBaseInputOperatorTest
@@ -75,9 +80,6 @@ public class CouchBaseInputOperatorTest
 
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     inputOperator.outputPort.setSink(sink);
-    List<Partition<AbstractCouchBaseInputOperator<String>>> partitions = Lists.newArrayList();
-    partitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<String>>(inputOperator));
-    Collection<Partition<AbstractCouchBaseInputOperator<String>>> newPartitions = inputOperator.definePartitions(partitions, 1);
     inputOperator.setup(context);
     inputOperator.beginWindow(0);
     inputOperator.emitTuples();
@@ -85,6 +87,61 @@ public class CouchBaseInputOperatorTest
 
     Assert.assertEquals("tuples in couchbase", 100, sink.collectedTuples.size());
   }
+
+  @Test
+  public void TestCouchBaseInputOperatorWithPartitions()
+  {
+    CouchBaseWindowStore store = new CouchBaseWindowStore();
+    keyList = new ArrayList<String>();
+    store.setBucket(bucket);
+    store.setPassword(password);
+    store.setUriString(uri);
+    try {
+      store.connect();
+    }
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
+    }
+
+    store.getInstance().flush();
+     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
+    attributeMap.put(DAG.APPLICATION_ID, APP_ID);
+    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
+    List<Partition<AbstractCouchBaseInputOperator<String>>> partitions = Lists.newArrayList();
+    TestInputOperator inputOperator = new TestInputOperator();
+    inputOperator.setStore(store);
+    inputOperator.insertEventsInTable(100);
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    inputOperator.outputPort.setSink(sink);
+    partitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<String>>(inputOperator));
+    Collection<Partition<AbstractCouchBaseInputOperator<String>>> newPartitions = inputOperator.definePartitions(partitions, 1);
+    Assert.assertEquals(2, newPartitions.size());
+     for (Partition<AbstractCouchBaseInputOperator<String>> p : newPartitions) {
+      Assert.assertNotSame(inputOperator, p.getPartitionedInstance());
+     }
+      /* Collect all operators in a list */
+    List<AbstractCouchBaseInputOperator<String>> opers = Lists.newArrayList();
+    for (Partition<AbstractCouchBaseInputOperator<String>> p : newPartitions) {
+      TestInputOperator oi = (TestInputOperator)p.getPartitionedInstance();
+      oi.setup(null);
+      oi.outputPort.setSink(sink);
+      opers.add(oi);
+    }
+
+    sink.clear();
+    int wid = 0;
+    for(int i = 0; i < 10; i++) {
+      for(AbstractCouchBaseInputOperator<String> o : opers) {
+        o.beginWindow(wid);
+        o.emitTuples();
+        o.endWindow();
+      }
+      wid++;
+    }
+
+    Assert.assertEquals("Tuples read should be same ", 100, sink.collectedTuples.size());
+    }
+
 
   public static class TestInputOperator extends AbstractCouchBaseInputOperator<String>
   {
@@ -103,7 +160,7 @@ public class CouchBaseInputOperatorTest
       return keyList;
     }
 
-    private void insertEventsInTable(int numEvents)
+    public void insertEventsInTable(int numEvents)
     {
       String key = null;
       Integer value = null;
