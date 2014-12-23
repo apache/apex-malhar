@@ -44,10 +44,13 @@ public class CouchBaseInputOperator extends AbstractCouchBaseInputOperator<Strin
   {
     ArrayList<String> keys = new ArrayList<String>();
     keys.add("Key0");
-    keys.add("Key1");
     keys.add("Key10");
     keys.add("Key100");
-    keys.add("Key1000");
+    keys.add("Key110");
+    keys.add("Key120");
+    keys.add("Key130");
+    keys.add("Key140");
+    keys.add("Key150");
     return keys;
   }
 

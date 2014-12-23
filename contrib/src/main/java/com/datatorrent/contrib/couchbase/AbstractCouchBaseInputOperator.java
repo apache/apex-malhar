@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.couchbase;
 
+import com.couchbase.client.vbucket.config.Config;
 import java.io.IOException;
 import java.util.List;
 
@@ -35,6 +36,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.logging.Level;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,6 +63,7 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
     this.urlString = urlString;
   }
 
+  protected transient Config conf;
   public int getServerIndex()
   {
     return serverIndex;
@@ -80,6 +83,9 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   @Override
   public void setup(Context.OperatorContext context)
   {
+    if(conf == null){
+    conf = store.getConf();
+    }
     super.setup(context);
   }
 
@@ -87,10 +93,9 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   public void emitTuples()
   {
     List<String> keys = getKeys();
-    logger.info("store configuration is {}" , store.conf.toString());
     for (String key: keys) {
       //if(store.conf.getMaster(store.conf.getVbucketByKey(key))){
-        int master = store.conf.getMaster(store.conf.getVbucketByKey(key));
+        int master = conf.getMaster(conf.getVbucketByKey(key));
         if(master == getServerIndex()){
         logger.info("master is {}",master);
         try {
@@ -125,8 +130,9 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   @Override
   public Collection<Partition<AbstractCouchBaseInputOperator<T>>> definePartitions(Collection<Partition<AbstractCouchBaseInputOperator<T>>> partitions, int incrementalCapacity)
   {
-    int numPartitions = store.conf.getServersCount();
-    List<URL> list = store.conf.getCouchServers();
+    conf = store.getConf();
+    int numPartitions = conf.getCouchServers().size();
+    List<URL> list = conf.getCouchServers();
     Collection<Partition<AbstractCouchBaseInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(numPartitions);
     Kryo kryo = new Kryo();
     for (int i = 0; i < numPartitions; i++) {
@@ -148,3 +154,4 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   }
 
 }
+

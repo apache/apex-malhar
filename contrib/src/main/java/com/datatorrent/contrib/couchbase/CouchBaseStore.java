@@ -26,6 +26,9 @@ import javax.annotation.Nonnull;
 
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
+import com.couchbase.client.vbucket.ConfigurationProvider;
+import com.couchbase.client.vbucket.ConfigurationProviderHTTP;
+import com.couchbase.client.vbucket.config.Bucket;
 import com.couchbase.client.vbucket.config.Config;
 
 import org.slf4j.Logger;
@@ -44,8 +47,7 @@ public class CouchBaseStore implements Connectable
 {
 
   protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
-  protected Config conf;
-
+  protected transient ConfigurationProvider configurationProvider;
   @Nonnull
   protected String bucket;
   @Nonnull
@@ -56,6 +58,7 @@ public class CouchBaseStore implements Connectable
   protected transient CouchbaseClient client;
   @Min(1)
   protected Integer queueSize = 100;
+  protected boolean splitURIString;
 
   public Integer getQueueSize()
   {
@@ -117,14 +120,14 @@ public class CouchBaseStore implements Connectable
     this.shutdownTimeout = shutdownTimeout;
   }
 
-  transient List<URI> baseURIs = new ArrayList<URI>();
+ transient List<URI> baseURIs = new ArrayList<URI>();
 
   public CouchBaseStore()
   {
     client = null;
     password = "";
     bucket = "default";
-
+    splitURIString = false;
   }
 
   public CouchbaseClient getInstance()
@@ -177,6 +180,28 @@ public class CouchBaseStore implements Connectable
     this.uriString = uriString;
   }
 
+  public Config getConf()
+  {
+    try {
+      connect();
+    }
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    this.configurationProvider = new ConfigurationProviderHTTP(baseURIs, "root", "prerna123");
+    Bucket configBucket = this.configurationProvider.getBucketConfiguration("default");
+    Config conf = configBucket.getConfig();
+    //List<InetSocketAddress> addrs=AddrUtil.getAddressesFromURL(cfb.getVBucketConfig().getCouchServers());
+    //logger.info("configuration is" + conf);
+    try {
+      disconnect();
+    }
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    return conf;
+  }
+
   @Override
   public void connect() throws IOException
   {
@@ -196,7 +221,6 @@ public class CouchBaseStore implements Connectable
       cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
       cfb.setOpQueueMaxBlockTime(blockTime); // wait up to 10 second when trying to enqueue an operation
       client = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucket, password));
-      conf = cfb.getVBucketConfig();
       //client = new CouchbaseClient(baseURIs, "default", "");
     }
     catch (IOException e) {
@@ -219,3 +243,4 @@ public class CouchBaseStore implements Connectable
   }
 
 }
+

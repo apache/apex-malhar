@@ -52,9 +52,9 @@ public class CouchBaseInputOperatorTest
   private static int OPERATOR_ID = 0;
   protected static ArrayList<URI> nodes = new ArrayList<URI>();
   protected static ArrayList<String> keyList;
-  private static String uri = "127.0.0.1:8091";
+  private static String uri = "node13.morado.com:8091,node14.morado.com:8091";
 
-  @Test
+  
   public void TestCouchBaseInputOperator()
   {
     CouchBaseWindowStore store = new CouchBaseWindowStore();
@@ -104,6 +104,7 @@ public class CouchBaseInputOperatorTest
     }
 
     store.getInstance().flush();
+    //store.getInstance().flush();
      AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
@@ -123,6 +124,7 @@ public class CouchBaseInputOperatorTest
     List<AbstractCouchBaseInputOperator<String>> opers = Lists.newArrayList();
     for (Partition<AbstractCouchBaseInputOperator<String>> p : newPartitions) {
       TestInputOperator oi = (TestInputOperator)p.getPartitionedInstance();
+      oi.setStore(store);
       oi.setup(null);
       oi.outputPort.setSink(sink);
       opers.add(oi);
@@ -131,6 +133,7 @@ public class CouchBaseInputOperatorTest
     sink.clear();
     int wid = 0;
     for(int i = 0; i < 10; i++) {
+    //for(int i = 0; i < 10; i++) {
       for(AbstractCouchBaseInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
@@ -138,6 +141,8 @@ public class CouchBaseInputOperatorTest
       }
       wid++;
     }
+     // wid++;
+    //}
 
     Assert.assertEquals("Tuples read should be same ", 100, sink.collectedTuples.size());
     }
@@ -184,3 +189,4 @@ public class CouchBaseInputOperatorTest
   }
 
 }
+
