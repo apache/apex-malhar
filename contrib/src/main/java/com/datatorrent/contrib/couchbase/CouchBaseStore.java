@@ -37,7 +37,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.Connectable;
 
 import com.datatorrent.common.util.DTThrowable;
-import java.util.logging.Level;
 import javax.validation.constraints.Min;
 
 /**
@@ -46,10 +45,20 @@ import javax.validation.constraints.Min;
 public class CouchBaseStore implements Connectable
 {
 
-  protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
+  protected static final  Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
   protected transient ConfigurationProvider configurationProvider;
   @Nonnull
   protected String bucket;
+
+  public String getBucket()
+  {
+    return bucket;
+  }
+
+  public void setBucket(String bucket)
+  {
+    this.bucket = bucket;
+  }
   @Nonnull
   protected String password;
   @Nonnull
@@ -135,33 +144,31 @@ public class CouchBaseStore implements Connectable
     return client;
   }
 
-  public CouchbaseClient getPartitionInstance(String serverURL)
+  /*public CouchbaseClient getPartitionInstance(String serverURL)
   {
     ArrayList<URI> nodes = new ArrayList<URI>();
+    CouchbaseClient clientPartition = null;
+    serverURL = serverURL.replace("default", "pools");
     try {
       nodes.add(new URI(serverURL));
     }
     catch (URISyntaxException ex) {
       DTThrowable.rethrow(ex);
     }
-    CouchbaseClient clientPartition = null;
-    try {
+
+     try {
       clientPartition = new CouchbaseClient(nodes, "default", "");
     }
-    catch (IOException ex) {
-      DTThrowable.rethrow(ex);
+    catch (IOException e) {
+      logger.error("Error connecting to Couchbase: " + e.getMessage());
+      DTThrowable.rethrow(e);
     }
     return clientPartition;
-  }
+  }*/
 
   public void addNodes(URI url)
   {
     baseURIs.add(url);
-  }
-
-  public void setBucket(String bucketName)
-  {
-    this.bucket = bucketName;
   }
 
   /**
@@ -189,7 +196,7 @@ public class CouchBaseStore implements Connectable
       DTThrowable.rethrow(ex);
     }
     this.configurationProvider = new ConfigurationProviderHTTP(baseURIs, "root", "prerna123");
-    Bucket configBucket = this.configurationProvider.getBucketConfiguration("default");
+    Bucket configBucket = this.configurationProvider.getBucketConfiguration(bucket);
     Config conf = configBucket.getConfig();
     //List<InetSocketAddress> addrs=AddrUtil.getAddressesFromURL(cfb.getVBucketConfig().getCouchServers());
     //logger.info("configuration is" + conf);
@@ -239,6 +246,7 @@ public class CouchBaseStore implements Connectable
   @Override
   public void disconnect() throws IOException
   {
+    if(client!=null)
     client.shutdown(shutdownTimeout, TimeUnit.SECONDS);
   }
 
