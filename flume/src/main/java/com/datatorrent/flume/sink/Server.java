@@ -227,7 +227,7 @@ public class Server extends AbstractServer
       }
 
       // a better method would be to replace the write implementation and allow it to natively support writing slices
-      return write(address, event.clone().buffer);
+      return write(address, event.toByteArray());
     }
 
   }
