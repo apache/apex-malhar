@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.*;
+import javax.validation.constraints.NotNull;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -51,7 +52,9 @@ public class StockTickInput implements InputOperator
    * The URL of the web service resource for the POST request.
    */
   private String url;
-  public String[] symbols;
+  private String[] symbols;
+  @NotNull
+  private String tickers;
   private transient HttpClient client;
   private transient GetMethod method;
   private HashMap<String, Long> lastVolume = new HashMap<String, Long>();
@@ -80,14 +83,14 @@ public class StockTickInput implements InputOperator
   private String prepareURL()
   {
     String str = "http://download.finance.yahoo.com/d/quotes.csv?s=";
-    for (int i = 0; i < symbols.length; i++) {
-      if (i != 0) {
-        str += ",";
+      for (int i = 0; i < symbols.length; i++) {
+        if (i != 0) {
+          str += ",";
+        }
+        str += symbols[i];
       }
-      str += symbols[i];
-    }
-    str += "&f=sl1vt1&e=.csv";
-    return str;
+      str += "&f=sl1vt1&e=.csv";
+      return str;
   }
 
   @Override
@@ -170,17 +173,13 @@ public class StockTickInput implements InputOperator
 
   public void setTickers(String tickers)
   {
+    this.tickers = tickers;
     symbols = StringUtils.split(tickers, ',');
   }
 
   public String getTickers()
   {
-    if (symbols != null) {
-      return StringUtils.join(",", symbols);
-    }
-    else {
-      return "";
-    }
+    return tickers;
   }
 
 }
