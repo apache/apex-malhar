@@ -21,6 +21,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,19 +44,16 @@ import com.datatorrent.common.util.NameableThreadFactory;
  * The operator holds all the tuple info in memory until the committed window and then calls the processCommittedData method
  * to give an opportunity to process tuple info from each committed window.
  *
- * This operator can be implemented to asynchronously read and process file data that is being written by current application.
+ * This operator can be implemented to asynchronously read and process data that is being written by current application.
  *
  * Use case examples: write to relational database, write to an external queue etc without blocking the dag i/o.
  *
- * This operator can be implemented in combination with {@link AbstractFSWriter} as streamlet to read and synchronize committed file data
- * to external systems.
- *
- * @param <INPUT>  input type
+ * @param <INPUT>      input type
  * @param <QUEUETUPLE> tuple enqueued each window to be processed after window is committed
  */
-public abstract class AbstractSynchronizer<INPUT, QUEUETUPLE> extends BaseOperator implements CheckpointListener, IdleTimeHandler
+public abstract class AbstractReconciler<INPUT, QUEUETUPLE> extends BaseOperator implements CheckpointListener, IdleTimeHandler
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractSynchronizer.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractReconciler.class);
   public transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
   {
     @Override
@@ -67,23 +65,24 @@ public abstract class AbstractSynchronizer<INPUT, QUEUETUPLE> extends BaseOperat
   };
   protected transient ExecutorService executorService;
   protected long currentWindowId;
-  protected transient int spinningTime;
-  protected transient int operatorId;
-  // this stores the mapping from the window to the list of file metas
+  protected transient int spinningTime = 10;
+  // this stores the mapping from the window to the list of enqueued tuples
   private Map<Long, List<QUEUETUPLE>> currentWindowTuples = Maps.newConcurrentMap();
   private Queue<Long> currentWindows = Queues.newLinkedBlockingQueue();
   private Queue<List<QUEUETUPLE>> committedTuples = Queues.newLinkedBlockingQueue();
   private transient volatile boolean execute;
-  private transient volatile Throwable cause;
+  private transient AtomicReference<Throwable> cause;
 
   @Override
   public void setup(Context.OperatorContext context)
   {
-    operatorId = context.getId();
-    spinningTime = context.getValue(Context.OperatorContext.SPIN_MILLIS);
+    if (context != null) {
+      spinningTime = context.getValue(Context.OperatorContext.SPIN_MILLIS);
+    }
     execute = true;
-    executorService = Executors.newSingleThreadExecutor(new NameableThreadFactory("Synchronizer"));
-    executorService.submit(processFiles());
+    cause = new AtomicReference<Throwable>();
+    executorService = Executors.newSingleThreadExecutor(new NameableThreadFactory("Reconciler-Helper"));
+    executorService.submit(processEnqueuedData());
   }
 
   @Override
@@ -107,7 +106,7 @@ public abstract class AbstractSynchronizer<INPUT, QUEUETUPLE> extends BaseOperat
     }
     else {
       logger.error("Exception: ", cause);
-      DTThrowable.rethrow(cause);
+      DTThrowable.rethrow(cause.get());
     }
 
   }
@@ -146,7 +145,7 @@ public abstract class AbstractSynchronizer<INPUT, QUEUETUPLE> extends BaseOperat
     executorService.shutdownNow();
   }
 
-  private Runnable processFiles()
+  private Runnable processEnqueuedData()
   {
     return new Runnable()
     {
@@ -166,7 +165,7 @@ public abstract class AbstractSynchronizer<INPUT, QUEUETUPLE> extends BaseOperat
           }
         }
         catch (Throwable e) {
-          cause = e;
+          cause.set(e);
           execute = false;
         }
       }
