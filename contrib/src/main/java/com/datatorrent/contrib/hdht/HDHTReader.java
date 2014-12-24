@@ -357,8 +357,13 @@ public class HDHTReader implements Operator, HDHT.Reader
       BucketFileMeta bfm = new BucketFileMeta();
       bfm.name = Long.toString(bucketKey) + '-' + this.fileSeq++;
       if (startKey.length != startKey.buffer.length) {
-        // normalize key for serialization
-        startKey = startKey.clone();
+        try {
+          // normalize key for serialization
+          startKey = startKey.clone();
+        }
+        catch (CloneNotSupportedException ex) {
+          throw new RuntimeException("startKey could not be cloned", ex);
+        }
       }
       bfm.startKey = startKey;
       files.put(startKey, bfm);
