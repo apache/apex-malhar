@@ -1,9 +1,15 @@
 <?xml version="1.0"?>
 <configuration>
-  <!-- 
   <property>
-    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
-    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+    <name>dt.application.NewWordCountDemo.dirName</name>
+    <value></value>
   </property>
-  -->
+  <property>
+    <name>dt.application.NewWordCountDemo.numOfReducers</name>
+    <value>4</value>
+  </property>
+  <property>
+    <name>dt.application.NewWordCountDemo.outputDirName</name>
+    <value></value>
+  </property>
 </configuration>
