@@ -21,12 +21,12 @@ import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 
-public class HDHTTestOperator extends AbstractSinglePortHDSWriter<KeyValPair<byte[], byte[]>>
+public class HDHTTestOperator extends AbstractSinglePortHDHTWriter<KeyValPair<byte[], byte[]>>
 {
   @Override
-  protected com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter.HDSCodec<KeyValPair<byte[], byte[]>> getCodec()
+  protected com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter.HDSCodec<KeyValPair<byte[], byte[]>> getCodec()
   {
     return new BucketStreamCodec();
   }

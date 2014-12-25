@@ -16,14 +16,14 @@
 package com.datatorrent.demos.dimensions.benchmark;
 
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.contrib.hdht.MutableKeyValue;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
 import java.io.IOException;
 import java.util.Arrays;
 
-public class HDSOperator extends AbstractSinglePortHDSWriter<MutableKeyValue>
+public class HDSOperator extends AbstractSinglePortHDHTWriter<MutableKeyValue>
 {
   public boolean isReadModifyWriteMode()
   {

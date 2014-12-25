@@ -21,6 +21,7 @@ import com.datatorrent.contrib.hdht.HDFSWalWriter;
 import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
 import com.datatorrent.contrib.hdht.HDHTWriter;
 import com.datatorrent.contrib.hdht.MutableKeyValue;
+import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.ByteBufferInput;
 import com.esotericsoftware.kryo.io.ByteBufferOutput;
@@ -207,11 +208,14 @@ public class WALTest
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
+    hds.checkpointed(1);
 
     hds.beginWindow(2);
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
+    hds.checkpointed(2);
+    hds.committed(2);
 
     // Tuples added till this point is written to data files,
     //
@@ -222,16 +226,13 @@ public class WALTest
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
+    hds.checkpointed(2);
+    hds.committed(2);
     hds.forceWal();
     hds.teardown();
 
     /* Get a check-pointed state of the WAL */
-    Kryo kryo = new Kryo();
-    com.esotericsoftware.kryo.io.ByteBufferOutput oo = new ByteBufferOutput(100000);
-    kryo.writeObject(oo, hds);
-    oo.flush();
-    com.esotericsoftware.kryo.io.ByteBufferInput oi = new ByteBufferInput(oo.getByteBuffer());
-    HDHTWriter newOperator = kryo.readObject(oi, HDHTWriter.class);
+    HDHTWriter newOperator = TestUtils.clone(new Kryo(), hds);
 
     newOperator.setKeyComparator(new HDHTWriterTest.SequenceComparator());
     newOperator.setFlushIntervalCount(1);
@@ -304,6 +305,8 @@ public class WALTest
     hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
     hds.put(BUCKET1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
+    hds.checkpointed(3);
+    hds.committed(3);
     // Data till this point is committed to disk, and old WAL file WAL-0
     // is deleted, as all data from that file is committed.
     hds.forceWal();

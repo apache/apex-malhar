@@ -50,7 +50,8 @@ public abstract class AbstractFSWindowWriter<INPUT> extends AbstractFSWriter<INP
   @Override
   public void endWindow()
   {
-    closeFile(windowIdString);
+    endOffsets.remove(windowIdString);
+    streamsCache.invalidate(windowIdString);
   }
 
   @Override

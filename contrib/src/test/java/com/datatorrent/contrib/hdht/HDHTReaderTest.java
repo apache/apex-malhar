@@ -49,6 +49,8 @@ public class HDHTReaderTest
     hds.beginWindow(1);
     hds.put(HDHTWriterTest.getBucketKey(key), key, data.getBytes());
     hds.endWindow();
+    hds.checkpointed(1);
+    hds.committed(1);
     hds.teardown();
   }
 
