@@ -32,10 +32,6 @@
     <value>80</value>
   </property>
   <property>
-    <name>dt.application.MobileDemo.operator.LocationFinder.attr.INITIAL_PARTITION_COUNT</name>
-    <value>2</value>
-  </property>
-  <property>
     <name>dt.application.MobileDemo.operator.LocationFinder.inputport.data.attr.QUEUE_CAPACITY</name>
     <value>32768</value>
   </property>
