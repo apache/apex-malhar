@@ -31,19 +31,19 @@
 	</property>
 	<property>
 		<name>dt.operator.TweetSampler.consumerKey</name>
-		<value>r1DqM35iCTjbgLHf1R7rDbF5R</value>
+		<value></value>
 	</property>
 	<property>
 		<name>dt.operator.TweetSampler.consumerSecret</name>
-		<value>KBpZiR0glPzvZPm1Sa7sq9MCGQ2H2DrVChNtmYQcU75fwuHjed</value>
+		<value></value>
 	</property>
 	<property>
 		<name>dt.operator.TweetSampler.accessToken</name>
-		<value>2490355837-lXKev9vIGzftDjDu9LlyQiuGAqjYyPELFRyRpQo</value>
+		<value></value>
 	</property>
 	<property>
 		<name>dt.operator.TweetSampler.accessTokenSecret</name>
-		<value>lmAxZlFhcBqeTxmyatFT43fzshzrv6lsOAtHDsCBLjiuk</value>
+		<value></value>
 	</property>
 
 </configuration>
