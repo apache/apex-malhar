@@ -1,15 +1,15 @@
 <?xml version="1.0"?>
 <configuration>
   <property>
-    <name>dt.application.NewWordCountDemo.dirName</name>
+    <name>dt.NewWordCountApplication.inputDirName</name>
     <value></value>
   </property>
   <property>
-    <name>dt.application.NewWordCountDemo.numOfReducers</name>
-    <value>4</value>
+    <name>dt.NewWordCountApplication.numOfReducers</name>
+    <value>1</value>
   </property>
   <property>
-    <name>dt.application.NewWordCountDemo.outputDirName</name>
+    <name>dt.NewWordCountApplication.outputFile</name>
     <value></value>
   </property>
 </configuration>
