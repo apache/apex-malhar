@@ -37,6 +37,7 @@ import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketInputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Mobile Demo Application:
@@ -155,15 +156,17 @@ public class Application implements StreamingApplication
     LOG.info("Finished generating seed data.");
 
     String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+    PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("LocationResults", new PubSubWebSocketOutputOperator<Object>());
+    PubSubWebSocketInputOperator<Map<String, String>> wsIn = dag.addOperator("QueryLocation", new PubSubWebSocketInputOperator<Map<String, String>>());
+
+    URI uri = null;
+    if (!StringUtils.isEmpty(gatewayAddress)) {
+     uri = URI.create("ws://" + gatewayAddress + "/pubsub");
     LOG.info("WebSocket with gateway at: {}", gatewayAddress);
 
-    PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator("LocationResults", new PubSubWebSocketOutputOperator<Object>());
     wsOut.setUri(uri);
-
-    PubSubWebSocketInputOperator<Map<String, String>> wsIn = dag.addOperator("QueryLocation", new PubSubWebSocketInputOperator<Map<String, String>>());
     wsIn.setUri(uri);
-
+    }
     // default partitioning: first connected stream to movementGen will be partitioned
     dag.addStream("Phone-Data", phones.integer_data, movementGen.data);
     dag.addStream("Results", movementGen.locationQueryResult, wsOut.input);

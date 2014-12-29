@@ -32,8 +32,8 @@
     <value>80</value>
   </property>
   <property>
-    <name>dt.application.MobileDemo.operator.LocationFinder.attr.INITIAL_PARTITION_COUNT</name>
-    <value>2</value>
+    <name>dt.application.MobileDemo.operator.LocationFinder.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:25</value>
   </property>
   <property>
     <name>dt.application.MobileDemo.operator.LocationFinder.inputport.data.attr.QUEUE_CAPACITY</name>
