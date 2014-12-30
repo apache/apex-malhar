@@ -2,11 +2,11 @@
 <configuration>
   <!-- Log Count Demo -->
   <property>
-    <name>dt.application.LogsCountDemo.operator.Map.dirName</name>
+    <name>dt.application.LogsCountDemo.operator.Mapper.dirName</name>
     <value></value>
   </property>
   <property>
-    <name>dt.application.LogsCountDemo.operator.Map.partitionCount</name>
+    <name>dt.application.LogsCountDemo.operator.Mapper.partitionCount</name>
     <value></value>
   </property>
   <property>
@@ -18,17 +18,17 @@
     <value></value>
   </property>
   <property>
-    <name>dt.application.LogsCountDemo.operator.Console.attr.PARTITIONER</name>
+    <name>dt.application.LogsCountDemo.operator.Reducer.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
   </property>
 
   <!-- Word Count Demo -->
   <property>
-    <name>dt.application.WordCountDemo.operator.Map.dirName</name>
+    <name>dt.application.WordCountDemo.operator.Mapper.dirName</name>
     <value></value>
   </property>
   <property>
-    <name>dt.application.WordCountDemo.operator.Map.partitionCount</name>
+    <name>dt.application.WordCountDemo.operator.Mapper.partitionCount</name>
     <value></value>
   </property>
   <property>
@@ -40,17 +40,17 @@
     <value></value>
   </property>
   <property>
-    <name>dt.application.WordCountDemo.operator.Console.attr.PARTITIONER</name>
+    <name>dt.application.WordCountDemo.operator.Reducer.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
   </property>
 
   <!-- Inverted Index Demo -->
   <property>
-    <name>dt.application.InvertedIndexDemo.operator.Map.dirName</name>
+    <name>dt.application.InvertedIndexDemo.operator.Mapper.dirName</name>
     <value></value>
   </property>
   <property>
-    <name>dt.application.InvertedIndexDemo.operator.Map.partitionCount</name>
+    <name>dt.application.InvertedIndexDemo.operator.Mapper.partitionCount</name>
     <value></value>
   </property>
   <property>
@@ -62,7 +62,7 @@
     <value></value>
   </property>
   <property>
-    <name>dt.application.LogsCountDemo.operator.Console.attr.PARTITIONER</name>
+    <name>dt.application.LogsCountDemo.operator.Reducer.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
   </property>
 </configuration>
