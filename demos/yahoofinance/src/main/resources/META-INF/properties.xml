@@ -1,41 +1,41 @@
 <!--Configuration for chart demo  -->
 <configuration>
-<property>
+  <property>
     <name>dt.attr.MASTER_MEMORY_MB</name>
     <value>1024</value>
   </property>
- <property>
-	<name>dt.attr.STREAMING_WINDOW_SIZE_MILLIS</name>
-	<value>1000</value>
-</property>
-<property>
-	<name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.xAxisLabel</name>
-	<value>TIME</value>
-</property>
-<property>
-	<name>dt.application.YahooFinanceDemoWithChart.operator.StockTickInput.tickers</name>
-	<value>IBM,GOOG,AAPL,YHOO</value>
-</property>
-<property>
-	<name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.yAxisLabel</name>
-	<value>PRICE</value>
-</property>
-<property>
-	<name>dt.application.YahooFinanceDemoWithChart.operator.CandleStickChart.xAxisLabel</name>
-	<value>TIME</value>
-</property>
-<property>
-	<name>dt.application.YahooFinanceDemoWithChart.operator.CandleStickChart.yAxisLabel</name>
-	<value>PRICE</value>
-</property>
-<property>
-	<name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.attr.APPLICATION_WINDOW_COUNT
-	</name>
-	<value>5</value>
-</property>
-<property>
-	<name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.attr.APPLICATION_WINDOW_COUNT
-	</name>
-	<value>5</value>
-</property>
+  <property>
+    <name>dt.attr.STREAMING_WINDOW_SIZE_MILLIS</name>
+    <value>1000</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.xAxisLabel</name>
+    <value>TIME</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceDemoWithChart.operator.StockTickInput.tickers</name>
+    <value>IBM,GOOG,AAPL,YHOO</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.yAxisLabel</name>
+    <value>PRICE</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceDemoWithChart.operator.CandleStickChart.xAxisLabel</name>
+    <value>TIME</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceDemoWithChart.operator.CandleStickChart.yAxisLabel</name>
+    <value>PRICE</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.attr.APPLICATION_WINDOW_COUNT
+    </name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.attr.APPLICATION_WINDOW_COUNT
+    </name>
+    <value>5</value>
+  </property>
 </configuration>
