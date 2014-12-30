@@ -90,23 +90,10 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
   public void populateDAG(DAG dag, Configuration conf)
   {
     conf();
-
-    String dirName = conf.get("dt." + this.getClass().getSimpleName() + ".inputDirName", "src/test/resources/wordcount/");
-    String outputDirName = conf.get("dt." + this.getClass().getSimpleName() + ".outputFile", "src/test/resources/output");
-
-    Path outputDirPath = new Path(outputDirName);
-    outputDirName = outputDirPath.getParent().toUri().getPath();
-
-    String outputFileName = outputDirPath.getName();
-
-    int numberOfReducers = conf.getInt(this.getClass().getSimpleName() + ".numOfReducers", 1);
-    int numberOfMaps = conf.getInt(this.getClass().getSimpleName() + ".numOfMaps", 2);
     String configurationFilePath = conf.get(this.getClass().getSimpleName() + ".configFile", "");
 
-    MapOperator<K1, V1, K2, V2> inputOperator = dag.addOperator("map", new MapOperator<K1, V1, K2, V2>());
+    MapOperator<K1, V1, K2, V2> inputOperator = dag.addOperator("Mapper", new MapOperator<K1, V1, K2, V2>());
     inputOperator.setInputFormatClass(inputFormat);
-    inputOperator.setDirName(dirName);
-    inputOperator.setPartitionCount(numberOfMaps);
 
     String configFileName = null;
     if (configurationFilePath != null && !configurationFilePath.isEmpty()) {
@@ -122,18 +109,14 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
     inputOperator.setConfigFile(configFileName);
     inputOperator.setCombineClass(combineClass);
 
-    ReduceOperator<K2, V2, K2, V2> reduceOpr = dag.addOperator("reduce", new ReduceOperator<K2, V2, K2, V2>());
+    ReduceOperator<K2, V2, K2, V2> reduceOpr = dag.addOperator("Reducer", new ReduceOperator<K2, V2, K2, V2>());
     reduceOpr.setReduceClass(reduceClass);
     reduceOpr.setConfigFile(configFileName);
-    dag.setAttribute(reduceOpr, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<ReduceOperator<K2, V2, K2, V2>>(numberOfReducers));
 
-    HdfsKeyValOutputOperator<K2, V2> console = dag.addOperator("console", new HdfsKeyValOutputOperator<K2, V2>());
-    console.setFilePath(outputDirName);
-    console.setOutputFileName(outputFileName);
+    HdfsKeyValOutputOperator<K2, V2> console = dag.addOperator("Console", new HdfsKeyValOutputOperator<K2, V2>());
 
-    dag.addStream("input_map", inputOperator.output, reduceOpr.input);
-    dag.addStream("input_count_map", inputOperator.outputCount, reduceOpr.inputCount);
-
-    dag.addStream("console_reduce", reduceOpr.output, console.input);
+    dag.addStream("Mapped-Output", inputOperator.output, reduceOpr.input);
+    dag.addStream("Mapper-Count", inputOperator.outputCount, reduceOpr.inputCount);
+    dag.addStream("Reduced-Output", reduceOpr.output, console.input);
   }
 }
