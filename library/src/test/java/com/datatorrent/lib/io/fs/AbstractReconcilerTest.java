@@ -17,17 +17,19 @@ package com.datatorrent.lib.io.fs;
 
 import java.util.List;
 
+import org.apache.hadoop.conf.Configuration;
 import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
+import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.StreamingApplication;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
-import com.datatorrent.stram.StramLocalCluster;
-import com.datatorrent.stram.plan.logical.LogicalPlan;
 
 /**
  * Test class to test {@link AbstractReconciler}
@@ -82,32 +84,35 @@ public class AbstractReconcilerTest
     String data;
   }
 
-  @Test
-  public void testReconciler()
+  public static class TestDag implements StreamingApplication
   {
-    try {
-      LogicalPlan dag = new LogicalPlan();
-
+    @Override
+    public void populateDAG(DAG dag, Configuration conf)
+    {
       RandomWordGenerator generator = dag.addOperator("words", new RandomWordGenerator());
       TestReconciler reconciler = dag.addOperator("synchronizer", new TestReconciler());
-
       generator.setTuplesPerWindow(10);
-
       dag.addStream("toWriter", generator.output, reconciler.input);
-
-      StramLocalCluster slc = new StramLocalCluster(dag);
-
-      slc.run(150000); // test assert in synchronizer.processCommittedData to ensure it is called only for TestMeta with committed window ids
     }
-    catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
+  }
+
+  @Test
+  public void testReconciler() throws Exception
+  {
+    LocalMode lma = LocalMode.newInstance();
+    Configuration configuration = new Configuration();
+    lma.prepareDAG(new TestDag(),configuration);
+    LocalMode.Controller lc = lma.getController();
+    lc.setHeartbeatMonitoringEnabled(false);
+    lc.run(15000);
+    lc.shutdown();
   }
 
   public static class TestReconciler1 extends AbstractReconciler<String, String>
   {
 
-     public transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>();
+    public transient DefaultOutputPort<String> outputPort = new DefaultOutputPort<String>();
+
     @Override
     protected void processTuple(String input)
     {
@@ -150,7 +155,7 @@ public class AbstractReconcilerTest
     Thread.sleep(500);
     output.add("a");
     output.add("b");
-    Assert.assertEquals(output,sink.collectedTuples);
+    Assert.assertEquals(output, sink.collectedTuples);
     output.clear();
     sink.collectedTuples.clear();
     reconciler1.committed(2);
@@ -159,7 +164,7 @@ public class AbstractReconcilerTest
     output.add("d");
     output.add("e");
     output.add("f");
-    Assert.assertEquals(output,sink.collectedTuples);
+    Assert.assertEquals(output, sink.collectedTuples);
     reconciler1.teardown();
   }
 
