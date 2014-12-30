@@ -156,7 +156,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   }
 
   @Override
-  protected HDSCodec<AdInfoAggregateEvent> getCodec()
+  protected HDHTCodec<AdInfoAggregateEvent> getCodec()
   {
     return new AdInfoAggregateCodec();
   }
@@ -275,7 +275,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     return ae;
   }
 
-  public static class AdInfoAggregateCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent> implements AbstractSinglePortHDHTWriter.HDSCodec<AdInfoAggregateEvent>
+  public static class AdInfoAggregateCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent> implements HDHTCodec<AdInfoAggregateEvent>
   {
     public AdsDimensionStoreOperator operator;
 

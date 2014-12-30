@@ -46,7 +46,7 @@ import com.google.common.collect.Lists;
  */
 public abstract class AbstractSinglePortHDHTWriter<EVENT> extends HDHTWriter implements Partitioner<AbstractSinglePortHDHTWriter<EVENT>>
 {
-  public interface HDSCodec<EVENT> extends StreamCodec<EVENT>
+  public interface HDHTCodec<EVENT> extends StreamCodec<EVENT>
   {
     byte[] getKeyBytes(EVENT event);
     byte[] getValueBytes(EVENT event);
@@ -59,7 +59,7 @@ public abstract class AbstractSinglePortHDHTWriter<EVENT> extends HDHTWriter imp
 
   protected Set<Integer> partitions;
 
-  protected transient HDSCodec<EVENT> codec;
+  protected transient HDHTCodec<EVENT> codec;
 
   @Min(1)
   private int partitionCount = 1;
@@ -112,7 +112,7 @@ public abstract class AbstractSinglePortHDHTWriter<EVENT> extends HDHTWriter imp
     super.put(getBucketKey(event), new Slice(key), value);
   }
 
-  abstract protected HDSCodec<EVENT> getCodec();
+  abstract protected HDHTCodec<EVENT> getCodec();
 
   @Override
   public void setup(OperatorContext arg0)

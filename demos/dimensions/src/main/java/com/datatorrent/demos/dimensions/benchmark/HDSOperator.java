@@ -37,7 +37,7 @@ public class HDSOperator extends AbstractSinglePortHDHTWriter<MutableKeyValue>
 
   private boolean readModifyWriteMode = false;
 
-  public static class MutableKeyValCodec extends KryoSerializableStreamCodec<MutableKeyValue> implements HDSCodec<MutableKeyValue>
+  public static class MutableKeyValCodec extends KryoSerializableStreamCodec<MutableKeyValue> implements HDHTCodec<MutableKeyValue>
   {
     @Override public byte[] getKeyBytes(MutableKeyValue mutableKeyValue)
     {
@@ -64,7 +64,7 @@ public class HDSOperator extends AbstractSinglePortHDHTWriter<MutableKeyValue>
   }
 
 
-  @Override protected HDSCodec<MutableKeyValue> getCodec()
+  @Override protected HDHTCodec<MutableKeyValue> getCodec()
   {
     return new MutableKeyValCodec();
   }
