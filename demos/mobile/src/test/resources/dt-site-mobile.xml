@@ -45,10 +45,6 @@
     <value>80</value>
   </property>
   <property>
-    <name>dt.application.MobileDemo.operator.LocationFinder.attr.INITIAL_PARTITION_COUNT</name>
-    <value>1</value>
-  </property>
-  <property>
     <name>dt.application.MobileDemo.operator.LocationFinder.inputport.data.attr.QUEUE_CAPACITY</name>
     <value>32768</value>
   </property>
@@ -61,7 +57,7 @@
     <value>queryTopic</value>
   </property>
   <property>
-    <name>dt.application.MobileDemo.attr.CONTAINER_MEMORY_MB</name>
+    <name>dt.application.MobileDemo.operator.*.attr.MEMORY_MB</name>
     <value>2048</value>
   </property>
   <property>

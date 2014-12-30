@@ -1,9 +1,68 @@
 <?xml version="1.0"?>
 <configuration>
-  <!-- 
+  <!-- Log Count Demo -->
   <property>
-    <name>dt.application.{appName}.operator.{opName}.prop.{propName}</name>
-    <value>some-default-value (if value is not specified, it is required from the user or custom config when launching)</value>
+    <name>dt.application.LogsCountDemo.operator.Mapper.dirName</name>
+    <value></value>
   </property>
-  -->
+  <property>
+    <name>dt.application.LogsCountDemo.operator.Mapper.partitionCount</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.LogsCountDemo.operator.Console.filePath</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.LogsCountDemo.operator.Console.outputFileName</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.LogsCountDemo.operator.Reducer.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
+  </property>
+
+  <!-- Word Count Demo -->
+  <property>
+    <name>dt.application.WordCountDemo.operator.Mapper.dirName</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.WordCountDemo.operator.Mapper.partitionCount</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.WordCountDemo.operator.Console.filePath</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.WordCountDemo.operator.Console.outputFileName</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.WordCountDemo.operator.Reducer.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
+  </property>
+
+  <!-- Inverted Index Demo -->
+  <property>
+    <name>dt.application.InvertedIndexDemo.operator.Mapper.dirName</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.InvertedIndexDemo.operator.Mapper.partitionCount</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.InvertedIndexDemo.operator.Console.filePath</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.InvertedIndexDemo.operator.Console.outputFileName</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.LogsCountDemo.operator.Reducer.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
+  </property>
 </configuration>

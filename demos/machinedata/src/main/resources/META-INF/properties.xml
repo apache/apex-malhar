@@ -9,9 +9,8 @@
     <value>5</value>
   </property>
   <property>
-    <name>dt.application.MachineDataDemo.operator.Receiver.attr.INITIAL_PARTITION_COUNT
-    </name>
-    <value>1</value>
+    <name>dt.application.MachineDataDemo.operator.Receiver.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.DimensionsGenerator.attr.APPLICATION_WINDOW_COUNT

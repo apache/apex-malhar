@@ -60,7 +60,7 @@ public class StatelessThroughputBasedPartitioner<T extends Operator> implements 
   private boolean repartition;
   private transient HashMap<Integer, BatchedOperatorStats> partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
   @Min(1)
-  private int initialPartitionCount = 0;
+  private int initialPartitionCount = 1;
 
   /**
    * This creates a partitioner which begins with only one partition.

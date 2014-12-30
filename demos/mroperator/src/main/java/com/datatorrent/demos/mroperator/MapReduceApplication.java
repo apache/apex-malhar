@@ -15,15 +15,22 @@
  */
 package com.datatorrent.demos.mroperator;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.partitioner.StatelessPartitioner;
 import java.util.StringTokenizer;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.mapred.InputFormat;
+import org.apache.hadoop.mapred.Mapper;
+import org.apache.hadoop.mapred.Reducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.lib.partitioner.StatelessPartitioner;
 
 /**
  * <p>
@@ -32,7 +39,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.9.0
  */
-@ApplicationAnnotation(name="MapReduceDemo")
+@ApplicationAnnotation(name = "MapReduceDemo")
 public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingApplication
 {
   private static final Logger LOG = LoggerFactory.getLogger(MapReduceApplication.class);
@@ -83,53 +90,33 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
   public void populateDAG(DAG dag, Configuration conf)
   {
     conf();
+    String configurationFilePath = conf.get(this.getClass().getSimpleName() + ".configFile", "");
 
-    String dirName = conf.get(this.getClass().getName() + ".inputDirName", "src/test/resources/wordcount/");
-    String outputDirName = conf.get(this.getClass().getName() + ".outputDirName", "src/test/resources/output");
-
-    Path outputDirPath = new Path(outputDirName);
-    outputDirName = outputDirPath.getParent().toUri().getPath();
-
-    String outputFileName = outputDirPath.getName();
-
-    int numberOfReducers = conf.getInt(this.getClass().getName() + ".numOfReducers", 1);
-    int numberOfMaps = conf.getInt(this.getClass().getName() + ".numOfMaps", 2);
-    String configurationfilePath = conf.get(this.getClass().getName() + ".configFile", "");
-
-    MapOperator<K1, V1, K2, V2> inputOperator = dag.addOperator("map", new MapOperator<K1, V1, K2, V2>());
+    MapOperator<K1, V1, K2, V2> inputOperator = dag.addOperator("Mapper", new MapOperator<K1, V1, K2, V2>());
     inputOperator.setInputFormatClass(inputFormat);
-    inputOperator.setDirName(dirName);
-    dag.setAttribute(inputOperator, Context.OperatorContext.PARTITIONER, new StatelessPartitioner<MapOperator<K1, V1, K2, V2>>(numberOfMaps));
 
     String configFileName = null;
-    if (configurationfilePath != null && !configurationfilePath.isEmpty()) {
-      dag.setAttribute(com.datatorrent.api.Context.DAGContext.LIBRARY_JARS, configurationfilePath);
-      StringTokenizer configFileTokenizer = new StringTokenizer(configurationfilePath, "/");
+    if (configurationFilePath != null && !configurationFilePath.isEmpty()) {
+      dag.setAttribute(com.datatorrent.api.Context.DAGContext.LIBRARY_JARS, configurationFilePath);
+      StringTokenizer configFileTokenizer = new StringTokenizer(configurationFilePath, "/");
       configFileName = configFileTokenizer.nextToken();
-      while (configFileTokenizer.hasMoreTokens())
+      while (configFileTokenizer.hasMoreTokens()) {
         configFileName = configFileTokenizer.nextToken();
+      }
     }
 
     inputOperator.setMapClass(mapClass);
     inputOperator.setConfigFile(configFileName);
     inputOperator.setCombineClass(combineClass);
 
-    ReduceOperator<K2, V2, K2, V2> reduceOpr = dag.addOperator("reduce", new ReduceOperator<K2, V2, K2, V2>());
+    ReduceOperator<K2, V2, K2, V2> reduceOpr = dag.addOperator("Reducer", new ReduceOperator<K2, V2, K2, V2>());
     reduceOpr.setReduceClass(reduceClass);
     reduceOpr.setConfigFile(configFileName);
-    dag.setAttribute(reduceOpr,
-                     Context.OperatorContext.PARTITIONER,
-                     new StatelessPartitioner<ReduceOperator<K2, V2, K2, V2>>(numberOfReducers));
 
-    HdfsKeyValOutputOperator<K2,V2> console = dag.addOperator("console", new HdfsKeyValOutputOperator<K2,V2>());
-    console.setFilePath(outputDirName);
-    console.setOutputFileName(outputFileName);
+    HdfsKeyValOutputOperator<K2, V2> console = dag.addOperator("Console", new HdfsKeyValOutputOperator<K2, V2>());
 
-    dag.addStream("input_map", inputOperator.output, reduceOpr.input);
-    dag.addStream("input_count_map", inputOperator.outputCount, reduceOpr.inputCount);
-
-    dag.addStream("console_reduce", reduceOpr.output, console.input);
-
+    dag.addStream("Mapped-Output", inputOperator.output, reduceOpr.input);
+    dag.addStream("Mapper-Count", inputOperator.outputCount, reduceOpr.inputCount);
+    dag.addStream("Reduced-Output", reduceOpr.output, console.input);
   }
-
 }
