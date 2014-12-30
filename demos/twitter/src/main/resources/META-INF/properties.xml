@@ -31,19 +31,15 @@
 	</property>
 	<property>
 		<name>dt.operator.TweetSampler.consumerKey</name>
-		<value></value>
 	</property>
 	<property>
 		<name>dt.operator.TweetSampler.consumerSecret</name>
-		<value></value>
 	</property>
 	<property>
 		<name>dt.operator.TweetSampler.accessToken</name>
-		<value></value>
 	</property>
 	<property>
 		<name>dt.operator.TweetSampler.accessTokenSecret</name>
-		<value></value>
 	</property>
 
 </configuration>

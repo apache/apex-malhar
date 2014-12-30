@@ -260,7 +260,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDHTWriter<Generic
   }
 
   @Override
-  protected HDSCodec<GenericAggregate> getCodec()
+  protected HDHTCodec<GenericAggregate> getCodec()
   {
     return new GenericAggregateCodec();
   }
