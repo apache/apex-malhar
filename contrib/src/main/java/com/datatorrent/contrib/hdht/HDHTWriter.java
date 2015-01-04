@@ -47,19 +47,16 @@ import com.google.common.collect.Sets;
  * Writes data to buckets. Can be sub-classed as operator or used in composite pattern.
  * <p>
  * Changes are accumulated in a write cache and written to a write-ahead-log (WAL). They are then asynchronously flushed
- * to the data files when thresholds for the memory buffer are reached.
+ * to the data files when thresholds for the memory buffer are reached. Changes are flushed to data files at the
+ * committed window boundary.
  * <p>
  * When data is read through the same operator (extends reader), full consistency is guaranteed (reads will consider
  * changes that are not flushed). In the event of failure, the operator recovers the write buffer from the WAL.
- * <p>
- * Note that currently changes are not flushed at a committed window boundary, hence uncommitted changes may be read
- * from data files after recovery, making the operator non-idempotent.
  *
  * @displayName HDHT Writer
  * @category Output
- * @tags hds, output operator
+ * @tags hdht, output operator
  */
-
 public class HDHTWriter extends HDHTReader implements CheckpointListener, Operator, HDHT.Writer
 {
 
@@ -220,7 +217,7 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
       if (bmeta.committedWid < wmeta.windowId && wmeta.windowId != 0) {
         LOG.debug("Recovery for bucket {}", bucketKey);
         // Get last committed LSN from store, and use that for recovery.
-        bucket.wal.runRecovery(bucket.writeCache, wmeta.tailId, wmeta.tailOffset);
+        bucket.wal.runRecovery(bucket.committedWriteCache, wmeta.tailId, wmeta.tailOffset);
       }
     }
     return bucket;
