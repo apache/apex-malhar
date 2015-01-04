@@ -316,13 +316,8 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
         }
         floorFile.startKey = entry.getKey();
         if (floorFile.startKey.length != floorFile.startKey.buffer.length) {
-          try {
-            // normalize key for serialization
-            floorFile.startKey = floorFile.startKey.clone();
-          }
-          catch (CloneNotSupportedException ex) {
-            throw new RuntimeException("startKey could not be cloned", ex);
-          }
+          // normalize key for serialization
+          floorFile.startKey = new Slice(floorFile.startKey.toByteArray());
         }
         bucketSeqStarts.put(floorFile.startKey, floorFile);
       }
