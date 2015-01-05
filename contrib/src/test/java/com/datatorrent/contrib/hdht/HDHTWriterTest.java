@@ -190,7 +190,7 @@ public class HDHTWriterTest
   }
 
   @Test
-  public void testGet() throws Exception
+  public void testGetDelete() throws Exception
   {
     File file = new File(testInfo.getDir());
     FileUtils.deleteDirectory(file);
@@ -205,7 +205,7 @@ public class HDHTWriterTest
     hds.setFlushSize(0); // flush after every key
 
     hds.setup(null);
-    hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush on endWindow
+    hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush
     hds.beginWindow(1);
 
     hds.put(getBucketKey(key), key, data.getBytes());
@@ -234,6 +234,22 @@ public class HDHTWriterTest
     hds.endWindow();
     hds.teardown();
     Assert.assertArrayEquals("get", data.getBytes(), val);
+
+    hds = TestUtils.clone(new Kryo(), hds);
+    hds.setup(null);
+    hds.writeExecutor = MoreExecutors.sameThreadExecutor(); // synchronous flush
+    hds.beginWindow(2);
+    hds.delete(getBucketKey(key), key);
+    val = hds.getUncommitted(getBucketKey(key), key);
+    Assert.assertNull("get from cache after delete", val);
+    hds.endWindow();
+    hds.checkpointed(2);
+    hds.committed(2);
+    val = hds.get(getBucketKey(key), key);
+    Assert.assertNull("get from store after delete", val);
+    hds.teardown();
+
+
   }
 
   @Test

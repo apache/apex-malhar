@@ -165,6 +165,10 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
         keysWritten = 0;
       }
 
+      if (dataEntry.getValue() == HDHT.WALReader.DELETED) {
+        continue;
+      }
+
       fw.append(dataEntry.getKey().toByteArray(), dataEntry.getValue());
       keysWritten++;
       if (fw.getBytesWritten() > this.maxFileSize) {
@@ -236,7 +240,7 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
     if (bucket != null) {
       byte[] v = bucket.writeCache.get(key);
       if (v != null) {
-        return v;
+        return v != HDHT.WALReader.DELETED ? v : null;
       }
       for (Map.Entry<Long, HashMap<Slice, byte[]>> entry : bucket.checkpointedWriteCache.entrySet()) {
         byte[] v2 = entry.getValue().get(key);
@@ -246,13 +250,14 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
         }
       }
       if (v != null) {
-        return v;
+        return v != HDHT.WALReader.DELETED ? v : null;
       }
       v = bucket.committedWriteCache.get(key);
       if (v != null) {
-        return v;
+        return v != HDHT.WALReader.DELETED ? v : null;
       }
-      return bucket.frozenWriteCache.get(key);
+      v = bucket.frozenWriteCache.get(key);
+      return v != null && v != HDHT.WALReader.DELETED ? v : null;
     }
     return null;
   }
@@ -279,6 +284,11 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
     Bucket bucket = getBucket(bucketKey);
     bucket.wal.append(key, value);
     bucket.writeCache.put(key, value);
+  }
+
+  public void delete(long bucketKey, Slice key) throws IOException
+  {
+    put(bucketKey, key, HDHT.WALReader.DELETED);
   }
 
   /**
