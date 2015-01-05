@@ -368,6 +368,7 @@ public class HDHTReader implements Operator, HDHT.Reader
     int fileSeq;
     long committedWid;
     final TreeMap<Slice, BucketFileMeta> files;
+    HDHTWalManager.WalPosition recoveryStartWalPosition;
   }
 
   private static class BucketReader implements Closeable

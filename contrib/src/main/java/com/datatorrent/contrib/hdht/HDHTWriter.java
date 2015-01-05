@@ -207,21 +207,22 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
 
       BucketMeta bmeta = getMeta(bucketKey);
       WalMeta wmeta = getWalMeta(bucketKey);
-      bucket.wal = new HDHTWalManager(this.store, bucketKey, wmeta.fileId, wmeta.offset);
+      bucket.wal = new HDHTWalManager(this.store, bucketKey, wmeta.cpWalPosition);
       bucket.wal.setMaxWalFileSize(maxWalFileSize);
       BucketIOStats ioStats = getOrCretaStats(bucketKey);
       if (ioStats != null) {
         bucket.wal.restoreStats(ioStats);
       }
-      LOG.debug("Existing walmeta information fileId {} offset {} tailId {} tailOffset {} windowId {} committedWid {} currentWid {}",
-          wmeta.fileId, wmeta.offset, wmeta.tailId, wmeta.tailOffset, wmeta.windowId, bmeta.committedWid, currentWindowId);
+      LOG.debug("Existing walmeta information walPos {} recoveryStart {} windowId {} committedWid {} currentWid {}",
+          wmeta.cpWalPosition, bmeta.recoveryStartWalPosition, wmeta.windowId, bmeta.committedWid, currentWindowId);
 
       // bmeta.componentLSN is data which is committed to disks.
       // wmeta.windowId windowId till which data is available in WAL.
       if (bmeta.committedWid < wmeta.windowId && wmeta.windowId != 0) {
         LOG.debug("Recovery for bucket {}", bucketKey);
-        // Get last committed LSN from store, and use that for recovery.
-        bucket.wal.runRecovery(bucket.committedWriteCache, wmeta.tailId, wmeta.tailOffset);
+        // Add tuples from recovery start till recovery end.
+        bucket.wal.runRecovery(bucket.committedWriteCache, bmeta.recoveryStartWalPosition, wmeta.cpWalPosition);
+        bucket.walPositions.put(wmeta.windowId, wmeta.cpWalPosition);
       }
     }
     return bucket;
@@ -367,13 +368,14 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
       writeFile(bucket, bucketMetaCopy, fileData);
     }
 
-    LOG.debug("Number of file read {} Number of files wrote {} in this write cycle", ioStats.filesWroteInCurrentWriteCycle, ioStats.filesReadInCurrentWriteCycle);
+    LOG.debug("Number of file wrote {} Number of files read {} in this write cycle", ioStats.filesWroteInCurrentWriteCycle, ioStats.filesReadInCurrentWriteCycle);
     // flush meta data for new files
     try {
       LOG.debug("writing {} with {} file entries", FNAME_META, bucketMetaCopy.files.size());
       OutputStream os = store.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
       Output output = new Output(os);
       bucketMetaCopy.committedWid = bucket.committedLSN;
+      bucketMetaCopy.recoveryStartWalPosition = bucket.recoveryStartWalPosition;
       kryo.writeClassAndObject(output, bucketMetaCopy);
       output.close();
       os.close();
@@ -394,11 +396,9 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
     }
     invalidateReader(bucket.bucketKey, filesToDelete);
 
-    WalMeta walMeta = getWalMeta(bucket.bucketKey);
-    walMeta.tailId = bucket.tailId;
-    walMeta.tailOffset = bucket.tailOffset;
+    // cleanup wal files which are not needed anymore.
+    bucket.wal.cleanup(bucketMetaCopy.recoveryStartWalPosition.fileId);
 
-    bucket.wal.cleanup(walMeta.tailId);
     ioStats.filesReadInCurrentWriteCycle = 0;
     ioStats.filesWroteInCurrentWriteCycle = 0;
   }
@@ -437,8 +437,7 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
         if (bucket.wal != null) {
           bucket.wal.endWindow(currentWindowId);
           WalMeta walMeta = getWalMeta(bucket.bucketKey);
-          walMeta.fileId = bucket.wal.getWalFileId();
-          walMeta.offset = bucket.wal.getCommittedLength();
+          walMeta.cpWalPosition = bucket.wal.getCurrentPosition();
           walMeta.windowId = currentWindowId;
         }
       } catch (IOException e) {
@@ -472,8 +471,12 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
   {
     for (final Bucket bucket : this.buckets.values()) {
       if (!bucket.writeCache.isEmpty()) {
-       bucket.checkpointedWriteCache.put(windowId, bucket.writeCache);
-       bucket.writeCache = Maps.newHashMap();
+        bucket.checkpointedWriteCache.put(windowId, bucket.writeCache);
+        bucket.walPositions.put(windowId, new HDHTWalManager.WalPosition(
+            bucket.wal.getWalFileId(),
+            bucket.wal.getWalSize()
+        ));
+        bucket.writeCache = Maps.newHashMap();
       }
     }
   }
@@ -506,14 +509,23 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
         }
       }
 
+      HDHTWalManager.WalPosition position = null;
+      for (Iterator<Map.Entry<Long, HDHTWalManager.WalPosition>> wpIter = bucket.walPositions.entrySet().iterator(); wpIter.hasNext();) {
+        Map.Entry<Long, HDHTWalManager.WalPosition> entry = wpIter.next();
+        if (entry.getKey() <= committedWindowId) {
+          position = entry.getValue();
+          wpIter.remove();
+        }
+      }
+
       if ((bucket.committedWriteCache.size() > this.flushSize || currentWindowId - lastFlushWindowId > flushIntervalCount) && !bucket.committedWriteCache.isEmpty()) {
         // ensure previous flush completed
         if (bucket.frozenWriteCache.isEmpty()) {
           bucket.frozenWriteCache = bucket.committedWriteCache;
 
           bucket.committedLSN = committedWindowId;
-          bucket.tailId = bucket.wal.getWalFileId();
-          bucket.tailOffset = bucket.wal.getCommittedLength();
+          bucket.recoveryStartWalPosition = position;
+
 
           bucket.committedWriteCache = Maps.newHashMap();
           LOG.debug("Flushing data for bucket {} committedWid {}", bucket.bucketKey, bucket.committedLSN);
@@ -547,13 +559,13 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
     // keys that were modified and written to WAL, but not yet persisted, by checkpoint
     private HashMap<Slice, byte[]> writeCache = Maps.newHashMap();
     private final LinkedHashMap<Long, HashMap<Slice, byte[]>> checkpointedWriteCache = Maps.newLinkedHashMap();
+    public HashMap<Long, HDHTWalManager.WalPosition> walPositions = Maps.newLinkedHashMap();
     private HashMap<Slice, byte[]> committedWriteCache = Maps.newHashMap();
     // keys that are being flushed to data files
     private HashMap<Slice, byte[]> frozenWriteCache = Maps.newHashMap();
     private HDHTWalManager wal;
     private long committedLSN;
-    private long tailId;
-    private long tailOffset;
+    public HDHTWalManager.WalPosition recoveryStartWalPosition;
   }
 
   @VisibleForTesting
@@ -565,28 +577,30 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
   }
 
   @VisibleForTesting
-  protected int unflushedData(long bucketKey) throws IOException
+  protected int unflushedDataSize(long bucketKey) throws IOException
   {
     Bucket b = getBucket(bucketKey);
     return b.writeCache.size();
   }
 
+  @VisibleForTesting
+  protected int committedDataSize(long bucketKey) throws IOException
+  {
+    Bucket b = getBucket(bucketKey);
+    return b.committedWriteCache.size();
+  }
+
   private static final Logger LOG = LoggerFactory.getLogger(HDHTWriter.class);
 
-  /* Holds current file Id for WAL and current offset for WAL */
+  /* Holds current file Id for WAL and current recoveryEndWalOffset for WAL */
   private static class WalMeta
   {
-    /* The current WAL file and offset */
+    /* The current WAL file and recoveryEndWalOffset */
     // Window Id which is written to the WAL.
     public long windowId;
-    // Current Wal File sequence id
-    long fileId;
-    // Offset in current file after writing data for windowId.
-    long offset;
 
-    /* Flushed WAL file and offset, data till this point is flushed to disk */
-    public long tailId;
-    public long tailOffset;
+    // Checkpointed Wal position.
+    HDHTWalManager.WalPosition cpWalPosition;
   }
 
   @JsonSerialize
