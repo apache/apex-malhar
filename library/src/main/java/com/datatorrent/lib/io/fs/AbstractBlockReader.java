@@ -628,8 +628,8 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
 
   /**
    * An implementation of {@link AbstractBlockReader} that splits the block into records on '\n' or '\r'.<br/>
-   *
-   *
+   * This implementation is based on the assumption that there is a way to validate a record by checking the start of
+   * each record.
    *
    * @param <R> type of record.
    */
