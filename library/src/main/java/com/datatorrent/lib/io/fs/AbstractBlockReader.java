@@ -222,35 +222,47 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   protected void processBlockMetadata(FileSplitter.BlockMetadata blockMetadata) throws IOException
   {
     long blockStartTime = System.currentTimeMillis();
-    final long blockLength = blockMetadata.getLength();
 
     initReaderFor(blockMetadata);
     try {
-      long blockOffset = blockMetadata.getOffset();
-      while (blockOffset < blockLength) {
-
-        Entity entity = readEntity(blockMetadata, blockOffset);
-
-        //Block processing is complete.
-        if (entity == null) {
-          break;
-        }
-        counters.getCounter(ReaderCounterKeys.BYTES).add(entity.usedBytes);
-        blockOffset += entity.usedBytes;
-
-        R record = convertToRecord(entity.record);
-
-        //If the record is partial then ignore the record.
-        if (isRecordValid(record)) {
-          counters.getCounter(ReaderCounterKeys.RECORDS).increment();
-          messages.emit(new ReaderRecord<R>(blockMetadata.getBlockId(), record));
-        }
-      }
+      readBlock(blockMetadata);
     }
     finally {
       closeCurrentReader();
     }
     counters.getCounter(ReaderCounterKeys.TIME).add(System.currentTimeMillis() - blockStartTime);
+  }
+
+  /**
+   * Override this if you want to change how much of the block is read.
+   *
+   * @param blockMetadata
+   * @throws IOException
+   */
+  protected void readBlock(FileSplitter.BlockMetadata blockMetadata) throws IOException
+  {
+    final long blockLength = blockMetadata.getLength();
+
+    long blockOffset = blockMetadata.getOffset();
+    while (blockOffset < blockLength) {
+
+      Entity entity = readEntity(blockMetadata, blockOffset);
+
+      //The construction of entity was not complete as record end was never found.
+      if (entity == null) {
+        break;
+      }
+      counters.getCounter(ReaderCounterKeys.BYTES).add(entity.usedBytes);
+      blockOffset += entity.usedBytes;
+
+      R record = convertToRecord(entity.record);
+
+      //If the record is partial then ignore the record.
+      if (isRecordValid(record)) {
+        counters.getCounter(ReaderCounterKeys.RECORDS).increment();
+        messages.emit(new ReaderRecord<R>(blockMetadata.getBlockId(), record));
+      }
+    }
   }
 
   /**
@@ -615,7 +627,9 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   }
 
   /**
-   * An implementation of {@link AbstractBlockReader} that splits the block into records on '\n' or '\r'.
+   * An implementation of {@link AbstractBlockReader} that splits the block into records on '\n' or '\r'.<br/>
+   *
+   *
    *
    * @param <R> type of record.
    */

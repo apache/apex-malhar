@@ -16,7 +16,6 @@
 package com.datatorrent.lib.io.fs;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -181,7 +180,6 @@ public class AbstractBlockReaderTest
   public static final class BlockReader extends AbstractBlockReader.AbstractLineReader<String>
   {
     private final Pattern datePattern = Pattern.compile("\\d{2}?/\\d{2}?/\\d{4}?");
-    SimpleDateFormat sdf = new SimpleDateFormat("MM/dd/yyyy HH:mm:ss.SSS");
 
     @Override
     protected String convertToRecord(byte[] bytes)
