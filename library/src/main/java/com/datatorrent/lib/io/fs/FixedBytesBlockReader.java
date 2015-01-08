@@ -30,7 +30,7 @@ public class FixedBytesBlockReader extends AbstractBlockReader<Slice>
   @Min(1)
   private int length;
 
-  private final transient Entity entity;
+  protected final transient Entity entity;
 
   public FixedBytesBlockReader()
   {
