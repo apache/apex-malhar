@@ -112,19 +112,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     public void process(FileSplitter.BlockMetadata blockMetadata)
     {
       LOG.debug("block {}", blockMetadata.hashCode());
-      if (blocksPerWindow < threshold) {
-        try {
-          blocksMetadataOutput.emit(blockMetadata);
-          processBlockMetadata(blockMetadata);
-          blocksPerWindow++;
-        }
-        catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }
-      else {
-        blockQueue.add(blockMetadata);
-      }
+      blockQueue.add(blockMetadata);
     }
 
   };
