@@ -113,7 +113,9 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     {
       LOG.debug("block {}", blockMetadata.hashCode());
       blockQueue.add(blockMetadata);
-      processHeadBlock();
+      if (blocksPerWindow < threshold) {
+        processHeadBlock();
+      }
     }
 
   };
