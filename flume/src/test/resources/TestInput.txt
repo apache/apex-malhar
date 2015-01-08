@@ -1,2 +1,0 @@
-No and yes. There is also IdleTimeHandler that allows the operator to emit tuples. There is overlap, why not have a single interface. 
-Also consider the possibility of an operator that does other processing and not consume nor emit tuples,
