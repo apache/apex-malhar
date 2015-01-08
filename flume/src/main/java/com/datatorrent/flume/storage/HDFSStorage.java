@@ -385,9 +385,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       return retrieveHelper();
     }
     catch (IOException e) {
-      logger.warn(e.getMessage());
-      resetRetrieval();
-      return null;
+      closeFs();
+      throw new RuntimeException(e);
     }
   }
 
