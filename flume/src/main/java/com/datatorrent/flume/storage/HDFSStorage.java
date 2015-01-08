@@ -317,7 +317,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     if (retrievalFile != 0 || retrievalOffset != 0) {
       long cleanedFile = byteArrayToLong(cleanedOffset, offset);
       if (retrievalFile < cleanedFile || (retrievalFile == cleanedFile && retrievalOffset < byteArrayToLong(cleanedOffset, 0))) {
-        logger.warn("The address asked has been deleted");
+        logger.warn("The address asked has been deleted retrievalFile={}, cleanedFile={}, retrievalOffset={}, cleanedOffset={}", retrievalFile, cleanedFile, retrievalOffset, byteArrayToLong(cleanedOffset, 0));
         closeFs();
         throw new IllegalArgumentException(String.format("The data for address %s has already been deleted", Arrays.toString(identifier)));
       }
@@ -509,6 +509,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
         if (fs.exists(path) && fs.isFile(path)) {
           fs.delete(path, false);
         }
+        logger.info("deleted file {}", cleanedFileCounter);
         ++cleanedFileCounter;
       } while (cleanedFileCounter < cleanFileIndex);
       // writeData(cleanFileCounterFile, String.valueOf(cleanedFileCounter).getBytes()).close();
