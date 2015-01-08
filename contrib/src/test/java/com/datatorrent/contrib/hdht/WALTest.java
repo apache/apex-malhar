@@ -35,6 +35,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Random;
 
 public class WALTest
@@ -54,6 +55,7 @@ public class WALTest
     rand.nextBytes(val);
     return new Slice(val);
   }
+
 
   /**
    * - Write some data to WAL
@@ -200,7 +202,7 @@ public class WALTest
     HDHTWriter hds = new HDHTWriter();
     hds.setFileStore(bfs);
     hds.setKeyComparator(new HDHTWriterTest.SequenceComparator());
-    hds.setFlushSize(3);
+    hds.setFlushSize(1);
     hds.setup(null);
     hds.writeExecutor = MoreExecutors.sameThreadExecutor();
 
@@ -218,7 +220,6 @@ public class WALTest
     hds.committed(2);
 
     // Tuples added till this point is written to data files,
-    //
     // Tuples being added in this window, will not be written to data files
     // but will be saved in WAL. These should get recovered when bucket
     // is initialized for use next time.
@@ -226,8 +227,8 @@ public class WALTest
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.put(1, genRandomKey(500), genRandomByteArray(500));
     hds.endWindow();
-    hds.checkpointed(2);
-    hds.committed(2);
+    hds.checkpointed(3);
+
     hds.forceWal();
     hds.teardown();
 
@@ -244,11 +245,14 @@ public class WALTest
     newOperator.setup(null);
 
     // This should run recovery, as first tuple is added in bucket
-    newOperator.beginWindow(3);
+    newOperator.beginWindow(4);
     newOperator.put(1, genRandomKey(500), genRandomByteArray(500));
 
-    // Number of tuples = tuples recovered (2) + tuple being added (1).
-    Assert.assertEquals("Number of tuples in store ", 3, newOperator.unflushedData(1));
+    // current tuple, being added is put into write cache.
+    Assert.assertEquals("Number of tuples in write cache ", 1, newOperator.unflushedDataSize(1));
+
+    // two tuples are put in to committed write cache.
+    Assert.assertEquals("Number of tuples in committed cache ", 2, newOperator.committedDataSize(1));
 
     newOperator.put(1, genRandomKey(500), genRandomByteArray(500));
     newOperator.put(1, genRandomKey(500), genRandomByteArray(500));
@@ -316,6 +320,112 @@ public class WALTest
 
     File wal1 = new File(file.getAbsoluteFile().toString() + "/1/_WAL-1");
     Assert.assertEquals("New Wal-1 created ", wal1.exists(), true);
+  }
+
+  static Slice getLongByteArray(long key)
+  {
+    ByteBuffer bb = ByteBuffer.allocate(8);
+    bb.putLong(key);
+    return new Slice(bb.array());
+  }
+
+    /**
+   * checkpointed(1)  1 -> 10
+   * checkpointed(2)  1 -> 20
+   * checkpointed(3)  1 -> 30
+   * checkpointed(4)  1 -> 40
+   * committed(2)
+   * checkpointed(5)
+   *
+   * restore from 3rd checkpoint.
+   * do a get and value should be 30.
+   */
+  @Test
+  public void testWalRecoveryValues() throws IOException
+  {
+    File file = new File("target/hds");
+    FileUtils.deleteDirectory(file);
+
+    HDHTFileAccessFSImpl bfs = new MockFileAccess();
+    bfs.setBasePath(file.getAbsolutePath());
+    bfs.init();
+    ((MockFileAccess)bfs).disableChecksum();
+
+    HDHTWriter hds = new HDHTWriter();
+    hds.setFileStore(bfs);
+    hds.setFlushSize(1);
+    hds.setFlushIntervalCount(1);
+    hds.setup(null);
+    hds.writeExecutor = MoreExecutors.sameThreadExecutor();
+
+    hds.beginWindow(1);
+    hds.put(1, getLongByteArray(1), getLongByteArray(10).toByteArray());
+    hds.endWindow();
+    hds.checkpointed(1);
+
+    hds.beginWindow(2);
+    hds.put(1, getLongByteArray(1), getLongByteArray(20).toByteArray());
+    hds.endWindow();
+    hds.checkpointed(2);
+
+    hds.beginWindow(3);
+    hds.put(1, getLongByteArray(1), getLongByteArray(30).toByteArray());
+    hds.endWindow();
+    hds.checkpointed(3);
+
+    // Commit window id 2
+    hds.committed(2);
+    // use checkpoint after window 3 for recovery.
+    HDHTWriter newOperator = TestUtils.clone(new Kryo(), hds);
+
+    hds.beginWindow(4);
+    hds.put(1, getLongByteArray(1), getLongByteArray(40).toByteArray());
+    hds.put(1, getLongByteArray(2), getLongByteArray(200).toByteArray());
+    hds.endWindow();
+    hds.checkpointed(4);
+
+    hds.beginWindow(5);
+    hds.put(1, getLongByteArray(1), getLongByteArray(50).toByteArray());
+    hds.put(1, getLongByteArray(2), getLongByteArray(210).toByteArray());
+    hds.endWindow();
+    hds.checkpointed(5);
+    hds.forceWal();
+
+    /* Simulate recovery after failure, checkpoint is restored to after
+       processing of window 3.
+     */
+    newOperator.setFlushIntervalCount(1);
+    newOperator.setFileStore(bfs);
+    newOperator.setFlushSize(1);
+    newOperator.setup(null);
+    newOperator.writeExecutor = MoreExecutors.sameThreadExecutor();
+
+    // This should run recovery, as first tuple is added in bucket
+    newOperator.beginWindow(4);
+    newOperator.put(1, getLongByteArray(1), getLongByteArray(40).toByteArray());
+    newOperator.put(1, getLongByteArray(2), getLongByteArray(200).toByteArray());
+    // current tuple, being added is put into write cache.
+    Assert.assertEquals("Number of tuples in write cache ", 2, newOperator.unflushedDataSize(1));
+    // one tuples are put in to committed write cache.
+    Assert.assertEquals("Number of tuples in committed cache ", 1, newOperator.committedDataSize(1));
+    newOperator.endWindow();
+    newOperator.checkpointed(4);
+
+    /* The latest value is recovered from WAL */
+    ByteBuffer bb = ByteBuffer.wrap(newOperator.getUncommitted(1, getLongByteArray(1)));
+    long l = bb.getLong();
+    Assert.assertEquals("Value of 1 is recovered from WAL", 40, l);
+
+    newOperator.committed(3);
+
+    bb = ByteBuffer.wrap(newOperator.get(1, getLongByteArray(1)));
+    l = bb.getLong();
+    Assert.assertEquals("Value is persisted ", 30, l);
+
+    newOperator.committed(4);
+    bb = ByteBuffer.wrap(newOperator.get(1, getLongByteArray(1)));
+    l = bb.getLong();
+    Assert.assertEquals("Value is persisted ", 40, l);
   }
 
 
