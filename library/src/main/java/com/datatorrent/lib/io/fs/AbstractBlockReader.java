@@ -34,6 +34,7 @@ import org.apache.hadoop.fs.Path;
 import com.datatorrent.lib.counters.BasicCounters;
 
 import com.datatorrent.api.*;
+import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 /**
  * AbstractBlockReader processes a block of data from a bigger file.<br/>
@@ -197,7 +198,9 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   {
     FileSplitter.BlockMetadata top = blockQueue.poll();
     try {
-      blocksMetadataOutput.emit(top);
+      if (blocksMetadataOutput.isConnected()) {
+        blocksMetadataOutput.emit(top);
+      }
       processBlockMetadata(top);
       blocksPerWindow++;
     }
