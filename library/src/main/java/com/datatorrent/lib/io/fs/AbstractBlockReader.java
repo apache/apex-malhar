@@ -111,18 +111,9 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     @Override
     public void process(FileSplitter.BlockMetadata blockMetadata)
     {
+      blockQueue.add(blockMetadata);
       if (blocksPerWindow < threshold) {
-        try {
-          blocksMetadataOutput.emit(blockMetadata);
-          processBlockMetadata(blockMetadata);
-          blocksPerWindow++;
-        }
-        catch (IOException e) {
-          throw new RuntimeException(e);
-        }
-      }
-      else {
-        blockQueue.add(blockMetadata);
+        processHeadBlock();
       }
     }
 
@@ -196,17 +187,22 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     }
     else {
       do {
-        FileSplitter.BlockMetadata top = blockQueue.poll();
-        try {
-          blocksMetadataOutput.emit(top);
-          processBlockMetadata(top);
-          blocksPerWindow++;
-        }
-        catch (IOException e) {
-          throw new RuntimeException(e);
-        }
+        processHeadBlock();
       }
       while (blocksPerWindow < threshold && !blockQueue.isEmpty());
+    }
+  }
+
+  private void processHeadBlock()
+  {
+    FileSplitter.BlockMetadata top = blockQueue.poll();
+    try {
+      blocksMetadataOutput.emit(top);
+      processBlockMetadata(top);
+      blocksPerWindow++;
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
@@ -284,6 +280,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   protected void closeCurrentReader() throws IOException
   {
     if (inputStream != null) {
+      LOG.debug("close reader");
       inputStream.close();
       inputStream = null;
     }
