@@ -113,6 +113,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     {
       LOG.debug("block {}", blockMetadata.hashCode());
       blockQueue.add(blockMetadata);
+      processHeadBlock();
     }
 
   };
@@ -185,17 +186,22 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     }
     else {
       do {
-        FileSplitter.BlockMetadata top = blockQueue.poll();
-        try {
-          blocksMetadataOutput.emit(top);
-          processBlockMetadata(top);
-          blocksPerWindow++;
-        }
-        catch (IOException e) {
-          throw new RuntimeException(e);
-        }
+        processHeadBlock();
       }
       while (blocksPerWindow < threshold && !blockQueue.isEmpty());
+    }
+  }
+
+  private void processHeadBlock()
+  {
+    FileSplitter.BlockMetadata top = blockQueue.poll();
+    try {
+      blocksMetadataOutput.emit(top);
+      processBlockMetadata(top);
+      blocksPerWindow++;
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
