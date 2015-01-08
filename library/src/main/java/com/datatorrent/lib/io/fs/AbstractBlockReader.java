@@ -111,7 +111,6 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     @Override
     public void process(FileSplitter.BlockMetadata blockMetadata)
     {
-      LOG.debug("block {}", blockMetadata.hashCode());
       if (blocksPerWindow < threshold) {
         try {
           blocksMetadataOutput.emit(blockMetadata);
@@ -285,7 +284,6 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
   protected void closeCurrentReader() throws IOException
   {
     if (inputStream != null) {
-      LOG.debug("close reader");
       inputStream.close();
       inputStream = null;
     }
