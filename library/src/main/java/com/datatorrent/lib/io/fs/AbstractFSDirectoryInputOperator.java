@@ -15,10 +15,7 @@
  */
 package com.datatorrent.lib.io.fs;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -26,6 +23,8 @@ import java.util.regex.Pattern;
 import javax.validation.constraints.NotNull;
 
 import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -706,7 +705,17 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
     Kryo kryo = new Kryo();
     Collection<Partition<AbstractFSDirectoryInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
     for (int i=0; i<scanners.size(); i++) {
-      AbstractFSDirectoryInputOperator<T> oper = kryo.copy(this);
+
+      // Kryo.copy fails as it attempts to clone transient fields
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      Output loutput = new Output(bos);
+      kryo.writeObject(loutput, this);
+      loutput.close();
+      Input lInput = new Input(bos.toByteArray());
+      @SuppressWarnings("unchecked")
+      AbstractFSDirectoryInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
+      lInput.close();
+
       DirectoryScanner scn = scanners.get(i);
       oper.setScanner(scn);
 
