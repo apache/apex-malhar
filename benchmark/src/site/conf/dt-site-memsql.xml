@@ -3,12 +3,12 @@
 
 <configuration>
   <property>
-    <name>seedSize</name>
+    <name>dt.seedSize</name>
     <value>10000</value>
     <description>Seed Size.</description>
   </property>
   <property>
-    <name>rootDbUrl</name>
+    <name>dt.rootDbUrl</name>
     <value>jdbc:mysql://127.0.0.1:3306</value>
     <description>Root DbUrl.</description>
   </property>
