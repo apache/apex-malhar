@@ -13,9 +13,8 @@
   </property>
 
   <property>
-    <name>kafka.brokerlist</name>
+    <name>dt.kafka.brokerlist</name>
     <value>localhost:9092</value>
   </property>
-
 </configuration>
 

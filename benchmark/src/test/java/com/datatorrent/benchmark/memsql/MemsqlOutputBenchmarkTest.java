@@ -40,7 +40,7 @@ public class MemsqlOutputBenchmarkTest
     conf.addResource(inputStream);
 
     MemsqlStore memsqlStore = new MemsqlStore();
-    memsqlStore.setDbUrl(conf.get("rootDbUrl"));
+    memsqlStore.setDbUrl(conf.get("dt.rootDbUrl"));
     memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlOutputBenchmark.operator.memsqlOutputOperator.store.connectionProperties"));
 
     AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
