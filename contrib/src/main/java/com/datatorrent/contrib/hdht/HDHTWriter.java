@@ -160,7 +160,7 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
       if (fw == null) {
         // next file
         fileMeta = bucketMeta.addFile(bucket.bucketKey, dataEntry.getKey());
-        LOG.debug("writing new data file {} {}", bucket.bucketKey, fileMeta.name);
+        LOG.debug("writing data file {} {}", bucket.bucketKey, fileMeta.name);
         fw = this.store.getWriter(bucket.bucketKey, fileMeta.name + ".tmp");
         keysWritten = 0;
       }
@@ -213,8 +213,8 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
       if (ioStats != null) {
         bucket.wal.restoreStats(ioStats);
       }
-      LOG.debug("Existing walmeta information walPos {} recoveryStart {} windowId {} committedWid {} currentWid {}",
-          wmeta.cpWalPosition, bmeta.recoveryStartWalPosition, wmeta.windowId, bmeta.committedWid, currentWindowId);
+      LOG.debug("walStart {} walEnd {} windowId {} committedWid {} currentWid {}",
+          bmeta.recoveryStartWalPosition, wmeta.cpWalPosition, wmeta.windowId, bmeta.committedWid, currentWindowId);
 
       // bmeta.componentLSN is data which is committed to disks.
       // wmeta.windowId windowId till which data is available in WAL.
@@ -368,10 +368,10 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
       writeFile(bucket, bucketMetaCopy, fileData);
     }
 
-    LOG.debug("Number of file wrote {} Number of files read {} in this write cycle", ioStats.filesWroteInCurrentWriteCycle, ioStats.filesReadInCurrentWriteCycle);
+    LOG.debug("Files written {} files read {}", ioStats.filesWroteInCurrentWriteCycle, ioStats.filesReadInCurrentWriteCycle);
     // flush meta data for new files
     try {
-      LOG.debug("writing {} with {} file entries", FNAME_META, bucketMetaCopy.files.size());
+      LOG.debug("Writing {} with {} file entries", FNAME_META, bucketMetaCopy.files.size());
       OutputStream os = store.getOutputStream(bucket.bucketKey, FNAME_META + ".new");
       Output output = new Output(os);
       bucketMetaCopy.committedWid = bucket.committedLSN;
@@ -396,7 +396,7 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
     }
     invalidateReader(bucket.bucketKey, filesToDelete);
 
-    // cleanup wal files which are not needed anymore.
+    // cleanup WAL files which are not needed anymore.
     bucket.wal.cleanup(bucketMetaCopy.recoveryStartWalPosition.fileId);
 
     ioStats.filesReadInCurrentWriteCycle = 0;
@@ -599,7 +599,7 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
     // Window Id which is written to the WAL.
     public long windowId;
 
-    // Checkpointed Wal position.
+    // Checkpointed WAL position.
     HDHTWalManager.WalPosition cpWalPosition;
   }
 
