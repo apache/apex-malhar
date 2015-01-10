@@ -68,9 +68,10 @@ public class TestUtils
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public static <T> void setSink(OutputPort<T> port, Sink<T> sink)
+  public static <T> Sink<T> setSink(OutputPort<T> port, Sink<T> sink)
   {
      port.setSink((CollectorTestSink)sink);
+     return sink;
   }
 
 
