@@ -28,7 +28,7 @@ import com.datatorrent.common.util.Slice;
 public class FixedBytesBlockReader extends AbstractBlockReader<Slice>
 {
   @Min(1)
-  private int length;
+  protected int length;
 
   protected final transient Entity entity;
 

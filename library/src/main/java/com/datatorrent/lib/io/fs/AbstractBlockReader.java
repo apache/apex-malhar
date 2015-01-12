@@ -572,12 +572,12 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
    * Represents the record and the total bytes used by an {@link AbstractBlockReader} to construct the record.<br/>
    * used bytes can be different from the bytes in the record.
    */
-  protected static class Entity
+  public static class Entity
   {
-    byte[] record;
-    long usedBytes;
+    public byte[] record;
+    public long usedBytes;
 
-    void clear()
+    public void clear()
     {
       record = null;
       usedBytes = -1;
