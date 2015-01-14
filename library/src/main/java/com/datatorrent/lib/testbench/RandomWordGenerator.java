@@ -43,12 +43,6 @@ public class RandomWordGenerator implements InputOperator
   public static final int TUPLE_BYTE_SIZE = 32;
 
   /**
-   * The size of tuples.Another parameter used in benchmark performance testing.
-   */
-  public int tupleSize = TUPLE_BYTE_SIZE;
-
-
-  /**
    * The number of tuples per window.
    */
   @Min(1)
@@ -58,7 +52,7 @@ public class RandomWordGenerator implements InputOperator
    * The size of tuples in bytes.
    */
   @Min(1)
-  private int tupleByteSize = TUPLE_BYTE_SIZE;
+  private int tupleSize = TUPLE_BYTE_SIZE;
 
   /**
    * The random object use to generate the tuples.
@@ -93,7 +87,7 @@ public class RandomWordGenerator implements InputOperator
         tupleCounter < tuplesPerWindow;
         tupleCounter++)
     {
-      byte[] bytes = new byte[tupleByteSize];
+      byte[] bytes = new byte[tupleSize];
       random.nextBytes(bytes);
       output.emit(bytes);
     }
@@ -129,24 +123,6 @@ public class RandomWordGenerator implements InputOperator
 
   /**
    * Sets the number of bytes in the emitted byte array tuples.
-   * @param tupleByteSize The number of bytes in the emitted byte array tuples.
-   */
-  public void setTupleByteSize(int tupleByteSize)
-  {
-    this.tupleByteSize = tupleByteSize;
-  }
-
-  /**
-   * Gets the number of bytes in the emitted byte array tuples.
-   * @return The number of bytes in the emitted byte array tuples.
-   */
-  public int getTupleByteSize()
-  {
-    return tupleByteSize;
-  }
-
-  /**
-   * Sets the number of bytes in the emitted tuple.
    * @param tupleSize The number of bytes in the emitted byte array tuples.
    */
   public void setTupleSize(int tupleSize)
