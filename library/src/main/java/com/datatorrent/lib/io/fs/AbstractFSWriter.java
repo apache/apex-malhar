@@ -45,7 +45,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.lib.counters.BasicCounters;
-import org.apache.hadoop.fs.permission.FsPermission;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
@@ -96,9 +95,6 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
    * Size of the copy buffer used to restore files to checkpointed state.
    */
   private static final int COPY_BUFFER_SIZE = 1024;
-
-  @Nonnull
-  protected int filePermission = 0777;
 
   /**
    * The default number of max open files.
@@ -317,8 +313,6 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
           else {
             fsOutput = fs.create(lfilepath, (short) replication);
           }
-
-          fs.setPermission(lfilepath, FsPermission.createImmutable((short)filePermission));
 
           //Get the end offset of the file.
 
@@ -573,32 +567,14 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
   }
 
   /**
-   * This method will close a file.<br/>
-   *
-   * The child operator should not call this method on rolling files.
-   * @param fileName The name of the file to close and remove.
-   */
-  protected void closeFile(String fileName)
-  {
-    if (!endOffsets.containsKey(fileName)) {
-      throw new IllegalArgumentException("The file " + fileName + " was never opened.");
-    }
-
-    //triggers the RemoveListener#onRemoval() method.
-    streamsCache.invalidate(fileName);
-  }
-
-   /**
    * This hook is called after a rolling file part has filled up and is closed. The hook is passed
    * the name of the file part that has just completed closed.
    * @param finishedFile The name of the file part that has just completed and closed.
    */
-   protected  void rotateHook(String finishedFile)
-   {
-     LOG.info("finished file is {}" , finishedFile);
-   }
-
-
+  protected void rotateHook(String finishedFile)
+  {
+    //Do nothing by default
+  }
 
   /**
    * This method is used to force buffers to be flushed at the end of the window.
@@ -749,23 +725,6 @@ public abstract class AbstractFSWriter<INPUT> extends BaseOperator
   {
     return this.maxOpenFiles;
   }
-
-  /**
-   * Get the permission on the file which is being written.
-   */
-  public int getFilePermission()
-  {
-    return filePermission;
-  }
-
-  /**
-   * Set the permission on the file which is being written.
-   */
-  public void setFilePermission(int filePermission)
-  {
-    this.filePermission = filePermission;
-  }
-
 
   public static enum Counters
   {

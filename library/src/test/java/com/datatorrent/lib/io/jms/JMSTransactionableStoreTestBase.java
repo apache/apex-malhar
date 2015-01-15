@@ -11,7 +11,6 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContex
 import com.datatorrent.lib.io.jms.JMSOutputOperatorTest.JMSStringSinglePortOutputOperator;
 import com.datatorrent.lib.util.ActiveMQMessageListener;
 import java.io.File;
-import java.io.IOException;
 import javax.jms.JMSException;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
@@ -41,23 +40,13 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
       DefaultAttributeMap attributes = new DefaultAttributeMap();
       attributes.put(DAG.APPLICATION_ID, APP_ID);
       testOperatorContext = new TestIdOperatorContext(OPERATOR_ID, attributes);
-      try {
-        FileUtils.deleteDirectory(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
-      }
-      catch (IOException ex) {
-        throw new RuntimeException(ex);
-      }
+      FileUtils.deleteQuietly(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
     }
 
     @Override
     protected void finished(org.junit.runner.Description description)
     {
-      try {
-        FileUtils.deleteDirectory(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
-      }
-      catch (IOException ex) {
-        throw new RuntimeException(ex);
-      }
+      FileUtils.deleteQuietly(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
     }
   };
 

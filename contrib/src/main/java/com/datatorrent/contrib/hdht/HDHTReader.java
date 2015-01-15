@@ -358,7 +358,7 @@ public class HDHTReader implements Operator, HDHT.Reader
       bfm.name = Long.toString(bucketKey) + '-' + this.fileSeq++;
       if (startKey.length != startKey.buffer.length) {
         // normalize key for serialization
-        startKey = startKey.clone();
+        startKey = new Slice(startKey.toByteArray());
       }
       bfm.startKey = startKey;
       files.put(startKey, bfm);
@@ -368,6 +368,7 @@ public class HDHTReader implements Operator, HDHT.Reader
     int fileSeq;
     long committedWid;
     final TreeMap<Slice, BucketFileMeta> files;
+    HDHTWalManager.WalPosition recoveryStartWalPosition;
   }
 
   private static class BucketReader implements Closeable

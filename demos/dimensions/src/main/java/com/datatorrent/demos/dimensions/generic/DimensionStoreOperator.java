@@ -19,7 +19,7 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -60,7 +60,7 @@ import java.util.concurrent.TimeUnit;
  * @category Store
  * @tags storage, hdfs, dimensions, hdht
  */
-public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericAggregate>
+public class DimensionStoreOperator extends AbstractSinglePortHDHTWriter<GenericAggregate>
 {
   protected final SortedMap<Long, Map<GenericAggregate, GenericAggregate>> cache = Maps.newTreeMap();
 
@@ -260,7 +260,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDSWriter<GenericA
   }
 
   @Override
-  protected HDSCodec<GenericAggregate> getCodec()
+  protected HDHTCodec<GenericAggregate> getCodec()
   {
     return new GenericAggregateCodec();
   }

@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.apache.hadoop.fs.FSDataOutputStream;
 
 import com.datatorrent.common.util.Slice;
+import com.datatorrent.contrib.hdht.HDHT.WALReader;
 
 
 public class HDFSWalWriter implements HDHT.WALWriter
@@ -52,10 +53,15 @@ public class HDFSWalWriter implements HDHT.WALWriter
   @Override
   public void append(Slice key, byte[] value) throws IOException
   {
-    out.writeInt(key.length);
-    out.write(key.buffer, key.offset, key.length);
-    out.writeInt(value.length);
-    out.write(value);
+    if (value == WALReader.DELETED) {
+      out.writeInt(-key.length);
+      out.write(key.buffer, key.offset, key.length);
+    } else {
+      out.writeInt(key.length);
+      out.write(key.buffer, key.offset, key.length);
+      out.writeInt(value.length);
+      out.write(value);
+    }
   }
 
   @Override public void flush() throws IOException

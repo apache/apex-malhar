@@ -84,7 +84,7 @@ public class KafkaInputBenchmark implements StreamingApplication
       consumer = new SimpleKafkaConsumer(null, 10000, 100000, "test_kafka_autop_client", new HashSet<Integer>());
     }
 
-    consumer.setBrokerSet(Sets.newHashSet(conf.get("kafka.brokerlist").split("\\s*,\\s*")));
+    consumer.setBrokerSet(Sets.newHashSet(conf.get("dt.kafka.brokerlist").split("\\s*,\\s*")));
     bpkio.setInitialPartitionCount(1);
     //bpkio.setTuplesBlast(1024 * 1024);
     bpkio.setConsumer(consumer);

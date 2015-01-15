@@ -39,6 +39,7 @@ public interface HDHT
    */
   public interface WALReader extends Closeable
   {
+    static final byte[] DELETED = {};
 
     /**
      * Close WAL after read.

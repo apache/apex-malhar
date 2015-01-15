@@ -50,13 +50,24 @@ public class HDFSWalReader implements HDHT.WALReader
       return false;
 
     try {
+      boolean isDelete = false;
       int keyLen = in.readInt();
+      if (keyLen < 0) {
+        keyLen = -keyLen;
+        isDelete = true;
+      }
+
       byte[] key = new byte[keyLen];
       in.readFully(key);
 
-      int valLen = in.readInt();
-      byte[] value = new byte[valLen];
-      in.readFully(value);
+      byte[] value;
+      if (!isDelete) {
+        int valLen = in.readInt();
+        value = new byte[valLen];
+        in.readFully(value);
+      } else {
+        value = DELETED;
+      }
 
       pair =  new MutableKeyValue(key, value);
       return true;

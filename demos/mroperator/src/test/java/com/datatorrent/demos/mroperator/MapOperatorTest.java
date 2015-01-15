@@ -15,8 +15,12 @@
  */
 package com.datatorrent.demos.mroperator;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 
+import org.apache.commons.io.FileUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
@@ -29,19 +33,23 @@ import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.TextInputFormat;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
-
 @SuppressWarnings("deprecation")
 public class MapOperatorTest
 {
 
-  private static Logger logger = LoggerFactory.getLogger(MapOperatorTest.class);
+  private static Logger LOG = LoggerFactory.getLogger(MapOperatorTest.class);
 
+  @Rule
+  public TestMeta testMeta = new TestMeta();
   /**
    * Test node logic emits correct results
    */
@@ -59,13 +67,13 @@ public class MapOperatorTest
 
     oper.setMapClass(WordCount.Map.class);
     oper.setCombineClass(WordCount.Reduce.class);
-    oper.setDirName("src/test/resources/mroperator/");
+    oper.setDirName(testMeta.testDir);
     oper.setConfigFile(null);
     oper.setInputFormatClass(TextInputFormat.class);
 
     Configuration conf = new Configuration();
     JobConf jobConf = new JobConf(conf);
-    FileInputFormat.setInputPaths(jobConf, new Path("src/test/resources/mroperator/"));
+    FileInputFormat.setInputPaths(jobConf, new Path(testMeta.testDir));
     TextInputFormat inputFormat = new TextInputFormat();
     inputFormat.configure(jobConf);
     InputSplit[] splits = inputFormat.getSplits(jobConf, 1);
@@ -84,12 +92,68 @@ public class MapOperatorTest
     oper.emitTuples();
     oper.endWindow();
 
-    Assert.assertEquals("number emitted tuples", 6, sortSink.collectedTuples.size());
+    Assert.assertEquals("number emitted tuples", 3, sortSink.collectedTuples.size());
     for (Object o : sortSink.collectedTuples) {
-      logger.debug(o.toString());
+      LOG.debug(o.toString());
     }
-    logger.debug("Done testing round\n");
+    LOG.debug("Done testing round\n");
+    oper.teardown();
   }
 
+  public static class TestMeta extends TestWatcher
+  {
+    public final String file1 = "file1";
+    public String baseDir;
+    public String testDir;
+
+    @Override
+    protected void starting(org.junit.runner.Description description)
+    {
+      String methodName = description.getMethodName();
+      String className = description.getClassName();
+      baseDir = "target/" + className;
+      testDir = baseDir + "/" + methodName;
+      try {
+        FileUtils.forceMkdir(new File(testDir));
+      }
+      catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+      createFile(testDir + "/" + file1, "1\n2\n3\n1\n2\n3\n");
+    }
+
+    private void createFile(String fileName, String data)
+    {
+      BufferedWriter output = null;
+      try {
+        output = new BufferedWriter(new FileWriter(new File(fileName)));
+        output.write(data);
+      }
+      catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+      finally {
+        if (output != null) {
+          try {
+            output.close();
+          }
+          catch (IOException ex) {
+            LOG.error("not able to close the output stream: ", ex);
+          }
+        }
+      }
+    }
+
+    @Override
+    protected void finished(Description description)
+    {
+      try {
+        FileUtils.deleteDirectory(new File(baseDir));
+      }
+      catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+  }
 
 }

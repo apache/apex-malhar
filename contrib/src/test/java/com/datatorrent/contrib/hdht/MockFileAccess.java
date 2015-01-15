@@ -46,6 +46,10 @@ public class MockFileAccess extends HDHTFileAccessFSImpl
 
   private final Set<String> deletedFiles = Sets.newHashSet();
 
+  public void disableChecksum() {
+    fs.setVerifyChecksum(false);
+  }
+
   @Override
   public void delete(long bucketKey, String fileName) throws IOException
   {

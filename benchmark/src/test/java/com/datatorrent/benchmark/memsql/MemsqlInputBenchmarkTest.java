@@ -25,6 +25,8 @@ import com.datatorrent.contrib.memsql.*;
 import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.BATCH_SIZE;
 import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.*;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.sql.SQLException;
 import java.util.Random;
@@ -40,14 +42,14 @@ public class MemsqlInputBenchmarkTest
   private static final long SEED_SIZE = 10000;
 
   @Test
-  public void testMethod() throws SQLException
+  public void testMethod() throws SQLException, IOException
   {
     Configuration conf = new Configuration();
-    InputStream inputStream = getClass().getResourceAsStream("/dt-site-memsql.xml");
+    InputStream inputStream = new FileInputStream("src/site/conf/dt-site-memsql.xml");
     conf.addResource(inputStream);
 
     MemsqlStore memsqlStore = new MemsqlStore();
-    memsqlStore.setDbUrl(conf.get("rootDbUrl"));
+    memsqlStore.setDbUrl(conf.get("dt.rootDbUrl"));
     memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties"));
 
     AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
@@ -64,7 +66,7 @@ public class MemsqlInputBenchmarkTest
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
-    long seedSize = conf.getLong("seedSize", SEED_SIZE);
+    long seedSize = conf.getLong("dt.seedSize", SEED_SIZE);
 
     outputOperator.setup(context);
     outputOperator.beginWindow(0);

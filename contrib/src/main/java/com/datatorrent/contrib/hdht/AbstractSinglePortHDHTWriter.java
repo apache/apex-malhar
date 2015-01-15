@@ -44,22 +44,22 @@ import com.google.common.collect.Lists;
  * The derived class supplies the codec for partitioning and key-value serialization.
  * @param <EVENT>
  */
-public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDHTWriter implements Partitioner<AbstractSinglePortHDSWriter<EVENT>>
+public abstract class AbstractSinglePortHDHTWriter<EVENT> extends HDHTWriter implements Partitioner<AbstractSinglePortHDHTWriter<EVENT>>
 {
-  public interface HDSCodec<EVENT> extends StreamCodec<EVENT>
+  public interface HDHTCodec<EVENT> extends StreamCodec<EVENT>
   {
     byte[] getKeyBytes(EVENT event);
     byte[] getValueBytes(EVENT event);
     EVENT fromKeyValue(Slice key, byte[] value);
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractSinglePortHDSWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractSinglePortHDHTWriter.class);
 
   protected int partitionMask;
 
   protected Set<Integer> partitions;
 
-  protected transient HDSCodec<EVENT> codec;
+  protected transient HDHTCodec<EVENT> codec;
 
   @Min(1)
   private int partitionCount = 1;
@@ -112,7 +112,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDHTWriter impl
     super.put(getBucketKey(event), new Slice(key), value);
   }
 
-  abstract protected HDSCodec<EVENT> getCodec();
+  abstract protected HDHTCodec<EVENT> getCodec();
 
   @Override
   public void setup(OperatorContext arg0)
@@ -139,7 +139,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDHTWriter impl
   }
 
   @Override
-  public Collection<Partition<AbstractSinglePortHDSWriter<EVENT>>> definePartitions(Collection<Partition<AbstractSinglePortHDSWriter<EVENT>>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractSinglePortHDHTWriter<EVENT>>> definePartitions(Collection<Partition<AbstractSinglePortHDHTWriter<EVENT>>> partitions, int incrementalCapacity)
   {
     boolean isInitialPartition = partitions.iterator().next().getStats() == null;
 
@@ -161,7 +161,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDHTWriter impl
     }
 
     Kryo lKryo = new Kryo();
-    Collection<Partition<AbstractSinglePortHDSWriter<EVENT>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
+    Collection<Partition<AbstractSinglePortHDHTWriter<EVENT>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
     for (int i = 0; i < totalCount; i++) {
       // Kryo.copy fails as it attempts to clone transient fields (input port)
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -170,14 +170,14 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDHTWriter impl
       output.close();
       Input lInput = new Input(bos.toByteArray());
       @SuppressWarnings("unchecked")
-      AbstractSinglePortHDSWriter<EVENT> oper = lKryo.readObject(lInput, this.getClass());
-      newPartitions.add(new DefaultPartition<AbstractSinglePortHDSWriter<EVENT>>(oper));
+      AbstractSinglePortHDHTWriter<EVENT> oper = lKryo.readObject(lInput, this.getClass());
+      newPartitions.add(new DefaultPartition<AbstractSinglePortHDHTWriter<EVENT>>(oper));
     }
 
     // assign the partition keys
     DefaultPartition.assignPartitionKeys(newPartitions, input);
 
-    for (Partition<AbstractSinglePortHDSWriter<EVENT>> p : newPartitions) {
+    for (Partition<AbstractSinglePortHDHTWriter<EVENT>> p : newPartitions) {
       PartitionKeys pks = p.getPartitionKeys().get(input);
       p.getPartitionedInstance().partitionMask = pks.mask;
       p.getPartitionedInstance().partitions = pks.partitions;
@@ -187,7 +187,7 @@ public abstract class AbstractSinglePortHDSWriter<EVENT> extends HDHTWriter impl
   }
 
   @Override
-  public void partitioned(Map<Integer, Partition<AbstractSinglePortHDSWriter<EVENT>>> arg0)
+  public void partitioned(Map<Integer, Partition<AbstractSinglePortHDHTWriter<EVENT>>> arg0)
   {
   }
 

@@ -1,8 +1,8 @@
 <?xml version="1.0"?>
 <configuration>
   <property>
-    <name>dt.application.MRMonitoringDemo.operator.JobMonitor.attr.INITIAL_PARTITION_COUNT</name>
-    <value>1</value>
+    <name>dt.application.MRMonitoringDemo.operator.JobMonitor.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:1</value>
   </property>
   <property>
     <name>dt.application.MRMonitoringDemo.operator.JobMonitor.attr.APPLICATION_WINDOW_COUNT</name>

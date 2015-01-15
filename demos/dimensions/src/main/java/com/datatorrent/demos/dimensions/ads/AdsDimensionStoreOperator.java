@@ -38,7 +38,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hdht.AbstractSinglePortHDSWriter;
+import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregateEvent;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
@@ -54,7 +54,7 @@ import com.google.common.collect.Sets;
  * @category Store
  * @tags storage, hdfs, dimensions, hdht
  */
-public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInfoAggregateEvent>
+public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdInfoAggregateEvent>
 {
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionStoreOperator.class);
 
@@ -156,7 +156,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
   }
 
   @Override
-  protected HDSCodec<AdInfoAggregateEvent> getCodec()
+  protected HDHTCodec<AdInfoAggregateEvent> getCodec()
   {
     return new AdInfoAggregateCodec();
   }
@@ -275,7 +275,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDSWriter<AdInf
     return ae;
   }
 
-  public static class AdInfoAggregateCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent> implements AbstractSinglePortHDSWriter.HDSCodec<AdInfoAggregateEvent>
+  public static class AdInfoAggregateCodec extends KryoSerializableStreamCodec<AdInfoAggregateEvent> implements HDHTCodec<AdInfoAggregateEvent>
   {
     public AdsDimensionStoreOperator operator;
 
