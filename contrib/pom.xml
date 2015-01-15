@@ -15,7 +15,7 @@
   <properties>
     <!-- skip tests by default as they depend on manual setup -->
     <skip.contrib.module.tests>false</skip.contrib.module.tests>
-    <skipTests>false</skipTests>
+    <skipTests>true</skipTests>
   </properties>
   <repositories>
     <repository>
@@ -68,11 +68,11 @@
          </executions>
       </plugin>
      <!-- generate javdoc -->
-     <!--<plugin>
+     <plugin>
        <groupId>org.apache.maven.plugins</groupId>
        <artifactId>maven-javadoc-plugin</artifactId>
        <executions>
-         generate xml javadoc
+         <!-- generate xml javadoc -->
          <execution>
            <id>xml-doclet</id>
            <phase>generate-resources</phase>
@@ -90,7 +90,7 @@
              </docletArtifact>
            </configuration>
          </execution>
-         generate default javadoc jar with custom tags
+         <!-- generate default javadoc jar with custom tags -->
          <execution>
            <id>attach-sources</id>
            <goals>
@@ -118,7 +118,7 @@
            </configuration>
          </execution>
        </executions>
-     </plugin>-->
+     </plugin>
      <!-- Transform xml javadoc to stripped down version containing only class/interface comments and tags-->
      <plugin>
        <groupId>org.codehaus.mojo</groupId>
@@ -531,23 +531,6 @@
       <groupId>com.couchbase.client</groupId>
       <artifactId>couchbase-client</artifactId>
       <version>1.4.4</version>
-    </dependency>
-     <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-jdbc</artifactId>
-      <version>0.13.1</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-service</artifactId>
-      <version>0.13.1</version>
-      <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-exec</artifactId>
-      <version>0.13.1</version>
       <optional>true</optional>
     </dependency>
     <dependency>
