@@ -27,7 +27,6 @@ import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 
 import com.datatorrent.common.util.DTThrowable;
-import static com.datatorrent.contrib.couchbase.CouchBaseStore.logger;
 import com.esotericsoftware.kryo.Kryo;
 import org.apache.commons.io.output.ByteArrayOutputStream;
 import com.esotericsoftware.kryo.io.Input;
@@ -49,9 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore> implements Partitioner<AbstractCouchBaseInputOperator<T>>
 {
-
-  //need to save this,hence non transient.
-  protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
+  private static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
   protected transient CouchbaseClient clientPartition = null;
 
   private int serverIndex;
@@ -87,6 +84,7 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   @Override
   public void setup(Context.OperatorContext context)
   {
+    super.setup(context);
     if (conf == null) {
       conf = store.getConf();
     }
@@ -109,7 +107,6 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
         DTThrowable.rethrow(e);
       }
     }
-
   }
 
   @Override
@@ -126,7 +123,6 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   {
     List<String> keys = getKeys();
     for (String key: keys) {
-      //if(store.conf.getMaster(store.conf.getVbucketByKey(key))){
       int master = conf.getMaster(conf.getVbucketByKey(key));
       if (master == getServerIndex()) {
         logger.info("master is {}", master);
@@ -140,7 +136,6 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
 
       }
     }
-    //  }
 
   }
 
@@ -173,7 +168,6 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
       oper.setServerIndex(i);
       oper.setUrlString(list.get(i).toString());
       logger.info("oper {} urlstring is {}", i, oper.getUrlString());
-      // oper.setStore(this.store);
       newPartitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<T>>(oper));
     }
 

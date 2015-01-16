@@ -45,8 +45,8 @@ import javax.validation.constraints.Min;
 public class CouchBaseStore implements Connectable
 {
 
-  protected static final  Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
-  protected transient ConfigurationProvider configurationProvider;
+  private static final  Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
+  private transient ConfigurationProvider configurationProvider;
   @Nonnull
   protected String bucket;
 
@@ -61,6 +61,31 @@ public class CouchBaseStore implements Connectable
   }
   @Nonnull
   protected String password;
+  @Nonnull
+  protected String userConfig;
+
+  public String getUserConfig()
+  {
+    return userConfig;
+  }
+
+  public void setUserConfig(String userConfig)
+  {
+    this.userConfig = userConfig;
+  }
+
+  public String getPasswordConfig()
+  {
+    return passwordConfig;
+  }
+
+  public void setPasswordConfig(String passwordConfig)
+  {
+    this.passwordConfig = passwordConfig;
+  }
+  @Nonnull
+  protected String passwordConfig;
+
   @Nonnull
   protected String uriString;
 
@@ -144,28 +169,6 @@ public class CouchBaseStore implements Connectable
     return client;
   }
 
-  /*public CouchbaseClient getPartitionInstance(String serverURL)
-  {
-    ArrayList<URI> nodes = new ArrayList<URI>();
-    CouchbaseClient clientPartition = null;
-    serverURL = serverURL.replace("default", "pools");
-    try {
-      nodes.add(new URI(serverURL));
-    }
-    catch (URISyntaxException ex) {
-      DTThrowable.rethrow(ex);
-    }
-
-     try {
-      clientPartition = new CouchbaseClient(nodes, "default", "");
-    }
-    catch (IOException e) {
-      logger.error("Error connecting to Couchbase: " + e.getMessage());
-      DTThrowable.rethrow(e);
-    }
-    return clientPartition;
-  }*/
-
   public void addNodes(URI url)
   {
     baseURIs.add(url);
@@ -195,7 +198,7 @@ public class CouchBaseStore implements Connectable
     catch (IOException ex) {
       DTThrowable.rethrow(ex);
     }
-    this.configurationProvider = new ConfigurationProviderHTTP(baseURIs, "root", "prerna123");
+    this.configurationProvider = new ConfigurationProviderHTTP(baseURIs, userConfig, passwordConfig);
     Bucket configBucket = this.configurationProvider.getBucketConfiguration(bucket);
     Config conf = configBucket.getConfig();
     //List<InetSocketAddress> addrs=AddrUtil.getAddressesFromURL(cfb.getVBucketConfig().getCouchServers());
