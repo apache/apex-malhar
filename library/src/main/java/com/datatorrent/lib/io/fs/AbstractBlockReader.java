@@ -767,6 +767,69 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     private static final Logger LOG = LoggerFactory.getLogger(AbstractLineReader.class);
   }
 
+  /**
+   * An implementation of {@link AbstractBlockReader} that splits the block into records on '\n' or '\r'.<br/>
+   * This implementation doesn't need a way to validate the start of a record.<br/>
+   *
+   * A reader starts parsing the block (except the first block of the file) from the first eol character.
+   * It is a less optimized version of an {@link AbstractLineReader} where a reader always reads beyond the block
+   * boundary.
+   *
+   * @param <R> type of record.
+   */
+  public static abstract class AbstractReadAheadLineReader<R> extends AbstractLineReader<R>
+  {
+    @Override
+    protected void readBlock(FileSplitter.BlockMetadata blockMetadata) throws IOException
+    {
+      final long blockLength = blockMetadata.getLength();
+
+      long blockOffset = blockMetadata.getOffset();
+
+      boolean firstEntity = true;
+
+      //equals ensures that the reader always reads ahead.
+      while (blockOffset < blockLength || (blockOffset == blockLength && !blockMetadata.isLastBlock())) {
+
+        Entity entity = readEntity(blockMetadata, blockOffset);
+
+        //The construction of entity was not complete as record end was never found.
+        if (entity == null) {
+          break;
+        }
+        counters.getCounter(ReaderCounterKeys.BYTES).add(entity.usedBytes);
+        blockOffset += entity.usedBytes;
+
+        //ignore first entity of  all the blocks except the first one because those bytes
+        //were used during the parsing of the previous block.
+        if (blockMetadata.getOffset() != 0 && firstEntity) {
+          firstEntity = false;
+          continue;
+        }
+
+        R record = convertToRecord(entity.record);
+        counters.getCounter(ReaderCounterKeys.RECORDS).increment();
+        messages.emit(new ReaderRecord<R>(blockMetadata.getBlockId(), record));
+      }
+
+    }
+
+    /**
+     * This method is not used for {@link AbstractReadAheadLineReader} as the first entity of all the blocks
+     * (except the first block of the file) is ignored.
+     *
+     * @param record
+     * @return
+     */
+    @Override
+    protected boolean isRecordValid(R record)
+    {
+      return true;
+    }
+
+    private static final long serialVersionUID = 201501161525L;
+  }
+
   private static final long serialVersionUID = 201408261653L;
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractBlockReader.class);
