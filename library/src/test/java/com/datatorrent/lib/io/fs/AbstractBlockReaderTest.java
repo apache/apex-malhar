@@ -39,12 +39,17 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 
 public class AbstractBlockReaderTest
 {
-  public static class TestMeta extends TestWatcher
+  AbstractBlockReader.AbstractLineReader<String> getBlockReader()
+  {
+    return new BlockReader();
+  }
+
+  public class TestMeta extends TestWatcher
   {
     String dataFilePath;
     File dataFile;
     Context.OperatorContext readerContext;
-    BlockReader blockReader;
+    AbstractBlockReader.AbstractLineReader<String> blockReader;
     CollectorTestSink<Object> blockMetadataSink;
     CollectorTestSink<Object> messageSink;
 
@@ -57,7 +62,7 @@ public class AbstractBlockReaderTest
       this.dataFilePath = "src/test/resources/reader_test_data.csv";
       this.dataFile = new File(dataFilePath);
       appId = Long.toHexString(System.currentTimeMillis());
-      blockReader = new BlockReader();
+      blockReader = getBlockReader();
 
       Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
       readerAttr.put(DAG.APPLICATION_ID, appId);
