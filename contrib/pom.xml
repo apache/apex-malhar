@@ -561,5 +561,11 @@
       <version>4.3.2</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>org.eclipse.jetty</groupId>
+      <artifactId>jetty-plus</artifactId>
+      <version>${jetty.version}</version>
+      <optional>true</optional>
+    </dependency>
   </dependencies>
 </project>
