@@ -447,4 +447,146 @@ public class AbstractFSDirectoryInputOperatorTest
     // No record should be read.
     Assert.assertEquals("Remaining tuples read ", 6, sink.collectedTuples.size());
   }
+
+  @Test
+  public void testRecoveryWithFailedFile() throws Exception
+  {
+    FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
+    List<String> allLines = Lists.newArrayList();
+    HashSet<String> lines = Sets.newHashSet();
+    for (int line = 0; line < 5; line++) {
+      lines.add("f0" + "l" + line);
+    }
+    allLines.addAll(lines);
+    File testFile = new File(testMeta.dir, "file0");
+    FileUtils.write(testFile, StringUtils.join(lines, '\n'));
+
+
+    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    oper.scanner = null;
+    oper.failedFiles.add(new AbstractFSDirectoryInputOperator.FailedFile(testFile.getAbsolutePath(), 1));
+
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    @SuppressWarnings({ "unchecked", "rawtypes" })
+    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    oper.output.setSink(sink);
+
+    oper.setDirectory(testMeta.dir);
+
+    oper.setup(null);
+    oper.beginWindow(0);
+    oper.emitTuples();
+    oper.endWindow();
+
+    oper.teardown();
+
+    Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
+    Assert.assertEquals("lines", allLines.subList(1, allLines.size()), new ArrayList<String>(queryResults.collectedTuples));
+  }
+
+  @Test
+  public void testRecoveryWithUnfinishedFile() throws Exception
+  {
+    FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
+    List<String> allLines = Lists.newArrayList();
+    HashSet<String> lines = Sets.newHashSet();
+    for (int line = 0; line < 5; line++) {
+      lines.add("f0" + "l" + line);
+    }
+    allLines.addAll(lines);
+    File testFile = new File(testMeta.dir, "file0");
+    FileUtils.write(testFile, StringUtils.join(lines, '\n'));
+
+    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    oper.scanner = null;
+    oper.unfinishedFiles.add(new AbstractFSDirectoryInputOperator.FailedFile(testFile.getAbsolutePath(), 2));
+
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    oper.output.setSink(sink);
+
+    oper.setDirectory(testMeta.dir);
+
+    oper.setup(null);
+    oper.beginWindow(0);
+    oper.emitTuples();
+    oper.endWindow();
+
+    oper.teardown();
+
+    Assert.assertEquals("number tuples", 3, queryResults.collectedTuples.size());
+    Assert.assertEquals("lines", allLines.subList(2, allLines.size()), new ArrayList<String>(queryResults.collectedTuples));
+  }
+
+  @Test
+  public void testRecoveryWithPendingFile() throws Exception
+  {
+    FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
+    List<String> allLines = Lists.newArrayList();
+    HashSet<String> lines = Sets.newHashSet();
+    for (int line = 0; line < 5; line++) {
+      lines.add("f0" + "l" + line);
+    }
+    allLines.addAll(lines);
+    File testFile = new File(testMeta.dir, "file0");
+    FileUtils.write(testFile, StringUtils.join(lines, '\n'));
+
+    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    oper.scanner = null;
+    oper.pendingFiles.add(testFile.getAbsolutePath());
+
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    oper.output.setSink(sink);
+
+    oper.setDirectory(testMeta.dir);
+
+    oper.setup(null);
+    oper.beginWindow(0);
+    oper.emitTuples();
+    oper.endWindow();
+
+    oper.teardown();
+
+    Assert.assertEquals("number tuples", 5, queryResults.collectedTuples.size());
+    Assert.assertEquals("lines", allLines, new ArrayList<String>(queryResults.collectedTuples));
+  }
+
+  @Test
+  public void testRecoveryWithCurrentFile() throws Exception
+  {
+    FileContext.getLocalFSFileContext().delete(new Path(new File(testMeta.dir).getAbsolutePath()), true);
+    List<String> allLines = Lists.newArrayList();
+    HashSet<String> lines = Sets.newHashSet();
+    for (int line = 0; line < 5; line++) {
+      lines.add("f0" + "l" + line);
+    }
+    allLines.addAll(lines);
+    File testFile = new File(testMeta.dir, "file0");
+    FileUtils.write(testFile, StringUtils.join(lines, '\n'));
+
+    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    oper.scanner = null;
+    oper.currentFile = testFile.getAbsolutePath();
+    oper.offset = 1;
+
+    CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
+    oper.output.setSink(sink);
+
+    oper.setDirectory(testMeta.dir);
+
+    oper.setup(null);
+    oper.beginWindow(0);
+    oper.emitTuples();
+    oper.endWindow();
+
+    oper.teardown();
+
+    Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
+    Assert.assertEquals("lines", allLines.subList(1, allLines.size()), new ArrayList<String>(queryResults.collectedTuples));
+  }
 }

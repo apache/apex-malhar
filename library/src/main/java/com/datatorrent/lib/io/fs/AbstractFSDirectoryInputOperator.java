@@ -395,22 +395,6 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
       filePath = new Path(directory);
       configuration = new Configuration();
       fs = getFSInstance();
-      if(!unfinishedFiles.isEmpty()) {
-        retryFailedFile(unfinishedFiles.poll());
-        skipCount = 0;
-      } else if(!failedFiles.isEmpty()) {
-        retryFailedFile(failedFiles.poll());
-        skipCount = 0;
-      }
-      long startTime = System.currentTimeMillis();
-      LOG.info("Continue reading {} from index {} time={}", currentFile, offset, startTime);
-      // fast forward to previous offset
-      if(inputStream != null) {
-        for(int index = 0; index < offset; index++) {
-          readEntity();
-        }
-      }
-      LOG.info("Read offset={} records in setup time={}", offset, System.currentTimeMillis() - startTime);
     }
     catch (IOException ex) {
       failureHandling(ex);
@@ -511,7 +495,14 @@ public abstract class AbstractFSDirectoryInputOperator<T> implements InputOperat
   {
     if (inputStream == null) {
       try {
-        if (!unfinishedFiles.isEmpty()) {
+        if (currentFile != null && offset > 0) {
+          //open file resets offset to 0 so this a way around it.
+          int tmpOffset = offset;
+          this.inputStream = openFile(new Path(currentFile));
+          offset = tmpOffset;
+          skipCount = tmpOffset;
+        }
+        else if (!unfinishedFiles.isEmpty()) {
           retryFailedFile(unfinishedFiles.poll());
         }
         else if (!pendingFiles.isEmpty()) {
