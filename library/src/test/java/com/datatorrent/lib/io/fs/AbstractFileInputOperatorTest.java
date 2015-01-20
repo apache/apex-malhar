@@ -17,7 +17,7 @@ package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Partitioner.Partition;
-import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator.DirectoryScanner;
+import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.*;
@@ -31,7 +31,7 @@ import org.apache.hadoop.fs.FileSystem;
 import org.junit.*;
 import org.junit.rules.TestWatcher;
 
-public class AbstractFSDirectoryInputOperatorTest
+public class AbstractFileInputOperatorTest
 {
   public static class TestMeta extends TestWatcher
   {
@@ -48,7 +48,7 @@ public class AbstractFSDirectoryInputOperatorTest
 
   @Rule public TestMeta testMeta = new TestMeta();
 
-  public static class TestFSDirectoryInputOperator extends AbstractFSDirectoryInputOperator<String>
+  public static class TestFileInputOperator extends AbstractFileInputOperator<String>
   {
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
     private transient BufferedReader br = null;
@@ -96,7 +96,7 @@ public class AbstractFSDirectoryInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "file"+file), StringUtils.join(lines, '\n'));
     }
 
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -146,7 +146,7 @@ public class AbstractFSDirectoryInputOperatorTest
   @Test
   public void testPartitioning() throws Exception
   {
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
 
@@ -156,13 +156,13 @@ public class AbstractFSDirectoryInputOperatorTest
       FileUtils.write(new File(testMeta.dir, "partition00"+file), "");
     }
 
-    List<Partition<AbstractFSDirectoryInputOperator<String>>> partitions = Lists.newArrayList();
-    partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
-    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = oper.definePartitions(partitions, 1);
+    List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = oper.definePartitions(partitions, 1);
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(2, oper.getCurrentPartitions());
 
-    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+    for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
       Assert.assertNotSame(oper, p.getPartitionedInstance());
       Assert.assertNotSame(oper.getScanner(), p.getPartitionedInstance().getScanner());
       Set<String> consumed = Sets.newHashSet();
@@ -185,12 +185,12 @@ public class AbstractFSDirectoryInputOperatorTest
   public void testPartitioningStateTransfer() throws Exception
   {
 
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
     oper.setScanIntervalMillis(0);
 
-    TestFSDirectoryInputOperator initialState = new Kryo().copy(oper);
+    TestFileInputOperator initialState = new Kryo().copy(oper);
 
     // Create 4 files with 3 records each.
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
@@ -223,23 +223,23 @@ public class AbstractFSDirectoryInputOperatorTest
     Assert.assertEquals(true, rsp.repartitionRequired);
 
     // Create partitions of the operator.
-    List<Partition<AbstractFSDirectoryInputOperator<String>>> partitions = Lists.newArrayList();
-    partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
+    List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
     // incremental capacity controlled partitionCount property
-    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, initialState.getCurrentPartitions());
-    Map<Integer, Partition<AbstractFSDirectoryInputOperator<String>>> m = Maps.newHashMap();
-    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+    Map<Integer, Partition<AbstractFileInputOperator<String>>> m = Maps.newHashMap();
+    for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
       m.put(m.size(), p);
     }
     initialState.partitioned(m);
     Assert.assertEquals(2, initialState.getCurrentPartitions());
 
     /* Collect all operators in a list */
-    List<AbstractFSDirectoryInputOperator<String>> opers = Lists.newArrayList();
-    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
-      TestFSDirectoryInputOperator oi = (TestFSDirectoryInputOperator)p.getPartitionedInstance();
+    List<AbstractFileInputOperator<String>> opers = Lists.newArrayList();
+    for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
+      TestFileInputOperator oi = (TestFileInputOperator)p.getPartitionedInstance();
       oi.setup(null);
       oi.output.setSink(sink);
       opers.add(oi);
@@ -247,7 +247,7 @@ public class AbstractFSDirectoryInputOperatorTest
 
     sink.clear();
     for(int i = 0; i < 10; i++) {
-      for(AbstractFSDirectoryInputOperator<String> o : opers) {
+      for(AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
         o.endWindow();
@@ -264,7 +264,7 @@ public class AbstractFSDirectoryInputOperatorTest
     }
 
     for(int i = 0; i < 10; i++) {
-      for(AbstractFSDirectoryInputOperator<String> o : opers) {
+      for(AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
         o.endWindow();
@@ -287,13 +287,13 @@ public class AbstractFSDirectoryInputOperatorTest
   @Test
   public void testPartitioningStateTransferInterrupted() throws Exception
   {
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
     oper.setScanIntervalMillis(0);
     oper.setEmitBatchSize(2);
 
-    TestFSDirectoryInputOperator initialState = new Kryo().copy(oper);
+    TestFileInputOperator initialState = new Kryo().copy(oper);
 
     // Create 4 files with 3 records each.
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
@@ -327,23 +327,23 @@ public class AbstractFSDirectoryInputOperatorTest
     Assert.assertEquals(true, rsp.repartitionRequired);
 
     // Create partitions of the operator.
-    List<Partition<AbstractFSDirectoryInputOperator<String>>> partitions = Lists.newArrayList();
-    partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
+    List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
     // incremental capacity controlled partitionCount property
-    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, initialState.getCurrentPartitions());
-    Map<Integer, Partition<AbstractFSDirectoryInputOperator<String>>> m = Maps.newHashMap();
-    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+    Map<Integer, Partition<AbstractFileInputOperator<String>>> m = Maps.newHashMap();
+    for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
       m.put(m.size(), p);
     }
     initialState.partitioned(m);
     Assert.assertEquals(2, initialState.getCurrentPartitions());
 
     /* Collect all operators in a list */
-    List<AbstractFSDirectoryInputOperator<String>> opers = Lists.newArrayList();
-    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
-      TestFSDirectoryInputOperator oi = (TestFSDirectoryInputOperator)p.getPartitionedInstance();
+    List<AbstractFileInputOperator<String>> opers = Lists.newArrayList();
+    for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
+      TestFileInputOperator oi = (TestFileInputOperator)p.getPartitionedInstance();
       oi.setup(null);
       oi.output.setSink(sink);
       opers.add(oi);
@@ -351,7 +351,7 @@ public class AbstractFSDirectoryInputOperatorTest
 
     sink.clear();
     for(int i = 0; i < 10; i++) {
-      for(AbstractFSDirectoryInputOperator<String> o : opers) {
+      for(AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
         o.endWindow();
@@ -372,13 +372,13 @@ public class AbstractFSDirectoryInputOperatorTest
   @Test
   public void testPartitioningStateTransferFailure() throws Exception
   {
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
     oper.getScanner().setFilePatternRegexp(".*partition([\\d]*)");
     oper.setDirectory(new File(testMeta.dir).getAbsolutePath());
     oper.setScanIntervalMillis(0);
     oper.setEmitBatchSize(2);
 
-    TestFSDirectoryInputOperator initialState = new Kryo().copy(oper);
+    TestFileInputOperator initialState = new Kryo().copy(oper);
 
     // Create 4 files with 3 records each.
     Path path = new Path(new File(testMeta.dir).getAbsolutePath());
@@ -412,23 +412,23 @@ public class AbstractFSDirectoryInputOperatorTest
     Assert.assertEquals(true, rsp.repartitionRequired);
 
     // Create partitions of the operator.
-    List<Partition<AbstractFSDirectoryInputOperator<String>>> partitions = Lists.newArrayList();
-    partitions.add(new DefaultPartition<AbstractFSDirectoryInputOperator<String>>(oper));
+    List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
+    partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
     // incremental capacity controlled partitionCount property
-    Collection<Partition<AbstractFSDirectoryInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, initialState.getCurrentPartitions());
-    Map<Integer, Partition<AbstractFSDirectoryInputOperator<String>>> m = Maps.newHashMap();
-    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
+    Map<Integer, Partition<AbstractFileInputOperator<String>>> m = Maps.newHashMap();
+    for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
       m.put(m.size(), p);
     }
     initialState.partitioned(m);
     Assert.assertEquals(2, initialState.getCurrentPartitions());
 
     /* Collect all operators in a list */
-    List<AbstractFSDirectoryInputOperator<String>> opers = Lists.newArrayList();
-    for (Partition<AbstractFSDirectoryInputOperator<String>> p : newPartitions) {
-      TestFSDirectoryInputOperator oi = (TestFSDirectoryInputOperator)p.getPartitionedInstance();
+    List<AbstractFileInputOperator<String>> opers = Lists.newArrayList();
+    for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
+      TestFileInputOperator oi = (TestFileInputOperator)p.getPartitionedInstance();
       oi.setup(null);
       oi.output.setSink(sink);
       opers.add(oi);
@@ -436,7 +436,7 @@ public class AbstractFSDirectoryInputOperatorTest
 
     sink.clear();
     for(int i = 0; i < 10; i++) {
-      for(AbstractFSDirectoryInputOperator<String> o : opers) {
+      for(AbstractFileInputOperator<String> o : opers) {
         o.beginWindow(wid);
         o.emitTuples();
         o.endWindow();
@@ -462,9 +462,9 @@ public class AbstractFSDirectoryInputOperatorTest
     FileUtils.write(testFile, StringUtils.join(lines, '\n'));
 
 
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
     oper.scanner = null;
-    oper.failedFiles.add(new AbstractFSDirectoryInputOperator.FailedFile(testFile.getAbsolutePath(), 1));
+    oper.failedFiles.add(new AbstractFileInputOperator.FailedFile(testFile.getAbsolutePath(), 1));
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({ "unchecked", "rawtypes" })
@@ -497,9 +497,9 @@ public class AbstractFSDirectoryInputOperatorTest
     File testFile = new File(testMeta.dir, "file0");
     FileUtils.write(testFile, StringUtils.join(lines, '\n'));
 
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
     oper.scanner = null;
-    oper.unfinishedFiles.add(new AbstractFSDirectoryInputOperator.FailedFile(testFile.getAbsolutePath(), 2));
+    oper.unfinishedFiles.add(new AbstractFileInputOperator.FailedFile(testFile.getAbsolutePath(), 2));
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({"unchecked", "rawtypes"})
@@ -532,7 +532,7 @@ public class AbstractFSDirectoryInputOperatorTest
     File testFile = new File(testMeta.dir, "file0");
     FileUtils.write(testFile, StringUtils.join(lines, '\n'));
 
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
     oper.scanner = null;
     oper.pendingFiles.add(testFile.getAbsolutePath());
 
@@ -567,7 +567,7 @@ public class AbstractFSDirectoryInputOperatorTest
     File testFile = new File(testMeta.dir, "file0");
     FileUtils.write(testFile, StringUtils.join(lines, '\n'));
 
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
     oper.scanner = null;
     oper.currentFile = testFile.getAbsolutePath();
     oper.offset = 1;

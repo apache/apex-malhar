@@ -79,7 +79,7 @@ public class FileSplitterTest
 
       this.fileSplitter = new FileSplitter();
 
-      AbstractFSDirectoryInputOperator.DirectoryScanner scanner = new AbstractFSDirectoryInputOperator.DirectoryScanner();
+      AbstractFileInputOperator.DirectoryScanner scanner = new AbstractFileInputOperator.DirectoryScanner();
       scanner.setFilePatternRegexp(".*[.]txt");
       fileSplitter.setScanner(scanner);
       fileSplitter.setDirectory(dataDirectory);

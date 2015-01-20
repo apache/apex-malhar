@@ -28,14 +28,14 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.2
  */
-public abstract class AbstractFSWindowWriter<INPUT> extends AbstractFSWriter<INPUT>
+public abstract class AbstractWindowFileOutputOperator<INPUT> extends AbstractFileOutputOperator<INPUT>
 {
   private static final long serialVersionUID = 201405201214L;
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractFSWindowWriter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractWindowFileOutputOperator.class);
 
   private transient String windowIdString;
 
-  public AbstractFSWindowWriter()
+  public AbstractWindowFileOutputOperator()
   {
     maxOpenFiles = 1;
   }
