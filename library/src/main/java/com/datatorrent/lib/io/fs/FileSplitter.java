@@ -45,7 +45,7 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
  * @tags file, input operator
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public class FileSplitter extends AbstractFSDirectoryInputOperator<FileSplitter.FileMetadata> implements Operator.CheckpointListener
+public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMetadata> implements Operator.CheckpointListener
 {
   protected Long blockSize;
   protected transient int operatorId;

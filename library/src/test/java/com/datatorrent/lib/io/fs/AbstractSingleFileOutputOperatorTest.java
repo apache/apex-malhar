@@ -17,7 +17,7 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.fs.AbstractFSWriterTest.FSTestWatcher;
+import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import java.io.File;
 import java.io.IOException;
 import org.apache.commons.lang.mutable.MutableLong;
@@ -33,7 +33,7 @@ import com.google.common.collect.Maps;
 
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 
-public class AbstractFSSingleFileWriterTest
+public class AbstractSingleFileOutputOperatorTest
 {
   private static final String SINGLE_FILE = "single.txt";
 
@@ -42,7 +42,7 @@ public class AbstractFSSingleFileWriterTest
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
                 new OperatorContextTestHelper.TestIdOperatorContext(0);
 
-  private static SingleHDFSExactlyOnceWriter writer;
+  private static SimpleFileOutputOperator writer;
 
   private static class PrivateTestWatcher extends FSTestWatcher
   {
@@ -50,7 +50,7 @@ public class AbstractFSSingleFileWriterTest
     public void starting(Description description)
     {
       super.starting(description);
-      writer = new SingleHDFSExactlyOnceWriter();
+      writer = new SimpleFileOutputOperator();
       writer.setOutputFileName(SINGLE_FILE);
 
       writer.setFilePath(getDir());
@@ -62,7 +62,7 @@ public class AbstractFSSingleFileWriterTest
   /**
    * Dummy writer to store checkpointed state
    */
-  private static class CheckPointWriter extends AbstractFSSingleFileWriter<Integer>
+  private static class CheckPointOutputOperator extends AbstractSingleFileOutputOperator<Integer>
   {
     @Override
     protected byte[] getBytesForTuple(Integer tuple)
@@ -74,7 +74,7 @@ public class AbstractFSSingleFileWriterTest
   /**
    * Simple writer which writes to one file.
    */
-  private static class SingleHDFSExactlyOnceWriter extends AbstractFSSingleFileWriter<Integer>
+  private static class SimpleFileOutputOperator extends AbstractSingleFileOutputOperator<Integer>
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -90,9 +90,9 @@ public class AbstractFSSingleFileWriterTest
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private CheckPointWriter checkpoint(AbstractFSSingleFileWriter<Integer> writer)
+  private CheckPointOutputOperator checkpoint(AbstractSingleFileOutputOperator<Integer> writer)
   {
-    CheckPointWriter checkPointWriter = new CheckPointWriter();
+    CheckPointOutputOperator checkPointWriter = new CheckPointOutputOperator();
     checkPointWriter.counts = Maps.newHashMap();
 
     for(String keys: writer.counts.keySet()) {
@@ -125,8 +125,8 @@ public class AbstractFSSingleFileWriterTest
   }
 
   @SuppressWarnings({"unchecked", "rawtypes"})
-  private void restoreCheckPoint(CheckPointWriter checkPointWriter,
-                                 AbstractFSSingleFileWriter<Integer> writer)
+  private void restoreCheckPoint(CheckPointOutputOperator checkPointWriter,
+                                 AbstractSingleFileOutputOperator<Integer> writer)
   {
     writer.counts = checkPointWriter.counts;
     writer.endOffsets = checkPointWriter.endOffsets;
@@ -168,9 +168,9 @@ public class AbstractFSSingleFileWriterTest
                              "2\n" +
                              "3\n";
 
-    AbstractFSWriterTest.checkOutput(-1,
-                                      singleFileName,
-                                      correctContents);
+    AbstractFileOutputOperatorTest.checkOutput(-1,
+      singleFileName,
+      correctContents);
   }
 
   @Test
@@ -188,7 +188,7 @@ public class AbstractFSSingleFileWriterTest
     writer.input.put(1);
     writer.endWindow();
 
-    CheckPointWriter checkPointWriter = checkpoint(writer);
+    CheckPointOutputOperator checkPointWriter = checkpoint(writer);
 
     writer.beginWindow(1);
     writer.input.put(2);
@@ -220,8 +220,8 @@ public class AbstractFSSingleFileWriterTest
                              "6\n" +
                              "7\n";
 
-    AbstractFSWriterTest.checkOutput(-1,
-                                      singleFileName,
-                                      correctContents);
+    AbstractFileOutputOperatorTest.checkOutput(-1,
+      singleFileName,
+      correctContents);
   }
 }

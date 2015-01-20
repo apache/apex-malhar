@@ -32,12 +32,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Partitioner;
 
-import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator;
+import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 
 /**
- * An {@link AbstractFSDirectoryInputOperator} that scans a remote directory via FTP for new files.<br/>
+ * An {@link AbstractFileInputOperator} that scans a remote directory via FTP for new files.<br/>
  * Files are then split in tuples which are emitted out.
  * <p/>
  * Configurations:<br/>
@@ -52,7 +51,7 @@ import com.datatorrent.lib.io.fs.AbstractFSDirectoryInputOperator;
  * @category Input
  * @tags ftp, input operator
  */
-public abstract class AbstractFTPDirectoryInputOperator<T> extends AbstractFSDirectoryInputOperator<T>
+public abstract class AbstractFTPInputOperator<T> extends AbstractFileInputOperator<T>
 {
   @NotNull
   private String host;
@@ -63,7 +62,7 @@ public abstract class AbstractFTPDirectoryInputOperator<T> extends AbstractFSDir
 
   private String password;
 
-  public AbstractFTPDirectoryInputOperator()
+  public AbstractFTPInputOperator()
   {
     super();
     port = FTP.DEFAULT_PORT;
@@ -82,14 +81,14 @@ public abstract class AbstractFTPDirectoryInputOperator<T> extends AbstractFSDir
   }
 
   @Override
-  public void partitioned(Map<Integer, Partition<AbstractFSDirectoryInputOperator<T>>> partitions)
+  public void partitioned(Map<Integer, Partition<AbstractFileInputOperator<T>>> partitions)
   {
     super.partitioned(partitions);
-    for (Partition<AbstractFSDirectoryInputOperator<T>> partition : partitions.values()) {
-      ((AbstractFTPDirectoryInputOperator<T>) partition.getPartitionedInstance()).host = host;
-      ((AbstractFTPDirectoryInputOperator<T>) partition.getPartitionedInstance()).port = port;
-      ((AbstractFTPDirectoryInputOperator<T>) partition.getPartitionedInstance()).userName = userName;
-      ((AbstractFTPDirectoryInputOperator<T>) partition.getPartitionedInstance()).password = password;
+    for (Partition<AbstractFileInputOperator<T>> partition : partitions.values()) {
+      ((AbstractFTPInputOperator<T>) partition.getPartitionedInstance()).host = host;
+      ((AbstractFTPInputOperator<T>) partition.getPartitionedInstance()).port = port;
+      ((AbstractFTPInputOperator<T>) partition.getPartitionedInstance()).userName = userName;
+      ((AbstractFTPInputOperator<T>) partition.getPartitionedInstance()).password = password;
     }
   }
 
@@ -165,12 +164,12 @@ public abstract class AbstractFTPDirectoryInputOperator<T> extends AbstractFSDir
     return password;
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractFTPDirectoryInputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractFTPInputOperator.class);
 
   /**
-   * An {@link AbstractFTPDirectoryInputOperator} that splits file into lines and emits them.
+   * An {@link AbstractFTPInputOperator} that splits file into lines and emits them.
    */
-  public static class FTPDirectoryStringInputOperator extends AbstractFTPDirectoryInputOperator<String>
+  public static class FTPStringInputOperator extends AbstractFTPInputOperator<String>
   {
     private transient BufferedReader br;
 

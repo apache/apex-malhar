@@ -17,7 +17,7 @@ package com.datatorrent.demos.frauddetect.operator;
 
 import com.datatorrent.api.Context.DAGContext;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.io.fs.AbstractFSWriter;
+import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 
 import java.io.File;
 
@@ -29,7 +29,7 @@ import java.io.File;
  *
  * @since 0.9.4
  */
-public class HdfsStringOutputOperator extends AbstractFSWriter<String>
+public class HdfsStringOutputOperator extends AbstractFileOutputOperator<String>
 {
   private transient String outputFileName;
   private transient String contextId;

@@ -27,7 +27,7 @@ import javax.validation.constraints.NotNull;
  *
  * @param <INPUT> The type of the incoming tuples.
  */
-public abstract class AbstractFSSingleFileWriter<INPUT> extends AbstractFSWriter<INPUT>
+public abstract class AbstractSingleFileOutputOperator<INPUT> extends AbstractFileOutputOperator<INPUT>
 {
   /**
    * The name of the output file to write to.

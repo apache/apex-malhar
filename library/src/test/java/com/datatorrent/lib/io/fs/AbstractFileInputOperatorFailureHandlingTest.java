@@ -16,7 +16,7 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.google.common.collect.*;
@@ -27,11 +27,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.fs.*;
 import org.junit.*;
 
-public class AbstractFSDirectoryInputOperatorFailureHandlingTest
+public class AbstractFileInputOperatorFailureHandlingTest
 {
   @Rule public TestInfo testMeta = new TestInfo();
 
-  public static class TestFSDirectoryInputOperator extends AbstractFSDirectoryInputOperator<String>
+  public static class TestFileInputOperator extends AbstractFileInputOperator<String>
   {
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
     private transient BufferedReader br = null;
@@ -97,7 +97,7 @@ public class AbstractFSDirectoryInputOperatorFailureHandlingTest
 
     Thread.sleep(10);
 
-    TestFSDirectoryInputOperator oper = new TestFSDirectoryInputOperator();
+    TestFileInputOperator oper = new TestFileInputOperator();
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
     @SuppressWarnings({ "unchecked", "rawtypes" })
