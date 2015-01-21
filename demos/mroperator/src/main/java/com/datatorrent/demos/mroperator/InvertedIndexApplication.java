@@ -15,7 +15,6 @@
  */
 package com.datatorrent.demos.mroperator;
 
-import org.apache.hadoop.io.IntWritable;
 import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.TextInputFormat;
@@ -31,8 +30,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 public class InvertedIndexApplication extends MapReduceApplication<LongWritable, Text, Text, Text>
 {
 
-  @Override
-  public void conf()
+  InvertedIndexApplication()
   {
     setMapClass(LineIndexer.LineIndexMapper.class);
     setReduceClass(LineIndexer.LineIndexReducer.class);
