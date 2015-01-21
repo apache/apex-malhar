@@ -16,7 +16,7 @@
 
 package com.datatorrent.benchmark.fs;
 
-import com.datatorrent.lib.io.fs.AbstractFSWriter;
+import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 import java.util.Arrays;
 import javax.validation.constraints.Min;
 
@@ -25,7 +25,7 @@ import javax.validation.constraints.Min;
  *
  * @since 0.9.4
  */
-public class FSByteOutputOperator extends AbstractFSWriter<byte[]>
+public class FSByteOutputOperator extends AbstractFileOutputOperator<byte[]>
 {
   /**
    * The number of unique files to output tuples to.
