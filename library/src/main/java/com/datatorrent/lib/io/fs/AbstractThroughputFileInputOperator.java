@@ -43,9 +43,9 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.4
  */
-public abstract class AbstractThroughputFSDirectoryInputOperator<T> extends AbstractFSDirectoryInputOperator<T>
+public abstract class AbstractThroughputFileInputOperator<T> extends AbstractFileInputOperator<T>
 {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractThroughputFSDirectoryInputOperator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractThroughputFileInputOperator.class);
 
   private long repartitionInterval = 5L * 60L * 1000L;
   private int preferredMaxPendingFilesPerOperator = 10;
@@ -121,15 +121,15 @@ public abstract class AbstractThroughputFSDirectoryInputOperator<T> extends Abst
   }
 
   @Override
-  protected int computedNewPartitionCount(Collection<Partition<AbstractFSDirectoryInputOperator<T>>> partitions, int incrementalCapacity)
+  protected int computedNewPartitionCount(Collection<Partition<AbstractFileInputOperator<T>>> partitions, int incrementalCapacity)
   {
     LOG.debug("Called throughput.");
     boolean isInitialParitition = partitions.iterator().next().getStats() == null;
     int newOperatorCount;
     int totalFileCount = 0;
 
-    for(Partition<AbstractFSDirectoryInputOperator<T>> partition : partitions) {
-      AbstractFSDirectoryInputOperator<T> oper = partition.getPartitionedInstance();
+    for(Partition<AbstractFileInputOperator<T>> partition : partitions) {
+      AbstractFileInputOperator<T> oper = partition.getPartitionedInstance();
       totalFileCount += oper.failedFiles.size();
       totalFileCount += oper.pendingFiles.size();
       totalFileCount += oper.unfinishedFiles.size();

@@ -16,20 +16,20 @@
 package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.fs.AbstractFSWriterTest.CheckPointWriter;
-import com.datatorrent.lib.io.fs.AbstractFSWriterTest.FSTestWatcher;
+import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.CheckPointWriter;
+import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import org.junit.*;
 import org.junit.runner.Description;
 
 /**
- * Functional Test for {@link AbstractFSWindowWriter}
+ * Functional Test for {@link AbstractWindowFileOutputOperator}
  */
-public class AbstractFSWindowWriterTest
+public class AbstractWindowFileOutputOperatorTest
 {
   @Rule public TestInfo testMeta = new PrivateTestWatcher();
 
-  private static FSWindowWriterString oper;
+  private static WindowFileOutputOperatorString oper;
 
   private static class PrivateTestWatcher extends FSTestWatcher
   {
@@ -37,7 +37,7 @@ public class AbstractFSWindowWriterTest
     public void starting(Description description)
     {
       super.starting(description);
-      oper = new FSWindowWriterString();
+      oper = new WindowFileOutputOperatorString();
       oper.setFilePath(getDir());
       oper.setup(testOperatorContext);
     }
@@ -46,7 +46,7 @@ public class AbstractFSWindowWriterTest
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext =
                 new OperatorContextTestHelper.TestIdOperatorContext(0);
 
-  public static class FSWindowWriterString extends AbstractFSWindowWriter<String>
+  public static class WindowFileOutputOperatorString extends AbstractWindowFileOutputOperator<String>
   {
     @Override
     protected byte[] getBytesForTuple(String tuple)
@@ -64,13 +64,13 @@ public class AbstractFSWindowWriterTest
     oper.input.process("window 0");
     oper.endWindow();
 
-    CheckPointWriter checkPoint = AbstractFSWriterTest.checkpoint(oper);
+    CheckPointWriter checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper);
 
     oper.beginWindow(1);
     oper.input.process("window 1");
     oper.teardown();
 
-    AbstractFSWriterTest.restoreCheckPoint(checkPoint, oper);
+    AbstractFileOutputOperatorTest.restoreCheckPoint(checkPoint, oper);
 
     oper.setup(testOperatorContext);
 
@@ -86,20 +86,20 @@ public class AbstractFSWindowWriterTest
 
     oper.teardown();
 
-    AbstractFSWriterTest.checkOutput(-1,
-                                     testMeta.getDir() + "/" + "0",
-                                     "window 0\n" +
-                                     "window 0\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1,
+      testMeta.getDir() + "/" + "0",
+      "window 0\n" +
+        "window 0\n");
 
-    AbstractFSWriterTest.checkOutput(-1,
-                                     testMeta.getDir() + "/" + "1",
-                                     "window_new 1\n" +
-                                     "window_new 1\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1,
+      testMeta.getDir() + "/" + "1",
+      "window_new 1\n" +
+        "window_new 1\n");
 
-    AbstractFSWriterTest.checkOutput(-1,
-                                     testMeta.getDir() + "/" + "2",
-                                     "window_new 2\n" +
-                                     "window_new 2\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1,
+      testMeta.getDir() + "/" + "2",
+      "window_new 2\n" +
+        "window_new 2\n");
   }
 
   @Test
@@ -114,12 +114,12 @@ public class AbstractFSWindowWriterTest
     oper.beginWindow(1);
     oper.input.process("1");
 
-    CheckPointWriter checkPoint = AbstractFSWriterTest.checkpoint(oper);
+    CheckPointWriter checkPoint = AbstractFileOutputOperatorTest.checkpoint(oper);
 
     oper.input.process("1");
     oper.teardown();
 
-    AbstractFSWriterTest.restoreCheckPoint(checkPoint, oper);
+    AbstractFileOutputOperatorTest.restoreCheckPoint(checkPoint, oper);
 
     oper.setup(testOperatorContext);
 
@@ -134,20 +134,20 @@ public class AbstractFSWindowWriterTest
 
     oper.teardown();
 
-    AbstractFSWriterTest.checkOutput(-1,
-                                     testMeta.getDir() + "/" + "0",
-                                     "0\n" +
-                                     "0\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1,
+      testMeta.getDir() + "/" + "0",
+      "0\n" +
+        "0\n");
 
-    AbstractFSWriterTest.checkOutput(-1,
-                                     testMeta.getDir() + "/" + "1",
-                                     "1\n" +
-                                     "1\n" +
-                                     "1\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1,
+      testMeta.getDir() + "/" + "1",
+      "1\n" +
+        "1\n" +
+        "1\n");
 
-    AbstractFSWriterTest.checkOutput(-1,
-                                     testMeta.getDir() + "/" + "2",
-                                     "2\n" +
-                                     "2\n");
+    AbstractFileOutputOperatorTest.checkOutput(-1,
+      testMeta.getDir() + "/" + "2",
+      "2\n" +
+        "2\n");
   }
 }

@@ -35,9 +35,9 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AbstractFSWriterTest
+public class AbstractFileOutputOperatorTest
 {
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractFSWriterTest.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractFileOutputOperatorTest.class);
 
   private static final String SINGLE_FILE = "single.txt";
   private static final String EVEN_FILE = "even.txt";
@@ -68,7 +68,7 @@ public class AbstractFSWriterTest
   /**
    * Simple writer which writes to two files.
    */
-  private static class EvenOddHDFSExactlyOnceWriter extends AbstractFSWriter<Integer>
+  private static class EvenOddHDFSExactlyOnceWriter extends AbstractFileOutputOperator<Integer>
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -99,7 +99,7 @@ public class AbstractFSWriterTest
   /**
    * Simple writer which writes to one file.
    */
-  private static class SingleHDFSExactlyOnceWriter extends AbstractFSWriter<Integer>
+  private static class SingleHDFSExactlyOnceWriter extends AbstractFileOutputOperator<Integer>
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -123,7 +123,7 @@ public class AbstractFSWriterTest
   /**
    * Simple writer which writes byte array tuples to one file.
    */
-  private static class SingleHDFSByteExactlyOnceWriter extends AbstractFSWriter<byte[]>
+  private static class SingleHDFSByteExactlyOnceWriter extends AbstractFileOutputOperator<byte[]>
   {
     public SingleHDFSByteExactlyOnceWriter()
     {
@@ -152,7 +152,7 @@ public class AbstractFSWriterTest
    * Dummy writer to store checkpointed state
    */
   @SuppressWarnings("rawtypes")
-  public static class CheckPointWriter extends AbstractFSWriter
+  public static class CheckPointWriter extends AbstractFileOutputOperator
   {
     @Override
     protected FileSystem getFSInstance() throws IOException
@@ -183,11 +183,11 @@ public class AbstractFSWriterTest
   {
     private final File testDir;
     private final Long maxLength;
-    private final AbstractFSWriter<byte[]> fsWriter;
+    private final AbstractFileOutputOperator<byte[]> fsWriter;
 
     public ValidationTestApp(File testDir,
                              Long maxLength,
-                             AbstractFSWriter<byte[]> fsWriter)
+                             AbstractFileOutputOperator<byte[]> fsWriter)
     {
       this.testDir = testDir;
       this.maxLength = maxLength;
@@ -248,7 +248,7 @@ public class AbstractFSWriterTest
    * @return Checkpointed writer.
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
-  public static CheckPointWriter checkpoint(AbstractFSWriter writer)
+  public static CheckPointWriter checkpoint(AbstractFileOutputOperator writer)
   {
     CheckPointWriter checkPointWriter = new CheckPointWriter();
     checkPointWriter.counts = Maps.newHashMap();
@@ -288,7 +288,7 @@ public class AbstractFSWriterTest
    */
   @SuppressWarnings({"unchecked", "rawtypes"})
   public static void restoreCheckPoint(CheckPointWriter checkPointWriter,
-                                       AbstractFSWriter writer)
+                                       AbstractFileOutputOperator writer)
   {
     writer.counts = checkPointWriter.counts;
     writer.endOffsets = checkPointWriter.endOffsets;

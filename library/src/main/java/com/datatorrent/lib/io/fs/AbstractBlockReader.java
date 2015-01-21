@@ -819,7 +819,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
      * (except the first block of the file) is ignored.
      *
      * @param record
-     * @return
+     * @return always true
      */
     @Override
     protected boolean isRecordValid(R record)

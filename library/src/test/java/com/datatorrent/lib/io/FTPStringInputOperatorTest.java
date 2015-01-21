@@ -29,19 +29,19 @@ import org.mockftpserver.fake.UserAccount;
 import org.mockftpserver.fake.filesystem.FileEntry;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
-import com.datatorrent.lib.io.AbstractFTPDirectoryInputOperator.FTPDirectoryStringInputOperator;
+import com.datatorrent.lib.io.AbstractFTPInputOperator.FTPStringInputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Tests for {@link FTPDirectoryStringInputOperator}
+ * Tests for {@link FTPStringInputOperator}
  */
-public class FTPDirectoryStringInputOperatorTest
+public class FTPStringInputOperatorTest
 {
   public static class TestMeta extends TestWatcher
   {
     String baseDir;
     String ftpDir;
-    FTPDirectoryStringInputOperator ftpOperator;
+    FTPStringInputOperator ftpOperator;
     FakeFtpServer fakeFtpServer;
     CollectorTestSink<Object> sink;
 
@@ -64,7 +64,7 @@ public class FTPDirectoryStringInputOperatorTest
       fakeFtpServer.setFileSystem(fileSystem);
       fakeFtpServer.start();
 
-      ftpOperator = new FTPDirectoryStringInputOperator();
+      ftpOperator = new FTPStringInputOperator();
       ftpOperator.setHost("localhost");
       ftpOperator.setPort(fakeFtpServer.getServerControlPort());
       ftpOperator.setUserName("testUser");
