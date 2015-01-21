@@ -84,7 +84,7 @@ public class FileSplitterTest
       fileSplitter.setScanner(scanner);
       fileSplitter.setDirectory(dataDirectory);
       fileSplitter.setIdempotentStorageManager(new IdempotentStorageManager.NoopIdempotentStorageManager());
-      fileSplitter.setup(new OperatorContextTestHelper.TestIdOperatorContext(0));
+      fileSplitter.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, new Attribute.AttributeMap.DefaultAttributeMap()));
 
       fileMetadataSink = new CollectorTestSink<Object>();
       fileSplitter.filesMetadataOutput.setSink(fileMetadataSink);

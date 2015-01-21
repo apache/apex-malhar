@@ -17,6 +17,7 @@ package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.*;
 
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.google.common.collect.*;
@@ -107,7 +108,7 @@ public class AbstractFileInputOperatorFailureHandlingTest
     oper.setDirectory(testMeta.getDir());
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
 
-    oper.setup(null);
+    oper.setup(new OperatorContextTestHelper.TestIdOperatorContext(1, new Attribute.AttributeMap.DefaultAttributeMap()));
     for (long wid=0; wid<1000; wid++) {
       oper.beginWindow(wid);
       oper.emitTuples();

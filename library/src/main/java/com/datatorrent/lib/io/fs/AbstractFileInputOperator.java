@@ -25,6 +25,7 @@ import javax.validation.constraints.NotNull;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -38,7 +39,9 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.lib.counters.BasicCounters;
+import com.datatorrent.lib.io.IdempotentStorageManager;
 
+import com.datatorrent.api.*;
 import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
@@ -76,7 +79,8 @@ import com.datatorrent.api.StatsListener;
  * @param <T> The type of the object that this input operator reads.
  * @since 1.0.2
  */
-public abstract class AbstractFileInputOperator<T> implements InputOperator, Partitioner<AbstractFileInputOperator<T>>, StatsListener
+public abstract class AbstractFileInputOperator<T> implements InputOperator, Partitioner<AbstractFileInputOperator<T>>, StatsListener,
+  Operator.CheckpointListener
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractFileInputOperator.class);
 
@@ -104,6 +108,12 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   private transient MutableLong globalProcessedFileCount = new MutableLong();
   private transient MutableLong localProcessedFileCount = new MutableLong();
   private transient MutableLong pendingFileCount = new MutableLong();
+
+  @NotNull
+  protected IdempotentStorageManager idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
+  protected transient long currentWindowId;
+  protected transient LinkedList<RecoveryEntry> currentWindowRecoveryState = Lists.newLinkedList();
+  protected int operatorId; //needed in partitioning
 
   /**
    * Class representing failed file, When read fails on a file in middle, then the file is
@@ -338,8 +348,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   /**
-   * Returns the number of tuples emitted in a batch. If the operator is
-   * idempotent then this is the number of tuples emitted in a window.
+   * Returns the number of tuples emitted in a batch.
    * @return The number of tuples emitted in a batch.
    */
   public int getEmitBatchSize()
@@ -348,13 +357,31 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   /**
-   * Sets the number of tuples to emit in a batch. If the operator is
-   * idempotent then this is the number of tuples emitted in a window.
+   * Sets the number of tuples to emit in a batch.
    * @param emitBatchSize The number of tuples to emit in a batch.
    */
   public void setEmitBatchSize(int emitBatchSize)
   {
     this.emitBatchSize = emitBatchSize;
+  }
+
+  /**
+   * Sets the idempotent storage manager on the operator.
+   * @param idempotentStorageManager  an {@link IdempotentStorageManager}
+   */
+  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
+  {
+    this.idempotentStorageManager = idempotentStorageManager;
+  }
+
+  /**
+   * Returns the idempotent storage manager which is being used by the operator.
+   *
+   * @return the idempotent storage manager.
+   */
+  public IdempotentStorageManager getIdempotentStorageManager()
+  {
+    return idempotentStorageManager;
   }
 
   /**
@@ -387,6 +414,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   @Override
   public void setup(OperatorContext context)
   {
+    operatorId = context.getId();
     globalProcessedFileCount.setValue(processedFiles.size());
     LOG.debug("Setup processed file count: {}", globalProcessedFileCount);
     this.context = context;
@@ -415,6 +443,12 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     fileCounters.setCounter(FileCounters.PENDING_FILES,
                             pendingFileCount);
 
+    idempotentStorageManager.setup(context);
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < idempotentStorageManager.getLargestRecoveryWindow()) {
+      //reset current file and offset in case of replay
+      currentFile = null;
+      offset = 0;
+    }
   }
 
   /**
@@ -467,16 +501,30 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
 
       throw new RuntimeException(errorMessage, savedException);
     }
+    idempotentStorageManager.teardown();
   }
 
   @Override
   public void beginWindow(long windowId)
   {
+    currentWindowId = windowId;
+    if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+      replay(windowId);
+    }
   }
 
   @Override
   public void endWindow()
   {
+    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+      try {
+        idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+      }
+      catch (IOException e) {
+        throw new RuntimeException("saving recovery", e);
+      }
+    }
+    currentWindowRecoveryState.clear();
     if(context != null) {
       pendingFileCount.setValue(pendingFiles.size() +
                                      failedFiles.size() +
@@ -490,9 +538,81 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     }
   }
 
+  protected void replay(long windowId)
+  {
+    //This operator can partition itself dynamically. When that happens a file can be re-hashed
+    //to a different partition than the previous one. In order to handle this, the partition loads
+    //all the recovery data for a window and then processes only those files which would be hashed
+    //to it in the current run.
+    try {
+      Map<Integer, Object> recoveryDataPerOperator = idempotentStorageManager.load(windowId);
+
+      for (Object recovery : recoveryDataPerOperator.values()) {
+        @SuppressWarnings("unchecked")
+        LinkedList<RecoveryEntry> recoveryData = (LinkedList<RecoveryEntry>) recovery;
+
+        for (RecoveryEntry recoveryEntry : recoveryData) {
+          if (scanner.acceptFile(recoveryEntry.file)) {
+            //The operator may have continued processing the same file in multiple windows.
+            //So the recovery states of subsequent windows will have an entry for that file however the offset changes.
+            //In this case we continue reading from previously opened stream.
+            if (currentFile == null || !(currentFile.equals(recoveryEntry.file) && offset == recoveryEntry.startOffset)) {
+              if (inputStream != null) {
+                closeFile(inputStream);
+              }
+              processedFiles.add(recoveryEntry.file);
+              //removing the file from failed and unfinished queues and pending set
+              Iterator<FailedFile> failedFileIterator = failedFiles.iterator();
+              while (failedFileIterator.hasNext()) {
+                FailedFile ff = failedFileIterator.next();
+                if (ff.path.equals(recoveryEntry.file) && ff.offset == recoveryEntry.startOffset) {
+                  failedFileIterator.remove();
+                  break;
+                }
+              }
+
+              Iterator<FailedFile> unfinishedFileIterator = unfinishedFiles.iterator();
+              while (unfinishedFileIterator.hasNext()) {
+                FailedFile ff = unfinishedFileIterator.next();
+                if (ff.path.equals(recoveryEntry.file) && ff.offset == recoveryEntry.startOffset) {
+                  unfinishedFileIterator.remove();
+                  break;
+                }
+              }
+              if (pendingFiles.contains(recoveryEntry.file)) {
+                pendingFiles.remove(recoveryEntry.file);
+              }
+              inputStream = retryFailedFile(new FailedFile(recoveryEntry.file, recoveryEntry.startOffset));
+              while (offset < recoveryEntry.endOffset) {
+                T line = readEntity();
+                offset++;
+                emit(line);
+              }
+            }
+            else {
+              while (offset < recoveryEntry.endOffset) {
+                T line = readEntity();
+                offset++;
+                emit(line);
+              }
+            }
+          }
+        }
+      }
+    }
+    catch (IOException e) {
+      throw new RuntimeException("replay", e);
+    }
+  }
+
+
   @Override
   public void emitTuples()
   {
+    if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+      return;
+    }
+
     if (inputStream == null) {
       try {
         if (currentFile != null && offset > 0) {
@@ -521,8 +641,10 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
         failureHandling(ex);
       }
     }
-
     if (inputStream != null) {
+      int startOffset = offset;
+      String file  = currentFile; //current file is reset to null when closed.
+
       try {
         int counterForTuple = 0;
         while (counterForTuple++ < emitBatchSize) {
@@ -548,6 +670,10 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       }
       catch (IOException e) {
         failureHandling(e);
+      }
+      //Only when something was emitted from the file then we record it for entry.
+      if (offset > startOffset) {
+        currentWindowRecoveryState.add(new RecoveryEntry(file, startOffset, offset));
       }
     }
   }
@@ -674,6 +800,8 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     List<DirectoryScanner> oldscanners = Lists.newLinkedList();
     List<FailedFile> totalFailedFiles = Lists.newLinkedList();
     List<String> totalPendingFiles = Lists.newLinkedList();
+    Set<Integer> deletedOperators =  Sets.newHashSet();
+
     for(Partition<AbstractFileInputOperator<T>> partition : partitions) {
       AbstractFileInputOperator<T> oper = partition.getPartitionedInstance();
       totalProcessedFiles.addAll(oper.processedFiles);
@@ -682,9 +810,11 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       currentFiles.addAll(unfinishedFiles);
       tempGlobalNumberOfRetries.add(oper.localNumberOfRetries);
       tempGlobalNumberOfFailures.add(oper.localNumberOfFailures);
-      if (oper.currentFile != null)
+      if (oper.currentFile != null) {
         currentFiles.add(new FailedFile(oper.currentFile, oper.offset));
+      }
       oldscanners.add(oper.getScanner());
+      deletedOperators.add(oper.operatorId);
     }
 
     /*
@@ -695,6 +825,8 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
 
     Kryo kryo = new Kryo();
     Collection<Partition<AbstractFileInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
+    Collection<IdempotentStorageManager> newManagers = Lists.newArrayListWithExpectedSize(totalCount);
+
     for (int i=0; i<scanners.size(); i++) {
 
       // Kryo.copy fails as it attempts to clone transient fields
@@ -752,8 +884,10 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
         }
       }
       newPartitions.add(new DefaultPartition<AbstractFileInputOperator<T>>(oper));
+      newManagers.add(oper.idempotentStorageManager);
     }
 
+    idempotentStorageManager.partitioned(newManagers, deletedOperators);
     LOG.info("definePartitions called returning {} partitions", newPartitions.size());
     return newPartitions;
   }
@@ -777,6 +911,22 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   public void partitioned(Map<Integer, Partition<AbstractFileInputOperator<T>>> partitions)
   {
     currentPartitions = partitions.size();
+  }
+
+  @Override
+  public void checkpointed(long windowId)
+  {
+  }
+
+  @Override
+  public void committed(long windowId)
+  {
+    try {
+      idempotentStorageManager.deleteUpTo(operatorId, windowId);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
@@ -960,6 +1110,61 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     {
       return "DirectoryScanner [filePatternRegexp=" + filePatternRegexp + " partitionIndex=" +
           partitionIndex + " partitionCount=" + partitionCount + "]";
+    }
+  }
+
+  protected static class RecoveryEntry
+  {
+    final String file;
+    final int startOffset;
+    final int endOffset;
+
+    private RecoveryEntry()
+    {
+      file = null;
+      startOffset = -1;
+      endOffset = -1;
+    }
+
+    RecoveryEntry(String file, int startOffset, int endOffset)
+    {
+      this.file = Preconditions.checkNotNull(file, "file");
+      this.startOffset = startOffset;
+      this.endOffset = endOffset;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+      if (this == o) {
+        return true;
+      }
+      if (!(o instanceof RecoveryEntry)) {
+        return false;
+      }
+
+      RecoveryEntry that = (RecoveryEntry) o;
+
+      if (endOffset != that.endOffset) {
+        return false;
+      }
+      if (startOffset != that.startOffset) {
+        return false;
+      }
+      if (!file.equals(that.file)) {
+        return false;
+      }
+
+      return true;
+    }
+
+    @Override
+    public int hashCode()
+    {
+      int result = file.hashCode();
+      result = 31 * result + startOffset;
+      result = 31 * result + endOffset;
+      return result;
     }
   }
 }

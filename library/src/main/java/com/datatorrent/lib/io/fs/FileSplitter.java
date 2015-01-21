@@ -17,7 +17,7 @@ package com.datatorrent.lib.io.fs;
 
 import java.io.IOException;
 import java.util.Iterator;
-import java.util.List;
+import java.util.LinkedList;
 
 import javax.validation.constraints.NotNull;
 
@@ -26,12 +26,10 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.lib.io.IdempotentStorageManager;
@@ -45,17 +43,13 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
  * @tags file, input operator
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMetadata> implements Operator.CheckpointListener
+public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMetadata>
 {
   protected Long blockSize;
   protected transient int operatorId;
   private int sequenceNo;
 
-  @NotNull
-  protected IdempotentStorageManager idempotentStorageManager;
-
   protected transient long currentWindowId;
-  protected transient List<String> currentWindowRecoveryState;
 
   public FileSplitter()
   {
@@ -63,7 +57,6 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
     pendingFiles = Sets.newLinkedHashSet();
     blockSize = null;
     idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    currentWindowRecoveryState = Lists.newArrayList();
   }
 
   public final transient DefaultOutputPort<FileMetadata> filesMetadataOutput = new DefaultOutputPort<FileMetadata>();
@@ -79,19 +72,9 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
     if (blockSize == null) {
       blockSize = fs.getDefaultBlockSize(filePath);
     }
-    idempotentStorageManager.setup(context);
   }
 
   @Override
-  public void beginWindow(long windowId)
-  {
-    currentWindowId = windowId;
-    if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
-      replay(windowId);
-    }
-    super.beginWindow(windowId);
-  }
-
   protected void replay(long windowId)
   {
     //assumption is that FileSplitter is always statically partitioned. This operator doesn't do
@@ -99,14 +82,14 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
 
     try {
       @SuppressWarnings("unchecked")
-      List<String> recoveredData = (List<String>) idempotentStorageManager.load(operatorId, windowId);
+      LinkedList<RecoveryEntry> recoveredData = (LinkedList<RecoveryEntry>) idempotentStorageManager.load(operatorId, windowId);
       if (recoveredData == null) {
         //This could happen when there are multiple physical instances and one of them is ahead in processing windows.
         return;
       }
-      for (String recoveredPath : recoveredData) {
-        processedFiles.add(recoveredPath);
-        FileMetadata fileMetadata = buildFileMetadata(recoveredPath);
+      for (RecoveryEntry entry : recoveredData) {
+        processedFiles.add(entry.file);
+        FileMetadata fileMetadata = buildFileMetadata(entry.file);
         filesMetadataOutput.emit(fileMetadata);
         Iterator<BlockMetadata> iterator = new BlockMetadataIterator(this, fileMetadata, blockSize);
         while (iterator.hasNext()) {
@@ -131,7 +114,7 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
     Iterator<String> pendingIterator = pendingFiles.iterator();
     while (pendingIterator.hasNext()) {
       String fPath = pendingIterator.next();
-      currentWindowRecoveryState.add(fPath);
+      currentWindowRecoveryState.add(new RecoveryEntry(fPath, 0, 0));
       LOG.debug("file {}", fPath);
       try {
         FileMetadata fileMetadata = buildFileMetadata(fPath);
@@ -146,28 +129,6 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
       }
       pendingIterator.remove();
     }
-  }
-
-  @Override
-  public void endWindow()
-  {
-    super.endWindow();
-    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
-      try {
-        idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
-      }
-      catch (IOException e) {
-        throw new RuntimeException("saving recovery", e);
-      }
-    }
-    currentWindowRecoveryState.clear();
-  }
-
-  @Override
-  public void teardown()
-  {
-    super.teardown();
-    idempotentStorageManager.teardown();
   }
 
   /**
@@ -227,22 +188,6 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
     throw new UnsupportedOperationException("not supported");
   }
 
-  @Override
-  public void checkpointed(long windowId)
-  {
-  }
-
-  @Override
-  public void committed(long windowId)
-  {
-    try {
-      idempotentStorageManager.deleteUpTo(operatorId, windowId);
-    }
-    catch (IOException e) {
-      throw new RuntimeException("deleting state", e);
-    }
-  }
-
   public void setBlockSize(Long blockSize)
   {
     this.blockSize = blockSize;
@@ -251,16 +196,6 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
   public Long getBlockSize()
   {
     return blockSize;
-  }
-
-  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
-  {
-    this.idempotentStorageManager = idempotentStorageManager;
-  }
-
-  public IdempotentStorageManager getIdempotentStorageManager()
-  {
-    return idempotentStorageManager;
   }
 
   /**
