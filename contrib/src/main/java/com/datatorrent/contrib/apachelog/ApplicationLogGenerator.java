@@ -24,8 +24,8 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 
 /**
- * An implementation of Streaming Application that generates apache log file on the fly and dumps the parsed data to output. 
- * 
+ * An implementation of Streaming Application that generates apache log file on the fly and dumps the parsed data to output.
+ *
  * <p>
  * @displayName Application Log Generator
  * @category Database
@@ -34,33 +34,35 @@ import org.apache.hadoop.conf.Configuration;
  */
 public class ApplicationLogGenerator implements StreamingApplication
 {
-  private void setLibraryJars(DAG dag)
-  {
-    List<Class<?>> containingJars = new ArrayList<Class<?>>();
-    containingJars.add(com.maxmind.geoip.LookupService.class);
-    containingJars.add(net.sf.uadetector.UserAgentStringParser.class);
-    containingJars.add(net.sf.uadetector.service.UADetectorServiceFactory.class);
-    containingJars.add(net.sf.qualitycheck.Check.class);
-
-    String oldlibjar = dag.getValue(Context.DAGContext.LIBRARY_JARS);
-    if (oldlibjar == null) {
-      oldlibjar = "";
-    }
-
-    StringBuilder libjars = new StringBuilder(oldlibjar);
-    for (Class<?> clazz : containingJars) {
-      if (libjars.length() != 0) {
-        libjars.append(",");
-      }
-      libjars.append(clazz.getProtectionDomain().getCodeSource().getLocation().toString());
-    }
-    dag.setAttribute(Context.DAGContext.LIBRARY_JARS, libjars.toString());
-  }
+//  private void setLibraryJars(DAG dag)
+//  {
+//    List<Class<?>> containingJars = new ArrayList<Class<?>>();
+//    containingJars.add(com.maxmind.geoip.LookupService.class);
+//    containingJars.add(net.sf.uadetector.UserAgentStringParser.class);
+//    containingJars.add(net.sf.uadetector.service.UADetectorServiceFactory.class);
+//    containingJars.add(net.sf.qualitycheck.Check.class);
+//
+//    String oldlibjar = dag.getValue(Context.DAGContext.LIBRARY_JARS);
+//    if (oldlibjar == null) {
+//      oldlibjar = "";
+//    }
+//
+//    StringBuilder libjars = new StringBuilder(oldlibjar);
+//    for (Class<?> clazz : containingJars) {
+//      if (libjars.length() != 0) {
+//        libjars.append(",");
+//      }
+//      libjars.append(clazz.getProtectionDomain().getCodeSource().getLocation().toString());
+//    }
+//    dag.setAttribute(Context.DAGContext.LIBRARY_JARS, libjars.toString());
+//  }
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    setLibraryJars(dag);
+    // The code left here so that when a package gets built out of this, the builder scambles
+    // a tiny bit less to identify the jars
+    // setLibraryJars(dag);
     ApacheLogInputGenerator log = dag.addOperator("log", new ApacheLogInputGenerator());
     log.setIpAddressFile("/com/datatorrent/contrib/apachelog/ipaddress.txt");
     log.setUrlFile("/com/datatorrent/contrib/apachelog/urls.txt");

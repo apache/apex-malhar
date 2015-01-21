@@ -18,19 +18,13 @@ package com.datatorrent.demos.mroperator;
 import java.util.StringTokenizer;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.Mapper;
 import org.apache.hadoop.mapred.Reducer;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
-import com.datatorrent.lib.partitioner.StatelessPartitioner;
 
 /**
  * <p>
@@ -42,8 +36,6 @@ import com.datatorrent.lib.partitioner.StatelessPartitioner;
 @ApplicationAnnotation(name = "MapReduceDemo")
 public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingApplication
 {
-  private static final Logger LOG = LoggerFactory.getLogger(MapReduceApplication.class);
-
   Class<? extends InputFormat<K1, V1>> inputFormat;
   Class<? extends Mapper<K1, V1, K2, V2>> mapClass;
   Class<? extends Reducer<K2, V2, K2, V2>> reduceClass;
@@ -84,12 +76,10 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
     this.reduceClass = reduceClass;
   }
 
-  public abstract void conf();
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    conf();
     String configurationFilePath = conf.get(this.getClass().getSimpleName() + ".configFile", "");
 
     MapOperator<K1, V1, K2, V2> inputOperator = dag.addOperator("Mapper", new MapOperator<K1, V1, K2, V2>());
@@ -97,7 +87,6 @@ public abstract class MapReduceApplication<K1, V1, K2, V2> implements StreamingA
 
     String configFileName = null;
     if (configurationFilePath != null && !configurationFilePath.isEmpty()) {
-      dag.setAttribute(com.datatorrent.api.Context.DAGContext.LIBRARY_JARS, configurationFilePath);
       StringTokenizer configFileTokenizer = new StringTokenizer(configurationFilePath, "/");
       configFileName = configFileTokenizer.nextToken();
       while (configFileTokenizer.hasMoreTokens()) {

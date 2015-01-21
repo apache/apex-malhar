@@ -31,8 +31,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 public class LogsCountApplication extends MapReduceApplication<LongWritable, Text, DateWritable, IntWritable>
 {
 
-  @Override
-  public void conf()
+  public void LogsCountApplication()
   {
     setMapClass(LogCountsPerHour.LogMapClass.class);
     // setCombineClass(LogCountsPerHour.LogReduce.class);
