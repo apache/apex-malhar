@@ -112,7 +112,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   @NotNull
   protected IdempotentStorageManager idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
   protected transient long currentWindowId;
-  protected transient LinkedList<RecoveryEntry> currentWindowRecoveryState = Lists.newLinkedList();
+  protected final transient LinkedList<RecoveryEntry> currentWindowRecoveryState = Lists.newLinkedList();
   protected int operatorId; //needed in partitioning
 
   /**

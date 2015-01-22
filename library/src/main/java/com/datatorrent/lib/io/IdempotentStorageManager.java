@@ -95,7 +95,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
    */
   public static class FSIdempotentStorageManager implements IdempotentStorageManager
   {
-    protected FSStorageAgent storageAgent;
+    protected transient FSStorageAgent storageAgent;
 
     @NotNull
     protected String recoveryPath;
@@ -132,10 +132,9 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
       Configuration configuration = new Configuration();
       appPath = new Path(recoveryPath + '/' + context.getValue(DAG.APPLICATION_ID));
 
-      if (storageAgent == null) {
-        storageAgent = new FSStorageAgent(appPath.toString(), configuration);
-      }
       try {
+        storageAgent = new FSStorageAgent(appPath.toString(), configuration);
+
         fs = FileSystem.newInstance(appPath.toUri(), configuration);
 
         if (fs.exists(appPath)) {
