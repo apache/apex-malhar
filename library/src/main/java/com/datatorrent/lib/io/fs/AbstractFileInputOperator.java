@@ -731,7 +731,6 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     // Clear current file state.
     this.currentFile = null;
     this.inputStream = null;
-    this.offset = 0;
 
     if (ff.retryCount > maxRetryCount)
       return;
