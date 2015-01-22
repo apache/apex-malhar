@@ -29,6 +29,9 @@ import org.mockftpserver.fake.UserAccount;
 import org.mockftpserver.fake.filesystem.FileEntry;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
+import com.datatorrent.api.Attribute;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.AbstractFTPInputOperator.FTPStringInputOperator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -71,7 +74,7 @@ public class FTPStringInputOperatorTest
       ftpOperator.setPassword("test");
 
       ftpOperator.setDirectory(ftpDir);
-      ftpOperator.setup(null);
+      ftpOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(11, new Attribute.AttributeMap.DefaultAttributeMap()));
 
       sink = new CollectorTestSink<Object>();
       ftpOperator.output.setSink(sink);
