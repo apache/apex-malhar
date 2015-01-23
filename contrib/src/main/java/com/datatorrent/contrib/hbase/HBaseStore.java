@@ -15,12 +15,14 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.lib.db.Connectable;
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.security.UserGroupInformation;
 
-import java.io.IOException;
+import com.datatorrent.lib.db.Connectable;
 /**
  * A {@link Connectable} that uses HBase to connect to stores and implements Connectable interface. 
  * <p>
@@ -34,6 +36,9 @@ public class HBaseStore implements Connectable {
   private String zookeeperQuorum;
   private int zookeeperClientPort;
   protected String tableName;
+  
+  protected String principal;
+  protected String keytabPath;
 
   protected transient HTable table;
 
@@ -94,6 +99,26 @@ public class HBaseStore implements Connectable {
     this.tableName = tableName;
   }
 
+  public String getPrincipal()
+  {
+    return principal;
+  }
+
+  public void setPrincipal(String principal)
+  {
+    this.principal = principal;
+  }
+
+  public String getKeytabPath()
+  {
+    return keytabPath;
+  }
+
+  public void setKeytabPath(String keytabPath)
+  {
+    this.keytabPath = keytabPath;
+  }
+
   /**
    * Get the HBase table .
    * 
@@ -136,6 +161,9 @@ public class HBaseStore implements Connectable {
 
   @Override
   public void connect() throws IOException {
+    if ((principal != null) && (keytabPath != null)) {
+      UserGroupInformation.loginUserFromKeytab(principal, keytabPath);
+    }
     configuration = HBaseConfiguration.create();
     configuration.set("hbase.zookeeper.quorum", zookeeperQuorum);
     configuration.set("hbase.zookeeper.property.clientPort", "" 	+ zookeeperClientPort);
