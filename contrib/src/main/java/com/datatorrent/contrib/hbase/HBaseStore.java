@@ -38,7 +38,7 @@ public class HBaseStore implements Connectable {
   protected String tableName;
   
   protected String principal;
-  protected String keytabPath;
+  protected String keytab;
 
   protected transient HTable table;
 
@@ -99,24 +99,46 @@ public class HBaseStore implements Connectable {
     this.tableName = tableName;
   }
 
+  /**
+   * Get the Kerberos principal.
+   *
+   * @return The Kerberos principal
+   */
   public String getPrincipal()
   {
     return principal;
   }
 
+  /**
+   * Set the Kerberos principal.
+   *
+   * @param principal
+   *            The Kerberos principal
+   */
   public void setPrincipal(String principal)
   {
     this.principal = principal;
   }
 
-  public String getKeytabPath()
+  /**
+   * Get the Kerberos keytab path
+   *
+   * @return The Kerberos keytab path
+   */
+  public String getKeytab()
   {
-    return keytabPath;
+    return keytab;
   }
 
-  public void setKeytabPath(String keytabPath)
+  /**
+   * Set the Kerberos keytab path.
+   *
+   * @param keytab
+   *            The Kerberos keytab path
+   */
+  public void setKeytab(String keytab)
   {
-    this.keytabPath = keytabPath;
+    this.keytab = keytab;
   }
 
   /**
@@ -161,8 +183,8 @@ public class HBaseStore implements Connectable {
 
   @Override
   public void connect() throws IOException {
-    if ((principal != null) && (keytabPath != null)) {
-      UserGroupInformation.loginUserFromKeytab(principal, keytabPath);
+    if ((principal != null) && (keytab != null)) {
+      UserGroupInformation.loginUserFromKeytab(principal, keytab);
     }
     configuration = HBaseConfiguration.create();
     configuration.set("hbase.zookeeper.quorum", zookeeperQuorum);
