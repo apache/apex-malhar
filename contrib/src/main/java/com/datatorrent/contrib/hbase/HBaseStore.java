@@ -15,12 +15,14 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.lib.db.Connectable;
+import java.io.IOException;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
+import org.apache.hadoop.security.UserGroupInformation;
 
-import java.io.IOException;
+import com.datatorrent.lib.db.Connectable;
 /**
  * A {@link Connectable} that uses HBase to connect to stores and implements Connectable interface. 
  * <p>
@@ -34,6 +36,9 @@ public class HBaseStore implements Connectable {
   private String zookeeperQuorum;
   private int zookeeperClientPort;
   protected String tableName;
+  
+  protected String principal;
+  protected String keytab;
 
   protected transient HTable table;
 
@@ -95,6 +100,48 @@ public class HBaseStore implements Connectable {
   }
 
   /**
+   * Get the Kerberos principal.
+   *
+   * @return The Kerberos principal
+   */
+  public String getPrincipal()
+  {
+    return principal;
+  }
+
+  /**
+   * Set the Kerberos principal.
+   *
+   * @param principal
+   *            The Kerberos principal
+   */
+  public void setPrincipal(String principal)
+  {
+    this.principal = principal;
+  }
+
+  /**
+   * Get the Kerberos keytab path
+   *
+   * @return The Kerberos keytab path
+   */
+  public String getKeytab()
+  {
+    return keytab;
+  }
+
+  /**
+   * Set the Kerberos keytab path.
+   *
+   * @param keytab
+   *            The Kerberos keytab path
+   */
+  public void setKeytab(String keytab)
+  {
+    this.keytab = keytab;
+  }
+
+  /**
    * Get the HBase table .
    * 
    * @return The HBase table
@@ -136,6 +183,9 @@ public class HBaseStore implements Connectable {
 
   @Override
   public void connect() throws IOException {
+    if ((principal != null) && (keytab != null)) {
+      UserGroupInformation.loginUserFromKeytab(principal, keytab);
+    }
     configuration = HBaseConfiguration.create();
     configuration.set("hbase.zookeeper.quorum", zookeeperQuorum);
     configuration.set("hbase.zookeeper.property.clientPort", "" 	+ zookeeperClientPort);
