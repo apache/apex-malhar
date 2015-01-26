@@ -29,11 +29,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
-
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
@@ -84,6 +82,7 @@ public class AbstractBlockReaderTest
         while ((line = reader.readLine()) != null) {
           messages.add(line.split(","));
         }
+        reader.close();
       }
       catch (FileNotFoundException e) {
         throw new RuntimeException(e);
@@ -200,5 +199,6 @@ public class AbstractBlockReaderTest
     }
   }
 
+  @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(AbstractBlockReaderTest.class);
 }

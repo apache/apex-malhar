@@ -108,7 +108,7 @@ public class LogstreamTopN extends TopN<String, DimensionObject<String>> impleme
    * {@inheritDoc}
    */
   @Override
-  public Collection<Partition<LogstreamTopN>> definePartitions(Collection<Partition<LogstreamTopN>> partitions, int partitionCnt)
+  public Collection<Partition<LogstreamTopN>> definePartitions(Collection<Partition<LogstreamTopN>> partitions, PartitioningContext context)
   {
     ArrayList<Partition<LogstreamTopN>> newPartitions = new ArrayList<Partition<LogstreamTopN>>();
     String[] filters = registry.list(LogstreamUtil.FILTER);

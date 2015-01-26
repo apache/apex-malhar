@@ -18,11 +18,14 @@ package com.datatorrent.lib.io.fs;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Partitioner.Partition;
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
+import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.*;
+
 import java.io.*;
 import java.util.*;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.hadoop.conf.Configuration;
@@ -158,9 +161,9 @@ public class AbstractFileInputOperatorTest
 
     List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
     partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
-    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = oper.definePartitions(partitions, 1);
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = oper.definePartitions(partitions, new PartitioningContextImpl(null, 2));
     Assert.assertEquals(2, newPartitions.size());
-    Assert.assertEquals(2, oper.getCurrentPartitions());
+    Assert.assertEquals(1, oper.getCurrentPartitions()); // partitioned() wasn't called
 
     for (Partition<AbstractFileInputOperator<String>> p : newPartitions) {
       Assert.assertNotSame(oper, p.getPartitionedInstance());
@@ -226,7 +229,7 @@ public class AbstractFileInputOperatorTest
     List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
     partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
     // incremental capacity controlled partitionCount property
-    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, new PartitioningContextImpl(null, 0));
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, initialState.getCurrentPartitions());
     Map<Integer, Partition<AbstractFileInputOperator<String>>> m = Maps.newHashMap();
@@ -330,7 +333,7 @@ public class AbstractFileInputOperatorTest
     List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
     partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
     // incremental capacity controlled partitionCount property
-    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, new PartitioningContextImpl(null, 0));
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, initialState.getCurrentPartitions());
     Map<Integer, Partition<AbstractFileInputOperator<String>>> m = Maps.newHashMap();
@@ -415,7 +418,7 @@ public class AbstractFileInputOperatorTest
     List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
     partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
     // incremental capacity controlled partitionCount property
-    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, 0);
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, new PartitioningContextImpl(null, 0));
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, initialState.getCurrentPartitions());
     Map<Integer, Partition<AbstractFileInputOperator<String>>> m = Maps.newHashMap();

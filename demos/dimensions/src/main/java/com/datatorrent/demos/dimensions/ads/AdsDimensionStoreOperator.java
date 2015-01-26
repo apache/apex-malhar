@@ -458,8 +458,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           ", endTime=" + endTime +
           '}';
     }
-
-    private static final long serialVersionUID = 201411031407L;
   }
 
   /**

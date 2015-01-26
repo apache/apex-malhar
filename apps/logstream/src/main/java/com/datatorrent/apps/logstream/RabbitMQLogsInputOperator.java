@@ -22,6 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Partitioner.PartitioningContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Partitioner;
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
@@ -127,7 +128,7 @@ public class RabbitMQLogsInputOperator extends AbstractSinglePortRabbitMQInputOp
    * @return
    */
   @Override
-  public Collection<Partition<RabbitMQLogsInputOperator>> definePartitions(Collection<Partition<RabbitMQLogsInputOperator>> partitions, int partitionCnt)
+  public Collection<Partition<RabbitMQLogsInputOperator>> definePartitions(Collection<Partition<RabbitMQLogsInputOperator>> partitions, PartitioningContext context)
   {
     if (routingKeys == null || routingKeys.length == 0) {
       return partitions;
