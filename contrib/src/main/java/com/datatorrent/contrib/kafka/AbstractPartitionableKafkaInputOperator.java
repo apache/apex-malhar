@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+
 import kafka.javaapi.PartitionMetadata;
 
 import javax.validation.constraints.Min;
@@ -37,10 +38,10 @@ import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.commons.lang3.StringUtils;
 
 import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
+
 import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.*;
 
 import com.datatorrent.api.Context.OperatorContext;
@@ -137,7 +138,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   }
 
   @Override
-  public Collection<Partition<AbstractPartitionableKafkaInputOperator>> definePartitions(Collection<Partition<AbstractPartitionableKafkaInputOperator>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractPartitionableKafkaInputOperator>> definePartitions(Collection<Partition<AbstractPartitionableKafkaInputOperator>> partitions, PartitioningContext context)
   {
 
     // check if it's the initial partition
@@ -587,7 +588,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   public void setInitialPartitionCount(int partitionCount)
   {
-    this.initialPartitionCount = initialPartitionCount;
+    this.initialPartitionCount = partitionCount;
   }
 
   public int getInitialPartitionCount()

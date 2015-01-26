@@ -30,7 +30,6 @@ import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileStatus;
@@ -38,7 +37,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
 import com.datatorrent.lib.counters.BasicCounters;
-
 import com.datatorrent.api.Context.CountersAggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
@@ -649,11 +647,11 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   }
 
   @Override
-  public Collection<Partition<AbstractFileInputOperator<T>>> definePartitions(Collection<Partition<AbstractFileInputOperator<T>>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractFileInputOperator<T>>> definePartitions(Collection<Partition<AbstractFileInputOperator<T>>> partitions, PartitioningContext context)
   {
     lastRepartition = System.currentTimeMillis();
 
-    int totalCount = computedNewPartitionCount(partitions, incrementalCapacity);
+    int totalCount = getNewPartitionCount(partitions, context);
 
     LOG.debug("Computed new partitions: {}", totalCount);
 
@@ -758,19 +756,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     return newPartitions;
   }
 
-  protected int computedNewPartitionCount(Collection<Partition<AbstractFileInputOperator<T>>> partitions, int incrementalCapacity)
+  protected int getNewPartitionCount(Collection<Partition<AbstractFileInputOperator<T>>> partitions, PartitioningContext context)
   {
-    boolean isInitialParitition = partitions.iterator().next().getStats() == null;
-
-    if (isInitialParitition && partitionCount == 1) {
-      partitionCount = currentPartitions = partitions.size() + incrementalCapacity;
-    } else {
-      incrementalCapacity = partitionCount - currentPartitions;
-    }
-
-    int totalCount = partitions.size() + incrementalCapacity;
-    LOG.info("definePartitions trying to create {} partitions, current {}  required {}", totalCount, partitionCount, currentPartitions);
-    return totalCount;
+    return DefaultPartition.getRequiredPartitionCount(context, this.partitionCount);
   }
 
   @Override

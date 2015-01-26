@@ -278,7 +278,7 @@ public class MapOperator<K1, V1, K2, V2>  implements InputOperator, Partitioner<
 
   @SuppressWarnings("rawtypes")
   @Override
-  public Collection<Partition<MapOperator<K1, V1, K2, V2>>> definePartitions(Collection<Partition<MapOperator<K1, V1, K2, V2>>> partitions, int incrementalCapacity)
+  public Collection<Partition<MapOperator<K1, V1, K2, V2>>> definePartitions(Collection<Partition<MapOperator<K1, V1, K2, V2>>> partitions, PartitioningContext context)
   {
     int tempPartitionCount = partitionCount;
 
