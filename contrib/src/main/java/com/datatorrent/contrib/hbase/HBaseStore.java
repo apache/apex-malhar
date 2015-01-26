@@ -17,6 +17,9 @@ package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.HTable;
@@ -33,12 +36,20 @@ import com.datatorrent.lib.db.Connectable;
  */
 public class HBaseStore implements Connectable {
 
+  public static final String USER_NAME_SPECIFIER = "%USER_NAME%";
+  
+  private static final Logger logger = LoggerFactory.getLogger(HBaseStore.class);
+  
   private String zookeeperQuorum;
   private int zookeeperClientPort;
   protected String tableName;
   
   protected String principal;
-  protected String keytab;
+  protected String keytabPath;
+  // Default interval 30 min
+  protected long reloginCheckInterval = 30 * 60 * 1000;
+  protected transient Thread loginRenewer;
+  private volatile transient boolean doRelogin;
 
   protected transient HTable table;
 
@@ -125,20 +136,41 @@ public class HBaseStore implements Connectable {
    *
    * @return The Kerberos keytab path
    */
-  public String getKeytab()
+  public String getKeytabPath()
   {
-    return keytab;
+    return keytabPath;
   }
 
   /**
    * Set the Kerberos keytab path.
    *
-   * @param keytab
+   * @param keytabPath
    *            The Kerberos keytab path
    */
-  public void setKeytab(String keytab)
+  public void setKeytabPath(String keytabPath)
   {
-    this.keytab = keytab;
+    this.keytabPath = keytabPath;
+  }
+
+  /**
+   * Get the interval to check for relogin.
+   *
+   * @return The interval to check for relogin
+   */
+  public long getReloginCheckInterval()
+  {
+    return reloginCheckInterval;
+  }
+
+  /**
+   * Set the interval to check for relogin.
+   *
+   * @param reloginCheckInterval
+   *            The interval to check for relogin
+   */
+  public void setReloginCheckInterval(long reloginCheckInterval)
+  {
+    this.reloginCheckInterval = reloginCheckInterval;
   }
 
   /**
@@ -183,21 +215,69 @@ public class HBaseStore implements Connectable {
 
   @Override
   public void connect() throws IOException {
-    if ((principal != null) && (keytab != null)) {
-      UserGroupInformation.loginUserFromKeytab(principal, keytab);
+    if ((principal != null) && (keytabPath != null)) {
+      String lprincipal = evaluateProperty(principal);
+      String lkeytabPath = evaluateProperty(keytabPath);
+      UserGroupInformation.loginUserFromKeytab(lprincipal, lkeytabPath);
+      doRelogin = true;
+      loginRenewer = new Thread(new Runnable()
+      {
+        @Override
+        public void run()
+        {
+          logger.debug("Renewer starting");
+          try {
+            while (doRelogin) {
+              Thread.sleep(reloginCheckInterval);
+              try {
+                UserGroupInformation.getLoginUser().checkTGTAndReloginFromKeytab();
+              } catch (IOException e) {
+                logger.error("Error trying to relogin from keytab", e);
+              }
+            }
+          } catch (InterruptedException e) {
+            if (doRelogin) {
+              logger.warn("Renewer interrupted... stopping");
+            }
+          }
+          logger.debug("Renewer ending");
+        }
+      });
+      loginRenewer.start();
     }
     configuration = HBaseConfiguration.create();
-    configuration.set("hbase.zookeeper.quorum", zookeeperQuorum);
-    configuration.set("hbase.zookeeper.property.clientPort", "" 	+ zookeeperClientPort);
+    // The default configuration is loaded from resources in classpath, the following parameters can be optionally set
+    // to override defaults
+    if (zookeeperQuorum != null) {
+      configuration.set("hbase.zookeeper.quorum", zookeeperQuorum);
+    }
+    if (zookeeperClientPort != 0) {
+      configuration.set("hbase.zookeeper.property.clientPort", "" + zookeeperClientPort);
+    }
     table = new HTable(configuration, tableName);
     table.setAutoFlushTo(false);
 
   }
+  
+  private String evaluateProperty(String property) throws IOException
+  {
+    if (property.contains(USER_NAME_SPECIFIER)) {
+     property = property.replaceAll(USER_NAME_SPECIFIER, UserGroupInformation.getLoginUser().getShortUserName()); 
+    }
+    return property;
+  }
 
   @Override
   public void disconnect() throws IOException {
-    // not applicable for hbase
-
+    if (loginRenewer != null) {
+      doRelogin = false;
+      loginRenewer.interrupt();
+      try {
+        loginRenewer.join();
+      } catch (InterruptedException e) {
+        logger.warn("Unsuccessful waiting for renewer to finish. Proceeding to shutdown", e);
+      }
+    }
   }
 
   @Override
