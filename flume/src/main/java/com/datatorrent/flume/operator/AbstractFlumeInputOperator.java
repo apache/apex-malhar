@@ -10,6 +10,7 @@ import java.net.InetSocketAddress;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ArrayBlockingQueue;
+
 import static java.lang.Thread.sleep;
 
 import javax.validation.constraints.Min;
@@ -17,13 +18,12 @@ import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.flume.Event;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Partitioner.PartitioningContext;
 import com.datatorrent.api.Stats.OperatorStats;
-
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.discovery.ZKAssistedDiscovery;
@@ -332,15 +332,15 @@ public abstract class AbstractFlumeInputOperator<T>
   }
 
   @Override
-  public Collection<Partition<AbstractFlumeInputOperator<T>>> definePartitions(Collection<Partition<AbstractFlumeInputOperator<T>>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractFlumeInputOperator<T>>> definePartitions(Collection<Partition<AbstractFlumeInputOperator<T>>> partitions, PartitioningContext context)
   {
     Collection<Service<byte[]>> discovered = discoveredFlumeSinks.get();
-    if (discovered == null && incrementalCapacity == 0) {
+    if (discovered == null) {
       return partitions;
     }
 
     HashMap<String, ArrayList<RecoveryAddress>> allRecoveryAddresses = abandonedRecoveryAddresses.get();
-    ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size() + incrementalCapacity);
+    ArrayList<String> allConnectAddresses = new ArrayList<String>(partitions.size());
     for (Partition<AbstractFlumeInputOperator<T>> partition: partitions) {
       String[] lAddresses = partition.getPartitionedInstance().connectionSpecs;
       allConnectAddresses.addAll(Arrays.asList(lAddresses));
