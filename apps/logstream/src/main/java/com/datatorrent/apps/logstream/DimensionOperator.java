@@ -25,15 +25,13 @@ import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.commons.lang.mutable.MutableDouble;
 
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.logs.DimensionObject;
-
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-
+import com.datatorrent.api.Partitioner.PartitioningContext;
 import com.datatorrent.apps.logstream.LogstreamUtil.AggregateOperation;
 import com.datatorrent.apps.logstream.PropertyRegistry.LogstreamPropertyRegistry;
 import com.datatorrent.apps.logstream.PropertyRegistry.PropertyRegistry;
@@ -465,7 +463,7 @@ public class DimensionOperator extends BaseOperator implements Partitioner<Dimen
    * {@inheritDoc}
    */
   @Override
-  public Collection<Partition<DimensionOperator>> definePartitions(Collection<Partition<DimensionOperator>> partitions, int partitionCnt)
+  public Collection<Partition<DimensionOperator>> definePartitions(Collection<Partition<DimensionOperator>> partitions, PartitioningContext context)
   {
     ArrayList<Partition<DimensionOperator>> newPartitions = new ArrayList<Partition<DimensionOperator>>();
     String[] filters = registry.list(LogstreamUtil.FILTER);

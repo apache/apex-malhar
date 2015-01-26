@@ -30,7 +30,6 @@ import com.google.common.collect.Sets;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.lib.bucket.Bucket;
@@ -38,11 +37,9 @@ import com.datatorrent.lib.bucket.BucketManager;
 import com.datatorrent.lib.bucket.Bucketable;
 import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.counters.BasicCounters;
-
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
 import com.datatorrent.common.util.DTThrowable;
 
 /**
@@ -274,18 +271,9 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
   @Override
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
-  public Collection<Partition<Deduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions, int incrementalCapacity)
+  public Collection<Partition<Deduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions, PartitioningContext context)
   {
-    final int finalCapacity;
-
-    //Do parallel partitioning
-    if(incrementalCapacity != 0) {
-      finalCapacity = incrementalCapacity;
-    }
-    //Do normal partitioning
-    else {
-      finalCapacity = partitionCount;
-    }
+    final int finalCapacity = DefaultPartition.getRequiredPartitionCount(context, this.partitionCount);
 
     //Collect the state here
     List<BucketManager<INPUT>> oldStorageManagers = Lists.newArrayList();

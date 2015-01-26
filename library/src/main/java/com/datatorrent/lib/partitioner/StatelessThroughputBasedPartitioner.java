@@ -125,7 +125,7 @@ public class StatelessThroughputBasedPartitioner<T extends Operator> implements 
   }
 
   @Override
-  public Collection<Partition<T>> definePartitions(Collection<Partition<T>> partitions, int incrementalCapacity)
+  public Collection<Partition<T>> definePartitions(Collection<Partition<T>> partitions, PartitioningContext context)
   {
     if (partitionedInstanceStatus == null || partitionedInstanceStatus.isEmpty()) {
       // first call
@@ -135,8 +135,8 @@ public class StatelessThroughputBasedPartitioner<T extends Operator> implements 
       }
       partitionNextMillis = System.currentTimeMillis() + 2 * cooldownMillis;
       nextMillis = partitionNextMillis;
-      //This is now broken cannot return null. Refer to StatelessPartitioner
-      return new StatelessPartitioner<T>(initialPartitionCount).definePartitions(partitions, incrementalCapacity);
+      // delegate to create initial list of partitions
+      return new StatelessPartitioner<T>(initialPartitionCount).definePartitions(partitions, context);
     }
     else {
       // repartition call

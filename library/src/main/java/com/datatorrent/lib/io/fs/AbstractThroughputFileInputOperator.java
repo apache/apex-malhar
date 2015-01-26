@@ -17,7 +17,9 @@ package com.datatorrent.lib.io.fs;
 
 import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.lib.counters.BasicCounters;
+
 import java.util.Collection;
+
 import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -121,7 +123,7 @@ public abstract class AbstractThroughputFileInputOperator<T> extends AbstractFil
   }
 
   @Override
-  protected int computedNewPartitionCount(Collection<Partition<AbstractFileInputOperator<T>>> partitions, int incrementalCapacity)
+  protected int getNewPartitionCount(Collection<Partition<AbstractFileInputOperator<T>>> partitions, PartitioningContext context)
   {
     LOG.debug("Called throughput.");
     boolean isInitialParitition = partitions.iterator().next().getStats() == null;
