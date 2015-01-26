@@ -350,44 +350,42 @@ public abstract class AbstractFlumeInputOperator<T>
       }
     }
 
-    if (discovered != null) {
-      HashMap<String, String> connections = new HashMap<String, String>(discovered.size());
-      for (Service<byte[]> service: discovered) {
-        String previousSpec = connections.get(service.getId());
-        String newspec = service.getId() + ':' + service.getHost() + ':' + service.getPort();
-        if (previousSpec == null) {
+    HashMap<String, String> connections = new HashMap<String, String>(discovered.size());
+    for (Service<byte[]> service: discovered) {
+      String previousSpec = connections.get(service.getId());
+      String newspec = service.getId() + ':' + service.getHost() + ':' + service.getPort();
+      if (previousSpec == null) {
+        connections.put(service.getId(), newspec);
+      }
+      else {
+        boolean found = false;
+        for (ConnectionStatus cs: partitionedInstanceStatus.get().values()) {
+          if (previousSpec.equals(cs.spec) && !cs.connected) {
+            connections.put(service.getId(), newspec);
+            found = true;
+            break;
+          }
+        }
+
+        if (!found) {
+          logger.warn("2 sinks found with the same id: {} and {}... Ignoring previous.", previousSpec, newspec);
           connections.put(service.getId(), newspec);
         }
-        else {
-          boolean found = false;
-          for (ConnectionStatus cs: partitionedInstanceStatus.get().values()) {
-            if (previousSpec.equals(cs.spec) && !cs.connected) {
-              connections.put(service.getId(), newspec);
-              found = true;
-              break;
-            }
-          }
-
-          if (!found) {
-            logger.warn("2 sinks found with the same id: {} and {}... Ignoring previous", previousSpec, newspec);
-            connections.put(service.getId(), newspec);
-          }
-        }
       }
-
-      for (int i = allConnectAddresses.size(); i-- > 0;) {
-        String[] parts = allConnectAddresses.get(i).split(":");
-        String connection = connections.remove(parts[0]);
-        if (connection == null) {
-          allConnectAddresses.remove(i);
-        }
-        else {
-          allConnectAddresses.set(i, connection);
-        }
-      }
-
-      allConnectAddresses.addAll(connections.values());
     }
+
+    for (int i = allConnectAddresses.size(); i-- > 0;) {
+      String[] parts = allConnectAddresses.get(i).split(":");
+      String connection = connections.remove(parts[0]);
+      if (connection == null) {
+        allConnectAddresses.remove(i);
+      }
+      else {
+        allConnectAddresses.set(i, connection);
+      }
+    }
+
+    allConnectAddresses.addAll(connections.values());
 
     partitions.clear();
     try {
@@ -481,7 +479,6 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
     @Override
-    @SuppressWarnings("SynchronizeOnNonFinalField") // context is virtually final for a given operator
     public void connected()
     {
       super.connected();
@@ -516,7 +513,6 @@ public abstract class AbstractFlumeInputOperator<T>
     }
 
     @Override
-    @SuppressWarnings("SynchronizeOnNonFinalField") // context is virtually final for a given operator
     public void disconnected()
     {
       connected = false;
