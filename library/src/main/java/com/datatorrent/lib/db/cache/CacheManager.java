@@ -202,6 +202,7 @@ public class CacheManager implements Closeable
     Map<Object, Object> loadInitialData();
   }
 
+  @SuppressWarnings("unused")
   private final static Logger LOG = LoggerFactory.getLogger(CacheManager.class);
 
 }

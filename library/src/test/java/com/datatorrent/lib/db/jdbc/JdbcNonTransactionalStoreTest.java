@@ -27,55 +27,51 @@ public class JdbcNonTransactionalStoreTest
   public void beginTransactionTest()
   {
     JdbcNonTransactionalStore jdbcNonTransactionalStore = new JdbcNonTransactionalStore();
-    boolean threwException = false;
     try {
       jdbcNonTransactionalStore.beginTransaction();
     }
     catch(RuntimeException e) {
-      threwException = true;
+      return;
     }
-    Assert.assertTrue("Exception should be thrown", threwException);
+    Assert.fail("Exception should be thrown");
   }
 
   @Test
   public void commitTransactionTest()
   {
     JdbcNonTransactionalStore jdbcNonTransactionalStore = new JdbcNonTransactionalStore();
-    boolean threwException = false;
     try {
       jdbcNonTransactionalStore.commitTransaction();
     }
     catch(RuntimeException e) {
-      threwException = true;
+      return;
     }
-    Assert.assertTrue("Exception should be thrown", threwException);
+    Assert.fail("Exception should be thrown");
   }
 
   @Test
   public void rollbackTransactionTest()
   {
     JdbcNonTransactionalStore jdbcNonTransactionalStore = new JdbcNonTransactionalStore();
-    boolean threwException = false;
     try {
       jdbcNonTransactionalStore.rollbackTransaction();
     }
     catch(RuntimeException e) {
-      threwException = true;
+      return;
     }
-    Assert.assertTrue("Exception should be thrown", threwException);
+    Assert.fail("Exception should be thrown");
   }
 
   @Test
   public void isInTransactionTest()
   {
     JdbcNonTransactionalStore jdbcNonTransactionalStore = new JdbcNonTransactionalStore();
-    boolean threwException = false;
     try {
       jdbcNonTransactionalStore.isInTransaction();
     }
     catch(RuntimeException e) {
-      threwException = true;
+      return;
     }
-    Assert.assertTrue("Exception should be thrown", threwException);
+    Assert.fail("Exception should be thrown");
   }
 }

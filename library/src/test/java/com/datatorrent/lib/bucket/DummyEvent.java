@@ -25,6 +25,7 @@ public class DummyEvent implements Event, Bucketable, Comparable<DummyEvent>
   Integer id;
   long time;
 
+  @SuppressWarnings("unused")
   DummyEvent()
   {
   }

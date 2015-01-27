@@ -1,12 +1,13 @@
 package com.datatorrent.lib.codec;
 
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.datatorrent.common.util.Slice;
-import com.google.common.base.Preconditions;
+import java.io.IOException;
+
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.io.IOException;
+import com.google.common.base.Preconditions;
+
+import com.datatorrent.common.util.Slice;
 
 /**
  * Tests for {@link KryoSerializableStreamCodec}
@@ -17,8 +18,9 @@ public class KryoStreamCodecTest {
     public static class TestTuple {
         final Integer field;
 
-        public TestTuple(){
-            this.field= new Integer(0);
+        @SuppressWarnings("unused")
+        private TestTuple(){
+            this.field= 0;
         }
 
         public TestTuple(Integer x){
@@ -55,12 +57,12 @@ public class KryoStreamCodecTest {
         TestKryoStreamCodec decoder = new TestKryoStreamCodec();
 
         KryoSerializableStreamCodec<Object> objCoder = new KryoSerializableStreamCodec<Object>();
-        Slice sliceOfObj = objCoder.toByteArray(new Integer(10));
-        Object decodedObj = objCoder.fromByteArray(sliceOfObj);
+        Slice sliceOfObj = objCoder.toByteArray(10);
+        Integer decodedObj = (Integer) objCoder.fromByteArray(sliceOfObj);
 
-        Assert.assertEquals("codec", decodedObj, new Integer(10));
+        Assert.assertEquals("codec", decodedObj.intValue(), 10);
 
-        TestTuple tp= new TestTuple(new Integer(5));
+        TestTuple tp= new TestTuple(5);
 
         Slice dsp1 = coder.toByteArray(tp);
         Slice dsp2 = coder.toByteArray(tp);

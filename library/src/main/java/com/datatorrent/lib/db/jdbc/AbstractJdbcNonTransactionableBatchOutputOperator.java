@@ -43,7 +43,6 @@ public abstract class AbstractJdbcNonTransactionableBatchOutputOperator<T, S ext
   private int batchSize = DEFAULT_BATCH_SIZE;
   private final List<T> tuples;
   private ProcessingMode mode;
-  private transient boolean skipWindow = false;
   private long currentWindowId;
   private transient long committedWindowId;
   private transient String appId;

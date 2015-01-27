@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends HdfsBucketStore<T> implements BucketStore.ExpirableBucketStore<T>
 {
 
+  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
   @Override
   public void deleteExpiredBuckets(long time) throws IOException
   {

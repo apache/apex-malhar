@@ -46,6 +46,7 @@ public class BasicCounters<T extends Number & Mutable> implements Serializable
   private final Map<Enum<?>, T> cache;
   private final Class<T> counterType;
 
+  @SuppressWarnings("unused")
   private BasicCounters()
   {
     //for kryo

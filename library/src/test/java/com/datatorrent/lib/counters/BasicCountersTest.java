@@ -31,7 +31,7 @@ public class BasicCountersTest
 
     MutableDouble counterAInCounters = doubleBasicCounters.getCounter(CounterKeys.A);
     Assert.assertNotNull("null", doubleBasicCounters.getCounter(CounterKeys.A));
-    Assert.assertTrue("equality", counterAInCounters == counterA);
+    Assert.assertTrue("equality", counterAInCounters.equals(counterA));
     Assert.assertEquals(counterA.doubleValue(), 1.0, 0);
   }
 

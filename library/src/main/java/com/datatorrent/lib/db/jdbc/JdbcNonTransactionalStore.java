@@ -16,10 +16,7 @@
 
 package com.datatorrent.lib.db.jdbc;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * A store which is used to connect to a non transactional jdbc database.

@@ -16,7 +16,6 @@
 package com.datatorrent.lib.bucket;
 
 import java.io.IOException;
-import java.util.concurrent.Exchanger;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -34,7 +33,6 @@ public class TimeBasedBucketManagerTest
 {
   private static final String APPLICATION_PATH_PREFIX = "target/TimeBasedBucketManagerTest";
   private static final long BUCKET_SPAN = 60000; //1 minute
-  private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
   private static TestBucketManager<DummyEvent> manager;
   private static String applicationPath;

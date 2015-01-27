@@ -72,7 +72,6 @@ public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends 
    *
    * @return the sql statement to update a tuple in the database.
    */
-  @Nonnull
   protected abstract String getUpdateCommand();
 
   /**
@@ -85,6 +84,4 @@ public abstract class AbstractJdbcNonTransactionableOutputOperator<T, S extends 
    * @throws SQLException
    */
   protected abstract void setStatementParameters(PreparedStatement statement, T tuple) throws SQLException;
-
-  private static final Logger logger = LoggerFactory.getLogger(AbstractJdbcTransactionableOutputOperator.class);
 }

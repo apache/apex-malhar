@@ -22,6 +22,7 @@ import java.util.concurrent.*;
 
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FSDataInputStream;
@@ -53,7 +54,6 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   public static transient String PARTITION_KEYS = "partitionKeys";
   public static transient String PARTITION_MASK = "partitionMask";
   public static transient int DEF_CORE_POOL_SIZE = 10;
-  public static transient int DEF_HARD_LIMIT_POOL_SIZE = 50;
   public static transient int DEF_KEEP_ALIVE_SECONDS = 120;
 
   static transient final String PATH_SEPARATOR = "/";
@@ -71,7 +71,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   protected int keepAliveSeconds;
   protected int hardLimitOnPoolSize;
   protected int interpolatedPoolSize;
-  @Nonnull
+  @NotNull
   private String bucketsDir;
 
   //Non check-pointed
@@ -252,6 +252,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
   /**
    * {@inheritDoc}
    */
+  @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
   @Override
   public void deleteBucket(int bucketIdx) throws IOException
   {
@@ -368,19 +369,19 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     return result;
   }
 
-  private class Exchange<T> implements Comparable<Exchange<T>>
+  private class Exchange<E> implements Comparable<Exchange<E>>
   {
     final long window;
-    final Map<Object, T> data;
+    final Map<Object, E> data;
 
-    Exchange(long window, Map<Object, T> data)
+    Exchange(long window, Map<Object, E> data)
     {
       this.window = window;
       this.data = data;
     }
 
     @Override
-    public int compareTo(Exchange<T> tExchange)
+    public int compareTo(@Nonnull Exchange<E> tExchange)
     {
       return (int) (window - tExchange.window);
     }
