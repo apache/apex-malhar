@@ -1,47 +1,57 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
-<!--properties for pi demo  -->
+  <!-- Memory settings for all demos -->
   <property>
     <name>dt.attr.MASTER_MEMORY_MB</name>
     <value>1024</value>
   </property>
-<property>
-	<name>dt.application.PiDemo.operator.rand.minvalue</name>
-	<value>0</value>
-</property>
-<property>
-	<name>dt.application.PiDemo.operator.rand.maxvalue</name>
-	<value>30000</value>
-</property>
-<property>
-	<name>dt.application.PiDemo.operator.picalc.base</name>
-	<value>900000000</value>
-</property>
-<property>
-	<name>dt.application.PiDemo.operator.*.attr.MEMORY_MB</name>
-	<value>512</value>
-</property>
-<!-- prperties for pi library demo -->
-<property>
-	<name>dt.application.PiLibraryDemo.operator.GenerateX.minvalue</name>
-	<value>0</value>
-</property>
-<property>
-	<name>dt.application.PiLibraryDemo.operator.GenerateX.maxvalue</name>
-	<value>30000</value>
-</property>
-<property>
-	<name>dt.application.PiLibraryDemo.operator.PairXY.size</name>
-	<value>2</value>
-</property>
-<property>
-	<name>dt.application.PiLibraryDemo.operator.*.attr.MEMORY_MB</name>
-	<value>512</value>
-</property>
-<!--
-<property>
-	<name>dt.application.PiLibraryDemo.operator.AnalyzeLocation.constant</name>
-	<value>900000000</value>
-</property> -->
+  <property>
+    <name>dt.operator.rand.attr.MEMORY_MB</name>
+    <value>256</value>
+  </property>
+  <property>
+    <name>dt.port.integer_data.attr.BUFFER_MEMORY_MB</name>
+    <value>384</value>
+  </property>
+  <property>
+    <name>dt.operator.*.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
+  <property>
+    <name>dt.port.*.attr.BUFFER_MEMORY_MB</name>
+    <value>256</value>
+  </property>
+
+  <!-- PiDemo  -->
+  <property>
+    <name>dt.application.PiDemo.operator.rand.minvalue</name>
+    <value>0</value>
+  </property>
+  <property>
+    <name>dt.application.PiDemo.operator.rand.maxvalue</name>
+    <value>30000</value>
+  </property>
+  <property>
+    <name>dt.application.PiDemo.operator.picalc.base</name>
+    <value>900000000</value>
+  </property>
+
+  <!-- PiLibraryDemo -->
+  <property>
+    <name>dt.application.PiLibraryDemo.operator.GenerateX.minvalue</name>
+    <value>0</value>
+  </property>
+  <property>
+    <name>dt.application.PiLibraryDemo.operator.GenerateX.maxvalue</name>
+    <value>30000</value>
+  </property>
+  <property>
+    <name>dt.application.PiLibraryDemo.operator.PairXY.size</name>
+    <value>2</value>
+  </property>
+  <!-- <property>
+    <name>dt.application.PiLibraryDemo.operator.AnalyzeLocation.constant</name>
+    <value>900000000</value>
+  </property> -->
 
 </configuration>
