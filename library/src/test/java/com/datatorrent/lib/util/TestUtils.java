@@ -22,7 +22,6 @@ import org.junit.rules.TestWatcher;
 
 import com.datatorrent.api.Operator.OutputPort;
 import com.datatorrent.api.Sink;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -68,9 +67,9 @@ public class TestUtils
   }
 
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public static <T> Sink<T> setSink(OutputPort<T> port, Sink<T> sink)
+  public static <S extends Sink, T> S setSink(OutputPort<T> port, S sink)
   {
-     port.setSink((CollectorTestSink)sink);
+     port.setSink(sink);
      return sink;
   }
 

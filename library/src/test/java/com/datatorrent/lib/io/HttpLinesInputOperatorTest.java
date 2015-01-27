@@ -34,6 +34,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Functional test for {
@@ -44,7 +45,6 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class HttpLinesInputOperatorTest
 {
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testHttpInputModule() throws Exception
   {
@@ -52,8 +52,6 @@ public class HttpLinesInputOperatorTest
     final List<String> receivedMessages = new ArrayList<String>();
     Handler handler = new AbstractHandler()
     {
-      int responseCount = 0;
-
       @Override
       public void handle(String string, Request rq, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException
       {
@@ -80,11 +78,8 @@ public class HttpLinesInputOperatorTest
     String url = "http://localhost:" + server.getConnectors()[0].getLocalPort() + "/somecontext";
     System.out.println(url);
 
-    final AbstractHttpInputOperator operator = new HttpLinesInputOperator();
-
-    CollectorTestSink sink = new CollectorTestSink();
-
-    operator.outputPort.setSink(sink);
+    final HttpLinesInputOperator operator = new HttpLinesInputOperator();
+    CollectorTestSink<String> sink = TestUtils.setSink(operator.outputPort, new CollectorTestSink<String>());
     operator.setName("testHttpInputNode");
     operator.setUrl(new URI(url));
 
@@ -100,10 +95,10 @@ public class HttpLinesInputOperatorTest
 
     Assert.assertTrue("tuple emitted", sink.collectedTuples.size() > 0);
 
-    Assert.assertEquals("", (String)sink.collectedTuples.get(0), "Hello");
-    Assert.assertEquals("", (String)sink.collectedTuples.get(1), "World,");
-    Assert.assertEquals("", (String)sink.collectedTuples.get(2), "Big");
-    Assert.assertEquals("", (String)sink.collectedTuples.get(3), "Data!");
+    Assert.assertEquals("", sink.collectedTuples.get(0), "Hello");
+    Assert.assertEquals("", sink.collectedTuples.get(1), "World,");
+    Assert.assertEquals("", sink.collectedTuples.get(2), "Big");
+    Assert.assertEquals("", sink.collectedTuples.get(3), "Data!");
 
     operator.deactivate();
     operator.teardown();
