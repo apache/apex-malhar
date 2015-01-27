@@ -20,6 +20,7 @@ import java.net.MalformedURLException;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import javax.validation.constraints.NotNull;
 
 import org.ektorp.CouchDbConnector;
 import org.ektorp.ViewQuery;
@@ -27,7 +28,6 @@ import org.ektorp.ViewResult;
 import org.ektorp.http.HttpClient;
 import org.ektorp.http.StdHttpClient;
 import org.ektorp.impl.StdCouchDbInstance;
-
 
 import com.datatorrent.lib.db.Connectable;
 
@@ -48,7 +48,7 @@ public class CouchDbStore implements Connectable
   private String dbUrl;
   private String userName;
   private String password;
-  @Nonnull
+  @NotNull
   private String dbName;
 
   private transient CouchDbConnector dbConnector;
