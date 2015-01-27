@@ -33,6 +33,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Tests the {@link HttpGetMapOperator} for sending get requests to specified url
@@ -48,7 +49,6 @@ public class HttpGetMapOperatorTest
   private final String VAL4 = "val4";
 
   @Test
-  @SuppressWarnings("unchecked")
   public void testGetOperator() throws Exception
   {
     final List<Map<String, String[]>> receivedRequests = new ArrayList<Map<String, String[]>>();
@@ -76,8 +76,7 @@ public class HttpGetMapOperatorTest
     operator.setUrl(url);
     operator.setup(null);
 
-    CollectorTestSink sink = new CollectorTestSink();
-    operator.output.setSink(sink);
+    CollectorTestSink<String> sink = TestUtils.setSink(operator.output, new CollectorTestSink<String>());
 
     Map<String, String> data = new HashMap<String, String>();
     data.put(KEY1, VAL1);
@@ -107,7 +106,7 @@ public class HttpGetMapOperatorTest
     Assert.assertEquals("parameter value", VAL4, receivedRequests.get(2).get(KEY1)[0]);
 
     Assert.assertEquals("emitted size", 3, sink.collectedTuples.size());
-    Assert.assertEquals("emitted tuples", KEY1, ((String)sink.collectedTuples.get(0)).trim());
+    Assert.assertEquals("emitted tuples", KEY1, sink.collectedTuples.get(0).trim());
   }
 
 }

@@ -89,7 +89,6 @@ public class AbstractSingleFileOutputOperatorTest
     }
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
   private CheckPointOutputOperator checkpoint(AbstractSingleFileOutputOperator<Integer> writer)
   {
     CheckPointOutputOperator checkPointWriter = new CheckPointOutputOperator();
@@ -124,7 +123,6 @@ public class AbstractSingleFileOutputOperatorTest
     return checkPointWriter;
   }
 
-  @SuppressWarnings({"unchecked", "rawtypes"})
   private void restoreCheckPoint(CheckPointOutputOperator checkPointWriter,
                                  AbstractSingleFileOutputOperator<Integer> writer)
   {

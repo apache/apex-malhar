@@ -230,18 +230,9 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
     }
 
     @Override
-    public Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> partitions, int incrementalCapacity)
+    public Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> definePartitions(Collection<Partition<DimensionsComputation<EVENT, AGGREGATE>>> partitions, PartitioningContext context)
     {
-      int newPartitionsCount;
-
-      //Do parallel partitioning
-      if(incrementalCapacity != 0) {
-        newPartitionsCount = incrementalCapacity;
-      }
-      //Do normal partitioning
-      else {
-        newPartitionsCount = partitionCount;
-      }
+      int newPartitionsCount = DefaultPartition.getRequiredPartitionCount(context, this.partitionCount);
 
       LinkedHashMap<Aggregator<EVENT, AGGREGATE>, DimensionsComputation<EVENT, AGGREGATE>> map = new LinkedHashMap<Aggregator<EVENT, AGGREGATE>, DimensionsComputation<EVENT, AGGREGATE>>(newPartitionsCount);
       for (Partition<DimensionsComputation<EVENT, AGGREGATE>> partition : partitions) {
@@ -252,7 +243,12 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
 
       int remainingDimensions = map.size();
       if (newPartitionsCount > remainingDimensions) {
-        newPartitionsCount = remainingDimensions;
+        if (context.getParallelPartitionCount() == 0) {
+          newPartitionsCount = remainingDimensions;
+        } else {
+          logger.error("Cannot distribute {} dimensions over {} parallel partitions.", remainingDimensions, newPartitionsCount);
+          return partitions;
+        }
       }
 
       int dimensionsPerPartition[] = new int[newPartitionsCount];
@@ -425,5 +421,7 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   {
     return aggregatorMaps != null ? Arrays.hashCode(aggregatorMaps) : 0;
   }
+
+  private static final Logger logger = LoggerFactory.getLogger(DimensionsComputation.class);
 
 }

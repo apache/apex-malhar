@@ -29,9 +29,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import com.datatorrent.api.*;
-
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
@@ -72,7 +70,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
 
   private transient Context.OperatorContext context;
 
-  private Queue<FileSplitter.BlockMetadata> blockQueue;
+  private final Queue<FileSplitter.BlockMetadata> blockQueue;
 
   private transient long sleepTimeMillis;
 
@@ -293,7 +291,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
    */
   @SuppressWarnings("unchecked")
   @Override
-  public Collection<Partition<AbstractBlockReader<R>>> definePartitions(Collection<Partition<AbstractBlockReader<R>>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractBlockReader<R>>> definePartitions(Collection<Partition<AbstractBlockReader<R>>> partitions, PartitioningContext context)
   {
     if (partitions.iterator().next().getStats() == null) {
       //First time when define partitions is called
@@ -593,6 +591,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
     private final long blockId;
     private final R record;
 
+    @SuppressWarnings("unused")
     private ReaderRecord()
     {
       this.blockId = -1;
@@ -761,9 +760,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
       return this.bufferSize;
     }
 
-    private static final long serialVersionUID = 201410081030L;
-
-    @SuppressWarnings("UnusedDeclaration")
+    @SuppressWarnings({ "UnusedDeclaration", "unused" })
     private static final Logger LOG = LoggerFactory.getLogger(AbstractLineReader.class);
   }
 
@@ -827,10 +824,7 @@ public abstract class AbstractBlockReader<R> extends BaseOperator implements
       return true;
     }
 
-    private static final long serialVersionUID = 201501161525L;
   }
-
-  private static final long serialVersionUID = 201408261653L;
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractBlockReader.class);
 

@@ -139,7 +139,7 @@ public abstract class AbstractSinglePortHDHTWriter<EVENT> extends HDHTWriter imp
   }
 
   @Override
-  public Collection<Partition<AbstractSinglePortHDHTWriter<EVENT>>> definePartitions(Collection<Partition<AbstractSinglePortHDHTWriter<EVENT>>> partitions, int incrementalCapacity)
+  public Collection<Partition<AbstractSinglePortHDHTWriter<EVENT>>> definePartitions(Collection<Partition<AbstractSinglePortHDHTWriter<EVENT>>> partitions, PartitioningContext context)
   {
     boolean isInitialPartition = partitions.iterator().next().getStats() == null;
 
@@ -149,20 +149,10 @@ public abstract class AbstractSinglePortHDHTWriter<EVENT> extends HDHTWriter imp
       return partitions;
     }
 
-    int totalCount;
-
-    //Get the size of the partition for parallel partitioning
-    if(incrementalCapacity != 0) {
-      totalCount = incrementalCapacity;
-    }
-    //Do normal partitioning
-    else {
-      totalCount = partitionCount;
-    }
-
+    final int newPartitionCount = DefaultPartition.getRequiredPartitionCount(context, this.partitionCount);
     Kryo lKryo = new Kryo();
-    Collection<Partition<AbstractSinglePortHDHTWriter<EVENT>>> newPartitions = Lists.newArrayListWithExpectedSize(totalCount);
-    for (int i = 0; i < totalCount; i++) {
+    Collection<Partition<AbstractSinglePortHDHTWriter<EVENT>>> newPartitions = Lists.newArrayListWithExpectedSize(newPartitionCount);
+    for (int i = 0; i < newPartitionCount; i++) {
       // Kryo.copy fails as it attempts to clone transient fields (input port)
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       Output output = new Output(bos);

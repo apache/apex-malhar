@@ -36,6 +36,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Tests {@link AbstractHttpGetMultiValuedMapOperator} for sending get requests to specified url
@@ -50,7 +51,6 @@ public class HttpMultiValuedMapGetOperatorTest
   private final String VAL3 = "val3";
 
   @Test
-  @SuppressWarnings("unchecked")
   public void testOperator() throws Exception
   {
     final List<Map<String, String[]>> receivedRequests = new ArrayList<Map<String, String[]>>();
@@ -78,8 +78,7 @@ public class HttpMultiValuedMapGetOperatorTest
     operator.setUrl(url);
     operator.setup(null);
 
-    CollectorTestSink sink = new CollectorTestSink();
-    operator.output.setSink(sink);
+    CollectorTestSink<String> sink = TestUtils.setSink(operator.output, new CollectorTestSink<String>());
 
     TestPojo pojo = new TestPojo();
     pojo.setName1(KEY1);
@@ -119,7 +118,7 @@ public class HttpMultiValuedMapGetOperatorTest
     map.add(pojo.getName2(), pojo.getValue22());
     map.add(pojo.getName2(), pojo.getValue23());
     Map.Entry<String,List<String>> entry = map.entrySet().iterator().next();
-    Assert.assertEquals("emitted tuples", entry.getKey(), ((String)sink.collectedTuples.get(0)).trim());
+    Assert.assertEquals("emitted tuples", entry.getKey(), sink.collectedTuples.get(0).trim());
   }
 
   public static class TestHttpGetMultiValuedMapOperator extends AbstractHttpGetMultiValuedMapOperator<TestPojo, String>
@@ -144,7 +143,6 @@ public class HttpMultiValuedMapGetOperatorTest
       output.emit(response.getEntity(String.class));
     }
 
-    private static final long serialVersionUID = 201405281438L;
   }
 
   public static class TestPojo

@@ -56,7 +56,6 @@ public class AbstractWindowFileOutputOperatorTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void testOperator()
   {
     oper.beginWindow(0);
@@ -103,7 +102,6 @@ public class AbstractWindowFileOutputOperatorTest
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void testOperatorMidWindowRestore()
   {
     oper.beginWindow(0);
