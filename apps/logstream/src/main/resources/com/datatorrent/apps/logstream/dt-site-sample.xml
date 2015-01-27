@@ -4,11 +4,6 @@
 <configuration>
 
   <property>
-     <name>dt.attr.CONTAINERS_MAX_COUNT</name>
-     <value>7</value>
-     </property>
-
-  <property>
      <name>dt.attr.MASTER_MEMORY_MB</name>
      <value>1024</value>
   </property>
