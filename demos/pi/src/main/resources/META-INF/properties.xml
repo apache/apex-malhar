@@ -54,4 +54,14 @@
     <value>900000000</value>
   </property> -->
 
+  <!-- PiJavaScriptDemo -->
+  <property>
+    <name>dt.application.PiJavaScriptDemo.operator.rand.tuplesBlast</name>
+    <value>9</value>
+  </property>
+  <property>
+    <name>dt.application.PiJavaScriptDemo.operator.picalc.attr.MEMORY_MB</name>
+    <value>384</value>
+  </property>
+
 </configuration>
