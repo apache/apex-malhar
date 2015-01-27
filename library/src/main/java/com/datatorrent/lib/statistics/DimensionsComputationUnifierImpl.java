@@ -18,6 +18,7 @@ package com.datatorrent.lib.statistics;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.Maps;
 
@@ -36,9 +37,9 @@ import com.datatorrent.api.Operator;
  */
 public class DimensionsComputationUnifierImpl<EVENT, AGGREGATE extends DimensionsComputation.AggregateEvent> extends BaseOperator implements Operator.Unifier<AGGREGATE>
 {
-  @Nonnull
+  @NotNull
   private DimensionsComputation.Aggregator<EVENT, AGGREGATE>[] aggregators;
-  @Nonnull
+  @NotNull
   private final Map<AGGREGATE, AGGREGATE> aggregates;
   
   /**

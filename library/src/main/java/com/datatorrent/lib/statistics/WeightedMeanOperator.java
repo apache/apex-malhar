@@ -16,11 +16,10 @@
 package com.datatorrent.lib.statistics;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+
 import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
@@ -118,24 +117,22 @@ public class WeightedMeanOperator<V extends Number>  extends BaseNumberValueOper
     Number val;
     switch (getType()) {
       case DOUBLE:
-        val = new Double(num.doubleValue() / weightedCount);
+        val = num.doubleValue() / weightedCount;
         break;
       case INTEGER:
-        int icount = (int) (num.intValue() / weightedCount);
-        val = new Integer(icount);
+        val = (int) (num.intValue() / weightedCount);
         break;
       case FLOAT:
         val = new Float(num.floatValue() / weightedCount);
         break;
       case LONG:
-        val = new Long((long) (num.longValue() / weightedCount));
+        val = (long) (num.longValue() / weightedCount);
         break;
       case SHORT:
-        short scount = (short) (num.shortValue() / weightedCount);
-        val = new Short(scount);
+        val = (short) (num.shortValue() / weightedCount);
         break;
       default:
-        val = new Double(num.doubleValue() / weightedCount);
+        val = num.doubleValue() / weightedCount;
         break;
     }
     return (V) val;

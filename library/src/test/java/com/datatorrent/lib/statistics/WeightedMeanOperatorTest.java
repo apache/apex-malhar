@@ -16,6 +16,7 @@
 package com.datatorrent.lib.statistics;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,9 +30,9 @@ public class WeightedMeanOperatorTest
   public void testWeightedMean()
   {
     WeightedMeanOperator<Double> oper = new WeightedMeanOperator<Double>();
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
-    oper.mean.setSink(sink);
-    
+    CollectorTestSink<Double> sink = new CollectorTestSink<Double>();
+    TestUtils.setSink(oper.mean, sink);
+
     oper.setup(null);
     oper.beginWindow(0);
     oper.weight.process(0.5);
@@ -43,6 +44,6 @@ public class WeightedMeanOperatorTest
     oper.endWindow();
     
     Assert.assertEquals("Must be one tuple in sink", sink.collectedTuples.size(), 1);
-    Assert.assertEquals("Expected mean value", (Double)sink.collectedTuples.get(0), new Double(3.0));
+    Assert.assertTrue("Expected mean value", sink.collectedTuples.get(0) == 3.0);
   }
 }

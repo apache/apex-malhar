@@ -16,6 +16,7 @@
 package com.datatorrent.lib.statistics;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -29,9 +30,9 @@ public class ModeOperatorTest
   public void testWeightedMean()
   {
     ModeOperator<Double> oper = new ModeOperator<Double>();
-    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
-    oper.mode.setSink(sink);
-    
+    CollectorTestSink<Double> sink = new CollectorTestSink<Double>();
+    TestUtils.setSink(oper.mode, sink);
+
     oper.setup(null);
     oper.beginWindow(0);
     oper.data.process(1.0);
@@ -43,6 +44,6 @@ public class ModeOperatorTest
     oper.endWindow();
     
     Assert.assertEquals("Must be one tuple in sink", sink.collectedTuples.size(), 1);
-    Assert.assertEquals("Median value", sink.collectedTuples.get(0), 7.0);
+    Assert.assertTrue("Median value", sink.collectedTuples.get(0) == 7.0);
   }
 }

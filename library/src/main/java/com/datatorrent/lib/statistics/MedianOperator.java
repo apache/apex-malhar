@@ -18,12 +18,10 @@ package com.datatorrent.lib.statistics;
 import java.util.ArrayList;
 import java.util.Collections;
 
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 
 /**
  * An implementation of BaseOperator that computes median of incoming data. <br>
