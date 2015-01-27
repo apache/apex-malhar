@@ -26,8 +26,8 @@ import java.util.Map;
 import javax.script.*;
 
 /**
- * An implementation of ScriptOperator that executes JavaScript on tuples input for Map &lt;String, Object&gt;. 
- * 
+ * An implementation of ScriptOperator that executes JavaScript on tuples input for Map &lt;String, Object&gt;.
+ *
  * <p>
  * Key is name of variable used in script code. Proper map values must be provided
  * by up stream operators.
@@ -111,6 +111,9 @@ public class JavaScriptOperator extends ScriptOperator
   @DefaultSerializer(value = BindingsSerializer.class)
   protected static class MyBindings extends SimpleBindings
   {
+    public MyBindings(){
+      
+    }
   }
 
   protected transient ScriptEngineManager sem = new ScriptEngineManager();
