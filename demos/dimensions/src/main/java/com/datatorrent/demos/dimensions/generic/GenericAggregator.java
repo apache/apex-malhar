@@ -101,12 +101,6 @@ class GenericAggregate implements DimensionsComputation.AggregateEvent
   }
 }
 
-class GenericEvent {
-  Object[] keys;
-  Object[] values;
-  long timestamp;
-}
-
 public class GenericAggregator implements DimensionsComputation.Aggregator<GenericEvent, GenericAggregate>
 {
   private static final long serialVersionUID = 7636266873750826291L;

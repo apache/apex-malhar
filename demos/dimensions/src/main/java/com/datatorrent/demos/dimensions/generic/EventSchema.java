@@ -109,17 +109,11 @@ public class EventSchema implements Serializable
 {
   private static final long serialVersionUID = 4586481500190519858L;
 
-  /* Map of all the fields and their types in an event tuple */
-  public Map<String, Class<?>> fields = Maps.newHashMap();
+  public Map<String, Class<?>> fields;
 
-  /* Names of the fields which make up the keys */
-  public List<String> keys = Lists.newArrayList();
-
-  // Fields to aggregate mapped to aggregate operations and data types
-  public Map<String, String> aggregates = Maps.newHashMap();
-
-  // List of dimensional combinations to compute
-  public List<String> dimensions = Lists.newArrayList();
+  public List<String> keys;
+  public Map<String, String> aggregates;
+  public List<String> dimensions;
 
   public String timestamp = "timestamp";
 
@@ -195,7 +189,9 @@ public class EventSchema implements Serializable
     ObjectMapper mapper = new ObjectMapper();
     EventSchema eventSchema = mapper.readValue(json, EventSchema.class);
 
-    if ( eventSchema.dimensions.size() == 0 ) throw new IllegalArgumentException("EventSchema JSON must specify dimensions list");
+    if ( eventSchema.dimensions.isEmpty() ) {
+      throw new IllegalArgumentException("EventSchema JSON must specify dimensions list");
+    }
 
     // Generate list of keys from dimensions specified
     Set<String> uniqueKeys = Sets.newHashSet();
@@ -217,6 +213,14 @@ public class EventSchema implements Serializable
     eventSchema.genericEventValues.addAll(eventSchema.aggregates.keySet());
 
     return eventSchema;
+  }
+
+  public EventSchema()
+  {
+    this.dimensions = Lists.newArrayList();
+    this.aggregates = Maps.newHashMap();
+    this.keys = Lists.newArrayList();
+    this.fields = Maps.newHashMap();
   }
 
   public String getTimestamp() {

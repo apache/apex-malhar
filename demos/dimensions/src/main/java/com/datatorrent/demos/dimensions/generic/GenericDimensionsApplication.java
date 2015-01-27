@@ -105,6 +105,7 @@ public class GenericDimensionsApplication implements StreamingApplication
     JsonSalesGenerator input = dag.addOperator("Input", JsonSalesGenerator.class);
     input.setAddProductCategory(true);
     JsonToMapConverter converter = dag.addOperator("Parse", JsonToMapConverter.class);
+    SchemaConverter map2eventConverter = dag.addOperator("Map2EventConverter", SchemaConverter.class);
     GenericDimensionComputation dimensions = dag.addOperator("Compute", new GenericDimensionComputation());
     DimensionStoreOperator store = dag.addOperator("Store", DimensionStoreOperator.class);
     KafkaSinglePortStringInputOperator queries = dag.addOperator("Query", new KafkaSinglePortStringInputOperator());
@@ -115,7 +116,8 @@ public class GenericDimensionsApplication implements StreamingApplication
 
     // Removing setLocality(Locality.CONTAINER_LOCAL) from JSONStream and MapStream to isolate performance bottleneck
     dag.addStream("JSONStream", input.jsonBytes, converter.input).setLocality(DAG.Locality.CONTAINER_LOCAL);
-    dag.addStream("MapStream", converter.outputMap, dimensions.data).setLocality(DAG.Locality.CONTAINER_LOCAL);
+    dag.addStream("MapStream", converter.outputMap, map2eventConverter.input).setLocality(DAG.Locality.CONTAINER_LOCAL);
+    dag.addStream("EventStream", map2eventConverter.output, dimensions.data).setLocality(DAG.Locality.THREAD_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, store.input);
     dag.addStream("Query", queries.outputPort, store.query);
     dag.addStream("QueryResult", store.queryResult, queryResult.inputPort);

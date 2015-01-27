@@ -16,6 +16,7 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNullCounter;
@@ -105,12 +106,23 @@ public class DimensionsComputationBenchmark implements StreamingApplication
   {
     JsonAdInfoGenerator input = dag.addOperator("InputGenerator", JsonAdInfoGenerator.class);
     JsonToMapConverter converter = dag.addOperator("Converter", JsonToMapConverter.class);
+
+    String schemaSpec = conf.get(this.getClass().getName() + ".schema");
+    SchemaConverter map2eventConverter = dag.addOperator("map2eventConverter", SchemaConverter.class);
+    if (schemaSpec != null) {
+      map2eventConverter.setEventSchemaJSON(schemaSpec);
+    }
+
     GenericDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new GenericDimensionComputation());
-    DevNullCounter counter = dag.addOperator("Conter", new DevNullCounter());
+    dimensions.setSchema(map2eventConverter.getEventSchema());
+
+    DevNullCounter<GenericAggregate> counter = dag.addOperator("Conter", new DevNullCounter<GenericAggregate>());
+
 
     // Removing setLocality(Locality.CONTAINER_LOCAL) from JSONStream and MapStream to isolate performance bottleneck
     dag.addStream("JSONStream", input.jsonOutput, converter.input);
-    dag.addStream("MapStream", converter.outputMap, dimensions.data);
+    dag.addStream("MapStream", converter.outputMap, map2eventConverter.input);
+    dag.addStream("EventStream", map2eventConverter.output, dimensions.data).setLocality(Locality.THREAD_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, counter.data);
   }
 

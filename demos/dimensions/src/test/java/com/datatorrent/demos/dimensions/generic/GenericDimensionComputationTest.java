@@ -8,8 +8,10 @@ public class GenericDimensionComputationTest
   @Test
   public void test()
   {
+    SchemaConverter converter = new SchemaConverter();
+    converter.setEventSchemaJSON(GenericAggregateSerializerTest.TEST_SCHEMA_JSON);
     GenericDimensionComputation dc = new GenericDimensionComputation();
-    dc.setEventSchemaJSON(GenericAggregateSerializerTest.TEST_SCHEMA_JSON);
+    dc.setSchema(converter.getEventSchema());
     dc.setup(null);
 
     Assert.assertEquals("Total number of aggregators ", 8, dc.getAggregators().length);

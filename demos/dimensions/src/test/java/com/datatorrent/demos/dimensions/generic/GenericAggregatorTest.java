@@ -288,8 +288,10 @@ public class GenericAggregatorTest
   @Test
   public void dimensionComputationTest()
   {
+    SchemaConverter converter = new SchemaConverter();
+    converter.setEventSchemaJSON(GenericAggregateSerializerTest.TEST_SCHEMA_JSON);
     GenericDimensionComputation dimensions = new GenericDimensionComputation();
-    dimensions.setEventSchemaJSON(GenericAggregateSerializerTest.TEST_SCHEMA_JSON);
+    dimensions.setSchema(converter.getEventSchema());
     dimensions.setup(null);
 
     for(int i = 0; i < 10; i++) {
@@ -300,7 +302,7 @@ public class GenericAggregatorTest
       event.put("adId", 3);
       event.put("clicks", 10L);
 
-      dimensions.data.process(event);
+      dimensions.data.process(converter.getEventSchema().convertMapToGenericEvent(event));
     }
     System.out.println("Something needs to be done");
   }

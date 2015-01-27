@@ -1,9 +1,9 @@
 package com.datatorrent.demos.dimensions.generic;
 
-import com.datatorrent.api.Context;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 
-import java.util.Map;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * Performs dimensional computations given an event schema.
@@ -33,60 +33,31 @@ import java.util.Map;
  * @tags dimension, aggregation
  *
  */
-public class GenericDimensionComputation extends DimensionsComputation<Object, GenericAggregate>
+public class GenericDimensionComputation extends DimensionsComputation<GenericEvent, GenericAggregate>
 {
-  private String eventSchemaJSON = EventSchema.DEFAULT_SCHEMA_SALES;
-  private transient EventSchema eventSchema;
-
-  // Initialize aggregators when this class is instantiated
+  public void setSchema(EventSchema schema)
   {
-    initAggregators();
+    DimensionsGenerator gen = new DimensionsGenerator(schema);
+    setAggregators(gen.generateAggregators());
   }
 
-  public String getEventSchemaJSON()
-  {
-    return eventSchemaJSON;
-  }
-
-  private void initAggregators(){
-    DimensionsGenerator gen = new DimensionsGenerator(getEventSchema());
-    Aggregator[] aggregators = gen.generateAggregators();
-    setAggregators(aggregators);
-  }
-
-  public void setEventSchemaJSON(String eventSchemaJSON)
-  {
-    this.eventSchemaJSON = eventSchemaJSON;
-    try {
-      eventSchema = EventSchema.createFromJSON(eventSchemaJSON);
-    } catch (Exception e) {
-      throw new IllegalArgumentException("Failed to parse JSON input: " + eventSchemaJSON, e);
-    }
-    initAggregators();
-  }
-
-  public EventSchema getEventSchema() {
-    if (eventSchema == null ) {
-      try {
-        eventSchema = EventSchema.createFromJSON(eventSchemaJSON);
-      } catch (Exception e) {
-        throw new IllegalArgumentException("Failed to parse JSON input: " + eventSchemaJSON, e);
-      }
-    }
-    return eventSchema;
-  }
-
-
-  @Override public void setup(Context.OperatorContext context)
-  {
-    super.setup(context);
-    initAggregators();
-  }
 
   @Override
-  public void processInputTuple(Object tuple)
+  public void setup(OperatorContext context)
   {
-    GenericEvent ae = getEventSchema().convertMapToGenericEvent((Map<String, Object>) tuple);
-    super.processInputTuple(ae);
+    // hack begin!
+    // this hack should be removed when we have application level properties - talk to Sasha/Chetan.
+    try {
+      getAggregators();
+    }
+    catch (NullPointerException npe) {
+      /* means that it's not properly initialized; so initialize it for app builder demo */
+      setSchema(new SchemaConverter().getEventSchema());
+    }
+    // hack end!
+
+
+    super.setup(context); //To change body of generated methods, choose Tools | Templates.
   }
+
 }

@@ -42,8 +42,10 @@ public class DimensionComputationPerformanceTest
         "  \"timestamp\": \"timestamp\"\n" +
         "}";
 
+    SchemaConverter converter = new SchemaConverter();
+    converter.setEventSchemaJSON(TEST_SCHEMA_JSON);
     GenericDimensionComputation dimensions = new GenericDimensionComputation();
-    dimensions.setEventSchemaJSON(TEST_SCHEMA_JSON);
+    dimensions.setSchema(converter.getEventSchema());
     dimensions.setup(null);
 
     long start_time = System.currentTimeMillis();
@@ -57,7 +59,7 @@ public class DimensionComputationPerformanceTest
       tuple.put("clicks", info.getClicks());
       tuple.put("timestamp", info.getTimestamp());
 
-      dimensions.data.process(tuple);
+      dimensions.data.process(converter.getEventSchema().convertMapToGenericEvent(tuple));
     }
     return System.currentTimeMillis() - start_time;
   }
@@ -72,8 +74,10 @@ public class DimensionComputationPerformanceTest
         "  \"timestamp\": \"timestamp\"\n" +
         "}";
 
+    SchemaConverter converter = new SchemaConverter();
+    converter.setEventSchemaJSON(TEST_SCHEMA_JSON);
     GenericDimensionComputation dimensions = new GenericDimensionComputation();
-    dimensions.setEventSchemaJSON(TEST_SCHEMA_JSON);
+    dimensions.setSchema(converter.getEventSchema());
     dimensions.setup(null);
     KryoSerializableStreamCodec<Object> codec = new KryoSerializableStreamCodec<Object>();
     codec.register(HashMap.class);
@@ -89,9 +93,9 @@ public class DimensionComputationPerformanceTest
       tuple.put("timestamp", info.getTimestamp());
 
       Slice slice = codec.toByteArray(tuple);
-      Object o = codec.fromByteArray(slice);
-
-      dimensions.data.process(o);
+      @SuppressWarnings("unchecked")
+      Map<String, Object> o = (Map<String, Object>)codec.fromByteArray(slice);
+      dimensions.data.process(converter.getEventSchema().convertMapToGenericEvent(o));
     }
     return System.currentTimeMillis() - start_time;
   }
