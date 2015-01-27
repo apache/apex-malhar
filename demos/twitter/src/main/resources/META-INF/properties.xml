@@ -41,5 +41,20 @@
 	<property>
 		<name>dt.operator.TweetSampler.accessTokenSecret</name>
 	</property>
-
+    <property>
+        <name>dt.operator.TweetSampler.feedMultiplierVariance</name>
+        <value>5</value>
+    </property>
+    <property>
+        <name>dt.operator.TweetSampler.feedMultiplier</name>
+        <value>20</value>
+    </property>
+    <property>
+        <name>dt.application.KinesisDemo.operator.FromKinesis.streamName</name>
+        <value>TwitterTag</value>
+    </property>
+    <property>
+        <name>dt.application.KinesisDemo.operator.ToKinesis.streamName</name>
+        <value>TwitterTag</value>
+    </property>
 </configuration>
