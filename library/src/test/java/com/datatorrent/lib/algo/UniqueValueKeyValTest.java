@@ -16,11 +16,11 @@
 package com.datatorrent.lib.algo;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.KeyValPair;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  *
@@ -37,8 +37,8 @@ public class UniqueValueKeyValTest
   public void testNodeProcessing() throws Exception
   {
     UniqueValueKeyVal<String> oper = new UniqueValueKeyVal<String>();
-    CollectorTestSink sink = new CollectorTestSink();
-    oper.count.setSink(sink);
+    CollectorTestSink<KeyValPair<String,Integer>> sink = new CollectorTestSink<KeyValPair<String,Integer>>();
+    TestUtils.setSink(oper.count, sink);
 
     KeyValPair<String,Integer> a1tuple = new KeyValPair("a", 1);
     KeyValPair<String,Integer> a2tuple = new KeyValPair("a", 2);
@@ -69,9 +69,8 @@ public class UniqueValueKeyValTest
     }
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 5, sink.collectedTuples.size());
-    for (Object o : sink.collectedTuples) {
-      KeyValPair<String,Integer> e = (KeyValPair<String,Integer>)o;
-      int val = e.getValue().intValue();
+    for (KeyValPair<String,Integer> e : sink.collectedTuples) {
+      int val = e.getValue();
       if (e.getKey().equals("a")) {
         Assert.assertEquals("emitted value for 'a' was ", 2, val);
       }

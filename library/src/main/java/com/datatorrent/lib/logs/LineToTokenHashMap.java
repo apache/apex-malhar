@@ -15,14 +15,15 @@
  */
 package com.datatorrent.lib.logs;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.util.BaseLineTokenizer;
-import com.datatorrent.lib.util.UnifierHashMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
+
+import com.datatorrent.lib.util.BaseLineTokenizer;
+import com.datatorrent.lib.util.UnifierHashMap;
 
 /**
  * This operator splits string objects into tokens.&nbsp;

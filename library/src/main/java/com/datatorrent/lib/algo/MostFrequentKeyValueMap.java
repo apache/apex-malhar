@@ -15,11 +15,12 @@
  */
 package com.datatorrent.lib.algo;
 
+import java.util.HashMap;
+
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.util.AbstractBaseFrequentKeyValueMap;
-import java.util.HashMap;
 
 /**
  * This operator filters the incoming stream of key value pairs by finding the value or values (if there is a tie),

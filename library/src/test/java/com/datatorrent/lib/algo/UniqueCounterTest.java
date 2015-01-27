@@ -66,11 +66,11 @@ public class UniqueCounterTest
     }
     oper.endWindow();
     HashMap<String,Integer> tuple = (HashMap<String,Integer>) sink.tuple;
-    int acount = tuple.get("a").intValue();
-    int bcount = tuple.get("b").intValue();
-    int ccount = tuple.get("c").intValue();
-    int dcount = tuple.get("d").intValue();
-    int ecount = tuple.get("e").intValue();
+    int acount = tuple.get("a");
+    int bcount = tuple.get("b");
+    int ccount = tuple.get("c");
+    int dcount = tuple.get("d");
+    int ecount = tuple.get("e");
     Assert.assertEquals("number emitted tuples", 1, sink.count);
     Assert.assertEquals("number emitted tuples", numTuples, acount);
     Assert.assertEquals("number emitted tuples", numTuples/2, bcount);

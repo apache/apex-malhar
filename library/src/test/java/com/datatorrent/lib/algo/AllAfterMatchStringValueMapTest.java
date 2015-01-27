@@ -23,6 +23,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  * 
@@ -36,14 +37,13 @@ public class AllAfterMatchStringValueMapTest
   /**
    * Test node logic emits correct results
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void testNodeProcessing() throws Exception
   {
 
     AllAfterMatchStringValueMap<String> oper = new AllAfterMatchStringValueMap<String>();
-    CollectorTestSink allSink = new CollectorTestSink();
-    oper.allafter.setSink(allSink);
+    CollectorTestSink<HashMap<String, String>> allSink = new CollectorTestSink<HashMap<String, String>>();
+    TestUtils.setSink(oper.allafter, allSink);
     oper.setKey("a");
     oper.setValue(3.0);
     oper.setTypeEQ();
@@ -70,9 +70,8 @@ public class AllAfterMatchStringValueMapTest
 
     Assert.assertEquals("number emitted tuples", 3,
         allSink.collectedTuples.size());
-    for (Object o : allSink.collectedTuples) {
-      for (Map.Entry<String, String> e : ((HashMap<String, String>) o)
-          .entrySet()) {
+    for (HashMap<String, String> o : allSink.collectedTuples) {
+      for (Map.Entry<String, String> e : o.entrySet()) {
         if (e.getKey().equals("a")) {
           Assert.assertEquals("emitted value for 'a' was ", "3", e.getValue());
         } else if (e.getKey().equals("b")) {

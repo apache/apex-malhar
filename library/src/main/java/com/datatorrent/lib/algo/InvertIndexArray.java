@@ -21,9 +21,8 @@ import java.util.Map;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 
 /**
@@ -100,7 +99,6 @@ public class InvertIndexArray<K, V> extends BaseKeyValueOperator<K,V>
    * Returns the ArrayList stored for a key
    *
    * @param key
-   * @return ArrayList
    */
   void insert(V val, K key)
   {

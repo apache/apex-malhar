@@ -19,16 +19,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.junit.Assert;
-
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
-import java.util.Iterator;
-import java.util.Map.Entry;
 
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.algo.AllAfter}
+ * Functional tests for {@link com.datatorrent.lib.algo.AllAfterMatchMapTest}
  * <p>
  */
 public class AllAfterMatchMapTest

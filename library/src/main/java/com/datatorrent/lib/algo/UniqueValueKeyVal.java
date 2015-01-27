@@ -22,9 +22,8 @@ import java.util.Map;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.util.BaseKeyOperator;
 import com.datatorrent.lib.util.KeyValPair;
 
@@ -58,13 +57,13 @@ public class UniqueValueKeyVal<K> extends BaseKeyOperator<K> implements  Unifier
   /**
    * The input port which receives key value pairs.
    */
-  public final transient DefaultInputPort<KeyValPair<K,? extends Object>> data = new DefaultInputPort<KeyValPair<K,? extends Object>>()
+  public final transient DefaultInputPort<KeyValPair<K,?>> data = new DefaultInputPort<KeyValPair<K,?>>()
   {
     /**
      * Reference counts tuples
      */
     @Override
-    public void process(KeyValPair<K,? extends Object> tuple)
+    public void process(KeyValPair<K,?> tuple)
     {
       HashSet<Object> vals = map.get(tuple.getKey());
       if (vals == null) {

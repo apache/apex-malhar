@@ -15,12 +15,13 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+
+import com.datatorrent.lib.util.AbstractBaseNUniqueOperatorMap;
 
 /**
  * This operator orders tuples per key and emits the top N unique tuples per key at the end of the window.

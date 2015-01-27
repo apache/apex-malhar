@@ -15,14 +15,14 @@
  */
 package com.datatorrent.lib.logs;
 
-import com.datatorrent.lib.logs.FilteredLineToTokenHashMap;
-import com.datatorrent.lib.testbench.HashTestSink;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.HashTestSink;
 
 /**
  * 

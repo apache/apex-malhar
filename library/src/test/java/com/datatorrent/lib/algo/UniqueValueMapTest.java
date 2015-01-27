@@ -21,6 +21,7 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  *
@@ -32,13 +33,12 @@ public class UniqueValueMapTest
   /**
    * Test node logic emits correct results
    */
-  @SuppressWarnings({ "rawtypes", "unchecked" })
   @Test
   public void testNodeProcessing() throws Exception
   {
     UniqueValueMap<String> oper = new UniqueValueMap<String>();
-    CollectorTestSink sink = new CollectorTestSink();
-    oper.count.setSink(sink);
+    CollectorTestSink<HashMap<String, Integer>> sink = new CollectorTestSink<HashMap<String, Integer>>();
+    TestUtils.setSink(oper.count, sink);
 
     HashMap<String, Integer> h1 = new HashMap<String, Integer>();
     h1.put("a", 1);
@@ -67,7 +67,7 @@ public class UniqueValueMapTest
     }
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 1, sink.collectedTuples.size());
-    HashMap<String, Integer> e = (HashMap<String,Integer>) sink.collectedTuples.get(0);
+    HashMap<String, Integer> e = sink.collectedTuples.get(0);
     Assert.assertEquals("emitted value for 'a' was ", 2, e.get("a").intValue());
     Assert.assertEquals("emitted value for 'b' was ", 1, e.get("b").intValue());
     Assert.assertEquals("emitted value for 'c' was ", 1, e.get("c").intValue());

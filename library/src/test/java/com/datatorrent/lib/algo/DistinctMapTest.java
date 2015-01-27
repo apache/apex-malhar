@@ -92,13 +92,13 @@ public class DistinctMapTest
       for (Map.Entry<String, Integer> e: ((HashMap<String, Integer>)o).entrySet()) {
         String key = e.getKey();
         if (key.equals("a")) {
-          aval += e.getValue().intValue();
+          aval += e.getValue();
         }
         else if (key.equals("b")) {
-          bval += e.getValue().intValue();
+          bval += e.getValue();
         }
         else if (key.equals("c")) {
-          cval += e.getValue().intValue();
+          cval += e.getValue();
         }
       }
     }

@@ -19,7 +19,7 @@ import java.util.Map;
 
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.util.UnifierSumNumber;
 
 /**
@@ -118,8 +118,8 @@ public class CompareExceptCountMap<K, V extends Number> extends MatchMap<K, V>
   @Override
   public void endWindow()
   {
-    count.emit(new Integer(tcount));
-    except.emit(new Integer(icount));
+    count.emit(tcount);
+    except.emit(icount);
     tcount = 0;
     icount = 0;
   }

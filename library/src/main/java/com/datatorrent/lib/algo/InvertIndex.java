@@ -15,16 +15,16 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.Operator.Unifier;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.BaseKeyValueOperator;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.Operator.Unifier;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+
+import com.datatorrent.lib.util.BaseKeyValueOperator;
 
 /**
  * This operator takes a stream of key value pairs each window,
@@ -97,7 +97,6 @@ public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V> implements Uni
    * Returns the ArrayList stored for a key
    *
    * @param key
-   * @return ArrayList
    */
   void insert(V val, K key)
   {
@@ -135,7 +134,7 @@ public class InvertIndex<K, V> extends BaseKeyValueOperator<K, V> implements Uni
       if (map.containsKey(e.getKey())) {
         keys = map.remove(e.getKey());
       } else {
-        keys = new ArrayList<K>();;
+        keys = new ArrayList<K>();
       }
       keys.addAll(e.getValue());
     }

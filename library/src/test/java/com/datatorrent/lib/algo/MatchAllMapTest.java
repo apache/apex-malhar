@@ -64,7 +64,7 @@ public class MatchAllMapTest
 
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
     Boolean result = (Boolean) matchSink.tuple;
-    Assert.assertEquals("result was false", true, result.booleanValue());
+    Assert.assertEquals("result was false", true, result);
     matchSink.clear();
 
     oper.beginWindow(0);
@@ -78,7 +78,7 @@ public class MatchAllMapTest
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
     result = (Boolean) matchSink.tuple;
-    Assert.assertEquals("result was false", false, result.booleanValue());
+    Assert.assertEquals("result was false", false, result);
     matchSink.clear();
   }
 }

@@ -216,6 +216,7 @@ public class ApacheLogParseMapOutputOperator extends BaseOperator
     infoExtractors.put(group, extractor);
   }
 
+  @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(ApacheLogParseMapOutputOperator.class);
 
 }

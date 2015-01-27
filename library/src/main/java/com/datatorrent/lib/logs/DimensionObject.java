@@ -31,6 +31,7 @@ public class DimensionObject<T> implements Comparable<DimensionObject<T>>
   private MutableDouble count;
   private T val;
 
+  @SuppressWarnings("unused")
   private DimensionObject(){
 
   }
@@ -86,10 +87,9 @@ public class DimensionObject<T> implements Comparable<DimensionObject<T>>
       return false;
     if (!this.getClass().equals(obj.getClass()))
       return false;
+    @SuppressWarnings("unchecked")
     DimensionObject<T> obj2 = (DimensionObject<T>) obj;
-    if (this.val.equals(obj2.val))
-      return true;
-    return false;
+    return this.val.equals(obj2.val);
 
   }
 

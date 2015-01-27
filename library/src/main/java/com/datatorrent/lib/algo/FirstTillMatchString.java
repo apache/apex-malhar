@@ -15,13 +15,13 @@
  */
 package com.datatorrent.lib.algo;
 
+import java.util.HashMap;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.util.BaseMatchOperator;
-import java.util.HashMap;
 
 /**
  * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,
@@ -94,7 +94,7 @@ public class FirstTillMatchString<K> extends BaseMatchOperator<K,String>
       }
       boolean error = false;
       try {
-        tvalue = Double.valueOf(val.toString()).doubleValue();
+        tvalue = Double.valueOf(val);
       }
       catch (NumberFormatException e) {
         error = true;

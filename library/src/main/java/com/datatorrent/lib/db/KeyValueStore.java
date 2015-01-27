@@ -17,7 +17,6 @@ package com.datatorrent.lib.db;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This interface is for any service that provides key/value storage

@@ -17,14 +17,11 @@ package com.datatorrent.lib.algo;
 
 import java.util.HashMap;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-import com.datatorrent.lib.testbench.CountTestSink;
-import com.datatorrent.lib.util.KeyHashValPair;
 import org.junit.Assert;
-
 import org.junit.Test;
 
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
+import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.KeyHashValPair;
 
 /**
  *
@@ -75,11 +72,11 @@ public class PartitionableUniqueCounterTest
             tuple.put(e.getKey(), e.getValue());
         }
 
-        int acount = tuple.get("a").intValue();
-        int bcount = tuple.get("b").intValue();
-        int ccount = tuple.get("c").intValue();
-        int dcount = tuple.get("d").intValue();
-        int ecount = tuple.get("e").intValue();
+        int acount = tuple.get("a");
+        int bcount = tuple.get("b");
+        int ccount = tuple.get("c");
+        int dcount = tuple.get("d");
+        int ecount = tuple.get("e");
         Assert.assertEquals("number emitted tuples", 5, sink.collectedTuples.size());
         Assert.assertEquals("number emitted tuples", numTuples, acount);
         Assert.assertEquals("number emitted tuples", numTuples/2, bcount);

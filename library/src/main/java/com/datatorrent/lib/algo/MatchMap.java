@@ -15,16 +15,17 @@
  */
 package com.datatorrent.lib.algo;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
+
 import com.datatorrent.lib.util.BaseMatchOperator;
 import com.datatorrent.lib.util.UnifierHashMap;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * This operator filters the incoming stream of key value pairs by obtaining the values corresponding to a specified key,

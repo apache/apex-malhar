@@ -15,14 +15,20 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.Stateless;
-import com.datatorrent.lib.util.KeyValPair;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+import com.datatorrent.api.annotation.Stateless;
+
+import com.datatorrent.lib.util.KeyValPair;
 
 /**
  * This operator counts the number of unique values corresponding to a key within a window.&nbsp;
@@ -102,6 +108,7 @@ public class UniqueValueCount<K> extends BaseOperator {
 
         private final Set<Object> interimUniqueValues;
 
+        @SuppressWarnings("unused")
         protected InternalCountOutput(){
             this(null,null,null);
         }

@@ -19,9 +19,8 @@ import java.util.Map;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.util.BaseMatchOperator;
 import com.datatorrent.lib.util.UnifierBooleanOr;
 
@@ -88,7 +87,7 @@ public class MatchAnyStringMap<K> extends BaseMatchOperator<K, String>
       double tvalue = 0;
       boolean errortuple = false;
       try {
-        tvalue = Double.parseDouble(val.toString());
+        tvalue = Double.parseDouble(val);
       }
       catch (NumberFormatException e) {
         errortuple = true;

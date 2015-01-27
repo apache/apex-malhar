@@ -80,7 +80,7 @@ public class MostFrequentKeyValueMapTest
 
     oper.endWindow();
     Assert.assertEquals("number emitted tuples", 3, matchSink.collectedTuples.size());
-    int vcount = 0;
+    int vcount;
     for (Object o: matchSink.collectedTuples) {
       HashMap<String, HashMap<Integer, Integer>> omap = (HashMap<String, HashMap<Integer, Integer>>)o;
       for (Map.Entry<String, HashMap<Integer, Integer>> e: omap.entrySet()) {

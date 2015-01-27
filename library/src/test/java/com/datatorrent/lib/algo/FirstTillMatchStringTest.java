@@ -74,7 +74,7 @@ public class FirstTillMatchStringTest
     Integer aval;
     for (Object o: matchSink.collectedTuples) {
       aval = Integer.parseInt(((HashMap<String, String>)o).get("a"));
-      atotal += aval.intValue();
+      atotal += aval;
     }
     Assert.assertEquals("Value of a was ", 6, atotal);
     matchSink.clear();
@@ -94,7 +94,7 @@ public class FirstTillMatchStringTest
     atotal = 0;
     for (Object o: matchSink.collectedTuples) {
       aval = Integer.parseInt(((HashMap<String, String>)o).get("a"));
-      atotal += aval.intValue();
+      atotal += aval;
     }
     Assert.assertEquals("Value of a was ", 7, atotal);
   }

@@ -15,16 +15,15 @@
  */
 package com.datatorrent.lib.algo;
 
+import java.util.HashMap;
+
+import javax.validation.constraints.NotNull;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-
-import java.util.HashMap;
-import javax.validation.constraints.NotNull;
 
 /**
  * This operator filters the incoming stream of values by the specified set of filter values.

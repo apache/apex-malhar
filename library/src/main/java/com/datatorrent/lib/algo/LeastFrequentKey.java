@@ -20,9 +20,9 @@ import java.util.HashMap;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+
 import com.datatorrent.lib.util.AbstractBaseFrequentKey;
 
 /**
@@ -83,8 +83,7 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      LeastFrequentKeyUnifier ret = new LeastFrequentKeyUnifier<K>();
-      return ret;
+      return new LeastFrequentKeyUnifier<K>();
     }
   };
 
@@ -100,8 +99,7 @@ public class LeastFrequentKey<K> extends AbstractBaseFrequentKey<K>
     @Override
     public Unifier<ArrayList<HashMap<K, Integer>>> getUnifier()
     {
-      LeastFrequentKeyArrayUnifier ret = new LeastFrequentKeyArrayUnifier<K>();
-      return ret;
+      return new LeastFrequentKeyArrayUnifier<K>();
     }
   };
 

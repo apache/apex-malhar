@@ -15,13 +15,13 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.LeastFrequentKey;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *
@@ -90,10 +90,10 @@ public class LeastFrequentKeyTest
     for (HashMap<String,Integer> h : list) {
       val = h.get("a");
       if (val == null) {
-        ccount = h.get("c").intValue();
+        ccount = h.get("c");
       }
       else {
-        acount = val.intValue();
+        acount = val;
       }
     }
     Assert.assertEquals("Count of a was ", atot, acount);

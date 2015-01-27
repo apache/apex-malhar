@@ -15,16 +15,14 @@
  */
 package com.datatorrent.lib.logs;
 
-import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.lib.testbench.CollectorTestSink;
-
 import org.junit.Assert;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.logs.ApacheLogParseMapOutputOperator}.

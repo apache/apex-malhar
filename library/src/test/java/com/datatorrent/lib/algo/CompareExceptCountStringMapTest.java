@@ -15,12 +15,12 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.CompareExceptCountStringMap;
-import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
-
 import java.util.HashMap;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CountAndLastTupleTestSink;
 
 /**
  *

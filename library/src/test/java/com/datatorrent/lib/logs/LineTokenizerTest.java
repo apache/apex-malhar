@@ -15,11 +15,10 @@
  */
 package com.datatorrent.lib.logs;
 
-import com.datatorrent.lib.logs.LineTokenizer;
-import com.datatorrent.lib.testbench.HashTestSink;
-
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.HashTestSink;
 
 /**
  *

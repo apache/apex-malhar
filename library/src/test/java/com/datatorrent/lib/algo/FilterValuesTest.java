@@ -37,7 +37,7 @@ public class FilterValuesTest
     ArrayList<Integer> ilist = (ArrayList<Integer>) list;
     int ret = 0;
     for (Integer i : ilist) {
-      ret += i.intValue();
+      ret += i;
     }
     return ret;
   }

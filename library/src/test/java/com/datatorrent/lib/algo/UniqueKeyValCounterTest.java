@@ -80,15 +80,15 @@ public class UniqueKeyValCounterTest
     }
     oper.endWindow();
     HashMap<HashMap<String,Integer>,Integer> tuple = (HashMap<HashMap<String,Integer>,Integer>) sink.tuple;
-    int a1count = tuple.get(a1tuple).intValue();
-    int a2count = tuple.get(a2tuple).intValue();
-    int bcount = tuple.get(btuple).intValue();
-    int ccount = tuple.get(ctuple).intValue();
-    int dcount = tuple.get(dtuple).intValue();
-    int e1count = tuple.get(e1tuple).intValue();
+    int a1count = tuple.get(a1tuple);
+    int a2count = tuple.get(a2tuple);
+    int bcount = tuple.get(btuple);
+    int ccount = tuple.get(ctuple);
+    int dcount = tuple.get(dtuple);
+    int e1count = tuple.get(e1tuple);
     e2tuple.clear();
     e2tuple.put("e",808);
-    int e2count = tuple.get(e2tuple).intValue();
+    int e2count = tuple.get(e2tuple);
 
     Assert.assertEquals("number emitted tuples", 1, sink.count);
     Assert.assertEquals("number emitted tuples", numTuples, a1count);

@@ -15,13 +15,14 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.FilterKeyVals;
-import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
  *

@@ -15,13 +15,13 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.BaseMatchOperator;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+
+import com.datatorrent.lib.util.BaseMatchOperator;
 
 /**
  * This operator takes Maps, whose values are numeric strings, as input tuples.&nbsp;
@@ -89,7 +89,7 @@ public class AllAfterMatchStringValueMap<K> extends
       double tvalue = 0;
       boolean error = false;
       try {
-        tvalue = Double.valueOf(val.toString()).doubleValue();
+        tvalue = Double.valueOf(val);
       } catch (NumberFormatException e) {
         error = true;
       }

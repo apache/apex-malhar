@@ -15,16 +15,15 @@
  */
 package com.datatorrent.lib.logs;
 
+import java.text.ParseException;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.api.annotation.Stateless;
-
-import java.io.IOException;
-import java.text.ParseException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Parse Apache log lines one line at a time.&nbsp;
@@ -134,7 +133,6 @@ public class ApacheLogParseOperator extends BaseOperator
 	 * @param line
 	 *          : tuple to parsee
 	 * @throws ParseException
-	 * @throws IOException
 	 */
 	public void processTuple(String line) throws ParseException
 	{

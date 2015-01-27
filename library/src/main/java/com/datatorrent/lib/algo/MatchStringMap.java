@@ -85,7 +85,7 @@ public class MatchStringMap<K> extends BaseMatchOperator<K,String>
       double tvalue = 0;
       boolean errortuple = false;
       try {
-        tvalue = Double.parseDouble(val.toString());
+        tvalue = Double.parseDouble(val);
       }
       catch (NumberFormatException e) {
         errortuple = true;

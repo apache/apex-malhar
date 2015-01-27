@@ -15,15 +15,15 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.lib.algo.Distinct;
-import com.datatorrent.lib.testbench.HashTestSink;
-
 import org.junit.Assert;
 import org.junit.Test;
 
+import com.datatorrent.lib.testbench.HashTestSink;
+import com.datatorrent.lib.util.TestUtils;
+
 /**
  *
- * Functional tests for {@link com.datatorrent.lib.algo.Distinct<p>
+ * Functional tests for {@link com.datatorrent.lib.algo.Distinct}
  *
  */
 public class DistinctTest
@@ -32,13 +32,12 @@ public class DistinctTest
    * Test node logic emits correct results
    */
   @Test
-  @SuppressWarnings( {"rawtypes", "unchecked"})
   public void testNodeProcessing() throws Exception
   {
     Distinct<String> oper = new Distinct<String>();
 
-    HashTestSink sortSink = new HashTestSink<String>();
-    oper.distinct.setSink((HashTestSink<Object>)sortSink);
+    HashTestSink<String> sortSink = new HashTestSink<String>();
+    TestUtils.setSink(oper.distinct, sortSink);
 
     oper.beginWindow(0);
     oper.data.process("a");

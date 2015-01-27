@@ -60,7 +60,7 @@ public class MergeSortNumberTest
   	
   	assertTrue("Tuples in sink", sink.collectedTuples.size() == 1);
   	Iterator iter = sink.collectedTuples.iterator();
-  	if (iter.hasNext() == false) return;
+  	if (!iter.hasNext()) return;
   	tuple = (ArrayList<Integer>) iter.next();
   	assertTrue("Tuple size 4", tuple.size() == 4);
   	Integer val = tuple.get(0);

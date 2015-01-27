@@ -46,6 +46,7 @@ import com.datatorrent.lib.util.KeyValPair;
 public class MultiWindowDimensionAggregation implements Operator
 {
 
+  @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(MultiWindowDimensionAggregation.class);
 
   public enum AggregateOperation {

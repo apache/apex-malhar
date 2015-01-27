@@ -97,10 +97,10 @@ public class MostFrequentKeyMapTest
     for (HashMap<String, Integer> h: list) {
       val = h.get("a");
       if (val == null) {
-        ccount = h.get("c").intValue();
+        ccount = h.get("c");
       }
       else {
-        acount = val.intValue();
+        acount = val;
       }
     }
     Assert.assertEquals("Count of a was ", atot, acount);

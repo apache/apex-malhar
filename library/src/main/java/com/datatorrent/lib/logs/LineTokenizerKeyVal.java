@@ -130,8 +130,5 @@ public class LineTokenizerKeyVal extends BaseLineTokenizer
     else if (sval.isEmpty()) {
       sval = subtok;
     }
-    else {
-      // emit error(?)
-    }
   }
 }

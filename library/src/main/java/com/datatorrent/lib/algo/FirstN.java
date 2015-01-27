@@ -18,11 +18,11 @@ package com.datatorrent.lib.algo;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.datatorrent.api.annotation.OperatorAnnotation;
 import org.apache.commons.lang.mutable.MutableInt;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+
 import com.datatorrent.lib.util.AbstractBaseNOperatorMap;
 
 /**

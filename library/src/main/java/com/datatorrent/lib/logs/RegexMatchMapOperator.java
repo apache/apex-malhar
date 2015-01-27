@@ -117,10 +117,6 @@ public class RegexMatchMapOperator extends BaseOperator
     pattern = Pattern.compile(this.regex);
   }
 
-  /**
-   *
-   * @param context
-   */
   @Override
   public void setup(OperatorContext context)
   {
@@ -153,6 +149,7 @@ public class RegexMatchMapOperator extends BaseOperator
     }
   }
 
+  @SuppressWarnings("unused")
   private static final Logger LOG = LoggerFactory.getLogger(RegexMatchMapOperator.class);
 
 }

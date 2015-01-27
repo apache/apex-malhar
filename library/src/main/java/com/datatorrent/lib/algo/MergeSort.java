@@ -15,16 +15,14 @@
  */
 package com.datatorrent.lib.algo;
 
+import java.util.ArrayList;
+
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.Operator.Unifier;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-
-import java.util.ArrayList;
 
 /**
  * This is a base class implementation of a unifier which merges sorted lists of tuples.&nbsp;
@@ -134,8 +132,7 @@ public abstract class MergeSort<K>  implements Operator, Unifier<ArrayList<K>>
 		ArrayList<K> result = new ArrayList<K>();
 		int index1 = 0;
 		int index2 = 0;
-		boolean loop = true;
-	  while (loop) {
+	  while (true) {
 
 	  	// list1 is exhausted
 	  	if (index1 == list1.size()) {

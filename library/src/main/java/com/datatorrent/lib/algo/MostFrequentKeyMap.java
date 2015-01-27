@@ -15,17 +15,17 @@
  */
 package com.datatorrent.lib.algo;
 
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.util.AbstractBaseFrequentKey;
-import com.datatorrent.lib.util.UnifierArrayHashMapFrequent;
-import com.datatorrent.lib.util.UnifierHashMapFrequent;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.OperatorAnnotation;
+
+import com.datatorrent.lib.util.AbstractBaseFrequentKey;
+import com.datatorrent.lib.util.UnifierArrayHashMapFrequent;
+import com.datatorrent.lib.util.UnifierHashMapFrequent;
 
 /**
  * This operator filters the incoming stream of key value pairs by finding the key or keys (if there is a tie)
@@ -93,7 +93,7 @@ public class MostFrequentKeyMap<K,V> extends AbstractBaseFrequentKey<K>
 
   public final transient DefaultOutputPort<ArrayList<HashMap<K, Integer>>> list = new DefaultOutputPort<ArrayList<HashMap<K, Integer>>>()
   {
-    @SuppressWarnings("rawtypes")
+    @SuppressWarnings({"rawtypes", "ConstantConditions"})
     @Override
     public Unifier<ArrayList<HashMap<K, Integer>>> getUnifier()
     {

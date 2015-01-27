@@ -42,6 +42,7 @@ import com.datatorrent.lib.bucket.ExpirableHdfsBucketStore;
 import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Tests for {@link Deduper}
@@ -85,9 +86,7 @@ public class DeduperTest
 
   private static DummyDeduper deduper;
   private static String applicationPath;
-  private static TimeBasedBucketManagerImpl<DummyEvent> storageManager;
 
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testDedup()
   {
@@ -103,8 +102,8 @@ public class DeduperTest
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
 
     deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes));
-    CollectorTestSink collectorTestSink = new CollectorTestSink<DummyEvent>();
-    deduper.output.setSink(collectorTestSink);
+    CollectorTestSink<DummyEvent> collectorTestSink = new CollectorTestSink<DummyEvent>();
+    TestUtils.setSink(deduper.output, collectorTestSink);
 
     logger.debug("start round 0");
     deduper.beginWindow(0);
@@ -184,7 +183,7 @@ public class DeduperTest
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     ExpirableHdfsBucketStore<DummyEvent>  bucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
     deduper = new DummyDeduper();
-    storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
+    TimeBasedBucketManagerImpl<DummyEvent> storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
     storageManager.setBucketSpanInMillis(1000);
     storageManager.setMillisPreventingBucketEviction(60000);
     storageManager.setBucketStore(bucketStore);

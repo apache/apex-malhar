@@ -32,8 +32,6 @@ public class OperatorContextTestHelper
   public static class TestIdOperatorContext extends TestContext implements OperatorContext
   {
     int id;
-    String applicationPath;
-    String applicationId;
     com.datatorrent.api.Attribute.AttributeMap attributes;
 
     public TestIdOperatorContext(int id)

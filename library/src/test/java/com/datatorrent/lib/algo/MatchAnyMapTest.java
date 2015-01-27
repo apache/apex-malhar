@@ -65,7 +65,7 @@ public class MatchAnyMapTest
 
     Assert.assertEquals("number emitted tuples", 1, matchSink.count);
     Boolean result = (Boolean) matchSink.tuple;
-    Assert.assertEquals("result was false", true, result.booleanValue());
+    Assert.assertEquals("result was false", true, result);
     matchSink.clear();
 
     oper.beginWindow(0);

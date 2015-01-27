@@ -15,11 +15,11 @@
  */
 package com.datatorrent.lib.db;
 
+import java.io.IOException;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import java.io.IOException;
 
 /**
  * This is the base implementation of an input adapter which reads from a store.&nbsp;
