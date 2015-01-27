@@ -69,8 +69,7 @@ public class AbstractFileInputOperatorFailureHandlingTest
         addToFailedList();
         return null;
       }
-      String str =  br.readLine();
-      return str;
+      return br.readLine();
     }
 
     @Override

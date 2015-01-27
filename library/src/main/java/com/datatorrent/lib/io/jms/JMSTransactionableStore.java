@@ -174,7 +174,7 @@ public class JMSTransactionableStore extends JMSBaseTransactionableStore
 
       Queue queue = getBase().getSession().createQueue(queueName);
       QueueBrowser browser = getBase().getSession().createBrowser(queue);
-      boolean hasStore = false;
+      boolean hasStore;
 
       try {
         Enumeration enumeration = browser.getEnumeration();

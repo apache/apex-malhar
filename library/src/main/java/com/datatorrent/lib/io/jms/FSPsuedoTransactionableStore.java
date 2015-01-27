@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
  */
 public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
 {
+  @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(FSPsuedoTransactionableStore.class);
 
   /**
@@ -245,12 +246,10 @@ public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
   private Path getOperatorRecoveryPath(String appId,
                                        int operatorId)
   {
-    Path path = new Path(DEFAULT_RECOVERY_DIRECTORY + "/" +
+    return new Path(DEFAULT_RECOVERY_DIRECTORY + "/" +
                          appId + "/" +
                          operatorId + "/" +
                          COMMITTED_WINDOW_DIR);
-
-    return path;
   }
 
   /**
@@ -264,12 +263,10 @@ public class FSPsuedoTransactionableStore extends JMSBaseTransactionableStore
                                        int operatorId,
                                        long windowId)
   {
-    Path path = new Path(DEFAULT_RECOVERY_DIRECTORY + "/" +
+    return new Path(DEFAULT_RECOVERY_DIRECTORY + "/" +
                          appId + "/" +
                          operatorId + "/" +
                          COMMITTED_WINDOW_DIR + "/" +
                          windowId);
-
-    return path;
   }
 }

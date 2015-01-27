@@ -74,11 +74,6 @@ public abstract class AbstractJMSOutputOperator extends JMSBase implements Opera
   private transient MessageProducer producer;
   protected JMSBaseTransactionableStore store = new JMSTransactionableStore();
 
-  /**
-   * Implement Component Interface.
-   *
-   * @param context
-   */
   @Override
   public void setup(OperatorContext context)
   {

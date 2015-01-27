@@ -48,14 +48,14 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
     {
       FileUtils.deleteQuietly(new File(FSPsuedoTransactionableStore.DEFAULT_RECOVERY_DIRECTORY));
     }
-  };
+  }
 
   @Rule
   public TestMeta testMeta = new TestMeta();
 
   public JMSTransactionableStoreTestBase(Class<? extends JMSBaseTransactionableStore> storeClass)
   {
-    this.storeClass = storeClass;
+    JMSTransactionableStoreTestBase.storeClass = storeClass;
   }
 
   /**

@@ -30,9 +30,6 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractWindowFileOutputOperator<INPUT> extends AbstractFileOutputOperator<INPUT>
 {
-  private static final long serialVersionUID = 201405201214L;
-  private static final Logger LOG = LoggerFactory.getLogger(AbstractWindowFileOutputOperator.class);
-
   private transient String windowIdString;
 
   public AbstractWindowFileOutputOperator()
@@ -71,4 +68,7 @@ public abstract class AbstractWindowFileOutputOperator<INPUT> extends AbstractFi
   {
     throw new UnsupportedOperationException("This property cannot be set on this operator.");
   }
+
+  @SuppressWarnings("unused")
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractWindowFileOutputOperator.class);
 }

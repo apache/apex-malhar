@@ -43,7 +43,6 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public static int tupleCount = 0;
   public static final transient int maxTuple = 20;
 
-  public static final String SUBJECT = "TEST.FOO";
   public static final String CLIENT_ID = "Client1";
   public static final String APP_ID = "appId";
   public static final int OPERATOR_ID = 1;
@@ -86,7 +85,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
         throw new RuntimeException(ex);
       }
     }
-  };
+  }
 
   @Rule
   public TestMeta testMeta = new TestMeta();
@@ -101,16 +100,10 @@ public class JMSOutputOperatorTest extends JMSTestBase
       this.setBatch(10);
     }
 
-    /**
-     * Implementation of Abstract Method.
-     *
-     * @param tuple
-     * @return
-     */
     @Override
     protected Message createMessage(Object tuple)
     {
-      Message msg = null;
+      Message msg;
       try {
         msg = getSession().createTextMessage(tuple.toString());
       }
@@ -132,7 +125,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
     createOperator(topic, context, 0);
   }
 
-  private void createOperator(boolean topic, OperatorContext context, int maxMessages)
+  private void createOperator(boolean topic, OperatorContext context, @SuppressWarnings("unused") int maxMessages)
   {
     outputOperator = new JMSStringSinglePortOutputOperator();
     outputOperator.getConnectionFactoryProperties().put("userName", "");
@@ -245,6 +238,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
       listener.setupConnection();
     }
     catch (JMSException ex) {
+      throw new RuntimeException(ex);
     }
 
     listener.run();

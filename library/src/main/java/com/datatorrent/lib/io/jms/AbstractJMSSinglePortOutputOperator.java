@@ -48,6 +48,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class AbstractJMSSinglePortOutputOperator<T> extends AbstractJMSOutputOperator
 {
+  @SuppressWarnings("unused")
   private static final Logger logger = LoggerFactory.getLogger(AbstractJMSSinglePortOutputOperator.class);
   
   /**

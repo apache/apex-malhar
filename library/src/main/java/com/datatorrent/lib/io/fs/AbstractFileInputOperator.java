@@ -124,6 +124,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     long   lastFailedTime;
 
     /* For kryo serialization */
+    @SuppressWarnings("unused")
     protected FailedFile() {}
 
     protected FailedFile(String path, int offset) {
@@ -1074,7 +1075,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       return partitions;
     }
 
-    public List<DirectoryScanner>  partition(int count , Collection<DirectoryScanner> scanners) {
+    public List<DirectoryScanner>  partition(int count , @SuppressWarnings("unused") Collection<DirectoryScanner> scanners) {
       return partition(count);
     }
 
@@ -1135,11 +1136,8 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
       if (startOffset != that.startOffset) {
         return false;
       }
-      if (!file.equals(that.file)) {
-        return false;
-      }
+      return file.equals(that.file);
 
-      return true;
     }
 
     @Override

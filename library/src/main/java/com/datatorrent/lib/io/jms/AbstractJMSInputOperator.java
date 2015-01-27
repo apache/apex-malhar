@@ -119,6 +119,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
     {
       private static final long serialVersionUID = 201411151139L;
 
+      @SuppressWarnings("Contract")
       @Override
       public boolean add(Message message)
       {
@@ -309,7 +310,8 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
   @Override
   public void handleIdleTime()
   {
-    if (throwable.get() == null) {
+    Throwable lthrowable = throwable.get();
+    if (lthrowable == null) {
       /* nothing to do here, so sleep for a while to avoid busy loop */
       try {
         Thread.sleep(spinMillis);
@@ -319,7 +321,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
       }
     }
     else {
-      DTThrowable.rethrow(throwable.get());
+      DTThrowable.rethrow(lthrowable);
     }
   }
 

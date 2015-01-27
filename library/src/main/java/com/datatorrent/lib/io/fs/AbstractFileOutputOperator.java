@@ -571,7 +571,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * the name of the file part that has just completed closed.
    * @param finishedFile The name of the file part that has just completed and closed.
    */
-  protected void rotateHook(String finishedFile)
+  protected void rotateHook(@SuppressWarnings("unused") String finishedFile)
   {
     //Do nothing by default
   }
@@ -633,18 +633,18 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   @Override
   public void endWindow()
   {
-    for (String fileName : streamsCache.asMap().keySet()) {
-      try
-      {
+    try {
+      for (String fileName : streamsCache.asMap().keySet()) {
+
         FSDataOutputStream fsOutput = streamsCache.get(fileName);
         fsOutput.hflush();
       }
-      catch (ExecutionException e) {
-        throw new RuntimeException(e);
-      }
-      catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+    }
+    catch (ExecutionException e) {
+      throw new RuntimeException(e);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
     }
 
     long currentTimeStamp = System.currentTimeMillis();
