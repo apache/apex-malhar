@@ -42,7 +42,7 @@ public class RubyOperatorTest {
     CollectorTestSink sink = new CollectorTestSink();
     oper.result.setSink(sink);
     HashMap<String, Object> tuple = new HashMap<String, Object>();
-    tuple.put("val", new Integer(2));
+    tuple.put("val", 2);
     oper.setup(null);
     oper.beginWindow(0);
     oper.inBindings.process(tuple);
@@ -70,8 +70,8 @@ public class RubyOperatorTest {
     CollectorTestSink sink = new CollectorTestSink();
     oper.result.setSink(sink);
     HashMap<String, Object> tuple = new HashMap<String, Object>();
-    tuple.put("b", new Integer(2));
-    tuple.put("c", new Integer(3));
+    tuple.put("b", 2);
+    tuple.put("c", 3);
     oper.setup(null);
     oper.beginWindow(0);
     oper.inBindings.process(tuple);

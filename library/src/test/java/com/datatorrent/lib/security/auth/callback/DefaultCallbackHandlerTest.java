@@ -65,6 +65,7 @@ public class DefaultCallbackHandlerTest
       return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public <T> T getValue(Attribute<T> key)
     {

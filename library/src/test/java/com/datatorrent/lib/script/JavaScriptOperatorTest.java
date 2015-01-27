@@ -21,30 +21,29 @@ import org.junit.Assert;
 import org.junit.Test;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Functional tests for {@link com.datatorrent.lib.script.JavaScriptOperator}.
  */
 public class JavaScriptOperatorTest
 {
-  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   public void testJavaOperator()
   {
     // Create bash operator instance (calculate suqare).
     JavaScriptOperator oper = new JavaScriptOperator();
-    StringBuilder builder = new StringBuilder();
-    builder.append("val = val * val;");
+
     oper.addSetupScript("function square() { return val*val;}");
     oper.setInvoke("square");
     oper.setPassThru(true);
     oper.setup(null);
-    CollectorTestSink sink = new CollectorTestSink();
-    oper.result.setSink(sink);
+    CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
+    TestUtils.setSink(oper.result, sink);
 
     // Add input sample data.
     HashMap<String, Object> tuple = new HashMap<String, Object>();
-    tuple.put("val", new Integer(2));
+    tuple.put("val", 2);
 
     // Process operator.
     oper.beginWindow(0);
@@ -57,6 +56,4 @@ public class JavaScriptOperatorTest
       Assert.assertEquals("4.0 is expected", (Double) o, 4.0, 0);
     }
   }
-
-  ;
 }
