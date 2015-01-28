@@ -634,14 +634,10 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   public void endWindow()
   {
     try {
-      for (String fileName : streamsCache.asMap().keySet()) {
-
-        FSDataOutputStream fsOutput = streamsCache.get(fileName);
+      Map<String, FSDataOutputStream> openStreams = streamsCache.asMap();
+      for (FSDataOutputStream fsOutput : openStreams.values()) {
         fsOutput.hflush();
       }
-    }
-    catch (ExecutionException e) {
-      throw new RuntimeException(e);
     }
     catch (IOException e) {
       throw new RuntimeException(e);
