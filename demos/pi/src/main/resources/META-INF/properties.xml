@@ -49,10 +49,14 @@
     <name>dt.application.PiLibraryDemo.operator.PairXY.size</name>
     <value>2</value>
   </property>
-  <!-- <property>
-    <name>dt.application.PiLibraryDemo.operator.AnalyzeLocation.constant</name>
-    <value>900000000</value>
-  </property> -->
+  <property>
+    <name>dt.application.PiLibraryDemo.operator.*.attr.MEMORY_MB</name>
+    <value>256</value>
+  </property>
+  <property>
+    <name>dt.application.PiLibraryDemo.port.*.attr.BUFFER_MEMORY_MB</name>
+    <value>384</value>
+  </property>
 
   <!-- PiJavaScriptDemo -->
   <property>
