@@ -1,60 +1,54 @@
 
 <!-- properties for rolling top words demo -->
 <configuration>
-<property>
+  <property>
     <name>dt.attr.MASTER_MEMORY_MB</name>
     <value>1024</value>
   </property>
-	<property>
-		<name>dt.application.RollingTopWordsDemo.operator.TopCounter.topCount
-		</name>
-		<value>10</value>
-	</property>
-	<property>
-		<name>dt.application.RollingTopWordsDemo.stream.TweetStream.locality
-		</name>
-		<value>CONTAINER_LOCAL</value>
-	</property>
-	<property>
-		<name>dt.application.RollingTopWordsDemo.stream.TwittedWords.locality
-		</name>
-		<value></value>
-	</property>
-	<property>
-		<name>dt.application.RollingTopWordsDemo.stream.UniqueWordCounts.locality
-		</name>
-		<value></value>
-	</property>
-	<property>
-		<name>dt.application.RollingTopWordsDemo.stream.TopWords.locality</name>
-		<value></value>
-	</property>
-	<property>
-		<name>dt.operator.TweetSampler.consumerKey</name>
-	</property>
-	<property>
-		<name>dt.operator.TweetSampler.consumerSecret</name>
-	</property>
-	<property>
-		<name>dt.operator.TweetSampler.accessToken</name>
-	</property>
-	<property>
-		<name>dt.operator.TweetSampler.accessTokenSecret</name>
-	</property>
-    <property>
-        <name>dt.operator.TweetSampler.feedMultiplierVariance</name>
-        <value>5</value>
-    </property>
-    <property>
-        <name>dt.operator.TweetSampler.feedMultiplier</name>
-        <value>20</value>
-    </property>
-    <property>
-        <name>dt.application.KinesisDemo.operator.FromKinesis.streamName</name>
-        <value>TwitterTag</value>
-    </property>
-    <property>
-        <name>dt.application.KinesisDemo.operator.ToKinesis.streamName</name>
-        <value>TwitterTag</value>
-    </property>
+  <!-- default operator size 256MB -->
+  <property>
+    <name>dt.application.*.operator.*.attr.MEMORY_MB</name>
+    <value>256</value>
+  </property>
+  <!-- default buffer memory 256MB -->
+  <property>
+    <name>dt.application.*.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
+    <value>256</value>
+  </property>
+  <property>
+    <name>dt.application.RollingTopWordsDemo.operator.TopCounter.topCount</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>dt.application.RollingTopWordsDemo.stream.TweetStream.locality</name>
+    <value>CONTAINER_LOCAL</value>
+  </property>
+  <property>
+    <name>dt.operator.TweetSampler.consumerKey</name>
+  </property>
+  <property>
+    <name>dt.operator.TweetSampler.consumerSecret</name>
+  </property>
+  <property>
+    <name>dt.operator.TweetSampler.accessToken</name>
+  </property>
+  <property>
+    <name>dt.operator.TweetSampler.accessTokenSecret</name>
+  </property>
+  <property>
+    <name>dt.operator.TweetSampler.feedMultiplierVariance</name>
+    <value>5</value>
+  </property>
+  <property>
+    <name>dt.operator.TweetSampler.feedMultiplier</name>
+    <value>20</value>
+  </property>
+  <property>
+    <name>dt.application.KinesisDemo.operator.FromKinesis.streamName</name>
+    <value>TwitterTag</value>
+  </property>
+  <property>
+    <name>dt.application.KinesisDemo.operator.ToKinesis.streamName</name>
+    <value>TwitterTag</value>
+  </property>
 </configuration>
