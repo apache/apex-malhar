@@ -163,7 +163,7 @@ import java.net.URI;
  * </ul>
  *
  */
-@ApplicationAnnotation(name="Twitter-KinesisDemo")
+@ApplicationAnnotation(name="TwitterKinesisDemo")
 public class KinesisHashtagsApplication implements StreamingApplication
 {
   private final Locality locality = null;
