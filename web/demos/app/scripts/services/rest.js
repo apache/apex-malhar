@@ -23,7 +23,7 @@ angular.module('rest', ['ng', 'restangular'])
         return {
             getApp: function (appName) {
                 var deferred = $q.defer();
-                Restangular.oneUrl('applications', 'ws/v1/applications').get().then(function (response) {
+                Restangular.oneUrl('applications', 'ws/v2/applications').get().then(function (response) {
                     var errorMessage = null;
                     if (response && response.apps && response.apps.length > 0) {
                         var apps = _.where(response.apps, { name: appName, state: 'RUNNING' });
