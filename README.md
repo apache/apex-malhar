@@ -68,7 +68,7 @@ Running the code
 
 To run the code DataTorrent platform is needed. The developer version or an evaluation version, both of which are free, can be downloaded from 
 
-https://www.datatorrent.com/download.php
+https://www.datatorrent.com/download/
 
 Please follow the instructions in the software README on how to run the application.  
 
