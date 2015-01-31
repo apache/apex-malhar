@@ -12,6 +12,8 @@ import org.apache.solr.client.solrj.impl.CloudSolrServer;
  * Properties:<br>
  * zookeeperHost - The client endpoint of the zookeeper quorum containing the cloud state, in the form HOST:PORT<br>
  * updateToLeader - sends updates only to leaders - defaults to true
+ *
+ * @since 2.0.0
  */
 public class CloudSolrServerConnector extends SolrServerConnector
 {

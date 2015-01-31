@@ -20,6 +20,8 @@ import java.util.Arrays;
 
 /**
  * Simple convenience wrapper for mutable key/value byte array tuple.
+ *
+ * @since 2.0.0
  */
 public class MutableKeyValue {
   private byte key[];

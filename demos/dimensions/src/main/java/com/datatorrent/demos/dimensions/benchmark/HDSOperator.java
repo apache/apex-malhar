@@ -23,6 +23,11 @@ import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import java.io.IOException;
 import java.util.Arrays;
 
+/**
+ * HDSOperator
+ *
+ * @since 2.0.0
+ */
 public class HDSOperator extends AbstractSinglePortHDHTWriter<MutableKeyValue>
 {
   public boolean isReadModifyWriteMode()

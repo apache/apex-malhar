@@ -20,6 +20,7 @@ import com.datatorrent.contrib.couchbase.AbstractCouchBaseSetOperator;
 /**
  * <p>CouchBaseOutputOperator class.</p>
  *
+ * @since 2.0.0
  */
 public class CouchBaseOutputOperator extends AbstractCouchBaseSetOperator<Integer>
 {

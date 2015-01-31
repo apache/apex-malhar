@@ -19,6 +19,8 @@ import net.spy.memcached.internal.OperationFuture;
 
 /**
  * AbstractCouchBaseSetOperator which extends AbstractCouchBaseOutputOperator and implements set functionality of couchbase.
+ *
+ * @since 2.0.0
  */
 public abstract class AbstractCouchBaseSetOperator<T> extends AbstractCouchBaseOutputOperator<T>
 {

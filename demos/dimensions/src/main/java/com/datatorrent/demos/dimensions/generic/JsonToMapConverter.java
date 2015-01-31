@@ -48,6 +48,8 @@ import java.util.Map;
  * @displayName JSON to Map Parser
  * @category Stream
  * @tags parser, json, demo, converter
+ *
+ * @since 2.0.0
  */
 
 @Stateless

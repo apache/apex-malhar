@@ -23,6 +23,11 @@ import org.apache.hadoop.io.file.tfile.TFile.Writer;
 
 import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileWriter;
 
+/**
+ * TFileWriter
+ *
+ * @since 2.0.0
+ */
 public final class TFileWriter implements HDSFileWriter
 {
   private Writer writer;

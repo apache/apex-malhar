@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * HashMap Input Operator used as a helper in testbench benchmarking apps.
+ *
+ * @since 2.0.0
  */
 public class HashMapOperator implements InputOperator
 {

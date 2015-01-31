@@ -25,6 +25,11 @@ import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.io.file.tfile.DTFile;
 
+/**
+ * HDHTBenchmarkApplication
+ *
+ * @since 2.0.0
+ */ 
 @ApplicationAnnotation(name="HDHTBenchmarkApplication")
 public class HDHTBenchmarkApplication implements StreamingApplication
 {

@@ -28,6 +28,11 @@ import org.apache.hadoop.io.file.tfile.TFile.Reader.Scanner.Entry;
 
 import com.datatorrent.contrib.hdht.HDHTFileAccess.HDSFileReader;
 
+/**
+ * TFileReader
+ *
+ * @since 2.0.0
+ */
 public class TFileReader implements HDSFileReader
 {
 

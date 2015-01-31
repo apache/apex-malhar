@@ -142,6 +142,8 @@ import org.apache.hadoop.io.serializer.JavaSerializationComparator;
  *
  * Some design rationale behind TFile can be found at <a
  * href=https://issues.apache.org/jira/browse/HADOOP-3315>Hadoop-3315</a>.
+ *
+ * @since 2.0.0
  */
 @InterfaceAudience.Public
 @InterfaceStability.Evolving

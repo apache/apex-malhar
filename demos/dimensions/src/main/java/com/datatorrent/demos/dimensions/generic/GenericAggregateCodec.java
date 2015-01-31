@@ -20,6 +20,11 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
+/**
+ * GenericAggregateCodec
+ *
+ * @since 2.0.0
+ */
 public class GenericAggregateCodec extends KryoSerializableStreamCodec<GenericAggregate> implements AbstractSinglePortHDHTWriter.HDHTCodec<GenericAggregate>
 {
   public DimensionStoreOperator operator;

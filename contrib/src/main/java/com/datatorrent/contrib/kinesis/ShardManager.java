@@ -23,6 +23,7 @@ import java.util.Map;
  * An shard manager interface used by  AbstractPartitionableKinesisInputOperator to define the customized initial positions and periodically update the current shard positions of all the operators
  * Ex. you could write shardManager to hdfs and load it back when restart the application
  *
+ * @since 2.0.0
  */
 public class ShardManager
 {

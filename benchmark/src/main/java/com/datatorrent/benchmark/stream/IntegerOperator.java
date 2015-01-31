@@ -23,6 +23,8 @@ import com.datatorrent.api.InputOperator;
  *
  * Integer input operator which emits Integer tuples only.
  * This operator is benchmarked to emit more than 2 million tuples/sec on cluster node.
+ *
+ * @since 2.0.0
  */
 public class IntegerOperator implements InputOperator
 {

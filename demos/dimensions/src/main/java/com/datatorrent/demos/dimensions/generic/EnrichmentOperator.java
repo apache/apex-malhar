@@ -64,6 +64,8 @@ import java.util.Map;
  * @displayName Enrichment
  * @category Database
  * @tags enrichment, lookup
+ *
+ * @since 2.0.0
  */
 public class EnrichmentOperator extends BaseOperator
 {

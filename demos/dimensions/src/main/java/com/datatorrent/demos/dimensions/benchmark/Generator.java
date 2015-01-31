@@ -27,6 +27,11 @@ import java.nio.ByteBuffer;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Generator
+ *
+ * @since 2.0.0
+ */
 public class Generator extends BaseOperator implements InputOperator
 {
   /* Following parameters controls rate of tuples generation */

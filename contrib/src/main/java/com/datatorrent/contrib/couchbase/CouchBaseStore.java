@@ -37,6 +37,8 @@ import javax.validation.constraints.Min;
 
 /**
  * CouchBaseStore which provides connect methods to Couchbase data store.
+ *
+ * @since 2.0.0
  */
 public class CouchBaseStore implements Connectable
 {

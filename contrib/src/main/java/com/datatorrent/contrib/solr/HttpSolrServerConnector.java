@@ -9,6 +9,8 @@ import org.apache.solr.client.solrj.impl.HttpSolrServer;
  * <br>
  * properties:<br>
  * baseURL - The URL of the Solr server.
+ *
+ * @since 2.0.0
  */
 public class HttpSolrServerConnector extends SolrServerConnector
 {

@@ -24,6 +24,8 @@ import java.util.List;
 
 /**
  * A util class for Amazon Kinesis. Contains the wrappers for creating client, get the shard list and records from shard.
+ *
+ * @since 2.0.0
  */
 public class KinesisUtil
 {

@@ -74,6 +74,7 @@ import java.util.TreeMap;
  *     <value>0.25</value>
  *   </property>
  *
+ * @since 2.0.0
  */
 public class HFileImpl extends HDHTFileAccessFSImpl {
 

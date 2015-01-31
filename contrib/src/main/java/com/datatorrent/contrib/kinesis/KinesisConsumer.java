@@ -42,6 +42,7 @@ import java.util.concurrent.Executors;
 /**
  *
  * Base KinesisConsumer class used by kinesis input operator
+ * @since 2.0.0
  */
 
 public class KinesisConsumer implements Closeable

@@ -41,6 +41,8 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
  * @displayName File Splitter
  * @category Input
  * @tags file, input operator
+ *
+ * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMetadata>

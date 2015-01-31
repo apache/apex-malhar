@@ -7,6 +7,11 @@ import org.apache.solr.client.solrj.SolrServer;
 
 import com.datatorrent.lib.db.Connectable;
 
+/**
+ * SolrServerConnector
+ *
+ * @since 2.0.0
+ */
 public abstract class SolrServerConnector implements Connectable, Closeable
 {
   protected SolrServer solrServer;

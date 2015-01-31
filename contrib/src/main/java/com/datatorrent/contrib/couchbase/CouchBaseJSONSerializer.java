@@ -19,6 +19,11 @@ import com.datatorrent.common.util.DTThrowable;
 import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+/**
+ * <p>CouchBaseJSONSerializer</p>
+ *
+ * @since 2.0.0
+ */
 public class CouchBaseJSONSerializer implements CouchBaseSerializer
 {
 
