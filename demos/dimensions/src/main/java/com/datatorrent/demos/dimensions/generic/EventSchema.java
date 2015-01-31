@@ -104,6 +104,7 @@ import java.util.Set;
  *     "timestamp": "timestamp"
  *   }
  *
+ * @since 2.0.0
  */
 public class EventSchema implements Serializable
 {

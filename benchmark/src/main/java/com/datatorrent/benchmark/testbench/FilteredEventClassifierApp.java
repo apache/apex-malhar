@@ -28,6 +28,8 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Benchmark App for FilteredEventClassifier Operator.
  * This operator is benchmarked to emit 900K tuples/sec on cluster node.
+ *
+ * @since 2.0.0
  */
 @ApplicationAnnotation(name = "FilteredEventClassifierApp")
 public class FilteredEventClassifierApp implements StreamingApplication

@@ -28,6 +28,8 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Benchmark App for FilterClassifier Operator.
  * This operator is benchmarked to emit 700K tuples/sec on cluster node.
+ *
+ * @since 2.0.0
  */
 @ApplicationAnnotation(name = "FilterClassifierApp")
 public class FilterClassifierApp implements StreamingApplication

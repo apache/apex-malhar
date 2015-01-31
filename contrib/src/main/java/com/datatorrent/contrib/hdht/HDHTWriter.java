@@ -56,6 +56,8 @@ import com.google.common.collect.Sets;
  * @displayName HDHT Writer
  * @category Output
  * @tags hdht, output operator
+ *
+ * @since 2.0.0
  */
 public class HDHTWriter extends HDHTReader implements CheckpointListener, Operator, HDHT.Writer
 {

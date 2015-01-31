@@ -21,6 +21,8 @@ import com.datatorrent.lib.db.jdbc.JdbcNonTransactionalStore;
 /**
  * A connection store for memsql which has the default connection driver set
  * to be the mysql connection driver.
+ *
+ * @since 2.0.0
  */
 public class MemsqlStore extends JdbcNonTransactionalStore
 {

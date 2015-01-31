@@ -22,6 +22,11 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * GenericAggregate
+ *
+ * @since 2.0.0
+ */
 class GenericAggregate implements DimensionsComputation.AggregateEvent
 {
 

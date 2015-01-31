@@ -23,9 +23,12 @@ import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.testbench.ThroughputCounter;
 import java.util.HashMap;
 import org.apache.hadoop.conf.Configuration;
+
 /**
  * Benchmark App for ThroughputCounter Operator.
  * This operator is benchmarked to emit 750 tuples/sec on cluster node.
+ *
+ * @since 2.0.0
  */
 @ApplicationAnnotation(name = "ThroughputCounterApp")
 public class ThroughputCounterApp implements StreamingApplication

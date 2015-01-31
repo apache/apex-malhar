@@ -19,6 +19,8 @@ import com.datatorrent.lib.db.TransactionableStore;
 
 /**
  * This is a base implementation for a transactionable store.
+ *
+ * @since 2.0.0
  */
 public abstract class JMSBaseTransactionableStore implements TransactionableStore
 {

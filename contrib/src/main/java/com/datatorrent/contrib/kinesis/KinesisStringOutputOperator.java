@@ -17,6 +17,11 @@ package com.datatorrent.contrib.kinesis;
 
 import com.datatorrent.common.util.Pair;
 
+/**
+ * KinesisStringOutputOperator
+ *
+ * @since 2.0.0
+ */
 public class KinesisStringOutputOperator extends AbstractKinesisOutputOperator<String, String>
 {
   @Override

@@ -24,6 +24,8 @@ import javax.validation.constraints.Min;
 
 /**
  * This is an input operator which generates random tuples that are an array of bytes.
+ *
+ * @since 2.0.0
  */
 public class RandomWordGenerator implements InputOperator
 {

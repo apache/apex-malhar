@@ -162,6 +162,7 @@ import java.net.URI;
  * </li>
  * </ul>
  *
+ * @since 2.0.0
  */
 @ApplicationAnnotation(name="TwitterKinesisDemo")
 public class KinesisHashtagsApplication implements StreamingApplication

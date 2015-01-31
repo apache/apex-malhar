@@ -34,6 +34,7 @@ import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
  * <li>{@link TFileImpl.DTFileImpl} return DTFile {@link org.apache.hadoop.io.file.tfile.DTFile.Reader}(which is faster than default TFile reader) and {@link Writer} for IO operations</li> 
  * </ul>
  *
+ * @since 2.0.0
  */
 public abstract class TFileImpl extends HDHTFileAccessFSImpl
 {

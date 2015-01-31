@@ -15,6 +15,8 @@ import org.apache.solr.client.solrj.impl.LBHttpSolrServer;
  * solrServerUrls - Urls of solr Server
  * httpClient - http client instance
  * responseParser - ResponseParser instance
+ *
+ * @since 2.0.0
  */
 public class LBHttpSolrServerConnector extends SolrServerConnector
 {

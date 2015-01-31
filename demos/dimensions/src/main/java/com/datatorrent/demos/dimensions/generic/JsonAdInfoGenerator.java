@@ -30,6 +30,8 @@ import org.codehaus.jackson.map.ObjectMapper;
  * @displayName JSON AdInfo Generator
  * @category Input
  * @tags input, generator
+ *
+ * @since 2.0.0
  */
 public class JsonAdInfoGenerator extends InputItemGenerator
 {

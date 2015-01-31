@@ -25,6 +25,8 @@ import com.datatorrent.common.util.Slice;
 
 /**
  * Abstraction for file system and format interaction.
+ *
+ * @since 2.0.0
  */
 public interface HDHTFileAccess extends Closeable
 {

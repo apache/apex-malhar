@@ -34,6 +34,7 @@ import com.datatorrent.common.util.DTThrowable;
  * It does not guarantee exactly once property.It only skips tuple
  * processed in previous windows and provides at least once and at most once properties.
  *
+ * @since 2.0.0
  */
 public class CouchBaseWindowStore extends CouchBaseStore implements TransactionableStore
 {
