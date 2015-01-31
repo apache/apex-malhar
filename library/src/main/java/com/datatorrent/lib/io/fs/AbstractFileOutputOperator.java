@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Nonnull;
@@ -42,6 +41,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.lib.counters.BasicCounters;
@@ -180,6 +180,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    */
   private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
 
+  private StreamCodec<INPUT> streamCodec;
+
   /**
    * This input port receives incoming tuples.
    */
@@ -189,6 +191,17 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     public void process(INPUT tuple)
     {
       processTuple(tuple);
+    }
+
+    @Override
+    public StreamCodec<INPUT> getStreamCodec()
+    {
+      if (AbstractFileOutputOperator.this.streamCodec == null) {
+        return super.getStreamCodec();
+      }
+      else {
+        return streamCodec;
+      }
     }
   };
 
@@ -719,6 +732,24 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   public int getMaxOpenFiles()
   {
     return this.maxOpenFiles;
+  }
+
+  /**
+   * Sets the stream codec on the input port.
+   *
+   * @param streamCodec
+   */
+  public void setStreamCodec(StreamCodec<INPUT> streamCodec)
+  {
+    this.streamCodec = streamCodec;
+  }
+
+  /**
+   * @return the stream codec on input port.
+   */
+  public StreamCodec<INPUT> getStreamCodec()
+  {
+    return this.streamCodec;
   }
 
   public static enum Counters
