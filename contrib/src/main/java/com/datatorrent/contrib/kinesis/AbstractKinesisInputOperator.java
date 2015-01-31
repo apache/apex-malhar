@@ -64,6 +64,8 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @NotNull
   private String secretKey;
 
+  private String endPoint;
+
   @Valid
   protected KinesisConsumer consumer = new KinesisConsumer();
 
@@ -138,7 +140,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     // Set the credentials to get the list of shards
     if(isInitialParitition) {
       try {
-        KinesisUtil.getInstance().createKinesisClient(accessKey, secretKey);
+        KinesisUtil.getInstance().createKinesisClient(accessKey, secretKey, endPoint);
       } catch (Exception e) {
          throw new RuntimeException("[definePartitions]: Unable to load credentials. ", e);
       }
@@ -367,7 +369,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     this.context = context;
     try {
-      KinesisUtil.getInstance().createKinesisClient(accessKey, secretKey);
+      KinesisUtil.getInstance().createKinesisClient(accessKey, secretKey, endPoint);
     } catch(Exception e)
     {
       throw new RuntimeException(e);
@@ -582,5 +584,15 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   public void setSecretKey(String secretKey)
   {
     this.secretKey = secretKey;
+  }
+
+  public String getEndPoint()
+  {
+    return endPoint;
+  }
+
+  public void setEndPoint(String endPoint)
+  {
+    this.endPoint = endPoint;
   }
 }

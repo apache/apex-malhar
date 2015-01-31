@@ -13,6 +13,9 @@
         <name>dt.operator.FromKinesis.secretKey</name>
     </property>
     <property>
+        <name>dt.operator.FromKinesis.endPoint</name>
+    </property>
+    <property>
         <name>dt.operator.ToKinesis.streamName</name>
         <value>TwitterTag</value>
     </property>
@@ -21,6 +24,9 @@
     </property>
     <property>
         <name>dt.operator.ToKinesis.secretKey</name>
+    </property>
+    <property>
+        <name>dt.operator.ToKinesis.endPoint</name>
     </property>
 
 </configuration>
