@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
  * A reusable ByteArrayInputStream extends {@link ByteArrayInputStream} to avoid creating stream object on same byte array.
  * <br><br>Call renew() method to reuse this stream from beginning
  *
+ * @since 2.0.0
  */
 public class ReusableByteArrayInputStream extends ByteArrayInputStream
 {

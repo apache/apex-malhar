@@ -10,6 +10,8 @@ import org.slf4j.LoggerFactory;
 
 /**
  * Default Implementation of AbstractSolrInputOperator. Reads query from properties file <br>
+ *
+ * @since 2.0.0
  */
 public class SolrInputOperator extends AbstractSolrInputOperator<Map<String, Object>, SolrServerConnector>
 {

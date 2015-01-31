@@ -81,6 +81,8 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @tags fs, file, output operator
  *
  * @param <INPUT> This is the input tuple type.
+ *
+ * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator

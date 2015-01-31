@@ -62,6 +62,8 @@ import org.apache.hadoop.io.file.tfile.Compression.Algorithm;
  * BCFile provides the basic block level compression for the data block and meta
  * blocks. It is separated from TFile as it may be used for other
  * block-compressed file implementation.
+ *
+ * @since 2.0.0
  */
 final class DTBCFile {
   // the current version of BCFile impl, increment them (major or minor) made

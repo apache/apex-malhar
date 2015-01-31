@@ -54,6 +54,8 @@ import java.util.TreeMap;
  * @displayName JSON Sales Event Generator
  * @category Input
  * @tags input, generator, json
+ *
+ * @since 2.0.0
  */
 public class JsonSalesGenerator implements InputOperator
 {

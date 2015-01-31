@@ -19,6 +19,11 @@ import java.io.DataInputStream;
 import java.io.EOFException;
 import java.io.IOException;
 
+/**
+ * HDFSWalReader
+ *
+ * @since 2.0.0
+ */
 public class HDFSWalReader implements HDHT.WALReader
 {
   DataInputStream in;

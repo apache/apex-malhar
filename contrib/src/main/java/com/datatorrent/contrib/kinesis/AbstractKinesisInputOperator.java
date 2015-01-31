@@ -50,6 +50,7 @@ import java.util.*;
  * streamName : Name of the stream from where the records to be accessed
  *
  * @param <T>
+ * @since 2.0.0
  */
 public abstract class AbstractKinesisInputOperator <T> implements InputOperator, ActivationListener<OperatorContext>, Partitioner<AbstractKinesisInputOperator>, StatsListener
 {

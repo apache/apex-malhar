@@ -25,6 +25,8 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Benchmark App for RandomEventGenerator Operator.
  * This operator is benchmarked to emit 182K tuples/sec on cluster node.
+ *
+ * @since 2.0.0
  */
 public class RandomEventGeneratorApp implements StreamingApplication
 {

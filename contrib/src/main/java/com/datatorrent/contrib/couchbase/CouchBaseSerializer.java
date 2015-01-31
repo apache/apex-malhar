@@ -15,7 +15,10 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-
+/**
+ *
+ * @since 2.0.0
+ */
 public interface CouchBaseSerializer
 {
   public Object serialize(Object o);

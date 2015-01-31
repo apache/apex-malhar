@@ -24,6 +24,8 @@ import com.datatorrent.common.util.Slice;
 /**
  * An {@link AbstractBlockReader} which emits fixed-size byte-arrays wrapped in {@link Slice}.<br/>
  * This reader doesn't read beyond the block boundary therefore the last byte-array could be smaller.<br/>
+ *
+ * @since 2.0.0
  */
 public class FixedBytesBlockReader extends AbstractBlockReader<Slice>
 {

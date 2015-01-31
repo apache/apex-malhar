@@ -21,6 +21,8 @@ import com.datatorrent.api.Context;
 
 /**
  * A context for passing security information.
+ *
+ * @since 2.0.0
  */
 public interface SecurityContext extends Context
 {

@@ -53,6 +53,8 @@ import com.google.common.collect.Sets;
  * @displayName Dimensional Store
  * @category Store
  * @tags storage, hdfs, dimensions, hdht
+ *
+ * @since 2.0.0
  */
 public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdInfoAggregateEvent>
 {

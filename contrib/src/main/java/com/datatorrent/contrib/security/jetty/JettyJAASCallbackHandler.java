@@ -27,6 +27,8 @@ import com.datatorrent.lib.security.auth.callback.DefaultCallbackHandler;
 
 /**
  * A callback handler to use with Jetty login module for gateway authentication
+ *
+ * @since 2.0.0
  */
 public class JettyJAASCallbackHandler extends DefaultCallbackHandler
 {

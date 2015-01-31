@@ -17,6 +17,11 @@ package com.datatorrent.demos.dimensions.generic;
 
 import java.util.List;
 
+/**
+ * DimensionsGenerator
+ *
+ * @since 2.0.0
+ */
 public class DimensionsGenerator
 {
   private EventSchema eventSchema;

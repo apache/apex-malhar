@@ -50,6 +50,8 @@ import com.datatorrent.lib.counters.BasicCounters;
  * {@link #intervalMillis}: interval at which stats are processed by the block reader.<br/>
  *
  * @param <R> type of records.
+ *
+ * @since 2.0.0
  */
 public abstract class AbstractBlockReader<R> extends BaseOperator implements
         Partitioner<AbstractBlockReader<R>>, StatsListener, Operator.IdleTimeHandler

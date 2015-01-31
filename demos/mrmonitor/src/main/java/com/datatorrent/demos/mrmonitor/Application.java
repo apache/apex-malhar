@@ -13,6 +13,11 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.testbench.SeedEventGenerator;
 
+/**
+ * Application
+ *
+ * @since 2.0.0
+ */
 @ApplicationAnnotation(name="MyFirstApplication")
 public class Application implements StreamingApplication
 {

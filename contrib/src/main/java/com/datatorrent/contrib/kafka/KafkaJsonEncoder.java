@@ -19,7 +19,11 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
+/**
+ * KafkaJsonEncoder
+ *
+ * @since 2.0.0
+ */
 public class KafkaJsonEncoder implements kafka.serializer.Encoder<Object>
 {
   private static final Logger LOG = LoggerFactory.getLogger(KafkaJsonEncoder.class);

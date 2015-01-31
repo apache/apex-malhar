@@ -26,6 +26,8 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Benchmark App for StreamDuplicater Operator.
  * This operator is benchmarked to emit 1,700,000 tuples/sec on cluster node.
+ *
+ * @since 2.0.0
  */
 public class StreamDuplicaterApp implements StreamingApplication
 {

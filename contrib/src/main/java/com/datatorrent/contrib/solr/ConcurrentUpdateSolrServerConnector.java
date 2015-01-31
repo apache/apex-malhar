@@ -16,6 +16,8 @@ import org.apache.solr.client.solrj.impl.ConcurrentUpdateSolrServer;
  * queueSize - The buffer size before the documents are sent to the server <br>
  * threadCount - The number of background threads used to empty the queue<br>
  * httpClient - HttpClient instance
+ *
+ * @since 2.0.0
  */
 public class ConcurrentUpdateSolrServerConnector extends SolrServerConnector
 {

@@ -35,6 +35,7 @@ import org.apache.hadoop.conf.Configuration;
  * <br>
  * DRC checks are validated<br>
  *
+ * @since 2.0.0
  */
 public class DevNullCounterBenchmark implements StreamingApplication
 {
