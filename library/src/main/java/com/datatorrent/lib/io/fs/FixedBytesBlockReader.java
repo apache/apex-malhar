@@ -17,7 +17,9 @@ package com.datatorrent.lib.io.fs;
 
 import java.io.IOException;
 
-import javax.validation.constraints.Min;
+import com.google.common.base.Preconditions;
+
+import com.datatorrent.api.Context;
 
 import com.datatorrent.common.util.Slice;
 
@@ -27,16 +29,25 @@ import com.datatorrent.common.util.Slice;
  */
 public class FixedBytesBlockReader extends AbstractBlockReader<Slice>
 {
-  @Min(1)
-  protected int length;
+  //When this field is null, it is initialized to default fs block size in setup.
+  protected Integer length;
 
   protected final transient Entity entity;
 
   public FixedBytesBlockReader()
   {
     super();
-    length = 100;
     entity = new Entity();
+  }
+
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    Preconditions.checkArgument(length == null || length > 0, "invalid length");
+    super.setup(context);
+    if (length == null) {
+      length = (int) fs.getDefaultBlockSize(null);
+    }
   }
 
   @Override
@@ -72,7 +83,7 @@ public class FixedBytesBlockReader extends AbstractBlockReader<Slice>
    *
    * @param length fixed length of each record.
    */
-  public void setLength(int length)
+  public void setLength(Integer length)
   {
     this.length = length;
   }
@@ -80,7 +91,7 @@ public class FixedBytesBlockReader extends AbstractBlockReader<Slice>
   /**
    * @return the length of record.
    */
-  public int getLength()
+  public Integer getLength()
   {
     return this.length;
   }

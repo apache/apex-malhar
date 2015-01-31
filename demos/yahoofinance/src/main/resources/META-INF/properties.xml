@@ -17,6 +17,38 @@
     <value>IBM,GOOG,AAPL,YHOO</value>
   </property>
   <property>
+    <name>dt.application.YahooFinanceDemo.operator.*.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceWithoutChartDemo.operator.*.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceDemoWithChart.operator.*.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceWithAlertDemo.operator.*.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceWithDerbySQLDemo.operator.*.attr.MEMORY_MB</name>
+    <value>128</value>
+  </property>
+  <property>
+    <name>dt.application.*.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
+    <value>256</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceDemo.operator.StockTickInput.tickers</name>
+    <value>IBM,GOOG,AAPL,YHOO</value>
+  </property>
+  <property>
+    <name>dt.application.YahooFinanceWithoutChartDemo.operator.StockTickInput.tickers</name>
+    <value>IBM,GOOG,AAPL,YHOO</value>
+  </property>
+  <property>
     <name>dt.application.YahooFinanceDemoWithChart.operator.AverageChart.yAxisLabel</name>
     <value>PRICE</value>
   </property>
