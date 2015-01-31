@@ -53,11 +53,15 @@ public class KinesisUtil
    * @param secretKey AWS secretAccessKey
    * @throws Exception
    */
-  public void createKinesisClient(String accessKey, String secretKey) throws Exception
+  public void createKinesisClient(String accessKey, String secretKey, String endPoint) throws Exception
   {
     if(client == null) {
       try {
         client = new AmazonKinesisClient(new BasicAWSCredentials(accessKey, secretKey));
+        if(endPoint != null)
+        {
+          client.setEndpoint(endPoint);
+        }
       } catch(Exception e)
       {
         throw new AmazonClientException("Unable to load credentials", e);
