@@ -49,8 +49,8 @@ public class HDHTApplicationTest
     FileUtils.deleteDirectory(new File(kafkaLauncher.baseDir));
     kafkaLauncher.startZookeeper();
     kafkaLauncher.startKafkaServer();
-    kafkaLauncher.createTopic(kafkaQueryTopic);
-    kafkaLauncher.createTopic(kafkaQueryResultTopic);
+    kafkaLauncher.createTopic(0, kafkaQueryTopic);
+    kafkaLauncher.createTopic(0, kafkaQueryResultTopic);
   }
 
   @After
@@ -71,7 +71,7 @@ public class HDHTApplicationTest
 
     conf.set("dt.operator.Store.fileStore.basePath", "target/HDSApplicationTestStore");
 
-    conf.set("dt.operator.Query.brokerSet", "localhost:9092");
+    conf.set("dt.operator.Query.zookeeper", "localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
     conf.set("dt.operator.Query.topic", kafkaQueryTopic);
     conf.set("dt.operator.QueryResult.topic", kafkaQueryResultTopic);
 

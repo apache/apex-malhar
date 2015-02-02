@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
 
 import kafka.message.Message;

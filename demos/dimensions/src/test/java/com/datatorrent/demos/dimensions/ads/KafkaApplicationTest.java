@@ -45,7 +45,7 @@ public class KafkaApplicationTest
     FileUtils.deleteDirectory(new File(kafkaLauncher.baseDir));
     kafkaLauncher.startZookeeper();
     kafkaLauncher.startKafkaServer();
-    kafkaLauncher.createTopic(kafkaTopic);
+    kafkaLauncher.createTopic(0, kafkaTopic);
   }
 
   @After

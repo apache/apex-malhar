@@ -1,5 +1,6 @@
 package com.datatorrent.contrib.kafka;
 
+import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -22,6 +23,7 @@ public class SimpleKakfaConsumerTest
     kc.setTopic("test_topic");
     kc.setClientId("test_clientid");
 
+    @SuppressWarnings({ "unchecked", "rawtypes" })
     SimpleKafkaConsumer kcClone = (SimpleKafkaConsumer) kc.cloneConsumer(new HashSet(), new HashMap());
     Assert.assertEquals("Buffer size is " + bufferSize, bufferSize, kcClone.getBufferSize());
     Assert.assertEquals("Cache size is " + cacheSize, cacheSize, kcClone.getCacheSize());

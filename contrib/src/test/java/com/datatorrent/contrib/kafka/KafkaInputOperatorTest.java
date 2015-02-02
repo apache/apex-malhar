@@ -31,7 +31,6 @@ import com.datatorrent.api.DAG.Locality;
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 {
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaInputOperatorTest.class);
-  static HashMap<String, List<?>> collections = new HashMap<String, List<?>>();
   static AtomicInteger tupleCount = new AtomicInteger();
   static CountDownLatch latch;
 
@@ -47,13 +46,10 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
   {
-    ArrayList<T> list;
-    final String id;
 
     public CollectorInputPort(String id, Operator module)
     {
       super();
-      this.id = id;
     }
 
     @Override
@@ -65,16 +61,13 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
         }
         return;
       }
-      list.add(tuple);
       tupleCount.incrementAndGet();
     }
 
     @Override
     public void setConnected(boolean flag)
     {
-      if (flag) {
-        collections.put(id, list = new ArrayList<T>());
-      }
+      tupleCount.set(0);
     }
   }
 
@@ -111,12 +104,12 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     // Create KafkaSinglePortStringInputOperator
     KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
     consumer.setTopic(TEST_TOPIC);
-    if (isValid) {
-      Set<String> brokerSet = new HashSet<String>();
-      brokerSet.add("localhost:9092");
-      consumer.setBrokerSet(brokerSet);
-    }
+
     node.setConsumer(consumer);
+    
+    if (isValid) {
+      node.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
+    }
     
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
@@ -131,12 +124,11 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     lc.runAsync();
     
     // Wait 30s for consumer finish consuming all the messages
-    Assert.assertTrue("TIMEOUT: 30s ", latch.await(30000, TimeUnit.MILLISECONDS));
+    Assert.assertTrue("TIMEOUT: 30s ", latch.await(300000, TimeUnit.MILLISECONDS));
     
     // Check results
-    Assert.assertEquals("Collections size", 1, collections.size());
-    Assert.assertEquals("Tuple count", totalCount, collections.get(collector.inputPort.id).size());
-    logger.debug(String.format("Number of emitted tuples: %d", collections.get(collector.inputPort.id).size()));
+    Assert.assertEquals("Tuple count", totalCount, tupleCount.intValue());
+    logger.debug(String.format("Number of emitted tuples: %d", tupleCount.intValue()));
     
     p.close();
     lc.shutdown();
@@ -147,9 +139,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   {
     int totalCount = 10000;
     Properties props = new Properties();
-    props.put("zookeeper.connect", "localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT);
     props.put("group.id", "group1");
-    props.put("consumer.id", "default_consumer");
     // This damn property waste me 2 days! It's a 0.8 new property. "smallest" means
     // reset the consumer to the beginning of the message that is not consumed yet
     // otherwise it wont get any of those the produced before!
@@ -184,7 +174,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   @After
   public void afterTest()
   {
-    collections.clear();
+    tupleCount.set(0);
     super.afterTest();
   }
 }

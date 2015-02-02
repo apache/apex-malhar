@@ -15,9 +15,6 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -31,10 +28,12 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.api.Operator.CheckpointListener;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 /**
- * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
- * Subclasses should implement the method for emitting tuples to downstream operators.
+ * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp; Subclasses
+ * should implement the method for emitting tuples to downstream operators.
  * <p>
  * Properties:<br>
  * <b>tuplesBlast</b>: Number of tuples emitted in each burst<br>
@@ -50,15 +49,8 @@ import com.datatorrent.api.Operator.CheckpointListener;
  * TBD<br>
  * <br>
  *
- * Shipped jars with this operator:<br>
- * <b>kafka.javaapi.consumer.SimpleConsumer.class</b> Official kafka consumer client <br>
- * <b>org.I0Itec.zkclient.ZkClient.class</b>  Kafka client depends on this <br>
- * <b>scala.ScalaObject.class</b>  Kafka client depends on this <br>
- * <b>com.yammer.matrics.Metrics.class</b>   Kafka client depends on this <br> <br>
- *
- * Each operator can only consume 1 topic<br>
- * If you want partitionable operator refer to {@link AbstractPartitionableKafkaInputOperator}
- * <br>
+ * Each operator can only consume 1 topic from multiple clusters and partitions<br>
+ * If you want partitionable operator refer to {@link AbstractPartitionableKafkaInputOperator} <br>
  * </p>
  *
  * @displayName Abstract Kafka Input
@@ -67,7 +59,6 @@ import com.datatorrent.api.Operator.CheckpointListener;
  *
  * @since 0.3.2
  */
-//SimpleConsumer is kafka consumer client used by this operator, zkclient is used by high-level kafka consumer
 public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implements InputOperator, ActivationListener<OperatorContext>, CheckpointListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKafkaInputOperator.class);
@@ -80,8 +71,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   protected KafkaConsumer consumer = new SimpleKafkaConsumer();
 
   /**
-   * Any concrete class derived from KafkaInputOperator has to implement this method
-   * so that it knows what type of message it is going to send to Malhar in which output port.
+   * Any concrete class derived from KafkaInputOperator has to implement this method so that it knows what type of
+   * message it is going to send to Malhar in which output port.
    *
    * @param message
    */
@@ -154,7 +145,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void activate(OperatorContext ctx)
   {
     // Don't start thread here!
-    // Because how many threads we want to start for kafka consumer depends on the type of kafka client and the message metadata(topic/partition/replica)
+    // # of kafka_consumer_threads depends on the type of kafka client and the message
+    // metadata(topic/partition/replica) layout
     consumer.start();
   }
 
@@ -193,20 +185,31 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     return consumer;
   }
 
-  //add topic as operator property
+  // add topic as operator property
   public void setTopic(String topic)
   {
     this.consumer.setTopic(topic);
   }
 
-  //add brokerlist as operator property
-  public void setBrokerSet(String brokerString)
+  /**
+   * Set the zookeeper of the kafka cluster(s) you want to consume data frome
+   * Dev should have no worry about of using Simple consumer/High level consumer
+   * The operator will discover the brokers that it needs to consume messages from
+   */
+  public void setZookeeper(String zookeeperString)
   {
-    Set<String> brokerSet = new HashSet<String>();
-    for (String broker : brokerString.split(",")) {
-      brokerSet.add(broker);
+    SetMultimap<String, String> theClusters = HashMultimap.<String, String>create();
+    for (String zk : zookeeperString.split(",")) {
+      String[] parts = zk.split(":");
+      if (parts.length == 3) {
+        theClusters.put(parts[0], parts[1] + ":" + parts[2]);
+      } else if (parts.length == 2) {
+        theClusters.put(KafkaPartition.DEFAULT_CLUSTERID, parts[0] + ":" + parts[1]);
+      } else
+        throw new IllegalArgumentException("Wrong zookeeper string: " + zookeeperString + "\n"
+            + " Expected format should be cluster1:zookeeper1:port1,cluster2:zookeeper2:port2 or zookeeper1:port1,zookeeper:port2");
     }
-    this.consumer.setBrokerSet(brokerSet);
+    this.consumer.setZookeeper(theClusters);
   }
 
 }

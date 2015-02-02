@@ -51,6 +51,7 @@ import com.datatorrent.api.Stats.OperatorStats;
 import com.datatorrent.api.StatsListener;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
+import com.google.common.collect.Lists;
 /**
  * This is a base implementation of a Kafka input operator, which consumes data from Kafka message bus.&nbsp;
  * It will be dynamically partitioned based on the upstream kafka partition.
@@ -106,8 +107,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractPartitionableKafkaInputOperator.class);
 
-  // Store the current partition topology
-  private transient List<PartitionInfo> currentPartitionInfo = new LinkedList<AbstractPartitionableKafkaInputOperator.PartitionInfo>();
+  // Store the current operator partition topology
+  private transient List<PartitionInfo> currentPartitionInfo = Lists.<PartitionInfo>newLinkedList();
 
   // Store the current collected kafka consumer stats
   private transient Map<Integer, List<KafkaMeterStats>> kafkaStatsHolder = new HashMap<Integer, List<KafkaConsumer.KafkaMeterStats>>();
@@ -125,7 +126,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   private transient long lastRepartitionTime = 0L;
 
-  private transient List<Integer> newWaitingPartition = new LinkedList<Integer>();
+  // A list store the newly discovered partitions
+  private transient List<KafkaPartition> newWaitingPartition = new LinkedList<KafkaPartition>();
 
   @Min(1)
   private int initialPartitionCount = 1;
@@ -137,9 +139,12 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     lastRepartitionTime = System.currentTimeMillis();
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public Collection<Partition<AbstractPartitionableKafkaInputOperator>> definePartitions(Collection<Partition<AbstractPartitionableKafkaInputOperator>> partitions, PartitioningContext context)
   {
+    // Initialize brokers from zookeepers
+    getConsumer().initBrokers();
 
     // check if it's the initial partition
     boolean isInitialParitition = partitions.iterator().next().getStats() == null;
@@ -147,13 +152,13 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     // get partition metadata for topics.
     // Whatever operator is using high-level or simple kafka consumer, the operator always create a temporary simple kafka consumer to get the metadata of the topic
     // The initial value of brokerList of the KafkaConsumer is used to retrieve the topic metadata
-    List<PartitionMetadata> kafkaPartitionList = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().getBrokerSet(), getConsumer().getTopic());
+    Map<String, List<PartitionMetadata>> kafkaPartitions = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().getTopic());
 
     // Operator partitions
     List<Partition<AbstractPartitionableKafkaInputOperator>> newPartitions = null;
 
     // initialize the offset
-    Map<Integer, Long> initOffset = null;
+    Map<KafkaPartition, Long> initOffset = null;
     if(isInitialParitition && offsetManager !=null){
       initOffset = offsetManager.loadInitialOffsets();
       logger.info("Initial offsets: {} ", "{ " + Joiner.on(", ").useForNull("").withKeyValueSeparator(": ").join(initOffset) + " }");
@@ -171,28 +176,31 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
           // initialize the number of operator partitions according to number of kafka partitions
 
-          newPartitions = new ArrayList<Partition<AbstractPartitionableKafkaInputOperator>>(kafkaPartitionList.size());
-          for (int i = 0; i < kafkaPartitionList.size(); i++) {
-            logger.info("[ONE_TO_ONE]: Create operator partition for kafka partition: " + kafkaPartitionList.get(i).partitionId() + ", topic: " + this.getConsumer().topic);
-            Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(cloneOperator());
-            PartitionMetadata pm = kafkaPartitionList.get(i);
-            KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(pm.partitionId()), initOffset);
-            p.getPartitionedInstance().setConsumer(newConsumerForPartition);
-            PartitionInfo pif = new PartitionInfo();
-            pif.kpids = Sets.newHashSet(pm.partitionId());
-            currentPartitionInfo.add(pif);
-            newPartitions.add(p);
+          newPartitions = new LinkedList<Partition<AbstractPartitionableKafkaInputOperator>>();
+          for (Entry<String, List<PartitionMetadata>> kp : kafkaPartitions.entrySet()) {
+            String clusterId = kp.getKey();
+            for (PartitionMetadata pm : kp.getValue()) {
+              logger.info("[ONE_TO_ONE]: Create operator partition for cluster {}, topic {}, kafka partition {} ", clusterId, getConsumer().topic, pm.partitionId());
+              Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(cloneOperator());
+              KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(new KafkaPartition(clusterId, consumer.topic, pm.partitionId())), initOffset);
+              p.getPartitionedInstance().setConsumer(newConsumerForPartition);
+              PartitionInfo pif = new PartitionInfo();
+              pif.kpids = Sets.<KafkaPartition>newHashSet(new KafkaPartition(clusterId, consumer.topic, pm.partitionId()));
+              currentPartitionInfo.add(pif);
+              newPartitions.add(p);
+            }
           }
+          
         }
         else if (newWaitingPartition.size() != 0) {
           // add partition for new kafka partition
-          for (int pid : newWaitingPartition) {
-            logger.info("[ONE_TO_ONE]: Add operator partition for kafka partition " + pid);
+          for (KafkaPartition newPartition : newWaitingPartition) {
+            logger.info("[ONE_TO_ONE]: Add operator partition for cluster {}, topic {}, partition {}", newPartition.getClusterId(), getConsumer().topic, newPartition.getPartitionId());
             Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(cloneOperator());
-            KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(pid));
+            KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(newPartition));
             p.getPartitionedInstance().setConsumer(newConsumerForPartition);
             PartitionInfo pif = new PartitionInfo();
-            pif.kpids = Sets.newHashSet(pid);
+            pif.kpids = Sets.<KafkaPartition>newHashSet(new KafkaPartition(newPartition.getClusterId(), consumer.topic, newPartition.getPartitionId()));
             currentPartitionInfo.add(pif);
             partitions.add(p);
           }
@@ -214,31 +222,34 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           lastRepartitionTime = System.currentTimeMillis();
           logger.info("[ONE_TO_MANY]: Initializing partition(s)");
           int size = initialPartitionCount;
-          @SuppressWarnings("unchecked")
-          Set<Integer>[] pIds = new Set[size];
+          Set<KafkaPartition>[] kps = new Set[size];
           newPartitions = new ArrayList<Partition<AbstractPartitionableKafkaInputOperator>>(size);
-          for (int i = 0; i < kafkaPartitionList.size(); i++) {
-            PartitionMetadata pm = kafkaPartitionList.get(i);
-            if (pIds[i % size] == null) {
-              pIds[i % size] = new HashSet<Integer>();
+          int i = 0;
+          for (Entry<String, List<PartitionMetadata>> en : kafkaPartitions.entrySet()) {
+            String clusterId = en.getKey();
+            for (PartitionMetadata pm : en.getValue()) {
+              if (kps[i % size] == null) {
+                kps[i % size] = new HashSet<KafkaPartition>();
+              }
+              kps[i % size].add(new KafkaPartition(clusterId, consumer.topic, pm.partitionId()));
+              i++;
             }
-            pIds[i % size].add(pm.partitionId());
           }
-          for (int i = 0; i < pIds.length; i++) {
-            logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): " + StringUtils.join(pIds[i], ", ") + ", topic: " + this.getConsumer().topic);
+          for (i = 0; i < kps.length; i++) {
+            logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): {} ", StringUtils.join(kps[i], ", "));
             Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(_cloneOperator());
-            KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(pIds[i], initOffset);
+            KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(kps[i], initOffset);
             p.getPartitionedInstance().setConsumer(newConsumerForPartition);
             newPartitions.add(p);
             PartitionInfo pif = new PartitionInfo();
-            pif.kpids = pIds[i];
+            pif.kpids = kps[i];
             currentPartitionInfo.add(pif);
           }
 
         }
         else if (newWaitingPartition.size() != 0) {
 
-          logger.info("[ONE_TO_MANY]: Add operator partition for kafka partition(s): " + StringUtils.join(newWaitingPartition, ", ") + ", topic: " + this.getConsumer().topic);
+          logger.info("[ONE_TO_MANY]: Add operator partition for kafka partition(s): {} ", StringUtils.join(newWaitingPartition, ", "));
           Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(_cloneOperator());
           KafkaConsumer newConsumerForPartition = getConsumer().cloneConsumer(Sets.newHashSet(newWaitingPartition));
           p.getPartitionedInstance().setConsumer(newConsumerForPartition);
@@ -258,9 +269,9 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           // Use first-fit decreasing algorithm to minimize the container number and somewhat balance the partition
           // try to balance the load and minimize the number of containers with each container's load under the threshold
           // the partition based on the latest 1 minute moving average
-          Map<Integer, long[]> kPIntakeRate = new HashMap<Integer, long[]>();
+          Map<KafkaPartition, long[]> kPIntakeRate = new HashMap<KafkaPartition, long[]>();
           // get the offset for all partitions of each consumer
-          Map<Integer, Long> offsetTrack = new HashMap<Integer, Long>();
+          Map<KafkaPartition, Long> offsetTrack = new HashMap<KafkaPartition, Long>();
           for (Partition<AbstractPartitionableKafkaInputOperator> partition : partitions) {
             List<OperatorStats> opss = partition.getStats().getLastWindowedStats();
             if (opss == null || opss.size() == 0) {
@@ -300,14 +311,14 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     return newPartitions;
   }
 
-  private List<PartitionInfo> firstFitDecreasingAlgo(final Map<Integer, long[]> kPIntakeRate)
+  private List<PartitionInfo> firstFitDecreasingAlgo(final Map<KafkaPartition, long[]> kPIntakeRate)
   {
     // (Decreasing) Sort the map by msgs/s and bytes/s in descending order
-    List<Entry<Integer, long[]>> sortedMapEntry = new LinkedList<Entry<Integer, long[]>>(kPIntakeRate.entrySet());
-    Collections.sort(sortedMapEntry, new Comparator<Entry<Integer, long[]>>()
+    List<Entry<KafkaPartition, long[]>> sortedMapEntry = new LinkedList<Entry<KafkaPartition, long[]>>(kPIntakeRate.entrySet());
+    Collections.sort(sortedMapEntry, new Comparator<Entry<KafkaPartition, long[]>>()
     {
       @Override
-      public int compare(Entry<Integer, long[]> firstEntry, Entry<Integer, long[]> secondEntry)
+      public int compare(Entry<KafkaPartition, long[]> firstEntry, Entry<KafkaPartition, long[]> secondEntry)
       {
         long[] firstPair = firstEntry.getValue();
         long[] secondPair = secondEntry.getValue();
@@ -325,7 +336,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     // Each record has a set of kafka partition ids and the resource left for that operator after assigned the consumers for those partitions
     List<PartitionInfo> pif = new LinkedList<PartitionInfo>();
   outer:
-    for (Entry<Integer, long[]> entry : sortedMapEntry) {
+    for (Entry<KafkaPartition, long[]> entry : sortedMapEntry) {
       long[] resourceRequired = entry.getValue();
       for (PartitionInfo r : pif) {
         if (r.msgRateLeft > resourceRequired[0] && r.byteRateLeft > resourceRequired[1]) {
@@ -423,14 +434,17 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
       // monitor if new kafka partition added
       {
-        Set<Integer> existingIds = new HashSet<Integer>();
+        Set<KafkaPartition> existingIds = new HashSet<KafkaPartition>();
         for (PartitionInfo pio : currentPartitionInfo) {
           existingIds.addAll(pio.kpids);
         }
 
-        for (PartitionMetadata metadata : KafkaMetadataUtil.getPartitionsForTopic(consumer.brokerSet, consumer.getTopic())) {
-          if (!existingIds.contains(metadata.partitionId())) {
-            newWaitingPartition.add(metadata.partitionId());
+        for (Entry<String, List<PartitionMetadata>> en : KafkaMetadataUtil.getPartitionsForTopic(consumer.brokers, consumer.getTopic()).entrySet()) {
+          for (PartitionMetadata pm : en.getValue()) {
+            KafkaPartition pa = new KafkaPartition(en.getKey(), consumer.topic, pm.partitionId());
+            if(!existingIds.contains(pa)){
+              newWaitingPartition.add(pa);
+            }
           }
         }
         if (newWaitingPartition.size() != 0) {
@@ -474,7 +488,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     }
     int length = kafkaStatsHolder.get(kafkaStatsHolder.keySet().iterator().next()).size();
     for (int j = 0; j < length; j++) {
-      Map<Integer, long[]> kPIntakeRate = new HashMap<Integer, long[]>();
+      Map<KafkaPartition, long[]> kPIntakeRate = new HashMap<KafkaPartition, long[]>();
       for (Integer pid : kafkaStatsHolder.keySet()) {
         kPIntakeRate.putAll(get_1minMovingAvgParMap(kafkaStatsHolder.get(pid).get(j)));
       }
@@ -654,7 +668,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
   static class PartitionInfo
   {
-    Set<Integer> kpids;
+    Set<KafkaPartition> kpids;
     long msgRateLeft;
     long byteRateLeft;
   }
