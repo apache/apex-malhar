@@ -48,6 +48,18 @@ public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, Bl
   }
 
   @Override
+  public void teardown()
+  {
+    super.teardown();
+    try {
+      fs.close();
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
   protected FSDataInputStream setupStream(BlockMetadata.FileBlockMetadata block) throws IOException
   {
     return fs.open(new Path(block.getFilePath()));
