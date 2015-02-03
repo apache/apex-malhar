@@ -22,8 +22,6 @@ import org.apache.commons.lang.mutable.MutableInt;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseKeyValueOperator;
 import com.datatorrent.lib.util.UnifierHashMapInteger;
 

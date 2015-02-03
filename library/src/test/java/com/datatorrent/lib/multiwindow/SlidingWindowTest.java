@@ -24,7 +24,6 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
 

@@ -15,8 +15,6 @@
  */
 package com.datatorrent.contrib.hbase;
 
-import com.datatorrent.lib.io.SimpleSinglePortInputOperator;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;

@@ -21,7 +21,6 @@ import com.aerospike.client.Record;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 import org.slf4j.Logger;

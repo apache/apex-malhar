@@ -23,7 +23,6 @@ import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.util.BaseNumberKeyValueOperator;
 
 /**

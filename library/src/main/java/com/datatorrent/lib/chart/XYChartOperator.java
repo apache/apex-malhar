@@ -20,8 +20,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.util.KeyValPair;
 
 /**

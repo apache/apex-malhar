@@ -18,16 +18,13 @@ package com.datatorrent.demos.dimensions.generic;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.google.common.collect.Maps;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import javax.validation.constraints.Min;
 import java.util.Map;
-import java.util.NavigableMap;
 import java.util.Random;
-import java.util.TreeMap;
 
 /**
  * Generates sales events data and sends them out as JSON encoded byte arrays.

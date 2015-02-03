@@ -23,8 +23,6 @@ import com.datatorrent.contrib.hdht.HDHTWriter;
 import com.datatorrent.contrib.hdht.MutableKeyValue;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.ByteBufferInput;
-import com.esotericsoftware.kryo.io.ByteBufferOutput;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Assert;
