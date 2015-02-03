@@ -16,7 +16,6 @@
 package com.datatorrent.contrib.mqtt;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import org.fusesource.mqtt.client.Message;
 
 /**

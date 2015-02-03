@@ -16,7 +16,6 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 import org.codehaus.jackson.map.ObjectMapper;

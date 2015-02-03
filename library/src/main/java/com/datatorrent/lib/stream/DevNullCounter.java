@@ -18,7 +18,6 @@ package com.datatorrent.lib.stream;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;

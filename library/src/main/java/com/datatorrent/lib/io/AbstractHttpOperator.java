@@ -18,7 +18,6 @@ package com.datatorrent.lib.io;
 import javax.validation.constraints.NotNull;
 
 import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.WebResource;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

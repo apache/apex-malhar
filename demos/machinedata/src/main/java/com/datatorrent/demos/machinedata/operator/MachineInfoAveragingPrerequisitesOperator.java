@@ -22,11 +22,8 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.demos.machinedata.data.MachineKey;
 import com.datatorrent.demos.machinedata.data.MachineInfo;
 import com.datatorrent.demos.machinedata.data.AverageData;
-import com.datatorrent.lib.math.Average;
 import com.datatorrent.lib.util.KeyHashValPair;
 
-import org.apache.commons.lang.mutable.MutableDouble;
-import org.apache.commons.lang.mutable.MutableLong;
 
 import java.util.HashMap;
 import java.util.Map;

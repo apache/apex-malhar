@@ -23,7 +23,6 @@ import com.datatorrent.contrib.hdht.HDHTWriter;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.io.file.tfile.DTFile;
 
 /**
  * HDHTBenchmarkApplication

@@ -15,7 +15,6 @@
  */
 package com.datatorrent.benchmark;
 
-import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.couchbase.AbstractCouchBaseInputOperator;
 import com.datatorrent.contrib.couchbase.CouchBaseWindowStore;
 import java.util.ArrayList;
