@@ -534,6 +534,24 @@
       <optional>true</optional>
     </dependency>
     <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-jdbc</artifactId>
+      <version>0.13.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-service</artifactId>
+      <version>0.13.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-exec</artifactId>
+      <version>0.13.1</version>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
       <groupId>org.apache.solr</groupId>
       <artifactId>solr-solrj</artifactId>
       <version>4.10.1</version>
@@ -578,6 +596,24 @@
       <artifactId>jackson-core</artifactId>
       <version>2.4.4</version>
       <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.teknek</groupId>
+      <artifactId>hiveunit</artifactId>
+      <version>0.0.3</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-hdfs</artifactId>
+      <version>2.2.0</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.derby</groupId>
+      <artifactId>derby</artifactId>
+      <version>10.11.1.1</version>
+      <scope>test</scope>
+      <type>jar</type>
     </dependency>
   </dependencies>
 </project>

@@ -14,5 +14,95 @@
     <name>dt.application.PerformanceBenchmarkForFixedNumberOfTuples.operator.WordGenerator.count</name>
     <value>1000</value>
   </property>
+  <property>
+    <name>dt.rootDbUrl</name>
+    <value>jdbc:hive2://localhost:10000</value>
+    <description>Root DbUrl.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath</name>
+    <value>file:///user/hive2</value>
+    <description>Filepath</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.maxWindowsWithNoData</name>
+    <value>100</value>
+    <description>Max windows with no data</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.WordGenerator.tuplesPerWindow</name>
+    <value>100</value>
+    <description>Max windows with no data</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.numPartitions</name>
+    <value>3</value>
+    <description>Partitions in Insert Operator</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename</name>
+    <value>temp</value>
+    <description>tablename for insert string</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission</name>
+    <value>511</value>
+    <description>Permission</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.maxLength</name>
+    <value>100</value>
+    <description>Max Length</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties</name>
+    <value>user:hive,password:""</value>
+    <description>The connection properties for the database.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath</name>
+    <value>/user/hive2</value>
+    <description>Filepath</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.hivepath</name>
+    <value>/user/hive2/warehouse/</value>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.maxWindowsWithNoData</name>
+    <value>100</value>
+    <description>Max Windows with no data</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.tablename</name>
+    <value>tempMap</value>
+    <description>tablename for insert map</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl</name>
+    <value>jdbc:hive2://localhost:10000/default</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.delimiter</name>
+    <value>:</value>
+    <description>Delimiter for map</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl</name>
+    <value>jdbc:hive2://localhost:10000/default</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties</name>
+    <value>user:hive,password:""</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingMapFsWriter.maxLength</name>
+    <value>100</value>
+    <description>Max Length</description>
+  </property>
+
 </configuration>
 

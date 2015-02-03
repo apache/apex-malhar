@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+
+<configuration>
+  <property>
+    <name>rootDbUrl</name>
+    <value>jdbc:hive2://localhost:10000</value>
+    <description>Root DbUrl.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath</name>
+    <value>file:///user/hive2</value>
+    <description>Filepath</description>
+  </property>
+    <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath</name>
+    <value>file:///user/hive2</value>
+    <description>Filepath</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename</name>
+    <value>temp</value>
+    <description>tablename for insert string</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission</name>
+    <value>0777</value>
+    <description>Permission</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.maxLength</name>
+    <value>100</value>
+    <description>Max Length</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties</name>
+    <value>user:hive,password:""</value>
+    <description>The connection properties for the database.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename</name>
+    <value>tempMap</value>
+    <description>tablename for insert map</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl</name>
+    <value>jdbc:hive2://localhost:10000/default</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl</name>
+    <value>jdbc:hive2://localhost:10000/default</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.RollingFsMapWriter.filePermission</name>
+    <value>0777</value>
+    <description>Permission</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties</name>
+    <value>user:hive,password:""</value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.maxLength</name>
+    <value>100</value>
+    <description>Max Length</description>
+  </property>
+</configuration>
