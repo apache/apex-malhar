@@ -62,7 +62,7 @@ public class CacheManager
    * @param concurrencyLevel
    * @param initialCapacity
    * @param maximunSize
-   * @return The cache.
+   * @return
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, int maximunSize){
     CacheBuilder builder = CacheBuilder.newBuilder().
@@ -79,7 +79,7 @@ public class CacheManager
    * @param concurrencyLevel
    * @param initialCapacity
    * @param maximumMemory
-   * @return The cache.
+   * @return
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, long maximumMemory){
 
@@ -96,7 +96,7 @@ public class CacheManager
    * @param concurrencyLevel
    * @param initialCapacity
    * @param heapMemPercentage
-   * @return The cache.
+   * @return
    */
   public static final Cache<String, BlockReader> createCache(int concurrencyLevel,int initialCapacity, float heapMemPercentage){
     CacheBuilder builder = CacheBuilder.newBuilder().
