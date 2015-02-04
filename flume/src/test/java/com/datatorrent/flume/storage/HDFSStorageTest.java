@@ -38,7 +38,7 @@ public class HDFSStorageTest
     protected void starting(org.junit.runner.Description description)
     {
       String className = description.getClassName();
-      baseDir = "flume/target/" + className;
+      baseDir = "target/" + className;
       try {
         baseDir = (new File(baseDir)).getAbsolutePath();
         FileUtils.forceMkdir(new File(baseDir));
