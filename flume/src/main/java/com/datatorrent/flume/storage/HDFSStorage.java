@@ -18,10 +18,7 @@ import javax.validation.constraints.NotNull;
 import org.apache.flume.Context;
 import org.apache.flume.conf.Configurable;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,6 +54,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   private static final String BOOK_KEEPING_FILE_OFFSET = "-bookKeepingOffsetFile";
   private static final String FLUSHED_IDENTITY_FILE = "flushedCounter";
   private static final String CLEAN_OFFSET_FILE = "cleanoffsetFile";
+  private static final String FLUSHED_IDENTITY_FILE_TEMP = "flushedCounter.tmp";
+  private static final String CLEAN_OFFSET_FILE_TEMP = "cleanoffsetFile.tmp";
   private static final int IDENTIFIER_SIZE = 8;
   private static final int DATA_LENGTH_BYTE_SIZE = 4;
 
@@ -98,6 +97,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
    * The file that stores the flushed fileCounter information
    */
   private Path flushedCounterFile;
+  private Path flushedCounterFileTemp;
   /**
    * This identifies the last cleaned file number
    */
@@ -110,6 +110,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
    * The file that stores the clean file offset information
    */
   private Path cleanFileOffsetFile;
+  private Path cleanFileOffsetFileTemp;
   private FileSystem fs;
   private FSDataOutputStream dataStream;
   ArrayList<DataBlock> files2Commit = new ArrayList<DataBlock>();
@@ -492,7 +493,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     cleanedOffset = identifier;
 
     try {
-      writeData(cleanFileOffsetFile, identifier).close();
+      writeData(cleanFileOffsetFileTemp, identifier).close();
+      fs.rename(cleanFileOffsetFileTemp, cleanFileOffsetFile);
       if (cleanedFileCounter >= cleanFileIndex) {
         return;
       }
@@ -592,7 +594,8 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
 
       if (dataStream != null) {
         dataStream.hflush();
-        writeData(flushedCounterFile, String.valueOf(currentWrittenFile).getBytes()).close();
+        writeData(flushedCounterFileTemp, String.valueOf(currentWrittenFile).getBytes()).close();
+        fs.rename(flushedCounterFileTemp, flushedCounterFile);
         updateFlushedOffset(new Path(basePath, currentWrittenFile + OFFSET_SUFFIX), fileWriteOffset);
         flushedFileWriteOffset = fileWriteOffset;
         builder.append(currentWrittenFile);
@@ -799,7 +802,10 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       flushedFileCounter = -1;
       // cleanFileCounterFile = new Path(basePath, CLEAN_FILE);
       cleanFileOffsetFile = new Path(basePath, CLEAN_OFFSET_FILE);
+      cleanFileOffsetFileTemp = new Path(basePath, CLEAN_OFFSET_FILE_TEMP);
       flushedCounterFile = new Path(basePath, FLUSHED_IDENTITY_FILE);
+      flushedCounterFileTemp = new Path(basePath, FLUSHED_IDENTITY_FILE_TEMP);
+
       if (restore) {
         //
         // if (fs.exists(fileCounterFile) && fs.isFile(fileCounterFile)) {
