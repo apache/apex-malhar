@@ -96,6 +96,12 @@ public class HDFSStorageTest
   public void teardown()
   {
     storage.teardown();
+    try {
+      Thread.sleep(100);
+    }
+    catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
     storage.cleanHelperFiles();
   }
 
