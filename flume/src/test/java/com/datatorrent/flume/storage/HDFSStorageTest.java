@@ -95,8 +95,8 @@ public class HDFSStorageTest
   @After
   public void teardown()
   {
-    storage.cleanHelperFiles();
     storage.teardown();
+    storage.cleanHelperFiles();
   }
 
   /**
