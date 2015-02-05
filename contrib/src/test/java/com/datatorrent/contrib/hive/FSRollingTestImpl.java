@@ -32,7 +32,7 @@ public  class FSRollingTestImpl extends AbstractFSRollingOutputOperator<String>
   @Override
   protected byte[] getBytesForTuple(String tuple)
   {
-    return tuple.toString().getBytes();
+    return (tuple + "\n").getBytes();
   }
 
 }

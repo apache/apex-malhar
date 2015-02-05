@@ -28,7 +28,7 @@ public class HiveMockTest extends HiveTestService
   public static final int NUM_WINDOWS = 10;
   public static final int BLAST_SIZE = 10;
   public static final int DATABASE_SIZE = NUM_WINDOWS * BLAST_SIZE;
-  public static final String tablename = "HiveTest";
+  public static final String tablename = "tmptable";
   public static final String tablemap = "tempmaptable";
   public static String delimiterMap = ":";
 
@@ -57,7 +57,7 @@ public class HiveMockTest extends HiveTestService
 
     FSRollingTestImpl fsRolling = new FSRollingTestImpl();
     fsRolling.setFilePath(filepath);
-    fsRolling.setFilePermission(0777);
+    fsRolling.setFilePermission(511);
     fsRolling.setMaxLength(128);
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
