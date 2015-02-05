@@ -40,7 +40,9 @@ import com.datatorrent.common.util.DTThrowable;
 
 /*
  * An implementation of FS Writer that writes text files to hdfs which are inserted
- * into hive on committed window callback.
+ * into hive on committed window callback. HiveStreamCodec is used to make sure that data being sent to a particular hive partition
+ * goes to a specific operator partition by passing FSRollingOutputOperator to the stream codec.
+ * Also filename is determined uniquely for each tuple going to a specific hive partition.
  */
 public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOutputOperator<T> implements CheckpointListener
 {
@@ -50,7 +52,7 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   protected ArrayList<String> listFileNames = new ArrayList<String>();
   protected HashMap<String, ArrayList<String>> mapPartition = new HashMap<String, ArrayList<String>>();
   protected Queue<Long> queueWindows = new LinkedList<Long>();
-  // Hdfs block size which can be set as a property by user.
+  // Hdfs default block size which can be set as a property by user.
   private static final int MAX_LENGTH = 66060288;
   protected long windowIDOfCompletedPart = Stateless.WINDOW_ID;
   protected long committedWindowId = Stateless.WINDOW_ID;
@@ -64,7 +66,8 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   private long maxWindowsWithNoData = 100;
 
   /**
-   * The output port that will emit tuple into DAG.
+   * The output port that will emit a POJO containing file which is committed and specific hive partitions
+   * in which this file should be loaded to HiveOperator.
    */
   public final transient DefaultOutputPort<FilePartitionMapping> outputPort = new DefaultOutputPort<FilePartitionMapping>();
 
@@ -95,10 +98,8 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   }
 
   /*
-   * To be implemented by the user, giving a default implementation for one partition column here.
-   * Partitions array will get all hive partitions in it.
    * MapFilenames has mapping from completed file to windowId in which it got completed.
-   *
+   * Also maintaining a queue of these windowIds which helps in reducing iteration time in committed callback.
    */
   @Override
   protected void rotateHook(String finishedFile)
@@ -116,7 +117,8 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   }
 
   /*
-   * To be implemented by the user, giving a default implementation for one partition column here.
+   * Filenames include operator Id and the specific hive partitions to which the file will be loaded.
+   * Partition is determined based on tuple and its implementation is left to user.
    */
   @Override
   protected String getFileName(T tuple)
@@ -199,6 +201,9 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
                            partNumber.intValue());
   }
 
+  /*
+   * To be implemented by User.
+   */
   public abstract ArrayList<String> getHivePartition(T tuple);
 
   @Override
@@ -225,6 +230,11 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
     this.maxWindowsWithNoData = maxWindowsWithNoData;
   }
 
+  /*
+   * A POJO which is emitted by output port of AbstractFSRollingOutputOperator implementation in DAG.
+   * The POJO contains the filename which will not be changed by FSRollingOutputOperator once its emitted.
+   * The POJO also contains the hive partitions to which the respective files will be moved.
+   */
   public static class FilePartitionMapping
   {
     private String filename;

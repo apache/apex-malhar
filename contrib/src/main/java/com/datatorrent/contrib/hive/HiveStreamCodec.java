@@ -24,8 +24,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /*
- * An optional stream codec for uniform distribution of tuples on upstream operator.
- * This is for users who want a single dt partition to handle tuples for the same hive partition.
+ * Stream codec for uniform distribution of tuples on upstream operator.
+ * This is used to make sure that data being sent to a particular hive partition
+ * goes to a specific operator partition by passing FSRollingOutputOperator to the stream codec.
  */
 public class HiveStreamCodec<T> extends KryoSerializableStreamCodec<T> implements Externalizable
 {

@@ -29,6 +29,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -36,6 +37,10 @@ import org.apache.hadoop.fs.Path;
 
 /*
  * Hive operator which can insert data in txt format in tables/partitions from a file written in hdfs location.
+ * The file contains data of the same data type as the hive tables created by user and is already committed.
+ * No changes will be made to the input file once its given to HiveOperator.
+ * This is a fault tolerant implementation of HiveOperator which assumes that load operation
+ * is an atomic operation in Hive.
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMapping, HiveStore>
@@ -81,9 +86,9 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
   }
 
   /**
-   * Function to process each incoming tuple
-   * This can be overridden by user for multiple partition columns.
-   * Giving an implementation for one partition column.
+   * Function to process each incoming tuple.
+   * The input is FilePartitionMapping which is a POJO containing filename which is already committed
+   * and will not be changed.The POJO also contains the hive partitions to which the respective files will be moved.
    *
    * @param tuple incoming tuple which has filename and hive partition.
    */
@@ -104,16 +109,12 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 
   }
 
-  public String processHiveFile(FilePartitionMapping tuple)
-  {
-    String command = getInsertCommand(tuple);
-    return command;
-  }
-
   /*
-   * User can specify multiple partitions here, giving a default implementation for one partition column here.
+   * This function extracts the filename and partitions to which the file will be loaded.
+   * It returns the command to be executed by hive.
    */
-  protected String getInsertCommand(FilePartitionMapping tuple)
+  @VisibleForTesting
+  public String processHiveFile(FilePartitionMapping tuple)
   {
     String filename = tuple.getFilename();
     ArrayList<String> partition = tuple.getPartition();
@@ -150,21 +151,37 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
     return command;
   }
 
+   /**
+   * Get the partition columns in hive to which data needs to be loaded.
+   * @return List of Hive Partition Columns
+   */
   public ArrayList<String> getHivePartitionColumns()
   {
     return hivePartitionColumns;
   }
 
+  /**
+   * Set the hive partition columns to which data needs to be loaded.
+   * @param hivePartitionColumns
+   */
   public void setHivePartitionColumns(ArrayList<String> hivePartitionColumns)
   {
     this.hivePartitionColumns = hivePartitionColumns;
   }
 
+  /**
+   * Get the table name in hive.
+   * @return table name
+   */
   public String getTablename()
   {
     return tablename;
   }
 
+  /**
+   * Set the table name in hive.
+   * @param tablename
+   */
   public void setTablename(String tablename)
   {
     this.tablename = tablename;
