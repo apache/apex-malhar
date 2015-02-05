@@ -49,6 +49,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   public static final String RESTORE_KEY = "restore";
   public static final String BLOCKSIZE = "blockSize";
   public static final String BLOCK_SIZE_MULTIPLE = "blockSizeMultiple";
+  public static final String NUMBER_RETRY = "retryCount";
 
   private static final String OFFSET_SUFFIX = "-offsetFile";
   private static final String BOOK_KEEPING_FILE_OFFSET = "-bookKeepingOffsetFile";
@@ -59,6 +60,10 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   private static final int IDENTIFIER_SIZE = 8;
   private static final int DATA_LENGTH_BYTE_SIZE = 4;
 
+  /**
+   * Number of times the storage will try to get the filesystem
+   */
+  private int retryCount = 3;
   /**
    * The multiple of block size
    */
@@ -170,6 +175,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
       blockSize = tempBlockSize;
     }
     blockSizeMultiple = ctx.getInteger(BLOCK_SIZE_MULTIPLE, blockSizeMultiple);
+    retryCount = ctx.getInteger(NUMBER_RETRY,retryCount);
   }
 
   /**
@@ -766,11 +772,23 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
     offset = 4;
     skipOffset = -1;
     skipFile = -1;
+    int tempRetryCount = 0;
+    while(tempRetryCount < retryCount && fs == null) {
+      try {
+        fs = FileSystem.newInstance(conf);
+        tempRetryCount++;
+      }
+      catch (Throwable throwable) {
+        logger.warn("Not able to get file system ", throwable);
+      }
+    }
 
     try {
       Path path = new Path(baseDir);
       basePath = new Path(path, id);
-      fs = FileSystem.newInstance(conf);
+      if(fs == null) {
+        fs = FileSystem.newInstance(conf);
+      }
       if (!fs.exists(path)) {
         closeFs();
         throw new RuntimeException(String.format("baseDir passed (%s) doesn't exist.", baseDir));
