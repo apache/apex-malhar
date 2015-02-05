@@ -10,6 +10,11 @@
     <name>dt.application.*.operator.*.attr.MEMORY_MB</name>
     <value>256</value>
   </property>
+  <property>
+    <name>dt.application.*.operator.*.attr.JVM_OPTIONS</name>
+    <value>-Xmx128M</value>
+  </property>
+
   <!-- default buffer memory 256MB -->
   <property>
     <name>dt.application.*.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
