@@ -226,7 +226,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   protected void processBlockMetadata(B block) throws IOException
   {
     long blockStartTime = System.currentTimeMillis();
-    if (block.getPreviousBlockId() == -1 || block.getPreviousBlockId() != lastProcessedBlock.getBlockId()) {
+    if (block.getPreviousBlockId() == -1 || lastProcessedBlock == null || block.getPreviousBlockId() != lastProcessedBlock.getBlockId()) {
       teardownStream(lastProcessedBlock);
       consecutiveBlock = false;
       lastBlockOpenTime = System.currentTimeMillis();
