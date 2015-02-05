@@ -12,7 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
-import com.datatorrent.contrib.hive.FSRollingOutputOperator.FilePartitionMapping;
+import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
 
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
@@ -66,7 +66,6 @@ public class HiveMockTest extends HiveTestService
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
     fsRolling.setup(context);
     hiveOperator.fs = hiveOperator.getHDFSInstance();
-    fsRolling.setConverter(new StringConverter());
     FilePartitionMapping mapping1 = new FilePartitionMapping();
     String command = null;
     FilePartitionMapping mapping2 = new FilePartitionMapping();

@@ -22,7 +22,6 @@ import java.util.Iterator;
 import java.util.concurrent.ExecutionException;
 
 import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,14 +42,14 @@ import com.datatorrent.common.util.DTThrowable;
  * An implementation of FS Writer that writes text files to hdfs which are inserted
  * into hive on committed window callback.
  */
-public abstract class FSRollingOutputOperator<T> extends AbstractFileOutputOperator<T> implements CheckpointListener
+public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOutputOperator<T> implements CheckpointListener
 {
   private transient String outputFilePath;
   protected MutableInt partNumber;
   protected HashMap<Long, ArrayList<String>> mapFilenames = new HashMap<Long, ArrayList<String>>();
   protected ArrayList<String> listFileNames = new ArrayList<String>();
   protected HashMap<String, ArrayList<String>> mapPartition = new HashMap<String, ArrayList<String>>();
-  protected TreeSet<Long> queueWindows = new TreeSet<Long>();
+  protected Queue<Long> queueWindows = new LinkedList<Long>();
   // Hdfs block size which can be set as a property by user.
   private static final int MAX_LENGTH = 66060288;
   protected long windowIDOfCompletedPart = Stateless.WINDOW_ID;
@@ -63,20 +62,18 @@ public abstract class FSRollingOutputOperator<T> extends AbstractFileOutputOpera
   //This variable is user configurable.
   @Min(0)
   private long maxWindowsWithNoData = 100;
-  @NotNull
-  private Converter<T> converter;
 
   /**
    * The output port that will emit tuple into DAG.
    */
   public final transient DefaultOutputPort<FilePartitionMapping> outputPort = new DefaultOutputPort<FilePartitionMapping>();
 
-  public FSRollingOutputOperator()
+  public AbstractFSRollingOutputOperator()
   {
     countEmptyWindow = 0;
     setMaxLength(MAX_LENGTH);
-    HiveStreamCodec<T> streamCodec = new HiveStreamCodec<T>();
-    streamCodec.rollingOperator = this;
+    HiveStreamCodec<T> hiveCodec = new HiveStreamCodec<T>();
+    hiveCodec.rollingOperator = this;
     this.setStreamCodec(streamCodec);
   }
 
@@ -139,15 +136,6 @@ public abstract class FSRollingOutputOperator<T> extends AbstractFileOutputOpera
     return output.toString();
   }
 
-  /*
-   * Implement this function according to tuple you want to pass in Hive.
-   */
-  @Override
-  protected byte[] getBytesForTuple(T tuple)
-  {
-    String output = converter.getTuple(tuple);
-    return output.getBytes();
-  }
 
   /*
    * Moving completed files into hive on committed window callback.
@@ -164,6 +152,9 @@ public abstract class FSRollingOutputOperator<T> extends AbstractFileOutputOpera
       windowId = iterWindows.next();
       if (committedWindowId >= windowId) {
         list = mapFilenames.get(windowId);
+      }
+      if(committedWindowId < windowId){
+        break;
       }
       FilePartitionMapping partMap = new FilePartitionMapping();
       for (int i = 0; i < list.size(); i++) {
@@ -234,16 +225,6 @@ public abstract class FSRollingOutputOperator<T> extends AbstractFileOutputOpera
     this.maxWindowsWithNoData = maxWindowsWithNoData;
   }
 
-  public Converter<T> getConverter()
-  {
-    return converter;
-  }
-
-  public void setConverter(Converter<T> converter)
-  {
-    this.converter = converter;
-  }
-
   public static class FilePartitionMapping
   {
     private String filename;
@@ -271,6 +252,6 @@ public abstract class FSRollingOutputOperator<T> extends AbstractFileOutputOpera
 
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(FSRollingOutputOperator.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractFSRollingOutputOperator.class);
 
 }

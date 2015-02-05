@@ -16,9 +16,10 @@
 package com.datatorrent.contrib.hive;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 
-public  class FSRollingMapTestImpl extends FSRollingOutputOperator<Map<String,Object>>
+public  class FSRollingMapTestImpl extends AbstractFSRollingOutputOperator<Map<String,Object>>
 {
   @Override
   public ArrayList<String> getHivePartition(Map<String,Object> tuple)
@@ -28,5 +29,19 @@ public  class FSRollingMapTestImpl extends FSRollingOutputOperator<Map<String,Ob
     hivePartitions.add("222");
     return(hivePartitions);
   }
+
+  @Override
+    protected byte[] getBytesForTuple(Map<String, Object> tuple)
+    {
+      Iterator<String> keyIter = tuple.keySet().iterator();
+      StringBuilder writeToHive = new StringBuilder("");
+
+      while (keyIter.hasNext()) {
+        String key = keyIter.next();
+        Object obj = tuple.get(key);
+        writeToHive.append(key).append(":").append(obj).append("\n");
+      }
+      return writeToHive.toString().getBytes();
+    }
 
 }

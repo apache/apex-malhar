@@ -65,7 +65,6 @@ public class HiveInsertBenchmarkingApp implements StreamingApplication
     FSRollingTestImpl rollingFsWriter = dag.addOperator("RollingFsWriter", new FSRollingTestImpl());
     rollingFsWriter.setFilePath(store.filepath);
     rollingFsWriter.setFilePermission(Integer.parseInt(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission")));
-    rollingFsWriter.setConverter(new StringConverter());
 
     HiveOperator hiveInsert = dag.addOperator("HiveOperator", new HiveOperator());
     hiveInsert.setStore(store);
@@ -88,16 +87,21 @@ public class HiveInsertBenchmarkingApp implements StreamingApplication
     hiveStore.disconnect();
   }
 
-  private static class FSRollingTestImpl extends FSRollingOutputOperator<String>
+  private static class FSRollingTestImpl extends AbstractFSRollingOutputOperator<String>
   {
-   private final Random random = new Random();
-
     @Override
     public ArrayList<String> getHivePartition(String tuple)
     {
+      Random random = new Random();
       ArrayList<String> hivePartitions = new ArrayList<String>();
       hivePartitions.add("2014-12-1"+ random.nextInt(10));
       return (hivePartitions);
+    }
+
+    @Override
+    protected byte[] getBytesForTuple(String tuple)
+    {
+      return (tuple + "\n").getBytes();
     }
 
   }

@@ -31,7 +31,7 @@ public class HiveStreamCodec<T> extends KryoSerializableStreamCodec<T> implement
 {
   private static final long serialVersionUID = 201412121604L;
 
-  protected FSRollingOutputOperator<T> rollingOperator;
+  protected AbstractFSRollingOutputOperator<T> rollingOperator;
 
   @Override
   public void writeExternal(ObjectOutput out) throws IOException
@@ -56,7 +56,7 @@ public class HiveStreamCodec<T> extends KryoSerializableStreamCodec<T> implement
     in.readFully(data);
     Input input = new Input(data);
     input.setBuffer(data);
-    rollingOperator = (FSRollingOutputOperator)kryo.readClassAndObject(input);
+    rollingOperator = (AbstractFSRollingOutputOperator)kryo.readClassAndObject(input);
   }
 
 

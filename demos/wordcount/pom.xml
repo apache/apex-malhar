@@ -4,7 +4,7 @@
   
     
   <groupId>com.datatorrent</groupId>
-  <version>2.1.0-SNAPSHOT</version>
+  <version>1.0-SNAPSHOT</version>
   <artifactId>wordcount-demo</artifactId>
   <packaging>jar</packaging>
 

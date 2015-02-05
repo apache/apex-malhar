@@ -18,7 +18,7 @@ package com.datatorrent.contrib.hive;
 import java.util.ArrayList;
 
 
-public  class FSRollingTestImpl extends FSRollingOutputOperator<String>
+public  class FSRollingTestImpl extends AbstractFSRollingOutputOperator<String>
 {
   @Override
   public ArrayList<String> getHivePartition(String tuple)
@@ -27,6 +27,12 @@ public  class FSRollingTestImpl extends FSRollingOutputOperator<String>
     hivePartitions.add("111");
     hivePartitions.add("222");
     return(hivePartitions);
+  }
+
+  @Override
+  protected byte[] getBytesForTuple(String tuple)
+  {
+    return tuple.toString().getBytes();
   }
 
 }

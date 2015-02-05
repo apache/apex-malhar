@@ -28,7 +28,7 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.contrib.hive.FSRollingOutputOperator.FilePartitionMapping;
+import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
 import java.io.IOException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
@@ -42,7 +42,6 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 {
   //This Property is user configurable.
   protected ArrayList<String> hivePartitionColumns = new ArrayList<String>();
-  protected ArrayList<String> partition;
   private transient String localString = "";
 
   /**
@@ -107,35 +106,35 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
 
   public String processHiveFile(FilePartitionMapping tuple)
   {
-    String fileMoved = tuple.getFilename();
-    partition = tuple.getPartition();
-    String command = getInsertCommand(fileMoved);
+    String command = getInsertCommand(tuple);
     return command;
   }
 
   /*
    * User can specify multiple partitions here, giving a default implementation for one partition column here.
    */
-  protected String getInsertCommand(String filepath)
+  protected String getInsertCommand(FilePartitionMapping tuple)
   {
+    String filename = tuple.getFilename();
+    ArrayList<String> partition = tuple.getPartition();
     String command = null;
-    filepath = store.getFilepath() + Path.SEPARATOR + filepath;
+    String filepath = store.getFilepath() + Path.SEPARATOR + filename;
     logger.debug("processing {} filepath", filepath);
     int numPartitions = partition.size();
     try {
       if (fs.exists(new Path(filepath))) {
         if (numPartitions > 0) {
-          StringBuilder partitionString = new StringBuilder(getHivePartitionColumns().get(0) + "='" + partition.get(0) + "'");
+          StringBuilder partitionString = new StringBuilder(hivePartitionColumns.get(0) + "='" + partition.get(0) + "'");
           int i = 0;
           while (i < numPartitions) {
             i++;
             if (i == numPartitions) {
               break;
             }
-            partitionString.append(",").append(getHivePartitionColumns().get(i)).append("='").append(partition.get(i)).append("'");
+            partitionString.append(",").append(hivePartitionColumns.get(i)).append("='").append(partition.get(i)).append("'");
           }
           if (i < hivePartitionColumns.size()) {
-            partitionString.append(",").append(getHivePartitionColumns().get(i));
+            partitionString.append(",").append(hivePartitionColumns.get(i));
           }
           command = "load data" + localString + " inpath '" + filepath + "' into table " + tablename + " PARTITION" + "( " + partitionString + " )";
         }

@@ -28,15 +28,11 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Operator.ProcessingMode;
-import com.datatorrent.api.Partitioner.Partition;
-import com.datatorrent.contrib.hive.FSRollingOutputOperator.FilePartitionMapping;
-import static com.datatorrent.lib.db.jdbc.JdbcNonTransactionalOutputOperatorTest.*;
+import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
-import com.google.common.collect.Lists;
 import java.io.File;
 import java.util.*;
 import org.apache.commons.io.FileUtils;
@@ -191,7 +187,6 @@ public class AbstractHiveOutputOperatorTest
 
     fsRolling.setup(context);
     hiveOperator.setup(context);
-    fsRolling.setConverter(new StringConverter());
     FilePartitionMapping mapping1 = new FilePartitionMapping();
     FilePartitionMapping mapping2 = new FilePartitionMapping();
     for (int wid = 0, total = 0;
@@ -260,11 +255,7 @@ public class AbstractHiveOutputOperatorTest
 
     fsRolling.setup(context);
     hiveOperator.setup(context);
-    MapConverter converter = new MapConverter();
-    converter.setDelimiter(":");
-    fsRolling.setConverter(converter);
     hiveOperator.setTablename(tablemap);
-    converter.setDelimiter(":");
     HashMap<String, Object> map = new HashMap<String, Object>();
     FilePartitionMapping mapping1 = new FilePartitionMapping();
     FilePartitionMapping mapping2 = new FilePartitionMapping();
@@ -326,7 +317,6 @@ public class AbstractHiveOutputOperatorTest
     ArrayList<String> hivePartitionColumns = new ArrayList<String>();
     hivePartitionColumns.add("dt");
     FSRollingTestImpl fsRolling = new FSRollingTestImpl();
-    fsRolling.setConverter(new StringConverter());
     hiveInitializeDatabase(createStore(null));
     outputOperator.setHivePartitionColumns(hivePartitionColumns);
     outputOperator.setStore(hiveStore);

@@ -27,8 +27,10 @@ import com.datatorrent.contrib.hive.*;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Random;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +56,7 @@ public class HiveMapInsertBenchmarkingApp implements StreamingApplication
     store.setConnectionProperties(conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
     store.setFilepath(conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
     try {
-      hiveInitializeMapDatabase(store, conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename"),":");
+      hiveInitializeMapDatabase(store, conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename"), ":");
     }
     catch (SQLException ex) {
       LOG.debug(ex.getMessage());
@@ -67,7 +69,6 @@ public class HiveMapInsertBenchmarkingApp implements StreamingApplication
     HiveOperator hiveInsert = dag.addOperator("HiveOperator", new HiveOperator());
     hiveInsert.setStore(store);
     FSRollingMapTestImpl rollingMapFsWriter = dag.addOperator("RollingFsMapWriter", new FSRollingMapTestImpl());
-    rollingMapFsWriter.setConverter(new MapConverter());
     rollingMapFsWriter.setFilePath(store.filepath);
     ArrayList<String> hivePartitionColumns = new ArrayList<String>();
     hivePartitionColumns.add("dt");
@@ -91,16 +92,42 @@ public class HiveMapInsertBenchmarkingApp implements StreamingApplication
     hiveStore.disconnect();
   }
 
-  private static class FSRollingMapTestImpl extends FSRollingOutputOperator<Map<String, Object>>
+  private static class FSRollingMapTestImpl extends AbstractFSRollingOutputOperator<Map<String, Object>>
   {
-    private final Random random = new Random();
+    @NotNull
+    public String delimiter = ":";
+
+    public String getDelimiter()
+    {
+      return delimiter;
+    }
+
+    public void setDelimiter(String delimiter)
+    {
+      this.delimiter = delimiter;
+    }
 
     @Override
     public ArrayList<String> getHivePartition(Map<String, Object> tuple)
     {
+      Random random = new Random();
       ArrayList<String> hivePartitions = new ArrayList<String>();
       hivePartitions.add("2014-12-1" + random.nextInt(10));
       return (hivePartitions);
+    }
+
+    @Override
+    protected byte[] getBytesForTuple(Map<String, Object> tuple)
+    {
+      Iterator<String> keyIter = tuple.keySet().iterator();
+      StringBuilder writeToHive = new StringBuilder("");
+
+      while (keyIter.hasNext()) {
+        String key = keyIter.next();
+        Object obj = tuple.get(key);
+        writeToHive.append(key).append(delimiter).append(obj).append("\n");
+      }
+      return writeToHive.toString().getBytes();
     }
 
   }

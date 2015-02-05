@@ -313,7 +313,7 @@
       <version>1.4.4</version>
       <optional>true</optional>
     </dependency>
-    <dependency>
+     <dependency>
       <groupId>org.apache.hive</groupId>
       <artifactId>hive-jdbc</artifactId>
       <version>0.13.1</version>
@@ -338,4 +338,5 @@
       <optional>true</optional>
     </dependency>
   </dependencies>
+
 </project>
