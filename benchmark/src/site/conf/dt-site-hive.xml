@@ -9,12 +9,12 @@
   </property>
   <property>
     <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath</name>
-    <value>file:///user/hive2</value>
+    <value>hdfs://localhost:9000/user/hive2</value>
     <description>Filepath</description>
   </property>
     <property>
     <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath</name>
-    <value>file:///user/hive2</value>
+    <value>hdfs://localhost:9000/user/hive2</value>
     <description>Filepath</description>
   </property>
   <property>
@@ -24,7 +24,7 @@
   </property>
   <property>
     <name>dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission</name>
-    <value>0777</value>
+    <value>511</value>
     <description>Permission</description>
   </property>
   <property>
@@ -54,7 +54,7 @@
   </property>
   <property>
     <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.RollingFsMapWriter.filePermission</name>
-    <value>0777</value>
+    <value>511</value>
     <description>Permission</description>
   </property>
   <property>
