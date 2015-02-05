@@ -16,7 +16,6 @@
 package com.datatorrent.lib.math;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.annotation.Stateless;
 import com.datatorrent.lib.algo.MatchMap;
 import java.util.HashMap;

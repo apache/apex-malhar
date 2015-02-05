@@ -32,7 +32,6 @@ import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader;
 import org.apache.hadoop.io.file.tfile.DTFile.Writer;
 import org.apache.hadoop.io.file.tfile.DTFile.Reader.Scanner;
-import org.junit.Ignore;
 
 /**
  * test tfile features.

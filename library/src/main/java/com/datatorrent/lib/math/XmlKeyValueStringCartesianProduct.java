@@ -16,7 +16,6 @@
 package com.datatorrent.lib.math;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import org.xml.sax.InputSource;
 
 import java.io.StringReader;

@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.rabbitmq;
 
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.api.DefaultOutputPort;
 
 /**

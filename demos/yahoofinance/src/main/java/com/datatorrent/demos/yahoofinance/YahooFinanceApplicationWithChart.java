@@ -19,7 +19,6 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.DAG;
 import com.datatorrent.demos.yahoofinance.StockTickInput;

@@ -16,7 +16,6 @@
 package com.datatorrent.lib.io;
 
 import java.util.Collection;
-import java.util.Iterator;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -16,8 +16,6 @@
 package com.datatorrent.benchmark.testbench;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.benchmark.testbench.EventClassifierApp;
-import com.datatorrent.benchmark.testbench.EventClassifierNumberToHashDoubleAppTest;
 import java.io.InputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.junit.Test;

@@ -24,7 +24,6 @@ import com.datastax.driver.core.ResultSet;
 import com.datastax.driver.core.Row;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.AbstractStoreInputOperator;

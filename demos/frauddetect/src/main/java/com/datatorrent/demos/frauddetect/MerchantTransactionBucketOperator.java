@@ -19,12 +19,10 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.lib.util.KeyValPair;
-import com.datatorrent.lib.util.TimeBucketKey;
 import java.text.DecimalFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Map;
 import org.apache.commons.lang.mutable.MutableDouble;

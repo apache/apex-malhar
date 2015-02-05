@@ -15,7 +15,6 @@
  */
 package com.datatorrent.demos.wordcount;
 
-import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.DAG;

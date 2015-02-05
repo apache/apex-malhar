@@ -16,7 +16,6 @@
 package com.datatorrent.lib.io;
 
 import java.net.URI;
-import javax.validation.constraints.NotNull;
 
 /**
  * Sends tuple as POST with JSON content to the given URL.

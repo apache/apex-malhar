@@ -16,7 +16,6 @@
 package com.datatorrent.lib.util;
 
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 import java.util.HashMap;
 import java.util.Map;

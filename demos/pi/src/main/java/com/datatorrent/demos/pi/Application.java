@@ -15,7 +15,6 @@
  */
 package com.datatorrent.demos.pi;
 
-import com.datatorrent.api.Context.OperatorContext;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.lib.io.ConsoleOutputOperator;
