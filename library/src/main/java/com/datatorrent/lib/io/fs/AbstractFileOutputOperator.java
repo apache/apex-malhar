@@ -45,6 +45,7 @@ import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.lib.counters.BasicCounters;
+import org.apache.hadoop.fs.permission.FsPermission;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
@@ -97,6 +98,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * Size of the copy buffer used to restore files to checkpointed state.
    */
   private static final int COPY_BUFFER_SIZE = 1024;
+
+  @Nonnull
+  protected int filePermission = 0777;
 
   /**
    * The default number of max open files.
@@ -329,9 +333,11 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
             fsOutput = fs.create(lfilepath, (short) replication);
           }
 
+          fs.setPermission(lfilepath, FsPermission.createImmutable((short)filePermission));
+
           //Get the end offset of the file.
 
-          LOG.info("opened: {}", fs.getFileStatus(lfilepath).getPath());
+          LOG.debug("opened: {}", fs.getFileStatus(lfilepath).getPath());
           return fsOutput;
         }
         catch (IOException e) {
@@ -360,7 +366,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
             FileStatus status = fs.getFileStatus(seenPartFilePath);
 
             if (status.getLen() != offset) {
-              LOG.info("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
+              LOG.debug("file corrupted {} {} {}", seenFileNamePart, offset, status.getLen());
               byte[] buffer = new byte[COPY_BUFFER_SIZE];
 
               Path tmpFilePath = new Path(filePath + Path.SEPARATOR + seenFileNamePart + TMP_EXTENSION);
@@ -613,7 +619,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * @param fileName The base name of the files you are rolling over.
    * @return The name of the current rolling file.
    */
-  private String getPartFileNamePri(String fileName)
+  protected String getPartFileNamePri(String fileName)
   {
     if (!rollingFile) {
       return fileName;
@@ -734,6 +740,42 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   public int getMaxOpenFiles()
   {
     return this.maxOpenFiles;
+  }
+
+  /**
+   * Get the permission on the file which is being written.
+   * @return filePermission
+   */
+  public int getFilePermission()
+  {
+    return filePermission;
+  }
+
+  /**
+   * Set the permission on the file which is being written.
+   * @param filePermission
+   */
+  public void setFilePermission(int filePermission)
+  {
+    this.filePermission = filePermission;
+  }
+
+  /*
+   * Sets the stream codec on the input port.
+   *
+   * @param streamCodec
+   */
+  public void setStreamCodec(StreamCodec<INPUT> streamCodec)
+  {
+    this.streamCodec = streamCodec;
+  }
+
+  /**
+   * @return the stream codec on input port.
+   */
+  public StreamCodec<INPUT> getStreamCodec()
+  {
+    return this.streamCodec;
   }
 
   public static enum Counters
