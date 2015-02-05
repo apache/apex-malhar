@@ -35,7 +35,7 @@ import com.datatorrent.lib.util.PubSubWebSocketClient;
 public class PubSubWebSocketOutputOperator<T> extends WebSocketOutputOperator<T>
 {
   private String topic = null;
-  private transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
+  protected transient PubSubMessageCodec<Object> codec = new PubSubMessageCodec<Object>(mapper);
 
   public void setTopic(String topic)
   {
