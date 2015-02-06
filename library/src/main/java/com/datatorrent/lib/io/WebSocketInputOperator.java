@@ -59,6 +59,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
   private transient boolean connectionClosed = false;
   private transient boolean shutdown = false;
   private int ioThreadMultiplier = 1;
+  protected boolean skipNull = false;
 
   /**
    * Gets the URI for WebSocket connection
@@ -182,15 +183,18 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
 
       }));
       client = new AsyncHttpClient(config);
+      final WebSocketInputOperator thisInstance = this;
       connection = client.prepareGet(uri.toString()).execute(new WebSocketUpgradeHandler.Builder().addWebSocketListener(new WebSocketTextListener()
       {
         @Override
         public void onMessage(String string)
         {
-          LOG.debug("Got: " + string);
+          LOG.debug("Operator: " + thisInstance.getName() + ", Got: " + string);
           try {
             T o = convertMessage(string);
-            outputPort.emit(o);
+            if(!(skipNull && o == null)) {
+              outputPort.emit(o);
+            }
           }
           catch (IOException ex) {
             LOG.error("Got exception: ", ex);

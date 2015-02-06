@@ -156,7 +156,10 @@ public class WebSocketOutputOperator<T> extends BaseOperator
             client.close();
             openConnection();
           }
-          connection.sendTextMessage(convertMapToMessage(t));
+
+          String convertedMessage = convertMapToMessage(t);
+          LOG.debug("Sent Message:{}", convertedMessage);
+          connection.sendTextMessage(convertedMessage);
           break;
         }
         catch (Exception ex) {
