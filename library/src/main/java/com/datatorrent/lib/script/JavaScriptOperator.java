@@ -96,7 +96,7 @@ public class JavaScriptOperator extends ScriptOperator
           @Override
           protected Object create(Kryo kryo, Input input, Class type)
           {
-            return new HashMap<String, Object>(); // hack to bypass unserializable interpreted function object
+            return new Object(); // hack to bypass unserializable interpreted function object
           }
 
         });
