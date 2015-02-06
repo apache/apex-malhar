@@ -16,21 +16,18 @@
 package com.datatorrent.lib.script;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.esotericsoftware.kryo.DefaultSerializer;
-import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.serializers.FieldSerializer;
 
 import java.util.HashMap;
 import java.util.Map;
 import javax.script.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An implementation of ScriptOperator that executes JavaScript on tuples input for Map &lt;String, Object&gt;.
  *
  * <p>
- * Key is name of variable used in script code. Proper map values must be provided
- * by up stream operators.
+ * Key is name of variable used in script code. Proper map values must be provided by up stream operators.
  *
  * <b> Sample Usage Code : </b>
  *
@@ -69,6 +66,7 @@ import javax.script.*;
  *
  * This operator does not checkpoint interpreted functions in the variable bindings because they are not serializable
  * Use setupScript() to define functions, and do NOT define or assign functions to variables at run time
+ *
  * @displayName Java Script
  * @category Scripting
  * @tags script operator, map, string
@@ -76,52 +74,22 @@ import javax.script.*;
  */
 public class JavaScriptOperator extends ScriptOperator
 {
+
   public enum Type
   {
+
     EVAL, INVOKE
   };
 
-  public static class BindingsSerializer<T> extends FieldSerializer<T>
-  {
-    @SuppressWarnings("rawtypes")
-    public BindingsSerializer(Kryo kryo, Class<T> clazz)
-    {
-      super(kryo, clazz);
-      try {
-        Class<?> interpretedFunctionClass = Class.forName("sun.org.mozilla.javascript.internal.InterpretedFunction");
-
-        kryo.register(interpretedFunctionClass,
-                      new FieldSerializer(kryo, interpretedFunctionClass)
-        {
-          @Override
-          protected Object create(Kryo kryo, Input input, Class type)
-          {
-            return new Object(); // hack to bypass unserializable interpreted function object
-          }
-
-        });
-      }
-      catch (ClassNotFoundException ex) {
-        // ignore
-      }
-    }
-
-  }
-
-  @DefaultSerializer(value = BindingsSerializer.class)
-  protected static class MyBindings extends SimpleBindings
-  {
-    public MyBindings(){
-      
-    }
-  }
-
   protected transient ScriptEngineManager sem = new ScriptEngineManager();
   protected transient ScriptEngine engine = sem.getEngineByName("JavaScript");
-  protected Type type = Type.EVAL;
   protected transient SimpleScriptContext scriptContext = new SimpleScriptContext();
-  protected MyBindings scriptBindings = new MyBindings();
+  protected transient SimpleBindings scriptBindings = new SimpleBindings();
+  protected Map<String, Object> serializableBindings = new HashMap<String, Object>();
+  protected Type type = Type.EVAL;
   protected Object evalResult;
+
+  private static final Logger LOG = LoggerFactory.getLogger(JavaScriptOperator.class);
 
   @Override
   public void process(Map<String, Object> tuple)
@@ -142,8 +110,7 @@ public class JavaScriptOperator extends ScriptOperator
       if (isPassThru && result.isConnected()) {
         result.emit(evalResult);
       }
-    }
-    catch (Exception ex) {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
 
@@ -163,7 +130,6 @@ public class JavaScriptOperator extends ScriptOperator
     engine = sem.getEngineByName(name);
   }
 
-
   public void setEval(String script)
   {
     this.type = Type.EVAL;
@@ -179,6 +145,14 @@ public class JavaScriptOperator extends ScriptOperator
   @Override
   public void endWindow()
   {
+    serializableBindings.clear();
+
+    for (Map.Entry<String, Object> entry : scriptBindings.entrySet()) {
+      if (serializableValue(entry.getValue())) {
+        LOG.warn("Value class {}", entry.getValue().getClass().getName());
+        serializableBindings.put(entry.getKey(), entry.getValue());
+      }
+    }
     if (!isPassThru) {
       result.emit(evalResult);
       outBindings.emit(getBindings());
@@ -188,21 +162,36 @@ public class JavaScriptOperator extends ScriptOperator
   @Override
   public void setup(OperatorContext context)
   {
+    for (Map.Entry<String, Object> entry : serializableBindings.entrySet()) {
+      scriptBindings.put(entry.getKey(), entry.getValue());
+    }
     this.scriptContext.setBindings(scriptBindings, ScriptContext.ENGINE_SCOPE);
     engine.setContext(this.scriptContext);
     try {
       for (String s : setupScripts) {
         engine.eval(s, this.scriptContext);
       }
-    }
-    catch (ScriptException ex) {
+    } catch (ScriptException ex) {
       throw new RuntimeException(ex);
     }
   }
 
   public void put(String key, Object val)
   {
+    if (serializableValue(val)) {
+      LOG.warn("put value class {}", val.getClass().getName());
+      serializableBindings.put(key, val);
+    }
     scriptBindings.put(key, val);
   }
 
+  protected boolean serializableValue(Object val)
+  {
+    try {
+      Class<?> interpretedFunctionClass = Class.forName("sun.org.mozilla.javascript.internal.InterpretedFunction");
+      return !ScriptContext.class.isAssignableFrom(val.getClass()) && !interpretedFunctionClass.isAssignableFrom(val.getClass());
+    } catch (ClassNotFoundException ex) {
+      return !ScriptContext.class.isAssignableFrom(val.getClass());
+    }
+  }
 }
