@@ -8,15 +8,10 @@
   </property>
 
   <property>
-        <name>dt.application.OldFaithfulApplication.operator.rScriptOp.attr.MEMORY_MB</name>
+        <name>dt.application.OldFaithfulApplication.operator.*.attr.MEMORY_MB</name>
         <value>1024</value>
   </property>
   
-  <property>
-        <name>dt.application.OldFaithfulApplication.attr.CONTAINER_MEMORY_MB</name>
-        <value>1024</value>
-  </property>
-
 <!-- Need this to information for loading native libraries -->
   <property>
       <name>dt.attr.CONTAINER_JVM_OPTIONS</name>
