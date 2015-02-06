@@ -149,7 +149,6 @@ public class JavaScriptOperator extends ScriptOperator
 
     for (Map.Entry<String, Object> entry : scriptBindings.entrySet()) {
       if (serializableValue(entry.getValue())) {
-        LOG.warn("Value class {}", entry.getValue().getClass().getName());
         serializableBindings.put(entry.getKey(), entry.getValue());
       }
     }
@@ -179,7 +178,6 @@ public class JavaScriptOperator extends ScriptOperator
   public void put(String key, Object val)
   {
     if (serializableValue(val)) {
-      LOG.warn("put value class {}", val.getClass().getName());
       serializableBindings.put(key, val);
     }
     scriptBindings.put(key, val);
