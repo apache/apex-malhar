@@ -21,10 +21,12 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Operator.ActivationListener;
 import com.datatorrent.common.util.Pair;
+import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.NotNull;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -33,6 +35,7 @@ import org.slf4j.LoggerFactory;
 import javax.validation.Valid;
 import javax.validation.constraints.Min;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.lang.reflect.Array;
 import java.util.*;
 
@@ -52,7 +55,7 @@ import java.util.*;
  * @param <T>
  * @since 2.0.0
  */
-public abstract class AbstractKinesisInputOperator <T> implements InputOperator, ActivationListener<OperatorContext>, Partitioner<AbstractKinesisInputOperator>, StatsListener
+public abstract class AbstractKinesisInputOperator <T> implements InputOperator, ActivationListener<OperatorContext>, Partitioner<AbstractKinesisInputOperator>, StatsListener,Operator.CheckpointListener
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractKinesisInputOperator.class);
 
@@ -66,6 +69,10 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
 
   private String endPoint;
 
+  protected IdempotentStorageManager idempotentStorageManager;
+  protected transient long currentWindowId;
+  protected transient int operatorId;
+  protected final transient List<T> currentWindowRecoveryState;
   @Valid
   protected KinesisConsumer consumer = new KinesisConsumer();
 
@@ -105,6 +112,11 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
    */
   public final transient DefaultOutputPort<T> outputPort = new DefaultOutputPort<T>();
 
+  public AbstractKinesisInputOperator()
+  {
+    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    currentWindowRecoveryState = Lists.newArrayList();
+  }
   /**
    * Derived class has to implement this method, so that it knows what type of message it is going to send to Malhar.
    * It converts a ByteBuffer message into a Tuple. A Tuple can be of any type (derived from Java Object) that
@@ -113,18 +125,6 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
    * @param rc Record to convert into tuple
    */
   public abstract T getTuple(Record rc);
-
-  /**
-   * Convert the record to tuple and send it to Malhar.
-   *
-   * @param rc Record to emit
-   */
-  public void emitTuple(Record rc)
-  {
-    T tuple = getTuple(rc);
-    if(tuple != null)
-      outputPort.emit(tuple);
-  }
 
   @Override
   public void partitioned(Map<Integer, Partition<AbstractKinesisInputOperator>> partitions)
@@ -375,6 +375,8 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
       throw new RuntimeException(e);
     }
     consumer.create();
+    operatorId = context.getId();
+    idempotentStorageManager.setup(context);
   }
 
   /**
@@ -383,6 +385,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void teardown()
   {
+    idempotentStorageManager.teardown();
     consumer.teardown();
   }
 
@@ -393,8 +396,28 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   public void beginWindow(long windowId)
   {
     emitCount = 0;
+    currentWindowId = windowId;
+    if (windowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+      replay(windowId);
+    }
   }
 
+  protected void replay(long windowId)
+  {
+    try {
+      @SuppressWarnings("unchecked")
+      List<T> recoveredData = (List<T>) idempotentStorageManager.load(operatorId, windowId);
+      if (recoveredData == null) {
+        return;
+      }
+      for (T rc: recoveredData) {
+        outputPort.emit(rc);
+      }
+    }
+    catch (IOException e) {
+      throw new RuntimeException("replay", e);
+    }
+  }
   /**
    * Implement Operator Interface.
    */
@@ -402,6 +425,15 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   public void endWindow()
   {
     context.setCounters(getConsumer().getConsumerStats(shardPosition));
+    if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+      try {
+        idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
+      }
+      catch (IOException e) {
+        throw new RuntimeException("saving recovery", e);
+      }
+    }
+    currentWindowRecoveryState.clear();
   }
 
   /**
@@ -413,6 +445,21 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     consumer.start();
   }
 
+  @Override
+  public void committed(long windowId)
+  {
+    try {
+      idempotentStorageManager.deleteUpTo(operatorId, windowId);
+    }
+    catch (IOException e) {
+      throw new RuntimeException("deleting state", e);
+    }
+  }
+
+  @Override
+  public void checkpointed(long windowId)
+  {
+  }
   /**
    * Implement ActivationListener Interface.
    */
@@ -428,12 +475,17 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void emitTuples()
   {
+    if (currentWindowId <= idempotentStorageManager.getLargestRecoveryWindow()) {
+      return;
+    }
     int count = consumer.getQueueSize();
     if(maxTuplesPerWindow > 0)
       count = Math.min(count, maxTuplesPerWindow - emitCount);
     for (int i = 0; i < count; i++) {
       Pair<String, Record> data = consumer.pollRecord();
-      emitTuple(data.getSecond());
+      T tuple = getTuple(data.getSecond());
+      outputPort.emit(tuple);
+      currentWindowRecoveryState.add(tuple);
       shardPosition.put(data.getFirst(), data.getSecond().getSequenceNumber());
     }
     emitCount += count;
@@ -594,5 +646,15 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   public void setEndPoint(String endPoint)
   {
     this.endPoint = endPoint;
+  }
+
+  public IdempotentStorageManager getIdempotentStorageManager()
+  {
+    return idempotentStorageManager;
+  }
+
+  public void setIdempotentStorageManager(IdempotentStorageManager idempotentStorageManager)
+  {
+    this.idempotentStorageManager = idempotentStorageManager;
   }
 }
