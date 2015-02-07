@@ -193,10 +193,12 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
 
   /**
    * Lets the base reader know when it has more work to do while its idle-ing.
-   * @return  whether there are more blocks that can be hendled in this window.
+   *
+   * @return whether there are more blocks that can be hendled in this window.
    */
-  protected boolean canHandleMoreBlocks(){
-     return !blockQueue.isEmpty() && blocksPerWindow < threshold;
+  protected boolean canHandleMoreBlocks()
+  {
+    return !blockQueue.isEmpty() && blocksPerWindow < threshold;
   }
 
   protected void processHeadBlock()
@@ -349,7 +351,13 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   public void partitioned(Map<Integer, Partition<AbstractBlockReader<R, B, STREAM>>> integerPartitionMap)
   {
     for (Partition<AbstractBlockReader<R, B, STREAM>> partition : integerPartitionMap.values()) {
-      partition.getPartitionedInstance().readerContext = this.readerContext;
+      AbstractBlockReader<R, B, STREAM> reader = partition.getPartitionedInstance();
+      reader.readerContext = this.readerContext;
+      reader.threshold = this.threshold;
+      reader.intervalMillis = this.intervalMillis;
+      reader.collectStats = this.collectStats;
+      reader.minReaders = this.minReaders;
+      reader.maxReaders = this.maxReaders;
     }
   }
 
