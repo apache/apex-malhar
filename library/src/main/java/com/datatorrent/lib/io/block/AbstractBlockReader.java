@@ -69,16 +69,16 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   /**
    * Limit on the no. of blocks to be processed in a window. By default {@link Integer#MAX_VALUE}
    */
-  private int threshold;
-  private transient int blocksPerWindow;
+  protected int threshold;
+  protected transient int blocksPerWindow;
 
   protected final BasicCounters<MutableLong> counters;
 
   private transient Context.OperatorContext context;
 
-  private final Queue<B> blockQueue;
+  protected final Queue<B> blockQueue;
 
-  private transient long sleepTimeMillis;
+  protected transient long sleepTimeMillis;
 
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
@@ -108,7 +108,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
 
   private transient B lastProcessedBlock;
   private transient long lastBlockOpenTime;
-  protected transient boolean consecutiveBlock;
+  private transient boolean consecutiveBlock;
 
   public final transient DefaultOutputPort<B> blocksMetadataOutput = new DefaultOutputPort<B>();
   public final transient DefaultOutputPort<ReaderRecord<R>> messages = new DefaultOutputPort<ReaderRecord<R>>();
@@ -165,11 +165,11 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   @Override
   public void handleIdleTime()
   {
-    if (!blockQueue.isEmpty() && blocksPerWindow < threshold) {
+    if (canHandleMoreBlocks()) {
       do {
         processHeadBlock();
       }
-      while (blocksPerWindow < threshold && !blockQueue.isEmpty());
+      while (canHandleMoreBlocks());
     }
     else if (lastProcessedBlock != null && System.currentTimeMillis() - lastBlockOpenTime > intervalMillis) {
       try {
@@ -191,28 +191,18 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     }
   }
 
-  private void processHeadBlock()
+  /**
+   * Lets the base reader know when it has more work to do while its idle-ing.
+   * @return  whether there are more blocks that can be hendled in this window.
+   */
+  protected boolean canHandleMoreBlocks(){
+     return !blockQueue.isEmpty() && blocksPerWindow < threshold;
+  }
+
+  protected void processHeadBlock()
   {
     B top = blockQueue.poll();
-    try {
-      if (blocksMetadataOutput.isConnected()) {
-        blocksMetadataOutput.emit(top);
-      }
-      processBlockMetadata(top);
-      blocksPerWindow++;
-    }
-    catch (IOException e) {
-      try {
-        if (lastProcessedBlock != null) {
-          teardownStream(lastProcessedBlock);
-          lastProcessedBlock = null;
-        }
-      }
-      catch (IOException ie) {
-        throw new RuntimeException("closing", ie);
-      }
-      throw new RuntimeException(e);
-    }
+    processBlockMetadata(top);
   }
 
   @Override
@@ -223,21 +213,40 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     context.setCounters(counters);
   }
 
-  protected void processBlockMetadata(B block) throws IOException
+  protected void processBlockMetadata(B block)
   {
-    long blockStartTime = System.currentTimeMillis();
-    if (block.getPreviousBlockId() == -1 || lastProcessedBlock == null || block.getPreviousBlockId() != lastProcessedBlock.getBlockId()) {
-      teardownStream(lastProcessedBlock);
-      consecutiveBlock = false;
-      lastBlockOpenTime = System.currentTimeMillis();
-      stream = setupStream(block);
+    try {
+      long blockStartTime = System.currentTimeMillis();
+      if (block.getPreviousBlockId() == -1 || lastProcessedBlock == null || block.getPreviousBlockId() != lastProcessedBlock.getBlockId()) {
+        teardownStream(lastProcessedBlock);
+        consecutiveBlock = false;
+        lastBlockOpenTime = System.currentTimeMillis();
+        stream = setupStream(block);
+      }
+      else {
+        consecutiveBlock = true;
+      }
+      readBlock(block);
+      lastProcessedBlock = block;
+      counters.getCounter(ReaderCounterKeys.TIME).add(System.currentTimeMillis() - blockStartTime);
+      //emit block metadata only when the block finishes
+      if (blocksMetadataOutput.isConnected()) {
+        blocksMetadataOutput.emit(block);
+      }
+      blocksPerWindow++;
     }
-    else {
-      consecutiveBlock = true;
+    catch (IOException ie) {
+      try {
+        if (lastProcessedBlock != null) {
+          teardownStream(lastProcessedBlock);
+          lastProcessedBlock = null;
+        }
+      }
+      catch (IOException ioe) {
+        throw new RuntimeException("closing last", ie);
+      }
+      throw new RuntimeException(ie);
     }
-    readBlock(block);
-    lastProcessedBlock = block;
-    counters.getCounter(ReaderCounterKeys.TIME).add(System.currentTimeMillis() - blockStartTime);
   }
 
   /**

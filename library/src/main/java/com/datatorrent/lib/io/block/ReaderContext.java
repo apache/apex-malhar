@@ -32,7 +32,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
 {
 
   /**
-   * Initialized the reader.
+   * Initializes the reader context.
    *
    * @param stream           input stream
    * @param blockMetadata    block-metadata
