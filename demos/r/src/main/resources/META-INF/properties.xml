@@ -3,7 +3,7 @@
 <!--properties for R demo  -->
   <property>
         <name>dt.application.OldFaithfulApplication.class</name>
-        <value>com.datatorrent.demos.oldfaithful.OldFaithfulApplication</value>
+        <value>com.datatorrent.demos.r.oldfaithful.OldFaithfulApplication</value>
         <description>An alias for OldFaithful application</description>
   </property>
 

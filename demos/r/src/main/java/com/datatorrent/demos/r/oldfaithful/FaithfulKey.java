@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.demos.oldfaithful;
+package com.datatorrent.demos.r.oldfaithful;
 
 public class FaithfulKey
 {

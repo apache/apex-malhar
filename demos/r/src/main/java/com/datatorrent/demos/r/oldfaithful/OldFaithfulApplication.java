@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.demos.oldfaithful;
+package com.datatorrent.demos.r.oldfaithful;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -51,7 +51,7 @@ public class OldFaithfulApplication implements StreamingApplication
   {
 
     InputGenerator randomInputGenerator = dag.addOperator("rand", new InputGenerator());
-    FaithfulRScript rScriptOp = dag.addOperator("rScriptOp", new FaithfulRScript("com/datatorrent/demos/oldfaithful/eruptionModel.R", "eruptionModel", "retVal"));
+    FaithfulRScript rScriptOp = dag.addOperator("rScriptOp", new FaithfulRScript("com/datatorrent/demos/r/oldfaithful/eruptionModel.R", "eruptionModel", "retVal"));
     ConsoleOutputOperator consoles = dag.addOperator("consoles", new ConsoleOutputOperator());
 
     Map<String, FaithfulRScript.REXP_TYPE> argTypeMap = new HashMap<String, FaithfulRScript.REXP_TYPE>();
