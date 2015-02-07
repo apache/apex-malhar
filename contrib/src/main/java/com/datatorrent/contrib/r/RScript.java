@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,18 +23,16 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPDouble;
-import org.rosuda.REngine.REXPInteger;
-import org.rosuda.REngine.REXPLogical;
-import org.rosuda.REngine.REXPString;
+import org.rosuda.REngine.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.script.ScriptOperator;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
+
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.script.ScriptOperator;
 
 /**
  * This operator enables a user to execute a R script on tuples for Map<String, Object>. The script should be in the
@@ -103,11 +101,13 @@ public class RScript extends ScriptOperator
   private Map<String, REXP_TYPE> argTypeMap;
 
   // Name of the return variable
-  private String returnVariable;
+  private String returnVariable = "retVal";
 
   // Function name given to the script inside the script file.
+  @NotNull
   private String functionName;
 
+  @NotNull
   protected String scriptFilePath;
 
   REngineConnectable connectable;

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,12 +24,14 @@ import org.rosuda.REngine.REngineException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.datatorrent.lib.util.BaseNumberValueOperator;
+
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator.Unifier;
+
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.util.BaseNumberValueOperator;
 
 /**
  * Emits at the end of window, a minimum of all values sub-classed from Number in the incoming stream. <br>

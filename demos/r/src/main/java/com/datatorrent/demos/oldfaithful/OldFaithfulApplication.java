@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,10 +21,11 @@ import java.util.Map;
 
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 
 //The application attempts to simulate 'Old Faithful Geyser" eruption.
 //This application accepts readings for the waiting time and the subsequent eruption duration
