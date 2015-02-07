@@ -16,6 +16,9 @@
 package com.datatorrent.benchmark;
 
 import com.datatorrent.api.LocalMode;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.log4j.Logger;
@@ -26,10 +29,10 @@ public class CouchBaseBenchmarkTest
   Logger logger = Logger.getLogger("CouchBaseBenchmarkTest.class");
 
   @Test
-  public void testCouchBaseAppOutput() throws Exception
+  public void testCouchBaseAppOutput() throws FileNotFoundException, IOException
   {
     Configuration conf = new Configuration();
-    InputStream is = getClass().getResourceAsStream("/dt-site-couchbase.xml");
+    InputStream is = new FileInputStream("src/site/conf/dt-site-couchbase.xml");
     conf.addResource(is);
 
     conf.get("dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.uriString");
@@ -54,10 +57,10 @@ public class CouchBaseBenchmarkTest
   }
 
   @Test
-  public void testCouchBaseAppInput() throws Exception
+  public void testCouchBaseAppInput() throws FileNotFoundException, IOException
   {
     Configuration conf = new Configuration();
-    InputStream is = getClass().getResourceAsStream("/dt-site-couchbase.xml");
+    InputStream is = new FileInputStream("src/site/conf/dt-site-couchbase.xml");
     conf.addResource(is);
     conf.get("dt.application.CouchBaseAppInput.operator.couchbaseInput.store.uriString");
     conf.get("dt.application.CouchBaseAppInput.operator.couchbaseInput.store.blocktime");
