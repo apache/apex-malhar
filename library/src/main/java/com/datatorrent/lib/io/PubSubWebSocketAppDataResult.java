@@ -112,6 +112,8 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
       throw new RuntimeException(ex);
     }
 
+    logger.debug("Writing to topic: {}", topic);
+
     //return PubSubWebSocketClient.constructPublishMessage(topic, t, codec);
     return output.toString();
   }

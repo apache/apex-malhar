@@ -64,6 +64,7 @@ public class PubSubWebSocketAppDataTest
     server.start();
     Connector connector[] = server.getConnectors();
     URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
+    //URI uri = URI.create("ws://localhost:9090/pubsub");
     logger.debug("Location of websocket: {}", uri);
 
     PubSubWebSocketOutputOperator<Map<String, String>> outputOperator = new PubSubWebSocketOutputOperator<Map<String, String>>();
@@ -77,7 +78,7 @@ public class PubSubWebSocketAppDataTest
     inputOperator1.setTopic(topicName + testId1);
 
     PubSubWebSocketInputOperator<String> inputOperator2 = new PubSubWebSocketInputOperator<String>();
-    inputOperator2.setName("testInputOperator1");
+    inputOperator2.setName("testInputOperator2");
     inputOperator2.setUri(uri);
     inputOperator2.setTopic(topicName + testId2);
 
@@ -95,7 +96,7 @@ public class PubSubWebSocketAppDataTest
     lc.setHeartbeatMonitoringEnabled(false);
     lc.runAsync();
 
-    Thread.sleep(5000);
+    Thread.sleep(7000);
 
     inputOperator1.setup(null);
     inputOperator2.setup(null);
@@ -106,6 +107,8 @@ public class PubSubWebSocketAppDataTest
     inputOperator1.beginWindow(0);
     inputOperator2.beginWindow(0);
     outputOperator.beginWindow(0);
+
+    Thread.sleep(2000);
 
     Map<String, String> message1 = Maps.newHashMap();
     message1.put("id", testId1);
@@ -121,11 +124,13 @@ public class PubSubWebSocketAppDataTest
 
     outputOperator.endWindow();
 
-    int timeoutMillis = 20000;
+    int timeoutMillis = 30000;
 
     while((sink1.collectedTuples.size() < 1 ||
            sink2.collectedTuples.size() < 1) &&
           timeoutMillis > 0) {
+      inputOperator1.outputPort.flush(10);
+      inputOperator2.outputPort.flush(10);
       timeoutMillis -= 20;
       Thread.sleep(20);
     }

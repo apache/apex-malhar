@@ -193,6 +193,7 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
           try {
             T o = convertMessage(string);
             if(!(skipNull && o == null)) {
+              LOG.debug("emitted for {}", thisInstance.getName());
               outputPort.emit(o);
             }
           }
