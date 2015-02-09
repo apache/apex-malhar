@@ -22,6 +22,8 @@ import java.io.InputStream;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.PositionedReadable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This controls how an {@link AbstractBlockReader} reads a {@link BlockMetadata}.
@@ -305,6 +307,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     {
       if (length == null) {
         length = (int) new Configuration().getLong("fs.local.block.size", 32 * 1024 * 1024);
+        LOG.debug("length init {}", length);
       }
       super.initialize(stream, blockMetadata, consecutiveBlock);
     }
@@ -342,5 +345,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     {
       return this.length;
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(FixedBytesReaderContext.class);
   }
 }

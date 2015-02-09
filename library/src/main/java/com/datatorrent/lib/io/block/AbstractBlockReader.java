@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.io.block;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -26,6 +27,9 @@ import org.apache.hadoop.fs.PositionedReadable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -306,17 +310,17 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     }
     else {
       //Add more partitions
+      Kryo kryo = new Kryo();
       while (morePartitionsToCreate-- > 0) {
-        AbstractBlockReader<R, B, STREAM> blockReader;
-        try {
-          blockReader = this.getClass().newInstance();
-        }
-        catch (InstantiationException e) {
-          throw new RuntimeException(e);
-        }
-        catch (IllegalAccessException e) {
-          throw new RuntimeException(e);
-        }
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Output loutput = new Output(bos);
+        kryo.writeObject(loutput, this);
+        loutput.close();
+        Input lInput = new Input(bos.toByteArray());
+
+        @SuppressWarnings("unchecked")
+        AbstractBlockReader<R, B, STREAM> blockReader = kryo.readObject(lInput, this.getClass());
+
         DefaultPartition<AbstractBlockReader<R, B, STREAM>> partition = new DefaultPartition<AbstractBlockReader<R, B, STREAM>>(blockReader);
         partitions.add(partition);
       }
@@ -350,15 +354,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   @Override
   public void partitioned(Map<Integer, Partition<AbstractBlockReader<R, B, STREAM>>> integerPartitionMap)
   {
-    for (Partition<AbstractBlockReader<R, B, STREAM>> partition : integerPartitionMap.values()) {
-      AbstractBlockReader<R, B, STREAM> reader = partition.getPartitionedInstance();
-      reader.readerContext = this.readerContext;
-      reader.threshold = this.threshold;
-      reader.intervalMillis = this.intervalMillis;
-      reader.collectStats = this.collectStats;
-      reader.minReaders = this.minReaders;
-      reader.maxReaders = this.maxReaders;
-    }
   }
 
   @Override
