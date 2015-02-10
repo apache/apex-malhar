@@ -3,8 +3,11 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata;
+package com.datatorrent.lib.algo.schemas;
 
+import com.datatorrent.lib.appdata.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import org.junit.Assert;
 import org.junit.Test;

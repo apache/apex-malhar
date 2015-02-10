@@ -12,6 +12,7 @@ package com.datatorrent.lib.appdata;
 public abstract class Result
 {
   private String id;
+  private String type;
 
   public Result(Query query)
   {
@@ -23,5 +24,19 @@ public abstract class Result
     return id;
   }
 
-  public abstract String getType();
+  /**
+   * @return the type
+   */
+  public String getType()
+  {
+    return type;
+  }
+
+  /**
+   * @param type the type to set
+   */
+  public void setType(String type)
+  {
+    this.type = type;
+  }
 }

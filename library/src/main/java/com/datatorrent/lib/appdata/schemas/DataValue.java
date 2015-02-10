@@ -3,38 +3,31 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata;
+package com.datatorrent.lib.appdata.schemas;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class Query
+public class DataValue
 {
-  public static final String FIELD_ID = "id";
-  public static final String FIELD_TYPE = "type";
-
-  private String id;
+  private String name;
   private String type;
 
-  public Query()
+  /**
+   * @return the name
+   */
+  public String getName()
   {
+    return name;
   }
 
   /**
-   * @return the id
+   * @param name the name to set
    */
-  public String getId()
+  public void setName(String name)
   {
-    return id;
-  }
-
-  /**
-   * @param id the id to set
-   */
-  public void setId(String id)
-  {
-    this.id = id;
+    this.name = name;
   }
 
   /**
@@ -52,4 +45,5 @@ public class Query
   {
     this.type = type;
   }
+
 }

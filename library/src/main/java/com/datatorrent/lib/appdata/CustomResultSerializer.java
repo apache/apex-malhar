@@ -11,5 +11,5 @@ package com.datatorrent.lib.appdata;
  */
 public interface CustomResultSerializer
 {
-  public String serialize(Result result);
+  public abstract String serialize(Result result);
 }

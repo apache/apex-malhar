@@ -9,26 +9,25 @@ package com.datatorrent.lib.appdata.schemas;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SchemaResult
+public class SchemaValues
 {
-  private String id;
+  private String name;
   private String type;
-  private SchemaData data;
 
   /**
-   * @return the id
+   * @return the name
    */
-  public String getId()
+  public String getName()
   {
-    return id;
+    return name;
   }
 
   /**
-   * @param id the id to set
+   * @param name the name to set
    */
-  public void setId(String id)
+  public void setName(String name)
   {
-    this.id = id;
+    this.name = name;
   }
 
   /**
@@ -45,21 +44,5 @@ public class SchemaResult
   public void setType(String type)
   {
     this.type = type;
-  }
-
-  /**
-   * @return the data
-   */
-  public SchemaData getData()
-  {
-    return data;
-  }
-
-  /**
-   * @param data the data to set
-   */
-  public void setData(SchemaData data)
-  {
-    this.data = data;
   }
 }
