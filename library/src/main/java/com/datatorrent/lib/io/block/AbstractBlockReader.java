@@ -78,7 +78,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
 
   protected final BasicCounters<MutableLong> counters;
 
-  private transient Context.OperatorContext context;
+  protected transient Context.OperatorContext context;
 
   protected final Queue<B> blockQueue;
 
