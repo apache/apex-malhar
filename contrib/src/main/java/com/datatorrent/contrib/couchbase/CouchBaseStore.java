@@ -23,9 +23,14 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Nonnull;
+import javax.validation.constraints.Min;
 
 import com.couchbase.client.CouchbaseClient;
 import com.couchbase.client.CouchbaseConnectionFactoryBuilder;
+import com.couchbase.client.vbucket.ConfigurationProvider;
+import com.couchbase.client.vbucket.ConfigurationProviderHTTP;
+import com.couchbase.client.vbucket.config.Bucket;
+import com.couchbase.client.vbucket.config.Config;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,7 +38,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.lib.db.Connectable;
 
 import com.datatorrent.common.util.DTThrowable;
-import javax.validation.constraints.Min;
 
 /**
  * CouchBaseStore which provides connect methods to Couchbase data store.
@@ -43,12 +47,48 @@ import javax.validation.constraints.Min;
 public class CouchBaseStore implements Connectable
 {
 
-  protected static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
-
+  private static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
   @Nonnull
   protected String bucket;
+
+  public String getBucket()
+  {
+    return bucket;
+  }
+
+  public void setBucket(String bucket)
+  {
+    this.bucket = bucket;
+  }
+
   @Nonnull
   protected String password;
+  @Nonnull
+  protected String userConfig;
+
+  public String getUserConfig()
+  {
+    return userConfig;
+  }
+
+  public void setUserConfig(String userConfig)
+  {
+    this.userConfig = userConfig;
+  }
+
+  public String getPasswordConfig()
+  {
+    return passwordConfig;
+  }
+
+  public void setPasswordConfig(String passwordConfig)
+  {
+    this.passwordConfig = passwordConfig;
+  }
+
+  @Nonnull
+  protected String passwordConfig;
+
   @Nonnull
   protected String uriString;
 
@@ -122,24 +162,12 @@ public class CouchBaseStore implements Connectable
   public CouchBaseStore()
   {
     client = null;
-    password = "";
     bucket = "default";
-
   }
 
   public CouchbaseClient getInstance()
   {
     return client;
-  }
-
-  public void addNodes(URI url)
-  {
-    baseURIs.add(url);
-  }
-
-  public void setBucket(String bucketName)
-  {
-    this.bucket = bucketName;
   }
 
   /**
@@ -154,8 +182,27 @@ public class CouchBaseStore implements Connectable
 
   public void setUriString(String uriString)
   {
-    logger.info("In setter method of URI");
     this.uriString = uriString;
+  }
+
+  public Config getConf()
+  {
+    try {
+      connect();
+    }
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    ConfigurationProvider configurationProvider = new ConfigurationProviderHTTP(baseURIs, userConfig, passwordConfig);
+    Bucket configBucket = configurationProvider.getBucketConfiguration(bucket);
+    Config conf = configBucket.getConfig();
+    try {
+      disconnect();
+    }
+    catch (IOException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    return conf;
   }
 
   @Override
@@ -180,11 +227,31 @@ public class CouchBaseStore implements Connectable
       //client = new CouchbaseClient(baseURIs, "default", "");
     }
     catch (IOException e) {
-      logger.error("Error connecting to Couchbase: " + e.getMessage());
+      logger.error("Error connecting to Couchbase:" , e);
       DTThrowable.rethrow(e);
     }
   }
 
+  public CouchbaseClient connectServer(String urlString) throws IOException
+  {
+    ArrayList<URI> nodes = new ArrayList<URI>();
+    CouchbaseClient clientPartition = null;
+    try {
+      nodes.add(new URI("http",urlString,"/pools", null, null));
+    }
+    catch (URISyntaxException ex) {
+      DTThrowable.rethrow(ex);
+    }
+    try {
+      clientPartition = new CouchbaseClient(nodes, bucket, password);
+    }
+    catch (IOException e) {
+     logger.error("Error connecting to Couchbase:" , e);
+      DTThrowable.rethrow(e);
+    }
+    return clientPartition;
+
+  }
 
   @Override
   public boolean isConnected()
@@ -196,8 +263,9 @@ public class CouchBaseStore implements Connectable
   @Override
   public void disconnect() throws IOException
   {
-    client.shutdown(shutdownTimeout, TimeUnit.SECONDS);
+    if (client != null) {
+      client.shutdown(shutdownTimeout, TimeUnit.SECONDS);
+    }
   }
-
 
 }

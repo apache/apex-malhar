@@ -83,7 +83,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   public void connect() throws IOException
   {
     super.connect();
-
+    logger.debug("connection established");
     try {
       CouchbaseConnectionFactoryBuilder cfb = new CouchbaseConnectionFactoryBuilder();
       cfb.setOpTimeout(timeout);  // wait up to 10 seconds for an operation to succeed
@@ -91,7 +91,7 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
       clientMeta = new CouchbaseClient(cfb.buildCouchbaseConnection(baseURIs, bucketMeta, passwordMeta));
     }
     catch (IOException e) {
-      logger.error("Error connecting to Couchbase: " + e.getMessage());
+      logger.error("Error connecting to Couchbase: " , e);
       DTThrowable.rethrow(e);
     }
   }
@@ -99,12 +99,9 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public long getCommittedWindowId(String appId, int operatorId)
   {
-    //logger.info("in getCommittedWindowId");
     byte[] value = null;
     String key = appId + "_" + operatorId + "_" + lastWindowValue;
-    logger.info("key is" + key);
     value = (byte[])clientMeta.get(key);
-    logger.info("value is" + value);
     if (value != null) {
       long longval = toLong(value);
       return longval;
@@ -115,7 +112,6 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
   @Override
   public void storeCommittedWindowId(String appId, int operatorId, long windowId)
   {
-    //logger.info("in storeCommittedWindowId");
     byte[] WindowIdBytes = toBytes(windowId);
     String key = appId + "_" + operatorId + "_" + lastWindowValue;
     try {
@@ -166,7 +162,6 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
       dos.close();
     }
     catch (IOException e) {
-      logger.error("error converting to long");
       DTThrowable.rethrow(e);
     }
     return result;
@@ -183,7 +178,6 @@ public class CouchBaseWindowStore extends CouchBaseStore implements Transactiona
       dos.close();
     }
     catch (IOException e) {
-      logger.error("error converting to byte array");
       DTThrowable.rethrow(e);
     }
     return result;
