@@ -19,6 +19,10 @@
   </properties>
   <repositories>
     <repository>
+      <id>couchbase</id>
+      <url>http://files.couchbase.com/maven2</url>
+    </repository>
+    <repository>
       <id>datatorrent-3rd-party</id>
       <name>Embedded repository for dependencies not available online</name>
       <url>https://www.datatorrent.com/maven/content/repositories/thirdparty</url>
@@ -562,6 +566,13 @@
       <scope>test</scope>
     </dependency>
     <dependency>
+      <groupId>org.couchbase.mock</groupId>
+      <artifactId>CouchbaseMock</artifactId>
+      <version>0.8-SNAPSHOT</version>
+      <scope>test</scope>
+      <type>jar</type>
+    </dependency>
+      <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-plus</artifactId>
       <version>${jetty.version}</version>
