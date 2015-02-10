@@ -100,7 +100,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   protected MutableLong globalNumberOfRetries = new MutableLong();
   protected MutableLong localNumberOfRetries = new MutableLong();
   private transient MutableLong globalProcessedFileCount = new MutableLong();
-  private transient MutableLong localProcessedFileCount = new MutableLong();
+  protected transient MutableLong localProcessedFileCount = new MutableLong();
   private transient MutableLong pendingFileCount = new MutableLong();
 
   @NotNull
@@ -979,7 +979,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
     private transient Pattern regex = null;
     private int partitionIndex;
     private int partitionCount;
-    private final transient HashSet<String> ignoredFiles = new HashSet<String>();
+    protected final transient HashSet<String> ignoredFiles = new HashSet<String>();
 
     public String getFilePatternRegexp()
     {
