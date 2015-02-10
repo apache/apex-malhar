@@ -103,7 +103,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   /**
    * Interval at which stats are processed. Default : 1 minute
    */
-  private long intervalMillis;
+  protected long intervalMillis;
 
   private final StatsListener.Response response;
   private int partitionCount;

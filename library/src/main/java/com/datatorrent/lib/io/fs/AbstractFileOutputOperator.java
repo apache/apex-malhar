@@ -180,7 +180,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   /**
    * File output counters.
    */
-  private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+  protected final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
 
   protected StreamCodec<INPUT> streamCodec;
 
