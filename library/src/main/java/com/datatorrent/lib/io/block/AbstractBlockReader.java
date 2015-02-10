@@ -110,9 +110,9 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   private final Map<Integer, Long> backlogPerOperator;
   private transient long nextMillis;
 
-  private transient B lastProcessedBlock;
-  private transient long lastBlockOpenTime;
-  private transient boolean consecutiveBlock;
+  protected transient B lastProcessedBlock;
+  protected transient long lastBlockOpenTime;
+  protected transient boolean consecutiveBlock;
 
   public final transient DefaultOutputPort<B> blocksMetadataOutput = new DefaultOutputPort<B>();
   public final transient DefaultOutputPort<ReaderRecord<R>> messages = new DefaultOutputPort<ReaderRecord<R>>();
