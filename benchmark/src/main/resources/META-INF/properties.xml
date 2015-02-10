@@ -40,7 +40,7 @@
   </property>
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.password</name>
-    <value>""</value>
+    <value></value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.bucketMeta</name>
@@ -48,7 +48,7 @@
   </property>
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.passwordMeta</name>
-    <value>""</value>
+    <value></value>
   </property>
   <property>
     <name>dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.max_tuples</name>
@@ -93,7 +93,7 @@
   </property>
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.password</name>
-    <value>""</value>
+    <value></value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.bucketMeta</name>
@@ -101,7 +101,7 @@
   </property>
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.passwordMeta</name>
-    <value>""</value>
+    <value></value>
   </property>
 
 </configuration>
