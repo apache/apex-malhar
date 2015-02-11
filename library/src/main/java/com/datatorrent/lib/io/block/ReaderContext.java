@@ -60,7 +60,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     private byte[] record;
     private long usedBytes;
 
-    private void clear()
+    public void clear()
     {
       record = null;
       usedBytes = -1;
@@ -71,11 +71,20 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
       return record;
     }
 
+    public void setRecord(byte[] record)
+    {
+      this.record = record;
+    }
+
     public long getUsedBytes()
     {
       return usedBytes;
     }
 
+    public void setUsedBytes(long usedBytes)
+    {
+      this.usedBytes = usedBytes;
+    }
   }
 
   /**
