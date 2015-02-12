@@ -231,7 +231,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     Response resp = new Response();
     List<KinesisConsumer.KinesisShardStats> kstats = extractkinesisStats(stats);
-    resp.repartitionRequired = isPartitionRequired(stats.getOperatorId(), kstats);
+    resp.repartitionRequired = isPartitionRequired(kstats);
     return resp;
   }
 
@@ -255,7 +255,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     return kmsList;
   }
 
-  private boolean isPartitionRequired(int opid,  List<KinesisConsumer.KinesisShardStats> kstats)
+  private boolean isPartitionRequired(List<KinesisConsumer.KinesisShardStats> kstats)
   {
 
     long t = System.currentTimeMillis();

@@ -115,12 +115,10 @@ public class KinesisTestConsumer implements Runnable
           throw new RuntimeException(e);
         }
       } else {
-        String seqNo = "";
         for (Record rc : records) {
           if (latch != null) {
             latch.countDown();
           }
-          seqNo = rc.getSequenceNumber();
           if(getData(rc).equals(KinesisOperatorTestBase.END_TUPLE))
             break;
           holdingBuffer.add(rc);
