@@ -386,8 +386,9 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     if (System.currentTimeMillis() < nextMillis) {
       return response;
     }
+    nextMillis = System.currentTimeMillis() + intervalMillis;
+    LOG.debug("Proposed NextMillis = {}", nextMillis);
 
-    LOG.debug("nextMillis = {}", nextMillis);
     long totalBacklog = 0;
     for (Map.Entry<Integer, Long> backlog : backlogPerOperator.entrySet()) {
       totalBacklog += backlog.getValue();
@@ -429,9 +430,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     partitionCount = newPartitionCount;
     response.repartitionRequired = true;
     LOG.debug("partition required", totalBacklog, partitionCount);
-
-    nextMillis = System.currentTimeMillis() + intervalMillis;
-    LOG.debug("Proposed NextMillis = {}", nextMillis);
 
     return response;
   }
