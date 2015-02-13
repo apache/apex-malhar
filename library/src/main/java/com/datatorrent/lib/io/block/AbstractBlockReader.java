@@ -105,9 +105,9 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
    */
   protected long intervalMillis;
 
-  private final StatsListener.Response response;
-  private int partitionCount;
-  private final Map<Integer, Long> backlogPerOperator;
+  protected transient final StatsListener.Response response;
+  protected transient int partitionCount;
+  protected transient final Map<Integer, Long> backlogPerOperator;
   private transient long nextMillis;
 
   protected transient B lastProcessedBlock;
@@ -400,7 +400,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
       return response; //do not repartition
     }
 
-    int newPartitionCount = 1;
+    int newPartitionCount;
     if (totalBacklog > maxReaders) {
       LOG.debug("large backlog {}", totalBacklog);
       newPartitionCount = maxReaders;
@@ -410,15 +410,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
       newPartitionCount = minReaders;
     }
     else {
-      while (newPartitionCount < totalBacklog) {
-        newPartitionCount <<= 1;
-      }
-      if (newPartitionCount > maxReaders) {
-        newPartitionCount = maxReaders;
-      }
-      else if (newPartitionCount < minReaders) {
-        newPartitionCount = minReaders;
-      }
+      newPartitionCount = getAdjustedCount(totalBacklog);
       LOG.debug("moderate backlog {}", totalBacklog);
     }
 
@@ -432,6 +424,19 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     LOG.debug("partition required", totalBacklog, partitionCount);
 
     return response;
+  }
+
+  protected int getAdjustedCount(long newCount)
+  {
+    int adjustCount = 1;
+    while (adjustCount < newCount) {
+      adjustCount <<= 1;
+    }
+    if (adjustCount > newCount) {
+      adjustCount >>>= 1;
+    }
+    LOG.debug("adjust {} => {}", newCount, adjustCount);
+    return adjustCount;
   }
 
   /**
