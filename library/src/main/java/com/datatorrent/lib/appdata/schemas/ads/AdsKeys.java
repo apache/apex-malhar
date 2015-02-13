@@ -13,6 +13,12 @@ public class AdsKeys
 {
   private String advertiser;
   private String publisher;
+  //@JsonInclude(JsonInclude.Include.NON_NULL)
+  private String location;
+
+  public AdsKeys()
+  {
+  }
 
   /**
    * @return the advertiser
@@ -44,5 +50,21 @@ public class AdsKeys
   public void setPublisher(String publisher)
   {
     this.publisher = publisher;
+  }
+
+  /**
+   * @return the location
+   */
+  public String getLocation()
+  {
+    return location;
+  }
+
+  /**
+   * @param location the location to set
+   */
+  public void setLocation(String location)
+  {
+    this.location = location;
   }
 }

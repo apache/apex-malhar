@@ -14,6 +14,10 @@ public class TwitterDataValues
   private String url;
   private int count;
 
+  public TwitterDataValues()
+  {
+  }
+
   /**
    * @return the url
    */

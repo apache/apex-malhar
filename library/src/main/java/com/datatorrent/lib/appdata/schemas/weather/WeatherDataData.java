@@ -16,6 +16,10 @@ public class WeatherDataData extends TimeBucket
 {
   private List<WeatherValues> values;
 
+  public WeatherDataData()
+  {
+  }
+
   /**
    * @return the values
    */

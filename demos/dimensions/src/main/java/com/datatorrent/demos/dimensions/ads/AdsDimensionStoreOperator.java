@@ -58,6 +58,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 {
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionStoreOperator.class);
 
+  /**
+   * Annotate this
+   */
   public final transient DefaultOutputPort<TimeSeriesQueryResult> queryResult = new DefaultOutputPort<TimeSeriesQueryResult>();
 
   @InputPortFieldAnnotation(optional=true)

@@ -5,11 +5,11 @@
 
 package com.datatorrent.lib.appdata.schemas.ads;
 
-import com.datatorrent.lib.appdata.Query;
-import com.datatorrent.lib.appdata.Result;
-import com.datatorrent.lib.appdata.ResultSerializerInfo;
-import com.datatorrent.lib.appdata.SimpleResultSerializer;
-import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;
+import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
+import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
+import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
 import java.util.List;
 
 /**
@@ -44,14 +44,14 @@ public class AdsOneTimeResult extends Result
 
   public static class AdsOneTimeData
   {
-    private TimeRangeBuckets time;
+    private TimeRangeBucket time;
     private AdsKeys keys;
     private List<AdsDataData> data;
 
     /**
      * @return the time
      */
-    public TimeRangeBuckets getTime()
+    public TimeRangeBucket getTime()
     {
       return time;
     }
@@ -59,7 +59,7 @@ public class AdsOneTimeResult extends Result
     /**
      * @param time the time to set
      */
-    public void setTime(TimeRangeBuckets time)
+    public void setTime(TimeRangeBucket time)
     {
       this.time = time;
     }

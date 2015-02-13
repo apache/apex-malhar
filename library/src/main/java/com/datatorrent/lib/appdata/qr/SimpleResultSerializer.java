@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata;
+package com.datatorrent.lib.appdata.qr;
 
 import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;

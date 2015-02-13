@@ -17,6 +17,10 @@ public class TimeRangeBuckets
   private String to;
   private List<String> intervals;
 
+  public TimeRangeBuckets()
+  {
+  }
+
   /**
    * @return the from
    */

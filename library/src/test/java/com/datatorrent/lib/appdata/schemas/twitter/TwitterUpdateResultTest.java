@@ -3,9 +3,9 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.algo.schemas.twitter;
+package com.datatorrent.lib.appdata.schemas.twitter;
 
-import com.datatorrent.lib.appdata.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import com.datatorrent.lib.appdata.schemas.twitter.TwitterDataValues;
 import com.datatorrent.lib.appdata.schemas.twitter.TwitterUpdateQuery;
 import com.datatorrent.lib.appdata.schemas.twitter.TwitterUpdateResult;

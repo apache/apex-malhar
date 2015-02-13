@@ -13,6 +13,10 @@ public class SimpleTimeBucket
 {
   private String bucket;
 
+  public SimpleTimeBucket()
+  {
+  }
+
   /**
    * @return the bucket
    */

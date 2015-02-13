@@ -14,6 +14,10 @@ public class DataValue
   private String name;
   private String type;
 
+  public DataValue()
+  {
+  }
+
   /**
    * @return the name
    */

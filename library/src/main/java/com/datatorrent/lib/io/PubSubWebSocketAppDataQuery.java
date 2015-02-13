@@ -28,6 +28,10 @@ import org.slf4j.LoggerFactory;
 
 public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppDataOperator
 {
+  /**
+   * Add optional error port
+   * 
+   */
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataQuery.class);
 
   public PubSubWebSocketAppDataQuery()

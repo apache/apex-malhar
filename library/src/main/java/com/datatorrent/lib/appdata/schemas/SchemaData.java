@@ -14,6 +14,10 @@ public class SchemaData
   private String schemaType;
   private String schemaVersion;
 
+  public SchemaData()
+  {
+  }
+
   /**
    * @return the schemaType
    */

@@ -9,29 +9,46 @@ package com.datatorrent.lib.appdata.schemas;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class TimeBucket
+public class TimeRangeBucket
 {
-  private String time;
+  private String from;
+  private String to;
   private String bucket;
 
-  public TimeBucket()
+  public TimeRangeBucket()
   {
   }
 
   /**
-   * @return the time
+   * @return the from
    */
-  public String getTime()
+  public String getFrom()
   {
-    return time;
+    return from;
   }
 
   /**
-   * @param time the time to set
+   * @param from the from to set
    */
-  public void setTime(String time)
+  public void setFrom(String from)
   {
-    this.time = time;
+    this.from = from;
+  }
+
+  /**
+   * @return the to
+   */
+  public String getTo()
+  {
+    return to;
+  }
+
+  /**
+   * @param to the to to set
+   */
+  public void setTo(String to)
+  {
+    this.to = to;
   }
 
   /**

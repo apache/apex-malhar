@@ -3,25 +3,38 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata;
+package com.datatorrent.lib.appdata.qr;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public abstract class Result
+public class Query
 {
+  public static final String FIELD_ID = "id";
+  public static final String FIELD_TYPE = "type";
+
   private String id;
   private String type;
 
-  public Result(Query query)
+  public Query()
   {
-    this.id = query.getId();
   }
 
+  /**
+   * @return the id
+   */
   public String getId()
   {
     return id;
+  }
+
+  /**
+   * @param id the id to set
+   */
+  public void setId(String id)
+  {
+    this.id = id;
   }
 
   /**

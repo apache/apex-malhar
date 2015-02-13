@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata;
+package com.datatorrent.lib.appdata.qr;
 
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;

@@ -3,10 +3,12 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata;
+package com.datatorrent.lib.appdata.qr;
 
 import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -14,6 +16,7 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class SimpleQueryDeserializer extends CustomQueryDeserializer
 {
+  private static final Logger logger = LoggerFactory.getLogger(SimpleQueryDeserializer.class);
   private ObjectMapper om = new ObjectMapper();
 
   public SimpleQueryDeserializer()
@@ -27,7 +30,9 @@ public class SimpleQueryDeserializer extends CustomQueryDeserializer
       return om.readValue(json, this.getQueryClazz());
     }
     catch(IOException ex) {
-      return null;
+      throw new RuntimeException(ex);
+      //logger.error("{}", ex);
+      //return null;
     }
   }
 }

@@ -16,6 +16,10 @@ public class KeyMultiValue
   private String name;
   private List<String> keyValues;
 
+  public KeyMultiValue()
+  {
+  }
+
   /**
    * @return the name
    */

@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata;
+package com.datatorrent.lib.appdata.qr;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -52,15 +52,19 @@ public class QueryDeserializerFactory
 
       for(Annotation an: ans)
       {
-        if(an instanceof QuerySchemaInfo) {
+        if(an instanceof SchemaInfo) {
           if(schemaType != null) {
             throw new UnsupportedOperationException("Cannot specify the " +
-                                                    QuerySchemaInfo.class +
+                                                    SchemaInfo.class +
                                                     " annotation twice on the class: " +
                                                     schema);
           }
 
-          schemaType = ((QuerySchemaInfo) an).type();
+          schemaType = ((SchemaInfo) an).type();
+
+          logger.debug("Detected schemaType for {} is {}",
+                       schema,
+                       schemaType);
         }
         else if(an instanceof QueryDeserializerInfo) {
           if(cqd != null) {
@@ -75,7 +79,7 @@ public class QueryDeserializerFactory
       }
 
       if(schemaType == null) {
-        throw new UnsupportedOperationException("No " + QuerySchemaInfo.class +
+        throw new UnsupportedOperationException("No " + SchemaInfo.class +
                                                 " annotation found on class: " +
                                                 schema);
       }
@@ -127,6 +131,8 @@ public class QueryDeserializerFactory
     }
 
     CustomQueryDeserializer cqb = typeToCustomQueryBuilder.get(type);
-    return cqb.deserialize(json);
+    Query query = cqb.deserialize(json);
+    query.setType(type);
+    return query;
   }
 }

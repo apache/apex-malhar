@@ -5,10 +5,10 @@
 
 package com.datatorrent.lib.appdata.schemas.ads;
 
-import com.datatorrent.lib.appdata.Query;
-import com.datatorrent.lib.appdata.Result;
-import com.datatorrent.lib.appdata.ResultSerializerInfo;
-import com.datatorrent.lib.appdata.SimpleResultSerializer;
+import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
+import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 import com.datatorrent.lib.appdata.schemas.KeyMultiValue;
 import com.datatorrent.lib.appdata.schemas.SchemaValues;
 import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;

@@ -5,30 +5,22 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.Query;
-import com.datatorrent.lib.appdata.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.QuerySchemaInfo;
-import com.datatorrent.lib.appdata.SimpleQueryDeserializer;
-import org.codehaus.jackson.map.ObjectMapper;
+import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
+import com.datatorrent.lib.appdata.qr.SchemaInfo;
+import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@QuerySchemaInfo(type=SchemaQuery.SCHEMA_QUERY_TYPE)
+@SchemaInfo(type=SchemaQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
 public class SchemaQuery extends Query
 {
-  public static final String SCHEMA_QUERY_TYPE = "schemaQuery";
-  private ObjectMapper om = null;
+  public static final String TYPE = "schemaQuery";
 
   public SchemaQuery()
   {
-  }
-
-  @Override
-  public String getType()
-  {
-    return FIELD_TYPE;
   }
 }

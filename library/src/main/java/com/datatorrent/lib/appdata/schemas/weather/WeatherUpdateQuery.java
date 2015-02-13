@@ -5,23 +5,27 @@
 
 package com.datatorrent.lib.appdata.schemas.weather;
 
-import com.datatorrent.lib.appdata.Query;
-import com.datatorrent.lib.appdata.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.QuerySchemaInfo;
-import com.datatorrent.lib.appdata.SimpleQueryDeserializer;
+import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
+import com.datatorrent.lib.appdata.qr.SchemaInfo;
+import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
 import com.datatorrent.lib.appdata.schemas.SimpleTimeBucket;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@QuerySchemaInfo(type=WeatherUpdateQuery.TYPE)
+@SchemaInfo(type=WeatherUpdateQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
 public class WeatherUpdateQuery extends Query
 {
   public static final String TYPE = "updateQuery";
 
   private WeatherUpdateData data;
+
+  public WeatherUpdateQuery()
+  {
+  }
 
   /**
    * @return the data

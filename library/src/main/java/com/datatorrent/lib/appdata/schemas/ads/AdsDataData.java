@@ -15,6 +15,10 @@ public class AdsDataData extends TimeBucket
 {
   private AdsDataValues values;
 
+  public AdsDataData()
+  {
+  }
+
   /**
    * @return the values
    */

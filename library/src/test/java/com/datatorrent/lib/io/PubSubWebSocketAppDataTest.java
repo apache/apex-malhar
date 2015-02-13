@@ -24,7 +24,6 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.AppDataQueryPort;
 import com.datatorrent.api.annotation.AppDataResultPort;
-import com.datatorrent.api.annotation.AppDataResultPort.SchemaDescriptor;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.testbench.CollectorTestSink;
@@ -183,7 +182,7 @@ public class PubSubWebSocketAppDataTest
   {
     private static final Logger logger = LoggerFactory.getLogger(ResultGenerator.class);
 
-    @AppDataQueryPort(types={"garbageQuery"})
+    @AppDataQueryPort()
     public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
     {
       private final ObjectMapper om = new ObjectMapper();
@@ -216,8 +215,7 @@ public class PubSubWebSocketAppDataTest
       }
     };
 
-    @AppDataResultPort(schemaDescriptors={@SchemaDescriptor(type="garbageInfo",
-                                                            version="1.0")})
+    @AppDataResultPort(schemaType="garbageInfo", schemaVersion="1.0")
     @OutputPortFieldAnnotation(optional=true)
     public final transient DefaultOutputPort<String> output = new DefaultOutputPort<String>();
 

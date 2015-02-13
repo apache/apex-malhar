@@ -3,11 +3,9 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.algo.schemas;
+package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.QueryDeserializerFactory;
-import com.datatorrent.lib.appdata.QueryDeserializerFactory;
-import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import org.junit.Assert;
 import org.junit.Test;
@@ -24,8 +22,10 @@ public class SchemaQueryTest
     final String id = "12345";
     final String schemaQueryJSON = "{" +
                                       "\"id\":\"" + id + "\"," +
-                                      "\"type\":\"" + SchemaQuery.SCHEMA_QUERY_TYPE + "\"" +
+                                      "\"type\":\"" + SchemaQuery.TYPE + "\"" +
                                     "}";
+
+
 
     @SuppressWarnings("unchecked")
     QueryDeserializerFactory qb = new QueryDeserializerFactory(SchemaQuery.class);
@@ -33,6 +33,6 @@ public class SchemaQueryTest
     SchemaQuery schemaQuery = (SchemaQuery) qb.deserialize(schemaQueryJSON);
 
     Assert.assertEquals("Id's must match", id, schemaQuery.getId());
-    Assert.assertEquals("Types must match", SchemaQuery.SCHEMA_QUERY_TYPE, schemaQuery.getType());
+    Assert.assertEquals("Types must match", SchemaQuery.TYPE, schemaQuery.getType());
   }
 }

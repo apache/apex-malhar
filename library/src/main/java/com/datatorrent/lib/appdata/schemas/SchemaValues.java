@@ -14,6 +14,10 @@ public class SchemaValues
   private String name;
   private String type;
 
+  public SchemaValues()
+  {
+  }
+
   /**
    * @return the name
    */

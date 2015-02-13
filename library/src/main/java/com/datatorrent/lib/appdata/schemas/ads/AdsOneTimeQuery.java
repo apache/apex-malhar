@@ -9,57 +9,63 @@ import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.SchemaInfo;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
-import com.datatorrent.lib.appdata.schemas.SimpleTimeBucket;
+import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
 
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
-@SchemaInfo(type=AdsUpdateQuery.TYPE)
+@SchemaInfo(type=AdsOneTimeQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
-public class AdsUpdateQuery extends Query
+public class AdsOneTimeQuery extends Query
 {
-  public static final String TYPE = "updateQuery";
+  public static final String TYPE = "oneTimeQuery";
 
-  private AdsUpdateQueryData data;
+  private AdsOneTimeQueryData data;
 
-  public AdsUpdateQuery()
+  public AdsOneTimeQuery()
   {
   }
 
-  public AdsUpdateQueryData getData()
+  /**
+   * @return the data
+   */
+  public AdsOneTimeQueryData getData()
   {
     return data;
   }
 
-  public void setData(AdsUpdateQueryData data)
+  /**
+   * @param data the data to set
+   */
+  public void setData(AdsOneTimeQueryData data)
   {
     this.data = data;
   }
 
-  public static class AdsUpdateQueryData
+  public static class AdsOneTimeQueryData
   {
-    private SimpleTimeBucket time;
+    private TimeRangeBucket time;
     private AdsKeys keys;
 
+    public AdsOneTimeQueryData()
+    {
+    }
+
     /**
-     * @return the time
+     * @return the timeRangeBucket
      */
-    public SimpleTimeBucket getTime()
+    public TimeRangeBucket getTime()
     {
       return time;
     }
 
     /**
-     * @param time the time to set
+     * @param time the timeRangeBucket to set
      */
-    public void setTime(SimpleTimeBucket time)
+    public void setTime(TimeRangeBucket time)
     {
       this.time = time;
     }
 
     /**
-     * @return the keys
+     * @return the adsKeys
      */
     public AdsKeys getKeys()
     {
@@ -67,7 +73,7 @@ public class AdsUpdateQuery extends Query
     }
 
     /**
-     * @param keys the keys to set
+     * @param keys the adsKeys to set
      */
     public void setKeys(AdsKeys keys)
     {

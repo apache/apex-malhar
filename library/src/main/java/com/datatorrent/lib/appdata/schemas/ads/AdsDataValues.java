@@ -14,6 +14,10 @@ public class AdsDataValues
   private long impressions;
   private long clicks;
 
+  public AdsDataValues()
+  {
+  }
+
   /**
    * @return the impressions
    */

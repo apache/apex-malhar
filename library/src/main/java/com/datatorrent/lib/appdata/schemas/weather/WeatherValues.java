@@ -15,6 +15,10 @@ public class WeatherValues
   private float humidity;
   private float precipitation;
 
+  public WeatherValues()
+  {
+  }
+
   /**
    * @return the tempurature
    */

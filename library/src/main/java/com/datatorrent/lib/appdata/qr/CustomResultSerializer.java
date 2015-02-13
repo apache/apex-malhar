@@ -3,13 +3,13 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata;
+package com.datatorrent.lib.appdata.qr;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class ResultSchemaInfo
+public interface CustomResultSerializer
 {
-
+  public abstract String serialize(Result result);
 }
