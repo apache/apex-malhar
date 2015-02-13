@@ -553,12 +553,9 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       }
     }
     else {  // this happens when the events are taken from the flume channel and writing first time failed
-      byte[] data = new byte[address.length + event.length];
-      System.arraycopy(address, 0, data, 0, address.length);
-      System.arraycopy(event.buffer, event.offset, data, address.length, event.length);
       while (client.isConnected()) {
         sleep();
-        if (client.write(data)) {
+        if (client.write(address, event)) {
           return;
         }
       }
