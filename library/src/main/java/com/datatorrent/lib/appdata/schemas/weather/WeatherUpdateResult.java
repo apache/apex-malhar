@@ -5,6 +5,7 @@
 
 package com.datatorrent.lib.appdata.schemas.weather;
 
+import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
@@ -14,9 +15,12 @@ import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
+@QRType(type=WeatherUpdateResult.TYPE)
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
 public class WeatherUpdateResult extends Result
 {
+  public static final String TYPE = "updateResult";
+
   private WeatherUpdateData data;
 
   public WeatherUpdateResult(Query query)

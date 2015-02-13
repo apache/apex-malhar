@@ -52,15 +52,15 @@ public class QueryDeserializerFactory
 
       for(Annotation an: ans)
       {
-        if(an instanceof SchemaInfo) {
+        if(an instanceof QRType) {
           if(schemaType != null) {
             throw new UnsupportedOperationException("Cannot specify the " +
-                                                    SchemaInfo.class +
+                                                    QRType.class +
                                                     " annotation twice on the class: " +
                                                     schema);
           }
 
-          schemaType = ((SchemaInfo) an).type();
+          schemaType = ((QRType) an).type();
 
           logger.debug("Detected schemaType for {} is {}",
                        schema,
@@ -79,7 +79,7 @@ public class QueryDeserializerFactory
       }
 
       if(schemaType == null) {
-        throw new UnsupportedOperationException("No " + SchemaInfo.class +
+        throw new UnsupportedOperationException("No " + QRType.class +
                                                 " annotation found on class: " +
                                                 schema);
       }

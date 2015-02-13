@@ -5,6 +5,7 @@
 
 package com.datatorrent.lib.appdata.schemas.twitter;
 
+import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
@@ -16,9 +17,13 @@ import java.util.List;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
+
+@QRType(type=TwitterSchemaResult.TYPE)
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
 public class TwitterSchemaResult extends Result
 {
+  public static final String TYPE = "schemaData";
+
   private TwitterSchemaData data;
 
   public TwitterSchemaResult(Query query)

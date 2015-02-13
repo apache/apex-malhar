@@ -5,6 +5,8 @@
 
 package com.datatorrent.lib.appdata.schemas.ads;
 
+import org.codehaus.jackson.map.annotate.JsonSerialize;
+
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
@@ -13,7 +15,7 @@ public class AdsKeys
 {
   private String advertiser;
   private String publisher;
-  //@JsonInclude(JsonInclude.Include.NON_NULL)
+  @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
   private String location;
 
   public AdsKeys()

@@ -11,13 +11,13 @@ import java.util.List;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class TimeRangeBuckets
+public class TimeRangeIntervals
 {
   private String from;
   private String to;
-  private List<String> buckets;
+  private List<String> intervals;
 
-  public TimeRangeBuckets()
+  public TimeRangeIntervals()
   {
   }
 
@@ -54,18 +54,18 @@ public class TimeRangeBuckets
   }
 
   /**
-   * @return the buckets
+   * @return the intervals
    */
-  public List<String> getBuckets()
+  public List<String> getIntervals()
   {
-    return buckets;
+    return intervals;
   }
 
   /**
-   * @param buckets the buckets to set
+   * @param intervals the intervals to set
    */
-  public void setBuckets(List<String> buckets)
+  public void setIntervals(List<String> intervals)
   {
-    this.buckets = buckets;
+    this.intervals = intervals;
   }
 }

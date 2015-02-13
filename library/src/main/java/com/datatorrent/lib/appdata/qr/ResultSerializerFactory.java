@@ -19,7 +19,8 @@ public class ResultSerializerFactory
 {
   private static final Logger logger = LoggerFactory.getLogger(ResultSerializerFactory.class);
 
-  private Map<Class<? extends Result>, CustomResultSerializer> typeToCustomResultBuilder = Maps.newHashMap();
+  private Map<Class<? extends Result>, CustomResultSerializer> clazzToCustomResultBuilder = Maps.newHashMap();
+  private Map<Class<? extends Result>, String> clazzToType = Maps.newHashMap();
 
   public ResultSerializerFactory()
   {
@@ -27,13 +28,14 @@ public class ResultSerializerFactory
 
   public String serialize(Result result)
   {
-    CustomResultSerializer mcrs = typeToCustomResultBuilder.get(result.getClass());
+    CustomResultSerializer mcrs = clazzToCustomResultBuilder.get(result.getClass());
     Class<? extends Result> schema = result.getClass();
 
     if(mcrs == null) {
       Annotation[] ans = schema.getAnnotations();
 
       Class<? extends CustomResultSerializer> crs = null;
+      String type = null;
 
       for(Annotation an: ans) {
         if(an instanceof ResultSerializerInfo) {
@@ -46,12 +48,27 @@ public class ResultSerializerFactory
 
           crs = ((ResultSerializerInfo)an).clazz();
         }
+        else if(an instanceof QRType) {
+          if(type != null) {
+            throw new UnsupportedOperationException("Cannot specify the " +
+                                                    QRType.class +
+                                                    " annotation twice on the class: " +
+                                                    schema);
+          }
+
+          type = ((QRType) an).type();
+        }
       }
 
       if(crs == null) {
         throw new UnsupportedOperationException("No " + ResultSerializerInfo.class
                 + " annotation found on class: "
                 + schema);
+      }
+
+      if(type == null) {
+        throw new UnsupportedOperationException("No " + QRType.class +
+                                                " annotation found on class " + schema);
       }
 
       try {
@@ -64,8 +81,11 @@ public class ResultSerializerFactory
         throw new RuntimeException(ex);
       }
 
-      typeToCustomResultBuilder.put(schema, mcrs);
+      clazzToCustomResultBuilder.put(schema, mcrs);
+      clazzToType.put(schema, type);
     }
+
+    result.setType(clazzToType.get(schema));
 
     return mcrs.serialize(result);
   }

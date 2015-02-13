@@ -5,22 +5,27 @@
 
 package com.datatorrent.lib.appdata.schemas.ads;
 
+import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 import com.datatorrent.lib.appdata.schemas.KeyMultiValue;
 import com.datatorrent.lib.appdata.schemas.SchemaValues;
-import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;
+import com.datatorrent.lib.appdata.schemas.TimeRangeIntervals;
 import java.util.List;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
+
+@QRType(type=AdsSchemaResult.TYPE)
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
 public class AdsSchemaResult extends Result
 {
+  public static final String TYPE = "schemaData";
+
   private AdsSchemaData data;
 
   public AdsSchemaResult(Query query)
@@ -46,14 +51,17 @@ public class AdsSchemaResult extends Result
 
   public static class AdsSchemaData
   {
-    private TimeRangeBuckets timeBuckets;
+    private String schemaType;
+    private String schemaVersion;
+
+    private TimeRangeIntervals timeBuckets;
     private List<KeyMultiValue> keys;
     private List<SchemaValues> values;
 
     /**
      * @return the timeBuckets
      */
-    public TimeRangeBuckets getTimeBuckets()
+    public TimeRangeIntervals getTimeBuckets()
     {
       return timeBuckets;
     }
@@ -61,7 +69,7 @@ public class AdsSchemaResult extends Result
     /**
      * @param timeBuckets the timeBuckets to set
      */
-    public void setTimeBuckets(TimeRangeBuckets timeBuckets)
+    public void setTimeBuckets(TimeRangeIntervals timeBuckets)
     {
       this.timeBuckets = timeBuckets;
     }
@@ -96,6 +104,38 @@ public class AdsSchemaResult extends Result
     public void setValues(List<SchemaValues> values)
     {
       this.values = values;
+    }
+
+    /**
+     * @return the schemaType
+     */
+    public String getSchemaType()
+    {
+      return schemaType;
+    }
+
+    /**
+     * @param schemaType the schemaType to set
+     */
+    public void setSchemaType(String schemaType)
+    {
+      this.schemaType = schemaType;
+    }
+
+    /**
+     * @return the schemaVersion
+     */
+    public String getSchemaVersion()
+    {
+      return schemaVersion;
+    }
+
+    /**
+     * @param schemaVersion the schemaVersion to set
+     */
+    public void setSchemaVersion(String schemaVersion)
+    {
+      this.schemaVersion = schemaVersion;
     }
   }
 }

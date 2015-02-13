@@ -5,20 +5,25 @@
 
 package com.datatorrent.lib.appdata.schemas.weather;
 
+import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
-import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;
+import com.datatorrent.lib.appdata.schemas.TimeRangeIntervals;
 import java.util.List;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
+
+@QRType(type=WeatherOneTimeResult.TYPE)
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
 public class WeatherOneTimeResult extends Result
 {
+  public static final String TYPE = "oneTimeResult";
+
   private WeatherOneTimeData data;
 
   public WeatherOneTimeResult(Query query)
@@ -44,13 +49,13 @@ public class WeatherOneTimeResult extends Result
 
   public static class WeatherOneTimeData
   {
-    private TimeRangeBuckets time;
+    private TimeRangeIntervals time;
     private List<WeatherDataData> data;
 
     /**
      * @return the time
      */
-    public TimeRangeBuckets getTime()
+    public TimeRangeIntervals getTime()
     {
       return time;
     }
@@ -58,7 +63,7 @@ public class WeatherOneTimeResult extends Result
     /**
      * @param time the time to set
      */
-    public void setTime(TimeRangeBuckets time)
+    public void setTime(TimeRangeIntervals time)
     {
       this.time = time;
     }

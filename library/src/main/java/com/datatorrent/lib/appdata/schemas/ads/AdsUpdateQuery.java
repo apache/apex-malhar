@@ -7,7 +7,7 @@ package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.SchemaInfo;
+import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
 import com.datatorrent.lib.appdata.schemas.SimpleTimeBucket;
 
@@ -15,7 +15,7 @@ import com.datatorrent.lib.appdata.schemas.SimpleTimeBucket;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@SchemaInfo(type=AdsUpdateQuery.TYPE)
+@QRType(type=AdsUpdateQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
 public class AdsUpdateQuery extends Query
 {

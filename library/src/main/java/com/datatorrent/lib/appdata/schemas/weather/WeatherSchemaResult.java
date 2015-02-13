@@ -5,22 +5,26 @@
 
 package com.datatorrent.lib.appdata.schemas.weather;
 
+import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 import com.datatorrent.lib.appdata.schemas.SchemaData;
 import com.datatorrent.lib.appdata.schemas.SchemaValues;
-import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;
+import com.datatorrent.lib.appdata.schemas.TimeRangeIntervals;
 import java.util.List;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
+@QRType(type=WeatherSchemaResult.TYPE)
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
 public class WeatherSchemaResult extends Result
 {
+  public static final String TYPE = "schemaData";
+
   private WeatherSchemaData data;
 
   public WeatherSchemaResult(Query query)
@@ -46,13 +50,13 @@ public class WeatherSchemaResult extends Result
 
   public static class WeatherSchemaData extends SchemaData
   {
-    private TimeRangeBuckets timeBuckets;
+    private TimeRangeIntervals timeBuckets;
     private List<SchemaValues> values;
 
     /**
      * @return the timeBuckets
      */
-    public TimeRangeBuckets getTimeBuckets()
+    public TimeRangeIntervals getTimeBuckets()
     {
       return timeBuckets;
     }
@@ -60,7 +64,7 @@ public class WeatherSchemaResult extends Result
     /**
      * @param timeBuckets the timeBuckets to set
      */
-    public void setTimeBuckets(TimeRangeBuckets timeBuckets)
+    public void setTimeBuckets(TimeRangeIntervals timeBuckets)
     {
       this.timeBuckets = timeBuckets;
     }

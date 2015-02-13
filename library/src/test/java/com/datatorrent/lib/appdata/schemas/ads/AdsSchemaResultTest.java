@@ -6,14 +6,21 @@
 package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.schemas.KeyMultiValue;
 import com.datatorrent.lib.appdata.schemas.OneTimeQuery;
-import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
-import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeResult.AdsOneTimeData;
+import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.datatorrent.lib.appdata.schemas.SchemaTestUtils;
+import com.datatorrent.lib.appdata.schemas.SchemaValues;
+import com.datatorrent.lib.appdata.schemas.TimeRangeIntervals;
+import com.datatorrent.lib.appdata.schemas.ads.AdsSchemaResult.AdsSchemaData;
 import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 /**
  *
@@ -28,21 +35,20 @@ public class AdsSchemaResultTest
   }
 
   @Test
-  public void testSomeMethod()
+  public void testSerialization()
   {
     final String id = "js134232342134";
     final String type = "schemaData";
     final String schemaType = "dimensions";
     final String schemaVersion = "1.0";
+
+    final String fromTime = "2014-01-01 00:00:00";
+    final String toTime = "2014-12-31 23:59:59";
     final String[] buckets = {"1m", "1h", "1d"};
 
-
-    final String fromTime = "2014-03-01 00:00:00";
-    final String toTime = "2014-03-01 12:00:00";
-    final String bucket = "1h";
-
-    final String advertiser = "starbucks";
-    final String publisher = "google";
+    final String[] publishers = {"twitter", "facebook", "yahoo", "google"};
+    final String[] advertisers = {"starbucks", "safeway", "mcdonalds", "macys"};
+    final String[] locations = {"N", "LREC", "SKY"};
 
     final String time1 = fromTime;
     final String time2 = "2014-03-01 01:00:00";
@@ -57,88 +63,89 @@ public class AdsSchemaResultTest
     oneTimeQuery.setId(id);
     oneTimeQuery.setType("oneTimeQuery");
 
-    final String json = "{\n" +
-"   “id”: “js134232342134”,\n" +
-"   “type”: “schemaData”,\n" +
-"   “data”: {\n" +
-"      “schemaType”: “dimensions”,\n" +
-"      “schemaVersion”: “1.0”,\n" +
-"      “timeBuckets” {\n" +
-"	   “from”: “2014-01-01 00:00:00”,\n" +
-"	   “to”: “2014-12-31 23:59:59”,\n" +
-"	   “buckets”: [ “1m”, “1h”, “1d” ]\n" +
-"      }\n" +
-"      “keys”: [\n" +
-"	   {\n" +
-"	      “name”: “publisher”,\n" +
-"	      “keyValues”: [ “twitter”, “facebook”, “yahoo”, “google” ],\n" +
-"	   },\n" +
-"	   {\n" +
-"	      “name”: “advertiser”,\n" +
-"	      “keyValues”: [ “starbucks”, “safeway”, “mcdonalds”, “macys” ],\n" +
-"	   },\n" +
-"	   {\n" +
-"	      “name”: “location”,\n" +
-"	      “keyValues”: [ “N”, “LREC”, “SKY” ],\n" +
-"	   },\n" +
-"      ]\n" +
-"      “values”: [\n" +
-"    { “name”: “impressions”, “type”: “integer” },\n" +
-"    { “name”: “clicks”, “type”: “integer” }\n" +
-"      ]\n" +
-"   }\n" +
-"}";
+    final String jsonExpected = "{" +
+    "\"id\":\"" + id + "\"," +
+    "\"type\":\"" + type + "\"," +
+    "\"data\":{" +
+      "\"schemaType\":\"" + schemaType + "\"," +
+      "\"schemaVersion\":\"" + schemaVersion + "\"," +
+      "\"timeBuckets\":{" +
+      "\"from\":\"" + fromTime + "\"," +
+      "\"to\":\"" + toTime + "\"," +
+      "\"buckets\":[ " + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(buckets, "\""), ",") +" ]" +
+      "}" +
+    "\"keys\":[" + "{" +
+      "\"name\":\"publisher\"," +
+      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(publishers, "\""), ",") + " ]," +
+    "}," +
+    "{" +
+      "\"name\":\"advertiser\"," +
+      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(advertisers, "\""), ",") + " ]," +
+    "}," +
+    "{" +
+      "\"name\":\"location\"," +
+      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(locations, "\""), ",") + " ]," +
+    "}," +
+    "]" +
+    "\"values\":[" +
+      "{\"name\":\"impressions\",\"type\":\"integer\"}," +
+      "{\"name\":\"clicks\",\"type\":\"integer\"}" + "]" +
+    "}" +
+    "}";
 
-    AdsOneTimeResult aotr = new AdsOneTimeResult(oneTimeQuery);
-    aotr.setType("oneTimeData");
+    SchemaQuery sq = new SchemaQuery();
 
-    AdsOneTimeData aotd = new AdsOneTimeData();
+    sq.setId(id);
+    sq.setType(SchemaQuery.TYPE);
 
-      AdsKeys ak = new AdsKeys();
-      ak.setAdvertiser(advertiser);
-      ak.setPublisher(publisher);
+    AdsSchemaResult asr = new AdsSchemaResult(sq);
+      AdsSchemaData asd = new AdsSchemaData();
+      asd.setSchemaType(schemaType);
+      asd.setSchemaVersion(schemaVersion);
 
-    aotd.setKeys(ak);
+      TimeRangeIntervals trbs = new TimeRangeIntervals();
+      trbs.setFrom(fromTime);
+      trbs.setTo(toTime);
+      trbs.setIntervals(Arrays.asList(buckets));
+      asd.setTimeBuckets(trbs);
 
-      TimeRangeBucket trb = new TimeRangeBucket();
-      trb.setFrom(fromTime);
-      trb.setTo(toTime);
-      trb.setBucket(bucket);
+      List<KeyMultiValue> kmvs = Lists.newArrayList();
+      KeyMultiValue kmv = new KeyMultiValue();
+      kmv.setName("publisher");
+      kmv.setKeyValues(Arrays.asList(publishers));
+      kmvs.add(kmv);
 
-    aotd.setTime(trb);
+      kmv = new KeyMultiValue();
+      kmv.setName("advertiser");
+      kmv.setKeyValues(Arrays.asList(advertisers));
+      kmvs.add(kmv);
 
-      List<AdsDataData> adsDataDatas = Lists.newArrayList();
+      kmv = new KeyMultiValue();
+      kmv.setName("location");
+      kmv.setKeyValues(Arrays.asList(locations));
+      kmvs.add(kmv);
+      asd.setKeys(kmvs);
 
-      AdsDataData add = new AdsDataData();
-      add.setTime(time1);
-      add.setBucket(bucket);
-        AdsDataValues advs = new AdsDataValues();
-        advs.setClicks(clicks1);
-        advs.setImpressions(impressions1);
-      add.setValues(advs);
+      List<SchemaValues> schemaValues = Lists.newArrayList();
+      SchemaValues svs = new SchemaValues();
+      svs.setName("impressions");
+      svs.setType("integer");
+      schemaValues.add(svs);
+      svs = new SchemaValues();
+      svs.setName("clicks");
+      svs.setType("integer");
+      schemaValues.add(svs);
+      asd.setValues(schemaValues);
 
-      adsDataDatas.add(add);
-
-      add = new AdsDataData();
-      add.setTime(time2);
-      add.setBucket(bucket);
-        advs = new AdsDataValues();
-        advs.setClicks(clicks2);
-        advs.setImpressions(impressions2);
-      add.setValues(advs);
-
-      adsDataDatas.add(add);
-
-    aotd.setData(adsDataDatas);
-    aotr.setData(aotd);
+    asr.setData(asd);
 
     ResultSerializerFactory rsf = new ResultSerializerFactory();
 
-    String jsonAOTR = rsf.serialize(aotr);
+    String jsonResult = rsf.serialize(asr);
 
-    //logger.debug("Expected: {}", testOneTimeData);
-    logger.debug("Actual:   {}", jsonAOTR);
+    logger.debug("Expected: {}", jsonExpected);
+    logger.debug("Actual:   {}", jsonResult);
 
-    //Assert.assertEquals("Serialized json was not correct", testOneTimeData, jsonAOTR);
+    Assert.assertEquals("Serialized json was not correct", jsonExpected, jsonResult);
   }
 }

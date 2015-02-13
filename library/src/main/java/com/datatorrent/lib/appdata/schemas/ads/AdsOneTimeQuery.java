@@ -7,11 +7,11 @@ package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.SchemaInfo;
+import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
 import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
 
-@SchemaInfo(type=AdsOneTimeQuery.TYPE)
+@QRType(type=AdsOneTimeQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
 public class AdsOneTimeQuery extends Query
 {

@@ -44,16 +44,16 @@ public class OneTimeResult extends Result
 
   public static class OneTimeResultData
   {
-    private TimeRangeBuckets time;
+    private TimeRangeIntervals time;
     private Map<String, String> keys;
     private List<OneTimeResultDataData> data;
 
-    public TimeRangeBuckets getTime()
+    public TimeRangeIntervals getTime()
     {
       return time;
     }
 
-    public void setTime(TimeRangeBuckets time)
+    public void setTime(TimeRangeIntervals time)
     {
       this.time = time;
     }

@@ -27,7 +27,7 @@ public class AdsOneTimeResultTest
   public AdsOneTimeResultTest()
   {
   }
-  
+
   @Test
   public void testSerialization()
   {
@@ -87,8 +87,7 @@ public class AdsOneTimeResultTest
             + "}";
 
     AdsOneTimeResult aotr = new AdsOneTimeResult(oneTimeQuery);
-    aotr.setType("oneTimeData");
-
+    
     AdsOneTimeData aotd = new AdsOneTimeData();
 
       AdsKeys ak = new AdsKeys();
