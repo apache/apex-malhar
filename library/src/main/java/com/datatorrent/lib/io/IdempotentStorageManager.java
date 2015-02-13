@@ -15,29 +15,25 @@
  */
 package com.datatorrent.lib.io;
 
-import java.io.IOException;
-import java.util.*;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.Path;
-
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.google.common.collect.TreeMultimap;
-
 import com.datatorrent.api.Component;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StorageAgent;
 import com.datatorrent.api.annotation.Stateless;
-
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator;
 import com.datatorrent.lib.util.FSStorageAgent;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.google.common.collect.TreeMultimap;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.Path;
+
+import javax.validation.constraints.NotNull;
+import java.io.IOException;
+import java.util.*;
 
 /**
  * An idempotent storage manager allows an operator to emit the same tuples in every replayed application window. An idempotent agent
@@ -331,6 +327,63 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
     public FSIdempotentStorageManager newInstance()
     {
       return new FSIdempotentStorageManager();
+    }
+  }
+
+  /**
+   *  This will store the stats
+   */
+  public static class FSStatsIdempotentStorageManager extends FSIdempotentStorageManager
+  {
+    public FSStatsIdempotentStorageManager()
+    {
+      super();
+    }
+
+    @Override
+    public void setup(Context.OperatorContext context)
+    {
+      System.out.println("Operator Dir Status");
+      Configuration configuration = new Configuration();
+      appPath = new Path(recoveryPath + '/' + context.getValue(DAG.APPLICATION_ID));
+
+      try {
+        storageAgent = new FSStorageAgent(appPath.toString(), configuration);
+
+        fs = FileSystem.newInstance(appPath.toUri(), configuration);
+
+        if (fs.exists(appPath)) {
+          FileStatus[] fileStatuses = fs.listStatus(appPath);
+
+          for (FileStatus operatorDirStatus : fileStatuses) {
+            int operatorId = Integer.parseInt(operatorDirStatus.getPath().getName());
+
+            for (FileStatus status : fs.listStatus(operatorDirStatus.getPath())) {
+              String fileName = status.getPath().getName();
+              long windowId = -1;
+              if(!fileName.equalsIgnoreCase("ffffffffffffffff"))
+                windowId = Long.parseLong(fileName, 16);
+              replayState.put(windowId, operatorId);
+              if (windowId > largestRecoveryWindow) {
+                largestRecoveryWindow = windowId;
+              }
+            }
+          }
+        }
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    @Override
+    public void deleteUpTo(int operatorId, long windowId) throws IOException
+    {
+      super.deleteUpTo(operatorId, windowId);
+      if (windowId <= largestRecoveryWindow)
+      {
+        storageAgent.delete(operatorId, -1);
+      }
     }
   }
 

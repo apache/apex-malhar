@@ -139,7 +139,7 @@ public class KinesisConsumer implements Closeable
             Shard shard = shd;
             try {
               List<Record> records = KinesisUtil.getInstance().getRecords(streamName, recordsLimit,
-                  shard, getIteratorType(shard.getShardId()), shardPosition.get(shard.getShardId()));
+                  shard.getShardId(), getIteratorType(shard.getShardId()), shardPosition.get(shard.getShardId()));
 
               if (records == null || records.isEmpty()) {
                 if (shard.getSequenceNumberRange().getEndingSequenceNumber() != null) {
@@ -299,6 +299,7 @@ public class KinesisConsumer implements Closeable
   {
     this.bufferSize = bufferSize;
   }
+
 
   /**
    * Counter class which gives the statistic value from the consumer

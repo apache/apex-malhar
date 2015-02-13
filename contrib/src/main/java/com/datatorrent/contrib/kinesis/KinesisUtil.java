@@ -94,7 +94,7 @@ public class KinesisUtil
    * @return the list of records from the given shard
    * @throws AmazonClientException
    */
-  public List<Record> getRecords(String streamName, Integer recordsLimit, Shard shId, ShardIteratorType iteratorType, String seqNo)
+  public List<Record> getRecords(String streamName, Integer recordsLimit, String shId, ShardIteratorType iteratorType, String seqNo)
       throws AmazonClientException
   {
     assert client != null:"Illegal client";
@@ -102,11 +102,12 @@ public class KinesisUtil
       // Create the GetShardIteratorRequest instance and sets streamName, shardId and iteratorType to it
       GetShardIteratorRequest iteratorRequest = new GetShardIteratorRequest();
       iteratorRequest.setStreamName(streamName);
-      iteratorRequest.setShardId(shId.getShardId());
+      iteratorRequest.setShardId(shId);
       iteratorRequest.setShardIteratorType(iteratorType);
 
       // If the iteratorType is AFTER_SEQUENCE_NUMBER, set the sequence No to the iteratorRequest
-      if (ShardIteratorType.AFTER_SEQUENCE_NUMBER.equals(iteratorType))
+      if (ShardIteratorType.AFTER_SEQUENCE_NUMBER.equals(iteratorType) ||
+          ShardIteratorType.AT_SEQUENCE_NUMBER.equals(iteratorType))
         iteratorRequest.setStartingSequenceNumber(seqNo);
 
       // Get the Response from the getShardIterator service method & get the shardIterator from that response
