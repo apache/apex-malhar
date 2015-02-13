@@ -544,24 +544,25 @@ public class DTFlumeSink extends AbstractSink implements Configurable
    */
   private void retryWrite(byte[] address, Slice event) throws IOException
   {
-    while (client.isConnected()) {
-      sleep();
-      if (client.write(address)) {
-        break;
+    if (event == null) {    // this happens for playback where address and event are sent as single object
+      while (client.isConnected()) {
+        sleep();
+        if (client.write(address)) {
+          break;
+        }
       }
     }
-
-    if (event == null) {
-      return;
-    }
-
-    while (client.isConnected()) {
-      sleep();
-      if (client.write(event.buffer, event.offset, event.length)) {
-        return;
+    else {  // this happens when the events are taken from the flume channel and writing first time failed
+      byte[] data = new byte[address.length + event.length];
+      System.arraycopy(address, 0, data, 0, address.length);
+      System.arraycopy(event.buffer, event.offset, data, address.length, event.length);
+      while (client.isConnected()) {
+        sleep();
+        if (client.write(data)) {
+          return;
+        }
       }
     }
-
     throw new IOException("Client disconnected!");
   }
 
