@@ -207,7 +207,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             Slice event = codec.toByteArray(e);
             byte[] address = storage.store(event);
             if (address != null) {
-              while (!client.write(address, event)) {
+              if (!client.write(address, event)) {
                 retryWrite(address, event);
               }
 
