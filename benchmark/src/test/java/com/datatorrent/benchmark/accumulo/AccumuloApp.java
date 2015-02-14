@@ -47,7 +47,6 @@ public class AccumuloApp implements StreamingApplication {
     TestAccumuloOutputOperator taop = dag.addOperator("testaccumulooperator", TestAccumuloOutputOperator.class);
     dag.addStream("ss", rtg.outputPort, taop.input);
     com.datatorrent.api.Attribute.AttributeMap attributes = dag.getAttributes();
-    //attributes.put(com.datatorrent.api.Context.DAGContext.CONTAINER_MEMORY_MB, 4096);
     taop.getStore().setTableName("tab1");
     taop.getStore().setZookeeperHost("127.0.0.1");
     taop.getStore().setInstanceName("instance");
