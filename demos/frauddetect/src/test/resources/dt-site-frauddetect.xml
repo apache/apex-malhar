@@ -142,6 +142,11 @@
      <name>dt.application.FraudDetectDemo.port.*.attr.QUEUE_CAPACITY</name>
      <value>32000</value>
   </property>
+<property>
+        <name>dt.application.FraudDetectDemo.operator.*.attr.MEMORY_MB</name>
+        <value>2048</value>
+</property>
+
 
 </configuration>
 
