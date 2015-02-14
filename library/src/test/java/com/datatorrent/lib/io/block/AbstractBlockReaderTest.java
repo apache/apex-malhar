@@ -101,6 +101,41 @@ public class AbstractBlockReaderTest
     Assert.assertEquals(8, newPartitions.size());
   }
 
+  @Test
+  public void testCountersTransfer() throws Exception
+  {
+    PseudoBatchedOperatorStats readerStats = new PseudoBatchedOperatorStats(2);
+    readerStats.operatorStats = Lists.newArrayList();
+    readerStats.operatorStats.add(new ReaderStats(10, 1, 100, 1));
+
+    TestReader sliceReader = new TestReader();
+    sliceReader.processStats(readerStats);
+
+    List<Partitioner.Partition<AbstractBlockReader<Slice,
+      BlockMetadata.FileBlockMetadata, FSDataInputStream>>> partitions = Lists.newArrayList();
+
+    DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> apartition =
+      new DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>(sliceReader);
+
+    PseudoParttion pseudoParttion = new PseudoParttion(apartition, readerStats);
+
+    partitions.add(pseudoParttion);
+
+    Collection<Partitioner.Partition<AbstractBlockReader<Slice,
+      BlockMetadata.FileBlockMetadata, FSDataInputStream>>> newPartitions = sliceReader.definePartitions(partitions, null);
+
+    for (Partitioner.Partition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> partition :
+      newPartitions) {
+      partition.getPartitionedInstance().counters.setCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS, new MutableLong(1));
+    }
+    sliceReader.partitionCount = 1;
+    newPartitions = sliceReader.definePartitions(newPartitions, null);
+    Assert.assertEquals(1, newPartitions.size());
+
+    AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream> last = newPartitions.iterator().next().getPartitionedInstance();
+    Assert.assertEquals("num blocks", 8, last.counters.getCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS).longValue());
+  }
+
   static class PseudoBatchedOperatorStats implements StatsListener.BatchedOperatorStats
   {
 

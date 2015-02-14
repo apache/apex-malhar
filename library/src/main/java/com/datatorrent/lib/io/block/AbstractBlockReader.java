@@ -298,12 +298,15 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     }
 
     int morePartitionsToCreate = partitionCount - partitions.size();
+    List<BasicCounters<MutableLong>> deletedCounters = Lists.newArrayList();
 
     if (morePartitionsToCreate < 0) {
       //Delete partitions
       Iterator<Partition<AbstractBlockReader<R, B, STREAM>>> partitionIterator = partitions.iterator();
       while (morePartitionsToCreate++ < 0) {
         Partition<AbstractBlockReader<R, B, STREAM>> toRemove = partitionIterator.next();
+        deletedCounters.add(toRemove.getPartitionedInstance().counters);
+
         LOG.debug("partition removed {}", toRemove.getPartitionedInstance().operatorId);
         partitionIterator.remove();
       }
@@ -348,7 +351,34 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
         }
       }
     }
+    //transfer the counters
+    AbstractBlockReader<R, B, STREAM> targetReader = partitions.iterator().next().getPartitionedInstance();
+    for (BasicCounters<MutableLong> removedCounter : deletedCounters) {
+      addCounters(targetReader.counters, removedCounter);
+    }
+
     return partitions;
+  }
+
+  /**
+   * Transfers the counters in partitioning.
+   *
+   * @param target target counter
+   * @param source removed counter
+   */
+  protected void addCounters(BasicCounters<MutableLong> target, BasicCounters<MutableLong> source)
+  {
+    for (Enum<ReaderCounterKeys> key : ReaderCounterKeys.values()) {
+      MutableLong tcounter = target.getCounter(key);
+      if (tcounter == null) {
+        tcounter = new MutableLong();
+        target.setCounter(key, tcounter);
+      }
+      MutableLong scounter = source.getCounter(key);
+      if (scounter != null) {
+        tcounter.add(scounter.longValue());
+      }
+    }
   }
 
   @Override
