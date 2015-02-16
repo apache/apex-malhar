@@ -18,6 +18,7 @@ package com.datatorrent.lib.io.fs;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -26,16 +27,19 @@ import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.base.Strings;
+import com.google.common.cache.*;
+import com.google.common.collect.Maps;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Strings;
-import com.google.common.cache.*;
-import com.google.common.collect.Maps;
+import com.datatorrent.lib.counters.BasicCounters;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
@@ -43,8 +47,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
-import com.datatorrent.lib.counters.BasicCounters;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
@@ -119,6 +121,12 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   protected Map<String, MutableLong> counts;
 
   /**
+   * Filename to rotation state mapping during a rotation period. Look at {@link #rotationWindows}
+   */
+  @NotNull
+  protected Map<String, RotationState> rotationStates;
+
+  /**
    * The path of the directory to where files are written.
    */
   @NotNull
@@ -148,7 +156,15 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   protected Long maxLength = Long.MAX_VALUE;
 
   /**
-   * True if {@link #maxLength} < {@link Long#MAX_VALUE}
+   * The file rotation window interval.
+   * The files are rotated periodically after the specified value of windows have ended. If set to 0 this feature is
+   * disabled. 
+   */
+  @Min(0)
+  protected int rotationWindows = 0;
+
+  /**
+   * True if {@link #maxLength} < {@link Long#MAX_VALUE} or {@link #rotationWindows} > 0
    */
   protected transient boolean rollingFile = false;
 
@@ -185,6 +201,11 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   protected StreamCodec<INPUT> streamCodec;
 
   /**
+   * Number of windows since the last rotation 
+   */
+  private int rotationCount;
+
+  /**
    * This input port receives incoming tuples.
    */
   public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
@@ -206,12 +227,18 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       }
     }
   };
+  
+  private static class RotationState {
+    boolean notEmpty;
+    boolean rotated;
+  }
 
   public AbstractFileOutputOperator()
   {
     endOffsets = Maps.newHashMap();
     counts = Maps.newHashMap();
     openPart = Maps.newHashMap();
+    rotationStates = Maps.newHashMap();
   }
 
   /**
@@ -236,7 +263,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   public void setup(Context.OperatorContext context)
   {
     LOG.debug("setup initiated");
-    rollingFile = maxLength < Long.MAX_VALUE;
+    rollingFile = (maxLength < Long.MAX_VALUE) || (rotationWindows > 0);
 
     //Getting required file system instance.
     try {
@@ -537,6 +564,10 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
 
       currentOffset.add(tupleBytes.length);
 
+      if (rotationWindows > 0) {
+        getRotationState(fileName).notEmpty = true;
+      }
+
       if (rollingFile && currentOffset.longValue() > maxLength) {
         LOG.debug("Rotating file {} {}", fileName, currentOffset.longValue());
         rotate(fileName);
@@ -578,6 +609,20 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     endOffsets.get(fileName).setValue(0L);
 
     rotateHook(getPartFileName(fileName, rotatedFileIndex));
+
+    if (rotationWindows > 0) {
+      getRotationState(fileName).rotated = true;
+    }
+  }
+
+  private RotationState getRotationState(String fileName)
+  {
+    RotationState rotationState = rotationStates.get(fileName);
+    if (rotationState == null) {
+      rotationState = new RotationState();
+      rotationStates.put(fileName, rotationState);
+    }
+    return rotationState;
   }
 
   /**
@@ -594,7 +639,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * This method is used to force buffers to be flushed at the end of the window.
    * flush must be used on a local file system, so an if statement checks to
    * make sure that hflush is used on local file systems.
-   * @param fsOutput
+   * @param fsOutput      output stream
    * @throws IOException
    */
   protected void flush(FSDataOutputStream fsOutput) throws IOException
@@ -656,6 +701,39 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     catch (IOException e) {
       throw new RuntimeException(e);
     }
+    
+    if (rotationWindows > 0) {
+      if (++rotationCount == rotationWindows) {
+        rotationCount = 0;
+        // Rotate the files
+        Iterator<String> iterator = streamsCache.asMap().keySet().iterator();
+        while (iterator.hasNext()) {
+          String filename = iterator.next();
+          // Rotate the file if the following conditions are met
+          // 1. The file is not already rotated during this period for other reasons such as max length is reached
+          //     or rotate was explicitly called externally
+          // 2. The file is not empty
+          RotationState rotationState = rotationStates.get(filename);
+          boolean rotate = false;
+          if (rotationState != null) {
+            rotate = !rotationState.rotated && rotationState.notEmpty;
+            rotationState.notEmpty = false;
+          }
+          if (rotate) {
+            try {
+              rotate(filename);
+            } catch (IOException e) {
+              throw new RuntimeException(e);
+            } catch (ExecutionException e) {
+              throw new RuntimeException(e);
+            }
+          }
+          if (rotationState != null) {
+            rotationState.rotated = false;
+          }
+        }
+      }
+    }
 
     long currentTimeStamp = System.currentTimeMillis();
     totalTime += currentTimeStamp - lastTimeStamp;
@@ -716,6 +794,26 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   public long getMaxLength()
   {
     return maxLength;
+  }
+
+  /**
+   * Gets the file rotation window interval.
+   * The files are rotated periodically after the specified number of windows have ended. 
+   * @return The number of windows
+   */
+  public int getRotationWindows()
+  {
+    return rotationWindows;
+  }
+
+  /**
+   * Sets the file rotation window interval.
+   * The files are rotated periodically after the specified number of windows have ended.
+   * @param rotationWindows The number of windows
+   */
+  public void setRotationWindows(int rotationWindows)
+  {
+    this.rotationWindows = rotationWindows;
   }
 
   /**
