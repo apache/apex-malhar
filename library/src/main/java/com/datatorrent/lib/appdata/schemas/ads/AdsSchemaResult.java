@@ -12,7 +12,9 @@ import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 import com.datatorrent.lib.appdata.schemas.KeyMultiValue;
 import com.datatorrent.lib.appdata.schemas.SchemaValues;
-import com.datatorrent.lib.appdata.schemas.TimeRangeIntervals;
+import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;
+import com.google.common.collect.Lists;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -25,12 +27,69 @@ import java.util.List;
 public class AdsSchemaResult extends Result
 {
   public static final String TYPE = "schemaData";
+  public static final String SCHEMA_TYPE = "dimensions";
+  public static final String SCHEMA_VERSION = "1.0";
+  public static final String[] buckets = {"1m", "1h", "1d"};
+  public static final String PUBLISHER = "publisher";
+  public static final String[] PUBLISHERS = {"twitter", "facebook", "yahoo", "google"};
+  public static final String ADVERTISER = "advertiser";
+  public static final String[] ADVERTISERS = {"starbucks", "safeway", "mcdonalds"};
+  public static final String LOCATION = "location";
+  public static final String[] LOCATIONS = {"N", "LREC", "SKY"};
+  public static final String IMPRESSIONS = "impressions";
+  public static final String IMPRESSIONS_TYPE = "integer";
+  public static final String CLICKS = "clicks";
+  public static final String CLICKS_TYPE = "integer";
+  public static final String FROM = "2014-01-01 00:00:00";
+  public static final String TO = "2014-12-31 23:59:59";
 
   private AdsSchemaData data;
 
   public AdsSchemaResult(Query query)
   {
     super(query);
+    data = new AdsSchemaData();
+    data.setSchemaType(SCHEMA_TYPE);
+    data.setSchemaVersion(SCHEMA_VERSION);
+
+    TimeRangeBuckets trb = new TimeRangeBuckets();
+    trb.setFrom(FROM);
+    trb.setTo(TO);
+    trb.setBuckets(Arrays.asList(buckets));
+
+    data.setTimeBuckets(trb);
+
+    List<KeyMultiValue> kmvs = Lists.newArrayList();
+
+    KeyMultiValue kmv = new KeyMultiValue();
+    kmv.setName(PUBLISHER);
+    kmv.setKeyValues(Arrays.asList(PUBLISHERS));
+    kmvs.add(kmv);
+
+    kmv = new KeyMultiValue();
+    kmv.setName(ADVERTISER);
+    kmv.setKeyValues(Arrays.asList(ADVERTISERS));
+    kmvs.add(kmv);
+
+    kmv = new KeyMultiValue();
+    kmv.setName(LOCATION);
+    kmv.setKeyValues(Arrays.asList(LOCATIONS));
+    kmvs.add(kmv);
+
+    data.setKeys(kmvs);
+
+    List<SchemaValues> svs = Lists.newArrayList();
+    SchemaValues sv = new SchemaValues();
+    sv.setName(IMPRESSIONS);
+    sv.setType(IMPRESSIONS_TYPE);
+    svs.add(sv);
+
+    sv = new SchemaValues();
+    sv.setName(CLICKS);
+    sv.setType(CLICKS_TYPE);
+    svs.add(sv);
+
+    data.setValues(svs);
   }
 
   /**
@@ -54,14 +113,18 @@ public class AdsSchemaResult extends Result
     private String schemaType;
     private String schemaVersion;
 
-    private TimeRangeIntervals timeBuckets;
+    private TimeRangeBuckets timeBuckets;
     private List<KeyMultiValue> keys;
     private List<SchemaValues> values;
+
+    public AdsSchemaData()
+    {
+    }
 
     /**
      * @return the timeBuckets
      */
-    public TimeRangeIntervals getTimeBuckets()
+    public TimeRangeBuckets getTimeBuckets()
     {
       return timeBuckets;
     }
@@ -69,7 +132,7 @@ public class AdsSchemaResult extends Result
     /**
      * @param timeBuckets the timeBuckets to set
      */
-    public void setTimeBuckets(TimeRangeIntervals timeBuckets)
+    public void setTimeBuckets(TimeRangeBuckets timeBuckets)
     {
       this.timeBuckets = timeBuckets;
     }

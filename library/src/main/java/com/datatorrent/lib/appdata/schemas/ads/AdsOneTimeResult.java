@@ -21,7 +21,7 @@ import java.util.List;
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
 public class AdsOneTimeResult extends Result
 {
-  public static final String TYPE = "oneTimeResult";
+  public static final String TYPE = "oneTimeData";
   private AdsOneTimeData data;
 
   public AdsOneTimeResult(Query query)

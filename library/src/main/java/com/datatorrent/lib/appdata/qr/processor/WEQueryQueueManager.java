@@ -8,53 +8,112 @@ package com.datatorrent.lib.appdata.qr.processor;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.google.common.base.Preconditions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class WEQueryQueueManager implements QueryQueueManager<Long>
+public class WEQueryQueueManager<QUERY_TYPE extends Query, META_QUERY>
+implements QueryQueueManager<QUERY_TYPE, META_QUERY, Long>
 {
+  private static final Logger logger = LoggerFactory.getLogger(WEQueryQueueManager.class);
+
   private long windowCounter = 0L;
-  private WELinkedList<QueryQueueable<WEQueueContext>> queryQueue = new WELinkedList<QueryQueueable<WEQueueContext>>();
-  private WELinkedListNode<QueryQueueable<WEQueueContext>> currentNode;
+  private WELinkedList<QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext>> queryQueue =
+  new WELinkedList<QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext>>();
+  private WELinkedListNode<QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext>> currentNode;
+  private boolean readCurrent = false;
+
+  private final Object lock = new Object();
 
   @Override
-  public boolean enqueue(Query query, Long windowExpireCount)
+  public boolean enqueue(QUERY_TYPE query, META_QUERY metaQuery, Long windowExpireCount)
+  {
+    Preconditions.checkNotNull(query);
+    Preconditions.checkNotNull(windowExpireCount);
+
+    synchronized(lock) {
+      return enqueueHelper(query, metaQuery, windowExpireCount);
+    }
+  }
+
+  private boolean enqueueHelper(QUERY_TYPE query, META_QUERY metaQuery, Long windowExpireCount)
   {
     WEQueueContext context = new WEQueueContext(windowExpireCount, windowCounter);
-    QueryQueueable<WEQueueContext> queryQueueable = new QueryQueueable<WEQueueContext>(query, context);
+    QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext> queryQueueable =
+    new QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext>(query, metaQuery, context);
 
-    queryQueue.enqueue(new WELinkedListNode<QueryQueueable<WEQueueContext>>(queryQueueable));
+    queryQueue.enqueue(new WELinkedListNode<QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext>>(queryQueueable));
+
     return true;
   }
 
   @Override
-  public Query dequeue()
+  public QueryBundle<QUERY_TYPE, META_QUERY> dequeue()
   {
-    Query query = null;
+    synchronized(lock) {
+      return dequeueHelper();
+    }
+  }
 
-    while(currentNode != null &&
-          query == null)
+  private QueryBundle<QUERY_TYPE, META_QUERY> dequeueHelper()
+  {
+    QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext> qq = null;
+
+    if(currentNode == null) {
+      currentNode = queryQueue.getHead();
+      readCurrent = false;
+
+      if(currentNode == null) {
+        return null;
+      }
+    }
+    else {
+      if(readCurrent) {
+        WELinkedListNode<QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext>> tempNode = currentNode.getNext();
+
+        if(tempNode != null) {
+          currentNode = tempNode;
+          readCurrent = false;
+        }
+        else {
+          return null;
+        }
+      }
+    }
+
+    while(true)
     {
-      QueryQueueable<WEQueueContext> queryQueueable = currentNode.getPayload();
+      QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext> queryQueueable = currentNode.getPayload();
       long numberOfWindowsAvailableFor = queryQueueable.getQueueContext().getNumberOfWindowsAvailableFor();
       long enqueueWindowCounter = queryQueueable.getQueueContext().getEnqueueWindowCounter();
 
       long diff = windowCounter - enqueueWindowCounter;
 
+      WELinkedListNode<QueryQueueable<QUERY_TYPE, META_QUERY, WEQueueContext>> nextNode = currentNode.getNext();
+
       if(diff >= numberOfWindowsAvailableFor) {
-        WELinkedListNode<QueryQueueable<WEQueueContext>> nextNode = currentNode.getNext();
         queryQueue.removeNode(currentNode);
-        currentNode = nextNode;
       }
       else {
-        query = currentNode.getPayload().getQuery();
-        currentNode = currentNode.getNext();
+        qq = currentNode.getPayload();
+      }
+
+      if(nextNode == null) {
+        readCurrent = true;
+        break;
+      }
+
+      currentNode = nextNode;
+
+      if(qq != null) {
+        break;
       }
     }
 
-    return query;
+    return qq;
   }
 
   @Override
@@ -148,12 +207,10 @@ public class WEQueryQueueManager implements QueryQueueManager<Long>
 
       //Handle the case when adding to the end of list and
       //removing a node in parallel
-      synchronized(tail) {
-        tail.setNext(node);
-        node.setPrev(tail);
-        node.setNext(null);
-        tail = node;
-      }
+      tail.setNext(node);
+      node.setPrev(tail);
+      node.setNext(null);
+      tail = node;
     }
 
     public WELinkedListNode<T> getHead()
@@ -165,26 +222,24 @@ public class WEQueryQueueManager implements QueryQueueManager<Long>
     {
       //Handle the case when adding to the end of list and
       //removing a node in parallel
-      synchronized(node) {
-        if(head == node) {
-          if(tail == node) {
-            head = null;
-            tail = null;
-          }
-          else {
-            head = node.getNext();
-            head.setPrev(null);
-          }
+      if(head == node) {
+        if(tail == node) {
+          head = null;
+          tail = null;
         }
         else {
-          if(tail == node) {
-            tail = node.getPrev();
-            tail.setNext(null);
-          }
-          else {
-            node.getPrev().setNext(node.getNext());
-            node.getNext().setPrev(node.getPrev());
-          }
+          head = node.getNext();
+          head.setPrev(null);
+        }
+      }
+      else {
+        if(tail == node) {
+          tail = node.getPrev();
+          tail.setNext(null);
+        }
+        else {
+          node.getPrev().setNext(node.getNext());
+          node.getNext().setPrev(node.getPrev());
         }
       }
     }
@@ -245,6 +300,12 @@ public class WEQueryQueueManager implements QueryQueueManager<Long>
     public void setPayload(T payload)
     {
       this.payload = payload;
+    }
+
+    @Override
+    public String toString()
+    {
+      return "WELinkedListNode{" + "payload=" + payload + '}';
     }
   }
 }

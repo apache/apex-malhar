@@ -5,6 +5,8 @@
 
 package com.datatorrent.lib.appdata.schemas.ads;
 
+import com.google.common.collect.Maps;
+import java.util.Map;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
@@ -13,6 +15,22 @@ import org.codehaus.jackson.map.annotate.JsonSerialize;
  */
 public class AdsKeys
 {
+  public static final Map<String, Integer> ADVERTISER_TO_ID;
+  public static final Map<String, Integer> PUBLISHER_TO_ID;
+  public static final Map<String, Integer> LOCATION_TO_ID;
+
+  static {
+    Map<String, Integer> advertiserToId = Maps.newHashMap();
+    Map<String, Integer> publisherToId = Maps.newHashMap();
+    Map<String, Integer> locationToId = Maps.newHashMap();
+  }
+  
+  private static void populateMap(Map<String, Integer> advertiserToId,
+                                  String[] advertisers)
+  {
+
+  }
+
   private String advertiser;
   private String publisher;
   @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
@@ -28,6 +46,11 @@ public class AdsKeys
   public String getAdvertiser()
   {
     return advertiser;
+  }
+
+  public int getAdvertiserId()
+  {
+
   }
 
   /**

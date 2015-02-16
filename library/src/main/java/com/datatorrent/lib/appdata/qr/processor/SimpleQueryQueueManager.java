@@ -13,22 +13,26 @@ import java.util.LinkedList;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SimpleQueryQueueManager<QUEUE_CONTEXT> implements QueryQueueManager<QUEUE_CONTEXT>
+public class SimpleQueryQueueManager<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT>
+                      implements QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {
-  private LinkedList<Query> queue = new LinkedList<Query>();
+  private LinkedList<QueryQueueable<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queue =
+  new LinkedList<QueryQueueable<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>>();
 
   public SimpleQueryQueueManager()
   {
   }
 
   @Override
-  public boolean enqueue(Query query, QUEUE_CONTEXT queueContext)
+  public boolean enqueue(QUERY_TYPE query, META_QUERY metaQuery, QUEUE_CONTEXT queueContext)
   {
-    return queue.offer(query);
+    QueryQueueable<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> qq =
+    new QueryQueueable<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>(query, metaQuery, queueContext);
+    return queue.offer(qq);
   }
 
   @Override
-  public Query dequeue()
+  public QueryBundle<QUERY_TYPE, META_QUERY> dequeue()
   {
     return queue.poll();
   }

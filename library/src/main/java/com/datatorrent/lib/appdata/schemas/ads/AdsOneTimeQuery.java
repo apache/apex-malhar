@@ -9,7 +9,6 @@ import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
-import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
 
 @QRType(type=AdsOneTimeQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
@@ -41,7 +40,7 @@ public class AdsOneTimeQuery extends Query
 
   public static class AdsOneTimeQueryData
   {
-    private TimeRangeBucket time;
+    private AdsTimeRangeBucket time;
     private AdsKeys keys;
 
     public AdsOneTimeQueryData()
@@ -51,7 +50,7 @@ public class AdsOneTimeQuery extends Query
     /**
      * @return the timeRangeBucket
      */
-    public TimeRangeBucket getTime()
+    public AdsTimeRangeBucket getTime()
     {
       return time;
     }
@@ -59,7 +58,7 @@ public class AdsOneTimeQuery extends Query
     /**
      * @param time the timeRangeBucket to set
      */
-    public void setTime(TimeRangeBucket time)
+    public void setTime(AdsTimeRangeBucket time)
     {
       this.time = time;
     }

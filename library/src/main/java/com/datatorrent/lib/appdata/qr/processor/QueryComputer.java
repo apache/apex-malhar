@@ -12,7 +12,7 @@ import com.datatorrent.lib.appdata.qr.Result;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public interface QueryComputer
+public interface QueryComputer<QUERY_TYPE extends Query, META_QUERY>
 {
-  public Result processQuery(Query query);
+  public Result processQuery(QUERY_TYPE query, META_QUERY metaQuery);
 }

@@ -13,6 +13,8 @@ public class AdsDataValues
 {
   private long impressions;
   private long clicks;
+  private double cost;
+  private double revenue;
 
   public AdsDataValues()
   {
@@ -48,5 +50,37 @@ public class AdsDataValues
   public void setClicks(long clicks)
   {
     this.clicks = clicks;
+  }
+
+  /**
+   * @return the cost
+   */
+  public double getCost()
+  {
+    return cost;
+  }
+
+  /**
+   * @param cost the cost to set
+   */
+  public void setCost(double cost)
+  {
+    this.cost = cost;
+  }
+
+  /**
+   * @return the revenue
+   */
+  public double getRevenue()
+  {
+    return revenue;
+  }
+
+  /**
+   * @param revenue the revenue to set
+   */
+  public void setRevenue(double revenue)
+  {
+    this.revenue = revenue;
   }
 }

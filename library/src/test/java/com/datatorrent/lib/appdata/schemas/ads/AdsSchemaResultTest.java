@@ -11,7 +11,7 @@ import com.datatorrent.lib.appdata.schemas.OneTimeQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaTestUtils;
 import com.datatorrent.lib.appdata.schemas.SchemaValues;
-import com.datatorrent.lib.appdata.schemas.TimeRangeIntervals;
+import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;
 import com.datatorrent.lib.appdata.schemas.ads.AdsSchemaResult.AdsSchemaData;
 import com.google.common.collect.Lists;
 import java.util.Arrays;
@@ -72,21 +72,21 @@ public class AdsSchemaResultTest
       "\"timeBuckets\":{" +
       "\"from\":\"" + fromTime + "\"," +
       "\"to\":\"" + toTime + "\"," +
-      "\"buckets\":[ " + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(buckets, "\""), ",") +" ]" +
-      "}" +
+      "\"buckets\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(buckets, "\""), ",") +"]" +
+      "}," +
     "\"keys\":[" + "{" +
       "\"name\":\"publisher\"," +
-      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(publishers, "\""), ",") + " ]," +
+      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(publishers, "\""), ",") + "]" +
     "}," +
     "{" +
       "\"name\":\"advertiser\"," +
-      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(advertisers, "\""), ",") + " ]," +
+      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(advertisers, "\""), ",") + "]" +
     "}," +
     "{" +
       "\"name\":\"location\"," +
-      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(locations, "\""), ",") + " ]," +
-    "}," +
-    "]" +
+      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(locations, "\""), ",") + "]" +
+    "}" +
+    "]," +
     "\"values\":[" +
       "{\"name\":\"impressions\",\"type\":\"integer\"}," +
       "{\"name\":\"clicks\",\"type\":\"integer\"}" + "]" +
@@ -103,10 +103,10 @@ public class AdsSchemaResultTest
       asd.setSchemaType(schemaType);
       asd.setSchemaVersion(schemaVersion);
 
-      TimeRangeIntervals trbs = new TimeRangeIntervals();
+      TimeRangeBuckets trbs = new TimeRangeBuckets();
       trbs.setFrom(fromTime);
       trbs.setTo(toTime);
-      trbs.setIntervals(Arrays.asList(buckets));
+      trbs.setBuckets(Arrays.asList(buckets));
       asd.setTimeBuckets(trbs);
 
       List<KeyMultiValue> kmvs = Lists.newArrayList();

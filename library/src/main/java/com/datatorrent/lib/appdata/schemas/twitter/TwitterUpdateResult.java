@@ -20,7 +20,7 @@ import java.util.List;
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
 public class TwitterUpdateResult extends Result
 {
-  public static final String TYPE = "updateResult";
+  public static final String TYPE = "updateData";
 
   private int countdown;
   private TwitterData data;

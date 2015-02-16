@@ -48,6 +48,12 @@ public class AdsOneTimeResultTest
     final long clicks1 = 13942;
     final long clicks2 = 51789;
 
+    final double cost1 = 1.0;
+    final double cost2 = 2.0;
+
+    final double revenue1 = 1.0;
+    final double revenue2 = 2.0;
+
     OneTimeQuery oneTimeQuery = new OneTimeQuery();
     oneTimeQuery.setId(id);
     oneTimeQuery.setType("oneTimeQuery");
@@ -72,7 +78,9 @@ public class AdsOneTimeResultTest
             +     "\"bucket\":\"" + bucket + "\","
             +     "\"values\":{"
             +       "\"impressions\":" + impressions1 + ","
-            +       "\"clicks\":" + clicks1
+            +       "\"clicks\":" + clicks1 + ","
+            +       "\"cost\":" + cost1 + ","
+            +       "\"revenue\":" + revenue1
             +     "}"
             +   "},"
             +   "{"
@@ -80,14 +88,16 @@ public class AdsOneTimeResultTest
             +     "\"bucket\":\"" + bucket + "\","
             +     "\"values\":{"
             +       "\"impressions\":" + impressions2 + ","
-            +       "\"clicks\":" + clicks2
+            +       "\"clicks\":" + clicks2 + ","
+            +       "\"cost\":" + cost2 + ","
+            +       "\"revenue\":" + revenue2
             +     "}"
             +   "}]"
             + "}"
             + "}";
 
     AdsOneTimeResult aotr = new AdsOneTimeResult(oneTimeQuery);
-    
+
     AdsOneTimeData aotd = new AdsOneTimeData();
 
       AdsKeys ak = new AdsKeys();
@@ -111,6 +121,8 @@ public class AdsOneTimeResultTest
         AdsDataValues advs = new AdsDataValues();
         advs.setClicks(clicks1);
         advs.setImpressions(impressions1);
+        advs.setCost(cost1);
+        advs.setRevenue(revenue1);
       add.setValues(advs);
 
       adsDataDatas.add(add);
@@ -121,6 +133,8 @@ public class AdsOneTimeResultTest
         advs = new AdsDataValues();
         advs.setClicks(clicks2);
         advs.setImpressions(impressions2);
+        advs.setCost(cost2);
+        advs.setRevenue(revenue2);
       add.setValues(advs);
 
       adsDataDatas.add(add);

@@ -19,7 +19,7 @@ import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
 public class WeatherUpdateResult extends Result
 {
-  public static final String TYPE = "updateResult";
+  public static final String TYPE = "updateData";
 
   private WeatherUpdateData data;
 

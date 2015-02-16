@@ -15,25 +15,6 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.SortedMap;
-import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
@@ -41,11 +22,34 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregateEvent;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
+import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
+import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeQuery;
+import com.datatorrent.lib.appdata.schemas.ads.AdsSchemaResult;
+import com.datatorrent.lib.appdata.schemas.ads.AdsUpdateQuery;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.mutable.MutableObject;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * AdsDimension Store Operator
@@ -61,18 +65,30 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   /**
    * Annotate this
    */
-  public final transient DefaultOutputPort<TimeSeriesQueryResult> queryResult = new DefaultOutputPort<TimeSeriesQueryResult>();
+  public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
 
   @InputPortFieldAnnotation(optional=true)
   public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
   {
     @Override public void process(String s)
     {
-      try {
-        LOG.debug("registering query {}", s);
-        registerTimeSeriesQuery(s);
-      } catch(Exception ex) {
-        LOG.error("Unable to register query {}", s);
+      Query query = qdf.deserialize(s);
+
+      if(query instanceof SchemaQuery) {
+        queryResult.emit(rdf.serialize(new AdsSchemaResult(query)));
+      }
+      else if(query instanceof AdsUpdateQuery) {
+        throw new UnsupportedOperationException("The " + AdsUpdateQuery.class + " query type isn't supported right now.");
+      }
+      //AdsOneTimeResult
+      else {
+        try {
+          LOG.debug("registering query {}", s);
+          registerTimeSeriesQuery((AdsOneTimeQuery) query);
+        }
+        catch(Exception ex) {
+          LOG.error("Unable to register query {}", s);
+        }
       }
     }
   };
@@ -81,7 +97,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   private transient final ByteBuffer keybb = ByteBuffer.allocate(8 + 4 * 3);
   protected boolean debug = false;
 
-  protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+  //protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
   // in-memory aggregation before hitting WAL
   protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache = Maps.newTreeMap();
   // TODO: should be aggregation interval count
@@ -93,6 +109,22 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   protected transient final Map<String, TimeSeriesQuery> timeSeriesQueries = Maps.newConcurrentMap();
   private transient ObjectMapper mapper = null;
   private long defaultTimeWindow = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES);
+
+  //====================================================================
+  //==== Query Processor Start
+  //====================================================================
+
+  @SuppressWarnings("unchecked")
+  private transient final QueryDeserializerFactory qdf = new QueryDeserializerFactory(SchemaQuery.class,
+                                                                                AdsUpdateQuery.class,
+                                                                                AdsOneTimeQuery.class);
+  private transient final MutableObject<QueryProcessor<AdsOneTimeQuery, List<HDSQuery>, Long>> qpWrapper =
+  new MutableObject<QueryProcessor<AdsOneTimeQuery, List<HDSQuery>, Long>>();
+  private transient final ResultSerializerFactory rdf = new ResultSerializerFactory();
+
+  //====================================================================
+  //==== Query Processor End
+  //====================================================================
 
   public int getMaxCacheSize()
   {
@@ -333,20 +365,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
   }
 
-  protected void registerTimeSeriesQuery(String queryString) throws Exception
+  protected void registerTimeSeriesQuery(AdsOneTimeQuery query) throws Exception
   {
-    if (mapper == null) {
-      mapper = new ObjectMapper();
-      mapper.configure(org.codehaus.jackson.map.DeserializationConfig.Feature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    }
-
-    QueryParameters queryParams = mapper.readValue(queryString, QueryParameters.class);
-
-    if (queryParams.id == null) {
-      return;
-    }
-
-    AdInfo.AdInfoAggregateEvent ae = mapper.convertValue(queryParams.keys, AdInfo.AdInfoAggregateEvent.class);
+    String queryString = null;
 
     long bucketKey = getBucketKey(ae);
     if (!(super.partitions == null || super.partitions.contains((int)bucketKey))) {
@@ -466,6 +487,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   /**
    * Parameters for registration of query.
    */
+  /*
   static class QueryParameters
   {
     public String id;
@@ -481,5 +503,5 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     public long countDown;
     public List<AdInfo.AdInfoAggregateEvent> data;
   }
-
+*/
 }

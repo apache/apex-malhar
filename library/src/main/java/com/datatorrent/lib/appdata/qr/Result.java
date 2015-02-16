@@ -9,7 +9,7 @@ package com.datatorrent.lib.appdata.qr;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public abstract class Result
+public class Result
 {
   private String id;
   private String type;

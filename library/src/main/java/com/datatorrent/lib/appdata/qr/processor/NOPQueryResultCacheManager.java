@@ -13,10 +13,10 @@ import com.datatorrent.lib.appdata.qr.Result;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class NOPQueryResultCacheManager implements QueryResultCacheManager
+public class NOPQueryResultCacheManager<QUERY_TYPE extends Query, META_QUERY> implements QueryResultCacheManager<QUERY_TYPE, META_QUERY>
 {
   @Override
-  public Result getResult(Query query)
+  public Result getResult(QUERY_TYPE query, META_QUERY metaQuery)
   {
     return null;
   }

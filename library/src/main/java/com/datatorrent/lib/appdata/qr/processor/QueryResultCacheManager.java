@@ -13,7 +13,7 @@ import com.datatorrent.lib.appdata.qr.Result;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public interface QueryResultCacheManager extends Operator
+public interface QueryResultCacheManager<QUERY_TYPE extends Query, META_QUERY> extends Operator
 {
-  public Result getResult(Query query);
+  public Result getResult(QUERY_TYPE query, META_QUERY metaQuery);
 }

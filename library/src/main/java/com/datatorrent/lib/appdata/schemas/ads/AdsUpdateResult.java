@@ -20,7 +20,7 @@ import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
 public class AdsUpdateResult extends Result
 {
-  public static final String TYPE = "updateResult";
+  public static final String TYPE = "updateData";
 
   private AdsUpdateData data;
 
