@@ -123,6 +123,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   /**
    * Filename to rotation state mapping during a rotation period. Look at {@link #rotationWindows}
    */
+  @NotNull
   protected Map<String, RotationState> rotationStates;
 
   /**
@@ -638,7 +639,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * This method is used to force buffers to be flushed at the end of the window.
    * flush must be used on a local file system, so an if statement checks to
    * make sure that hflush is used on local file systems.
-   * @param fsOutput
+   * @param fsOutput      output stream
    * @throws IOException
    */
   protected void flush(FSDataOutputStream fsOutput) throws IOException
@@ -712,7 +713,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
           // 1. The file is not already rotated during this period for other reasons such as max length is reached
           //     or rotate was explicitly called externally
           // 2. The file is not empty
-          RotationState rotationState = (RotationState)rotationStates.get(filename);
+          RotationState rotationState = rotationStates.get(filename);
           boolean rotate = false;
           if (rotationState != null) {
             rotate = !rotationState.rotated && rotationState.notEmpty;

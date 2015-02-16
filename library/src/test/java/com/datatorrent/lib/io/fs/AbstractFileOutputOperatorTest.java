@@ -341,7 +341,6 @@ public class AbstractFileOutputOperatorTest
                         fileContents);
   }
 
-  //@Ignore
   @Test
   public void testSingleFileCompletedWrite()
   {
@@ -361,7 +360,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testSingleFileCompletedWriteOverwriteInitial()
   {
@@ -404,7 +402,6 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
 
-  //@Ignore
   @Test
   public void testSingleFileFailedWrite()
   {
@@ -426,7 +423,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testSingleFileFailedWriteOverwriteInitial()
   {
@@ -487,7 +483,6 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
 
-  //@Ignore
   @Test
   public void testMultiFileCompletedWrite()
   {
@@ -589,7 +584,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testMultiFileCompletedWriteOverwriteCache1Initial()
   {
@@ -673,7 +667,6 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
   }
 
-  //@Ignore
   @Test
   public void testMultiFileFailedWrite()
   {
@@ -704,7 +697,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testMultiFileFailedWriteCache1()
   {
@@ -770,7 +762,6 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
   }
 
-  //@Ignore
   @Test
   public void testSingleRollingFileCompletedWrite()
   {
@@ -801,7 +792,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testSingleRollingFileCompletedWriteOverwriteInitial()
   {
@@ -870,7 +860,6 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
 
-  //@Ignore
   @Test
   public void testSingleRollingFileFailedWrite()
   {
@@ -950,7 +939,6 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
 
-  //@Ignore
   @Test
   public void testSingleRollingFileFailedWrite1()
   {
@@ -1031,7 +1019,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileCompletedWriteHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileCompletedWriteCache1()
   {
@@ -1041,7 +1028,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileCompletedWriteHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileCompletedWriteOverwrite()
   {
@@ -1050,7 +1036,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileCompletedWriteHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileCompletedWriteOverwriteCache1()
   {
@@ -1194,7 +1179,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileFailedWrite()
   {
@@ -1203,7 +1187,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileFailedWriteHelperHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileFailedWriteCache1()
   {
@@ -1302,7 +1285,6 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileFailedWriteOverwrite()
   {
@@ -1311,7 +1293,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileFailedWriteOverwriteHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileFailedWriteOverwriteCache1()
   {
@@ -1485,7 +1466,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void singleFileMultiRollingFailure()
   {
@@ -1582,7 +1562,6 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
   }
 
-  //@Ignore
   @Test
   public void validateNothingWrongTest()
   {
@@ -1593,7 +1572,6 @@ public class AbstractFileOutputOperatorTest
     LocalMode.runApp(validationTestApp, 1);
   }
 
-  //@Ignore
   @Test
   public void validateNegativeMaxLengthTest()
   {
