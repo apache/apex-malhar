@@ -99,9 +99,9 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   protected MutableLong localNumberOfFailures = new MutableLong();
   protected MutableLong globalNumberOfRetries = new MutableLong();
   protected MutableLong localNumberOfRetries = new MutableLong();
-  private transient MutableLong globalProcessedFileCount = new MutableLong();
+  protected transient MutableLong globalProcessedFileCount = new MutableLong();
   protected transient MutableLong localProcessedFileCount = new MutableLong();
-  private transient MutableLong pendingFileCount = new MutableLong();
+  protected transient MutableLong pendingFileCount = new MutableLong();
 
   @NotNull
   protected IdempotentStorageManager idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
