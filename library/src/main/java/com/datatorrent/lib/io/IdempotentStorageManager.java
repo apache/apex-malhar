@@ -331,63 +331,6 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
   }
 
   /**
-   *  This will store the stats
-   */
-  public static class FSStatsIdempotentStorageManager extends FSIdempotentStorageManager
-  {
-    public FSStatsIdempotentStorageManager()
-    {
-      super();
-    }
-
-    @Override
-    public void setup(Context.OperatorContext context)
-    {
-      System.out.println("Operator Dir Status");
-      Configuration configuration = new Configuration();
-      appPath = new Path(recoveryPath + '/' + context.getValue(DAG.APPLICATION_ID));
-
-      try {
-        storageAgent = new FSStorageAgent(appPath.toString(), configuration);
-
-        fs = FileSystem.newInstance(appPath.toUri(), configuration);
-
-        if (fs.exists(appPath)) {
-          FileStatus[] fileStatuses = fs.listStatus(appPath);
-
-          for (FileStatus operatorDirStatus : fileStatuses) {
-            int operatorId = Integer.parseInt(operatorDirStatus.getPath().getName());
-
-            for (FileStatus status : fs.listStatus(operatorDirStatus.getPath())) {
-              String fileName = status.getPath().getName();
-              long windowId = -1;
-              if(!fileName.equalsIgnoreCase("ffffffffffffffff"))
-                windowId = Long.parseLong(fileName, 16);
-              replayState.put(windowId, operatorId);
-              if (windowId > largestRecoveryWindow) {
-                largestRecoveryWindow = windowId;
-              }
-            }
-          }
-        }
-      }
-      catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-    }
-
-    @Override
-    public void deleteUpTo(int operatorId, long windowId) throws IOException
-    {
-      super.deleteUpTo(operatorId, windowId);
-      if (windowId <= largestRecoveryWindow)
-      {
-        storageAgent.delete(operatorId, -1);
-      }
-    }
-  }
-
-  /**
    * This {@link IdempotentStorageManager} will never do recovery. This is a convenience class so that operators
    * can use the same logic for maintaining idempotency and avoiding idempotency.
    */

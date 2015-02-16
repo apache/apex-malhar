@@ -96,7 +96,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   // Store the current partition info
   private transient Set<PartitionInfo> currentPartitionInfo = new HashSet<PartitionInfo>();
 
-  protected Map<String, String> shardPosition = new HashMap<String, String>();
+  protected transient Map<String, String> shardPosition = new HashMap<String, String>();
   private ShardManager shardManager = null;
 
   // Minimal interval between 2 (re)partition actions
@@ -108,6 +108,8 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   private transient long lastCheckTime = 0L;
 
   private transient long lastRepartitionTime = 0L;
+
+  private transient boolean isReplayState = false;
 
   //No of shards per partition in dynamic MANY_TO_ONE strategy
   // If the value is more than 1, then it enables the dynamic partitioning
@@ -126,7 +128,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
 
   public AbstractKinesisInputOperator()
   {
-    idempotentStorageManager = new IdempotentStorageManager.FSStatsIdempotentStorageManager();
+    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
     currentWindowRecoveryState = new HashMap<String, KinesisPair<String, Integer>>();
   }
   /**
@@ -161,6 +163,8 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
 
     // Operator partitions
     List<Partition<AbstractKinesisInputOperator>> newPartitions = null;
+    Collection<IdempotentStorageManager> newManagers = Sets.newHashSet();
+    Set<Integer> deletedOperators =  Sets.newHashSet();
 
     // initialize the shard positions
     Map<String, String> initShardPos = null;
@@ -179,17 +183,18 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
         newPartitions = new ArrayList<Partition<AbstractKinesisInputOperator>>(shards.size());
         for (int i = 0; i < shards.size(); i++) {
           logger.info("[ONE_TO_ONE]: Create operator partition for kinesis partition: " + shards.get(i).getShardId() + ", StreamName: " + this.getConsumer().streamName);
-          newPartitions.add(createPartition(Sets.newHashSet(shards.get(i).getShardId()), initShardPos));
+          newPartitions.add(createPartition(Sets.newHashSet(shards.get(i).getShardId()), initShardPos, newManagers));
         }
       } else if (newWaitingPartition.size() != 0) {
         // Remove the partitions for the closed shards
-        removePartitionsForClosedShards(partitions);
+        removePartitionsForClosedShards(partitions, deletedOperators);
         // add partition for new kinesis shard
         for (String pid : newWaitingPartition) {
           logger.info("[ONE_TO_ONE]: Add operator partition for kinesis partition " + pid);
-          partitions.add(createPartition(Sets.newHashSet(pid), null));
+          partitions.add(createPartition(Sets.newHashSet(pid), null, newManagers));
         }
         newWaitingPartition.clear();
+        idempotentStorageManager.partitioned(newManagers, deletedOperators);
         return partitions;
       }
       break;
@@ -226,15 +231,21 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
         logger.info("[MANY_TO_ONE]: Add operator partition for kinesis partition(s): " + StringUtils.join(newWaitingPartition, ", ") + ", StreamName: " + this.getConsumer().streamName);
         newWaitingPartition.clear();
       }
+      // Add the existing partition Ids to the deleted operators
+      for(Partition<AbstractKinesisInputOperator> op : partitions)
+      {
+        deletedOperators.add(op.getPartitionedInstance().operatorId);
+      }
       for (int i = 0; i < pIds.length; i++) {
         logger.info("[MANY_TO_ONE]: Create operator partition for kinesis partition(s): " + StringUtils.join(pIds[i], ", ") + ", StreamName: " + this.getConsumer().streamName);
         if(pIds[i] != null)
-          newPartitions.add(createPartition(pIds[i], initShardPos));
+          newPartitions.add(createPartition(pIds[i], initShardPos, newManagers));
       }
       break;
     default:
       break;
     }
+    idempotentStorageManager.partitioned(newManagers, deletedOperators);
     return newPartitions;
   }
 
@@ -314,7 +325,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   }
 
   // If all the shards in the partition are closed, then remove that partition
-  private void removePartitionsForClosedShards(Collection<Partition<AbstractKinesisInputOperator>> partitions)
+  private void removePartitionsForClosedShards(Collection<Partition<AbstractKinesisInputOperator>> partitions, Set<Integer> deletedOperators)
   {
     List<Partition<AbstractKinesisInputOperator>> closedPartitions = new ArrayList<Partition<AbstractKinesisInputOperator>>();
     for(Partition<AbstractKinesisInputOperator> op : partitions)
@@ -323,6 +334,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
           op.getPartitionedInstance().getConsumer().getNumOfShards())
       {
         closedPartitions.add(op);
+        deletedOperators.add(op.getPartitionedInstance().operatorId);
       }
     }
     if(closedPartitions.size() != 0)
@@ -353,7 +365,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   }
   // Create a new partition with the shardIds and initial shard positions
   private
-  Partition<AbstractKinesisInputOperator> createPartition(Set<String> shardIds, Map<String, String> initShardPos)
+  Partition<AbstractKinesisInputOperator> createPartition(Set<String> shardIds, Map<String, String> initShardPos, Collection<IdempotentStorageManager> newManagers)
   {
     Kryo kryo = new Kryo();
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -362,6 +374,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     output.close();
     Input lInput = new Input(bos.toByteArray());
     Partition<AbstractKinesisInputOperator> p = new DefaultPartition<AbstractKinesisInputOperator>(kryo.readObject(lInput, this.getClass()));
+    newManagers.add(p.getPartitionedInstance().idempotentStorageManager);
     p.getPartitionedInstance().getConsumer().setShardIds(shardIds);
     p.getPartitionedInstance().getConsumer().resetShardPositions(initShardPos);
 
@@ -390,21 +403,8 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     operatorId = context.getId();
     idempotentStorageManager.setup(context);
     shardPosition.clear();
-    if(idempotentStorageManager.getLargestRecoveryWindow() != -1)
-    {
-      try {
-        @SuppressWarnings("unchecked")
-        Map<String, String> statsRecoveryData = (Map<String, String>) idempotentStorageManager.load(operatorId, -1);
-        if (statsRecoveryData == null) {
-          return;
-        }
-        Map<String, String> statsData = new HashMap<String, String>(getConsumer().getShardPosition());
-        statsData.putAll(statsRecoveryData);
-        getConsumer().resetShardPositions(statsData);
-      }
-      catch (IOException e) {
-        throw new RuntimeException("Setup", e);
-      }
+    if (context.getValue(OperatorContext.ACTIVATION_WINDOW_ID) < idempotentStorageManager.getLargestRecoveryWindow()) {
+      isReplayState = true;
     }
   }
 
@@ -447,6 +447,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
               rc.getKey(), ShardIteratorType.AT_SEQUENCE_NUMBER, rc.getValue().getFirst());
           for (Record record : records) {
             outputPort.emit(getTuple(record));
+            shardPosition.put(rc.getKey(), record.getSequenceNumber());
           }
         } catch(Exception e)
         {
@@ -468,13 +469,13 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
     if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
       try {
         idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
-        idempotentStorageManager.save(shardPosition, operatorId, -1);
       }
       catch (IOException e) {
         throw new RuntimeException("saving recovery", e);
       }
     }
     currentWindowRecoveryState.clear();
+
   }
 
   /**
@@ -483,6 +484,11 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void activate(OperatorContext ctx)
   {
+    if(isReplayState)
+    {
+      // If it is a replay state, don't start the consumer
+      return;
+    }
     consumer.start();
   }
 
@@ -491,7 +497,6 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   {
     try {
       idempotentStorageManager.deleteUpTo(operatorId, windowId);
-      shardPosition.clear();
     }
     catch (IOException e) {
       throw new RuntimeException("deleting state", e);
@@ -535,9 +540,18 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
       } else {
         KinesisPair<String, Integer> second = currentWindowRecoveryState.get(shardId);
         Integer noOfRecords = second.getSecond();
-        currentWindowRecoveryState.put(data.getFirst(), new KinesisPair<String, Integer>(second.getFirst(), noOfRecords++));
+        currentWindowRecoveryState.put(data.getFirst(), new KinesisPair<String, Integer>(second.getFirst(), noOfRecords+1));
       }
       shardPosition.put(shardId, recordId);
+    }
+    if(isReplayState)
+    {
+      isReplayState = false;
+      // Set the shard positions to the consumer
+      Map<String, String> statsData = new HashMap<String, String>(getConsumer().getShardPosition());
+      statsData.putAll(shardPosition);
+      getConsumer().resetShardPositions(statsData);
+      consumer.start();
     }
     emitCount += count;
   }
@@ -592,11 +606,6 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   public PartitionStrategy getStrategy()
   {
     return strategy;
-  }
-
-  public void setStrategy(PartitionStrategy strategy)
-  {
-    this.strategy = strategy;
   }
 
   public void setStrategy(String policy)
