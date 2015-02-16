@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.util;
 
+import java.io.IOException;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.ext.ContextResolver;
@@ -75,6 +76,11 @@ public class JacksonObjectMapperProvider implements ContextResolver<ObjectMapper
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  public <T> T fromJSONObject(JSONObject json, Class<T> clazz) throws IOException
+  {
+    return this.getContext(null).readValue(json.toString(), clazz);
   }
 
 }
