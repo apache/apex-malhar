@@ -25,7 +25,7 @@ public  class FSRollingTestImpl extends AbstractFSRollingOutputOperator<String>
   {
     ArrayList<String> hivePartitions = new ArrayList<String>();
     hivePartitions.add("2014-12-10");
-    //hivePartitions.add("2014-12-11");
+    hivePartitions.add("USA");
     //hivePartitions.add("2014-12-12");
     return(hivePartitions);
   }

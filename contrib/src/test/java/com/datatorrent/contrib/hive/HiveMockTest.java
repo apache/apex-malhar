@@ -18,26 +18,19 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator.ProcessingMode;
-import static com.datatorrent.contrib.hive.AbstractHiveOutputOperatorTest.*;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.serializers.FieldSerializer;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.OutputStreamWriter;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.HashMap;
 import org.apache.commons.io.FileUtils;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.conf.HiveConf;
-import org.apache.hadoop.hive.jdbc.HiveStatement;
 import org.apache.thrift.TException;
 import org.junit.Rule;
 import org.junit.runner.Description;
-
 
 public class HiveMockTest extends HiveTestService
 {
@@ -50,7 +43,10 @@ public class HiveMockTest extends HiveTestService
   public static final String tablename = "temptable";
   public static final String tablemap = "tempmap";
   public static String delimiterMap = ":";
-
+  public static final String HOST = "localhost";
+  public static final String PORT = "10000";
+  public static final String DATABASE = "default";
+  public static final String HOST_PREFIX = "jdbc:hive://";
 
   @Rule
   public TestInfo testMeta = new HiveTestWatcher();
@@ -86,7 +82,6 @@ public class HiveMockTest extends HiveTestService
     super();
   }
 
-
   public static HiveStore createStore(HiveStore hiveStore)
   {
     String host = HOST;
@@ -115,7 +110,7 @@ public class HiveMockTest extends HiveTestService
     return hiveStore;
   }
 
-   public static void hiveInitializeDatabase(HiveStore hiveStore) throws SQLException
+  public static void hiveInitializeDatabase(HiveStore hiveStore) throws SQLException
   {
     hiveStore.connect();
     Statement stmt = hiveStore.getConnection().createStatement();
@@ -125,10 +120,10 @@ public class HiveMockTest extends HiveTestService
     LOG.debug(sql);
     ResultSet res = stmt.executeQuery(sql);
     if (res.next()) {
-      LOG.debug("tables are {}",res.getString(1));
+      LOG.debug("tables are {}", res.getString(1));
     }
 
-    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename + " (col1 string) PARTITIONED BY(dt STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
+    stmt.execute("CREATE TABLE IF NOT EXISTS " + tablename + " (col1 string) PARTITIONED BY(dt STRING,country STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY '\n'  \n"
             + "STORED AS TEXTFILE ");
     /*ResultSet res = stmt.execute("CREATE TABLE IF NOT EXISTS temp4 (col1 map<string,int>,col2 map<string,int>,col3  map<string,int>,col4 map<String,timestamp>, col5 map<string,double>,col6 map<string,double>,col7 map<string,int>,col8 map<string,int>) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','  \n"
      + "COLLECTION ITEMS TERMINATED BY '\n'  \n"
@@ -161,7 +156,7 @@ public class HiveMockTest extends HiveTestService
   @Override
   public void setUp() throws Exception
   {
-    System.setProperty(HiveConf.ConfVars.METASTOREWAREHOUSE.toString(),testMeta.getDir());
+    System.setProperty(HiveConf.ConfVars.METASTOREWAREHOUSE.toString(), testMeta.getDir());
     super.setUp();
   }
 
@@ -173,6 +168,7 @@ public class HiveMockTest extends HiveTestService
     hiveStore.setFilepath(testMeta.getDir());
     ArrayList<String> hivePartitionColumns = new ArrayList<String>();
     hivePartitionColumns.add("dt");
+    hivePartitionColumns.add("country");
     hiveInitializeDatabase(createStore(null));
     //Path p = new Path(this.ROOT_DIR, "afile");
     HiveOperator hiveOperator = new HiveOperator();
@@ -195,13 +191,13 @@ public class HiveMockTest extends HiveTestService
     hiveOperator.setup(context);
     FilePartitionMapping mapping1 = new FilePartitionMapping();
     FilePartitionMapping mapping2 = new FilePartitionMapping();
-     mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-10" + "/"+ "0-transaction.out.part.0");
-        ArrayList<String> partitions = new ArrayList<String>();
-        partitions.add("2014-12-10");
-        partitions.add("2014-12-11");
-         mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-11" + "/" + "0-transaction.out.part.1");
-        mapping2.setPartition(partitions);
-        mapping1.setPartition(partitions);
+    mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-10" + "/" + "USA" + "/" + "0-transaction.out.part.0");
+    ArrayList<String> partitions = new ArrayList<String>();
+    partitions.add("2014-12-10");
+    partitions.add("USA");
+    mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-10" + "/" + "USA" + "/" + "0-transaction.out.part.1");
+    mapping2.setPartition(partitions);
+    mapping1.setPartition(partitions);
     for (int wid = 0, total = 0;
             wid < NUM_WINDOWS;
             wid++) {
@@ -209,7 +205,7 @@ public class HiveMockTest extends HiveTestService
       for (int tupleCounter = 0;
               tupleCounter < BLAST_SIZE && total < DATABASE_SIZE;
               tupleCounter++, total++) {
-        fsRolling.input.process("2014-12-1"+tupleCounter);
+        fsRolling.input.process("2014-12-1" + tupleCounter);
       }
       if (wid == 7) {
         fsRolling.committed(wid - 1);
@@ -218,35 +214,22 @@ public class HiveMockTest extends HiveTestService
       }
 
       fsRolling.endWindow();
-     // hiveOperator.endWindow();
+      // hiveOperator.endWindow();
     }
 
     fsRolling.teardown();
     hiveStore.connect();
-    client.execute("select * from " + tablename + " where dt='2014-12-10'");
-   // List<String> records = client.fetchAll();
-    Statement stmt = hiveStore.getConnection().createStatement();
-   // ResultSet resultSet = stmt.execute("select * from " + tablename + " where dt='2014-12-10'");
-   // resultSet.next();
-   // int databaseSize = resultSet.getInt(1);
-   // LOG.debug("records in date partition {}", databaseSize);
+    client.execute("select * from " + tablename + " where dt='2014-12-10' and country='USA'");
     List<String> recordsInDatePartition = client.fetchAll();
-    for(int i=0;i<recordsInDatePartition.size();i++)
-    LOG.debug("records in date partition {}", recordsInDatePartition.get(i));
+    for (int i = 0; i < recordsInDatePartition.size(); i++) {
+      LOG.debug("records in date partition {}", recordsInDatePartition.get(i));
+    }
 
-  //  String[] numPartitions = partitions.split(",");
-
-     stmt.execute("drop table " + tablename);
-   // resultSet.next();
-   // databaseSize = resultSet.getInt(1);
-   // LOG.debug("database size is {}", databaseSize);
+    client.execute("drop table " + tablename);
     hiveStore.disconnect();
 
-   // Assert.assertEquals(66, records.size());
-   // Assert.assertEquals(2, numPartitions.length);
-
+    Assert.assertEquals(24, recordsInDatePartition.size());
   }
-
 
   @Test
   public void testHiveInsertMapOperator() throws SQLException, TException
@@ -256,7 +239,6 @@ public class HiveMockTest extends HiveTestService
     ArrayList<String> hivePartitionColumns = new ArrayList<String>();
     hivePartitionColumns.add("dt");
     hiveInitializeMapDatabase(createStore(null));
-
 
     //Path p = new Path(this.ROOT_DIR, "afile");
     HiveOperator hiveOperator = new HiveOperator();
@@ -295,7 +277,7 @@ public class HiveMockTest extends HiveTestService
 
       if (wid == 7) {
         fsRolling.committed(wid - 1);
-        mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "111" + "/"+ "0-transaction.out.part.0");
+        mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "111" + "/" + "0-transaction.out.part.0");
         mapping1.setPartition(partitions);
         hiveOperator.processTuple(mapping1);
         mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "111" + "/" + "0-transaction.out.part.1");
@@ -354,8 +336,8 @@ public class HiveMockTest extends HiveTestService
     FilePartitionMapping mapping3 = new FilePartitionMapping();
     outputOperator.setup(context);
     ArrayList<String> partitions = new ArrayList<String>();
-    partitions.add("111");
-    partitions.add("222");
+    partitions.add("2014-12-10");
+    partitions.add("USA");
     for (int wid = 0, total = 0;
             wid < 20;
             wid++) {
@@ -363,17 +345,17 @@ public class HiveMockTest extends HiveTestService
       for (int tupleCounter = 0;
               tupleCounter < 10 && total < 100;
               tupleCounter++, total++) {
-        fsRolling.input.process(123 + "");
+        fsRolling.input.process("2014-12-1" + tupleCounter);
       }
       if (wid == 6) {
         fsRolling.committed(wid - 1);
-        mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "111" + "/" + "222" + "/"+ "0-transaction.out.part.0");
+        mapping1.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-10" + "/" + "USA" + "/" + "0-transaction.out.part.0");
         mapping1.setPartition(partitions);
         outputOperator.processTuple(mapping1);
       }
       if (wid == 15) {
         fsRolling.committed(14);
-        mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "111" + "/" + "222" + "/"+ "0-transaction.out.part.1");
+        mapping2.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-10" + "/" + "USA" + "/" + "0-transaction.out.part.1");
         mapping2.setPartition(partitions);
         outputOperator.processTuple(mapping2);
       }
@@ -390,7 +372,7 @@ public class HiveMockTest extends HiveTestService
         newOp.setup(context);
 
         newOp.beginWindow(15);
-        mapping3.setFilename("0-transactions.out.part.2");
+        mapping3.setFilename(APP_ID + "/" + OPERATOR_ID + "/" + "2014-12-10" + "/" + "USA" + "/" + "0-transaction.out.part.2");
         mapping3.setPartition(partitions);
 
         newOp.processTuple(mapping3);
@@ -404,18 +386,17 @@ public class HiveMockTest extends HiveTestService
 
     hiveStore.connect();
 
-
     client.execute("select * from " + tablename);
     List<String> row = client.fetchAll();
     client.execute("drop table " + tablename);
     hiveStore.disconnect();
 
     Assert.assertEquals("Numer of tuples in database",
-                        66,
+                        36,
                         row.size());
 
   }
 
-    private static transient final Logger LOG = LoggerFactory.getLogger(HiveMockTest.class);
+  private static transient final Logger LOG = LoggerFactory.getLogger(HiveMockTest.class);
 
 }

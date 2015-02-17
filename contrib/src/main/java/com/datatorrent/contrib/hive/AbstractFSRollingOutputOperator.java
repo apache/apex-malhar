@@ -52,8 +52,6 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   protected ArrayList<String> listFileNames = new ArrayList<String>();
   protected HashMap<String, ArrayList<String>> mapPartition = new HashMap<String, ArrayList<String>>();
   protected Queue<Long> queueWindows = new LinkedList<Long>();
-  // Hdfs default block size which can be set as a property by user.
-  private static final int MAX_LENGTH = 66060288;
   protected long windowIDOfCompletedPart = Stateless.WINDOW_ID;
   protected long committedWindowId = Stateless.WINDOW_ID;
   private boolean isEmptyWindow;
@@ -74,7 +72,6 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   public AbstractFSRollingOutputOperator()
   {
     countEmptyWindow = 0;
-    //setMaxLength(MAX_LENGTH);
     HiveStreamCodec<T> hiveCodec = new HiveStreamCodec<T>();
     hiveCodec.rollingOperator = this;
     streamCodec = hiveCodec;
@@ -153,7 +150,7 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
     while (iterWindows.hasNext()) {
       windowId = iterWindows.next();
       if (committedWindowId >= windowId) {
-        logger.info("list is {}", mapFilenames.get(windowId));
+        logger.debug("list is {}", mapFilenames.get(windowId));
         list = mapFilenames.get(windowId);
         FilePartitionMapping partMap = new FilePartitionMapping();
         if(list!=null){
