@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.io.block;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.*;
@@ -26,6 +27,9 @@ import org.apache.hadoop.fs.PositionedReadable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
@@ -69,16 +73,16 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   /**
    * Limit on the no. of blocks to be processed in a window. By default {@link Integer#MAX_VALUE}
    */
-  private int threshold;
-  private transient int blocksPerWindow;
+  protected int threshold;
+  protected transient int blocksPerWindow;
 
   protected final BasicCounters<MutableLong> counters;
 
-  private transient Context.OperatorContext context;
+  protected transient Context.OperatorContext context;
 
-  private final Queue<B> blockQueue;
+  protected final Queue<B> blockQueue;
 
-  private transient long sleepTimeMillis;
+  protected transient long sleepTimeMillis;
 
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
@@ -99,15 +103,15 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   /**
    * Interval at which stats are processed. Default : 1 minute
    */
-  private long intervalMillis;
+  protected long intervalMillis;
 
-  private final StatsListener.Response response;
-  private int partitionCount;
-  private final Map<Integer, Long> backlogPerOperator;
+  protected transient final StatsListener.Response response;
+  protected transient int partitionCount;
+  protected transient final Map<Integer, Long> backlogPerOperator;
   private transient long nextMillis;
 
-  private transient B lastProcessedBlock;
-  private transient long lastBlockOpenTime;
+  protected transient B lastProcessedBlock;
+  protected transient long lastBlockOpenTime;
   protected transient boolean consecutiveBlock;
 
   public final transient DefaultOutputPort<B> blocksMetadataOutput = new DefaultOutputPort<B>();
@@ -165,11 +169,11 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   @Override
   public void handleIdleTime()
   {
-    if (!blockQueue.isEmpty() && blocksPerWindow < threshold) {
+    if (canHandleMoreBlocks()) {
       do {
         processHeadBlock();
       }
-      while (blocksPerWindow < threshold && !blockQueue.isEmpty());
+      while (canHandleMoreBlocks());
     }
     else if (lastProcessedBlock != null && System.currentTimeMillis() - lastBlockOpenTime > intervalMillis) {
       try {
@@ -191,28 +195,20 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     }
   }
 
-  private void processHeadBlock()
+  /**
+   * Lets the base reader know when it has more work to do while its idle-ing.
+   *
+   * @return whether there are more blocks that can be hendled in this window.
+   */
+  protected boolean canHandleMoreBlocks()
+  {
+    return !blockQueue.isEmpty() && blocksPerWindow < threshold;
+  }
+
+  protected void processHeadBlock()
   {
     B top = blockQueue.poll();
-    try {
-      if (blocksMetadataOutput.isConnected()) {
-        blocksMetadataOutput.emit(top);
-      }
-      processBlockMetadata(top);
-      blocksPerWindow++;
-    }
-    catch (IOException e) {
-      try {
-        if (lastProcessedBlock != null) {
-          teardownStream(lastProcessedBlock);
-          lastProcessedBlock = null;
-        }
-      }
-      catch (IOException ie) {
-        throw new RuntimeException("closing", ie);
-      }
-      throw new RuntimeException(e);
-    }
+    processBlockMetadata(top);
   }
 
   @Override
@@ -223,21 +219,40 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     context.setCounters(counters);
   }
 
-  protected void processBlockMetadata(B block) throws IOException
+  protected void processBlockMetadata(B block)
   {
-    long blockStartTime = System.currentTimeMillis();
-    if (block.getPreviousBlockId() == -1 || lastProcessedBlock == null || block.getPreviousBlockId() != lastProcessedBlock.getBlockId()) {
-      teardownStream(lastProcessedBlock);
-      consecutiveBlock = false;
-      lastBlockOpenTime = System.currentTimeMillis();
-      stream = setupStream(block);
+    try {
+      long blockStartTime = System.currentTimeMillis();
+      if (block.getPreviousBlockId() == -1 || lastProcessedBlock == null || block.getPreviousBlockId() != lastProcessedBlock.getBlockId()) {
+        teardownStream(lastProcessedBlock);
+        consecutiveBlock = false;
+        lastBlockOpenTime = System.currentTimeMillis();
+        stream = setupStream(block);
+      }
+      else {
+        consecutiveBlock = true;
+      }
+      readBlock(block);
+      lastProcessedBlock = block;
+      counters.getCounter(ReaderCounterKeys.TIME).add(System.currentTimeMillis() - blockStartTime);
+      //emit block metadata only when the block finishes
+      if (blocksMetadataOutput.isConnected()) {
+        blocksMetadataOutput.emit(block);
+      }
+      blocksPerWindow++;
     }
-    else {
-      consecutiveBlock = true;
+    catch (IOException ie) {
+      try {
+        if (lastProcessedBlock != null) {
+          teardownStream(lastProcessedBlock);
+          lastProcessedBlock = null;
+        }
+      }
+      catch (IOException ioe) {
+        throw new RuntimeException("closing last", ie);
+      }
+      throw new RuntimeException(ie);
     }
-    readBlock(block);
-    lastProcessedBlock = block;
-    counters.getCounter(ReaderCounterKeys.TIME).add(System.currentTimeMillis() - blockStartTime);
   }
 
   /**
@@ -283,29 +298,32 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     }
 
     int morePartitionsToCreate = partitionCount - partitions.size();
+    List<BasicCounters<MutableLong>> deletedCounters = Lists.newArrayList();
 
     if (morePartitionsToCreate < 0) {
       //Delete partitions
       Iterator<Partition<AbstractBlockReader<R, B, STREAM>>> partitionIterator = partitions.iterator();
       while (morePartitionsToCreate++ < 0) {
         Partition<AbstractBlockReader<R, B, STREAM>> toRemove = partitionIterator.next();
+        deletedCounters.add(toRemove.getPartitionedInstance().counters);
+
         LOG.debug("partition removed {}", toRemove.getPartitionedInstance().operatorId);
         partitionIterator.remove();
       }
     }
     else {
       //Add more partitions
+      Kryo kryo = new Kryo();
       while (morePartitionsToCreate-- > 0) {
-        AbstractBlockReader<R, B, STREAM> blockReader;
-        try {
-          blockReader = this.getClass().newInstance();
-        }
-        catch (InstantiationException e) {
-          throw new RuntimeException(e);
-        }
-        catch (IllegalAccessException e) {
-          throw new RuntimeException(e);
-        }
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        Output loutput = new Output(bos);
+        kryo.writeObject(loutput, this);
+        loutput.close();
+        Input lInput = new Input(bos.toByteArray());
+
+        @SuppressWarnings("unchecked")
+        AbstractBlockReader<R, B, STREAM> blockReader = kryo.readObject(lInput, this.getClass());
+
         DefaultPartition<AbstractBlockReader<R, B, STREAM>> partition = new DefaultPartition<AbstractBlockReader<R, B, STREAM>>(blockReader);
         partitions.add(partition);
       }
@@ -333,15 +351,39 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
         }
       }
     }
+    //transfer the counters
+    AbstractBlockReader<R, B, STREAM> targetReader = partitions.iterator().next().getPartitionedInstance();
+    for (BasicCounters<MutableLong> removedCounter : deletedCounters) {
+      addCounters(targetReader.counters, removedCounter);
+    }
+
     return partitions;
+  }
+
+  /**
+   * Transfers the counters in partitioning.
+   *
+   * @param target target counter
+   * @param source removed counter
+   */
+  protected void addCounters(BasicCounters<MutableLong> target, BasicCounters<MutableLong> source)
+  {
+    for (Enum<ReaderCounterKeys> key : ReaderCounterKeys.values()) {
+      MutableLong tcounter = target.getCounter(key);
+      if (tcounter == null) {
+        tcounter = new MutableLong();
+        target.setCounter(key, tcounter);
+      }
+      MutableLong scounter = source.getCounter(key);
+      if (scounter != null) {
+        tcounter.add(scounter.longValue());
+      }
+    }
   }
 
   @Override
   public void partitioned(Map<Integer, Partition<AbstractBlockReader<R, B, STREAM>>> integerPartitionMap)
   {
-    for (Partition<AbstractBlockReader<R, B, STREAM>> partition : integerPartitionMap.values()) {
-      partition.getPartitionedInstance().readerContext = this.readerContext;
-    }
   }
 
   @Override
@@ -374,8 +416,9 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     if (System.currentTimeMillis() < nextMillis) {
       return response;
     }
+    nextMillis = System.currentTimeMillis() + intervalMillis;
+    LOG.debug("Proposed NextMillis = {}", nextMillis);
 
-    LOG.debug("nextMillis = {}", nextMillis);
     long totalBacklog = 0;
     for (Map.Entry<Integer, Long> backlog : backlogPerOperator.entrySet()) {
       totalBacklog += backlog.getValue();
@@ -387,7 +430,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
       return response; //do not repartition
     }
 
-    int newPartitionCount = 1;
+    int newPartitionCount;
     if (totalBacklog > maxReaders) {
       LOG.debug("large backlog {}", totalBacklog);
       newPartitionCount = maxReaders;
@@ -397,15 +440,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
       newPartitionCount = minReaders;
     }
     else {
-      while (newPartitionCount < totalBacklog) {
-        newPartitionCount <<= 1;
-      }
-      if (newPartitionCount > maxReaders) {
-        newPartitionCount = maxReaders;
-      }
-      else if (newPartitionCount < minReaders) {
-        newPartitionCount = minReaders;
-      }
+      newPartitionCount = getAdjustedCount(totalBacklog);
       LOG.debug("moderate backlog {}", totalBacklog);
     }
 
@@ -418,10 +453,20 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     response.repartitionRequired = true;
     LOG.debug("partition required", totalBacklog, partitionCount);
 
-    nextMillis = System.currentTimeMillis() + intervalMillis;
-    LOG.debug("Proposed NextMillis = {}", nextMillis);
-
     return response;
+  }
+
+  protected int getAdjustedCount(long newCount)
+  {
+    int adjustCount = 1;
+    while (adjustCount < newCount) {
+      adjustCount <<= 1;
+    }
+    if (adjustCount > newCount) {
+      adjustCount >>>= 1;
+    }
+    LOG.debug("adjust {} => {}", newCount, adjustCount);
+    return adjustCount;
   }
 
   /**

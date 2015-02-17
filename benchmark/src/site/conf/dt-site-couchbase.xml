@@ -15,10 +15,9 @@
     <value>32768</value>
     <description>Specify queue capacity for all update ports</description>
   </property>
-
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.uriString</name>
-    <value>127.0.0.1:8091</value>
+    <value></value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.bucket</name>
@@ -52,10 +51,9 @@
     <name>dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.timeout</name>
     <value>10000</value>
   </property>
-
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.uriString</name>
-    <value>127.0.0.1:8091</value>
+    <value></value>
   </property>
   <property>
     <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.blocktime</name>

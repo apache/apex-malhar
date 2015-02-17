@@ -16,11 +16,29 @@
 package com.datatorrent.contrib.couchbase;
 
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
+import com.couchbase.client.CouchbaseClient;
+import com.couchbase.client.vbucket.config.Config;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Partitioner;
 
 import com.datatorrent.common.util.DTThrowable;
 
@@ -30,8 +48,38 @@ import com.datatorrent.common.util.DTThrowable;
  *
  * @since 2.0.0
  */
-public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore>
+public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInputOperator<T, CouchBaseStore> implements Partitioner<AbstractCouchBaseInputOperator<T>>
 {
+  private static final Logger logger = LoggerFactory.getLogger(AbstractCouchBaseInputOperator.class);
+  protected transient CouchbaseClient clientPartition = null;
+
+  private int serverIndex;
+
+  protected transient Config conf;
+
+  // URL specific to a server.
+  protected String serverURIString;
+
+  public String getServerURIString()
+  {
+    return serverURIString;
+  }
+
+  @VisibleForTesting
+  public void setServerURIString(String serverURIString)
+  {
+    this.serverURIString = serverURIString;
+  }
+
+  public int getServerIndex()
+  {
+    return serverIndex;
+  }
+
+  public void setServerIndex(int serverIndex)
+  {
+    this.serverIndex = serverIndex;
+  }
 
   public AbstractCouchBaseInputOperator()
   {
@@ -41,34 +89,80 @@ public abstract class AbstractCouchBaseInputOperator<T> extends AbstractStoreInp
   @Override
   public void setup(Context.OperatorContext context)
   {
-    super.setup(context);
+    if (clientPartition == null) {
+      if (conf == null) {
+        conf = store.getConf();
+      }
+      try {
+        clientPartition = store.connectServer(serverURIString);
+      }
+      catch (IOException ex) {
+        DTThrowable.rethrow(ex);
+      }
+    }
+  }
+
+  @Override
+  public void teardown()
+  {
+    if (clientPartition != null) {
+      clientPartition.shutdown(store.shutdownTimeout, TimeUnit.SECONDS);
+    }
+    super.teardown();
   }
 
   @Override
   public void emitTuples()
   {
     List<String> keys = getKeys();
-    for (String key : keys) {
-      try {
-        Object result = store.getInstance().get(key);
+    Object result = null;
+    for (String key: keys) {
+        int master = conf.getMaster(conf.getVbucketByKey(key));
+        if (master == getServerIndex()) {
+          result = clientPartition.get(key);
+        }
+      }
+
+      if (result != null) {
         T tuple = getTuple(result);
         outputPort.emit(tuple);
       }
-      catch (Exception ex) {
-        try {
-          store.disconnect();
-        }
-        catch (IOException ex1) {
-          DTThrowable.rethrow(ex1);
-        }
-        DTThrowable.rethrow(ex);
-      }
-    }
-
   }
 
   public abstract T getTuple(Object object);
 
   public abstract List<String> getKeys();
+
+  @Override
+  public void partitioned(Map<Integer, Partition<AbstractCouchBaseInputOperator<T>>> partitions)
+  {
+
+  }
+
+  @Override
+  public Collection<Partition<AbstractCouchBaseInputOperator<T>>> definePartitions(Collection<Partition<AbstractCouchBaseInputOperator<T>>> partitions, PartitioningContext incrementalCapacity)
+  {
+    conf = store.getConf();
+    int numPartitions = conf.getServers().size();
+    List<String> list = conf.getServers();
+    Collection<Partition<AbstractCouchBaseInputOperator<T>>> newPartitions = Lists.newArrayListWithExpectedSize(numPartitions);
+    Kryo kryo = new Kryo();
+    for (int i = 0; i < numPartitions; i++) {
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
+      Output output = new Output(bos);
+      kryo.writeObject(output, this);
+      output.close();
+      Input lInput = new Input(bos.toByteArray());
+      @SuppressWarnings("unchecked")
+      AbstractCouchBaseInputOperator<T> oper = kryo.readObject(lInput, this.getClass());
+      oper.setServerIndex(i);
+      oper.setServerURIString(list.get(i));
+      logger.debug("oper {} urlstring is {}", i, oper.getServerURIString());
+      newPartitions.add(new DefaultPartition<AbstractCouchBaseInputOperator<T>>(oper));
+    }
+
+    return newPartitions;
+
+  }
 
 }

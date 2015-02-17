@@ -19,14 +19,14 @@ package com.datatorrent.lib.io.fs;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.Set;
+import java.util.TreeSet;
 
 import javax.validation.ConstraintViolationException;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.mutable.MutableLong;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FileSystem;
+import com.google.common.collect.Maps;
+
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,16 +34,21 @@ import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.collect.Maps;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.mutable.MutableLong;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.FileSystem;
+
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.testbench.RandomWordGenerator;
+import com.datatorrent.lib.util.TestUtils.TestInfo;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
 
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.testbench.RandomWordGenerator;
-import com.datatorrent.lib.util.TestUtils.TestInfo;
 
 public class AbstractFileOutputOperatorTest
 {
@@ -336,7 +341,6 @@ public class AbstractFileOutputOperatorTest
                         fileContents);
   }
 
-  //@Ignore
   @Test
   public void testSingleFileCompletedWrite()
   {
@@ -356,7 +360,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testSingleFileCompletedWriteOverwriteInitial()
   {
@@ -399,7 +402,6 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
 
-  //@Ignore
   @Test
   public void testSingleFileFailedWrite()
   {
@@ -421,7 +423,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testSingleFileFailedWriteOverwriteInitial()
   {
@@ -482,7 +483,6 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
 
-  //@Ignore
   @Test
   public void testMultiFileCompletedWrite()
   {
@@ -584,7 +584,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testMultiFileCompletedWriteOverwriteCache1Initial()
   {
@@ -668,7 +667,6 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
   }
 
-  //@Ignore
   @Test
   public void testMultiFileFailedWrite()
   {
@@ -699,7 +697,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testMultiFileFailedWriteCache1()
   {
@@ -765,7 +762,6 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
   }
 
-  //@Ignore
   @Test
   public void testSingleRollingFileCompletedWrite()
   {
@@ -796,7 +792,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testSingleRollingFileCompletedWriteOverwriteInitial()
   {
@@ -865,7 +860,6 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
 
-  //@Ignore
   @Test
   public void testSingleRollingFileFailedWrite()
   {
@@ -945,7 +939,6 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
 
-  //@Ignore
   @Test
   public void testSingleRollingFileFailedWrite1()
   {
@@ -1026,7 +1019,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileCompletedWriteHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileCompletedWriteCache1()
   {
@@ -1036,7 +1028,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileCompletedWriteHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileCompletedWriteOverwrite()
   {
@@ -1045,7 +1036,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileCompletedWriteHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileCompletedWriteOverwriteCache1()
   {
@@ -1189,7 +1179,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileFailedWrite()
   {
@@ -1198,7 +1187,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileFailedWriteHelperHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileFailedWriteCache1()
   {
@@ -1297,7 +1285,6 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileFailedWriteOverwrite()
   {
@@ -1306,7 +1293,6 @@ public class AbstractFileOutputOperatorTest
     testMultiRollingFileFailedWriteOverwriteHelper(writer);
   }
 
-  //@Ignore
   @Test
   public void testMultiRollingFileFailedWriteOverwriteCache1()
   {
@@ -1480,7 +1466,6 @@ public class AbstractFileOutputOperatorTest
                 correctContents);
   }
 
-  //@Ignore
   @Test
   public void singleFileMultiRollingFailure()
   {
@@ -1577,7 +1562,6 @@ public class AbstractFileOutputOperatorTest
     writer.endWindow();
   }
 
-  //@Ignore
   @Test
   public void validateNothingWrongTest()
   {
@@ -1588,7 +1572,6 @@ public class AbstractFileOutputOperatorTest
     LocalMode.runApp(validationTestApp, 1);
   }
 
-  //@Ignore
   @Test
   public void validateNegativeMaxLengthTest()
   {
@@ -1609,4 +1592,72 @@ public class AbstractFileOutputOperatorTest
 
     Assert.assertEquals("Max length validation not thrown with -1 max length", true, error);
   }
+  
+  @Test
+  public void testPeriodicRotation() 
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    File dir = new File(testMeta.getDir());
+    writer.setFilePath(testMeta.getDir());
+    writer.setRotationWindows(30);
+    writer.setup(testOperatorContext);
+    
+    // Check that rotation doesn't happen prematurely
+    for (int i = 0; i < 30; ++i) {
+      writer.beginWindow(i);
+      for (int j = 0; j < i; ++j) {
+        writer.input.put(2 * j + 1);
+      }
+      writer.endWindow();      
+    }
+    Set<String> fileNames = new TreeSet<String>();
+    fileNames.add(ODD_FILE + ".0");
+    Collection<File> files = FileUtils.listFiles(dir, null, false);
+    Assert.assertEquals("Number of part files", 1, files.size());
+    Assert.assertEquals("Part file names", fileNames, getFileNames(files));
+    
+    // Check that rotation is happening consistently and for all files
+    for (int i = 30; i < 120; ++i) {
+      writer.beginWindow(i);
+      for (int j = 0; j < i; ++j) {
+        writer.input.put(j);
+      }
+      writer.endWindow();
+    }
+    files = FileUtils.listFiles(dir, null, false);
+    Assert.assertEquals("Number of part files", 7, files.size());
+    for (int i = 0; i < 3; ++i) {
+      fileNames.add(EVEN_FILE + "." + i);
+    }
+    for (int i = 1; i < 4; ++i) {
+      fileNames.add(ODD_FILE + "." + i);
+    }
+    Assert.assertEquals("Part file names", fileNames, getFileNames(files));
+
+    // Check that rotation doesn't happen for files that don't have data during the rotation period
+    for (int i = 120; i < 180; ++i) {
+      writer.beginWindow(i);
+      for (int j = 0; j < i; ++j) {
+        writer.input.put(j * 2);
+      }
+      writer.endWindow();
+    }
+    files = FileUtils.listFiles(dir, null, false);
+    Assert.assertEquals("Number of part files", 9, files.size());
+    for (int i = 3; i < 5; ++i) {
+      fileNames.add(EVEN_FILE + "." + i);
+    }
+    Assert.assertEquals("Part file names", fileNames, getFileNames(files));
+    writer.teardown();
+  }
+  
+  private Set<String> getFileNames(Collection<File> files)
+  {
+    Set<String> filesNames = new TreeSet<String>();
+    for (File file : files) {
+      filesNames.add(file.getName());
+    }
+    return filesNames;
+  }
+  
 }

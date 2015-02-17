@@ -15,19 +15,25 @@
  */
 package com.datatorrent.benchmark.kafka;
 
-import com.datatorrent.api.LocalMode;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
-import org.apache.hadoop.conf.Configuration;
+
 import org.junit.Test;
+
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.LocalMode;
+
 
 public class KafkaOutputBenchmarkTest
 {
   @Test
-  public void testBenchmark()
+  public void testBenchmark() throws FileNotFoundException
   {
     Configuration conf = new Configuration();
-    InputStream inputStream = getClass().getResourceAsStream("/dt-site-kafka.xml");
-    conf.addResource(inputStream);
+    InputStream is = new FileInputStream("src/site/conf/dt-site-kafka.xml");
+    conf.addResource(is);
 
     LocalMode lma = LocalMode.newInstance();
 

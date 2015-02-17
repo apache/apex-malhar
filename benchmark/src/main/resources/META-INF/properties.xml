@@ -47,12 +47,8 @@
   </property>
   <property>
     <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath</name>
-    <value>/user/hive2</value>
+    <value>file:///user/hive2</value>
     <description>Filepath</description>
-  </property>
-  <property>
-    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.hivepath</name>
-    <value>/user/hive2/warehouse/</value>
   </property>
   <property>
     <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.tablename</name>
@@ -61,7 +57,7 @@
   </property>
   <property>
     <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl</name>
-    <value>jdbc:hive2://node23.morado.com:10000/default</value>
+    <value></value>
     <description>Test database connector string.</description>
   </property>
   <property>
@@ -71,7 +67,7 @@
   </property>
   <property>
     <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl</name>
-    <value>jdbc:hive2://node23.morado.com:10000/default</value>
+    <value></value>
     <description>Test database connector string.</description>
   </property>
   <property>
@@ -83,6 +79,95 @@
     <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingMapFsWriter.maxLength</name>
     <value>100</value>
     <description>Max Length</description>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseOuput.port.*.QUEUE_CAPACITY</name>
+    <value>32768</value>
+    <description>Specify queue capacity for all output ports</description>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseInput.port.*.QUEUE_CAPACITY</name>
+    <value>32768</value>
+    <description>Specify queue capacity for all input ports</description>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseUpdate.port.*.QUEUE_CAPACITY</name>
+    <value>32768</value>
+    <description>Specify queue capacity for all update ports</description>
+  </property>
+
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.uriString</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.bucket</name>
+    <value>default</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.password</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.bucketMeta</name>
+    <value>default</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppOutput.operator.couchbaseOutput.store.passwordMeta</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.max_tuples</name>
+    <value>1000</value>
+  </property>
+  <property>
+    <name>dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.queueSize</name>
+    <value>100</value>
+  </property>
+  <property>
+    <name>dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.blocktime</name>
+    <value>10000</value>
+  </property>
+  <property>
+    <name>dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.timeout</name>
+    <value>10000</value>
+  </property>
+  <property>
+    <name>dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.userConfig</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.couchbaseAppOutput.operator.couchbaseOutput.store.passwordConfig</name>
+    <value></value>
+  </property>
+
+  <property>
+    <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.uriString</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.blocktime</name>
+    <value>1000</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.timeout</name>
+    <value>1000</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.bucket</name>
+    <value>default</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.password</name>
+    <value></value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.bucketMeta</name>
+    <value>default</value>
+  </property>
+  <property>
+    <name>dt.application.CouchBaseAppInput.operator.couchbaseInput.store.passwordMeta</name>
+    <value></value>
   </property>
 
 </configuration>

@@ -45,7 +45,11 @@
   </property>
   <property>
     <name>dt.application.MobileDemo.operator.*.attr.MEMORY_MB</name>
-    <value>512</value>
+    <value>768</value>
+  </property>
+  <property>
+    <name>dt.application.MobileDemo.operator.*.attr.JVM_OPTIONS</name>
+    <value>-Xmx128</value>
   </property>
   <property>
     <name>dt.application.MobileDemo.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
