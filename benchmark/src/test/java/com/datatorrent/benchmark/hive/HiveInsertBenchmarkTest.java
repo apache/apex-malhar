@@ -17,7 +17,6 @@
 package com.datatorrent.benchmark.hive;
 
 import com.datatorrent.api.LocalMode;
-import com.datatorrent.benchmark.HiveInsertBenchmarkingApp;
 import com.datatorrent.common.util.DTThrowable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -42,17 +41,17 @@ public class HiveInsertBenchmarkTest
       inputStream = new FileInputStream("src/site/conf/dt-site-hive.xml");
     }
     catch (FileNotFoundException ex) {
-      LOG.info("Exception caught {}",ex.getLocalizedMessage());
+      LOG.debug("Exception caught",ex);
     }
     conf.addResource(inputStream);
 
-    LOG.info("conf properties are {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
-    LOG.info("conf dburl is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
-    LOG.info("conf filepath is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
-    LOG.info("permission is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission"));
-    LOG.info("maximum length is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.maxLength"));
-    LOG.info("tablename is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename"));
-    LOG.info("permission is {}",conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission"));
+    LOG.debug("conf properties are {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
+    LOG.debug("conf dburl is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
+    LOG.debug("conf filepath is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
+    LOG.debug("permission is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission"));
+    LOG.debug("maximum length is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.maxLength"));
+    LOG.debug("tablename is {}" , conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename"));
+    LOG.debug("permission is {}",conf.get("dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission"));
     HiveInsertBenchmarkingApp app = new HiveInsertBenchmarkingApp();
     LocalMode lm = LocalMode.newInstance();
     try {

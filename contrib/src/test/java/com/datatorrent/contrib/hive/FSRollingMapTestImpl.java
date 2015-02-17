@@ -26,7 +26,6 @@ public  class FSRollingMapTestImpl extends AbstractFSRollingOutputOperator<Map<S
   {
     ArrayList<String> hivePartitions = new ArrayList<String>();
     hivePartitions.add("111");
-    hivePartitions.add("222");
     return(hivePartitions);
   }
 

@@ -29,8 +29,9 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.hive.AbstractFSRollingOutputOperator.FilePartitionMapping;
-import com.google.common.annotations.VisibleForTesting;
+import com.datatorrent.lib.counters.BasicCounters;
 import java.io.IOException;
+import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -57,6 +58,30 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
   protected String tablename;
   @Nonnull
   protected String hivepath;
+  /**
+   * This is the operator context passed at setup.
+   */
+  private transient OperatorContext context;
+
+  /**
+   * File output counters.
+   */
+  private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
+
+
+  /**
+   * The total time in milliseconds the operator has been running for.
+   */
+  private long totalTime;
+  /**
+   * Last time stamp collected.
+   */
+  private long lastTimeStamp;
+  /**
+   * The total number of bytes written by the operator.
+   */
+  protected long totalBytesWritten = 0;
+
 
   @Override
   public void setup(OperatorContext context)
@@ -67,6 +92,14 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
     catch (IOException ex) {
       throw new RuntimeException(ex);
     }
+
+    this.context = context;
+    lastTimeStamp = System.currentTimeMillis();
+
+    fileCounters.setCounter(Counters.TOTAL_BYTES_WRITTEN,
+                            new MutableLong());
+    fileCounters.setCounter(Counters.TOTAL_TIME_ELAPSED,
+                            new MutableLong());
      super.setup(context);
   }
 
@@ -113,8 +146,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
    * This function extracts the filename and partitions to which the file will be loaded.
    * It returns the command to be executed by hive.
    */
-  @VisibleForTesting
-  public String processHiveFile(FilePartitionMapping tuple)
+  private String processHiveFile(FilePartitionMapping tuple)
   {
     String filename = tuple.getFilename();
     ArrayList<String> partition = tuple.getPartition();
@@ -149,6 +181,25 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
     }
     logger.debug("command is {}" , command);
     return command;
+  }
+
+  @Override
+  public void endWindow()
+  {
+    long currentTimeStamp = System.currentTimeMillis();
+    totalTime += currentTimeStamp - lastTimeStamp;
+    lastTimeStamp = currentTimeStamp;
+
+    fileCounters.getCounter(Counters.TOTAL_TIME_ELAPSED).setValue(totalTime);
+    fileCounters.getCounter(Counters.TOTAL_BYTES_WRITTEN).setValue(totalBytesWritten);
+    context.setCounters(fileCounters);
+  }
+
+  public void teardown()
+  {
+    long currentTimeStamp = System.currentTimeMillis();
+    totalTime += currentTimeStamp - lastTimeStamp;
+    lastTimeStamp = currentTimeStamp;
   }
 
    /**
@@ -187,5 +238,19 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
     this.tablename = tablename;
   }
 
+  public static enum Counters
+  {
+    /**
+     * An enum for counters representing the total number of bytes written
+     * by the operator.
+     */
+    TOTAL_BYTES_WRITTEN,
+
+    /**
+     * An enum for counters representing the total time the operator has
+     * been operational for.
+     */
+    TOTAL_TIME_ELAPSED
+  }
   private static final Logger logger = LoggerFactory.getLogger(HiveOperator.class);
 }

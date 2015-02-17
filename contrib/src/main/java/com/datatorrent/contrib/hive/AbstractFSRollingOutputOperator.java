@@ -56,7 +56,7 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   private static final int MAX_LENGTH = 66060288;
   protected long windowIDOfCompletedPart = Stateless.WINDOW_ID;
   protected long committedWindowId = Stateless.WINDOW_ID;
-  private transient boolean isEmptyWindow;
+  private boolean isEmptyWindow;
   private transient int operatorId;
   private int countEmptyWindow;
   private ArrayList<String> partition = new ArrayList<String>();
@@ -74,10 +74,10 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   public AbstractFSRollingOutputOperator()
   {
     countEmptyWindow = 0;
-    setMaxLength(MAX_LENGTH);
+    //setMaxLength(MAX_LENGTH);
     HiveStreamCodec<T> hiveCodec = new HiveStreamCodec<T>();
     hiveCodec.rollingOperator = this;
-    this.setStreamCodec(streamCodec);
+    streamCodec = hiveCodec;
   }
 
   @Override
@@ -86,7 +86,6 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
     String appId = context.getValue(DAG.APPLICATION_ID);
     operatorId = context.getId();
     outputFilePath = File.separator + appId + File.separator + operatorId;
-    isEmptyWindow = true;
     super.setup(context);
   }
 
@@ -104,6 +103,7 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   @Override
   protected void rotateHook(String finishedFile)
   {
+    isEmptyWindow = false;
     if (mapFilenames.containsKey(windowIDOfCompletedPart)) {
       listFileNames.add(finishedFile);
     }
@@ -111,9 +111,9 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
       listFileNames = new ArrayList<String>();
       listFileNames.add(finishedFile);
     }
-    mapFilenames.put(windowIDOfCompletedPart, listFileNames);
-
     queueWindows.add(windowIDOfCompletedPart);
+
+    mapFilenames.put(windowIDOfCompletedPart, listFileNames);
   }
 
   /*
@@ -153,19 +153,22 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
     while (iterWindows.hasNext()) {
       windowId = iterWindows.next();
       if (committedWindowId >= windowId) {
+        logger.info("list is {}", mapFilenames.get(windowId));
         list = mapFilenames.get(windowId);
+        FilePartitionMapping partMap = new FilePartitionMapping();
+        if(list!=null){
+        for (int i = 0; i < list.size(); i++) {
+          partMap.setFilename(list.get(i));
+          partMap.setPartition(mapPartition.get(list.get(i)));
+          outputPort.emit(partMap);
+        }
+        }
+        mapFilenames.remove(windowId);
+        iterWindows.remove();
       }
-      if(committedWindowId < windowId){
+      if (committedWindowId < windowId) {
         break;
       }
-      FilePartitionMapping partMap = new FilePartitionMapping();
-      for (int i = 0; i < list.size(); i++) {
-        partMap.setFilename(list.get(i));
-        partMap.setPartition(mapPartition.get(list.get(i)));
-        outputPort.emit(partMap);
-      }
-      mapFilenames.remove(windowId);
-      iterWindows.remove();
     }
   }
 
@@ -217,6 +220,7 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
       rotateCall(lastFile);
       countEmptyWindow = 0;
     }
+    super.endWindow();
 
   }
 

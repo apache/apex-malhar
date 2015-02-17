@@ -42,7 +42,7 @@ import org.junit.runner.Description;
 public class AbstractHiveOutputOperatorTest
 {
   private static transient final Logger LOG = LoggerFactory.getLogger(AbstractHiveOutputOperatorTest.class);
-  public static final String HOST_PREFIX = "jdbc:hive2://";
+  public static final String HOST_PREFIX = "jdbc:hive://";
   public static final String HOST = "localhost";
   public static final String PORT = "10000";
   public static final String DATABASE = "default";

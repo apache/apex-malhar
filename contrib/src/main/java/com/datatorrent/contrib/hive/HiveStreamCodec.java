@@ -15,13 +15,12 @@
  */
 package com.datatorrent.contrib.hive;
 
-import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
+import java.io.*;
+
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import java.io.*;
-import org.apache.commons.codec.binary.Hex;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
 /*
  * Stream codec for uniform distribution of tuples on upstream operator.

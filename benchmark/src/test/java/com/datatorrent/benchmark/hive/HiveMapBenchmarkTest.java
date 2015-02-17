@@ -28,7 +28,6 @@ import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.api.LocalMode;
 
-import com.datatorrent.benchmark.HiveMapInsertBenchmarkingApp;
 import com.datatorrent.common.util.DTThrowable;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -45,16 +44,16 @@ public class HiveMapBenchmarkTest
       inputStream = new FileInputStream("src/site/conf/dt-site-hive.xml");
     }
     catch (FileNotFoundException ex) {
-      LOG.info("Exception caught {}",ex.getLocalizedMessage());
+      LOG.debug("Exception caught {}",ex);
     }
     conf.addResource(inputStream);
-    LOG.info("conf properties are {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
-    LOG.info("conf dburl is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
-    LOG.info("conf filepath is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
-    LOG.info("permission is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.filePermission"));
-    LOG.info("maximum length is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.maxLength"));
-    LOG.info("tablename is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename"));
-    LOG.info("permission is {}",conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.filePermission"));
+    LOG.debug("conf properties are {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
+    LOG.debug("conf dburl is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
+    LOG.debug("conf filepath is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
+    LOG.debug("permission is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.filePermission"));
+    LOG.debug("maximum length is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.maxLength"));
+    LOG.debug("tablename is {}" , conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename"));
+    LOG.debug("permission is {}",conf.get("dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.filePermission"));
     HiveMapInsertBenchmarkingApp app = new HiveMapInsertBenchmarkingApp();
     LocalMode lm = LocalMode.newInstance();
     try {

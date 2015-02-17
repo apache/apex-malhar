@@ -11,10 +11,6 @@
     <value>1024</value>
   </property>
   <property>
-    <name>dt.application.PerformanceBenchmarkForFixedNumberOfTuples.operator.WordGenerator.count</name>
-    <value>1000</value>
-  </property>
-  <property>
     <name>dt.rootDbUrl</name>
     <value>jdbc:hive2://node23.morado.com:10000</value>
     <description>Root DbUrl.</description>
@@ -25,19 +21,9 @@
     <description>Filepath</description>
   </property>
   <property>
-    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.maxWindowsWithNoData</name>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.DateGenerator.tuplesPerWindow</name>
     <value>100</value>
     <description>Max windows with no data</description>
-  </property>
-  <property>
-    <name>dt.application.HiveInsertBenchmarkingApp.operator.WordGenerator.tuplesPerWindow</name>
-    <value>100</value>
-    <description>Max windows with no data</description>
-  </property>
-  <property>
-    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.numPartitions</name>
-    <value>3</value>
-    <description>Partitions in Insert Operator</description>
   </property>
   <property>
     <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename</name>
@@ -69,11 +55,6 @@
     <value>/user/hive2/warehouse/</value>
   </property>
   <property>
-    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.maxWindowsWithNoData</name>
-    <value>100</value>
-    <description>Max Windows with no data</description>
-  </property>
-  <property>
     <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.tablename</name>
     <value>tempMap</value>
     <description>tablename for insert map</description>
@@ -84,7 +65,7 @@
     <description>Test database connector string.</description>
   </property>
   <property>
-    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.delimiter</name>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.delimiter</name>
     <value>:</value>
     <description>Delimiter for map</description>
   </property>
