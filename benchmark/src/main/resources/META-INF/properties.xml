@@ -12,7 +12,7 @@
   </property>
   <property>
     <name>dt.rootDbUrl</name>
-    <value>jdbc:hive2://node23.morado.com:10000</value>
+    <value></value>
     <description>Root DbUrl.</description>
   </property>
   <property>
@@ -37,7 +37,7 @@
   </property>
   <property>
     <name>dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.maxLength</name>
-    <value>100</value>
+    <value>512</value>
     <description>Max Length</description>
   </property>
   <property>
@@ -77,7 +77,7 @@
   </property>
   <property>
     <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingMapFsWriter.maxLength</name>
-    <value>100</value>
+    <value>512</value>
     <description>Max Length</description>
   </property>
   <property>
