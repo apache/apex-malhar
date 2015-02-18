@@ -20,7 +20,7 @@
     <!-- change this if you desire to use a different version of DataTorrent -->
     <datatorrent.version>2.1.0-SNAPSHOT</datatorrent.version>
     <datatorrent.apppackage.classpath>lib/*.jar</datatorrent.apppackage.classpath>
-    <skipTests>true</skipTests>
+    <skipTests>false</skipTests>
   </properties>
 
   <!-- repository to provide the DataTorrent artifacts -->

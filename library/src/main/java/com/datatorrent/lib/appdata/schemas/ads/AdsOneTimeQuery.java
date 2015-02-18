@@ -12,6 +12,7 @@ import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
 import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
 import java.util.List;
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 @QRType(type=AdsOneTimeQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
@@ -46,6 +47,7 @@ public class AdsOneTimeQuery extends Query
   {
     private AdsTimeRangeBucket time;
     private AdsKeys keys;
+    @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
     private List<String> fields;
 
     public AdsOneTimeQueryData()
