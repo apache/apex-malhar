@@ -6,8 +6,10 @@
 package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.google.common.collect.Maps;
+import java.util.Collections;
 import java.util.Map;
-import org.codehaus.jackson.map.annotate.JsonSerialize;
+import javax.validation.constraints.NotNull;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  *
@@ -19,21 +21,51 @@ public class AdsKeys
   public static final Map<String, Integer> PUBLISHER_TO_ID;
   public static final Map<String, Integer> LOCATION_TO_ID;
 
+  public static final Map<Integer, String> ID_TO_ADVERTISER;
+  public static final Map<Integer, String> ID_TO_PUBLISHER;
+  public static final Map<Integer, String> ID_TO_LOCATION;
+
   static {
     Map<String, Integer> advertiserToId = Maps.newHashMap();
+    Map<Integer, String> idToAdvertiser = Maps.newHashMap();
+    populateMap(advertiserToId,
+                idToAdvertiser,
+                AdsSchemaResult.ADVERTISERS);
+    ADVERTISER_TO_ID = Collections.unmodifiableMap(advertiserToId);
+    ID_TO_ADVERTISER = Collections.unmodifiableMap(idToAdvertiser);
     Map<String, Integer> publisherToId = Maps.newHashMap();
+    Map<Integer, String> idToPublisher = Maps.newHashMap();
+    populateMap(publisherToId,
+                idToPublisher,
+                AdsSchemaResult.PUBLISHERS);
+    PUBLISHER_TO_ID = Collections.unmodifiableMap(publisherToId);
+    ID_TO_PUBLISHER = Collections.unmodifiableMap(idToPublisher);
     Map<String, Integer> locationToId = Maps.newHashMap();
+    Map<Integer, String> idToLocation = Maps.newHashMap();
+    populateMap(locationToId,
+                idToLocation,
+                AdsSchemaResult.LOCATIONS);
+    LOCATION_TO_ID = Collections.unmodifiableMap(locationToId);
+    ID_TO_LOCATION = Collections.unmodifiableMap(idToLocation);
   }
-  
-  private static void populateMap(Map<String, Integer> advertiserToId,
-                                  String[] advertisers)
+
+  private static void populateMap(Map<String, Integer> propertyToId,
+                                  Map<Integer, String> idToProperty,
+                                  String[] propertyValues)
   {
-
+    for(int idCounter = 0;
+        idCounter < propertyValues.length;
+        idCounter++) {
+      propertyToId.put(propertyValues[idCounter], idCounter);
+      idToProperty.put(idCounter, propertyValues[idCounter]);
+    }
   }
 
+  @NotNull
   private String advertiser;
+  @NotNull
   private String publisher;
-  @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+  @NotNull
   private String location;
 
   public AdsKeys()
@@ -48,9 +80,10 @@ public class AdsKeys
     return advertiser;
   }
 
+  @JsonIgnore
   public int getAdvertiserId()
   {
-
+    return ADVERTISER_TO_ID.get(advertiser);
   }
 
   /**
@@ -61,12 +94,23 @@ public class AdsKeys
     this.advertiser = advertiser;
   }
 
+  public void setAdvertiserId(Integer advertiser)
+  {
+    this.advertiser = ID_TO_ADVERTISER.get(advertiser);
+  }
+
   /**
    * @return the publisher
    */
   public String getPublisher()
   {
     return publisher;
+  }
+
+  @JsonIgnore
+  public int getPublisherId()
+  {
+    return PUBLISHER_TO_ID.get(publisher);
   }
 
   /**
@@ -77,6 +121,11 @@ public class AdsKeys
     this.publisher = publisher;
   }
 
+  public void setPublisherId(Integer publisher)
+  {
+    this.publisher = ID_TO_PUBLISHER.get(publisher);
+  }
+
   /**
    * @return the location
    */
@@ -85,11 +134,22 @@ public class AdsKeys
     return location;
   }
 
+  @JsonIgnore
+  public int getLocationId()
+  {
+    return LOCATION_TO_ID.get(location);
+  }
+
   /**
    * @param location the location to set
    */
   public void setLocation(String location)
   {
     this.location = location;
+  }
+
+  public void setLocationId(Integer location)
+  {
+    this.location = ID_TO_LOCATION.get(location);
   }
 }

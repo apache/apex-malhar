@@ -23,7 +23,7 @@ public class QueryProcessorTest
   {
     final int numQueries = 3;
 
-    QueryProcessor<Query, Void, Void> queryProcessor = new QueryProcessor<Query, Void, Void>(new SimpleQueryComputer());
+    QueryProcessor<Query, Void, Void, Void> queryProcessor = new QueryProcessor<Query, Void, Void, Void>(new SimpleQueryComputer());
 
     queryProcessor.setup(null);
     queryProcessor.beginWindow(0);
@@ -39,7 +39,7 @@ public class QueryProcessorTest
     Result result;
     List<Result> results = Lists.newArrayList();
 
-    while((result = queryProcessor.process()) != null) {
+    while((result = queryProcessor.process(null)) != null) {
       results.add(result);
     }
 
@@ -56,16 +56,21 @@ public class QueryProcessorTest
     }
   }
 
-  public static class SimpleQueryComputer implements QueryComputer<Query, Void>
+  public static class SimpleQueryComputer implements QueryComputer<Query, Void, Void>
   {
     public SimpleQueryComputer()
     {
     }
 
     @Override
-    public Result processQuery(Query query, Void metaQuery)
+    public Result processQuery(Query query, Void metaQuery, Void context)
     {
       return new Result(query);
+    }
+
+    @Override
+    public void queueDepleted(Void context)
+    {
     }
   }
 }

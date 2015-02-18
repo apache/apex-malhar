@@ -6,6 +6,7 @@
 package com.datatorrent.lib.appdata.qr;
 
 import com.google.common.base.Preconditions;
+import javax.validation.constraints.NotNull;
 
 /**
  *
@@ -16,7 +17,9 @@ public class Query
   public static final String FIELD_ID = "id";
   public static final String FIELD_TYPE = "type";
 
+  @NotNull
   private String id;
+  @NotNull
   private String type;
 
   public Query()

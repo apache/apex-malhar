@@ -27,6 +27,7 @@ public class SimpleResultSerializer implements CustomResultSerializer
       return om.writeValueAsString(result);
     }
     catch(IOException ex) {
+      ex.printStackTrace();
       return null;
     }
   }

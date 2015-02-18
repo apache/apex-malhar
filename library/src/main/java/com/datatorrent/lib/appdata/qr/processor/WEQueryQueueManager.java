@@ -28,6 +28,10 @@ implements QueryQueueManager<QUERY_TYPE, META_QUERY, Long>
 
   private final Object lock = new Object();
 
+  public WEQueryQueueManager()
+  {
+  }
+
   @Override
   public boolean enqueue(QUERY_TYPE query, META_QUERY metaQuery, Long windowExpireCount)
   {

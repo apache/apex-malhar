@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
@@ -24,21 +25,29 @@ import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregateEvent;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
+import com.datatorrent.lib.appdata.qr.processor.WEQueryQueueManager;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.datatorrent.lib.appdata.schemas.ads.AdsKeys;
 import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeQuery;
-import com.datatorrent.lib.appdata.schemas.ads.AdsSchemaResult;
+import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeResult;
+import com.datatorrent.lib.appdata.schemas.ads.AdsTimeRangeBucket;
 import com.datatorrent.lib.appdata.schemas.ads.AdsUpdateQuery;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -46,7 +55,7 @@ import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import org.apache.commons.lang3.mutable.MutableObject;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,14 +66,13 @@ import org.slf4j.LoggerFactory;
  * @displayName Dimensional Store
  * @category Store
  * @tags storage, hdfs, dimensions, hdht
+ *
+ * @since 2.0.0
  */
 public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdInfoAggregateEvent>
 {
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionStoreOperator.class);
 
-  /**
-   * Annotate this
-   */
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
 
   @InputPortFieldAnnotation(optional=true)
@@ -72,23 +80,22 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   {
     @Override public void process(String s)
     {
-      Query query = qdf.deserialize(s);
+      Query query = queryDeserializerFactory.deserialize(s);
+
+      //Query was not parseable
+      if(query == null) {
+        return;
+      }
 
       if(query instanceof SchemaQuery) {
-        queryResult.emit(rdf.serialize(new AdsSchemaResult(query)));
+        //TODO emit schema
       }
       else if(query instanceof AdsUpdateQuery) {
-        throw new UnsupportedOperationException("The " + AdsUpdateQuery.class + " query type isn't supported right now.");
+        throw new UnsupportedOperationException("The " + AdsUpdateQuery.class +
+                                                " query is not supported now.");
       }
-      //AdsOneTimeResult
-      else {
-        try {
-          LOG.debug("registering query {}", s);
-          registerTimeSeriesQuery((AdsOneTimeQuery) query);
-        }
-        catch(Exception ex) {
-          LOG.error("Unable to register query {}", s);
-        }
+      else if(query instanceof AdsOneTimeQuery) {
+        queryProcessor.enqueue((AdsOneTimeQuery) query, null, null);
       }
     }
   };
@@ -97,7 +104,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   private transient final ByteBuffer keybb = ByteBuffer.allocate(8 + 4 * 3);
   protected boolean debug = false;
 
-  //protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
+  protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
   // in-memory aggregation before hitting WAL
   protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache = Maps.newTreeMap();
   // TODO: should be aggregation interval count
@@ -110,21 +117,21 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   private transient ObjectMapper mapper = null;
   private long defaultTimeWindow = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES);
 
-  //====================================================================
-  //==== Query Processor Start
-  //====================================================================
+  //==========================================================================
+  // Query Processing - Start
+  //==========================================================================
 
+  private QueryProcessor<AdsOneTimeQuery, AdsQueryMeta, Long, MutableBoolean> queryProcessor;
   @SuppressWarnings("unchecked")
-  private transient final QueryDeserializerFactory qdf = new QueryDeserializerFactory(SchemaQuery.class,
-                                                                                AdsUpdateQuery.class,
-                                                                                AdsOneTimeQuery.class);
-  private transient final MutableObject<QueryProcessor<AdsOneTimeQuery, List<HDSQuery>, Long>> qpWrapper =
-  new MutableObject<QueryProcessor<AdsOneTimeQuery, List<HDSQuery>, Long>>();
-  private transient final ResultSerializerFactory rdf = new ResultSerializerFactory();
+  private QueryDeserializerFactory queryDeserializerFactory;
+  private ResultSerializerFactory resultSerializerFactory;
+  private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
+  private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
+  private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
 
-  //====================================================================
-  //==== Query Processor End
-  //====================================================================
+  //==========================================================================
+  // Query Processing - End
+  //==========================================================================
 
   public int getMaxCacheSize()
   {
@@ -197,6 +204,31 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   }
 
   @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+
+    //Setup for query processing
+    queryProcessor =
+    new QueryProcessor<AdsOneTimeQuery, AdsQueryMeta, Long, MutableBoolean>(null,
+                                                  new AdsWEQueryQueueManager(this),
+                                                  null);
+    queryDeserializerFactory = new QueryDeserializerFactory(SchemaQuery.class,
+                                                            AdsUpdateQuery.class,
+                                                            AdsOneTimeQuery.class);
+    resultSerializerFactory = new ResultSerializerFactory();
+
+    queryProcessor.setup(context);
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    queryProcessor.beginWindow(windowId);
+    super.beginWindow(windowId);
+  }
+
+  @Override
   public void endWindow()
   {
     // flush final aggregates
@@ -213,8 +245,28 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         }
       }
     }
+
+    //Process queries
+
+    MutableBoolean done = new MutableBoolean(false);
+
+    while(done.isFalse()) {
+      AdsOneTimeResult aotr = (AdsOneTimeResult) queryProcessor.process(done);
+
+      if(aotr != null) {
+        queryResult.emit(resultSerializerFactory.serialize(aotr));
+      }
+    }
+
+    queryProcessor.endWindow();
     super.endWindow();
-    processTimeSeriesQueries();
+  }
+
+  @Override
+  public void teardown()
+  {
+    queryProcessor.teardown();
+    super.teardown();
   }
 
   protected byte[] getKey(AdInfo event)
@@ -365,60 +417,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
   }
 
-  protected void registerTimeSeriesQuery(AdsOneTimeQuery query) throws Exception
-  {
-    String queryString = null;
-
-    long bucketKey = getBucketKey(ae);
-    if (!(super.partitions == null || super.partitions.contains((int)bucketKey))) {
-      //LOG.debug("Ignoring query for bucket {} when this partition serves {}", bucketKey, super.partitions);
-      return;
-    }
-
-    TimeSeriesQuery query = new TimeSeriesQuery();
-    query.id = queryParams.id;
-    query.prototype = ae;
-    query.windowCountdown = 30;
-
-    query.endTime = queryParams.endTime;
-    if (queryParams.endTime == 0) {
-      // If endTime is not specified, then use current system time as end time.
-      query.endTime = System.currentTimeMillis();
-    }
-    query.endTime = TimeUnit.MILLISECONDS.convert(query.intervalTimeUnit.convert(query.endTime, TimeUnit.MILLISECONDS), query.intervalTimeUnit);
-
-    query.startTime = queryParams.startTime;
-    if (queryParams.startTime == 0) {
-      // If start time is not specified, return data for configured number of intervals (defaultTimeWindow)
-      query.startTime = query.endTime - defaultTimeWindow;
-    }
-    query.startTime = TimeUnit.MILLISECONDS.convert(query.intervalTimeUnit.convert(query.startTime, TimeUnit.MILLISECONDS), query.intervalTimeUnit);
-
-    // set query for each point in series
-    query.prototype.timestamp = query.startTime;
-    while (query.prototype.timestamp <= query.endTime) {
-      Slice key = new Slice(getKey(query.prototype));
-      HDSQuery q = super.queries.get(key);
-      if (q == null) {
-        q = new HDSQuery();
-        q.bucketKey = bucketKey;
-        q.key = key;
-        super.addQuery(q);
-      } else {
-        // TODO: find out why we got null in first place
-        if (q.result == null) {
-          LOG.debug("Forcing refresh for {}", q);
-          q.processed = false;
-        }
-      }
-      q.keepAliveCount = query.windowCountdown;
-      query.points.add(q);
-      query.prototype.timestamp += query.intervalTimeUnit.toMillis(1);
-    }
-    LOG.debug("Queries: {}", query.points);
-    timeSeriesQueries.put(query.id, query);
-  }
-
   protected void processTimeSeriesQueries()
   {
     Iterator<Map.Entry<String, TimeSeriesQuery>> it = this.timeSeriesQueries.entrySet().iterator();
@@ -458,10 +456,200 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
       if (!res.data.isEmpty()) {
         LOG.debug("Emitting {} points for {}", res.data.size(), res.id);
-        queryResult.emit(res);
+        queryResult.emit(res.toString());
       }
     }
   }
+
+  //==========================================================================
+  // Query Processing Classes - Start
+  //==========================================================================
+
+  class AdsWEQueryQueueManager extends WEQueryQueueManager<AdsOneTimeQuery, AdsQueryMeta>
+  {
+    private AdsDimensionStoreOperator operator;
+
+    public AdsWEQueryQueueManager(AdsDimensionStoreOperator operator)
+    {
+      this.operator = operator;
+    }
+
+    @Override
+    public boolean enqueue(AdsOneTimeQuery query, AdsQueryMeta queryMeta, Long windowExpireCount)
+    {
+      AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
+      AdsKeys aks = query.getData().getKeys();
+
+      ae.setTimestamp(query.getData().getTime().getFromLong());
+      ae.adUnit = aks.getLocationId();
+      ae.publisherId = aks.getPublisherId();
+      ae.advertiserId = aks.getAdvertiserId();
+
+      long bucketKey = getBucketKey(ae);
+      if(!(operator.partitions == null || operator.partitions.contains((int)bucketKey))) {
+        //LOG.debug("Ignoring query for bucket {} when this partition serves {}", bucketKey, super.partitions);
+        return false;
+      }
+
+      AdsTimeRangeBucket atrb = query.getData().getTime();
+      long endTime;
+
+      if(atrb.getToLong() == 0) {
+        endTime = System.currentTimeMillis();
+        atrb.setToLong(endTime);
+      }
+      else {
+        endTime = atrb.getToLong();
+      }
+
+      if(atrb.getFromLong() == 0) {
+        atrb.setFromLong(endTime - ((long) defaultTimeWindow));
+      }
+
+      List<HDSQuery> hdsQueries = Lists.newArrayList();
+
+      for(ae.timestamp = atrb.getFromLong();
+          ae.timestamp <= endTime;
+          ae.timestamp += TIME_UNIT.toMillis(1)) {
+        Slice key = new Slice(getKey(ae));
+        HDSQuery hdsQuery = operator.queries.get(key);
+
+        if(hdsQuery == null) {
+          hdsQuery = new HDSQuery();
+          hdsQuery.bucketKey = bucketKey;
+          hdsQuery.key = key;
+          operator.addQuery(hdsQuery);
+        }
+        else {
+          if(hdsQuery.result == null) {
+            LOG.debug("Forcing refresh for {}", hdsQuery);
+            hdsQuery.processed = false;
+          }
+        }
+
+        hdsQuery.keepAliveCount = QUERY_QUEUE_WINDOW_COUNT_INT;
+        hdsQueries.add(hdsQuery);
+      }
+
+      AdsQueryMeta aqm = new AdsQueryMeta();
+      aqm.setAdInofAggregateEvent(ae);
+      aqm.setHdsQueries(hdsQueries);
+
+      return super.enqueue(query, aqm, QUERY_QUEUE_WINDOW_COUNT);
+    }
+  }
+
+  class AdsQueryComputer implements QueryComputer<AdsOneTimeQuery, AdsQueryMeta, MutableBoolean>
+  {
+    private AdsDimensionStoreOperator operator;
+
+    public AdsQueryComputer(AdsDimensionStoreOperator operator)
+    {
+      this.operator = operator;
+    }
+
+    @Override
+    public Result processQuery(AdsOneTimeQuery query, AdsQueryMeta adsQueryMeta, MutableBoolean context)
+    {
+      AdsOneTimeResult aotqr = new AdsOneTimeResult(query);
+      AdInfo.AdInfoAggregateEvent prototype = adsQueryMeta.getAdInofAggregateEvent();
+
+      Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
+
+      for(long timestamp = query.getData().getTime().getFromLong();
+          queryIt.hasNext();
+          timestamp += TimeUnit.MINUTES.toMillis(1))
+      {
+        HDSQuery hdsQuery = queryIt.next();
+        prototype.setTimestamp(timestamp);
+
+        Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = cache.get(timestamp);
+
+        if(buffered != null) {
+          AdInfo.AdInfoAggregateEvent ae = buffered.get(prototype);
+
+          if(ae != null) {
+            LOG.debug("Adding from aggregation buffer {}" + ae);
+          }
+        }
+
+        if(hdsQuery.processed && hdsQuery.result != null) {
+          AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+
+          if(ae != null) {
+            AdsOneTimeResult.AdsOneTimeData aotd = new AdsOneTimeResult.AdsOneTimeData();
+            aotd.setTimeLong(ae.timestamp);
+            aotd.setAdvertiserId(ae.advertiserId);
+            aotd.setPublisherId(ae.publisherId);
+            aotd.setLocationId(ae.adUnit);
+            aotd.setImpressions(ae.impressions);
+            aotd.setClicks(ae.clicks);
+            aotd.setCost(ae.cost);
+            aotd.setRevenue(ae.revenue);
+            aotqr.getData().add(aotd);
+          }
+        }
+      }
+
+      if(aotqr.getData().isEmpty()) {
+        return null;
+      }
+
+      return aotqr;
+    }
+
+    @Override
+    public void queueDepleted(MutableBoolean context)
+    {
+      context.setValue(true);
+    }
+  }
+
+  static class AdsQueryMeta
+  {
+    private List<HDSQuery> hdsQueries;
+    private AdInfo.AdInfoAggregateEvent adInofAggregateEvent;
+
+    public AdsQueryMeta()
+    {
+    }
+
+    /**
+     * @return the hdsQueries
+     */
+    public List<HDSQuery> getHdsQueries()
+    {
+      return hdsQueries;
+    }
+
+    /**
+     * @param hdsQueries the hdsQueries to set
+     */
+    public void setHdsQueries(List<HDSQuery> hdsQueries)
+    {
+      this.hdsQueries = hdsQueries;
+    }
+
+    /**
+     * @return the adInofAggregateEvent
+     */
+    public AdInfo.AdInfoAggregateEvent getAdInofAggregateEvent()
+    {
+      return adInofAggregateEvent;
+    }
+
+    /**
+     * @param adInofAggregateEvent the adInofAggregateEvent to set
+     */
+    public void setAdInofAggregateEvent(AdInfo.AdInfoAggregateEvent adInofAggregateEvent)
+    {
+      this.adInofAggregateEvent = adInofAggregateEvent;
+    }
+  }
+
+  //==========================================================================
+  // Query Processing Classes - End
+  //==========================================================================
 
   static class TimeSeriesQuery
   {
@@ -487,7 +675,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   /**
    * Parameters for registration of query.
    */
-  /*
   static class QueryParameters
   {
     public String id;
@@ -503,5 +690,5 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     public long countDown;
     public List<AdInfo.AdInfoAggregateEvent> data;
   }
-*/
+
 }

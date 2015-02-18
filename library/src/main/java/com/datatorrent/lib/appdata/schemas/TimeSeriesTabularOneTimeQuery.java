@@ -14,15 +14,15 @@ import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@QRType(type=OneTimeQuery.TYPE)
+@QRType(type=TimeSeriesTabularOneTimeQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
-public class OneTimeQuery extends Query
+public class TimeSeriesTabularOneTimeQuery extends Query
 {
   public static final String TYPE = "oneTimeQuery";
 
   private OneTimeQueryData data;
 
-  public OneTimeQuery()
+  public TimeSeriesTabularOneTimeQuery()
   {
   }
 
@@ -44,12 +44,12 @@ public class OneTimeQuery extends Query
 
   public static class OneTimeQueryData
   {
-    private TimeRangeIntervals time;
+    private TimeRangeBuckets time;
 
     /**
      * @return the time
      */
-    public TimeRangeIntervals getTime()
+    public TimeRangeBuckets getTime()
     {
       return time;
     }
@@ -57,7 +57,7 @@ public class OneTimeQuery extends Query
     /**
      * @param time the time to set
      */
-    public void setTime(TimeRangeIntervals time)
+    public void setTime(TimeRangeBuckets time)
     {
       this.time = time;
     }

@@ -8,7 +8,9 @@ package com.datatorrent.lib.appdata.schemas.ads;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.QRType;
+import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
+import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
 import com.datatorrent.lib.appdata.schemas.SimpleTimeBucket;
 
 /**
@@ -17,6 +19,7 @@ import com.datatorrent.lib.appdata.schemas.SimpleTimeBucket;
  */
 @QRType(type=AdsUpdateQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
+@QueryValidatorInfo(clazz=SimpleQueryValidator.class)
 public class AdsUpdateQuery extends Query
 {
   public static final String TYPE = "updateQuery";

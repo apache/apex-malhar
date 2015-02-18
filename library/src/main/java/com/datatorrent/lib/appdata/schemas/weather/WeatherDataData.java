@@ -5,14 +5,14 @@
 
 package com.datatorrent.lib.appdata.schemas.weather;
 
-import com.datatorrent.lib.appdata.schemas.TimeBucket;
+import com.datatorrent.lib.appdata.schemas.ads.AdsTimeBucket;
 import java.util.List;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class WeatherDataData extends TimeBucket
+public class WeatherDataData extends AdsTimeBucket
 {
   private List<WeatherValues> values;
 

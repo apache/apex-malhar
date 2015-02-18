@@ -10,7 +10,6 @@ import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
-import com.datatorrent.lib.appdata.schemas.TimeRangeIntervals;
 import java.util.List;
 
 /**

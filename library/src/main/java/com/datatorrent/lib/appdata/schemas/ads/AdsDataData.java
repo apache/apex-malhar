@@ -5,13 +5,11 @@
 
 package com.datatorrent.lib.appdata.schemas.ads;
 
-import com.datatorrent.lib.appdata.schemas.TimeBucket;
-
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class AdsDataData extends TimeBucket
+public class AdsDataData extends AdsTimeBucket
 {
   private AdsDataValues values;
 

@@ -26,13 +26,17 @@ public class SimpleQueryDeserializer extends CustomQueryDeserializer
   @Override
   public Query deserialize(String json)
   {
+    Query query;
+
     try {
-      return om.readValue(json, this.getQueryClazz());
+      query = om.readValue(json, this.getQueryClazz());
     }
     catch(IOException ex) {
-      throw new RuntimeException(ex);
-      //logger.error("{}", ex);
-      //return null;
+      //throw new RuntimeException(ex);
+      logger.error("{}", ex);
+      return null;
     }
+
+    return query;
   }
 }

@@ -17,11 +17,11 @@ import java.util.Map;
  * @author Timothy Farkas: tim@datatorrent.com
  */
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
-public class OneTimeResult extends Result
+public class TimeSeriesTabularOneTimeResult extends Result
 {
   private OneTimeResultData data;
 
-  public OneTimeResult(Query query)
+  public TimeSeriesTabularOneTimeResult(Query query)
   {
     super(query);
   }
@@ -44,28 +44,17 @@ public class OneTimeResult extends Result
 
   public static class OneTimeResultData
   {
-    private TimeRangeIntervals time;
-    private Map<String, String> keys;
+    private TimeRangeBuckets time;
     private List<OneTimeResultDataData> data;
 
-    public TimeRangeIntervals getTime()
+    public TimeRangeBuckets getTime()
     {
       return time;
     }
 
-    public void setTime(TimeRangeIntervals time)
+    public void setTime(TimeRangeBuckets time)
     {
       this.time = time;
-    }
-
-    public Map<String, String> getKeys()
-    {
-      return keys;
-    }
-
-    public void setKeys(Map<String, String> keys)
-    {
-      this.keys = keys;
     }
 
     /**

@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas;
+package com.datatorrent.lib.appdata.schemas.ads;
 
 import java.util.List;
 

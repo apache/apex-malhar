@@ -9,7 +9,6 @@ import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import com.datatorrent.lib.appdata.schemas.ads.AdsUpdateResult.AdsUpdateData;
 import org.junit.Assert;
-import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +24,7 @@ public class AdsUpdateResultTest
   {
   }
 
-  @Test
+  //@Test
   public void testSerialization()
   {
     final String id = "js34135136425";

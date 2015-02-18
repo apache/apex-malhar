@@ -5,13 +5,17 @@
 
 package com.datatorrent.lib.appdata.schemas.ads;
 
+import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.QRType;
+import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
+import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
+import java.util.List;
 
 @QRType(type=AdsOneTimeQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
+@QueryValidatorInfo(clazz=SimpleQueryValidator.class)
 public class AdsOneTimeQuery extends Query
 {
   public static final String TYPE = "oneTimeQuery";
@@ -42,6 +46,7 @@ public class AdsOneTimeQuery extends Query
   {
     private AdsTimeRangeBucket time;
     private AdsKeys keys;
+    private List<String> fields;
 
     public AdsOneTimeQueryData()
     {
@@ -77,6 +82,22 @@ public class AdsOneTimeQuery extends Query
     public void setKeys(AdsKeys keys)
     {
       this.keys = keys;
+    }
+
+    /**
+     * @return the fields
+     */
+    public List<String> getFields()
+    {
+      return fields;
+    }
+
+    /**
+     * @param fields the fields to set
+     */
+    public void setFields(List<String> fields)
+    {
+      this.fields = fields;
     }
   }
 }

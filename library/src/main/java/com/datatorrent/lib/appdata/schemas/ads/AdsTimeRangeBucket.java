@@ -8,6 +8,7 @@ package com.datatorrent.lib.appdata.schemas.ads;
 import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -28,6 +29,11 @@ public class AdsTimeRangeBucket extends TimeRangeBucket
     }
   }
 
+  public void setFromLong(long from)
+  {
+    this.setFrom(sdf.format(new Date(from)));
+  }
+
   public long getToLong()
   {
     try {
@@ -36,6 +42,11 @@ public class AdsTimeRangeBucket extends TimeRangeBucket
     catch(ParseException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  public void setToLong(long to)
+  {
+    this.setTo(sdf.format(new Date(to)));
   }
 
   public TimeUnit getTimeUnit()

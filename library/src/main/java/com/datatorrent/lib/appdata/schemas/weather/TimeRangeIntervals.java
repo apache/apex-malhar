@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas;
+package com.datatorrent.lib.appdata.schemas.weather;
 
 import java.util.List;
 

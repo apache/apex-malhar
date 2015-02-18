@@ -5,14 +5,19 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import javax.validation.constraints.NotNull;
+
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
 public class TimeRangeBucket
 {
+  @NotNull
   private String from;
+  @NotNull
   private String to;
+  @NotNull
   private String bucket;
 
   public TimeRangeBucket()

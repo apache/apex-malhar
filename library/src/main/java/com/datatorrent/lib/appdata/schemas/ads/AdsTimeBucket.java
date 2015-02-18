@@ -3,18 +3,22 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas;
+package com.datatorrent.lib.appdata.schemas.ads;
+
+import java.text.ParseException;
+import java.util.Date;
+import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class TimeBucket
+public class AdsTimeBucket
 {
   private String time;
   private String bucket;
 
-  public TimeBucket()
+  public AdsTimeBucket()
   {
   }
 
@@ -26,12 +30,28 @@ public class TimeBucket
     return time;
   }
 
+  @JsonIgnore
+  public long getTimeLong()
+  {
+    try {
+      return AdsTimeRangeBucket.sdf.parse(getTime()).getTime();
+    }
+    catch(ParseException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
   /**
    * @param time the time to set
    */
   public void setTime(String time)
   {
     this.time = time;
+  }
+
+  public void setTimeLong(long to)
+  {
+    setTime(AdsTimeRangeBucket.sdf.format(new Date(to)));
   }
 
   /**

@@ -7,7 +7,6 @@ package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
 import org.junit.Assert;
-import org.junit.Test;
 
 /**
  *
@@ -20,7 +19,7 @@ public class AdsUpdateQueryTest
   {
   }
 
-  @Test
+  //@Test
   public void testDeserialization()
   {
     final String id = "js34135136425";

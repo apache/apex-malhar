@@ -6,8 +6,7 @@
 package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
-import com.datatorrent.lib.appdata.schemas.KeyMultiValue;
-import com.datatorrent.lib.appdata.schemas.OneTimeQuery;
+import com.datatorrent.lib.appdata.schemas.TimeSeriesTabularOneTimeQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaTestUtils;
 import com.datatorrent.lib.appdata.schemas.SchemaValues;
@@ -59,7 +58,7 @@ public class AdsSchemaResultTest
     final long clicks1 = 13942;
     final long clicks2 = 51789;
 
-    OneTimeQuery oneTimeQuery = new OneTimeQuery();
+    TimeSeriesTabularOneTimeQuery oneTimeQuery = new TimeSeriesTabularOneTimeQuery();
     oneTimeQuery.setId(id);
     oneTimeQuery.setType("oneTimeQuery");
 

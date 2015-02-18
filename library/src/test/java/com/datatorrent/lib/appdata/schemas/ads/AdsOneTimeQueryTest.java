@@ -45,7 +45,6 @@ public class AdsOneTimeQueryTest
                         "   } \n" +
                         "}";
 
-
     @SuppressWarnings("unchecked")
     QueryDeserializerFactory qb = new QueryDeserializerFactory(AdsOneTimeQuery.class);
 

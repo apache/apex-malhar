@@ -24,8 +24,9 @@ public class QueryDeserializerFactory
 {
   private static final Logger logger = LoggerFactory.getLogger(QueryDeserializerFactory.class);
 
-  Map<String, Class<? extends Query>> typeToClass = Maps.newHashMap();
-  Map<String, CustomQueryDeserializer> typeToCustomQueryBuilder = Maps.newHashMap();
+  private Map<String, Class<? extends Query>> typeToClass = Maps.newHashMap();
+  private Map<String, CustomQueryDeserializer> typeToCustomQueryBuilder = Maps.newHashMap();
+  private Map<String, CustomQueryValidator> typeToCustomQueryValidator = Maps.newHashMap();
 
   public QueryDeserializerFactory(Class<? extends Query>... schemas)
   {
@@ -34,7 +35,6 @@ public class QueryDeserializerFactory
 
   private void setClasses(Class<? extends Query>[] schemas)
   {
-    logger.debug("{}", schemas);
     Preconditions.checkArgument(schemas.length != 0, "No schemas provided.");
 
     Set<Class<? extends Query>> clazzes = Sets.newHashSet();
@@ -49,6 +49,7 @@ public class QueryDeserializerFactory
 
       String schemaType = null;
       Class<? extends CustomQueryDeserializer> cqd = null;
+      Class<? extends CustomQueryValidator> cqv = null;
 
       for(Annotation an: ans)
       {
@@ -76,6 +77,15 @@ public class QueryDeserializerFactory
 
           cqd = ((QueryDeserializerInfo) an).clazz();
         }
+        else if(an instanceof QueryValidatorInfo) {
+          if(cqv != null) {
+            throw new UnsupportedOperationException("Cannot specify the " +
+                                                    QueryValidatorInfo.class +
+                                                    " annotation twice on the class: ");
+          }
+
+          cqv = ((QueryValidatorInfo) an).clazz();
+        }
       }
 
       if(schemaType == null) {
@@ -86,6 +96,12 @@ public class QueryDeserializerFactory
 
       if(cqd == null) {
         throw new UnsupportedOperationException("No " + QueryDeserializerInfo.class +
+                                                " annotation found on class: " +
+                                                schema);
+      }
+
+      if(cqv == null) {
+        throw new UnsupportedOperationException("No " + QueryValidatorInfo.class +
                                                 " annotation found on class: " +
                                                 schema);
       }
@@ -101,8 +117,10 @@ public class QueryDeserializerFactory
 
       try {
         CustomQueryDeserializer cqdI = cqd.newInstance();
+        CustomQueryValidator cqvI = cqv.newInstance();
         cqdI.setQueryClazz(schema);
         typeToCustomQueryBuilder.put(schemaType, cqdI);
+        typeToCustomQueryValidator.put(schemaType, cqvI);
       }
       catch(InstantiationException ex) {
         throw new RuntimeException(ex);
@@ -131,7 +149,15 @@ public class QueryDeserializerFactory
     }
 
     CustomQueryDeserializer cqb = typeToCustomQueryBuilder.get(type);
+    CustomQueryValidator cqv = typeToCustomQueryValidator.get(type);
     Query query = cqb.deserialize(json);
+
+    logger.debug("{}", query);
+    //Error in the format of the query
+    if(query == null || !cqv.validate(query)) {
+      return null;
+    }
+
     query.setType(type);
     return query;
   }

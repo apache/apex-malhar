@@ -14,6 +14,10 @@ public class Result
   private String id;
   private String type;
 
+  public Result()
+  {
+  }
+
   public Result(Query query)
   {
     this.id = query.getId();
