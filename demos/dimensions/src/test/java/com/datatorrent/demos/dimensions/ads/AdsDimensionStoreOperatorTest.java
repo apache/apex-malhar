@@ -98,7 +98,7 @@ public class AdsDimensionStoreOperatorTest
     ae2.clicks = 20;
     hdsOut.input.process(ae2);
 
-    logger.debug("AdEvent 2: {}", ae1);
+    logger.debug("AdEvent 2: {}", ae2);
 
     AdInfo.AdInfoAggregateEvent ae3 = new AdInfo.AdInfoAggregateEvent();
     ae3.publisherId = 1;
@@ -108,7 +108,7 @@ public class AdsDimensionStoreOperatorTest
     ae3.clicks = 40;
     hdsOut.input.process(ae3);
 
-    logger.debug("AdEvent 3: {}", ae1);
+    logger.debug("AdEvent 3: {}", ae3);
 
     hdsOut.endWindow();
 
@@ -152,12 +152,9 @@ public class AdsDimensionStoreOperatorTest
 
     // ae1 object is stored as referenced in cache, and when new tuple is aggregated,
     // the new values are updated in ae1 itself, causing following check to fail.
-    //Assert.assertEquals("clicks", ae1.clicks + ae2.clicks, r.data.get(0).clicks);
-    //Assert.assertEquals("clicks", 10 + ae2.clicks, r.data.get(0).clicks);
-    //Assert.assertEquals("clicks", ae3.clicks, r.data.get(1).clicks);
-
-    //Assert.assertNotSame("deserialized", ae1, r.data.get(1));
-    //Assert.assertSame("from cache", ae3, r.data.get(1));
+    //Assert.assertEquals("clicks", ae1.clicks + ae2.clicks, (long) aotr.getData().get(0).getClicks());
+    Assert.assertEquals("clicks", 10 + ae2.clicks, (long) aotr.getData().get(0).getClicks());
+    Assert.assertEquals("clicks", ae3.clicks, (long) aotr.getData().get(1).getClicks());
   }
 
   @Test

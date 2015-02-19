@@ -251,7 +251,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     MutableBoolean done = new MutableBoolean(false);
 
     super.endWindow();
-    
+
     while(done.isFalse()) {
       AdsOneTimeResult aotr = (AdsOneTimeResult) queryProcessor.process(done);
 
@@ -289,6 +289,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     keybb.putInt(event.getAdUnit());
     keybb.rewind();
     keybb.get(data);
+    LOG.debug("Value: {}", event);
     LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
     return data;
   }
@@ -539,6 +540,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
           if(ae != null) {
             LOG.debug("Adding from aggregation buffer {}" + ae);
+            AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
+            aotqr.getData().add(aotd);
           }
         }
 
@@ -546,17 +549,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
         if(hdsQuery.processed && hdsQuery.result != null) {
           AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+          AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
 
           if(ae != null) {
-            AdsOneTimeResult.AdsOneTimeData aotd = new AdsOneTimeResult.AdsOneTimeData();
-            aotd.setTimeLong(ae.timestamp);
-            aotd.setAdvertiserId(ae.advertiserId);
-            aotd.setPublisherId(ae.publisherId);
-            aotd.setLocationId(ae.adUnit);
-            aotd.setImpressions(ae.impressions);
-            aotd.setClicks(ae.clicks);
-            aotd.setCost(ae.cost);
-            aotd.setRevenue(ae.revenue);
             aotqr.getData().add(aotd);
           }
         }
@@ -573,6 +568,20 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     public void queueDepleted(MutableBoolean context)
     {
       context.setValue(true);
+    }
+
+    private AdsOneTimeResult.AdsOneTimeData convert(AdInfo.AdInfoAggregateEvent ae)
+    {
+      AdsOneTimeResult.AdsOneTimeData aotd = new AdsOneTimeResult.AdsOneTimeData();
+      aotd.setTimeLong(ae.timestamp);
+      aotd.setAdvertiserId(ae.advertiserId);
+      aotd.setPublisherId(ae.publisherId);
+      aotd.setLocationId(ae.adUnit);
+      aotd.setImpressions(ae.impressions);
+      aotd.setClicks(ae.clicks);
+      aotd.setCost(ae.cost);
+      aotd.setRevenue(ae.revenue);
+      return aotd;
     }
   }
 
