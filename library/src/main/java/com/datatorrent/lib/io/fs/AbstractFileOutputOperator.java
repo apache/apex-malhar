@@ -849,15 +849,6 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     /**
      * An enum for counters representing the total number of bytes written
      * by the operator.
-     *//**
-     * An enum for counters representing the total number of bytes written
-     * by the operator.
-     *//**
-     * An enum for counters representing the total number of bytes written
-     * by the operator.
-     *//**
-     * An enum for counters representing the total number of bytes written
-     * by the operator.
      */
     TOTAL_BYTES_WRITTEN,
 
