@@ -121,10 +121,10 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   // Query Processing - Start
   //==========================================================================
 
-  private QueryProcessor<AdsOneTimeQuery, AdsQueryMeta, Long, MutableBoolean> queryProcessor;
+  private transient QueryProcessor<AdsOneTimeQuery, AdsQueryMeta, Long, MutableBoolean> queryProcessor;
   @SuppressWarnings("unchecked")
-  private QueryDeserializerFactory queryDeserializerFactory;
-  private ResultSerializerFactory resultSerializerFactory;
+  private transient QueryDeserializerFactory queryDeserializerFactory;
+  private transient ResultSerializerFactory resultSerializerFactory;
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
   private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
   private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
