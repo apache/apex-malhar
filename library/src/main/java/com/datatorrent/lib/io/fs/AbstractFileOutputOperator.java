@@ -199,7 +199,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   /**
    * StopWatch tracking the total time the operator has spent writing bytes.
    */
-  private long totalWritingTime;
+  private transient long totalWritingTime;
 
   /**
    * File output counters.
