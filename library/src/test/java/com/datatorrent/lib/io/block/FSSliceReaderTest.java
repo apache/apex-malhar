@@ -86,7 +86,7 @@ public class FSSliceReaderTest
     {
       blockReader.teardown();
       try {
-        FileUtils.forceDelete(new File(output));
+        FileUtils.forceDelete(new File("target/" + description.getClassName()));
       }
       catch (IOException e) {
         throw new RuntimeException(e);
