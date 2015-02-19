@@ -195,7 +195,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       }
       else {
         int storedTuples = 0;
-        int writtenTuples = 0;
 
         Transaction t = getChannel().getTransaction();
         try {
@@ -209,8 +208,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
               if (!client.write(address, event)) {
                 retryWrite(address, event);
               }
-
-              writtenTuples++;
+              outstandingEventsCount++;
             }
             else {
               logger.debug("Detected the condition of recovery from flume crash!");
@@ -224,7 +222,6 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 
           t.commit();
 
-          outstandingEventsCount += writtenTuples;
           if (storedTuples > 0) { /* log less frequently */
             logger.debug("Transaction details maxTuples = {}, storedTuples = {}, outstanding = {}", maxTuples, storedTuples, outstandingEventsCount);
           }
