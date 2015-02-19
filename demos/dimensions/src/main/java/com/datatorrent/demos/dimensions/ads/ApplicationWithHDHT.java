@@ -167,13 +167,12 @@ public class ApplicationWithHDHT implements StreamingApplication
       KafkaSinglePortOutputOperator<String, String> queryResult = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<String, String>());
       queryResult.getConfigProperties().put("serializer.class", KafkaJsonEncoder.class.getName());
       queryResultPort = queryResult.inputPort;
-
-    dag.addStream("QueryResult", store.queryResult, queryResultPort);
     }
 
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, store.input);
     dag.addStream("Query", queryPort, store.query);
+    dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }
 
 }
