@@ -174,11 +174,10 @@ public class DTFlumeSink extends AbstractSink implements Configurable
             if (!client.write(playback)) {
               retryWrite(playback, null);
             }
+            outstandingEventsCount++;
             playback = storage.retrieveNext();
           }
           while (++i < maxTuples && playback != null);
-
-          outstandingEventsCount += i;
         }
         catch (Exception ex) {
           logger.warn("Playback Failed", ex);
