@@ -250,6 +250,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
     MutableBoolean done = new MutableBoolean(false);
 
+    super.endWindow();
+    
     while(done.isFalse()) {
       AdsOneTimeResult aotr = (AdsOneTimeResult) queryProcessor.process(done);
 
@@ -259,7 +261,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
 
     queryProcessor.endWindow();
-    super.endWindow();
   }
 
   @Override
