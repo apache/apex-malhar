@@ -88,6 +88,8 @@ public class AdsDimensionStoreOperatorTest
     ae1.clicks = 10;
     hdsOut.input.process(ae1);
 
+    logger.debug("AdEvent 1: {}", ae1);
+
     AdInfo.AdInfoAggregateEvent ae2 = new AdInfo.AdInfoAggregateEvent();
     ae2.publisherId = 1;
     ae2.advertiserId = 2;
@@ -96,6 +98,8 @@ public class AdsDimensionStoreOperatorTest
     ae2.clicks = 20;
     hdsOut.input.process(ae2);
 
+    logger.debug("AdEvent 2: {}", ae1);
+
     AdInfo.AdInfoAggregateEvent ae3 = new AdInfo.AdInfoAggregateEvent();
     ae3.publisherId = 1;
     ae3.advertiserId = 2;
@@ -103,6 +107,8 @@ public class AdsDimensionStoreOperatorTest
     ae3.timestamp = baseMinute + TimeUnit.MILLISECONDS.convert(1, TimeUnit.MINUTES);
     ae3.clicks = 40;
     hdsOut.input.process(ae3);
+
+    logger.debug("AdEvent 3: {}", ae1);
 
     hdsOut.endWindow();
 
@@ -134,6 +140,8 @@ public class AdsDimensionStoreOperatorTest
 
     hdsOut.query.process(query);
     hdsOut.endWindow();
+
+    Thread.sleep(1000);
 
     Assert.assertEquals("queryResults " + queryResults.collectedTuples, 1, queryResults.collectedTuples.size());
     TimeSeriesQueryResult r = queryResults.collectedTuples.iterator().next();

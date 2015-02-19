@@ -55,6 +55,7 @@ import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.xml.bind.DatatypeConverter;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -287,6 +288,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     keybb.putInt(event.getAdUnit());
     keybb.rewind();
     keybb.get(data);
+    LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
     return data;
   }
 
@@ -308,6 +310,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     valbb.putDouble(event.revenue);
     valbb.rewind();
     valbb.get(data);
+    LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
     return data;
   }
 
@@ -368,13 +371,17 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     @Override
     public byte[] getKeyBytes(AdInfoAggregateEvent aggr)
     {
-      return operator.getKey(aggr);
+      byte[] array = operator.getKey(aggr);
+      LOG.debug("Key: {}", DatatypeConverter.printHexBinary(array));
+      return array;
     }
 
     @Override
     public byte[] getValueBytes(AdInfoAggregateEvent aggr)
     {
-      return operator.getValue(aggr);
+      byte[] array = operator.getValue(aggr);
+      LOG.debug("Value: {}", DatatypeConverter.printHexBinary(array));
+      return array;
     }
 
     @Override
@@ -441,6 +448,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       ae.publisherId = aks.getPublisherId();
       ae.advertiserId = aks.getAdvertiserId();
 
+      LOG.debug("Input AdEvent: {}", ae);
+
       long bucketKey = getBucketKey(ae);
       if(!(operator.partitions == null || operator.partitions.contains((int)bucketKey))) {
         //LOG.debug("Ignoring query for bucket {} when this partition serves {}", bucketKey, super.partitions);
@@ -459,14 +468,15 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
 
       if(atrb.getFromLong() == 0) {
-        atrb.setFromLong(endTime - ((long) defaultTimeWindow));
+        atrb.setFromLong(endTime - defaultTimeWindow);
       }
 
       List<HDSQuery> hdsQueries = Lists.newArrayList();
 
       for(ae.timestamp = atrb.getFromLong();
           ae.timestamp <= endTime;
-          ae.timestamp += TIME_UNIT.toMillis(1)) {
+          ae.timestamp += TimeUnit.MINUTES.toMillis(1)) {
+        LOG.debug("Query AdEvent: {}", ae);
         Slice key = new Slice(getKey(ae));
         HDSQuery hdsQuery = operator.queries.get(key);
 
@@ -530,6 +540,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
             LOG.debug("Adding from aggregation buffer {}" + ae);
           }
         }
+
+        LOG.debug("processed: {}", hdsQuery.processed);
 
         if(hdsQuery.processed && hdsQuery.result != null) {
           AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
