@@ -264,6 +264,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
 
       if(aotr != null) {
+        LOG.info("Emitting the result: {}", windowId);
         queryResult.emit(resultSerializerFactory.serialize(aotr));
       }
     }
