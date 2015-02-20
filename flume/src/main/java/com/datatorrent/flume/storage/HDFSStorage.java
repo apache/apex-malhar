@@ -880,7 +880,7 @@ public class HDFSStorage implements Storage, Configurable, Component<com.datator
   {
     if (flushedFileCounter != -1 && fs.exists(filePath)) {
       byte[] flushedFileOffsetByte = readData(filePath);
-      if (flushedFileOffsetByte != null) {
+      if (flushedFileOffsetByte != null && flushedFileOffsetByte.length == 8) {
         return Server.readLong(flushedFileOffsetByte, 0);
       }
     }
