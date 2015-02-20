@@ -23,8 +23,6 @@ import com.datatorrent.contrib.hdht.HDHTWriter;
 import com.datatorrent.contrib.hdht.MutableKeyValue;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.ByteBufferInput;
-import com.esotericsoftware.kryo.io.ByteBufferOutput;
 import com.google.common.util.concurrent.MoreExecutors;
 
 import org.junit.Assert;
@@ -426,6 +424,65 @@ public class WALTest
     bb = ByteBuffer.wrap(newOperator.get(1, getLongByteArray(1)));
     l = bb.getLong();
     Assert.assertEquals("Value is persisted ", 40, l);
+  }
+
+
+  /**
+   * checkpointed(1)  1 -> 10
+   * checkpointed(2)  1 -> 20
+   * committed(2)
+   * checkpointed(3)  1 -> 30
+   * committed(3)
+   * checkpointed(4)
+   * committed(4)
+   *
+   * no null pointer exception should occure.
+   */
+  @Test
+  public void testIssue4008() throws IOException
+  {
+    File file = new File("target/hds");
+    FileUtils.deleteDirectory(file);
+
+    HDHTFileAccessFSImpl bfs = new MockFileAccess();
+    bfs.setBasePath(file.getAbsolutePath());
+    bfs.init();
+    ((MockFileAccess)bfs).disableChecksum();
+
+    HDHTWriter hds = new HDHTWriter();
+    hds.setFileStore(bfs);
+    hds.setFlushSize(2);
+    hds.setFlushIntervalCount(1);
+    hds.setup(null);
+    hds.writeExecutor = MoreExecutors.sameThreadExecutor();
+
+    hds.beginWindow(1);
+    hds.put(1, getLongByteArray(1), getLongByteArray(10).toByteArray());
+    hds.endWindow();
+    hds.checkpointed(1);
+
+    hds.beginWindow(2);
+    hds.put(1, getLongByteArray(1), getLongByteArray(20).toByteArray());
+    hds.endWindow();
+    hds.checkpointed(2);
+    hds.committed(2);
+
+    hds.beginWindow(3);
+    hds.put(1, getLongByteArray(1), getLongByteArray(30).toByteArray());
+    hds.endWindow();
+    hds.checkpointed(3);
+    hds.committed(3);
+
+    hds.beginWindow(4);
+    hds.endWindow();
+    hds.checkpointed(4);
+    hds.committed(4);
+
+    /* The latest value is recovered from WAL */
+    ByteBuffer bb = ByteBuffer.wrap(hds.get(1, getLongByteArray(1)));
+    long l = bb.getLong();
+    Assert.assertEquals("Value of 1 is recovered from WAL", 30, l);
+
   }
 
 

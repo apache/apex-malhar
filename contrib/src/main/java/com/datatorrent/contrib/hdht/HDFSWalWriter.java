@@ -23,7 +23,11 @@ import org.apache.hadoop.fs.FSDataOutputStream;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.HDHT.WALReader;
 
-
+/**
+ * HDFSWalWriter
+ *
+ * @since 2.0.0 
+ */
 public class HDFSWalWriter implements HDHT.WALWriter
 {
   transient DataOutputStream out;

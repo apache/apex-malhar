@@ -26,6 +26,8 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Benchmark App for StreamMerge Operator.
  * This operator is benchmarked to emit 1,300,000 tuples/sec on cluster node.
+ *
+ * @since 2.0.0
  */
 public class StreamMergeApp implements StreamingApplication
 {

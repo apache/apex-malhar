@@ -33,6 +33,8 @@ import java.util.*;
  * step size multiplier.
  *
  * @param <E> Any object to be returned in random weighted fashion
+ *
+ * @since 2.0.0
  */
 class RandomWeightedMovableGenerator<E> {
   private NavigableMap<Double, E> map = new TreeMap<Double, E>();

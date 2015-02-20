@@ -22,7 +22,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.demos.machinedata.data.MachineInfo;
 import com.datatorrent.demos.machinedata.data.MachineKey;
 import com.datatorrent.demos.machinedata.data.AverageData;
-import com.datatorrent.demos.machinedata.data.ResourceType;
 import com.datatorrent.lib.util.KeyHashValPair;
 import com.datatorrent.lib.util.KeyValPair;
 

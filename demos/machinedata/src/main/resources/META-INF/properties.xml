@@ -60,7 +60,7 @@
   <property>
     <name>dt.application.MachineDataDemo.operator.Persister.store.host
     </name>
-    <value>node9.morado.com</value>
+    <value></value>
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.Persister.store.port
@@ -74,7 +74,7 @@
   <property>
     <name>dt.application.MachineDataDemo.operator.Alerter.from
     </name>
-    <value>admin@datatorrent.com</value>
+    <value></value>
   </property>
   <property>
     <name>dt.application.MachineDataDemo.operator.Alerter.subject

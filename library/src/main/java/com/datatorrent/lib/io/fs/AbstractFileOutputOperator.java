@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.ExecutionException;
 
 import javax.annotation.Nonnull;
@@ -42,6 +41,7 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.lib.counters.BasicCounters;
@@ -81,6 +81,8 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @tags fs, file, output operator
  *
  * @param <INPUT> This is the input tuple type.
+ *
+ * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
@@ -180,6 +182,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    */
   private final BasicCounters<MutableLong> fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
 
+  protected StreamCodec<INPUT> streamCodec;
+
   /**
    * This input port receives incoming tuples.
    */
@@ -189,6 +193,17 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     public void process(INPUT tuple)
     {
       processTuple(tuple);
+    }
+
+    @Override
+    public StreamCodec<INPUT> getStreamCodec()
+    {
+      if (AbstractFileOutputOperator.this.streamCodec == null) {
+        return super.getStreamCodec();
+      }
+      else {
+        return streamCodec;
+      }
     }
   };
 

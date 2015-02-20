@@ -16,7 +16,6 @@
 package com.datatorrent.lib.xml;
 
 import com.datatorrent.api.*;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 import javax.xml.parsers.*;
 import org.w3c.dom.Document;

@@ -59,6 +59,8 @@ import java.util.concurrent.TimeUnit;
  * @displayName HDHT Dimensional Store
  * @category Store
  * @tags storage, hdfs, dimensions, hdht
+ *
+ * @since 2.0.0
  */
 public class DimensionStoreOperator extends AbstractSinglePortHDHTWriter<GenericAggregate>
 {

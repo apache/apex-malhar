@@ -20,6 +20,11 @@ import java.io.IOException;
 
 import com.datatorrent.common.util.Slice;
 
+/**
+ * HDHT
+ *
+ * @since 2.0.0 
+ */
 public interface HDHT
 {
   public interface Reader

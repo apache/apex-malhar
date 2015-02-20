@@ -6,20 +6,16 @@
     <value>1024</value>
   </property>
   <property>
-    <name>dt.operator.rand.attr.MEMORY_MB</name>
+    <name>dt.application.*.operator.*.attr.MEMORY_MB</name>
     <value>256</value>
   </property>
   <property>
-    <name>dt.port.integer_data.attr.BUFFER_MEMORY_MB</name>
-    <value>384</value>
+    <name>dt.application.*.operator.*.attr.JVM_OPTIONS</name>
+    <value>-Xmx128M</value>
   </property>
   <property>
-    <name>dt.operator.*.attr.MEMORY_MB</name>
+    <name>dt.application.*.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
     <value>128</value>
-  </property>
-  <property>
-    <name>dt.port.*.attr.BUFFER_MEMORY_MB</name>
-    <value>256</value>
   </property>
 
   <!-- PiDemo  -->
@@ -49,23 +45,11 @@
     <name>dt.application.PiLibraryDemo.operator.PairXY.size</name>
     <value>2</value>
   </property>
-  <property>
-    <name>dt.application.PiLibraryDemo.operator.*.attr.MEMORY_MB</name>
-    <value>256</value>
-  </property>
-  <property>
-    <name>dt.application.PiLibraryDemo.port.*.attr.BUFFER_MEMORY_MB</name>
-    <value>384</value>
-  </property>
 
   <!-- PiJavaScriptDemo -->
   <property>
     <name>dt.application.PiJavaScriptDemo.operator.rand.tuplesBlast</name>
     <value>9</value>
-  </property>
-  <property>
-    <name>dt.application.PiJavaScriptDemo.operator.picalc.attr.MEMORY_MB</name>
-    <value>384</value>
   </property>
 
 </configuration>

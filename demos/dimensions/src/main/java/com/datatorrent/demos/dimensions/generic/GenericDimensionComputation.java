@@ -32,6 +32,7 @@ import java.util.Map;
  * @category Math
  * @tags dimension, aggregation
  *
+ * @since 2.0.0
  */
 public class GenericDimensionComputation extends DimensionsComputation<Object, GenericAggregate>
 {

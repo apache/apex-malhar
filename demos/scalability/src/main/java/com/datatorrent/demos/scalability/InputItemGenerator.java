@@ -18,7 +18,6 @@ package com.datatorrent.demos.scalability;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

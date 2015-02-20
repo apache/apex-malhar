@@ -15,24 +15,14 @@
  */
 package com.datatorrent.demos.machinedata;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.Operator.InputPort;
-import com.datatorrent.api.Operator.OutputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.demos.machinedata.data.MachineKey;
-import com.datatorrent.demos.machinedata.operator.CalculatorOperator;
 import com.datatorrent.demos.machinedata.operator.MachineInfoAveragingOperator;
 import com.datatorrent.demos.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
 import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
-import com.datatorrent.contrib.redis.RedisMapOutputOperator;
-import com.datatorrent.contrib.redis.RedisStore;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.SmtpOutputOperator;
 
 import java.util.Map;

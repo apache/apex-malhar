@@ -54,6 +54,8 @@ import com.google.common.collect.Maps;
  * @displayName HDHT Reader
  * @category Input
  * @tags hds, input operator
+ *
+ * @since 2.0.0
  */
 
 public class HDHTReader implements Operator, HDHT.Reader

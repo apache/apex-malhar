@@ -238,7 +238,7 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
    * request to the host running your gateway like this.
    * <p/>
    * <code>
-   * http://&lt;your host&gt;:9090/ws/v1/applications/&lt;your app id&gt;/logicalPlan/operators/&lt;operatorname&gt;/aggregation
+   * http://&lt;your host&gt;:9090/ws/v2/applications/&lt;your app id&gt;/logicalPlan/operators/&lt;operatorname&gt;/aggregation
    * </code>
    * <p/>
    * @since 1.0.4

@@ -9,6 +9,8 @@ import org.apache.solr.common.SolrInputDocument;
 /**
  * Default Implementation of AbstractSolrOutputOperator. Accepts maps and puts key values in SolrInputDocument format.
  * Map keys must be added to schema.xml <br>
+ *
+ * @since 2.0.0
  */
 public class SolrOutputOperator extends AbstractSolrOutputOperator<Map<String, Object>, SolrServerConnector>
 {

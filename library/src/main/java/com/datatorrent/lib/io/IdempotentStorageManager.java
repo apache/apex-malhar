@@ -48,6 +48,8 @@ import com.datatorrent.lib.util.FSStorageAgent;
  * <b>Important:</b> In order for an idempotent storage manager to function correctly it cannot allow
  * checkpoints to occur within an application window and checkpoints must be aligned with
  * application window boundaries.
+ *
+ * @since 2.0.0
  */
 
 public interface IdempotentStorageManager extends StorageAgent, Component<Context.OperatorContext>

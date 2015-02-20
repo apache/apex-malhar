@@ -23,6 +23,7 @@ import java.util.Map;
  * <br>
  * Ex. you could write offset to hdfs and load it back when restart the application
  *
+ * @since 2.0.0
  */
 public interface OffsetManager
 {

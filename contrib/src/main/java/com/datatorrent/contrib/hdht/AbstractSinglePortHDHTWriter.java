@@ -43,6 +43,8 @@ import com.google.common.collect.Lists;
  * Implements partitioning, maps partition key to the store bucket.
  * The derived class supplies the codec for partitioning and key-value serialization.
  * @param <EVENT>
+ *
+ * @since 2.0.0
  */
 public abstract class AbstractSinglePortHDHTWriter<EVENT> extends HDHTWriter implements Partitioner<AbstractSinglePortHDHTWriter<EVENT>>
 {

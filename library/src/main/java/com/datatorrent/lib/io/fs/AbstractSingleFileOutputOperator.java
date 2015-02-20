@@ -26,6 +26,8 @@ import javax.validation.constraints.NotNull;
  * @tags fs, file, output operator
  *
  * @param <INPUT> The type of the incoming tuples.
+ *
+ * @since 2.0.0
  */
 public abstract class AbstractSingleFileOutputOperator<INPUT> extends AbstractFileOutputOperator<INPUT>
 {

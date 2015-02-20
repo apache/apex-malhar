@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.io.fs;
+package com.datatorrent.lib.io.block;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -36,16 +36,16 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
- * Tests for {@link FixedBytesBlockReader}.
+ * Tests for {@link FSSliceReader}.
  */
-public class FixedBytesBlockReaderTest
+public class FSSliceReaderTest
 {
   public static class TestMeta extends TestWatcher
   {
     String output;
     File dataFile;
     Context.OperatorContext readerContext;
-    FixedBytesBlockReader blockReader;
+    FSSliceReader blockReader;
     CollectorTestSink<Object> blockMetadataSink;
     CollectorTestSink<Object> messageSink;
 
@@ -60,7 +60,7 @@ public class FixedBytesBlockReaderTest
         throw new RuntimeException(e);
       }
       dataFile = new File("src/test/resources/reader_test_data.csv");
-      blockReader = new FixedBytesBlockReader();
+      blockReader = new FSSliceReader();
 
       Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
       readerAttr.put(DAG.APPLICATION_ID, Long.toHexString(System.currentTimeMillis()));
@@ -101,8 +101,9 @@ public class FixedBytesBlockReaderTest
     testMeta.blockReader.beginWindow(1);
 
     for (int i = 0; i < noOfBlocks; i++) {
-      FileSplitter.BlockMetadata blockMetadata = new FileSplitter.BlockMetadata(i * blockSize, i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize,
-        testMeta.dataFile.getAbsolutePath(), i, i == noOfBlocks - 1);
+      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(testMeta.dataFile.getAbsolutePath(), i, i * blockSize,
+        i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize,
+        i == noOfBlocks - 1, i - 1);
       testMeta.blockReader.blocksMetadataInput.process(blockMetadata);
     }
 

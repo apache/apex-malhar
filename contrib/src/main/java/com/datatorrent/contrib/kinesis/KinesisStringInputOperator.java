@@ -21,6 +21,8 @@ import java.nio.ByteBuffer;
 
 /**
  * Kinesis input adapter which consumes string data from Kinesis
+ *
+ * @since 2.0.0
  */
 public class KinesisStringInputOperator extends AbstractKinesisInputOperator<String>
 {

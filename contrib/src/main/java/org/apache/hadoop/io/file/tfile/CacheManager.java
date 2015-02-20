@@ -34,6 +34,8 @@ import com.google.common.cache.Weigher;
  * <br>
  * <br>
  * It keeps {@link String} as key and {@link BlockReader} as value
+ *
+ * @since 2.0.0
  */
 public class CacheManager
 {
