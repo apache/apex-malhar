@@ -33,6 +33,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.lib.io.IdempotentStorageManager;
+import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
 
 /**
  * Input operator that scans a directory for files and splits a file into blocks.<br/>
@@ -41,6 +42,8 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
  * @displayName File Splitter
  * @category Input
  * @tags file, input operator
+ *
+ * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMetadata>
@@ -60,7 +63,7 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
   }
 
   public final transient DefaultOutputPort<FileMetadata> filesMetadataOutput = new DefaultOutputPort<FileMetadata>();
-  public final transient DefaultOutputPort<BlockMetadata> blocksMetadataOutput = new DefaultOutputPort<BlockMetadata>();
+  public final transient DefaultOutputPort<FileBlockMetadata> blocksMetadataOutput = new DefaultOutputPort<FileBlockMetadata>();
 
   @Override
   public void setup(Context.OperatorContext context)
@@ -91,7 +94,7 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
         processedFiles.add(entry.file);
         FileMetadata fileMetadata = buildFileMetadata(entry.file);
         filesMetadataOutput.emit(fileMetadata);
-        Iterator<BlockMetadata> iterator = new BlockMetadataIterator(this, fileMetadata, blockSize);
+        Iterator<FileBlockMetadata> iterator = new BlockMetadataIterator(this, fileMetadata, blockSize);
         while (iterator.hasNext()) {
           this.blocksMetadataOutput.emit(iterator.next());
         }
@@ -119,7 +122,7 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
       try {
         FileMetadata fileMetadata = buildFileMetadata(fPath);
         filesMetadataOutput.emit(fileMetadata);
-        Iterator<BlockMetadata> iterator = new BlockMetadataIterator(this, fileMetadata, blockSize);
+        Iterator<FileBlockMetadata> iterator = new BlockMetadataIterator(this, fileMetadata, blockSize);
         while (iterator.hasNext()) {
           this.blocksMetadataOutput.emit(iterator.next());
         }
@@ -132,11 +135,13 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
   }
 
   /**
-   * Can be overridden for creating block metadata of a type that extends {@link BlockMetadata}
+   * Can be overridden for creating block metadata of a type that extends {@link FileBlockMetadata}
    */
-  protected BlockMetadata createBlockMetadata(long pos, long lengthOfFileInBlock, int blockNumber, FileMetadata fileMetadata, boolean isLast)
+  protected FileBlockMetadata createBlockMetadata(long pos, long lengthOfFileInBlock, int blockNumber, FileMetadata fileMetadata, boolean isLast)
   {
-    return new BlockMetadata(pos, lengthOfFileInBlock, fileMetadata.getFilePath(), fileMetadata.getBlockIds()[blockNumber - 1], isLast);
+    return new FileBlockMetadata(fileMetadata.getFilePath(), fileMetadata.getBlockIds()[blockNumber - 1], pos,
+      lengthOfFileInBlock, isLast, blockNumber == 1 ? -1 : fileMetadata.getBlockIds()[blockNumber - 2]);
+
   }
 
   @Override
@@ -201,7 +206,7 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
   /**
    * An {@link Iterator} for Block-Metadatas of a file.
    */
-  public static class BlockMetadataIterator implements Iterator<BlockMetadata>
+  public static class BlockMetadataIterator implements Iterator<FileBlockMetadata>
   {
     private final FileMetadata fileMetadata;
     private final long blockSize;
@@ -228,141 +233,22 @@ public class FileSplitter extends AbstractFileInputOperator<FileSplitter.FileMet
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public BlockMetadata next()
+    public FileBlockMetadata next()
     {
       long length;
       while ((length = blockSize * ++blockNumber) <= pos) {
       }
       boolean isLast = length >= fileMetadata.getFileLength();
       long lengthOfFileInBlock = isLast ? fileMetadata.getFileLength() : length;
-      BlockMetadata blockMetadata = splitter.createBlockMetadata(pos, lengthOfFileInBlock, blockNumber, fileMetadata, isLast);
+      FileBlockMetadata fileBlock = splitter.createBlockMetadata(pos, lengthOfFileInBlock, blockNumber, fileMetadata, isLast);
       pos = lengthOfFileInBlock;
-      return blockMetadata;
+      return fileBlock;
     }
 
     @Override
     public void remove()
     {
       throw new UnsupportedOperationException("remove not supported");
-    }
-  }
-
-  /**
-   * Represent the block metadata - file path, the file offset and length associated with the block and if it is the last
-   * block of the file.
-   */
-  public static class BlockMetadata
-  {
-    private final long blockId;
-    private final String filePath;
-    //file offset associated with the block
-    private long offset;
-    //file length associated with the block
-    private long length;
-    private final boolean isLastBlock;
-
-    @SuppressWarnings("unused")
-    protected BlockMetadata()
-    {
-      blockId = -1;
-      filePath = null;
-      offset = -1;
-      length = -1;
-      isLastBlock = false;
-    }
-
-    /**
-     * Constructs Block metadata
-     *
-     * @param offset      offset of the file in the block
-     * @param length      length of the file in the block
-     * @param filePath    file path
-     * @param blockId     block id
-     * @param isLastBlock true if this is the last block of file
-     */
-    public BlockMetadata(long offset, long length, String filePath, long blockId, boolean isLastBlock)
-    {
-      this.filePath = filePath;
-      this.blockId = blockId;
-      this.offset = offset;
-      this.length = length;
-      this.isLastBlock = isLastBlock;
-    }
-
-    @Override
-    public boolean equals(Object o)
-    {
-      if (this == o) {
-        return true;
-      }
-      if (!(o instanceof BlockMetadata)) {
-        return false;
-      }
-
-      BlockMetadata that = (BlockMetadata) o;
-      return blockId == that.blockId;
-    }
-
-    @Override
-    public int hashCode()
-    {
-      return (int) blockId;
-    }
-
-    /**
-     * Returns the file path.
-     */
-    public String getFilePath()
-    {
-      return filePath;
-    }
-
-    /**
-     * Returns the block id.
-     */
-    public long getBlockId()
-    {
-      return blockId;
-    }
-
-    /**
-     * Returns the file offset associated with the block.
-     */
-    public long getOffset()
-    {
-      return offset;
-    }
-
-    /**
-     * Sets the offset of the file in the block.
-     */
-    public void setOffset(long offset)
-    {
-      this.offset = offset;
-    }
-
-    /**
-     * Returns the length of the file in the block.
-     */
-    public long getLength()
-    {
-      return length;
-    }
-
-    /**
-     * Sets the length of the file in the block.
-     */
-    public void setLength(long length)
-    {
-      this.length = length;
-    }
-
-    /**
-     * Returns if this is the last block in file.
-     */
-    public boolean isLastBlock()
-    {
-      return isLastBlock;
     }
   }
 

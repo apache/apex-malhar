@@ -31,6 +31,8 @@ import com.datatorrent.common.util.DTThrowable;
 
 /**
  * Hadoop file system backed store.
+ *
+ * @since 2.0.0
  */
 abstract public class HDHTFileAccessFSImpl implements HDHTFileAccess
 {

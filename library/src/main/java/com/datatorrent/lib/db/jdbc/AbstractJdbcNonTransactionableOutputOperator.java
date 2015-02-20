@@ -18,10 +18,7 @@ package com.datatorrent.lib.db.jdbc;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import javax.annotation.Nonnull;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.lib.db.AbstractStoreOutputOperator;

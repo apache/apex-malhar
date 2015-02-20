@@ -21,6 +21,11 @@ import com.google.common.collect.Maps;
 import java.nio.ByteBuffer;
 import java.util.Map;
 
+/**
+ * GenericAggregateSerializer
+ *
+ * @since 2.0.0
+ */
 public class GenericAggregateSerializer {
 
 

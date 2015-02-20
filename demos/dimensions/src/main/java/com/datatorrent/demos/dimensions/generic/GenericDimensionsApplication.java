@@ -94,6 +94,7 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
  }
  </pre>
  *
+ * @since 2.0.0
  */
 @ApplicationAnnotation(name="GenericDimensionsApplication")
 public class GenericDimensionsApplication implements StreamingApplication

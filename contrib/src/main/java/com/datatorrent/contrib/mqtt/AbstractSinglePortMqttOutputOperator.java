@@ -16,7 +16,6 @@
 package com.datatorrent.contrib.mqtt;
 
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  * This is the base implementation for a single port MQTT output operator.&nbsp;

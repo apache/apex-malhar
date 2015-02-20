@@ -25,9 +25,12 @@ import com.datatorrent.lib.testbench.EventClassifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import org.apache.hadoop.conf.Configuration;
+
 /**
  * Benchmark App for EventClassifier Operator.
  * This operator is benchmarked to emit 1,089,063 tuples/sec on cluster node.
+ *
+ * @since 2.0.0
  */
 @ApplicationAnnotation(name = "EventClassifierApp")
 public class EventClassifierApp implements StreamingApplication

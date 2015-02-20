@@ -49,6 +49,8 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * <b>pattern</b>: The pattern that needs to be searched<br>
  *
  * @param <T> event type
+ *
+ * @since 2.0.0
  */
 
 @OperatorAnnotation(partitionable = false)

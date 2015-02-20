@@ -56,6 +56,8 @@ import com.google.common.collect.Sets;
  * @displayName HDHT Writer
  * @category Output
  * @tags hdht, output operator
+ *
+ * @since 2.0.0
  */
 public class HDHTWriter extends HDHTReader implements CheckpointListener, Operator, HDHT.Writer
 {
@@ -509,11 +511,10 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
         }
       }
 
-      HDHTWalManager.WalPosition position = null;
       for (Iterator<Map.Entry<Long, HDHTWalManager.WalPosition>> wpIter = bucket.walPositions.entrySet().iterator(); wpIter.hasNext();) {
         Map.Entry<Long, HDHTWalManager.WalPosition> entry = wpIter.next();
         if (entry.getKey() <= committedWindowId) {
-          position = entry.getValue();
+          bucket.recoveryStartWalPosition = entry.getValue();
           wpIter.remove();
         }
       }
@@ -522,13 +523,11 @@ public class HDHTWriter extends HDHTReader implements CheckpointListener, Operat
         // ensure previous flush completed
         if (bucket.frozenWriteCache.isEmpty()) {
           bucket.frozenWriteCache = bucket.committedWriteCache;
+          bucket.committedWriteCache = Maps.newHashMap();
 
           bucket.committedLSN = committedWindowId;
-          bucket.recoveryStartWalPosition = position;
 
-
-          bucket.committedWriteCache = Maps.newHashMap();
-          LOG.debug("Flushing data for bucket {} committedWid {}", bucket.bucketKey, bucket.committedLSN);
+          LOG.debug("Flushing data for bucket {} committedWid {} recoveryStartWalPosition {}", bucket.bucketKey, bucket.committedLSN, bucket.recoveryStartWalPosition);
           Runnable flushRunnable = new Runnable() {
             @Override
             public void run()

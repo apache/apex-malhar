@@ -25,6 +25,8 @@ import org.slf4j.LoggerFactory;
 /**
  * This transactionable store commits the messages sent within a window along with the windowId of the completed window
  * to JMS. This store ensures that the JMS output operator is capable of outputting data to JMS exactly once.
+ *
+ * @since 2.0.0
  */
 public class JMSTransactionableStore extends JMSBaseTransactionableStore
 {

@@ -37,6 +37,7 @@ import com.datatorrent.common.util.DTThrowable;
  * If the processing mode is EXACTLY ONCE, then in case of update the functionality will always be correct since it will overwrite the same keys
  * but for inserts there might be duplicates when operator fails.
  *
+ * @since 2.0.0
  */
 public abstract class AbstractCouchBaseOutputOperator<T> extends AbstractAggregateTransactionableStoreOutputOperator<T, CouchBaseWindowStore>
 {

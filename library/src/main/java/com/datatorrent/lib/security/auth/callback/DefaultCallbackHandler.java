@@ -37,6 +37,8 @@ import com.datatorrent.api.Component;
  * This handler implements Component to interface to receive the login information via the
  * SecurityContext. Custom handlers being implemented from scratch without extending this
  * handler can also extend Component to receive security information.
+ *
+ * @since 2.0.0
  */
 public class DefaultCallbackHandler implements CallbackHandler, Component<SecurityContext>
 {

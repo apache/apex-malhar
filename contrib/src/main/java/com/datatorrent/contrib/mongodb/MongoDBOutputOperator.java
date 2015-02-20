@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.mongodb;
 
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;

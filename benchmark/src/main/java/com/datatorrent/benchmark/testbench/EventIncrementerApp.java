@@ -28,6 +28,8 @@ import org.apache.hadoop.conf.Configuration;
 /**
  * Benchmark App for EventIncrementer Operator.
  * This operator is benchmarked to emit 700K tuples/second on cluster node.
+ *
+ * @since 2.0.0
  */
 @ApplicationAnnotation(name = "EventIncrementerApp")
 public class EventIncrementerApp implements StreamingApplication

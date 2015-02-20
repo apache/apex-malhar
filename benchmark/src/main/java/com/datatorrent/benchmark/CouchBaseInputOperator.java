@@ -15,16 +15,17 @@
  */
 package com.datatorrent.benchmark;
 
-/**
- * <p>CouchBaseInputOperator class.</p>
- */
-import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.couchbase.AbstractCouchBaseInputOperator;
 import com.datatorrent.contrib.couchbase.CouchBaseWindowStore;
 import java.util.ArrayList;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * <p>CouchBaseInputOperator class.</p>
+ *
+ * @since 2.0.0
+ */
 public class CouchBaseInputOperator extends AbstractCouchBaseInputOperator<String>
 {
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseWindowStore.class);

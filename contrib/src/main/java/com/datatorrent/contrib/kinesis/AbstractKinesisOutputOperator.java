@@ -43,6 +43,7 @@ import java.util.List;
  * streamName : Name of the stream from where the records to be accessed
  *
  * @param <T>
+ * @since 2.0.0
  */
 public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
 {
@@ -53,6 +54,7 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
   private String accessKey;
   @NotNull
   private String secretKey;
+  private String endPoint;
   protected static transient AmazonKinesisClient client = null;
   protected int sendCount;
   protected boolean isBatchProcessing = true;
@@ -105,7 +107,7 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
   public void setup(OperatorContext context)
   {
     try {
-      KinesisUtil.getInstance().createKinesisClient(accessKey, secretKey);
+      KinesisUtil.getInstance().createKinesisClient(accessKey, secretKey, endPoint);
     } catch(Exception e)
     {
       throw new RuntimeException("Unable to load Credentials", e);
@@ -229,5 +231,15 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
   public void setSecretKey(String secretKey)
   {
     this.secretKey = secretKey;
+  }
+
+  public String getEndPoint()
+  {
+    return endPoint;
+  }
+
+  public void setEndPoint(String endPoint)
+  {
+    this.endPoint = endPoint;
   }
 }

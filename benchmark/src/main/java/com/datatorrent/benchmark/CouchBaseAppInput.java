@@ -26,6 +26,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  * Application to benchmark the performance of couchbase input operator.
  * The number of tuples processed per second were around 9000.
  *
+ * @since 2.0.0
  */
 @ApplicationAnnotation(name = "CouchBaseAppInput")
 public class CouchBaseAppInput implements StreamingApplication

@@ -110,6 +110,7 @@ import org.apache.hadoop.conf.Configuration;
  }
  </pre>
  *
+ * @since 2.0.0
  */
 @ApplicationAnnotation(name=ApplicationWithHDHT.APP_NAME)
 public class ApplicationWithHDHT implements StreamingApplication
