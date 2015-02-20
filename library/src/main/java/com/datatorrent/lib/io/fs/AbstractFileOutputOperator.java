@@ -60,6 +60,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import org.apache.hadoop.fs.permission.FsPermission;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
@@ -185,6 +186,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * The file system used to write to.
    */
   protected transient FileSystem fs;
+
+  protected short filePermission = 0777;
 
   /**
    * This is the cache which holds open file streams.
@@ -365,6 +368,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
           }
           else {
             fsOutput = fs.create(lfilepath, (short) replication);
+            fs.setPermission(lfilepath, FsPermission.createImmutable(filePermission));
           }
 
           //Get the end offset of the file.
@@ -670,7 +674,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * @param fileName The base name of the files you are rolling over.
    * @return The name of the current rolling file.
    */
-  private String getPartFileNamePri(String fileName)
+  protected String getPartFileNamePri(String fileName)
   {
     if (!rollingFile) {
       return fileName;
@@ -842,6 +846,24 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   public int getMaxOpenFiles()
   {
     return this.maxOpenFiles;
+  }
+
+   /**
+   * Get the permission on the file which is being written.
+   * @return filePermission
+   */
+  public short getFilePermission()
+  {
+    return filePermission;
+  }
+
+  /**
+   * Set the permission on the file which is being written.
+   * @param filePermission
+   */
+  public void setFilePermission(short filePermission)
+  {
+    this.filePermission = filePermission;
   }
 
   public static enum Counters
