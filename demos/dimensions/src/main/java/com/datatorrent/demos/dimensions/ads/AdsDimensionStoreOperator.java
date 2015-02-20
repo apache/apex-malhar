@@ -476,6 +476,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
       else {
         endTime = atrb.getToLong();
+        LOG.info("end time: {}", endTime);
       }
 
       if(atrb.getFromLong() == 0) {
