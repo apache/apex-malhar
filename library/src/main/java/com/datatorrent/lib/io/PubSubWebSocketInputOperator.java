@@ -62,6 +62,7 @@ public class PubSubWebSocketInputOperator<T> extends WebSocketInputOperator<T>
   @Override
   protected T convertMessage(String message) throws IOException
   {
+    LOG.info("Got message: {}", message);
     Map<String, Object> map = mapper.readValue(message, HashMap.class);
     return (T)map.get("data");
   }

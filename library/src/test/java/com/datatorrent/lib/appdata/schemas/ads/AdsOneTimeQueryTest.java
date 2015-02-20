@@ -9,6 +9,8 @@ import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -16,34 +18,40 @@ import org.junit.Test;
  */
 public class AdsOneTimeQueryTest
 {
+  private static final Logger logger = LoggerFactory.getLogger(AdsOneTimeQueryTest.class);
+
   @Test
   public void testDeserialization()
   {
-    final String id = "js92384142834802";
+    final String id = "1";
     final String type = "oneTimeQuery";
 
-    final String fromTime = "2014-03-01 00:00:00";
-    final String toTime = "2014-03-01 12:00:00";
+    final String fromTime = "2015-02-20 00:00:00";
+    final String toTime = "2015-02-21 00:00:00";
     final String bucket = "1h";
 
     final String advertiser = "starbucks";
     final String publisher = "google";
+    final String location = "SKY";
 
-    final String json = "{\n" +
-                        "   \"id\": \"" + id + "\",\n" +
-                        "   \"type\": \"" + type + "\",\n" +
-                        "   \"data\": { \n" +
-                        "      \"time\": {\n" +
-                        "	   \"from\": \"" + fromTime + "\", \n" +
-                        "	   \"to\": \"" + toTime + "\", \n" +
-                        "	   \"bucket\": \"" + bucket + "\"\n" +
-                        "      },\n" +
-                        "      \"keys\": {\n" +
-                        "   \"advertiser\": \"" + advertiser + "\",\n" +
-                        "   \"publisher\": \"" + publisher + "\" \n" +
-                        "      }\n" +
-                        "   } \n" +
-                        "}";
+    final String json = "{" +
+                          "\"id\":\"" + id + "\"," +
+                          "\"type\":\"" + type + "\"," +
+                          "\"data\":{" +
+                          "\"time\":{" +
+                          "\"from\":\"" + fromTime + "\"," +
+                          "\"to\":\"" + toTime + "\"," +
+                          "\"bucket\":\"" + bucket + "\"" +
+                          "}," +
+                          "\"keys\":{" +
+                          "\"advertiser\":\"" + advertiser + "\"," +
+                          "\"publisher\":\"" + publisher + "\"," +
+                          "\"location\":\"" + location + "\"" +
+                          "}" +
+                          "}" +
+                          "}";
+
+    logger.debug("Query: {}", json);
 
     @SuppressWarnings("unchecked")
     QueryDeserializerFactory qb = new QueryDeserializerFactory(AdsOneTimeQuery.class);

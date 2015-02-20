@@ -71,12 +71,12 @@ public class PubSubWebSocketAppDataTest
     PubSubWebSocketInputOperator<String> inputOperator1 = new PubSubWebSocketInputOperator<String>();
     inputOperator1.setName("testInputOperator1");
     inputOperator1.setUri(uri);
-    inputOperator1.setTopic(topicName + testId1);
+    inputOperator1.setTopic(topicName + "." + testId1);
 
     PubSubWebSocketInputOperator<String> inputOperator2 = new PubSubWebSocketInputOperator<String>();
     inputOperator2.setName("testInputOperator2");
     inputOperator2.setUri(uri);
-    inputOperator2.setTopic(topicName + testId2);
+    inputOperator2.setTopic(topicName + "." + testId2);
 
     CollectorTestSink<Object> sink1 = new CollectorTestSink<Object>();
     inputOperator1.outputPort.setSink(sink1);
