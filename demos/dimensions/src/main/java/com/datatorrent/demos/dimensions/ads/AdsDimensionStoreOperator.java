@@ -43,6 +43,7 @@ import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -55,7 +56,7 @@ import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -128,6 +129,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
   private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
   private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
+
+  private transient long windowId;
 
   //==========================================================================
   // Query Processing - End
@@ -224,6 +227,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   public void beginWindow(long windowId)
   {
+    this.windowId = windowId;
     queryProcessor.beginWindow(windowId);
     super.beginWindow(windowId);
   }
@@ -254,6 +258,10 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
     while(done.isFalse()) {
       AdsOneTimeResult aotr = (AdsOneTimeResult) queryProcessor.process(done);
+
+      if(done.isFalse()) {
+        LOG.info("Query {}", windowId);
+      }
 
       if(aotr != null) {
         queryResult.emit(resultSerializerFactory.serialize(aotr));
@@ -289,8 +297,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     keybb.putInt(event.getAdUnit());
     keybb.rewind();
     keybb.get(data);
-    LOG.debug("Value: {}", event);
-    LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
+    //LOG.debug("Value: {}", event);
+    //LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
     return data;
   }
 
@@ -312,7 +320,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     valbb.putDouble(event.revenue);
     valbb.rewind();
     valbb.get(data);
-    LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
+    //LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
     return data;
   }
 
@@ -374,7 +382,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     public byte[] getKeyBytes(AdInfoAggregateEvent aggr)
     {
       byte[] array = operator.getKey(aggr);
-      LOG.debug("Key: {}", DatatypeConverter.printHexBinary(array));
+      //LOG.debug("Key: {}", DatatypeConverter.printHexBinary(array));
       return array;
     }
 
@@ -382,7 +390,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     public byte[] getValueBytes(AdInfoAggregateEvent aggr)
     {
       byte[] array = operator.getValue(aggr);
-      LOG.debug("Value: {}", DatatypeConverter.printHexBinary(array));
+      //LOG.debug("Value: {}", DatatypeConverter.printHexBinary(array));
       return array;
     }
 
@@ -441,7 +449,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     @Override
     public boolean enqueue(AdsOneTimeQuery query, AdsQueryMeta queryMeta, Long windowExpireCount)
     {
-      LOG.debug("Enqueueing query {}", query);
+      LOG.info("Enqueueing query {}", query);
       AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
       AdsKeys aks = query.getData().getKeys();
 
@@ -519,7 +527,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     @Override
     public Result processQuery(AdsOneTimeQuery query, AdsQueryMeta adsQueryMeta, MutableBoolean context)
     {
-      LOG.debug("Processing query {}", query);
+      LOG.info("Processing query {}", query);
       AdsOneTimeResult aotqr = new AdsOneTimeResult(query);
       aotqr.setData(new ArrayList<AdsOneTimeResult.AdsOneTimeData>());
       AdInfo.AdInfoAggregateEvent prototype = adsQueryMeta.getAdInofAggregateEvent();
@@ -539,13 +547,13 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           AdInfo.AdInfoAggregateEvent ae = buffered.get(prototype);
 
           if(ae != null) {
-            LOG.debug("Adding from aggregation buffer {}" + ae);
+            LOG.info("Adding from aggregation buffer {}" + ae);
             AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
             aotqr.getData().add(aotd);
           }
         }
 
-        LOG.debug("processed: {}", hdsQuery.processed);
+        LOG.info("processed: {}", hdsQuery.processed);
 
         if(hdsQuery.processed && hdsQuery.result != null) {
           AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
