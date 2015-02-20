@@ -469,7 +469,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       AdsTimeRangeBucket atrb = query.getData().getTime();
       long endTime;
 
-      if(atrb.getToLong() == 0) {
+      if(atrb.getToLong() < 30000000L) {
         LOG.info("Zero query");
         endTime = System.currentTimeMillis();
         atrb.setToLong(endTime);
