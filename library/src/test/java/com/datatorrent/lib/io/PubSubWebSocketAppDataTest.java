@@ -25,19 +25,16 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.AppDataQueryPort;
 import com.datatorrent.api.annotation.AppDataResultPort;
 import com.datatorrent.api.annotation.OutputPortFieldAnnotation;
-import com.datatorrent.lib.helper.SamplePubSubWebSocketServlet;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.google.common.collect.Maps;
 import java.net.URI;
+
 import java.util.Map;
+
 import org.apache.hadoop.conf.Configuration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-import org.eclipse.jetty.server.Connector;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-import org.eclipse.jetty.servlet.ServletHolder;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -54,16 +51,16 @@ public class PubSubWebSocketAppDataTest
     final String testId1 = "1";
     final String testId2 = "2";
 
-    Server server = new Server(0);
+    /*Server server = new Server(0);
     SamplePubSubWebSocketServlet servlet = new SamplePubSubWebSocketServlet();
     ServletHolder sh = new ServletHolder(servlet);
     ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
     contextHandler.addServlet(sh, "/pubsub");
     contextHandler.addServlet(sh, "/*");
     server.start();
-    Connector connector[] = server.getConnectors();
-    URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
-    //URI uri = URI.create("ws://localhost:9090/pubsub");
+    Connector connector[] = server.getConnectors();*/
+    //URI uri = URI.create("ws://localhost:" + connector[0].getLocalPort() + "/pubsub");
+    URI uri = URI.create("ws://localhost:9090/pubsub");
     logger.debug("Location of websocket: {}", uri);
 
     PubSubWebSocketOutputOperator<Map<String, String>> outputOperator = new PubSubWebSocketOutputOperator<Map<String, String>>();
@@ -138,6 +135,8 @@ public class PubSubWebSocketAppDataTest
     inputOperator2.endWindow();
 
     lc.shutdown();
+
+
 
     Assert.assertEquals("Expected one.", 1, sink1.collectedTuples.size());
     Assert.assertEquals("Expected one.", 1, sink2.collectedTuples.size());

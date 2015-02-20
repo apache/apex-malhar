@@ -98,7 +98,7 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
     String topic = getTopic();
 
     if(appendQIDToTopic) {
-      topic += "." + id;
+      topic += id;
     }
 
     JSONObject output = new JSONObject();
