@@ -56,8 +56,8 @@ public class AdsKeys
     for(int idCounter = 0;
         idCounter < propertyValues.length;
         idCounter++) {
-      propertyToId.put(propertyValues[idCounter], idCounter);
-      idToProperty.put(idCounter, propertyValues[idCounter]);
+      propertyToId.put(propertyValues[idCounter], idCounter + 1);
+      idToProperty.put(idCounter + 1, propertyValues[idCounter]);
     }
   }
 

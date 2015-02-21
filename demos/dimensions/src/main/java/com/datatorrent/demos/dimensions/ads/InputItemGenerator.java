@@ -22,6 +22,8 @@ import javax.validation.constraints.Min;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -45,6 +47,8 @@ public class InputItemGenerator implements InputOperator
   private int blastCount = 10000;
   private final Random random = new Random();
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
+
+  private static final Logger logger = LoggerFactory.getLogger(InputItemGenerator.class);
 
   public double getExpectedClickThruRate()
   {
@@ -136,6 +140,10 @@ public class InputItemGenerator implements InputOperator
         //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
         int publisherId = nextRandomId(numPublishers);
         int adUnit = random.nextInt(numAdUnits);
+
+        if(i == blastCount - 1) {
+          logger.info("advertiserId {}, publisherId {}, addUnit {}");
+        }
 
         double cost = 0.5 + 0.25 * random.nextDouble();
         timestamp = System.currentTimeMillis();
