@@ -35,11 +35,11 @@ import com.datatorrent.api.InputOperator;
 public class InputItemGenerator implements InputOperator
 {
   @Min(1)
-  private int numPublishers = 50;
+  private int numPublishers = 4;
   @Min(1)
-  private int numAdvertisers = 100;
+  private int numAdvertisers = 3;
   @Min(1)
-  private int numAdUnits = 5;
+  private int numAdUnits = 3;
   private double expectedClickThruRate = 0.005;
   @Min(1)
   private int blastCount = 10000;
