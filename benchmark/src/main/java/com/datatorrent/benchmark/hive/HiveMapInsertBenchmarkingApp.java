@@ -51,7 +51,7 @@ import com.datatorrent.benchmark.RandomMapOutput;
 @ApplicationAnnotation(name = "HiveMapInsertBenchmarkingApp")
 public class HiveMapInsertBenchmarkingApp implements StreamingApplication
 {
-  Logger LOG = LoggerFactory.getLogger(HiveInsertBenchmarkingApp.class);
+  Logger LOG = LoggerFactory.getLogger(HiveMapInsertBenchmarkingApp.class);
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
