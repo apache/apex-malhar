@@ -1,0 +1,24 @@
+{
+  "name": "exampleWidget",
+  "version": "1.0.0",
+  "description": "An example custom widget for app data.",
+  "main": [
+    "build/widget.js",
+    "build/widget.css"
+  ],
+  "schemaType": "tabular",
+  "schemaVersion": "1.0.0",
+  "moduleName": "com.datatorrent.ui.appdata.widgets.exampleWidget",
+  "serviceName": "exampleWidget",
+  "devDependencies": {
+    "gulp": "^3.8.10",
+    "gulp-angular-filesort": "^1.0.4",
+    "gulp-concat": "^2.4.3",
+    "gulp-connect": "^2.2.0",
+    "gulp-inject": "^1.1.1",
+    "gulp-less": "^2.0.1",
+    "gulp-usemin": "^0.3.11",
+    "main-bower-files": "^2.5.0",
+    "merge-stream": "^0.1.7"
+  }
+}
