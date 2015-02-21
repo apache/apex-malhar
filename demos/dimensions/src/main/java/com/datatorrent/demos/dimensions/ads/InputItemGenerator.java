@@ -142,7 +142,7 @@ public class InputItemGenerator implements InputOperator
         int adUnit = random.nextInt(numAdUnits);
 
         if(i == blastCount - 1) {
-          logger.info("advertiserId {}, publisherId {}, addUnit {}");
+          logger.info("advertiserId {}, publisherId {}, addUnit {}", advertiserId, publisherId, adUnit);
         }
 
         double cost = 0.5 + 0.25 * random.nextDouble();
