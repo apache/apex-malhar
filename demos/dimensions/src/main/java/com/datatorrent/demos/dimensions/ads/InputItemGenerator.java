@@ -141,12 +141,17 @@ public class InputItemGenerator implements InputOperator
         int publisherId = nextRandomId(numPublishers);
         int adUnit = random.nextInt(numAdUnits);
 
+        advertiserId++;
+        publisherId++;
+        adUnit++;
+        timestamp = System.currentTimeMillis();
+
         if(i == blastCount - 1) {
-          logger.info("advertiserId {}, publisherId {}, addUnit {}", advertiserId, publisherId, adUnit);
+          logger.info("advertiserId {}, publisherId {}, addUnit {}, timestamp {}",
+                      advertiserId, publisherId, adUnit, timestamp);
         }
 
         double cost = 0.5 + 0.25 * random.nextDouble();
-        timestamp = System.currentTimeMillis();
 
         /* 0 (zero) is used as the invalid value */
         buildAndSend(false, publisherId + 1, advertiserId + 1, adUnit + 1, cost, timestamp);
