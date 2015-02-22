@@ -250,6 +250,10 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
     }
 
+    for(Long timestampKey: cache.keySet()) {
+      LOG.info("Cache time stamp: {}", timestampKey);
+    }
+
     //Process queries
 
     MutableBoolean done = new MutableBoolean(false);
@@ -555,6 +559,10 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
             LOG.info("Adding from aggregation buffer {}" + ae);
             AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
             aotqr.getData().add(aotd);
+          }
+          else
+          {
+            LOG.info("Cache miss: {}", ae);
           }
         }
         else if(hdsQuery.processed && hdsQuery.result != null) {
