@@ -257,6 +257,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     super.endWindow();
 
     while(done.isFalse()) {
+      LOG.debug("Query: {}", this.windowId);
       AdsOneTimeResult aotr = (AdsOneTimeResult) queryProcessor.process(done);
 
       if(aotr != null) {
