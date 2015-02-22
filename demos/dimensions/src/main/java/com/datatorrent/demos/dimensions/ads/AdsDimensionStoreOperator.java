@@ -251,7 +251,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
 
     for(Long timestampKey: cache.keySet()) {
-      LOG.debug("Cache time stamp: {}", timestampKey);
+      LOG.info("Cache time stamp: {}", timestampKey);
     }
 
     //Process queries
@@ -550,7 +550,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         HDSQuery hdsQuery = queryIt.next();
         prototype.setTimestamp(timestamp);
 
-        LOG.debug("Checking cache for {}", timestamp);
+        LOG.info("Checking cache for {}", timestamp);
 
         Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = cache.get(timestamp);
 
