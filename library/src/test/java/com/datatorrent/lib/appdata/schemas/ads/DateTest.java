@@ -23,7 +23,7 @@ public class DateTest
   @Test
   public void dateTest() throws ParseException
   {
-    String dateString = AdsTimeRangeBucket.sdf.format(new Date(1424479164495L));
+    String dateString = AdsTimeRangeBucket.sdf.format(new Date(1424595600000L));
     logger.debug("{}", dateString);
 
     logger.debug("{}, {}", 1424479164495L, AdsTimeRangeBucket.sdf.parse(dateString).getTime());

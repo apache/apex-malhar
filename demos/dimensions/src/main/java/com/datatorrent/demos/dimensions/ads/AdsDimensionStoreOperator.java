@@ -236,7 +236,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   public void endWindow()
   {
     // flush final aggregates
-    int expiredEntries = cache.size() - maxCacheSize;
+    int expiredEntries = cache.size();// - maxCacheSize;
     while(expiredEntries-- > 0){
 
       Map<AdInfoAggregateEvent, AdInfoAggregateEvent> vals = cache.remove(cache.firstKey());
