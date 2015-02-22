@@ -45,7 +45,7 @@ public class InputItemGenerator implements InputOperator
   private int numAdUnits = 3;
   private double expectedClickThruRate = 0.005;
   @Min(1)
-  private int blastCount = 10000;
+  private int blastCount = 30000;
   private final Random random = new Random();
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
@@ -156,12 +156,12 @@ public class InputItemGenerator implements InputOperator
         double cost = 0.5 + 0.25 * random.nextDouble();
 
         /* 0 (zero) is used as the invalid value */
-        buildAndSend(false, publisherId + 1, advertiserId + 1, adUnit + 1, cost, timestamp);
+        buildAndSend(false, publisherId, advertiserId, adUnit, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
           double revenue = 0.5 + 0.5 * random.nextDouble();
           // generate fake click
-          buildAndSend(true, publisherId + 1, advertiserId + 1, adUnit + 1, revenue, timestamp);
+          buildAndSend(true, publisherId, advertiserId, adUnit, revenue, timestamp);
         }
       }
     }

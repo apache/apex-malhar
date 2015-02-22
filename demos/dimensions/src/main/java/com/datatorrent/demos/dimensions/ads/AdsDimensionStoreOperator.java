@@ -243,7 +243,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   public void endWindow()
   {
     // flush final aggregates
-    int expiredEntries = cache.size();// - maxCacheSize;
+    int expiredEntries = cache.size() - maxCacheSize;
     while(expiredEntries-- > 0){
 
       Map<AdInfoAggregateEvent, AdInfoAggregateEvent> vals = cache.remove(cache.firstKey());
@@ -568,13 +568,12 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
             aotqr.getData().add(aotd);
           }
         }
-
-        if(hdsQuery.processed && hdsQuery.result != null) {
+        else if(hdsQuery.processed && hdsQuery.result != null) {
           AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
           AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
 
           if(ae != null) {
-            LOG.info("Adding from hds");
+            LOG.debug("Adding from hds");
             aotqr.getData().add(aotd);
           }
         }
