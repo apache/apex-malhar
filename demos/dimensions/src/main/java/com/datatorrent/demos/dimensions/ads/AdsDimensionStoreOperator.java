@@ -183,13 +183,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   protected void processEvent(AdInfoAggregateEvent event) throws IOException
   {
-
-    if(event.publisherId == 4 &&
-       event.advertiserId == 1 &&
-       event.adUnit == 3) {
-      LOG.info("Received searching for: {}", event);
-    }
-
     Map<AdInfoAggregateEvent, AdInfoAggregateEvent> valMap = cache.get(event.getTimestamp());
     if (valMap == null) {
       valMap = new HashMap<AdInfoAggregateEvent, AdInfoAggregateEvent>();
@@ -255,10 +248,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           LOG.warn("Error putting the value", e);
         }
       }
-    }
-
-    for(Long timestampKey: cache.keySet()) {
-      LOG.info("Cache time stamp: {}", timestampKey);
     }
 
     //Process queries
