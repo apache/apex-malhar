@@ -250,6 +250,10 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
     }
 
+    for(Long timestampKey: cache.keySet()) {
+      LOG.debug("Cache time stamp: {}", timestampKey);
+    }
+
     //Process queries
 
     MutableBoolean done = new MutableBoolean(false);
@@ -546,6 +550,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         HDSQuery hdsQuery = queryIt.next();
         prototype.setTimestamp(timestamp);
 
+        LOG.debug("Checking cache for {}", timestamp);
+
         Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = cache.get(timestamp);
 
         if(buffered != null) {
@@ -557,8 +563,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
             aotqr.getData().add(aotd);
           }
         }
-
-        LOG.info("Processed {}", hdsQuery.processed);
 
         if(hdsQuery.processed && hdsQuery.result != null) {
           AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
