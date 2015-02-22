@@ -562,6 +562,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
             AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
             aotqr.getData().add(aotd);
           }
+          else {
+            LOG.info("AdInfoAggregateEvent: {}", prototype);
+          }
         }
 
         if(hdsQuery.processed && hdsQuery.result != null) {
