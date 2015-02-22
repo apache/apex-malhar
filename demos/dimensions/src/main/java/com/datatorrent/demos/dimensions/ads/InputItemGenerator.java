@@ -15,15 +15,16 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
-import java.util.Random;
-
-import javax.validation.constraints.Min;
-
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.lib.appdata.schemas.ads.AdsTimeRangeBucket;
+import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.Random;
 
 
 /**
@@ -148,7 +149,7 @@ public class InputItemGenerator implements InputOperator
 
         if(i == blastCount - 1) {
           logger.info("advertiserId {}, publisherId {}, addUnit {}, timestamp {}",
-                      advertiserId, publisherId, adUnit, timestamp);
+                      advertiserId, publisherId, adUnit, AdsTimeRangeBucket.sdf.format(new Date(timestamp)));
         }
 
         double cost = 0.5 + 0.25 * random.nextDouble();
