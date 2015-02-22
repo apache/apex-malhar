@@ -257,8 +257,11 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     super.endWindow();
 
     while(done.isFalse()) {
-      LOG.debug("Query: {}", this.windowId);
       AdsOneTimeResult aotr = (AdsOneTimeResult) queryProcessor.process(done);
+
+      if(done.isFalse()) {
+        LOG.debug("Query: {}", this.windowId);
+      }
 
       if(aotr != null) {
         String result = resultSerializerFactory.serialize(aotr);
@@ -555,11 +558,12 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           }
         }
 
+        LOG.info("Processed {}", hdsQuery.processed);
+
         if(hdsQuery.processed && hdsQuery.result != null) {
           AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
           AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
 
-          LOG.info("Processed {}", hdsQuery.processed);
           if(ae != null) {
             aotqr.getData().add(aotd);
           }
