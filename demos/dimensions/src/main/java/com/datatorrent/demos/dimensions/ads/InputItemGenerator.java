@@ -145,7 +145,7 @@ public class InputItemGenerator implements InputOperator
         advertiserId++;
         publisherId++;
         adUnit++;
-        timestamp = System.currentTimeMillis();
+        timestamp = (System.currentTimeMillis() / 60000) * 60000;
 
         if(i == blastCount - 1) {
           logger.info("advertiserId {}, publisherId {}, addUnit {}, timestamp {}",
@@ -159,7 +159,6 @@ public class InputItemGenerator implements InputOperator
 
         if (random.nextDouble() < expectedClickThruRate) {
           double revenue = 0.5 + 0.5 * random.nextDouble();
-          timestamp = System.currentTimeMillis();
           // generate fake click
           buildAndSend(true, publisherId + 1, advertiserId + 1, adUnit + 1, revenue, timestamp);
         }
