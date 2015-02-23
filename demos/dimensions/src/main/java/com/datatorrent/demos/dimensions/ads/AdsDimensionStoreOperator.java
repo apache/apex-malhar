@@ -526,6 +526,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
 
       AdsQueryMeta aqm = new AdsQueryMeta();
+      aqm.setBeginTime(startTime);
       aqm.setAdInofAggregateEvent(ae);
       aqm.setHdsQueries(hdsQueries);
 
