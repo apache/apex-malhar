@@ -67,18 +67,6 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
   @Override
   public URI getAppDataURL()
   {
-    URIBuilder ub = new URIBuilder(this.getUri());
-    ub.addParameter("topic", getTopic());
-
-    URI uri;
-
-    try {
-      uri = ub.build();
-    }
-    catch(URISyntaxException ex) {
-      throw new RuntimeException(ex);
-    }
-
-    return uri;
+    return this.getUri();
   }
 }
