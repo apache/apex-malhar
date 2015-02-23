@@ -7,10 +7,12 @@ package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
-import com.datatorrent.lib.appdata.schemas.ads.AdsUpdateResult.AdsUpdateData;
 import org.junit.Assert;
+import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.ArrayList;
 
 /**
  *
@@ -24,7 +26,7 @@ public class AdsUpdateResultTest
   {
   }
 
-  //@Test
+  @Test
   public void testSerialization()
   {
     final String id = "js34135136425";
@@ -32,30 +34,32 @@ public class AdsUpdateResultTest
 
     final String advertiser = "starbucks";
     final String publisher = "google";
+    final String location = "SKY";
 
     final String time = "2014-03-01 15:00:00";
     final String bucket = "1h";
 
+    final long countdown = 1;
     final long impressions = 7882384;
     final long clicks = 13942;
+    final double cost = 0.0;
+    final double revenue = 0.0;
 
     final String jsonExpected = "{" +
                           "\"id\":\"" + id + "\"," +
                           "\"type\":\"" + type + "\"," +
-                          "\"data\":{" +
-                            "\"keys\":{" +
-                            "\"advertiser\":\"" + advertiser + "\"," +
-                            "\"publisher\":\"" + publisher + "\"" +
-                          "}," +
-                          "\"data\":{" +
+                          "\"data\":[{" +
                             "\"time\":\"" + time + "\"," +
-                            "\"bucket\":\"" + bucket + "\"," +
-                            "\"values\":{" +
-                              "\"impressions\":" + impressions + "," +
-                              "\"clicks\":" + clicks + "" +
-                            "}" +
-                          "}" +
-                        "}}";
+                            "\"advertiser\":\"" + advertiser + "\"," +
+                            "\"publisher\":\"" + publisher + "\"," +
+                            "\"location\":\"" + location + "\"," +
+                            "\"impressions\":" + impressions + "," +
+                            "\"clicks\":" + clicks + "," +
+                            "\"cost\":" + cost + "," +
+                            "\"revenue\":" + revenue +
+                            "}]," +
+                          "\"countdown\":" + countdown + 
+                          "}";
 
     Query query = new Query();
     query.setId(id);
@@ -63,25 +67,21 @@ public class AdsUpdateResultTest
 
     AdsUpdateResult aurt = new AdsUpdateResult(query);
 
-    AdsUpdateData aud = new AdsUpdateData();
+    ArrayList<AdsOneTimeResult.AdsOneTimeData> auds = new ArrayList<AdsOneTimeResult.AdsOneTimeData>();
+    AdsOneTimeResult.AdsOneTimeData aud = new AdsOneTimeResult.AdsOneTimeData();
 
-    AdsKeys aks = new AdsKeys();
-    aks.setPublisher(publisher);
-    aks.setAdvertiser(advertiser);
-    aud.setKeys(aks);
+    aud.setTime(time);
+    aud.setPublisher(publisher);
+    aud.setAdvertiser(advertiser);
+    aud.setLocation(location);
+    aud.setImpressions(impressions);
+    aud.setClicks(clicks);
+    aud.setCost(cost);
+    aud.setRevenue(revenue);
+    auds.add(aud);
 
-    AdsDataData add = new AdsDataData();
-    add.setTime(time);
-    add.setBucket(bucket);
-
-    AdsDataValues advs = new AdsDataValues();
-    advs.setClicks(clicks);
-    advs.setImpressions(impressions);
-    add.setValues(advs);
-
-    aud.setData(add);
-
-    aurt.setData(aud);
+    aurt.setData(auds);
+    aurt.setCountdown(countdown);
 
     ResultSerializerFactory rsf = new ResultSerializerFactory();
 

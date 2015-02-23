@@ -7,9 +7,9 @@ package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
+
 
 /**
  *
@@ -18,11 +18,11 @@ import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 
 @QRType(type=AdsUpdateResult.TYPE)
 @ResultSerializerInfo(clazz=SimpleResultSerializer.class)
-public class AdsUpdateResult extends Result
+public class AdsUpdateResult extends AdsOneTimeResult
 {
   public static final String TYPE = "updateData";
 
-  private AdsUpdateData data;
+  private Long countdown;
 
   public AdsUpdateResult(Query query)
   {
@@ -30,56 +30,18 @@ public class AdsUpdateResult extends Result
   }
 
   /**
-   * @return the data
+   * @return the countdown
    */
-  public AdsUpdateData getData()
+  public Long getCountdown()
   {
-    return data;
+    return countdown;
   }
 
   /**
-   * @param data the data to set
+   * @param countdown the countdown to set
    */
-  public void setData(AdsUpdateData data)
+  public void setCountdown(Long countdown)
   {
-    this.data = data;
-  }
-
-  public static class AdsUpdateData
-  {
-    private AdsKeys keys;
-    private AdsDataData data;
-
-    /**
-     * @return the keys
-     */
-    public AdsKeys getKeys()
-    {
-      return keys;
-    }
-
-    /**
-     * @param keys the keys to set
-     */
-    public void setKeys(AdsKeys keys)
-    {
-      this.keys = keys;
-    }
-
-    /**
-     * @return the data
-     */
-    public AdsDataData getData()
-    {
-      return data;
-    }
-
-    /**
-     * @param data the data to set
-     */
-    public void setData(AdsDataData data)
-    {
-      this.data = data;
-    }
+    this.countdown = countdown;
   }
 }

@@ -35,11 +35,12 @@ import com.datatorrent.lib.appdata.schemas.ads.AdsKeys;
 import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeQuery;
 import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeResult;
 import com.datatorrent.lib.appdata.schemas.ads.AdsSchemaResult;
+import com.datatorrent.lib.appdata.schemas.ads.AdsTimeRangeBucket;
 import com.datatorrent.lib.appdata.schemas.ads.AdsUpdateQuery;
+import com.datatorrent.lib.appdata.schemas.ads.AdsUpdateResult;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
@@ -52,7 +53,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -444,7 +444,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   // Query Processing Classes - Start
   //==========================================================================
 
-  class AdsWEQueryQueueManager extends WEQueryQueueManager<AdsUpdateQuery, AdsQueryMeta>
+  class AdsWEQueryQueueManager<QT extends Query> extends WEQueryQueueManager<QT, AdsQueryMeta>
   {
     private AdsDimensionStoreOperator operator;
 
@@ -454,17 +454,37 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
 
     @Override
-    public boolean enqueue(AdsUpdateQuery query, AdsQueryMeta queryMeta, Long windowExpireCount)
+    public boolean enqueue(QT query, AdsQueryMeta queryMeta, Long windowExpireCount)
     {
       LOG.info("Enqueueing query {}", query);
       AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
-      AdsKeys aks = query.getData().getKeys();
 
-      long endTime = (System.currentTimeMillis() / 60000) * 60000;
-      long startTime = endTime - defaultTimeWindow;
+      AdsKeys aks;
 
-      if(startTime < 0L) {
-        startTime = 0L;
+      if(query instanceof AdsOneTimeQuery) {
+        aks = ((AdsOneTimeQuery) query).getData().getKeys();
+      }
+      else if(query instanceof AdsUpdateQuery) {
+        aks = ((AdsUpdateQuery) query).getData().getKeys();
+      }
+      else {
+        throw new UnsupportedOperationException("Processing query of type " +
+                                                query.getClass() +
+                                                " is not supported.");
+      }
+
+      long endTime = -1L;
+      long startTime = -1L;
+
+      if(query instanceof AdsUpdateQuery) {
+        endTime = (System.currentTimeMillis() / 60000) * 60000;
+        startTime = endTime - defaultTimeWindow;
+      }
+      else if(query instanceof AdsOneTimeQuery) {
+        AdsTimeRangeBucket atrb = ((AdsOneTimeQuery) query).getData().getTime();
+
+        startTime = atrb.getFromLong();
+        endTime = atrb.getToLong();
       }
 
       ae.setTimestamp(startTime);
@@ -479,25 +499,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         //LOG.debug("Ignoring query for bucket {} when this partition serves {}", bucketKey, super.partitions);
         return false;
       }
-
-      /*
-      AdsTimeRangeBucket atrb = query.getData().getTime();
-      long endTime;
-
-      if(atrb.getToLong() < 30000000L) {
-        LOG.info("Zero query");
-        endTime = System.currentTimeMillis();
-        atrb.setToLong(endTime);
-      }
-      else {
-        endTime = atrb.getToLong();
-        LOG.info("end time: {}", endTime);
-      }
-
-      if(atrb.getFromLong() < 30000000L) {
-        LOG.info("Zero query");
-        atrb.setFromLong(endTime - defaultTimeWindow);
-      }*/
 
       List<HDSQuery> hdsQueries = Lists.newArrayList();
 
@@ -534,7 +535,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
   }
 
-  class AdsQueryComputer implements QueryComputer<AdsUpdateQuery, AdsQueryMeta, MutableBoolean>
+  class AdsQueryComputer<QT extends Query> implements QueryComputer<QT, AdsQueryMeta, MutableBoolean>
   {
     private AdsDimensionStoreOperator operator;
 
@@ -544,11 +545,28 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
 
     @Override
-    public Result processQuery(AdsUpdateQuery query, AdsQueryMeta adsQueryMeta, MutableBoolean context)
+    public Result processQuery(QT query, AdsQueryMeta adsQueryMeta, MutableBoolean context)
     {
       LOG.info("Processing query {}", query);
-      AdsOneTimeResult aotqr = new AdsOneTimeResult(query);
-      aotqr.setData(new ArrayList<AdsOneTimeResult.AdsOneTimeData>());
+      AdsOneTimeResult result = null;
+
+      if(query instanceof AdsOneTimeQuery) {
+        AdsOneTimeResult aotr = new AdsOneTimeResult(query);
+        result = aotr;
+        aotr.setData(new ArrayList<AdsOneTimeResult.AdsOneTimeData>());
+      }
+      else if(query instanceof AdsUpdateQuery) {
+        AdsUpdateResult aur = new AdsUpdateResult(query);
+        result = aur;
+        aur.setData(new ArrayList<AdsOneTimeResult.AdsOneTimeData>());
+      }
+      else {
+        throw new UnsupportedOperationException("The given query type " +
+                                                query.getClass() + " is not supported.");
+      }
+
+      //AdsOneTimeResult aotqr = new AdsOneTimeResult(query);
+      //aotqr.setData(new ArrayList<AdsOneTimeResult.AdsOneTimeData>());
       AdInfo.AdInfoAggregateEvent prototype = adsQueryMeta.getAdInofAggregateEvent();
 
       Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
@@ -568,7 +586,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           if(ae != null) {
             LOG.info("Adding from aggregation buffer {}" + ae);
             AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
-            aotqr.getData().add(aotd);
+            result.getData().add(aotd);
           }
         }
         else if(hdsQuery.processed && hdsQuery.result != null) {
@@ -577,16 +595,16 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
           if(ae != null) {
             LOG.debug("Adding from hds");
-            aotqr.getData().add(aotd);
+            result.getData().add(aotd);
           }
         }
       }
 
-      if(aotqr.getData().isEmpty()) {
+      if(result.getData().isEmpty()) {
         return null;
       }
 
-      return aotqr;
+      return result;
     }
 
     @Override
@@ -672,45 +690,4 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   //==========================================================================
   // Query Processing Classes - End
   //==========================================================================
-
-  static class TimeSeriesQuery
-  {
-    public String id;
-    public int windowCountdown;
-    public  AdInfo.AdInfoAggregateEvent prototype;
-    public long startTime;
-    public long endTime;
-    public TimeUnit intervalTimeUnit = TimeUnit.MINUTES;
-    private transient LinkedHashSet<HDSQuery> points = Sets.newLinkedHashSet();
-
-    @Override public String toString()
-    {
-      return "TimeSeriesQuery{" +
-          "id='" + id + '\'' +
-          ", windowCountdown=" + windowCountdown +
-          ", startTime=" + startTime +
-          ", endTime=" + endTime +
-          '}';
-    }
-  }
-
-  /**
-   * Parameters for registration of query.
-   */
-  static class QueryParameters
-  {
-    public String id;
-    public int numResults;
-    public Map<String, String> keys;
-    public long startTime;
-    public long endTime;
-  }
-
-  static public class TimeSeriesQueryResult
-  {
-    public String id;
-    public long countDown;
-    public List<AdInfo.AdInfoAggregateEvent> data;
-  }
-
 }
