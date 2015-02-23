@@ -93,7 +93,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
       if(query instanceof SchemaQuery) {
         LOG.info("Received schemaquery.");
-        queryResult.emit(resultSerializerFactory.serialize(new AdsSchemaResult(query)));
+        String schemaResult = resultSerializerFactory.serialize(new AdsSchemaResult(query));
+        LOG.info("schemaResult: {}", schemaResult);
+        queryResult.emit(schemaResult);
       }
       else if(query instanceof AdsUpdateQuery) {
         LOG.info("Received AdsOneTimeQuery");
