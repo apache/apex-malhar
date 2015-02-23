@@ -32,15 +32,19 @@ public class AdsSchemaResult extends Result
   public static final String PUBLISHER = "publisher";
   public static final String[] PUBLISHERS = {"twitter", "facebook", "yahoo", "google"};
   public static final String ADVERTISER = "advertiser";
-  public static final String[] ADVERTISERS = {"starbucks", "safeway", "mcdonalds"};
+  public static final String[] ADVERTISERS = {"starbucks", "safeway", "mcdonalds", "macys"};
   public static final String LOCATION = "location";
   public static final String[] LOCATIONS = {"N", "LREC", "SKY"};
   public static final String IMPRESSIONS = "impressions";
   public static final String IMPRESSIONS_TYPE = "integer";
   public static final String CLICKS = "clicks";
   public static final String CLICKS_TYPE = "integer";
-  public static final String FROM = "2014-01-01 00:00:00";
-  public static final String TO = "2014-12-31 23:59:59";
+  public static final String COST = "cost";
+  public static final String COST_TYPE = "float";
+  public static final String REVENUE = "revenue";
+  public static final String REVENUE_TYPE = "float";
+  public static final String FROM = "2015-01-01 00:00:00";
+  public static final String TO = "2015-12-31 23:59:59";
 
   private AdsSchemaData data;
 
@@ -86,6 +90,16 @@ public class AdsSchemaResult extends Result
     sv = new SchemaValues();
     sv.setName(CLICKS);
     sv.setType(CLICKS_TYPE);
+    svs.add(sv);
+
+    sv = new SchemaValues();
+    sv.setName(COST);
+    sv.setType(COST_TYPE);
+    svs.add(sv);
+
+    sv = new SchemaValues();
+    sv.setName(REVENUE);
+    sv.setType(REVENUE_TYPE);
     svs.add(sv);
 
     data.setValues(svs);

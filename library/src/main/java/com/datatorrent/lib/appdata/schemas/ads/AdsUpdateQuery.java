@@ -5,13 +5,15 @@
 
 package com.datatorrent.lib.appdata.schemas.ads;
 
+import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
 import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
 import com.datatorrent.lib.appdata.schemas.SimpleTimeBucket;
+
+import java.util.List;
 
 /**
  *
@@ -44,6 +46,7 @@ public class AdsUpdateQuery extends Query
   {
     private SimpleTimeBucket time;
     private AdsKeys keys;
+    private List<String> fields;
 
     /**
      * @return the time
@@ -75,6 +78,22 @@ public class AdsUpdateQuery extends Query
     public void setKeys(AdsKeys keys)
     {
       this.keys = keys;
+    }
+
+    /**
+     * @return the fields
+     */
+    public List<String> getFields()
+    {
+      return fields;
+    }
+
+    /**
+     * @param fields the fields to set
+     */
+    public void setFields(List<String> fields)
+    {
+      this.fields = fields;
     }
   }
 }

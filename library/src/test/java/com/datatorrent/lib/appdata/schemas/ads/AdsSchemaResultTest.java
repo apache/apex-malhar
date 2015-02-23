@@ -9,12 +9,6 @@ import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import com.datatorrent.lib.appdata.schemas.TimeSeriesTabularOneTimeQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaTestUtils;
-import com.datatorrent.lib.appdata.schemas.SchemaValues;
-import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;
-import com.datatorrent.lib.appdata.schemas.ads.AdsSchemaResult.AdsSchemaData;
-import com.google.common.collect.Lists;
-import java.util.Arrays;
-import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -41,8 +35,8 @@ public class AdsSchemaResultTest
     final String schemaType = "dimensions";
     final String schemaVersion = "1.0";
 
-    final String fromTime = "2014-01-01 00:00:00";
-    final String toTime = "2014-12-31 23:59:59";
+    final String fromTime = "2015-01-01 00:00:00";
+    final String toTime = "2015-12-31 23:59:59";
     final String[] buckets = {"1m", "1h", "1d"};
 
     final String[] publishers = {"twitter", "facebook", "yahoo", "google"};
@@ -88,7 +82,9 @@ public class AdsSchemaResultTest
     "]," +
     "\"values\":[" +
       "{\"name\":\"impressions\",\"type\":\"integer\"}," +
-      "{\"name\":\"clicks\",\"type\":\"integer\"}" + "]" +
+      "{\"name\":\"clicks\",\"type\":\"integer\"}," +
+      "{\"name\":\"cost\",\"type\":\"float\"}," +
+      "{\"name\":\"revenue\",\"type\":\"float\"}" + "]" +
     "}" +
     "}";
 
@@ -98,7 +94,7 @@ public class AdsSchemaResultTest
     sq.setType(SchemaQuery.TYPE);
 
     AdsSchemaResult asr = new AdsSchemaResult(sq);
-      AdsSchemaData asd = new AdsSchemaData();
+      /*AdsSchemaData asd = new AdsSchemaData();
       asd.setSchemaType(schemaType);
       asd.setSchemaVersion(schemaVersion);
 
@@ -134,9 +130,30 @@ public class AdsSchemaResultTest
       svs.setName("clicks");
       svs.setType("integer");
       schemaValues.add(svs);
+      svs = new SchemaValues();
+
+    sv = new SchemaValues();
+    sv.setName(COST);
+    sv.setType(COST_TYPE);
+    svs.add(sv);
+
+    sv = new SchemaValues();
+    sv.setName(REVENUE);
+    sv.setType(REVENUE_TYPE);
+    svs.add(sv);
+      svs.setName("cost");
+      svs.setType("float");
+      schemaValues.add(svs);
+      svs = new SchemaValues();
+      svs.setName("cost");
+      svs.setType("float");
+      schemaValues.add(svs);
+      svs = new SchemaValues();
+      svs.setName("");
+
       asd.setValues(schemaValues);
 
-    asr.setData(asd);
+    asr.setData(asd);*/
 
     ResultSerializerFactory rsf = new ResultSerializerFactory();
 
