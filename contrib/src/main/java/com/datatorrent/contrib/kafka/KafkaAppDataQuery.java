@@ -58,4 +58,9 @@ public class KafkaAppDataQuery extends KafkaSinglePortStringInputOperator implem
 
     return uri;
   }
+
+  public String getTopic()
+  {
+    return this.consumer.getTopic();
+  }
 }
