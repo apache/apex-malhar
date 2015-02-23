@@ -98,7 +98,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         queryResult.emit(schemaResult);
       }
       else if(query instanceof AdsUpdateQuery) {
-        LOG.info("Received AdsOneTimeQuery");
+        LOG.info("Received AdsUpdateQuery");
         queryProcessor.enqueue((AdsUpdateQuery) query, null, null);
       }
       else if(query instanceof AdsOneTimeQuery) {
@@ -460,7 +460,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
       AdsKeys aks = query.getData().getKeys();
 
-      long endTime = System.currentTimeMillis();
+      long endTime = (System.currentTimeMillis() / 60000) * 60000;
       long startTime = endTime - defaultTimeWindow;
 
       if(startTime < 0L) {
