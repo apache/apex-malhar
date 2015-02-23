@@ -15,15 +15,16 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
-import java.util.Random;
-
-import javax.validation.constraints.Min;
-
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.lib.appdata.schemas.ads.AdsTimeRangeBucket;
+import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.Random;
 
 
 /**
@@ -44,7 +45,7 @@ public class InputItemGenerator implements InputOperator
   private int numAdUnits = 3;
   private double expectedClickThruRate = 0.005;
   @Min(1)
-  private int blastCount = 10000;
+  private int blastCount = 30000;
   private final Random random = new Random();
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
@@ -122,12 +123,13 @@ public class InputItemGenerator implements InputOperator
 
   private int nextRandomId(int max)
   {
-    int id;
+    return random.nextInt(max);
+    /*int id;
     do {
       id = (int)Math.abs(Math.round(random.nextGaussian() * max / 2));
     }
     while (id >= max);
-    return id;
+    return id;*/
   }
 
   @Override
@@ -144,23 +146,22 @@ public class InputItemGenerator implements InputOperator
         advertiserId++;
         publisherId++;
         adUnit++;
-        timestamp = System.currentTimeMillis();
+        timestamp = (System.currentTimeMillis() / 60000) * 60000;
 
         if(i == blastCount - 1) {
           logger.info("advertiserId {}, publisherId {}, addUnit {}, timestamp {}",
-                      advertiserId, publisherId, adUnit, timestamp);
+                      advertiserId, publisherId, adUnit, AdsTimeRangeBucket.sdf.format(new Date(timestamp)));
         }
 
         double cost = 0.5 + 0.25 * random.nextDouble();
 
         /* 0 (zero) is used as the invalid value */
-        buildAndSend(false, publisherId + 1, advertiserId + 1, adUnit + 1, cost, timestamp);
+        buildAndSend(false, publisherId, advertiserId, adUnit, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
           double revenue = 0.5 + 0.5 * random.nextDouble();
-          timestamp = System.currentTimeMillis();
           // generate fake click
-          buildAndSend(true, publisherId + 1, advertiserId + 1, adUnit + 1, revenue, timestamp);
+          buildAndSend(true, publisherId, advertiserId, adUnit, revenue, timestamp);
         }
       }
     }

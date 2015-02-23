@@ -7,6 +7,9 @@ package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
 import org.junit.Assert;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -14,12 +17,13 @@ import org.junit.Assert;
  */
 public class AdsUpdateQueryTest
 {
+  private static final Logger logger = LoggerFactory.getLogger(AdsUpdateQueryTest.class);
 
   public AdsUpdateQueryTest()
   {
   }
 
-  //@Test
+  @Test
   public void testDeserialization()
   {
     final String id = "js34135136425";
@@ -27,6 +31,7 @@ public class AdsUpdateQueryTest
     final String bucket = "1h";
     final String advertiser = "starbucks";
     final String publisher = "google";
+    final String location = "SKY";
 
     final String json = "{\n" +
                         "   \"id\": \"" + id + "\",\n" +
@@ -37,11 +42,13 @@ public class AdsUpdateQueryTest
                         "      },\n" +
                         "      \"keys\": {\n" +
                         "   \"advertiser\": \"" + advertiser + "\",\n" +
-                        "   \"publisher\": \"" + publisher + "\" \n" +
+                        "   \"publisher\": \"" + publisher + "\",\n" +
+                        "   \"location\": \"" + location + "\"\n" +
                         "      }\n" +
                         "   } \n" +
                         "}";
 
+    logger.debug("{}", json);
 
     @SuppressWarnings("unchecked")
     QueryDeserializerFactory qb = new QueryDeserializerFactory(AdsUpdateQuery.class);

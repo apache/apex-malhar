@@ -30,7 +30,7 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
 {
   /**
    * Add optional error port
-   * 
+   *
    */
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataQuery.class);
 
@@ -51,7 +51,7 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
   {
     String data;
 
-    logger.debug(message);
+    logger.info(message);
 
     try {
       data = new JSONObject(message).getString(PubSubMessage.DATA_KEY);
@@ -60,7 +60,7 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
       return null;
     }
 
-    logger.debug(data);
+    logger.info(data);
     return data;
   }
 

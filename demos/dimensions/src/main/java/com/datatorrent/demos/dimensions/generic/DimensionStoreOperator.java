@@ -18,19 +18,21 @@ package com.datatorrent.demos.dimensions.generic;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.AppDataQueryPort;
+import com.datatorrent.api.annotation.AppDataResultPort;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
+import com.datatorrent.lib.appdata.schemas.ads.AdsSchemaResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
+import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
@@ -91,6 +93,8 @@ public class DimensionStoreOperator extends AbstractSinglePortHDHTWriter<Generic
     this.aggregator = aggregator;
   }
 
+  @AppDataResultPort(schemaType=AdsSchemaResult.SCHEMA_TYPE,
+                     schemaVersion=AdsSchemaResult.SCHEMA_VERSION)
   public final transient DefaultOutputPort<HDSRangeQueryResult> queryResult = new DefaultOutputPort<HDSRangeQueryResult>();
 
   private String eventSchemaJSON = EventSchema.DEFAULT_SCHEMA_SALES;
@@ -124,7 +128,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDHTWriter<Generic
     return eventSchema;
   }
 
-
+  @AppDataQueryPort
   public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
   {
     @Override

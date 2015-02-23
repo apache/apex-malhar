@@ -130,6 +130,7 @@ implements QueryQueueManager<QUERY_TYPE, META_QUERY, Long>
   {
     windowCounter++;
     currentNode = queryQueue.getHead();
+    readCurrent = false;
   }
 
   @Override
