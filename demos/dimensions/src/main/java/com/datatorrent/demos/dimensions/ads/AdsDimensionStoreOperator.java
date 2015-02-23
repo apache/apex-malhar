@@ -81,19 +81,22 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   {
     @Override public void process(String s)
     {
+      LOG.info("Received: {}", s);
+
       Query query = queryDeserializerFactory.deserialize(s);
 
       //Query was not parseable
       if(query == null) {
+        LOG.info("Not parseable.");
         return;
       }
 
       if(query instanceof SchemaQuery) {
-        LOG.debug("Received schemaquery.");
+        LOG.info("Received schemaquery.");
         queryResult.emit(resultSerializerFactory.serialize(new AdsSchemaResult(query)));
       }
       else if(query instanceof AdsUpdateQuery) {
-        LOG.debug("Received AdsOneTimeQuery");
+        LOG.info("Received AdsOneTimeQuery");
         queryProcessor.enqueue((AdsUpdateQuery) query, null, null);
       }
       else if(query instanceof AdsOneTimeQuery) {
