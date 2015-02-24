@@ -98,7 +98,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       if(query instanceof SchemaQuery) {
         LOG.info("Received schemaquery.");
         String schemaResult = resultSerializerFactory.serialize(new AdsSchemaResult(query));
-        LOG.info("schemaResult: {}", schemaResult);
         queryResult.emit(schemaResult);
       }
       else if(query instanceof AdsUpdateQuery) {
@@ -106,6 +105,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         queryProcessor.enqueue((AdsUpdateQuery) query, null, null);
       }
       else if(query instanceof AdsOneTimeQuery) {
+        LOG.info("Received AdsOneTimeQuery");
         queryProcessorOneTime.enqueue((AdsOneTimeQuery) query, null, null);
       }
     }
@@ -286,6 +286,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         queryResult.emit(result);
       }
     }
+
+    done.setValue(false);
 
     while(done.isFalse()) {
       AdsOneTimeResult aotr = (AdsOneTimeResult) queryProcessorOneTime.process(done);
