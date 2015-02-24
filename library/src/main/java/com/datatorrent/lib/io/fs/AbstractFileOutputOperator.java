@@ -166,7 +166,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   protected int rotationWindows = 0;
 
   /**
-   * True if {@link #maxLength} < {@link Long#MAX_VALUE} or {@gopala gopalalink #rotationWindows} > 0
+   * True if {@link #maxLength} < {@link Long#MAX_VALUE} or {@link #rotationWindows} > 0
    */
   protected transient boolean rollingFile = false;
 
