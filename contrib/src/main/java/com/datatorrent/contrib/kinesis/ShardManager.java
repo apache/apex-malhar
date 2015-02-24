@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.kinesis;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -28,7 +27,7 @@ import java.util.Map;
 public class ShardManager
 {
 
-  protected final transient Map<String, String> shardPos = Collections.synchronizedMap(new HashMap<String, String>());
+  protected final Map<String, String> shardPos = new HashMap<String, String>();
   /**
    * Load initial positions for all kinesis Shards
    * The method is called at the first attempt of creating shards and the return value is used as initial positions for simple consumer
