@@ -20,7 +20,6 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import javax.validation.constraints.Min;
 
-import org.apache.cassandra.thrift.Cassandra.get_args;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequestBuilder;

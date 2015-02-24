@@ -17,12 +17,9 @@ package com.datatorrent.contrib.elasticsearch;
 
 import java.util.Map;
 
-import org.codehaus.jackson.map.ObjectMapper;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.Context.OperatorContext;
 
 /**
  * Concrete implementation of {@link AbstractElasticSearchOutputOperator} demonstrating the functionality for Tuples of
