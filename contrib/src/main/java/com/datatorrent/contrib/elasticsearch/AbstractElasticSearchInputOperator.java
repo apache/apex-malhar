@@ -68,7 +68,10 @@ public abstract class AbstractElasticSearchInputOperator<T, S extends ElasticSea
   {
     SearchResponse response = getSearchRequestBuilder().execute().actionGet();
     for (SearchHit hit : response.getHits().hits()) {
-      outputPort.emit(convertToTuple(hit));
+      T tuple = convertToTuple(hit);
+      if (tuple != null) {
+        outputPort.emit(tuple);
+      }
     }
   }
 
