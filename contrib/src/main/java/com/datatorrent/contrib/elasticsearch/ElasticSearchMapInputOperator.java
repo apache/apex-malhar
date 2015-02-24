@@ -16,6 +16,8 @@ package com.datatorrent.contrib.elasticsearch;
 
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.search.SearchHit;
@@ -27,7 +29,9 @@ import com.datatorrent.api.Context.OperatorContext;
  */
 public abstract class ElasticSearchMapInputOperator<T extends Map<String, Object>> extends AbstractElasticSearchInputOperator<T, ElasticSearchConnectable>
 {
+  @NotNull
   protected String indexName;
+  @NotNull
   protected String type;
 
   /**
