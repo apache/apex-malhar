@@ -172,5 +172,21 @@ public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSe
    * @return
    */
     protected abstract String getType(T tuple);
+    
+    /**
+     * @return the batchSize
+     */
+    public int getBatchSize()
+    {
+      return batchSize;
+    }
+    
+    /**
+     * @param batchSize the batchSize to set
+     */
+    public void setBatchSize(int batchSize)
+    {
+      this.batchSize = batchSize;
+    }
   
 }
