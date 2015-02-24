@@ -6,6 +6,8 @@ package com.datatorrent.contrib.elasticsearch;
 
 import java.io.IOException;
 
+import javax.validation.constraints.NotNull;
+
 import org.elasticsearch.action.percolate.PercolateResponse;
 
 import com.datatorrent.api.BaseOperator;
@@ -19,9 +21,13 @@ import com.datatorrent.common.util.DTThrowable;
  */
 public class ElasticSearchPercolatorOperator extends BaseOperator
 {
+  @NotNull
   public String hostName;
   public int port;
+  
+  @NotNull
   public String indexName;
+  @NotNull
   public String documentType;
 
   protected transient ElasticSearchPercolatorStore store;
