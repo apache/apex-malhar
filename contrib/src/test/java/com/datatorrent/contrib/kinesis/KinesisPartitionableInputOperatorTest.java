@@ -53,7 +53,7 @@ public class KinesisPartitionableInputOperatorTest extends KinesisOperatorTestBa
    */
   public static class CollectorModule<T> extends BaseOperator
   {
-    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("myInput", this);
+    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("myInput");
   }
 
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
@@ -61,7 +61,7 @@ public class KinesisPartitionableInputOperatorTest extends KinesisOperatorTestBa
     ArrayList<T> list;
     final String id;
 
-    public CollectorInputPort(String id, Operator module)
+    public CollectorInputPort(String id)
     {
       super();
       this.id = id;

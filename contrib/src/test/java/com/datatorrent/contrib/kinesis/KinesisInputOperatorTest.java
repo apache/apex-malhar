@@ -17,9 +17,15 @@ package com.datatorrent.contrib.kinesis;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.IdempotentStorageManager;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
@@ -43,7 +49,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
    */
   public static class CollectorModule<T> extends BaseOperator
   {
-    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("myInput", this);
+    public final transient CollectorInputPort<T> inputPort = new CollectorInputPort<T>("myInput");
   }
 
   public static class CollectorInputPort<T> extends DefaultInputPort<T>
@@ -51,7 +57,7 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
     ArrayList<T> list;
     final String id;
 
-    public CollectorInputPort(String id, Operator module)
+    public CollectorInputPort(String id)
     {
       super();
       this.id = id;
@@ -145,5 +151,86 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
   {
     collections.clear();
     super.afterTest();
+  }
+
+  public static class TestMeta extends TestWatcher
+  {
+    String baseDir;
+    String recoveryDir;
+    KinesisStringInputOperator operator;
+    CollectorTestSink<Object> sink;
+    Context.OperatorContext context;
+
+    @Override
+    protected void starting(Description description)
+    {
+      String methodName = description.getMethodName();
+      String className = description.getClassName();
+      baseDir = "target/" + className + "/" + methodName;
+      recoveryDir = baseDir + "/" + "recovery";
+    }
+
+    @Override
+    protected void finished(Description description)
+    {
+      operator.deactivate();
+      operator.teardown();
+    }
+  }
+
+  @Rule
+  public TestMeta testMeta = new TestMeta();
+
+  @Test
+  public void testRecoveryAndIdempotency() throws Exception
+  {
+    int totalCount = 10;
+
+    // initial the latch for this test
+    latch = new CountDownLatch(1);
+
+    // Start producer
+    KinesisTestProducer p = new KinesisTestProducer(streamName);
+    p.setSendCount(totalCount);
+    p.setBatchSize(500);
+    new Thread(p).start();
+
+    Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
+
+    testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    testMeta.operator = new KinesisStringInputOperator();
+    ((IdempotentStorageManager.FSIdempotentStorageManager) testMeta.operator.getIdempotentStorageManager()).setRecoveryPath(testMeta.recoveryDir);
+
+    KinesisUtil.getInstance().setClient(client);
+
+    KinesisConsumer consumer = new KinesisConsumer();
+    consumer.setStreamName(streamName);
+    consumer.setInitialOffset("earliest");
+    testMeta.operator.setConsumer(consumer);
+
+    testMeta.sink = new CollectorTestSink<Object>();
+    testMeta.operator.outputPort.setSink(testMeta.sink);
+    latch.await(4000, TimeUnit.MILLISECONDS);
+    testMeta.operator.setup(testMeta.context);
+
+    testMeta.operator.activate(testMeta.context);
+    latch.await(4000, TimeUnit.MILLISECONDS);
+    testMeta.operator.beginWindow(1);
+    testMeta.operator.emitTuples();
+    testMeta.operator.endWindow();
+
+    latch.await(4000, TimeUnit.MILLISECONDS);
+    //failure and then re-deployment of operator
+    testMeta.sink.collectedTuples.clear();
+    testMeta.operator.setup(testMeta.context);
+    testMeta.operator.activate(testMeta.context);
+
+    Assert.assertEquals("largest recovery window", 1, testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+
+    testMeta.operator.beginWindow(1);
+    testMeta.operator.endWindow();
+    Assert.assertEquals("num of messages in window 1", 10, testMeta.sink.collectedTuples.size());
+    testMeta.sink.collectedTuples.clear();
   }
 }
