@@ -16,12 +16,9 @@
 
 package com.datatorrent.lib.io.fs;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.*;
+import java.util.*;
+import java.util.zip.GZIPInputStream;
 
 import javax.validation.ConstraintViolationException;
 
@@ -1651,6 +1648,86 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
   
+  @Test
+  public void testCompression() throws IOException
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter() {
+      @Override
+      protected FilterStreamContext getStreamContext(OutputStream outputStream) throws IOException
+      {
+        return new FilterStreamCodecContext.GZIPFilterStreamContext(outputStream);
+      }
+    };
+
+    File evenFile = new File(testMeta.getDir(), EVEN_FILE);
+    File oddFile = new File(testMeta.getDir(), ODD_FILE);
+    
+    // To get around the multi member gzip issue
+    // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
+    List<Long> evenOffsets = new ArrayList<Long>();
+    List<Long> oddOffsets = new ArrayList<Long>();
+
+    File dir = new File(testMeta.getDir());
+    writer.setFilePath(testMeta.getDir());
+    writer.setup(testOperatorContext);
+
+    for (int i = 0; i < 10; ++i) {
+      writer.beginWindow(i);
+      for (int j = 0; j < 1000; ++j) {
+        writer.input.put(i);
+      }
+      writer.endWindow();
+      evenOffsets.add(evenFile.length());
+      oddOffsets.add(oddFile.length());
+    }
+
+    writer.teardown();
+    
+    checkCompressedFile(evenFile, evenOffsets, 0);
+    checkCompressedFile(oddFile, oddOffsets, 1);
+  }
+
+  private void checkCompressedFile(File file, List<Long> offsets, int start) throws IOException
+  {
+    GZIPInputStream gis = null;
+    BufferedReader br = null;
+
+    int numWindows = 0;
+    long startOffset = 0;
+    for (long offset : offsets) {
+      // Skip initial case in case file is not yet created
+      if (offset == 0) continue;
+      try {
+        FileInputStream fis = new FileInputStream(file);
+        fis.skip(startOffset);
+        gis = new GZIPInputStream(fis);
+        br = new BufferedReader(new InputStreamReader(gis));
+        String eline = "" + (start + numWindows * 2);
+        int count = 0;
+        String line;
+        while ((line = br.readLine()) != null) {
+          Assert.assertEquals("File line", eline, line);
+          ++count;
+          //System.out.println("line " + line + " " + count);
+        }
+        if (count > 0) {
+          Assert.assertEquals("Event count", 1000, count);
+          ++numWindows;
+        }
+        startOffset = offset;
+      } finally {
+        if (br != null) {
+          br.close();
+        } else {
+          if (gis != null) {
+            gis.close();
+          }
+        }
+      }
+    }
+    Assert.assertEquals("Total", 5, numWindows);
+  }
+
   private Set<String> getFileNames(Collection<File> files)
   {
     Set<String> filesNames = new TreeSet<String>();
