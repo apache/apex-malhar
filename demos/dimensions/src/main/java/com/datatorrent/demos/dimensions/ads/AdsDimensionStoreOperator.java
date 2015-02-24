@@ -234,7 +234,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     queryProcessorOneTime =
     new QueryProcessor<AdsOneTimeQuery, AdsQueryMeta, Long, MutableBoolean>(
                                                   new AdsQueryComputer<AdsOneTimeQuery>(this),
-                                                  new AdsWEQueryQueueManager<AdsOneTimeQuery>(this, QUERY_QUEUE_WINDOW_COUNT_INT));
+                                                  new AdsWEQueryQueueManager<AdsOneTimeQuery>(this, 1));
 
     queryProcessor.setup(context);
     queryProcessorOneTime.setup(context);
