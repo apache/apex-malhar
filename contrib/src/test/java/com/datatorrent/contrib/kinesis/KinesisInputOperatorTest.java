@@ -117,6 +117,8 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
 
     // Create KinesisSinglePortStringInputOperator
     KinesisStringInputOperator node = dag.addOperator("Kinesis message consumer", KinesisStringInputOperator.class);
+    node.setAccessKey(credentials.getCredentials().getAWSSecretKey());
+    node.setSecretKey(credentials.getCredentials().getAWSAccessKeyId());
     KinesisConsumer consumer = new KinesisConsumer();
     consumer.setStreamName(streamName);
     consumer.setRecordsLimit(totalCount);

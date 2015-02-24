@@ -128,7 +128,8 @@ public class KinesisPartitionableInputOperatorTest extends KinesisOperatorTestBa
 
     // Create KinesisSinglePortStringInputOperator
     KinesisStringInputOperator node = dag.addOperator("Kinesis consumer", KinesisStringInputOperator.class);
-
+    node.setAccessKey(credentials.getCredentials().getAWSSecretKey());
+    node.setSecretKey(credentials.getCredentials().getAWSAccessKeyId());
     node.setStreamName(streamName);
     //set topic
     consumer.setStreamName(streamName);

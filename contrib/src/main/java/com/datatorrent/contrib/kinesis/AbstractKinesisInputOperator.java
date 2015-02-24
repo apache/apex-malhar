@@ -465,8 +465,8 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
   @Override
   public void endWindow()
   {
-    context.setCounters(getConsumer().getConsumerStats(shardPosition));
     if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
+      context.setCounters(getConsumer().getConsumerStats(shardPosition));
       try {
         idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
       }

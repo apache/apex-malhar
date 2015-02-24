@@ -151,6 +151,8 @@ public class KinesisOutputOperatorTest extends KinesisOperatorTestBase
     // Create ActiveMQStringSinglePortOutputOperator
     StringGeneratorInputOperator generator = dag.addOperator("TestStringGenerator", StringGeneratorInputOperator.class);
     KinesisStringOutputOperator node = dag.addOperator("KinesisMessageProducer", KinesisStringOutputOperator.class);
+    node.setAccessKey(credentials.getCredentials().getAWSSecretKey());
+    node.setSecretKey(credentials.getCredentials().getAWSAccessKeyId());
     node.setBatchSize(500);
 
     node.setStreamName(streamName);
