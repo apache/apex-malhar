@@ -214,6 +214,7 @@ public abstract class AbstractKinesisInputOperator <T> implements InputOperator,
           size = (int)Math.ceil(shards.size() / (shardsPerPartition * 1.0));
         initShardPos = shardManager.loadInitialShardPositions();
       }
+      @SuppressWarnings("unchecked")
       Set<String>[] pIds = (Set<String>[]) Array.newInstance((new HashSet<String>()).getClass(), size);
 
       newPartitions = new ArrayList<Partition<AbstractKinesisInputOperator>>(size);
