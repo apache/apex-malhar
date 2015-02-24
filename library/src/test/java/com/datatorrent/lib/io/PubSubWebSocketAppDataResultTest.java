@@ -26,12 +26,12 @@ public class PubSubWebSocketAppDataResultTest
   {
     URI uri = URI.create("ws://localhost:6666/pubsub");
     String topic = "test";
-    String correct = "ws://localhost:6666/pubsub?topic=test";
+    String correct = "pubsub";
 
     PubSubWebSocketAppDataResult pubsub = new PubSubWebSocketAppDataResult();
     pubsub.setUri(uri);
     pubsub.setTopic(topic);
 
-    Assert.assertEquals("The url is incorrect.", correct, pubsub.getAppDataURL().toString());
+    Assert.assertEquals("The url is incorrect.", correct, pubsub.getAppDataURL());
   }
 }

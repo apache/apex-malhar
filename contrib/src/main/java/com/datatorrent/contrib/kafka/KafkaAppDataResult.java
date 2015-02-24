@@ -23,7 +23,7 @@ import org.apache.http.client.utils.URIBuilder;
 public class KafkaAppDataResult extends KafkaSinglePortOutputOperator<String, String> implements AppDataOperator
 {
   @Override
-  public URI getAppDataURL()
+  public String getAppDataURL()
   {
     String brokerList = this.getConfigProperties().getProperty("metadata.broker.list");
     String[] brokers = brokerList.split(",");
@@ -34,8 +34,8 @@ public class KafkaAppDataResult extends KafkaSinglePortOutputOperator<String, St
     ub.setScheme("kafka");
     ub.setHost(splitMain[0]);
     ub.setPort(Integer.parseInt(splitMain[1]));
+    ub.setPath("/");
     ub.addParameter("brokerSet", brokerList);
-    ub.addParameter("topic", getTopic());
 
     URI uri = null;
 
@@ -46,6 +46,6 @@ public class KafkaAppDataResult extends KafkaSinglePortOutputOperator<String, St
       throw new RuntimeException(ex);
     }
 
-    return uri;
+    return uri.toString();
   }
 }
