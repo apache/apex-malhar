@@ -23,6 +23,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import org.elasticsearch.action.search.SearchRequestBuilder;
+import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.junit.Assert;
 import org.junit.Test;
@@ -53,20 +54,26 @@ public class ElasticSearchOperatorTest
   @Test
   public void testReadAfterWrite()
   {
-    long testStartTime = System.currentTimeMillis();
-    List<String> writtenTupleIDs = writeToES();
-
     try {
-      // Wait for 1 sec to give time for elasticSearch to make inserted data available through NRT
-      Thread.sleep(1 * 1000);
-    } catch (InterruptedException e) {
-      throw new RuntimeException(e);
-    }
-    List<String> tupleIDsRead = readFromES(writtenTupleIDs, testStartTime);
+      long testStartTime = System.currentTimeMillis();
+      List<String> writtenTupleIDs = writeToES();
 
-    Collections.sort(writtenTupleIDs);
-    Collections.sort(tupleIDsRead);
-    Assert.assertEquals("Data inconsistency in Elastic Search", writtenTupleIDs, tupleIDsRead);
+      try {
+        // Wait for 1 sec to give time for elasticSearch to make
+        // inserted
+        // data available through NRT
+        Thread.sleep(1 * 1000);
+      } catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+      List<String> tupleIDsRead = readFromES(writtenTupleIDs, testStartTime);
+
+      Collections.sort(writtenTupleIDs);
+      Collections.sort(tupleIDsRead);
+      Assert.assertEquals("Data inconsistency in Elastic Search", writtenTupleIDs, tupleIDsRead);
+    } catch (NoNodeAvailableException e) {
+      // Silently ignore if elasticsearch is not running.
+    }
   }
 
   /**
@@ -79,7 +86,7 @@ public class ElasticSearchOperatorTest
       /*
        * (non-Javadoc)
        * 
-       * @see com.datatorrent.contrib.elasticsearch.AbstractElasticSearchOutputOperator#processTuple(java.lang.Object)
+       * @see com.datatorrent.contrib.elasticsearch. AbstractElasticSearchOutputOperator #processTuple(java.lang.Object)
        */
       @Override
       public void processTuple(Map<String, Object> tuple)
@@ -169,7 +176,6 @@ public class ElasticSearchOperatorTest
 
     operator.teardown();
     return tupleIDsRead;
-
   }
 
 }
