@@ -13,8 +13,8 @@
   <packaging>jar</packaging>
 
   <!-- change these to the appropriate values -->
-  <name>My DataTorrent Application</name>
-  <description>My DataTorrent Application Description</description>
+  <name>EchoServer Demo</name>
+  <description>A demo server that echos data sent by a network client back to it</description>
 
   <properties>
     <!-- change this if you desire to use a different version of DataTorrent -->
@@ -144,17 +144,15 @@
       <artifactId>malhar-library</artifactId>
       <version>${datatorrent.version}</version>
       <!-- 
-           If you know your application do not need the transitive dependencies that are pulled in by malhar-library,
+           If you know that your application doesn't need the transitive dependencies that are pulled in by malhar-library,
            Uncomment the following to reduce the size of your app package. 
       -->
-      <!--    
       <exclusions>
         <exclusion>
           <groupId>*</groupId>
           <artifactId>*</artifactId>
         </exclusion>
       </exclusions>
-      -->
     </dependency>
     <dependency>
       <groupId>com.datatorrent</groupId>
