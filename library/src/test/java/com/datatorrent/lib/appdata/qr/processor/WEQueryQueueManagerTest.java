@@ -6,6 +6,7 @@
 package com.datatorrent.lib.appdata.qr.processor;
 
 import com.datatorrent.lib.appdata.qr.Query;
+import org.apache.commons.lang3.mutable.MutableLong;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -18,12 +19,12 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleRemoveEmpty()
   {
-    WEQueryQueueManager<Query, Void> wqqm = new WEQueryQueueManager<Query, Void>();
+    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
-    QueryBundle<Query, Void> qb = wqqm.dequeue();
+    QueryBundle<Query, Void, MutableLong> qb = wqqm.dequeue();
     Query queryD = qb == null ? null : qb.getQuery();
     Assert.assertEquals("The queries must match.", null, queryD);
 
@@ -38,16 +39,16 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleAddOneRemove()
   {
-    WEQueryQueueManager<Query, Void> wqqm = new WEQueryQueueManager<Query, Void>();
+    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
     Query query = new Query();
-    wqqm.enqueue(query, null, 1L);
+    wqqm.enqueue(query, null, new MutableLong(1L));
 
     Query queryD = wqqm.dequeue().getQuery();
-    QueryBundle<Query, Void> qb = wqqm.dequeue();
+    QueryBundle<Query, Void, MutableLong> qb = wqqm.dequeue();
     Query queryD1 = qb == null ? null : qb.getQuery();
 
     wqqm.endWindow();
@@ -60,20 +61,20 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleAddRemove2()
   {
-    WEQueryQueueManager<Query, Void> wqqm = new WEQueryQueueManager<Query, Void>();
+    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
     Query query = new Query();
-    wqqm.enqueue(query, null, 1L);
+    wqqm.enqueue(query, null, new MutableLong(1L));
 
     Query queryD = wqqm.dequeue().getQuery();
-    QueryBundle<Query, Void> qb = wqqm.dequeue();
+    QueryBundle<Query, Void, MutableLong> qb = wqqm.dequeue();
     Query queryD1 = qb == null ? null : qb.getQuery();
 
     Query query1 = new Query();
-    wqqm.enqueue(query1, null, 1L);
+    wqqm.enqueue(query1, null, new MutableLong(1L));
 
     Query query1D = wqqm.dequeue().getQuery();
     qb = wqqm.dequeue();
@@ -92,28 +93,28 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleAddAfterStarted()
   {
-    WEQueryQueueManager<Query, Void> wqqm = new WEQueryQueueManager<Query, Void>();
+    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
     Query query = new Query();
     query.setId("0");
-    wqqm.enqueue(query, null, 1L);
+    wqqm.enqueue(query, null, new MutableLong(1L));
 
     Query query1 = new Query();
     query1.setId("1");
-    wqqm.enqueue(query1, null, 1L);
+    wqqm.enqueue(query1, null, new MutableLong(1L));
 
     Query queryD = wqqm.dequeue().getQuery();
 
     Query query2 = new Query();
     query2.setId("2");
-    wqqm.enqueue(query2, null, 1L);
+    wqqm.enqueue(query2, null, new MutableLong(1L));
 
     Query query1D = wqqm.dequeue().getQuery();
     Query query2D = wqqm.dequeue().getQuery();
-    QueryBundle<Query, Void> qb = wqqm.dequeue();
+    QueryBundle<Query, Void, MutableLong> qb = wqqm.dequeue();
     Query query3D = qb == null ? null : qb.getQuery();
 
     wqqm.endWindow();
@@ -130,7 +131,7 @@ public class WEQueryQueueManagerTest
   {
     final int numQueries = 3;
 
-    WEQueryQueueManager<Query, Void> wqqm = new WEQueryQueueManager<Query, Void>();
+    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -140,7 +141,7 @@ public class WEQueryQueueManagerTest
         qc++) {
       Query query = new Query();
       query.setId(Integer.toString(qc));
-      wqqm.enqueue(query, null, 3L);
+      wqqm.enqueue(query, null, new MutableLong(3L));
     }
 
     Query query = wqqm.dequeue().getQuery();
@@ -155,7 +156,7 @@ public class WEQueryQueueManagerTest
     {
       int qc = 0;
 
-      for(QueryBundle<Query, Void> tquery;
+      for(QueryBundle<Query, Void, MutableLong> tquery;
           (tquery = wqqm.dequeue()) != null;
           qc++) {
         Assert.assertEquals("Query ids must equal.",
@@ -177,7 +178,7 @@ public class WEQueryQueueManagerTest
   {
     final int numQueries = 3;
 
-    WEQueryQueueManager<Query, Void> wqqm = new WEQueryQueueManager<Query, Void>();
+    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -187,7 +188,7 @@ public class WEQueryQueueManagerTest
         qc++) {
       Query query = new Query();
       query.setId(Integer.toString(qc));
-      wqqm.enqueue(query, null, 2L);
+      wqqm.enqueue(query, null, new MutableLong(2L));
     }
 
     wqqm.endWindow();
@@ -196,7 +197,7 @@ public class WEQueryQueueManagerTest
     {
       int qc = 0;
 
-      for(QueryBundle<Query, Void> qb;
+      for(QueryBundle<Query, Void, MutableLong> qb;
           (qb = wqqm.dequeue()) != null;
           qc++) {
         Query query = qb.getQuery();
@@ -219,7 +220,7 @@ public class WEQueryQueueManagerTest
   public void testMixedExpiration()
   {
     final int numQueries = 3;
-    WEQueryQueueManager<Query, Void> wqqm = new WEQueryQueueManager<Query, Void>();
+    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -230,7 +231,7 @@ public class WEQueryQueueManagerTest
           qc++) {
         Query query = new Query();
         query.setId(Integer.toString(qc));
-        wqqm.enqueue(query, null, 2L);
+        wqqm.enqueue(query, null, new MutableLong(2L));
       }
 
       for(int qc = 0;
@@ -238,7 +239,7 @@ public class WEQueryQueueManagerTest
           qc++) {
         Query query = new Query();
         query.setId(Integer.toString(qc + numQueries));
-        wqqm.enqueue(query, null, 3L);
+        wqqm.enqueue(query, null, new MutableLong(3L));
       }
     }
 
@@ -248,7 +249,7 @@ public class WEQueryQueueManagerTest
     {
       int qc = 0;
 
-      for(QueryBundle<Query, Void> qb;
+      for(QueryBundle<Query, Void, MutableLong> qb;
           (qb = wqqm.dequeue()) != null;
           qc++) {
         Query query = qb.getQuery();
@@ -264,7 +265,7 @@ public class WEQueryQueueManagerTest
     {
       int qc = 0;
 
-      for(QueryBundle<Query, Void> qb;
+      for(QueryBundle<Query, Void, MutableLong> qb;
           (qb = wqqm.dequeue()) != null;
           qc++) {
         Query query = qb.getQuery();

@@ -31,7 +31,7 @@ import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.qr.processor.WEQueryQueueManager;
+import com.datatorrent.lib.appdata.qr.processor.WWEQueryQueueManager;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.ads.AdsKeys;
 import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeQuery;
@@ -47,6 +47,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
 import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableLong;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -102,11 +103,11 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
       else if(query instanceof AdsUpdateQuery) {
         LOG.info("Received AdsUpdateQuery");
-        queryProcessor.enqueue((AdsUpdateQuery) query, null, null);
+        queryProcessor.enqueue(query, null, null);
       }
       else if(query instanceof AdsOneTimeQuery) {
         LOG.info("Received AdsOneTimeQuery");
-        queryProcessorOneTime.enqueue((AdsOneTimeQuery) query, null, null);
+        queryProcessor.enqueue(query, null, null);
       }
     }
   };
@@ -130,8 +131,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   // Query Processing - Start
   //==========================================================================
 
-  private transient QueryProcessor<AdsUpdateQuery, AdsQueryMeta, Long, MutableBoolean> queryProcessor;
-  private transient QueryProcessor<AdsOneTimeQuery, AdsQueryMeta, Long, MutableBoolean> queryProcessorOneTime;
+  private transient QueryProcessor<Query, AdsQueryMeta, MutableLong, MutableBoolean> queryProcessor;
   @SuppressWarnings("unchecked")
   private transient QueryDeserializerFactory queryDeserializerFactory;
   private transient ResultSerializerFactory resultSerializerFactory;
@@ -222,22 +222,15 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
     //Setup for query processing
     queryProcessor =
-    new QueryProcessor<AdsUpdateQuery, AdsQueryMeta, Long, MutableBoolean>(
-                                                  new AdsQueryComputer<AdsUpdateQuery>(this),
-                                                  new AdsWEQueryQueueManager<AdsUpdateQuery>(this, QUERY_QUEUE_WINDOW_COUNT_INT));
+    new QueryProcessor<Query, AdsQueryMeta, MutableLong, MutableBoolean>(
+                                                  new AdsQueryComputer<Query>(this),
+                                                  new AdsQueryQueueManager<Query>(this, QUERY_QUEUE_WINDOW_COUNT_INT));
     queryDeserializerFactory = new QueryDeserializerFactory(SchemaQuery.class,
                                                             AdsUpdateQuery.class,
                                                             AdsOneTimeQuery.class);
     resultSerializerFactory = new ResultSerializerFactory();
 
-
-    queryProcessorOneTime =
-    new QueryProcessor<AdsOneTimeQuery, AdsQueryMeta, Long, MutableBoolean>(
-                                                  new AdsQueryComputer<AdsOneTimeQuery>(this),
-                                                  new AdsWEQueryQueueManager<AdsOneTimeQuery>(this, 1));
-
     queryProcessor.setup(context);
-    queryProcessorOneTime.setup(context);
   }
 
   @Override
@@ -245,7 +238,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   {
     this.windowId = windowId;
     queryProcessor.beginWindow(windowId);
-    queryProcessorOneTime.beginWindow(windowId);
     super.beginWindow(windowId);
   }
 
@@ -267,30 +259,12 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
     }
 
-    //Process queries
-
     MutableBoolean done = new MutableBoolean(false);
 
     super.endWindow();
 
     while(done.isFalse()) {
-      AdsUpdateResult aotr = (AdsUpdateResult) queryProcessor.process(done);
-
-      if(done.isFalse()) {
-        LOG.debug("Query: {}", this.windowId);
-      }
-
-      if(aotr != null) {
-        String result = resultSerializerFactory.serialize(aotr);
-        LOG.info("Emitting the result: {}", result);
-        queryResult.emit(result);
-      }
-    }
-
-    done.setValue(false);
-
-    while(done.isFalse()) {
-      AdsOneTimeResult aotr = (AdsOneTimeResult) queryProcessorOneTime.process(done);
+      Result aotr = queryProcessor.process(done);
 
       if(done.isFalse()) {
         LOG.debug("Query: {}", this.windowId);
@@ -304,14 +278,12 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
 
     queryProcessor.endWindow();
-    queryProcessorOneTime.endWindow();
   }
 
   @Override
   public void teardown()
   {
     queryProcessor.teardown();
-    queryProcessorOneTime.teardown();
     super.teardown();
   }
 
@@ -474,12 +446,12 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   // Query Processing Classes - Start
   //==========================================================================
 
-  class AdsWEQueryQueueManager<QT extends Query> extends WEQueryQueueManager<QT, AdsQueryMeta>
+  class AdsQueryQueueManager<QT extends Query> extends WWEQueryQueueManager<QT, AdsQueryMeta>
   {
     private AdsDimensionStoreOperator operator;
     private int queueWindowCount;
 
-    public AdsWEQueryQueueManager(AdsDimensionStoreOperator operator,
+    public AdsQueryQueueManager(AdsDimensionStoreOperator operator,
                                   int queueWindowCount)
     {
       this.operator = operator;
@@ -487,7 +459,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
 
     @Override
-    public boolean enqueue(QT query, AdsQueryMeta queryMeta, Long windowExpireCount)
+    public boolean enqueue(QT query, AdsQueryMeta queryMeta, MutableLong windowExpireCount)
     {
       LOG.info("Enqueueing query {}", query);
       AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
@@ -529,7 +501,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
       long bucketKey = getBucketKey(ae);
       if(!(operator.partitions == null || operator.partitions.contains((int)bucketKey))) {
-        //LOG.debug("Ignoring query for bucket {} when this partition serves {}", bucketKey, super.partitions);
+        LOG.debug("Ignoring query for bucket {} when this partition serves {}", bucketKey, operator.partitions);
         return false;
       }
 
@@ -564,11 +536,11 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       aqm.setAdInofAggregateEvent(ae);
       aqm.setHdsQueries(hdsQueries);
 
-      return super.enqueue(query, aqm, (long) queueWindowCount);
+      return super.enqueue(query, aqm, new MutableLong(queueWindowCount));
     }
   }
 
-  class AdsQueryComputer<QT extends Query> implements QueryComputer<QT, AdsQueryMeta, MutableBoolean>
+  class AdsQueryComputer<QT extends Query> implements QueryComputer<QT, AdsQueryMeta, MutableLong, MutableBoolean>
   {
     private AdsDimensionStoreOperator operator;
 
@@ -578,7 +550,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
 
     @Override
-    public Result processQuery(QT query, AdsQueryMeta adsQueryMeta, MutableBoolean context)
+    public Result processQuery(QT query, AdsQueryMeta adsQueryMeta, MutableLong queueContext, MutableBoolean context)
     {
       LOG.info("Processing query {}", query);
       AdsOneTimeResult result = null;
@@ -590,6 +562,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
       else if(query instanceof AdsUpdateQuery) {
         AdsUpdateResult aur = new AdsUpdateResult(query);
+        aur.setCountdown(queueContext.longValue());
         result = aur;
         aur.setData(new ArrayList<AdsOneTimeResult.AdsOneTimeData>());
       }
@@ -598,11 +571,11 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
                                                 query.getClass() + " is not supported.");
       }
 
-      //AdsOneTimeResult aotqr = new AdsOneTimeResult(query);
-      //aotqr.setData(new ArrayList<AdsOneTimeResult.AdsOneTimeData>());
       AdInfo.AdInfoAggregateEvent prototype = adsQueryMeta.getAdInofAggregateEvent();
 
       Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
+
+      boolean allSatisfied = true;
 
       for(long timestamp = adsQueryMeta.getBeginTime();
           queryIt.hasNext();
@@ -631,10 +604,19 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
             result.getData().add(aotd);
           }
         }
+        else {
+          allSatisfied = false;
+        }
       }
 
       if(result.getData().isEmpty()) {
         return null;
+      }
+
+      if(query instanceof AdsOneTimeQuery) {
+        if(!allSatisfied && queueContext.longValue() > 1L) {
+          return null;
+        }
       }
 
       return result;

@@ -12,8 +12,11 @@ import com.datatorrent.lib.appdata.qr.Result;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public interface QueryComputer<QUERY_TYPE extends Query, META_QUERY, COMPUTE_CONTEXT>
+public interface QueryComputer<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT>
 {
-  public Result processQuery(QUERY_TYPE query, META_QUERY metaQuery, COMPUTE_CONTEXT context);
+  public Result processQuery(QUERY_TYPE query,
+                             META_QUERY metaQuery,
+                             QUEUE_CONTEXT queueContext,
+                             COMPUTE_CONTEXT context);
   public void queueDepleted(COMPUTE_CONTEXT context);
 }

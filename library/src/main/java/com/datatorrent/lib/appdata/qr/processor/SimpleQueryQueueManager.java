@@ -16,8 +16,8 @@ import java.util.LinkedList;
 public class SimpleQueryQueueManager<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT>
                       implements QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {
-  private LinkedList<QueryQueueable<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queue =
-  new LinkedList<QueryQueueable<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>>();
+  private LinkedList<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queue =
+  new LinkedList<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>>();
 
   public SimpleQueryQueueManager()
   {
@@ -26,13 +26,13 @@ public class SimpleQueryQueueManager<QUERY_TYPE extends Query, META_QUERY, QUEUE
   @Override
   public boolean enqueue(QUERY_TYPE query, META_QUERY metaQuery, QUEUE_CONTEXT queueContext)
   {
-    QueryQueueable<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> qq =
-    new QueryQueueable<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>(query, metaQuery, queueContext);
+    QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> qq =
+    new QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>(query, metaQuery, queueContext);
     return queue.offer(qq);
   }
 
   @Override
-  public QueryBundle<QUERY_TYPE, META_QUERY> dequeue()
+  public QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> dequeue()
   {
     return queue.poll();
   }

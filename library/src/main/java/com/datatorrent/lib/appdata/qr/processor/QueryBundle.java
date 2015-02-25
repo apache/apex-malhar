@@ -11,19 +11,23 @@ import com.datatorrent.lib.appdata.qr.Query;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class QueryBundle<QUERY_TYPE extends Query, META_QUERY>
+public class QueryBundle<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT>
 {
   protected QUERY_TYPE query;
   protected META_QUERY metaQuery;
+  protected QUEUE_CONTEXT queueContext;
 
   public QueryBundle()
   {
   }
 
-  public QueryBundle(QUERY_TYPE query, META_QUERY metaQuery)
+  public QueryBundle(QUERY_TYPE query,
+                     META_QUERY metaQuery,
+                     QUEUE_CONTEXT queueContext)
   {
     this.query = query;
     this.metaQuery = metaQuery;
+    this.queueContext = queueContext;
   }
 
   public QUERY_TYPE getQuery()
@@ -34,5 +38,10 @@ public class QueryBundle<QUERY_TYPE extends Query, META_QUERY>
   public META_QUERY getMetaQuery()
   {
     return metaQuery;
+  }
+
+  public QUEUE_CONTEXT getQueueContext()
+  {
+    return queueContext;
   }
 }

@@ -21,18 +21,18 @@ public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT,
 {
   private static final Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
 
-  private QueryComputer<QUERY_TYPE, META_QUERY, COMPUTE_CONTEXT> queryComputer;
+  private QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer;
   private QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager;
   private QueryResultCacheManager<QUERY_TYPE, META_QUERY> queryResultCacheManager;
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, COMPUTE_CONTEXT> queryComputer)
+  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer)
   {
     setQueryComputer(queryComputer);
     queryQueueManager = new SimpleQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>();
     queryResultCacheManager = new NOPQueryResultCacheManager<QUERY_TYPE, META_QUERY>();
   }
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, COMPUTE_CONTEXT> queryComputer,
+  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer,
                         QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
   {
     setQueryComputer(queryComputer);
@@ -40,7 +40,7 @@ public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT,
     queryResultCacheManager = new NOPQueryResultCacheManager<QUERY_TYPE, META_QUERY>();
   }
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, COMPUTE_CONTEXT> queryComputer,
+  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer,
                         QueryResultCacheManager<QUERY_TYPE, META_QUERY> queryResultCacheManager)
   {
     setQueryComputer(queryComputer);
@@ -48,7 +48,7 @@ public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT,
     queryQueueManager = new SimpleQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>();
   }
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, COMPUTE_CONTEXT> queryComputer,
+  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer,
                         QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager,
                         QueryResultCacheManager<QUERY_TYPE, META_QUERY> queryResultCacheManager)
   {
@@ -57,7 +57,7 @@ public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT,
     setQueryResultCacheManager(queryResultCacheManager);
   }
 
-  private void setQueryComputer(QueryComputer<QUERY_TYPE, META_QUERY, COMPUTE_CONTEXT> queryComputer)
+  private void setQueryComputer(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer)
   {
     Preconditions.checkNotNull(queryComputer);
     this.queryComputer = queryComputer;
@@ -82,7 +82,7 @@ public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT,
 
   public Result process(COMPUTE_CONTEXT context)
   {
-    QueryBundle<QUERY_TYPE, META_QUERY> queryBundle = queryQueueManager.dequeue();
+    QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryBundle = queryQueueManager.dequeue();
 
     if(queryBundle == null) {
       queryComputer.queueDepleted(context);
@@ -98,6 +98,7 @@ public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT,
 
     return queryComputer.processQuery(queryBundle.getQuery(),
                                       queryBundle.getMetaQuery(),
+                                      queryBundle.getQueueContext(),
                                       context);
   }
 

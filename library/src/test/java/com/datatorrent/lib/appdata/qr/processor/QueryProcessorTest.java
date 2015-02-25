@@ -56,21 +56,21 @@ public class QueryProcessorTest
     }
   }
 
-  public static class SimpleQueryComputer implements QueryComputer<Query, Void, Void>
+  public static class SimpleQueryComputer implements QueryComputer<Query, Void, Void, Void>
   {
     public SimpleQueryComputer()
     {
     }
 
     @Override
-    public Result processQuery(Query query, Void metaQuery, Void context)
+    public void queueDepleted(Void context)
     {
-      return new Result(query);
     }
 
     @Override
-    public void queueDepleted(Void context)
+    public Result processQuery(Query query, Void metaQuery, Void queueContext, Void context)
     {
+      return new Result(query);
     }
   }
 }

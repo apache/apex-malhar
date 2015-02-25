@@ -28,7 +28,7 @@ public class SimpleQueryQueueManagerTest
 
     sqqm.enqueue(query, null, null);
     Query queryD = sqqm.dequeue().getQuery();
-    QueryBundle<Query, Void> qb = sqqm.dequeue();
+    QueryBundle<Query, Void, Void> qb = sqqm.dequeue();
     Query queryD1 = qb == null ? null : qb.getQuery();
 
     sqqm.teardown();
