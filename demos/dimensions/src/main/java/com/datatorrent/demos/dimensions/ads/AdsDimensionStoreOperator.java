@@ -595,13 +595,15 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
             result.getData().add(aotd);
           }
         }
-        else if(hdsQuery.processed && hdsQuery.result != null) {
-          AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
-          AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
+        else if(hdsQuery.processed) {
+          if(hdsQuery.result != null) {
+            AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+            AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
 
-          if(ae != null) {
-            LOG.debug("Adding from hds");
-            result.getData().add(aotd);
+            if(ae != null) {
+              LOG.debug("Adding from hds");
+              result.getData().add(aotd);
+            }
           }
         }
         else {
@@ -616,6 +618,10 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       if(query instanceof AdsOneTimeQuery) {
         if(!allSatisfied && queueContext.longValue() > 1L) {
           return null;
+        }
+        else {
+          //Expire query.
+          queueContext.setValue(0L);
         }
       }
 
