@@ -28,7 +28,7 @@ public class AdsSchemaResult extends Result
   public static final String TYPE = "schemaData";
   public static final String SCHEMA_TYPE = "dimensions";
   public static final String SCHEMA_VERSION = "1.0";
-  public static final String[] buckets = {"1m", "1h", "1d"};
+  public static final String[] BUCKETS = {"1m", "1h", "1d"};
   public static final String PUBLISHER = "publisher";
   public static final String[] PUBLISHERS = {"twitter", "facebook", "yahoo", "google"};
   public static final String ADVERTISER = "advertiser";
@@ -58,7 +58,7 @@ public class AdsSchemaResult extends Result
     TimeRangeBuckets trb = new TimeRangeBuckets();
     trb.setFrom(FROM);
     trb.setTo(TO);
-    trb.setBuckets(Arrays.asList(buckets));
+    trb.setBuckets(Arrays.asList(BUCKETS));
 
     data.setTimeBuckets(trb);
 

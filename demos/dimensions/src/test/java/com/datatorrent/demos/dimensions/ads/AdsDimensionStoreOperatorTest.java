@@ -150,7 +150,7 @@ public class AdsDimensionStoreOperatorTest
 
     Assert.assertEquals("result points", 2, aotr.getData().size());
 
-    // ae1 object is stored as referenced in cache, and when new tuple is aggregated,
+    // ae1 object is stored as referenced in minuteCache, and when new tuple is aggregated,
     // the new values are updated in ae1 itself, causing following check to fail.
     //Assert.assertEquals("clicks", ae1.clicks + ae2.clicks, (long) aotr.getData().get(0).getClicks());
     Assert.assertEquals("clicks", 10 + ae2.clicks, (long) aotr.getData().get(0).getClicks());

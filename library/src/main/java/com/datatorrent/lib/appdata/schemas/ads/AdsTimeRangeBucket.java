@@ -8,8 +8,9 @@ package com.datatorrent.lib.appdata.schemas.ads;
 import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+
 import java.util.Date;
-import java.util.concurrent.TimeUnit;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
@@ -52,22 +53,5 @@ public class AdsTimeRangeBucket extends TimeRangeBucket
   public void setToLong(long to)
   {
     this.setTo(sdf.format(new Date(to)));
-  }
-
-  @JsonIgnore
-  public TimeUnit getTimeUnit()
-  {
-    if(this.getBucket().equals("1m")) {
-      return TimeUnit.MINUTES;
-    }
-    else if(this.getBucket().equals("1h")) {
-      return TimeUnit.HOURS;
-    }
-    else if(this.getBucket().equals("1d")) {
-      return TimeUnit.DAYS;
-    }
-    else {
-      throw new UnsupportedOperationException("Cannot get a Time unit for " + this.getBucket());
-    }
   }
 }

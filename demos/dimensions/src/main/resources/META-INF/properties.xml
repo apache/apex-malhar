@@ -33,7 +33,7 @@
   </property>
   <property>
     <name>dt.application.GenericDimensionsApplication.operator.Store.prop.maxCacheSize</name>
-    <value>5</value>
+    <value>20</value>
   </property>
   <property>
     <name>dt.application.GenericDimensionsApplication.operator.Query.topic</name>

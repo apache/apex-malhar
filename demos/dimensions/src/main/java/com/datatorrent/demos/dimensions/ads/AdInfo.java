@@ -15,19 +15,51 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
-import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
-
+import com.datatorrent.lib.appdata.schemas.ads.AdsSchemaResult;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
+import com.google.common.collect.Maps;
+import java.io.Serializable;
+
+import java.util.Collections;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>AdInfo class.</p>
  *
  * @since 0.3.2
  */
-public class AdInfo implements Serializable
+public class AdInfo implements Serializable, Cloneable
 {
+  public static final byte MINUTE_BUCKET = 0;
+  public static final byte HOUR_BUCKET = 1;
+  public static final byte DAY_BUCKET = 2;
+
+  public static final Map<String, Byte> BUCKET_NAME_TO_INDEX;
+
+  static
+  {
+    Map<String, Byte> bucketNameToIndex = Maps.newHashMap();
+    bucketNameToIndex.put(AdsSchemaResult.BUCKETS[0], MINUTE_BUCKET);
+    bucketNameToIndex.put(AdsSchemaResult.BUCKETS[1], HOUR_BUCKET);
+    bucketNameToIndex.put(AdsSchemaResult.BUCKETS[2], DAY_BUCKET);
+
+    BUCKET_NAME_TO_INDEX = Collections.unmodifiableMap(bucketNameToIndex);
+  }
+
+  public static final Map<Byte, TimeUnit> BUCKET_TO_TIMEUNIT;
+
+  static
+  {
+    Map<Byte, TimeUnit> bucketToTimeunit = Maps.newHashMap();
+    bucketToTimeunit.put(MINUTE_BUCKET, TimeUnit.MINUTES);
+    bucketToTimeunit.put(HOUR_BUCKET, TimeUnit.HOURS);
+    bucketToTimeunit.put(DAY_BUCKET, TimeUnit.DAYS);
+
+    BUCKET_TO_TIMEUNIT = Collections.unmodifiableMap(bucketToTimeunit);
+  }
+
   /* dimension attributes */
   int publisherId;
   int advertiserId;
@@ -38,9 +70,35 @@ public class AdInfo implements Serializable
   double revenue;
   long impressions;
   long clicks;
+  byte bucket;
 
   public AdInfo()
   {
+  }
+
+  public AdInfo(AdInfo ai,
+                byte bucket)
+  {
+    this.publisherId = ai.publisherId;
+    this.advertiserId = ai.advertiserId;
+    this.adUnit = ai.adUnit;
+    this.cost = ai.cost;
+    this.revenue = ai.revenue;
+    this.impressions = ai.impressions;
+    this.clicks = ai.clicks;
+
+    if(bucket == MINUTE_BUCKET) {
+      this.timestamp = AdInfo.roundMinute(ai.timestamp);
+    }
+    else if(bucket == HOUR_BUCKET) {
+      this.timestamp = AdInfo.roundHour(ai.timestamp);
+    }
+    else if(bucket == DAY_BUCKET) {
+      this.timestamp = AdInfo.roundDay(ai.timestamp);
+    }
+    else {
+      throw new IllegalArgumentException("Not a valid bucket.");
+    }
   }
 
   public Integer getPublisherId()
@@ -149,13 +207,102 @@ public class AdInfo implements Serializable
     if (this.adUnit != other.adUnit) {
       return false;
     }
-    return this.timestamp == other.timestamp;
+    if (this.timestamp != other.timestamp) {
+      return false;
+    }
+
+    return this.bucket == other.bucket;
   }
 
   @Override
   public String toString()
   {
     return "AdInfo{" + "publisherId=" + publisherId + ", advertiserId=" + advertiserId + ", adUnit=" + adUnit + ", timestamp=" + timestamp + ", cost=" + cost + ", revenue=" + revenue + ", impressions=" + impressions + ", clicks=" + clicks + '}';
+  }
+
+  public static long roundMinute(long timestamp)
+  {
+    long mm = TimeUnit.MINUTES.toMillis(1);
+    return (timestamp / mm) * mm;
+  }
+
+  public static long roundMinuteUp(long timestamp)
+  {
+    long mm = TimeUnit.MINUTES.toMillis(1);
+
+    long result = (timestamp / mm) * mm;
+    long mod = timestamp % mm;
+
+    if(mod < 0) {
+      result -= mm;
+    }
+    else if(mod > 0) {
+      result += mm;
+    }
+
+    return result;
+  }
+
+  public static long roundHour(long timestamp)
+  {
+    long hm = TimeUnit.HOURS.toMillis(1);
+    return (timestamp / hm) * hm;
+  }
+
+  public static long roundHourUp(long timestamp)
+  {
+    long hm = TimeUnit.HOURS.toMillis(1);
+
+    long result = (timestamp / hm) * hm;
+    long mod = timestamp % hm;
+
+    if(mod < 0) {
+      result -= hm;
+    }
+    else if(mod > 0) {
+      result += hm;
+    }
+
+    return result;
+  }
+
+  public static long roundDay(long timestamp)
+  {
+    long dm = TimeUnit.DAYS.toMillis(1);
+    return (timestamp / dm) * dm;
+  }
+
+  public static long roundDayUp(long timestamp)
+  {
+    long dm = TimeUnit.DAYS.toMillis(1);
+
+    long result = (timestamp / dm) * dm;
+    long mod = timestamp % dm;
+
+    if(mod < 0) {
+      result -= dm;
+    }
+    else if(mod > 0) {
+      result += dm;
+    }
+
+    return result;
+  }
+
+  /**
+   * @return the bucket
+   */
+  public byte getBucket()
+  {
+    return bucket;
+  }
+
+  /**
+   * @param bucket the bucket to set
+   */
+  public void setBucket(byte bucket)
+  {
+    this.bucket = bucket;
   }
 
   public static class AdInfoAggregator implements Aggregator<AdInfo, AdInfoAggregateEvent>
@@ -352,6 +499,22 @@ public class AdInfo implements Serializable
     public AdInfoAggregateEvent()
     {
       //Used for kryo serialization
+    }
+
+
+    public AdInfoAggregateEvent(AdInfoAggregateEvent ai,
+                                byte bucket)
+    {
+      super(ai, bucket);
+      this.aggregatorIndex = ai.aggregatorIndex;
+    }
+
+    public AdInfoAggregateEvent(AdInfoAggregateEvent ai,
+                                byte bucket,
+                                int aggregatorIndex)
+    {
+      super(ai, bucket);
+      this.aggregatorIndex = aggregatorIndex;
     }
 
     public AdInfoAggregateEvent(int aggregatorIndex)

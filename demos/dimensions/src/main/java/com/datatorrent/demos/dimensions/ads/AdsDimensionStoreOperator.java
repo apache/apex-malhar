@@ -118,14 +118,17 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
   protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
   // in-memory aggregation before hitting WAL
-  protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache = Maps.newTreeMap();
+  protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> minuteCache = Maps.newTreeMap();
+  protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> hourCache = Maps.newTreeMap();
+  protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> dayCache = Maps.newTreeMap();
   // TODO: should be aggregation interval count
-  private int maxCacheSize = 5;
+  private int maxCacheSize = 20;
 
   private AdInfoAggregator aggregator;
 
   private transient ObjectMapper mapper = null;
-  private long defaultTimeWindow = TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES);
+  //The default number of buckets to output for an updateQuery.
+  private long defaultTimeWindow = 20;
 
   //==========================================================================
   // Query Processing - Start
@@ -137,7 +140,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   private transient ResultSerializerFactory resultSerializerFactory;
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
   private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
-  private static final TimeUnit TIME_UNIT = TimeUnit.MILLISECONDS;
 
   private transient long windowId;
 
@@ -192,7 +194,22 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   protected void processEvent(AdInfoAggregateEvent event) throws IOException
   {
+    AdInfoAggregateEvent minuteEvent = new AdInfoAggregateEvent(event,
+                                                                AdInfoAggregateEvent.MINUTE_BUCKET);
+    AdInfoAggregateEvent hourEvent = new AdInfoAggregateEvent(event,
+                                                              AdInfoAggregateEvent.HOUR_BUCKET);
+    AdInfoAggregateEvent dayEvent = new AdInfoAggregateEvent(event,
+                                                             AdInfoAggregateEvent.DAY_BUCKET);
+    processToBucket(minuteEvent, minuteCache);
+    processToBucket(hourEvent, hourCache);
+    processToBucket(dayEvent, dayCache);
+  }
+
+  private void processToBucket(AdInfoAggregateEvent event,
+                               SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache)
+  {
     Map<AdInfoAggregateEvent, AdInfoAggregateEvent> valMap = cache.get(event.getTimestamp());
+
     if (valMap == null) {
       valMap = new HashMap<AdInfoAggregateEvent, AdInfoAggregateEvent>();
       valMap.put(event, event);
@@ -245,10 +262,10 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   public void endWindow()
   {
     // flush final aggregates
-    int expiredEntries = cache.size() - maxCacheSize;
+    int expiredEntries = minuteCache.size() - maxCacheSize;
     while(expiredEntries-- > 0){
 
-      Map<AdInfoAggregateEvent, AdInfoAggregateEvent> vals = cache.remove(cache.firstKey());
+      Map<AdInfoAggregateEvent, AdInfoAggregateEvent> vals = minuteCache.remove(minuteCache.firstKey());
       for (Entry<AdInfoAggregateEvent, AdInfoAggregateEvent> en : vals.entrySet()) {
         AdInfoAggregateEvent ai = en.getValue();
         try {
@@ -298,12 +315,13 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       return keyBuilder.toString().getBytes();
     }
 
-    byte[] data = new byte[8 + 4 * 3];
+    byte[] data = new byte[8 + 4 * 3 + 1];
     keybb.rewind();
     keybb.putLong(event.getTimestamp());
     keybb.putInt(event.getPublisherId());
     keybb.putInt(event.getAdvertiserId());
     keybb.putInt(event.getAdUnit());
+    keybb.put(event.getBucket());
     keybb.rewind();
     keybb.get(data);
     //LOG.debug("Value: {}", event);
@@ -374,6 +392,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     ae.publisherId = bb.getInt();
     ae.advertiserId = bb.getInt();
     ae.adUnit = bb.getInt();
+    ae.bucket = bb.get();
 
     bb = ByteBuffer.wrap(value);
     ae.clicks = bb.getLong();
@@ -419,6 +438,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       ae.publisherId = bb.getInt();
       ae.advertiserId = bb.getInt();
       ae.adUnit = bb.getInt();
+      ae.bucket = bb.get();
 
       bb = ByteBuffer.wrap(value);
       ae.clicks = bb.getLong();
@@ -465,12 +485,55 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       AdInfo.AdInfoAggregateEvent ae = new AdInfo.AdInfoAggregateEvent();
 
       AdsKeys aks;
+      long endTime = -1L;
+      long startTime = -1L;
+      TimeUnit bucketUnit = null;
+      byte bucket = 0;
 
       if(query instanceof AdsOneTimeQuery) {
-        aks = ((AdsOneTimeQuery) query).getData().getKeys();
+        AdsOneTimeQuery aotq = (AdsOneTimeQuery) query;
+        aks = aotq.getData().getKeys();
+
+        AdsTimeRangeBucket atrb = aotq.getData().getTime();
+
+        bucket = AdInfo.BUCKET_NAME_TO_INDEX.get(atrb.getBucket());
+        bucketUnit = AdInfo.BUCKET_TO_TIMEUNIT.get(bucket);
+
+        startTime = atrb.getFromLong();
+        endTime = atrb.getToLong();
+
+        if(bucket == AdInfo.MINUTE_BUCKET) {
+          startTime = AdInfo.roundMinute(startTime);
+          endTime = AdInfo.roundMinuteUp(endTime);
+        }
+        else if(bucket == AdInfo.HOUR_BUCKET) {
+          startTime = AdInfo.roundHour(startTime);
+          endTime = AdInfo.roundHourUp(endTime);
+        }
+        else if(bucket == AdInfo.DAY_BUCKET) {
+          startTime = AdInfo.roundDay(startTime);
+          endTime = AdInfo.roundDayUp(endTime);
+        }
       }
       else if(query instanceof AdsUpdateQuery) {
-        aks = ((AdsUpdateQuery) query).getData().getKeys();
+        AdsUpdateQuery tauq = (AdsUpdateQuery) query;
+        aks = tauq.getData().getKeys();
+        bucket = AdInfo.BUCKET_NAME_TO_INDEX.get(tauq.getData().getTime().getBucket());
+        bucketUnit = AdInfo.BUCKET_TO_TIMEUNIT.get(bucket);
+
+        long time = System.currentTimeMillis();
+
+        if(bucket == AdInfo.MINUTE_BUCKET) {
+          endTime = AdInfo.roundMinute(time);
+        }
+        else if(bucket == AdInfo.HOUR_BUCKET) {
+          endTime = AdInfo.roundHour(time);
+        }
+        else if(bucket == AdInfo.DAY_BUCKET) {
+          endTime = AdInfo.roundDay(time);
+        }
+
+        startTime = endTime - bucketUnit.toMillis(defaultTimeWindow);
       }
       else {
         throw new UnsupportedOperationException("Processing query of type " +
@@ -478,24 +541,11 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
                                                 " is not supported.");
       }
 
-      long endTime = -1L;
-      long startTime = -1L;
-
-      if(query instanceof AdsUpdateQuery) {
-        endTime = (System.currentTimeMillis() / 60000) * 60000;
-        startTime = endTime - defaultTimeWindow;
-      }
-      else if(query instanceof AdsOneTimeQuery) {
-        AdsTimeRangeBucket atrb = ((AdsOneTimeQuery) query).getData().getTime();
-
-        startTime = atrb.getFromLong();
-        endTime = atrb.getToLong();
-      }
-
       ae.setTimestamp(startTime);
       ae.adUnit = aks.getLocationId();
       ae.publisherId = aks.getPublisherId();
       ae.advertiserId = aks.getAdvertiserId();
+      ae.bucket = bucket;
 
       LOG.debug("Input AdEvent: {}", ae);
 
@@ -509,7 +559,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
       for(ae.timestamp = startTime;
           ae.timestamp <= endTime;
-          ae.timestamp += TimeUnit.MINUTES.toMillis(1)) {
+          ae.timestamp += bucketUnit.toMillis(1)) {
         LOG.debug("Query AdEvent: {}", ae);
         Slice key = new Slice(getKey(ae));
         HDSQuery hdsQuery = operator.queries.get(key);
@@ -572,20 +622,25 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
 
       AdInfo.AdInfoAggregateEvent prototype = adsQueryMeta.getAdInofAggregateEvent();
-
+      TimeUnit bucketUnit = AdInfo.BUCKET_TO_TIMEUNIT.get(prototype.bucket);
       Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
 
       boolean allSatisfied = true;
 
       for(long timestamp = adsQueryMeta.getBeginTime();
           queryIt.hasNext();
-          timestamp += TimeUnit.MINUTES.toMillis(1))
+          timestamp += bucketUnit.toMillis(1))
       {
         HDSQuery hdsQuery = queryIt.next();
         prototype.setTimestamp(timestamp);
 
-        Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = cache.get(timestamp);
+        Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = minuteCache.get(timestamp);
 
+        // TODO
+        // There is a race condition with retrieving from the minuteCache and doing
+        // an hds query. If an hds query finishes for a key while it is in the minuteCache, but
+        // then that key gets evicted from the minuteCache, then the value will never be retrieved.
+        // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
         if(buffered != null) {
           AdInfo.AdInfoAggregateEvent ae = buffered.get(prototype);
 
