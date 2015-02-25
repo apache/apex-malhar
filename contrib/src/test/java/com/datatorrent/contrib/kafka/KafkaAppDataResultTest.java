@@ -37,10 +37,8 @@ public class KafkaAppDataResultTest
 
     appDataResult.setConfigProperties(properties);
 
-    String url1 = "kafka://" + broker1 +
-                  "?brokerSet=" + URLEncoder.encode(broker1 + "," + broker2, "UTF-8") +
-                  "&topic=" + topic;
-    String genUrl = appDataResult.getAppDataURL().toString();
+    String url1 = "kafka://" + broker1 + "/?brokerSet=" + URLEncoder.encode(broker1 + "," + broker2, "UTF-8");
+    String genUrl = appDataResult.getAppDataURL();
 
     Assert.assertEquals("The url is not correct", url1, genUrl);
   }

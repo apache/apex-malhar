@@ -19,9 +19,6 @@ import com.datatorrent.api.AppDataTopicResultOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.PubSubMessage.PubSubMessageType;
 import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-import org.apache.http.client.utils.URIBuilder;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -57,9 +54,9 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
   }
 
   @Override
-  public URI getAppDataURL()
+  public String getAppDataURL()
   {
-    return this.getUri();
+    return "pubsub";
   }
 
   @Override

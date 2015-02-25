@@ -24,7 +24,7 @@ import org.apache.http.client.utils.URIBuilder;
 public class KafkaAppDataQuery extends KafkaSinglePortStringInputOperator implements AppDataOperator
 {
   @Override
-  public URI getAppDataURL()
+  public String getAppDataURL()
   {
     String mainBroker = this.consumer.brokerSet.iterator().next();
     StringBuilder sb = new StringBuilder();
@@ -44,8 +44,8 @@ public class KafkaAppDataQuery extends KafkaSinglePortStringInputOperator implem
     URIBuilder ub = new URIBuilder();
     ub.setScheme("kafka");
     ub.setHost(mainBroker);
+    ub.setPath("/");
     ub.addParameter("brokerSet", sb.toString());
-    ub.addParameter("topic", this.consumer.getTopic());
 
     URI uri = null;
 
@@ -56,9 +56,10 @@ public class KafkaAppDataQuery extends KafkaSinglePortStringInputOperator implem
       throw new RuntimeException(ex);
     }
 
-    return uri;
+    return uri.toString();
   }
 
+  @Override
   public String getTopic()
   {
     return this.consumer.getTopic();

@@ -35,14 +35,10 @@ public class KafkaAppDataQueryTest
     consumer.setBrokerSet(Sets.newHashSet(broker1, broker2));
     appDataQuery.setConsumer(consumer);
 
-    String url1 = "kafka://" + broker1 +
-                  "?brokerSet=" + URLEncoder.encode(broker1 + "," + broker2, "UTF-8") +
-                  "&topic=" + topic;
-    String url2 = "kafka://" + broker2 +
-                  "?brokerSet=" + URLEncoder.encode(broker2 + "," + broker1, "UTF-8") +
-                  "&topic=" + topic;
+    String url1 = "kafka://" + broker1 + "/?brokerSet=" + URLEncoder.encode(broker1 + "," + broker2, "UTF-8");
+    String url2 = "kafka://" + broker2 + "/?brokerSet=" + URLEncoder.encode(broker2 + "," + broker1, "UTF-8");
 
-    String genUrl = appDataQuery.getAppDataURL().toString();
+    String genUrl = appDataQuery.getAppDataURL();
 
     if(url1.equals(genUrl) || url2.equals(genUrl)) {
       return;
