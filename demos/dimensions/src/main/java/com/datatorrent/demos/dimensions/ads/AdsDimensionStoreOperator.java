@@ -265,6 +265,13 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     flushCache(hourCache);
     flushCache(dayCache);
 
+    for(Long timestamp: hourCache.keySet()) {
+      String startString = AdsTimeRangeBucket.sdf.format(new Date(timestamp));
+
+      LOG.info("Hour cache key {}", startString);
+
+    }
+
     MutableBoolean done = new MutableBoolean(false);
 
     super.endWindow();
