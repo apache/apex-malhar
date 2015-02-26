@@ -18,6 +18,7 @@ package com.datatorrent.benchmark.testbench;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
 import org.apache.hadoop.conf.Configuration;
@@ -28,6 +29,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 2.0.0
  */
+@ApplicationAnnotation(name = "RandomEventGeneratorApp")
 public class RandomEventGeneratorApp implements StreamingApplication
 {
   private final Locality locality = null;
