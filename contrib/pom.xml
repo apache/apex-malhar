@@ -536,6 +536,12 @@
       <artifactId>couchbase-client</artifactId>
       <version>1.4.4</version>
       <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpcore</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
     <dependency>
       <groupId>org.apache.hive</groupId>
@@ -571,17 +577,6 @@
       <artifactId>solr-core</artifactId>
       <version>4.10.1</version>
       <optional>true</optional>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpclient</artifactId>
-      <version>4.3.5</version>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
-      <version>4.3.2</version>
-      <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.couchbase.mock</groupId>
