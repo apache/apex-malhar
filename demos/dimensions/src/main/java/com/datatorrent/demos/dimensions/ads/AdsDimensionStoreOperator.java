@@ -261,20 +261,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   public void endWindow()
   {
-    // flush final aggregates
-    int expiredEntries = minuteCache.size() - maxCacheSize;
-    while(expiredEntries-- > 0){
-
-      Map<AdInfoAggregateEvent, AdInfoAggregateEvent> vals = minuteCache.remove(minuteCache.firstKey());
-      for (Entry<AdInfoAggregateEvent, AdInfoAggregateEvent> en : vals.entrySet()) {
-        AdInfoAggregateEvent ai = en.getValue();
-        try {
-          put(getBucketKey(ai), new Slice(getKey(ai)), getValue(ai));
-        } catch (IOException e) {
-          LOG.warn("Error putting the value", e);
-        }
-      }
-    }
+    flushCache(minuteCache);
+    flushCache(hourCache);
+    flushCache(dayCache);
 
     MutableBoolean done = new MutableBoolean(false);
 
@@ -295,6 +284,24 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
 
     queryProcessor.endWindow();
+  }
+
+  private void flushCache(SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache)
+  {
+    // flush final aggregates
+    int expiredEntries = cache.size() - maxCacheSize;
+    while(expiredEntries-- > 0){
+
+      Map<AdInfoAggregateEvent, AdInfoAggregateEvent> vals = cache.remove(cache.firstKey());
+      for (Entry<AdInfoAggregateEvent, AdInfoAggregateEvent> en : vals.entrySet()) {
+        AdInfoAggregateEvent ai = en.getValue();
+        try {
+          put(getBucketKey(ai), new Slice(getKey(ai)), getValue(ai));
+        } catch (IOException e) {
+          LOG.warn("Error putting the value", e);
+        }
+      }
+    }
   }
 
   @Override
@@ -625,6 +632,18 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       TimeUnit bucketUnit = AdInfo.BUCKET_TO_TIMEUNIT.get(prototype.bucket);
       Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
 
+      SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache = null;
+
+      if(prototype.bucket == AdInfo.MINUTE_BUCKET) {
+        cache = minuteCache;
+      }
+      else if(prototype.bucket == AdInfo.HOUR_BUCKET) {
+        cache = hourCache;
+      }
+      else if(prototype.bucket == AdInfo.DAY_BUCKET) {
+        cache = dayCache;
+      }
+
       boolean allSatisfied = true;
 
       for(long timestamp = adsQueryMeta.getBeginTime();
@@ -634,10 +653,10 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         HDSQuery hdsQuery = queryIt.next();
         prototype.setTimestamp(timestamp);
 
-        Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = minuteCache.get(timestamp);
+        Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = cache.get(timestamp);
 
         // TODO
-        // There is a race condition with retrieving from the minuteCache and doing
+        // There is a race condition with retrieving from the cache and doing
         // an hds query. If an hds query finishes for a key while it is in the minuteCache, but
         // then that key gets evicted from the minuteCache, then the value will never be retrieved.
         // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
