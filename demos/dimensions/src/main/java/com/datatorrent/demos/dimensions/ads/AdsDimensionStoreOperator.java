@@ -43,6 +43,7 @@ import com.datatorrent.lib.appdata.schemas.ads.AdsUpdateResult;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.SimpleDateFormat;
@@ -59,6 +60,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.SortedMap;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -636,12 +638,32 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       LOG.info("Processing query {}", query);
       AdsOneTimeResult result = null;
 
+      Set<String> fieldSet = null;
+
       if(query instanceof AdsOneTimeQuery) {
+        List<String> fields = ((AdsOneTimeQuery) query).getData().getFields();
+
+        if(fields != null) {
+          fieldSet = Sets.newHashSet(fields);
+        }
+        else {
+          fieldSet = Sets.newHashSet();
+        }
+
         AdsOneTimeResult aotr = new AdsOneTimeResult(query);
         result = aotr;
         aotr.setData(new ArrayList<AdsOneTimeResult.AdsOneTimeData>());
       }
       else if(query instanceof AdsUpdateQuery) {
+        List<String> fields = ((AdsUpdateQuery) query).getData().getFields();
+
+        if(fields != null) {
+          fieldSet = Sets.newHashSet(fields);
+        }
+        else {
+          fieldSet = Sets.newHashSet();
+        }
+
         AdsUpdateResult aur = new AdsUpdateResult(query);
         aur.setCountdown(queueContext.longValue());
         result = aur;
@@ -695,14 +717,14 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
           if(ae != null) {
             LOG.info("Adding from aggregation buffer {}" + ae);
-            AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
+            AdsOneTimeResult.AdsOneTimeData aotd = convert(fieldSet, ae);
             result.getData().add(aotd);
           }
         }
         else if(hdsQuery.processed) {
           if(hdsQuery.result != null) {
             AdInfo.AdInfoAggregateEvent ae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
-            AdsOneTimeResult.AdsOneTimeData aotd = convert(ae);
+            AdsOneTimeResult.AdsOneTimeData aotd = convert(fieldSet, ae);
 
             if(ae != null) {
               LOG.debug("Adding from hds");
@@ -738,17 +760,43 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       context.setValue(true);
     }
 
-    private AdsOneTimeResult.AdsOneTimeData convert(AdInfo.AdInfoAggregateEvent ae)
+    private AdsOneTimeResult.AdsOneTimeData convert(Set<String> fieldSet,
+                                                    AdInfo.AdInfoAggregateEvent ae)
     {
       AdsOneTimeResult.AdsOneTimeData aotd = new AdsOneTimeResult.AdsOneTimeData();
-      aotd.setTimeLong(ae.timestamp);
-      aotd.setAdvertiserId(ae.advertiserId);
-      aotd.setPublisherId(ae.publisherId);
-      aotd.setLocationId(ae.adUnit);
-      aotd.setImpressions(ae.impressions);
-      aotd.setClicks(ae.clicks);
-      aotd.setCost(ae.cost);
-      aotd.setRevenue(ae.revenue);
+
+      if(fieldSet.isEmpty() || fieldSet.contains(AdsSchemaResult.TIME)) {
+        aotd.setTimeLong(ae.timestamp);
+      }
+
+      if(fieldSet.isEmpty() || fieldSet.contains(AdsSchemaResult.ADVERTISER)) {
+        aotd.setAdvertiserId(ae.advertiserId);
+      }
+
+      if(fieldSet.isEmpty() || fieldSet.contains(AdsSchemaResult.PUBLISHER)) {
+        aotd.setPublisherId(ae.publisherId);
+      }
+
+      if(fieldSet.isEmpty() || fieldSet.contains(AdsSchemaResult.LOCATION)) {
+        aotd.setLocationId(ae.adUnit);
+      }
+
+      if(fieldSet.isEmpty() || fieldSet.contains(AdsSchemaResult.IMPRESSIONS)) {
+        aotd.setImpressions(ae.impressions);
+      }
+
+      if(fieldSet.isEmpty() || fieldSet.contains(AdsSchemaResult.CLICKS)) {
+        aotd.setClicks(ae.clicks);
+      }
+
+      if(fieldSet.isEmpty() || fieldSet.contains(AdsSchemaResult.COST)) {
+        aotd.setCost(ae.cost);
+      }
+
+      if(fieldSet.isEmpty() || fieldSet.contains(AdsSchemaResult.REVENUE)) {
+        aotd.setRevenue(ae.revenue);
+      }
+
       return aotd;
     }
   }

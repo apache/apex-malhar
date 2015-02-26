@@ -13,8 +13,12 @@ import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 import com.datatorrent.lib.appdata.schemas.SchemaValues;
 import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -30,11 +34,20 @@ public class AdsSchemaResult extends Result
   public static final String SCHEMA_VERSION = "1.0";
   public static final String[] BUCKETS = {"1m", "1h", "1d"};
   public static final String PUBLISHER = "publisher";
-  public static final String[] PUBLISHERS = {"twitter", "facebook", "yahoo", "google"};
+  public static final String[] PUBLISHERS = {"twitter", "facebook", "yahoo",
+                                             "google", "bing", "amazon"};
   public static final String ADVERTISER = "advertiser";
-  public static final String[] ADVERTISERS = {"starbucks", "safeway", "mcdonalds", "macys"};
+  public static final String[] ADVERTISERS = {"starbucks", "safeway", "mcdonalds",
+                                              "macys", "taco bell", "walmart", "khol's",
+                                              "san diego zoo", "pandas", "jack in the box",
+                                              "tomatina", "ron swanson"};
   public static final String LOCATION = "location";
-  public static final String[] LOCATIONS = {"N", "LREC", "SKY"};
+  public static final String[] LOCATIONS = {"N", "LREC", "SKY",
+                                            "AL", "AK", "AZ",
+                                            "AR", "CA", "CO",
+                                            "CT", "DE", "FL",
+                                            "GA", "HI", "ID"};
+  public static final String TIME = "time";
   public static final String IMPRESSIONS = "impressions";
   public static final String IMPRESSIONS_TYPE = "integer";
   public static final String CLICKS = "clicks";
@@ -45,6 +58,23 @@ public class AdsSchemaResult extends Result
   public static final String REVENUE_TYPE = "float";
   public static final String FROM = "2015-01-01 00:00:00";
   public static final String TO = "2015-12-31 23:59:59";
+
+  public static final Set<String> FIELDS;
+
+  static {
+    Set<String> fields = Sets.newHashSet();
+
+    fields.add(ADVERTISER);
+    fields.add(PUBLISHER);
+    fields.add(LOCATION);
+    fields.add(TIME);
+    fields.add(IMPRESSIONS);
+    fields.add(CLICKS);
+    fields.add(COST);
+    fields.add(REVENUE);
+
+    FIELDS = Collections.unmodifiableSet(fields);
+  }
 
   private AdsSchemaData data;
 
