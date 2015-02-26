@@ -28,6 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
 import kafka.message.Message;
 
 import javax.validation.constraints.NotNull;
@@ -38,7 +39,11 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.datatorrent.api.Context;
+import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
+import com.esotericsoftware.kryo.serializers.JavaSerializer;
+import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.SetMultimap;
 
 /**
  * Base Kafka Consumer class used by kafka input operator
@@ -62,10 +67,10 @@ public abstract class KafkaConsumer implements Closeable
     this.topic = topic;
   }
 
-  public KafkaConsumer(Set<String> brokerSet, String topic)
+  public KafkaConsumer(SetMultimap<String, String> zks, String topic)
   {
     this.topic = topic;
-    this.brokerSet = brokerSet;
+    this.zookeeper = zks;
   }
 
   private int cacheSize = 1024;
@@ -81,12 +86,14 @@ public abstract class KafkaConsumer implements Closeable
   protected String topic = "default_topic";
 
   /**
-   * A broker list to retrieve the metadata for the consumer
-   * This property could be null
-   * But it's mandatory for dynamic partition and fail-over
+   * A zookeeper map keyed by cluster id
+   * It's mandatory field
    */
   @NotNull
-  protected Set<String> brokerSet;
+  @Bind(JavaSerializer.class)
+  protected SetMultimap<String, String> zookeeper;
+  
+  protected transient SetMultimap<String, String> brokers;
 
 
   /**
@@ -108,8 +115,24 @@ public abstract class KafkaConsumer implements Closeable
    * This method is called in setup method of the operator
    */
   public void create(){
+    initBrokers();
     holdingBuffer = new ArrayBlockingQueue<Message>(cacheSize);
+
   };
+  
+  public void initBrokers()
+  {
+    if(brokers!=null){
+      return ;
+    }
+    if(zookeeper!=null){
+      brokers = HashMultimap.create();
+      for (String clusterId: zookeeper.keySet()) {
+        brokers.putAll(clusterId, KafkaMetadataUtil.getBrokers(zookeeper.get(clusterId)));
+      }
+    }
+    
+  }
 
   /**
    * This method is called in the activate method of the operator
@@ -167,14 +190,14 @@ public abstract class KafkaConsumer implements Closeable
     return holdingBuffer.size();
   }
 
-  public void setBrokerSet(Set<String> brokerSet)
+  public void setZookeeper(SetMultimap<String, String> zks)
   {
-    this.brokerSet = brokerSet;
+    this.zookeeper = zks;
   }
 
-  public Set<String> getBrokerSet()
+  public SetMultimap<String, String> getZookeeper()
   {
-    return brokerSet;
+    return zookeeper;
   }
 
   public void setInitialOffset(String initialOffset)
@@ -198,20 +221,20 @@ public abstract class KafkaConsumer implements Closeable
   }
 
 
-  final protected void putMessage(int partition, Message msg) throws InterruptedException{
+  final protected void putMessage(KafkaPartition partition, Message msg) throws InterruptedException{
     // block from receiving more message
     holdingBuffer.put(msg);
     statsSnapShot.mark(partition, msg.payloadSize());
   };
 
 
-  protected abstract KafkaConsumer cloneConsumer(Set<Integer> partitionIds);
+  protected abstract KafkaConsumer cloneConsumer(Set<KafkaPartition> kps);
 
-  protected abstract KafkaConsumer cloneConsumer(Set<Integer> partitionIds, Map<Integer, Long> startOffset);
+  protected abstract KafkaConsumer cloneConsumer(Set<KafkaPartition> kps, Map<KafkaPartition, Long> startOffset);
 
   protected abstract void commitOffset();
 
-  protected abstract Map<Integer, Long> getCurrentOffsets();
+  protected abstract Map<KafkaPartition, Long> getCurrentOffsets();
 
   public KafkaMeterStats getConsumerStats()
   {
@@ -230,7 +253,7 @@ public abstract class KafkaConsumer implements Closeable
     /**
      * A compact partition counter. The data collected for each partition is 4bytes brokerId + 1byte connected + 8bytes msg/s + 8bytes bytes/s + 8bytes offset
      */
-    public ConcurrentHashMap<Integer, PartitionStats> partitionStats = new ConcurrentHashMap<Integer, PartitionStats>();
+    public ConcurrentHashMap<KafkaPartition, PartitionStats> partitionStats = new ConcurrentHashMap<KafkaPartition, PartitionStats>();
 
 
     /**
@@ -246,9 +269,9 @@ public abstract class KafkaConsumer implements Closeable
 
     }
 
-    public void set_1minMovingAvgPerPartition(int pid, long[] _1minAvgPar)
+    public void set_1minMovingAvgPerPartition(KafkaPartition kp, long[] _1minAvgPar)
     {
-      PartitionStats ps = putPartitionStatsIfNotPresent(pid);
+      PartitionStats ps = putPartitionStatsIfNotPresent(kp);
       ps.msgsPerSec = _1minAvgPar[0];
       ps.bytesPerSec = _1minAvgPar[1];
     }
@@ -259,8 +282,8 @@ public abstract class KafkaConsumer implements Closeable
       totalBytesPerSec = _1minAvg[1];
     }
 
-    public void updateOffsets(Map<Integer, Long> offsets){
-      for (Entry<Integer, Long> os : offsets.entrySet()) {
+    public void updateOffsets(Map<KafkaPartition, Long> offsets){
+      for (Entry<KafkaPartition, Long> os : offsets.entrySet()) {
         PartitionStats ps = putPartitionStatsIfNotPresent(os.getKey());
         ps.offset = os.getValue();
       }
@@ -277,18 +300,19 @@ public abstract class KafkaConsumer implements Closeable
       return r;
     }
 
-    public void updatePartitionStats(int partitionId,int brokerId, String host)
+    public void updatePartitionStats(KafkaPartition kp,int brokerId, String host)
     {
-      PartitionStats ps = putPartitionStatsIfNotPresent(partitionId);
+      PartitionStats ps = putPartitionStatsIfNotPresent(kp);
       ps.brokerHost = host;
       ps.brokerId = brokerId;
     }
+    
+    private synchronized PartitionStats putPartitionStatsIfNotPresent(KafkaPartition kp){
+      PartitionStats ps = partitionStats.get(kp);
 
-    private synchronized PartitionStats putPartitionStatsIfNotPresent(int pid){
-      PartitionStats ps = partitionStats.get(pid);
       if (ps == null) {
         ps = new PartitionStats();
-        partitionStats.put(pid, ps);
+        partitionStats.put(kp, ps);
       }
       return ps;
     }
@@ -296,21 +320,21 @@ public abstract class KafkaConsumer implements Closeable
 
   public static class KafkaMeterStatsUtil {
 
-    public static Map<Integer, Long> getOffsetsForPartitions(List<KafkaMeterStats> kafkaMeterStats)
+    public static Map<KafkaPartition, Long> getOffsetsForPartitions(List<KafkaMeterStats> kafkaMeterStats)
     {
-      Map<Integer, Long> result = Maps.newHashMap();
+      Map<KafkaPartition, Long> result = Maps.newHashMap();
       for (KafkaMeterStats kms : kafkaMeterStats) {
-        for (Entry<Integer, PartitionStats> item : kms.partitionStats.entrySet()) {
+        for (Entry<KafkaPartition, PartitionStats> item : kms.partitionStats.entrySet()) {
           result.put(item.getKey(), item.getValue().offset);
         }
       }
       return result;
     }
 
-    public static Map<Integer, long[]> get_1minMovingAvgParMap(KafkaMeterStats kafkaMeterStats)
+    public static Map<KafkaPartition, long[]> get_1minMovingAvgParMap(KafkaMeterStats kafkaMeterStats)
     {
-      Map<Integer, long[]> result = Maps.newHashMap();
-      for (Entry<Integer, PartitionStats> item : kafkaMeterStats.partitionStats.entrySet()) {
+      Map<KafkaPartition, long[]> result = Maps.newHashMap();
+      for (Entry<KafkaPartition, PartitionStats> item : kafkaMeterStats.partitionStats.entrySet()) {
         result.put(item.getKey(), new long[]{item.getValue().msgsPerSec, item.getValue().bytesPerSec});
       }
       return result;
@@ -374,12 +398,12 @@ public abstract class KafkaConsumer implements Closeable
     /**
      * 1 min total msg number for each partition
      */
-    private final Map<Integer, long[]> _1_min_msg_sum_par = new HashMap<Integer, long[]>();
+    private final Map<KafkaPartition, long[]> _1_min_msg_sum_par = new HashMap<KafkaPartition, long[]>();
 
     /**
      * 1 min total byte number for each partition
      */
-    private final Map<Integer, long[]> _1_min_byte_sum_par = new HashMap<Integer, long[]>();
+    private final Map<KafkaPartition, long[]> _1_min_byte_sum_par = new HashMap<KafkaPartition, long[]>();
 
     private static int cursor = 0;
 
@@ -404,7 +428,7 @@ public abstract class KafkaConsumer implements Closeable
       bytesSec[60] -= bytesSec[cursor];
       msgSec[cursor] = 0;
       bytesSec[cursor] = 0;
-      for (Entry<Integer, long[]> item : _1_min_msg_sum_par.entrySet()) {
+      for (Entry<KafkaPartition, long[]> item : _1_min_msg_sum_par.entrySet()) {
         long[] msgv = item.getValue();
         long[] bytesv = _1_min_byte_sum_par.get(item.getKey());
         msgv[60] -= msgv[cursor];
@@ -437,7 +461,7 @@ public abstract class KafkaConsumer implements Closeable
       }
     }
 
-    public synchronized void mark(int partition, long bytes){
+    public synchronized void mark(KafkaPartition partition, long bytes){
       msgSec[cursor]++;
       msgSec[60]++;
       bytesSec[cursor] += bytes;
@@ -458,7 +482,7 @@ public abstract class KafkaConsumer implements Closeable
 
     public synchronized void setupStats(KafkaMeterStats stat){
       long[] _1minAvg = {msgSec[60]/last, bytesSec[60]/last};
-      for (Entry<Integer, long[]> item : _1_min_msg_sum_par.entrySet()) {
+      for (Entry<KafkaPartition, long[]> item : _1_min_msg_sum_par.entrySet()) {
         long[] msgv =item.getValue();
         long[] bytev = _1_min_byte_sum_par.get(item.getKey());
         long[] _1minAvgPar = {msgv[60]/last, bytev[60]/last};

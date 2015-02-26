@@ -18,12 +18,10 @@ package com.datatorrent.contrib.kafka;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -45,6 +43,8 @@ import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator.PartitionStrategy;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 
 public class OffsetManagerTest extends KafkaOperatorTestBase
 {
@@ -64,7 +64,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
 
   public static class TestOffsetManager implements OffsetManager{
 
-    private final transient Map<Integer, Long> offsets = Collections.synchronizedMap(new HashMap<Integer, Long>());
+    private final transient Map<KafkaPartition, Long> offsets = Collections.synchronizedMap(new HashMap<KafkaPartition, Long>());
 
     private String filename = null;
 
@@ -78,15 +78,17 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     }
 
     @Override
-    public Map<Integer, Long> loadInitialOffsets()
+    public Map<KafkaPartition, Long> loadInitialOffsets()
     {
-      offsets.put(0, 10l);
-      offsets.put(1, 10l);
+      KafkaPartition kp0 = new KafkaPartition(TEST_TOPIC, 0);
+      KafkaPartition kp1 = new KafkaPartition(TEST_TOPIC, 1);
+      offsets.put(kp0, 10l);
+      offsets.put(kp1, 10l);
       return offsets;
     }
 
     @Override
-    public void updateOffsets(Map<Integer, Long> offsetsOfPartitions)
+    public void updateOffsets(Map<KafkaPartition, Long> offsetsOfPartitions)
     {
 
       offsets.putAll(offsetsOfPartitions);
@@ -95,7 +97,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
         Path tmpFile = new Path(filename + ".tmp");
         Path dataFile = new Path(filename);
         FSDataOutputStream out = fs.create(tmpFile, true);
-        for (Entry<Integer, Long> e : offsets.entrySet()) {
+        for (Entry<KafkaPartition, Long> e : offsets.entrySet()) {
           out.writeBytes(e.getKey() +", " + e.getValue() + "\n");
         }
         out.close();
@@ -112,8 +114,8 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
       if (latch.getCount() == 1) {
         // when latch is 1, it means consumer has consumed all the messages
         int count = 0;
-        for (Entry<Integer, Long> entry : offsets.entrySet()) {
-          count += entry.getValue();
+        for (long entry : offsets.values()) {
+          count += entry;
         }
         if (count == totalCount + 2) {
           // wait until all offsets add up to totalCount messages + 2 control END_TUPLE
@@ -234,11 +236,10 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
 
     //set topic
     consumer.setTopic(TEST_TOPIC);
-    //set the brokerlist used to initialize the partition
-    Set<String> brokerSet =  new HashSet<String>();
-    brokerSet.add("localhost:9092");
-    brokerSet.add("localhost:9093");
-    consumer.setBrokerSet(brokerSet);
+    //set the zookeeper list used to initialize the partition
+    SetMultimap<String, String> zookeeper = HashMultimap.create();
+    zookeeper.put(KafkaPartition.DEFAULT_CLUSTERID, "localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
+    consumer.setZookeeper(zookeeper);
     consumer.setInitialOffset("earliest");
 
     node.setConsumer(consumer);

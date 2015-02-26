@@ -29,6 +29,9 @@ import kafka.producer.ProducerConfig;
 
 import javax.validation.constraints.Min;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.InputOperator;
@@ -48,6 +51,8 @@ import com.datatorrent.api.Partitioner;
 public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<BenchmarkPartitionableKafkaOutputOperator>, InputOperator, ActivationListener<OperatorContext>
 {
 
+  private static final Logger logger = LoggerFactory.getLogger(BenchmarkPartitionableKafkaOutputOperator.class);
+  
   private String topic = "benchmark";
 
   @Min(1)
@@ -77,6 +82,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
     @Override
     public void run()
     {
+      logger.info("Start produce data .... ");
       Properties props = new Properties();
       props.setProperty("serializer.class", "kafka.serializer.StringEncoder");
       props.setProperty("key.serializer.class", "kafka.serializer.StringEncoder");
@@ -85,7 +91,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
       props.setProperty("partitioner.class", KafkaTestPartitioner.class.getCanonicalName());
       props.setProperty("producer.type", "async");
 //      props.setProperty("send.buffer.bytes", "1048576");
-      props.setProperty("topic.metadata.refresh.interval.ms", "100000");
+      props.setProperty("topic.metadata.refresh.interval.ms", "10000");
 
       if (producer == null) {
         producer = new Producer<String, String>(new ProducerConfig(props));
@@ -164,6 +170,7 @@ public class BenchmarkPartitionableKafkaOutputOperator implements Partitioner<Be
   public void activate(OperatorContext arg0)
   {
 
+    logger.info("Activate the benchmark kafka output operator .... ");
     constantMsg = new byte[msgSize];
     for (int i = 0; i < constantMsg.length; i++) {
       constantMsg[i] = (byte) ('a' + i%26);
