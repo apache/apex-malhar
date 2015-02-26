@@ -6,14 +6,14 @@
 package com.datatorrent.lib.appdata.schemas.ads;
 
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
-import com.datatorrent.lib.appdata.schemas.TimeSeriesTabularOneTimeQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaTestUtils;
+import com.datatorrent.lib.appdata.schemas.TimeSeriesTabularOneTimeQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
 /**
  *
@@ -65,19 +65,19 @@ public class AdsSchemaResultTest
       "\"timeBuckets\":{" +
       "\"from\":\"" + fromTime + "\"," +
       "\"to\":\"" + toTime + "\"," +
-      "\"buckets\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(buckets, "\""), ",") +"]" +
+      "\"buckets\":[" + StringUtils.join(SchemaTestUtils.wrap(buckets, "\""), ",") +"]" +
       "}," +
     "\"keys\":[" + "{" +
       "\"name\":\"publisher\"," +
-      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(publishers, "\""), ",") + "]" +
+      "\"keyValues\":[" + StringUtils.join(SchemaTestUtils.wrap(publishers, "\""), ",") + "]" +
     "}," +
     "{" +
       "\"name\":\"advertiser\"," +
-      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(advertisers, "\""), ",") + "]" +
+      "\"keyValues\":[" + StringUtils.join(SchemaTestUtils.wrap(advertisers, "\""), ",") + "]" +
     "}," +
     "{" +
       "\"name\":\"location\"," +
-      "\"keyValues\":[" + StringUtils.arrayToDelimitedString(SchemaTestUtils.wrap(locations, "\""), ",") + "]" +
+      "\"keyValues\":[" + StringUtils.join(SchemaTestUtils.wrap(locations, "\""), ",") + "]" +
     "}" +
     "]," +
     "\"values\":[" +
