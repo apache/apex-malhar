@@ -490,6 +490,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     for (int j = 0; j < length; j++) {
       Map<KafkaPartition, long[]> kPIntakeRate = new HashMap<KafkaPartition, long[]>();
       for (Integer pid : kafkaStatsHolder.keySet()) {
+        if(kafkaStatsHolder.get(pid).size() <= j)
+          continue;
         kPIntakeRate.putAll(get_1minMovingAvgParMap(kafkaStatsHolder.get(pid).get(j)));
       }
       if (kPIntakeRate.size() == 0) {
