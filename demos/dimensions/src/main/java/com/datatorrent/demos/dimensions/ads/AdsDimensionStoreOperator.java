@@ -201,10 +201,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     AdInfoAggregateEvent dayEvent = new AdInfoAggregateEvent(event,
                                                              AdInfoAggregateEvent.DAY_BUCKET);
     processToBucket(minuteEvent, minuteCache);
-
-    String timeString = AdsTimeRangeBucket.sdf.format(new Date(hourEvent.getTimestamp()));
-    LOG.info("{}", timeString);
-    
     processToBucket(hourEvent, hourCache);
     processToBucket(dayEvent, dayCache);
   }
@@ -645,12 +641,14 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
 
       SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache = null;
+      boolean hour = false;
 
       if(prototype.bucket == AdInfo.MINUTE_BUCKET) {
         LOG.info("Minute bucket");
         cache = minuteCache;
       }
       else if(prototype.bucket == AdInfo.HOUR_BUCKET) {
+        hour = true;
         LOG.info("Hour bucket");
         cache = hourCache;
       }
@@ -676,6 +674,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         // then that key gets evicted from the minuteCache, then the value will never be retrieved.
         // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
         if(buffered != null) {
+          LOG.info("query prototype: {}", prototype);
           AdInfo.AdInfoAggregateEvent ae = buffered.get(prototype);
 
           if(ae != null) {
