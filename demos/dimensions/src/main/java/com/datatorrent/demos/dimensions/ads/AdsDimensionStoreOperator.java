@@ -113,7 +113,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   };
 
   private transient final ByteBuffer valbb = ByteBuffer.allocate(8 * 4);
-  private transient final ByteBuffer keybb = ByteBuffer.allocate(8 + 4 * 3);
+  private transient final ByteBuffer keybb = ByteBuffer.allocate(8 + 4 * 4);
   protected boolean debug = false;
 
   protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
@@ -315,13 +315,13 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       return keyBuilder.toString().getBytes();
     }
 
-    byte[] data = new byte[8 + 4 * 3 + 1];
+    byte[] data = new byte[8 + 4 * 4];
     keybb.rewind();
     keybb.putLong(event.getTimestamp());
     keybb.putInt(event.getPublisherId());
     keybb.putInt(event.getAdvertiserId());
     keybb.putInt(event.getAdUnit());
-    keybb.put(event.getBucket());
+    keybb.putInt(event.getBucket());
     keybb.rewind();
     keybb.get(data);
     //LOG.debug("Value: {}", event);
@@ -392,7 +392,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     ae.publisherId = bb.getInt();
     ae.advertiserId = bb.getInt();
     ae.adUnit = bb.getInt();
-    ae.bucket = bb.get();
+    ae.bucket = bb.getInt();
 
     bb = ByteBuffer.wrap(value);
     ae.clicks = bb.getLong();
@@ -438,7 +438,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       ae.publisherId = bb.getInt();
       ae.advertiserId = bb.getInt();
       ae.adUnit = bb.getInt();
-      ae.bucket = bb.get();
+      ae.bucket = bb.getInt();
 
       bb = ByteBuffer.wrap(value);
       ae.clicks = bb.getLong();
@@ -488,7 +488,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       long endTime = -1L;
       long startTime = -1L;
       TimeUnit bucketUnit = null;
-      byte bucket = 0;
+      int bucket = 0;
 
       if(query instanceof AdsOneTimeQuery) {
         AdsOneTimeQuery aotq = (AdsOneTimeQuery) query;

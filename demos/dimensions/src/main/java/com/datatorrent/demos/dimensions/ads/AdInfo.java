@@ -32,15 +32,15 @@ import java.util.concurrent.TimeUnit;
  */
 public class AdInfo implements Serializable, Cloneable
 {
-  public static final byte MINUTE_BUCKET = 0;
-  public static final byte HOUR_BUCKET = 1;
-  public static final byte DAY_BUCKET = 2;
+  public static final int MINUTE_BUCKET = 0;
+  public static final int HOUR_BUCKET = 1;
+  public static final int DAY_BUCKET = 2;
 
-  public static final Map<String, Byte> BUCKET_NAME_TO_INDEX;
+  public static final Map<String, Integer> BUCKET_NAME_TO_INDEX;
 
   static
   {
-    Map<String, Byte> bucketNameToIndex = Maps.newHashMap();
+    Map<String, Integer> bucketNameToIndex = Maps.newHashMap();
     bucketNameToIndex.put(AdsSchemaResult.BUCKETS[0], MINUTE_BUCKET);
     bucketNameToIndex.put(AdsSchemaResult.BUCKETS[1], HOUR_BUCKET);
     bucketNameToIndex.put(AdsSchemaResult.BUCKETS[2], DAY_BUCKET);
@@ -48,11 +48,11 @@ public class AdInfo implements Serializable, Cloneable
     BUCKET_NAME_TO_INDEX = Collections.unmodifiableMap(bucketNameToIndex);
   }
 
-  public static final Map<Byte, TimeUnit> BUCKET_TO_TIMEUNIT;
+  public static final Map<Integer, TimeUnit> BUCKET_TO_TIMEUNIT;
 
   static
   {
-    Map<Byte, TimeUnit> bucketToTimeunit = Maps.newHashMap();
+    Map<Integer, TimeUnit> bucketToTimeunit = Maps.newHashMap();
     bucketToTimeunit.put(MINUTE_BUCKET, TimeUnit.MINUTES);
     bucketToTimeunit.put(HOUR_BUCKET, TimeUnit.HOURS);
     bucketToTimeunit.put(DAY_BUCKET, TimeUnit.DAYS);
@@ -70,14 +70,14 @@ public class AdInfo implements Serializable, Cloneable
   double revenue;
   long impressions;
   long clicks;
-  byte bucket;
+  int bucket;
 
   public AdInfo()
   {
   }
 
   public AdInfo(AdInfo ai,
-                byte bucket)
+                int bucket)
   {
     this.publisherId = ai.publisherId;
     this.advertiserId = ai.advertiserId;
@@ -292,7 +292,7 @@ public class AdInfo implements Serializable, Cloneable
   /**
    * @return the bucket
    */
-  public byte getBucket()
+  public int getBucket()
   {
     return bucket;
   }
@@ -300,7 +300,7 @@ public class AdInfo implements Serializable, Cloneable
   /**
    * @param bucket the bucket to set
    */
-  public void setBucket(byte bucket)
+  public void setBucket(int bucket)
   {
     this.bucket = bucket;
   }
@@ -503,14 +503,14 @@ public class AdInfo implements Serializable, Cloneable
 
 
     public AdInfoAggregateEvent(AdInfoAggregateEvent ai,
-                                byte bucket)
+                                int bucket)
     {
       super(ai, bucket);
       this.aggregatorIndex = ai.aggregatorIndex;
     }
 
     public AdInfoAggregateEvent(AdInfoAggregateEvent ai,
-                                byte bucket,
+                                int bucket,
                                 int aggregatorIndex)
     {
       super(ai, bucket);
