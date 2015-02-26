@@ -201,6 +201,10 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     AdInfoAggregateEvent dayEvent = new AdInfoAggregateEvent(event,
                                                              AdInfoAggregateEvent.DAY_BUCKET);
     processToBucket(minuteEvent, minuteCache);
+
+    String timeString = AdsTimeRangeBucket.sdf.format(new Date(hourEvent.getTimestamp()));
+    LOG.info("{}", timeString);
+    
     processToBucket(hourEvent, hourCache);
     processToBucket(dayEvent, dayCache);
   }
@@ -510,14 +514,17 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         endTime = atrb.getToLong();
 
         if(bucket == AdInfo.MINUTE_BUCKET) {
+          LOG.info("Minute bucket");
           startTime = AdInfo.roundMinute(startTime);
           endTime = AdInfo.roundMinuteUp(endTime);
         }
         else if(bucket == AdInfo.HOUR_BUCKET) {
+          LOG.info("Hour bucket");
           startTime = AdInfo.roundHour(startTime);
           endTime = AdInfo.roundHourUp(endTime);
         }
         else if(bucket == AdInfo.DAY_BUCKET) {
+          LOG.info("Day bucket");
           startTime = AdInfo.roundDay(startTime);
           endTime = AdInfo.roundDayUp(endTime);
         }
@@ -547,6 +554,11 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
                                                 query.getClass() +
                                                 " is not supported.");
       }
+
+      String startString = AdsTimeRangeBucket.sdf.format(new Date(startTime));
+      String endString = AdsTimeRangeBucket.sdf.format(new Date(endTime));
+
+      LOG.info("start {}, end {}", startString, endString);
 
       ae.setTimestamp(startTime);
       ae.adUnit = aks.getLocationId();
@@ -635,12 +647,15 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache = null;
 
       if(prototype.bucket == AdInfo.MINUTE_BUCKET) {
+        LOG.info("Minute bucket");
         cache = minuteCache;
       }
       else if(prototype.bucket == AdInfo.HOUR_BUCKET) {
+        LOG.info("Hour bucket");
         cache = hourCache;
       }
       else if(prototype.bucket == AdInfo.DAY_BUCKET) {
+        LOG.info("Day bucket");
         cache = dayCache;
       }
 

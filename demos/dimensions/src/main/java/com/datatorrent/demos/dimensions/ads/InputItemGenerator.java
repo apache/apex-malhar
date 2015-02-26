@@ -146,7 +146,7 @@ public class InputItemGenerator implements InputOperator
         advertiserId++;
         publisherId++;
         adUnit++;
-        timestamp = (System.currentTimeMillis() / 60000) * 60000;
+        timestamp = System.currentTimeMillis();
 
         if(i == blastCount - 1) {
           logger.info("advertiserId {}, publisherId {}, addUnit {}, timestamp {}",
