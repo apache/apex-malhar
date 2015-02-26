@@ -99,6 +99,8 @@ public class AdInfo implements Serializable, Cloneable
     else {
       throw new IllegalArgumentException("Not a valid bucket.");
     }
+
+    this.bucket = bucket;
   }
 
   public Integer getPublisherId()

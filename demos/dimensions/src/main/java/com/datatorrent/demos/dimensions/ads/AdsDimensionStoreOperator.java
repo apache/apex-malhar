@@ -208,12 +208,14 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   private void processToBucket(AdInfoAggregateEvent event,
                                SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache)
   {
+    /*
     if(event.advertiserId == 1 &&
        event.publisherId == 4 &&
        event.adUnit == 3) {
       LOG.info("desired tuple {} ",
                AdsTimeRangeBucket.sdf.format(new Date(event.getTimestamp())));
     }
+    */
 
     Map<AdInfoAggregateEvent, AdInfoAggregateEvent> valMap = cache.get(event.getTimestamp());
 
