@@ -55,7 +55,7 @@
     <description>Filepath</description>
   </property>
   <property>
-    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveMapInsertOperator.tablename</name>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename</name>
     <value>tempMap</value>
     <description>tablename for insert map</description>
   </property>
@@ -80,7 +80,7 @@
     <description>Test database connector string.</description>
   </property>
   <property>
-    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingMapFsWriter.maxLength</name>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.maxLength</name>
     <value>512</value>
     <description>Max Length</description>
   </property>

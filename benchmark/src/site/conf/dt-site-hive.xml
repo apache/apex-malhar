@@ -68,4 +68,8 @@
     <value>512</value>
     <description>Max Length</description>
   </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.delimiter</name>
+    <value>:</value>
+  </property>
 </configuration>

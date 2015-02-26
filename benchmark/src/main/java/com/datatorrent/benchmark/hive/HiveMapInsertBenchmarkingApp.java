@@ -97,9 +97,8 @@ public class HiveMapInsertBenchmarkingApp implements StreamingApplication
     hiveStore.disconnect();
   }
 
-  private static class FSRollingMapTestImpl extends AbstractFSRollingOutputOperator<Map<String, Object>>
+  public static class FSRollingMapTestImpl extends AbstractFSRollingOutputOperator<Map<String, Object>>
   {
-    @NotNull
     public String delimiter = ":";
 
     public String getDelimiter()
