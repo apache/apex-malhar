@@ -1,9 +1,7 @@
 package com.datatorrent.contrib.kafka;
 
+import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.io.Input;
-import com.esotericsoftware.kryo.io.Output;
-import java.io.ByteArrayOutputStream;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -11,7 +9,7 @@ public class SimpleKakfaConsumerTest
 {
 
   @Test
-  public void cloneTest()
+  public void cloneTest() throws Exception
   {
     SimpleKafkaConsumer kc = new SimpleKafkaConsumer();
     int bufferSize = 1000;
@@ -23,13 +21,7 @@ public class SimpleKakfaConsumerTest
     kc.setTopic("test_topic");
     kc.setClientId("test_clientid");
 
-    Kryo kryo = new Kryo();
-    ByteArrayOutputStream bos = new ByteArrayOutputStream();
-    Output output = new Output(bos);
-    kryo.writeObject(output, kc);
-    output.close();
-    Input lInput = new Input(bos.toByteArray());
-    SimpleKafkaConsumer kcClone = (SimpleKafkaConsumer)(kryo.readObject(lInput, kc.getClass()));
+    SimpleKafkaConsumer kcClone = TestUtils.clone(new Kryo(), kc);
     Assert.assertEquals("Buffer size is " + bufferSize, bufferSize, kcClone.getBufferSize());
     Assert.assertEquals("Cache size is " + cacheSize, cacheSize, kcClone.getCacheSize());
     Assert.assertEquals("Clint id is same", kc.getClientId(), kcClone.getClientId());

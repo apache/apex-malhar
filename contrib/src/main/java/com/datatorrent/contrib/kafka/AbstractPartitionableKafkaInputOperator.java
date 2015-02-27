@@ -280,8 +280,8 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     return newPartitions;
   }
 
-  // Create a new partition with the shardIds and initial shard positions
-  private
+  // Create a new partition with the partition Ids and initial offset positions
+  protected
   Partition<AbstractPartitionableKafkaInputOperator> createPartition(Set<KafkaPartition> pIds, Map<KafkaPartition, Long> initOffsets)
   {
     Kryo kryo = new Kryo();
