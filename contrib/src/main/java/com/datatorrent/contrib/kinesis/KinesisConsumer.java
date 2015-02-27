@@ -29,11 +29,8 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Pattern.Flag;
 import java.io.Closeable;
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -105,7 +102,7 @@ public class KinesisConsumer implements Closeable
     boolean defaultSelect = (shardIds == null) || (shardIds.size() == 0);
     final List<Shard> pms = KinesisUtil.getInstance().getShardList(streamName);
     for (final Shard shId: pms) {
-      if((shardIds.contains(shId.getShardId()) || defaultSelect) && !closedShards.contains(shId.getShardId())) {
+      if((shardIds.contains(shId.getShardId()) || defaultSelect) && !closedShards.contains(shId)) {
         simpleConsumerThreads.add(shId);
       }
     }
@@ -142,7 +139,7 @@ public class KinesisConsumer implements Closeable
             Shard shard = shd;
             try {
               List<Record> records = KinesisUtil.getInstance().getRecords(streamName, recordsLimit,
-                  shard, getIteratorType(shard.getShardId()), shardPosition.get(shard.getShardId()));
+                  shard.getShardId(), getIteratorType(shard.getShardId()), shardPosition.get(shard.getShardId()));
 
               if (records == null || records.isEmpty()) {
                 if (shard.getSequenceNumberRange().getEndingSequenceNumber() != null) {
@@ -160,7 +157,7 @@ public class KinesisConsumer implements Closeable
                     seqNo = rc.getSequenceNumber();
                     putRecord(shd.getShardId(), rc);
                 }
-                shardPosition.put(shard.getShardId(), new String(seqNo));
+                shardPosition.put(shard.getShardId(), seqNo);
               }
             } catch(Exception e)
             {
@@ -302,6 +299,7 @@ public class KinesisConsumer implements Closeable
   {
     this.bufferSize = bufferSize;
   }
+
 
   /**
    * Counter class which gives the statistic value from the consumer

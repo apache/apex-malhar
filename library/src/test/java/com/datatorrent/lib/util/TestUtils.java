@@ -17,14 +17,16 @@ package com.datatorrent.lib.util;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.util.List;
 
 import org.junit.rules.TestWatcher;
 
-import com.datatorrent.api.Operator.OutputPort;
-import com.datatorrent.api.Sink;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Operator.OutputPort;
 
 public class TestUtils
 {
@@ -44,7 +46,7 @@ public class TestUtils
     {
       this.desc = description;
     }
-  };
+  }
 
   /**
    * Clone object by serializing and deserializing using Kryo.
@@ -73,5 +75,76 @@ public class TestUtils
      return sink;
   }
 
+  /**
+   * A mock batched operator stats used for testing stats listener and partitioner.
+   */
+  public static class MockBatchedOperatorStats implements StatsListener.BatchedOperatorStats
+  {
+
+    final int operatorId;
+    public List<Stats.OperatorStats> operatorStats;
+
+    public MockBatchedOperatorStats(int operatorId)
+    {
+      this.operatorId = operatorId;
+    }
+
+    @Override
+    public List<Stats.OperatorStats> getLastWindowedStats()
+    {
+      return operatorStats;
+    }
+
+    @Override
+    public int getOperatorId()
+    {
+      return operatorId;
+    }
+
+    @Override
+    public long getCurrentWindowId()
+    {
+      return 0;
+    }
+
+    @Override
+    public long getTuplesProcessedPSMA()
+    {
+      return 0;
+    }
+
+    @Override
+    public long getTuplesEmittedPSMA()
+    {
+      return 0;
+    }
+
+    @Override
+    public double getCpuPercentageMA()
+    {
+      return 0;
+    }
+
+    @Override
+    public long getLatencyMA()
+    {
+      return 0;
+    }
+  }
+
+  /**
+   * A mock {@link DefaultPartition}
+   *
+   * @param <T> operator type
+   */
+  public static class MockPartition<T extends Operator> extends DefaultPartition<T>
+  {
+
+    public MockPartition(DefaultPartition<T> defaultPartition, MockBatchedOperatorStats stats)
+    {
+      super(defaultPartition.getPartitionedInstance(), defaultPartition.getPartitionKeys(),
+        defaultPartition.getLoad(), stats);
+    }
+  }
 
 }

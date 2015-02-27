@@ -27,12 +27,16 @@ import org.junit.Test;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotEquals;
 
 public class ShardManagerTest extends KinesisOperatorTestBase
 {
@@ -49,7 +53,7 @@ public class ShardManagerTest extends KinesisOperatorTestBase
   static final String OFFSET_FILE = ".offset";
 
 
-  public static class TestShardManager extends ShardManager{
+  public static class TestShardManager extends ShardManager {
 
 
     private String filename = null;
@@ -195,6 +199,8 @@ public class ShardManagerTest extends KinesisOperatorTestBase
 
     // Create KinesisSinglePortStringInputOperator
     KinesisStringInputOperator node = dag.addOperator("Kinesis consumer", KinesisStringInputOperator.class);
+    node.setAccessKey(credentials.getCredentials().getAWSSecretKey());
+    node.setSecretKey(credentials.getCredentials().getAWSAccessKeyId());
     node.setStreamName(streamName);
     TestShardManager tfm = new TestShardManager();
 
@@ -234,4 +240,68 @@ public class ShardManagerTest extends KinesisOperatorTestBase
     lc.shutdown();
   }
 
+
+  @Test
+  public void testShardManager() throws Exception
+  {
+    // Set to 3 because we want to make sure all the tuples from both 2 partitions are received and offsets has been updated to 102
+    latch = new CountDownLatch(3);
+
+    // Start producer
+    KinesisTestProducer p = new KinesisTestProducer(streamName, true);
+    p.setSendCount(totalCount);
+    // wait the producer send all records
+    p.run();
+
+    // Create DAG for testing.
+    LocalMode lma = LocalMode.newInstance();
+    DAG dag = lma.getDAG();
+
+    KinesisUtil.getInstance().setClient(client);
+    // Create KinesisSinglePortStringInputOperator
+    KinesisStringInputOperator node = dag.addOperator("Kinesis consumer", KinesisStringInputOperator.class);
+    node.setAccessKey(credentials.getCredentials().getAWSSecretKey());
+    node.setSecretKey(credentials.getCredentials().getAWSAccessKeyId());
+    node.setStreamName(streamName);
+    ShardManager tfm = new ShardManager();
+
+    node.setShardManager(tfm);
+
+    node.setStrategy(AbstractKinesisInputOperator.PartitionStrategy.MANY_TO_ONE.toString());
+    node.setRepartitionInterval(-1);
+    KinesisConsumer consumer = new KinesisConsumer();
+    //set topic
+    consumer.setStreamName(streamName);
+    //set the brokerlist used to initialize the partition
+    consumer.setInitialOffset("earliest");
+
+    node.setConsumer(consumer);
+
+    // Create Test tuple collector
+    CollectorModule collector = dag.addOperator("RecordCollector", new CollectorModule());
+
+    // Connect ports
+    dag.addStream("Kinesis Records", node.outputPort, collector.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+
+    // Create local cluster
+    final LocalMode.Controller lc = lma.getController();
+    lc.setHeartbeatMonitoringEnabled(true);
+
+    lc.runAsync();
+
+    // Wait 15s for consumer finish consuming all the records
+    latch.await(10000, TimeUnit.MILLISECONDS);
+
+    assertEquals("ShardPos Size", 2, node.getShardManager().loadInitialShardPositions().size());
+    Iterator ite = node.getShardManager().loadInitialShardPositions().entrySet().iterator();
+    Entry e = (Entry) ite.next();
+    assertNotEquals("Record Seq No in Shard Id 1" , "", e.getValue());
+    e = (Entry) ite.next();
+    assertNotEquals("Record Seq No in Shard Id 2" , "", e.getValue());
+    // Check results
+    assertEquals("Tuple count", totalCount, collectedTuples.size());
+    logger.debug(String.format("Number of emitted tuples: %d -> %d", collectedTuples.size(), totalCount));
+
+    lc.shutdown();
+  }
 }

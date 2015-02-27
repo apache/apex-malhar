@@ -15,6 +15,76 @@
     <value>1000</value>
   </property>
   <property>
+    <name>dt.rootDbUrl</name>
+    <value></value>
+    <description>Root DbUrl.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath</name>
+    <value></value>
+    <description>Filepath</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.DateGenerator.tuplesPerWindow</name>
+    <value>100</value>
+    <description>Max windows with no data</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.tablename</name>
+    <value>temp</value>
+    <description>tablename for insert string</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.filePermission</name>
+    <value>511</value>
+    <description>Permission</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.RollingFsWriter.maxLength</name>
+    <value>512</value>
+    <description>Max Length</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties</name>
+    <value></value>
+    <description>The connection properties for the database.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.filepath</name>
+    <value></value>
+    <description>Filepath</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.tablename</name>
+    <value>tempMap</value>
+    <description>tablename for insert map</description>
+  </property>
+  <property>
+    <name>dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl</name>
+    <value></value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.delimiter</name>
+    <value>:</value>
+    <description>Delimiter for map</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl</name>
+    <value></value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties</name>
+    <value></value>
+    <description>Test database connector string.</description>
+  </property>
+  <property>
+    <name>dt.application.HiveMapInsertBenchmarkingApp.operator.RollingFsMapWriter.maxLength</name>
+    <value>512</value>
+    <description>Max Length</description>
+  </property>
+  <property>
     <name>dt.application.CouchBaseAppOutput.operator.couchbaseOuput.port.*.QUEUE_CAPACITY</name>
     <value>32768</value>
     <description>Specify queue capacity for all output ports</description>

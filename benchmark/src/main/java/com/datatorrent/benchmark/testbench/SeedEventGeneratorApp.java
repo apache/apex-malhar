@@ -19,6 +19,7 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.testbench.SeedEventGenerator;
 import com.datatorrent.lib.util.KeyValPair;
@@ -32,6 +33,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 2.0.0
  */
+@ApplicationAnnotation(name = "SeedEventGeneratorApp")
 public class SeedEventGeneratorApp implements StreamingApplication
 {
   public static final int QUEUE_CAPACITY = 16 * 1024;
