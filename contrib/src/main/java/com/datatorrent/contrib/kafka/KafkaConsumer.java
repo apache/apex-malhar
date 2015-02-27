@@ -227,11 +227,6 @@ public abstract class KafkaConsumer implements Closeable
     statsSnapShot.mark(partition, msg.payloadSize());
   };
 
-
-  protected abstract KafkaConsumer cloneConsumer(Set<KafkaPartition> kps);
-
-  protected abstract KafkaConsumer cloneConsumer(Set<KafkaPartition> kps, Map<KafkaPartition, Long> startOffset);
-
   protected abstract void commitOffset();
 
   protected abstract Map<KafkaPartition, Long> getCurrentOffsets();
@@ -242,6 +237,7 @@ public abstract class KafkaConsumer implements Closeable
     return stats;
   }
 
+  protected abstract void resetPartitionsAndOffset(Set<KafkaPartition> partitionIds, Map<KafkaPartition, Long> startOffset);
   /**
    * Counter class which gives the statistic value from the consumer
    */

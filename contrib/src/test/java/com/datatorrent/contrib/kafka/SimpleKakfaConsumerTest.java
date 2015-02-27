@@ -1,11 +1,11 @@
 package com.datatorrent.contrib.kafka;
 
-import org.apache.commons.io.IOUtils;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import java.io.ByteArrayOutputStream;
 import org.junit.Assert;
 import org.junit.Test;
-
-import java.util.HashMap;
-import java.util.HashSet;
 
 public class SimpleKakfaConsumerTest
 {
@@ -23,8 +23,13 @@ public class SimpleKakfaConsumerTest
     kc.setTopic("test_topic");
     kc.setClientId("test_clientid");
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
-    SimpleKafkaConsumer kcClone = (SimpleKafkaConsumer) kc.cloneConsumer(new HashSet(), new HashMap());
+    Kryo kryo = new Kryo();
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    Output output = new Output(bos);
+    kryo.writeObject(output, kc);
+    output.close();
+    Input lInput = new Input(bos.toByteArray());
+    SimpleKafkaConsumer kcClone = (SimpleKafkaConsumer)(kryo.readObject(lInput, kc.getClass()));
     Assert.assertEquals("Buffer size is " + bufferSize, bufferSize, kcClone.getBufferSize());
     Assert.assertEquals("Cache size is " + cacheSize, cacheSize, kcClone.getCacheSize());
     Assert.assertEquals("Clint id is same", kc.getClientId(), kcClone.getClientId());
