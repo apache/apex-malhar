@@ -702,12 +702,6 @@
     </dependency>
     <dependency>
       <groupId>org.apache.solr</groupId>
-      <artifactId>solr-test-framework</artifactId>
-      <version>4.10.1</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.solr</groupId>
       <artifactId>solr-core</artifactId>
       <version>4.10.1</version>
       <optional>true</optional>
