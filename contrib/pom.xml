@@ -15,7 +15,7 @@
   <properties>
     <!-- skip tests by default as they depend on manual setup -->
     <skip.contrib.module.tests>false</skip.contrib.module.tests>
-    <skipTests>false</skipTests>
+    <skipTests>true</skipTests>
   </properties>
   <repositories>
     <repository>
@@ -548,56 +548,32 @@
       <artifactId>hive-jdbc</artifactId>
       <version>0.13.1</version>
       <optional>true</optional>
-       <exclusions>
-         <exclusion>
-           <groupId>org.apache.httpcomponents</groupId>
-           <artifactId>httpclient</artifactId>
-         </exclusion>
-         <exclusion>
-           <groupId>org.apache.httpcomponents</groupId>
-           <artifactId>httpcore</artifactId>
-         </exclusion>
-         <exclusion>
-           <groupId>org.apache.hive</groupId>
-           <artifactId>hive-common</artifactId>
-         </exclusion>
-         <exclusion>
-           <groupId>org.apache.hive</groupId>
-           <artifactId>hive-metastore</artifactId>
-         </exclusion>
-          <exclusion>
-           <groupId>org.apache.hive</groupId>
-           <artifactId>hive-serde</artifactId>
-         </exclusion>
-         <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-api</artifactId>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpclient</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.slf4j</groupId>
-          <artifactId>slf4j-log4j12</artifactId>
+          <groupId>org.apache.httpcomponents</groupId>
+          <artifactId>httpcore</artifactId>
         </exclusion>
-       </exclusions>
-    </dependency>
-    <dependency>
-      <groupId>org.apache.hive</groupId>
-      <artifactId>hive-service</artifactId>
-      <version>0.13.1</version>
-      <optional>true</optional>
-       <exclusions>
         <exclusion>
-          <groupId>org.eclipse.jetty.aggregate</groupId>
-          <artifactId>jetty-all</artifactId>
+          <groupId>org.apache.hive</groupId>
+          <artifactId>hive-common</artifactId>
         </exclusion>
-         <exclusion>
+        <exclusion>
           <groupId>org.apache.hive</groupId>
           <artifactId>hive-metastore</artifactId>
         </exclusion>
         <exclusion>
+          <groupId>org.apache.hive</groupId>
+          <artifactId>hive-serde</artifactId>
+        </exclusion>
+        <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
         </exclusion>
-         <exclusion>
+        <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
@@ -608,23 +584,55 @@
       <artifactId>hive-exec</artifactId>
       <version>0.13.1</version>
       <optional>true</optional>
-       <exclusions>
+      <exclusions>
+        <exclusion>
+          <groupId>org.antlr</groupId>
+          <artifactId>ST4</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.avro</groupId>
+          <artifactId>avro</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.ant</groupId>
+          <artifactId>ant</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.thrift</groupId>
+          <artifactId>libfb303</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.datanucleus</groupId>
+          <artifactId>datanucleus-core</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>stax</groupId>
+          <artifactId>stax-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.codehaus.groovy</groupId>
+          <artifactId>groovy-all</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.antlr</groupId>
+          <artifactId>antlr-runtime</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
         <exclusion>
-           <groupId>org.apache.hive</groupId>
-           <artifactId>hive-metastore</artifactId>
-         </exclusion>
-          <exclusion>
-           <groupId>org.apache.hive</groupId>
-           <artifactId>hive-shims</artifactId>
-         </exclusion>
-         <exclusion>
-           <groupId>org.apache.hive</groupId>
-           <artifactId>hive-ant</artifactId>
-         </exclusion>
+          <groupId>org.apache.hive</groupId>
+          <artifactId>hive-metastore</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.hive</groupId>
+          <artifactId>hive-shims</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.hive</groupId>
+          <artifactId>hive-ant</artifactId>
+        </exclusion>
         <exclusion>
           <groupId>jline</groupId>
           <artifactId>jline</artifactId>
@@ -648,6 +656,42 @@
         <exclusion>
           <groupId>org.slf4j</groupId>
           <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.thrift</groupId>
+          <artifactId>libfb303</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hive</groupId>
+      <artifactId>hive-service</artifactId>
+      <version>0.13.1</version>
+      <optional>true</optional>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.thrift</groupId>
+          <artifactId>libfb303</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>net.sf.jpam</groupId>
+          <artifactId>jpam</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.eclipse.jetty.aggregate</groupId>
+          <artifactId>jetty-all</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.apache.hive</groupId>
+          <artifactId>hive-metastore</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-api</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-log4j12</artifactId>
         </exclusion>
       </exclusions>
     </dependency>
