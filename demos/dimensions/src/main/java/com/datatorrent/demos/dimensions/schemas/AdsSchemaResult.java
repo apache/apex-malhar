@@ -12,11 +12,10 @@ import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 import com.datatorrent.lib.appdata.schemas.SchemaValues;
 import com.datatorrent.lib.appdata.schemas.TimeRangeBuckets;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -59,22 +58,9 @@ public class AdsSchemaResult extends Result
   public static final String FROM = "2015-01-01 00:00:00";
   public static final String TO = "2025-12-31 23:59:59";
 
-  public static final Set<String> FIELDS;
-
-  static {
-    Set<String> fields = Sets.newHashSet();
-
-    fields.add(ADVERTISER);
-    fields.add(PUBLISHER);
-    fields.add(LOCATION);
-    fields.add(TIME);
-    fields.add(IMPRESSIONS);
-    fields.add(CLICKS);
-    fields.add(COST);
-    fields.add(REVENUE);
-
-    FIELDS = Collections.unmodifiableSet(fields);
-  }
+  public static final Set<String> FIELDS = ImmutableSet.of(ADVERTISER, PUBLISHER, LOCATION,
+                                                           TIME, IMPRESSIONS, CLICKS,
+                                                           COST, REVENUE);
 
   private AdsSchemaData data;
 

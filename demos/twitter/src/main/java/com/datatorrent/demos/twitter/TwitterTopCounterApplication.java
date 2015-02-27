@@ -177,9 +177,8 @@ public class TwitterTopCounterApplication implements StreamingApplication
     dag.addStream("TwittedURLs", urlExtractor.url, uniqueCounter.data).setLocality(locality);
     // Count unique urls
     dag.addStream("UniqueURLCounts", uniqueCounter.count, topCounts.input).setLocality(locality);
-    // Count top 10
-    //dag.addStream("TopURLs", topCounts.output, consoleOutput(dag, "topURLs")).setLocality(locality);
-
+    
+    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput);
+    dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
   }
-
 }

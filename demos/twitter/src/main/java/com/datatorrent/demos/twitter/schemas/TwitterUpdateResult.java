@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.twitter;
+package com.datatorrent.demos.twitter.schemas;
 
 import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
@@ -20,7 +20,7 @@ public class TwitterUpdateResult extends TwitterOneTimeResult
 {
   public static final String TYPE = "updateData";
 
-  private int countdown;
+  private Long countdown;
 
   public TwitterUpdateResult(Query query)
   {
@@ -30,7 +30,7 @@ public class TwitterUpdateResult extends TwitterOneTimeResult
   /**
    * @return the countdown
    */
-  public int getCountdown()
+  public Long getCountdown()
   {
     return countdown;
   }
@@ -38,7 +38,7 @@ public class TwitterUpdateResult extends TwitterOneTimeResult
   /**
    * @param countdown the countdown to set
    */
-  public void setCountdown(int countdown)
+  public void setCountdown(Long countdown)
   {
     this.countdown = countdown;
   }

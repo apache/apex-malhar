@@ -15,17 +15,34 @@
  */
 package com.datatorrent.demos.twitter;
 
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.demos.twitter.schemas.TwitterDataValues;
+import com.datatorrent.demos.twitter.schemas.TwitterOneTimeQuery;
+import com.datatorrent.demos.twitter.schemas.TwitterOneTimeResult;
+import com.datatorrent.demos.twitter.schemas.TwitterOneTimeResult.TwitterData;
+import com.datatorrent.demos.twitter.schemas.TwitterSchemaResult;
+import com.datatorrent.demos.twitter.schemas.TwitterUpdateQuery;
+import com.datatorrent.demos.twitter.schemas.TwitterUpdateResult;
+import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
+import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
+import com.datatorrent.lib.appdata.qr.processor.WWEQueryQueueManager;
+import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import org.apache.commons.lang3.mutable.MutableLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.*;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import java.util.*;
 
 /**
  *
@@ -41,6 +58,29 @@ import java.util.*;
 public class WindowedTopCounter<T> extends BaseOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
+
+  //==========================================================================
+  // Query Processing - Start
+  //==========================================================================
+
+  private transient QueryProcessor<Query, Void, MutableLong, Void> queryProcessor;
+  @SuppressWarnings("unchecked")
+  private transient QueryDeserializerFactory queryDeserializerFactory;
+  private transient ResultSerializerFactory resultSerializerFactory;
+  private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
+  private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
+
+  //==========================================================================
+  // Query Processing - End
+  //==========================================================================
+
+  private PriorityQueue<SlidingContainer<T>> topCounter;
+  private int windows;
+  private int topCount = 10;
+  private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
+
+  public final transient DefaultOutputPort<String> resultOutput = new DefaultOutputPort<String>();
+
   /**
    * Input port on which map objects containing keys with their respective frequency as values will be accepted.
    */
@@ -58,13 +98,34 @@ public class WindowedTopCounter<T> extends BaseOperator
         holder.adjustCount(e.getValue());
       }
     }
-
   };
 
-  private PriorityQueue<SlidingContainer<T>> topCounter;
-  private int windows;
-  private int topCount = 10;
-  private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
+  public final transient DefaultInputPort<String> queryInput = new DefaultInputPort<String>() {
+    @Override
+    public void process(String s)
+    {
+      logger.info("Received: {}", s);
+
+      Query query = queryDeserializerFactory.deserialize(s);
+
+      //Query was not parseable
+      if(query == null) {
+        logger.info("Not parseable.");
+        return;
+      }
+
+      if(query instanceof SchemaQuery) {
+        String schemaResult = resultSerializerFactory.serialize(new TwitterSchemaResult(query));
+        resultOutput.emit(schemaResult);
+      }
+      else if(query instanceof TwitterUpdateQuery) {
+        queryProcessor.enqueue((TwitterOneTimeQuery) query, null, new MutableLong((long) QUERY_QUEUE_WINDOW_COUNT));
+      }
+      else if(query instanceof TwitterOneTimeQuery) {
+        queryProcessor.enqueue((TwitterOneTimeQuery) query, null, new MutableLong(1L));
+      }
+    }
+  };
 
   /**
    * Set the width of the sliding window.
@@ -88,12 +149,25 @@ public class WindowedTopCounter<T> extends BaseOperator
   public void setup(OperatorContext context)
   {
     topCounter = new PriorityQueue<SlidingContainer<T>>(this.topCount, new TopSpotComparator());
+
+
+    //Setup for query processing
+    queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void>(
+                     new WindowTopCounterComputer(),
+                     new WWEQueryQueueManager<Query, Void>());
+    queryDeserializerFactory = new QueryDeserializerFactory(SchemaQuery.class,
+                                                            TwitterUpdateQuery.class,
+                                                            TwitterOneTimeQuery.class);
+    resultSerializerFactory = new ResultSerializerFactory();
+
+    queryProcessor.setup(context);
   }
 
   @Override
   public void beginWindow(long windowId)
   {
     topCounter.clear();
+    queryProcessor.beginWindow(windowId);
   }
 
   @Override
@@ -143,16 +217,15 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
     }
 
-    /*
-     * Emit our top URLs without caring for order.
-     */
-    HashMap<T, Integer> map = new HashMap<T, Integer>();
-    Iterator<SlidingContainer<T>> iterator1 = topCounter.iterator();
-    while (iterator1.hasNext()) {
-      final SlidingContainer<T> wh = iterator1.next();
-      map.put(wh.identifier, wh.totalCount);
+    {
+      Result result = null;
+
+      while((result = queryProcessor.process(null)) != null) {
+        resultOutput.emit(resultSerializerFactory.serialize(result));
+      }
     }
 
+    queryProcessor.endWindow();
     topCounter.clear();
   }
 
@@ -161,6 +234,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   {
     topCounter = null;
     objects = null;
+    queryProcessor.teardown();
   }
 
   /**
@@ -171,6 +245,69 @@ public class WindowedTopCounter<T> extends BaseOperator
   public void setTopCount(int count)
   {
     topCount = count;
+  }
+
+  class WindowTopCounterComputer implements QueryComputer<Query, Void, MutableLong, Void>
+  {
+    @Override
+    public Result processQuery(Query query, Void metaQuery, MutableLong queueContext, Void context)
+    {
+      TwitterOneTimeQuery totq = (TwitterOneTimeQuery) query;
+
+      List<String> fields = totq.getFields();
+      Set<String> fieldSet = null;
+
+      if(fields == null) {
+        fieldSet = Sets.newHashSet();
+      }
+      else {
+        fieldSet = Sets.newHashSet(fields);
+      }
+
+      List<TwitterDataValues> tdvss = Lists.newArrayList();
+      Iterator<SlidingContainer<T>> topIter = topCounter.iterator();
+
+      while(topIter.hasNext()) {
+        final SlidingContainer<T> wh = topIter.next();
+        TwitterDataValues tdvs = new TwitterDataValues();
+
+        if(fieldSet.isEmpty() || fieldSet.contains(TwitterSchemaResult.URL)) {
+          tdvs.setUrl(wh.identifier.toString());
+        }
+
+        if(fieldSet.isEmpty() || fieldSet.contains(TwitterSchemaResult.COUNT)) {
+          tdvs.setCount(wh.totalCount);
+        }
+
+        tdvss.add(tdvs);
+      }
+
+      TwitterData td = new TwitterData();
+      Result result = null;
+
+      if(query instanceof TwitterOneTimeQuery) {
+        TwitterOneTimeResult totr = new TwitterOneTimeResult(query);
+        td.setValues(tdvss);
+        totr.setData(td);
+
+        result = (Result) totr;
+      }
+      else if(query instanceof TwitterUpdateQuery) {
+        TwitterUpdateResult tur = new TwitterUpdateResult(query);
+        td.setValues(tdvss);
+        tur.setData(td);
+        tur.setCountdown(queueContext.longValue());
+
+        result = (Result) tur;
+      }
+
+      return result;
+    }
+
+    @Override
+    public void queueDepleted(Void context)
+    {
+    }
   }
 
   static class TopSpotComparator implements Comparator<SlidingContainer<?>>
@@ -187,7 +324,5 @@ public class WindowedTopCounter<T> extends BaseOperator
 
       return 0;
     }
-
   }
-
 }

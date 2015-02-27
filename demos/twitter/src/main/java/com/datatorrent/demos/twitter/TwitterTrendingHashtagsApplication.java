@@ -186,7 +186,8 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     // Count unique Hashtags
     dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input).setLocality(locality);
     // Count top 10
-    //dag.addStream("TopHashtags", topCounts.output, consoleOutput(dag, "topHashtags")).setLocality(locality);
+    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput);
+    dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
   }
 
 }

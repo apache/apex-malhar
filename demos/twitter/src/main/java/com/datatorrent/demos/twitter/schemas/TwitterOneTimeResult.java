@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.twitter;
+package com.datatorrent.demos.twitter.schemas;
 
 import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;

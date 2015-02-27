@@ -3,7 +3,9 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.twitter;
+package com.datatorrent.demos.twitter.schemas;
+
+import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 /**
  *
@@ -11,8 +13,10 @@ package com.datatorrent.lib.appdata.schemas.twitter;
  */
 public class TwitterDataValues
 {
+  @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
   private String url;
-  private int count;
+  @JsonSerialize(include=JsonSerialize.Inclusion.NON_NULL)
+  private Integer count;
 
   public TwitterDataValues()
   {
@@ -37,7 +41,7 @@ public class TwitterDataValues
   /**
    * @return the count
    */
-  public int getCount()
+  public Integer getCount()
   {
     return count;
   }
@@ -45,7 +49,7 @@ public class TwitterDataValues
   /**
    * @param count the count to set
    */
-  public void setCount(int count)
+  public void setCount(Integer count)
   {
     this.count = count;
   }

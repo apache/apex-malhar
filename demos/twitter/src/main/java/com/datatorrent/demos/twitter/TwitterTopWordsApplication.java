@@ -22,7 +22,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import java.net.URI;
@@ -81,7 +80,7 @@ public class TwitterTopWordsApplication implements StreamingApplication
     dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
     dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input);
 
-    ConsoleOutputOperator consoleOperator = dag.addOperator("topWords", new ConsoleOutputOperator());
-    //dag.addStream("TopWords", topCounts.output, consoleOperator.input);
+    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput);
+    dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
   }
 }

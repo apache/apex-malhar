@@ -3,13 +3,13 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.twitter;
+package com.datatorrent.demos.twitter.schemas;
 
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
-import com.datatorrent.lib.appdata.schemas.twitter.TwitterDataValues;
-import com.datatorrent.lib.appdata.schemas.twitter.TwitterOneTimeResult.TwitterData;
-import com.datatorrent.lib.appdata.schemas.twitter.TwitterUpdateQuery;
-import com.datatorrent.lib.appdata.schemas.twitter.TwitterUpdateResult;
+import com.datatorrent.demos.twitter.schemas.TwitterDataValues;
+import com.datatorrent.demos.twitter.schemas.TwitterOneTimeResult.TwitterData;
+import com.datatorrent.demos.twitter.schemas.TwitterUpdateQuery;
+import com.datatorrent.demos.twitter.schemas.TwitterUpdateResult;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -35,7 +35,7 @@ public class TwitterUpdateResultTest
     tuq.setType("updateQuery");
 
     TwitterUpdateResult tur = new TwitterUpdateResult(tuq);
-    tur.setCountdown(1);
+    tur.setCountdown(1L);
 
     TwitterData twd = new TwitterData();
 

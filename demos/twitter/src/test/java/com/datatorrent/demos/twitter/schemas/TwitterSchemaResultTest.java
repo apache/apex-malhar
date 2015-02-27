@@ -3,8 +3,9 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.twitter;
+package com.datatorrent.demos.twitter.schemas;
 
+import com.datatorrent.demos.twitter.schemas.TwitterSchemaResult;
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import org.junit.Assert;

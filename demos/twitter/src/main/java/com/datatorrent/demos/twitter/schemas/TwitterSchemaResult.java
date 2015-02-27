@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.twitter;
+package com.datatorrent.demos.twitter.schemas;
 
 import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
@@ -12,9 +12,11 @@ import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 import com.datatorrent.lib.appdata.schemas.SchemaData;
 import com.datatorrent.lib.appdata.schemas.SchemaValues;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -34,6 +36,8 @@ public class TwitterSchemaResult extends Result
   public static final String URL_TYPE = "url";
   public static final String COUNT = "count";
   public static final String COUNT_TYPE = "integer";
+
+  public static final Set<String> FIELDS = ImmutableSet.of(URL, COUNT);
 
   private TwitterSchemaData data;
 
