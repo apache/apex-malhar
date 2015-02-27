@@ -200,30 +200,15 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
   }
 
   @Override
-  protected KafkaConsumer cloneConsumer(Set<KafkaPartition> partitionIds)
+  protected void resetPartitionsAndOffset(Set<KafkaPartition> partitionIds, Map<KafkaPartition, Long> startOffset)
   {
-    return cloneConsumer(partitionIds, null);
-  }
-
-  @Override
-  protected KafkaConsumer cloneConsumer(Set<KafkaPartition> partitionIds, Map<KafkaPartition, Long> startOffset)
-  {
-    Properties newProp = new Properties();
-    // Copy most properties from the template consumer. For example the
-    // "group.id" should be set to same value
-    newProp.putAll(consumerConfig);
-    HighlevelKafkaConsumer newConsumer = new HighlevelKafkaConsumer(newProp);
-    newConsumer.setZookeeper(this.zookeeper);
-    newConsumer.setTopic(this.topic);
-    newConsumer.numStream = new HashMap<String, Integer>();
+    this.numStream = new HashMap<String, Integer>();
     for (KafkaPartition kafkaPartition : partitionIds) {
-      if (newConsumer.numStream.get(kafkaPartition.getClusterId()) == null) {
-        newConsumer.numStream.put(kafkaPartition.getClusterId(), 0);
+      if (this.numStream.get(kafkaPartition.getClusterId()) == null) {
+        this.numStream.put(kafkaPartition.getClusterId(), 0);
       }
-      newConsumer.numStream.put(kafkaPartition.getClusterId(), newConsumer.numStream.get(kafkaPartition.getClusterId()) + 1);
+      this.numStream.put(kafkaPartition.getClusterId(), this.numStream.get(kafkaPartition.getClusterId()) + 1);
     }
-    newConsumer.initialOffset = initialOffset;
-    return newConsumer;
   }
 
   @Override
