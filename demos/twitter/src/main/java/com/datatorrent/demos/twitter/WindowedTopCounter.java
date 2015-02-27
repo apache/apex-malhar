@@ -60,10 +60,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     }
 
   };
-  /**
-   * Output port on which a map object containing most frequently occurring keys with their frequency will be emitted.
-   */
-  public final transient DefaultOutputPort<Map<T, Integer>> output = new DefaultOutputPort<Map<T, Integer>>();
+
   private PriorityQueue<SlidingContainer<T>> topCounter;
   private int windows;
   private int topCount = 10;
@@ -156,7 +153,6 @@ public class WindowedTopCounter<T> extends BaseOperator
       map.put(wh.identifier, wh.totalCount);
     }
 
-    output.emit(map);
     topCounter.clear();
   }
 

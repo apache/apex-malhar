@@ -18,17 +18,19 @@ package com.datatorrent.demos.dimensions.ads;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
-import com.datatorrent.lib.appdata.schemas.ads.AdsKeys;
-import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeQuery;
-import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeQuery.AdsOneTimeQueryData;
-import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeResult;
-import com.datatorrent.lib.appdata.schemas.ads.AdsTimeRangeBucket;
+import com.datatorrent.demos.dimensions.schemas.AdsKeys;
+import com.datatorrent.demos.dimensions.schemas.AdsOneTimeQuery;
+import com.datatorrent.demos.dimensions.schemas.AdsOneTimeQuery.AdsOneTimeQueryData;
+import com.datatorrent.demos.dimensions.schemas.AdsOneTimeResult;
+import com.datatorrent.demos.dimensions.schemas.AdsTimeRangeBucket;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.io.File;
+
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;

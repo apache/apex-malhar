@@ -17,20 +17,21 @@ package com.datatorrent.demos.twitter;
 
 import java.net.URI;
 
-import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
 import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.Operator.InputPort;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
+import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+
+import static com.datatorrent.demos.twitter.TwitterTopCounterApplication.PROP_USE_WEBSOCKETS;
 
 
 /**
@@ -143,27 +144,25 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
 {
   private final Locality locality = null;
 
-  private InputPort<Object> consoleOutput(DAG dag, String operatorName)
-  {
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    if (!StringUtils.isEmpty(gatewayAddress)) {
-      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-      String topic = "demos.twitter." + operatorName;
-      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
-      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator(operatorName, new PubSubWebSocketOutputOperator<Object>());
-      wsOut.setUri(uri);
-      wsOut.setTopic(topic);
-      return wsOut.input;
-    }
-    ConsoleOutputOperator operator = dag.addOperator(operatorName, new ConsoleOutputOperator());
-    operator.setStringFormat(operatorName + ": %s");
-    return operator.input;
-  }
-
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    //dag.setAttribute(DAG.APPLICATION_NAME, "TwitterTrendingHashtagsApplication");
+    Operator.OutputPort<String> queryPort = null;
+    Operator.InputPort<String> queryResultPort = null;
+
+    if (conf.getBoolean(PROP_USE_WEBSOCKETS,  false)) {
+      String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
+      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
+      PubSubWebSocketAppDataQuery wsIn = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+      wsIn.setUri(uri);
+      queryPort = wsIn.outputPort;
+      PubSubWebSocketAppDataResult wsOut = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
+      wsOut.setUri(uri);
+      queryResultPort = wsOut.input;
+    } else {
+      /*Add Kafka Later*/
+    }
 
     // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterSampleInput twitterFeed = new TwitterSampleInput();
@@ -187,8 +186,7 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     // Count unique Hashtags
     dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input).setLocality(locality);
     // Count top 10
-    dag.addStream("TopHashtags", topCounts.output, consoleOutput(dag, "topHashtags")).setLocality(locality);
-
+    //dag.addStream("TopHashtags", topCounts.output, consoleOutput(dag, "topHashtags")).setLocality(locality);
   }
 
 }

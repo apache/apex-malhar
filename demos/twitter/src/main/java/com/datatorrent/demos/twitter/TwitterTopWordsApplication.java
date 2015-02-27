@@ -17,13 +17,19 @@ package com.datatorrent.demos.twitter;
 
 
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
+import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
+
+import static com.datatorrent.demos.twitter.TwitterTopCounterApplication.PROP_USE_WEBSOCKETS;
 
 /**
  * This application is same as other twitter demo
@@ -45,19 +51,37 @@ public class TwitterTopWordsApplication implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-      TwitterSampleInput twitterFeed = new TwitterSampleInput();
-      twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
+    Operator.OutputPort<String> queryPort = null;
+    Operator.InputPort<String> queryResultPort = null;
 
-      TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
-      UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueWordCounter", new UniqueCounter<String>());
-      WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
-      topCounts.setSlidingWindowWidth(120, 1);
+    if(conf.getBoolean(PROP_USE_WEBSOCKETS, false)) {
+      String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
+      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
+      PubSubWebSocketAppDataQuery wsIn = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+      wsIn.setUri(uri);
+      queryPort = wsIn.outputPort;
+      PubSubWebSocketAppDataResult wsOut = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
+      wsOut.setUri(uri);
+      queryResultPort = wsOut.input;
+    }
+    else {
+      /*Add Kafka Later*/
+    }
 
-      dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
-      dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
-      dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input);
+    TwitterSampleInput twitterFeed = new TwitterSampleInput();
+    twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
 
-      ConsoleOutputOperator consoleOperator = dag.addOperator("topWords", new ConsoleOutputOperator());
-      dag.addStream("TopWords", topCounts.output, consoleOperator.input);
+    TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
+    UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueWordCounter", new UniqueCounter<String>());
+    WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
+    topCounts.setSlidingWindowWidth(120, 1);
+
+    dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
+    dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
+    dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input);
+
+    ConsoleOutputOperator consoleOperator = dag.addOperator("topWords", new ConsoleOutputOperator());
+    //dag.addStream("TopWords", topCounts.output, consoleOperator.input);
   }
 }

@@ -3,8 +3,9 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.ads;
+package com.datatorrent.demos.dimensions.schemas;
 
+import com.datatorrent.demos.dimensions.schemas.AdsTimeRangeBucket;
 import java.text.ParseException;
 import org.junit.Test;
 import org.slf4j.Logger;

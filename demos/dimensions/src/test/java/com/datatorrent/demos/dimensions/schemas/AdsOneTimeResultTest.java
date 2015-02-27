@@ -3,13 +3,16 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.ads;
+package com.datatorrent.demos.dimensions.schemas;
 
+import com.datatorrent.demos.dimensions.schemas.AdsOneTimeResult;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
-import com.datatorrent.lib.appdata.schemas.ads.AdsOneTimeResult.AdsOneTimeData;
+import com.datatorrent.demos.dimensions.schemas.AdsOneTimeResult.AdsOneTimeData;
 import com.google.common.collect.Lists;
+
 import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;

@@ -7,14 +7,15 @@ package com.datatorrent.lib.appdata.schemas.twitter;
 
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import com.datatorrent.lib.appdata.schemas.twitter.TwitterDataValues;
+import com.datatorrent.lib.appdata.schemas.twitter.TwitterOneTimeResult.TwitterData;
 import com.datatorrent.lib.appdata.schemas.twitter.TwitterUpdateQuery;
 import com.datatorrent.lib.appdata.schemas.twitter.TwitterUpdateResult;
-import com.datatorrent.lib.appdata.schemas.twitter.TwitterUpdateResult.TwitterData;
 import com.google.common.collect.Lists;
-import java.util.List;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.List;
 
 /**
  *

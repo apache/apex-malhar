@@ -3,8 +3,10 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.ads;
+package com.datatorrent.demos.dimensions.schemas;
 
+import com.datatorrent.demos.dimensions.schemas.AdsOneTimeQuery;
+import com.datatorrent.demos.dimensions.schemas.AdsKeys;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
 import org.junit.Assert;

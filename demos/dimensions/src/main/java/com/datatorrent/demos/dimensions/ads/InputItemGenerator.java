@@ -18,7 +18,7 @@ package com.datatorrent.demos.dimensions.ads;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.appdata.schemas.ads.AdsTimeRangeBucket;
+import com.datatorrent.demos.dimensions.schemas.AdsTimeRangeBucket;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -3,8 +3,9 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.ads;
+package com.datatorrent.demos.dimensions.schemas;
 
+import com.datatorrent.demos.dimensions.schemas.AdsUpdateQuery;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
 import org.junit.Assert;
 import org.junit.Test;

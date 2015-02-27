@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas.ads;
+package com.datatorrent.demos.dimensions.schemas;
 
 import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
@@ -57,7 +57,7 @@ public class AdsSchemaResult extends Result
   public static final String REVENUE = "revenue";
   public static final String REVENUE_TYPE = "float";
   public static final String FROM = "2015-01-01 00:00:00";
-  public static final String TO = "2015-12-31 23:59:59";
+  public static final String TO = "2025-12-31 23:59:59";
 
   public static final Set<String> FIELDS;
 
