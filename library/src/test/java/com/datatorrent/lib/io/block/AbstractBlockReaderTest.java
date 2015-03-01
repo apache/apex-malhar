@@ -127,12 +127,21 @@ public class AbstractBlockReaderTest
     Collection<Partitioner.Partition<AbstractBlockReader<Slice,
       BlockMetadata.FileBlockMetadata, FSDataInputStream>>> newPartitions = sliceReader.definePartitions(partitions, null);
 
+    List<Partitioner.Partition<AbstractBlockReader<Slice,
+      BlockMetadata.FileBlockMetadata, FSDataInputStream>>> newMocks = Lists.newArrayList();
+
     for (Partitioner.Partition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> partition :
       newPartitions) {
       partition.getPartitionedInstance().counters.setCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS, new MutableLong(1));
+
+      newMocks.add(
+        new TestUtils.MockPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>(
+          (DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>) partition,
+          readerStats)
+      );
     }
     sliceReader.partitionCount = 1;
-    newPartitions = sliceReader.definePartitions(newPartitions, null);
+    newPartitions = sliceReader.definePartitions(newMocks, null);
     Assert.assertEquals(1, newPartitions.size());
 
     AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream> last = newPartitions.iterator().next().getPartitionedInstance();
