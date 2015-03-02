@@ -291,18 +291,21 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
       //First time when define partitions is called
       return partitions;
     }
-    //Collect state here
+    List<Partition<AbstractBlockReader<R, B, STREAM>>> newPartitions = Lists.newArrayList();
+
+    //Collect state and new partitions
     List<B> pendingBlocks = Lists.newArrayList();
     for (Partition<AbstractBlockReader<R, B, STREAM>> partition : partitions) {
       pendingBlocks.addAll(partition.getPartitionedInstance().blockQueue);
+      newPartitions.add(new DefaultPartition<AbstractBlockReader<R, B, STREAM>>(partition.getPartitionedInstance()));
     }
-
-    int morePartitionsToCreate = partitionCount - partitions.size();
+    partitions.clear();
+    int morePartitionsToCreate = partitionCount - newPartitions.size();
     List<BasicCounters<MutableLong>> deletedCounters = Lists.newArrayList();
 
     if (morePartitionsToCreate < 0) {
       //Delete partitions
-      Iterator<Partition<AbstractBlockReader<R, B, STREAM>>> partitionIterator = partitions.iterator();
+      Iterator<Partition<AbstractBlockReader<R, B, STREAM>>> partitionIterator = newPartitions.iterator();
       while (morePartitionsToCreate++ < 0) {
         Partition<AbstractBlockReader<R, B, STREAM>> toRemove = partitionIterator.next();
         deletedCounters.add(toRemove.getPartitionedInstance().counters);
@@ -325,15 +328,15 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
         AbstractBlockReader<R, B, STREAM> blockReader = kryo.readObject(lInput, this.getClass());
 
         DefaultPartition<AbstractBlockReader<R, B, STREAM>> partition = new DefaultPartition<AbstractBlockReader<R, B, STREAM>>(blockReader);
-        partitions.add(partition);
+        newPartitions.add(partition);
       }
     }
 
-    DefaultPartition.assignPartitionKeys(Collections.unmodifiableCollection(partitions), blocksMetadataInput);
-    int lPartitionMask = partitions.iterator().next().getPartitionKeys().get(blocksMetadataInput).mask;
+    DefaultPartition.assignPartitionKeys(Collections.unmodifiableCollection(newPartitions), blocksMetadataInput);
+    int lPartitionMask = newPartitions.iterator().next().getPartitionKeys().get(blocksMetadataInput).mask;
 
     //transfer the state here
-    for (Partition<AbstractBlockReader<R, B, STREAM>> newPartition : partitions) {
+    for (Partition<AbstractBlockReader<R, B, STREAM>> newPartition : newPartitions) {
       AbstractBlockReader<R, B, STREAM> reader = newPartition.getPartitionedInstance();
 
       reader.partitionKeys = newPartition.getPartitionKeys().get(blocksMetadataInput).partitions;
@@ -352,12 +355,12 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
       }
     }
     //transfer the counters
-    AbstractBlockReader<R, B, STREAM> targetReader = partitions.iterator().next().getPartitionedInstance();
+    AbstractBlockReader<R, B, STREAM> targetReader = newPartitions.iterator().next().getPartitionedInstance();
     for (BasicCounters<MutableLong> removedCounter : deletedCounters) {
       addCounters(targetReader.counters, removedCounter);
     }
 
-    return partitions;
+    return newPartitions;
   }
 
   /**
