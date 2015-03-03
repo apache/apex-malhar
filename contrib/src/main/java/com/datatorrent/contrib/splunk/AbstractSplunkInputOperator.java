@@ -16,12 +16,19 @@
 package com.datatorrent.contrib.splunk;
 
 import java.io.InputStream;
+
 import javax.validation.constraints.NotNull;
-import com.splunk.*;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import com.datatorrent.api.DefaultOutputPort;
+
+import com.splunk.Event;
+import com.splunk.JobExportArgs;
+import com.splunk.MultiResultsReaderXml;
+import com.splunk.SearchResults;
+
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
 
 import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
@@ -29,7 +36,7 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * This is the base implementation of a Splunk input adapter.&nbsp;
  * Subclasses must implement the methods which convert Splunk event to tuples.
  * <p>
- * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(Row)}.
+ * This is an abstract class. Sub-classes need to implement {@link #queryToRetrieveData()} and {@link #getTuple(String)}.
  * </p>
  * @displayName Abstract Splunk Input
  * @category Database
