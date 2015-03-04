@@ -601,7 +601,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           }
         }
 
-        hdsQuery.keepAliveCount = queueWindowCount;
+        hdsQuery.keepAliveCount = query.getCountdown().intValue();
         hdsQueries.add(hdsQuery);
       }
 
@@ -610,7 +610,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       aqm.setAdInofAggregateEvent(ae);
       aqm.setHdsQueries(hdsQueries);
 
-      return super.enqueue(query, aqm, new MutableLong(queueWindowCount));
+      return super.enqueue(query, aqm, new MutableLong(query.getCountdown()));
     }
   }
 
