@@ -575,12 +575,10 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   @Override
   public void endWindow()
   {
-
     super.endWindow();
-
-    if (strategy == PartitionStrategy.ONE_TO_MANY) {
-      //send the stats to AppMaster and let the AppMaster decide if it wants to repartition
-      context.setCounters(getConsumer().getConsumerStats());
+    if((getConsumer() instanceof  SimpleKafkaConsumer)) {
+      SimpleKafkaConsumer cons = (SimpleKafkaConsumer) getConsumer();
+      context.setCounters(cons.getConsumerStats(offsetStats));
     }
   }
 

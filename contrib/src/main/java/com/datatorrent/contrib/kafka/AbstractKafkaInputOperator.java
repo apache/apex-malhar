@@ -236,10 +236,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   {
     if (currentWindowId > idempotentStorageManager.getLargestRecoveryWindow()) {
       try {
-        if((getConsumer() instanceof  SimpleKafkaConsumer)) {
-          SimpleKafkaConsumer cons = (SimpleKafkaConsumer) getConsumer();
-          context.setCounters(cons.getConsumerStats(offsetStats));
-        }
         idempotentStorageManager.save(currentWindowRecoveryState, operatorId, currentWindowId);
       }
       catch (IOException e) {
@@ -306,19 +302,18 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
       count = Math.min(count, maxTuplesPerWindow - emitCount);
     }
     for (int i = 0; i < count; i++) {
-      KafkaConsumer.holdingData consumerData = consumer.pollMessage();
-      emitTuple(consumerData.msg);
-      offsetStats.put(consumerData.kafkaPart, consumerData.offSet);
-      if(!currentWindowRecoveryState.containsKey(consumerData.kafkaPart))
+      KafkaConsumer.KafkaMessage message = consumer.pollMessage();
+      emitTuple(message.msg);
+      offsetStats.put(message.kafkaPart, message.offSet);
+      if(!currentWindowRecoveryState.containsKey(message.kafkaPart))
       {
-        currentWindowRecoveryState.put(consumerData.kafkaPart, new KafkaPair<Long, Integer>(consumerData.offSet, 1));
+        currentWindowRecoveryState.put(message.kafkaPart, new KafkaPair<Long, Integer>(message.offSet, 1));
       } else {
-        Pair<Long, Integer> second = currentWindowRecoveryState.get(consumerData.kafkaPart);
+        Pair<Long, Integer> second = currentWindowRecoveryState.get(message.kafkaPart);
         Integer noOfMessages = second.getSecond();
-        currentWindowRecoveryState.put(consumerData.kafkaPart, new KafkaPair<Long, Integer>(second.getFirst(), noOfMessages+1));
+        currentWindowRecoveryState.put(message.kafkaPart, new KafkaPair<Long, Integer>(second.getFirst(), noOfMessages+1));
       }
     }
-
     emitCount += count;
   }
 

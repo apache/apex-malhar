@@ -77,7 +77,7 @@ public abstract class KafkaConsumer implements Closeable
 
   protected transient boolean isAlive = false;
 
-  private transient ArrayBlockingQueue<holdingData> holdingBuffer;
+  private transient ArrayBlockingQueue<KafkaMessage> holdingBuffer;
 
   /**
    * The topic that this consumer consumes
@@ -116,7 +116,7 @@ public abstract class KafkaConsumer implements Closeable
    */
   public void create(){
     initBrokers();
-    holdingBuffer = new ArrayBlockingQueue<holdingData>(cacheSize);
+    holdingBuffer = new ArrayBlockingQueue<KafkaMessage>(cacheSize);
   };
   
   public void initBrokers()
@@ -179,7 +179,7 @@ public abstract class KafkaConsumer implements Closeable
     return topic;
   }
 
-  public holdingData pollMessage()
+  public KafkaMessage pollMessage()
   {
     return holdingBuffer.poll();
   }
@@ -222,7 +222,7 @@ public abstract class KafkaConsumer implements Closeable
 
   final protected void putMessage(KafkaPartition partition, Message msg, long offset) throws InterruptedException{
     // block from receiving more message
-    holdingBuffer.put(new holdingData(partition, msg, offset));
+    holdingBuffer.put(new KafkaMessage(partition, msg, offset));
     statsSnapShot.mark(partition, msg.payloadSize());
   };
 
@@ -313,13 +313,12 @@ public abstract class KafkaConsumer implements Closeable
     }
   }
 
-  public static class holdingData
+  public static class KafkaMessage
   {
     KafkaPartition kafkaPart;
     Message msg;
     long offSet;
-    public holdingData() {}
-    public holdingData(KafkaPartition kafkaPart, Message msg, long offset)
+    public KafkaMessage(KafkaPartition kafkaPart, Message msg, long offset)
     {
       this.kafkaPart = kafkaPart;
       this.msg = msg;
