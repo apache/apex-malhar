@@ -710,7 +710,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         return null;
       }
 
-      if(query.getIncompleteResultOK()) {
+      if(!query.getIncompleteResultOK()) {
         if(!allSatisfied && queueContext.longValue() > 1L) {
           return null;
         }
