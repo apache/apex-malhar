@@ -151,10 +151,9 @@ public class AbstractBlockReaderTest
   static class ReaderStats extends Stats.OperatorStats
   {
 
-    ReaderStats(long backlog, long readBlocks, long bytes, long time)
+    ReaderStats(int backlog, long readBlocks, long bytes, long time)
     {
       BasicCounters<MutableLong> bc = new BasicCounters<MutableLong>(MutableLong.class);
-      bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BACKLOG, new MutableLong(backlog));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS, new MutableLong(readBlocks));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BYTES, new MutableLong(bytes));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.TIME, new MutableLong(time));
@@ -162,7 +161,7 @@ public class AbstractBlockReaderTest
       counters = bc;
 
       PortStats portStats = new PortStats("blocks");
-      portStats.queueSize = 0;
+      portStats.queueSize = backlog;
       inputPorts = Lists.newArrayList(portStats);
     }
   }

@@ -59,6 +59,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <STREAM> type of stream.
  */
 
+@StatsListener.DataQueueSize
 public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM extends InputStream & PositionedReadable> extends BaseOperator implements
   Partitioner<AbstractBlockReader<R, B, STREAM>>, StatsListener, Operator.IdleTimeHandler
 {
@@ -143,7 +144,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     counters.setCounter(ReaderCounterKeys.RECORDS, new MutableLong());
     counters.setCounter(ReaderCounterKeys.BYTES, new MutableLong());
     counters.setCounter(ReaderCounterKeys.TIME, new MutableLong());
-    counters.setCounter(ReaderCounterKeys.BACKLOG, new MutableLong());
     sleepTimeMillis = context.getValue(Context.OperatorContext.SPIN_MILLIS);
   }
 
@@ -351,21 +351,10 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
 
     List<Stats.OperatorStats> lastWindowedStats = stats.getLastWindowedStats();
     if (lastWindowedStats != null && lastWindowedStats.size() > 0) {
-      long operatorBacklog = 0;
       int queueSize = lastWindowedStats.get(lastWindowedStats.size() - 1).inputPorts.get(0).queueSize;
-      if (queueSize > 1) {
-        operatorBacklog += queueSize;
+      if (queueSize > 0) {
+        backlogPerOperator.put(stats.getOperatorId(), (long) queueSize);
       }
-
-      for (int i = lastWindowedStats.size() - 1; i >= 0; i--) {
-        if (lastWindowedStats.get(i).counters != null) {
-          @SuppressWarnings("unchecked")
-          BasicCounters<MutableLong> basicCounters = (BasicCounters<MutableLong>) lastWindowedStats.get(i).counters;
-          operatorBacklog += basicCounters.getCounter(ReaderCounterKeys.BACKLOG).longValue();
-          break;
-        }
-      }
-      backlogPerOperator.put(stats.getOperatorId(), operatorBacklog);
     }
 
     if (System.currentTimeMillis() < nextMillis) {
@@ -576,7 +565,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
 
   public static enum ReaderCounterKeys
   {
-    RECORDS, BLOCKS, BYTES, TIME, BACKLOG
+    RECORDS, BLOCKS, BYTES, TIME
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractBlockReader.class);
