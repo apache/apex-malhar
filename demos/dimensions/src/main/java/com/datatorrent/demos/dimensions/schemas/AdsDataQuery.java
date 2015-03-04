@@ -22,7 +22,7 @@ public class AdsDataQuery extends Query
   public static final String TYPE = "dataQuery";
 
   private AdsDataQueryData data;
-  private Long countdown;
+  private Long countdown = 30L;
   private boolean incompleteResultOK = true;
 
   public AdsDataQuery()
