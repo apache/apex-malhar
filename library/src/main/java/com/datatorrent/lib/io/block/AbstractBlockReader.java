@@ -48,7 +48,6 @@ import com.datatorrent.lib.counters.BasicCounters;
  *
  * <p/>
  * Properties that can be set on AbstractBlockReader:<br/>
- * {@link #threshold}: max number of blocks to be processed in a window.<br/>
  * {@link #collectStats}: the operator is dynamically partition-able which is influenced by the backlog and the port queue size. This property disables
  * collecting stats and thus partitioning.<br/>
  * {@link #maxReaders}: Maximum number of readers when dynamic partitioning is on.<br/>
@@ -70,17 +69,11 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   protected ReaderContext<STREAM> readerContext;
   protected transient STREAM stream;
 
-  /**
-   * Limit on the no. of blocks to be processed in a window. By default {@link Integer#MAX_VALUE}
-   */
-  protected int threshold;
   protected transient int blocksPerWindow;
 
   protected final BasicCounters<MutableLong> counters;
 
   protected transient Context.OperatorContext context;
-
-  protected final Queue<B> blockQueue;
 
   protected transient long sleepTimeMillis;
 
@@ -122,10 +115,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     @Override
     public void process(B block)
     {
-      blockQueue.add(block);
-      if (blocksPerWindow < threshold) {
-        processHeadBlock();
-      }
+      processBlockMetadata(block);
     }
   };
 
@@ -137,9 +127,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     response = new StatsListener.Response();
     backlogPerOperator = Maps.newHashMap();
     partitionCount = 1;
-    threshold = Integer.MAX_VALUE;
     counters = new BasicCounters<MutableLong>(MutableLong.class);
-    blockQueue = new LinkedList<B>();
     collectStats = true;
     lastBlockOpenTime = -1;
   }
@@ -169,13 +157,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   @Override
   public void handleIdleTime()
   {
-    if (canHandleMoreBlocks()) {
-      do {
-        processHeadBlock();
-      }
-      while (canHandleMoreBlocks());
-    }
-    else if (lastProcessedBlock != null && System.currentTimeMillis() - lastBlockOpenTime > intervalMillis) {
+    if (lastProcessedBlock != null && System.currentTimeMillis() - lastBlockOpenTime > intervalMillis) {
       try {
         teardownStream(lastProcessedBlock);
         lastProcessedBlock = null;
@@ -195,27 +177,10 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     }
   }
 
-  /**
-   * Lets the base reader know when it has more work to do while its idle-ing.
-   *
-   * @return whether there are more blocks that can be hendled in this window.
-   */
-  protected boolean canHandleMoreBlocks()
-  {
-    return !blockQueue.isEmpty() && blocksPerWindow < threshold;
-  }
-
-  protected void processHeadBlock()
-  {
-    B top = blockQueue.poll();
-    processBlockMetadata(top);
-  }
-
   @Override
   public void endWindow()
   {
     counters.getCounter(ReaderCounterKeys.BLOCKS).add(blocksPerWindow);
-    counters.getCounter(ReaderCounterKeys.BACKLOG).setValue(blockQueue.size());
     context.setCounters(counters);
   }
 
@@ -293,10 +258,8 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     }
     List<Partition<AbstractBlockReader<R, B, STREAM>>> newPartitions = Lists.newArrayList();
 
-    //Collect state and new partitions
-    List<B> pendingBlocks = Lists.newArrayList();
+    //Create new partitions
     for (Partition<AbstractBlockReader<R, B, STREAM>> partition : partitions) {
-      pendingBlocks.addAll(partition.getPartitionedInstance().blockQueue);
       newPartitions.add(new DefaultPartition<AbstractBlockReader<R, B, STREAM>>(partition.getPartitionedInstance()));
     }
     partitions.clear();
@@ -342,17 +305,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
       reader.partitionKeys = newPartition.getPartitionKeys().get(blocksMetadataInput).partitions;
       reader.partitionMask = lPartitionMask;
       LOG.debug("partitions {},{}", reader.partitionKeys, reader.partitionMask);
-      reader.blockQueue.clear();
-
-      //distribute block-metadatas
-      Iterator<B> pendingBlocksIterator = pendingBlocks.iterator();
-      while (pendingBlocksIterator.hasNext()) {
-        B pending = pendingBlocksIterator.next();
-        if (reader.partitionKeys.contains(pending.hashCode() & lPartitionMask)) {
-          reader.blockQueue.add(pending);
-          pendingBlocksIterator.remove();
-        }
-      }
     }
     //transfer the counters
     AbstractBlockReader<R, B, STREAM> targetReader = newPartitions.iterator().next().getPartitionedInstance();
@@ -535,22 +487,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   public int getMinReaders()
   {
     return minReaders;
-  }
-
-  /**
-   * Sets the threshold on the number of blocks that can be processed in a window.
-   */
-  public void setThreshold(Integer threshold)
-  {
-    this.threshold = threshold;
-  }
-
-  /**
-   * @return threshold on the number of blocks that can be processed in a window.
-   */
-  public Integer getThreshold()
-  {
-    return threshold;
   }
 
   /**
