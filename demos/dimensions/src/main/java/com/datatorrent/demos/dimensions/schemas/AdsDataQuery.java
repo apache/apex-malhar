@@ -23,7 +23,7 @@ public class AdsDataQuery extends Query
 
   private AdsDataQueryData data;
   private Long countdown;
-  private Boolean incompleteResultOK;
+  private boolean incompleteResultOK = true;
 
   public AdsDataQuery()
   {
@@ -58,7 +58,7 @@ public class AdsDataQuery extends Query
   /**
    * @return the incompleteResultOK
    */
-  public Boolean getIncompleteResultOK()
+  public boolean getIncompleteResultOK()
   {
     return incompleteResultOK;
   }
@@ -66,7 +66,7 @@ public class AdsDataQuery extends Query
   /**
    * @param incompleteResultOK the incompleteResultOK to set
    */
-  public void setIncompleteResultOK(Boolean incompleteResultOK)
+  public void setIncompleteResultOK(boolean incompleteResultOK)
   {
     this.incompleteResultOK = incompleteResultOK;
   }
