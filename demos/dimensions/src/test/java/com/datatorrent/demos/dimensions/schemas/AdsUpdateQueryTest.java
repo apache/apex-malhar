@@ -5,12 +5,15 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
-import com.datatorrent.demos.dimensions.schemas.AdsUpdateQuery;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+
+import com.datatorrent.demos.dimensions.schemas.AdsUpdateQuery;
 
 /**
  *

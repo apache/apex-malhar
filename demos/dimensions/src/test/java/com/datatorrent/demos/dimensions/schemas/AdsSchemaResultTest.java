@@ -5,11 +5,10 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
-import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
+import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaTestUtils;
-import com.datatorrent.lib.appdata.schemas.TimeSeriesTabularOneTimeQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Assert;
 import org.junit.Test;
@@ -36,7 +35,7 @@ public class AdsSchemaResultTest
     final String schemaType = "dimensions";
     final String schemaVersion = "1.0";
 
-    TimeSeriesTabularOneTimeQuery oneTimeQuery = new TimeSeriesTabularOneTimeQuery();
+    Query oneTimeQuery = new Query();
     oneTimeQuery.setId(id);
     oneTimeQuery.setType("oneTimeQuery");
 

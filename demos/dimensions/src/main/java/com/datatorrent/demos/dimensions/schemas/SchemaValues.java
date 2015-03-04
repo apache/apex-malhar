@@ -3,33 +3,35 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.qr;
+package com.datatorrent.demos.dimensions.schemas;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class Result
+public class SchemaValues
 {
-  public static final String FIELD_ID = "id";
-  public static final String FIELD_TYPE = "type";
-  public static final String FIELD_DATA = "data";
-
-  private String id;
+  private String name;
   private String type;
 
-  public Result()
+  public SchemaValues()
   {
   }
 
-  public Result(Query query)
+  /**
+   * @return the name
+   */
+  public String getName()
   {
-    this.id = query.getId();
+    return name;
   }
 
-  public String getId()
+  /**
+   * @param name the name to set
+   */
+  public void setName(String name)
   {
-    return id;
+    this.name = name;
   }
 
   /**

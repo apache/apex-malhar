@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.schemas;
+package com.datatorrent.demos.dimensions.schemas;
 
 /**
  *

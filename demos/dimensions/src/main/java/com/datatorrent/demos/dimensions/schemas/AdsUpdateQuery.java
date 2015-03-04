@@ -5,15 +5,15 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
+import java.util.List;
+
+
 import com.datatorrent.lib.appdata.qr.QRType;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
 import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
-import com.datatorrent.lib.appdata.schemas.SimpleTimeBucket;
-
-import java.util.List;
 
 /**
  *

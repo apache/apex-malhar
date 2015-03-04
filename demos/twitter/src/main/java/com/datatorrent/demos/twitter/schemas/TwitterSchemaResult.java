@@ -11,7 +11,6 @@ import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 import com.datatorrent.lib.appdata.schemas.SchemaData;
-import com.datatorrent.lib.appdata.schemas.SchemaValues;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 

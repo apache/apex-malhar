@@ -14,9 +14,9 @@ import java.util.Iterator;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class DynamicPrimitiveObjectUtils
+public class GPOUtils
 {
-  public static DynamicPrimitiveObject deserialize(JSONObject dpou)
+  public static GPOMutable deserialize(JSONObject dpou)
   {
     Iterator itr = dpou.keys();
 
@@ -29,7 +29,12 @@ public class DynamicPrimitiveObjectUtils
 
       /*try {
 
+      }
+      catch(JSONException ex) {
+        processed = false;
       }*/
+
+      //dpou.
 
       String valString;
 

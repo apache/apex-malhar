@@ -5,7 +5,6 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
-import com.datatorrent.lib.appdata.schemas.TimeRangeBucket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 

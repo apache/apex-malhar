@@ -1,0 +1,7 @@
+{
+  "schemaType":"tabularTest",
+  "schemaVersion":"1.0",
+  "values":[{"name":"boolField","type":"boolean"},
+            {"name":"intField","type":"integer"},
+            {"name":"doubleField","type":"double"}]
+}
