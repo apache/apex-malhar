@@ -616,7 +616,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       TimeUnit bucketUnit = AdInfo.BUCKET_TO_TIMEUNIT.get(prototype.bucket);
       Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
 
-      SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache = null;
       boolean hour = false;
 
       if(prototype.bucket == AdInfo.MINUTE_BUCKET) {
