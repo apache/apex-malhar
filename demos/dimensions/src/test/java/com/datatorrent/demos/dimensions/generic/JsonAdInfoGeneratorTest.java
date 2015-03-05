@@ -20,6 +20,7 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.demos.dimensions.ads.AdInfo;
+import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 
@@ -42,14 +43,11 @@ public class JsonAdInfoGeneratorTest {
   public void testOperator() throws Exception
   {
     int minTuples = 1000;
-    int maxPublishers = 10;
-    int maxAdvertisers = 10;
-    int maxAdUnits = 10;
+    int maxPublishers = AdsSchemaResult.PUBLISHERS.length;
+    int maxAdvertisers = AdsSchemaResult.ADVERTISERS.length;
+    int maxAdUnits = AdsSchemaResult.LOCATIONS.length;
     JsonAdInfoGenerator oper = new JsonAdInfoGenerator();
     oper.setBlastCount(minTuples);
-    oper.setNumPublishers(maxPublishers);
-    oper.setNumAdvertisers(maxAdvertisers);
-    oper.setNumAdUnits(maxAdUnits);
     CollectorTestSink<byte[]> sink = new CollectorTestSink<byte[]>();
     TestUtils.setSink(oper.jsonOutput, sink);
     oper.setup(null);
