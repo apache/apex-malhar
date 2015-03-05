@@ -573,7 +573,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           }
         }
 
-        hdsQuery.keepAliveCount = query.getCountdown().intValue();
+        hdsQuery.keepAliveCount = (int) query.getCountdown();
         hdsQueries.add(hdsQuery);
       }
 
