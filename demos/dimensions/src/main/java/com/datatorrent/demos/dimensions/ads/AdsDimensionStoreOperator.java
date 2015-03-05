@@ -118,9 +118,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
   protected static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
   // in-memory aggregation before hitting WAL
-  protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> minuteCache = Maps.newTreeMap();
-  protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> hourCache = Maps.newTreeMap();
-  protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> dayCache = Maps.newTreeMap();
+  protected final SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache = Maps.newTreeMap();
   // TODO: should be aggregation interval count
   private int maxCacheSize = 20;
 
@@ -194,29 +192,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   protected void processEvent(AdInfoAggregateEvent event) throws IOException
   {
-    AdInfoAggregateEvent minuteEvent = new AdInfoAggregateEvent(event,
-                                                                AdInfoAggregateEvent.MINUTE_BUCKET);
-    AdInfoAggregateEvent hourEvent = new AdInfoAggregateEvent(event,
-                                                              AdInfoAggregateEvent.HOUR_BUCKET);
-    AdInfoAggregateEvent dayEvent = new AdInfoAggregateEvent(event,
-                                                             AdInfoAggregateEvent.DAY_BUCKET);
-    processToBucket(minuteEvent, minuteCache);
-    processToBucket(hourEvent, hourCache);
-    processToBucket(dayEvent, dayCache);
-  }
-
-  private void processToBucket(AdInfoAggregateEvent event,
-                               SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache)
-  {
-    /*
-    if(event.advertiserId == 1 &&
-       event.publisherId == 4 &&
-       event.adUnit == 3) {
-      LOG.info("desired tuple {} ",
-               AdsTimeRangeBucket.sdf.format(new Date(event.getTimestamp())));
-    }
-    */
-
     Map<AdInfoAggregateEvent, AdInfoAggregateEvent> valMap = cache.get(event.getTimestamp());
 
     if (valMap == null) {
@@ -269,9 +244,21 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   public void endWindow()
   {
-    flushCache(minuteCache);
-    flushCache(hourCache);
-    flushCache(dayCache);
+    // flush final aggregates
+    int expiredEntries = cache.size() - maxCacheSize;
+    while(expiredEntries-- > 0) {
+
+      Map<AdInfoAggregateEvent, AdInfoAggregateEvent> vals = cache.remove(cache.firstKey());
+      for(Entry<AdInfoAggregateEvent, AdInfoAggregateEvent> en: vals.entrySet()) {
+        AdInfoAggregateEvent ai = en.getValue();
+        try {
+          put(getBucketKey(ai), new Slice(getKey(ai)), getValue(ai));
+        }
+        catch(IOException e) {
+          LOG.warn("Error putting the value", e);
+        }
+      }
+    }
 
     /*for(Long timestamp: hourCache.keySet()) {
       String startString = AdsTimeRangeBucket.sdf.format(new Date(timestamp));
@@ -299,24 +286,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
 
     queryProcessor.endWindow();
-  }
-
-  private void flushCache(SortedMap<Long, Map<AdInfoAggregateEvent, AdInfoAggregateEvent>> cache)
-  {
-    // flush final aggregates
-    int expiredEntries = cache.size() - maxCacheSize;
-    while(expiredEntries-- > 0){
-
-      Map<AdInfoAggregateEvent, AdInfoAggregateEvent> vals = cache.remove(cache.firstKey());
-      for (Entry<AdInfoAggregateEvent, AdInfoAggregateEvent> en : vals.entrySet()) {
-        AdInfoAggregateEvent ai = en.getValue();
-        try {
-          put(getBucketKey(ai), new Slice(getKey(ai)), getValue(ai));
-        } catch (IOException e) {
-          LOG.warn("Error putting the value", e);
-        }
-      }
-    }
   }
 
   @Override
@@ -527,17 +496,17 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         if(bucket == AdInfo.MINUTE_BUCKET) {
           LOG.info("Minute bucket");
           startTime = AdInfo.roundMinute(startTime);
-          endTime = AdInfo.roundMinuteUp(endTime);
+          endTime = AdInfo.roundMinute(endTime);
         }
         else if(bucket == AdInfo.HOUR_BUCKET) {
           LOG.info("Hour bucket");
           startTime = AdInfo.roundHour(startTime);
-          endTime = AdInfo.roundHourUp(endTime);
+          endTime = AdInfo.roundHour(endTime);
         }
         else if(bucket == AdInfo.DAY_BUCKET) {
           LOG.info("Day bucket");
           startTime = AdInfo.roundDay(startTime);
-          endTime = AdInfo.roundDayUp(endTime);
+          endTime = AdInfo.roundDay(endTime);
         }
       }
       else {
@@ -652,16 +621,13 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
       if(prototype.bucket == AdInfo.MINUTE_BUCKET) {
         LOG.info("Minute bucket");
-        cache = minuteCache;
       }
       else if(prototype.bucket == AdInfo.HOUR_BUCKET) {
         hour = true;
         LOG.info("Hour bucket");
-        cache = hourCache;
       }
       else if(prototype.bucket == AdInfo.DAY_BUCKET) {
         LOG.info("Day bucket");
-        cache = dayCache;
       }
 
       boolean allSatisfied = true;
@@ -715,8 +681,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           return null;
         }
         else {
-          //Expire query.
           queueContext.setValue(0L);
+          return result;
         }
       }
 

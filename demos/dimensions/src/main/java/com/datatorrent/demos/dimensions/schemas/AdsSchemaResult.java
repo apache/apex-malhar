@@ -31,14 +31,17 @@ public class AdsSchemaResult extends Result
   public static final String SCHEMA_VERSION = "1.0";
   public static final String[] BUCKETS = {"1m", "1h", "1d"};
   public static final String PUBLISHER = "publisher";
+  public static final String PUBLISHER_ALL = "ALL";
   public static final String[] PUBLISHERS = {"twitter", "facebook", "yahoo",
                                              "google", "bing", "amazon"};
   public static final String ADVERTISER = "advertiser";
+  public static final String ADVERTISER_ALL = "ALL";
   public static final String[] ADVERTISERS = {"starbucks", "safeway", "mcdonalds",
                                               "macys", "taco bell", "walmart", "khol's",
                                               "san diego zoo", "pandas", "jack in the box",
                                               "tomatina", "ron swanson"};
   public static final String LOCATION = "location";
+  public static final String LOCATION_ALL = "ALL";
   public static final String[] LOCATIONS = {"N", "LREC", "SKY",
                                             "AL", "AK", "AZ",
                                             "AR", "CA", "CO",

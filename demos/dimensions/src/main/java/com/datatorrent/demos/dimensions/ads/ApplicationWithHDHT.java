@@ -132,7 +132,23 @@ public class ApplicationWithHDHT implements StreamingApplication
         "time=" + TimeUnit.MINUTES + ":advertiserId:adUnit",
         "time=" + TimeUnit.MINUTES + ":publisherId:adUnit",
         "time=" + TimeUnit.MINUTES + ":publisherId:advertiserId",
-        "time=" + TimeUnit.MINUTES + ":publisherId:advertiserId:adUnit"
+        "time=" + TimeUnit.MINUTES + ":publisherId:advertiserId:adUnit",
+        "time=" + TimeUnit.HOURS,
+        "time=" + TimeUnit.HOURS + ":adUnit",
+        "time=" + TimeUnit.HOURS + ":advertiserId",
+        "time=" + TimeUnit.HOURS + ":publisherId",
+        "time=" + TimeUnit.HOURS + ":advertiserId:adUnit",
+        "time=" + TimeUnit.HOURS + ":publisherId:adUnit",
+        "time=" + TimeUnit.HOURS + ":publisherId:advertiserId",
+        "time=" + TimeUnit.HOURS + ":publisherId:advertiserId:adUnit",
+        "time=" + TimeUnit.DAYS,
+        "time=" + TimeUnit.DAYS + ":adUnit",
+        "time=" + TimeUnit.DAYS + ":advertiserId",
+        "time=" + TimeUnit.DAYS + ":publisherId",
+        "time=" + TimeUnit.DAYS + ":advertiserId:adUnit",
+        "time=" + TimeUnit.DAYS + ":publisherId:adUnit",
+        "time=" + TimeUnit.DAYS + ":publisherId:advertiserId",
+        "time=" + TimeUnit.DAYS + ":publisherId:advertiserId:adUnit"
     };
 
     AdInfoAggregator[] aggregators = new AdInfoAggregator[dimensionSpecs.length];

@@ -18,19 +18,15 @@ package com.datatorrent.demos.dimensions.ads;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
+import com.datatorrent.demos.dimensions.schemas.AdsDataQuery;
+import com.datatorrent.demos.dimensions.schemas.AdsDataQuery.AdsDataQueryData;
+import com.datatorrent.demos.dimensions.schemas.AdsDataResult;
 import com.datatorrent.demos.dimensions.schemas.AdsKeys;
-import com.datatorrent.demos.dimensions.schemas.AdsOneTimeQuery;
-import com.datatorrent.demos.dimensions.schemas.AdsOneTimeQuery.AdsOneTimeQueryData;
-import com.datatorrent.demos.dimensions.schemas.AdsOneTimeResult;
 import com.datatorrent.demos.dimensions.schemas.AdsTimeRangeBucket;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.google.common.util.concurrent.MoreExecutors;
 import java.io.File;
-
-import java.util.Date;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.commons.io.FileUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.junit.Assert;
@@ -38,6 +34,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class AdsDimensionStoreOperatorTest
 {
@@ -91,6 +90,7 @@ public class AdsDimensionStoreOperatorTest
     hdsOut.input.process(ae1);
 
     logger.debug("AdEvent 1: {}", ae1);
+    logger.debug("ae1 timestamp: {}", ae1.timestamp);
 
     AdInfo.AdInfoAggregateEvent ae2 = new AdInfo.AdInfoAggregateEvent();
     ae2.publisherId = 1;
@@ -111,36 +111,44 @@ public class AdsDimensionStoreOperatorTest
     hdsOut.input.process(ae3);
 
     logger.debug("AdEvent 3: {}", ae3);
+    logger.debug("ae3 timestamp: {}", ae3.timestamp);
 
     hdsOut.endWindow();
 
     hdsOut.beginWindow(2);
 
-    AdsOneTimeQuery aotq = new AdsOneTimeQuery();
-    aotq.setId("query1");
-    aotq.setType("oneTimeQuery");
+    AdsDataQuery adq = new AdsDataQuery();
+    adq.setId("query1");
+    adq.setType(AdsDataQuery.TYPE);
 
-    AdsOneTimeQueryData aotqd = new AdsOneTimeQueryData();
+    AdsDataQueryData adqd = new AdsDataQueryData();
 
     AdsKeys aks = new AdsKeys();
     aks.setPublisherId(1);
     aks.setAdvertiserId(2);
     aks.setLocationId(1);
 
-    aotqd.setKeys(aks);
+    adqd.setKeys(aks);
 
     AdsTimeRangeBucket atrb = new AdsTimeRangeBucket();
     atrb.setFromLong(baseMinute);
+    logger.debug("query from timestamp: {}", atrb.getFromLong());
     atrb.setToLong(baseMinute + TimeUnit.MILLISECONDS.convert(20, TimeUnit.MINUTES));
-    atrb.setBucket("1h");
+    logger.debug("query to timestamp: {}", atrb.getToLong());
+    atrb.setBucket("1m");
 
-    aotqd.setTime(atrb);
-    aotq.setData(aotqd);
+    adqd.setTime(atrb);
+    adq.setData(adqd);
+    adq.setCountdown(1L);
+    adq.setIncompleteResultOK(true);
 
-    String query = om.writeValueAsString(aotq);
+    String query = om.writeValueAsString(adq);
     logger.debug("Input query: {}", query);
 
     hdsOut.query.process(query);
+
+    Thread.sleep(1000);
+
     hdsOut.endWindow();
 
     Thread.sleep(1000);
@@ -148,7 +156,10 @@ public class AdsDimensionStoreOperatorTest
     Assert.assertEquals("queryResults " + queryResults.collectedTuples, 1, queryResults.collectedTuples.size());
     String result = queryResults.collectedTuples.iterator().next();
     logger.debug("Result: {}", result);
-    AdsOneTimeResult aotr = om.readValue(result, AdsOneTimeResult.class);
+    AdsDataResult aotr = om.readValue(result, AdsDataResult.class);
+
+    Assert.assertEquals("result points", 2, aotr.getData().size());
+
 
     Assert.assertEquals("result points", 2, aotr.getData().size());
 

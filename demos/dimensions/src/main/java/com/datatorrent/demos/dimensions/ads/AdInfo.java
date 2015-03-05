@@ -18,6 +18,7 @@ package com.datatorrent.demos.dimensions.ads;
 import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
 
@@ -318,11 +319,16 @@ public class AdInfo implements Serializable, Cloneable
     public void init(String dimension)
     {
       String[] attributes = dimension.split(":");
+      boolean hasTime = false;
       for (String attribute : attributes) {
         String[] keyval = attribute.split("=", 2);
         String key = keyval[0];
         if (key.equals("time")) {
           time = TimeUnit.valueOf(keyval[1]);
+
+          Preconditions.checkArgument(AdInfo.BUCKET_TO_TIMEUNIT.values().contains(time),
+                                      time + " Must be a supported time unit: "  + AdInfo.BUCKET_TO_TIMEUNIT.values());
+          hasTime = true;
         }
         else if (key.equals("publisherId")) {
           publisherId = keyval.length == 1 || Boolean.parseBoolean(keyval[1]);
@@ -336,6 +342,10 @@ public class AdInfo implements Serializable, Cloneable
         else {
           throw new IllegalArgumentException("Unknown attribute '" + attribute + "' specified as part of dimension!");
         }
+      }
+
+      if(!hasTime) {
+        throw new IllegalArgumentException("The time dimension must be specified.");
       }
 
       this.dimension = dimension;
@@ -394,7 +404,19 @@ public class AdInfo implements Serializable, Cloneable
     {
       AdInfoAggregateEvent event = new AdInfoAggregateEvent(aggregatorIndex);
       if (time != null) {
-        event.timestamp = TimeUnit.MILLISECONDS.convert(time.convert(src.timestamp, TimeUnit.MILLISECONDS), time);
+
+        if(time.equals(TimeUnit.MINUTES)) {
+          event.timestamp = AdInfo.roundMinute(src.timestamp);
+          event.bucket = AdInfo.MINUTE_BUCKET;
+        }
+        else if(time.equals(TimeUnit.HOURS)) {
+          event.timestamp = AdInfo.roundHour(src.timestamp);
+          event.bucket = AdInfo.HOUR_BUCKET;
+        }
+        else if(time.equals(TimeUnit.DAYS)) {
+          event.timestamp = AdInfo.roundDay(src.timestamp);
+          event.bucket = AdInfo.DAY_BUCKET;
+        }
       }
 
       if (publisherId) {

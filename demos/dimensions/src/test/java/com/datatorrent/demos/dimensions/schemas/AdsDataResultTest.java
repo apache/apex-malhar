@@ -5,8 +5,6 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
-import com.datatorrent.demos.dimensions.schemas.AdsUpdateResult;
-import com.datatorrent.demos.dimensions.schemas.AdsOneTimeResult;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import org.junit.Assert;
@@ -20,19 +18,15 @@ import java.util.ArrayList;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class AdsUpdateResultTest
+public class AdsDataResultTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(AdsUpdateResultTest.class);
-
-  public AdsUpdateResultTest()
-  {
-  }
+  private static final Logger logger = LoggerFactory.getLogger(AdsDataResultTest.class);
 
   @Test
   public void testSerialization()
   {
     final String id = "js34135136425";
-    final String type = "updateData";
+    final String type = "dataResult";
 
     final String advertiser = "starbucks";
     final String publisher = "google";
@@ -60,17 +54,17 @@ public class AdsUpdateResultTest
                             "\"cost\":" + cost + "," +
                             "\"revenue\":" + revenue +
                             "}]," +
-                          "\"countdown\":" + countdown + 
+                          "\"countdown\":" + countdown +
                           "}";
 
     Query query = new Query();
     query.setId(id);
     query.setType(type);
 
-    AdsUpdateResult aurt = new AdsUpdateResult(query);
+    AdsDataResult adr = new AdsDataResult(query);
 
-    ArrayList<AdsOneTimeResult.AdsOneTimeData> auds = new ArrayList<AdsOneTimeResult.AdsOneTimeData>();
-    AdsOneTimeResult.AdsOneTimeData aud = new AdsOneTimeResult.AdsOneTimeData();
+    ArrayList<AdsDataResult.AdsOneTimeData> auds = new ArrayList<AdsDataResult.AdsOneTimeData>();
+    AdsDataResult.AdsOneTimeData aud = new AdsDataResult.AdsOneTimeData();
 
     aud.setTime(time);
     aud.setPublisher(publisher);
@@ -82,12 +76,12 @@ public class AdsUpdateResultTest
     aud.setRevenue(revenue);
     auds.add(aud);
 
-    aurt.setData(auds);
-    aurt.setCountdown(countdown);
+    adr.setData(auds);
+    adr.setCountdown(countdown);
 
     ResultSerializerFactory rsf = new ResultSerializerFactory();
 
-    String jsonResult = rsf.serialize(aurt);
+    String jsonResult = rsf.serialize(adr);
 
     logger.debug("Expected: {}", jsonExpected);
     logger.debug("Actual:   {}", jsonResult);

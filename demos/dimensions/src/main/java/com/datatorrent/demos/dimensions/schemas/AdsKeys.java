@@ -6,9 +6,10 @@
 package com.datatorrent.demos.dimensions.schemas;
 
 import com.google.common.collect.Maps;
+
 import java.util.Collections;
 import java.util.Map;
-import javax.validation.constraints.NotNull;
+
 import org.codehaus.jackson.annotate.JsonIgnore;
 
 /**
@@ -30,29 +31,35 @@ public class AdsKeys
     Map<Integer, String> idToAdvertiser = Maps.newHashMap();
     populateMap(advertiserToId,
                 idToAdvertiser,
-                AdsSchemaResult.ADVERTISERS);
+                AdsSchemaResult.ADVERTISERS,
+                AdsSchemaResult.ADVERTISER_ALL);
     ADVERTISER_TO_ID = Collections.unmodifiableMap(advertiserToId);
     ID_TO_ADVERTISER = Collections.unmodifiableMap(idToAdvertiser);
     Map<String, Integer> publisherToId = Maps.newHashMap();
     Map<Integer, String> idToPublisher = Maps.newHashMap();
     populateMap(publisherToId,
                 idToPublisher,
-                AdsSchemaResult.PUBLISHERS);
+                AdsSchemaResult.PUBLISHERS,
+                AdsSchemaResult.PUBLISHER_ALL);
     PUBLISHER_TO_ID = Collections.unmodifiableMap(publisherToId);
     ID_TO_PUBLISHER = Collections.unmodifiableMap(idToPublisher);
     Map<String, Integer> locationToId = Maps.newHashMap();
     Map<Integer, String> idToLocation = Maps.newHashMap();
     populateMap(locationToId,
                 idToLocation,
-                AdsSchemaResult.LOCATIONS);
+                AdsSchemaResult.LOCATIONS,
+                AdsSchemaResult.LOCATION_ALL);
     LOCATION_TO_ID = Collections.unmodifiableMap(locationToId);
     ID_TO_LOCATION = Collections.unmodifiableMap(idToLocation);
   }
 
   private static void populateMap(Map<String, Integer> propertyToId,
                                   Map<Integer, String> idToProperty,
-                                  String[] propertyValues)
+                                  String[] propertyValues,
+                                  String allVals)
   {
+    propertyToId.put(null, 0);
+    idToProperty.put(0, allVals);
     for(int idCounter = 0;
         idCounter < propertyValues.length;
         idCounter++) {
@@ -61,11 +68,8 @@ public class AdsKeys
     }
   }
 
-  @NotNull
   private String advertiser;
-  @NotNull
   private String publisher;
-  @NotNull
   private String location;
 
   public AdsKeys()

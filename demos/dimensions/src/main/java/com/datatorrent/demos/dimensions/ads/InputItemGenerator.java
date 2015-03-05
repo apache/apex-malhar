@@ -18,6 +18,7 @@ package com.datatorrent.demos.dimensions.ads;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
 import com.datatorrent.demos.dimensions.schemas.AdsTimeRangeBucket;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
@@ -37,12 +38,6 @@ import java.util.Random;
  */
 public class InputItemGenerator implements InputOperator
 {
-  @Min(1)
-  private int numPublishers = 4;
-  @Min(1)
-  private int numAdvertisers = 3;
-  @Min(1)
-  private int numAdUnits = 3;
   private double expectedClickThruRate = 0.005;
   @Min(1)
   private int blastCount = 30000;
@@ -71,36 +66,6 @@ public class InputItemGenerator implements InputOperator
     this.blastCount = blastCount;
   }
 
-  public int getNumPublishers()
-  {
-    return numPublishers;
-  }
-
-  public void setNumPublishers(int numPublishers)
-  {
-    this.numPublishers = numPublishers;
-  }
-
-  public int getNumAdvertisers()
-  {
-    return numAdvertisers;
-  }
-
-  public void setNumAdvertisers(int numAdvertisers)
-  {
-    this.numAdvertisers = numAdvertisers;
-  }
-
-  public int getNumAdUnits()
-  {
-    return numAdUnits;
-  }
-
-  public void setNumAdUnits(int numAdUnits)
-  {
-    this.numAdUnits = numAdUnits;
-  }
-
   @Override
   public void beginWindow(long windowId)
   {
@@ -121,16 +86,16 @@ public class InputItemGenerator implements InputOperator
   {
   }
 
-  private int nextRandomId(int max)
+  /*private int nextRandomId(int max)
   {
     return random.nextInt(max);
-    /*int id;
-    do {
-      id = (int)Math.abs(Math.round(random.nextGaussian() * max / 2));
-    }
-    while (id >= max);
-    return id;*/
-  }
+    //int id;
+    //do {
+    //  id = (int)Math.abs(Math.round(random.nextGaussian() * max / 2));
+    //}
+    //while (id >= max);
+    //return id;
+  }*/
 
   @Override
   public void emitTuples()
@@ -138,10 +103,10 @@ public class InputItemGenerator implements InputOperator
     try {
       long timestamp;
       for (int i = 0; i < blastCount; ++i) {
-        int advertiserId = nextRandomId(numAdvertisers);
+        int advertiserId = random.nextInt(AdsSchemaResult.ADVERTISERS.length) + 1;
         //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
-        int publisherId = nextRandomId(numPublishers);
-        int adUnit = random.nextInt(numAdUnits);
+        int publisherId = random.nextInt(AdsSchemaResult.PUBLISHERS.length) + 1;
+        int adUnit = random.nextInt(AdsSchemaResult.LOCATIONS.length) + 1;
 
         advertiserId++;
         publisherId++;
