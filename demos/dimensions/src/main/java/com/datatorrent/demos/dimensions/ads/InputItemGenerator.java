@@ -108,9 +108,6 @@ public class InputItemGenerator implements InputOperator
         int publisherId = random.nextInt(AdsSchemaResult.PUBLISHERS.length) + 1;
         int adUnit = random.nextInt(AdsSchemaResult.LOCATIONS.length) + 1;
 
-        advertiserId++;
-        publisherId++;
-        adUnit++;
         timestamp = System.currentTimeMillis();
 
         if(i == blastCount - 1) {

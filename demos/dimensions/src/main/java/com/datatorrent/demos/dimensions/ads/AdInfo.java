@@ -348,6 +348,13 @@ public class AdInfo implements Serializable, Cloneable
         }
       }
 
+      if(time.equals(TimeUnit.MINUTES) &&
+         publisherId &&
+         advertiserId &&
+         adUnit) {
+        logger.debug("Has desired dimensional computation");
+      }
+
       if(!hasTime) {
         throw new IllegalArgumentException("The time dimension must be specified.");
       }
