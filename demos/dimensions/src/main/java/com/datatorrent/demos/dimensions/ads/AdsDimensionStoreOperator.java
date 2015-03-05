@@ -192,6 +192,13 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   protected void processEvent(AdInfoAggregateEvent event) throws IOException
   {
+    if(event.publisherId == 4 &&
+       event.advertiserId == 1 &&
+       event.adUnit == 3 &&
+       event.bucket == AdInfo.MINUTE_BUCKET) {
+      LOG.info("recieved event: {}", event);
+    }
+
     Map<AdInfoAggregateEvent, AdInfoAggregateEvent> valMap = cache.get(event.getTimestamp());
 
     if (valMap == null) {
@@ -638,6 +645,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         HDSQuery hdsQuery = queryIt.next();
         prototype.setTimestamp(timestamp);
 
+        LOG.info("query prototype: {}", prototype);
+
         Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = cache.get(timestamp);
 
         // TODO
@@ -646,7 +655,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         // then that key gets evicted from the minuteCache, then the value will never be retrieved.
         // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
         if(buffered != null) {
-          LOG.info("query prototype: {}", prototype);
           AdInfo.AdInfoAggregateEvent ae = buffered.get(prototype);
 
           if(ae != null) {
@@ -671,17 +679,12 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         }
       }
 
-      if(result.getData().isEmpty()) {
-        return null;
-      }
-
       if(!query.getIncompleteResultOK()) {
         if(!allSatisfied && queueContext.longValue() > 1L) {
           return null;
         }
         else {
           queueContext.setValue(0L);
-          return result;
         }
       }
 
