@@ -69,7 +69,7 @@ public class AdsDataQueryTest
     Assert.assertEquals("The bucket must match", bucket, trb.getBucket());
     Assert.assertEquals("The advertiser", advertiser, aks.getAdvertiser());
     Assert.assertEquals("The publisher", publisher, aks.getPublisher());
-    Assert.assertEquals("The countdown must equal", countdown, dq.getCountdown());
+    Assert.assertEquals("The countdown must equal", countdown, (Long) dq.getCountdown());
     Assert.assertEquals("The countdown must equal", incompleteResultOK, dq.getIncompleteResultOK());
   }
 }
