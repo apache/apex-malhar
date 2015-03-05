@@ -15,18 +15,28 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import java.util.*;
+import com.datatorrent.api.Attribute;
+import com.datatorrent.api.BaseOperator;
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.api.Operator;
+import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.IdempotentStorageManager;
+import com.datatorrent.lib.testbench.CollectorTestSink;
+import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import org.junit.After;
 import org.junit.Assert;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 import org.slf4j.LoggerFactory;
-
-import com.datatorrent.api.*;
-import com.datatorrent.api.DAG.Locality;
 
 public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 {
@@ -176,5 +186,89 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
   {
     tupleCount.set(0);
     super.afterTest();
+  }
+
+  public static class TestMeta extends TestWatcher
+  {
+    String baseDir;
+    String recoveryDir;
+    KafkaSinglePortStringInputOperator operator;
+    CollectorTestSink<Object> sink;
+    Context.OperatorContext context;
+
+    @Override
+    protected void starting(Description description)
+    {
+      String methodName = description.getMethodName();
+      String className = description.getClassName();
+      baseDir = "target/" + className + "/" + methodName;
+      recoveryDir = baseDir + "/" + "recovery";
+    }
+  }
+
+  @Rule
+  public TestMeta testMeta = new TestMeta();
+
+  @Test
+  public void testRecoveryAndIdempotency() throws Exception
+  {
+    int totalCount = 1500;
+
+    // initial the latch for this test
+    latch = new CountDownLatch(50);
+
+    // Start producer
+    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC);
+    p.setSendCount(totalCount);
+    new Thread(p).start();
+
+    Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
+    attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
+
+    testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
+    testMeta.operator = new KafkaSinglePortStringInputOperator();
+    ((IdempotentStorageManager.FSIdempotentStorageManager) testMeta.operator.getIdempotentStorageManager()).setRecoveryPath(testMeta.recoveryDir);
+
+    KafkaConsumer consumer = new SimpleKafkaConsumer();
+    consumer.setTopic(TEST_TOPIC);
+    consumer.setInitialOffset("earliest");
+
+    testMeta.operator.setConsumer(consumer);
+    testMeta.operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
+    testMeta.operator.setMaxTuplesPerWindow(500);
+    testMeta.sink = new CollectorTestSink<Object>();
+    testMeta.operator.outputPort.setSink(testMeta.sink);
+
+    testMeta.operator.setup(testMeta.context);
+    testMeta.operator.activate(testMeta.context);
+    latch.await(4000, TimeUnit.MILLISECONDS);
+    testMeta.operator.beginWindow(1);
+    testMeta.operator.emitTuples();
+    testMeta.operator.endWindow();
+    testMeta.operator.beginWindow(2);
+    testMeta.operator.emitTuples();
+    testMeta.operator.endWindow();
+
+    //failure and then re-deployment of operator
+    testMeta.sink.collectedTuples.clear();
+    testMeta.operator.setup(testMeta.context);
+    testMeta.operator.activate(testMeta.context);
+
+    Assert.assertEquals("largest recovery window", 2, testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+
+    testMeta.operator.beginWindow(1);
+    testMeta.operator.emitTuples();
+    testMeta.operator.endWindow();
+    testMeta.operator.beginWindow(2);
+    testMeta.operator.emitTuples();
+    testMeta.operator.endWindow();
+    latch.await(3000, TimeUnit.MILLISECONDS);
+    // Emiting data after all recovery windows are replayed
+    testMeta.operator.beginWindow(3);
+    testMeta.operator.emitTuples();
+    testMeta.operator.endWindow();
+
+    Assert.assertEquals("Total messages collected ", totalCount, testMeta.sink.collectedTuples.size());
+    testMeta.sink.collectedTuples.clear();
   }
 }

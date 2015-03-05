@@ -167,7 +167,7 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
               MessageAndMetadata<byte[], byte[]> mam = itr.next();
               try {
                 kp.setPartitionId(mam.partition());
-                putMessage(kp, new Message(mam.message()));
+                putMessage(kp, new Message(mam.message()), mam.offset());
               } catch (InterruptedException e) {
                 logger.error("Message Enqueue has been interrupted", e);
               }

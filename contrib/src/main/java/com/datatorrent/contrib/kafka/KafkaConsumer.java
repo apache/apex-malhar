@@ -77,7 +77,7 @@ public abstract class KafkaConsumer implements Closeable
 
   protected transient boolean isAlive = false;
 
-  private transient ArrayBlockingQueue<Message> holdingBuffer;
+  private transient ArrayBlockingQueue<KafkaMessage> holdingBuffer;
 
   /**
    * The topic that this consumer consumes
@@ -116,9 +116,8 @@ public abstract class KafkaConsumer implements Closeable
    */
   public void create(){
     initBrokers();
-    holdingBuffer = new ArrayBlockingQueue<Message>(cacheSize);
-
-  };
+    holdingBuffer = new ArrayBlockingQueue<KafkaMessage>(cacheSize);
+  }
   
   public void initBrokers()
   {
@@ -137,10 +136,11 @@ public abstract class KafkaConsumer implements Closeable
   /**
    * This method is called in the activate method of the operator
    */
-  public void start(){
+  public void start()
+  {
     isAlive = true;
     statsSnapShot.start();
-  };
+  }
 
   /**
    * The method is called in the deactivate method of the operator
@@ -180,7 +180,7 @@ public abstract class KafkaConsumer implements Closeable
     return topic;
   }
 
-  public Message pollMessage()
+  public KafkaMessage pollMessage()
   {
     return holdingBuffer.poll();
   }
@@ -221,11 +221,11 @@ public abstract class KafkaConsumer implements Closeable
   }
 
 
-  final protected void putMessage(KafkaPartition partition, Message msg) throws InterruptedException{
+  final protected void putMessage(KafkaPartition partition, Message msg, long offset) throws InterruptedException{
     // block from receiving more message
-    holdingBuffer.put(msg);
+    holdingBuffer.put(new KafkaMessage(partition, msg, offset));
     statsSnapShot.mark(partition, msg.payloadSize());
-  };
+  }
 
   protected abstract void commitOffset();
 
@@ -312,6 +312,20 @@ public abstract class KafkaConsumer implements Closeable
       }
       return ps;
     }
+  }
+
+  public static class KafkaMessage
+  {
+    KafkaPartition kafkaPart;
+    Message msg;
+    long offSet;
+    public KafkaMessage(KafkaPartition kafkaPart, Message msg, long offset)
+    {
+      this.kafkaPart = kafkaPart;
+      this.msg = msg;
+      this.offSet = offset;
+    }
+
   }
 
   public static class KafkaMeterStatsUtil {
@@ -474,7 +488,7 @@ public abstract class KafkaConsumer implements Closeable
       msgv[60]++;
       bytev[cursor] += bytes;
       bytev[60] += bytes;
-    };
+    }
 
     public synchronized void setupStats(KafkaMeterStats stat){
       long[] _1minAvg = {msgSec[60]/last, bytesSec[60]/last};

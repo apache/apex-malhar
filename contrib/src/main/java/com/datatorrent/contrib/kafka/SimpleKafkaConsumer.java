@@ -151,7 +151,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
             }
             FetchResponse fetchResponse = ksc.fetch(req);
             for (Iterator<KafkaPartition> iterator = kpS.iterator(); iterator.hasNext();) {
-              KafkaPartition kafkaPartition = (KafkaPartition) iterator.next();
+              KafkaPartition kafkaPartition = iterator.next();
               if (fetchResponse.hasError() && fetchResponse.errorCode(consumer.topic, kafkaPartition.getPartitionId()) != ErrorMapping.NoError()) {
                 // Kick off partition(s) which has error when fetch from this broker temporarily 
                 // Monitor will find out which broker it goes in monitor thread
@@ -165,7 +165,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
               long offset = -1l;
               for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kafkaPartition.getPartitionId())) {
                 offset = msg.nextOffset();
-                consumer.putMessage(kafkaPartition, msg.message());
+                consumer.putMessage(kafkaPartition, msg.message(), msg.offset());
               }
               if (offset != -1) {
                 consumer.offsetTrack.put(kafkaPartition, offset);
@@ -342,9 +342,9 @@ public class SimpleKafkaConsumer extends KafkaConsumer
       final SimpleKafkaConsumer ref = this;
       metadataRefreshExecutor.scheduleAtFixedRate(new Runnable() {
 
-        private transient final SetMultimap<Broker, KafkaPartition> deltaPositive = HashMultimap.<Broker, KafkaPartition> create();
+        private transient final SetMultimap<Broker, KafkaPartition> deltaPositive = HashMultimap.create();
 
-        private transient final SetMultimap<Broker, KafkaPartition> deltaNegative = HashMultimap.<Broker, KafkaPartition> create();
+        private transient final SetMultimap<Broker, KafkaPartition> deltaNegative = HashMultimap.create();
 
         @Override
         public void run()
@@ -505,7 +505,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
     return offsetTrack;
   }
 
-  private void resetOffset(Map<KafkaPartition, Long> overrideOffset)
+  public void resetOffset(Map<KafkaPartition, Long> overrideOffset)
   {
     if (overrideOffset == null) {
       return;
@@ -520,10 +520,9 @@ public class SimpleKafkaConsumer extends KafkaConsumer
     }
   }
 
-  @Override
-  public KafkaMeterStats getConsumerStats()
+  public KafkaMeterStats getConsumerStats(Map<KafkaPartition, Long> offsetStats)
   {
-    stats.updateOffsets(offsetTrack);
+    stats.updateOffsets(offsetStats);
     return super.getConsumerStats();
   }
 

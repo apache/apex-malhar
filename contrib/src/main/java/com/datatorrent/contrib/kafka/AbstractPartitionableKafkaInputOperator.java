@@ -24,6 +24,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStats;
 import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.getOffsetsForPartitions;
 import static com.datatorrent.contrib.kafka.KafkaConsumer.KafkaMeterStatsUtil.get_1minMovingAvgParMap;
+import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
@@ -105,7 +106,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   private static final Logger logger = LoggerFactory.getLogger(AbstractPartitionableKafkaInputOperator.class);
 
   // Store the current operator partition topology
-  private transient List<PartitionInfo> currentPartitionInfo = Lists.<PartitionInfo>newLinkedList();
+  private transient List<PartitionInfo> currentPartitionInfo = Lists.newLinkedList();
 
   // Store the current collected kafka consumer stats
   private transient Map<Integer, List<KafkaMeterStats>> kafkaStatsHolder = new HashMap<Integer, List<KafkaConsumer.KafkaMeterStats>>();
@@ -161,6 +162,9 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
       logger.info("Initial offsets: {} ", "{ " + Joiner.on(", ").useForNull("").withKeyValueSeparator(": ").join(initOffset) + " }");
     }
 
+    Collection<IdempotentStorageManager> newManagers = Sets.newHashSet();
+    Set<Integer> deletedOperators =  Sets.newHashSet();
+
     switch (strategy) {
 
       // For the 1 to 1 mapping The framework will create number of operator partitions based on kafka topic partitions
@@ -178,7 +182,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
             String clusterId = kp.getKey();
             for (PartitionMetadata pm : kp.getValue()) {
               logger.info("[ONE_TO_ONE]: Create operator partition for cluster {}, topic {}, kafka partition {} ", clusterId, getConsumer().topic, pm.partitionId());
-              newPartitions.add(createPartition(Sets.newHashSet(new KafkaPartition(clusterId, consumer.topic, pm.partitionId())), initOffset));
+              newPartitions.add(createPartition(Sets.newHashSet(new KafkaPartition(clusterId, consumer.topic, pm.partitionId())), initOffset, newManagers));
             }
           }
           
@@ -187,9 +191,10 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           // add partition for new kafka partition
           for (KafkaPartition newPartition : newWaitingPartition) {
             logger.info("[ONE_TO_ONE]: Add operator partition for cluster {}, topic {}, partition {}", newPartition.getClusterId(), getConsumer().topic, newPartition.getPartitionId());
-            partitions.add(createPartition(Sets.newHashSet(newPartition), null));
+            partitions.add(createPartition(Sets.newHashSet(newPartition), null, newManagers));
           }
           newWaitingPartition.clear();
+          idempotentStorageManager.partitioned(newManagers, deletedOperators);
           return partitions;
 
         }
@@ -222,14 +227,15 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
           }
           for (i = 0; i < kps.length; i++) {
             logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): {} ", StringUtils.join(kps[i], ", "));
-            newPartitions.add(createPartition(kps[i], initOffset));
+            newPartitions.add(createPartition(kps[i], initOffset, newManagers));
           }
 
         }
         else if (newWaitingPartition.size() != 0) {
 
           logger.info("[ONE_TO_MANY]: Add operator partition for kafka partition(s): {} ", StringUtils.join(newWaitingPartition, ", "));
-          partitions.add(createPartition(Sets.newHashSet(newWaitingPartition), null));
+          partitions.add(createPartition(Sets.newHashSet(newWaitingPartition), null, newManagers));
+          idempotentStorageManager.partitioned(newManagers, deletedOperators);
           return partitions;
         }
         else {
@@ -261,9 +267,14 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
 
           List<PartitionInfo> partitionInfos = firstFitDecreasingAlgo(kPIntakeRate);
 
+          // Add the existing partition Ids to the deleted operators
+          for(Partition<AbstractPartitionableKafkaInputOperator> op : partitions)
+          {
+            deletedOperators.add(op.getPartitionedInstance().operatorId);
+          }
           for (PartitionInfo r : partitionInfos) {
             logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): " + StringUtils.join(r.kpids, ", ") + ", topic: " + this.getConsumer().topic);
-            newPartitions.add(createPartition(r.kpids, offsetTrack));
+            newPartitions.add(createPartition(r.kpids, offsetTrack, newManagers));
           }
 
           currentPartitionInfo.addAll(partitionInfos);
@@ -277,12 +288,13 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
         break;
     }
 
+    idempotentStorageManager.partitioned(newManagers, deletedOperators);
     return newPartitions;
   }
 
   // Create a new partition with the partition Ids and initial offset positions
   protected
-  Partition<AbstractPartitionableKafkaInputOperator> createPartition(Set<KafkaPartition> pIds, Map<KafkaPartition, Long> initOffsets)
+  Partition<AbstractPartitionableKafkaInputOperator> createPartition(Set<KafkaPartition> pIds, Map<KafkaPartition, Long> initOffsets, Collection<IdempotentStorageManager> newManagers)
   {
     Kryo kryo = new Kryo();
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
@@ -292,6 +304,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
     Input lInput = new Input(bos.toByteArray());
     Partition<AbstractPartitionableKafkaInputOperator> p = new DefaultPartition<AbstractPartitionableKafkaInputOperator>(kryo.readObject(lInput, this.getClass()));
     p.getPartitionedInstance().getConsumer().resetPartitionsAndOffset(pIds, initOffsets);
+    newManagers.add(p.getPartitionedInstance().idempotentStorageManager);
 
     PartitionInfo pif = new PartitionInfo();
     pif.kpids = pIds;
@@ -382,7 +395,6 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    *
    * Check whether the operator needs repartition based on reported stats
    *
-   * @param stats
    * @return true if repartition is required
    * false if repartition is not required
    */
@@ -548,7 +560,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    * Implement this method to initialize new operator instance for new partition.
    * Please carefully include all the properties you want to keep in new instance
    *
-   * @return
+   * @return clone of the operator
    */
   protected abstract AbstractPartitionableKafkaInputOperator cloneOperator();
 
@@ -562,12 +574,10 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   @Override
   public void endWindow()
   {
-
     super.endWindow();
-
-    if (strategy == PartitionStrategy.ONE_TO_MANY) {
-      //send the stats to AppMaster and let the AppMaster decide if it wants to repartition
-      context.setCounters(getConsumer().getConsumerStats());
+    if((getConsumer() instanceof  SimpleKafkaConsumer)) {
+      SimpleKafkaConsumer cons = (SimpleKafkaConsumer) getConsumer();
+      context.setCounters(cons.getConsumerStats(offsetStats));
     }
   }
 
