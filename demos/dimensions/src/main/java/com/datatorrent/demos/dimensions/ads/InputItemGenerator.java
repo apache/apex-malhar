@@ -86,17 +86,6 @@ public class InputItemGenerator implements InputOperator
   {
   }
 
-  /*private int nextRandomId(int max)
-  {
-    return random.nextInt(max);
-    //int id;
-    //do {
-    //  id = (int)Math.abs(Math.round(random.nextGaussian() * max / 2));
-    //}
-    //while (id >= max);
-    //return id;
-  }*/
-
   @Override
   public void emitTuples()
   {

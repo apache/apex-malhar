@@ -11,6 +11,7 @@ import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
 import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
+import com.google.common.collect.Lists;
 
 import java.util.List;
 
@@ -98,6 +99,10 @@ public class AdsDataQuery extends Query
      */
     public AdsKeys getKeys()
     {
+      if(keys == null) {
+        keys = new AdsKeys();
+      }
+
       return keys;
     }
 
@@ -114,6 +119,10 @@ public class AdsDataQuery extends Query
      */
     public List<String> getFields()
     {
+      if(fields == null) {
+        fields = Lists.newArrayList();
+      }
+
       return fields;
     }
 

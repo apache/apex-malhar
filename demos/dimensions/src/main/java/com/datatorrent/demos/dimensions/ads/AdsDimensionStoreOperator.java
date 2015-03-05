@@ -601,12 +601,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       Set<String> fieldSet = null;
       List<String> fields = query.getData().getFields();
 
-      if(fields != null) {
-        fieldSet = Sets.newHashSet(fields);
-      }
-      else {
-        fieldSet = Sets.newHashSet();
-      }
+      fieldSet = Sets.newHashSet(fields);
 
       result = new AdsDataResult(query);
       result.setData(new ArrayList<AdsDataResult.AdsOneTimeData>());
@@ -616,19 +611,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       TimeUnit bucketUnit = AdInfo.BUCKET_TO_TIMEUNIT.get(prototype.bucket);
       Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
 
-      boolean hour = false;
-
-      if(prototype.bucket == AdInfo.MINUTE_BUCKET) {
-        LOG.info("Minute bucket");
-      }
-      else if(prototype.bucket == AdInfo.HOUR_BUCKET) {
-        hour = true;
-        LOG.info("Hour bucket");
-      }
-      else if(prototype.bucket == AdInfo.DAY_BUCKET) {
-        LOG.info("Day bucket");
-      }
-
       boolean allSatisfied = true;
 
       for(long timestamp = adsQueryMeta.getBeginTime();
@@ -637,8 +619,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       {
         HDSQuery hdsQuery = queryIt.next();
         prototype.setTimestamp(timestamp);
-
-        LOG.info("query prototype: {}", prototype);
 
         Map<AdInfoAggregateEvent, AdInfoAggregateEvent> buffered = cache.get(timestamp);
 
@@ -651,7 +631,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           AdInfo.AdInfoAggregateEvent ae = buffered.get(prototype);
 
           if(ae != null) {
-            LOG.info("Adding from aggregation buffer {}" + ae);
+            LOG.debug("Adding from aggregation buffer {}" + ae);
             AdsDataResult.AdsOneTimeData aotd = convert(fieldSet, ae);
             result.getData().add(aotd);
           }

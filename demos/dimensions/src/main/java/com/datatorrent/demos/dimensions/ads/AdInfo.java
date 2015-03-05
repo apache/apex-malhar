@@ -348,13 +348,6 @@ public class AdInfo implements Serializable, Cloneable
         }
       }
 
-      if(time.equals(TimeUnit.MINUTES) &&
-         publisherId &&
-         advertiserId &&
-         adUnit) {
-        logger.debug("Has desired dimensional computation");
-      }
-
       if(!hasTime) {
         throw new IllegalArgumentException("The time dimension must be specified.");
       }
@@ -440,12 +433,6 @@ public class AdInfo implements Serializable, Cloneable
 
       if (adUnit) {
         event.adUnit = src.adUnit;
-      }
-
-      if(event.publisherId == 4
-         && event.advertiserId == 1
-         && event.adUnit == 3) {
-        logger.info("group event: {}", event);
       }
 
       return event;
