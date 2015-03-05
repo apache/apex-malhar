@@ -194,8 +194,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   {
     if(event.publisherId == 4 &&
        event.advertiserId == 1 &&
-       event.adUnit == 3 &&
-       event.bucket == AdInfo.MINUTE_BUCKET) {
+       event.adUnit == 3) {
       LOG.info("recieved event: {}", event);
     }
 
