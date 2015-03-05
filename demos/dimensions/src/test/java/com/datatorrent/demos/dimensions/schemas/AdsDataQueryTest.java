@@ -50,7 +50,7 @@ public class AdsDataQueryTest
                           "\"location\":\"" + location + "\"" +
                           "}" +
                           "}," +
-                        "\"countdown\":" + countdown + "," +
+                        "\"countdown\":\"" + countdown + "\"," +
                         "\"incompleteResultOK\":" + incompleteResultOK +
                           "}";
 

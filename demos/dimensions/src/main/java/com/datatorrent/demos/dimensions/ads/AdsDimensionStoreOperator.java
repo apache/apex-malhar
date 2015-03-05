@@ -102,6 +102,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         queryResult.emit(schemaResult);
       }
       else if(query instanceof AdsDataQuery) {
+        AdsDataQuery adsDataQuery = (AdsDataQuery) query;
+        LOG.info("Query countdown: {}", adsDataQuery.getCountdown());
+        LOG.info("Query lastnum buckets: {}", adsDataQuery.getData().getTime().getLatestNumBuckets());
         LOG.info("Received AdsDataQuery");
         queryProcessor.enqueue((AdsDataQuery) query, null, null);
       }
