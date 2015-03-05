@@ -41,22 +41,6 @@ public class AdsDataQuery extends Query
   }
 
   /**
-   * @return the countdown
-   */
-  public Long getCountdown()
-  {
-    return countdown;
-  }
-
-  /**
-   * @param countdown the countdown to set
-   */
-  public void setCountdown(Long countdown)
-  {
-    this.countdown = countdown;
-  }
-
-  /**
    * @return the incompleteResultOK
    */
   public boolean getIncompleteResultOK()
@@ -70,6 +54,22 @@ public class AdsDataQuery extends Query
   public void setIncompleteResultOK(boolean incompleteResultOK)
   {
     this.incompleteResultOK = incompleteResultOK;
+  }
+
+  /**
+   * @return the countdown
+   */
+  public long getCountdown()
+  {
+    return countdown;
+  }
+
+  /**
+   * @param countdown the countdown to set
+   */
+  public void setCountdown(long countdown)
+  {
+    this.countdown = countdown;
   }
 
   public static class AdsDataQueryData
