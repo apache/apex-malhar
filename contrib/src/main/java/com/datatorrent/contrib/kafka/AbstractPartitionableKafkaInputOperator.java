@@ -106,7 +106,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
   private static final Logger logger = LoggerFactory.getLogger(AbstractPartitionableKafkaInputOperator.class);
 
   // Store the current operator partition topology
-  private transient List<PartitionInfo> currentPartitionInfo = Lists.<PartitionInfo>newLinkedList();
+  private transient List<PartitionInfo> currentPartitionInfo = Lists.newLinkedList();
 
   // Store the current collected kafka consumer stats
   private transient Map<Integer, List<KafkaMeterStats>> kafkaStatsHolder = new HashMap<Integer, List<KafkaConsumer.KafkaMeterStats>>();
@@ -395,7 +395,6 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    *
    * Check whether the operator needs repartition based on reported stats
    *
-   * @param stats
    * @return true if repartition is required
    * false if repartition is not required
    */
@@ -561,7 +560,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
    * Implement this method to initialize new operator instance for new partition.
    * Please carefully include all the properties you want to keep in new instance
    *
-   * @return
+   * @return clone of the operator
    */
   protected abstract AbstractPartitionableKafkaInputOperator cloneOperator();
 

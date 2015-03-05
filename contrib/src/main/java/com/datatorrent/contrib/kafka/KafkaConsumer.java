@@ -117,7 +117,7 @@ public abstract class KafkaConsumer implements Closeable
   public void create(){
     initBrokers();
     holdingBuffer = new ArrayBlockingQueue<KafkaMessage>(cacheSize);
-  };
+  }
   
   public void initBrokers()
   {
@@ -136,10 +136,11 @@ public abstract class KafkaConsumer implements Closeable
   /**
    * This method is called in the activate method of the operator
    */
-  public void start(){
+  public void start()
+  {
     isAlive = true;
     statsSnapShot.start();
-  };
+  }
 
   /**
    * The method is called in the deactivate method of the operator
@@ -224,7 +225,7 @@ public abstract class KafkaConsumer implements Closeable
     // block from receiving more message
     holdingBuffer.put(new KafkaMessage(partition, msg, offset));
     statsSnapShot.mark(partition, msg.payloadSize());
-  };
+  }
 
   protected abstract void commitOffset();
 
@@ -487,7 +488,7 @@ public abstract class KafkaConsumer implements Closeable
       msgv[60]++;
       bytev[cursor] += bytes;
       bytev[60] += bytes;
-    };
+    }
 
     public synchronized void setupStats(KafkaMeterStats stat){
       long[] _1minAvg = {msgSec[60]/last, bytesSec[60]/last};

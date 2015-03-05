@@ -198,9 +198,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         FetchRequest req = frb.build();
 
         SimpleConsumer ksc = new SimpleConsumer(bk.host(), bk.port(), cons.getTimeout(), cons.getBufferSize(), cons.getClientId());
-        if (ksc == null) {
-          continue;
-        }
         FetchResponse fetchResponse = ksc.fetch(req);
         Integer count = 0;
         for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kp.getPartitionId())) {
@@ -340,7 +337,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
    */
   public void setZookeeper(String zookeeperString)
   {
-    SetMultimap<String, String> theClusters = HashMultimap.<String, String>create();
+    SetMultimap<String, String> theClusters = HashMultimap.create();
     for (String zk : zookeeperString.split(",")) {
       String[] parts = zk.split(":");
       if (parts.length == 3) {
