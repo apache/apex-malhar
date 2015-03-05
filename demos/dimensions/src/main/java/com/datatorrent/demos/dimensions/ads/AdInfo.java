@@ -21,6 +21,8 @@ import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Map;
@@ -33,6 +35,8 @@ import java.util.concurrent.TimeUnit;
  */
 public class AdInfo implements Serializable, Cloneable
 {
+  private static final Logger logger = LoggerFactory.getLogger(AdInfo.class);
+
   public static final int MINUTE_BUCKET = 0;
   public static final int HOUR_BUCKET = 1;
   public static final int DAY_BUCKET = 2;
@@ -429,6 +433,12 @@ public class AdInfo implements Serializable, Cloneable
 
       if (adUnit) {
         event.adUnit = src.adUnit;
+      }
+
+      if(event.publisherId == 4
+         && event.advertiserId == 1
+         && event.adUnit == 3) {
+        logger.info("group event: {}", event);
       }
 
       return event;

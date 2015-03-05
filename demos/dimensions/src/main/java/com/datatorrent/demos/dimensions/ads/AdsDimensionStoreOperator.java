@@ -192,12 +192,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   protected void processEvent(AdInfoAggregateEvent event) throws IOException
   {
-    if(event.publisherId == 4 &&
-       event.advertiserId == 1 &&
-       event.adUnit == 3) {
-      LOG.info("recieved event: {}", event);
-    }
-
     Map<AdInfoAggregateEvent, AdInfoAggregateEvent> valMap = cache.get(event.getTimestamp());
 
     if (valMap == null) {
