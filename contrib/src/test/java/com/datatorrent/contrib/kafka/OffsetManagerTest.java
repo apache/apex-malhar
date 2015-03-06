@@ -42,7 +42,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator.PartitionStrategy;
+import com.datatorrent.contrib.kafka.AbstractKafkaInputOperator.PartitionStrategy;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.SetMultimap;
 
@@ -222,7 +222,7 @@ public class OffsetManagerTest extends KafkaOperatorTestBase
     DAG dag = lma.getDAG();
 
     // Create KafkaSinglePortStringInputOperator
-    PartitionableKafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", PartitionableKafkaSinglePortStringInputOperator.class);
+    KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
 
 
     TestOffsetManager tfm = new TestOffsetManager();
