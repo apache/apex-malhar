@@ -300,6 +300,9 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     }
     for (int i = 0; i < count; i++) {
       KafkaConsumer.KafkaMessage message = consumer.pollMessage();
+      // Ignore the duplicate messages
+      if(offsetStats.containsKey(message.kafkaPart) && message.offSet <= offsetStats.get(message.kafkaPart))
+        continue;
       emitTuple(message.msg);
       offsetStats.put(message.kafkaPart, message.offSet);
       if(!currentWindowRecoveryState.containsKey(message.kafkaPart))
