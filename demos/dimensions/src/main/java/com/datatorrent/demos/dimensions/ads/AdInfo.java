@@ -411,16 +411,18 @@ public class AdInfo implements Serializable, Cloneable
     {
       AdInfoAggregateEvent event = new AdInfoAggregateEvent(aggregatorIndex);
       if (time != null) {
-        Date srcDate = new Date(src.timestamp);
         if(time.equals(TimeUnit.MINUTES)) {
+          Date srcDate = new Date(src.timestamp - TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS));
           event.timestamp = DateUtils.round(srcDate, Calendar.MINUTE).getTime();
           event.bucket = AdInfo.MINUTE_BUCKET;
         }
         else if(time.equals(TimeUnit.HOURS)) {
+          Date srcDate = new Date(src.timestamp - TimeUnit.MILLISECONDS.convert(30, TimeUnit.MINUTES));
           event.timestamp = DateUtils.round(srcDate, Calendar.HOUR).getTime();
           event.bucket = AdInfo.HOUR_BUCKET;
         }
         else if(time.equals(TimeUnit.DAYS)) {
+          Date srcDate = new Date(src.timestamp - TimeUnit.MILLISECONDS.convert(12, TimeUnit.HOURS));
           event.timestamp = DateUtils.round(srcDate, Calendar.DAY_OF_MONTH).getTime();
           event.bucket = AdInfo.DAY_BUCKET;
         }
