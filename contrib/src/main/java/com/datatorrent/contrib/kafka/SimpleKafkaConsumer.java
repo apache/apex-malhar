@@ -15,6 +15,7 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -195,12 +196,6 @@ public class SimpleKafkaConsumer extends KafkaConsumer
 
     }
 
-    public void removePartitions(Set<KafkaPartition> removedKps)
-    {
-      // remove the partition(s) because they are no longer available in this broker
-      kpS.removeAll(removedKps);
-    }
-
     @SuppressWarnings("rawtypes")
     public Future getThreadItSelf()
     {
@@ -344,8 +339,6 @@ public class SimpleKafkaConsumer extends KafkaConsumer
 
         private transient final SetMultimap<Broker, KafkaPartition> deltaPositive = HashMultimap.create();
 
-        private transient final SetMultimap<Broker, KafkaPartition> deltaNegative = HashMultimap.create();
-
         @Override
         public void run()
         {
@@ -375,7 +368,6 @@ public class SimpleKafkaConsumer extends KafkaConsumer
                 } else {
                   // add to positive and negative map
                   deltaPositive.put(b, kp);
-                  deltaNegative.put(oldB, kp);
                 }
 
                 // always update the latest connection information
@@ -395,7 +387,9 @@ public class SimpleKafkaConsumer extends KafkaConsumer
             for (Broker b : deltaPositive.keySet()) {
               if (!simpleConsumerThreads.containsKey(b)) {
                 // start thread for new broker
-                ConsumerThread ct = new ConsumerThread(b, new HashSet<KafkaPartition>(deltaPositive.get(b)), ref);
+                Set<KafkaPartition> kps = Collections.newSetFromMap(new ConcurrentHashMap<KafkaPartition, Boolean>());
+                kps.addAll(deltaPositive.get(b));
+                ConsumerThread ct = new ConsumerThread(b, kps, ref);
                 ct.setThreadItSelf(kafkaConsumerExecutor.submit(ct));
                 simpleConsumerThreads.put(b, ct);
 
@@ -404,16 +398,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
               }
             }
 
-            for (Broker b : deltaNegative.keySet()) {
-              if (!simpleConsumerThreads.containsKey(b)) {
-                // Do nothing, It's possibly removed by catching exception in the data-consuming thread
-              } else {
-                simpleConsumerThreads.get(b).removePartitions(deltaNegative.get(b));
-              }
-            }
-
             deltaPositive.clear();
-            deltaNegative.clear();
 
             // reset to 0 if it reconnect to the broker which has current broker metadata
             retryCounter.set(0);
