@@ -421,7 +421,7 @@ public class AdInfo implements Serializable, Cloneable
           event.bucket = AdInfo.HOUR_BUCKET;
         }
         else if(time.equals(TimeUnit.DAYS)) {
-          event.timestamp = DateUtils.round(srcDate, Calendar.DAY_OF_YEAR).getTime();
+          event.timestamp = DateUtils.round(srcDate, Calendar.DAY_OF_MONTH).getTime();
           event.bucket = AdInfo.DAY_BUCKET;
         }
       }
