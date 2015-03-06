@@ -58,7 +58,9 @@ public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<St
           keyIndex < ja.length();
           keyIndex++) {
         String key = ja.getString(keyIndex);
-        if(!PubSubMessage.MESSAGE_KEYS.contains(key)) {
+        if(!(PubSubMessage.DATA_KEY.equals(key) ||
+           PubSubMessage.TOPIC_KEY.equals(key) ||
+           PubSubMessage.TYPE_KEY.equals(key))) {
           logger.error("{} is not a valid key in the first level of the following pubsub message:\n{}",
                        key,
                        message);
