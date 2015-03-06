@@ -97,15 +97,14 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
 
       if(query instanceof SchemaQuery) {
-        LOG.info("Received schemaquery.");
-        String schemaResult = resultSerializerFactory.serialize(new AdsSchemaResult(query));
+        AdsSchemaResult adsSchemaResult = new AdsSchemaResult(query);
+        adsSchemaResult.getData().getTimeBuckets().setFrom(sdf.format(new Date(minTimestamp)));
+        adsSchemaResult.getData().getTimeBuckets().setTo(sdf.format(new Date(maxTimestamp)));
+        String schemaResult = resultSerializerFactory.serialize(adsSchemaResult);
         queryResult.emit(schemaResult);
       }
       else if(query instanceof AdsDataQuery) {
         AdsDataQuery adsDataQuery = (AdsDataQuery) query;
-        LOG.info("Query countdown: {}", adsDataQuery.getCountdown());
-        LOG.info("Query lastnum buckets: {}", adsDataQuery.getData().getTime().getLatestNumBuckets());
-        LOG.info("Received AdsDataQuery");
         queryProcessor.enqueue((AdsDataQuery) query, null, null);
       }
       /*else if(query instanceof AdsOneTimeQuery) {
@@ -130,6 +129,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   private transient ObjectMapper mapper = null;
   //The default number of buckets to output for an updateQuery.
   private long defaultTimeWindow = 20;
+  private long minTimestamp = Long.MAX_VALUE;
+  private long maxTimestamp = Long.MIN_VALUE;
 
   //==========================================================================
   // Query Processing - Start
@@ -195,6 +196,14 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   protected void processEvent(AdInfoAggregateEvent event) throws IOException
   {
+    if(event.getTimestamp() < minTimestamp) {
+      minTimestamp = event.getTimestamp();
+    }
+
+    if(event.getTimestamp() > maxTimestamp) {
+      maxTimestamp = event.getTimestamp();
+    }
+
     Map<AdInfoAggregateEvent, AdInfoAggregateEvent> valMap = cache.get(event.getTimestamp());
 
     if (valMap == null) {
