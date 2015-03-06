@@ -6,6 +6,7 @@
 package com.datatorrent.demos.dimensions.schemas;
 
 import com.datatorrent.demos.dimensions.schemas.AdsDataQuery.AdsDataQueryData;
+import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -139,5 +140,34 @@ public class AdsDataQueryValidatorTest
 
     AdsDataQueryValidator adqv = new AdsDataQueryValidator();
     Assert.assertFalse("Invalid advertiser.", adqv.validate(adq));
+  }
+
+  @Test
+  public void noNumBuckets()
+  {
+    AdsDataQuery adq = new AdsDataQuery();
+    adq.setId("1");
+    adq.setType(AdsDataQuery.TYPE);
+
+    AdsDataQueryData adqd = new AdsDataQueryData();
+    adq.setData(adqd);
+
+    AdsTimeRangeBucket atrb = new AdsTimeRangeBucket();
+    adqd.setTime(atrb);
+    atrb.setLatestNumBuckets(30);
+
+    AdsDataQueryValidator adqv = new AdsDataQueryValidator();
+    Assert.assertFalse("This is not valid.", adqv.validate(adq));
+  }
+
+  @Test
+  public void noNumBucketsDeserializer()
+  {
+    final String json = "{\"id\":\"0.06600436312146485\",\"type\":\"dataQuery\",\"data\":{\"time\":{\"latestNumBuckets\":\"30\"},\"keys\":{}}}";
+
+    QueryDeserializerFactory qdf = new QueryDeserializerFactory(AdsDataQuery.class);
+    AdsDataQuery query = (AdsDataQuery) qdf.deserialize(json);
+
+    Assert.assertEquals("This should be null", null, query);
   }
 }

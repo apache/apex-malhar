@@ -10,7 +10,6 @@ import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
-import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
 import com.google.common.collect.Lists;
 import javax.validation.constraints.NotNull;
 
@@ -18,7 +17,7 @@ import java.util.List;
 
 @QRType(type=AdsDataQuery.TYPE)
 @QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
-@QueryValidatorInfo(clazz=SimpleQueryValidator.class)
+@QueryValidatorInfo(clazz=AdsDataQueryValidator.class)
 public class AdsDataQuery extends Query
 {
   public static final String TYPE = "dataQuery";
