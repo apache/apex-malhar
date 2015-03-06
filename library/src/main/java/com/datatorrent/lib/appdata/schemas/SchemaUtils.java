@@ -49,4 +49,16 @@ public class SchemaUtils
       throw new RuntimeException(ex);
     }
   }
+
+  public static boolean checkDate(String date)
+  {
+    try {
+      checkDateEx(date);
+    }
+    catch(Exception e) {
+      return false;
+    }
+
+    return true;
+  }
 }

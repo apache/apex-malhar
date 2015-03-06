@@ -12,8 +12,10 @@ import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
 import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -30,16 +32,19 @@ public class AdsSchemaResult extends Result
   public static final String SCHEMA_TYPE = "dimensions";
   public static final String SCHEMA_VERSION = "1.0";
   public static final String[] BUCKETS = {"1m", "1h", "1d"};
+  public static final Set<String> BUCKETS_SET = Collections.unmodifiableSet(Sets.newHashSet(BUCKETS));
   public static final String PUBLISHER = "publisher";
   public static final String PUBLISHER_ALL = "ALL";
   public static final String[] PUBLISHERS = {"twitter", "facebook", "yahoo",
                                              "google", "bing", "amazon"};
+  public static final Set<String> PUBLISHERS_SET = Collections.unmodifiableSet(Sets.newHashSet(PUBLISHERS));
   public static final String ADVERTISER = "advertiser";
   public static final String ADVERTISER_ALL = "ALL";
   public static final String[] ADVERTISERS = {"starbucks", "safeway", "mcdonalds",
                                               "macys", "taco bell", "walmart", "khol's",
                                               "san diego zoo", "pandas", "jack in the box",
                                               "tomatina", "ron swanson"};
+  public static final Set<String> ADVERTISERS_SET = Collections.unmodifiableSet(Sets.newHashSet(ADVERTISERS));
   public static final String LOCATION = "location";
   public static final String LOCATION_ALL = "ALL";
   public static final String[] LOCATIONS = {"N", "LREC", "SKY",
@@ -47,6 +52,7 @@ public class AdsSchemaResult extends Result
                                             "AR", "CA", "CO",
                                             "CT", "DE", "FL",
                                             "GA", "HI", "ID"};
+  public static final Set<String> LOCATIONS_SET = Collections.unmodifiableSet(Sets.newHashSet(LOCATIONS));
   public static final String TIME = "time";
   public static final String IMPRESSIONS = "impressions";
   public static final String IMPRESSIONS_TYPE = "integer";

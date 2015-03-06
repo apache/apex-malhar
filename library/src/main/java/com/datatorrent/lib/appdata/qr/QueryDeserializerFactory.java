@@ -149,12 +149,18 @@ public class QueryDeserializerFactory
     }
 
     CustomQueryDeserializer cqb = typeToCustomQueryBuilder.get(type);
+
+    if(cqb == null) {
+      logger.error("The query type {} does not have a corresponding deserializer.", type);
+      return null;
+    }
+
     CustomQueryValidator cqv = typeToCustomQueryValidator.get(type);
     Query query = cqb.deserialize(json);
 
     logger.debug("{}", query);
-    //Error in the format of the query
-    if(query == null || !cqv.validate(query)) {
+
+    if(query == null || !(cqv != null && cqv.validate(query))) {
       return null;
     }
 

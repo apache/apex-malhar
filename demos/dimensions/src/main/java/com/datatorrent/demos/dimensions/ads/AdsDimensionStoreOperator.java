@@ -263,13 +263,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
     }
 
-    /*for(Long timestamp: hourCache.keySet()) {
-      String startString = AdsTimeRangeBucket.sdf.format(new Date(timestamp));
-
-      LOG.info("Hour cache key {}", startString);
-
-    }*/
-
     MutableBoolean done = new MutableBoolean(false);
 
     super.endWindow();
@@ -318,8 +311,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     keybb.putInt(event.getBucket());
     keybb.rewind();
     keybb.get(data);
-    //LOG.debug("Value: {}", event);
-    //LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
     return data;
   }
 
@@ -341,7 +332,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     valbb.putDouble(event.revenue);
     valbb.rewind();
     valbb.get(data);
-    //LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
     return data;
   }
 
@@ -497,17 +487,14 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         endTime = atrb.getToLong();
 
         if(bucket == AdInfo.MINUTE_BUCKET) {
-          LOG.info("Minute bucket");
           startTime = AdInfo.roundMinute(startTime);
           endTime = AdInfo.roundMinute(endTime);
         }
         else if(bucket == AdInfo.HOUR_BUCKET) {
-          LOG.info("Hour bucket");
           startTime = AdInfo.roundHour(startTime);
           endTime = AdInfo.roundHour(endTime);
         }
         else if(bucket == AdInfo.DAY_BUCKET) {
-          LOG.info("Day bucket");
           startTime = AdInfo.roundDay(startTime);
           endTime = AdInfo.roundDay(endTime);
         }
@@ -535,7 +522,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       String startString = AdsTimeRangeBucket.sdf.format(new Date(startTime));
       String endString = AdsTimeRangeBucket.sdf.format(new Date(endTime));
 
-      LOG.info("start {}, end {}", startString, endString);
+      LOG.debug("start {}, end {}", startString, endString);
 
       ae.setTimestamp(startTime);
       ae.adUnit = aks.getLocationId();
@@ -598,7 +585,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     @Override
     public Result processQuery(AdsDataQuery query, AdsQueryMeta adsQueryMeta, MutableLong queueContext, MutableBoolean context)
     {
-      LOG.info("Processing query {}", query);
+      LOG.debug("Processing query {}", query);
       AdsDataResult result = null;
 
       Set<String> fieldSet = null;

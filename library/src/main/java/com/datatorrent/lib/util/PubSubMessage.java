@@ -15,6 +15,10 @@
  */
 package com.datatorrent.lib.util;
 
+import com.google.common.collect.ImmutableSet;
+
+import java.util.Set;
+
 /**
  * <p> PubSubMessage </p>
  *
@@ -26,6 +30,8 @@ public class PubSubMessage<T>
   public static final String TYPE_KEY = "type";
   public static final String TOPIC_KEY = "topic";
   public static final String DATA_KEY = "data";
+  public static final Set<String> MESSAGE_KEYS = ImmutableSet.of(TYPE_KEY, TOPIC_KEY, DATA_KEY);
+
   public static final String INTERNAL_TOPIC_PREFIX = "_internal";
   public static final String NUM_SUBSCRIBERS_SUFFIX = "numSubscribers";
 

@@ -21,14 +21,12 @@ public class AdsTimeRangeBucket
 {
   public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
-  @NotNull
   private String from;
-  @NotNull
   private String to;
   @NotNull
   private String bucket;
 
-  private int latestNumBuckets;
+  private Integer latestNumBuckets;
 
   public AdsTimeRangeBucket()
   {
@@ -119,7 +117,7 @@ public class AdsTimeRangeBucket
   /**
    * @return the latestNumBuckets
    */
-  public int getLatestNumBuckets()
+  public Integer getLatestNumBuckets()
   {
     return latestNumBuckets;
   }
@@ -127,7 +125,7 @@ public class AdsTimeRangeBucket
   /**
    * @param latestNumBuckets the latestNumBuckets to set
    */
-  public void setLatestNumBuckets(int latestNumBuckets)
+  public void setLatestNumBuckets(Integer latestNumBuckets)
   {
     this.latestNumBuckets = latestNumBuckets;
   }

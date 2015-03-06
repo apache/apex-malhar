@@ -12,6 +12,7 @@ import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
 import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
 import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
 import com.google.common.collect.Lists;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 
@@ -22,6 +23,7 @@ public class AdsDataQuery extends Query
 {
   public static final String TYPE = "dataQuery";
 
+  @NotNull
   private AdsDataQueryData data;
   private Long countdown = 30L;
   private boolean incompleteResultOK = true;
@@ -74,6 +76,7 @@ public class AdsDataQuery extends Query
 
   public static class AdsDataQueryData
   {
+    @NotNull
     private AdsTimeRangeBucket time;
     private AdsKeys keys;
     private List<String> fields;
