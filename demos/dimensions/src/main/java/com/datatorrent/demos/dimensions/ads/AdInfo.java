@@ -21,10 +21,13 @@ import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -408,17 +411,17 @@ public class AdInfo implements Serializable, Cloneable
     {
       AdInfoAggregateEvent event = new AdInfoAggregateEvent(aggregatorIndex);
       if (time != null) {
-
+        Date srcDate = new Date(src.timestamp);
         if(time.equals(TimeUnit.MINUTES)) {
-          event.timestamp = AdInfo.roundMinute(src.timestamp);
+          event.timestamp = DateUtils.round(srcDate, Calendar.MINUTE).getTime();
           event.bucket = AdInfo.MINUTE_BUCKET;
         }
         else if(time.equals(TimeUnit.HOURS)) {
-          event.timestamp = AdInfo.roundHour(src.timestamp);
+          event.timestamp = DateUtils.round(srcDate, Calendar.HOUR).getTime();
           event.bucket = AdInfo.HOUR_BUCKET;
         }
         else if(time.equals(TimeUnit.DAYS)) {
-          event.timestamp = AdInfo.roundDay(src.timestamp);
+          event.timestamp = DateUtils.round(srcDate, Calendar.DAY_OF_YEAR).getTime();
           event.bucket = AdInfo.DAY_BUCKET;
         }
       }
