@@ -5,7 +5,7 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
-import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -57,7 +57,7 @@ public class AdsDataQueryTest
     logger.debug("Query: {}", json);
 
     @SuppressWarnings("unchecked")
-    QueryDeserializerFactory qb = new QueryDeserializerFactory(AdsDataQuery.class);
+    DataDeserializerFactory qb = new DataDeserializerFactory(AdsDataQuery.class);
     AdsDataQuery dq = (AdsDataQuery) qb.deserialize(json);
 
     Assert.assertEquals("Ids must equal.", id, dq.getId());

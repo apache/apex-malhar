@@ -30,10 +30,10 @@ import com.datatorrent.demos.dimensions.schemas.AdsDataResult;
 import com.datatorrent.demos.dimensions.schemas.AdsKeys;
 import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
 import com.datatorrent.demos.dimensions.schemas.AdsTimeRangeBucket;
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.Data;
+import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
 import com.datatorrent.lib.appdata.qr.processor.WWEQueryQueueManager;
@@ -88,7 +88,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     {
       LOG.info("Received: {}", s);
 
-      Query query = queryDeserializerFactory.deserialize(s);
+      Data query = queryDeserializerFactory.deserialize(s);
 
       //Query was not parseable
       if(query == null) {
@@ -97,7 +97,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
 
       if(query instanceof SchemaQuery) {
-        AdsSchemaResult adsSchemaResult = new AdsSchemaResult(query);
+        AdsSchemaResult adsSchemaResult = new AdsSchemaResult((SchemaQuery) query);
         adsSchemaResult.getData().getTimeBuckets().setFrom(sdf.format(new Date(minTimestamp)));
         adsSchemaResult.getData().getTimeBuckets().setTo(sdf.format(new Date(maxTimestamp)));
         String schemaResult = resultSerializerFactory.serialize(adsSchemaResult);
@@ -138,8 +138,8 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
   private transient QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean> queryProcessor;
   @SuppressWarnings("unchecked")
-  private transient QueryDeserializerFactory queryDeserializerFactory;
-  private transient ResultSerializerFactory resultSerializerFactory;
+  private transient DataDeserializerFactory queryDeserializerFactory;
+  private transient DataSerializerFactory resultSerializerFactory;
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
   private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
 
@@ -238,9 +238,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     new QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean>(
                                                   new AdsQueryComputer(this),
                                                   new AdsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
-    queryDeserializerFactory = new QueryDeserializerFactory(SchemaQuery.class,
+    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                             AdsDataQuery.class);
-    resultSerializerFactory = new ResultSerializerFactory();
+    resultSerializerFactory = new DataSerializerFactory();
 
     queryProcessor.setup(context);
   }

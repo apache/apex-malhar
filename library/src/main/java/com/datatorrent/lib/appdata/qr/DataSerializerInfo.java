@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface QueryValidatorInfo
+public @interface DataSerializerInfo
 {
-  Class<? extends CustomQueryValidator> clazz();
+  Class<? extends CustomDataSerializer> clazz();
 }

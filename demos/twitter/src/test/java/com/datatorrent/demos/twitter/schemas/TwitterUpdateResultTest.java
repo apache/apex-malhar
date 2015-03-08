@@ -5,7 +5,7 @@
 
 package com.datatorrent.demos.twitter.schemas;
 
-import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import com.datatorrent.demos.twitter.schemas.TwitterDataValues;
 import com.datatorrent.demos.twitter.schemas.TwitterOneTimeResult.TwitterData;
 import com.datatorrent.demos.twitter.schemas.TwitterUpdateQuery;
@@ -28,7 +28,7 @@ public class TwitterUpdateResultTest
   @Test
   public void testSerialization()
   {
-    ResultSerializerFactory rsf = new ResultSerializerFactory();
+    DataSerializerFactory rsf = new DataSerializerFactory();
 
     TwitterUpdateQuery tuq = new TwitterUpdateQuery();
     tuq.setId("1");

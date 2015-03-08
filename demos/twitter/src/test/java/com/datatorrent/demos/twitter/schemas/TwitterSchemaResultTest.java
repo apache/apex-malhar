@@ -6,7 +6,7 @@
 package com.datatorrent.demos.twitter.schemas;
 
 import com.datatorrent.demos.twitter.schemas.TwitterSchemaResult;
-import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import org.junit.Assert;
 import org.junit.Test;
@@ -43,7 +43,7 @@ public class TwitterSchemaResultTest
     "}" +
     "}";
 
-    ResultSerializerFactory rsf = new ResultSerializerFactory();
+    DataSerializerFactory rsf = new DataSerializerFactory();
 
     String jsonResult = rsf.serialize(new TwitterSchemaResult(sq));
 

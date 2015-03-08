@@ -5,7 +5,8 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.CustomQueryDeserializer;
+import com.datatorrent.lib.appdata.qr.CustomDataDeserializer;
+import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.Query;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -17,7 +18,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GenericDataQueryDeserializer extends CustomQueryDeserializer
+public class GenericDataQueryDeserializer extends CustomDataDeserializer
 {
   private static final Logger logger = LoggerFactory.getLogger(GenericDataQueryDeserializer.class);
 
@@ -36,7 +37,7 @@ public class GenericDataQueryDeserializer extends CustomQueryDeserializer
       //// Message
 
       String id = jo.getString(Query.FIELD_ID);
-      String type = jo.getString(Query.FIELD_TYPE);
+      String type = jo.getString(Data.FIELD_TYPE);
 
       int countdown = jo.getInt(GenericDataQuery.FIELD_COUNTDOWN);
       boolean incompleteResultOK = jo.getBoolean(GenericDataQuery.FIELD_INCOMPLETE_RESULT_OK);

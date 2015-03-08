@@ -5,8 +5,8 @@
 
 package com.datatorrent.lib.appdata;
 
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.Data;
+import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import org.junit.Assert;
 import org.junit.Test;
@@ -20,22 +20,22 @@ public class QueryDeserializerFactoryTest
   @Test
   public void testMalformedQuery()
   {
-    QueryDeserializerFactory qdf = new QueryDeserializerFactory(SchemaQuery.class);
+    DataDeserializerFactory qdf = new DataDeserializerFactory(SchemaQuery.class);
 
     String malformed = "{\"}";
-    Query query = qdf.deserialize(malformed);
+    Data data = qdf.deserialize(malformed);
 
-    Assert.assertEquals("Resulting query should be null.", query, null);
+    Assert.assertEquals("Resulting query should be null.", data, null);
   }
 
   @Test
   public void testUnregisteredQueryType()
   {
-    QueryDeserializerFactory qdf = new QueryDeserializerFactory(SchemaQuery.class);
+    DataDeserializerFactory qdf = new DataDeserializerFactory(SchemaQuery.class);
 
     String unsupportedQuery = "{\"id\":\"1\",\"type\":\"Invalid type\"}";
-    Query query = qdf.deserialize(unsupportedQuery);
+    Data data = qdf.deserialize(unsupportedQuery);
 
-    Assert.assertEquals("Resulting query should be null.", query, null);
+    Assert.assertEquals("Resulting query should be null.", data, null);
   }
 }

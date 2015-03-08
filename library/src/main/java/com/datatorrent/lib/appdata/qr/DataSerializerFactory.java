@@ -15,59 +15,59 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class ResultSerializerFactory
+public class DataSerializerFactory
 {
-  private static final Logger logger = LoggerFactory.getLogger(ResultSerializerFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(DataSerializerFactory.class);
 
-  private Map<Class<? extends Result>, CustomResultSerializer> clazzToCustomResultBuilder = Maps.newHashMap();
+  private Map<Class<? extends Result>, CustomDataSerializer> clazzToCustomResultBuilder = Maps.newHashMap();
   private Map<Class<? extends Result>, String> clazzToType = Maps.newHashMap();
 
-  public ResultSerializerFactory()
+  public DataSerializerFactory()
   {
   }
 
   public String serialize(Result result)
   {
-    CustomResultSerializer mcrs = clazzToCustomResultBuilder.get(result.getClass());
+    CustomDataSerializer mcrs = clazzToCustomResultBuilder.get(result.getClass());
     Class<? extends Result> schema = result.getClass();
 
     if(mcrs == null) {
       Annotation[] ans = schema.getAnnotations();
 
-      Class<? extends CustomResultSerializer> crs = null;
+      Class<? extends CustomDataSerializer> crs = null;
       String type = null;
 
       for(Annotation an: ans) {
-        if(an instanceof ResultSerializerInfo) {
+        if(an instanceof DataSerializerInfo) {
           if(crs != null) {
             throw new UnsupportedOperationException("Cannot specify the "
-                    + ResultSerializerInfo.class
+                    + DataSerializerInfo.class
                     + " annotation twice on the class: "
                     + schema);
           }
 
-          crs = ((ResultSerializerInfo)an).clazz();
+          crs = ((DataSerializerInfo)an).clazz();
         }
-        else if(an instanceof QRType) {
+        else if(an instanceof DataType) {
           if(type != null) {
             throw new UnsupportedOperationException("Cannot specify the " +
-                                                    QRType.class +
+                                                    DataType.class +
                                                     " annotation twice on the class: " +
                                                     schema);
           }
 
-          type = ((QRType) an).type();
+          type = ((DataType) an).type();
         }
       }
 
       if(crs == null) {
-        throw new UnsupportedOperationException("No " + ResultSerializerInfo.class
+        throw new UnsupportedOperationException("No " + DataSerializerInfo.class
                 + " annotation found on class: "
                 + schema);
       }
 
       if(type == null) {
-        throw new UnsupportedOperationException("No " + QRType.class +
+        throw new UnsupportedOperationException("No " + DataType.class +
                                                 " annotation found on class " + schema);
       }
 

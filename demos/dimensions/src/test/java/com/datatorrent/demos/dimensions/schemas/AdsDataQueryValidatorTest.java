@@ -6,7 +6,7 @@
 package com.datatorrent.demos.dimensions.schemas;
 
 import com.datatorrent.demos.dimensions.schemas.AdsDataQuery.AdsDataQueryData;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import junit.framework.Assert;
 import org.junit.Test;
 
@@ -165,7 +165,7 @@ public class AdsDataQueryValidatorTest
   {
     final String json = "{\"id\":\"0.06600436312146485\",\"type\":\"dataQuery\",\"data\":{\"time\":{\"latestNumBuckets\":\"30\"},\"keys\":{}}}";
 
-    QueryDeserializerFactory qdf = new QueryDeserializerFactory(AdsDataQuery.class);
+    DataDeserializerFactory qdf = new DataDeserializerFactory(AdsDataQuery.class);
     AdsDataQuery query = (AdsDataQuery) qdf.deserialize(json);
 
     Assert.assertEquals("This should be null", null, query);

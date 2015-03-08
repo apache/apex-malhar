@@ -6,9 +6,9 @@
 package com.datatorrent.demos.dimensions.schemas;
 
 import com.datatorrent.demos.dimensions.schemas.AdsDataQuery.AdsDataQueryData;
-import com.datatorrent.lib.appdata.qr.CustomQueryValidator;
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
+import com.datatorrent.lib.appdata.qr.CustomDataValidator;
+import com.datatorrent.lib.appdata.qr.Data;
+import com.datatorrent.lib.appdata.qr.SimpleDataValidator;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,17 +18,16 @@ import org.slf4j.LoggerFactory;
  * @author Timothy Farkas: tim@datatorrent.com
  */
 
-public class AdsDataQueryValidator implements CustomQueryValidator
-{
+public class AdsDataQueryValidator implements CustomDataValidator{
   private static final Logger logger = LoggerFactory.getLogger(AdsDataQueryValidator.class);
-  private SimpleQueryValidator sqv = new SimpleQueryValidator();
+  private SimpleDataValidator sqv = new SimpleDataValidator();
 
   public AdsDataQueryValidator()
   {
   }
 
   @Override
-  public boolean validate(Query query)
+  public boolean validate(Data query)
   {
     if(!(query instanceof AdsDataQuery)) {
       return false;

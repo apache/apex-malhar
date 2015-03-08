@@ -13,19 +13,19 @@ import javax.validation.ValidatorFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SimpleQueryValidator implements CustomQueryValidator
+public class SimpleDataValidator implements CustomDataValidator
 {
   private Validator validator;
 
-  public SimpleQueryValidator()
+  public SimpleDataValidator()
   {
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
     this.validator = factory.getValidator();
   }
 
   @Override
-  public boolean validate(Query query)
+  public boolean validate(Data data)
   {
-    return validator.validate(query).isEmpty();
+    return validator.validate(data).isEmpty();
   }
 }

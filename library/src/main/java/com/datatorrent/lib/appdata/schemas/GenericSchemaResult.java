@@ -5,13 +5,13 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.QRType;
+import com.datatorrent.lib.appdata.qr.DataType;
 import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
+import com.datatorrent.lib.appdata.qr.DataSerializerInfo;
 import com.google.common.base.Preconditions;
 
-@QRType(type=GenericSchemaResult.TYPE)
-@ResultSerializerInfo(clazz=GenericSchemaSerializer.class)
+@DataType(type=GenericSchemaResult.TYPE)
+@DataSerializerInfo(clazz=GenericSchemaSerializer.class)
 public class GenericSchemaResult extends Result
 {
   public static final String TYPE = "schemaData";

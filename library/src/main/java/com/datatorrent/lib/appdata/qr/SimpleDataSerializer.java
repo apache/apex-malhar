@@ -12,11 +12,11 @@ import org.codehaus.jackson.map.ObjectMapper;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SimpleResultSerializer implements CustomResultSerializer
+public class SimpleDataSerializer implements CustomDataSerializer
 {
   private ObjectMapper om = new ObjectMapper();
 
-  public SimpleResultSerializer()
+  public SimpleDataSerializer()
   {
   }
 

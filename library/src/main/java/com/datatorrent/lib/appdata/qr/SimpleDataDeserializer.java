@@ -14,22 +14,22 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SimpleQueryDeserializer extends CustomQueryDeserializer
+public class SimpleDataDeserializer extends CustomDataDeserializer
 {
-  private static final Logger logger = LoggerFactory.getLogger(SimpleQueryDeserializer.class);
+  private static final Logger logger = LoggerFactory.getLogger(SimpleDataDeserializer.class);
   private ObjectMapper om = new ObjectMapper();
 
-  public SimpleQueryDeserializer()
+  public SimpleDataDeserializer()
   {
   }
 
   @Override
-  public Query deserialize(String json)
+  public Data deserialize(String json)
   {
-    Query query;
+    Data data;
 
     try {
-      query = om.readValue(json, this.getQueryClazz());
+      data = om.readValue(json, this.getDataClazz());
     }
     catch(IOException ex) {
       //throw new RuntimeException(ex);
@@ -37,6 +37,6 @@ public class SimpleQueryDeserializer extends CustomQueryDeserializer
       return null;
     }
 
-    return query;
+    return data;
   }
 }

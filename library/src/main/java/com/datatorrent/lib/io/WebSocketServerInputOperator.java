@@ -11,6 +11,7 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.common.util.DTThrowable;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
@@ -25,12 +26,16 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class WebSocketServerInputOperator implements InputOperator
+public abstract class WebSocketServerInputOperator implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(WebSocketServerInputOperator.class);
 
+  public static final String DEFAULT_EXTENSION = "/in";
+
   @Min(1)
   private int port;
+  @NotNull
+  private String extension = DEFAULT_EXTENSION;
 
   private transient Server server;
 
@@ -60,7 +65,7 @@ public class WebSocketServerInputOperator implements InputOperator
     DefaultWebSocketServlet servlet = new DefaultWebSocketServlet();
     ServletHolder sh = new ServletHolder(servlet);
     ServletContextHandler contextHandler = new ServletContextHandler(server, "/", ServletContextHandler.SESSIONS);
-    contextHandler.addServlet(sh, "/pubsub");
+    contextHandler.addServlet(sh, extension);
 
     try {
       server.start();
@@ -97,7 +102,25 @@ public class WebSocketServerInputOperator implements InputOperator
     this.port = port;
   }
 
-  private static class DefaultWebSocketServlet extends WebSocketServlet
+  /**
+   * @return the extension
+   */
+  public String getExtension()
+  {
+    return extension;
+  }
+
+  /**
+   * @param extension the extension to set
+   */
+  public void setExtension(String extension)
+  {
+    this.extension = extension;
+  }
+
+  public abstract void processMessage(String data);
+
+  private class DefaultWebSocketServlet extends WebSocketServlet
   {
     private static final long serialVersionUID = 201503061010L;
 
@@ -108,7 +131,7 @@ public class WebSocketServerInputOperator implements InputOperator
     }
   }
 
-  private static class DataSinkWebSocket implements WebSocket.OnTextMessage
+  private class DataSinkWebSocket implements WebSocket.OnTextMessage
   {
     public DataSinkWebSocket()
     {
@@ -117,7 +140,7 @@ public class WebSocketServerInputOperator implements InputOperator
     @Override
     public void onMessage(String data)
     {
-      logger.info(data);
+      processMessage(data);
     }
 
     @Override

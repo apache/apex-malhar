@@ -9,7 +9,7 @@ package com.datatorrent.lib.appdata.qr;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public interface CustomQueryValidator
+public interface CustomDataSerializer
 {
-  public boolean validate(Query query);
+  public abstract String serialize(Result result);
 }

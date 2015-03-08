@@ -5,11 +5,11 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
-import com.datatorrent.lib.appdata.qr.QRType;
+import com.datatorrent.lib.appdata.qr.DataType;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.ResultSerializerInfo;
-import com.datatorrent.lib.appdata.qr.SimpleResultSerializer;
+import com.datatorrent.lib.appdata.qr.DataSerializerInfo;
+import com.datatorrent.lib.appdata.qr.SimpleDataSerializer;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
 
 import java.util.Date;
@@ -19,8 +19,8 @@ import java.util.List;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@QRType(type=AdsDataResult.TYPE)
-@ResultSerializerInfo(clazz=SimpleResultSerializer.class)
+@DataType(type=AdsDataResult.TYPE)
+@DataSerializerInfo(clazz=SimpleDataSerializer.class)
 public class AdsDataResult extends Result
 {
   public static final String TYPE = "dataResult";

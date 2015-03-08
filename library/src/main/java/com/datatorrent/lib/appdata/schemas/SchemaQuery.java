@@ -6,19 +6,19 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.QRType;
-import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
-import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
-import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
+import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
+import com.datatorrent.lib.appdata.qr.DataType;
+import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
+import com.datatorrent.lib.appdata.qr.SimpleDataDeserializer;
+import com.datatorrent.lib.appdata.qr.SimpleDataValidator;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@QRType(type=SchemaQuery.TYPE)
-@QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
-@QueryValidatorInfo(clazz=SimpleQueryValidator.class)
+@DataType(type=SchemaQuery.TYPE)
+@DataDeserializerInfo(clazz=SimpleDataDeserializer.class)
+@DataValidatorInfo(clazz=SimpleDataValidator.class)
 public class SchemaQuery extends Query
 {
   public static final String TYPE = "schemaQuery";

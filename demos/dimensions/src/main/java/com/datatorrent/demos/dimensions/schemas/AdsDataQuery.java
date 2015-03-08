@@ -5,19 +5,19 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
-import com.datatorrent.lib.appdata.qr.QRType;
+import com.datatorrent.lib.appdata.qr.DataType;
 import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
-import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
+import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
+import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
+import com.datatorrent.lib.appdata.qr.SimpleDataDeserializer;
 import com.google.common.collect.Lists;
 import javax.validation.constraints.NotNull;
 
 import java.util.List;
 
-@QRType(type=AdsDataQuery.TYPE)
-@QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
-@QueryValidatorInfo(clazz=AdsDataQueryValidator.class)
+@DataType(type=AdsDataQuery.TYPE)
+@DataDeserializerInfo(clazz=SimpleDataDeserializer.class)
+@DataValidatorInfo(clazz=AdsDataQueryValidator.class)
 public class AdsDataQuery extends Query
 {
   public static final String TYPE = "dataQuery";

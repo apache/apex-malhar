@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface QRType
+public @interface DataValidatorInfo
 {
-  String type();
+  Class<? extends CustomDataValidator> clazz();
 }

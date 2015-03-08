@@ -6,7 +6,7 @@
 package com.datatorrent.demos.dimensions.schemas;
 
 import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaTestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -78,7 +78,7 @@ public class AdsSchemaResultTest
 
     AdsSchemaResult asr = new AdsSchemaResult(sq);
 
-    ResultSerializerFactory rsf = new ResultSerializerFactory();
+    DataSerializerFactory rsf = new DataSerializerFactory();
 
     String jsonResult = rsf.serialize(asr);
 

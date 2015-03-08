@@ -18,7 +18,7 @@ import java.lang.annotation.Target;
 @Documented
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface ResultSerializerInfo
+public @interface DataDeserializerInfo
 {
-  Class<? extends CustomResultSerializer> clazz();
+  Class<? extends CustomDataDeserializer> clazz();
 }

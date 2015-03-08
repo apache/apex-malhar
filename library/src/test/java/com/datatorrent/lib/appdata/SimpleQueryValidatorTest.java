@@ -5,12 +5,12 @@
 
 package com.datatorrent.lib.appdata;
 
-import com.datatorrent.lib.appdata.qr.QRType;
+import com.datatorrent.lib.appdata.qr.DataType;
 import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.QueryValidatorInfo;
-import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
-import com.datatorrent.lib.appdata.qr.SimpleQueryValidator;
+import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
+import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
+import com.datatorrent.lib.appdata.qr.SimpleDataDeserializer;
+import com.datatorrent.lib.appdata.qr.SimpleDataValidator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -24,14 +24,14 @@ public class SimpleQueryValidatorTest
   public void testValidatingQuery()
   {
     TestQuery testQuery = new TestQuery();
-    SimpleQueryValidator sqv = new SimpleQueryValidator();
+    SimpleDataValidator sqv = new SimpleDataValidator();
 
     Assert.assertFalse("The query object is not valid.", sqv.validate(testQuery));
   }
 
-  @QRType(type = TestQuery.TYPE)
-  @QueryDeserializerInfo(clazz = SimpleQueryDeserializer.class)
-  @QueryValidatorInfo(clazz = SimpleQueryValidator.class)
+  @DataType(type = TestQuery.TYPE)
+  @DataDeserializerInfo(clazz = SimpleDataDeserializer.class)
+  @DataValidatorInfo(clazz = SimpleDataValidator.class)
   public static class TestQuery extends Query
   {
     public static final String TYPE = "testQuery";
