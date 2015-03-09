@@ -382,6 +382,16 @@ public class SimpleKafkaConsumer extends KafkaConsumer
                 stats.updatePartitionStats(kp, pm.leader().id(), pm.leader().host() + ":" + pm.leader().port());
               }
             }
+
+            // remove from map if the thread is done (partitions on this broker has all been reassigned to others(or temporarily not available) for
+            // example)
+            for (Iterator<Entry<Broker, ConsumerThread>> iterator = simpleConsumerThreads.entrySet().iterator(); iterator.hasNext();) {
+              Entry<Broker, ConsumerThread> item = iterator.next();
+              if (item.getValue().getThreadItSelf().isDone()) {
+                iterator.remove();
+              }
+            }
+
             for (Broker b : deltaPositive.keySet()) {
               if (!simpleConsumerThreads.containsKey(b)) {
                 // start thread for new broker
@@ -399,15 +409,6 @@ public class SimpleKafkaConsumer extends KafkaConsumer
                 // Do nothing, It's possibly removed by catching exception in the data-consuming thread
               } else {
                 simpleConsumerThreads.get(b).removePartitions(deltaNegative.get(b));
-              }
-            }
-
-            // remove from map if the thread is done (partitions on this broker has all been reassigned to others(or temporarily not available) for
-            // example)
-            for (Iterator<Entry<Broker, ConsumerThread>> iterator = simpleConsumerThreads.entrySet().iterator(); iterator.hasNext();) {
-              Entry<Broker, ConsumerThread> item = iterator.next();
-              if (item.getValue().getThreadItSelf().isDone()) {
-                iterator.remove();
               }
             }
 
