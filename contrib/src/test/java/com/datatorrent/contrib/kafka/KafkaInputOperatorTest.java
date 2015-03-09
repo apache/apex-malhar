@@ -46,7 +46,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
   /**
    * Test Operator to collect tuples from KafkaSingleInputStringOperator.
-   * 
+   *
    * @param <T>
    */
   public static class CollectorModule<T> extends BaseOperator
@@ -86,20 +86,20 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
    * Kafka, aka consumer). This module receives data from an outside test
    * generator through Kafka message bus and feed that data into Malhar
    * streaming platform.
-   * 
+   *
    * [Generate message and send that to Kafka message bus] ==> [Receive that
    * message through Kafka input adapter(i.e. consumer) and send using
    * emitTuples() interface on output port during onMessage call]
-   * 
-   * 
+   *
+   *
    * @throws Exception
    */
   public void testKafkaInputOperator(int sleepTime, final int totalCount, KafkaConsumer consumer, boolean isValid) throws Exception
   {
     // initial the latch for this test
     latch = new CountDownLatch(1);
-    
-    
+
+
  // Start producer
     KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC);
     p.setSendCount(totalCount);
@@ -116,11 +116,11 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     consumer.setTopic(TEST_TOPIC);
 
     node.setConsumer(consumer);
-    
+
     if (isValid) {
       node.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
     }
-    
+
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
 
@@ -132,20 +132,20 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     lc.setHeartbeatMonitoringEnabled(false);
 
     lc.runAsync();
-    
+
     // Wait 30s for consumer finish consuming all the messages
     Assert.assertTrue("TIMEOUT: 30s ", latch.await(300000, TimeUnit.MILLISECONDS));
-    
+
     // Check results
     Assert.assertEquals("Tuple count", totalCount, tupleCount.intValue());
     logger.debug(String.format("Number of emitted tuples: %d", tupleCount.intValue()));
-    
+
     p.close();
     lc.shutdown();
   }
 
   @Test
-  public void testKafkaInputOperator_Highleverl() throws Exception
+  public void testKafkaInputOperator_Highlevel() throws Exception
   {
     int totalCount = 10000;
     Properties props = new Properties();
@@ -157,7 +157,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     k.setInitialOffset("earliest");
     testKafkaInputOperator(1000, totalCount, k, true);
   }
-  
+
   @Test
   public void testKafkaInputOperator_Simple() throws Exception
   {
@@ -166,7 +166,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     k.setInitialOffset("earliest");
     testKafkaInputOperator(1000, totalCount, k, true);
   }
-  
+
   @Test
   public void testKafkaInputOperator_Invalid() throws Exception
   {
