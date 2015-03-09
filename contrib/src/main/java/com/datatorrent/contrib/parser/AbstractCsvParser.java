@@ -29,7 +29,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.common.util.DTThrowable;
 import java.io.*;
-import java.util.logging.Level;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -105,18 +104,6 @@ public abstract class AbstractCsvParser<T> extends BaseOperator
     @Override
     public void process(byte[] tuple)
     {
-      //InputStream in;
-      /*BufferedReader br = null;
-       try {
-       in = new ByteArrayInputStream(tuple);
-       br = new BufferedReader(new InputStreamReader(in, inputEncoding));
-       }
-       catch (UnsupportedEncodingException ex) {
-       logger.error("Encoding not supported", ex);
-       DTThrowable.rethrow(ex);
-       }
-       csvReader = getReader(br, preference);*/
-
       try {
         csvStringReader.open(new String(tuple, inputEncoding));
         if (isHeader) {
@@ -231,7 +218,7 @@ public abstract class AbstractCsvParser<T> extends BaseOperator
       csvReader.close();
     }
     catch (IOException e) {
-      logger.error("Parsing csv error", e);
+      DTThrowable.rethrow(e);
     }
   }
 

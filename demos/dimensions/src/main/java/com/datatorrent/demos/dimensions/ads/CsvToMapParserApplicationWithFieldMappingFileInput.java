@@ -20,7 +20,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.kafka.AbstractKafkaSinglePortInputOperator;
-import com.datatorrent.contrib.parser.CsvParser;
 import com.datatorrent.lib.stream.DevNull;
 import java.io.IOException;
 
@@ -34,8 +33,8 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@ApplicationAnnotation(name = "CsvParserFileMappingInputApplication")
-public class CsvParserFileMappingInputApplication implements StreamingApplication
+@ApplicationAnnotation(name = "CsvToMapParserApplicationWithFieldMappingFileInput")
+public class CsvToMapParserApplicationWithFieldMappingFileInput implements StreamingApplication
 {
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -43,7 +42,7 @@ public class CsvParserFileMappingInputApplication implements StreamingApplicatio
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, 1000);
 
     KafkaSinglePortStringInputOperator kafkaStringInput = dag.addOperator("KafkaStringInput", new KafkaSinglePortStringInputOperator());
-    CsvParser parser = dag.addOperator("CsvParser", CsvParser.class);
+    CsvToMapParser parser = dag.addOperator("CsvParser", CsvToMapParser.class);
     String filepath = conf.get("dt.application.CsvParserFileMappingInputApplication.operator.CsvParser.fieldmappingFile");
     parser.setFieldmappingFile(filepath);
     createFieldMappingFile(filepath);
@@ -143,6 +142,6 @@ public class CsvParserFileMappingInputApplication implements StreamingApplicatio
 
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(CsvParserFileMappingInputApplication.class);
+  private static final Logger logger = LoggerFactory.getLogger(CsvToMapParserApplicationWithFieldMappingFileInput.class);
 
 }

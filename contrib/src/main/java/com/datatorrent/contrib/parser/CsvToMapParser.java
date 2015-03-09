@@ -29,7 +29,7 @@ import org.supercsv.prefs.CsvPreference;
  * The output is a map with key being the field name supplied by user and value being the value of that field
  * from input stream.
  */
-public class CsvParser extends AbstractCsvParser<Map<String, Object>>
+public class CsvToMapParser extends AbstractCsvParser<Map<String, Object>>
 {
   protected transient ICsvMapReader csvReader = null;
 

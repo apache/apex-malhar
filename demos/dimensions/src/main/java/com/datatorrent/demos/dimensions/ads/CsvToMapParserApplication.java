@@ -20,7 +20,6 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.kafka.AbstractKafkaSinglePortInputOperator;
 import com.datatorrent.contrib.parser.AbstractCsvParser.Field;
-import com.datatorrent.contrib.parser.CsvParser;
 import com.datatorrent.lib.stream.DevNull;
 
 import org.apache.hadoop.conf.Configuration;
@@ -29,8 +28,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import kafka.message.Message;
 
-@ApplicationAnnotation(name="CsvParserApplication")
-public class CsvParserApplication implements StreamingApplication
+@ApplicationAnnotation(name="CsvToMapParserApplication")
+public class CsvToMapParserApplication implements StreamingApplication
 {
 
   @Override
@@ -39,9 +38,9 @@ public class CsvParserApplication implements StreamingApplication
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, 1000);
 
     KafkaSinglePortStringInputOperator kafkaStringInput = dag.addOperator("KafkaStringInput", new KafkaSinglePortStringInputOperator());
-    CsvParser parser = dag.addOperator("CsvParser", CsvParser.class);
+    CsvToMapParser parser = dag.addOperator("CsvToMapParser", CsvToMapParser.class);
 
-    ArrayList<CsvParser.Field> fields= new ArrayList<CsvParser.Field>();
+    ArrayList<CsvToMapParser.Field> fields= new ArrayList<CsvToMapParser.Field>();
     Field field1 = new Field();
     field1.setName("publisherId");
     field1.setType("INTEGER");
