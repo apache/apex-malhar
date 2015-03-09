@@ -151,41 +151,6 @@ public class FSLineReaderTest
   }
 
   @Test
-  public void testBlocksThreshold()
-  {
-    testMeta.blockReader.setThreshold(100);
-    testMeta.blockReader.setup(testMeta.readerContext);
-
-    long blockSize = 1000;
-    int noOfBlocks = (int) ((testMeta.dataFile.length() / blockSize) + (((testMeta.dataFile.length() % blockSize) == 0) ? 0 : 1));
-
-    testMeta.blockReader.beginWindow(1);
-    for (int i = 0; i < noOfBlocks; i++) {
-      BlockMetadata.FileBlockMetadata blockMetadata = new BlockMetadata.FileBlockMetadata(testMeta.dataFile.getAbsolutePath(), i,
-        i * blockSize, i == noOfBlocks - 1 ? testMeta.dataFile.length() : (i + 1) * blockSize,
-        i == noOfBlocks - 1, i - 1);
-      testMeta.blockReader.blocksMetadataInput.process(blockMetadata);
-    }
-    testMeta.blockReader.endWindow();
-
-    Assert.assertEquals("no of blocks processed", 100, testMeta.blockMetadataSink.collectedTuples.size());
-
-    testMeta.blockReader.beginWindow(2);
-    testMeta.blockReader.handleIdleTime();
-    testMeta.blockReader.endWindow();
-
-    Assert.assertEquals("no of blocks processed", noOfBlocks, testMeta.blockMetadataSink.collectedTuples.size());
-
-    List<Object> messages = testMeta.messageSink.collectedTuples;
-    Assert.assertEquals("No of records", testMeta.messages.size(), messages.size());
-    for (int i = 0; i < messages.size(); i++) {
-      @SuppressWarnings("unchecked")
-      AbstractBlockReader.ReaderRecord<String> msg = (AbstractBlockReader.ReaderRecord<String>) messages.get(i);
-      Assert.assertTrue("line " + i, Arrays.equals(msg.getRecord().split(","), testMeta.messages.get(i)));
-    }
-  }
-
-  @Test
   public void testNonConsecutiveBlocks()
   {
     long blockSize = 1000;
