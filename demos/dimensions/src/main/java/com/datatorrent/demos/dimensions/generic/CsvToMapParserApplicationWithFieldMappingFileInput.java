@@ -19,14 +19,11 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.contrib.kafka.AbstractKafkaSinglePortInputOperator;
 import com.datatorrent.lib.stream.DevNull;
 import java.io.IOException;
 
 import org.apache.hadoop.conf.Configuration;
-import java.nio.ByteBuffer;
 import java.util.Map;
-import kafka.message.Message;
 import org.apache.hadoop.fs.FSDataOutputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
@@ -41,7 +38,7 @@ public class CsvToMapParserApplicationWithFieldMappingFileInput implements Strea
   {
     dag.setAttribute(DAG.STREAMING_WINDOW_SIZE_MILLIS, 1000);
 
-    KafkaSinglePortStringInputOperator kafkaStringInput = dag.addOperator("KafkaStringInput", new KafkaSinglePortStringInputOperator());
+    KafkaSinglePortByteArrayInputOperator kafkaStringInput = dag.addOperator("KafkaStringInput", new KafkaSinglePortByteArrayInputOperator());
     CsvToMapParser parser = dag.addOperator("CsvParser", CsvToMapParser.class);
     String filepath = conf.get("dt.application.CsvParserFileMappingInputApplication.operator.CsvParser.fieldmappingFile");
     parser.setFieldmappingFile(filepath);
@@ -114,32 +111,6 @@ public class CsvToMapParserApplicationWithFieldMappingFileInput implements Strea
 
     }
     logger.debug("Written data to HDFS file.");
-  }
-
-  public static class KafkaSinglePortStringInputOperator extends AbstractKafkaSinglePortInputOperator<byte[]>
-  {
-
-    /**
-     * Implement abstract method of AbstractKafkaSinglePortInputOperator
-     *
-     * @param message
-     * @return byte Array
-     */
-    @Override
-    public byte[] getTuple(Message message)
-    {
-      byte[] bytes = null;
-      try {
-        ByteBuffer buffer = message.payload();
-        bytes = new byte[buffer.remaining()];
-        buffer.get(bytes);
-      }
-      catch (Exception ex) {
-        return bytes;
-      }
-      return bytes;
-    }
-
   }
 
   private static final Logger logger = LoggerFactory.getLogger(CsvToMapParserApplicationWithFieldMappingFileInput.class);

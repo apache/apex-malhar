@@ -107,7 +107,7 @@ public class GenericDimensionsWithCsvMapParser implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     CsvToMapParser parser = dag.addOperator("Parser", CsvToMapParser.class);
-    String filepath = conf.get("dt.application.CsvParserFileMappingInputApplication.operator.CsvParser.fieldmappingFile");
+    String filepath = conf.get("dt.application.GenericDimensionsWithCsvMapParser.operator.Parser.fieldmappingFile");
     parser.setFieldmappingFile(filepath);
     createFieldMappingFile(filepath);
     parser.setIsHeader(false);
@@ -117,6 +117,9 @@ public class GenericDimensionsWithCsvMapParser implements StreamingApplication
     DimensionStoreOperator store = dag.addOperator("Store", DimensionStoreOperator.class);
     KafkaSinglePortStringInputOperator queries = dag.addOperator("Query", new KafkaSinglePortStringInputOperator());
     KafkaSinglePortOutputOperator<Object, Object> queryResult = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<Object, Object>());
+    KafkaSinglePortByteArrayInputOperator kafkaStringInput = dag.addOperator("KafkaStringInput", new KafkaSinglePortByteArrayInputOperator());
+
+    dag.addStream("Kafka2Parser", kafkaStringInput.outputPort, parser.input);
 
     dag.setInputPortAttribute(parser.input, Context.PortContext.PARTITION_PARALLEL, true);
     dag.setInputPortAttribute(dimensions.data, Context.PortContext.PARTITION_PARALLEL, true);
