@@ -234,6 +234,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     consumer.setInitialOffset("earliest");
 
     testMeta.operator.setConsumer(consumer);
+    testMeta.operator.setIdempotent(true);
     testMeta.operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
     testMeta.operator.setMaxTuplesPerWindow(500);
     testMeta.sink = new CollectorTestSink<Object>();
