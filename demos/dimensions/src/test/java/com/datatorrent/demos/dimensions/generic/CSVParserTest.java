@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.contrib.parser;
+package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.parser.AbstractCsvParser.Field;
@@ -60,11 +60,11 @@ public class CSVParserTest
   @Test
   public void TestParserWithHeader()
   {
-    CsvParser parser = new CsvParser();
+    CsvToMapParser parser = new CsvToMapParser();
     parser.setFieldDelimiter(',');
     parser.setLineDelimiter("\n");
     parser.setIsHeader(true);
-    ArrayList<CsvParser.Field> fields = new ArrayList<CsvParser.Field>();
+    ArrayList<CsvToMapParser.Field> fields = new ArrayList<CsvToMapParser.Field>();
     Field field1 = new Field();
     field1.setName("Eid");
     field1.setType("INTEGER");
@@ -98,12 +98,12 @@ public class CSVParserTest
   @Test
   public void TestParserWithoutHeader()
   {
-    CsvParser parser = new CsvParser();
+    CsvToMapParser parser = new CsvToMapParser();
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     parser.output.setSink(sink);
     parser.setFieldDelimiter(',');
     parser.setLineDelimiter("\n");
-    ArrayList<CsvParser.Field> fields = new ArrayList<CsvParser.Field>();
+    ArrayList<CsvToMapParser.Field> fields = new ArrayList<CsvToMapParser.Field>();
     Field field1 = new Field();
     field1.setName("Eid");
     field1.setType("INTEGER");
@@ -134,7 +134,7 @@ public class CSVParserTest
   public void TestParserWithFileInput()
   {
     createFieldMappingFile();
-    CsvParser parser = new CsvParser();
+    CsvToMapParser parser = new CsvToMapParser();
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     parser.output.setSink(sink);
     parser.setFieldDelimiter(',');

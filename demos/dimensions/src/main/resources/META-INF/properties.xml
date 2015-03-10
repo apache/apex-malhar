@@ -94,7 +94,7 @@
 
 <!--FieldMappingFile for CsvParserApplication-->
   <property>
-    <name>dt.application.CsvParserFileMappingInputApplication.operator.CsvParser.fieldmappingFile</name>
-    <value></value>
+    <name>dt.application.GenericDimensionsWithCsvMapParser.operator.Parser.fieldmappingFile</name>
+    <value>/tmp/test.txt</value>
   </property>
 </configuration>

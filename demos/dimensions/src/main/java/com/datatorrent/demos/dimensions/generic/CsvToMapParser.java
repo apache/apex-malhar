@@ -13,8 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.dimensions.ads;
+package com.datatorrent.demos.dimensions.generic;
 
+import com.datatorrent.demos.dimensions.ads.*;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.parser.AbstractCsvParser;
 import java.io.IOException;
