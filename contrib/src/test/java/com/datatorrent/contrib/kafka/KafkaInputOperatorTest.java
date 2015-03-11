@@ -97,7 +97,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
    *
    * @throws Exception
    */
-  public void testKafkaInputOperator(int sleepTime, final int totalCount, KafkaConsumer consumer, boolean isValid) throws Exception
+  public void testKafkaInputOperator(int sleepTime, final int totalCount, KafkaConsumer consumer, boolean isValid, boolean idempotent) throws Exception
   {
     // initial the latch for this test
     latch = new CountDownLatch(1);
@@ -116,6 +116,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     // Create KafkaSinglePortStringInputOperator
     KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
+    node.setIdempotent(idempotent);
     consumer.setTopic(TEST_TOPIC);
 
     node.setConsumer(consumer);
@@ -158,7 +159,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     // otherwise it wont get any of those the produced before!
     KafkaConsumer k = new HighlevelKafkaConsumer(props);
     k.setInitialOffset("earliest");
-    testKafkaInputOperator(1000, totalCount, k, true);
+    testKafkaInputOperator(1000, totalCount, k, true, false);
   }
 
   @Test
@@ -167,7 +168,16 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     int totalCount = 10000;
     KafkaConsumer k = new SimpleKafkaConsumer();
     k.setInitialOffset("earliest");
-    testKafkaInputOperator(1000, totalCount, k, true);
+    testKafkaInputOperator(1000, totalCount, k, true, false);
+  }
+
+  @Test
+  public void testKafkaInputOperator_Simple_Idempotent() throws Exception
+  {
+    int totalCount = 10000;
+    KafkaConsumer k = new SimpleKafkaConsumer();
+    k.setInitialOffset("earliest");
+    testKafkaInputOperator(1000, totalCount, k, true, true);
   }
 
   @Test
@@ -176,7 +186,7 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     int totalCount = 10000;
     SimpleKafkaConsumer consumer = new SimpleKafkaConsumer();
     try{
-      testKafkaInputOperator(1000, totalCount,consumer, false);
+      testKafkaInputOperator(1000, totalCount,consumer, false, false);
     }catch(Exception e){
       // invalid host setup expect to fail here
       Assert.assertEquals("Error creating local cluster", e.getMessage());

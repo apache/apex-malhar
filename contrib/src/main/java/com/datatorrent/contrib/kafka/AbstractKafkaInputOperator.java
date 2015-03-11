@@ -144,6 +144,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   protected final transient Map<KafkaPartition, MutablePair<Long, Integer>> currentWindowRecoveryState;
   protected transient Map<KafkaPartition, Long> offsetStats = new HashMap<KafkaPartition, Long>();
   private transient OperatorContext context = null;
+  private boolean idempotent = true;
   // By default the partition policy is 1:1
   public PartitionStrategy strategy = PartitionStrategy.ONE_TO_ONE;
 
@@ -207,8 +208,9 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void setup(OperatorContext context)
   {
-    if(!(getConsumer() instanceof SimpleKafkaConsumer))
+    if(!(getConsumer() instanceof SimpleKafkaConsumer) || !idempotent) {
       idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
+    }
     logger.debug("consumer {} topic {} cacheSize {}", consumer, consumer.getTopic(), consumer.getCacheSize());
     consumer.create();
     this.context = context;
@@ -930,4 +932,13 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     this.strategy = PartitionStrategy.valueOf(policy.toUpperCase());
   }
 
+  public boolean isIdempotent()
+  {
+    return idempotent;
+  }
+
+  public void setIdempotent(boolean idempotent)
+  {
+    this.idempotent = idempotent;
+  }
 }
