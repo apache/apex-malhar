@@ -16,7 +16,7 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.demos.dimensions.generic.AbstractCsvParser.Field;
+import com.datatorrent.contrib.parser.AbstractCsvParser.Field;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import java.io.File;

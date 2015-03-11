@@ -18,7 +18,7 @@ package com.datatorrent.demos.dimensions.generic;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.demos.dimensions.generic.AbstractCsvParser.Field;
+import com.datatorrent.contrib.parser.AbstractCsvParser.Field;
 import com.datatorrent.lib.stream.DevNull;
 
 import org.apache.hadoop.conf.Configuration;
