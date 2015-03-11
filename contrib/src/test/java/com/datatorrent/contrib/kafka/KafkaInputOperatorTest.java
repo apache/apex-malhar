@@ -26,10 +26,13 @@ import com.datatorrent.api.Operator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Rule;
@@ -203,6 +206,11 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
       String className = description.getClassName();
       baseDir = "target/" + className + "/" + methodName;
       recoveryDir = baseDir + "/" + "recovery";
+      try {
+        FileUtils.deleteDirectory(new File(recoveryDir));
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -251,8 +259,8 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     //failure and then re-deployment of operator
     testMeta.sink.collectedTuples.clear();
+    testMeta.operator.teardown();
     testMeta.operator.setup(testMeta.context);
-    testMeta.operator.activate(testMeta.context);
 
     Assert.assertEquals("largest recovery window", 2, testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
 
