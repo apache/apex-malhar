@@ -144,7 +144,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   protected final transient Map<KafkaPartition, MutablePair<Long, Integer>> currentWindowRecoveryState;
   protected transient Map<KafkaPartition, Long> offsetStats = new HashMap<KafkaPartition, Long>();
   private transient OperatorContext context = null;
-  private boolean idempotent = false;
+  private boolean idempotent = true;
   // By default the partition policy is 1:1
   public PartitionStrategy strategy = PartitionStrategy.ONE_TO_ONE;
 
