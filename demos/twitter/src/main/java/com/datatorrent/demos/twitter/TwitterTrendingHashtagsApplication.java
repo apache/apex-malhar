@@ -143,28 +143,9 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
 {
   private final Locality locality = null;
 
-  private InputPort<Object> consoleOutput(DAG dag, String operatorName)
-  {
-    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-    if (!StringUtils.isEmpty(gatewayAddress)) {
-      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-      String topic = "demos.twitter." + operatorName;
-      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
-      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator(operatorName, new PubSubWebSocketOutputOperator<Object>());
-      wsOut.setUri(uri);
-      wsOut.setTopic(topic);
-      return wsOut.input;
-    }
-    ConsoleOutputOperator operator = dag.addOperator(operatorName, new ConsoleOutputOperator());
-    operator.setStringFormat(operatorName + ": %s");
-    return operator.input;
-  }
-
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    //dag.setAttribute(DAG.APPLICATION_NAME, "TwitterTrendingHashtagsApplication");
-
     // Setup the operator to get the data from twitter sample stream injected into the system.
     TwitterSampleInput twitterFeed = new TwitterSampleInput();
     twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
@@ -189,6 +170,23 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     // Count top 10
     dag.addStream("TopHashtags", topCounts.output, consoleOutput(dag, "topHashtags")).setLocality(locality);
 
+  }
+
+  private InputPort<Object> consoleOutput(DAG dag, String operatorName)
+  {
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
+    if (!StringUtils.isEmpty(gatewayAddress)) {
+      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+      String topic = "demos.twitter." + operatorName;
+      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
+      PubSubWebSocketOutputOperator<Object> wsOut = dag.addOperator(operatorName, new PubSubWebSocketOutputOperator<Object>());
+      wsOut.setUri(uri);
+      wsOut.setTopic(topic);
+      return wsOut.input;
+    }
+    ConsoleOutputOperator operator = dag.addOperator(operatorName, new ConsoleOutputOperator());
+    operator.setStringFormat(operatorName + ": %s");
+    return operator.input;
   }
 
 }
