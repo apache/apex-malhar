@@ -162,7 +162,7 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 
     node.setConsumer(consumer);
 
-    String clusterString = "cluster1:localhost:" + TEST_ZOOKEEPER_PORT[0] + (hasMultiCluster ? ",cluster2:localhost:" + TEST_ZOOKEEPER_PORT[1] : "");
+    String clusterString = "cluster1::localhost:" + TEST_ZOOKEEPER_PORT[0] + (hasMultiCluster ? ";cluster2::localhost:" + TEST_ZOOKEEPER_PORT[1] : "");
     node.setZookeeper(clusterString);
 
     // Create Test tuple collector

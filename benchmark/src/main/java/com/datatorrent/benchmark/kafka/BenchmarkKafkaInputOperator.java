@@ -18,7 +18,7 @@ package com.datatorrent.benchmark.kafka;
 import kafka.message.Message;
 
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
+import com.datatorrent.contrib.kafka.AbstractKafkaInputOperator;
 
 /**
  * This operator emits one constant message for each kafka message received.&nbsp;
@@ -30,18 +30,12 @@ import com.datatorrent.contrib.kafka.AbstractPartitionableKafkaInputOperator;
  *
  * @since 0.9.3
  */
-public class BenchmarkPartitionableKafkaInputOperator extends AbstractPartitionableKafkaInputOperator
+public class BenchmarkKafkaInputOperator extends AbstractKafkaInputOperator
 {
   /**
    * The output port on which messages are emitted.
    */
   public transient DefaultOutputPort<String>  oport = new DefaultOutputPort<String>();
-
-  @Override
-  protected AbstractPartitionableKafkaInputOperator cloneOperator()
-  {
-    return new BenchmarkPartitionableKafkaInputOperator();
-  }
 
   @Override
   protected void emitTuple(Message message)

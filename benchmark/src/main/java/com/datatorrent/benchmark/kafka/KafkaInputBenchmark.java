@@ -16,6 +16,7 @@
 
 package com.datatorrent.benchmark.kafka;
 
+import com.google.common.collect.Sets;
 import java.util.Properties;
 
 import org.apache.hadoop.conf.Configuration;
@@ -53,16 +54,14 @@ public class KafkaInputBenchmark implements StreamingApplication
       {
       }
     };
-
   }
-
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
 
     dag.setAttribute(DAG.APPLICATION_NAME, "KafkaInputOperatorPartitionDemo");
-    BenchmarkPartitionableKafkaInputOperator bpkio = new BenchmarkPartitionableKafkaInputOperator();
+    BenchmarkKafkaInputOperator bpkio = new BenchmarkKafkaInputOperator();
 
 
     String type = conf.get("kafka.consumertype", "simple");
@@ -82,10 +81,11 @@ public class KafkaInputBenchmark implements StreamingApplication
       consumer = new SimpleKafkaConsumer(null, 10000, 100000, "test_kafka_autop_client", null);
     }
 
-    
+    bpkio.setZookeeper(conf.get("dt.kafka.zookeeper"));
     bpkio.setInitialPartitionCount(1);
     //bpkio.setTuplesBlast(1024 * 1024);
     bpkio.setConsumer(consumer);
+
     bpkio = dag.addOperator("KafkaBenchmarkConsumer", bpkio);
 
     CollectorModule cm = dag.addOperator("DataBlackhole", CollectorModule.class);
