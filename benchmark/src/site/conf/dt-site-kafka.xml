@@ -16,5 +16,10 @@
     <name>dt.kafka.brokerlist</name>
     <value>localhost:9092</value>
   </property>
+
+    <property>
+        <name>dt.kafka.zookeeper</name>
+        <value>localhost:2181</value>
+    </property>
 </configuration>
 

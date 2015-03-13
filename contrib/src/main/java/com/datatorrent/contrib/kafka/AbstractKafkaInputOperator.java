@@ -405,15 +405,23 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void setZookeeper(String zookeeperString)
   {
     SetMultimap<String, String> theClusters = HashMultimap.create();
-    for (String zk : zookeeperString.split(",")) {
-      String[] parts = zk.split(":");
-      if (parts.length == 3) {
-        theClusters.put(parts[0], parts[1] + ":" + parts[2]);
-      } else if (parts.length == 2) {
-        theClusters.put(KafkaPartition.DEFAULT_CLUSTERID, parts[0] + ":" + parts[1]);
-      } else
-        throw new IllegalArgumentException("Wrong zookeeper string: " + zookeeperString + "\n"
-            + " Expected format should be cluster1:zookeeper1:port1,cluster2:zookeeper2:port2 or zookeeper1:port1,zookeeper:port2");
+    for (String zk : zookeeperString.split(";")) {
+      String[] parts = zk.split("::");
+      String clusterId = parts.length == 1 ? KafkaPartition.DEFAULT_CLUSTERID : parts[0];
+      String[] hostNames = parts.length == 1 ? parts[0].split(",") : parts[1].split(",");
+      String portId = "";
+      for (int idx = hostNames.length - 1; idx >= 0; idx--) {
+        String[] zkParts = hostNames[idx].split(":");
+        if (zkParts.length == 2) {
+          portId = zkParts[1];
+        }
+        if (!portId.isEmpty() && portId != "") {
+          theClusters.put(clusterId, zkParts[0] + ":" + portId);
+        } else {
+          throw new IllegalArgumentException("Wrong zookeeper string: " + zookeeperString + "\n"
+              + " Expected format should be cluster1::zookeeper1,zookeeper2:port1;cluster2::zookeeper3:port2 or zookeeper1:port1,zookeeper:port2");
+        }
+      }
     }
     this.consumer.setZookeeper(theClusters);
   }
