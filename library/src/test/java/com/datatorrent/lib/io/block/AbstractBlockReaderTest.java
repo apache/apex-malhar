@@ -127,12 +127,21 @@ public class AbstractBlockReaderTest
     Collection<Partitioner.Partition<AbstractBlockReader<Slice,
       BlockMetadata.FileBlockMetadata, FSDataInputStream>>> newPartitions = sliceReader.definePartitions(partitions, null);
 
+    List<Partitioner.Partition<AbstractBlockReader<Slice,
+      BlockMetadata.FileBlockMetadata, FSDataInputStream>>> newMocks = Lists.newArrayList();
+
     for (Partitioner.Partition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> partition :
       newPartitions) {
       partition.getPartitionedInstance().counters.setCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS, new MutableLong(1));
+
+      newMocks.add(
+        new TestUtils.MockPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>(
+          (DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>) partition,
+          readerStats)
+      );
     }
     sliceReader.partitionCount = 1;
-    newPartitions = sliceReader.definePartitions(newPartitions, null);
+    newPartitions = sliceReader.definePartitions(newMocks, null);
     Assert.assertEquals(1, newPartitions.size());
 
     AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream> last = newPartitions.iterator().next().getPartitionedInstance();
@@ -142,10 +151,9 @@ public class AbstractBlockReaderTest
   static class ReaderStats extends Stats.OperatorStats
   {
 
-    ReaderStats(long backlog, long readBlocks, long bytes, long time)
+    ReaderStats(int backlog, long readBlocks, long bytes, long time)
     {
       BasicCounters<MutableLong> bc = new BasicCounters<MutableLong>(MutableLong.class);
-      bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BACKLOG, new MutableLong(backlog));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS, new MutableLong(readBlocks));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BYTES, new MutableLong(bytes));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.TIME, new MutableLong(time));
@@ -153,7 +161,7 @@ public class AbstractBlockReaderTest
       counters = bc;
 
       PortStats portStats = new PortStats("blocks");
-      portStats.queueSize = 0;
+      portStats.queueSize = backlog;
       inputPorts = Lists.newArrayList(portStats);
     }
   }
