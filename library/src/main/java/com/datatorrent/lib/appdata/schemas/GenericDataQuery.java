@@ -5,6 +5,8 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.gpo.GPOImmutable;
+import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.google.common.base.Preconditions;
 

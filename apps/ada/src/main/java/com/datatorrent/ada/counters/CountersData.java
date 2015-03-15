@@ -6,82 +6,94 @@
 
 package com.datatorrent.ada.counters;
 
+import com.datatorrent.lib.appdata.qr.Data;
+import javax.validation.constraints.NotNull;
+
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class CountersData
+public class CountersData extends Data
 {
-  private String applicationID;
-  private String applicationName;
-  private String operatorID;
-  private String operatorName;
+  public static final String FIELD_USER = "user";
+  public static final String FIELD_APP_NAME = "appName";
+  public static final String FIELD_LOGICAL_OPERATOR_NAME = "logicalOperatorName";
+  public static final String FIELD_VERSION = "version";
+
+  @NotNull
+  private String user;
+  @NotNull
+  private String appName;
+  @NotNull
+  private String logicalOperatorName;
+  @NotNull
+  private String version;
 
   public CountersData()
   {
   }
 
   /**
-   * @return the applicationID
+   * @return the appName
    */
-  public String getApplicationID()
+  public String getAppName()
   {
-    return applicationID;
+    return appName;
   }
 
   /**
-   * @param applicationID the applicationID to set
+   * @param appName the appName to set
    */
-  public void setApplicationID(String applicationID)
+  public void setAppName(String appName)
   {
-    this.applicationID = applicationID;
+    this.appName = appName;
   }
 
   /**
-   * @return the applicationName
+   * @return the logicalOperatorName
    */
-  public String getApplicationName()
+  public String getLogicalOperatorName()
   {
-    return applicationName;
+    return logicalOperatorName;
   }
 
   /**
-   * @param applicationName the applicationName to set
+   * @param logicalOperatorName the logicalOperatorName to set
    */
-  public void setApplicationName(String applicationName)
+  public void setLogicalOperatorName(String logicalOperatorName)
   {
-    this.applicationName = applicationName;
+    this.logicalOperatorName = logicalOperatorName;
   }
 
   /**
-   * @return the operatorID
+   * @return the user
    */
-  public String getOperatorID()
+  public String getUser()
   {
-    return operatorID;
+    return user;
   }
 
   /**
-   * @param operatorID the operatorID to set
+   * @param user the user to set
    */
-  public void setOperatorID(String operatorID)
+  public void setUser(String user)
   {
-    this.operatorID = operatorID;
+    this.user = user;
   }
 
   /**
-   * @return the operatorName
+   * @return the version
    */
-  public String getOperatorName()
+  public String getVersion()
   {
-    return operatorName;
+    return version;
   }
 
   /**
-   * @param operatorName the operatorName to set
+   * @param version the version to set
    */
-  public void setOperatorName(String operatorName)
+  public void setVersion(String version)
   {
-    this.operatorName = operatorName;
+    this.version = version;
   }
 }

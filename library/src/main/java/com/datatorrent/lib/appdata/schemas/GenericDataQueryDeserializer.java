@@ -59,7 +59,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
       //// Keys
 
       JSONObject keys = data.getJSONObject(GenericDataQuery.FIELD_KEYS);
-      GPOMutable mutableGPO = GPOUtils.deserialize(keys);
+      //GPOMutable mutableGPO = GPOUtils.deserialize(keys);
 
 
     }

@@ -18,7 +18,8 @@ import org.slf4j.LoggerFactory;
  * @author Timothy Farkas: tim@datatorrent.com
  */
 
-public class AdsDataQueryValidator implements CustomDataValidator{
+public class AdsDataQueryValidator implements CustomDataValidator
+{
   private static final Logger logger = LoggerFactory.getLogger(AdsDataQueryValidator.class);
   private SimpleDataValidator sqv = new SimpleDataValidator();
 
