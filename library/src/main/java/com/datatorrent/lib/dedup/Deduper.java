@@ -41,6 +41,7 @@ import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.bucket.*;
 
 /**
  * This is the base implementation of a deduper, which drops duplicate events.&nbsp;
@@ -90,12 +91,14 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
     {
       long bucketKey = bucketManager.getBucketKeyFor(tuple);
       if (bucketKey < 0) {
+        ignored.emit(convert(tuple));
         return;
       } //ignore event
 
       Bucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
 
       if (bucket != null && bucket.containsEvent(tuple)) {
+        duplicate.emit(convert(tuple));
         counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
         return;
       } //ignore event
@@ -131,6 +134,9 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
    * The output port on which deduped events are emitted.
    */
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
+  public final transient DefaultOutputPort<OUTPUT> duplicate = new DefaultOutputPort<OUTPUT>();
+  public final transient DefaultOutputPort<OUTPUT> ignored = new DefaultOutputPort<OUTPUT>();
+
   //Check-pointed state
   @NotNull
   protected BucketManager<INPUT> bucketManager;
@@ -145,6 +151,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   private transient OperatorContext context;
   protected BasicCounters<MutableLong> counters;
   private transient long currentWindow;
+
   @Min(1)
   private int partitionCount = 1;
 
@@ -436,6 +443,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
               BasicCounters<MutableLong> cs = (BasicCounters<MutableLong>) os.counters;
               logger.debug("operatorId:{} buckets:[in-memory:{} deleted:{} evicted:{}] events:[in-memory:{} committed-last-window:{} " +
                   "ignored:{} duplicates:{}] low:{} high:{}", batchedOperatorStats.getOperatorId(),
+                  //add more counters
                 cs.getCounter(BucketManager.CounterKeys.BUCKETS_IN_MEMORY),
                 cs.getCounter(BucketManager.CounterKeys.DELETED_BUCKETS),
                 cs.getCounter(BucketManager.CounterKeys.EVICTED_BUCKETS),

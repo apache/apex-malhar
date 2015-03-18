@@ -73,6 +73,16 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     recomputeNumBuckets();
   }
 
+   /**
+   * Number of past days for which events are processed.
+   *
+   * @return daysSpan
+   */
+  public int getDaysSpan()
+  {
+    return daysSpan;
+  }
+
   /**
    * Sets the number of milliseconds a bucket spans.
    *
@@ -82,6 +92,16 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   {
     this.bucketSpanInMillis = bucketSpanInMillis;
     recomputeNumBuckets();
+  }
+
+   /**
+   * Sets the number of milliseconds a bucket spans.
+   *
+   * @return bucketSpanInMillis
+   */
+  public long getBucketSpanInMillis()
+  {
+    return bucketSpanInMillis;
   }
 
   @Override
