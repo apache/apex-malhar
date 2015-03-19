@@ -26,8 +26,7 @@ public class AggregatorDescriptorTest
   public void simpleTest1()
   {
     TestDimensionsSchema tds = new TestDimensionsSchema();
-    AggregatorDescriptor ad = new AggregatorDescriptor(TestDimensionsSchema.KEY_1_NAME,
-                                                       tds);
+    DimensionsDescriptor ad = new DimensionsDescriptor(TestDimensionsSchema.KEY_1_NAME);
 
     Set<String> fields = Sets.newHashSet();
     fields.add(TestDimensionsSchema.KEY_1_NAME);
@@ -40,10 +39,9 @@ public class AggregatorDescriptorTest
   public void simpleTest2()
   {
     TestDimensionsSchema tds = new TestDimensionsSchema();
-    AggregatorDescriptor ad = new AggregatorDescriptor(TestDimensionsSchema.KEY_1_NAME +
-                                                       AggregatorDescriptor.DELIMETER_SEPERATOR +
-                                                       TestDimensionsSchema.KEY_2_NAME,
-                                                       tds);
+    DimensionsDescriptor ad = new DimensionsDescriptor(TestDimensionsSchema.KEY_1_NAME +
+                                                       DimensionsDescriptor.DELIMETER_SEPERATOR +
+                                                       TestDimensionsSchema.KEY_2_NAME);
 
     Set<String> fields = Sets.newHashSet();
     fields.add(TestDimensionsSchema.KEY_1_NAME);
@@ -57,16 +55,15 @@ public class AggregatorDescriptorTest
   public void simpleTimeTest()
   {
     TestDimensionsSchema tds = new TestDimensionsSchema();
-    AggregatorDescriptor ad = new AggregatorDescriptor(TestDimensionsSchema.KEY_1_NAME +
-                                                       AggregatorDescriptor.DELIMETER_SEPERATOR +
-                                                       AggregatorDescriptor.DIMENSION_TIME +
-                                                       AggregatorDescriptor.DELIMETER_EQUALS +
-                                                       "DAYS",
-                                                       tds);
+    DimensionsDescriptor ad = new DimensionsDescriptor(TestDimensionsSchema.KEY_1_NAME +
+                                                       DimensionsDescriptor.DELIMETER_SEPERATOR +
+                                                       DimensionsDescriptor.DIMENSION_TIME +
+                                                       DimensionsDescriptor.DELIMETER_EQUALS +
+                                                       "DAYS");
 
     Set<String> fields = Sets.newHashSet();
     fields.add(TestDimensionsSchema.KEY_1_NAME);
-    fields.add(AggregatorDescriptor.DIMENSION_TIME);
+    fields.add(DimensionsDescriptor.DIMENSION_TIME);
 
     Assert.assertEquals("The fields should match.", fields, ad.getFields().getFields());
     Assert.assertEquals("The timeunit should be DAYS.", TimeUnit.DAYS, ad.getTimeUnit());

@@ -6,7 +6,6 @@
 package com.datatorrent.lib.appdata.qr.processor;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.processor.QueueList.QueueListNode;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public abstract class AbstractWEQueryQueueManager<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT> implements QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
+public abstract class AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> implements QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractWEQueryQueueManager.class);
 

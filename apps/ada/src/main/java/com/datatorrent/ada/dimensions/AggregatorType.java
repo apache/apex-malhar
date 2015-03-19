@@ -6,6 +6,12 @@
 
 package com.datatorrent.ada.dimensions;
 
+import com.datatorrent.lib.appdata.dimensions.AggregatorCount;
+import com.datatorrent.lib.appdata.dimensions.AggregatorMax;
+import com.datatorrent.lib.appdata.dimensions.AggregatorMin;
+import com.datatorrent.lib.appdata.dimensions.AggregatorSum;
+import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -20,41 +26,45 @@ import java.util.Map;
 public enum AggregatorType
 {
   MIN("min",
-      new AggregatorFactoryMin(),
+      new AggregatorMin(),
       null),
   MAX("max",
-      new AggregatorFactoryMax(),
+      new AggregatorMax(),
       null),
   SUM("sum",
-      new AggregatorFactorySum(),
+      new AggregatorSum(),
       null),
   COUNT("count",
-        new AggregatorFactorySum(),
+        new AggregatorCount(),
         Type.LONG);
 
   public static final Map<String, AggregatorType> NAME_TO_AGGREGATOR_TYPE;
+  public static final Map<Integer, AggregatorType> ID_TO_AGGREGATOR_TYPE;
 
   static
   {
     Map<String, AggregatorType> nameToAggregatorType = Maps.newHashMap();
+    Map<Integer, AggregatorType> idToAggregatorType = Maps.newHashMap();
 
     for(AggregatorType at: AggregatorType.values()) {
       nameToAggregatorType.put(at.getName(), at);
+      idToAggregatorType.put(at.ordinal(), at);
     }
 
     NAME_TO_AGGREGATOR_TYPE = Collections.unmodifiableMap(nameToAggregatorType);
+    ID_TO_AGGREGATOR_TYPE = Collections.unmodifiableMap(idToAggregatorType);
   }
 
   private String name;
-  private DimensionsAggregatorFactory factory;
+  private DimensionsAggregator<GenericAggregateEvent> aggregator;
   private Type type;
 
   AggregatorType(String name,
-                 DimensionsAggregatorFactory factory,
+                 DimensionsAggregator<GenericAggregateEvent> aggregator,
                  Type type)
   {
     setName(name);
-    setFactory(factory);
+    setAggregator(aggregator);
     setType(type);
   }
 
@@ -69,15 +79,15 @@ public enum AggregatorType
     return name;
   }
 
-  private void setFactory(DimensionsAggregatorFactory factory)
+  private void setAggregator(DimensionsAggregator<GenericAggregateEvent> aggregator)
   {
-    Preconditions.checkNotNull(factory);
-    this.factory = factory;
+    Preconditions.checkNotNull(aggregator);
+    this.aggregator = aggregator;
   }
 
-  public DimensionsAggregatorFactory getFactory()
+  public DimensionsAggregator<GenericAggregateEvent> getAggregator()
   {
-    return factory;
+    return aggregator;
   }
 
   private void setType(Type type)

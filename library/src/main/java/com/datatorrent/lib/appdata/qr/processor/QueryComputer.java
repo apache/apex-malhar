@@ -5,16 +5,13 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.Result;
-
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public interface QueryComputer<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT>
+public interface QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
 {
-  public Result processQuery(QUERY_TYPE query,
+  public RESULT processQuery(QUERY_TYPE query,
                              META_QUERY metaQuery,
                              QUEUE_CONTEXT queueContext,
                              COMPUTE_CONTEXT context);

@@ -79,6 +79,8 @@ public class CountersSchema extends CountersData implements DimensionsSchema
   private Map<String, FieldsDescriptor> aggregateToFieldsDescriptor;
   @JsonIgnore
   private Map<String, List<String>> fieldToAggregators;
+  @JsonIgnore
+  private Set<String> aggregators;
 
   public CountersSchema()
   {
@@ -127,6 +129,19 @@ public class CountersSchema extends CountersData implements DimensionsSchema
     aggregateToFields = Collections.unmodifiableMap(aggregateToFields);
 
     return aggregateToFields;
+  }
+
+  @JsonIgnore
+  public Set<String> getAggregators()
+  {
+    if(aggregators != null) {
+      return aggregators;
+    }
+
+    getFieldToAggregators();
+    aggregators = aggregateToFields.keySet();
+
+    return aggregators;
   }
 
   @JsonIgnore

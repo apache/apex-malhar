@@ -136,7 +136,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   // Query Processing - Start
   //==========================================================================
 
-  private transient QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean> queryProcessor;
+  private transient QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
   private transient DataSerializerFactory resultSerializerFactory;
@@ -235,7 +235,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
     //Setup for query processing
     queryProcessor =
-    new QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean>(
+    new QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean, Result>(
                                                   new AdsQueryComputer(this),
                                                   new AdsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
@@ -582,7 +582,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
   }
 
-  class AdsQueryComputer implements QueryComputer<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean>
+  class AdsQueryComputer implements QueryComputer<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean, Result>
   {
     private AdsDimensionStoreOperator operator;
 

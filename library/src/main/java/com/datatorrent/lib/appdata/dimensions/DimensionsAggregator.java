@@ -9,8 +9,7 @@ package com.datatorrent.lib.appdata.dimensions;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public interface DimensionsAggregator<EVENT, AGGREGATE>
+public interface DimensionsAggregator<AGGREGATE>
 {
-  public void aggregate(AGGREGATE dest, EVENT src);
-  public void aggregateAgs(AGGREGATE dest, AGGREGATE src);
+  public void aggregate(AGGREGATE dest, AGGREGATE src);
 }

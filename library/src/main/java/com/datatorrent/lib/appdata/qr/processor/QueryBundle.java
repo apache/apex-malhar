@@ -5,13 +5,11 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.qr.Query;
-
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class QueryBundle<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT>
+public class QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {
   protected QUERY_TYPE query;
   protected META_QUERY metaQuery;

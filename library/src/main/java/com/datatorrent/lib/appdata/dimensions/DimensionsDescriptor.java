@@ -6,7 +6,6 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.Fields;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
@@ -20,9 +19,9 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class AggregatorDescriptor
+public class DimensionsDescriptor
 {
-  private static final Logger logger = LoggerFactory.getLogger(AggregatorDescriptor.class);
+  private static final Logger logger = LoggerFactory.getLogger(DimensionsDescriptor.class);
 
   public static final String DIMENSION_TIME = "time";
 
@@ -31,14 +30,11 @@ public class AggregatorDescriptor
   public static final String DELIMETER_EQUALS = "=";
   public static final String DELIMETER_SEPERATOR = ":";
 
-  private DimensionsSchema schema;
   private TimeUnit timeUnit;
   private Fields fields;
 
-  public AggregatorDescriptor(String aggregationString,
-                              DimensionsSchema schema)
+  public DimensionsDescriptor(String aggregationString)
   {
-    setSchema(schema);
     initialize(aggregationString);
   }
 
@@ -60,17 +56,6 @@ public class AggregatorDescriptor
     }
 
     fields = new Fields(fieldSet);
-  }
-
-  private void setSchema(DimensionsSchema schema)
-  {
-    Preconditions.checkNotNull(schema);
-    this.schema = schema;
-  }
-
-  public DimensionsSchema getSchema()
-  {
-    return schema;
   }
 
   public TimeUnit getTimeUnit()

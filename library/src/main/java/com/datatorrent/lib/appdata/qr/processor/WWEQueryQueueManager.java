@@ -5,7 +5,6 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.processor.QueueList.QueueListNode;
 import org.apache.commons.lang3.mutable.MutableLong;
 
@@ -13,7 +12,7 @@ import org.apache.commons.lang3.mutable.MutableLong;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class WWEQueryQueueManager<QUERY_TYPE extends Query, META_QUERY> extends AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, MutableLong>
+public class WWEQueryQueueManager<QUERY_TYPE, META_QUERY> extends AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, MutableLong>
 {
   public WWEQueryQueueManager()
   {

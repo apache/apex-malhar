@@ -64,7 +64,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   // Query Processing - Start
   //==========================================================================
 
-  private transient QueryProcessor<Query, Void, MutableLong, Void> queryProcessor;
+  private transient QueryProcessor<Query, Void, MutableLong, Void, Result> queryProcessor;
   @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
   private transient DataSerializerFactory resultSerializerFactory;
@@ -153,7 +153,7 @@ public class WindowedTopCounter<T> extends BaseOperator
 
 
     //Setup for query processing
-    queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void>(
+    queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void, Result>(
                      new WindowTopCounterComputer(),
                      new WWEQueryQueueManager<Query, Void>());
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
@@ -248,7 +248,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     topCount = count;
   }
 
-  class WindowTopCounterComputer implements QueryComputer<Query, Void, MutableLong, Void>
+  class WindowTopCounterComputer implements QueryComputer<Query, Void, MutableLong, Void, Result>
   {
     @Override
     public Result processQuery(Query query, Void metaQuery, MutableLong queueContext, Void context)

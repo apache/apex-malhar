@@ -5,14 +5,13 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.qr.Query;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SimpleDoneQueryQueueManager<QUERY_TYPE extends Query, META_QUERY> extends
+public class SimpleDoneQueryQueueManager<QUERY_TYPE, META_QUERY> extends
 AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, MutableBoolean>
 {
   private QueueList<QueryBundle<QUERY_TYPE, META_QUERY, MutableBoolean>> queryQueue;

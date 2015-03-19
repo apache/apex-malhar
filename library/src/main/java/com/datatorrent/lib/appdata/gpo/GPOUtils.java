@@ -472,14 +472,12 @@ public class GPOUtils
     }
   }
 
-  public static byte[] serialize(GPOMutable gpo,
-                                 FieldsDescriptor fieldsDescriptor,
-                                 ByteBuffer bb)
+  public static byte[] serialize(GPOMutable gpo)
   {
     GPOByteArrayList byteList = new GPOByteArrayList();
 
-    for(String field: fieldsDescriptor.getFields().getFields()) {
-      Type type = fieldsDescriptor.getType(field);
+    for(String field: gpo.getFieldDescriptor().getFields().getFields()) {
+      Type type = gpo.getFieldDescriptor().getType(field);
 
       if(type == Type.BOOLEAN) {
         boolean boolVal = gpo.getFieldBool(field);
@@ -597,5 +595,28 @@ public class GPOUtils
     }
 
     return gpo;
+  }
+
+
+  public static long deserializeLong(byte[] buffer,
+                                     int offset)
+  {
+    return (((long) buffer[0 + offset]) & 0xFFL) << 56 |
+           (((long) buffer[1 + offset]) & 0xFFL) << 48 |
+           (((long) buffer[2 + offset]) & 0xFFL) << 40 |
+           (((long) buffer[3 + offset]) & 0xFFL) << 32 |
+           (((long) buffer[4 + offset]) & 0xFFL) << 24 |
+           (((long) buffer[5 + offset]) & 0xFFL) << 16 |
+           (((long) buffer[6 + offset]) & 0xFFL) << 8  |
+           (((long) buffer[7 + offset]) & 0xFFL) ;
+  }
+
+  public static int deserializeInt(byte[] buffer,
+                                   int offset)
+  {
+    return (((int) buffer[0 + offset]) & 0xFF) << 24 |
+           (((int) buffer[1 + offset]) & 0xFF) << 16 |
+           (((int) buffer[2 + offset]) & 0xFF) << 8  |
+           (((int) buffer[3 + offset]) & 0xFF) ;
   }
 }

@@ -11,30 +11,23 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class AggregatorMin extends GenericAggregator
+public class AggregatorMin implements DimensionsAggregator<GenericAggregateEvent>
 {
-  public AggregatorMin(AggregatorDescriptor aggregatorDescriptor)
+  public AggregatorMin()
   {
-    super(aggregatorDescriptor);
   }
 
   @Override
-  public void aggregate(GenericAggregateEvent dest, GenericEvent src)
+  public void aggregate(GenericAggregateEvent dest, GenericAggregateEvent src)
   {
     aggregate(dest.getAggregates(), src.getAggregates());
-  }
 
-  @Override
-  public void aggregateAgs(GenericAggregateEvent dest, GenericAggregateEvent src)
-  {
-    aggregate(dest.getAggregates(), src.getAggregates());
-  }
+    GPOMutable destGPO = dest.getAggregates();
+    GPOMutable srcGPO = src.getAggregates();
 
-  private void aggregate(GPOMutable dest, GPOMutable src)
-  {
-    for(String field: dest.getFieldDescriptor().getFields().getFields()) {
-      Object destObj = dest.getField(field);
-      Object srcObj = src.getField(field);
+    for(String field: destGPO.getFieldDescriptor().getFields().getFields()) {
+      Object destObj = destGPO.getField(field);
+      Object srcObj = srcGPO.getField(field);
 
       if(!srcObj.getClass().equals(destObj)) {
         throw new UnsupportedOperationException("Cannot aggregate different types.");
@@ -44,43 +37,51 @@ public class AggregatorMin extends GenericAggregator
         Byte destObjTemp = (Byte) destObj;
 
         Byte res = srcObjTemp < destObjTemp? srcObjTemp: destObjTemp;
-        dest.setField(field, res);
+        destGPO.setField(field, res);
       }
       else if(srcObj instanceof Short) {
         Short srcObjTemp = (Short) srcObj;
         Short destObjTemp = (Short) destObj;
 
         Short res = srcObjTemp < destObjTemp? srcObjTemp: destObjTemp;
-        dest.setField(field, res);
+        destGPO.setField(field, res);
       }
       else if(srcObj instanceof Integer) {
         Integer srcObjTemp = (Integer) srcObj;
         Integer destObjTemp = (Integer) destObj;
 
         Integer res = srcObjTemp < destObjTemp? srcObjTemp: destObjTemp;
-        dest.setField(field, res);
+        destGPO.setField(field, res);
       }
       else if(srcObj instanceof Long) {
         Long srcObjTemp = (Long) srcObj;
         Long destObjTemp = (Long) destObj;
 
         Long res = srcObjTemp < destObjTemp? srcObjTemp: destObjTemp;
-        dest.setField(field, res);
+        destGPO.setField(field, res);
       }
       else if(srcObj instanceof Float) {
         Float srcObjTemp = (Float) srcObj;
         Float destObjTemp = (Float) destObj;
 
         Float res = srcObjTemp < destObjTemp? srcObjTemp: destObjTemp;
-        dest.setField(field, res);
+        destGPO.setField(field, res);
       }
       else if(srcObj instanceof Double) {
         Double srcObjTemp = (Double) srcObj;
         Double destObjTemp = (Double) destObj;
 
         Double res = srcObjTemp < destObjTemp? srcObjTemp: destObjTemp;
-        dest.setField(field, res);
+        destGPO.setField(field, res);
+      }
+      else {
+        throw new UnsupportedOperationException("Sum is not supported on object of type: " +
+                                                srcObj.getClass());
       }
     }
+  }
+
+  private void aggregate(GPOMutable dest, GPOMutable src)
+  {
   }
 }
