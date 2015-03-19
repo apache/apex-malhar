@@ -16,14 +16,27 @@
 package com.datatorrent.contrib.kafka;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.I0Itec.zkclient.ZkClient;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import scala.collection.JavaConversions;
+
+import com.google.common.collect.Maps;
+import com.google.common.collect.Maps.EntryTransformer;
+import com.google.common.collect.SetMultimap;
+
 import kafka.api.PartitionOffsetRequestInfo;
+import kafka.cluster.Broker;
 import kafka.common.TopicAndPartition;
 import kafka.javaapi.OffsetRequest;
 import kafka.javaapi.OffsetResponse;
@@ -31,6 +44,8 @@ import kafka.javaapi.PartitionMetadata;
 import kafka.javaapi.TopicMetadata;
 import kafka.javaapi.TopicMetadataResponse;
 import kafka.javaapi.consumer.SimpleConsumer;
+import kafka.utils.ZKStringSerializer$;
+import kafka.utils.ZkUtils;
 
 /**
  * A util class used to retrieve all the metadatas for partitions/topics
@@ -49,7 +64,7 @@ public class KafkaMetadataUtil
   private static Logger logger = LoggerFactory.getLogger(KafkaMetadataUtil.class);
 
   // A temporary client used to retrieve the metadata of topic/partition etc
-  private static final String mdClientId = "Kafka_Broker_Lookup_Client";
+  private static final String mdClientId = "Kafka_Metadata_Lookup_Client";
 
   private static final int timeout=10000;
 
@@ -57,7 +72,7 @@ public class KafkaMetadataUtil
   private static final int bufferSize = 128 * 1024;
 
   /**
-   * @param brokerList
+   * @param brokerList brokers in same cluster
    * @param topic
    * @return Get the partition metadata list for the specific topic via the brokerList <br>
    * null if topic is not found
@@ -69,6 +84,34 @@ public class KafkaMetadataUtil
       return null;
     }
     return tmd.partitionsMetadata();
+  }
+  
+  /**
+   * @param brokers in multiple clusters, keyed by cluster id
+   * @param topic
+   * @return Get the partition metadata list for the specific topic via the brokers
+   * null if topic is not found
+   */
+  public static Map<String, List<PartitionMetadata>> getPartitionsForTopic(SetMultimap<String, String> brokers, final String topic)
+  {
+    return Maps.transformEntries(brokers.asMap(), new EntryTransformer<String, Collection<String>, List<PartitionMetadata>>(){
+      @Override
+      public List<PartitionMetadata> transformEntry(String key, Collection<String> bs)
+      {
+        return getPartitionsForTopic(new HashSet<String>(bs), topic);
+      }});
+  }
+  
+  
+  public static Set<String> getBrokers(Set<String> zkHost){
+    
+    ZkClient zkclient = new ZkClient(StringUtils.join(zkHost, ',') ,30000, 30000, ZKStringSerializer$.MODULE$);
+    Set<String> brokerHosts = new HashSet<String>();
+    for (Broker b : JavaConversions.asJavaIterable(ZkUtils.getAllBrokersInCluster(zkclient))) {
+      brokerHosts.add(b.getConnectionString());
+    }
+    zkclient.close();
+    return brokerHosts;
   }
 
 
@@ -125,7 +168,7 @@ public class KafkaMetadataUtil
         } catch (NumberFormatException e) {
           throw new IllegalArgumentException("Wrong format for broker url, should be \"broker1:port1\"");
         } catch (Exception e) {
-          logger.error("Highly possible some broker(s) for topic {} are dead", topic, e);
+          logger.warn("Broker {} is unavailable or in bad state!", broker);
           // skip and try next broker
         }
       }

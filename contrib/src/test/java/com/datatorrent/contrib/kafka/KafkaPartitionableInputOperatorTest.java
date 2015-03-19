@@ -22,22 +22,41 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.junit.runners.Parameterized;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.DAG.Locality;
 
 /**
- * A test to verify the input operator will be automatically partitioned per kafka partition
- * This test is launching its own Kafka cluster.
+ * A test to verify the input operator will be automatically partitioned per kafka partition This test is launching its
+ * own Kafka cluster.
  */
+@RunWith(Parameterized.class)
 public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 {
 
-  public KafkaPartitionableInputOperatorTest()
+  private int totalBrokers = 0;
+
+  @Parameterized.Parameters(name = "multi-cluster: {0}, multi-partition: {1}")
+  public static Collection<Boolean[]> testScenario()
+  {
+    return Arrays.asList(new Boolean[][] { { true, false }, // multi cluster with single partition
+        { true, true }, // multi cluster with multi partitions
+        { false, true }, // single cluster with multi partitions
+        { false, false } // single cluster with single partition
+        });
+  }
+
+  public KafkaPartitionableInputOperatorTest(boolean hasMultiCluster, boolean hasMultiPartition)
   {
     // This class want to initialize several kafka brokers for multiple partitions
-    hasMultiPartition = true;
+    this.hasMultiCluster = hasMultiCluster;
+    this.hasMultiPartition = hasMultiPartition;
+    int cluster = 1 + (hasMultiCluster ? 1 : 0);
+    totalBrokers = (1 + (hasMultiPartition ? 1 : 0)) * cluster;
+
   }
 
   static final org.slf4j.Logger logger = LoggerFactory.getLogger(KafkaPartitionableInputOperatorTest.class);
@@ -89,14 +108,11 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
   }
 
   /**
-   * Test AbstractKafkaSinglePortInputOperator (i.e. an input adapter for
-   * Kafka, aka consumer). This module receives data from an outside test
-   * generator through Kafka message bus and feed that data into Malhar
-   * streaming platform.
+   * Test AbstractKafkaSinglePortInputOperator (i.e. an input adapter for Kafka, aka consumer). This module receives
+   * data from an outside test generator through Kafka message bus and feed that data into Malhar streaming platform.
    *
-   * [Generate message and send that to Kafka message bus] ==> [Receive that
-   * message through Kafka input adapter(i.e. consumer) and send using
-   * emitTuples() interface on output port during onMessage call]
+   * [Generate message and send that to Kafka message bus] ==> [Receive that message through Kafka input adapter(i.e.
+   * consumer) and send using emitTuples() interface on output port during onMessage call]
    *
    *
    * @throws Exception
@@ -114,21 +130,21 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
   {
     // Create template high-level consumer
     Properties props = new Properties();
-    props.put("zookeeper.connect", "localhost:2182");
     props.put("group.id", "main_group");
     HighlevelKafkaConsumer consumer = new HighlevelKafkaConsumer(props);
     testPartitionableInputOperator(consumer);
   }
 
-  public void testPartitionableInputOperator(KafkaConsumer consumer) throws Exception{
+  public void testPartitionableInputOperator(KafkaConsumer consumer) throws Exception
+  {
 
-    // Set to 2 because we want to make sure END_TUPLE from both 2 partitions are received
-    latch = new CountDownLatch(2);
+    // each broker should get a END_TUPLE message
+    latch = new CountDownLatch(totalBrokers);
 
     int totalCount = 10000;
 
     // Start producer
-    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC, true);
+    KafkaTestProducer p = new KafkaTestProducer(TEST_TOPIC, hasMultiPartition, hasMultiCluster);
     p.setSendCount(totalCount);
     new Thread(p).start();
 
@@ -137,19 +153,17 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
     DAG dag = lma.getDAG();
 
     // Create KafkaSinglePortStringInputOperator
-    PartitionableKafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", PartitionableKafkaSinglePortStringInputOperator.class);
+    KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
     node.setInitialPartitionCount(1);
 
-    //set topic
+    // set topic
     consumer.setTopic(TEST_TOPIC);
-    //set the brokerlist used to initialize the partition
-    Set<String> brokerSet =  new HashSet<String>();
-    brokerSet.add("localhost:9092");
-    brokerSet.add("localhost:9093");
-    consumer.setBrokerSet(brokerSet);
     consumer.setInitialOffset("earliest");
 
     node.setConsumer(consumer);
+
+    String clusterString = "cluster1::localhost:" + TEST_ZOOKEEPER_PORT[0] + (hasMultiCluster ? ";cluster2::localhost:" + TEST_ZOOKEEPER_PORT[1] : "");
+    node.setZookeeper(clusterString);
 
     // Create Test tuple collector
     CollectorModule<String> collector = dag.addOperator("TestMessageCollector", new CollectorModule<String>());
@@ -164,7 +178,7 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
     lc.runAsync();
 
     // Wait 30s for consumer finish consuming all the messages
-    Assert.assertTrue("TIMEOUT: 30s ", latch.await(30000, TimeUnit.MILLISECONDS));
+    Assert.assertTrue("TIMEOUT: 40s ", latch.await(40000, TimeUnit.MILLISECONDS));
 
     // Check results
     Assert.assertEquals("Collections size", 1, collections.size());
@@ -173,6 +187,9 @@ public class KafkaPartitionableInputOperatorTest extends KafkaOperatorTestBase
 
     p.close();
     lc.shutdown();
+    // kafka has a bug shutdown connector you have to make sure kafka client resource has been cleaned before clean the broker 
+    Thread.sleep(5000);
   }
+  
 
 }
