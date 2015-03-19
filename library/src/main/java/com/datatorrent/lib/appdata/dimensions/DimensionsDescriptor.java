@@ -6,6 +6,7 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.Fields;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
@@ -32,13 +33,15 @@ public class DimensionsDescriptor
 
   private TimeUnit timeUnit;
   private Fields fields;
+  private String aggregationString;
 
   public DimensionsDescriptor(String aggregationString)
   {
-    initialize(aggregationString);
+    setAggregationString(aggregationString);
+    initialize();
   }
 
-  private void initialize(String aggregationString)
+  private void initialize()
   {
     String[] fieldArray = aggregationString.split(DELIMETER_SEPERATOR);
     Set<String> fieldSet = Sets.newHashSet();
@@ -58,6 +61,12 @@ public class DimensionsDescriptor
     fields = new Fields(fieldSet);
   }
 
+  private void setAggregationString(String aggregationString)
+  {
+    Preconditions.checkNotNull(aggregationString);
+    this.aggregationString = aggregationString;
+  }
+
   public TimeUnit getTimeUnit()
   {
     return timeUnit;
@@ -66,6 +75,30 @@ public class DimensionsDescriptor
   public Fields getFields()
   {
     return fields;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int hash = 3;
+    hash = 53 * hash + (this.aggregationString != null ? this.aggregationString.hashCode() : 0);
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if(obj == null) {
+      return false;
+    }
+    if(getClass() != obj.getClass()) {
+      return false;
+    }
+    final DimensionsDescriptor other = (DimensionsDescriptor)obj;
+    if((this.aggregationString == null) ? (other.aggregationString != null) : !this.aggregationString.equals(other.aggregationString)) {
+      return false;
+    }
+    return true;
   }
 
   public static boolean validateDimensions(DimensionsSchema schema,

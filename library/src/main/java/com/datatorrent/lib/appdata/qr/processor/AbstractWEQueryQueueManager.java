@@ -45,7 +45,13 @@ public abstract class AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_
     QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueable =
     new QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>(query, metaQuery, context);
 
-    queryQueue.enqueue(new QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>>(queryQueueable));
+    QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> node = new QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>>(queryQueueable);
+
+    if(addingFilter(queryQueueable)) {
+      queryQueue.enqueue(node);
+    }
+
+    addedNode(node);
 
     return true;
   }
@@ -93,6 +99,7 @@ public abstract class AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_
 
       if(removeBundle(queryQueueable)) {
         queryQueue.removeNode(currentNode);
+        removedNode(currentNode);
       }
       else {
         qq = currentNode.getPayload();
@@ -113,6 +120,9 @@ public abstract class AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_
     return qq;
   }
 
+  public abstract boolean addingFilter(QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryBundle);
+  public abstract void addedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queryQueueable);
+  public abstract void removedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queryQueueable);
   public abstract boolean removeBundle(QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueable);
 
   @Override

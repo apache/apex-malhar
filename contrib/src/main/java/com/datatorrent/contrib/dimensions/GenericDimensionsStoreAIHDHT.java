@@ -7,7 +7,7 @@ package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
@@ -38,7 +38,8 @@ import java.util.Map;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractSinglePortHDHTWriter<GenericAggregateEvent>
+@OperatorAnnotation(checkpointableWithinAppWindow=false)
+public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends AbstractSinglePortHDHTWriter<GenericAggregateEvent>
 {
   public static final long DEFAULT_CACHE_SIZE = 10000;
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
@@ -54,27 +55,22 @@ public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractS
 
   private transient QueryProcessor<EventKey, HDSGenericEventQueryMeta, MutableBoolean, MutableBoolean, GenericAggregateEvent> cacheQueryProcessor;
 
-  @InputPortFieldAnnotation(optional=true)
   public transient final DefaultInputPort<INPUT_EVENT> inputEvent = new DefaultInputPort<INPUT_EVENT>() {
     @Override
     public void process(INPUT_EVENT tuple)
     {
-      GenericAggregateEvent[] gaes = convertInput(tuple);
-
-      for(GenericAggregateEvent gae: gaes) {
-        processGenericEvent(gae);
-      }
+      processInputEvent(tuple);
     }
   };
 
-  public GenericDimensionsStoreHDHT()
+  public GenericDimensionsStoreAIHDHT()
   {
   }
 
   public abstract DimensionsAggregator<GenericAggregateEvent> getAggregator(int aggregatorID);
-  public abstract FieldsDescriptor getKeyDescriptor(long schemaID);
-  public abstract FieldsDescriptor getValueDescriptor(long schemaID, int aggregatorID);
-  public abstract long getBucketForSchema(long schemaID);
+  public abstract FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID);
+  public abstract FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID);
+  public abstract long getBucketForSchema(int schemaID);
 
   public byte[] getKeyBytesGAE(GenericAggregateEvent gae)
   {
@@ -83,11 +79,15 @@ public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractS
 
   public byte[] getEventKeyBytesGAE(EventKey eventKey)
   {
-    byte[] aggregateBytes = Ints.toByteArray(eventKey.getAggregatorIndex());
+    byte[] schemaIDBytes = Ints.toByteArray(eventKey.getSchemaID());
+    byte[] dimensionDescriptorIDBytes = Ints.toByteArray(eventKey.getDimensionDescriptorID());
+    byte[] aggregatorIDBytes = Ints.toByteArray(eventKey.getAggregatorIndex());
     byte[] gpoBytes = GPOUtils.serialize(eventKey.getKey());
 
     GPOByteArrayList bal = new GPOByteArrayList();
-    bal.add(aggregateBytes);
+    bal.add(schemaIDBytes);
+    bal.add(dimensionDescriptorIDBytes);
+    bal.add(aggregatorIDBytes);
     bal.add(gpoBytes);
 
     return bal.toByteArray();
@@ -100,20 +100,31 @@ public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractS
 
   public GenericAggregateEvent fromKeyValueGAE(Slice key, byte[] aggregate)
   {
-    long schemaID = GPOUtils.deserializeLong(aggregate,
-                                             0);
+    int schemaID = GPOUtils.deserializeInt(aggregate,
+                                           0);
+    int dimensionDescriptorID = GPOUtils.deserializeInt(aggregate,
+                                                        4);
     int aggregatorID = GPOUtils.deserializeInt(aggregate,
                                                 8);
 
-    FieldsDescriptor keysDescriptor = getKeyDescriptor(schemaID);
-    FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, aggregatorID);
+    FieldsDescriptor keysDescriptor = getKeyDescriptor(schemaID, dimensionDescriptorID);
+    FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 
     return GenericAggregateEventUtils.deserialize(aggregate, keysDescriptor, aggDescriptor);
   }
 
   protected GenericAggregateEvent[] convertInput(INPUT_EVENT tuple)
   {
-    return new GenericAggregateEvent[0];
+    throw new UnsupportedOperationException("This method must be implemented.");
+  }
+
+  protected void processInputEvent(INPUT_EVENT tuple)
+  {
+    GenericAggregateEvent[] gaes = convertInput(tuple);
+
+    for(GenericAggregateEvent gae: gaes) {
+      processGenericEvent(gae);
+    }
   }
 
   protected void processGenericEvent(GenericAggregateEvent gae)
@@ -147,6 +158,7 @@ public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractS
 
     cacheQueryProcessor = new QueryProcessor(new GenericDimensionsFetchComputer(this),
                                              new GenericDimensionsFetchQueue(this));
+    cacheQueryProcessor.setup(context);
 
     RemovalListener<EventKey, GenericAggregateEvent> removalListener = new RemovalListener<EventKey, GenericAggregateEvent>()
     {
@@ -175,6 +187,7 @@ public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractS
   @Override
   public void teardown()
   {
+    cacheQueryProcessor.teardown();
     super.teardown();
   }
 
@@ -182,6 +195,7 @@ public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractS
   public void beginWindow(long windowId)
   {
     super.beginWindow(windowId);
+    cacheQueryProcessor.beginWindow(windowId);
   }
 
   @Override
@@ -205,6 +219,8 @@ public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractS
     }
 
     super.endWindow();
+
+    cacheQueryProcessor.endWindow();
   }
 
   /**
@@ -281,14 +297,14 @@ public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractS
 
   class GenericDimensionsFetchQueue extends SimpleDoneQueryQueueManager<EventKey, HDSGenericEventQueryMeta>
   {
-    private GenericDimensionsStoreHDHT<INPUT_EVENT> operator;
+    private GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator;
 
-    public GenericDimensionsFetchQueue(GenericDimensionsStoreHDHT<INPUT_EVENT> operator)
+    public GenericDimensionsFetchQueue(GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator)
     {
       setOperator(operator);
     }
 
-    private void setOperator(GenericDimensionsStoreHDHT<INPUT_EVENT> operator)
+    private void setOperator(GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator)
     {
       Preconditions.checkNotNull(operator);
       this.operator = operator;
@@ -314,14 +330,14 @@ public abstract class GenericDimensionsStoreHDHT<INPUT_EVENT>  extends AbstractS
 
   class GenericDimensionsFetchComputer implements QueryComputer<EventKey, HDSGenericEventQueryMeta, MutableBoolean, MutableBoolean, GenericAggregateEvent>
   {
-    private GenericDimensionsStoreHDHT<INPUT_EVENT> operator;
+    private GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator;
 
-    public GenericDimensionsFetchComputer(GenericDimensionsStoreHDHT<INPUT_EVENT> operator)
+    public GenericDimensionsFetchComputer(GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator)
     {
       setOperator(operator);
     }
 
-    private void setOperator(GenericDimensionsStoreHDHT<INPUT_EVENT> operator)
+    private void setOperator(GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator)
     {
       Preconditions.checkNotNull(operator);
       this.operator = operator;

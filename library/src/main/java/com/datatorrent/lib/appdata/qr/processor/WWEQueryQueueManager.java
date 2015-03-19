@@ -35,4 +35,22 @@ public class WWEQueryQueueManager<QUERY_TYPE, META_QUERY> extends AbstractWEQuer
       qc.decrement();
     }
   }
+
+  @Override
+  public void addedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, MutableLong>> queryQueueable)
+  {
+    //Do nothing
+  }
+
+  @Override
+  public void removedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, MutableLong>> queryQueueable)
+  {
+    //Do nothing
+  }
+
+  @Override
+  public boolean addingFilter(QueryBundle<QUERY_TYPE, META_QUERY, MutableLong> queryBundle)
+  {
+    return true;
+  }
 }

@@ -56,6 +56,13 @@ public class GenericAggregateEventUtils
 
     BB_4.get(bytes, offset, 4);
     BB_4.rewind();
+    int dimensionDescriptorID = BB_4.getInt();
+    BB_4.clear();
+
+    offset += 4;
+
+    BB_4.get(bytes, offset, 4);
+    BB_4.rewind();
     int aggregatorID = BB_4.getInt();
     BB_4.clear();
 
@@ -174,6 +181,7 @@ public class GenericAggregateEventUtils
     return new GenericAggregateEvent(new GPOImmutable(gpoKeys),
                                      gpoAggregates,
                                      schemaID,
+                                     dimensionDescriptorID,
                                      aggregatorID);
   }
 }

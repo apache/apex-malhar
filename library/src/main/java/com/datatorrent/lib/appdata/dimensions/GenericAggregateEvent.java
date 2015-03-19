@@ -16,7 +16,8 @@ import com.google.common.base.Preconditions;
  */
 public class GenericAggregateEvent implements DimensionsComputation.AggregateEvent
 {
-  private long schemaID;
+  private int schemaID;
+  private int dimensionDescriptorID;
   private int aggregatorIndex;
 
   private GPOImmutable keys;
@@ -25,11 +26,13 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
 
   public GenericAggregateEvent(GPOImmutable keys,
                                GPOMutable aggregates,
-                               long schemaID,
+                               int schemaID,
+                               int dimensionDescriptorID,
                                int aggregatorIndex)
   {
     setKeys(keys);
     setAggregates(aggregates);
+    this.dimensionDescriptorID = dimensionDescriptorID;
     this.schemaID = schemaID;
     this.aggregatorIndex = aggregatorIndex;
 
@@ -39,6 +42,7 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
   private void initialize()
   {
     eventKey = new EventKey(schemaID,
+                            dimensionDescriptorID,
                             aggregatorIndex,
                             keys);
   }
@@ -65,15 +69,20 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
     return aggregates;
   }
 
+  public int getSchemaID()
+  {
+    return schemaID;
+  }
+
+  public int getDimensionDescriptorID()
+  {
+    return dimensionDescriptorID;
+  }
+
   @Override
   public int getAggregatorIndex()
   {
     return aggregatorIndex;
-  }
-
-  public long getSchemaID()
-  {
-    return schemaID;
   }
 
   public EventKey getEventKey()
@@ -83,16 +92,30 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
 
   public static class EventKey
   {
-    private long schemaID;
+    private int schemaID;
+    private int dimensionDescriptorID;
     private int aggregatorIndex;
     private GPOMutable key;
 
-    public EventKey(long schemaID,
+    public EventKey(int schemaID,
+                    int dimensionDescriptorID,
                     int aggregatorIndex,
                     GPOMutable key)
     {
+      setSchemaID(schemaID);
+      setDimensionDescriptorID(dimensionDescriptorID);
       setAggregatorIndex(aggregatorIndex);
       setKey(key);
+    }
+
+    private void setDimensionDescriptorID(int dimensionDescriptorID)
+    {
+      this.dimensionDescriptorID = dimensionDescriptorID;
+    }
+
+    public int getDimensionDescriptorID()
+    {
+      return dimensionDescriptorID;
     }
 
     /**
@@ -114,7 +137,7 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
     /**
      * @return the schemaID
      */
-    public long getSchemaID()
+    public int getSchemaID()
     {
       return schemaID;
     }
@@ -122,7 +145,7 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
     /**
      * @param schemaID the schemaID to set
      */
-    public void setSchemaID(long schemaID)
+    private void setSchemaID(int schemaID)
     {
       this.schemaID = schemaID;
     }
@@ -142,6 +165,42 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
     {
       Preconditions.checkNotNull(key);
       this.key = key;
+    }
+    
+    @Override
+    public int hashCode()
+    {
+      int hash = 3;
+      hash = 97 * hash + this.schemaID;
+      hash = 97 * hash + this.dimensionDescriptorID;
+      hash = 97 * hash + this.aggregatorIndex;
+      hash = 97 * hash + (this.key != null ? this.key.hashCode() : 0);
+      return hash;
+    }
+
+    @Override
+    public boolean equals(Object obj)
+    {
+      if(obj == null) {
+        return false;
+      }
+      if(getClass() != obj.getClass()) {
+        return false;
+      }
+      final EventKey other = (EventKey)obj;
+      if(this.schemaID != other.schemaID) {
+        return false;
+      }
+      if(this.dimensionDescriptorID != other.dimensionDescriptorID) {
+        return false;
+      }
+      if(this.aggregatorIndex != other.aggregatorIndex) {
+        return false;
+      }
+      if(this.key != other.key && (this.key == null || !this.key.equals(other.key))) {
+        return false;
+      }
+      return true;
     }
   }
 }
