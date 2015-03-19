@@ -34,9 +34,9 @@ import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.qr.processor.WWEQueryQueueManager;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.collect.Lists;
@@ -459,7 +459,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   // Query Processing Classes - Start
   //==========================================================================
 
-  class AdsQueryQueueManager extends WWEQueryQueueManager<AdsDataQuery, AdsQueryMeta>
+  class AdsQueryQueueManager extends AppDataWWEQueryQueueManager<AdsDataQuery, AdsQueryMeta>
   {
     private AdsDimensionStoreOperator operator;
     private int queueWindowCount;

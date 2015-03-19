@@ -16,30 +16,30 @@ import java.util.Map;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class AppDataWWEQueryQueueManager<META_QUERY> extends WWEQueryQueueManager<Query, META_QUERY>
+public class AppDataWWEQueryQueueManager<QUERY extends Query, META_QUERY> extends WWEQueryQueueManager<QUERY, META_QUERY>
 {
-  private Map<String, QueueListNode<QueryBundle<Query, META_QUERY, MutableLong>>> queryIDToNode = Maps.newHashMap();
+  private Map<String, QueueListNode<QueryBundle<QUERY, META_QUERY, MutableLong>>> queryIDToNode = Maps.newHashMap();
 
   public AppDataWWEQueryQueueManager()
   {
   }
 
   @Override
-  public void addedNode(QueueListNode<QueryBundle<Query, META_QUERY, MutableLong>> queryQueueable)
+  public void addedNode(QueueListNode<QueryBundle<QUERY, META_QUERY, MutableLong>> queryQueueable)
   {
     queryIDToNode.put(queryQueueable.getPayload().getQuery().getId(), queryQueueable);
   }
 
   @Override
-  public void removedNode(QueueListNode<QueryBundle<Query, META_QUERY, MutableLong>> queryQueueable)
+  public void removedNode(QueueListNode<QueryBundle<QUERY, META_QUERY, MutableLong>> queryQueueable)
   {
     queryIDToNode.remove(queryQueueable.getPayload().getQuery().getId());
   }
 
   @Override
-  public boolean addingFilter(QueryBundle<Query, META_QUERY, MutableLong> queryBundle)
+  public boolean addingFilter(QueryBundle<QUERY, META_QUERY, MutableLong> queryBundle)
   {
-    QueueListNode<QueryBundle<Query, META_QUERY, MutableLong>> queryNode =
+    QueueListNode<QueryBundle<QUERY, META_QUERY, MutableLong>> queryNode =
     queryIDToNode.get(queryBundle.getQuery().getId());
 
     if(queryNode == null) {
