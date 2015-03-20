@@ -206,7 +206,10 @@ public class Server extends AbstractServer
         write(buffer, offset, size);
         return;
       }
-
+      if(buffer.length != 17){
+        logger.error("This {} is invalid request ", Arrays.toString(buffer));
+        return;
+      }
       long requestTime = Server.readLong(buffer,9);
       if (System.currentTimeMillis() > (requestTime + acceptedTolerance)){
         logger.error("This {} is invalid request as it reached outside the accepted tolerance of {}", Arrays.toString(buffer), acceptedTolerance);
