@@ -207,9 +207,8 @@ public class Server extends AbstractServer
         return;
       }
 
-      long currentTime = System.currentTimeMillis();
       long requestTime = Server.readLong(buffer,9);
-      if (currentTime > (requestTime + acceptedTolerance)){
+      if (System.currentTimeMillis() > (requestTime + acceptedTolerance)){
         logger.error("This {} is invalid request as it reached outside the accepted tolerance of {}", Arrays.toString(buffer), acceptedTolerance);
         return;
       }
