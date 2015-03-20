@@ -93,11 +93,11 @@ public class DeduperTest
         ArrayList<Object> input = new ArrayList<Object>();
 
     for (int i = 0; i < 10; i++) {
-      input.add(i);
       events.add(new DummyEvent(i, calendar.getTimeInMillis()));
     }
-    events.add(new DummyEvent(5, calendar.getTimeInMillis()));
+        input.add(events);
 
+    events.add(new DummyEvent(5, calendar.getTimeInMillis()));
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);

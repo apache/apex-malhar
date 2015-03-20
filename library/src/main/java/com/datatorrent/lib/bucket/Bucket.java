@@ -198,7 +198,7 @@ public class Bucket<T>
     if (unwrittenEvents != null)
     System.out.println("unwrittenEvents are " +unwrittenEvents.toString());
         System.out.println("written are " +writtenEvents.toString());
-    System.out.println("customkey is" +  customKey.getEventKey());
+    System.out.println("customkey event key is" +  customKey.getEventKey());
     return writtenEvents != null && writtenEvents.containsKey(customKey.getEventKey());
   }
 
