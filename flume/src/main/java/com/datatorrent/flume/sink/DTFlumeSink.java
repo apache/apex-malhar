@@ -53,6 +53,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
 {
   private static final String HOSTNAME_STRING = "hostname";
   private static final String HOSTNAME_DEFAULT = "locahost";
+  private static final long ACCEPTED_TOLERANCE = 20000;
   private DefaultEventLoop eventloop;
   private Server server;
   private int outstandingEventsCount;
@@ -63,6 +64,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   private String hostname;
   private int port;
   private String id;
+  private long acceptedTolerance;
   private long sleepMillis;
   private double throughputAdjustmentFactor;
   private int minimumEventsPerTransaction;
@@ -287,7 +289,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
         component.setup(null);
       }
       eventloop = new DefaultEventLoop("EventLoop-" + id);
-      server = new Server(id, discovery);
+      server = new Server(id, discovery,acceptedTolerance);
     }
     catch (Error error) {
       throw error;
@@ -354,6 +356,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
     if (id == null) {
       id = getName();
     }
+    acceptedTolerance = context.getLong("acceptedTolerance", ACCEPTED_TOLERANCE);
     sleepMillis = context.getLong("sleepMillis", 5L);
     throughputAdjustmentFactor = context.getInteger("throughputAdjustmentPercent", 5) / 100.0;
     maximumEventsPerTransaction = context.getInteger("maximumEventsPerTransaction", 10000);
@@ -504,6 +507,16 @@ public class DTFlumeSink extends AbstractSink implements Configurable
   int getPort()
   {
     return port;
+  }
+
+  public long getAcceptedTolerance()
+  {
+    return acceptedTolerance;
+  }
+
+  public void setAcceptedTolerance(long acceptedTolerance)
+  {
+    this.acceptedTolerance = acceptedTolerance;
   }
 
   /**

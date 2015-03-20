@@ -159,11 +159,12 @@ public abstract class AbstractFlumeInputOperator<T>
   public void endWindow()
   {
     if (connected) {
-      byte[] array = new byte[9];
+      byte[] array = new byte[17];
 
       array[0] = Command.WINDOWED.getOrdinal();
       Server.writeInt(array, 1, eventCounter);
       Server.writeInt(array, 5, idleCounter);
+      Server.writeLong(array, 9 , System.currentTimeMillis());
 
       logger.debug("wrote {} with eventCounter = {} and idleCounter = {}", Command.WINDOWED, eventCounter, idleCounter);
       client.write(array);
@@ -320,11 +321,13 @@ public abstract class AbstractFlumeInputOperator<T>
         }
 
         int arraySize = 1/* for the type of the message */
-                        + 8 /* for the location to commit */;
+                        + 8 /* for the location to commit */
+                        + 8 /* for storing the current time stamp*/;
         byte[] array = new byte[arraySize];
 
         array[0] = Command.COMMITTED.getOrdinal();
         System.arraycopy(addr, 0, array, 1, 8);
+        Server.writeLong(array, 9, System.currentTimeMillis());
         logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, Arrays.toString(addr));
         client.write(array);
       }
@@ -494,11 +497,13 @@ public abstract class AbstractFlumeInputOperator<T>
       }
 
       int len = 1 /* for the message type SEEK */
-                + 8 /* for the address */;
+                + 8 /* for the address */
+                + 8 /* for storing the current time stamp*/;;
 
       byte[] array = new byte[len];
       array[0] = Command.SEEK.getOrdinal();
       System.arraycopy(address, 0, array, 1, 8);
+      Server.writeLong(array, 9, System.currentTimeMillis());
       write(array);
 
       connected = true;
