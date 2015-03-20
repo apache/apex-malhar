@@ -49,9 +49,8 @@ public abstract class AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_
 
     if(addingFilter(queryQueueable)) {
       queryQueue.enqueue(node);
+      addedNode(node);
     }
-
-    addedNode(node);
 
     return true;
   }
