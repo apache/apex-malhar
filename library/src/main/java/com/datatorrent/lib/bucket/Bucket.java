@@ -45,7 +45,7 @@ import com.google.common.collect.Maps;
  * @param <T> type of bucket events
  * @since 0.9.4
  */
-public class Bucket<T extends Bucketable>
+public class Bucket<T>
 {
   public final long bucketKey;
   private Map<Object, T> unwrittenEvents;
@@ -187,14 +187,19 @@ public class Bucket<T extends Bucketable>
    * Finds whether the bucket contains the event.
    *
    * @param event the {@link Bucketable} to search for in the bucket.
+   * @param customKey
    * @return true if bucket has the event; false otherwise.
    */
-  public boolean containsEvent(T event)
+  public boolean containsEvent(T event,BucketableCustomKey customKey)
   {
-    if (unwrittenEvents != null && unwrittenEvents.containsKey(event.getEventKey())) {
+    if (unwrittenEvents != null && unwrittenEvents.containsKey(customKey.getEventKey())) {
       return true;
     }
-    return writtenEvents != null && writtenEvents.containsKey(event.getEventKey());
+    if (unwrittenEvents != null)
+    System.out.println("unwrittenEvents are " +unwrittenEvents.toString());
+        System.out.println("written are " +writtenEvents.toString());
+    System.out.println("customkey is" +  customKey.getEventKey());
+    return writtenEvents != null && writtenEvents.containsKey(customKey.getEventKey());
   }
 
   @Override

@@ -77,8 +77,8 @@ import com.datatorrent.lib.bucket.*;
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
-public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
-  implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
+public abstract class Deduper<INPUT, OUTPUT>
+ implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
   /**
    * The input port on which events are received.
@@ -97,7 +97,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
 
       Bucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
 
-      if (bucket != null && bucket.containsEvent(tuple)) {
+
+      if (bucket != null && bucket.containsEvent(tuple,customKey)) {
         duplicate.emit(convert(tuple));
         counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
         return;
@@ -147,6 +148,20 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
   protected int partitionMask;
   //Non check-pointed state
   protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
+  @NotNull
+  protected BucketableCustomKey customKey;
+
+  public BucketableCustomKey getCustomKey()
+  {
+    return customKey;
+  }
+
+  public void setCustomKey(BucketableCustomKey customKey)
+  {
+    logger.debug("customkey is {}",customKey);
+    this.customKey = customKey;
+  }
+
   private transient long sleepTimeMillis;
   private transient OperatorContext context;
   protected BasicCounters<MutableLong> counters;
@@ -241,7 +256,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
         List<INPUT> waitingList = waitingEvents.remove(bucket.bucketKey);
         if (waitingList != null) {
           for (INPUT event : waitingList) {
-            if (!bucket.containsEvent(event)) {
+            if (!bucket.containsEvent(event,customKey)) {
               bucketManager.newEvent(bucket.bucketKey, event);
               output.emit(convert(event));
             }
@@ -342,7 +357,7 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       for (long bucketKey : allWaitingEvents.keySet()) {
         for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext(); ) {
           INPUT event = iterator.next();
-          int partitionKey = event.getEventKey().hashCode() & lPartitionMask;
+          int partitionKey = customKey.hashCode() & lPartitionMask;
 
           if (deduperInstance.partitionKeys.contains(partitionKey)) {
             List<INPUT> existingList = deduperInstance.waitingEvents.get(bucketKey);

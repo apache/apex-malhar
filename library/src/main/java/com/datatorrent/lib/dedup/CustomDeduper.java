@@ -34,7 +34,7 @@ import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
  * @param <INPUT>  type of input tuple
  * @param <OUTPUT> type of output tuple
  *
- */
+
 public abstract class CustomDeduper<INPUT extends BucketableCustomKey & Event, OUTPUT>
   extends DeduperWithHdfsStore<INPUT , OUTPUT>
 {
@@ -74,4 +74,4 @@ public abstract class CustomDeduper<INPUT extends BucketableCustomKey & Event, O
 
   private final static Logger logger = LoggerFactory.getLogger(CustomDeduper.class);
 
-}
+}*/

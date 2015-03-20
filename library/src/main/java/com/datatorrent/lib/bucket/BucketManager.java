@@ -60,7 +60,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <T> event type
  * @since 0.9.4
  */
-public interface BucketManager<T extends Bucketable>
+public interface BucketManager<T>
 {
   void setBucketStore(@Nonnull BucketStore<T> bucketStore);
 
@@ -161,7 +161,7 @@ public interface BucketManager<T extends Bucketable>
    *
    * @param <T> Type of the values which can be bucketed.
    */
-  public static interface Listener<T extends Bucketable>
+  public static interface Listener<T>
   {
     /**
      * Invoked when a bucket is loaded from store.

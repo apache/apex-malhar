@@ -44,10 +44,10 @@ import java.util.ArrayList;
 
 /**
  * Tests for {@link Deduper}
- */
-public class DeduperTest
+
+public class CustomDeduperTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(DeduperTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(CustomDeduperTest.class);
 
   private final static String APPLICATION_PATH_PREFIX = "target/DeduperTest";
   private final static String APP_ID = "DeduperTest";
@@ -55,11 +55,11 @@ public class DeduperTest
 
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
-  private static class DummyDeduper extends DeduperWithHdfsStore<DummyEvent, DummyEvent>
+  private static class DummyCustomDeduper extends CustomDeduper<DummyCustomEvent, DummyCustomEvent>
   {
 
     @Override
-    public void bucketLoaded(Bucket<DummyEvent> bucket)
+    public void bucketLoaded(Bucket<DummyCustomEvent> bucket)
     {
       try {
         super.bucketLoaded(bucket);
@@ -71,41 +71,38 @@ public class DeduperTest
     }
 
     @Override
-    public DummyEvent convert(DummyEvent dummyEvent)
+    public DummyCustomEvent convert(DummyCustomEvent dummyEvent)
     {
       return dummyEvent;
     }
 
-    public void addEventManuallyToWaiting(DummyEvent event)
+    public void addEventManuallyToWaiting(DummyCustomEvent event)
     {
       waitingEvents.put(bucketManager.getBucketKeyFor(event), Lists.newArrayList(event));
     }
   }
 
-  private static DummyDeduper deduper;
+  private static DummyCustomDeduper deduper;
   private static String applicationPath;
 
   @Test
   public void testDedup()
   {
-    List<DummyEvent> events = Lists.newArrayList();
+    List<DummyCustomEvent> events = Lists.newArrayList();
     Calendar calendar = Calendar.getInstance();
-        ArrayList<Object> input = new ArrayList<Object>();
-
-    for (int i = 0; i < 10; i++) {
-      input.add(i);
-      events.add(new DummyEvent(i, calendar.getTimeInMillis()));
+    ArrayList<String> temp = new ArrayList<String>();
+    for (int i = 0; i < 10; i++){
+      temp.add(i+"");
+      events.add(new DummyCustomEvent(temp, calendar.getTimeInMillis()));
     }
-    events.add(new DummyEvent(5, calendar.getTimeInMillis()));
+    events.add(new DummyCustomEvent(temp, calendar.getTimeInMillis()));
 
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
-    BucketableCustomKey customKey = new BucketableCustomKey();
-    customKey.setKey(input);
+
     deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes));
-    deduper.setCustomKey(customKey);
-    CollectorTestSink<DummyEvent> collectorTestSink = new CollectorTestSink<DummyEvent>();
+    CollectorTestSink<DummyCustomEvent> collectorTestSink = new CollectorTestSink<DummyCustomEvent>();
     TestUtils.setSink(deduper.output, collectorTestSink);
 
     logger.debug("start round 0");
@@ -136,7 +133,7 @@ public class DeduperTest
     deduper.handleIdleTime();
     long now = System.currentTimeMillis();
     for (int i = 10; i < 15; i++) {
-      events.add(new DummyEvent(i, now));
+//      events.add(new DummyCustomEvent(i, now));
     }
 
     logger.debug("start round 2");
@@ -150,9 +147,9 @@ public class DeduperTest
     deduper.teardown();
   }
 
-  private void testRound(List<DummyEvent> events)
+  private void testRound(List<DummyCustomEvent> events)
   {
-    for (DummyEvent event : events) {
+    for (DummyCustomEvent event : events) {
       deduper.input.process(event);
     }
     try {
@@ -173,7 +170,7 @@ public class DeduperTest
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
 
-    deduper.addEventManuallyToWaiting(new DummyEvent(100, System.currentTimeMillis()));
+//    deduper.addEventManuallyToWaiting(new DummyCustomEvent(100, System.currentTimeMillis()));
     deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
     eventBucketExchanger.exchange(null, 500, TimeUnit.MILLISECONDS);
     deduper.endWindow();
@@ -184,9 +181,9 @@ public class DeduperTest
   public static void setup()
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
-    ExpirableHdfsBucketStore<DummyEvent>  bucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
-    deduper = new DummyDeduper();
-    TimeBasedBucketManagerImpl<DummyEvent> storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
+    ExpirableHdfsBucketStore<DummyCustomEvent>  bucketStore = new ExpirableHdfsBucketStore<DummyCustomEvent>();
+    deduper = new DummyCustomDeduper();
+    TimeBasedBucketManagerImpl<DummyCustomEvent> storageManager = new TimeBasedBucketManagerImpl<DummyCustomEvent>();
     storageManager.setBucketSpanInMillis(1000);
     storageManager.setMillisPreventingBucketEviction(60000);
     storageManager.setBucketStore(bucketStore);
@@ -205,4 +202,4 @@ public class DeduperTest
       throw new RuntimeException(e);
     }
   }
-}
+}*/

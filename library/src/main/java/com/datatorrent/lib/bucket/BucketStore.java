@@ -23,9 +23,10 @@ import javax.annotation.Nonnull;
 /**
  * Bucket store API.<br/>
  *
+ * @param <T>
  * @since 0.9.4
  */
-public interface BucketStore<T extends Bucketable>
+public interface BucketStore<T>
 {
   /**
    * Performs setup operations eg. crate database connections, delete events of windows greater than last committed
