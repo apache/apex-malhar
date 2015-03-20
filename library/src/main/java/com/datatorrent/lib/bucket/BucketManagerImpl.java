@@ -74,7 +74,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <T> event type
  * @since 0.9.4
  */
-public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>, Runnable
+public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
 {
   public static int DEF_NUM_BUCKETS = 1000;
   public static int DEF_NUM_BUCKETS_MEM = 120;
@@ -211,7 +211,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @Override
   public long getBucketKeyFor(T event)
   {
-    return Math.abs(event.getEventKey().hashCode()) / noOfBuckets;
+    return Math.abs(event.hashCode()) / noOfBuckets;
   }
 
   @Override
@@ -354,7 +354,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   }
 
   @Override
-  public void newEvent(long bucketKey, T event)
+  public void newEvent(long bucketKey, T event,BucketableCustomKey customKey)
   {
     int bucketIdx = (int) (bucketKey % noOfBuckets);
 
@@ -369,7 +369,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       dirtyBuckets.put(bucketIdx, bucket);
     }
 
-    bucket.addNewEvent(event.getEventKey(), writeEventKeysOnly ? null : event);
+    bucket.addNewEvent(customKey, writeEventKeysOnly ? null : event);
     if (recordStats) {
       bucketCounters.getCounter(CounterKeys.EVENTS_IN_MEMORY).increment();
     }

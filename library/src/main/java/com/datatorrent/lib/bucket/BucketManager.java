@@ -85,7 +85,7 @@ public interface BucketManager<T>
    * @param event event
    * @return bucket key for event.
    */
-  long getBucketKeyFor(T event);
+  long getBucketKeyFor(T Event);
 
   /**
    * <p>
@@ -119,7 +119,7 @@ public interface BucketManager<T>
    * @param bucketKey key of the bucket.
    * @param event     new event.
    */
-  void newEvent(long bucketKey, T event);
+  void newEvent(long bucketKey, T event,BucketableCustomKey key);
 
   /**
    * Does end window operations which includes tracking the committed window and

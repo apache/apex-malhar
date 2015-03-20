@@ -29,7 +29,7 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
-public class TimeBasedBucketManagerTest
+/*public class TimeBasedBucketManagerTest
 {
   private static final String APPLICATION_PATH_PREFIX = "target/TimeBasedBucketManagerTest";
   private static final long BUCKET_SPAN = 60000; //1 minute
@@ -82,4 +82,4 @@ public class TimeBasedBucketManagerTest
     FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
     fs.delete(root, true);
   }
-}
+}*/

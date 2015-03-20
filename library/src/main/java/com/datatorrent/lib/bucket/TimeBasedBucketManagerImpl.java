@@ -37,7 +37,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <T> event type
  * @since 0.9.4
  */
-public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends BucketManagerImpl<T>
+public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerImpl<T>
 {
   public static int DEF_DAYS_SPAN = 2;
   public static long DEF_BUCKET_SPAN_MILLIS = 60000;
@@ -252,7 +252,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
   }
 
   @Override
-  public void newEvent(long bucketKey, T event)
+  public void newEvent(long bucketKey, T event,BucketableCustomKey customkey)
   {
     int bucketIdx = (int) (bucketKey % noOfBuckets);
 
@@ -267,7 +267,7 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
       dirtyBuckets.put(bucketIdx, bucket);
     }
 
-    bucket.addNewEvent(event.getEventKey(), writeEventKeysOnly ? null : event);
+    bucket.addNewEvent(customkey, writeEventKeysOnly ? null : event);
     bucketCounters.getCounter(BucketManager.CounterKeys.EVENTS_IN_MEMORY).increment();
 
     Long max = maxTimesPerBuckets[bucketIdx];

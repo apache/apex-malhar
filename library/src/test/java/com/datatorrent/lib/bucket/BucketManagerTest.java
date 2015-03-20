@@ -81,7 +81,7 @@ public class BucketManagerTest
     eventBucketExchanger.exchange(null);
     for (int i = round * 10; i < (round * 10) + 10; i++) {
       DummyEvent dummyEvent = new DummyEvent(i, now);
-      manager.newEvent(bucket1, dummyEvent);
+     // manager.newEvent(bucket1, dummyEvent);
     }
     manager.endWindow(round);
     Bucket<DummyEvent> bucket = manager.getBucket(bucket1);

@@ -40,7 +40,7 @@ import com.datatorrent.lib.bucket.*;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
-import java.util.ArrayList;
+import java.util.*;
 
 /**
  * Tests for {@link Deduper}
@@ -55,11 +55,11 @@ public class DeduperTest
 
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
-  private static class DummyDeduper extends DeduperWithHdfsStore<DummyEvent, DummyEvent>
+  private static class DummyDeduper extends Deduper<HashMap<String,Object>, HashMap<String,Object>>
   {
 
     @Override
-    public void bucketLoaded(Bucket<DummyEvent> bucket)
+    public void bucketLoaded(Bucket<HashMap<String,Object>> bucket)
     {
       try {
         super.bucketLoaded(bucket);
@@ -70,16 +70,26 @@ public class DeduperTest
       }
     }
 
-    @Override
-    public DummyEvent convert(DummyEvent dummyEvent)
-    {
-      return dummyEvent;
-    }
+
 
     public void addEventManuallyToWaiting(DummyEvent event)
     {
-      waitingEvents.put(bucketManager.getBucketKeyFor(event), Lists.newArrayList(event));
+    //  waitingEvents.put(bucketManager.getBucketKeyFor(event,customKey), Lists.newArrayList(event));
     }
+
+    @Override
+    public HashMap<String, Object> transformTuple(HashMap<String, Object> tuple)
+    {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    @Override
+    protected HashMap<String, Object> convert(HashMap<String, Object> input)
+    {
+      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+
   }
 
   private static DummyDeduper deduper;
@@ -90,13 +100,12 @@ public class DeduperTest
   {
     List<DummyEvent> events = Lists.newArrayList();
     Calendar calendar = Calendar.getInstance();
-        ArrayList<Object> input = new ArrayList<Object>();
+    ArrayList<Object> input = new ArrayList<Object>();
 
     for (int i = 0; i < 10; i++) {
       events.add(new DummyEvent(i, calendar.getTimeInMillis()));
+      input.add(i);
     }
-        input.add(events);
-
     events.add(new DummyEvent(5, calendar.getTimeInMillis()));
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
@@ -150,9 +159,10 @@ public class DeduperTest
     deduper.teardown();
   }
 
-  private void testRound(List<DummyEvent> events)
+  private void testRound(List<HashMap<String,Object>> events)
   {
-    for (DummyEvent event : events) {
+    for (Iterator<HashMap<String, Object>> it = events.iterator(); it.hasNext();) {
+      HashMap<String, Object> event = it.next();
       deduper.input.process(event);
     }
     try {

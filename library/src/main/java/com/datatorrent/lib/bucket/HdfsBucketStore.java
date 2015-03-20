@@ -47,7 +47,7 @@ import com.datatorrent.common.util.NameableThreadFactory;
  * @param <T> type of bucket event
  * @since 0.9.4
  */
-public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
+public class HdfsBucketStore<T> implements BucketStore<T>
 {
   public static transient String OPERATOR_ID = "operatorId";
   public static transient String STORE_ROOT = "storeRoot";

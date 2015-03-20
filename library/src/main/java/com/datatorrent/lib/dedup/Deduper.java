@@ -77,7 +77,7 @@ import com.datatorrent.lib.bucket.*;
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
-public abstract class Deduper<INPUT, OUTPUT>
+public abstract class Deduper<INPUT , OUTPUT>
  implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
 {
   /**
@@ -89,7 +89,9 @@ public abstract class Deduper<INPUT, OUTPUT>
     @Override
     public final void process(INPUT tuple)
     {
-      long bucketKey = bucketManager.getBucketKeyFor(tuple);
+      //Process the tuple based on customKey;
+      INPUT event = transformTuple(tuple);
+      long bucketKey = bucketManager.getBucketKeyFor(event);
       if (bucketKey < 0) {
         ignored.emit(convert(tuple));
         return;
@@ -98,14 +100,14 @@ public abstract class Deduper<INPUT, OUTPUT>
       Bucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
 
 
-      if (bucket != null && bucket.containsEvent(tuple,customKey)) {
+      if (bucket != null && bucket.containsEvent(tuple)) {
         duplicate.emit(convert(tuple));
         counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
         return;
       } //ignore event
 
       if (bucket != null && bucket.isDataOnDiskLoaded()) {
-        bucketManager.newEvent(bucketKey, tuple);
+        bucketManager.newEvent(bucketKey, tuple,customKey);
         output.emit(convert(tuple));
       }
       else {
@@ -131,6 +133,8 @@ public abstract class Deduper<INPUT, OUTPUT>
     }
 
   };
+
+  public abstract INPUT transformTuple(INPUT tuple);
   /**
    * The output port on which deduped events are emitted.
    */
@@ -256,8 +260,8 @@ public abstract class Deduper<INPUT, OUTPUT>
         List<INPUT> waitingList = waitingEvents.remove(bucket.bucketKey);
         if (waitingList != null) {
           for (INPUT event : waitingList) {
-            if (!bucket.containsEvent(event,customKey)) {
-              bucketManager.newEvent(bucket.bucketKey, event);
+            if (!bucket.containsEvent(event)) {
+              bucketManager.newEvent(bucket.bucketKey, event,customKey);
               output.emit(convert(event));
             }
             else {

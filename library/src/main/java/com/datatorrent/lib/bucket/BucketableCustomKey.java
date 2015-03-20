@@ -9,17 +9,6 @@ import java.util.ArrayList;
 public class BucketableCustomKey implements Bucketable
 {
   private ArrayList<Object> key;
-  Integer id;
-
-  public Integer getId()
-  {
-    return id;
-  }
-
-  public void setId(Integer id)
-  {
-    this.id = id;
-  }
 
   public ArrayList<Object> getKey()
   {
@@ -34,7 +23,7 @@ public class BucketableCustomKey implements Bucketable
   @Override
   public Object getEventKey()
   {
-    return key;
+    return this;
   }
 
   @Override

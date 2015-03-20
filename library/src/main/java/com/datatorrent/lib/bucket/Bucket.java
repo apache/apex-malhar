@@ -190,16 +190,17 @@ public class Bucket<T>
    * @param customKey
    * @return true if bucket has the event; false otherwise.
    */
-  public boolean containsEvent(T event,BucketableCustomKey customKey)
+  public boolean containsEvent(T event)
   {
-    if (unwrittenEvents != null && unwrittenEvents.containsKey(customKey.getEventKey())) {
+    //GetKey from event or get another parameter
+    if (unwrittenEvents != null && unwrittenEvents.containsKey(event)) {
       return true;
     }
     if (unwrittenEvents != null)
     System.out.println("unwrittenEvents are " +unwrittenEvents.toString());
         System.out.println("written are " +writtenEvents.toString());
-    System.out.println("customkey event key is" +  customKey.getEventKey());
-    return writtenEvents != null && writtenEvents.containsKey(customKey.getEventKey());
+    System.out.println("customkey event key is" +  event);
+    return writtenEvents != null && writtenEvents.containsKey(event);
   }
 
   @Override
