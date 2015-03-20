@@ -29,27 +29,19 @@ import org.junit.Rule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.BaseOperator;
+import com.google.common.collect.Lists;
+
+import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Context.PortContext;
-import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
-import com.datatorrent.api.LocalMode;
-import com.datatorrent.api.Operator;
 import com.datatorrent.api.Stats.OperatorStats;
-import com.datatorrent.api.StatsListener;
-import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.hdht.HDHTFileAccessFSImpl;
-import com.datatorrent.contrib.hdht.HDHTWriter;
 import com.datatorrent.contrib.hdht.hfile.HFileImpl;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.lib.util.TestUtils;
-import com.google.common.collect.Lists;
-import com.datatorrent.api.Context;
 
 @ApplicationAnnotation(name="HDHTBenchmarkTest")
 public class HDHTBenchmarkTest implements StreamingApplication
@@ -191,12 +183,13 @@ public class HDHTBenchmarkTest implements StreamingApplication
       private static final long serialVersionUID = 1L;
       int rate;
       @Override
-      public void execute(Operator oper, int arg1, long arg2) throws IOException
+      public OperatorCommandResponse execute(Operator oper, int arg1, long arg2) throws IOException
       {
         if (oper instanceof TestGenerator) {
           LOG.debug("Setting rate to {}", rate);
           ((TestGenerator)oper).rate = rate;
         }
+        return null;
       }
     }
   }
