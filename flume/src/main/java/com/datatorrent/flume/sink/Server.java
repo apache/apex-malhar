@@ -30,11 +30,13 @@ public class Server extends AbstractServer
 {
   private final String id;
   private final Discovery<byte[]> discovery;
+  private final long acceptedTolerance;
 
-  public Server(String id, Discovery<byte[]> discovery)
+  public Server(String id, Discovery<byte[]> discovery, long acceptedTolerance)
   {
     this.id = id;
     this.discovery = discovery;
+    this.acceptedTolerance = acceptedTolerance;
   }
 
   @Override
@@ -205,6 +207,12 @@ public class Server extends AbstractServer
         return;
       }
 
+      long currentTime = System.currentTimeMillis();
+      long requestTime = Server.readLong(buffer,9);
+      if (currentTime > (requestTime + acceptedTolerance)){
+        logger.error("This {} is invalid request as it reached outside the accepted tolerance of {}", Arrays.toString(buffer), acceptedTolerance);
+        return;
+      }
       Request r = Request.getRequest(buffer, offset, this);
       synchronized (requests) {
         requests.add(r);
