@@ -105,7 +105,7 @@ public class FileSplitterTest
       fileSplitter.setScanner(new MockScanner());
       fileSplitter.scanner.setScanIntervalMillis(500);
       fileSplitter.scanner.setFilePatternRegularExp(".*[.]txt");
-      fileSplitter.scanner.setFiles(new String[]{dataDirectory});
+      fileSplitter.scanner.setFiles(dataDirectory);
       fileSplitter.setIdempotentStorageManager(new IdempotentStorageManager.NoopIdempotentStorageManager());
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(0, new Attribute.AttributeMap.DefaultAttributeMap());
@@ -428,6 +428,25 @@ public class FileSplitterTest
 
     Assert.assertEquals("window 2: files", 2, testMeta.fileMetadataSink.collectedTuples.size());
     Assert.assertEquals("window 2: blocks", 1, testMeta.blockMetadataSink.collectedTuples.size());
+  }
+
+  @Test
+  public void testSingleFile() throws InterruptedException, IOException
+  {
+    testMeta.fileSplitter.teardown();
+    testMeta.fileSplitter.scanner = new MockScanner();
+    testMeta.fileSplitter.scanner.regex = null;
+    testMeta.fileSplitter.scanner.setFiles(testMeta.dataDirectory + "/file1.txt");
+
+    testMeta.fileSplitter.setup(testMeta.context);
+    testMeta.fileSplitter.beginWindow(1);
+    EXCHANGER.exchange(null);
+
+    testMeta.fileSplitter.emitTuples();
+    testMeta.fileSplitter.endWindow();
+    Assert.assertEquals("File metadata count", 1, testMeta.fileMetadataSink.collectedTuples.size());
+    Assert.assertEquals("File metadata", new File(testMeta.dataDirectory + "/file1.txt").getAbsolutePath(),
+      testMeta.fileMetadataSink.collectedTuples.get(0).getFilePath());
   }
 
   private static class MockScanner extends FileSplitter.TimeBasedDirectoryScanner

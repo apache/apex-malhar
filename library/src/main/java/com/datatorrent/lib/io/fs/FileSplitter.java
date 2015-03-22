@@ -38,7 +38,10 @@ import org.apache.hadoop.fs.Path;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -841,17 +844,17 @@ public class FileSplitter implements InputOperator
      *
      * @param files files
      */
-    public void setFiles(String[] files)
+    public void setFiles(String files)
     {
-      Collections.addAll(this.files, files);
+      Iterables.addAll(this.files, Splitter.on(",").omitEmptyStrings().split(files));
     }
 
     /**
      * @return files to be scanned.
      */
-    public String[] getFiles()
+    public String getFiles()
     {
-      return files.toArray(new String[files.size()]);
+      return Joiner.on(",").join(this.files);
     }
 
     /**
