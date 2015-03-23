@@ -75,6 +75,7 @@ public class GenericEventSchema
 
   private void initialize(String json) throws Exception
   {
+    logger.info("Initializing: {}", json);
     JSONObject jo = new JSONObject(json);
 
     JSONArray keysArray = jo.getJSONArray(FIELD_KEYS);
