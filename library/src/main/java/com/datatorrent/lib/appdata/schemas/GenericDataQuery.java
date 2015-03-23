@@ -10,6 +10,7 @@ import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.DataType;
+import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -20,6 +21,7 @@ import java.util.Set;
 
 @DataType(type=GenericDataQuery.TYPE)
 @DataDeserializerInfo(clazz=GenericDataQueryDeserializer.class)
+@DataValidatorInfo(clazz=GenericDataQueryValidator.class)
 public class GenericDataQuery extends Query
 {
   public static final String TYPE = "dataQuery";
