@@ -9,6 +9,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -21,6 +23,8 @@ import java.util.Set;
  */
 public class FieldsDescriptor
 {
+  private static final Logger logger = LoggerFactory.getLogger(FieldsDescriptor.class);
+
   private Map<String, Type> fieldToType;
   private List<String> fieldOrder;
   private Fields fields;
@@ -70,6 +74,7 @@ public class FieldsDescriptor
 
   private void setFieldToType(Map<String, Type> fieldToType) {
     for(Map.Entry<String, Type> entry: fieldToType.entrySet()) {
+      logger.debug("Field and Type: {} {}", entry.getKey(), entry.getValue());
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }
