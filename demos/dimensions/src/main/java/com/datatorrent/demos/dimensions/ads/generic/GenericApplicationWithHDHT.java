@@ -35,6 +35,8 @@ import java.net.URI;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -116,6 +118,8 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name=GenericApplicationWithHDHT.APP_NAME)
 public class GenericApplicationWithHDHT implements StreamingApplication
 {
+  private static final Logger logger = LoggerFactory.getLogger(GenericApplicationWithHDHT.class);
+
   public static final String APP_NAME = "GenericAdsDimensionsDemoWithHDHTtest";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
 
@@ -133,7 +137,7 @@ public class GenericApplicationWithHDHT implements StreamingApplication
     store.setFileStore(hdsFile);
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
 
-
+    logger.info("Before reading schemas.");
     StringWriter eventWriter = new StringWriter();
     try {
       IOUtils.copy(GenericApplicationWithHDHT.class.getClassLoader().getResourceAsStream(EVENT_SCHEMA),
@@ -153,6 +157,8 @@ public class GenericApplicationWithHDHT implements StreamingApplication
       throw new RuntimeException(ex);
     }
     String dimensionalSchema = dimensionalWriter.toString();
+
+    logger.info("After reading schemas.");
 
     dimensions.setEventSchemaJSON(eventSchema);
     store.setEventSchemaJSON(eventSchema);
