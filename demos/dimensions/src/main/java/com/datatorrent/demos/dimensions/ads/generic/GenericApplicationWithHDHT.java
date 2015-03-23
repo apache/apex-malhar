@@ -117,7 +117,7 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name=ApplicationWithHDHT.APP_NAME)
 public class GenericApplicationWithHDHT implements StreamingApplication
 {
-  public static final String APP_NAME = "AdsDimensionsDemoWithHDHTtest";
+  public static final String APP_NAME = "GenericAdsDimensionsDemoWithHDHTtest";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
 
   public static final String EVENT_SCHEMA = "adsGenericDataSchema.json";
