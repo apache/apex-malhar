@@ -38,6 +38,7 @@ import com.datatorrent.lib.appdata.schemas.GenericSchemaResult;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.google.common.collect.Lists;
+import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableLong;
@@ -52,8 +53,9 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT
+public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT implements Serializable
 {
+  private static final long serialVersionUID = 201503231218L;
   private static final Logger logger = LoggerFactory.getLogger(GenericAdsDimensionStore.class);
 
   public static final int SCHEMA_ID = 0;
