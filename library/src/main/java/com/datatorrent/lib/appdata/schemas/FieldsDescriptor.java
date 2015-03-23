@@ -74,7 +74,7 @@ public class FieldsDescriptor
 
   private void setFieldToType(Map<String, Type> fieldToType) {
     for(Map.Entry<String, Type> entry: fieldToType.entrySet()) {
-      logger.debug("Field and Type: {} {}", entry.getKey(), entry.getValue());
+      System.out.println("Field and Type: " + entry.getKey() + " " + entry.getValue());
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }
