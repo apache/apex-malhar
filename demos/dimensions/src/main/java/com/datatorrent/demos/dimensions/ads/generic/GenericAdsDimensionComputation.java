@@ -85,6 +85,9 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
       else if(field.equals(AdsSchemaResult.LOCATION)) {
         keyGPO.setField(AdsSchemaResult.LOCATION, ga.getLocation());
       }
+      else if(field.equals(AdsSchemaResult.TIME)) {
+        keyGPO.setField(AdsSchemaResult.TIME, ga.getTime());
+      }
       else {
         throw new UnsupportedOperationException("This field is not supported: " + field);
       }
