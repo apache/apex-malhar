@@ -13,6 +13,8 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +38,8 @@ import java.util.Set;
  */
 public class GenericEventSchema
 {
+  private static final Logger logger = LoggerFactory.getLogger(GenericEventSchema.class);
+
   public static final String FIELD_KEYS = "keys";
   public static final String FIELD_KEYS_NAME = "name";
   public static final String FIELD_KEYS_TYPE = "type";
@@ -80,6 +84,7 @@ public class GenericEventSchema
         keyIndex < keysArray.length();
         keyIndex++) {
       JSONObject keyDescriptor = keysArray.getJSONObject(keyIndex);
+      logger.debug("keyDescriptor: {}", keyDescriptor);
       String name = keyDescriptor.getString(FIELD_KEYS_NAME);
       String type = keyDescriptor.getString(FIELD_KEYS_TYPE);
 
