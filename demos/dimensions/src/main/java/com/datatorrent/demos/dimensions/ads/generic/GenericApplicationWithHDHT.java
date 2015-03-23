@@ -159,6 +159,8 @@ public class GenericApplicationWithHDHT implements StreamingApplication
     String dimensionalSchema = dimensionalWriter.toString();
 
     logger.info("After reading schemas.");
+    logger.info("Event Schema: {}");
+    logger.info("Dimensions Schema: {}");
 
     dimensions.setEventSchemaJSON(eventSchema);
     store.setEventSchemaJSON(eventSchema);

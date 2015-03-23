@@ -38,7 +38,7 @@ public class GenericEventSchemaTest
     final String valueName1Type = "double";
     final String valueName2Type = "integer";
 
-    final String jsonSchema =
+    final String jsonSchema = 
     "{\"keys\":\n" +
       "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"},\n" +
        "{\"name\":\"" + keyName2 + "\",\"type\":\"" + keyName2Type + "\"}],\n" +
