@@ -123,7 +123,7 @@ public class GenericApplicationWithHDHT implements StreamingApplication
   public static final String APP_NAME = "GenericAdsDimensionsDemoWithHDHTtest";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
 
-  public static final String EVENT_SCHEMA = "adsGenericDataSchema.json";
+  public static final String EVENT_SCHEMA = "adsGenericEventSchema.json";
   public static final String DIMENSIONAL_SCHEMA = "adsGenericDataSchema.json";
 
   @Override
