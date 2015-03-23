@@ -76,9 +76,8 @@ public class FileSplitter implements InputOperator
   private int sequenceNo;
 
   /**
-   * This is a threshold on the no. of blocks emitted per window. Splitting a file into blocks is a
-   * simple operation and even if the no. of files processed in a window are little, the no. of blocks they
-   * have can be a lot which can overwhelm the downstream operators. This setting can help throttle that.
+   * This is a threshold on the no. of blocks emitted per window. A lot of blocks emitted
+   * per window can overwhelm the downstream operators. This setting helps to control that.
    */
   @Min(1)
   protected int blocksThreshold;
