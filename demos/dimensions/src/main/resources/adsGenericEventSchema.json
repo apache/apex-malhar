@@ -25,7 +25,7 @@
    {"descriptor":"time=HOURS:publisher:advertiser","aggregations":["SUM"]},
    {"descriptor":"time=HOURS:publisher:advertiser:location","aggregations":["SUM"]},
    {"descriptor":"time=DAYS","aggregations":["SUM"]},
-   {"descriptor":"time=DAYS:adUnit","aggregations":["SUM"]},
+   {"descriptor":"time=DAYS:location","aggregations":["SUM"]},
    {"descriptor":"time=DAYS:advertiser","aggregations":["SUM"]},
    {"descriptor":"time=DAYS:publisher","aggregations":["SUM"]},
    {"descriptor":"time=DAYS:advertiser:location","aggregations":["SUM"]},
