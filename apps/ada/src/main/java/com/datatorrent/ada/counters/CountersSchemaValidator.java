@@ -31,9 +31,9 @@ public class CountersSchemaValidator implements CustomDataValidator
   }
 
   @Override
-  public boolean validate(Data query)
+  public boolean validate(Data query, Object context)
   {
-    if(!sdv.validate(query)) {
+    if(!sdv.validate(query, context)) {
       return false;
     }
 

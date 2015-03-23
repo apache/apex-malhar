@@ -9,6 +9,7 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -22,6 +23,18 @@ public class Fields
   public Fields(Set<String> fields)
   {
     setFields(fields);
+  }
+
+  public Fields(List<String> fields)
+  {
+    Set<String> fieldsSet = Sets.newHashSet();
+
+    for(String field: fields) {
+      Preconditions.checkNotNull(field);
+      if(!fieldsSet.add(field)) {
+        throw new IllegalArgumentException("Duplicate field: " + field);
+      }
+    }
   }
 
   private void setFields(Set<String> fields)

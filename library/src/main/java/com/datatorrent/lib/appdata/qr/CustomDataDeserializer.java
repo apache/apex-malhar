@@ -13,7 +13,7 @@ public abstract class CustomDataDeserializer
 {
   private Class<? extends Data> dataClazz;
 
-  public abstract Data deserialize(String json);
+  public abstract Data deserialize(String json, Object context);
 
   /**
    * @return the dataClazz

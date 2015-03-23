@@ -11,5 +11,5 @@ package com.datatorrent.lib.appdata.qr;
  */
 public interface CustomDataValidator
 {
-  public boolean validate(Data query);
+  public boolean validate(Data query, Object context);
 }

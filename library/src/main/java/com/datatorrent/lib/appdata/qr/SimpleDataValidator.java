@@ -24,7 +24,7 @@ public class SimpleDataValidator implements CustomDataValidator
   }
 
   @Override
-  public boolean validate(Data data)
+  public boolean validate(Data data, Object context)
   {
     return validator.validate(data).isEmpty();
   }

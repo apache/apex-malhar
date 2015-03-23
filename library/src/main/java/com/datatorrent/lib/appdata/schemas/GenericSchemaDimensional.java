@@ -8,7 +8,6 @@ package com.datatorrent.lib.appdata.schemas;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.io.InputStream;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -30,17 +29,16 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
   public static final String FIELD_KEY_NAME = "name";
   public static final String FIELD_KEY_VALS = "enumValues";
 
+  public static final String EXTRA_FIELD_NAME_TIME = "time";
+  public static final Type EXTRA_FIELD_TYPE_TIME = Type.STRING;
+
   private Map<String, Type> keyToType = Maps.newHashMap();
   private Map<String, Set<Object>> keyToValues = Maps.newHashMap();
-
-  public GenericSchemaDimensional(InputStream inputStream)
-  {
-    this(SchemaUtils.inputStreamToString(inputStream));
-  }
+  private FieldsDescriptor keyFieldsDescriptor;
 
   public GenericSchemaDimensional(String schemaJSON)
   {
-    this(schemaJSON, true);
+    this(schemaJSON, false);
   }
 
   public GenericSchemaDimensional(String schemaJSON, boolean validate)
@@ -124,8 +122,11 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
       getKeyToValues().put(keyName, vals);
     }
 
+    keyToType.put(EXTRA_FIELD_NAME_TIME, Type.STRING);
+
     keyToType = Collections.unmodifiableMap(getKeyToType());
     keyToValues = Collections.unmodifiableMap(getKeyToValues());
+    keyFieldsDescriptor = new FieldsDescriptor(keyToType);
   }
 
   /**
@@ -142,5 +143,13 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
   public Map<String, Set<Object>> getKeyToValues()
   {
     return keyToValues;
+  }
+
+  /**
+   * @return the keyFieldsDescriptor
+   */
+  public FieldsDescriptor getKeyFieldsDescriptor()
+  {
+    return keyFieldsDescriptor;
   }
 }

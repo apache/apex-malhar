@@ -26,6 +26,16 @@ public class SchemaUtils
   {
   }
 
+  public static long getLong(String date)
+  {
+    try {
+      return sdf.parse(date).getTime();
+    }
+    catch(ParseException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
   public static String inputStreamToString(InputStream inputStream)
   {
     StringWriter stringWriter = new StringWriter();

@@ -6,12 +6,16 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.Fields;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -25,8 +29,12 @@ public class DimensionsDescriptor
   private static final Logger logger = LoggerFactory.getLogger(DimensionsDescriptor.class);
 
   public static final String DIMENSION_TIME = "time";
+  public static final Type DIMENSION_TIME_TYPE = Type.LONG;
+  public static final String DIMENSION_TIME_BUCKET = "timeBucket";
+  public static final Type DIMENSION_TIME_BUCKET_TYPE = Type.INTEGER;
 
-  public static final Set<String> RESERVED_DIMENSION_NAMES = ImmutableSet.of(DIMENSION_TIME);
+  public static final Set<String> RESERVED_DIMENSION_NAMES = ImmutableSet.of(DIMENSION_TIME,
+                                                                             DIMENSION_TIME_BUCKET);
 
   public static final String DELIMETER_EQUALS = "=";
   public static final String DELIMETER_SEPERATOR = ":";
@@ -53,6 +61,7 @@ public class DimensionsDescriptor
 
       if(fieldName.equals(DIMENSION_TIME)) {
         if(fieldAndValue.length == 2) {
+          fieldSet.add(DIMENSION_TIME_BUCKET);
           timeUnit = TimeUnit.valueOf(fieldAndValue[1]);
         }
       }
@@ -75,6 +84,30 @@ public class DimensionsDescriptor
   public Fields getFields()
   {
     return fields;
+  }
+
+  public FieldsDescriptor createFieldsDescriptor(FieldsDescriptor parentDescriptor)
+  {
+    Map<String, Type> fieldToType = Maps.newHashMap();
+    Map<String, Type> parentFieldToType = parentDescriptor.getFieldToType();
+
+    for(String field: this.fields.getFields()) {
+      if(RESERVED_DIMENSION_NAMES.contains(field)) {
+        continue;
+      }
+
+      fieldToType.put(field, parentFieldToType.get(field));
+    }
+
+    if(fields.getFields().contains(DIMENSION_TIME)) {
+      fieldToType.put(DIMENSION_TIME, Type.LONG);
+    }
+
+    if(timeUnit != null) {
+      fieldToType.put(DIMENSION_TIME_BUCKET, DIMENSION_TIME_BUCKET_TYPE);
+    }
+
+    return new FieldsDescriptor(fieldToType);
   }
 
   @Override

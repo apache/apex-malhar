@@ -27,10 +27,17 @@ public class DataDeserializerFactory
   private Map<String, Class<? extends Data>> typeToClass = Maps.newHashMap();
   private Map<String, CustomDataDeserializer> typeToCustomQueryBuilder = Maps.newHashMap();
   private Map<String, CustomDataValidator> typeToCustomQueryValidator = Maps.newHashMap();
+  private Map<Class<? extends Data>, Object> deserializationContext = Maps.newHashMap();
 
   public DataDeserializerFactory(Class<? extends Data>... schemas)
   {
     setClasses(schemas);
+  }
+
+  public void setContext(Class<? extends Data> clazz,
+                         Object context)
+  {
+    deserializationContext.put(clazz, context);
   }
 
   private void setClasses(Class<? extends Data>[] schemas)
@@ -156,11 +163,12 @@ public class DataDeserializerFactory
     }
 
     CustomDataValidator cqv = typeToCustomQueryValidator.get(type);
-    Data data = cqb.deserialize(json);
+    Object context = deserializationContext.get(typeToClass.get(type));
+    Data data = cqb.deserialize(json, context);
 
     logger.debug("{}", data);
 
-    if(data == null || !(cqv != null && cqv.validate(data))) {
+    if(data == null || !(cqv != null && cqv.validate(data, context))) {
       return null;
     }
 

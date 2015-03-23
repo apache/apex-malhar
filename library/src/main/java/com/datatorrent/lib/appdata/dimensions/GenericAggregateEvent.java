@@ -9,6 +9,7 @@ import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.google.common.base.Preconditions;
+import com.google.common.primitives.Longs;
 
 /**
  *
@@ -166,7 +167,7 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
       Preconditions.checkNotNull(key);
       this.key = key;
     }
-    
+
     @Override
     public int hashCode()
     {
@@ -201,6 +202,130 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
         return false;
       }
       return true;
+    }
+  }
+
+  public static class ID implements Comparable<ID>
+  {
+    private long msb;
+    private long mmsb;
+    private long lsb;
+
+    public ID(long msb, long mmsb, long lsb)
+    {
+      if(msb < 0L ||
+         mmsb < 0L ||
+         lsb < 0L) {
+        throw new IllegalArgumentException("msb, mmsb, lsb must be nonnegative:\n" +
+                                           "msb:" + msb + "\n" +
+                                           "mmsb:" + mmsb + "\n" +
+                                           "lsb:" + lsb + "\n");
+
+      }
+
+      this.msb = msb;
+      this.mmsb = mmsb;
+      this.lsb = lsb;
+    }
+
+    public long getMSB()
+    {
+      return msb;
+    }
+
+    public long getMMSB()
+    {
+      return mmsb;
+    }
+
+    public long getLSB()
+    {
+      return lsb;
+    }
+
+    public byte[] getBytes()
+    {
+      byte[] idBytes = new byte[24];
+
+      byte[] msbs = Longs.toByteArray(msb);
+      byte[] mmsbs = Longs.toByteArray(mmsb);
+      byte[] lsbs = Longs.toByteArray(lsb);
+
+      int index = 0;
+
+      for(int tindex = 0; tindex < 8; tindex++, index++) {
+        idBytes[index] = msbs[tindex];
+      }
+
+      for(int tindex = 0; tindex < 8; tindex++, index++) {
+        idBytes[index] = mmsbs[tindex];
+      }
+
+      for(int tindex = 0; tindex < 8; tindex++, index++) {
+        idBytes[index] = lsbs[tindex];
+      }
+
+      return idBytes;
+    }
+
+    @Override
+    public int compareTo(ID id)
+    {
+      if(msb < id.msb) {
+        return -1;
+      }
+      else if(msb > id.msb) {
+        return 1;
+      }
+
+      if(mmsb < id.mmsb) {
+        return -1;
+      }
+      else if(mmsb > id.mmsb) {
+        return 1;
+      }
+
+      if(lsb < id.lsb) {
+        return -1;
+      }
+      else if(lsb > id.lsb) {
+        return 1;
+      }
+
+      return 0;
+    }
+  }
+
+  public static class IDGenerator
+  {
+    long msb = 0;
+    long mmsb = 0;
+    long lsb = 0;
+
+    public IDGenerator()
+    {
+    }
+
+    public synchronized ID getNextID()
+    {
+      if(lsb == Long.MAX_VALUE) {
+        if(mmsb == Long.MAX_VALUE) {
+          if(msb == Long.MAX_VALUE) {
+            throw new UnsupportedOperationException("Max ID reached! This is like 1000 years from now!");
+          }
+          else {
+            msb++;
+          }
+        }
+        else {
+          mmsb++;
+        }
+      }
+      else {
+        lsb++;
+      }
+
+      return new ID(msb, mmsb, lsb);
     }
   }
 }

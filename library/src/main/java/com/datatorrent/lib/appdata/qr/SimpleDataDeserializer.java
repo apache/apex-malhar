@@ -24,7 +24,7 @@ public class SimpleDataDeserializer extends CustomDataDeserializer
   }
 
   @Override
-  public Data deserialize(String json)
+  public Data deserialize(String json, Object context)
   {
     Data data;
 

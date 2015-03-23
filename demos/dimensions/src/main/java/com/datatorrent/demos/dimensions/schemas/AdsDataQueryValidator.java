@@ -28,13 +28,13 @@ public class AdsDataQueryValidator implements CustomDataValidator
   }
 
   @Override
-  public boolean validate(Data query)
+  public boolean validate(Data query, Object context)
   {
     if(!(query instanceof AdsDataQuery)) {
       return false;
     }
 
-    if(!sqv.validate(query)) {
+    if(!sqv.validate(query, context)) {
       return false;
     }
 

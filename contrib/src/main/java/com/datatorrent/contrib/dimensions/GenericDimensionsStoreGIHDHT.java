@@ -22,4 +22,10 @@ public abstract class GenericDimensionsStoreGIHDHT extends GenericDimensionsStor
   {
       processGenericEvent(gae);
   }
+
+  @Override
+  protected GenericAggregateEvent[] convertInput(GenericAggregateEvent tuple)
+  {
+    throw new UnsupportedOperationException("Conversion is not supported");
+  }
 }

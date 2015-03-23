@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.dimensions.ads;
+package com.datatorrent.demos.dimensions.ads.generic;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
@@ -26,15 +26,17 @@ import com.datatorrent.contrib.kafka.KafkaJsonEncoder;
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
-import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
+import com.datatorrent.demos.dimensions.ads.ApplicationWithHDHT;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
-import com.datatorrent.lib.statistics.DimensionsComputation;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.net.URI;
-import java.util.concurrent.TimeUnit;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
+
 
 /**
  * An AdsDimensionsDemo run with HDHT
@@ -113,57 +115,49 @@ import org.apache.hadoop.conf.Configuration;
  * @since 2.0.0
  */
 @ApplicationAnnotation(name=ApplicationWithHDHT.APP_NAME)
-public class ApplicationWithHDHT implements StreamingApplication
+public class GenericApplicationWithHDHT implements StreamingApplication
 {
   public static final String APP_NAME = "AdsDimensionsDemoWithHDHTtest";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
 
+  public static final String EVENT_SCHEMA = "adsGenericDataSchema.json";
+  public static final String DIMENSIONAL_SCHEMA = "adsGenericDataSchema.json";
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent>());
+    GenericInputItemGenerator input = dag.addOperator("InputGenerator", GenericInputItemGenerator.class);
+    GenericAdsDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new GenericAdsDimensionComputation());
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
-    String[] dimensionSpecs = new String[] {
-        "time=" + TimeUnit.MINUTES,
-        "time=" + TimeUnit.MINUTES + ":adUnit",
-        "time=" + TimeUnit.MINUTES + ":advertiserId",
-        "time=" + TimeUnit.MINUTES + ":publisherId",
-        "time=" + TimeUnit.MINUTES + ":advertiserId:adUnit",
-        "time=" + TimeUnit.MINUTES + ":publisherId:adUnit",
-        "time=" + TimeUnit.MINUTES + ":publisherId:advertiserId",
-        "time=" + TimeUnit.MINUTES + ":publisherId:advertiserId:adUnit",
-        "time=" + TimeUnit.HOURS,
-        "time=" + TimeUnit.HOURS + ":adUnit",
-        "time=" + TimeUnit.HOURS + ":advertiserId",
-        "time=" + TimeUnit.HOURS + ":publisherId",
-        "time=" + TimeUnit.HOURS + ":advertiserId:adUnit",
-        "time=" + TimeUnit.HOURS + ":publisherId:adUnit",
-        "time=" + TimeUnit.HOURS + ":publisherId:advertiserId",
-        "time=" + TimeUnit.HOURS + ":publisherId:advertiserId:adUnit",
-        "time=" + TimeUnit.DAYS,
-        "time=" + TimeUnit.DAYS + ":adUnit",
-        "time=" + TimeUnit.DAYS + ":advertiserId",
-        "time=" + TimeUnit.DAYS + ":publisherId",
-        "time=" + TimeUnit.DAYS + ":advertiserId:adUnit",
-        "time=" + TimeUnit.DAYS + ":publisherId:adUnit",
-        "time=" + TimeUnit.DAYS + ":publisherId:advertiserId",
-        "time=" + TimeUnit.DAYS + ":publisherId:advertiserId:adUnit"
-    };
-
-    AdInfoAggregator[] aggregators = new AdInfoAggregator[dimensionSpecs.length];
-    for (int i = dimensionSpecs.length; i-- > 0;) {
-      AdInfoAggregator aggregator = new AdInfoAggregator();
-      aggregator.init(dimensionSpecs[i]);
-      aggregators[i] = aggregator;
-    }
-    dimensions.setAggregators(aggregators);
-
-    AdsDimensionStoreOperator store = dag.addOperator("Store", AdsDimensionStoreOperator.class);
+    GenericAdsDimensionStore store = dag.addOperator("Store", GenericAdsDimensionStore.class);
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
     store.setFileStore(hdsFile);
-    store.setAggregator(new AdInfoAggregator());
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
+
+
+    StringWriter eventWriter = new StringWriter();
+    try {
+      IOUtils.copy(GenericApplicationWithHDHT.class.getClassLoader().getResourceAsStream(EVENT_SCHEMA),
+                   eventWriter);
+    }
+    catch(IOException ex) {
+      throw new RuntimeException(ex);
+    }
+    String eventSchema = eventWriter.toString();
+
+    StringWriter dimensionalWriter = new StringWriter();
+    try {
+      IOUtils.copy(GenericApplicationWithHDHT.class.getClassLoader().getResourceAsStream(DIMENSIONAL_SCHEMA),
+                   dimensionalWriter);
+    }
+    catch(IOException ex) {
+      throw new RuntimeException(ex);
+    }
+    String dimensionalSchema = dimensionalWriter.toString();
+
+    dimensions.setEventSchemaJSON(eventSchema);
+    store.setEventSchemaJSON(eventSchema);
+    store.setDimensionalSchemaJSON(dimensionalSchema);
 
     Operator.OutputPort<String> queryPort;
     Operator.InputPort<String> queryResultPort;
@@ -186,8 +180,8 @@ public class ApplicationWithHDHT implements StreamingApplication
       queryResultPort = queryResult.inputPort;
     }
 
-    dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("DimensionalData", dimensions.output, store.input);
+    dag.addStream("InputStream", input.outputPort, dimensions.inputEvent).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("DimensionalData", dimensions.aggregateOutput, store.input);
     dag.addStream("Query", queryPort, store.query);
     dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }

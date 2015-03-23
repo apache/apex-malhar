@@ -24,7 +24,7 @@ public class AdsDataQueryValidatorTest
     adq.setType(AdsDataQuery.TYPE);
 
     AdsDataQueryValidator adqv = new AdsDataQueryValidator();
-    Assert.assertFalse("No data set was set.", adqv.validate(adq));
+    Assert.assertFalse("No data set was set.", adqv.validate(adq, null));
   }
 
   @Test
@@ -37,7 +37,7 @@ public class AdsDataQueryValidatorTest
     AdsDataQueryData adqd = new AdsDataQueryData();
     adq.setData(adqd);
     AdsDataQueryValidator adqv = new AdsDataQueryValidator();
-    Assert.assertFalse("No time set.", adqv.validate(adq));
+    Assert.assertFalse("No time set.", adqv.validate(adq, null));
   }
 
   @Test
@@ -57,7 +57,7 @@ public class AdsDataQueryValidatorTest
     atrb.setBucket(AdsSchemaResult.BUCKETS[0]);
 
     AdsDataQueryValidator adqv = new AdsDataQueryValidator();
-    Assert.assertFalse("No time set.", adqv.validate(adq));
+    Assert.assertFalse("No time set.", adqv.validate(adq, null));
   }
 
   @Test
@@ -76,7 +76,7 @@ public class AdsDataQueryValidatorTest
     atrb.setBucket(AdsSchemaResult.BUCKETS[0]);
 
     AdsDataQueryValidator adqv = new AdsDataQueryValidator();
-    Assert.assertFalse("No time set.", adqv.validate(adq));
+    Assert.assertFalse("No time set.", adqv.validate(adq, null));
   }
 
   @Test
@@ -97,7 +97,7 @@ public class AdsDataQueryValidatorTest
     atrb.setLatestNumBuckets(1);
 
     AdsDataQueryValidator adqv = new AdsDataQueryValidator();
-    Assert.assertFalse("Invalid to specify from and to and latest num buckets.", adqv.validate(adq));
+    Assert.assertFalse("Invalid to specify from and to and latest num buckets.", adqv.validate(adq, null));
   }
 
   @Test
@@ -117,7 +117,7 @@ public class AdsDataQueryValidatorTest
     atrb.setBucket(AdsSchemaResult.BUCKETS[0]);
 
     AdsDataQueryValidator adqv = new AdsDataQueryValidator();
-    Assert.assertTrue("This should be valid.", adqv.validate(adq));
+    Assert.assertTrue("This should be valid.", adqv.validate(adq, null));
   }
 
   @Test
@@ -139,7 +139,7 @@ public class AdsDataQueryValidatorTest
     atrb.setTo("2015-03-05 16:47:00:000");
 
     AdsDataQueryValidator adqv = new AdsDataQueryValidator();
-    Assert.assertFalse("Invalid advertiser.", adqv.validate(adq));
+    Assert.assertFalse("Invalid advertiser.", adqv.validate(adq, null));
   }
 
   @Test
@@ -157,7 +157,7 @@ public class AdsDataQueryValidatorTest
     atrb.setLatestNumBuckets(30);
 
     AdsDataQueryValidator adqv = new AdsDataQueryValidator();
-    Assert.assertFalse("This is not valid.", adqv.validate(adq));
+    Assert.assertFalse("This is not valid.", adqv.validate(adq, null));
   }
 
   @Test

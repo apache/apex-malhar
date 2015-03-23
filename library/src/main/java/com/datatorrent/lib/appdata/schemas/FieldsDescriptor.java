@@ -6,9 +6,12 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -19,10 +22,33 @@ import java.util.Set;
 public class FieldsDescriptor
 {
   private Map<String, Type> fieldToType;
+  private List<String> fieldOrder;
   private Fields fields;
 
   public FieldsDescriptor(Map<String, Type> fieldToType)
   {
+    setFieldToType(fieldToType);
+    initialize();
+  }
+
+  public FieldsDescriptor(FieldsDescriptor fda, FieldsDescriptor fdb)
+  {
+    if(!Collections.disjoint(fda.getFields().getFields(),
+                             fdb.getFields().getFields()))
+    {
+      throw new IllegalArgumentException("The two provided field descriptors must have disjoint sets of fields.");
+    }
+
+    fieldToType = Maps.newHashMap();
+
+    for(String field: fda.getFields().getFields()) {
+      fieldToType.put(field, fda.getType(field));
+    }
+
+    for(String field: fdb.getFields().getFields()) {
+      fieldToType.put(field, fdb.getType(field));
+    }
+
     setFieldToType(fieldToType);
     initialize();
   }
@@ -36,6 +62,10 @@ public class FieldsDescriptor
     }
 
     this.fields = new Fields(fieldSet);
+    fieldOrder = Lists.newArrayList();
+    fieldOrder.addAll(fieldSet);
+
+    fieldOrder = Collections.unmodifiableList(fieldOrder);
   }
 
   private void setFieldToType(Map<String, Type> fieldToType) {
@@ -44,7 +74,12 @@ public class FieldsDescriptor
       Preconditions.checkNotNull(entry.getValue());
     }
 
-    this.fieldToType = Maps.newHashMap(fieldToType);
+    this.fieldToType = Collections.unmodifiableMap(Maps.newHashMap(fieldToType));
+  }
+
+  public Map<String, Type> getFieldToType()
+  {
+    return fieldToType;
   }
 
   public Type getType(String field) {
@@ -66,6 +101,11 @@ public class FieldsDescriptor
     }
 
     return new FieldsDescriptor(newFieldToType);
+  }
+
+  public List<String> getFieldOrder()
+  {
+    return fieldOrder;
   }
 
   @Override

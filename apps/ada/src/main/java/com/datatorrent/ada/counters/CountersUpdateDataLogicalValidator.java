@@ -20,7 +20,7 @@ public class CountersUpdateDataLogicalValidator implements CustomDataValidator
   private static final Logger logger = LoggerFactory.getLogger(CountersUpdateDataLogicalValidator.class);
 
   @Override
-  public boolean validate(Data query)
+  public boolean validate(Data query, Object context)
   {
     CountersUpdateDataLogical cud = (CountersUpdateDataLogical) query;
 

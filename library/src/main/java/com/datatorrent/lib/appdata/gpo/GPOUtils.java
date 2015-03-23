@@ -5,6 +5,7 @@
 
 package com.datatorrent.lib.appdata.gpo;
 
+import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
@@ -470,6 +471,46 @@ public class GPOUtils
 
       gpo.setField(field, val);
     }
+  }
+
+  public static JSONObject serializeJSONObject(GPOMutable gpo, Fields fields) throws JSONException
+  {
+    JSONObject jo = new JSONObject();
+    FieldsDescriptor fd = gpo.getFieldDescriptor();
+
+    for(String field: fields.getFields()) {
+      Type fieldType = fd.getType(field);
+
+      if(fieldType == Type.BOOLEAN) {
+        jo.put(field, gpo.getFieldBool(field));
+      }
+      else if(fieldType == Type.CHAR) {
+        jo.put(field, gpo.getFieldChar(field).toString());
+      }
+      else if(fieldType == Type.STRING) {
+        jo.put(field, gpo.getFieldString(field));
+      }
+      else if(fieldType == Type.BYTE) {
+        jo.put(field, gpo.getFieldByte(field));
+      }
+      else if(fieldType == Type.SHORT) {
+        jo.put(field, gpo.getFieldShort(field));
+      }
+      else if(fieldType == Type.INTEGER) {
+        jo.put(field, gpo.getFieldInt(field));
+      }
+      else if(fieldType == Type.LONG) {
+        jo.put(field, gpo.getFieldLong(field));
+      }
+      else if(fieldType == Type.FLOAT) {
+        jo.put(field, gpo.getFieldFloat(field));
+      }
+      else if(fieldType == Type.DOUBLE) {
+        jo.put(field, gpo.getFieldDouble(field));
+      }
+    }
+
+    return jo;
   }
 
   public static byte[] serialize(GPOMutable gpo)

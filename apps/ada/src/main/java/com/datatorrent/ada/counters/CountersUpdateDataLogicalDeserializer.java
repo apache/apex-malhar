@@ -39,7 +39,7 @@ public class CountersUpdateDataLogicalDeserializer extends CustomDataDeserialize
   }
 
   @Override
-  public Data deserialize(String json)
+  public Data deserialize(String json, Object context)
   {
     try {
       return deserializeHelper(json);

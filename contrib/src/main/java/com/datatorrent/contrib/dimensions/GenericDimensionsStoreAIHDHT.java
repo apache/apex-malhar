@@ -8,7 +8,6 @@ package com.datatorrent.contrib.dimensions;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
@@ -23,10 +22,9 @@ import com.datatorrent.lib.appdata.qr.processor.SimpleDoneQueryQueueManager;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.base.Preconditions;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
 import javax.validation.constraints.Min;
@@ -37,21 +35,20 @@ import java.util.Map;
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
+ *
+ * TODO aggregate by windowID in waiting cache.
  */
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
 public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends AbstractSinglePortHDHTWriter<GenericAggregateEvent>
 {
-  public static final long DEFAULT_CACHE_SIZE = 10000;
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
 
   //HDHT Aggregation parameters
   @Min(1)
-  private long cacheSize = DEFAULT_CACHE_SIZE;
-  @Min(1)
   private int keepAliveTime = DEFAULT_KEEP_ALIVE_TIME;
 
-  private transient Cache<EventKey, GenericAggregateEvent> nonWaitingCache;
-  private transient Map<EventKey, GenericAggregateEvent> waitingCache;
+  protected transient Map<EventKey, GenericAggregateEvent> nonWaitingCache = Maps.newHashMap();
+  private Map<EventKey, GenericAggregateEvent> waitingCache = Maps.newHashMap();
 
   private transient QueryProcessor<EventKey, HDSGenericEventQueryMeta, MutableBoolean, MutableBoolean, GenericAggregateEvent> cacheQueryProcessor;
 
@@ -113,10 +110,7 @@ public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends Abstract
     return GenericAggregateEventUtils.deserialize(aggregate, keysDescriptor, aggDescriptor);
   }
 
-  protected GenericAggregateEvent[] convertInput(INPUT_EVENT tuple)
-  {
-    throw new UnsupportedOperationException("This method must be implemented.");
-  }
+  protected abstract GenericAggregateEvent[] convertInput(INPUT_EVENT tuple);
 
   protected void processInputEvent(INPUT_EVENT tuple)
   {
@@ -131,7 +125,7 @@ public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends Abstract
   {
     DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
 
-    GenericAggregateEvent cachedGAE = nonWaitingCache.getIfPresent(gae.getEventKey());
+    GenericAggregateEvent cachedGAE = nonWaitingCache.get(gae.getEventKey());
 
     if(cachedGAE != null) {
       aggregator.aggregate(cachedGAE, gae);
@@ -151,6 +145,18 @@ public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends Abstract
 
   public abstract int getPartitionGAE(GenericAggregateEvent inputEvent);
 
+  public void putGAE(GenericAggregateEvent gae)
+  {
+    try {
+      put(getBucketForSchema(gae.getSchemaID()),
+          new Slice(codec.getKeyBytes(gae)),
+          codec.getValueBytes(gae));
+    }
+    catch(IOException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
   @Override
   public void setup(OperatorContext context)
   {
@@ -166,22 +172,11 @@ public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends Abstract
       public void onRemoval(RemovalNotification<EventKey, GenericAggregateEvent> notification)
       {
         GenericAggregateEvent gae = notification.getValue();
-
-        try {
-          put(getBucketForSchema(gae.getSchemaID()),
-            new Slice(codec.getKeyBytes(gae)),
-            codec.getValueBytes(gae));
-        }
-        catch(IOException ex) {
-          DTThrowable.rethrow(ex);
-        }
+        putGAE(gae);
       }
     };
 
-    nonWaitingCache = CacheBuilder.newBuilder().
-                      maximumSize(cacheSize).
-                      removalListener(removalListener).
-                      build();
+    //TODO reissue hdht queries for waiting cache entries.
   }
 
   @Override
@@ -218,25 +213,15 @@ public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends Abstract
       nonWaitingCache.put(gae.getEventKey(), gae);
     }
 
+    for(GenericAggregateEvent cgae: nonWaitingCache.values()) {
+      putGAE(cgae);
+    }
+
+    nonWaitingCache.clear();
+
     super.endWindow();
 
     cacheQueryProcessor.endWindow();
-  }
-
-  /**
-   * @return the cacheSize
-   */
-  public long getCacheSize()
-  {
-    return cacheSize;
-  }
-
-  /**
-   * @param cacheSize the cacheSize to set
-   */
-  public void setCacheSize(long cacheSize)
-  {
-    this.cacheSize = cacheSize;
   }
 
   @Override
