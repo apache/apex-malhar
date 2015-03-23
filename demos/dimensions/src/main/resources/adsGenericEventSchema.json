@@ -5,8 +5,8 @@
  "values":
   [{"name":"impressions","type":"long","aggregations":["SUM"]},
    {"name":"clicks","type":"long","aggregations":["SUM"]},
-   {"name":"cost","type":"float","aggregations":["SUM"]},
-   {"name":"revenue","type":"float","aggregations":["SUM"]}],
+   {"name":"cost","type":"double","aggregations":["SUM"]},
+   {"name":"revenue","type":"double","aggregations":["SUM"]}],
  "aggregations":
   [{"descriptor":"time=MINUTES","aggregations":["SUM"]},
    {"descriptor":"time=MINUTES:location","aggregations":["SUM"]},
