@@ -75,7 +75,7 @@ public class GenericEventSchema
 
   private void initialize(String json) throws Exception
   {
-    logger.info("Initializing: {}", json);
+    System.out.println("Initializing: " + json);
     JSONObject jo = new JSONObject(json);
 
     JSONArray keysArray = jo.getJSONArray(FIELD_KEYS);
@@ -85,7 +85,7 @@ public class GenericEventSchema
         keyIndex < keysArray.length();
         keyIndex++) {
       JSONObject keyDescriptor = keysArray.getJSONObject(keyIndex);
-      logger.info("keyDescriptor: {}", keyDescriptor);
+      System.out.println("keyDescriptor: " + keyDescriptor);
       String name = keyDescriptor.getString(FIELD_KEYS_NAME);
       String type = keyDescriptor.getString(FIELD_KEYS_TYPE);
 
