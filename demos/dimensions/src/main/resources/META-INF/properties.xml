@@ -62,6 +62,24 @@
     <value>AdsQueryResult</value>
   </property>
 
+  <!-- Settings for GenericAdsDimensionsDemoWithHDHTtest -->
+  <property>
+    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.Store.fileStore.basePath</name>
+    <value>GenericAdsDimensionsDemoWithHDHTtest/Store</value>
+  </property>
+  <property>
+    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.useWebSockets</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.Query.topic</name>
+    <value>AdsQuery</value>
+  </property>
+  <property>
+    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.QueryResult.topic</name>
+    <value>AdsQueryResult</value>
+  </property>
+
   <!-- Settings for all Query and QueryResult operators -->
   <property>
     <name>dt.operator.QueryResult.prop.configProperties(serializer.class)</name>
