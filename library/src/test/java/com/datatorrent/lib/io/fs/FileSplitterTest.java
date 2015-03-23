@@ -49,7 +49,6 @@ import com.datatorrent.lib.util.TestUtils;
 
 public class FileSplitterTest
 {
-  private static Exchanger<Integer> EXCHANGER = new Exchanger<Integer>();
 
   public static class TestClassMeta extends TestWatcher
   {
@@ -69,11 +68,13 @@ public class FileSplitterTest
   {
     public String dataDirectory = null;
 
-    public FileSplitter fileSplitter;
-    public CollectorTestSink<FileSplitter.FileMetadata> fileMetadataSink;
-    public CollectorTestSink<BlockMetadata.FileBlockMetadata> blockMetadataSink;
-    public Set<String> filePaths = Sets.newHashSet();
-    public Context.OperatorContext context;
+    FileSplitter fileSplitter;
+    CollectorTestSink<FileSplitter.FileMetadata> fileMetadataSink;
+    CollectorTestSink<BlockMetadata.FileBlockMetadata> blockMetadataSink;
+    Set<String> filePaths = Sets.newHashSet();
+    Context.OperatorContext context;
+
+    Exchanger<Integer> exchanger = new Exchanger<Integer>();
 
     @Override
     protected void starting(org.junit.runner.Description description)
@@ -102,7 +103,7 @@ public class FileSplitterTest
       }
 
       fileSplitter = new FileSplitter();
-      fileSplitter.setScanner(new MockScanner());
+      fileSplitter.setScanner(new MockScanner(this));
       fileSplitter.scanner.setScanIntervalMillis(500);
       fileSplitter.scanner.setFilePatternRegularExp(".*[.]txt");
       fileSplitter.scanner.setFiles(dataDirectory);
@@ -135,7 +136,7 @@ public class FileSplitterTest
   public void testFileMetadata() throws InterruptedException
   {
     testMeta.fileSplitter.beginWindow(1);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
 
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
@@ -153,7 +154,7 @@ public class FileSplitterTest
   public void testBlockMetadataNoSplit() throws InterruptedException
   {
     testMeta.fileSplitter.beginWindow(1);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
 
     testMeta.fileSplitter.emitTuples();
     Assert.assertEquals("Blocks", 12, testMeta.blockMetadataSink.collectedTuples.size());
@@ -168,7 +169,7 @@ public class FileSplitterTest
   {
     testMeta.fileSplitter.setBlockSize(2L);
     testMeta.fileSplitter.beginWindow(1);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
 
     testMeta.fileSplitter.emitTuples();
     Assert.assertEquals("Files", 12, testMeta.fileMetadataSink.collectedTuples.size());
@@ -226,7 +227,7 @@ public class FileSplitterTest
 
     //window 2
     testMeta.fileSplitter.beginWindow(2);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
 
@@ -254,7 +255,7 @@ public class FileSplitterTest
 
     //window 2
     testMeta.fileSplitter.beginWindow(2);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
 
@@ -275,7 +276,7 @@ public class FileSplitterTest
     testMeta.fileSplitter.setBlocksThreshold(10);
     testMeta.fileSplitter.beginWindow(1);
 
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
 
@@ -334,7 +335,7 @@ public class FileSplitterTest
     testMeta.blockMetadataSink.clear();
 
     testMeta.fileSplitter.beginWindow(8);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
 
@@ -359,7 +360,7 @@ public class FileSplitterTest
     testMeta.fileSplitter.setup(context);
 
     testMeta.fileSplitter.beginWindow(1);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
 
@@ -378,7 +379,7 @@ public class FileSplitterTest
     Assert.assertEquals("Recovered Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
 
     testMeta.fileSplitter.beginWindow(2);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
 
@@ -390,7 +391,7 @@ public class FileSplitterTest
     testMeta.blockMetadataSink.clear();
 
     testMeta.fileSplitter.beginWindow(3);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
 
@@ -422,7 +423,7 @@ public class FileSplitterTest
 
     //window 2
     testMeta.fileSplitter.beginWindow(2);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
 
@@ -434,13 +435,13 @@ public class FileSplitterTest
   public void testSingleFile() throws InterruptedException, IOException
   {
     testMeta.fileSplitter.teardown();
-    testMeta.fileSplitter.scanner = new MockScanner();
+    testMeta.fileSplitter.scanner = new MockScanner(testMeta);
     testMeta.fileSplitter.scanner.regex = null;
     testMeta.fileSplitter.scanner.setFiles(testMeta.dataDirectory + "/file1.txt");
 
     testMeta.fileSplitter.setup(testMeta.context);
     testMeta.fileSplitter.beginWindow(1);
-    EXCHANGER.exchange(null);
+    testMeta.exchanger.exchange(null);
 
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
@@ -451,6 +452,13 @@ public class FileSplitterTest
 
   private static class MockScanner extends FileSplitter.TimeBasedDirectoryScanner
   {
+    TestMeta testMeta;
+
+    MockScanner(TestMeta testMeta)
+    {
+      this.testMeta = testMeta;
+    }
+
     @Override
     protected void scanComplete()
     {
@@ -458,7 +466,7 @@ public class FileSplitterTest
       try {
         if (discoveredFiles.size() > 0 && discoveredFiles.getLast().lastFileOfScan) {
           LOG.debug("discovered {}", discoveredFiles.size());
-          EXCHANGER.exchange(discoveredFiles.size());
+          testMeta.exchanger.exchange(discoveredFiles.size());
         }
       }
       catch (InterruptedException e) {
