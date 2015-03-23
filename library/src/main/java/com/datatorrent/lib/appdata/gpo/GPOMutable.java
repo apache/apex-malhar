@@ -10,6 +10,7 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import java.io.Serializable;
 
 import java.util.Map;
 
@@ -17,8 +18,10 @@ import java.util.Map;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GPOMutable
+public class GPOMutable implements Serializable
 {
+  private static final long serialVersionUID = 201503231207L;
+
   private Map<String, Boolean> fieldToBoolean;
   private Map<String, Character> fieldToCharacter;
   private Map<String, String> fieldToString;

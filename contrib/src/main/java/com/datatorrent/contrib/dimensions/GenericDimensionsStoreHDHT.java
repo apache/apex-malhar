@@ -47,7 +47,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   private int keepAliveTime = DEFAULT_KEEP_ALIVE_TIME;
 
   protected transient Map<EventKey, GenericAggregateEvent> nonWaitingCache = Maps.newHashMap();
-  private transient Map<EventKey, GenericAggregateEvent> waitingCache = Maps.newHashMap();
+  private Map<EventKey, GenericAggregateEvent> waitingCache = Maps.newHashMap();
 
   private transient QueryProcessor<EventKey, HDSGenericEventQueryMeta, MutableBoolean, MutableBoolean, GenericAggregateEvent> cacheQueryProcessor;
 

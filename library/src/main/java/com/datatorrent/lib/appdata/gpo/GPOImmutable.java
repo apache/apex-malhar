@@ -6,13 +6,16 @@
 package com.datatorrent.lib.appdata.gpo;
 
 import com.datatorrent.lib.appdata.schemas.Fields;
+import java.io.Serializable;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GPOImmutable extends GPOMutable
+public class GPOImmutable extends GPOMutable implements Serializable
 {
+  private static final long serialVersionUID = 201503231206L;
+
   private boolean constructorDone = false;
 
   public GPOImmutable()

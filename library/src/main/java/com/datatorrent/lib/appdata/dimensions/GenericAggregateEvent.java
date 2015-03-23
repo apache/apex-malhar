@@ -10,13 +10,16 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
+import java.io.Serializable;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GenericAggregateEvent implements DimensionsComputation.AggregateEvent
+public class GenericAggregateEvent implements DimensionsComputation.AggregateEvent, Serializable
 {
+  private static final long serialVersionUID = 201503231204L;
+
   private int schemaID;
   private int dimensionDescriptorID;
   private int aggregatorIndex;
@@ -91,8 +94,10 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
     return eventKey;
   }
 
-  public static class EventKey
+  public static class EventKey implements Serializable
   {
+    private static final long serialVersionUID = 201503231205L;
+
     private int schemaID;
     private int dimensionDescriptorID;
     private int aggregatorIndex;
