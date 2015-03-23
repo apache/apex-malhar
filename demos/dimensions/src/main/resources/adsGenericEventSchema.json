@@ -3,8 +3,8 @@
    {"name":"advertiser","type":"string"},
    {"name":"location","type":"string"}],
  "values":
-  [{"name":"impressions","type":"integer","aggregations":["SUM"]},
-   {"name":"clicks","type":"integer","aggregations":["SUM"]},
+  [{"name":"impressions","type":"long","aggregations":["SUM"]},
+   {"name":"clicks","type":"long","aggregations":["SUM"]},
    {"name":"cost","type":"float","aggregations":["SUM"]},
    {"name":"revenue","type":"float","aggregations":["SUM"]}],
  "aggregations":
