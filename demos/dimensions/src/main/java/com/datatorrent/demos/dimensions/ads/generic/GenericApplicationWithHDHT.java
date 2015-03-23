@@ -26,7 +26,6 @@ import com.datatorrent.contrib.kafka.KafkaJsonEncoder;
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
-import com.datatorrent.demos.dimensions.ads.ApplicationWithHDHT;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
@@ -114,7 +113,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 2.0.0
  */
-@ApplicationAnnotation(name=ApplicationWithHDHT.APP_NAME)
+@ApplicationAnnotation(name=GenericApplicationWithHDHT.APP_NAME)
 public class GenericApplicationWithHDHT implements StreamingApplication
 {
   public static final String APP_NAME = "GenericAdsDimensionsDemoWithHDHTtest";
