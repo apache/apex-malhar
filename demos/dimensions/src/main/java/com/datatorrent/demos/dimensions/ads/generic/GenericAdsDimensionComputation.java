@@ -9,6 +9,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.demos.dimensions.ads.AggType;
 import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.GenericDimensionsComputation;
 import com.datatorrent.lib.appdata.dimensions.GenericEventSchema;
@@ -85,8 +86,11 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
       else if(field.equals(AdsSchemaResult.LOCATION)) {
         keyGPO.setField(AdsSchemaResult.LOCATION, ga.getLocation());
       }
-      else if(field.equals(AdsSchemaResult.TIME)) {
+      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
         keyGPO.setField(AdsSchemaResult.TIME, ga.getTime());
+      }
+      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+        //Do nothing
       }
       else {
         throw new UnsupportedOperationException("This field is not supported: " + field);
