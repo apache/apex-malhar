@@ -84,7 +84,7 @@ public class GenericEventSchema
         keyIndex < keysArray.length();
         keyIndex++) {
       JSONObject keyDescriptor = keysArray.getJSONObject(keyIndex);
-      logger.debug("keyDescriptor: {}", keyDescriptor);
+      logger.info("keyDescriptor: {}", keyDescriptor);
       String name = keyDescriptor.getString(FIELD_KEYS_NAME);
       String type = keyDescriptor.getString(FIELD_KEYS_TYPE);
 
