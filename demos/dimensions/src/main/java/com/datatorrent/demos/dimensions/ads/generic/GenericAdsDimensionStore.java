@@ -5,21 +5,18 @@
 
 package com.datatorrent.demos.dimensions.ads.generic;
 
-import java.util.Iterator;
-import java.util.List;
-import java.util.concurrent.TimeUnit;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.api.DefaultOutputPort;
+import com.datatorrent.api.annotation.AppDataQueryPort;
+import com.datatorrent.api.annotation.AppDataResultPort;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.common.util.Slice;
 
 
-import javax.validation.constraints.NotNull;
-
-import com.google.common.collect.Lists;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.apache.commons.lang3.mutable.MutableLong;
-
+import com.datatorrent.contrib.dimensions.GenericDimensionsStoreHDHT;
+import com.datatorrent.demos.dimensions.ads.AdInfo;
+import com.datatorrent.demos.dimensions.ads.AggType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
@@ -40,25 +37,22 @@ import com.datatorrent.lib.appdata.schemas.GenericSchemaDimensional;
 import com.datatorrent.lib.appdata.schemas.GenericSchemaResult;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
+import com.google.common.collect.Lists;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.datatorrent.contrib.dimensions.GenericDimensionsStoreGIHDHT;
-
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.AppDataQueryPort;
-import com.datatorrent.api.annotation.AppDataResultPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
-import com.datatorrent.common.util.Slice;
-import com.datatorrent.demos.dimensions.ads.AdInfo;
-import com.datatorrent.demos.dimensions.ads.AggType;
+import java.util.Iterator;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GenericAdsDimensionStore extends GenericDimensionsStoreGIHDHT
+public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT
 {
   private static final Logger logger = LoggerFactory.getLogger(GenericAdsDimensionStore.class);
 

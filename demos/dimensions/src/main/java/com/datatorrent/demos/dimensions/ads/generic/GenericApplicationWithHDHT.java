@@ -180,7 +180,7 @@ public class GenericApplicationWithHDHT implements StreamingApplication
     }
 
     dag.addStream("InputStream", input.outputPort, dimensions.inputEvent).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("DimensionalData", dimensions.aggregateOutput, store.inputEvent);
+    dag.addStream("DimensionalData", dimensions.aggregateOutput, store.input);
     dag.addStream("Query", queryPort, store.query);
     dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }

@@ -6,7 +6,6 @@
 package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
@@ -39,7 +38,7 @@ import java.util.Map;
  * TODO aggregate by windowID in waiting cache.
  */
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
-public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends AbstractSinglePortHDHTWriter<GenericAggregateEvent>
+public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<GenericAggregateEvent>
 {
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
 
@@ -52,15 +51,7 @@ public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends Abstract
 
   private transient QueryProcessor<EventKey, HDSGenericEventQueryMeta, MutableBoolean, MutableBoolean, GenericAggregateEvent> cacheQueryProcessor;
 
-  public transient final DefaultInputPort<INPUT_EVENT> inputEvent = new DefaultInputPort<INPUT_EVENT>() {
-    @Override
-    public void process(INPUT_EVENT tuple)
-    {
-      processInputEvent(tuple);
-    }
-  };
-
-  public GenericDimensionsStoreAIHDHT()
+  public GenericDimensionsStoreHDHT()
   {
   }
 
@@ -110,15 +101,10 @@ public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends Abstract
     return GenericAggregateEventUtils.deserialize(aggregate, keysDescriptor, aggDescriptor);
   }
 
-  protected abstract GenericAggregateEvent[] convertInput(INPUT_EVENT tuple);
-
-  protected void processInputEvent(INPUT_EVENT tuple)
+  @Override
+  protected void processEvent(GenericAggregateEvent gae)
   {
-    GenericAggregateEvent[] gaes = convertInput(tuple);
-
-    for(GenericAggregateEvent gae: gaes) {
-      processGenericEvent(gae);
-    }
+    processGenericEvent(gae);
   }
 
   protected void processGenericEvent(GenericAggregateEvent gae)
@@ -282,14 +268,14 @@ public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends Abstract
 
   class GenericDimensionsFetchQueue extends SimpleDoneQueryQueueManager<EventKey, HDSGenericEventQueryMeta>
   {
-    private GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator;
+    private GenericDimensionsStoreHDHT operator;
 
-    public GenericDimensionsFetchQueue(GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator)
+    public GenericDimensionsFetchQueue(GenericDimensionsStoreHDHT operator)
     {
       setOperator(operator);
     }
 
-    private void setOperator(GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator)
+    private void setOperator(GenericDimensionsStoreHDHT operator)
     {
       Preconditions.checkNotNull(operator);
       this.operator = operator;
@@ -315,14 +301,14 @@ public abstract class GenericDimensionsStoreAIHDHT<INPUT_EVENT> extends Abstract
 
   class GenericDimensionsFetchComputer implements QueryComputer<EventKey, HDSGenericEventQueryMeta, MutableBoolean, MutableBoolean, GenericAggregateEvent>
   {
-    private GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator;
+    private GenericDimensionsStoreHDHT operator;
 
-    public GenericDimensionsFetchComputer(GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator)
+    public GenericDimensionsFetchComputer(GenericDimensionsStoreHDHT operator)
     {
       setOperator(operator);
     }
 
-    private void setOperator(GenericDimensionsStoreAIHDHT<INPUT_EVENT> operator)
+    private void setOperator(GenericDimensionsStoreHDHT operator)
     {
       Preconditions.checkNotNull(operator);
       this.operator = operator;
