@@ -66,7 +66,7 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
         index++) {
       JSONObject keyVal = keys.getJSONObject(index);
 
-      Preconditions.checkState(keyVal.length() != NUM_KEYS_KEY,
+      Preconditions.checkState(keyVal.length() == NUM_KEYS_KEY,
                                "Expected " + NUM_KEYS_KEY +
                                " in the key definition, but found " + keyVal.length());
 
