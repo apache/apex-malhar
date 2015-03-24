@@ -107,6 +107,10 @@ public class AdsDataQueryValidator implements CustomDataValidator
         return false;
       }
     }
+    else if(atrb.getLatestNumBuckets() == null) {
+      logger.error("Either from and to must be specified or lastestNumBuckets.");
+      return false;
+    }
 
     return true;
   }

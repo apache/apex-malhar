@@ -241,7 +241,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                             AdsDataQuery.class);
     resultSerializerFactory = new DataSerializerFactory();
-    
+
     queryProcessor.setup(context);
   }
 
@@ -525,7 +525,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           endTime = AdInfo.roundDay(time);
         }
 
-        startTime = endTime - bucketUnit.toMillis(query.getData().getTime().getLatestNumBuckets());
+        startTime = endTime - bucketUnit.toMillis(query.getData().getTime().getLatestNumBuckets() - 1);
       }
 
       String startString = AdsTimeRangeBucket.sdf.format(new Date(startTime));
