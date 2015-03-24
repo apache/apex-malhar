@@ -187,9 +187,8 @@ public class GenericDataQuery extends Query
           gpo.setField(field, this.timeBucket.ordinal());
         }
       }
-      else {
-        gpo.setField(field, keys.getField(field));
-      }
+
+      gpo.setField(field, keys.getField(field));
     }
 
     return gpo;
@@ -325,7 +324,7 @@ public class GenericDataQuery extends Query
   {
     return hasTime;
   }
-  
+
   @Override
   public String toString()
   {
