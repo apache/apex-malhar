@@ -65,7 +65,15 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
       }
     }
 
-    return (GenericAggregateEvent[]) events.toArray();
+    GenericAggregateEvent[] gaes = new GenericAggregateEvent[events.size()];
+
+    for(int gaeIndex = 0;
+        gaeIndex < events.size();
+        gaeIndex++) {
+      gaes[gaeIndex] = events.get(gaeIndex);
+    }
+
+    return gaes;
   }
 
   private GenericAggregateEvent createGenericAggregateEvent(GenericAdInfo ga,
