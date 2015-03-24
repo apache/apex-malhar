@@ -123,7 +123,7 @@ public class ApplicationWithHDHT implements StreamingApplication
 
   public static final String APP_NAME = "AdsDimensionsDemoWithHDHTtest";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
-  public static final String PROP_STORE_PATH = "dt.application." + ApplicationWithHDHT.APP_NAME + ".operator.Store.fileStore.basePath";
+  public static final String PROP_STORE_PATH = "dt.application." + ApplicationWithHDHT.APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -176,8 +176,7 @@ public class ApplicationWithHDHT implements StreamingApplication
     if(basePath != null) {
       basePath += System.currentTimeMillis();
       hdsFile.setBasePath(basePath);
-      conf.set(PROP_STORE_PATH, basePath);
-      logger.info("Setting basePath {}", basePath);
+      System.out.println("Setting basePath " + basePath);
     }
 
     store.setFileStore(hdsFile);

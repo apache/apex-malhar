@@ -46,7 +46,7 @@
 
   <!-- Settings for AdsDimensionsDemoWithHDHTtest -->
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDHTtest.operator.Store.fileStore.basePath</name>
+    <name>dt.application.AdsDimensionsDemoWithHDHTtest.operator.Store.fileStore.basePathPrefix</name>
     <value>AdsDimensionsWithHDSDemo/Store</value>
   </property>
   <property>
