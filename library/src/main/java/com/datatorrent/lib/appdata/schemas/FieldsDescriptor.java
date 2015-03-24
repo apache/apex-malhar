@@ -29,6 +29,10 @@ public class FieldsDescriptor
   private List<String> fieldOrder;
   private Fields fields;
 
+  public FieldsDescriptor()
+  {
+  }
+
   public FieldsDescriptor(Map<String, Type> fieldToType)
   {
     setFieldToType(fieldToType);
