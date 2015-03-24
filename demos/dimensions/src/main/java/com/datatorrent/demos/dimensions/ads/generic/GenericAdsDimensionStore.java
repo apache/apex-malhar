@@ -308,6 +308,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
       }
 
       FieldsDescriptor dd = eventSchema.getDdIDToKeyDescriptor().get(ddID);
+      logger.info("Key Fields: {}", dd.getFields().getFields());
       GPOMutable gpoKey = query.createKeyGPO(dd);
 
       EventKey eventKey = new EventKey(SCHEMA_ID,

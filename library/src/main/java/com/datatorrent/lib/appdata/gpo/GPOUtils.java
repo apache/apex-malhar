@@ -520,8 +520,6 @@ public class GPOUtils
     for(String field: gpo.getFieldDescriptor().getFields().getFields()) {
       Type type = gpo.getFieldDescriptor().getType(field);
 
-      logger.info("Serializing field {}", field);
-
       if(type == Type.BOOLEAN) {
         boolean boolVal = gpo.getFieldBool(field);
         byte byteVal = boolVal ? (byte) 1: (byte) 0;
@@ -639,7 +637,6 @@ public class GPOUtils
 
     return gpo;
   }
-
 
   public static long deserializeLong(byte[] buffer,
                                      int offset)
