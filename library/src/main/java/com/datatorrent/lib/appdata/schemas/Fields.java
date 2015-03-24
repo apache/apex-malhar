@@ -19,6 +19,10 @@ public class Fields
 {
   private Set<String> fields;
 
+  public Fields()
+  {
+  }
+
   public Fields(Set<String> fields)
   {
     setFields(fields);
