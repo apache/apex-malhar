@@ -123,12 +123,6 @@ public class ApplicationWithHDHT implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     //Append name to store
-    String basePath = conf.get(PROP_STORE_PATH);
-
-    if(basePath != null) {
-      basePath += System.currentTimeMillis();
-      conf.set(PROP_STORE_PATH, basePath);
-    }
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent>());
@@ -170,6 +164,14 @@ public class ApplicationWithHDHT implements StreamingApplication
 
     AdsDimensionStoreOperator store = dag.addOperator("Store", AdsDimensionStoreOperator.class);
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
+
+    String basePath = conf.get(PROP_STORE_PATH);
+
+    if(basePath != null) {
+      basePath += System.currentTimeMillis();
+      hdsFile.setBasePath(basePath);
+    }
+
     store.setFileStore(hdsFile);
     store.setAggregator(new AdInfoAggregator());
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
