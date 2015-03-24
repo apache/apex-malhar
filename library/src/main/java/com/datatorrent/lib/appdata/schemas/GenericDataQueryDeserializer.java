@@ -124,7 +124,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
     FieldsDescriptor keyFieldsDescriptor = gsd.getKeyFieldsDescriptor().getSubset(new Fields(keySet));
     GPOImmutable gpoIm = new GPOImmutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
 
-    if(hasTime) {
+    if(!hasTime) {
       return new GenericDataQuery(gpoIm,
                                   new Fields(fieldList),
                                   incompleteResultOK);
