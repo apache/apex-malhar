@@ -25,9 +25,12 @@ import java.util.Random;
  */
 public class GenericInputItemGenerator implements InputOperator
 {
-  private double expectedClickThruRate = 0.005;
+  private double expectedClickThruRate = 0.015;
   @Min(1)
   private int blastCount = 30000;
+  @Min(1)
+  private int numTuplesPerWindow = 3000;
+  private transient int windowCount = 0;
   private final Random random = new Random();
   public final transient DefaultOutputPort<GenericAdInfo> outputPort = new DefaultOutputPort<GenericAdInfo>();
 
@@ -56,6 +59,7 @@ public class GenericInputItemGenerator implements InputOperator
   @Override
   public void beginWindow(long windowId)
   {
+    windowCount = 0;
   }
 
   @Override
@@ -78,7 +82,7 @@ public class GenericInputItemGenerator implements InputOperator
   {
     try {
       long timestamp;
-      for (int i = 0; i < blastCount; ++i) {
+      for (int i = 0; i < blastCount && windowCount < numTuplesPerWindow; ++i, windowCount++) {
         int advertiserId = random.nextInt(AdsSchemaResult.ADVERTISERS.length) + 1;
         //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
         int publisherId = random.nextInt(AdsSchemaResult.PUBLISHERS.length) + 1;
@@ -130,6 +134,22 @@ public class GenericInputItemGenerator implements InputOperator
     }
     adInfo.setTime(timestamp);
     emitTuple(adInfo);
+  }
+
+  /**
+   * @return the numTuplesPerWindow
+   */
+  public int getNumTuplesPerWindow()
+  {
+    return numTuplesPerWindow;
+  }
+
+  /**
+   * @param numTuplesPerWindow the numTuplesPerWindow to set
+   */
+  public void setNumTuplesPerWindow(int numTuplesPerWindow)
+  {
+    this.numTuplesPerWindow = numTuplesPerWindow;
   }
 
 }
