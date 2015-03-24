@@ -83,7 +83,8 @@ public class FieldsDescriptor
       Preconditions.checkNotNull(entry.getValue());
     }
 
-    this.fieldToType = Collections.unmodifiableMap(Maps.newHashMap(fieldToType));
+    //this.fieldToType = Collections.unmodifiableMap(Maps.newHashMap(fieldToType));
+    this.fieldToType = Maps.newHashMap(fieldToType);
   }
 
   public Map<String, Type> getFieldToType()
