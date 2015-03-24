@@ -264,6 +264,7 @@ public class GenericDataQuery extends Query
   private void setKeys(GPOMutable keys)
   {
     Preconditions.checkNotNull(keys);
+    this.keys = keys;
   }
 
   public GPOMutable getKeys()
