@@ -109,7 +109,9 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
         queryResult.emit(schemaResult);
       }
       else if(query instanceof GenericDataQuery) {
-        queryProcessor.enqueue((GenericDataQuery) query, null, null);
+        GenericDataQuery gdq = (GenericDataQuery) query;
+        logger.info("GDQ: {}", gdq);
+        queryProcessor.enqueue(gdq, null, null);
       }
       else {
         logger.error("Invalid query {}", s);

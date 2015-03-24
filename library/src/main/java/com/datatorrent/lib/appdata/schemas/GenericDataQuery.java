@@ -325,4 +325,10 @@ public class GenericDataQuery extends Query
   {
     return hasTime;
   }
+  
+  @Override
+  public String toString()
+  {
+    return "GenericDataQuery{" + "from=" + from + ", to=" + to + ", latestNumBuckets=" + latestNumBuckets + ", timeBucket=" + timeBucket + ", countdown=" + countdown + ", incompleteResultOK=" + incompleteResultOK + ", hasTime=" + hasTime + ", oneTime=" + oneTime + ", fromTo=" + fromTo + '}';
+  }
 }
