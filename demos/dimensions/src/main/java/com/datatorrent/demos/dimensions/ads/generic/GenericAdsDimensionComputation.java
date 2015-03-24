@@ -97,7 +97,12 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
         keyGPO.setField(field, ga.getLocation());
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
-        keyGPO.setField(field, ga.getTime());
+        if(dd.getTimeBucket() == null) {
+          keyGPO.setField(field, ga.getTime());
+        }
+        else {
+          keyGPO.setField(field, dd.getTimeBucket().roundDown(ga.getTime()));
+        }
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
         keyGPO.setField(field, dd.getTimeBucket().ordinal());

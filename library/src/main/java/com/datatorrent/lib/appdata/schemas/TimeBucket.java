@@ -71,6 +71,12 @@ public enum TimeBucket
     return timeUnit;
   }
 
+  public long roundDown(long timestamp)
+  {
+    long millis = timeUnit.toMillis(1L);
+    return (timestamp / millis) * millis;
+  }
+
   public static TimeBucket getBucket(String name)
   {
     return BUCKET_TO_TYPE.get(name);
