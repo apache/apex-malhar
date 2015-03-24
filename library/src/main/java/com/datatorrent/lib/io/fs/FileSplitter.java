@@ -972,7 +972,7 @@ public class FileSplitter implements InputOperator
     }
   }
 
-  protected static enum Counters
+  public static enum Counters
   {
     PROCESSED_FILES
   }
