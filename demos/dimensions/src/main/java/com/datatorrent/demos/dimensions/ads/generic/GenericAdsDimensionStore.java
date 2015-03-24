@@ -322,6 +322,8 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
       for(long timestamp = startTime;
           timestamp <= endTime;
           timestamp += query.getTimeBucket().getTimeUnit().toMillis(1)) {
+        gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
+        gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
         Slice key = new Slice(getEventKeyBytesGAE(eventKey));
         HDSQuery hdsQuery = operator.queries.get(key);
 
