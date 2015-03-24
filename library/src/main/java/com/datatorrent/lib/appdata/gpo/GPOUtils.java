@@ -539,6 +539,7 @@ public class GPOUtils
         BB_4.clear();
       }
       else if(type == Type.LONG) {
+        logger.info("Serializing field {}", field);
         BB_8.putLong(gpo.getFieldLong(field));
         byteList.add(BB_8.array());
         BB_8.clear();
