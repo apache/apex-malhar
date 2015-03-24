@@ -188,6 +188,10 @@ public class GenericDataQuery extends Query
         }
       }
 
+      if(!DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
+        continue;
+      }
+
       gpo.setField(field, keys.getField(field));
     }
 
