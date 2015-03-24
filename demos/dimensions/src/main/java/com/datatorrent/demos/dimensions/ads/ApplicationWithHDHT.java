@@ -32,9 +32,13 @@ import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import java.net.URI;
+
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An AdsDimensionsDemo run with HDHT
@@ -115,6 +119,8 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name=ApplicationWithHDHT.APP_NAME)
 public class ApplicationWithHDHT implements StreamingApplication
 {
+  private static final Logger logger = LoggerFactory.getLogger(ApplicationWithHDHT.class);
+
   public static final String APP_NAME = "AdsDimensionsDemoWithHDHTtest";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
   public static final String PROP_STORE_PATH = "dt.application." + ApplicationWithHDHT.APP_NAME + ".operator.Store.fileStore.basePath";
@@ -170,6 +176,8 @@ public class ApplicationWithHDHT implements StreamingApplication
     if(basePath != null) {
       basePath += System.currentTimeMillis();
       hdsFile.setBasePath(basePath);
+      conf.set(PROP_STORE_PATH, basePath);
+      logger.info("Setting basePath {}", basePath);
     }
 
     store.setFileStore(hdsFile);
