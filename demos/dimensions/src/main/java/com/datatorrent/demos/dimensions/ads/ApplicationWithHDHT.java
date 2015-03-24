@@ -117,10 +117,19 @@ public class ApplicationWithHDHT implements StreamingApplication
 {
   public static final String APP_NAME = "AdsDimensionsDemoWithHDHTtest";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
+  public static final String PROP_STORE_PATH = "dt.application." + ApplicationWithHDHT.APP_NAME + ".operator.Store.fileStore.basePath";
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
+    //Append name to store
+    String basePath = conf.get(PROP_STORE_PATH);
+
+    if(basePath != null) {
+      basePath += System.currentTimeMillis();
+      conf.set(PROP_STORE_PATH, basePath);
+    }
+
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent>());
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);

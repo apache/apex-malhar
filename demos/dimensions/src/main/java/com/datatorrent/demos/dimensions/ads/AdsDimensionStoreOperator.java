@@ -241,7 +241,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                             AdsDataQuery.class);
     resultSerializerFactory = new DataSerializerFactory();
-
+    
     queryProcessor.setup(context);
   }
 
