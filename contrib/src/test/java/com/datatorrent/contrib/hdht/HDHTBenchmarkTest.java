@@ -135,7 +135,7 @@ public class HDHTBenchmarkTest implements StreamingApplication
   {
     private static final Logger LOG = LoggerFactory.getLogger(TestStatsListener.class);
     private static final long serialVersionUID = 1L;
-    SetPropertyCommand cmd = new SetPropertyCommand();
+    SetPropertyRequest cmd = new SetPropertyRequest();
 
     long uwId;
     long dwId;
@@ -170,7 +170,7 @@ public class HDHTBenchmarkTest implements StreamingApplication
           if (adjustRate) {
             Response rsp = new Response();
             cmd.rate = resumewid < dwId ? rate : 0;
-            rsp.operatorCommands = Lists.newArrayList(cmd);
+            rsp.operatorRequests = Lists.newArrayList(cmd);
             return rsp;
           }
         }
@@ -178,7 +178,7 @@ public class HDHTBenchmarkTest implements StreamingApplication
       return null;
     }
 
-    public static class SetPropertyCommand implements OperatorCommand, Serializable
+    public static class SetPropertyRequest implements OperatorRequest, Serializable
     {
       private static final long serialVersionUID = 1L;
       int rate;
