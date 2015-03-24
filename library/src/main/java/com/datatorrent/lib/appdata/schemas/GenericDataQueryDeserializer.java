@@ -110,13 +110,15 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
     }
 
     List<String> fieldList = Lists.newArrayList();
-    JSONArray fields = data.getJSONArray(GenericDataQuery.FIELD_FIELDS);
+    if(data.has(GenericDataQuery.FIELD_FIELDS)) {
+      JSONArray fields = data.getJSONArray(GenericDataQuery.FIELD_FIELDS);
 
-    for(int fieldIndex = 0;
-        fieldIndex < fields.length();
-        fieldIndex++) {
-      String field = fields.getString(fieldIndex);
-      fieldList.add(field);
+      for(int fieldIndex = 0;
+          fieldIndex < fields.length();
+          fieldIndex++) {
+        String field = fields.getString(fieldIndex);
+        fieldList.add(field);
+      }
     }
 
     FieldsDescriptor keyFieldsDescriptor = gsd.getKeyFieldsDescriptor().getSubset(new Fields(keySet));
