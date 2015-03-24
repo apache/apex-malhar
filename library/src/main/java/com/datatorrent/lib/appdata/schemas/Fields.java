@@ -8,7 +8,6 @@ package com.datatorrent.lib.appdata.schemas;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -43,7 +42,8 @@ public class Fields
       Preconditions.checkNotNull(field);
     }
 
-    this.fields = Collections.unmodifiableSet(Sets.newHashSet(fields));
+    //this.fields = Collections.unmodifiableSet(Sets.newHashSet(fields));
+    this.fields = Sets.newHashSet(fields);
   }
 
   public Set<String> getFields()

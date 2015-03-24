@@ -73,7 +73,7 @@ public class FieldsDescriptor
     fieldOrder = Lists.newArrayList();
     fieldOrder.addAll(fieldSet);
 
-    fieldOrder = Collections.unmodifiableList(fieldOrder);
+    //fieldOrder = Collections.unmodifiableList(fieldOrder);
   }
 
   private void setFieldToType(Map<String, Type> fieldToType) {
