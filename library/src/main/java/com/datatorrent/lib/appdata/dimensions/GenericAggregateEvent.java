@@ -107,6 +107,10 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
     private int aggregatorIndex;
     private GPOMutable key;
 
+    public EventKey()
+    {
+    }
+
     public EventKey(int schemaID,
                     int dimensionDescriptorID,
                     int aggregatorIndex,
