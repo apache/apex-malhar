@@ -197,6 +197,13 @@ public class GPOMutable implements Serializable
       }
       return fieldToDouble.get(field);
     }
+    else if(type.equals(Type.STRING)) {
+      if(fieldToString == null) {
+        return null;
+      }
+
+      return fieldToString.get(field);
+    }
     else {
       throw new IllegalArgumentException(field + " is not a valid field of this object.");
     }
