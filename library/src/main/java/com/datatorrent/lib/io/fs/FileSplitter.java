@@ -107,7 +107,6 @@ public class FileSplitter implements InputOperator
 
   public FileSplitter()
   {
-    blockSize = null;
     currentWindowRecoveryState = Lists.newLinkedList();
     fileCounters = new BasicCounters<MutableLong>(MutableLong.class);
     idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
@@ -604,6 +603,8 @@ public class FileSplitter implements InputOperator
 
   public static class TimeBasedDirectoryScanner implements Component<Context.OperatorContext>, Runnable
   {
+    private static long DEF_SCAN_INTERVAL_MILLIS = 5000;
+
     protected boolean recursive;
 
     protected transient volatile boolean trigger;
@@ -634,7 +635,7 @@ public class FileSplitter implements InputOperator
     {
       lastModifiedTimes = Maps.newHashMap();
       recursive = true;
-      scanIntervalMillis = 5000;
+      scanIntervalMillis = DEF_SCAN_INTERVAL_MILLIS;
       files = Sets.newLinkedHashSet();
       scanService = Executors.newSingleThreadExecutor();
       discoveredFiles = new LinkedBlockingDeque<FileInfo>();
