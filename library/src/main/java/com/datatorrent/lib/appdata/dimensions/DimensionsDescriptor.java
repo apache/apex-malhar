@@ -7,6 +7,7 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
@@ -39,7 +40,7 @@ public class DimensionsDescriptor
   public static final String DELIMETER_EQUALS = "=";
   public static final String DELIMETER_SEPERATOR = ":";
 
-  private TimeUnit timeUnit;
+  private TimeBucket timeBucket;
   private Fields fields;
   private String aggregationString;
 
@@ -62,7 +63,7 @@ public class DimensionsDescriptor
       if(fieldName.equals(DIMENSION_TIME)) {
         if(fieldAndValue.length == 2) {
           fieldSet.add(DIMENSION_TIME_BUCKET);
-          timeUnit = TimeUnit.valueOf(fieldAndValue[1]);
+          timeBucket = TimeBucket.TIME_UNIT_TO_TIME_BUCKET.get(TimeUnit.valueOf(fieldAndValue[1]));
         }
       }
     }
@@ -76,9 +77,9 @@ public class DimensionsDescriptor
     this.aggregationString = aggregationString;
   }
 
-  public TimeUnit getTimeUnit()
+  public TimeBucket getTimeBucket()
   {
-    return timeUnit;
+    return timeBucket;
   }
 
   public Fields getFields()
@@ -103,7 +104,7 @@ public class DimensionsDescriptor
       fieldToType.put(DIMENSION_TIME, Type.LONG);
     }
 
-    if(timeUnit != null) {
+    if(timeBucket != null) {
       fieldToType.put(DIMENSION_TIME_BUCKET, DIMENSION_TIME_BUCKET_TYPE);
     }
 

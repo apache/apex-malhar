@@ -23,17 +23,21 @@ public enum TimeBucket
   DAY("1d", TimeUnit.DAYS);
 
   public static final Map<String, TimeBucket> BUCKET_TO_TYPE;
+  public static final Map<TimeUnit, TimeBucket> TIME_UNIT_TO_TIME_BUCKET;
 
   static
   {
     Map<String, TimeBucket> bucketToType = Maps.newHashMap();
+    Map<TimeUnit, TimeBucket> timeUnitToTimeBucket = Maps.newHashMap();
 
     for(TimeBucket timeBucket: TimeBucket.values())
     {
+      timeUnitToTimeBucket.put(timeBucket.getTimeUnit(), timeBucket);
       bucketToType.put(timeBucket.getText(), timeBucket);
     }
 
     BUCKET_TO_TYPE = Collections.unmodifiableMap(bucketToType);
+    TIME_UNIT_TO_TIME_BUCKET = Collections.unmodifiableMap(timeUnitToTimeBucket);
   }
 
   private String text;

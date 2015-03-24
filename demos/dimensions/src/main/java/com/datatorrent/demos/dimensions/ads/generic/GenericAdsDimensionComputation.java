@@ -58,6 +58,7 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
 
       for(Map.Entry<String, FieldsDescriptor> entry: map.entrySet()) {
         events.add(createGenericAggregateEvent(inputEvent,
+                                               eventSchema.getDdIDToDD().get(index),
                                                keyFieldsDescriptor,
                                                entry.getValue(),
                                                index,
@@ -77,6 +78,7 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   }
 
   private GenericAggregateEvent createGenericAggregateEvent(GenericAdInfo ga,
+                                                            DimensionsDescriptor dd,
                                                             FieldsDescriptor keyFieldsDescriptor,
                                                             FieldsDescriptor aggregateDescriptor,
                                                             int dimensionDescriptorID,
@@ -86,19 +88,19 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
 
     for(String field: keyFieldsDescriptor.getFields().getFields()) {
       if(field.equals(AdsSchemaResult.ADVERTISER)) {
-        keyGPO.setField(AdsSchemaResult.ADVERTISER, ga.getAdvertiser());
+        keyGPO.setField(field, ga.getAdvertiser());
       }
       else if(field.equals(AdsSchemaResult.PUBLISHER)) {
-        keyGPO.setField(AdsSchemaResult.PUBLISHER, ga.getPublisher());
+        keyGPO.setField(field, ga.getPublisher());
       }
       else if(field.equals(AdsSchemaResult.LOCATION)) {
-        keyGPO.setField(AdsSchemaResult.LOCATION, ga.getLocation());
+        keyGPO.setField(field, ga.getLocation());
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
-        keyGPO.setField(AdsSchemaResult.TIME, ga.getTime());
+        keyGPO.setField(field, ga.getTime());
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
-        //Do nothing
+        keyGPO.setField(field, dd.getTimeBucket().ordinal());
       }
       else {
         throw new UnsupportedOperationException("This field is not supported: " + field);

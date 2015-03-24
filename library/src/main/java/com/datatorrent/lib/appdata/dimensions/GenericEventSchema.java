@@ -55,6 +55,7 @@ public class GenericEventSchema
 
   private FieldsDescriptor keyDescriptor;
   private List<FieldsDescriptor> ddIDToKeyDescriptor;
+  private List<DimensionsDescriptor> ddIDToDD;
   private List<Map<String, FieldsDescriptor>> ddIDToAggregatorToAggregateDescriptor;
   private Map<String, Set<DimensionsDescriptor>> aggregatorToDimensionsDescriptor;
   private Map<Fields, Integer> fieldsToDimensionDescriptor;
@@ -136,6 +137,7 @@ public class GenericEventSchema
     aggregatorToDimensionsDescriptor = Maps.newHashMap();
 
     ddIDToKeyDescriptor = Lists.newArrayList();
+    ddIDToDD = Lists.newArrayList();
     ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
 
     JSONArray aggregationsArray = jo.getJSONArray(FIELD_AGGREGATIONS);
@@ -156,6 +158,7 @@ public class GenericEventSchema
       DimensionsDescriptor dimensionsDescriptor = new DimensionsDescriptor(descriptor);
 
       ddIDToKeyDescriptor.add(dimensionsDescriptor.createFieldsDescriptor(keyDescriptor));
+      getDdIDToDD().add(dimensionsDescriptor);
 
       JSONArray aggArray = aggregation.getJSONArray(FIELD_AGGREGATIONS_AGGREGATIONS);
       Map<String, FieldsDescriptor> specificAggregatorToFieldsDescriptor = Maps.newHashMap();
@@ -180,6 +183,7 @@ public class GenericEventSchema
       ddIDToAggregatorToAggregateDescriptor.add(specificAggregatorToFieldsDescriptor);
     }
 
+    ddIDToDD = Collections.unmodifiableList(getDdIDToDD());
     ddIDToKeyDescriptor = Collections.unmodifiableList(ddIDToKeyDescriptor);
     ddIDToAggregatorToAggregateDescriptor = Collections.unmodifiableList(ddIDToAggregatorToAggregateDescriptor);
 
@@ -249,5 +253,13 @@ public class GenericEventSchema
   public Map<Fields, Integer> getFieldsToDimensionDescriptor()
   {
     return fieldsToDimensionDescriptor;
+  }
+
+  /**
+   * @return the ddIDToDD
+   */
+  public List<DimensionsDescriptor> getDdIDToDD()
+  {
+    return ddIDToDD;
   }
 }
