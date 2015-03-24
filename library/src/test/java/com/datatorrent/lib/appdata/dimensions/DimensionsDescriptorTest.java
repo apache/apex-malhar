@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class AggregatorDescriptorTest
+public class DimensionsDescriptorTest
 {
   @Test
   public void simpleTest1()
@@ -32,7 +32,7 @@ public class AggregatorDescriptorTest
     fields.add(TestDimensionsSchema.KEY_1_NAME);
 
     Assert.assertEquals("The fields should match.", fields, ad.getFields().getFields());
-    Assert.assertEquals("The timeunit should be null.", null, ad.getTimeUnit());
+    Assert.assertEquals("The timeunit should be null.", null, ad.getTimeBucket());
   }
 
   @Test
@@ -48,7 +48,7 @@ public class AggregatorDescriptorTest
     fields.add(TestDimensionsSchema.KEY_2_NAME);
 
     Assert.assertEquals("The fields should match.", fields, ad.getFields().getFields());
-    Assert.assertEquals("The timeunit should be null.", null, ad.getTimeUnit());
+    Assert.assertEquals("The timeunit should be null.", null, ad.getTimeBucket());
   }
 
   @Test
@@ -66,7 +66,7 @@ public class AggregatorDescriptorTest
     fields.add(DimensionsDescriptor.DIMENSION_TIME);
 
     Assert.assertEquals("The fields should match.", fields, ad.getFields().getFields());
-    Assert.assertEquals("The timeunit should be DAYS.", TimeUnit.DAYS, ad.getTimeUnit());
+    Assert.assertEquals("The timeunit should be DAYS.", TimeUnit.DAYS, ad.getTimeBucket());
   }
 
   public static class TestDimensionsSchema implements DimensionsSchema
