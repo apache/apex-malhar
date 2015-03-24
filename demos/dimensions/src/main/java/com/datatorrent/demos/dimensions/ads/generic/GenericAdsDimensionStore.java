@@ -141,6 +141,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
                                                   new AdsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            GenericDataQuery.class);
+    queryDeserializerFactory.setContext(GenericDataQuery.class, dimensionalSchema);
     resultSerializerFactory = new DataSerializerFactory();
 
     queryProcessor.setup(context);
