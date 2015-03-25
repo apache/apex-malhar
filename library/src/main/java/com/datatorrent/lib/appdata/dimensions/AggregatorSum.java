@@ -30,7 +30,6 @@ public class AggregatorSum implements DimensionsAggregator<GenericAggregateEvent
     for(String field: destGPO.getFieldDescriptor().getFields().getFields()) {
       Object destObj = destGPO.getField(field);
       Object srcObj = srcGPO.getField(field);
-      logger.info("The field is {}", field);
 
       if(!srcObj.getClass().equals(destObj.getClass())) {
         throw new UnsupportedOperationException("Cannot aggregate different types.");
