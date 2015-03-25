@@ -49,7 +49,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   protected transient Map<EventKey, GenericAggregateEvent> nonWaitingCache = Maps.newHashMap();
   private Map<EventKey, GenericAggregateEvent> waitingCache = Maps.newHashMap();
 
-  private transient QueryProcessor<EventKey, HDSGenericEventQueryMeta, MutableBoolean, MutableBoolean, GenericAggregateEvent> cacheQueryProcessor;
+  private transient QueryProcessor<EventKey, HDSGenericEventQueryMeta, MutableBoolean, FetchResult, GenericAggregateEvent> cacheQueryProcessor;
 
   public GenericDimensionsStoreHDHT()
   {
@@ -182,21 +182,27 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   @Override
   public void endWindow()
   {
-    MutableBoolean done = new MutableBoolean(false);
+    FetchResult fetchResult = new FetchResult();
+    fetchResult.setQueueDone(false);
 
-    while(done.isFalse()) {
-      GenericAggregateEvent gae = cacheQueryProcessor.process(done);
+    while(!fetchResult.isQueueDone()) {
+      GenericAggregateEvent gae = cacheQueryProcessor.process(fetchResult);
 
-      if(gae == null) {
+      if(!fetchResult.isQueryDone()) {
         continue;
       }
+      else if(gae == null) {
+        GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
+        nonWaitingCache.put(fetchResult.getEventKey(), tgae);
+      }
+      else {
+        GenericAggregateEvent waitingCachedGAE = waitingCache.get(gae.getEventKey());
+        DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
 
-      GenericAggregateEvent waitingCachedGAE = waitingCache.get(gae.getEventKey());
-      DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
-
-      aggregator.aggregate(waitingCachedGAE, gae);
-      waitingCache.remove(gae.getEventKey());
-      nonWaitingCache.put(gae.getEventKey(), gae);
+        aggregator.aggregate(waitingCachedGAE, gae);
+        waitingCache.remove(gae.getEventKey());
+        nonWaitingCache.put(gae.getEventKey(), gae);
+      }
     }
 
     for(GenericAggregateEvent cgae: nonWaitingCache.values()) {
@@ -299,7 +305,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     }
   }
 
-  class GenericDimensionsFetchComputer implements QueryComputer<EventKey, HDSGenericEventQueryMeta, MutableBoolean, MutableBoolean, GenericAggregateEvent>
+  class GenericDimensionsFetchComputer implements QueryComputer<EventKey, HDSGenericEventQueryMeta, MutableBoolean, FetchResult, GenericAggregateEvent>
   {
     private GenericDimensionsStoreHDHT operator;
 
@@ -318,20 +324,74 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     public GenericAggregateEvent processQuery(EventKey query,
                                               HDSGenericEventQueryMeta metaQuery,
                                               MutableBoolean queueContext,
-                                              MutableBoolean context)
+                                              FetchResult context)
     {
-      if(metaQuery.hdsQuery.processed &&
-         metaQuery.hdsQuery.result != null) {
-        return fromKeyValueGAE(metaQuery.hdsQuery.key, metaQuery.hdsQuery.result);
+      if(metaQuery.hdsQuery.processed) {
+        context.setQueryDone(true);
+        context.setEventKey(query);
+        if(metaQuery.hdsQuery.result != null) {
+          return fromKeyValueGAE(metaQuery.hdsQuery.key, metaQuery.hdsQuery.result);
+        }
+      }
+      else
+      {
+        context.setQueryDone(false);
       }
 
       return null;
     }
 
     @Override
-    public void queueDepleted(MutableBoolean context)
+    public void queueDepleted(FetchResult context)
     {
-      context.setValue(true);
+      context.setQueueDone(true);
+    }
+  }
+
+  class FetchResult
+  {
+    private boolean queueDone;
+    private boolean queryDone;
+    private EventKey eventKey;
+
+    public FetchResult()
+    {
+    }
+
+    public boolean isQueueDone()
+    {
+      return queueDone;
+    }
+
+    public void setQueueDone(boolean queueDone)
+    {
+      this.queueDone = queueDone;
+    }
+
+    public boolean isQueryDone()
+    {
+      return queryDone;
+    }
+
+    public void setQueryDone(boolean queryDone)
+    {
+      this.queryDone = queryDone;
+    }
+
+    /**
+     * @return the eventKey
+     */
+    public EventKey getEventKey()
+    {
+      return eventKey;
+    }
+
+    /**
+     * @param eventKey the eventKey to set
+     */
+    public void setEventKey(EventKey eventKey)
+    {
+      this.eventKey = eventKey;
     }
   }
 
