@@ -128,7 +128,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
       else {
         waitingCache.put(gae.getEventKey(), gae);
-        cacheQueryProcessor.enqueue(gae.getEventKey(), new HDSGenericEventQueryMeta(), new MutableBoolean(false));
+        cacheQueryProcessor.enqueue(gae.getEventKey(), null, new MutableBoolean(false));
       }
     }
   }
@@ -317,6 +317,8 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
         operator.addQuery(hdsQuery);
       }
 
+      metaQuery = new HDSGenericEventQueryMeta();
+      metaQuery.setHDSQuery(hdsQuery);
       return super.enqueue(query, metaQuery, queueContext);
     }
   }
