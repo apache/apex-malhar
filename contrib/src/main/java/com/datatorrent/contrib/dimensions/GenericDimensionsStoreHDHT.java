@@ -202,6 +202,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   {
     FetchResult fetchResult = new FetchResult();
     fetchResult.setQueueDone(false);
+    fetchResult.setQueryDone(false);
 
     while(true) {
       GenericAggregateEvent gae = cacheQueryProcessor.process(fetchResult);

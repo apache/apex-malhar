@@ -10,7 +10,6 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 import com.datatorrent.demos.dimensions.schemas.AdsKeys;
-import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
 import com.datatorrent.demos.dimensions.schemas.AdsTimeRangeBucket;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
@@ -83,10 +82,13 @@ public class GenericInputItemGenerator implements InputOperator
     try {
       long timestamp;
       for (int i = 0; i < blastCount && windowCount < numTuplesPerWindow; ++i, windowCount++) {
-        int advertiserId = random.nextInt(AdsSchemaResult.ADVERTISERS.length) + 1;
+        //int advertiserId = random.nextInt(AdsSchemaResult.ADVERTISERS.length) + 1;
+        int advertiserId = random.nextInt(1) + 1;
         //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
-        int publisherId = random.nextInt(AdsSchemaResult.PUBLISHERS.length) + 1;
-        int adUnit = random.nextInt(AdsSchemaResult.LOCATIONS.length) + 1;
+        //int publisherId = random.nextInt(AdsSchemaResult.PUBLISHERS.length) + 1;
+        int publisherId = random.nextInt(1) + 1;
+        //int adUnit = random.nextInt(AdsSchemaResult.LOCATIONS.length) + 1;
+        int adUnit = random.nextInt(1) + 1;
 
         timestamp = System.currentTimeMillis();
 
