@@ -183,7 +183,7 @@ public class HDHTBenchmarkTest implements StreamingApplication
       private static final long serialVersionUID = 1L;
       int rate;
       @Override
-      public OperatorRequestResponse execute(Operator oper, int arg1, long arg2) throws IOException
+      public OperatorResponse execute(Operator oper, int arg1, long arg2) throws IOException
       {
         if (oper instanceof TestGenerator) {
           LOG.debug("Setting rate to {}", rate);
