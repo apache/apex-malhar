@@ -99,6 +99,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     int aggregatorID = GPOUtils.deserializeInt(aggregate,
                                                 8);
 
+    logger.info("deserializing schemaID {} ddID {} aggID {}", schemaID, dimensionDescriptorID, aggregatorID);
     FieldsDescriptor keysDescriptor = getKeyDescriptor(schemaID, dimensionDescriptorID);
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 

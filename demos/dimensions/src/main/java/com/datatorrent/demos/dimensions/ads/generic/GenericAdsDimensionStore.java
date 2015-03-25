@@ -201,6 +201,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
       throw new UnsupportedOperationException("Invalid schemaID: " + schemaID);
     }
 
+    logger.info("Number of dd Schemas {}", eventSchema.getDdIDToKeyDescriptor());
     return eventSchema.getDdIDToKeyDescriptor().get(dimensionsDescriptorID);
   }
 
