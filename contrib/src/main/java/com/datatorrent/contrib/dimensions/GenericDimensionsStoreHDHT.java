@@ -196,17 +196,12 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
         break;
       }
 
-      System.out.println("Queue not done.");
-
       if(!fetchResult.isQueryDone()) {
         continue;
       }
 
-      System.out.println("Query done.");
-
       if(gae == null) {
         GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
-        System.out.println("Added to non waiting.");
         nonWaitingCache.put(fetchResult.getEventKey(), tgae);
       }
       else {
@@ -215,7 +210,6 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
         aggregator.aggregate(waitingCachedGAE, gae);
         waitingCache.remove(gae.getEventKey());
-        System.out.println("Added to non waiting.");
         nonWaitingCache.put(gae.getEventKey(), gae);
       }
     }
@@ -305,7 +299,6 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     @Override
     public boolean enqueue(EventKey query, HDSGenericEventQueryMeta metaQuery, MutableBoolean queueContext)
     {
-      System.out.println("Enqueued.");
       Slice key = new Slice(getEventKeyBytesGAE(query));
       HDSQuery hdsQuery = operator.queries.get(key);
 
@@ -344,7 +337,6 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
                                               MutableBoolean queueContext,
                                               FetchResult context)
     {
-      System.out.println("Processing query");
       if(metaQuery.hdsQuery.processed) {
         context.setQueryDone(true);
         context.setEventKey(query);
