@@ -28,6 +28,8 @@ import com.google.common.primitives.Ints;
 import java.io.IOException;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -40,6 +42,8 @@ import java.util.Map;
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
 public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<GenericAggregateEvent>
 {
+  private static final Logger logger = LoggerFactory.getLogger(GenericDimensionsStoreHDHT.class);
+
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
 
   //HDHT Aggregation parameters
@@ -193,6 +197,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
       else if(gae == null) {
         GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
+        logger.info("Added to non waiting.");
         nonWaitingCache.put(fetchResult.getEventKey(), tgae);
       }
       else {
@@ -201,6 +206,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
         aggregator.aggregate(waitingCachedGAE, gae);
         waitingCache.remove(gae.getEventKey());
+        logger.info("Added to non waiting.");
         nonWaitingCache.put(gae.getEventKey(), gae);
       }
     }
@@ -329,6 +335,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       if(metaQuery.hdsQuery.processed) {
         context.setQueryDone(true);
         context.setEventKey(query);
+        queueContext.setValue(true);
         if(metaQuery.hdsQuery.result != null) {
           return fromKeyValueGAE(metaQuery.hdsQuery.key, metaQuery.hdsQuery.result);
         }
