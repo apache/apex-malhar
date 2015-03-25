@@ -25,9 +25,9 @@ import java.util.Map;
  */
 public enum AggType
 {
+  SUM(new AggregatorSum()),
   MIN(new AggregatorMin()),
   MAX(new AggregatorMax()),
-  SUM(new AggregatorSum()),
   COUNT(new AggregatorCount());
 
   private static final Logger logger = LoggerFactory.getLogger(AggType.class);
