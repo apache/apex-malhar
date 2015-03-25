@@ -33,10 +33,11 @@ public class KinesisOperatorTestBase
   protected String streamName= "StreamName";
   protected int shardCount = 2;
   protected transient AmazonKinesisClient client = null;
+  protected transient AWSCredentialsProvider credentials = null;
 
   private void createClient()
   {
-    AWSCredentialsProvider credentials = new DefaultAWSCredentialsProviderChain();
+    credentials = new DefaultAWSCredentialsProviderChain();
     client = new AmazonKinesisClient(credentials);
   }
 

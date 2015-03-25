@@ -18,7 +18,11 @@ package com.datatorrent.lib.io.fs;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
+<<<<<<< HEAD
 import java.io.OutputStream;
+=======
+
+>>>>>>> dt-dev
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -30,7 +34,11 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Strings;
-import com.google.common.cache.*;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.cache.RemovalListener;
+import com.google.common.cache.RemovalNotification;
 import com.google.common.collect.Maps;
 
 import org.slf4j.Logger;
@@ -39,7 +47,15 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FSDataInputStream;
+import org.apache.hadoop.fs.FSDataOutputStream;
+import org.apache.hadoop.fs.FileContext;
+import org.apache.hadoop.fs.FileStatus;
+import org.apache.hadoop.fs.FileSystem;
+import org.apache.hadoop.fs.LocalFileSystem;
+import org.apache.hadoop.fs.Options;
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.fs.RawLocalFileSystem;
 
 import com.datatorrent.lib.counters.BasicCounters;
 
@@ -49,6 +65,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+import org.apache.hadoop.fs.permission.FsPermission;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
@@ -160,7 +177,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   /**
    * The file rotation window interval.
    * The files are rotated periodically after the specified value of windows have ended. If set to 0 this feature is
-   * disabled. 
+   * disabled.
    */
   @Min(0)
   protected int rotationWindows = 0;
@@ -175,6 +192,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    */
   protected transient FileSystem fs;
 
+  protected short filePermission = 0777;
+
   /**
    * This is the cache which holds open file streams.
    */
@@ -186,14 +205,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   protected transient OperatorContext context;
 
   /**
-   * Last time stamp collected.
+   * StopWatch tracking the total time the operator has spent writing bytes.
    */
-  private long lastTimeStamp;
-
-  /**
-   * The total time in milliseconds the operator has been running for.
-   */
-  private long totalTime;
+  private transient long totalWritingTime;
 
   /**
    * File output counters.
@@ -203,7 +217,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   protected StreamCodec<INPUT> streamCodec;
 
   /**
-   * Number of windows since the last rotation 
+   * Number of windows since the last rotation
    */
   private int rotationCount;
 
@@ -229,7 +243,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       }
     }
   };
-  
+
   private static class RotationState {
     boolean notEmpty;
     boolean rotated;
@@ -293,8 +307,10 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
           //FilterOutputStream filterStream = streamContext.getFilterStream();
           try {
             LOG.debug("closing {}", notification.getKey());
+            long start = System.currentTimeMillis();
             streamContext.close();
             //filterStream.close();
+            totalWritingTime += System.currentTimeMillis() - start;
           }
           catch (IOException e) {
             throw new RuntimeException(e);
@@ -359,6 +375,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
           }
           else {
             fsOutput = fs.create(lfilepath, (short) replication);
+            fs.setPermission(lfilepath, FsPermission.createImmutable(filePermission));
           }
 
           //Get the end offset of the file.
@@ -463,11 +480,10 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     }
 
     this.context = context;
-    lastTimeStamp = System.currentTimeMillis();
 
     fileCounters.setCounter(Counters.TOTAL_BYTES_WRITTEN,
                             new MutableLong());
-    fileCounters.setCounter(Counters.TOTAL_TIME_ELAPSED,
+    fileCounters.setCounter(Counters.TOTAL_TIME_WRITING_MILLISECONDS,
                             new MutableLong());
   }
 
@@ -484,8 +500,10 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       //FilterOutputStream filterStream = openStreams.get(seenFileName).getFilterStream();
       FSFilterStreamContext fsFilterStreamContext = openStreams.get(seenFileName);
       try {
+        long start = System.currentTimeMillis();
         //filterStream.close();
         fsFilterStreamContext.close();
+        totalWritingTime += System.currentTimeMillis() - start;
       }
       catch (IOException ex) {
         //Count number of failures
@@ -539,8 +557,6 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     }
 
     long currentTimeStamp = System.currentTimeMillis();
-    totalTime += currentTimeStamp - lastTimeStamp;
-    lastTimeStamp = currentTimeStamp;
   }
 
   /**
@@ -560,7 +576,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     try {
       FilterOutputStream fsOutput = streamsCache.get(fileName).getFilterStream();
       byte[] tupleBytes = getBytesForTuple(tuple);
+      long start = System.currentTimeMillis();
       fsOutput.write(tupleBytes);
+      totalWritingTime += System.currentTimeMillis() - start;
       totalBytesWritten += tupleBytes.length;
       MutableLong currentOffset = endOffsets.get(fileName);
 
@@ -665,7 +683,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * @param fileName The base name of the files you are rolling over.
    * @return The name of the current rolling file.
    */
-  private String getPartFileNamePri(String fileName)
+  protected String getPartFileNamePri(String fileName)
   {
     if (!rollingFile) {
       return fileName;
@@ -702,14 +720,16 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     try {
       Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
       for (FSFilterStreamContext streamContext: openStreams.values()) {
+        long start = System.currentTimeMillis();
         streamContext.finalizeContext();
+        totalWritingTime += System.currentTimeMillis() - start;
         streamContext.resetFilter();
       }
     }
     catch (IOException e) {
       throw new RuntimeException(e);
     }
-    
+
     if (rotationWindows > 0) {
       if (++rotationCount == rotationWindows) {
         rotationCount = 0;
@@ -743,11 +763,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       }
     }
 
-    long currentTimeStamp = System.currentTimeMillis();
-    totalTime += currentTimeStamp - lastTimeStamp;
-    lastTimeStamp = currentTimeStamp;
-
-    fileCounters.getCounter(Counters.TOTAL_TIME_ELAPSED).setValue(totalTime);
+    fileCounters.getCounter(Counters.TOTAL_TIME_WRITING_MILLISECONDS).setValue(totalWritingTime);
     fileCounters.getCounter(Counters.TOTAL_BYTES_WRITTEN).setValue(totalBytesWritten);
     context.setCounters(fileCounters);
   }
@@ -806,7 +822,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
 
   /**
    * Gets the file rotation window interval.
-   * The files are rotated periodically after the specified number of windows have ended. 
+   * The files are rotated periodically after the specified number of windows have ended.
    * @return The number of windows
    */
   public int getRotationWindows()
@@ -842,6 +858,24 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     return this.maxOpenFiles;
   }
 
+   /**
+   * Get the permission on the file which is being written.
+   * @return filePermission
+   */
+  public short getFilePermission()
+  {
+    return filePermission;
+  }
+
+  /**
+   * Set the permission on the file which is being written.
+   * @param filePermission
+   */
+  public void setFilePermission(short filePermission)
+  {
+    this.filePermission = filePermission;
+  }
+
   public static enum Counters
   {
     /**
@@ -854,7 +888,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
      * An enum for counters representing the total time the operator has
      * been operational for.
      */
-    TOTAL_TIME_ELAPSED
+    TOTAL_TIME_WRITING_MILLISECONDS
   }
 
   private class FSFilterStreamContext implements FilterStreamContext<FilterOutputStream, FSDataOutputStream>

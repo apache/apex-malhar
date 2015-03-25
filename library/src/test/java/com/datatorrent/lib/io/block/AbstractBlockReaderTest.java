@@ -17,6 +17,7 @@ import com.datatorrent.api.StatsListener;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.counters.BasicCounters;
+import com.datatorrent.lib.util.TestUtils;
 
 /**
  * Stats and partitioning tests for {@link AbstractBlockReader}
@@ -41,7 +42,7 @@ public class AbstractBlockReaderTest
   public void testProcessStatsForPartitionCount()
   {
 
-    PseudoBatchedOperatorStats readerStats = new PseudoBatchedOperatorStats(2);
+    TestUtils.MockBatchedOperatorStats readerStats = new TestUtils.MockBatchedOperatorStats(2);
     readerStats.operatorStats = Lists.newArrayList();
     readerStats.operatorStats.add(new ReaderStats(10, 1, 100, 1));
 
@@ -57,7 +58,7 @@ public class AbstractBlockReaderTest
   public void testProcessStatsForRepeatedPartitionCount() throws InterruptedException
   {
 
-    PseudoBatchedOperatorStats readerStats = new PseudoBatchedOperatorStats(2);
+    TestUtils.MockBatchedOperatorStats readerStats = new TestUtils.MockBatchedOperatorStats(2);
     readerStats.operatorStats = Lists.newArrayList();
     readerStats.operatorStats.add(new ReaderStats(10, 1, 100, 1));
 
@@ -75,7 +76,7 @@ public class AbstractBlockReaderTest
   @Test
   public void testPartitioning() throws Exception
   {
-    PseudoBatchedOperatorStats readerStats = new PseudoBatchedOperatorStats(2);
+    TestUtils.MockBatchedOperatorStats readerStats = new TestUtils.MockBatchedOperatorStats(2);
     readerStats.operatorStats = Lists.newArrayList();
     readerStats.operatorStats.add(new ReaderStats(10, 1, 100, 1));
 
@@ -92,7 +93,8 @@ public class AbstractBlockReaderTest
     DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> apartition =
       new DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>(sliceReader);
 
-    PseudoParttion pseudoParttion = new PseudoParttion(apartition, readerStats);
+    TestUtils.MockPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> pseudoParttion =
+      new TestUtils.MockPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>(apartition, readerStats);
 
     partitions.add(pseudoParttion);
 
@@ -104,7 +106,7 @@ public class AbstractBlockReaderTest
   @Test
   public void testCountersTransfer() throws Exception
   {
-    PseudoBatchedOperatorStats readerStats = new PseudoBatchedOperatorStats(2);
+    TestUtils.MockBatchedOperatorStats readerStats = new TestUtils.MockBatchedOperatorStats(2);
     readerStats.operatorStats = Lists.newArrayList();
     readerStats.operatorStats.add(new ReaderStats(10, 1, 100, 1));
 
@@ -117,99 +119,41 @@ public class AbstractBlockReaderTest
     DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> apartition =
       new DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>(sliceReader);
 
-    PseudoParttion pseudoParttion = new PseudoParttion(apartition, readerStats);
+    TestUtils.MockPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> pseudoParttion =
+      new TestUtils.MockPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>(apartition, readerStats);
 
     partitions.add(pseudoParttion);
 
     Collection<Partitioner.Partition<AbstractBlockReader<Slice,
       BlockMetadata.FileBlockMetadata, FSDataInputStream>>> newPartitions = sliceReader.definePartitions(partitions, null);
 
+    List<Partitioner.Partition<AbstractBlockReader<Slice,
+      BlockMetadata.FileBlockMetadata, FSDataInputStream>>> newMocks = Lists.newArrayList();
+
     for (Partitioner.Partition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> partition :
       newPartitions) {
       partition.getPartitionedInstance().counters.setCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS, new MutableLong(1));
+
+      newMocks.add(
+        new TestUtils.MockPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>(
+          (DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>) partition,
+          readerStats)
+      );
     }
     sliceReader.partitionCount = 1;
-    newPartitions = sliceReader.definePartitions(newPartitions, null);
+    newPartitions = sliceReader.definePartitions(newMocks, null);
     Assert.assertEquals(1, newPartitions.size());
 
     AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream> last = newPartitions.iterator().next().getPartitionedInstance();
     Assert.assertEquals("num blocks", 8, last.counters.getCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS).longValue());
   }
 
-  static class PseudoBatchedOperatorStats implements StatsListener.BatchedOperatorStats
-  {
-
-    final int operatorId;
-    List<Stats.OperatorStats> operatorStats;
-
-    PseudoBatchedOperatorStats(int operatorId)
-    {
-      this.operatorId = operatorId;
-    }
-
-    @Override
-    public List<Stats.OperatorStats> getLastWindowedStats()
-    {
-      return operatorStats;
-    }
-
-    @Override
-    public int getOperatorId()
-    {
-      return 0;
-    }
-
-    @Override
-    public long getCurrentWindowId()
-    {
-      return 0;
-    }
-
-    @Override
-    public long getTuplesProcessedPSMA()
-    {
-      return 0;
-    }
-
-    @Override
-    public long getTuplesEmittedPSMA()
-    {
-      return 0;
-    }
-
-    @Override
-    public double getCpuPercentageMA()
-    {
-      return 0;
-    }
-
-    @Override
-    public long getLatencyMA()
-    {
-      return 0;
-    }
-  }
-
-  static class PseudoParttion extends DefaultPartition<AbstractBlockReader<Slice,
-    BlockMetadata.FileBlockMetadata, FSDataInputStream>>
-  {
-
-    PseudoParttion(DefaultPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata,
-      FSDataInputStream>> defaultPartition, StatsListener.BatchedOperatorStats stats)
-    {
-      super(defaultPartition.getPartitionedInstance(), defaultPartition.getPartitionKeys(),
-        defaultPartition.getLoad(), stats);
-
-    }
-  }
-
   static class ReaderStats extends Stats.OperatorStats
   {
 
-    ReaderStats(long backlog, long readBlocks, long bytes, long time)
+    ReaderStats(int backlog, long readBlocks, long bytes, long time)
     {
       BasicCounters<MutableLong> bc = new BasicCounters<MutableLong>(MutableLong.class);
-      bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BACKLOG, new MutableLong(backlog));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS, new MutableLong(readBlocks));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BYTES, new MutableLong(bytes));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.TIME, new MutableLong(time));
@@ -217,7 +161,7 @@ public class AbstractBlockReaderTest
       counters = bc;
 
       PortStats portStats = new PortStats("blocks");
-      portStats.queueSize = 0;
+      portStats.queueSize = backlog;
       inputPorts = Lists.newArrayList(portStats);
     }
   }

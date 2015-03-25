@@ -19,6 +19,7 @@ import com.datatorrent.api.Context.PortContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.stream.DevNull;
 import com.datatorrent.lib.stream.StreamDuplicater;
 import org.apache.hadoop.conf.Configuration;
@@ -29,6 +30,7 @@ import org.apache.hadoop.conf.Configuration;
  *
  * @since 2.0.0
  */
+@ApplicationAnnotation(name = "StreamDuplicaterApp")
 public class StreamDuplicaterApp implements StreamingApplication
 {
    private final Locality locality = null;
