@@ -627,10 +627,11 @@ public class GPOUtils
       else if(type == Type.STRING) {
         BB_4.get(serializedGPO, offset, 4);
         BB_4.rewind();
-        int val = BB_4.getInt();
+        int length = BB_4.getInt();
         BB_4.clear();
-        gpo.setField(field, val);
         offset += 4;
+        String valString = new String(serializedGPO, offset, length);
+        gpo.setField(field, valString);
       }
     }
 
