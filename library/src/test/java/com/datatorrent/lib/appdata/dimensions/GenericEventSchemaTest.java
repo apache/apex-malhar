@@ -7,12 +7,14 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -38,7 +40,7 @@ public class GenericEventSchemaTest
     final String valueName1Type = "double";
     final String valueName2Type = "integer";
 
-    final String jsonSchema = 
+    final String jsonSchema =
     "{\"keys\":\n" +
       "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"},\n" +
        "{\"name\":\"" + keyName2 + "\",\"type\":\"" + keyName2Type + "\"}],\n" +
@@ -111,5 +113,11 @@ public class GenericEventSchemaTest
                         ges.getDdIDToAggregatorToAggregateDescriptor().get(1).get("sum").getFields().getFields().equals(sumAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
                         ges.getDdIDToAggregatorToAggregateDescriptor().get(1).get("count").getFields().getFields().equals(countAggFields));
+
+    final Map<String, Integer> aggToId = Maps.newHashMap();
+    aggToId.put("min", 0);
+    aggToId.put("max", 1);
+    aggToId.put("sum", 2);
+    aggToId.put("count", 3);
   }
 }

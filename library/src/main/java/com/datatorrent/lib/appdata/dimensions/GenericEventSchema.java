@@ -229,19 +229,20 @@ public class GenericEventSchema
     return aggregatorToDimensionsDescriptor;
   }
 
-  public List<List<FieldsDescriptor>> getDdIDToAggregatorIDToFieldsDescriptor(Map<String, Integer> aggregatorNameToID)
+  public List<Map<Integer, FieldsDescriptor>> getDdIDToAggregatorIDToFieldsDescriptor(Map<String, Integer> aggregatorNameToID)
   {
-    List<List<FieldsDescriptor>> lists = Lists.newArrayList();
+    List<Map<Integer, FieldsDescriptor>> lists = Lists.newArrayList();
     List<Map<String, FieldsDescriptor>> ddIDToAToAD = getDdIDToAggregatorToAggregateDescriptor();
 
     for(Map<String, FieldsDescriptor> aToAD: ddIDToAToAD) {
-      FieldsDescriptor[] aggDescriptors = new FieldsDescriptor[aggregatorNameToID.size()];
+      logger.debug("Dd to string aggMap: {}", aToAD);
+      Map<Integer, FieldsDescriptor> aggDescriptorsList = Maps.newHashMap();
 
       for(Map.Entry<String, FieldsDescriptor> entry: aToAD.entrySet()) {
-        aggDescriptors[aggregatorNameToID.get(entry.getKey())] = entry.getValue();
+        aggDescriptorsList.put(aggregatorNameToID.get(entry.getKey()), entry.getValue());
       }
 
-      lists.add(Lists.newArrayList(aggDescriptors));
+      lists.add(aggDescriptorsList);
     }
 
     return lists;

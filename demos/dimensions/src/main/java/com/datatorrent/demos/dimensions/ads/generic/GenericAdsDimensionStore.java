@@ -12,8 +12,6 @@ import com.datatorrent.api.annotation.AppDataQueryPort;
 import com.datatorrent.api.annotation.AppDataResultPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
-
-
 import com.datatorrent.contrib.dimensions.GenericDimensionsStoreHDHT;
 import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.demos.dimensions.ads.AggType;
@@ -47,6 +45,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -67,7 +66,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
 
   private transient GenericEventSchema eventSchema;
   private transient GenericSchemaDimensional dimensionalSchema;
-  private transient List<List<FieldsDescriptor>> indexToFieldsDescriptor;
+  private transient List<Map<Integer, FieldsDescriptor>> indexToFieldsDescriptor;
 
 
   //==========================================================================
