@@ -29,9 +29,18 @@ public class GenericAggregateEventUtils
     byte[] keyBytes = GPOUtils.serialize(gae.getKeys());
     byte[] valueBytes = GPOUtils.serialize(gae.getAggregates());
 
+    BB_4.putInt(gae.getSchemaID());
+    bal.add(BB_4.array());
+    BB_4.clear();
+
+    BB_4.putInt(gae.getDimensionDescriptorID());
+    bal.add(BB_4.array());
+    BB_4.clear();
+
     BB_4.putInt(gae.getAggregatorIndex());
     bal.add(BB_4.array());
     BB_4.clear();
+    
     bal.add(keyBytes);
     bal.add(valueBytes);
 
