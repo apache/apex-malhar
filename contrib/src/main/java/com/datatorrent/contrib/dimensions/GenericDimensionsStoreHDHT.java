@@ -199,7 +199,10 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       if(!fetchResult.isQueryDone()) {
         continue;
       }
-      else if(gae == null) {
+
+      System.out.println("Query done.");
+
+      if(gae == null) {
         GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
         System.out.println("Added to non waiting.");
         nonWaitingCache.put(fetchResult.getEventKey(), tgae);
@@ -308,7 +311,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
         hdsQuery = new HDSQuery();
         hdsQuery.bucketKey = getBucketForSchema(query.getSchemaID());
         hdsQuery.key = key;
-        hdsQuery.keepAliveCount = 1;
+        hdsQuery.keepAliveCount = 100;
         operator.addQuery(hdsQuery);
       }
 
