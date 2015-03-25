@@ -125,14 +125,18 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
     GPOImmutable gpoIm = new GPOImmutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
 
     if(!hasTime) {
-      return new GenericDataQuery(gpoIm,
+      return new GenericDataQuery(id,
+                                  type,
+                                  gpoIm,
                                   new Fields(fieldList),
                                   incompleteResultOK);
     }
     else {
       if(oneTime) {
         if(hasFromTo) {
-          return new GenericDataQuery(from,
+          return new GenericDataQuery(id,
+                                      type,
+                                      from,
                                       to,
                                       bucket,
                                       gpoIm,
@@ -140,7 +144,9 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
                                       incompleteResultOK);
         }
         else {
-          return new GenericDataQuery(latestNumBuckets,
+          return new GenericDataQuery(id,
+                                      type,
+                                      latestNumBuckets,
                                       bucket,
                                       gpoIm,
                                       new Fields(fieldList),
@@ -149,7 +155,9 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
       }
       else {
         if(hasFromTo) {
-          return new GenericDataQuery(from,
+          return new GenericDataQuery(id,
+                                      type,
+                                      from,
                                       to,
                                       bucket,
                                       gpoIm,
@@ -158,7 +166,9 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
                                       incompleteResultOK);
         }
         else {
-          return new GenericDataQuery(latestNumBuckets,
+          return new GenericDataQuery(id,
+                                      type,
+                                      latestNumBuckets,
                                       bucket,
                                       gpoIm,
                                       new Fields(fieldList),
