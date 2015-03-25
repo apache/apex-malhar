@@ -54,6 +54,8 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   protected transient Map<EventKey, GenericAggregateEvent> nonWaitingCache = Maps.newHashMap();
   private Map<EventKey, GenericAggregateEvent> waitingCache = Maps.newHashMap();
 
+  private long windowID;
+
   private transient QueryProcessor<EventKey, HDSGenericEventQueryMeta, MutableBoolean, FetchResult, GenericAggregateEvent> cacheQueryProcessor;
 
   public GenericDimensionsStoreHDHT()
@@ -193,6 +195,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   @Override
   public void beginWindow(long windowId)
   {
+    windowID = windowId;
     super.beginWindow(windowId);
     cacheQueryProcessor.beginWindow(windowId);
   }
@@ -216,13 +219,13 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
 
       if(gae == null) {
-        logger.info("Other removal {}", fetchResult.getEventKey());
+        logger.info("Other removal {}, windowId", fetchResult.getEventKey(), windowID);
         GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
         nonWaitingCache.put(fetchResult.getEventKey(), tgae);
       }
       else {
         GenericAggregateEvent waitingCachedGAE = waitingCache.get(gae.getEventKey());
-        logger.info("Missing event {}", gae.getEventKey());
+        logger.info("Missing event {}, windowId", gae.getEventKey(), windowID);
         DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
 
         aggregator.aggregate(waitingCachedGAE, gae);
