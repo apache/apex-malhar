@@ -317,7 +317,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
         operator.addQuery(hdsQuery);
       }
 
-      return true;
+      return super.enqueue(query, metaQuery, queueContext);
     }
   }
 
