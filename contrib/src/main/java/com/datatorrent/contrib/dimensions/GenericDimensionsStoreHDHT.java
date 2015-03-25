@@ -342,6 +342,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
                                               MutableBoolean queueContext,
                                               FetchResult context)
     {
+      System.out.println("Processing query");
       if(metaQuery.hdsQuery.processed) {
         context.setQueryDone(true);
         context.setEventKey(query);
