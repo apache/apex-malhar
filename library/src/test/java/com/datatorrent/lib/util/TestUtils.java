@@ -130,6 +130,12 @@ public class TestUtils
     {
       return 0;
     }
+
+    @Override
+    public List<StatsListener.OperatorResponse> getOperatorResponse()
+    {
+      return null;
+    }
   }
 
   /**
