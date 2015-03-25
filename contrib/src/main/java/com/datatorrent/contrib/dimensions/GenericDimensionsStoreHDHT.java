@@ -225,7 +225,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
       else {
         GenericAggregateEvent waitingCachedGAE = waitingCache.get(gae.getEventKey());
-        logger.info("Missing event {}, windowId", gae.getEventKey(), windowID);
+        logger.info("Missing event {}, windowId {}", gae.getEventKey(), windowID);
         DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
 
         aggregator.aggregate(waitingCachedGAE, gae);
