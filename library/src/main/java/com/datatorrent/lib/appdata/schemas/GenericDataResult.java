@@ -6,6 +6,7 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.appdata.qr.DataSerializerInfo;
 import com.datatorrent.lib.appdata.qr.Result;
 import com.google.common.base.Preconditions;
 
@@ -16,6 +17,7 @@ import java.util.List;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
+@DataSerializerInfo(clazz=GenericDataResultSerializer.class)
 public class GenericDataResult extends Result
 {
   public static final String FIELD_COUNTDOWN = "countdown";
