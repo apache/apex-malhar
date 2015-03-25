@@ -659,4 +659,15 @@ public class GPOUtils
            (((int) buffer[2 + offset]) & 0xFF) << 8  |
            (((int) buffer[3 + offset]) & 0xFF) ;
   }
+
+  public static byte[] serializeInt(int val)
+  {
+    byte[] byteVals = new byte[4];
+    byteVals[0] = (byte) ((val >> 24) & 0xFF);
+    byteVals[1] = (byte) ((val >> 16) & 0xFF);
+    byteVals[2] = (byte) ((val >> 8) & 0xFF);
+    byteVals[3] = (byte) ((val) & 0xFF);
+
+    return byteVals;
+  }
 }

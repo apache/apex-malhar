@@ -92,11 +92,11 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
   public GenericAggregateEvent fromKeyValueGAE(Slice key, byte[] aggregate)
   {
-    int schemaID = GPOUtils.deserializeInt(aggregate,
+    int schemaID = GPOUtils.deserializeInt(key.buffer,
                                            0);
-    int dimensionDescriptorID = GPOUtils.deserializeInt(aggregate,
+    int dimensionDescriptorID = GPOUtils.deserializeInt(key.buffer,
                                                         4);
-    int aggregatorID = GPOUtils.deserializeInt(aggregate,
+    int aggregatorID = GPOUtils.deserializeInt(key.buffer,
                                                 8);
 
     logger.info("deserializing schemaID {} ddID {} aggID {}", schemaID, dimensionDescriptorID, aggregatorID);
