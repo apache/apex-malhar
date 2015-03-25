@@ -64,8 +64,8 @@
 
   <!-- Settings for GenericAdsDimensionsDemoWithHDHTtest -->
   <property>
-    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.Store.fileStore.basePath</name>
-    <value>GenericAdsDimensionsDemoWithHDHTtest/Store</value>
+    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.Store.fileStore.basePathPrefix</name>
+    <value>AdsDimensionsWithHDSDemo/Store</value>
   </property>
   <property>
     <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.useWebSockets</name>

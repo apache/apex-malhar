@@ -39,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
+
 /**
  * An AdsDimensionsDemo run with HDHT
  *
@@ -122,6 +123,7 @@ public class GenericApplicationWithHDHT implements StreamingApplication
 
   public static final String APP_NAME = "GenericAdsDimensionsDemoWithHDHTtest";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
+  public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
   public static final String EVENT_SCHEMA = "adsGenericEventSchema.json";
   public static final String DIMENSIONAL_SCHEMA = "adsGenericDataSchema.json";
@@ -133,7 +135,16 @@ public class GenericApplicationWithHDHT implements StreamingApplication
     GenericAdsDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new GenericAdsDimensionComputation());
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     GenericAdsDimensionStore store = dag.addOperator("Store", GenericAdsDimensionStore.class);
+
+    String basePath = conf.get(PROP_STORE_PATH);
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
+
+    if(basePath != null) {
+      basePath += System.currentTimeMillis();
+      hdsFile.setBasePath(basePath);
+      System.out.println("Setting basePath " + basePath);
+    }
+
     store.setFileStore(hdsFile);
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
 
