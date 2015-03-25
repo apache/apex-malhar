@@ -57,6 +57,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   private long windowID;
 
   private transient QueryProcessor<EventKey, HDSGenericEventQueryMeta, MutableBoolean, FetchResult, GenericAggregateEvent> cacheQueryProcessor;
+  private long enqueueID = 0;
 
   public GenericDimensionsStoreHDHT()
   {
@@ -225,7 +226,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
       else {
         GenericAggregateEvent waitingCachedGAE = waitingCache.get(gae.getEventKey());
-        logger.info("Missing event {}, windowId {}", gae.getEventKey(), windowID);
+        logger.info("Missing event {}, windowId {}, enqueueID {} {}", gae.getEventKey(), windowID, enqueueID, fetchResult.getEnqueueID());
         DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
 
         aggregator.aggregate(waitingCachedGAE, gae);
@@ -330,7 +331,8 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
         operator.addQuery(hdsQuery);
       }
 
-      metaQuery = new HDSGenericEventQueryMeta();
+      metaQuery = new HDSGenericEventQueryMeta(enqueueID);
+      enqueueID++;
       metaQuery.setHDSQuery(hdsQuery);
       return super.enqueue(query, metaQuery, queueContext);
     }
@@ -357,6 +359,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
                                               MutableBoolean queueContext,
                                               FetchResult context)
     {
+      context.setEnqueueID(metaQuery.getEnqueueID());
       if(metaQuery.hdsQuery.processed) {
         context.setQueryDone(true);
         context.setEventKey(query);
@@ -386,6 +389,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     private boolean queueDone;
     private boolean queryDone;
     private EventKey eventKey;
+    private long enqueueID;
 
     public FetchResult()
     {
@@ -426,14 +430,32 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     {
       this.eventKey = eventKey;
     }
+
+    /**
+     * @param enqueueID the enqueueID to set
+     */
+    public void setEnqueueID(long enqueueID)
+    {
+      this.enqueueID = enqueueID;
+    }
+
+    /**
+     * @return the enqueueID
+     */
+    public long getEnqueueID()
+    {
+      return enqueueID;
+    }
   }
 
   public static class HDSGenericEventQueryMeta
   {
     private HDSQuery hdsQuery;
+    private long enqueueID;
 
-    public HDSGenericEventQueryMeta()
+    public HDSGenericEventQueryMeta(long enqueueID)
     {
+      this.enqueueID = enqueueID;
     }
 
     public void setHDSQuery(HDSQuery hdsQuery)
@@ -445,6 +467,14 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     public HDSQuery getHDSQuery()
     {
       return hdsQuery;
+    }
+
+    /**
+     * @return the enqueueID
+     */
+    public long getEnqueueID()
+    {
+      return enqueueID;
     }
   }
 }
