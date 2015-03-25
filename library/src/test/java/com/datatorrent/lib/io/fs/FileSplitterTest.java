@@ -379,7 +379,6 @@ public class FileSplitterTest
     Assert.assertEquals("Recovered Blocks", 2, testMeta.blockMetadataSink.collectedTuples.size());
 
     testMeta.fileSplitter.beginWindow(2);
-    testMeta.exchanger.exchange(null);
     testMeta.fileSplitter.emitTuples();
     testMeta.fileSplitter.endWindow();
 
