@@ -108,7 +108,6 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   @Override
   protected void processEvent(GenericAggregateEvent gae)
   {
-    System.out.println("processEvent");
     processGenericEvent(gae);
   }
 
