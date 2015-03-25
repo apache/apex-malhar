@@ -200,7 +200,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
       throw new UnsupportedOperationException("Invalid schemaID: " + schemaID);
     }
 
-    logger.info("Number of dd Schemas {}", eventSchema.getDdIDToKeyDescriptor());
+    logger.info("Number of dd Schemas {}", eventSchema.getDdIDToKeyDescriptor().size());
     return eventSchema.getDdIDToKeyDescriptor().get(dimensionsDescriptorID);
   }
 
@@ -211,6 +211,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
       throw new UnsupportedOperationException("Invalid schemaID: " + schemaID);
     }
 
+    logger.info("Number of aggregators {}", indexToFieldsDescriptor.get(dimensionsDescriptorID).size());
     return indexToFieldsDescriptor.get(dimensionsDescriptorID).get(aggregatorID);
   }
 
