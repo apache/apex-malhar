@@ -235,7 +235,7 @@ public class GenericEventSchema
     List<Map<String, FieldsDescriptor>> ddIDToAToAD = getDdIDToAggregatorToAggregateDescriptor();
 
     for(Map<String, FieldsDescriptor> aToAD: ddIDToAToAD) {
-      logger.debug("Dd to string aggMap: {}", aToAD);
+      logger.info("Dd to string aggMap: {}", aToAD);
       Map<Integer, FieldsDescriptor> aggDescriptorsList = Maps.newHashMap();
 
       for(Map.Entry<String, FieldsDescriptor> entry: aToAD.entrySet()) {

@@ -13,6 +13,8 @@ import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
 import java.util.Map;
@@ -28,6 +30,8 @@ public enum AggType
   SUM(new AggregatorSum()),
   COUNT(new AggregatorCount());
 
+  private static final Logger logger = LoggerFactory.getLogger(AggType.class);
+
   private DimensionsAggregator<GenericAggregateEvent> aggregator;
   public static final Map<String, Integer> NAME_TO_ORDINAL;
 
@@ -35,6 +39,7 @@ public enum AggType
     Map<String, Integer> nameToOrdinal = Maps.newHashMap();
 
     for(AggType aggType: AggType.values()) {
+      logger.info("Aggs: {} {}", aggType.name(), aggType.ordinal());
       nameToOrdinal.put(aggType.name(), aggType.ordinal());
     }
 
