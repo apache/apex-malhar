@@ -216,6 +216,12 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
       }
       return true;
     }
+
+    @Override
+    public String toString()
+    {
+      return "EventKey{" + "schemaID=" + schemaID + ", dimensionDescriptorID=" + dimensionDescriptorID + ", aggregatorIndex=" + aggregatorIndex + ", key=" + key + '}';
+    }
   }
 
   public static class ID implements Comparable<ID>
