@@ -357,7 +357,9 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
         context.setEventKey(query);
         queueContext.setValue(true);
 
-        return fromKeyValueGAE(metaQuery.hdsQuery.key, metaQuery.hdsQuery.result);
+        if(metaQuery.hdsQuery.result != null) {
+          return fromKeyValueGAE(metaQuery.hdsQuery.key, metaQuery.hdsQuery.result);
+        }
       }
       else
       {

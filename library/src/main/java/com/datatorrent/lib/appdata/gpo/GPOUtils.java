@@ -582,8 +582,6 @@ public class GPOUtils
     for(String field: fieldsDescriptor.getFields().getFields()) {
       Type type = fieldsDescriptor.getType(field);
 
-      logger.info("serializedGPO Size: {}, offset {}", serializedGPO.length, offset);
-
       if(type == Type.BOOLEAN) {
         boolean val = serializedGPO[offset] == (byte) 1;
         gpo.setField(field, val);
