@@ -6,6 +6,8 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -13,6 +15,8 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
  */
 public class AggregatorSum implements DimensionsAggregator<GenericAggregateEvent>
 {
+  private static final Logger logger = LoggerFactory.getLogger(AggregatorSum.class);
+
   public AggregatorSum()
   {
   }
@@ -26,6 +30,7 @@ public class AggregatorSum implements DimensionsAggregator<GenericAggregateEvent
     for(String field: destGPO.getFieldDescriptor().getFields().getFields()) {
       Object destObj = destGPO.getField(field);
       Object srcObj = srcGPO.getField(field);
+      logger.info("The field is {}", field);
 
       if(!srcObj.getClass().equals(destObj.getClass())) {
         throw new UnsupportedOperationException("Cannot aggregate different types.");
