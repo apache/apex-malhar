@@ -220,6 +220,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
       else {
         GenericAggregateEvent waitingCachedGAE = waitingCache.get(gae.getEventKey());
+        logger.info("Missing event {}", gae.getEventKey());
         DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
 
         aggregator.aggregate(waitingCachedGAE, gae);
@@ -355,9 +356,8 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
         context.setQueryDone(true);
         context.setEventKey(query);
         queueContext.setValue(true);
-        if(metaQuery.hdsQuery.result != null) {
-          return fromKeyValueGAE(metaQuery.hdsQuery.key, metaQuery.hdsQuery.result);
-        }
+
+        return fromKeyValueGAE(metaQuery.hdsQuery.key, metaQuery.hdsQuery.result);
       }
       else
       {

@@ -31,7 +31,7 @@ public class GenericInputItemGenerator implements InputOperator
   @Min(1)
   private int numTuplesPerWindow = 3000;
   private transient int windowCount = 0;
-  private final Random random = new Random();
+  private final Random random = new Random(0);
   public final transient DefaultOutputPort<GenericAdInfo> outputPort = new DefaultOutputPort<GenericAdInfo>();
 
   private static final Logger logger = LoggerFactory.getLogger(InputItemGenerator.class);

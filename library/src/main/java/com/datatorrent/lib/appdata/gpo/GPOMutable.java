@@ -430,4 +430,10 @@ public class GPOMutable implements Serializable
     }
     return true;
   }
+
+  @Override
+  public String toString()
+  {
+    return "GPOMutable{" + "fieldToBoolean=" + fieldToBoolean + ", fieldToCharacter=" + fieldToCharacter + ", fieldToString=" + fieldToString + ", fieldToByte=" + fieldToByte + ", fieldToShort=" + fieldToShort + ", fieldToInteger=" + fieldToInteger + ", fieldToLong=" + fieldToLong + ", fieldToFloat=" + fieldToFloat + ", fieldToDouble=" + fieldToDouble + ", fieldDescriptor=" + fieldDescriptor + '}';
+  }
 }
