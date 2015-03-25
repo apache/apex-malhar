@@ -108,7 +108,6 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   @Override
   protected void processEvent(GenericAggregateEvent gae)
   {
-    logger.info("processEvent");
     processGenericEvent(gae);
   }
 
@@ -198,7 +197,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
       else if(gae == null) {
         GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
-        logger.info("Added to non waiting.");
+        System.out.println("Added to non waiting.");
         nonWaitingCache.put(fetchResult.getEventKey(), tgae);
       }
       else {
@@ -207,7 +206,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
         aggregator.aggregate(waitingCachedGAE, gae);
         waitingCache.remove(gae.getEventKey());
-        logger.info("Added to non waiting.");
+        System.out.println("Added to non waiting.");
         nonWaitingCache.put(gae.getEventKey(), gae);
       }
     }
