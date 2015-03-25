@@ -196,6 +196,8 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
         break;
       }
 
+      System.out.println("Queue not done.");
+
       if(!fetchResult.isQueryDone()) {
         continue;
       }
