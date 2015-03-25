@@ -220,7 +220,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
 
       if(gae == null) {
-        logger.info("Other removal {}, windowId {}", fetchResult.getEventKey(), windowID);
+        logger.info("Other removal {}, windowId {} enqueueID {} {}", fetchResult.getEventKey(), windowID, enqueueID, fetchResult.getEnqueueID());
         GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
         nonWaitingCache.put(fetchResult.getEventKey(), tgae);
       }
@@ -320,6 +320,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     @Override
     public boolean enqueue(EventKey query, HDSGenericEventQueryMeta metaQuery, MutableBoolean queueContext)
     {
+      logger.info("Enqueued: {}", enqueueID);
       Slice key = new Slice(getEventKeyBytesGAE(query));
       HDSQuery hdsQuery = operator.queries.get(key);
 
