@@ -343,7 +343,6 @@ public class FileSplitterTest
     Assert.assertEquals("Blocks", 6, testMeta.blockMetadataSink.collectedTuples.size());
   }
 
-  @Test
   public void testRecoveryOfPartialFile() throws InterruptedException
   {
     Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
