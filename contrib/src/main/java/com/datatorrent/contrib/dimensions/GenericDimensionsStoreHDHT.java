@@ -320,7 +320,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     @Override
     public boolean enqueue(EventKey query, HDSGenericEventQueryMeta metaQuery, MutableBoolean queueContext)
     {
-      logger.info("Enqueued: {}", enqueueID);
+      logger.info("WindowID: {} Enqueued: {}", windowID, enqueueID);
       Slice key = new Slice(getEventKeyBytesGAE(query));
       HDSQuery hdsQuery = operator.queries.get(key);
 
