@@ -291,7 +291,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
         hdsQuery = new HDSQuery();
         hdsQuery.bucketKey = getBucketForSchema(query.getSchemaID());
         hdsQuery.key = key;
-        hdsQuery.keepAliveCount = operator.keepAliveTime;
+        hdsQuery.keepAliveCount = 1;
         operator.addQuery(hdsQuery);
       }
 

@@ -64,10 +64,13 @@ public class GenericDataQuery extends Query
   private boolean fromTo = false;
   private Fields keyFields;
 
-  public GenericDataQuery(GPOImmutable keys,
+  public GenericDataQuery(String id,
+                          String type,
+                          GPOImmutable keys,
                           Fields fields,
                           boolean incompleteResultOK)
   {
+    super(id, type);
     setKeys(keys);
     setFields(fields);
     setIncompleteResultOK(incompleteResultOK);
@@ -76,12 +79,15 @@ public class GenericDataQuery extends Query
     initialize();
   }
 
-  public GenericDataQuery(int latestNumBuckets,
+  public GenericDataQuery(String id,
+                          String type,
+                          int latestNumBuckets,
                           TimeBucket timeBucket,
                           GPOImmutable keys,
                           Fields fields,
                           boolean incompleteResultOK)
   {
+    super(id, type);
     setLatestNumBuckets(latestNumBuckets);
     setTimeBucket(timeBucket);
     setKeys(keys);
@@ -94,13 +100,16 @@ public class GenericDataQuery extends Query
     initialize();
   }
 
-  public GenericDataQuery(String from,
+  public GenericDataQuery(String id,
+                          String type,
+                          String from,
                           String to,
                           TimeBucket timeBucket,
                           GPOImmutable keys,
                           Fields fields,
                           boolean incompleteResultOK)
   {
+    super(id, type);
     setFrom(from);
     setTo(to);
     setTimeBucket(timeBucket);
@@ -114,7 +123,9 @@ public class GenericDataQuery extends Query
     initialize();
   }
 
-  public GenericDataQuery(String from,
+  public GenericDataQuery(String id,
+                          String type,
+                          String from,
                           String to,
                           TimeBucket timeBucket,
                           GPOImmutable keys,
@@ -122,6 +133,7 @@ public class GenericDataQuery extends Query
                           long countdown,
                           boolean incompleteResultOK)
   {
+    super(id, type);
     setFrom(from);
     setTo(to);
     setTimeBucket(timeBucket);
@@ -136,13 +148,16 @@ public class GenericDataQuery extends Query
     initialize();
   }
 
-  public GenericDataQuery(int latestNumBuckets,
+  public GenericDataQuery(String id,
+                          String type,
+                          int latestNumBuckets,
                           TimeBucket timeBucket,
                           GPOImmutable keys,
                           Fields fields,
                           long countdown,
                           boolean incompleteResultOK)
   {
+    super(id, type);
     setLatestNumBuckets(latestNumBuckets);
     setTimeBucket(timeBucket);
     setKeys(keys);
