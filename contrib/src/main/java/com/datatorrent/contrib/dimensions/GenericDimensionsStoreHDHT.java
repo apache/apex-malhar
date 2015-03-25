@@ -12,8 +12,9 @@ import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.GenericAggregateEventUtils;
 import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
+import com.datatorrent.lib.appdata.gpo.GPOImmutable;
+import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
@@ -92,18 +93,30 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
   public GenericAggregateEvent fromKeyValueGAE(Slice key, byte[] aggregate)
   {
+    int offset = 0;
     int schemaID = GPOUtils.deserializeInt(key.buffer,
-                                           0);
+                                           offset);
+    offset += 4;
     int dimensionDescriptorID = GPOUtils.deserializeInt(key.buffer,
-                                                        4);
+                                                        offset);
+    offset += 4;
     int aggregatorID = GPOUtils.deserializeInt(key.buffer,
-                                                8);
+                                               offset);
+    offset += 4;
 
     logger.info("deserializing schemaID {} ddID {} aggID {}", schemaID, dimensionDescriptorID, aggregatorID);
     FieldsDescriptor keysDescriptor = getKeyDescriptor(schemaID, dimensionDescriptorID);
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 
-    return GenericAggregateEventUtils.deserialize(aggregate, keysDescriptor, aggDescriptor);
+    GPOMutable keys = GPOUtils.deserialize(keysDescriptor, key.buffer, offset);
+    GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, 0);
+
+    GenericAggregateEvent gae = new GenericAggregateEvent(new GPOImmutable(keys),
+                                                          aggs,
+                                                          schemaID,
+                                                          dimensionDescriptorID,
+                                                          aggregatorID);
+    return gae;
   }
 
   @Override

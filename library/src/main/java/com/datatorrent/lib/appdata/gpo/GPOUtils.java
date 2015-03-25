@@ -574,11 +574,10 @@ public class GPOUtils
   }
 
   public static GPOMutable deserialize(FieldsDescriptor fieldsDescriptor,
-                                       byte[] serializedGPO)
+                                       byte[] serializedGPO,
+                                       int offset)
   {
     GPOMutable gpo = new GPOMutable(fieldsDescriptor);
-
-    int offset = 0;
 
     for(String field: fieldsDescriptor.getFields().getFields()) {
       Type type = fieldsDescriptor.getType(field);
