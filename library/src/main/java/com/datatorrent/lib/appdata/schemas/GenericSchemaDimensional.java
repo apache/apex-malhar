@@ -28,6 +28,7 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
   public static final String FIELD_KEYS = "keys";
   public static final String FIELD_KEY_NAME = "name";
   public static final String FIELD_KEY_VALS = "enumValues";
+  public static final String FIELD_KEY_TYPE = "type";
 
   public static final String EXTRA_FIELD_NAME_TIME = "time";
   public static final Type EXTRA_FIELD_TYPE_TIME = Type.STRING;
@@ -71,6 +72,7 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
                                " in the key definition, but found " + keyVal.length());
 
       String keyName = keyVal.getString(FIELD_KEY_NAME);
+      keyToType.put(keyName, Type.STRING);
       JSONArray valArray = keyVal.getJSONArray(FIELD_KEY_VALS);
 
       Type maxType = null;
