@@ -189,8 +189,12 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     FetchResult fetchResult = new FetchResult();
     fetchResult.setQueueDone(false);
 
-    while(!fetchResult.isQueueDone()) {
+    while(true) {
       GenericAggregateEvent gae = cacheQueryProcessor.process(fetchResult);
+
+      if(fetchResult.isQueueDone()) {
+        break;
+      }
 
       if(!fetchResult.isQueryDone()) {
         continue;
@@ -296,6 +300,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     @Override
     public boolean enqueue(EventKey query, HDSGenericEventQueryMeta metaQuery, MutableBoolean queueContext)
     {
+      System.out.println("Enqueued.");
       Slice key = new Slice(getEventKeyBytesGAE(query));
       HDSQuery hdsQuery = operator.queries.get(key);
 
