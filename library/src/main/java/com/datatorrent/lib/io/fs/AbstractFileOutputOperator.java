@@ -18,11 +18,7 @@ package com.datatorrent.lib.io.fs;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
-<<<<<<< HEAD
 import java.io.OutputStream;
-=======
-
->>>>>>> dt-dev
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -34,11 +30,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Strings;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
+import com.google.common.cache.*;
 import com.google.common.collect.Maps;
 
 import org.slf4j.Logger;
@@ -47,15 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocalFileSystem;
-import org.apache.hadoop.fs.Options;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.RawLocalFileSystem;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.permission.FsPermission;
 
 import com.datatorrent.lib.counters.BasicCounters;
 
@@ -65,7 +50,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import org.apache.hadoop.fs.permission.FsPermission;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
