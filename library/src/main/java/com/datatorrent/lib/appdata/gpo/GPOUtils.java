@@ -637,6 +637,22 @@ public class GPOUtils
         String valString = new String(serializedGPO, offset, length);
         gpo.setField(field, valString);
       }
+      else if(type == Type.FLOAT) {
+        BB_4.get(serializedGPO, offset, 4);
+        BB_4.rewind();
+        float val = BB_4.getFloat();
+        BB_4.clear();
+        gpo.setField(field, val);
+        offset += 4;
+      }
+      else if(type == Type.DOUBLE) {
+        BB_8.get(serializedGPO, offset, 8);
+        BB_8.rewind();
+        double val = BB_8.getDouble();
+        BB_8.clear();
+        gpo.setField(field, val);
+        offset += 8;
+      }
       else {
         throw new UnsupportedOperationException("The field " + field + " doesn't have a valid type.");
       }
