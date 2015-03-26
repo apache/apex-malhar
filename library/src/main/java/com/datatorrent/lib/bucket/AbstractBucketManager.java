@@ -82,7 +82,6 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   public static long DEF_MILLIS_PREVENTING_EVICTION = 10 * 60000;
   private static long RESERVED_BUCKET_KEY = -2;
   //Check-pointed
-
   @Min(1)
   protected int noOfBuckets;
   @Min(1)
@@ -211,7 +210,6 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   }
 
   public abstract long getBucketKeyFor(T event);
-
 
   @Override
   public void run()
