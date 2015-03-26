@@ -568,6 +568,9 @@ public class GPOUtils
         byteList.add(BB_8.array());
         BB_8.clear();
       }
+      else {
+        throw new UnsupportedOperationException("The field " + field + " doesn't have a valid type.");
+      }
     }
 
     return byteList.toByteArray();
@@ -581,6 +584,7 @@ public class GPOUtils
 
     for(String field: fieldsDescriptor.getFields().getFields()) {
       Type type = fieldsDescriptor.getType(field);
+      logger.info("Deserializing field {} offset {} length {}", field, offset, serializedGPO.length);
 
       if(type == Type.BOOLEAN) {
         boolean val = serializedGPO[offset] == (byte) 1;
@@ -632,6 +636,9 @@ public class GPOUtils
         offset += 4;
         String valString = new String(serializedGPO, offset, length);
         gpo.setField(field, valString);
+      }
+      else {
+        throw new UnsupportedOperationException("The field " + field + " doesn't have a valid type.");
       }
     }
 
