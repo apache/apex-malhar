@@ -62,7 +62,7 @@ public class HdfsBucketStoreTest
 
         for (int i = 0; i < 10; i++) {
           DummyEvent event = new DummyEvent(i, System.currentTimeMillis());
-         // bucketData.put(event.getEventKey(), event);
+          bucketData.put(event.getEventKey(), event);
         }
       }
       rootBucketPath = new Path(bucketStore.bucketRoot);
@@ -132,15 +132,15 @@ public class HdfsBucketStoreTest
     //populate data for window 1
     testMeta.data = Maps.newHashMap();
     Map<Object, DummyEvent> bucketData = Maps.newHashMap();
-//    bucketData.put(newEvent.getEventKey(), newEvent);
+    bucketData.put(newEvent.getEventKey(), newEvent);
     testMeta.data.put(0, bucketData);
     //store data for window 1
     testMeta.util.storeBucket(1);
 
     Map<Object, DummyEvent> fetchBucket = testMeta.bucketStore.fetchBucket(0);
-  //  DummyEvent retrievedEvent = fetchBucket.get(newEvent.getEventKey());
+    DummyEvent retrievedEvent = fetchBucket.get(newEvent.getEventKey());
 
-  //  Assert.assertTrue("latest value", retrievedEvent.equals(newEvent));
+    Assert.assertTrue("latest value", retrievedEvent.equals(newEvent));
   }
 
   public static class BucketStoreTestsUtil

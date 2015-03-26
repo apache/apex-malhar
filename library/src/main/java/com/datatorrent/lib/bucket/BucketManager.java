@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -82,10 +82,10 @@ public interface BucketManager<T>
    * Calculates the bucket key of an event.<br/>
    * -ve values indicate invalid event.
    *
-   * @param event event
+   * @param event being a HashMap in current implementation.
    * @return bucket key for event.
    */
-  long getBucketKeyFor(T Event);
+  long getBucketKeyFor(T event);
 
   /**
    * <p>
@@ -119,7 +119,7 @@ public interface BucketManager<T>
    * @param bucketKey key of the bucket.
    * @param event     new event.
    */
-  void newEvent(long bucketKey, T event,BucketableCustomKey key);
+  void newEvent(long bucketKey, T event);
 
   /**
    * Does end window operations which includes tracking the committed window and

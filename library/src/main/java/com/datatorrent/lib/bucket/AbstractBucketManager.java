@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,6 +40,7 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.counters.BasicCounters;
+import java.util.*;
 
 /**
  * A {@link BucketManager} implementation.
@@ -74,13 +75,14 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <T> event type
  * @since 0.9.4
  */
-public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
+public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runnable
 {
   public static int DEF_NUM_BUCKETS = 1000;
   public static int DEF_NUM_BUCKETS_MEM = 120;
   public static long DEF_MILLIS_PREVENTING_EVICTION = 10 * 60000;
   private static long RESERVED_BUCKET_KEY = -2;
   //Check-pointed
+
   @Min(1)
   protected int noOfBuckets;
   @Min(1)
@@ -112,7 +114,7 @@ public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
   protected transient boolean recordStats;
   protected transient BasicCounters<MutableLong> bucketCounters;
 
-  public BucketManagerImpl()
+  public AbstractBucketManager()
   {
     eventQueue = new LinkedBlockingQueue<Long>();
     evictionCandidates = Sets.newHashSet();
@@ -208,11 +210,8 @@ public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
     bucketStore.teardown();
   }
 
-  @Override
-  public long getBucketKeyFor(T event)
-  {
-    return Math.abs(event.hashCode()) / noOfBuckets;
-  }
+  public abstract long getBucketKeyFor(T event);
+
 
   @Override
   public void run()
@@ -286,7 +285,7 @@ public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
 
             Bucket<T> bucket = buckets[bucketIdx];
             if (bucket == null || bucket.bucketKey != requestedKey) {
-              bucket = new Bucket<T>(requestedKey);
+              bucket = createBucket(requestedKey);
               buckets[bucketIdx] = bucket;
             }
             bucket.setWrittenEvents(bucketDataInStore);
@@ -354,14 +353,14 @@ public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
   }
 
   @Override
-  public void newEvent(long bucketKey, T event,BucketableCustomKey customKey)
+  public void newEvent(long bucketKey, T event)
   {
     int bucketIdx = (int) (bucketKey % noOfBuckets);
 
     Bucket<T> bucket = buckets[bucketIdx];
 
     if (bucket == null || bucket.bucketKey != bucketKey) {
-      bucket = new Bucket<T>(bucketKey);
+      bucket = createBucket(bucketKey);
       buckets[bucketIdx] = bucket;
       dirtyBuckets.put(bucketIdx, bucket);
     }
@@ -369,7 +368,7 @@ public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
       dirtyBuckets.put(bucketIdx, bucket);
     }
 
-    bucket.addNewEvent(customKey, writeEventKeysOnly ? null : event);
+    bucket.addNewEvent(getEventKey(event), writeEventKeysOnly ? null : event);
     if (recordStats) {
       bucketCounters.getCounter(CounterKeys.EVENTS_IN_MEMORY).increment();
     }
@@ -426,49 +425,14 @@ public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
     eventQueue.offer(bucketKey);
   }
 
-  @Override
-  public void definePartitions(List<BucketManager<T>> oldManagers, Map<Integer, BucketManager<T>> partitionKeysToManagers, int partitionMask)
-  {
-    for (BucketManager<T> manager : oldManagers) {
-      BucketManagerImpl<T> managerImpl = (BucketManagerImpl<T>) manager;
 
-      for (Map.Entry<Integer, Bucket<T>> bucketEntry : managerImpl.dirtyBuckets.entrySet()) {
-        Bucket<T> sourceBucket = bucketEntry.getValue();
-        int sourceBucketIdx = bucketEntry.getKey();
+  protected abstract Bucket<T> createBucket(long requestedKey);
 
-        for (Map.Entry<Object, T> eventEntry : sourceBucket.getUnwrittenEvents().entrySet()) {
-          int partition = eventEntry.getKey().hashCode() & partitionMask;
-          BucketManagerImpl<T> newManagerImpl = (BucketManagerImpl<T>) partitionKeysToManagers.get(partition);
+  protected abstract Object getEventKey(T event);
+  protected abstract AbstractBucketManager<T> getBucketManagerImpl();
 
-          Bucket<T> destBucket = newManagerImpl.dirtyBuckets.get(sourceBucketIdx);
-          if (destBucket == null) {
-            destBucket = new Bucket<T>(sourceBucket.bucketKey);
-            newManagerImpl.dirtyBuckets.put(sourceBucketIdx, destBucket);
-          }
-          destBucket.addNewEvent(eventEntry.getKey(), eventEntry.getValue());
-        }
-      }
-    }
-  }
+  protected abstract boolean checkInstanceOfBucketManager(Object o);
 
-  @Override
-  public BucketManagerImpl<T> cloneWithProperties()
-  {
-    BucketManagerImpl<T> clone = new BucketManagerImpl<T>();
-    copyPropertiesTo(clone);
-    return clone;
-  }
-
-  protected void copyPropertiesTo(BucketManagerImpl<T> other)
-  {
-    other.writeEventKeysOnly = writeEventKeysOnly;
-    other.noOfBuckets = noOfBuckets;
-    other.noOfBucketsInMemory = noOfBucketsInMemory;
-    other.maxNoOfBucketsInMemory = maxNoOfBucketsInMemory;
-    other.millisPreventingBucketEviction = millisPreventingBucketEviction;
-    other.bucketStore = bucketStore;
-    other.committedWindow = committedWindow;
-  }
 
   @SuppressWarnings("ClassMayBeInterface")
   private static class Lock
@@ -481,12 +445,12 @@ public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
     if (this == o) {
       return true;
     }
-    if (!(o instanceof BucketManagerImpl)) {
+
+    if(!checkInstanceOfBucketManager(o))
       return false;
-    }
 
     @SuppressWarnings("unchecked")
-    BucketManagerImpl<T> that = (BucketManagerImpl<T>) o;
+    AbstractBucketManager<T> that = getBucketManagerImpl();
 
     if (committedWindow != that.committedWindow) {
       return false;
@@ -527,5 +491,50 @@ public class BucketManagerImpl<T> implements BucketManager<T>, Runnable
     return result;
   }
 
-  private static transient final Logger logger = LoggerFactory.getLogger(BucketManagerImpl.class);
+  @Override
+  public AbstractBucketManager<T> cloneWithProperties()
+  {
+    AbstractBucketManager<T> clone = getBucketManagerImpl();
+    copyPropertiesTo(clone);
+    return clone;
+  }
+
+   protected void copyPropertiesTo(AbstractBucketManager<T> other)
+  {
+    other.writeEventKeysOnly = writeEventKeysOnly;
+    other.noOfBuckets = noOfBuckets;
+    other.noOfBucketsInMemory = noOfBucketsInMemory;
+    other.maxNoOfBucketsInMemory = maxNoOfBucketsInMemory;
+    other.millisPreventingBucketEviction = millisPreventingBucketEviction;
+    other.bucketStore = bucketStore;
+    other.committedWindow = committedWindow;
+  }
+
+    @Override
+  public void definePartitions(List<BucketManager<T>> oldManagers, Map<Integer, BucketManager<T>> partitionKeysToManagers, int partitionMask)
+  {
+    for (BucketManager<T> manager : oldManagers) {
+      AbstractBucketManager<T> managerImpl = (AbstractBucketManager<T>) manager;
+
+      for (Map.Entry<Integer, Bucket<T>> bucketEntry : managerImpl.dirtyBuckets.entrySet()) {
+        Bucket<T> sourceBucket = bucketEntry.getValue();
+        int sourceBucketIdx = bucketEntry.getKey();
+
+        for (Map.Entry<Object, T> eventEntry : sourceBucket.getUnwrittenEvents().entrySet()) {
+          int partition = eventEntry.getKey().hashCode() & partitionMask;
+          AbstractBucketManager<T> newManagerImpl = (AbstractBucketManager<T>) partitionKeysToManagers.get(partition);
+
+          Bucket<T> destBucket = newManagerImpl.dirtyBuckets.get(sourceBucketIdx);
+          if (destBucket == null) {
+            destBucket = createBucket(sourceBucket.bucketKey);
+            newManagerImpl.dirtyBuckets.put(sourceBucketIdx, destBucket);
+          }
+          destBucket.addNewEvent(eventEntry.getKey(), eventEntry.getValue());
+        }
+      }
+    }
+  }
+
+  private static transient final Logger logger = LoggerFactory.getLogger(AbstractBucketManager.class);
+
 }

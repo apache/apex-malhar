@@ -6,9 +6,11 @@ package com.datatorrent.lib.bucket;
 
 import java.util.ArrayList;
 
-public class BucketableCustomKey implements Bucketable
+public class BucketableCustomKey implements Bucketable,Event
 {
-  private ArrayList<Object> key;
+  protected ArrayList<Object> key;
+  protected int size;
+  protected String time;
 
   public ArrayList<Object> getKey()
   {
@@ -20,19 +22,23 @@ public class BucketableCustomKey implements Bucketable
     this.key = key;
   }
 
+  public int size()
+  {
+    size = key.size();
+    return size;
+  }
+
   @Override
   public Object getEventKey()
   {
-    return this;
+    return key;
   }
 
   @Override
   public int hashCode()
   {
-    int result = 31;
-    for (Object key1: key) {
-      result = 23 * result + key1.hashCode();
-    }
+    int result = key != null ? key.hashCode() : 0;
+    result = 31 * result + 23 * Integer.parseInt(time);
     return result;
   }
 
@@ -46,32 +52,27 @@ public class BucketableCustomKey implements Bucketable
       return false;
     }
 
-    BucketableCustomKey customKey = (BucketableCustomKey) o;
+    BucketableCustomKey temp = (BucketableCustomKey) o;
 
-    if (key != null ? !key.equals(customKey.key) : customKey.key != null) {
+    if (time != temp.time) {
       return false;
     }
-
-    if(key!=null)
-    {
-      if(key.size() == customKey.key.size())
-      {
-         for(int i=0;i<key.size();i++)
-         {
-           if(!key.get(i).equals(customKey.key.get(i)))
-             return false;
-         }
-         return true;
-      }
-      else
-        return false;
-    }
-    else if(customKey.key!=null)
-    {
+    if (key != null ? !key.equals(temp.key) : temp.key != null) {
       return false;
     }
 
     return true;
+  }
+
+  @Override
+  public String getTime()
+  {
+    return time;
+  }
+
+  public void setTime(String time)
+  {
+    this.time = time;
   }
 
 }

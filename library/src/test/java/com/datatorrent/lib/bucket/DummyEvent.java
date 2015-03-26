@@ -20,10 +20,10 @@ import javax.annotation.Nonnull;
 /**
  * Test event.
  */
-public class DummyEvent implements Event//, Bucketable, Comparable<DummyEvent>
+public class DummyEvent implements Event, Bucketable, Comparable<DummyEvent>
 {
   Integer id;
-  long time;
+  String time;
 
   @SuppressWarnings("unused")
   DummyEvent()
@@ -33,11 +33,11 @@ public class DummyEvent implements Event//, Bucketable, Comparable<DummyEvent>
   public DummyEvent(int id, long time)
   {
     this.id = id;
-    this.time = time;
+   // this.time = time;
   }
 
   @Override
-  public long getTime()
+  public String getTime()
   {
     return time;
   }
@@ -68,11 +68,11 @@ public class DummyEvent implements Event//, Bucketable, Comparable<DummyEvent>
   public int hashCode()
   {
     int result = id != null ? id.hashCode() : 0;
-    result = 31 * result + (int) (time ^ (time >>> 32));
+   // result = 31 * result + (int) (time ^ (time >>> 32));
     return result;
   }
 
- /* @Override
+  @Override
   public Object getEventKey()
   {
     return id;
@@ -89,7 +89,7 @@ public class DummyEvent implements Event//, Bucketable, Comparable<DummyEvent>
 //      return -1;
 //    }
 //    return 1;
-  }*/
+  }
 
   @Override
   public String toString()

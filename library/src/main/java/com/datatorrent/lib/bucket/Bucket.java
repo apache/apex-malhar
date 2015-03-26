@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -45,13 +45,14 @@ import com.google.common.collect.Maps;
  * @param <T> type of bucket events
  * @since 0.9.4
  */
-public class Bucket<T>
+public abstract class Bucket<T>
 {
   public final long bucketKey;
-  private Map<Object, T> unwrittenEvents;
-  private transient Map<Object, T> writtenEvents;
+  protected Map<Object, T> unwrittenEvents;
+  protected transient Map<Object, T> writtenEvents;
   private transient long lastUpdateTime;
   private transient boolean isDataOnDiskLoaded;
+  protected BucketableCustomKey customKey;
 
   @SuppressWarnings("unused")
   private Bucket()
@@ -64,6 +65,16 @@ public class Bucket<T>
     this.bucketKey = bucketKey;
     this.isDataOnDiskLoaded = false;
     this.lastUpdateTime = System.currentTimeMillis();
+  }
+
+  public BucketableCustomKey getCustomKey()
+  {
+    return customKey;
+  }
+
+  public void setCustomKey(BucketableCustomKey customKey)
+  {
+    this.customKey = customKey;
   }
 
   void setWrittenEvents(@Nonnull Map<Object, T> writtenEvents)
@@ -183,26 +194,6 @@ public class Bucket<T>
     return isDataOnDiskLoaded;
   }
 
-  /**
-   * Finds whether the bucket contains the event.
-   *
-   * @param event the {@link Bucketable} to search for in the bucket.
-   * @param customKey
-   * @return true if bucket has the event; false otherwise.
-   */
-  public boolean containsEvent(T event)
-  {
-    //GetKey from event or get another parameter
-    if (unwrittenEvents != null && unwrittenEvents.containsKey(event)) {
-      return true;
-    }
-    if (unwrittenEvents != null)
-    System.out.println("unwrittenEvents are " +unwrittenEvents.toString());
-        System.out.println("written are " +writtenEvents.toString());
-    System.out.println("customkey event key is" +  event);
-    return writtenEvents != null && writtenEvents.containsKey(event);
-  }
-
   @Override
   public String toString()
   {
@@ -227,5 +218,7 @@ public class Bucket<T>
   {
     return (int)(bucketKey ^ (bucketKey >>> 32));
   }
+
+  public abstract boolean containsEvent(T event);
 
 }

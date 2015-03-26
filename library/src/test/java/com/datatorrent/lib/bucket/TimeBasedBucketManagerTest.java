@@ -37,7 +37,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
   private static TestBucketManager<DummyEvent> manager;
   private static String applicationPath;
 
-  private static class TestBucketManager<T extends Event & Bucketable> extends TimeBasedBucketManagerImpl<T>
+  private static class TestBucketManager<T extends Event & Bucketable> extends TimeBasedBucketManagerOriginalImpl<T>
   {
     TestBucketManager()
     {

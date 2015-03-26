@@ -79,7 +79,7 @@ public interface BucketStore<T>
    */
   void setWriteEventKeysOnly(boolean writeEventKeysOnly);
 
-  public interface ExpirableBucketStore<T extends Event> extends BucketStore<T>
+  public interface ExpirableBucketStore<T> extends BucketStore<T>
   {
     void deleteExpiredBuckets(long time) throws IOException;
   }

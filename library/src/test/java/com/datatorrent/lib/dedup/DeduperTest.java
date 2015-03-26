@@ -36,11 +36,13 @@ import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DAG;
 
-import com.datatorrent.lib.bucket.*;
+import com.datatorrent.lib.bucket.Bucket;
+import com.datatorrent.lib.bucket.DummyEvent;
+import com.datatorrent.lib.bucket.ExpirableHdfsBucketStore;
+import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
-import java.util.*;
 
 /**
  * Tests for {@link Deduper}
@@ -55,11 +57,11 @@ public class DeduperTest
 
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
-  private static class DummyDeduper extends Deduper<HashMap<String,Object>, HashMap<String,Object>>
+  private static class DummyDeduper extends DeduperWithHdfsStore<DummyEvent, DummyEvent>
   {
 
     @Override
-    public void bucketLoaded(Bucket<HashMap<String,Object>> bucket)
+    public void bucketLoaded(Bucket<DummyEvent> bucket)
     {
       try {
         super.bucketLoaded(bucket);
@@ -70,26 +72,23 @@ public class DeduperTest
       }
     }
 
-
+    @Override
+    public DummyEvent convert(DummyEvent dummyEvent)
+    {
+      return dummyEvent;
+    }
 
     public void addEventManuallyToWaiting(DummyEvent event)
     {
-    //  waitingEvents.put(bucketManager.getBucketKeyFor(event,customKey), Lists.newArrayList(event));
+      waitingEvents.put(bucketManager.getBucketKeyFor(event), Lists.newArrayList(event));
     }
 
     @Override
-    public HashMap<String, Object> transformTuple(HashMap<String, Object> tuple)
+    protected int getPartitionKey(DummyEvent tuple, int mask)
     {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      int partition = tuple.getEventKey().hashCode() & mask;
+     return partition;
     }
-
-    @Override
-    protected HashMap<String, Object> convert(HashMap<String, Object> input)
-    {
-      throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
-
-
   }
 
   private static DummyDeduper deduper;
@@ -100,20 +99,16 @@ public class DeduperTest
   {
     List<DummyEvent> events = Lists.newArrayList();
     Calendar calendar = Calendar.getInstance();
-    ArrayList<Object> input = new ArrayList<Object>();
-
     for (int i = 0; i < 10; i++) {
       events.add(new DummyEvent(i, calendar.getTimeInMillis()));
-      input.add(i);
     }
     events.add(new DummyEvent(5, calendar.getTimeInMillis()));
+
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
-    BucketableCustomKey customKey = new BucketableCustomKey();
-    customKey.setKey(input);
+
     deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes));
-    deduper.setCustomKey(customKey);
     CollectorTestSink<DummyEvent> collectorTestSink = new CollectorTestSink<DummyEvent>();
     TestUtils.setSink(deduper.output, collectorTestSink);
 
@@ -159,10 +154,9 @@ public class DeduperTest
     deduper.teardown();
   }
 
-  private void testRound(List<HashMap<String,Object>> events)
+  private void testRound(List<DummyEvent> events)
   {
-    for (Iterator<HashMap<String, Object>> it = events.iterator(); it.hasNext();) {
-      HashMap<String, Object> event = it.next();
+    for (DummyEvent event : events) {
       deduper.input.process(event);
     }
     try {
@@ -196,11 +190,11 @@ public class DeduperTest
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     ExpirableHdfsBucketStore<DummyEvent>  bucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
     deduper = new DummyDeduper();
-    TimeBasedBucketManagerImpl<DummyEvent> storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
+    TimeBasedBucketManagerImpl storageManager = new TimeBasedBucketManagerImpl();
     storageManager.setBucketSpanInMillis(1000);
     storageManager.setMillisPreventingBucketEviction(60000);
     storageManager.setBucketStore(bucketStore);
-    deduper.setBucketManager(storageManager);
+   // deduper.setBucketManager(storageManager);
   }
 
   @AfterClass

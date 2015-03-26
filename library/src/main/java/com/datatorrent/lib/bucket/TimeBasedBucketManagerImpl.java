@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -30,14 +30,15 @@ import org.slf4j.LoggerFactory;
 import com.google.common.base.Preconditions;
 
 import com.datatorrent.lib.counters.BasicCounters;
+import java.util.HashMap;
+import javax.validation.constraints.NotNull;
 
 /**
  * A {@link BucketManager} that creates buckets based on time.<br/>
  *
- * @param <T> event type
  * @since 0.9.4
  */
-public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerImpl<T>
+public class TimeBasedBucketManagerImpl extends BucketManagerAppBuilderImpl
 {
   public static int DEF_DAYS_SPAN = 2;
   public static long DEF_BUCKET_SPAN_MILLIS = 60000;
@@ -105,9 +106,9 @@ public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerIm
   }
 
   @Override
-  public TimeBasedBucketManagerImpl<T> cloneWithProperties()
+  public TimeBasedBucketManagerImpl cloneWithProperties()
   {
-    TimeBasedBucketManagerImpl<T> clone = new TimeBasedBucketManagerImpl<T>();
+    TimeBasedBucketManagerImpl clone = (TimeBasedBucketManagerImpl)getBucketManagerImpl();
     copyPropertiesTo(clone);
     clone.bucketSpanInMillis = bucketSpanInMillis;
     clone.startOfBucketsInMillis = startOfBucketsInMillis;
@@ -117,7 +118,7 @@ public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerIm
   }
 
   @Override
-  public void setBucketStore(@Nonnull BucketStore<T> store)
+  public void setBucketStore(@Nonnull BucketStore store)
   {
     Preconditions.checkArgument(store instanceof BucketStore.ExpirableBucketStore);
     this.bucketStore = store;
@@ -149,7 +150,7 @@ public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerIm
   }
 
   @Override
-  public void startService(Listener<T> listener)
+  public void startService(Listener listener)
   {
     bucketSlidingTimer = new Timer();
     endOBucketsInMillis = expiryTime + (noOfBuckets * bucketSpanInMillis);
@@ -171,7 +172,7 @@ public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerIm
           }
         }
         try {
-          ((BucketStore.ExpirableBucketStore<T>) bucketStore).deleteExpiredBuckets(time);
+          ((BucketStore.ExpirableBucketStore<HashMap<String,Object>>) bucketStore).deleteExpiredBuckets(time);
         }
         catch (IOException e) {
           throw new RuntimeException(e);
@@ -183,16 +184,20 @@ public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerIm
   }
 
   @Override
-  public long getBucketKeyFor(T event)
+  public long getBucketKeyFor(HashMap<String,Object> event)
   {
-    long eventTime = event.getTime();
+    logger.debug("event is {}",event);
+    logger.debug("customkey is {}",customKey.getKey());
+    logger.debug("customTime is {}",customKey.getTime());
+    long eventTime = (Long)event.get(customKey.getTime());
+    logger.debug("eventtime is {}",eventTime);
     if (eventTime < expiryTime) {
       if (recordStats) {
         bucketCounters.getCounter(CounterKeys.IGNORED_EVENTS).increment();
       }
       return -1;
     }
-    long diffFromStart = event.getTime() - startOfBucketsInMillis;
+    long diffFromStart = eventTime - startOfBucketsInMillis;
     long key = diffFromStart / bucketSpanInMillis;
     synchronized (lock) {
       if (eventTime > endOBucketsInMillis) {
@@ -229,7 +234,7 @@ public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerIm
     }
 
     @SuppressWarnings("unchecked")
-    TimeBasedBucketManagerImpl<T> that = (TimeBasedBucketManagerImpl<T>) o;
+    TimeBasedBucketManagerImpl that = (TimeBasedBucketManagerImpl) o;
 
     if (bucketSpanInMillis != that.bucketSpanInMillis) {
       return false;
@@ -252,14 +257,14 @@ public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerIm
   }
 
   @Override
-  public void newEvent(long bucketKey, T event,BucketableCustomKey customkey)
+  public void newEvent(long bucketKey, HashMap<String,Object> event)
   {
     int bucketIdx = (int) (bucketKey % noOfBuckets);
 
-    Bucket<T> bucket = buckets[bucketIdx];
+    Bucket bucket = buckets[bucketIdx];
 
     if (bucket == null || bucket.bucketKey != bucketKey) {
-      bucket = new Bucket<T>(bucketKey);
+      bucket = new BucketAppBuilderImpl(bucketKey);
       buckets[bucketIdx] = bucket;
       dirtyBuckets.put(bucketIdx, bucket);
     }
@@ -267,12 +272,13 @@ public class TimeBasedBucketManagerImpl<T extends Event> extends BucketManagerIm
       dirtyBuckets.put(bucketIdx, bucket);
     }
 
-    bucket.addNewEvent(customkey, writeEventKeysOnly ? null : event);
+    bucket.addNewEvent(getEventKey(event), writeEventKeysOnly ? null : event);
     bucketCounters.getCounter(BucketManager.CounterKeys.EVENTS_IN_MEMORY).increment();
 
     Long max = maxTimesPerBuckets[bucketIdx];
-    if (max == null || event.getTime() > max) {
-      maxTimesPerBuckets[bucketIdx] = event.getTime();
+    Long eventTime = (Long)event.get(customKey.getTime());
+    if (max == null || eventTime > max) {
+      maxTimesPerBuckets[bucketIdx] = eventTime;
     }
   }
 

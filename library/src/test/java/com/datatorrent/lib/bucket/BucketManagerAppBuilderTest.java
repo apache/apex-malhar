@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,25 +31,31 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
  * Tests for {@link com.datatorrent.lib.bucket.BucketManagerImpl}
  */
-public class BucketManagerTest
+public class BucketManagerAppBuilderTest
 {
-  private static final String APPLICATION_PATH_PREFIX = "target/BucketManagerTest";
+  private static final String APPLICATION_PATH_PREFIX = "target/BucketManagerAppBuilderTest";
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
-  private static BucketManagerOriginalImpl<DummyEvent> manager;
+  private static BucketManagerAppBuilderImpl manager;
   private static String applicationPath;
   private static int bucket1 = 2875;
   private static int bucket2 = 2876;
 
-  static class TestStorageManagerListener implements BucketManager.Listener<DummyEvent>
+  static class TestStorageManagerListener implements BucketManager.Listener<HashMap<String, Object>>
   {
+    @Override
+    public void bucketOffLoaded(long bucketKey)
+    {
+    }
 
     @Override
-    public void bucketLoaded(Bucket<DummyEvent> bucket)
+    public void bucketLoaded(Bucket<HashMap<String, Object>> bucket)
     {
       try {
         eventBucketExchanger.exchange(bucket.bucketKey);
@@ -59,17 +65,12 @@ public class BucketManagerTest
       }
     }
 
-    @Override
-    public void bucketOffLoaded(long bucketKey)
-    {
-    }
-
   }
 
   @Test
   public void testLoadAndSave() throws Exception
   {
-    for (int i = 0; i < 100; i++) {
+    for (int i = 1; i < 10; i++) {
       testRound(i);
     }
   }
@@ -80,13 +81,20 @@ public class BucketManagerTest
     manager.loadBucketData(bucket1);
     eventBucketExchanger.exchange(null);
     for (int i = round * 10; i < (round * 10) + 10; i++) {
-      DummyEvent dummyEvent = new DummyEvent(i, now);
-      manager.newEvent(bucket1, dummyEvent);
+      BucketableCustomKey customKey = new BucketableCustomKey();
+         ArrayList<Object> input = new ArrayList<Object>();
+     HashMap<String, Object> dummyEvent = new HashMap<String, Object>();
+     input.add(i + "");
+     customKey.setKey(input);
+     manager.setCustomKey(customKey);
+     dummyEvent.put(i + "", now);
+     manager.newEvent(bucket1, dummyEvent);
     }
     manager.endWindow(round);
-    Bucket<DummyEvent> bucket = manager.getBucket(bucket1);
+    Bucket<HashMap<String,Object>> bucket = manager.getBucket(bucket1);
     Assert.assertNotNull(bucket);
-    Assert.assertEquals("no of events", (round + 1) * 10, bucket.countOfWrittenEvents());
+    Assert.assertEquals("no of events", (round) * 10, bucket.countOfWrittenEvents());
+
   }
 
   @Test
@@ -118,7 +126,6 @@ public class BucketManagerTest
     }
   }
 
-
   @BeforeClass
   public static void setup() throws Exception
   {
@@ -130,15 +137,26 @@ public class BucketManagerTest
     parameters.put(HdfsBucketStore.PARTITION_KEYS, Sets.newHashSet(0));
     parameters.put(HdfsBucketStore.PARTITION_MASK, 0);
 
-    manager = new BucketManagerOriginalImpl<DummyEvent>();
+    manager = new BucketManagerAppBuilderImpl();
     manager.setNoOfBuckets(2880);
     manager.setNoOfBucketsInMemory(1);
     manager.setMaxNoOfBucketsInMemory(1);
     manager.setMillisPreventingBucketEviction(1);
-    HdfsBucketStore<DummyEvent> bucketStore = new HdfsBucketStore<DummyEvent>();
-    manager.setBucketStore(bucketStore);
+    HdfsBucketStore<HashMap<String, Object>> bucketStore = new HdfsBucketStore<HashMap<String, Object>>();
+    bucketStore.setNoOfBuckets(2880);
+    bucketStore.setBucketsDir(applicationPath);
     bucketStore.setConfiguration(0, applicationPath, Sets.newHashSet(0), 0);
     bucketStore.setup();
+    manager.setBucketStore(bucketStore);
+    BucketableCustomKey customKey = new BucketableCustomKey();
+
+    ArrayList<Object> input = new ArrayList<Object>();
+    for (int i = 1; i < 10; i++) {
+      input.add(i + "");
+    }
+    customKey.setKey(input);
+    manager.setCustomKey(customKey);
+
     manager.startService(new TestStorageManagerListener());
   }
 
@@ -150,4 +168,5 @@ public class BucketManagerTest
     FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
     fs.delete(root, true);
   }
+
 }

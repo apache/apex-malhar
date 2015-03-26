@@ -22,5 +22,5 @@ package com.datatorrent.lib.bucket;
  */
 public interface Event
 {
-  long getTime();
+  String getTime();
 }
