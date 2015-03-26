@@ -246,6 +246,7 @@ public class GenericEventSchema
 
       for(Map.Entry<String, FieldsDescriptor> entry: aToAD.entrySet()) {
         aggDescriptorsList.put(aggregatorNameToID.get(entry.getKey()), entry.getValue());
+        logger.info("Cost Type {}", entry.getValue().getType("cost"));
       }
 
       lists.add(aggDescriptorsList);
