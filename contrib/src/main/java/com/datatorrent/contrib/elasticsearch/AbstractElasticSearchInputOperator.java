@@ -24,7 +24,6 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
 
 /**
  * This is the base implementation for a non transactional input operator for ElasticSearch
- * 
  * <br>
  * Ports:<br>
  * <b>Input</b>: no input port<br>
