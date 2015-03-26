@@ -46,6 +46,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -388,7 +389,14 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
         HDSQuery hdsQuery = queryIt.next();
         eventKey.getKey().setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
 
-        GenericAggregateEvent gae = nonWaitingCache.get(eventKey);
+        GenericAggregateEvent gae;
+
+        try {
+          gae = operator.cache.get(eventKey);
+        }
+        catch(ExecutionException ex) {
+          throw new RuntimeException(ex);
+        }
 
         // TODO
         // There is a race condition with retrieving from the cache and doing

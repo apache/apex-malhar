@@ -54,7 +54,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   ////////////////////// Caching /////////////////////////////
 
   private int cacheSize = CACHE_SIZE;
-  private transient LoadingCache<EventKey, GenericAggregateEvent> cache = null;
+  protected transient LoadingCache<EventKey, GenericAggregateEvent> cache = null;
 
   ////////////////////// Caching /////////////////////////////
 
