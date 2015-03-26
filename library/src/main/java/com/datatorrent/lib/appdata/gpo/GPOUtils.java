@@ -531,21 +531,25 @@ public class GPOUtils
       else if(type == Type.SHORT) {
         BB_2.putShort(gpo.getFieldShort(field));
         byteList.add(BB_2.array());
+        BB_2.rewind();
         BB_2.clear();
       }
       else if(type == Type.INTEGER) {
         BB_4.putInt(gpo.getFieldInt(field));
         byteList.add(BB_4.array());
+        BB_4.rewind();
         BB_4.clear();
       }
       else if(type == Type.LONG) {
         BB_8.putLong(gpo.getFieldLong(field));
         byteList.add(BB_8.array());
+        BB_8.rewind();
         BB_8.clear();
       }
       else if(type == Type.CHAR) {
         BB_2.putChar(gpo.getFieldChar(field));
         byteList.add(BB_2.array());
+        BB_2.rewind();
         BB_2.clear();
       }
       else if(type == Type.STRING) {
@@ -554,6 +558,7 @@ public class GPOUtils
         int length = stringBytes.length;
         BB_4.putInt(length);
         byteList.add(BB_4.array());
+        BB_4.rewind();
         BB_4.clear();
 
         byteList.add(stringBytes);
@@ -561,11 +566,13 @@ public class GPOUtils
       else if(type == Type.FLOAT) {
         BB_4.putFloat(gpo.getFieldFloat(field));
         byteList.add(BB_4.array());
+        BB_4.rewind();
         BB_4.clear();
       }
       else if(type == Type.DOUBLE) {
         BB_8.putDouble(gpo.getFieldDouble(field));
         byteList.add(BB_8.array());
+        BB_8.rewind();
         BB_8.clear();
       }
       else {

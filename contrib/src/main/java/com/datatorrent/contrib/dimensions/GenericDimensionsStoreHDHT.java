@@ -16,23 +16,22 @@ import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
-import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.qr.processor.SimpleDoneQueryQueueManager;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.google.common.base.Preconditions;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
-import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
 import javax.validation.constraints.Min;
-import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+
 
 /**
  *
@@ -45,19 +44,19 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 {
   private static final Logger logger = LoggerFactory.getLogger(GenericDimensionsStoreHDHT.class);
 
+  public static final int CACHE_SIZE = 50000;
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
 
   //HDHT Aggregation parameters
   @Min(1)
   private int keepAliveTime = DEFAULT_KEEP_ALIVE_TIME;
 
-  protected transient Map<EventKey, GenericAggregateEvent> nonWaitingCache = Maps.newHashMap();
-  private Map<EventKey, GenericAggregateEvent> waitingCache = Maps.newHashMap();
+  ////////////////////// Caching /////////////////////////////
 
-  private long windowID;
+  private int cacheSize = CACHE_SIZE;
+  private transient LoadingCache<EventKey, GenericAggregateEvent> cache = null;
 
-  private transient QueryProcessor<EventKey, HDSGenericEventQueryMeta, MutableBoolean, FetchResult, GenericAggregateEvent> cacheQueryProcessor;
-  private long enqueueID = 0;
+  ////////////////////// Caching /////////////////////////////
 
   public GenericDimensionsStoreHDHT()
   {
@@ -70,6 +69,11 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   protected abstract FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID);
   protected abstract FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID);
   protected abstract long getBucketForSchema(int schemaID);
+
+  protected long getBucketForSchema(EventKey eventKey)
+  {
+    return getBucketForSchema(eventKey.getSchemaID());
+  }
 
   protected byte[] getKeyBytesGAE(GenericAggregateEvent gae)
   {
@@ -133,23 +137,16 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   protected void processGenericEvent(GenericAggregateEvent gae)
   {
     DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
+    GenericAggregateEvent aggregate = null;
 
-    GenericAggregateEvent cachedGAE = nonWaitingCache.get(gae.getEventKey());
-
-    if(cachedGAE != null) {
-      aggregator.aggregate(cachedGAE, gae);
+    try {
+      aggregate = cache.get(gae.getEventKey());
     }
-    else {
-      GenericAggregateEvent waitingCachedGAE = waitingCache.get(gae.getEventKey());
-
-      if(waitingCachedGAE != null) {
-        aggregator.aggregate(waitingCachedGAE, gae);
-      }
-      else {
-        waitingCache.put(gae.getEventKey(), gae);
-        cacheQueryProcessor.enqueue(gae.getEventKey(), null, new MutableBoolean(false));
-      }
+    catch(ExecutionException ex) {
+      throw new RuntimeException(ex);
     }
+
+    aggregator.aggregate(aggregate, gae);
   }
 
   public abstract int getPartitionGAE(GenericAggregateEvent inputEvent);
@@ -171,19 +168,11 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   {
     super.setup(context);
 
-    cacheQueryProcessor = new QueryProcessor(new GenericDimensionsFetchComputer(this),
-                                             new GenericDimensionsFetchQueue(this));
-    cacheQueryProcessor.setup(context);
-
-    RemovalListener<EventKey, GenericAggregateEvent> removalListener = new RemovalListener<EventKey, GenericAggregateEvent>()
-    {
-      @Override
-      public void onRemoval(RemovalNotification<EventKey, GenericAggregateEvent> notification)
-      {
-        GenericAggregateEvent gae = notification.getValue();
-        putGAE(gae);
-      }
-    };
+    cache = CacheBuilder.newBuilder()
+         .maximumSize(cacheSize)
+         .removalListener(new HDHTCacheRemoval())
+         .expireAfterWrite(5, TimeUnit.MINUTES)
+         .build(new HDHTCacheLoader());
 
     //TODO reissue hdht queries for waiting cache entries.
   }
@@ -191,62 +180,19 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   @Override
   public void teardown()
   {
-    cacheQueryProcessor.teardown();
     super.teardown();
   }
 
   @Override
   public void beginWindow(long windowId)
   {
-    windowID = windowId;
     super.beginWindow(windowId);
-    cacheQueryProcessor.beginWindow(windowId);
   }
 
   @Override
   public void endWindow()
   {
-    FetchResult fetchResult = new FetchResult();
-    fetchResult.setQueueDone(false);
-    fetchResult.setQueryDone(false);
-
-    while(true) {
-      GenericAggregateEvent gae = cacheQueryProcessor.process(fetchResult);
-
-      if(fetchResult.isQueueDone()) {
-        break;
-      }
-
-      if(!fetchResult.isQueryDone()) {
-        continue;
-      }
-
-      if(gae == null) {
-        GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
-
-        logger.info("wid {} Removal event {}, enqueueID {} {}", windowID, fetchResult.getEventKey(), enqueueID, fetchResult.getEnqueueID());
-        nonWaitingCache.put(fetchResult.getEventKey(), tgae);
-      }
-      else {
-        GenericAggregateEvent waitingCachedGAE = waitingCache.get(gae.getEventKey());
-        DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
-
-        logger.info("wid {} Missing event {}, enqueueID {} {}", windowID, gae.getEventKey(), enqueueID, fetchResult.getEnqueueID());
-        aggregator.aggregate(waitingCachedGAE, gae);
-        waitingCache.remove(gae.getEventKey());
-        nonWaitingCache.put(gae.getEventKey(), gae);
-      }
-    }
-
-    for(GenericAggregateEvent cgae: nonWaitingCache.values()) {
-      putGAE(cgae);
-    }
-
-    nonWaitingCache.clear();
-
     super.endWindow();
-
-    cacheQueryProcessor.endWindow();
   }
 
   @Override
@@ -305,180 +251,46 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     }
   }
 
-  class GenericDimensionsFetchQueue extends SimpleDoneQueryQueueManager<EventKey, HDSGenericEventQueryMeta>
+  class HDHTCacheRemoval implements RemovalListener<EventKey, GenericAggregateEvent>
   {
-    private GenericDimensionsStoreHDHT operator;
-
-    public GenericDimensionsFetchQueue(GenericDimensionsStoreHDHT operator)
+    public HDHTCacheRemoval()
     {
-      setOperator(operator);
-    }
-
-    private void setOperator(GenericDimensionsStoreHDHT operator)
-    {
-      Preconditions.checkNotNull(operator);
-      this.operator = operator;
     }
 
     @Override
-    public boolean enqueue(EventKey query, HDSGenericEventQueryMeta metaQuery, MutableBoolean queueContext)
+    public void onRemoval(RemovalNotification<EventKey, GenericAggregateEvent> notification)
     {
-      logger.info("WindowID: {} Enqueued: {}", windowID, enqueueID);
-      Slice key = new Slice(getEventKeyBytesGAE(query));
-      HDSQuery hdsQuery = operator.queries.get(key);
-
-      if(hdsQuery == null) {
-        hdsQuery = new HDSQuery();
-        hdsQuery.bucketKey = getBucketForSchema(query.getSchemaID());
-        hdsQuery.key = key;
-        hdsQuery.keepAliveCount = 100;
-        operator.addQuery(hdsQuery);
-      }
-
-      metaQuery = new HDSGenericEventQueryMeta(enqueueID);
-      enqueueID++;
-      metaQuery.setHDSQuery(hdsQuery);
-      return super.enqueue(query, metaQuery, queueContext);
+      GenericAggregateEvent gae = notification.getValue();
+      putGAE(gae);
     }
   }
 
-  class GenericDimensionsFetchComputer implements QueryComputer<EventKey, HDSGenericEventQueryMeta, MutableBoolean, FetchResult, GenericAggregateEvent>
+  class HDHTCacheLoader extends CacheLoader<EventKey, GenericAggregateEvent>
   {
-    private GenericDimensionsStoreHDHT operator;
-
-    public GenericDimensionsFetchComputer(GenericDimensionsStoreHDHT operator)
+    public HDHTCacheLoader()
     {
-      setOperator(operator);
-    }
-
-    private void setOperator(GenericDimensionsStoreHDHT operator)
-    {
-      Preconditions.checkNotNull(operator);
-      this.operator = operator;
     }
 
     @Override
-    public GenericAggregateEvent processQuery(EventKey query,
-                                              HDSGenericEventQueryMeta metaQuery,
-                                              MutableBoolean queueContext,
-                                              FetchResult context)
+    public GenericAggregateEvent load(EventKey eventKey) throws Exception
     {
-      context.setEnqueueID(metaQuery.getEnqueueID());
-      if(metaQuery.hdsQuery.processed) {
-        context.setQueryDone(true);
-        context.setEventKey(query);
-        queueContext.setValue(true);
-
-        if(metaQuery.hdsQuery.result != null) {
-          return fromKeyValueGAE(metaQuery.hdsQuery.key, metaQuery.hdsQuery.result);
-        }
-      }
-      else
-      {
-        context.setQueryDone(false);
+      long bucket = getBucketForSchema(eventKey);
+      byte[] key = getEventKeyBytesGAE(eventKey);
+      if(key == null) {
+        return null;
       }
 
-      return null;
-    }
+      Slice keySlice = new Slice(key, 0, key.length);
+      byte[] val = getUncommitted(bucket, keySlice);
 
-    @Override
-    public void queueDepleted(FetchResult context)
-    {
-      context.setQueueDone(true);
-    }
-  }
+      if(val == null) {
+        val = get(bucket, keySlice);
+      }
 
-  class FetchResult
-  {
-    private boolean queueDone;
-    private boolean queryDone;
-    private EventKey eventKey;
-    private long enqueueID;
+     if (val == null)
+       return null;
 
-    public FetchResult()
-    {
-    }
-
-    public boolean isQueueDone()
-    {
-      return queueDone;
-    }
-
-    public void setQueueDone(boolean queueDone)
-    {
-      this.queueDone = queueDone;
-    }
-
-    public boolean isQueryDone()
-    {
-      return queryDone;
-    }
-
-    public void setQueryDone(boolean queryDone)
-    {
-      this.queryDone = queryDone;
-    }
-
-    /**
-     * @return the eventKey
-     */
-    public EventKey getEventKey()
-    {
-      return eventKey;
-    }
-
-    /**
-     * @param eventKey the eventKey to set
-     */
-    public void setEventKey(EventKey eventKey)
-    {
-      this.eventKey = eventKey;
-    }
-
-    /**
-     * @param enqueueID the enqueueID to set
-     */
-    public void setEnqueueID(long enqueueID)
-    {
-      this.enqueueID = enqueueID;
-    }
-
-    /**
-     * @return the enqueueID
-     */
-    public long getEnqueueID()
-    {
-      return enqueueID;
-    }
-  }
-
-  public static class HDSGenericEventQueryMeta
-  {
-    private HDSQuery hdsQuery;
-    private long enqueueID;
-
-    public HDSGenericEventQueryMeta(long enqueueID)
-    {
-      this.enqueueID = enqueueID;
-    }
-
-    public void setHDSQuery(HDSQuery hdsQuery)
-    {
-      Preconditions.checkNotNull(hdsQuery);
-      this.hdsQuery = hdsQuery;
-    }
-
-    public HDSQuery getHDSQuery()
-    {
-      return hdsQuery;
-    }
-
-    /**
-     * @return the enqueueID
-     */
-    public long getEnqueueID()
-    {
-      return enqueueID;
+     return fromKeyValueGAE(keySlice, val);
     }
   }
 }
