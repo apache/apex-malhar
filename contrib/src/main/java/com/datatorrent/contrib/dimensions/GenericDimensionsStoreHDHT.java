@@ -110,13 +110,10 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
                                                offset);
     offset += 4;
 
-    logger.info("deserializing schemaID {} ddID {} aggID {}", schemaID, dimensionDescriptorID, aggregatorID);
     FieldsDescriptor keysDescriptor = getKeyDescriptor(schemaID, dimensionDescriptorID);
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 
     GPOMutable keys = GPOUtils.deserialize(keysDescriptor, key.buffer, offset);
-
-    logger.info("Aggregate fields: {}", aggDescriptor.getFields().getFields());
     GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, 0);
 
     GenericAggregateEvent gae = new GenericAggregateEvent(new GPOImmutable(keys),
@@ -225,13 +222,11 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
 
       if(gae == null) {
-        logger.info("Other removal {}, windowId {} enqueueID {} {}", fetchResult.getEventKey(), windowID, enqueueID, fetchResult.getEnqueueID());
         GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
         nonWaitingCache.put(fetchResult.getEventKey(), tgae);
       }
       else {
         GenericAggregateEvent waitingCachedGAE = waitingCache.get(gae.getEventKey());
-        logger.info("Missing event {}, windowId {}, enqueueID {} {}", gae.getEventKey(), windowID, enqueueID, fetchResult.getEnqueueID());
         DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
 
         aggregator.aggregate(waitingCachedGAE, gae);
