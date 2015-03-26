@@ -143,6 +143,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       aggregate = cache.get(gae.getEventKey());
     }
     catch(ExecutionException ex) {
+      ex.printStackTrace();
       logger.error("caught exception: ", ex);
       throw new RuntimeException(ex);
     }
