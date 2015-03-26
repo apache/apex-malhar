@@ -115,6 +115,8 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 
     GPOMutable keys = GPOUtils.deserialize(keysDescriptor, key.buffer, offset);
+
+    logger.info("Aggregate fields: {}", aggDescriptor.getFields().getFields());
     GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, 0);
 
     GenericAggregateEvent gae = new GenericAggregateEvent(new GPOImmutable(keys),
