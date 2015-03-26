@@ -584,7 +584,7 @@ public class GPOUtils
 
     for(String field: fieldsDescriptor.getFields().getFields()) {
       Type type = fieldsDescriptor.getType(field);
-      logger.info("Deserializing field {} offset {} length {}", field, offset, serializedGPO.length);
+      logger.info("Deserializing field {} {} offset {} length {}", field, type, offset, serializedGPO.length);
 
       if(type == Type.BOOLEAN) {
         boolean val = serializedGPO[offset] == (byte) 1;
