@@ -127,6 +127,8 @@ public class GenericEventSchema
       }
     }
 
+    logger.info("Building fields descriptor");
+
     //Aggregator to fields descriptor
     Map<String, FieldsDescriptor> aggregatorToFieldsDescriptor = Maps.newHashMap();
 
