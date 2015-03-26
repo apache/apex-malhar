@@ -144,7 +144,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     }
     catch(ExecutionException ex) {
       ex.printStackTrace();
-      logger.error("caught exception: ", ex);
+      logger.error("caught exception: {}", ex);
       throw new RuntimeException(ex);
     }
 
@@ -274,8 +274,9 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     }
 
     @Override
-    public GenericAggregateEvent load(EventKey eventKey) throws Exception
+    public GenericAggregateEvent load(EventKey eventKey)
     {
+      try {
       long bucket = getBucketForSchema(eventKey);
       byte[] key = getEventKeyBytesGAE(eventKey);
       if(key == null) {
@@ -293,6 +294,13 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
        return null;
 
      return fromKeyValueGAE(keySlice, val);
+      }
+      catch(Exception e) {
+        e.printStackTrace();
+        logger.error("error {}", e);
+      }
+
+      return null;
     }
   }
 }
