@@ -252,6 +252,8 @@ public class GenericEventSchema
       lists.add(aggDescriptorsList);
     }
 
+    logger.info("Cost Type check {}", lists.get(0).get(0).getType("cost"));
+
     return lists;
   }
 
