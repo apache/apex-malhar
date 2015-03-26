@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.lib.counters.BasicCounters;
+import javax.validation.constraints.NotNull;
 
 /**
  * <p>
@@ -62,6 +63,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  */
 public interface BucketManager<T>
 {
+
   void setBucketStore(@Nonnull BucketStore<T> bucketStore);
 
   BucketStore<T> getBucketStore();
@@ -86,7 +88,6 @@ public interface BucketManager<T>
    * @return bucket key for event.
    */
   long getBucketKeyFor(T event);
-
   /**
    * <p>
    * Returns the bucket in memory corresponding to a bucket key.

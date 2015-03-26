@@ -87,7 +87,17 @@ public abstract class Deduper<INPUT, OUTPUT>
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
   //Check-pointed state
   @NotNull
-  protected BucketManager<INPUT> bucketManager;
+  protected AbstractBucketManager<INPUT> bucketManager;
+
+  public AbstractBucketManager<INPUT> getBucketManager()
+  {
+    return bucketManager;
+  }
+
+  public void setBucketManager(AbstractBucketManager<INPUT> bucketManager)
+  {
+    this.bucketManager = bucketManager;
+  }
   //bucketKey -> list of bucketData which belong to that bucket and are waiting for the bucket to be loaded.
   @NotNull
   protected final Map<Long, List<INPUT>> waitingEvents;
@@ -99,18 +109,7 @@ public abstract class Deduper<INPUT, OUTPUT>
   private transient OperatorContext context;
   protected BasicCounters<MutableLong> counters;
   private transient long currentWindow;
-  @NotNull
-  protected BucketableCustomKey customKey;
 
-  public BucketableCustomKey getCustomKey()
-  {
-    return customKey;
-  }
-
-  public void setCustomKey(BucketableCustomKey customKey)
-  {
-    this.customKey = customKey;
-  }
   @Min(1)
   protected int partitionCount = 1;
 
@@ -201,27 +200,14 @@ public abstract class Deduper<INPUT, OUTPUT>
   }
 
   /**
-   * Sets the bucket manager.
-   *
-   * @param bucketManager {@link BucketManager} to be used by deduper.
-   */
-  public void setBucketManager(@NotNull BucketManager<INPUT> bucketManager)
-  {
-    this.bucketManager = Preconditions.checkNotNull(bucketManager, "storage manager");
-  }
-
-  public BucketManager<INPUT> getBucketManager()
-  {
-    return this.bucketManager;
-  }
-
-  /**
    * Converts the input tuple to output tuple.
    *
    * @param input input event.
    * @return output tuple derived from input.
    */
   protected abstract OUTPUT convert(INPUT input);
+
+
 
   @Override
   public boolean equals(Object o)
@@ -323,7 +309,7 @@ public abstract class Deduper<INPUT, OUTPUT>
 
       if (bucket != null)
       {
-        bucket.setCustomKey(customKey);
+        bucket.setCustomKey(bucketManager.getCustomKey());
         if (bucket.containsEvent(tuple)) {
         counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
         return;

@@ -112,6 +112,8 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
 
   protected transient boolean recordStats;
   protected transient BasicCounters<MutableLong> bucketCounters;
+  @NotNull
+  protected BucketableCustomKey customKey;
 
   public AbstractBucketManager()
   {
@@ -209,6 +211,17 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     bucketStore.teardown();
   }
 
+  public BucketableCustomKey getCustomKey()
+  {
+    return customKey;
+  }
+
+  public void setCustomKey(BucketableCustomKey customKey)
+  {
+    this.customKey = customKey;
+  }
+
+  @Override
   public abstract long getBucketKeyFor(T event);
 
   @Override

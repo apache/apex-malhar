@@ -16,7 +16,6 @@
 package com.datatorrent.lib.bucket;
 
 import java.util.HashMap;
-import javax.validation.constraints.NotNull;
 
 
 public class BucketAppBuilderImpl extends Bucket<HashMap<String,Object>>

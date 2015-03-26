@@ -84,15 +84,14 @@ public class DeduperAppBuilderTest
   {
     List<HashMap<String,Object>> events = Lists.newArrayList();
     Calendar calendar = Calendar.getInstance();
+    HashMap<String,Object> temp = new HashMap<String, Object>();
 
     for (int i = 0; i < 10; i++) {
-      long now = System.currentTimeMillis();
-      HashMap<String,Object> temp = new HashMap<String, Object>();
       temp.put(i+"",calendar.getTimeInMillis() );
       temp.put(timestamp, calendar.getTimeInMillis());
       events.add(temp);
+      temp.clear();
     }
-    HashMap<String,Object> temp = new HashMap<String, Object>();
     temp.put(5+"", calendar.getTimeInMillis());
     temp.put(timestamp, calendar.getTimeInMillis());
 
@@ -103,13 +102,13 @@ public class DeduperAppBuilderTest
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
 
     deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes));
-    CollectorTestSink<DummyEvent> collectorTestSink = new CollectorTestSink<DummyEvent>();
+    CollectorTestSink<HashMap<String,Object>> collectorTestSink = new CollectorTestSink<HashMap<String,Object>>();
     TestUtils.setSink(deduper.output, collectorTestSink);
 
     logger.debug("start round 0");
     deduper.beginWindow(0);
     testRound(events);
- //   deduper.handleIdleTime();
+    deduper.handleIdleTime();
     deduper.endWindow();
     Assert.assertEquals("output tuples", 10, collectorTestSink.collectedTuples.size());
     collectorTestSink.clear();
@@ -154,7 +153,7 @@ public class DeduperAppBuilderTest
       deduper.input.process(event);
     }
     try {
-      eventBucketExchanger.exchange(null, 1, TimeUnit.SECONDS);
+      eventBucketExchanger.exchange(null, 5, TimeUnit.SECONDS);
     }
     catch (InterruptedException e) {
       throw new RuntimeException(e);
@@ -194,14 +193,15 @@ public class DeduperAppBuilderTest
     customKey.setKey(input);
     timestamp = "20150325";
     customKey.setTime(timestamp);
+     deduper.setCustomKey(customKey);
     TimeBasedBucketManagerImpl storageManager = new TimeBasedBucketManagerImpl();
     storageManager.setBucketSpanInMillis(60000);
     storageManager.setMillisPreventingBucketEviction(60000);
     storageManager.setBucketStore(bucketStore);
-    storageManager.setCustomKey(customKey);
+    //storageManager.setCustomKey(customKey);
     deduper.setBucketManager(storageManager);
 
-    deduper.setCustomKey(customKey);
+
 
   }
 

@@ -15,33 +15,11 @@
  */
 package com.datatorrent.lib.bucket;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import javax.validation.constraints.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 
 public class BucketManagerAppBuilderImpl extends AbstractBucketManager<HashMap<String,Object>>
 {
-
-  private static transient final Logger logger = LoggerFactory.getLogger(BucketManagerAppBuilderImpl.class);
-
-  @NotNull
-  protected BucketableCustomKey customKey;
-
-  public ArrayList<Object> getCustomKey()
-  {
-    return customKey.key;
-  }
-
-  public void setCustomKey(BucketableCustomKey customKey)
-  {
-    this.customKey = customKey;
-  }
-
   @Override
   protected Object getEventKey(HashMap<String,Object> event)
   {

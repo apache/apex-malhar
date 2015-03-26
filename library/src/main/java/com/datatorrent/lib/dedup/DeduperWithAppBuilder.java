@@ -15,14 +15,16 @@
  */
 package com.datatorrent.lib.dedup;
 
+import com.datatorrent.api.Context;
+import com.datatorrent.api.DAG;
+import com.datatorrent.lib.bucket.*;
+import com.google.common.base.Preconditions;
 import java.util.*;
+import javax.validation.constraints.NotNull;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.datatorrent.lib.bucket.Bucket;
-import com.datatorrent.lib.bucket.BucketManager;
-import com.datatorrent.lib.bucket.Bucketable;
 
 /**
  * This is the base implementation of a deduper, which drops duplicate events.&nbsp;
@@ -60,7 +62,34 @@ import com.datatorrent.lib.bucket.Bucketable;
  */
 public class DeduperWithAppBuilder extends Deduper<HashMap<String,Object>, HashMap<String,Object>>
 {
-  private final static Logger logger = LoggerFactory.getLogger(DeduperWithAppBuilder.class);
+  @NotNull
+  protected BucketableCustomKey customKey;
+
+   public BucketableCustomKey getCustomKey()
+  {
+    return customKey;
+  }
+
+  public void setCustomKey(BucketableCustomKey customKey)
+  {
+    this.customKey = customKey;
+  }
+
+  @Override
+  public void setup(Context.OperatorContext context)
+  {
+    boolean stateless = context.getValue(Context.OperatorContext.STATELESS);
+    if (stateless) {
+      bucketManager.setBucketStore(new NonOperationalBucketStore());
+    }
+    else {
+      ((HdfsBucketStore) bucketManager.getBucketStore()).setConfiguration(context.getId(), context.getValue(DAG.APPLICATION_PATH), partitionKeys, partitionMask);
+    }
+    super.setup(context);
+  }
+
+
+
 
   @Override
   protected HashMap<String, Object> convert(HashMap<String, Object> input)
@@ -74,6 +103,19 @@ public class DeduperWithAppBuilder extends Deduper<HashMap<String,Object>, HashM
      int partition = event.get(customKey.getEventKey()).hashCode() & mask;
      return partition;
   }
+
+  /**
+   * Sets the bucket manager.
+   *
+   * @param bucketManager {@link BucketManager} to be used by deduper.
+   */
+  protected void setBucketManager(BucketManagerAppBuilderImpl bucketManager)
+  {
+    super.setBucketManager(bucketManager);
+    bucketManager.setCustomKey(customKey);
+  }
+
+
 
 
 }
