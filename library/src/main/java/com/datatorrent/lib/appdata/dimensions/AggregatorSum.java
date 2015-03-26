@@ -33,7 +33,7 @@ public class AggregatorSum implements DimensionsAggregator<GenericAggregateEvent
 
       if(srcObj == null ||
          destObj == null) {
-        logger.info("field: {}", field);
+        logger.info("field: {}, src {} dest {}", field, srcObj, destObj);
       }
 
       if(!srcObj.getClass().equals(destObj.getClass())) {
