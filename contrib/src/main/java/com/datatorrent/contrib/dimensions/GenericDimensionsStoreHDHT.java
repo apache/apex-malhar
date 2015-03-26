@@ -63,12 +63,15 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   {
   }
 
-  public abstract DimensionsAggregator<GenericAggregateEvent> getAggregator(int aggregatorID);
-  public abstract FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID);
-  public abstract FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID);
-  public abstract long getBucketForSchema(int schemaID);
+  //TODO make all internal getters protected
+  //timestamp prefix keys timestamp 0 if not needed but still there
 
-  public byte[] getKeyBytesGAE(GenericAggregateEvent gae)
+  protected abstract DimensionsAggregator<GenericAggregateEvent> getAggregator(int aggregatorID);
+  protected abstract FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID);
+  protected abstract FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID);
+  protected abstract long getBucketForSchema(int schemaID);
+
+  protected byte[] getKeyBytesGAE(GenericAggregateEvent gae)
   {
     return getEventKeyBytesGAE(gae.getEventKey());
   }
