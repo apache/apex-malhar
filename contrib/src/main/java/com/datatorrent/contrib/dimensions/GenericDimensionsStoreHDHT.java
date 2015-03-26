@@ -223,6 +223,8 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
       if(gae == null) {
         GenericAggregateEvent tgae = waitingCache.remove(fetchResult.getEventKey());
+
+        logger.info("Removal event {}, enqueueID {} {}", fetchResult.getEventKey(), enqueueID, fetchResult.getEnqueueID());
         nonWaitingCache.put(fetchResult.getEventKey(), tgae);
       }
       else {
