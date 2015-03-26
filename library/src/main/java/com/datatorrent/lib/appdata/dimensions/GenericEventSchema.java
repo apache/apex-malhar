@@ -114,6 +114,8 @@ public class GenericEventSchema
           aggregatorIndex++) {
         String aggregatorName = aggregators.getString(aggregatorIndex);
 
+        logger.info("aggregatorName {} field {} type {}", aggregatorName, name, typeT);
+
         Map<String, Type> aggregatorFieldToType = aggregatorToFieldToType.get(aggregatorName);
 
         if(aggregatorFieldToType == null) {
