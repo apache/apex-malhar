@@ -133,6 +133,8 @@ public class GenericEventSchema
     for(Map.Entry<String, Map<String, Type>> entry: aggregatorToFieldToType.entrySet()) {
       FieldsDescriptor descriptor = new FieldsDescriptor(entry.getValue());
       aggregatorToFieldsDescriptor.put(entry.getKey(), descriptor);
+
+      logger.info("Cost type {}", descriptor.getType("cost"));
     }
 
     //Aggregator to Dimensions descriptor
