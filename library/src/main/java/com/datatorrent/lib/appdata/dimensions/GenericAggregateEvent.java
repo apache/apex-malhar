@@ -28,6 +28,11 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
   private GPOMutable aggregates;
   private EventKey eventKey;
 
+  public GenericAggregateEvent()
+  {
+    //For kryo
+  }
+
   public GenericAggregateEvent(EventKey eventKey,
                                GPOMutable aggregates)
   {
