@@ -10,6 +10,7 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
 import java.nio.ByteBuffer;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -18,6 +19,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Set;
 
 /**
  *
@@ -513,189 +515,410 @@ public class GPOUtils
     return jo;
   }
 
-  public static byte[] serialize(GPOMutable gpo)
+  public static int serializedLength(GPOMutable gpo)
   {
-    GPOByteArrayList byteList = new GPOByteArrayList();
+    int arrayLength = 0;
+    FieldsDescriptor fd = gpo.getFieldDescriptor();
 
     for(String field: gpo.getFieldDescriptor().getFields().getFields()) {
+      Type type = fd.getType(field);
+
+      int numBytes = 0;
+
+      switch(type) {
+        case STRING: {
+          numBytes = Type.INTEGER.getByteSize() +
+                     gpo.getFieldString(field).getBytes().length;
+          break;
+        }
+        default: {
+          numBytes = type.getByteSize();
+        }
+      }
+
+      arrayLength += numBytes;
+      logger.debug("Counting bytes for {}: {}", field, numBytes);
+    }
+
+    return arrayLength;
+  }
+
+  public static byte[] serialize(GPOMutable gpo)
+  {
+    int slength = serializedLength(gpo);
+    byte[] sbytes = new byte[slength];
+    MutableInt offset = new MutableInt(0);
+
+    int fieldCounter = 0;
+    Set<String> fields = gpo.getFieldDescriptor().getFields().getFields();
+    logger.debug("Serialization length: {}", sbytes.length);
+    logger.debug("Num fields: {}", fields.size());
+
+    for(String field: fields) {
+      fieldCounter++;
+
+
+      logger.debug("Field {}, fieldCounter {}", field, fieldCounter);
+
       Type type = gpo.getFieldDescriptor().getType(field);
 
       if(type == Type.BOOLEAN) {
-        boolean boolVal = gpo.getFieldBool(field);
-        byte byteVal = boolVal ? (byte) 1: (byte) 0;
-        byteList.add(byteVal);
+        serializeBoolean(gpo.getFieldBool(field),
+                         sbytes,
+                         offset);
       }
       else if(type == Type.BYTE) {
-        byteList.add(gpo.getFieldByte(field));
+        serializeByte(gpo.getFieldByte(field),
+                      sbytes,
+                      offset);
       }
       else if(type == Type.SHORT) {
-        BB_2.putShort(gpo.getFieldShort(field));
-        byteList.add(BB_2.array());
-        BB_2.rewind();
-        BB_2.clear();
+        serializeShort(gpo.getFieldShort(field),
+                      sbytes,
+                      offset);
       }
       else if(type == Type.INTEGER) {
-        BB_4.putInt(gpo.getFieldInt(field));
-        byteList.add(BB_4.array());
-        BB_4.rewind();
-        BB_4.clear();
+        serializeInt(gpo.getFieldInt(field),
+                     sbytes,
+                     offset);
       }
       else if(type == Type.LONG) {
-        BB_8.putLong(gpo.getFieldLong(field));
-        byteList.add(BB_8.array());
-        BB_8.rewind();
-        BB_8.clear();
+        serializeLong(gpo.getFieldLong(field),
+                     sbytes,
+                     offset);
       }
       else if(type == Type.CHAR) {
-        BB_2.putChar(gpo.getFieldChar(field));
-        byteList.add(BB_2.array());
-        BB_2.rewind();
-        BB_2.clear();
+        serializeChar(gpo.getFieldChar(field),
+                      sbytes,
+                      offset);
       }
       else if(type == Type.STRING) {
-        byte[] stringBytes = gpo.getFieldString(field).getBytes();
-
-        int length = stringBytes.length;
-        BB_4.putInt(length);
-        byteList.add(BB_4.array());
-        BB_4.rewind();
-        BB_4.clear();
-
-        byteList.add(stringBytes);
+        serializeString(gpo.getFieldString(field),
+                        sbytes,
+                        offset);
       }
       else if(type == Type.FLOAT) {
-        BB_4.putFloat(gpo.getFieldFloat(field));
-        byteList.add(BB_4.array());
-        BB_4.rewind();
-        BB_4.clear();
+        serializeFloat(gpo.getFieldFloat(field),
+                       sbytes,
+                       offset);
       }
       else if(type == Type.DOUBLE) {
-        BB_8.putDouble(gpo.getFieldDouble(field));
-        byteList.add(BB_8.array());
-        BB_8.rewind();
-        BB_8.clear();
+        serializeDouble(gpo.getFieldDouble(field),
+                        sbytes,
+                        offset);
       }
       else {
         throw new UnsupportedOperationException("The field " + field + " doesn't have a valid type.");
       }
     }
 
-    return byteList.toByteArray();
+    return sbytes;
   }
 
   public static GPOMutable deserialize(FieldsDescriptor fieldsDescriptor,
                                        byte[] serializedGPO,
                                        int offset)
   {
+    logger.info("SerializedGPO length {}", serializedGPO.length);
     GPOMutable gpo = new GPOMutable(fieldsDescriptor);
+    MutableInt offsetM = new MutableInt(offset);
 
     for(String field: fieldsDescriptor.getFields().getFields()) {
       Type type = fieldsDescriptor.getType(field);
-      if(type == Type.BOOLEAN) {
-        boolean val = serializedGPO[offset] == (byte) 1;
-        gpo.setField(field, val);
-        offset++;
-      }
-      else if(type == Type.BYTE) {
-        byte val = serializedGPO[offset];
-        gpo.setField(field, val);
-        offset++;
-      }
-      else if(type == Type.SHORT) {
-        BB_2.get(serializedGPO, offset, 2);
-        BB_2.rewind();
-        short val = BB_2.getShort();
-        BB_2.clear();
-        gpo.setField(field, val);
-        offset += 2;
-      }
-      else if(type == Type.INTEGER) {
-        BB_4.get(serializedGPO, offset, 4);
-        BB_4.rewind();
-        int val = BB_4.getInt();
-        BB_4.clear();
-        gpo.setField(field, val);
-        offset += 4;
-      }
-      else if(type == Type.LONG) {
-        BB_8.get(serializedGPO, offset, 8);
-        BB_8.rewind();
-        long val = BB_8.getLong();
-        BB_8.clear();
-        gpo.setField(field, val);
-        offset += 8;
-      }
-      else if(type == Type.CHAR) {
-        BB_2.get(serializedGPO, offset, 2);
-        BB_2.rewind();
-        char val = BB_2.getChar();
-        BB_2.clear();
-        gpo.setField(field, val);
-        offset += 2;
-      }
-      else if(type == Type.STRING) {
-        BB_4.get(serializedGPO, offset, 4);
-        BB_4.rewind();
-        int length = BB_4.getInt();
-        BB_4.clear();
-        offset += 4;
-        String valString = new String(serializedGPO, offset, length);
-        gpo.setField(field, valString);
-      }
-      else if(type == Type.FLOAT) {
-        BB_4.get(serializedGPO, offset, 4);
-        BB_4.rewind();
-        float val = BB_4.getFloat();
-        BB_4.clear();
-        gpo.setField(field, val);
-        offset += 4;
-      }
-      else if(type == Type.DOUBLE) {
-        BB_8.get(serializedGPO, offset, 8);
-        BB_8.rewind();
-        double val = BB_8.getDouble();
-        BB_8.clear();
-        gpo.setField(field, val);
-        offset += 8;
-      }
-      else {
-        throw new UnsupportedOperationException("The field " + field + " doesn't have a valid type.");
+
+      switch(type)
+      {
+        case BOOLEAN: {
+          boolean val = deserializeBoolean(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case BYTE: {
+          byte val = deserializeByte(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case CHAR: {
+          char val = deserializeChar(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case SHORT: {
+          short val = deserializeShort(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case INTEGER: {
+          int val = deserializeInt(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case LONG: {
+          long val = deserializeLong(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case FLOAT: {
+          float val = deserializeFloat(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case DOUBLE: {
+          double val = deserializeDouble(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case STRING: {
+          String val = deserializeString(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        default:
+          throw new UnsupportedOperationException("Cannot deserialize type " + type);
       }
     }
 
     return gpo;
   }
 
-  public static long deserializeLong(byte[] buffer,
-                                     int offset)
+  ////String
+
+  public static String deserializeString(byte[] buffer,
+                                         MutableInt offset)
   {
-    return (((long) buffer[0 + offset]) & 0xFFL) << 56 |
-           (((long) buffer[1 + offset]) & 0xFFL) << 48 |
-           (((long) buffer[2 + offset]) & 0xFFL) << 40 |
-           (((long) buffer[3 + offset]) & 0xFFL) << 32 |
-           (((long) buffer[4 + offset]) & 0xFFL) << 24 |
-           (((long) buffer[5 + offset]) & 0xFFL) << 16 |
-           (((long) buffer[6 + offset]) & 0xFFL) << 8  |
-           (((long) buffer[7 + offset]) & 0xFFL) ;
+    int length = deserializeInt(buffer,
+                                offset);
+
+    String val = new String(buffer, offset.intValue(), length);
+    offset.add(length);
+    return val;
   }
+
+  public static void serializeString(String val,
+                                     byte[] buffer,
+                                     MutableInt offset)
+  {
+    byte[] stringBytes = val.getBytes();
+    int length = stringBytes.length;
+
+    serializeInt(length,
+                 buffer,
+                 offset);
+
+    for(int index = 0;
+        index < length;
+        index++) {
+      buffer[offset.intValue() + index] = stringBytes[index];
+    }
+
+    offset.add(length);
+  }
+
+  ////Long
+
+  public static long deserializeLong(byte[] buffer,
+                                     MutableInt offset)
+  {
+    long val = (((long) buffer[0 + offset.intValue()]) & 0xFFL) << 56 |
+           ((((long) buffer[1 + offset.intValue()]) & 0xFFL) << 48) |
+           ((((long) buffer[2 + offset.intValue()]) & 0xFFL) << 40) |
+           ((((long) buffer[3 + offset.intValue()]) & 0xFFL) << 32) |
+           ((((long) buffer[4 + offset.intValue()]) & 0xFFL) << 24) |
+           ((((long) buffer[5 + offset.intValue()]) & 0xFFL) << 16) |
+           ((((long) buffer[6 + offset.intValue()]) & 0xFFL) << 8)  |
+           (((long) buffer[7 + offset.intValue()]) & 0xFFL);
+
+    offset.add(Type.LONG.getByteSize());
+    return val;
+  }
+
+  public static void serializeLong(long val,
+                                   byte[] buffer,
+                                   MutableInt offset)
+  {
+    buffer[0 + offset.intValue()] = (byte) ((val >> 56) & 0xFFL);
+    buffer[1 + offset.intValue()] = (byte) ((val >> 48) & 0xFFL);
+    buffer[2 + offset.intValue()] = (byte) ((val >> 40) & 0xFFL);
+    buffer[3 + offset.intValue()] = (byte) ((val >> 32) & 0xFFL);
+    buffer[4 + offset.intValue()] = (byte) ((val >> 24) & 0xFFL);
+    buffer[5 + offset.intValue()] = (byte) ((val >> 16) & 0xFFL);
+    buffer[6 + offset.intValue()] = (byte) ((val >> 8) & 0xFFL);
+    buffer[7 + offset.intValue()] = (byte) (val & 0xFFL);
+
+    offset.add(Type.LONG.getByteSize());
+  }
+
+  ////Double
+
+  public static double deserializeDouble(byte[] buffer,
+                                       MutableInt offset)
+  {
+    long val = (((long) buffer[0 + offset.intValue()]) & 0xFFL) << 56 |
+           ((((long) buffer[1 + offset.intValue()]) & 0xFFL) << 48) |
+           ((((long) buffer[2 + offset.intValue()]) & 0xFFL) << 40) |
+           ((((long) buffer[3 + offset.intValue()]) & 0xFFL) << 32) |
+           ((((long) buffer[4 + offset.intValue()]) & 0xFFL) << 24) |
+           ((((long) buffer[5 + offset.intValue()]) & 0xFFL) << 16) |
+           ((((long) buffer[6 + offset.intValue()]) & 0xFFL) << 8)  |
+           (((long) buffer[7 + offset.intValue()]) & 0xFFL);
+
+    offset.add(Type.DOUBLE.getByteSize());
+    return Double.longBitsToDouble(val);
+  }
+
+  public static void serializeDouble(double valD,
+                                   byte[] buffer,
+                                   MutableInt offset)
+  {
+    long val = Double.doubleToLongBits(valD);
+
+    buffer[0 + offset.intValue()] = (byte) ((val >> 56) & 0xFFL);
+    buffer[1 + offset.intValue()] = (byte) ((val >> 48) & 0xFFL);
+    buffer[2 + offset.intValue()] = (byte) ((val >> 40) & 0xFFL);
+    buffer[3 + offset.intValue()] = (byte) ((val >> 32) & 0xFFL);
+    buffer[4 + offset.intValue()] = (byte) ((val >> 24) & 0xFFL);
+    buffer[5 + offset.intValue()] = (byte) ((val >> 16) & 0xFFL);
+    buffer[6 + offset.intValue()] = (byte) ((val >> 8) & 0xFFL);
+    buffer[7 + offset.intValue()] = (byte) (val & 0xFFL);
+
+    offset.add(Type.DOUBLE.getByteSize());
+  }
+
+  ////Int
 
   public static int deserializeInt(byte[] buffer,
-                                   int offset)
+                                   MutableInt offset)
   {
-    return (((int) buffer[0 + offset]) & 0xFF) << 24 |
-           (((int) buffer[1 + offset]) & 0xFF) << 16 |
-           (((int) buffer[2 + offset]) & 0xFF) << 8  |
-           (((int) buffer[3 + offset]) & 0xFF) ;
+    int val = ((((int) buffer[0 + offset.intValue()]) & 0xFF) << 24) |
+           ((((int) buffer[1 + offset.intValue()]) & 0xFF) << 16) |
+           ((((int) buffer[2 + offset.intValue()]) & 0xFF) << 8)  |
+           (((int) buffer[3 + offset.intValue()]) & 0xFF);
+
+    offset.add(Type.INTEGER.getByteSize());
+    return val;
   }
 
-  public static byte[] serializeInt(int val)
+  public static void serializeInt(int val,
+                                  byte[] buffer,
+                                  MutableInt offset)
   {
-    byte[] byteVals = new byte[4];
-    byteVals[0] = (byte) ((val >> 24) & 0xFF);
-    byteVals[1] = (byte) ((val >> 16) & 0xFF);
-    byteVals[2] = (byte) ((val >> 8) & 0xFF);
-    byteVals[3] = (byte) ((val) & 0xFF);
+    buffer[0 + offset.intValue()] = (byte) ((val >> 24) & 0xFF);
+    buffer[1 + offset.intValue()] = (byte) ((val >> 16) & 0xFF);
+    buffer[2 + offset.intValue()] = (byte) ((val >> 8) & 0xFF);
+    buffer[3 + offset.intValue()] = (byte) (val & 0xFF);
 
-    return byteVals;
+    offset.add(Type.INTEGER.getByteSize());
+  }
+
+  ////Float
+
+  public static float deserializeFloat(byte[] buffer,
+                                   MutableInt offset)
+  {
+    int val = ((((int) buffer[0 + offset.intValue()]) & 0xFF) << 24) |
+           ((((int) buffer[1 + offset.intValue()]) & 0xFF) << 16) |
+           ((((int) buffer[2 + offset.intValue()]) & 0xFF) << 8)  |
+           (((int) buffer[3 + offset.intValue()]) & 0xFF);
+
+    offset.add(Type.FLOAT.getByteSize());
+    return Float.intBitsToFloat(val);
+  }
+
+  public static void serializeFloat(float valf,
+                                  byte[] buffer,
+                                  MutableInt offset)
+  {
+    int val = Float.floatToIntBits(valf);
+
+    buffer[0 + offset.intValue()] = (byte) ((val >> 24) & 0xFF);
+    buffer[1 + offset.intValue()] = (byte) ((val >> 16) & 0xFF);
+    buffer[2 + offset.intValue()] = (byte) ((val >> 8) & 0xFF);
+    buffer[3 + offset.intValue()] = (byte) (val & 0xFF);
+
+    offset.add(Type.FLOAT.getByteSize());
+  }
+
+  ////Short
+
+  public static short deserializeShort(byte[] buffer,
+                                       MutableInt offset)
+  {
+    short val = (short) (((((int) buffer[0 + offset.intValue()]) & 0xFF) << 8)  |
+                (((int) buffer[1 + offset.intValue()]) & 0xFF));
+
+    offset.add(Type.SHORT.getByteSize());
+    return val;
+  }
+
+  public static void serializeShort(short val,
+                                    byte[] buffer,
+                                    MutableInt offset)
+  {
+    buffer[0 + offset.intValue()] = (byte) ((val >> 8) & 0xFF);
+    buffer[1 + offset.intValue()] = (byte) (val & 0xFF);
+
+    offset.add(Type.SHORT.getByteSize());
+  }
+
+  ////Byte
+
+  public static byte deserializeByte(byte[] buffer,
+                                     MutableInt offset)
+  {
+    byte val = buffer[offset.intValue()];
+
+    offset.add(Type.BYTE.getByteSize());
+    return val;
+  }
+
+  public static void serializeByte(byte val,
+                                   byte[] buffer,
+                                   MutableInt offset)
+  {
+    buffer[offset.intValue()] = val;
+
+    offset.add(Type.BYTE.getByteSize());
+  }
+
+  ////Boolean
+
+  public static boolean deserializeBoolean(byte[] buffer,
+                                        MutableInt offset)
+  {
+    boolean val = buffer[offset.intValue()] != 0;
+
+    offset.add(Type.BOOLEAN.getByteSize());
+    return val;
+  }
+
+  public static void serializeBoolean(boolean val,
+                                      byte[] buffer,
+                                      MutableInt offset)
+  {
+    buffer[offset.intValue()] = (byte) (val ? 1: 0);
+
+    offset.add(Type.BOOLEAN.getByteSize());
+  }
+
+  ////Char
+
+  public static char deserializeChar(byte[] buffer,
+                                     MutableInt offset)
+  {
+    char val = (char) (((((int) buffer[0 + offset.intValue()]) & 0xFF) << 8)  |
+                (((int) buffer[1 + offset.intValue()]) & 0xFF));
+
+    offset.add(Type.CHAR.getByteSize());
+    return val;
+  }
+
+  public static void serializeChar(char val,
+                                    byte[] buffer,
+                                    MutableInt offset)
+  {
+    buffer[0 + offset.intValue()] = (byte) ((val >> 8) & 0xFF);
+    buffer[1 + offset.intValue()] = (byte) (val & 0xFF);
+
+    offset.add(Type.CHAR.getByteSize());
   }
 }

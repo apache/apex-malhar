@@ -63,6 +63,7 @@ public enum Type
   private final JSONType jsonType;
   private final Class clazz;
   private final Set<Type> higherTypes;
+  private final int byteSize;
 
   Type(String name,
        int byteSize,
@@ -71,6 +72,7 @@ public enum Type
        Set<Type> higherTypes)
   {
     this.name = name;
+    this.byteSize = byteSize;
     this.jsonType = jsonType;
     this.clazz = clazz;
     this.higherTypes = higherTypes;
@@ -79,6 +81,11 @@ public enum Type
   public String getName()
   {
     return name;
+  }
+
+  public int getByteSize()
+  {
+    return byteSize;
   }
 
   public JSONType getJSONType()

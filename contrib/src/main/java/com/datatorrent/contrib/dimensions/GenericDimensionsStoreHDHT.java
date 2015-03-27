@@ -26,6 +26,7 @@ import com.google.common.cache.RemovalNotification;
 import com.google.common.primitives.Ints;
 import java.io.IOException;
 import javax.validation.constraints.Min;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -105,21 +106,18 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
   public GenericAggregateEvent fromKeyValueGAE(Slice key, byte[] aggregate)
   {
-    int offset = 0;
+    MutableInt offset = new MutableInt(0);
     int schemaID = GPOUtils.deserializeInt(key.buffer,
                                            offset);
-    offset += 4;
     int dimensionDescriptorID = GPOUtils.deserializeInt(key.buffer,
                                                         offset);
-    offset += 4;
     int aggregatorID = GPOUtils.deserializeInt(key.buffer,
                                                offset);
-    offset += 4;
 
     FieldsDescriptor keysDescriptor = getKeyDescriptor(schemaID, dimensionDescriptorID);
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 
-    GPOMutable keys = GPOUtils.deserialize(keysDescriptor, key.buffer, offset);
+    GPOMutable keys = GPOUtils.deserialize(keysDescriptor, key.buffer, offset.intValue());
     GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, 0);
 
     GenericAggregateEvent gae = new GenericAggregateEvent(new GPOImmutable(keys),
