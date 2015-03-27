@@ -28,8 +28,17 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
   private GPOMutable aggregates;
   private EventKey eventKey;
 
-  public GenericAggregateEvent()
+  public GenericAggregateEvent(EventKey eventKey,
+                               GPOMutable aggregates)
   {
+    Preconditions.checkNotNull(eventKey);
+
+    this.keys = (GPOImmutable) eventKey.getKey();
+    this.schemaID = eventKey.getSchemaID();
+    this.dimensionDescriptorID = eventKey.getDimensionDescriptorID();
+    this.aggregatorIndex = eventKey.getAggregatorIndex();
+
+    this.setAggregates(aggregates);
   }
 
   public GenericAggregateEvent(GPOImmutable keys,
@@ -49,7 +58,8 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
 
   private void initialize()
   {
-    eventKey = new EventKey(schemaID,
+    eventKey = new EventKey(this,
+                            schemaID,
                             dimensionDescriptorID,
                             aggregatorIndex,
                             keys);
@@ -102,6 +112,7 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
   {
     private static final long serialVersionUID = 201503231205L;
 
+    private GenericAggregateEvent gae;
     private int schemaID;
     private int dimensionDescriptorID;
     private int aggregatorIndex;
@@ -120,6 +131,31 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
       setDimensionDescriptorID(dimensionDescriptorID);
       setAggregatorIndex(aggregatorIndex);
       setKey(key);
+    }
+
+    public EventKey(GenericAggregateEvent gae,
+                    int schemaID,
+                    int dimensionDescriptorID,
+                    int aggregatorIndex,
+                    GPOMutable key)
+    {
+      setSchemaID(schemaID);
+      setDimensionDescriptorID(dimensionDescriptorID);
+      setAggregatorIndex(aggregatorIndex);
+      setKey(key);
+
+      setGae(gae);
+    }
+
+    private void setGae(GenericAggregateEvent gae)
+    {
+      Preconditions.checkNotNull(gae);
+      this.gae = gae;
+    }
+
+    public GenericAggregateEvent getGae()
+    {
+      return gae;
     }
 
     private void setDimensionDescriptorID(int dimensionDescriptorID)

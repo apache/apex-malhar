@@ -276,31 +276,25 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     @Override
     public GenericAggregateEvent load(EventKey eventKey)
     {
-      try {
       long bucket = getBucketForSchema(eventKey);
       byte[] key = getEventKeyBytesGAE(eventKey);
-      if(key == null) {
-        return null;
-      }
 
       Slice keySlice = new Slice(key, 0, key.length);
       byte[] val = getUncommitted(bucket, keySlice);
 
       if(val == null) {
-        val = get(bucket, keySlice);
+        try {
+          val = get(bucket, keySlice);
+        }
+        catch(IOException ex) {
+          throw new RuntimeException(ex);
+        }
       }
 
-     if (val == null)
-       return null;
+     if(val == null) {
+     }
 
      return fromKeyValueGAE(keySlice, val);
-      }
-      catch(Exception e) {
-        e.printStackTrace();
-        logger.error("error {}", e);
-      }
-
-      return null;
     }
   }
 }
