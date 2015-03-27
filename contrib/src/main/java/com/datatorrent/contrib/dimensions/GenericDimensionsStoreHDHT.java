@@ -150,7 +150,12 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       throw new RuntimeException(ex);
     }
 
-    aggregator.aggregate(aggregate, gae);
+    if(aggregate.isEmpty()) {
+      cache.put(gae.getEventKey(), gae);
+    }
+    else {
+      aggregator.aggregate(aggregate, gae);
+    }
   }
 
   public abstract int getPartitionGAE(GenericAggregateEvent inputEvent);
@@ -294,7 +299,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
 
      if(val == null) {
-       eventKey.getGae();
+       return new GenericAggregateEvent();
      }
 
      return fromKeyValueGAE(keySlice, val);

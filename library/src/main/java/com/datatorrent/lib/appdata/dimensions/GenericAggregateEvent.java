@@ -28,9 +28,11 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
   private GPOMutable aggregates;
   private EventKey eventKey;
 
+  private boolean empty = false;
+
   public GenericAggregateEvent()
   {
-    //For kryo
+    empty = true;
   }
 
   public GenericAggregateEvent(EventKey eventKey,
@@ -63,8 +65,7 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
 
   private void initialize()
   {
-    eventKey = new EventKey(this,
-                            schemaID,
+    eventKey = new EventKey(schemaID,
                             dimensionDescriptorID,
                             aggregatorIndex,
                             keys);
@@ -113,11 +114,18 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
     return eventKey;
   }
 
+  /**
+   * @return the empty
+   */
+  public boolean isEmpty()
+  {
+    return empty;
+  }
+
   public static class EventKey implements Serializable
   {
     private static final long serialVersionUID = 201503231205L;
 
-    private GenericAggregateEvent gae;
     private int schemaID;
     private int dimensionDescriptorID;
     private int aggregatorIndex;
@@ -136,31 +144,6 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
       setDimensionDescriptorID(dimensionDescriptorID);
       setAggregatorIndex(aggregatorIndex);
       setKey(key);
-    }
-
-    public EventKey(GenericAggregateEvent gae,
-                    int schemaID,
-                    int dimensionDescriptorID,
-                    int aggregatorIndex,
-                    GPOMutable key)
-    {
-      setSchemaID(schemaID);
-      setDimensionDescriptorID(dimensionDescriptorID);
-      setAggregatorIndex(aggregatorIndex);
-      setKey(key);
-
-      setGae(gae);
-    }
-
-    private void setGae(GenericAggregateEvent gae)
-    {
-      Preconditions.checkNotNull(gae);
-      this.gae = gae;
-    }
-
-    public GenericAggregateEvent getGae()
-    {
-      return gae;
     }
 
     private void setDimensionDescriptorID(int dimensionDescriptorID)

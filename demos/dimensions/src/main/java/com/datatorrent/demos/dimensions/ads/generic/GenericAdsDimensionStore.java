@@ -403,7 +403,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
         // an hds query. If an hds query finishes for a key while it is in the minuteCache, but
         // then that key gets evicted from the minuteCache, then the value will never be retrieved.
         // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
-        if(gae != null) {
+        if(!gae.isEmpty()) {
           logger.debug("Adding from aggregation buffer");
           values.add(gae.getAggregates());
         }
