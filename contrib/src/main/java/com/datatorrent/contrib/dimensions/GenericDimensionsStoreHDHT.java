@@ -53,6 +53,8 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
   ////////////////////// Caching /////////////////////////////
 
+  //TODO this is not fault tolerant. Need to create a custom cache which has old entries removed in end window.
+  //Can't write out incomplete aggregates in the middle of a window.
   private int cacheSize = CACHE_SIZE;
   protected transient LoadingCache<EventKey, GenericAggregateEvent> cache = null;
 
@@ -292,6 +294,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       }
 
      if(val == null) {
+       eventKey.getGae();
      }
 
      return fromKeyValueGAE(keySlice, val);
