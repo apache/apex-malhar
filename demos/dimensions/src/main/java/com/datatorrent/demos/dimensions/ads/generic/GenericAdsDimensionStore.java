@@ -406,6 +406,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
       {
         HDSQuery hdsQuery = queryIt.next();
         eventKey.getKey().setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
+        logger.info("Query event key: {}", eventKey);
 
         GenericAggregateEvent gae;
 
