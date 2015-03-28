@@ -46,7 +46,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -69,6 +68,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
   private transient GenericSchemaDimensional dimensionalSchema;
   private transient List<Map<Integer, FieldsDescriptor>> indexToFieldsDescriptor;
 
+  private byte[] eventKeyBytes;
 
   //==========================================================================
   // Query Processing - Start
@@ -125,6 +125,18 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
 
   public GenericAdsDimensionStore()
   {
+  }
+
+  @Override
+  public void processEvent(GenericAggregateEvent gae)
+  {
+    if(eventKeyBytes != null) {
+      if(getEventKeyBytesGAE(gae.getEventKey()).equals(eventKeyBytes)) {
+        logger.info("Duplicate Event");
+      }
+    }
+
+    super.processEvent(gae);
   }
 
   @Override
@@ -321,12 +333,18 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
 
       List<HDSQuery> hdsQueries = Lists.newArrayList();
 
+      gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, endTime);
+      gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
+
+      eventKeyBytes = getEventKeyBytesGAE(eventKey);
+
       for(long timestamp = startTime;
           timestamp <= endTime;
           timestamp += query.getTimeBucket().getTimeUnit().toMillis(1)) {
         gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
         gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
         Slice key = new Slice(getEventKeyBytesGAE(eventKey));
+
         HDSQuery hdsQuery = operator.queries.get(key);
 
         if(hdsQuery == null) {
@@ -376,9 +394,9 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
                             values,
                             queueContext.longValue());
 
-      EventKey eventKey = adsQueryMeta.getEventKey();
       TimeUnit bucketUnit = query.getTimeBucket().getTimeUnit();
       Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
+      EventKey eventKey = adsQueryMeta.getEventKey();
 
       boolean allSatisfied = true;
 
@@ -391,19 +409,14 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
 
         GenericAggregateEvent gae;
 
-        try {
-          gae = operator.cache.get(eventKey);
-        }
-        catch(ExecutionException ex) {
-          throw new RuntimeException(ex);
-        }
+        gae = operator.cache.getIfPresent(eventKey);
 
         // TODO
         // There is a race condition with retrieving from the cache and doing
         // an hds query. If an hds query finishes for a key while it is in the minuteCache, but
         // then that key gets evicted from the minuteCache, then the value will never be retrieved.
         // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
-        if(!gae.isEmpty()) {
+        if(gae != null) {
           logger.debug("Adding from aggregation buffer");
           values.add(gae.getAggregates());
         }
