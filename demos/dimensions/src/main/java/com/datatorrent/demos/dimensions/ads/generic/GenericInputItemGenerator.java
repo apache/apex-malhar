@@ -90,7 +90,7 @@ public class GenericInputItemGenerator implements InputOperator
         //int adUnit = random.nextInt(AdsSchemaResult.LOCATIONS.length) + 1;
         int adUnit = random.nextInt(1) + 1;
 
-        timestamp = 1000000L;//System.currentTimeMillis();
+        timestamp = System.currentTimeMillis();
 
         if(i == blastCount - 1) {
           logger.info("advertiserId {}, publisherId {}, addUnit {}, timestamp {}",
