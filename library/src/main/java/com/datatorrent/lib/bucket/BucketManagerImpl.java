@@ -15,27 +15,26 @@
  */
 package com.datatorrent.lib.bucket;
 
-public class BucketImpl<T extends Bucketable> extends Bucket<T>
+
+public class BucketManagerImpl<T extends Bucketable> extends AbstractBucketManager<T>
 {
 
-  public BucketImpl(long bucketKey)
+  @Override
+  protected Bucket<T> createBucket(long requestedKey)
   {
-    super(bucketKey);
+    return new Bucket<T>(requestedKey);
   }
 
-   /**
-   * Finds whether the bucket contains the event.
-   *
-   * @param event the {@link Bucketable} to search for in the bucket.
-   * @return true if bucket has the event; false otherwise.
-   */
   @Override
-  public boolean containsEvent(T event)
+  protected Object getEventKey(T event)
   {
-    if (unwrittenEvents != null && unwrittenEvents.containsKey(event.getEventKey())) {
-      return true;
-    }
-    return writtenEvents != null && writtenEvents.containsKey(event.getEventKey());
+    return event.getEventKey();
+  }
+
+  @Override
+  protected BucketManagerImpl<T> getBucketManagerImpl()
+  {
+    return new BucketManagerImpl<T>();
   }
 
 }

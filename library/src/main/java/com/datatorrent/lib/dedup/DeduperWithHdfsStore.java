@@ -35,8 +35,15 @@ import com.datatorrent.lib.bucket.NonOperationalBucketStore;
  *
  * @since 0.9.5
  */
-public abstract class DeduperWithHdfsStore<INPUT extends Bucketable & Event, OUTPUT> extends Deduper<INPUT, OUTPUT>
+public abstract class DeduperWithHdfsStore<INPUT extends Bucketable & Event, OUTPUT> extends AbstractDeduper<INPUT, OUTPUT>
 {
+
+  @Override
+  protected Object getEventKey(INPUT event)
+  {
+    return event.getEventKey();
+  }
+  
   @Override
   public void setup(Context.OperatorContext context)
   {

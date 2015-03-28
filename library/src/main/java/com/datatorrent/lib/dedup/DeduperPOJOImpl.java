@@ -15,16 +15,13 @@
  */
 package com.datatorrent.lib.dedup;
 
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DAG;
+
+import com.datatorrent.lib.bucket.Bucket;
+import com.datatorrent.lib.bucket.BucketManager;
+import com.datatorrent.lib.bucket.Bucketable;
+import com.datatorrent.api.*;
 import com.datatorrent.lib.bucket.*;
-import com.google.common.base.Preconditions;
-import java.util.*;
-import javax.validation.constraints.NotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import java.util.List;
 
 /**
  * This is the base implementation of a deduper, which drops duplicate events.&nbsp;
@@ -60,62 +57,21 @@ import org.slf4j.LoggerFactory;
  * @param <OUTPUT> type of output tuple
  * @since 0.9.4
  */
-public class DeduperWithAppBuilder extends Deduper<HashMap<String,Object>, HashMap<String,Object>>
+public abstract class DeduperPOJOImpl<INPUT,OUTPUT> extends AbstractDeduper<INPUT,OUTPUT>
 {
-  @NotNull
-  protected BucketableCustomKey customKey;
-
-   public BucketableCustomKey getCustomKey()
-  {
-    return customKey;
-  }
-
-  public void setCustomKey(BucketableCustomKey customKey)
-  {
-    this.customKey = customKey;
-  }
 
   @Override
   public void setup(Context.OperatorContext context)
   {
     boolean stateless = context.getValue(Context.OperatorContext.STATELESS);
     if (stateless) {
-      bucketManager.setBucketStore(new NonOperationalBucketStore());
+      bucketManager.setBucketStore(new NonOperationalBucketStore<INPUT>());
     }
     else {
-      ((HdfsBucketStore) bucketManager.getBucketStore()).setConfiguration(context.getId(), context.getValue(DAG.APPLICATION_PATH), partitionKeys, partitionMask);
+      ((HdfsBucketStore<INPUT>) bucketManager.getBucketStore()).setConfiguration(context.getId(), context.getValue(DAG.APPLICATION_PATH), partitionKeys, partitionMask);
     }
     super.setup(context);
   }
-
-
-
-
-  @Override
-  protected HashMap<String, Object> convert(HashMap<String, Object> input)
-  {
-    return input;
-  }
-
-  @Override
-  protected int getPartitionKey(HashMap<String,Object> event, int mask)
-  {
-     int partition = event.get(customKey.getEventKey()).hashCode() & mask;
-     return partition;
-  }
-
-  /**
-   * Sets the bucket manager.
-   *
-   * @param bucketManager {@link BucketManager} to be used by deduper.
-   */
-  protected void setBucketManager(BucketManagerAppBuilderImpl bucketManager)
-  {
-    super.setBucketManager(bucketManager);
-    bucketManager.setCustomKey(customKey);
-  }
-
-
 
 
 }

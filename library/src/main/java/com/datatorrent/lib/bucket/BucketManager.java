@@ -24,7 +24,6 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.lib.counters.BasicCounters;
-import javax.validation.constraints.NotNull;
 
 /**
  * <p>
@@ -104,7 +103,7 @@ public interface BucketManager<T>
    * @return bucket; null if the bucket is not yet created.
    */
   @Nullable
-  Bucket<T> getBucket(long bucketKey);
+  AbstractBucket<T> getBucket(long bucketKey);
 
   /**
    * Loads the events belonging to the bucket from the store. <br/>
@@ -169,7 +168,7 @@ public interface BucketManager<T>
      *
      * @param loadedBucket bucket that was loaded.
      */
-    void bucketLoaded(Bucket<T> loadedBucket);
+    void bucketLoaded(AbstractBucket<T> loadedBucket);
 
     /**
      * Invoked when a bucket is removed from memory.<br/>

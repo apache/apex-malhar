@@ -15,28 +15,36 @@
  */
 package com.datatorrent.lib.bucket;
 
-public class Bucket<T extends Bucketable> extends AbstractBucket<T>
+/**
+ * A {@link BucketManager} that creates buckets based on time.<br/>
+ *
+ * @param <T>
+ * @since 0.9.4
+ */
+public  class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketManagerImpl<SimpleEvent>
 {
-
-  protected Bucket(long requestedKey)
+  @Override
+  protected BucketPOJOImpl createBucket(long requestedKey)
   {
-    super(requestedKey);
+    return new BucketPOJOImpl(requestedKey);
   }
 
-
-   /**
-   * Finds whether the bucket contains the event.
-   *
-   * @param event the {@link Bucketable} to search for in the bucket.
-   * @return true if bucket has the event; false otherwise.
-   */
   @Override
-  public boolean containsEvent(T event)
+  protected long getTime(SimpleEvent event)
   {
-    if (unwrittenEvents != null && unwrittenEvents.containsKey(event.getEventKey())) {
-      return true;
-    }
-    return writtenEvents != null && writtenEvents.containsKey(event.getEventKey());
+    return event.getHhmm();
+  }
+
+  @Override
+  protected Object getEventKey(SimpleEvent event)
+  {
+    return event.getId();
+  }
+
+  @Override
+  protected TimeBasedBucketManagerPOJOImpl getBucketManagerImpl()
+  {
+    return new TimeBasedBucketManagerPOJOImpl();
   }
 
 }

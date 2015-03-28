@@ -34,7 +34,7 @@ import com.datatorrent.api.annotation.Stateless;
  * @since 1.0.1
  */
 @Stateless
-public class NonOperationalBucketStore<T extends Bucketable & Event> implements BucketStore.ExpirableBucketStore<T>
+public class NonOperationalBucketStore<T> implements BucketStore.ExpirableBucketStore<T>
 {
   public NonOperationalBucketStore()
   {

@@ -23,7 +23,7 @@ import javax.annotation.Nonnull;
 public class DummyEvent implements Event, Bucketable, Comparable<DummyEvent>
 {
   Integer id;
-  String time;
+  long time;
 
   @SuppressWarnings("unused")
   DummyEvent()
@@ -37,7 +37,7 @@ public class DummyEvent implements Event, Bucketable, Comparable<DummyEvent>
   }
 
   @Override
-  public String getTime()
+  public long getTime()
   {
     return time;
   }

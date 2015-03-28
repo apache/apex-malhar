@@ -1,127 +1,110 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ *  Copyright (c) 2012-2015 Malhar, Inc.
+ *  All Rights Reserved.
  */
 package com.datatorrent.lib.dedup;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
-
-import javax.validation.constraints.Min;
-import javax.validation.constraints.NotNull;
-
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.*;
+import com.datatorrent.api.StatsListener.BatchedOperatorStats;
+import com.datatorrent.api.StatsListener.Response;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.bucket.AbstractBucket;
+import com.datatorrent.lib.bucket.BucketManager;
+import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
+import com.datatorrent.lib.counters.BasicCounters;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-
+import java.io.Serializable;
+import java.util.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.lang.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.apache.commons.lang.mutable.MutableLong;
 
-import com.datatorrent.lib.bucket.Bucket;
-import com.datatorrent.lib.bucket.BucketManager;
-import com.datatorrent.lib.bucket.Bucketable;
-import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.bucket.*;
 
-/**
- * This is the base implementation of a deduper, which drops duplicate events.&nbsp;
- * Subclasses must implement the convert method which turns input tuples into output tuples.
- * <p>
- * Processing of an event involves:
- * <ol>
- * <li>Finding the bucket key of an event by calling {@link BucketManager#getBucketKeyFor(Bucketable)}.</li>
- * <li>Getting the bucket from {@link BucketManager} by calling {@link BucketManager#getBucket(long)}.</li>
- * <li>
- * If the bucket is not loaded:
- * <ol>
- * <li>it requests the {@link BucketManager} to load the bucket which is a non-blocking call.</li>
- * <li>Adds the event to {@link #waitingEvents} which is a collection of events that are waiting for buckets to be loaded.</li>
- * <li>{@link BucketManager} loads the bucket and informs deduper by calling {@link #bucketLoaded(Bucket)}</li>
- * <li>The deduper then processes the waiting events in {@link #handleIdleTime()}</li>
- * </ol>
- * <li>
- * If the bucket is loaded, the operator drops the event if it is already present in the bucket; emits it otherwise.
- * </li>
- * </ol>
- * </p>
- *
- * <p>
- * Based on the assumption that duplicate events fall in the same bucket.
- * </p>
- *
- * @displayName Deduper
- * @category Deduplication
- * @tags dedupe
- *
- * @param <INPUT>  type of input tuple
- * @param <OUTPUT> type of output tuple
- * @since 0.9.4
- */
-public abstract class Deduper<INPUT, OUTPUT>
-  implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler, Partitioner<Deduper<INPUT, OUTPUT>>
+public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler, Partitioner<AbstractDeduper<INPUT, OUTPUT>>
 {
-
+  protected static final Logger logger = LoggerFactory.getLogger(AbstractDeduper.class);
+  /**
+   * The input port on which events are received.
+   */
+  @InputPortFieldAnnotation(optional = true)
+  public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>() {
+    @Override
+    public final void process(INPUT tuple)
+    {
+      long bucketKey = bucketManager.getBucketKeyFor(tuple);
+      if (bucketKey < 0) {
+        return;
+      } //ignore event
+      AbstractBucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
+      if (bucket != null && bucket.containsEvent(tuple)) {
+        counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
+        return;
+      } //ignore event
+      if (bucket != null && bucket.isDataOnDiskLoaded()) {
+        bucketManager.newEvent(bucketKey, tuple);
+        output.emit(convert(tuple));
+      }
+      else {
+        /**
+         * The bucket on disk is not loaded. So we load the bucket from the disk.
+         * Before that we check if there is a pending request to load the bucket and in that case we
+         * put the event in a waiting list.
+         */
+        boolean doLoadFromDisk = false;
+        List<INPUT> waitingList = waitingEvents.get(bucketKey);
+        if (waitingList == null) {
+          waitingList = Lists.newArrayList();
+          waitingEvents.put(bucketKey, waitingList);
+          doLoadFromDisk = true;
+        }
+        waitingList.add(tuple);
+        if (doLoadFromDisk) {
+          //Trigger the storage manager to load bucketData for this bucket key. This is a non-blocking call.
+          bucketManager.loadBucketData(bucketKey);
+        }
+      }
+    }
+  };
   /**
    * The output port on which deduped events are emitted.
    */
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
   //Check-pointed state
   @NotNull
-  protected AbstractBucketManager<INPUT> bucketManager;
-
-  public AbstractBucketManager<INPUT> getBucketManager()
-  {
-    return bucketManager;
-  }
-
-  public void setBucketManager(AbstractBucketManager<INPUT> bucketManager)
-  {
-    this.bucketManager = bucketManager;
-  }
+  protected BucketManager<INPUT> bucketManager;
   //bucketKey -> list of bucketData which belong to that bucket and are waiting for the bucket to be loaded.
   @NotNull
   protected final Map<Long, List<INPUT>> waitingEvents;
   protected Set<Integer> partitionKeys;
   protected int partitionMask;
   //Non check-pointed state
-  protected transient final BlockingQueue<Bucket<INPUT>> fetchedBuckets;
+  protected final transient BlockingQueue<AbstractBucket<INPUT>> fetchedBuckets;
   protected transient long sleepTimeMillis;
-  private transient OperatorContext context;
+  protected transient OperatorContext context;
   protected BasicCounters<MutableLong> counters;
-  private transient long currentWindow;
-
-  @Min(1)
+  protected transient long currentWindow;
+  @Min(value = 1)
   protected int partitionCount = 1;
 
-  public Deduper()
+  public AbstractDeduper()
   {
     waitingEvents = Maps.newHashMap();
     partitionKeys = Sets.newHashSet(0);
     partitionMask = 0;
 
-    fetchedBuckets = new LinkedBlockingQueue<Bucket<INPUT>>();
+    fetchedBuckets = new LinkedBlockingQueue<AbstractBucket<INPUT>>();
     counters = new BasicCounters<MutableLong>(MutableLong.class);
   }
+
 
   public void setPartitionCount(int partitionCount)
   {
@@ -139,13 +122,11 @@ public abstract class Deduper<INPUT, OUTPUT>
     this.context = context;
     this.currentWindow = context.getValue(Context.OperatorContext.ACTIVATION_WINDOW_ID);
     sleepTimeMillis = context.getValue(OperatorContext.SPIN_MILLIS);
-
     bucketManager.setBucketCounters(counters);
     counters.setCounter(CounterKeys.DUPLICATE_EVENTS, new MutableLong());
-
     bucketManager.startService(this);
     logger.debug("bucket keys at startup {}", waitingEvents.keySet());
-    for (long bucketKey : waitingEvents.keySet()) {
+    for (long bucketKey: waitingEvents.keySet()) {
       bucketManager.loadBucketData(bucketKey);
     }
   }
@@ -177,11 +158,46 @@ public abstract class Deduper<INPUT, OUTPUT>
     context.setCounters(counters);
   }
 
+  @Override
+  public void handleIdleTime()
+  {
+    if (fetchedBuckets.isEmpty()) {
+      /* nothing to do here, so sleep for a while to avoid busy loop */
+      try {
+        Thread.sleep(sleepTimeMillis);
+      }
+      catch (InterruptedException ie) {
+        throw new RuntimeException(ie);
+      }
+    }
+    else {
+      /**
+       * Remove all the events from waiting list whose buckets are loaded.
+       * Process these events again.
+       */
+      AbstractBucket<INPUT> bucket;
+      while ((bucket = fetchedBuckets.poll()) != null) {
+        List<INPUT> waitingList = waitingEvents.remove(bucket.bucketKey);
+        if (waitingList != null) {
+          for (INPUT event: waitingList) {
+            if (!bucket.containsEvent(event)) {
+              bucketManager.newEvent(bucket.bucketKey, event);
+              output.emit(convert(event));
+            }
+            else {
+              counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
+            }
+          }
+        }
+      }
+    }
+  }
+
   /**
    * {@inheritDoc}
    */
   @Override
-  public void bucketLoaded(Bucket<INPUT> loadedBucket)
+  public void bucketLoaded(AbstractBucket<INPUT> loadedBucket)
   {
     fetchedBuckets.add(loadedBucket);
   }
@@ -195,8 +211,23 @@ public abstract class Deduper<INPUT, OUTPUT>
   }
 
   @Override
-  public void partitioned(Map<Integer, Partition<Deduper<INPUT, OUTPUT>>> partitions)
+  public void partitioned(Map<Integer, Partition<AbstractDeduper<INPUT, OUTPUT>>> partitions)
   {
+  }
+
+  /**
+   * Sets the bucket manager.
+   *
+   * @param bucketManager {@link BucketManager} to be used by deduper.
+   */
+  public void setBucketManager(@NotNull BucketManager<INPUT> bucketManager)
+  {
+    this.bucketManager = Preconditions.checkNotNull(bucketManager, "storage manager");
+  }
+
+  public BucketManager<INPUT> getBucketManager()
+  {
+    return this.bucketManager;
   }
 
   /**
@@ -207,20 +238,16 @@ public abstract class Deduper<INPUT, OUTPUT>
    */
   protected abstract OUTPUT convert(INPUT input);
 
-
-
   @Override
   public boolean equals(Object o)
   {
     if (this == o) {
       return true;
     }
-    if (!(o instanceof Deduper)) {
+    if (!(o instanceof AbstractDeduper)) {
       return false;
     }
-
-    Deduper<?, ?> deduper = (Deduper<?, ?>) o;
-
+    AbstractDeduper<?, ?> deduper = (AbstractDeduper<?, ?>)o;
     if (partitionMask != deduper.partitionMask) {
       return false;
     }
@@ -249,7 +276,7 @@ public abstract class Deduper<INPUT, OUTPUT>
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
 
-  protected abstract int getPartitionKey(INPUT tuple,int mask);
+  protected abstract Object getEventKey(INPUT event);
 
 
   public static enum CounterKeys
@@ -259,6 +286,7 @@ public abstract class Deduper<INPUT, OUTPUT>
 
   public static class CountersListener implements StatsListener, Serializable
   {
+    private static final long serialVersionUID = 1L;
     @Override
     public Response processStats(BatchedOperatorStats batchedOperatorStats)
     {
@@ -286,68 +314,10 @@ public abstract class Deduper<INPUT, OUTPUT>
       return null;
     }
 
-    private static final long serialVersionUID = 201404082336L;
-    protected static transient final Logger logger = LoggerFactory.getLogger(CountersListener.class);
-  }
-
-
-  /**
-   * The input port on which events are received.
-   */
-  @InputPortFieldAnnotation(optional = true)
-  public final transient DefaultInputPort<INPUT> input = new DefaultInputPort<INPUT>()
-  {
-    @Override
-    public final void process(INPUT tuple)
-    {
-      long bucketKey = bucketManager.getBucketKeyFor(tuple);
-      if (bucketKey < 0) {
-        return;
-      } //ignore event
-
-      Bucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
-
-      if (bucket != null)
-      {
-        bucket.setCustomKey(bucketManager.getCustomKey());
-        if (bucket.containsEvent(tuple)) {
-        counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
-        return;
-      } //ignore event
-
-        else if (bucket.isDataOnDiskLoaded()) {
-        bucketManager.newEvent(bucketKey, tuple);
-        output.emit(convert(tuple));
-      }
-      else {
-        /**
-         * The bucket on disk is not loaded. So we load the bucket from the disk.
-         * Before that we check if there is a pending request to load the bucket and in that case we
-         * put the event in a waiting list.
-         */
-        boolean doLoadFromDisk = false;
-        List<INPUT> waitingList = waitingEvents.get(bucketKey);
-        if (waitingList == null) {
-          waitingList = Lists.newArrayList();
-          waitingEvents.put(bucketKey, waitingList);
-          doLoadFromDisk = true;
-        }
-        waitingList.add(tuple);
-
-        if (doLoadFromDisk) {
-          //Trigger the storage manager to load bucketData for this bucket key. This is a non-blocking call.
-          bucketManager.loadBucketData(bucketKey);
-        }
-      }
-      }
-    }
-
-  };
-
-
+}
   @Override
   @SuppressWarnings({"BroadCatchBlock", "TooBroadCatch", "UseSpecificCatch"})
-  public Collection<Partition<Deduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<Deduper<INPUT, OUTPUT>>> partitions, PartitioningContext context)
+  public Collection<Partition<AbstractDeduper<INPUT, OUTPUT>>> definePartitions(Collection<Partition<AbstractDeduper<INPUT, OUTPUT>>> partitions, PartitioningContext context)
   {
     final int finalCapacity = DefaultPartition.getRequiredPartitionCount(context, this.partitionCount);
 
@@ -356,7 +326,7 @@ public abstract class Deduper<INPUT, OUTPUT>
 
     Map<Long, List<INPUT>> allWaitingEvents = Maps.newHashMap();
 
-    for (Partition<Deduper<INPUT, OUTPUT>> partition : partitions) {
+    for (Partition<AbstractDeduper<INPUT, OUTPUT>> partition : partitions) {
       //collect all bucketStorageManagers
       oldStorageManagers.add(partition.getPartitionedInstance().bucketManager);
 
@@ -376,14 +346,14 @@ public abstract class Deduper<INPUT, OUTPUT>
 
     partitions.clear();
 
-    Collection<Partition<Deduper<INPUT, OUTPUT>>> newPartitions = Lists.newArrayListWithCapacity(finalCapacity);
+    Collection<Partition<AbstractDeduper<INPUT, OUTPUT>>> newPartitions = Lists.newArrayListWithCapacity(finalCapacity);
     Map<Integer, BucketManager<INPUT>> partitionKeyToStorageManagers = Maps.newHashMap();
 
     for (int i = 0; i < finalCapacity; i++) {
       try {
         @SuppressWarnings("unchecked")
-        Deduper<INPUT, OUTPUT> deduper = this.getClass().newInstance();
-        DefaultPartition<Deduper<INPUT, OUTPUT>> partition = new DefaultPartition<Deduper<INPUT, OUTPUT>>(deduper);
+        AbstractDeduper<INPUT, OUTPUT> deduper = this.getClass().newInstance();
+        DefaultPartition<AbstractDeduper<INPUT, OUTPUT>> partition = new DefaultPartition<AbstractDeduper<INPUT, OUTPUT>>(deduper);
         newPartitions.add(partition);
       }
       catch (Throwable cause) {
@@ -395,8 +365,8 @@ public abstract class Deduper<INPUT, OUTPUT>
     int lPartitionMask = newPartitions.iterator().next().getPartitionKeys().get(input).mask;
 
     //transfer the state here
-    for (Partition<Deduper<INPUT, OUTPUT>> deduperPartition : newPartitions) {
-      Deduper<INPUT, OUTPUT> deduperInstance = deduperPartition.getPartitionedInstance();
+    for (Partition<AbstractDeduper<INPUT, OUTPUT>> deduperPartition : newPartitions) {
+      AbstractDeduper<INPUT, OUTPUT> deduperInstance = deduperPartition.getPartitionedInstance();
 
       deduperInstance.partitionKeys = deduperPartition.getPartitionKeys().get(input).partitions;
       deduperInstance.partitionMask = lPartitionMask;
@@ -411,8 +381,8 @@ public abstract class Deduper<INPUT, OUTPUT>
       for (long bucketKey : allWaitingEvents.keySet()) {
         for (Iterator<INPUT> iterator = allWaitingEvents.get(bucketKey).iterator(); iterator.hasNext(); ) {
           INPUT event = iterator.next();
-       //   int partitionKey = event.getEventKey().hashCode() & lPartitionMask;
-          int partitionKey = getPartitionKey(event,lPartitionMask);
+          int partitionKey = getEventKey(event).hashCode() & lPartitionMask;
+
           if (deduperInstance.partitionKeys.contains(partitionKey)) {
             List<INPUT> existingList = deduperInstance.waitingEvents.get(bucketKey);
             if (existingList == null) {
@@ -430,40 +400,5 @@ public abstract class Deduper<INPUT, OUTPUT>
     return newPartitions;
   }
 
-  @Override
-  public void handleIdleTime()
-  {
-    if (fetchedBuckets.isEmpty()) {
-      /* nothing to do here, so sleep for a while to avoid busy loop */
-      try {
-        Thread.sleep(sleepTimeMillis);
-      }
-      catch (InterruptedException ie) {
-        throw new RuntimeException(ie);
-      }
-    }
-    else {
-      /**
-       * Remove all the events from waiting list whose buckets are loaded.
-       * Process these events again.
-       */
-      Bucket<INPUT> bucket;
-      while ((bucket = fetchedBuckets.poll()) != null) {
-        List<INPUT> waitingList = waitingEvents.remove(bucket.bucketKey);
-        if (waitingList != null) {
-          for (INPUT event : waitingList) {
-            if (!bucket.containsEvent(event)) {
-              bucketManager.newEvent(bucket.bucketKey, event);
-              output.emit(convert(event));
-            }
-            else {
-              counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
-            }
-          }
-        }
-      }
-    }
-  }
 
-  private final static Logger logger = LoggerFactory.getLogger(Deduper.class);
 }

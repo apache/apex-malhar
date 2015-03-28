@@ -16,40 +16,23 @@
 package com.datatorrent.lib.bucket;
 
 
-public class BucketManagerOriginalImpl<T extends Bucketable> extends AbstractBucketManager<T>
+public class BucketManagerPOJOImpl extends AbstractBucketManager<SimpleEvent>
 {
-
   @Override
-  public long getBucketKeyFor(T event)
+  protected BucketPOJOImpl createBucket(long requestedKey)
   {
-    return Math.abs(event.getEventKey().hashCode()) / noOfBuckets;
+    return new BucketPOJOImpl(requestedKey);
   }
 
   @Override
-  protected Bucket<T> createBucket(long requestedKey)
+  protected Object getEventKey(SimpleEvent event)
   {
-    return new BucketImpl(requestedKey);
+    return event.getId();
   }
 
   @Override
-  protected Object getEventKey(T event)
+  protected BucketManagerPOJOImpl getBucketManagerImpl()
   {
-    return event.getEventKey();
+    return new BucketManagerPOJOImpl();
   }
-
-  @Override
-  protected AbstractBucketManager<T> getBucketManagerImpl()
-  {
-    return new BucketManagerOriginalImpl<T>();
-  }
-
-  @Override
-  protected boolean checkInstanceOfBucketManager(Object o)
-  {
-      if(!(o instanceof BucketManagerOriginalImpl))
-      return false;
-     else
-      return true;
-  }
-
 }

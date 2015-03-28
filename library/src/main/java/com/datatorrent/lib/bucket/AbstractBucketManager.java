@@ -40,7 +40,6 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.counters.BasicCounters;
-import java.util.*;
 
 /**
  * A {@link BucketManager} implementation.
@@ -94,11 +93,11 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   @NotNull
   protected BucketStore<T> bucketStore;
   @NotNull
-  protected final Map<Integer, Bucket<T>> dirtyBuckets;
+  protected final Map<Integer, AbstractBucket<T>> dirtyBuckets;
   protected long committedWindow;
   //Not check-pointed
   //Indexed by bucketKey keys.
-  protected transient Bucket<T>[] buckets;
+  protected transient AbstractBucket<T>[] buckets;
   @NotNull
   protected transient Set<Integer> evictionCandidates;
   protected transient Listener<T> listener;
@@ -108,22 +107,21 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   @NotNull
   private transient final Lock lock;
   @NotNull
-  private transient final MinMaxPriorityQueue<Bucket<T>> bucketHeap;
+  private transient final MinMaxPriorityQueue<AbstractBucket<T>> bucketHeap;
 
   protected transient boolean recordStats;
   protected transient BasicCounters<MutableLong> bucketCounters;
-  @NotNull
-  protected BucketableCustomKey customKey;
+
 
   public AbstractBucketManager()
   {
     eventQueue = new LinkedBlockingQueue<Long>();
     evictionCandidates = Sets.newHashSet();
     dirtyBuckets = Maps.newConcurrentMap();
-    bucketHeap = MinMaxPriorityQueue.orderedBy(new Comparator<Bucket<T>>()
+    bucketHeap = MinMaxPriorityQueue.orderedBy(new Comparator<AbstractBucket<T>>()
     {
       @Override
-      public int compare(Bucket<T> bucket1, Bucket<T> bucket2)
+      public int compare(AbstractBucket<T> bucket1, AbstractBucket<T> bucket2)
       {
         if (bucket1.lastUpdateTime() < bucket2.lastUpdateTime()) {
           return -1;
@@ -211,18 +209,6 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     bucketStore.teardown();
   }
 
-  public BucketableCustomKey getCustomKey()
-  {
-    return customKey;
-  }
-
-  public void setCustomKey(BucketableCustomKey customKey)
-  {
-    this.customKey = customKey;
-  }
-
-  @Override
-  public abstract long getBucketKeyFor(T event);
 
   @Override
   public void run()
@@ -243,7 +229,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
             long numEventsRemoved = 0;
             if (buckets[bucketIdx] != null && buckets[bucketIdx].bucketKey != requestedKey) {
               //Delete the old bucket in memory at that index.
-              Bucket<T> oldBucket = buckets[bucketIdx];
+              AbstractBucket<T> oldBucket = buckets[bucketIdx];
 
               dirtyBuckets.remove(bucketIdx);
               evictionCandidates.remove(bucketIdx);
@@ -269,7 +255,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
               }
               int overFlow = evictionCandidates.size() + 1 - noOfBucketsInMemory;
               while (overFlow-- >= 0) {
-                Bucket<T> lruBucket = bucketHeap.poll();
+                AbstractBucket<T> lruBucket = bucketHeap.poll();
                 if (lruBucket == null) {
                   break;
                 }
@@ -294,7 +280,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
               }
             }
 
-            Bucket<T> bucket = buckets[bucketIdx];
+            AbstractBucket<T> bucket = buckets[bucketIdx];
             if (bucket == null || bucket.bucketKey != requestedKey) {
               bucket = createBucket(requestedKey);
               buckets[bucketIdx] = bucket;
@@ -338,10 +324,10 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
     @SuppressWarnings("unchecked")
-    Bucket<T>[] freshBuckets = (Bucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
+    AbstractBucket<T>[] freshBuckets = (AbstractBucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
     buckets = freshBuckets;
     //Create buckets for unwritten events which were check-pointed
-    for (Map.Entry<Integer, Bucket<T>> bucketEntry : dirtyBuckets.entrySet()) {
+    for (Map.Entry<Integer, AbstractBucket<T>> bucketEntry : dirtyBuckets.entrySet()) {
       buckets[bucketEntry.getKey()] = bucketEntry.getValue();
     }
     Thread eventServiceThread = new Thread(this, "BucketLoaderService");
@@ -349,10 +335,10 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   }
 
   @Override
-  public Bucket<T> getBucket(long bucketKey)
+  public AbstractBucket<T> getBucket(long bucketKey)
   {
     int bucketIdx = (int) (bucketKey % noOfBuckets);
-    Bucket<T> bucket = buckets[bucketIdx];
+    AbstractBucket<T> bucket = buckets[bucketIdx];
     if (bucket == null) {
       return null;
     }
@@ -368,7 +354,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   {
     int bucketIdx = (int) (bucketKey % noOfBuckets);
 
-    Bucket<T> bucket = buckets[bucketIdx];
+    AbstractBucket<T> bucket = buckets[bucketIdx];
 
     if (bucket == null || bucket.bucketKey != bucketKey) {
       bucket = createBucket(bucketKey);
@@ -395,8 +381,8 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   {
     Map<Integer, Map<Object, T>> dataToStore = Maps.newHashMap();
     long eventsCount = 0;
-    for (Map.Entry<Integer, Bucket<T>> entry : dirtyBuckets.entrySet()) {
-      Bucket<T> bucket = entry.getValue();
+    for (Map.Entry<Integer, AbstractBucket<T>> entry : dirtyBuckets.entrySet()) {
+      AbstractBucket<T> bucket = entry.getValue();
       dataToStore.put(entry.getKey(), bucket.getUnwrittenEvents());
       eventsCount += bucket.countOfUnwrittenEvents();
       bucket.transferDataFromMemoryToStore();
@@ -436,13 +422,18 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     eventQueue.offer(bucketKey);
   }
 
+  @Override
+  public long getBucketKeyFor(T event)
+  {
+    return Math.abs(getEventKey(event).hashCode()) / noOfBuckets;
+  }
 
-  protected abstract Bucket<T> createBucket(long requestedKey);
+
+  protected abstract AbstractBucket<T> createBucket(long requestedKey);
 
   protected abstract Object getEventKey(T event);
   protected abstract AbstractBucketManager<T> getBucketManagerImpl();
 
-  protected abstract boolean checkInstanceOfBucketManager(Object o);
 
 
   @SuppressWarnings("ClassMayBeInterface")
@@ -457,11 +448,11 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
       return true;
     }
 
-    if(!checkInstanceOfBucketManager(o))
+    if(!(o instanceof AbstractBucketManager))
       return false;
 
     @SuppressWarnings("unchecked")
-    AbstractBucketManager<T> that = getBucketManagerImpl();
+    AbstractBucketManager<T> that = (AbstractBucketManager<T>)o;
 
     if (committedWindow != that.committedWindow) {
       return false;
@@ -527,15 +518,15 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     for (BucketManager<T> manager : oldManagers) {
       AbstractBucketManager<T> managerImpl = (AbstractBucketManager<T>) manager;
 
-      for (Map.Entry<Integer, Bucket<T>> bucketEntry : managerImpl.dirtyBuckets.entrySet()) {
-        Bucket<T> sourceBucket = bucketEntry.getValue();
+      for (Map.Entry<Integer, AbstractBucket<T>> bucketEntry : managerImpl.dirtyBuckets.entrySet()) {
+        AbstractBucket<T> sourceBucket = bucketEntry.getValue();
         int sourceBucketIdx = bucketEntry.getKey();
 
         for (Map.Entry<Object, T> eventEntry : sourceBucket.getUnwrittenEvents().entrySet()) {
           int partition = eventEntry.getKey().hashCode() & partitionMask;
           AbstractBucketManager<T> newManagerImpl = (AbstractBucketManager<T>) partitionKeysToManagers.get(partition);
 
-          Bucket<T> destBucket = newManagerImpl.dirtyBuckets.get(sourceBucketIdx);
+          AbstractBucket<T> destBucket = newManagerImpl.dirtyBuckets.get(sourceBucketIdx);
           if (destBucket == null) {
             destBucket = createBucket(sourceBucket.bucketKey);
             newManagerImpl.dirtyBuckets.put(sourceBucketIdx, destBucket);

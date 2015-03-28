@@ -15,16 +15,17 @@
  */
 package com.datatorrent.lib.bucket;
 
-import java.util.HashMap;
+import java.util.List;
 
-
-public class BucketAppBuilderImpl extends Bucket<HashMap<String,Object>>
+public class BucketPOJOImpl extends AbstractBucket<SimpleEvent>
 {
+  // id in Simple class
 
-  public BucketAppBuilderImpl(long bucketKey)
+  protected BucketPOJOImpl(long requestedKey)
   {
-    super(bucketKey);
+    super(requestedKey);
   }
+
 
   /**
    * Finds whether the bucket contains the event.
@@ -32,13 +33,28 @@ public class BucketAppBuilderImpl extends Bucket<HashMap<String,Object>>
    * @param event the {@link Bucketable} to search for in the bucket.
    * @return true if bucket has the event; false otherwise.
    */
-  public boolean containsEvent(HashMap<String,Object> event)
+  @Override
+  public boolean containsEvent(SimpleEvent event)
   {
-    if (unwrittenEvents != null && unwrittenEvents.containsKey(event.get(customKey.getEventKey()))) {
+    if (unwrittenEvents != null) {
+    //  for (String key: keys) {
+        if (!unwrittenEvents.containsKey(event.id)) {
+          return false;
+        }
+     // }
+      return true;
+
+    }
+    if (writtenEvents != null) {
+     // for (String key: keys) {
+         if (!writtenEvents.containsKey(event.id))  {
+          return false;
+        }
+      //}
       return true;
     }
-    return writtenEvents != null && writtenEvents.containsKey(event.get(customKey.getEventKey()));
-  }
+    return false;
 
+  }
 
 }

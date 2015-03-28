@@ -60,7 +60,7 @@ public class DeduperTest
   private static class DummyDeduper extends DeduperWithHdfsStore<DummyEvent, DummyEvent>
   {
 
-    @Override
+//    @Override
     public void bucketLoaded(Bucket<DummyEvent> bucket)
     {
       try {
@@ -83,7 +83,7 @@ public class DeduperTest
       waitingEvents.put(bucketManager.getBucketKeyFor(event), Lists.newArrayList(event));
     }
 
-    @Override
+//    @Override
     protected int getPartitionKey(DummyEvent tuple, int mask)
     {
       int partition = tuple.getEventKey().hashCode() & mask;
