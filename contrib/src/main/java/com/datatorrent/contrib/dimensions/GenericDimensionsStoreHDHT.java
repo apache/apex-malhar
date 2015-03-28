@@ -149,6 +149,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     }
 
     if(aggregate.isEmpty()) {
+      logger.info("Adding to cache.");
       cache.put(gae.getEventKey(), gae);
     }
     else {
