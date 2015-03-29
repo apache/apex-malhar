@@ -23,6 +23,7 @@ import java.util.zip.GZIPInputStream;
 import javax.validation.ConstraintViolationException;
 
 import com.google.common.collect.Maps;
+import com.google.common.io.LimitInputStream;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -1689,6 +1690,7 @@ public class AbstractFileOutputOperatorTest
 
   private void checkCompressedFile(File file, List<Long> offsets, int start) throws IOException
   {
+    FileInputStream fis = null;
     GZIPInputStream gis = null;
     BufferedReader br = null;
 
@@ -1698,9 +1700,12 @@ public class AbstractFileOutputOperatorTest
       // Skip initial case in case file is not yet created
       if (offset == 0) continue;
       try {
-        FileInputStream fis = new FileInputStream(file);
+        fis = new FileInputStream(file);
         fis.skip(startOffset);
-        gis = new GZIPInputStream(fis);
+        long limit = offset - startOffset;
+        LimitInputStream limitInputStream = new LimitInputStream(fis, limit);
+        //gis = new GZIPInputStream(fis);
+        gis = new GZIPInputStream(limitInputStream);
         br = new BufferedReader(new InputStreamReader(gis));
         String eline = "" + (start + numWindows * 2);
         int count = 0;
@@ -1721,6 +1726,8 @@ public class AbstractFileOutputOperatorTest
         } else {
           if (gis != null) {
             gis.close();
+          } else if (fis != null) {
+            fis.close();
           }
         }
       }
