@@ -26,18 +26,27 @@ public class GenericDataResult extends Result
   public static final String TYPE = "dataResult";
   public static final String FIELD_COUNTDOWN = "countdown";
 
+  private List<GPOMutable> keys;
   private List<GPOMutable> values;
   private long countdown;
   private GenericDataQuery dataQuery;
 
   public GenericDataResult(GenericDataQuery dataQuery,
+                           List<GPOMutable> keys,
                            List<GPOMutable> values,
                            long countdown)
   {
     super(dataQuery);
+    setKeys(keys);
     setValues(values);
     setCountdown(countdown);
     setDataQuery(dataQuery);
+
+    if(keys.size() != values.size()) {
+      throw new IllegalArgumentException("The keys " + keys.size() +
+                                         " and values " + values.size() +
+                                         " arrays must be the same size.");
+    }
   }
 
   private void setDataQuery(GenericDataQuery dataQuery)
@@ -49,6 +58,12 @@ public class GenericDataResult extends Result
   public GenericDataQuery getDataQuery()
   {
     return dataQuery;
+  }
+
+  private void setKeys(List<GPOMutable> keys)
+  {
+    Preconditions.checkNotNull(keys);
+    this.keys = keys;
   }
 
   private void setValues(List<GPOMutable> values)
@@ -68,6 +83,11 @@ public class GenericDataResult extends Result
   public List<GPOMutable> getValues()
   {
     return values;
+  }
+
+  public List<GPOMutable> getKeys()
+  {
+    return keys;
   }
 
   /**

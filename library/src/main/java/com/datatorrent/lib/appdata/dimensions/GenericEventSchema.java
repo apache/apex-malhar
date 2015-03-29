@@ -5,7 +5,6 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Lists;
@@ -58,7 +57,7 @@ public class GenericEventSchema
   private List<DimensionsDescriptor> ddIDToDD;
   private List<Map<String, FieldsDescriptor>> ddIDToAggregatorToAggregateDescriptor;
   private Map<String, Set<DimensionsDescriptor>> aggregatorToDimensionsDescriptor;
-  private Map<Fields, Integer> fieldsToDimensionDescriptor;
+  private Map<DimensionsDescriptor, Integer> dimensionsDescriptorToID;
 
   public GenericEventSchema()
   {
@@ -205,13 +204,12 @@ public class GenericEventSchema
 
     /////////////////////
 
-    fieldsToDimensionDescriptor = Maps.newHashMap();
+    dimensionsDescriptorToID = Maps.newHashMap();
 
     for(int index = 0;
-        index < ddIDToKeyDescriptor.size();
+        index < ddIDToDD.size();
         index++) {
-      FieldsDescriptor fd = ddIDToKeyDescriptor.get(index);
-      getFieldsToDimensionDescriptor().put(fd.getFields(), index);
+      dimensionsDescriptorToID.put(ddIDToDD.get(index), index);
     }
   }
 
@@ -260,9 +258,9 @@ public class GenericEventSchema
   /**
    * @return the fieldsToDimensionDescriptor
    */
-  public Map<Fields, Integer> getFieldsToDimensionDescriptor()
+  public Map<DimensionsDescriptor, Integer> getDimensionsDescriptorToID()
   {
-    return fieldsToDimensionDescriptor;
+    return dimensionsDescriptorToID;
   }
 
   /**

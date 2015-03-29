@@ -13,7 +13,6 @@ import com.datatorrent.api.annotation.AppDataResultPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.dimensions.GenericDimensionsStoreHDHT;
-import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.demos.dimensions.ads.AggType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
@@ -34,7 +33,6 @@ import com.datatorrent.lib.appdata.schemas.GenericDataResult;
 import com.datatorrent.lib.appdata.schemas.GenericSchemaDimensional;
 import com.datatorrent.lib.appdata.schemas.GenericSchemaResult;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
-import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.google.common.collect.Lists;
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
@@ -43,10 +41,8 @@ import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.TimeUnit;
 
 /**
  *
@@ -67,8 +63,6 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
   private transient GenericEventSchema eventSchema;
   private transient GenericSchemaDimensional dimensionalSchema;
   private transient List<Map<Integer, FieldsDescriptor>> indexToFieldsDescriptor;
-
-  private byte[] eventKeyBytes;
 
   //==========================================================================
   // Query Processing - Start
@@ -130,12 +124,6 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
   @Override
   public void processEvent(GenericAggregateEvent gae)
   {
-    if(eventKeyBytes != null) {
-      if(getEventKeyBytesGAE(gae.getEventKey()).equals(eventKeyBytes)) {
-        logger.info("Duplicate Event");
-      }
-    }
-
     super.processEvent(gae);
   }
 
@@ -213,7 +201,6 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
       throw new UnsupportedOperationException("Invalid schemaID: " + schemaID);
     }
 
-    logger.info("Number of dd Schemas {}", eventSchema.getDdIDToKeyDescriptor().size());
     return eventSchema.getDdIDToKeyDescriptor().get(dimensionsDescriptorID);
   }
 
@@ -224,7 +211,6 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
       throw new UnsupportedOperationException("Invalid schemaID: " + schemaID);
     }
 
-    logger.info("Number of aggregators {}", indexToFieldsDescriptor.get(dimensionsDescriptorID).size());
     return indexToFieldsDescriptor.get(dimensionsDescriptorID).get(aggregatorID);
   }
 
@@ -278,43 +264,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
     {
       logger.info("Enqueueing query {}", query);
 
-      long endTime = -1L;
-      long startTime = -1L;
-
-      if(query.isFromTo()) {
-        startTime = query.getFromLong();
-        endTime = query.getToLong();
-
-        if(query.getTimeBucket() == TimeBucket.MINUTE) {
-          startTime = AdInfo.roundMinute(startTime);
-          endTime = AdInfo.roundMinute(endTime);
-        }
-        else if(query.getTimeBucket() == TimeBucket.HOUR) {
-          startTime = AdInfo.roundHour(startTime);
-          endTime = AdInfo.roundHour(endTime);
-        }
-        else if(query.getTimeBucket() == TimeBucket.DAY) {
-          startTime = AdInfo.roundDay(startTime);
-          endTime = AdInfo.roundDay(endTime);
-        }
-      }
-      else {
-        long time = System.currentTimeMillis();
-
-        if(query.getTimeBucket() == TimeBucket.MINUTE) {
-          endTime = AdInfo.roundMinute(time);
-        }
-        else if(query.getTimeBucket() == TimeBucket.HOUR) {
-          endTime = AdInfo.roundHour(time);
-        }
-        else if(query.getTimeBucket() == TimeBucket.DAY) {
-          endTime = AdInfo.roundDay(time);
-        }
-
-        startTime = endTime - query.getTimeBucket().getTimeUnit().toMillis(query.getLatestNumBuckets());
-      }
-
-      Integer ddID = eventSchema.getFieldsToDimensionDescriptor().get(query.getKeyFields());
+      Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDd());
 
       if(ddID == null) {
         logger.error("No aggregations for keys: {}", query.getKeyFields());
@@ -331,18 +281,11 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
 
       long bucketKey = getBucketForSchema(SCHEMA_ID);
 
+      List<EventKey> eventKeys = Lists.newArrayList();
       List<HDSQuery> hdsQueries = Lists.newArrayList();
 
-      gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, endTime);
-      gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
-
-      eventKeyBytes = getEventKeyBytesGAE(eventKey);
-
-      for(long timestamp = startTime;
-          timestamp <= endTime;
-          timestamp += query.getTimeBucket().getTimeUnit().toMillis(1)) {
-        gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
-        gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
+      if(!query.isHasTime()) {
+        logger.info("No time");
         Slice key = new Slice(getEventKeyBytesGAE(eventKey));
 
         HDSQuery hdsQuery = operator.queries.get(key);
@@ -360,13 +303,60 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
           }
         }
 
-        hdsQuery.keepAliveCount = (int) query.getCountdown();
+        hdsQuery.keepAliveCount = (int)query.getCountdown();
+        eventKeys.add(eventKey);
         hdsQueries.add(hdsQuery);
+      }
+      else {
+        logger.info("Has time");
+        long endTime = -1L;
+        long startTime = -1L;
+
+        if(query.isFromTo()) {
+          startTime = query.getTimeBucket().roundDown(query.getFromLong());
+          endTime = query.getTimeBucket().roundDown(query.getToLong());
+        }
+        else {
+          long time = System.currentTimeMillis();
+          endTime = query.getTimeBucket().roundDown(time);
+          startTime = endTime - query.getTimeBucket().getTimeUnit().toMillis(query.getLatestNumBuckets() - 1);
+        }
+
+        gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
+
+        for(long timestamp = startTime;
+            timestamp <= endTime;
+            timestamp += query.getTimeBucket().getTimeUnit().toMillis(1)) {
+          logger.info("Timestamp {}", timestamp);
+          gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
+          gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
+
+          EventKey queryEventKey = new EventKey(eventKey);
+          Slice key = new Slice(getEventKeyBytesGAE(eventKey));
+
+          HDSQuery hdsQuery = operator.queries.get(key);
+
+          if(hdsQuery == null) {
+            hdsQuery = new HDSQuery();
+            hdsQuery.bucketKey = bucketKey;
+            hdsQuery.key = key;
+            operator.addQuery(hdsQuery);
+          }
+          else {
+            if(hdsQuery.result == null) {
+              hdsQuery.processed = false;
+            }
+          }
+
+          hdsQuery.keepAliveCount = (int)query.getCountdown();
+
+          eventKeys.add(queryEventKey);
+          hdsQueries.add(hdsQuery);
+        }
       }
 
       AdsQueryMeta aqm = new AdsQueryMeta();
-      aqm.setBeginTime(startTime);
-      aqm.setEventKey(eventKey);
+      aqm.setEventKeys(eventKeys);
       aqm.setHdsQueries(hdsQueries);
 
       return super.enqueue(query, aqm, new MutableLong(query.getCountdown()));
@@ -387,26 +377,19 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
     {
       logger.debug("Processing query {}", query);
 
+      List<GPOMutable> keys = Lists.newArrayList();
       List<GPOMutable> values = Lists.newArrayList();
 
-      GenericDataResult dataResult =
-      new GenericDataResult(query,
-                            values,
-                            queueContext.longValue());
-
-      TimeUnit bucketUnit = query.getTimeBucket().getTimeUnit();
-      Iterator<HDSQuery> queryIt = adsQueryMeta.getHdsQueries().iterator();
-      EventKey eventKey = adsQueryMeta.getEventKey();
+      List<HDSQuery> queries = adsQueryMeta.getHdsQueries();
+      List<EventKey> eventKeys = adsQueryMeta.getEventKeys();
 
       boolean allSatisfied = true;
 
-      for(long timestamp = adsQueryMeta.getBeginTime();
-          queryIt.hasNext();
-          timestamp += bucketUnit.toMillis(1))
-      {
-        HDSQuery hdsQuery = queryIt.next();
-        eventKey.getKey().setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
-        logger.info("Query event key: {}", eventKey);
+      logger.info("Num queries: {}", queries.size());
+
+      for(int index = 0; index < queries.size(); index++) {
+        HDSQuery hdsQuery = queries.get(index);
+        EventKey eventKey = eventKeys.get(index);
 
         GenericAggregateEvent gae;
 
@@ -419,15 +402,26 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
         // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
         if(gae != null) {
           logger.debug("Adding from aggregation buffer");
+          keys.add(gae.getKeys());
           values.add(gae.getAggregates());
         }
-        else if(hdsQuery.processed &&
-                hdsQuery.result != null) {
-          GenericAggregateEvent tgae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
-          values.add(tgae.getAggregates());
-        }
         else {
-          allSatisfied = false;
+
+          if(hdsQuery.processed) {
+            if(hdsQuery.result != null) {
+              GenericAggregateEvent tgae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+              keys.add(tgae.getKeys());
+              values.add(tgae.getAggregates());
+            }
+            else {
+              allSatisfied = false;
+            }
+
+            hdsQuery.processed = false;
+          }
+          else {
+            allSatisfied = false;
+          }
         }
       }
 
@@ -440,7 +434,10 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
         }
       }
 
-      return dataResult;
+      return new GenericDataResult(query,
+                            keys,
+                            values,
+                            queueContext.longValue());
     }
 
     @Override
@@ -452,9 +449,8 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
 
   static class AdsQueryMeta
   {
-    private long beginTime;
     private List<HDSQuery> hdsQueries;
-    private EventKey eventKey;
+    private List<EventKey> eventKeys;
 
     public AdsQueryMeta()
     {
@@ -479,33 +475,17 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
     /**
      * @return the adInofAggregateEvent
      */
-    public EventKey getEventKey()
+    public List<EventKey> getEventKeys()
     {
-      return eventKey;
+      return eventKeys;
     }
 
     /**
      * @param adInofAggregateEvent the adInofAggregateEvent to set
      */
-    public void setEventKey(EventKey eventKey)
+    public void setEventKeys(List<EventKey> eventKeys)
     {
-      this.eventKey = eventKey;
-    }
-
-    /**
-     * @return the beginTime
-     */
-    public long getBeginTime()
-    {
-      return beginTime;
-    }
-
-    /**
-     * @param beginTime the beginTime to set
-     */
-    public void setBeginTime(long beginTime)
-    {
-      this.beginTime = beginTime;
+      this.eventKeys = eventKeys;
     }
   }
 }

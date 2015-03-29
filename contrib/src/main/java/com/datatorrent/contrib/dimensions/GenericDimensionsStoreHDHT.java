@@ -10,6 +10,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent.EventKey;
 import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
@@ -24,14 +25,17 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
 import java.io.IOException;
 import javax.validation.constraints.Min;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
 
 
 /**
@@ -45,7 +49,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 {
   private static final Logger logger = LoggerFactory.getLogger(GenericDimensionsStoreHDHT.class);
 
-  public static final int CACHE_SIZE = 50000;
+  public static final int CACHE_SIZE = 10;
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
 
   //HDHT Aggregation parameters
@@ -85,12 +89,24 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
   public byte[] getEventKeyBytesGAE(EventKey eventKey)
   {
+    GPOByteArrayList bal = new GPOByteArrayList();
+
+    long timestamp = 0;
+
+    if(eventKey.getKey().
+       getFieldDescriptor().
+       getFields().getFields().
+       contains(DimensionsDescriptor.DIMENSION_TIME)) {
+      timestamp = eventKey.getKey().getFieldLong(DimensionsDescriptor.DIMENSION_TIME);
+    }
+
+    byte[] timeBytes = Longs.toByteArray(timestamp);
     byte[] schemaIDBytes = Ints.toByteArray(eventKey.getSchemaID());
     byte[] dimensionDescriptorIDBytes = Ints.toByteArray(eventKey.getDimensionDescriptorID());
     byte[] aggregatorIDBytes = Ints.toByteArray(eventKey.getAggregatorIndex());
-    byte[] gpoBytes = GPOUtils.serialize(eventKey.getKey());
+    byte[] gpoBytes = GPOUtils.serialize(eventKey.getKey(), DimensionsDescriptor.TIME_FIELDS);
 
-    GPOByteArrayList bal = new GPOByteArrayList();
+    bal.add(timeBytes);
     bal.add(schemaIDBytes);
     bal.add(dimensionDescriptorIDBytes);
     bal.add(aggregatorIDBytes);
@@ -107,6 +123,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   public GenericAggregateEvent fromKeyValueGAE(Slice key, byte[] aggregate)
   {
     MutableInt offset = new MutableInt(0);
+    long timestamp = GPOUtils.deserializeLong(key.buffer, offset);
     int schemaID = GPOUtils.deserializeInt(key.buffer,
                                            offset);
     int dimensionDescriptorID = GPOUtils.deserializeInt(key.buffer,
@@ -117,8 +134,12 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     FieldsDescriptor keysDescriptor = getKeyDescriptor(schemaID, dimensionDescriptorID);
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 
-    GPOMutable keys = GPOUtils.deserialize(keysDescriptor, key.buffer, offset.intValue());
+    GPOMutable keys = GPOUtils.deserialize(keysDescriptor, DimensionsDescriptor.TIME_FIELDS, key.buffer, offset.intValue());
     GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, 0);
+
+    if(keysDescriptor.getFields().getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
+      keys.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
+    }
 
     GenericAggregateEvent gae = new GenericAggregateEvent(new GPOImmutable(keys),
                                                           aggs,
@@ -143,13 +164,10 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
       aggregate = cache.get(gae.getEventKey());
     }
     catch(ExecutionException ex) {
-      ex.printStackTrace();
-      logger.error("caught exception: {}", ex);
       throw new RuntimeException(ex);
     }
 
     if(aggregate.isEmpty()) {
-      logger.info("Adding to cache. {}", gae.getEventKey());
       cache.put(gae.getEventKey(), gae);
     }
     else {
@@ -200,6 +218,21 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   @Override
   public void endWindow()
   {
+    for(Map.Entry<EventKey, GenericAggregateEvent> entry: cache.asMap().entrySet()) {
+      GenericAggregateEvent gae = entry.getValue();
+
+      if(gae == null) {
+        continue;
+      }
+
+      try {
+        super.processEvent(entry.getValue());
+      }
+      catch(IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
     super.endWindow();
   }
 

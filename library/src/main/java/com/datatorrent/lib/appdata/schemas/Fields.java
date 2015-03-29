@@ -38,6 +38,8 @@ public class Fields
         throw new IllegalArgumentException("Duplicate field: " + field);
       }
     }
+
+    setFields(fieldsSet);
   }
 
   private void setFields(Set<String> fields)
@@ -77,5 +79,11 @@ public class Fields
       return false;
     }
     return true;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Fields{" + "fields=" + fields + '}';
   }
 }

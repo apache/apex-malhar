@@ -5,6 +5,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.qr.CustomDataDeserializer;
@@ -121,6 +122,23 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
       }
     }
 
+    Fields queryFields = null;
+
+    if(fieldList.isEmpty()) {
+      if(hasTime) {
+        fieldList.addAll(gsd.getValuesDescriptor().getFields().getFields());
+        fieldList.add(DimensionsDescriptor.DIMENSION_TIME);
+
+        queryFields = new Fields(fieldList);
+      }
+      else {
+        queryFields = gsd.getValuesDescriptor().getFields();
+      }
+    }
+    else {
+      queryFields = new Fields(fieldList);
+    }
+
     FieldsDescriptor keyFieldsDescriptor = gsd.getKeyFieldsDescriptor().getSubset(new Fields(keySet));
     GPOImmutable gpoIm = new GPOImmutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
 
@@ -128,7 +146,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
       return new GenericDataQuery(id,
                                   type,
                                   gpoIm,
-                                  new Fields(fieldList),
+                                  queryFields,
                                   incompleteResultOK);
     }
     else {
@@ -140,7 +158,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
                                       to,
                                       bucket,
                                       gpoIm,
-                                      new Fields(fieldList),
+                                      queryFields,
                                       incompleteResultOK);
         }
         else {
@@ -149,7 +167,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
                                       latestNumBuckets,
                                       bucket,
                                       gpoIm,
-                                      new Fields(fieldList),
+                                      queryFields,
                                       incompleteResultOK);
         }
       }
@@ -161,7 +179,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
                                       to,
                                       bucket,
                                       gpoIm,
-                                      new Fields(fieldList),
+                                      queryFields,
                                       countdown,
                                       incompleteResultOK);
         }
@@ -171,7 +189,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
                                       latestNumBuckets,
                                       bucket,
                                       gpoIm,
-                                      new Fields(fieldList),
+                                      queryFields,
                                       countdown,
                                       incompleteResultOK);
         }

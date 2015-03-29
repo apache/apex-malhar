@@ -5,14 +5,19 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.qr.CustomDataSerializer;
 import com.datatorrent.lib.appdata.qr.Result;
+import com.google.common.collect.Sets;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  *
@@ -20,6 +25,8 @@ import java.util.List;
  */
 public class GenericDataResultSerializer implements CustomDataSerializer
 {
+  private static final Logger logger = LoggerFactory.getLogger(GenericDataResultSerializer.class);
+
   public GenericDataResultSerializer()
   {
   }
@@ -48,10 +55,33 @@ public class GenericDataResultSerializer implements CustomDataSerializer
     jo.put(Result.FIELD_DATA, data);
 
     Fields fields = dataResult.getDataQuery().getFields();
+    logger.info("fields: {}", fields);
+
+    List<GPOMutable> keys = dataResult.getKeys();
     List<GPOMutable> values = dataResult.getValues();
 
-    for(GPOMutable value: values) {
+    boolean hasTime = fields.getFields().contains(DimensionsDescriptor.DIMENSION_TIME);
+
+    if(hasTime) {
+      Set<String> fieldsSet = Sets.newHashSet();
+      fieldsSet.addAll(fields.getFields());
+      fieldsSet.remove(DimensionsDescriptor.DIMENSION_TIME);
+      fields = new Fields(fieldsSet);
+    }
+
+    for(int index = 0;
+        index < keys.size();
+        index++) {
+      GPOMutable value = values.get(index);
       JSONObject valueJO = GPOUtils.serializeJSONObject(value, fields);
+
+      GPOMutable key = keys.get(index);
+
+      if(hasTime) {
+        long time = key.getFieldLong(DimensionsDescriptor.DIMENSION_TIME);
+        valueJO.put(DimensionsDescriptor.DIMENSION_TIME, SchemaUtils.getDateString(time));
+      }
+
       data.put(valueJO);
     }
 

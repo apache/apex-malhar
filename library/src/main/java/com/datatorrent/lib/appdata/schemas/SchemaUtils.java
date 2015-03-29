@@ -12,6 +12,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.apache.commons.io.IOUtils;
 
+import java.util.Date;
+
 
 
 /**
@@ -24,6 +26,11 @@ public class SchemaUtils
 
   private SchemaUtils()
   {
+  }
+
+  public static String getDateString(long time)
+  {
+    return sdf.format(new Date(time));
   }
 
   public static long getLong(String date)

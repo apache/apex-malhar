@@ -135,6 +135,15 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
     {
     }
 
+    public EventKey(EventKey eventKey)
+    {
+      this.schemaID = eventKey.schemaID;
+      this.dimensionDescriptorID = eventKey.dimensionDescriptorID;
+      this.aggregatorIndex = eventKey.aggregatorIndex;
+
+      this.key = new GPOMutable(eventKey.getKey());
+    }
+
     public EventKey(int schemaID,
                     int dimensionDescriptorID,
                     int aggregatorIndex,

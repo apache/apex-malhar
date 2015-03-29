@@ -63,6 +63,7 @@ public class GenericDataQuery extends Query
   private boolean oneTime = false;
   private boolean fromTo = false;
   private Fields keyFields;
+  private DimensionsDescriptor dd;
 
   public GenericDataQuery(String id,
                           String type,
@@ -182,6 +183,8 @@ public class GenericDataQuery extends Query
     }
 
     keyFields = new Fields(keyFieldSet);
+    dd = new DimensionsDescriptor(timeBucket,
+                                  keyFields);
   }
 
   public Fields getKeyFields()
@@ -321,6 +324,14 @@ public class GenericDataQuery extends Query
   private void setLatestNumBuckets(int latestNumBuckets)
   {
     this.latestNumBuckets = latestNumBuckets;
+  }
+
+  /**
+   * @return the dd
+   */
+  public DimensionsDescriptor getDd()
+  {
+    return dd;
   }
 
   public boolean getOneTime()

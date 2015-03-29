@@ -11,6 +11,8 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
@@ -18,8 +20,9 @@ import java.util.Map;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GPOMutable implements Serializable
+public class GPOMutable implements Serializable, Cloneable
 {
+  private static final Logger logger = LoggerFactory.getLogger(GPOMutable.class);
   private static final long serialVersionUID = 201503231207L;
 
   private Map<String, Boolean> fieldToBoolean;
@@ -394,40 +397,52 @@ public class GPOMutable implements Serializable
     if(obj == null) {
       return false;
     }
-    if(getClass() != obj.getClass()) {
+
+    if(!(obj instanceof GPOMutable)) {
       return false;
     }
+
     final GPOMutable other = (GPOMutable)obj;
     if(this.fieldToBoolean != other.fieldToBoolean && (this.fieldToBoolean == null || !this.fieldToBoolean.equals(other.fieldToBoolean))) {
       return false;
     }
+
     if(this.fieldToCharacter != other.fieldToCharacter && (this.fieldToCharacter == null || !this.fieldToCharacter.equals(other.fieldToCharacter))) {
       return false;
     }
+
     if(this.fieldToString != other.fieldToString && (this.fieldToString == null || !this.fieldToString.equals(other.fieldToString))) {
       return false;
     }
+
     if(this.fieldToByte != other.fieldToByte && (this.fieldToByte == null || !this.fieldToByte.equals(other.fieldToByte))) {
       return false;
     }
+
     if(this.fieldToShort != other.fieldToShort && (this.fieldToShort == null || !this.fieldToShort.equals(other.fieldToShort))) {
       return false;
     }
+
     if(this.fieldToInteger != other.fieldToInteger && (this.fieldToInteger == null || !this.fieldToInteger.equals(other.fieldToInteger))) {
       return false;
     }
+
     if(this.fieldToLong != other.fieldToLong && (this.fieldToLong == null || !this.fieldToLong.equals(other.fieldToLong))) {
       return false;
     }
+
     if(this.fieldToFloat != other.fieldToFloat && (this.fieldToFloat == null || !this.fieldToFloat.equals(other.fieldToFloat))) {
       return false;
     }
+
     if(this.fieldToDouble != other.fieldToDouble && (this.fieldToDouble == null || !this.fieldToDouble.equals(other.fieldToDouble))) {
       return false;
     }
+
     if(this.fieldDescriptor != other.fieldDescriptor && (this.fieldDescriptor == null || !this.fieldDescriptor.equals(other.fieldDescriptor))) {
       return false;
     }
+
     return true;
   }
 

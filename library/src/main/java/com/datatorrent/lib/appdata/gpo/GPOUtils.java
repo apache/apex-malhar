@@ -125,176 +125,189 @@ public class GPOUtils
 
   public static void setFieldFromJSON(GPOMutable gpo, Type type, String field, JSONArray jo, int index)
   {
-    if(type == Type.BOOLEAN) {
-      Boolean val;
+    switch(type) {
+      case BOOLEAN: {
+        Boolean val;
 
-      try {
-        val = jo.getBoolean(index);
-      }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key " + field + " does not have a valid bool value.", ex);
-      }
+        try {
+          val = jo.getBoolean(index);
+        }
+        catch(JSONException ex) {
+          throw new IllegalArgumentException("The key " + field + " does not have a valid bool value.", ex);
+        }
 
-      gpo.setField(field, val);
-    }
-    else if(type == Type.BYTE) {
-      int val;
-
-      try {
-        val = jo.getInt(index);
+        gpo.setField(field, val);
+        break;
       }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid byte value.", ex);
-      }
+      case BYTE: {
+        int val;
 
-      if(val < (int)Byte.MIN_VALUE) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " which is too small to fit into a byte.");
-      }
+        try {
+          val = jo.getInt(index);
+        }
+        catch(JSONException ex) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " does not have a valid byte value.", ex);
+        }
 
-      if(val > (int)Byte.MAX_VALUE) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " which is too larg to fit into a byte.");
-      }
+        if(val < (int)Byte.MIN_VALUE) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " has a value "
+                                             + val
+                                             + " which is too small to fit into a byte.");
+        }
 
-      gpo.setField(field, (byte)val);
-    }
-    else if(type == Type.SHORT) {
-      int val;
+        if(val > (int)Byte.MAX_VALUE) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " has a value "
+                                             + val
+                                             + " which is too larg to fit into a byte.");
+        }
 
-      try {
-        val = jo.getInt(index);
+        gpo.setField(field, (byte)val);
+        break;
       }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid short value.",
-                                           ex);
-      }
+      case SHORT: {
+        int val;
 
-      if(val < (int)Short.MIN_VALUE) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " which is too small to fit into a short.");
-      }
+        try {
+          val = jo.getInt(index);
+        }
+        catch(JSONException ex) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " does not have a valid short value.",
+                                             ex);
+        }
 
-      if(val > (int)Short.MAX_VALUE) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " which is too large to fit into a short.");
-      }
+        if(val < (int)Short.MIN_VALUE) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " has a value "
+                                             + val
+                                             + " which is too small to fit into a short.");
+        }
 
-      gpo.setField(field, (short)val);
-    }
-    else if(type == Type.INTEGER) {
-      int val;
+        if(val > (int)Short.MAX_VALUE) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " has a value "
+                                             + val
+                                             + " which is too large to fit into a short.");
+        }
 
-      try {
-        val = jo.getInt(index);
+        gpo.setField(field, (short)val);
+        break;
       }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid int value.",
-                                           ex);
-      }
+      case INTEGER: {
+        int val;
 
-      gpo.setField(field, val);
-    }
-    else if(type == Type.LONG) {
-      long val;
+        try {
+          val = jo.getInt(index);
+        }
+        catch(JSONException ex) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " does not have a valid int value.",
+                                             ex);
+        }
 
-      try {
-        val = jo.getLong(index);
+        gpo.setField(field, val);
+        break;
       }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid long value.",
-                                           ex);
-      }
+      case LONG: {
+        long val;
 
-      gpo.setField(field, val);
-    }
-    else if(type == Type.CHAR) {
-      String val;
+        try {
+          val = jo.getLong(index);
+        }
+        catch(JSONException ex) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " does not have a valid long value.",
+                                             ex);
+        }
 
-      try {
-        val = jo.getString(index);
+        gpo.setField(field, val);
+        break;
       }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid character value.",
-                                           ex);
-      }
+      case CHAR: {
+        String val;
 
-      if(val.length() != 1) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " has a value "
-                                           + val
-                                           + " that is not one character long.");
-      }
+        try {
+          val = jo.getString(index);
+        }
+        catch(JSONException ex) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " does not have a valid character value.",
+                                             ex);
+        }
 
-      gpo.setField(field, val.charAt(0));
-    }
-    else if(type == Type.STRING) {
-      String val;
+        if(val.length() != 1) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " has a value "
+                                             + val
+                                             + " that is not one character long.");
+        }
 
-      try {
-        val = jo.getString(index);
+        gpo.setField(field, val.charAt(0));
+        break;
       }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid string value.",
-                                           ex);
-      }
+      case STRING: {
+        String val;
 
-      gpo.setField(field, val);
-    }
-    else if(type == Type.DOUBLE) {
-      Double val;
+        try {
+          val = jo.getString(index);
+        }
+        catch(JSONException ex) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " does not have a valid string value.",
+                                             ex);
+        }
 
-      try {
-        val = jo.getDouble(index);
+        gpo.setField(field, val);
+        break;
       }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid double value.",
-                                           ex);
-      }
+      case DOUBLE: {
+        Double val;
 
-      gpo.setField(field, val);
-    }
-    else if(type == Type.FLOAT) {
-      Float val;
+        try {
+          val = jo.getDouble(index);
+        }
+        catch(JSONException ex) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " does not have a valid double value.",
+                                             ex);
+        }
 
-      try {
-        val = (float)jo.getDouble(index);
+        gpo.setField(field, val);
+        break;
       }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException("The key "
-                                           + field
-                                           + " does not have a valid double value.",
-                                           ex);
-      }
+      case FLOAT: {
+        Float val;
 
-      gpo.setField(field, val);
+        try {
+          val = (float)jo.getDouble(index);
+        }
+        catch(JSONException ex) {
+          throw new IllegalArgumentException("The key "
+                                             + field
+                                             + " does not have a valid double value.",
+                                             ex);
+        }
+
+        gpo.setField(field, val);
+        break;
+      }
+      default:
+        throw new UnsupportedOperationException("This is not supported for type: " + type);
     }
   }
 
@@ -510,6 +523,9 @@ public class GPOUtils
       else if(fieldType == Type.DOUBLE) {
         jo.put(field, gpo.getFieldDouble(field));
       }
+      else {
+        throw new UnsupportedOperationException("The type " + fieldType + " is not supported.");
+      }
     }
 
     return jo;
@@ -537,7 +553,6 @@ public class GPOUtils
       }
 
       arrayLength += numBytes;
-      logger.debug("Counting bytes for {}: {}", field, numBytes);
     }
 
     return arrayLength;
@@ -549,65 +564,147 @@ public class GPOUtils
     byte[] sbytes = new byte[slength];
     MutableInt offset = new MutableInt(0);
 
-    int fieldCounter = 0;
     Set<String> fields = gpo.getFieldDescriptor().getFields().getFields();
-    logger.debug("Serialization length: {}", sbytes.length);
-    logger.debug("Num fields: {}", fields.size());
 
     for(String field: fields) {
-      fieldCounter++;
-
-
-      logger.debug("Field {}, fieldCounter {}", field, fieldCounter);
 
       Type type = gpo.getFieldDescriptor().getType(field);
 
-      if(type == Type.BOOLEAN) {
+      switch(type) {
+      case BOOLEAN: {
         serializeBoolean(gpo.getFieldBool(field),
                          sbytes,
                          offset);
+        break;
       }
-      else if(type == Type.BYTE) {
+      case BYTE: {
         serializeByte(gpo.getFieldByte(field),
                       sbytes,
                       offset);
+        break;
       }
-      else if(type == Type.SHORT) {
+      case SHORT: {
         serializeShort(gpo.getFieldShort(field),
                       sbytes,
                       offset);
+        break;
       }
-      else if(type == Type.INTEGER) {
+      case INTEGER: {
         serializeInt(gpo.getFieldInt(field),
                      sbytes,
                      offset);
+        break;
       }
-      else if(type == Type.LONG) {
+      case LONG: {
         serializeLong(gpo.getFieldLong(field),
                      sbytes,
                      offset);
+        break;
       }
-      else if(type == Type.CHAR) {
+      case CHAR: {
         serializeChar(gpo.getFieldChar(field),
                       sbytes,
                       offset);
+        break;
       }
-      else if(type == Type.STRING) {
+      case STRING: {
         serializeString(gpo.getFieldString(field),
                         sbytes,
                         offset);
+        break;
       }
-      else if(type == Type.FLOAT) {
+      case FLOAT: {
         serializeFloat(gpo.getFieldFloat(field),
                        sbytes,
                        offset);
+        break;
       }
-      else if(type == Type.DOUBLE) {
+      case DOUBLE: {
         serializeDouble(gpo.getFieldDouble(field),
                         sbytes,
                         offset);
+        break;
       }
-      else {
+      default:
+        throw new UnsupportedOperationException("The field " + field + " doesn't have a valid type.");
+      }
+    }
+
+    return sbytes;
+  }
+
+  public static byte[] serialize(GPOMutable gpo, Fields excludedFields)
+  {
+    int slength = serializedLength(gpo);
+    byte[] sbytes = new byte[slength];
+    MutableInt offset = new MutableInt(0);
+
+    Set<String> fields = gpo.getFieldDescriptor().getFields().getFields();
+    Set<String> exFieldsSet = excludedFields.getFields();
+
+    for(String field: fields) {
+      if(exFieldsSet.contains(field)) {
+        continue;
+      }
+
+      Type type = gpo.getFieldDescriptor().getType(field);
+
+      switch(type) {
+      case BOOLEAN: {
+        serializeBoolean(gpo.getFieldBool(field),
+                         sbytes,
+                         offset);
+        break;
+      }
+      case BYTE: {
+        serializeByte(gpo.getFieldByte(field),
+                      sbytes,
+                      offset);
+        break;
+      }
+      case SHORT: {
+        serializeShort(gpo.getFieldShort(field),
+                      sbytes,
+                      offset);
+        break;
+      }
+      case INTEGER: {
+        serializeInt(gpo.getFieldInt(field),
+                     sbytes,
+                     offset);
+        break;
+      }
+      case LONG: {
+        serializeLong(gpo.getFieldLong(field),
+                     sbytes,
+                     offset);
+        break;
+      }
+      case CHAR: {
+        serializeChar(gpo.getFieldChar(field),
+                      sbytes,
+                      offset);
+        break;
+      }
+      case STRING: {
+        serializeString(gpo.getFieldString(field),
+                        sbytes,
+                        offset);
+        break;
+      }
+      case FLOAT: {
+        serializeFloat(gpo.getFieldFloat(field),
+                       sbytes,
+                       offset);
+        break;
+      }
+      case DOUBLE: {
+        serializeDouble(gpo.getFieldDouble(field),
+                        sbytes,
+                        offset);
+        break;
+      }
+      default:
         throw new UnsupportedOperationException("The field " + field + " doesn't have a valid type.");
       }
     }
@@ -619,11 +716,82 @@ public class GPOUtils
                                        byte[] serializedGPO,
                                        int offset)
   {
-    logger.info("SerializedGPO length {}", serializedGPO.length);
     GPOMutable gpo = new GPOMutable(fieldsDescriptor);
     MutableInt offsetM = new MutableInt(offset);
 
     for(String field: fieldsDescriptor.getFields().getFields()) {
+      Type type = fieldsDescriptor.getType(field);
+
+      switch(type)
+      {
+        case BOOLEAN: {
+          boolean val = deserializeBoolean(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case BYTE: {
+          byte val = deserializeByte(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case CHAR: {
+          char val = deserializeChar(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case SHORT: {
+          short val = deserializeShort(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case INTEGER: {
+          int val = deserializeInt(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case LONG: {
+          long val = deserializeLong(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case FLOAT: {
+          float val = deserializeFloat(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case DOUBLE: {
+          double val = deserializeDouble(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        case STRING: {
+          String val = deserializeString(serializedGPO, offsetM);
+          gpo.setField(field, val);
+          break;
+        }
+        default:
+          throw new UnsupportedOperationException("Cannot deserialize type " + type);
+      }
+    }
+
+    return gpo;
+  }
+
+  public static GPOMutable deserialize(FieldsDescriptor fieldsDescriptor,
+                                       Fields excludedFields,
+                                       byte[] serializedGPO,
+                                       int offset)
+  {
+    GPOMutable gpo = new GPOMutable(fieldsDescriptor);
+    MutableInt offsetM = new MutableInt(offset);
+
+    Set<String> exFieldsSet = excludedFields.getFields();
+
+    for(String field: fieldsDescriptor.getFields().getFields()) {
+      if(exFieldsSet.contains(field)) {
+        continue;
+      }
+
       Type type = fieldsDescriptor.getType(field);
 
       switch(type)

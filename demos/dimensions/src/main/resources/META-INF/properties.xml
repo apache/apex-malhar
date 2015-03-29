@@ -80,6 +80,36 @@
     <value>AdsQueryResult</value>
   </property>
 
+  <property>
+      <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
+      <value>256</value>
+  </property>
+
+  <property>
+      <name>dt.operator.DimensionsComputation.attr.MEMORY_MB</name>
+      <value>512</value>
+  </property>
+
+  <property>
+      <name>dt.operator.Store.attr.MEMORY_MB</name>
+      <value>1024</value>
+  </property>
+
+  <property>
+      <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
+      <value>512</value>
+  </property>
+
+  <property>
+      <name>dt.operator.Query.attr.MEMORY_MB</name>
+      <value>256</value>
+  </property>
+
+  <property>
+      <name>dt.operator.QueryResult.attr.MEMORY_MB</name>
+      <value>256</value>
+  </property>
+
   <!-- Settings for all Query and QueryResult operators -->
   <property>
     <name>dt.operator.QueryResult.prop.configProperties(serializer.class)</name>

@@ -34,6 +34,7 @@ public class DimensionsDescriptor
   public static final String DIMENSION_TIME_BUCKET = "timeBucket";
   public static final Type DIMENSION_TIME_BUCKET_TYPE = Type.INTEGER;
 
+  public static final Fields TIME_FIELDS = new Fields(Sets.newHashSet(DIMENSION_TIME));
   public static final Set<String> RESERVED_DIMENSION_NAMES = ImmutableSet.of(DIMENSION_TIME,
                                                                              DIMENSION_TIME_BUCKET);
 
@@ -42,15 +43,20 @@ public class DimensionsDescriptor
 
   private TimeBucket timeBucket;
   private Fields fields;
-  private String aggregationString;
+
+  public DimensionsDescriptor(TimeBucket timeBucket,
+                              Fields fields)
+  {
+    setTimeBucket(timeBucket);
+    setFields(fields);
+  }
 
   public DimensionsDescriptor(String aggregationString)
   {
-    setAggregationString(aggregationString);
-    initialize();
+    initialize(aggregationString);
   }
 
-  private void initialize()
+  private void initialize(String aggregationString)
   {
     String[] fieldArray = aggregationString.split(DELIMETER_SEPERATOR);
     Set<String> fieldSet = Sets.newHashSet();
@@ -71,15 +77,21 @@ public class DimensionsDescriptor
     fields = new Fields(fieldSet);
   }
 
-  private void setAggregationString(String aggregationString)
+  private void setTimeBucket(TimeBucket timeBucket)
   {
-    Preconditions.checkNotNull(aggregationString);
-    this.aggregationString = aggregationString;
+    Preconditions.checkNotNull(timeBucket);
+    this.timeBucket = timeBucket;
   }
 
   public TimeBucket getTimeBucket()
   {
     return timeBucket;
+  }
+
+  private void setFields(Fields fields)
+  {
+    Preconditions.checkNotNull(fields);
+    this.fields = fields;
   }
 
   public Fields getFields()
@@ -114,8 +126,9 @@ public class DimensionsDescriptor
   @Override
   public int hashCode()
   {
-    int hash = 3;
-    hash = 53 * hash + (this.aggregationString != null ? this.aggregationString.hashCode() : 0);
+    int hash = 7;
+    hash = 83 * hash + (this.timeBucket != null ? this.timeBucket.hashCode() : 0);
+    hash = 83 * hash + (this.fields != null ? this.fields.hashCode() : 0);
     return hash;
   }
 
@@ -129,7 +142,10 @@ public class DimensionsDescriptor
       return false;
     }
     final DimensionsDescriptor other = (DimensionsDescriptor)obj;
-    if((this.aggregationString == null) ? (other.aggregationString != null) : !this.aggregationString.equals(other.aggregationString)) {
+    if(this.timeBucket != other.timeBucket) {
+      return false;
+    }
+    if(this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
       return false;
     }
     return true;
