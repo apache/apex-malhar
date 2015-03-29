@@ -49,7 +49,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 {
   private static final Logger logger = LoggerFactory.getLogger(GenericDimensionsStoreHDHT.class);
 
-  public static final int CACHE_SIZE = 10;
+  public static final int CACHE_SIZE = 10000;
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
 
   //HDHT Aggregation parameters
@@ -195,7 +195,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
     super.setup(context);
 
     cache = CacheBuilder.newBuilder()
-         .maximumSize(cacheSize)
+         .maximumSize(getCacheSize())
          .removalListener(new HDHTCacheRemoval())
          .expireAfterWrite(5, TimeUnit.MINUTES)
          .build(new HDHTCacheLoader());
@@ -256,6 +256,22 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   public void setKeepAliveTime(int keepAliveTime)
   {
     this.keepAliveTime = keepAliveTime;
+  }
+
+  /**
+   * @return the cacheSize
+   */
+  public int getCacheSize()
+  {
+    return cacheSize;
+  }
+
+  /**
+   * @param cacheSize the cacheSize to set
+   */
+  public void setCacheSize(int cacheSize)
+  {
+    this.cacheSize = cacheSize;
   }
 
   class GenericAggregateEventCodec extends KryoSerializableStreamCodec<GenericAggregateEvent>
