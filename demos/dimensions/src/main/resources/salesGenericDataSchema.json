@@ -1,0 +1,13 @@
+{"schemaType":"dimensions",
+ "schemaVersion":"1.0",
+    "time":{"from":"2015-03-19 00:00:00:000",
+            "to":"2015-03-21 17:02:00:000",
+            "buckets":["1m","1h","1d"]},
+    "keys":[{"name":"channel","enumValues":["telemarketing","internet marketing","sales force","wholesalers","distributors"]},
+            {"name":"region","enumValues":["N","LREC","SKY","AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID"]},
+            {"name":"customer","enumValues":["safeway","toys r us","am pm","kmart","macy's","frys","individual","amazon"]},
+            {"name":"product","enumValues":["bananas","chocolate","coconut","fish","ferby","barbie","jeans","chair","purse","watch","laptop","monitor","iphone","mastery by robert green"]}],
+    "values": [{"name":"amount","type":"double"},
+               {"name":"discount","type":"double"},
+               {"name":"tax","type":"double"}]
+}
