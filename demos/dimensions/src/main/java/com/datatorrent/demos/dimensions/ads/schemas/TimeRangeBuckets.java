@@ -3,24 +3,21 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.demos.dimensions.schemas;
+package com.datatorrent.demos.dimensions.ads.schemas;
 
-import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class TimeRangeBucket
+public class TimeRangeBuckets
 {
-  @NotNull
   private String from;
-  @NotNull
   private String to;
-  @NotNull
-  private String bucket;
+  private List<String> buckets;
 
-  public TimeRangeBucket()
+  public TimeRangeBuckets()
   {
   }
 
@@ -57,18 +54,18 @@ public class TimeRangeBucket
   }
 
   /**
-   * @return the bucket
+   * @return the buckets
    */
-  public String getBucket()
+  public List<String> getBuckets()
   {
-    return bucket;
+    return buckets;
   }
 
   /**
-   * @param bucket the bucket to set
+   * @param buckets the buckets to set
    */
-  public void setBucket(String bucket)
+  public void setBuckets(List<String> buckets)
   {
-    this.bucket = bucket;
+    this.buckets = buckets;
   }
 }

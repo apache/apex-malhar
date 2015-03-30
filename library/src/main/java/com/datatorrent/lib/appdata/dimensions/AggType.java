@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.demos.dimensions.ads;
+package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.dimensions.AggregatorCount;
 import com.datatorrent.lib.appdata.dimensions.AggregatorMax;

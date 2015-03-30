@@ -5,7 +5,12 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
-import com.datatorrent.demos.dimensions.schemas.AdsDataQuery.AdsDataQueryData;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsTimeRangeBucket;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataQuery;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataQueryValidator;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsKeys;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataQuery.AdsDataQueryData;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import junit.framework.Assert;
 import org.junit.Test;

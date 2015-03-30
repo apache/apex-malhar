@@ -6,12 +6,14 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,6 +37,7 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
 
   private Map<String, Type> keyToType = Maps.newHashMap();
   private Map<String, Set<Object>> keyToValues = Maps.newHashMap();
+  private Map<String, List<Object>> keyToValuesList = Maps.newHashMap();
   private FieldsDescriptor keyFieldsDescriptor;
 
   public GenericSchemaDimensional(String schemaJSON)
@@ -72,7 +75,6 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
                                " in the key definition, but found " + keyVal.length());
 
       String keyName = keyVal.getString(FIELD_KEY_NAME);
-      keyToType.put(keyName, Type.STRING);
       JSONArray valArray = keyVal.getJSONArray(FIELD_KEY_VALS);
 
       Type maxType = null;
@@ -106,6 +108,7 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
 
       //Load the data into a set
       Set<Object> vals = Sets.newHashSet();
+      List<Object> valsList = Lists.newArrayList();
 
       for(int valIndex = 0;
           valIndex < valArray.length();
@@ -116,18 +119,21 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
 
         Preconditions.checkState(vals.add(promotedVal),
                                  "Duplicate value: " + promotedVal);
+
+        valsList.add(val);
       }
 
       vals = Collections.unmodifiableSet(vals);
+      valsList = Collections.unmodifiableList(valsList);
 
-      getKeyToType().put(keyName, maxType);
-      getKeyToValues().put(keyName, vals);
+      keyToType.put(keyName, maxType);
+      keyToValues.put(keyName, vals);
+      keyToValuesList.put(keyName, valsList);
     }
-
-    keyToType.put(EXTRA_FIELD_NAME_TIME, Type.STRING);
 
     keyToType = Collections.unmodifiableMap(getKeyToType());
     keyToValues = Collections.unmodifiableMap(getKeyToValues());
+    keyToValuesList = Collections.unmodifiableMap(getKeyToValuesList());
     keyFieldsDescriptor = new FieldsDescriptor(keyToType);
   }
 
@@ -145,6 +151,11 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
   public Map<String, Set<Object>> getKeyToValues()
   {
     return keyToValues;
+  }
+
+  public Map<String, List<Object>> getKeyToValuesList()
+  {
+    return keyToValuesList;
   }
 
   /**

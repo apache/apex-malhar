@@ -15,7 +15,7 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
-import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 import com.google.common.base.Preconditions;

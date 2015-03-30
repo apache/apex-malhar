@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.dimensions.ads.generic;
 
+import com.datatorrent.contrib.dimensions.GenericAppDataDimensionStoreHDHT;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
@@ -134,7 +135,7 @@ public class GenericApplicationWithHDHT implements StreamingApplication
     GenericInputItemGenerator input = dag.addOperator("InputGenerator", GenericInputItemGenerator.class);
     GenericAdsDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new GenericAdsDimensionComputation());
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
-    GenericAdsDimensionStore store = dag.addOperator("Store", GenericAdsDimensionStore.class);
+    GenericAppDataDimensionStoreHDHT store = dag.addOperator("Store", GenericAppDataDimensionStoreHDHT.class);
 
     String basePath = conf.get(PROP_STORE_PATH);
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();

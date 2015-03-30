@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.demos.dimensions.ads.generic;
+package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
@@ -13,7 +13,7 @@ import com.datatorrent.api.annotation.AppDataResultPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.dimensions.GenericDimensionsStoreHDHT;
-import com.datatorrent.demos.dimensions.ads.AggType;
+import com.datatorrent.lib.appdata.dimensions.AggType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
@@ -48,10 +48,10 @@ import java.util.Map;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT implements Serializable
+public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT implements Serializable
 {
   private static final long serialVersionUID = 201503231218L;
-  private static final Logger logger = LoggerFactory.getLogger(GenericAdsDimensionStore.class);
+  private static final Logger logger = LoggerFactory.getLogger(GenericAppDataDimensionStoreHDHT.class);
 
   public static final int SCHEMA_ID = 0;
 
@@ -68,7 +68,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
   // Query Processing - Start
   //==========================================================================
 
-  private transient QueryProcessor<GenericDataQuery, AdsQueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
+  private transient QueryProcessor<GenericDataQuery, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
   private transient DataSerializerFactory resultSerializerFactory;
@@ -117,7 +117,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
   // Query Processing - End
   //==========================================================================
 
-  public GenericAdsDimensionStore()
+  public GenericAppDataDimensionStoreHDHT()
   {
   }
 
@@ -138,7 +138,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
 
     //Setup for query processing
     queryProcessor =
-    new QueryProcessor<GenericDataQuery, AdsQueryMeta, MutableLong, MutableBoolean, Result>(
+    new QueryProcessor<GenericDataQuery, QueryMeta, MutableLong, MutableBoolean, Result>(
                                                   new AdsQueryComputer(this),
                                                   new AdsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
@@ -247,12 +247,12 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
   // Query Processing Classes - Start
   //==========================================================================
 
-  class AdsQueryQueueManager extends AppDataWWEQueryQueueManager<GenericDataQuery, AdsQueryMeta>
+  class AdsQueryQueueManager extends AppDataWWEQueryQueueManager<GenericDataQuery, QueryMeta>
   {
-    private GenericAdsDimensionStore operator;
+    private GenericAppDataDimensionStoreHDHT operator;
     private int queueWindowCount;
 
-    public AdsQueryQueueManager(GenericAdsDimensionStore operator,
+    public AdsQueryQueueManager(GenericAppDataDimensionStoreHDHT operator,
                                 int queueWindowCount)
     {
       this.operator = operator;
@@ -260,7 +260,7 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
     }
 
     @Override
-    public boolean enqueue(GenericDataQuery query, AdsQueryMeta queryMeta, MutableLong windowExpireCount)
+    public boolean enqueue(GenericDataQuery query, QueryMeta queryMeta, MutableLong windowExpireCount)
     {
       logger.info("Enqueueing query {}", query);
 
@@ -355,25 +355,25 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
         }
       }
 
-      AdsQueryMeta aqm = new AdsQueryMeta();
-      aqm.setEventKeys(eventKeys);
-      aqm.setHdsQueries(hdsQueries);
+      QueryMeta qm = new QueryMeta();
+      qm.setEventKeys(eventKeys);
+      qm.setHdsQueries(hdsQueries);
 
-      return super.enqueue(query, aqm, new MutableLong(query.getCountdown()));
+      return super.enqueue(query, qm, new MutableLong(query.getCountdown()));
     }
   }
 
-  class AdsQueryComputer implements QueryComputer<GenericDataQuery, AdsQueryMeta, MutableLong, MutableBoolean, Result>
+  class AdsQueryComputer implements QueryComputer<GenericDataQuery, QueryMeta, MutableLong, MutableBoolean, Result>
   {
-    private GenericAdsDimensionStore operator;
+    private GenericAppDataDimensionStoreHDHT operator;
 
-    public AdsQueryComputer(GenericAdsDimensionStore operator)
+    public AdsQueryComputer(GenericAppDataDimensionStoreHDHT operator)
     {
       this.operator = operator;
     }
 
     @Override
-    public Result processQuery(GenericDataQuery query, AdsQueryMeta adsQueryMeta, MutableLong queueContext, MutableBoolean context)
+    public Result processQuery(GenericDataQuery query, QueryMeta adsQueryMeta, MutableLong queueContext, MutableBoolean context)
     {
       logger.debug("Processing query {}", query);
 
@@ -447,12 +447,12 @@ public class GenericAdsDimensionStore extends GenericDimensionsStoreHDHT impleme
     }
   }
 
-  static class AdsQueryMeta
+  static class QueryMeta
   {
     private List<HDSQuery> hdsQueries;
     private List<EventKey> eventKeys;
 
-    public AdsQueryMeta()
+    public QueryMeta()
     {
     }
 

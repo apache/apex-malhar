@@ -3,9 +3,9 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.demos.dimensions.schemas;
+package com.datatorrent.demos.dimensions.ads.schemas;
 
-import com.datatorrent.demos.dimensions.schemas.AdsDataQuery.AdsDataQueryData;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataQuery.AdsDataQueryData;
 import com.datatorrent.lib.appdata.qr.CustomDataValidator;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.SimpleDataValidator;

@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.demos.dimensions.schemas;
+package com.datatorrent.demos.dimensions.ads.schemas;
 
 /**
  *

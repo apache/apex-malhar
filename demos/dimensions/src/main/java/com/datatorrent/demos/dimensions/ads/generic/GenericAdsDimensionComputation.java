@@ -6,8 +6,8 @@
 package com.datatorrent.demos.dimensions.ads.generic;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.demos.dimensions.ads.AggType;
-import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
+import com.datatorrent.lib.appdata.dimensions.AggType;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;

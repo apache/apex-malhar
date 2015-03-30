@@ -63,6 +63,7 @@
   </property>
 
   <!-- Settings for GenericAdsDimensionsDemoWithHDHTtest -->
+
   <property>
     <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.Store.fileStore.basePathPrefix</name>
     <value>AdsDimensionsWithHDSDemo/Store</value>
@@ -80,6 +81,27 @@
     <value>AdsQueryResult</value>
   </property>
 
+
+  <!-- Settings for GenericSalesDemoWithHDHT -->
+
+  <property>
+    <name>dt.application.GenericSalesDemoWithHDHT.operator.Store.fileStore.basePathPrefix</name>
+    <value>GenericSalesDemoWithHDHT/Store</value>
+  </property>
+  <property>
+    <name>dt.application.GenericSalesDemoWithHDHT.useWebSockets</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.GenericSalesDemoWithHDHT.operator.Query.topic</name>
+    <value>SalesQuery</value>
+  </property>
+  <property>
+    <name>dt.application.GenericSalesDemoWithHDHT.operator.QueryResult.topic</name>
+    <value>SalesQueryResult</value>
+  </property>
+
+<!--
   <property>
       <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
       <value>256</value>
@@ -109,6 +131,7 @@
       <name>dt.operator.QueryResult.attr.MEMORY_MB</name>
       <value>256</value>
   </property>
+-->
 
   <!-- Settings for all Query and QueryResult operators -->
   <property>

@@ -5,6 +5,9 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
+import com.datatorrent.demos.dimensions.ads.schemas.AdsKeys;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsTimeRangeBucket;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataQuery;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import org.junit.Assert;
 import org.junit.Test;

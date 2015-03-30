@@ -20,7 +20,7 @@
 package com.datatorrent.demos.dimensions.generic;
 
 import com.datatorrent.demos.dimensions.ads.AdInfo;
-import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 

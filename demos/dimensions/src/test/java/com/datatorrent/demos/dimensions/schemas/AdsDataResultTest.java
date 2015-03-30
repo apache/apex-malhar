@@ -5,6 +5,7 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataResult;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import org.junit.Assert;
