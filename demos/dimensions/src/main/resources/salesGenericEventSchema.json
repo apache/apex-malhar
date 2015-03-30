@@ -23,5 +23,5 @@
    {"descriptor":"time=MINUTES:channel:region:product","aggregations":["SUM"]},
    {"descriptor":"time=MINUTES:channel:customer:product","aggregations":["SUM"]},
    {"descriptor":"time=MINUTES:region:customer:product","aggregations":["SUM"]},
-   {"descriptor":"time=MINUTES:channel:region:customer:product","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:channel:region:customer:product","aggregations":["SUM"]}]
 }
