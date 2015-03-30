@@ -24,6 +24,8 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.annotate.JsonSerialize;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Random;
@@ -58,6 +60,8 @@ import java.util.Random;
  */
 public class JsonSalesGenerator implements InputOperator
 {
+  private static final Logger logger = LoggerFactory.getLogger(JsonSalesGenerator.class);
+  
   public static final String KEY_PRODUCT = "product";
   public static final String KEY_CUSTOMER = "customer";
   public static final String KEY_CHANNEL = "channel";
@@ -154,6 +158,7 @@ public class JsonSalesGenerator implements InputOperator
   public void setup(Context.OperatorContext context)
   {
     schema = new GenericSchemaDimensional(dataSchemaJSON);
+    logger.info("Key To Values: {}", schema.getKeyToValuesList());
     maxProductId = schema.getKeyToValuesList().get(KEY_PRODUCT).size() - 1;
     maxCustomerId = schema.getKeyToValuesList().get(KEY_CUSTOMER).size() - 1;
     maxChannelId = schema.getKeyToValuesList().get(KEY_CHANNEL).size() - 1;
