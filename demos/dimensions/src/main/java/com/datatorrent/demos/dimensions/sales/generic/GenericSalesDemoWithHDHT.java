@@ -100,6 +100,7 @@ public class GenericSalesDemoWithHDHT implements StreamingApplication
     dimensions.setEventSchemaJSON(eventSchema);
     store.setEventSchemaJSON(eventSchema);
     store.setDimensionalSchemaJSON(dimensionalSchema);
+    input.setDataSchemaJSON(dimensionalSchema);
 
     Operator.OutputPort<String> queryPort;
     Operator.InputPort<String> queryResultPort;
