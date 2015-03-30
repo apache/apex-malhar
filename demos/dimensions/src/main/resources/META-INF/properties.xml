@@ -100,7 +100,10 @@
     <name>dt.application.GenericSalesDemoWithHDHT.operator.QueryResult.topic</name>
     <value>SalesQueryResult</value>
   </property>
-
+  <property>
+    <name>dt.application.GenericSalesDemoWithHDHT.operator.InputGenerator.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:3</value>
+  </property>
   <property>
     <name>dt.application.GenericSalesDemoWithHDHT.operator.InputGenerator.maxTuplesPerWindow</name>
     <value>13000</value>
