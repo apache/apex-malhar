@@ -204,6 +204,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * Number of windows since the last rotation
    */
   private int rotationCount;
+  
+  protected FilterStreamProvider filterStreamProvider;
 
   /**
    * This input port receives incoming tuples.
@@ -860,6 +862,16 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     this.filePermission = filePermission;
   }
 
+  public FilterStreamProvider getFilterStreamProvider()
+  {
+    return filterStreamProvider;
+  }
+
+  public void setFilterStreamProvider(FilterStreamProvider filterStreamProvider)
+  {
+    this.filterStreamProvider = filterStreamProvider;
+  }
+
   public static enum Counters
   {
     /**
@@ -875,7 +887,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     TOTAL_TIME_WRITING_MILLISECONDS
   }
 
-  private class FSFilterStreamContext implements FilterStreamContext<FilterOutputStream, FSDataOutputStream>
+  private class FSFilterStreamContext implements FilterStreamContext<FilterOutputStream>
   {
     
     private FSDataOutputStream outputStream;
@@ -884,12 +896,6 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     private NonCloseableFilterOutputStream outputWrapper;
     
     public FSFilterStreamContext(FSDataOutputStream outputStream) throws IOException
-    {
-      setup(outputStream);
-    }
-    
-    @Override
-    public void setup(FSDataOutputStream outputStream) throws IOException
     {
       this.outputStream = outputStream;     
       outputWrapper = new NonCloseableFilterOutputStream(outputStream);
@@ -918,7 +924,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     
     public void resetFilter() throws IOException
     {
-      filterContext = getStreamContext(outputWrapper);
+      if (filterStreamProvider != null) {
+        filterContext = filterStreamProvider.getFilterStreamContext(outputWrapper);
+      }
     }
     
     public void close() throws IOException
@@ -950,9 +958,11 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * @param outputStream
    * @return
    */
+  /*
   protected FilterStreamContext getStreamContext(OutputStream outputStream) throws IOException
   {
     return null;
   }
+  */
 
 }
