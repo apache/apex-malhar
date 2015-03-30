@@ -19,7 +19,6 @@ import java.util.List;
 
 public class BucketPOJOImpl extends AbstractBucket<SimpleEvent>
 {
-  // id in Simple class
 
   protected BucketPOJOImpl(long requestedKey)
   {
@@ -33,7 +32,17 @@ public class BucketPOJOImpl extends AbstractBucket<SimpleEvent>
    * @param event the {@link Bucketable} to search for in the bucket.
    * @return true if bucket has the event; false otherwise.
    */
+
   @Override
+  public boolean containsEvent(SimpleEvent event)
+  {
+    if (unwrittenEvents != null && unwrittenEvents.containsKey(event.id)) {
+      return true;
+    }
+    return writtenEvents != null && writtenEvents.containsKey(event.id);
+  }
+
+  /*@Override
   public boolean containsEvent(SimpleEvent event)
   {
     if (unwrittenEvents != null) {
@@ -55,6 +64,6 @@ public class BucketPOJOImpl extends AbstractBucket<SimpleEvent>
     }
     return false;
 
-  }
+  }*/
 
 }

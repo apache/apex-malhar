@@ -18,11 +18,6 @@ package com.datatorrent.lib.bucket;
 
 public class BucketManagerPOJOImpl extends AbstractBucketManager<SimpleEvent>
 {
-  @Override
-  protected BucketPOJOImpl createBucket(long requestedKey)
-  {
-    return new BucketPOJOImpl(requestedKey);
-  }
 
   @Override
   protected Object getEventKey(SimpleEvent event)
@@ -34,5 +29,11 @@ public class BucketManagerPOJOImpl extends AbstractBucketManager<SimpleEvent>
   protected BucketManagerPOJOImpl getBucketManagerImpl()
   {
     return new BucketManagerPOJOImpl();
+  }
+
+  @Override
+  protected AbstractBucket<SimpleEvent> createBucket(long requestedKey)
+  {
+    return new BucketPOJOImpl(requestedKey);
   }
 }

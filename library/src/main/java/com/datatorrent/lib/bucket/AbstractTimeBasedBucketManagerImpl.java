@@ -200,7 +200,7 @@ public abstract class AbstractTimeBasedBucketManagerImpl<T> extends AbstractBuck
     return key;
   }
 
-   @Override
+  @Override
   public void newEvent(long bucketKey, T event)
   {
     int bucketIdx = (int) (bucketKey % noOfBuckets);

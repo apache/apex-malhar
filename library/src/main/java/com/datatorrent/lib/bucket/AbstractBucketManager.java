@@ -97,7 +97,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   protected long committedWindow;
   //Not check-pointed
   //Indexed by bucketKey keys.
-  protected transient AbstractBucket<T>[] buckets;
+  protected transient AbstractBucket[] buckets;
   @NotNull
   protected transient Set<Integer> evictionCandidates;
   protected transient Listener<T> listener;
@@ -281,8 +281,14 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
             }
 
             AbstractBucket<T> bucket = buckets[bucketIdx];
+            logger.debug("bucketIdx is {}",bucketIdx);
             if (bucket == null || bucket.bucketKey != requestedKey) {
+              logger.debug("requested KEY IS {}",requestedKey);
+              logger.debug("bucket is {}",bucket);
+              logger.debug("buckets class is {}",buckets.getClass());
               bucket = createBucket(requestedKey);
+              logger.debug("bucket class is {}",bucket.getClass());
+              logger.debug("bucket is {}",bucket);
               buckets[bucketIdx] = bucket;
             }
             bucket.setWrittenEvents(bucketDataInStore);
@@ -324,7 +330,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
     @SuppressWarnings("unchecked")
-    AbstractBucket<T>[] freshBuckets = (AbstractBucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
+    AbstractBucket<T>[] freshBuckets = (AbstractBucket<T>[]) Array.newInstance(AbstractBucket.class, noOfBuckets);
     buckets = freshBuckets;
     //Create buckets for unwritten events which were check-pointed
     for (Map.Entry<Integer, AbstractBucket<T>> bucketEntry : dirtyBuckets.entrySet()) {
@@ -352,12 +358,16 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   @Override
   public void newEvent(long bucketKey, T event)
   {
+    logger.debug("bucketkey is {}",bucketKey);
+    logger.debug("event is {}",event);
     int bucketIdx = (int) (bucketKey % noOfBuckets);
 
     AbstractBucket<T> bucket = buckets[bucketIdx];
 
     if (bucket == null || bucket.bucketKey != bucketKey) {
+      logger.debug("bucket is null");
       bucket = createBucket(bucketKey);
+      logger.debug("bucket created");
       buckets[bucketIdx] = bucket;
       dirtyBuckets.put(bucketIdx, bucket);
     }

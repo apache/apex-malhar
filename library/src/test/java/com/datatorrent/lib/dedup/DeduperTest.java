@@ -36,10 +36,7 @@ import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DAG;
 
-import com.datatorrent.lib.bucket.Bucket;
-import com.datatorrent.lib.bucket.DummyEvent;
-import com.datatorrent.lib.bucket.ExpirableHdfsBucketStore;
-import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
+import com.datatorrent.lib.bucket.*;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
@@ -60,8 +57,8 @@ public class DeduperTest
   private static class DummyDeduper extends DeduperWithHdfsStore<DummyEvent, DummyEvent>
   {
 
-//    @Override
-    public void bucketLoaded(Bucket<DummyEvent> bucket)
+    @Override
+    public void bucketLoaded(AbstractBucket<DummyEvent> bucket)
     {
       try {
         super.bucketLoaded(bucket);
@@ -71,6 +68,7 @@ public class DeduperTest
         throw new RuntimeException(e);
       }
     }
+
 
     @Override
     public DummyEvent convert(DummyEvent dummyEvent)
@@ -83,12 +81,6 @@ public class DeduperTest
       waitingEvents.put(bucketManager.getBucketKeyFor(event), Lists.newArrayList(event));
     }
 
-//    @Override
-    protected int getPartitionKey(DummyEvent tuple, int mask)
-    {
-      int partition = tuple.getEventKey().hashCode() & mask;
-     return partition;
-    }
   }
 
   private static DummyDeduper deduper;
@@ -194,7 +186,7 @@ public class DeduperTest
     storageManager.setBucketSpanInMillis(1000);
     storageManager.setMillisPreventingBucketEviction(60000);
     storageManager.setBucketStore(bucketStore);
-   // deduper.setBucketManager(storageManager);
+    deduper.setBucketManager(storageManager);
   }
 
   @AfterClass

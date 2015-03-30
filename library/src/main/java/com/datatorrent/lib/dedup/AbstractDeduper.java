@@ -44,12 +44,17 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
       if (bucketKey < 0) {
         return;
       } //ignore event
-      AbstractBucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
+     AbstractBucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
+     logger.debug("bucketManager class is {}",bucketManager.getClass());
+     if(bucket!=null)
+     logger.debug("bucket class is {}",bucket.getClass());
       if (bucket != null && bucket.containsEvent(tuple)) {
         counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
         return;
       } //ignore event
+
       if (bucket != null && bucket.isDataOnDiskLoaded()) {
+        logger.debug("new event is created in deduper");
         bucketManager.newEvent(bucketKey, tuple);
         output.emit(convert(tuple));
       }
@@ -399,6 +404,8 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     bucketManager.definePartitions(oldStorageManagers, partitionKeyToStorageManagers, lPartitionMask);
     return newPartitions;
   }
+
+  
 
 
 }

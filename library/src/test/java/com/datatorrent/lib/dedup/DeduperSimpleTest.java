@@ -50,12 +50,23 @@ public class DeduperSimpleTest
   private final static String APPLICATION_PATH_PREFIX = "target/DeduperAppBuilderTest";
   private final static String APP_ID = "DeduperAppBuilderTest";
   private final static int OPERATOR_ID = 0;
-  private static String timestamp;
 
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
   private static class DummyDeduper extends DeduperPOJOImpl<SimpleEvent,SimpleEvent>
   {
+    @Override
+    public void bucketLoaded(AbstractBucket<SimpleEvent> bucket)
+    {
+      try {
+        super.bucketLoaded(bucket);
+        eventBucketExchanger.exchange(bucket.bucketKey);
+      }
+      catch (InterruptedException e) {
+        throw new RuntimeException(e);
+      }
+    }
+
 
     @Override
     protected SimpleEvent convert(SimpleEvent input)
@@ -80,23 +91,24 @@ public class DeduperSimpleTest
   {
     List<SimpleEvent> events = Lists.newArrayList();
     Calendar calendar = Calendar.getInstance();
-    SimpleEvent temp = new SimpleEvent();
-
     for (int i = 0; i < 10; i++) {
-    temp.setId(i);
-    temp.setHhmm(calendar.getTimeInMillis());
+    SimpleEvent event = new SimpleEvent();
+    event.setId(i);
+    event.setHhmm(calendar.getTimeInMillis());
+    events.add(event);
     }
-    temp.setId(5);
-    temp.setHhmm(calendar.getTimeInMillis());
+    SimpleEvent event = new SimpleEvent();
+    event.setId(5);
+    event.setHhmm(calendar.getTimeInMillis());
 
-    events.add(temp);
+    events.add(event);
 
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
 
     deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes));
-    CollectorTestSink<HashMap<String,Object>> collectorTestSink = new CollectorTestSink<HashMap<String,Object>>();
+    CollectorTestSink<SimpleEvent> collectorTestSink = new CollectorTestSink<SimpleEvent>();
     TestUtils.setSink(deduper.output, collectorTestSink);
 
     logger.debug("start round 0");
@@ -108,7 +120,7 @@ public class DeduperSimpleTest
     collectorTestSink.clear();
     logger.debug("end round 0");
 
-    logger.debug("start round 1");
+  /*  logger.debug("start round 1");
     deduper.beginWindow(1);
     testRound(events);
     deduper.handleIdleTime();
@@ -116,6 +128,32 @@ public class DeduperSimpleTest
    // Assert.assertEquals("output tuples", 0, collectorTestSink.collectedTuples.size());
     collectorTestSink.clear();
     logger.debug("end round 1");
+
+    //Test the sliding window
+    try {
+      Thread.sleep(1500);
+    }
+    catch (InterruptedException e) {
+      throw new RuntimeException(e);
+    }
+    deduper.handleIdleTime();
+    long now = System.currentTimeMillis();
+    for (int i = 10; i < 15; i++) {
+    event = new SimpleEvent();
+    event.setId(i);
+    event.setHhmm(calendar.getTimeInMillis());
+    events.add(event);
+    }
+
+    logger.debug("start round 2");
+    deduper.beginWindow(2);
+    testRound(events);
+    deduper.handleIdleTime();
+    deduper.endWindow();
+    Assert.assertEquals("output tuples", 5, collectorTestSink.collectedTuples.size());
+    collectorTestSink.clear();
+    logger.debug("end round 2");
+    deduper.teardown();*/
 
     deduper.teardown();
   }
@@ -127,7 +165,7 @@ public class DeduperSimpleTest
       deduper.input.process(event);
     }
     try {
-      eventBucketExchanger.exchange(null, 1, TimeUnit.SECONDS);
+      eventBucketExchanger.exchange(null, 10, TimeUnit.SECONDS);
     }
     catch (InterruptedException e) {
       throw new RuntimeException(e);
@@ -143,9 +181,8 @@ public class DeduperSimpleTest
   public static void setup()
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
-    ExpirableHdfsBucketStore<HashMap<String,Object>>  bucketStore = new ExpirableHdfsBucketStore<HashMap<String,Object>>();
+    ExpirableHdfsBucketStore<SimpleEvent>  bucketStore = new ExpirableHdfsBucketStore<SimpleEvent>();
     deduper = new DummyDeduper();
-
     TimeBasedBucketManagerPOJOImpl timeManager = new TimeBasedBucketManagerPOJOImpl();
     timeManager.setBucketSpanInMillis(60000);
     timeManager.setMillisPreventingBucketEviction(60000);
