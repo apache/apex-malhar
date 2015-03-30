@@ -390,7 +390,7 @@ public class JsonSalesGenerator implements InputOperator
 class SalesEvent {
 
   /* dimension keys */
-  public long timestamp;
+  public long time;
   public String product;
   public String customer;
   public String channel;
