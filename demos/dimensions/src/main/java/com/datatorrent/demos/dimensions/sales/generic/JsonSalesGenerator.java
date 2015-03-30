@@ -236,7 +236,7 @@ public class JsonSalesGenerator implements InputOperator
     int customerId = randomCustomerByRegion(regionId);
 
     SalesEvent salesEvent = new SalesEvent();
-    salesEvent.timestamp = System.currentTimeMillis();
+    salesEvent.time = System.currentTimeMillis();
     salesEvent.product = (String) schema.getKeyToValuesList().get(KEY_PRODUCT).get(productId);
     salesEvent.channel = (String) schema.getKeyToValuesList().get(KEY_CHANNEL).get(channelId);
     salesEvent.region = (String) schema.getKeyToValuesList().get(KEY_REGION).get(regionId);
