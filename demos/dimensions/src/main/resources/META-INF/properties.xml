@@ -101,7 +101,8 @@
     <value>SalesQueryResult</value>
   </property>
 
-<!--
+  <!--
+
   <property>
       <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
       <value>256</value>
@@ -131,7 +132,8 @@
       <name>dt.operator.QueryResult.attr.MEMORY_MB</name>
       <value>256</value>
   </property>
--->
+
+  -->
 
   <!-- Settings for all Query and QueryResult operators -->
   <property>

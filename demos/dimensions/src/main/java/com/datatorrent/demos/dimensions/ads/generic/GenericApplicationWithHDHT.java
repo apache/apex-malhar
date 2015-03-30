@@ -18,7 +18,6 @@ package com.datatorrent.demos.dimensions.ads.generic;
 import com.datatorrent.contrib.dimensions.GenericAppDataDimensionStoreHDHT;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
@@ -199,10 +198,10 @@ public class GenericApplicationWithHDHT implements StreamingApplication
       queryResultPort = queryResult.inputPort;
     }
 
-    dag.addStream("InputStream", input.outputPort, dimensions.inputEvent).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("InputStream", input.outputPort, dimensions.inputEvent);
     dag.addStream("DimensionalData", dimensions.aggregateOutput, store.input);
-    dag.addStream("Query", queryPort, store.query).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("QueryResult", store.queryResult, queryResultPort).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("Query", queryPort, store.query);
+    dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }
 }
 
