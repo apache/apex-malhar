@@ -18,7 +18,6 @@ import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
 
-import static com.datatorrent.demos.dimensions.ads.generic.GenericApplicationWithHDHT.*;
 
 import com.datatorrent.demos.dimensions.ads.generic.GenericApplicationWithHDHT;
 import com.datatorrent.lib.counters.BasicCounters;
@@ -45,6 +44,9 @@ public class GenericSalesDemoWithHDHT implements StreamingApplication
   public static final String APP_NAME = "GenericSalesDemoWithHDHT";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
+
+  public static final String EVENT_SCHEMA = "salesGenericEventSchema.json";
+  public static final String DIMENSIONAL_SCHEMA = "salesGenericDataSchema.json";
 
   public GenericSalesDemoWithHDHT()
   {

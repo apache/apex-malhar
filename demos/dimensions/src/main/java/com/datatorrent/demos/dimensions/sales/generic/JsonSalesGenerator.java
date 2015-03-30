@@ -61,7 +61,7 @@ import java.util.Random;
 public class JsonSalesGenerator implements InputOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(JsonSalesGenerator.class);
-  
+
   public static final String KEY_PRODUCT = "product";
   public static final String KEY_CUSTOMER = "customer";
   public static final String KEY_CHANNEL = "channel";
@@ -158,7 +158,6 @@ public class JsonSalesGenerator implements InputOperator
   public void setup(Context.OperatorContext context)
   {
     schema = new GenericSchemaDimensional(dataSchemaJSON);
-    logger.info("Key To Values: {}", schema.getKeyToValuesList());
     maxProductId = schema.getKeyToValuesList().get(KEY_PRODUCT).size() - 1;
     maxCustomerId = schema.getKeyToValuesList().get(KEY_CUSTOMER).size() - 1;
     maxChannelId = schema.getKeyToValuesList().get(KEY_CHANNEL).size() - 1;
