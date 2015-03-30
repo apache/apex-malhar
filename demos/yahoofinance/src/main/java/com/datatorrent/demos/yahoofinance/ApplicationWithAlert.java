@@ -22,7 +22,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.SmtpOutputOperator;
+import com.datatorrent.lib.io.smtp.SmtpIdempotentOutputOperator;
 import com.datatorrent.lib.streamquery.DerbySqlStreamOperator;
 
 import org.apache.hadoop.conf.Configuration;
@@ -85,7 +85,7 @@ public class ApplicationWithAlert implements StreamingApplication
     boolean isSmtp = validateSmtpParams(conf);
 
     if (isSmtp) {
-      SmtpOutputOperator mailOper = dag.addOperator("mail", getSMTPOperator(conf));
+      SmtpIdempotentOutputOperator mailOper = dag.addOperator("mail", getSMTPOperator(conf));
       dag.addStream("alert_mail", alertOper.alert, mailOper.input);
     }
     else {
@@ -107,7 +107,7 @@ public class ApplicationWithAlert implements StreamingApplication
     return (isNotNull(From) && isNotNull(To) && isNotNull(smtpHost) && isNotNull(smtpPort) && isNotNull(smtpUser) && isNotNull(smtpPasswd));
   }
 
-  private SmtpOutputOperator getSMTPOperator(Configuration conf)
+  private SmtpIdempotentOutputOperator getSMTPOperator(Configuration conf)
   {
     String From = conf.get(ApplicationWithAlert.class.getName() + ".From");
     String To = conf.get(ApplicationWithAlert.class.getName() + ".To");
@@ -117,7 +117,7 @@ public class ApplicationWithAlert implements StreamingApplication
     String smtpPasswd = conf.get(ApplicationWithAlert.class.getName() + ".smtpPasswd");
     Boolean useSsl = Boolean.valueOf(conf.get(ApplicationWithAlert.class.getName() + ".useSsl"));
 
-    SmtpOutputOperator mailOper = new SmtpOutputOperator();
+    SmtpIdempotentOutputOperator mailOper = new SmtpIdempotentOutputOperator();
 
     mailOper.setFrom(From);
     Map<String, String> recipients = Maps.newHashMap();

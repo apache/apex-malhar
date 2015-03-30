@@ -23,7 +23,7 @@ import com.datatorrent.demos.machinedata.data.MachineKey;
 import com.datatorrent.demos.machinedata.operator.MachineInfoAveragingOperator;
 import com.datatorrent.demos.machinedata.operator.MachineInfoAveragingPrerequisitesOperator;
 import com.datatorrent.contrib.redis.RedisKeyValPairOutputOperator;
-import com.datatorrent.lib.io.SmtpOutputOperator;
+import com.datatorrent.lib.io.smtp.SmtpIdempotentOutputOperator;
 
 import java.util.Map;
 
@@ -58,7 +58,7 @@ public class Application implements StreamingApplication
     MachineInfoAveragingOperator averageOperator = dag.addOperator("AverageCalculator", MachineInfoAveragingOperator.class);
     RedisKeyValPairOutputOperator<MachineKey, Map<String, String>> redisAvgOperator = dag.addOperator("Persister", new RedisKeyValPairOutputOperator<MachineKey, Map<String, String>>());
     dag.addStream("Average", averageOperator.outputPort, redisAvgOperator.input);
-    SmtpOutputOperator smtpOutputOperator = dag.addOperator("Alerter", new SmtpOutputOperator());
+    SmtpIdempotentOutputOperator smtpOutputOperator = dag.addOperator("Alerter", new SmtpIdempotentOutputOperator());
     dag.addStream("Aggregates", prereqAverageOper.outputPort, averageOperator.inputPort);
     dag.addStream("Alerts", averageOperator.smtpAlert, smtpOutputOperator.input);
     return prereqAverageOper;
