@@ -19,6 +19,7 @@ package com.datatorrent.lib.io.fs;
 import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import javax.validation.ConstraintViolationException;
 
@@ -1652,13 +1653,15 @@ public class AbstractFileOutputOperatorTest
   @Test
   public void testCompression() throws IOException
   {
-    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter() {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    writer.setFilterStreamProvider(new FilterStreamProvider<GZIPOutputStream,OutputStream>()
+    {
       @Override
-      protected FilterStreamContext getStreamContext(OutputStream outputStream) throws IOException
+      public FilterStreamContext getFilterStreamContext(OutputStream outputStream) throws IOException
       {
         return new FilterStreamCodecContext.GZIPFilterStreamContext(outputStream);
       }
-    };
+    });
 
     File evenFile = new File(testMeta.getDir(), EVEN_FILE);
     File oddFile = new File(testMeta.getDir(), ODD_FILE);

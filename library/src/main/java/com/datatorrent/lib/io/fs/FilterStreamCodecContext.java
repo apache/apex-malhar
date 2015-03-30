@@ -31,20 +31,13 @@ public class FilterStreamCodecContext
   /**
    * The GZIP filter to use for compression
    */
-  public static class GZIPFilterStreamContext extends FilterStreamContext.BaseOutputFilterStreamContext<GZIPOutputStream>
+  public static class GZIPFilterStreamContext extends FilterStreamContext.BaseFilterStreamContext<GZIPOutputStream>
   {
-    public GZIPFilterStreamContext() {}
-    
     public GZIPFilterStreamContext(OutputStream outputStream) throws IOException
     {
-      setup(outputStream);
+      filterStream = new GZIPOutputStream(outputStream);
     }
     
-    public GZIPOutputStream createFilterStream(OutputStream outputStream) throws IOException
-    {
-      return new GZIPOutputStream(outputStream);
-    }
-
     @Override
     public void finalizeContext() throws IOException
     {
@@ -52,7 +45,7 @@ public class FilterStreamCodecContext
     }
   }
 
-  public static class CipherFilterStreamContext extends FilterStreamContext.BaseOutputFilterStreamContext<CipherOutputStream>
+  public static class CipherFilterStreamContext extends FilterStreamContext.BaseFilterStreamContext<CipherOutputStream>
   {
     private Cipher cipher;
 
@@ -66,10 +59,10 @@ public class FilterStreamCodecContext
       this.cipher = cipher;
     }
 
-    @Override
-    protected CipherOutputStream createFilterStream(OutputStream outputStream)
+    public CipherFilterStreamContext(OutputStream outputStream) throws IOException
     {
-      return new CipherOutputStream(outputStream, cipher);
+      filterStream = new CipherOutputStream(outputStream, cipher);
     }
+
   }
 }

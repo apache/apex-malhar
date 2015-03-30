@@ -17,34 +17,22 @@ package com.datatorrent.lib.io.fs;
 
 import java.io.FilterOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
- * Interface and base class for implementations that want to provide filtering functionality to data being written to
- * file. Multiple filters can be chained together using the chain filter context. 
+ *
  */
-public interface FilterStreamContext<F extends FilterOutputStream, S extends OutputStream>
+public interface FilterStreamContext<F extends FilterOutputStream>
 {
-  public void setup(S outputStream) throws IOException;
   public F getFilterStream();
   public void finalizeContext() throws IOException;
 
   /**
    * Base filter context that can be extended to build custom filters.
    * @param <F> The Filter output stream
-   * @param <S> The original output stream
    */
-  public static abstract class BaseFilterStreamContext<F extends FilterOutputStream, S extends OutputStream> implements FilterStreamContext<F, S>
+  public static abstract class BaseFilterStreamContext<F extends FilterOutputStream> implements FilterStreamContext<F>
   {
     protected F filterStream;
-
-    @Override
-    public void setup(S outputStream) throws IOException
-    {
-      filterStream = createFilterStream(outputStream);
-    }
 
     @Override
     public F getFilterStream()
@@ -57,53 +45,7 @@ public interface FilterStreamContext<F extends FilterOutputStream, S extends Out
     {
       filterStream.flush();
     }
-    
-    protected abstract F createFilterStream(S outputStream) throws IOException;
-    
+
   }
 
-  public static abstract class BaseOutputFilterStreamContext<F extends FilterOutputStream> extends BaseFilterStreamContext<F, OutputStream>
-  {
-  }
-
-  /**
-   * The chain filter to use for chaining multiple filters.
-   * @param <S> The original output stream
-   */
-  public static class FilterChainStreamContext<S extends OutputStream> extends BaseFilterStreamContext<FilterOutputStream, S>
-  {
-    private List<FilterStreamContext<?,?>> streamContexts = new ArrayList<FilterStreamContext<?,?>>();
-    
-    public List<FilterStreamContext<?,?>> getStreamContexts()
-    {
-      return streamContexts;
-    }
-
-    public void addStreamContext(FilterStreamContext<?,?> streamContext)
-    {
-      streamContexts.add(streamContext);
-    }
-    
-    @Override
-    public FilterOutputStream createFilterStream(OutputStream outputStream) throws IOException
-    {
-      FilterOutputStream filterStream = null;
-      OutputStream currOutputStream = outputStream;
-      for (int i = streamContexts.size() - 1; i >= 0; i-- ) {
-        FilterStreamContext streamContext = streamContexts.get(i);
-        streamContext.setup(currOutputStream);
-        filterStream = streamContext.getFilterStream();
-        currOutputStream = filterStream;
-      }
-      return filterStream;
-    }
-
-    @Override
-    public void finalizeContext() throws IOException
-    {
-      for (FilterStreamContext streamContext : streamContexts) {
-        streamContext.finalizeContext();
-      }
-    }
-  }
 }
