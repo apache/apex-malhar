@@ -101,6 +101,15 @@
     <value>SalesQueryResult</value>
   </property>
 
+  <property>
+    <name>dt.application.GenericSalesDemoWithHDHT.operator.InputGenerator.maxTuplesPerWindow</name>
+    <value>13000</value>
+  </property>
+  <property>
+    <name>dt.application.GenericSalesDemoWithHDHT.operator.InputGenerator.tuplesPerWindowDeviation</name>
+    <value>7000</value>
+  </property>
+
   <!--
 
   <property>
