@@ -62,7 +62,6 @@ import com.datatorrent.lib.counters.BasicCounters;
  */
 public interface BucketManager<T>
 {
-
   void setBucketStore(@Nonnull BucketStore<T> bucketStore);
 
   BucketStore<T> getBucketStore();
@@ -83,10 +82,11 @@ public interface BucketManager<T>
    * Calculates the bucket key of an event.<br/>
    * -ve values indicate invalid event.
    *
-   * @param event being a HashMap in current implementation.
+   * @param event event
    * @return bucket key for event.
    */
   long getBucketKeyFor(T event);
+
   /**
    * <p>
    * Returns the bucket in memory corresponding to a bucket key.

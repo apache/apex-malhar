@@ -37,13 +37,6 @@ import com.datatorrent.lib.bucket.NonOperationalBucketStore;
  */
 public abstract class DeduperWithHdfsStore<INPUT extends Bucketable & Event, OUTPUT> extends AbstractDeduper<INPUT, OUTPUT>
 {
-
-  @Override
-  protected Object getEventKey(INPUT event)
-  {
-    return event.getEventKey();
-  }
-  
   @Override
   public void setup(Context.OperatorContext context)
   {
@@ -55,5 +48,11 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable & Event, OUT
       ((HdfsBucketStore<INPUT>) bucketManager.getBucketStore()).setConfiguration(context.getId(), context.getValue(DAG.APPLICATION_PATH), partitionKeys, partitionMask);
     }
     super.setup(context);
+  }
+
+  @Override
+  protected Object getEventKey(INPUT event)
+  {
+    return event.getEventKey();
   }
 }

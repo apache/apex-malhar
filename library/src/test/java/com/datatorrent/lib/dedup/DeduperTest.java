@@ -35,8 +35,11 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DAG;
+import com.datatorrent.lib.bucket.AbstractBucket;
 
-import com.datatorrent.lib.bucket.*;
+import com.datatorrent.lib.bucket.DummyEvent;
+import com.datatorrent.lib.bucket.ExpirableHdfsBucketStore;
+import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
@@ -69,7 +72,6 @@ public class DeduperTest
       }
     }
 
-
     @Override
     public DummyEvent convert(DummyEvent dummyEvent)
     {
@@ -80,7 +82,6 @@ public class DeduperTest
     {
       waitingEvents.put(bucketManager.getBucketKeyFor(event), Lists.newArrayList(event));
     }
-
   }
 
   private static DummyDeduper deduper;
@@ -182,7 +183,7 @@ public class DeduperTest
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     ExpirableHdfsBucketStore<DummyEvent>  bucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
     deduper = new DummyDeduper();
-    TimeBasedBucketManagerImpl storageManager = new TimeBasedBucketManagerImpl();
+    TimeBasedBucketManagerImpl<DummyEvent> storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
     storageManager.setBucketSpanInMillis(1000);
     storageManager.setMillisPreventingBucketEviction(60000);
     storageManager.setBucketStore(bucketStore);

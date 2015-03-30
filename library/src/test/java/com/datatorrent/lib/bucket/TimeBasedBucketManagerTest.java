@@ -29,7 +29,7 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
-/*public class TimeBasedBucketManagerTest
+public class TimeBasedBucketManagerTest
 {
   private static final String APPLICATION_PATH_PREFIX = "target/TimeBasedBucketManagerTest";
   private static final long BUCKET_SPAN = 60000; //1 minute
@@ -37,7 +37,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
   private static TestBucketManager<DummyEvent> manager;
   private static String applicationPath;
 
-  private static class TestBucketManager<T extends Event & Bucketable> extends TimeBasedBucketManagerOriginalImpl<T>
+  private static class TestBucketManager<T extends Event & Bucketable> extends TimeBasedBucketManagerImpl<T>
   {
     TestBucketManager()
     {
@@ -82,4 +82,4 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
     FileSystem fs = FileSystem.newInstance(root.toUri(), new Configuration());
     fs.delete(root, true);
   }
-}*/
+}

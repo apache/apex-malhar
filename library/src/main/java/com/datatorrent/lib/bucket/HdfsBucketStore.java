@@ -206,7 +206,6 @@ public class HdfsBucketStore<T> implements BucketStore<T>
         Map<Object, T> bucketData = data.get(bucketIdx);
 
         if (eventKeyClass == null) {
-          logger.debug("bucketData is {}",bucketData);
           Map.Entry<Object, T> eventEntry = bucketData.entrySet().iterator().next();
           eventKeyClass = eventEntry.getKey().getClass();
           if (!writeEventKeysOnly) {
