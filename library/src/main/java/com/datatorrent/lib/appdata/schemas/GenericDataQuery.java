@@ -11,7 +11,6 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.DataType;
 import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
-import com.datatorrent.lib.appdata.qr.Query;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -22,11 +21,10 @@ import java.util.Set;
 @DataType(type=GenericDataQuery.TYPE)
 @DataDeserializerInfo(clazz=GenericDataQueryDeserializer.class)
 @DataValidatorInfo(clazz=GenericDataQueryValidator.class)
-public class GenericDataQuery extends Query
+public class GenericDataQuery extends GenericDataQueryTabular
 {
   public static final String TYPE = "dataQuery";
 
-  public static final String FIELD_DATA = "data";
   public static final String FIELD_TIME = "time";
   public static final String FIELD_FROM = "from";
   public static final String FIELD_TO = "to";
@@ -34,8 +32,6 @@ public class GenericDataQuery extends Query
   public static final String FIELD_BUCKET = "bucket";
 
   public static final String FIELD_KEYS = "keys";
-  public static final String FIELD_FIELDS = "fields";
-  public static final String FIELD_COUNTDOWN = "countdown";
   public static final String FIELD_INCOMPLETE_RESULT_OK = "incompleteResultOK";
 
   public static final FieldsDescriptor TIME_FIELD_DESCRIPTOR;
@@ -56,11 +52,9 @@ public class GenericDataQuery extends Query
   private TimeBucket timeBucket;
   private GPOMutable keys;
   //Value fields selected in query.
-  private Fields fields;
   private long countdown;
   private boolean incompleteResultOK = true;
   private boolean hasTime = false;
-  private boolean oneTime = false;
   private boolean fromTo = false;
   private Fields keyFields;
   private DimensionsDescriptor dd;
@@ -71,10 +65,10 @@ public class GenericDataQuery extends Query
                           Fields fields,
                           boolean incompleteResultOK)
   {
-    super(id, type);
+    super(id, type, fields);
     setKeys(keys);
-    setFields(fields);
     setIncompleteResultOK(incompleteResultOK);
+    setOneTime(false);
     this.hasTime = false;
 
     initialize();
@@ -88,13 +82,12 @@ public class GenericDataQuery extends Query
                           Fields fields,
                           boolean incompleteResultOK)
   {
-    super(id, type);
+    super(id, type, fields);
     setLatestNumBuckets(latestNumBuckets);
     setTimeBucket(timeBucket);
     setKeys(keys);
-    setFields(fields);
     setIncompleteResultOK(incompleteResultOK);
-    this.oneTime = true;
+    setOneTime(true);
     this.fromTo = false;
     this.hasTime = true;
 
@@ -110,14 +103,13 @@ public class GenericDataQuery extends Query
                           Fields fields,
                           boolean incompleteResultOK)
   {
-    super(id, type);
+    super(id, type, fields);
     setFrom(from);
     setTo(to);
     setTimeBucket(timeBucket);
     setKeys(keys);
-    setFields(fields);
     setIncompleteResultOK(incompleteResultOK);
-    this.oneTime = true;
+    setOneTime(true);
     this.fromTo = true;
     this.hasTime = true;
 
@@ -134,15 +126,13 @@ public class GenericDataQuery extends Query
                           long countdown,
                           boolean incompleteResultOK)
   {
-    super(id, type);
+    super(id, type, fields, countdown);
     setFrom(from);
     setTo(to);
     setTimeBucket(timeBucket);
     setKeys(keys);
-    setFields(fields);
-    setCountdown(countdown);
     setIncompleteResultOK(incompleteResultOK);
-    this.oneTime = false;
+    setOneTime(false);
     this.fromTo = true;
     this.hasTime = true;
 
@@ -158,14 +148,12 @@ public class GenericDataQuery extends Query
                           long countdown,
                           boolean incompleteResultOK)
   {
-    super(id, type);
+    super(id, type, fields, countdown);
     setLatestNumBuckets(latestNumBuckets);
     setTimeBucket(timeBucket);
     setKeys(keys);
-    setFields(fields);
-    setCountdown(countdown);
     setIncompleteResultOK(incompleteResultOK);
-    this.oneTime = false;
+    setOneTime(false);
     this.fromTo = false;
     this.hasTime = true;
 
@@ -226,17 +214,6 @@ public class GenericDataQuery extends Query
     return incompleteResultOK;
   }
 
-  private void setCountdown(long countdown)
-  {
-    Preconditions.checkArgument(countdown > 0, "Countdown must be positive.");
-    this.countdown = countdown;
-  }
-
-  public long getCountdown()
-  {
-    return countdown;
-  }
-
   private void setFrom(String from)
   {
     Preconditions.checkNotNull(from);
@@ -294,23 +271,6 @@ public class GenericDataQuery extends Query
   }
 
   /**
-   * @param fields the fields to set
-   */
-  private void setFields(Fields fields)
-  {
-    Preconditions.checkNotNull(fields);
-    this.fields = fields;
-  }
-
-  /**
-   * @return the fields
-   */
-  public Fields getFields()
-  {
-    return fields;
-  }
-
-  /**
    * @return the latestNumBuckets
    */
   public int getLatestNumBuckets()
@@ -334,11 +294,6 @@ public class GenericDataQuery extends Query
     return dd;
   }
 
-  public boolean getOneTime()
-  {
-    return oneTime;
-  }
-
   /**
    * @return the fromTo
    */
@@ -358,6 +313,6 @@ public class GenericDataQuery extends Query
   @Override
   public String toString()
   {
-    return "GenericDataQuery{" + "from=" + from + ", to=" + to + ", latestNumBuckets=" + latestNumBuckets + ", timeBucket=" + timeBucket + ", countdown=" + countdown + ", incompleteResultOK=" + incompleteResultOK + ", hasTime=" + hasTime + ", oneTime=" + oneTime + ", fromTo=" + fromTo + '}';
+    return "GenericDataQuery{" + "from=" + from + ", to=" + to + ", latestNumBuckets=" + latestNumBuckets + ", timeBucket=" + timeBucket + ", countdown=" + countdown + ", incompleteResultOK=" + incompleteResultOK + ", hasTime=" + hasTime + ", oneTime=" + isOneTime() + ", fromTo=" + fromTo + '}';
   }
 }

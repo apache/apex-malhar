@@ -20,7 +20,7 @@ import java.util.Map;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GPOMutable implements Serializable, Cloneable
+public class GPOMutable implements Serializable
 {
   private static final Logger logger = LoggerFactory.getLogger(GPOMutable.class);
   private static final long serialVersionUID = 201503231207L;

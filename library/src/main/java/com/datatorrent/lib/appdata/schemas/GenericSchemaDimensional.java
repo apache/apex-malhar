@@ -24,7 +24,7 @@ import java.util.Set;
 public class GenericSchemaDimensional extends GenericSchemaWithTime
 {
   public static final int NUM_KEYS_DATA = 5;
-  public static final int NUM_KEYS_KEY = 2;
+  public static final int NUM_KEYS_KEY = 3;
   public static final int NUM_KEYS_VALUE = 2;
 
   public static final String FIELD_KEYS = "keys";

@@ -53,7 +53,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
     String id = jo.getString(Query.FIELD_ID);
     String type = jo.getString(Data.FIELD_TYPE);
 
-    boolean oneTime = !jo.has(GenericDataQuery.FIELD_COUNTDOWN);
+    boolean oneTime = !jo.has(GenericDataQueryTabular.FIELD_COUNTDOWN);
     long countdown = 1;
 
     if(!oneTime) {

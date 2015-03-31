@@ -54,7 +54,7 @@ public class GenericDataResultSerializer implements CustomDataSerializer
     JSONArray data = new JSONArray();
     jo.put(Result.FIELD_DATA, data);
 
-    Fields fields = dataResult.getDataQuery().getFields();
+    Fields fields = dataResult.getQuery().getFields();
     logger.info("fields: {}", fields);
 
     List<GPOMutable> keys = dataResult.getKeys();
@@ -85,7 +85,7 @@ public class GenericDataResultSerializer implements CustomDataSerializer
       data.put(valueJO);
     }
 
-    if(!dataResult.getDataQuery().getOneTime()) {
+    if(!dataResult.getQuery().isOneTime()) {
       jo.put(GenericDataResult.FIELD_COUNTDOWN,
              dataResult.getCountdown());
     }
