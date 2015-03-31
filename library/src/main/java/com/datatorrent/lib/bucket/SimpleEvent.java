@@ -8,14 +8,14 @@ public class SimpleEvent
 {
   int id;
   double metric;
-  long hhmm;
+  String hhmm;
 
-  public long getHhmm()
+  public String getHhmm()
   {
     return hhmm;
   }
 
-  public void setHhmm(long hhmm)
+  public void setHhmm(String hhmm)
   {
     this.hhmm = hhmm;
   }

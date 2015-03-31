@@ -31,6 +31,7 @@ public final  class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBuck
   @Override
   protected long getTime(SimpleEvent event)
   {
-    return event.getHhmm();
+    throw new UnsupportedOperationException("Implement me, please");
+    //return event.getHhmm();
   }
 }

@@ -128,6 +128,8 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     counters = new BasicCounters<MutableLong>(MutableLong.class);
   }
 
+  protected abstract Object getEventKey(INPUT event);
+
   public void setPartitionCount(int partitionCount)
   {
     this.partitionCount = partitionCount;
@@ -428,6 +430,5 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     protected static transient final Logger logger = LoggerFactory.getLogger(CountersListener.class);
   }
 
-  protected abstract Object getEventKey(INPUT event);
   private final static Logger logger = LoggerFactory.getLogger(AbstractDeduper.class);
 }
