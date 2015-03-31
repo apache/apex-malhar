@@ -91,7 +91,7 @@ public interface BucketManager<T>
   /**
    * <p>
    * Returns the bucket in memory corresponding to a bucket key.
-   * If the bucket is not created yet, it will return null.</br>
+   * If the bucket is not created yet, it will return null.
    * A bucket is created:
    * <ul>
    * <li> When the operator requests to load a bucket from store.</li>
