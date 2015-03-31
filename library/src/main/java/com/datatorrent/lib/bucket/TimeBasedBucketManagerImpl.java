@@ -20,27 +20,15 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Ab
 {
 
   @Override
-  protected long getTime(T event)
-  {
-   return  event.getTime();
-  }
-
-  @Override
   protected Bucket<T> createBucket(long requestedKey)
   {
     return new Bucket<T>(requestedKey);
   }
-
+  
   @Override
-  protected Object getEventKey(T event)
+  protected long getTime(T event)
   {
-    return event.getEventKey();
-  }
-
-  @Override
-  protected TimeBasedBucketManagerImpl<T> getBucketManagerImpl()
-  {
-    return new TimeBasedBucketManagerImpl<T>();
+   return  event.getTime();
   }
 
 }

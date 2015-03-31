@@ -83,6 +83,7 @@ public interface BucketManager<T>
    * -ve values indicate invalid event.
    *
    * @param event event
+   * @param eventKey
    * @return bucket key for event.
    */
   long getBucketKeyFor(T event);
@@ -141,7 +142,7 @@ public interface BucketManager<T>
    *
    * @return newly created manager without any data.
    */
-  BucketManager<T> cloneWithProperties();
+  BucketManager<T> cloneWithProperties() throws CloneNotSupportedException;
 
   void setBucketCounters(@Nonnull BasicCounters<MutableLong> stats);
 

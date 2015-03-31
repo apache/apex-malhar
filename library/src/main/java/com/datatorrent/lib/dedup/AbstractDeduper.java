@@ -33,6 +33,7 @@ import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.logging.Level;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.mutable.MutableLong;
@@ -288,7 +289,12 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
       deduperInstance.partitionKeys = deduperPartition.getPartitionKeys().get(input).partitions;
       deduperInstance.partitionMask = lPartitionMask;
       logger.debug("partitions {},{}", deduperInstance.partitionKeys, deduperInstance.partitionMask);
-      deduperInstance.bucketManager = bucketManager.cloneWithProperties();
+      try {
+        deduperInstance.bucketManager = bucketManager.cloneWithProperties();
+      }
+      catch (CloneNotSupportedException ex) {
+        DTThrowable.rethrow(ex);
+      }
 
       for (int partitionKey : deduperInstance.partitionKeys) {
         partitionKeyToStorageManagers.put(partitionKey, deduperInstance.bucketManager);
@@ -378,8 +384,6 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
 
-  protected abstract Object getEventKey(INPUT event);
-
 
   public static enum CounterKeys
   {
@@ -419,5 +423,6 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     protected static transient final Logger logger = LoggerFactory.getLogger(CountersListener.class);
   }
 
+  protected abstract Object getEventKey(INPUT event);
   private final static Logger logger = LoggerFactory.getLogger(AbstractDeduper.class);
 }

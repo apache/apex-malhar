@@ -26,15 +26,9 @@ public class BucketManagerImpl<T extends Bucketable> extends AbstractBucketManag
   }
 
   @Override
-  protected Object getEventKey(T event)
+  public long getBucketKeyFor(T event)
   {
-    return event.getEventKey();
-  }
-
-  @Override
-  protected BucketManagerImpl<T> getBucketManagerImpl()
-  {
-    return new BucketManagerImpl<T>();
+    return Math.abs(event.getEventKey().hashCode()) / noOfBuckets;
   }
 
 

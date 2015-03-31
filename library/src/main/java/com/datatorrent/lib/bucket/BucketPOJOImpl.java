@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.bucket;
 
-import java.util.List;
 
 public class BucketPOJOImpl extends AbstractBucket<SimpleEvent>
 {
@@ -25,45 +24,10 @@ public class BucketPOJOImpl extends AbstractBucket<SimpleEvent>
     super(requestedKey);
   }
 
-
-  /**
-   * Finds whether the bucket contains the event.
-   *
-   * @param event the {@link Bucketable} to search for in the bucket.
-   * @return true if bucket has the event; false otherwise.
-   */
-
   @Override
-  public boolean containsEvent(SimpleEvent event)
+  protected Object getEventKey(SimpleEvent event)
   {
-    if (unwrittenEvents != null && unwrittenEvents.containsKey(event.id)) {
-      return true;
-    }
-    return writtenEvents != null && writtenEvents.containsKey(event.id);
+    return event.getId();
   }
-
-  /*@Override
-  public boolean containsEvent(SimpleEvent event)
-  {
-    if (unwrittenEvents != null) {
-    //  for (String key: keys) {
-        if (!unwrittenEvents.containsKey(event.id)) {
-          return false;
-        }
-     // }
-      return true;
-
-    }
-    if (writtenEvents != null) {
-     // for (String key: keys) {
-         if (!writtenEvents.containsKey(event.id))  {
-          return false;
-        }
-      //}
-      return true;
-    }
-    return false;
-
-  }*/
 
 }

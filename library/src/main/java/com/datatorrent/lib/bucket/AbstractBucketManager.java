@@ -375,7 +375,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
       dirtyBuckets.put(bucketIdx, bucket);
     }
 
-    bucket.addNewEvent(getEventKey(event), writeEventKeysOnly ? null : event);
+    bucket.addNewEvent(bucket.getEventKey(event), writeEventKeysOnly ? null : event);
     if (recordStats) {
       bucketCounters.getCounter(CounterKeys.EVENTS_IN_MEMORY).increment();
     }
@@ -432,17 +432,8 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
     eventQueue.offer(bucketKey);
   }
 
-  @Override
-  public long getBucketKeyFor(T event)
-  {
-    return Math.abs(getEventKey(event).hashCode()) / noOfBuckets;
-  }
-
 
   protected abstract AbstractBucket<T> createBucket(long requestedKey);
-
-  protected abstract Object getEventKey(T event);
-  protected abstract AbstractBucketManager<T> getBucketManagerImpl();
 
 
 
@@ -504,9 +495,9 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   }
 
   @Override
-  public AbstractBucketManager<T> cloneWithProperties()
+  public AbstractBucketManager<T> cloneWithProperties() throws CloneNotSupportedException
   {
-    AbstractBucketManager<T> clone = getBucketManagerImpl();
+    AbstractBucketManager<T> clone = (AbstractBucketManager<T>)super.clone();
     copyPropertiesTo(clone);
     return clone;
   }

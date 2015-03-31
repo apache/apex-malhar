@@ -208,6 +208,14 @@ public abstract class AbstractBucket<T>
     return (int)(bucketKey ^ (bucketKey >>> 32));
   }
 
-  public abstract boolean containsEvent(T event);
+  public boolean containsEvent(T event)
+  {
+    if (unwrittenEvents != null && unwrittenEvents.containsKey(getEventKey(event))) {
+      return true;
+    }
+    return writtenEvents != null && writtenEvents.containsKey(getEventKey(event));
+  }
+
+  protected abstract Object getEventKey(T event);
 
 }

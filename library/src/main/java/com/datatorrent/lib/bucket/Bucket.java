@@ -23,20 +23,13 @@ public class Bucket<T extends Bucketable> extends AbstractBucket<T>
     super(requestedKey);
   }
 
-
-   /**
-   * Finds whether the bucket contains the event.
-   *
-   * @param event the {@link Bucketable} to search for in the bucket.
-   * @return true if bucket has the event; false otherwise.
-   */
   @Override
-  public boolean containsEvent(T event)
+  protected Object getEventKey(T event)
   {
-    if (unwrittenEvents != null && unwrittenEvents.containsKey(event.getEventKey())) {
-      return true;
-    }
-    return writtenEvents != null && writtenEvents.containsKey(event.getEventKey());
+    return event.getEventKey();
   }
+
+
+
 
 }

@@ -21,7 +21,7 @@ package com.datatorrent.lib.bucket;
  * @param <T>
  * @since 0.9.4
  */
-public  class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketManagerImpl<SimpleEvent>
+public final  class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketManagerImpl<SimpleEvent>
 {
   @Override
   protected BucketPOJOImpl createBucket(long requestedKey)
@@ -34,17 +34,4 @@ public  class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketMana
   {
     return event.getHhmm();
   }
-
-  @Override
-  protected Object getEventKey(SimpleEvent event)
-  {
-    return event.getId();
-  }
-
-  @Override
-  protected TimeBasedBucketManagerPOJOImpl getBucketManagerImpl()
-  {
-    return new TimeBasedBucketManagerPOJOImpl();
-  }
-
 }

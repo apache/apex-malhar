@@ -100,9 +100,9 @@ public abstract class AbstractTimeBasedBucketManagerImpl<T> extends AbstractBuck
   }
 
   @Override
-  public AbstractTimeBasedBucketManagerImpl<T> cloneWithProperties()
+  public AbstractTimeBasedBucketManagerImpl<T> cloneWithProperties() throws CloneNotSupportedException
   {
-    AbstractTimeBasedBucketManagerImpl<T> clone = (AbstractTimeBasedBucketManagerImpl<T>)getBucketManagerImpl();
+    AbstractTimeBasedBucketManagerImpl<T> clone = (AbstractTimeBasedBucketManagerImpl<T>)super.clone();
     copyPropertiesTo(clone);
     clone.bucketSpanInMillis = bucketSpanInMillis;
     clone.startOfBucketsInMillis = startOfBucketsInMillis;
@@ -144,7 +144,7 @@ public abstract class AbstractTimeBasedBucketManagerImpl<T> extends AbstractBuck
   }
 
   @Override
-  public void startService(Listener listener)
+  public void startService(Listener<T> listener)
   {
     bucketSlidingTimer = new Timer();
     endOBucketsInMillis = expiryTime + (noOfBuckets * bucketSpanInMillis);
@@ -174,7 +174,7 @@ public abstract class AbstractTimeBasedBucketManagerImpl<T> extends AbstractBuck
     super.startService(listener);
   }
 
-   @Override
+  @Override
   public long getBucketKeyFor(T event)
   {
     long eventTime = getTime(event);
@@ -216,7 +216,7 @@ public abstract class AbstractTimeBasedBucketManagerImpl<T> extends AbstractBuck
       dirtyBuckets.put(bucketIdx, bucket);
     }
 
-    bucket.addNewEvent(getEventKey(event), writeEventKeysOnly ? null : event);
+    bucket.addNewEvent(bucket.getEventKey(event), writeEventKeysOnly ? null : event);
     bucketCounters.getCounter(BucketManager.CounterKeys.EVENTS_IN_MEMORY).increment();
 
     Long max = maxTimesPerBuckets[bucketIdx];
