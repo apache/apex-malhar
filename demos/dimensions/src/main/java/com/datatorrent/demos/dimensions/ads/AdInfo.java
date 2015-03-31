@@ -15,16 +15,19 @@
  */
 package com.datatorrent.demos.dimensions.ads;
 
-import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.io.Serializable;
+import org.apache.commons.lang3.time.DateUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -408,17 +411,19 @@ public class AdInfo implements Serializable, Cloneable
     {
       AdInfoAggregateEvent event = new AdInfoAggregateEvent(aggregatorIndex);
       if (time != null) {
-
         if(time.equals(TimeUnit.MINUTES)) {
-          event.timestamp = AdInfo.roundMinute(src.timestamp);
+          Date srcDate = new Date(src.timestamp - TimeUnit.MILLISECONDS.convert(30, TimeUnit.SECONDS));
+          event.timestamp = DateUtils.round(srcDate, Calendar.MINUTE).getTime();
           event.bucket = AdInfo.MINUTE_BUCKET;
         }
         else if(time.equals(TimeUnit.HOURS)) {
-          event.timestamp = AdInfo.roundHour(src.timestamp);
+          Date srcDate = new Date(src.timestamp - TimeUnit.MILLISECONDS.convert(30, TimeUnit.MINUTES));
+          event.timestamp = DateUtils.round(srcDate, Calendar.HOUR).getTime();
           event.bucket = AdInfo.HOUR_BUCKET;
         }
         else if(time.equals(TimeUnit.DAYS)) {
-          event.timestamp = AdInfo.roundDay(src.timestamp);
+          Date srcDate = new Date(src.timestamp - TimeUnit.MILLISECONDS.convert(12, TimeUnit.HOURS));
+          event.timestamp = DateUtils.round(srcDate, Calendar.DAY_OF_MONTH).getTime();
           event.bucket = AdInfo.DAY_BUCKET;
         }
       }

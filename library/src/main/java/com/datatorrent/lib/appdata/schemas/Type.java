@@ -19,21 +19,23 @@ import java.util.Set;
  */
 public enum Type
 {
-  BOOLEAN("boolean", JSONType.BOOLEAN, Boolean.class,
+  BOOLEAN("boolean", 1, JSONType.BOOLEAN, Boolean.class,
           Collections.unmodifiableSet(new HashSet<Type>())),
-  CHAR("char", JSONType.STRING, Character.class,
-       Collections.unmodifiableSet(new HashSet<Type>())),
-  DOUBLE("double", JSONType.NUMBER, Double.class,
+  STRING("string", -1, JSONType.STRING, String.class,
          Collections.unmodifiableSet(new HashSet<Type>())),
-  FLOAT("float", JSONType.NUMBER, Float.class,
+  CHAR("char", 2, JSONType.STRING, Character.class,
+       ImmutableSet.of(STRING)),
+  DOUBLE("double", 8, JSONType.NUMBER, Double.class,
+         Collections.unmodifiableSet(new HashSet<Type>())),
+  FLOAT("float", 4, JSONType.NUMBER, Float.class,
         ImmutableSet.of(DOUBLE)),
-  LONG("long", JSONType.NUMBER, Long.class,
+  LONG("long", 8, JSONType.NUMBER, Long.class,
        Collections.unmodifiableSet(new HashSet<Type>())),
-  INTEGER("integer", JSONType.NUMBER, Integer.class,
+  INTEGER("integer", 4, JSONType.NUMBER, Integer.class,
           ImmutableSet.of(LONG)),
-  SHORT("short", JSONType.NUMBER, Short.class,
+  SHORT("short", 2, JSONType.NUMBER, Short.class,
         ImmutableSet.of(INTEGER, LONG)),
-  BYTE("byte", JSONType.NUMBER, Byte.class,
+  BYTE("byte", 1, JSONType.NUMBER, Byte.class,
        ImmutableSet.of(SHORT, INTEGER, LONG));
 
   public static final Map<String, Type> NAME_TO_TYPE;
@@ -61,10 +63,16 @@ public enum Type
   private final JSONType jsonType;
   private final Class clazz;
   private final Set<Type> higherTypes;
+  private final int byteSize;
 
-  Type(String name, JSONType jsonType, Class clazz, Set<Type> higherTypes)
+  Type(String name,
+       int byteSize,
+       JSONType jsonType,
+       Class clazz,
+       Set<Type> higherTypes)
   {
     this.name = name;
+    this.byteSize = byteSize;
     this.jsonType = jsonType;
     this.clazz = clazz;
     this.higherTypes = higherTypes;
@@ -73,6 +81,11 @@ public enum Type
   public String getName()
   {
     return name;
+  }
+
+  public int getByteSize()
+  {
+    return byteSize;
   }
 
   public JSONType getJSONType()

@@ -24,10 +24,11 @@ import com.datatorrent.demos.twitter.schemas.TwitterOneTimeResult.TwitterData;
 import com.datatorrent.demos.twitter.schemas.TwitterSchemaResult;
 import com.datatorrent.demos.twitter.schemas.TwitterUpdateQuery;
 import com.datatorrent.demos.twitter.schemas.TwitterUpdateResult;
+import com.datatorrent.lib.appdata.qr.Data;
+import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
 import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
 import com.datatorrent.lib.appdata.qr.processor.WWEQueryQueueManager;
@@ -63,10 +64,10 @@ public class WindowedTopCounter<T> extends BaseOperator
   // Query Processing - Start
   //==========================================================================
 
-  private transient QueryProcessor<Query, Void, MutableLong, Void> queryProcessor;
+  private transient QueryProcessor<Query, Void, MutableLong, Void, Result> queryProcessor;
   @SuppressWarnings("unchecked")
-  private transient QueryDeserializerFactory queryDeserializerFactory;
-  private transient ResultSerializerFactory resultSerializerFactory;
+  private transient DataDeserializerFactory queryDeserializerFactory;
+  private transient DataSerializerFactory resultSerializerFactory;
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
   private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
 
@@ -106,7 +107,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     {
       logger.info("Received: {}", s);
 
-      Query query = queryDeserializerFactory.deserialize(s);
+      Data query = queryDeserializerFactory.deserialize(s);
 
       //Query was not parseable
       if(query == null) {
@@ -115,7 +116,7 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
 
       if(query instanceof SchemaQuery) {
-        String schemaResult = resultSerializerFactory.serialize(new TwitterSchemaResult(query));
+        String schemaResult = resultSerializerFactory.serialize(new TwitterSchemaResult((SchemaQuery) query));
         resultOutput.emit(schemaResult);
       }
       else if(query instanceof TwitterUpdateQuery) {
@@ -152,13 +153,13 @@ public class WindowedTopCounter<T> extends BaseOperator
 
 
     //Setup for query processing
-    queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void>(
+    queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void, Result>(
                      new WindowTopCounterComputer(),
                      new WWEQueryQueueManager<Query, Void>());
-    queryDeserializerFactory = new QueryDeserializerFactory(SchemaQuery.class,
+    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                             TwitterUpdateQuery.class,
                                                             TwitterOneTimeQuery.class);
-    resultSerializerFactory = new ResultSerializerFactory();
+    resultSerializerFactory = new DataSerializerFactory();
 
     queryProcessor.setup(context);
   }
@@ -247,7 +248,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     topCount = count;
   }
 
-  class WindowTopCounterComputer implements QueryComputer<Query, Void, MutableLong, Void>
+  class WindowTopCounterComputer implements QueryComputer<Query, Void, MutableLong, Void, Result>
   {
     @Override
     public Result processQuery(Query query, Void metaQuery, MutableLong queueContext, Void context)

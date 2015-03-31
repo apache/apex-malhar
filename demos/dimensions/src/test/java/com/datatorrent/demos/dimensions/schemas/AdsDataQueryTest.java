@@ -5,7 +5,10 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
-import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsKeys;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsTimeRangeBucket;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataQuery;
+import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -50,14 +53,14 @@ public class AdsDataQueryTest
                           "\"location\":\"" + location + "\"" +
                           "}" +
                           "}," +
-                        "\"countdown\":" + countdown + "," +
+                        "\"countdown\":\"" + countdown + "\"," +
                         "\"incompleteResultOK\":" + incompleteResultOK +
                           "}";
 
     logger.debug("Query: {}", json);
 
     @SuppressWarnings("unchecked")
-    QueryDeserializerFactory qb = new QueryDeserializerFactory(AdsDataQuery.class);
+    DataDeserializerFactory qb = new DataDeserializerFactory(AdsDataQuery.class);
     AdsDataQuery dq = (AdsDataQuery) qb.deserialize(json);
 
     Assert.assertEquals("Ids must equal.", id, dq.getId());
@@ -69,7 +72,7 @@ public class AdsDataQueryTest
     Assert.assertEquals("The bucket must match", bucket, trb.getBucket());
     Assert.assertEquals("The advertiser", advertiser, aks.getAdvertiser());
     Assert.assertEquals("The publisher", publisher, aks.getPublisher());
-    Assert.assertEquals("The countdown must equal", countdown, dq.getCountdown());
+    Assert.assertEquals("The countdown must equal", countdown, (Long) dq.getCountdown());
     Assert.assertEquals("The countdown must equal", incompleteResultOK, dq.getIncompleteResultOK());
   }
 }

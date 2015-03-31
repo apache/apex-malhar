@@ -6,7 +6,6 @@
 package com.datatorrent.lib.appdata.qr.processor;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.processor.QueueList.QueueListNode;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
@@ -16,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public abstract class AbstractWEQueryQueueManager<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT> implements QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
+public abstract class AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> implements QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {
   private static final Logger logger = LoggerFactory.getLogger(AbstractWEQueryQueueManager.class);
 
@@ -46,7 +45,12 @@ public abstract class AbstractWEQueryQueueManager<QUERY_TYPE extends Query, META
     QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueable =
     new QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>(query, metaQuery, context);
 
-    queryQueue.enqueue(new QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>>(queryQueueable));
+    QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> node = new QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>>(queryQueueable);
+
+    if(addingFilter(queryQueueable)) {
+      queryQueue.enqueue(node);
+      addedNode(node);
+    }
 
     return true;
   }
@@ -94,6 +98,7 @@ public abstract class AbstractWEQueryQueueManager<QUERY_TYPE extends Query, META
 
       if(removeBundle(queryQueueable)) {
         queryQueue.removeNode(currentNode);
+        removedNode(currentNode);
       }
       else {
         qq = currentNode.getPayload();
@@ -114,6 +119,9 @@ public abstract class AbstractWEQueryQueueManager<QUERY_TYPE extends Query, META
     return qq;
   }
 
+  public abstract boolean addingFilter(QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryBundle);
+  public abstract void addedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queryQueueable);
+  public abstract void removedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queryQueueable);
   public abstract boolean removeBundle(QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueable);
 
   @Override

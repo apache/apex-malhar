@@ -183,15 +183,8 @@
     </dependency>
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
-      <artifactId>jetty-server</artifactId>
-      <version>${jetty.version}</version>
-      <scope>test</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-servlet</artifactId>
       <version>${jetty.version}</version>
-      <scope>test</scope>
       <exclusions>
         <exclusion>
           <artifactId>javax.servlet</artifactId>
@@ -319,6 +312,11 @@
           <groupId>org.slf4j</groupId>
         </exclusion>
       </exclusions>
+    </dependency>
+    <dependency>
+      <groupId>it.unimi.dsi</groupId>
+      <artifactId>fastutil</artifactId>
+      <version>6.6.3</version>
     </dependency>
   </dependencies>
 

@@ -74,5 +74,4 @@ public class Application implements StreamingApplication
     dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, redis.input);
   }
-
 }

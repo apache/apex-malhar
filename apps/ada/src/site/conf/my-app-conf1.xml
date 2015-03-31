@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<configuration>
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>1024</value>
+  </property>
+  <property>
+    <name>dt.application.MyFirstApplication.operator.seedGen.prop.seedstart</name>
+    <value>10</value>
+  </property>
+  <property>
+    <name>dt.application.MyFirstApplication.operator.seedGen.prop.seedend</name>
+    <value>30</value>
+  </property>
+</configuration>

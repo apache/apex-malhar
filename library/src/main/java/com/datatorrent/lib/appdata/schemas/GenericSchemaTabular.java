@@ -36,6 +36,7 @@ public class GenericSchemaTabular implements GenericSchema
   private String schemaVersion;
 
   private Map<String, Type> valueToType;
+  private FieldsDescriptor valuesDescriptor;
 
   public GenericSchemaTabular(InputStream inputStream)
   {
@@ -65,11 +66,13 @@ public class GenericSchemaTabular implements GenericSchema
   {
     JSONObject schema = new JSONObject(schemaJSON);
 
-    Preconditions.checkState(schema.length() == NUM_KEYS_FIRST_LEVEL,
-                             "Expected "
-                             + NUM_KEYS_FIRST_LEVEL
-                             + " keys in the first level but found "
-                             + schema.length());
+    if(validate) {
+      Preconditions.checkState(schema.length() == NUM_KEYS_FIRST_LEVEL,
+                               "Expected "
+                               + NUM_KEYS_FIRST_LEVEL
+                               + " keys in the first level but found "
+                               + schema.length());
+    }
 
     schemaType = schema.getString(FIELD_SCHEMA_TYPE);
     schemaVersion = schema.getString(FIELD_SCHEMA_VERSION);
@@ -97,6 +100,7 @@ public class GenericSchemaTabular implements GenericSchema
     }
 
     valueToType = Collections.unmodifiableMap(valueToType);
+    valuesDescriptor = new FieldsDescriptor(valueToType);
   }
 
   private void setSchema(String schemaJSON)
@@ -126,5 +130,13 @@ public class GenericSchemaTabular implements GenericSchema
   public Map<String, Type> getFieldToType()
   {
     return valueToType;
+  }
+
+  /**
+   * @return the valuesDescriptor
+   */
+  public FieldsDescriptor getValuesDescriptor()
+  {
+    return valuesDescriptor;
   }
 }

@@ -32,9 +32,13 @@ import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import java.net.URI;
+
 import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * An AdsDimensionsDemo run with HDHT
@@ -115,12 +119,17 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name=ApplicationWithHDHT.APP_NAME)
 public class ApplicationWithHDHT implements StreamingApplication
 {
+  private static final Logger logger = LoggerFactory.getLogger(ApplicationWithHDHT.class);
+
   public static final String APP_NAME = "AdsDimensionsDemoWithHDHTtest";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
+  public static final String PROP_STORE_PATH = "dt.application." + ApplicationWithHDHT.APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
+    //Append name to store
+
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputation<AdInfo, AdInfo.AdInfoAggregateEvent>());
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
@@ -161,6 +170,15 @@ public class ApplicationWithHDHT implements StreamingApplication
 
     AdsDimensionStoreOperator store = dag.addOperator("Store", AdsDimensionStoreOperator.class);
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
+
+    String basePath = conf.get(PROP_STORE_PATH);
+
+    if(basePath != null) {
+      basePath += System.currentTimeMillis();
+      hdsFile.setBasePath(basePath);
+      System.out.println("Setting basePath " + basePath);
+    }
+
     store.setFileStore(hdsFile);
     store.setAggregator(new AdInfoAggregator());
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
@@ -191,6 +209,5 @@ public class ApplicationWithHDHT implements StreamingApplication
     dag.addStream("Query", queryPort, store.query);
     dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }
-
 }
 

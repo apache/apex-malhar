@@ -12,15 +12,12 @@ import javax.validation.constraints.NotNull;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class Query
+public class Query extends Data
 {
   public static final String FIELD_ID = "id";
-  public static final String FIELD_TYPE = "type";
 
   @NotNull
   private String id;
-  @NotNull
-  private String type;
 
   public Query()
   {
@@ -30,9 +27,7 @@ public class Query
                String type)
   {
     Preconditions.checkNotNull(id);
-    Preconditions.checkNotNull(type);
     this.id = id;
-    this.type = type;
   }
 
   /**
@@ -51,25 +46,10 @@ public class Query
     this.id = id;
   }
 
-  /**
-   * @return the type
-   */
-  public String getType()
-  {
-    return type;
-  }
-
-  /**
-   * @param type the type to set
-   */
-  public void setType(String type)
-  {
-    this.type = type;
-  }
 
   @Override
   public String toString()
   {
-    return "Query{" + "id=" + id + ", type=" + type + '}';
+    return "Query{" + "id=" + id + ", type=" + getType() + '}';
   }
 }

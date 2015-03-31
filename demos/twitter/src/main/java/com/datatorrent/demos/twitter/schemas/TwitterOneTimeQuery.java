@@ -5,10 +5,10 @@
 
 package com.datatorrent.demos.twitter.schemas;
 
-import com.datatorrent.lib.appdata.qr.QRType;
+import com.datatorrent.lib.appdata.qr.DataType;
 import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
+import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
+import com.datatorrent.lib.appdata.qr.SimpleDataDeserializer;
 
 import java.util.List;
 
@@ -16,8 +16,8 @@ import java.util.List;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@QRType(type=TwitterOneTimeQuery.TYPE)
-@QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
+@DataType(type=TwitterOneTimeQuery.TYPE)
+@DataDeserializerInfo(clazz=SimpleDataDeserializer.class)
 public class TwitterOneTimeQuery extends Query
 {
   public static final String TYPE = "oneTimeQuery";

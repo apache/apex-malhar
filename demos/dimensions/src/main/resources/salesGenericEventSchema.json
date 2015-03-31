@@ -1,0 +1,27 @@
+{"keys":
+  [{"name":"channel","type":"string"},
+   {"name":"region","type":"string"},
+   {"name":"customer","type":"string"},
+   {"name":"product","type":"string"}],
+ "values":
+  [{"name":"amount","type":"double","aggregations":["SUM"]},
+   {"name":"discount","type":"double","aggregations":["SUM"]},
+   {"name":"tax","type":"double","aggregations":["SUM"]}],
+ "aggregations":
+  [{"descriptor":"time=MINUTES","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:channel","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:region","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:customer","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:product","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:channel:region","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:channel:customer","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:channel:product","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:region:customer","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:region:product","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:customer:product","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:channel:region:customer","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:channel:region:product","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:channel:customer:product","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:region:customer:product","aggregations":["SUM"]},
+   {"descriptor":"time=MINUTES:channel:region:customer:product","aggregations":["SUM"]}]
+}

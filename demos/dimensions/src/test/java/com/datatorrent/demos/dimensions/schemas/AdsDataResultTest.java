@@ -5,8 +5,9 @@
 
 package com.datatorrent.demos.dimensions.schemas;
 
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataResult;
 import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -79,7 +80,7 @@ public class AdsDataResultTest
     adr.setData(auds);
     adr.setCountdown(countdown);
 
-    ResultSerializerFactory rsf = new ResultSerializerFactory();
+    DataSerializerFactory rsf = new DataSerializerFactory();
 
     String jsonResult = rsf.serialize(adr);
 

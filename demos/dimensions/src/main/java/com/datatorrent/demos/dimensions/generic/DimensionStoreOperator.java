@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.AppDataResultPort;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
-import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

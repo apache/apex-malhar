@@ -6,14 +6,14 @@
 package com.datatorrent.lib.appdata.qr.processor;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.qr.Query;
+
 import java.util.LinkedList;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SimpleQueryQueueManager<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT>
+public class SimpleQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
                       implements QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {
   private LinkedList<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queue =

@@ -25,18 +25,18 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregateEvent;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
-import com.datatorrent.demos.dimensions.schemas.AdsDataQuery;
-import com.datatorrent.demos.dimensions.schemas.AdsDataResult;
-import com.datatorrent.demos.dimensions.schemas.AdsKeys;
-import com.datatorrent.demos.dimensions.schemas.AdsSchemaResult;
-import com.datatorrent.demos.dimensions.schemas.AdsTimeRangeBucket;
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataQuery;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsDataResult;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsKeys;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
+import com.datatorrent.demos.dimensions.ads.schemas.AdsTimeRangeBucket;
+import com.datatorrent.lib.appdata.qr.Data;
+import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.ResultSerializerFactory;
+import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.qr.processor.WWEQueryQueueManager;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.collect.Lists;
@@ -88,7 +88,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     {
       LOG.info("Received: {}", s);
 
-      Query query = queryDeserializerFactory.deserialize(s);
+      Data query = queryDeserializerFactory.deserialize(s);
 
       //Query was not parseable
       if(query == null) {
@@ -97,12 +97,14 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
       }
 
       if(query instanceof SchemaQuery) {
-        LOG.info("Received schemaquery.");
-        String schemaResult = resultSerializerFactory.serialize(new AdsSchemaResult(query));
+        AdsSchemaResult adsSchemaResult = new AdsSchemaResult((SchemaQuery) query);
+        adsSchemaResult.getData().getTimeBuckets().setFrom(sdf.format(new Date(minTimestamp)));
+        adsSchemaResult.getData().getTimeBuckets().setTo(sdf.format(new Date(maxTimestamp)));
+        String schemaResult = resultSerializerFactory.serialize(adsSchemaResult);
         queryResult.emit(schemaResult);
       }
       else if(query instanceof AdsDataQuery) {
-        LOG.info("Received AdsDataQuery");
+        AdsDataQuery adsDataQuery = (AdsDataQuery) query;
         queryProcessor.enqueue((AdsDataQuery) query, null, null);
       }
       /*else if(query instanceof AdsOneTimeQuery) {
@@ -127,15 +129,17 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   private transient ObjectMapper mapper = null;
   //The default number of buckets to output for an updateQuery.
   private long defaultTimeWindow = 20;
+  private long minTimestamp = Long.MAX_VALUE;
+  private long maxTimestamp = Long.MIN_VALUE;
 
   //==========================================================================
   // Query Processing - Start
   //==========================================================================
 
-  private transient QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean> queryProcessor;
+  private transient QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   @SuppressWarnings("unchecked")
-  private transient QueryDeserializerFactory queryDeserializerFactory;
-  private transient ResultSerializerFactory resultSerializerFactory;
+  private transient DataDeserializerFactory queryDeserializerFactory;
+  private transient DataSerializerFactory resultSerializerFactory;
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
   private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
 
@@ -192,6 +196,14 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   @Override
   protected void processEvent(AdInfoAggregateEvent event) throws IOException
   {
+    if(event.getTimestamp() < minTimestamp) {
+      minTimestamp = event.getTimestamp();
+    }
+
+    if(event.getTimestamp() > maxTimestamp) {
+      maxTimestamp = event.getTimestamp();
+    }
+
     Map<AdInfoAggregateEvent, AdInfoAggregateEvent> valMap = cache.get(event.getTimestamp());
 
     if (valMap == null) {
@@ -223,12 +235,12 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
     //Setup for query processing
     queryProcessor =
-    new QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean>(
+    new QueryProcessor<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean, Result>(
                                                   new AdsQueryComputer(this),
                                                   new AdsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
-    queryDeserializerFactory = new QueryDeserializerFactory(SchemaQuery.class,
+    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                             AdsDataQuery.class);
-    resultSerializerFactory = new ResultSerializerFactory();
+    resultSerializerFactory = new DataSerializerFactory();
 
     queryProcessor.setup(context);
   }
@@ -259,13 +271,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         }
       }
     }
-
-    /*for(Long timestamp: hourCache.keySet()) {
-      String startString = AdsTimeRangeBucket.sdf.format(new Date(timestamp));
-
-      LOG.info("Hour cache key {}", startString);
-
-    }*/
 
     MutableBoolean done = new MutableBoolean(false);
 
@@ -315,8 +320,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     keybb.putInt(event.getBucket());
     keybb.rewind();
     keybb.get(data);
-    //LOG.debug("Value: {}", event);
-    //LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
     return data;
   }
 
@@ -338,7 +341,6 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     valbb.putDouble(event.revenue);
     valbb.rewind();
     valbb.get(data);
-    //LOG.debug("Key: {}", DatatypeConverter.printHexBinary(data));
     return data;
   }
 
@@ -457,7 +459,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
   // Query Processing Classes - Start
   //==========================================================================
 
-  class AdsQueryQueueManager extends WWEQueryQueueManager<AdsDataQuery, AdsQueryMeta>
+  class AdsQueryQueueManager extends AppDataWWEQueryQueueManager<AdsDataQuery, AdsQueryMeta>
   {
     private AdsDimensionStoreOperator operator;
     private int queueWindowCount;
@@ -494,17 +496,14 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
         endTime = atrb.getToLong();
 
         if(bucket == AdInfo.MINUTE_BUCKET) {
-          LOG.info("Minute bucket");
           startTime = AdInfo.roundMinute(startTime);
           endTime = AdInfo.roundMinute(endTime);
         }
         else if(bucket == AdInfo.HOUR_BUCKET) {
-          LOG.info("Hour bucket");
           startTime = AdInfo.roundHour(startTime);
           endTime = AdInfo.roundHour(endTime);
         }
         else if(bucket == AdInfo.DAY_BUCKET) {
-          LOG.info("Day bucket");
           startTime = AdInfo.roundDay(startTime);
           endTime = AdInfo.roundDay(endTime);
         }
@@ -526,13 +525,13 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           endTime = AdInfo.roundDay(time);
         }
 
-        startTime = endTime - bucketUnit.toMillis(query.getData().getTime().getLatestNumBuckets());
+        startTime = endTime - bucketUnit.toMillis(query.getData().getTime().getLatestNumBuckets() - 1);
       }
 
       String startString = AdsTimeRangeBucket.sdf.format(new Date(startTime));
       String endString = AdsTimeRangeBucket.sdf.format(new Date(endTime));
 
-      LOG.info("start {}, end {}", startString, endString);
+      LOG.debug("start {}, end {}", startString, endString);
 
       ae.setTimestamp(startTime);
       ae.adUnit = aks.getLocationId();
@@ -570,7 +569,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
           }
         }
 
-        hdsQuery.keepAliveCount = query.getCountdown().intValue();
+        hdsQuery.keepAliveCount = (int) query.getCountdown();
         hdsQueries.add(hdsQuery);
       }
 
@@ -583,7 +582,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     }
   }
 
-  class AdsQueryComputer implements QueryComputer<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean>
+  class AdsQueryComputer implements QueryComputer<AdsDataQuery, AdsQueryMeta, MutableLong, MutableBoolean, Result>
   {
     private AdsDimensionStoreOperator operator;
 
@@ -595,7 +594,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
     @Override
     public Result processQuery(AdsDataQuery query, AdsQueryMeta adsQueryMeta, MutableLong queueContext, MutableBoolean context)
     {
-      LOG.info("Processing query {}", query);
+      LOG.debug("Processing query {}", query);
       AdsDataResult result = null;
 
       Set<String> fieldSet = null;

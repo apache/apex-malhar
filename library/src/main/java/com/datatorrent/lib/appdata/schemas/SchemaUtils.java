@@ -12,6 +12,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.apache.commons.io.IOUtils;
 
+import java.util.Date;
+
 
 
 /**
@@ -24,6 +26,21 @@ public class SchemaUtils
 
   private SchemaUtils()
   {
+  }
+
+  public static String getDateString(long time)
+  {
+    return sdf.format(new Date(time));
+  }
+
+  public static long getLong(String date)
+  {
+    try {
+      return sdf.parse(date).getTime();
+    }
+    catch(ParseException ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   public static String inputStreamToString(InputStream inputStream)
@@ -48,5 +65,17 @@ public class SchemaUtils
     catch(ParseException ex) {
       throw new RuntimeException(ex);
     }
+  }
+
+  public static boolean checkDate(String date)
+  {
+    try {
+      checkDateEx(date);
+    }
+    catch(Exception e) {
+      return false;
+    }
+
+    return true;
   }
 }

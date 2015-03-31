@@ -77,7 +77,7 @@ public class GenericSchemaWithTime extends GenericSchemaTabular
       toSpecified = false;
     }
 
-    JSONArray bucketArray = schema.getJSONArray(FIELD_TIME_BUCKETS);
+    JSONArray bucketArray = time.getJSONArray(FIELD_TIME_BUCKETS);
 
     Preconditions.checkState(!(fromSpecified ^ toSpecified),
                              "Either both the from and to fields must be specified or none.");

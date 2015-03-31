@@ -5,7 +5,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.CustomResultSerializer;
+import com.datatorrent.lib.appdata.qr.CustomDataSerializer;
 import com.datatorrent.lib.appdata.qr.Result;
 
 
@@ -13,7 +13,7 @@ import com.datatorrent.lib.appdata.qr.Result;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GenericSchemaSerializer implements CustomResultSerializer
+public class GenericSchemaSerializer implements CustomDataSerializer
 {
   public GenericSchemaSerializer()
   {

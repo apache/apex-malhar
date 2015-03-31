@@ -23,7 +23,7 @@ public class QueryProcessorTest
   {
     final int numQueries = 3;
 
-    QueryProcessor<Query, Void, Void, Void> queryProcessor = new QueryProcessor<Query, Void, Void, Void>(new SimpleQueryComputer());
+    QueryProcessor<Query, Void, Void, Void, Result> queryProcessor = new QueryProcessor<Query, Void, Void, Void, Result>(new SimpleQueryComputer());
 
     queryProcessor.setup(null);
     queryProcessor.beginWindow(0);
@@ -56,7 +56,7 @@ public class QueryProcessorTest
     }
   }
 
-  public static class SimpleQueryComputer implements QueryComputer<Query, Void, Void, Void>
+  public static class SimpleQueryComputer implements QueryComputer<Query, Void, Void, Void, Result>
   {
     public SimpleQueryComputer()
     {

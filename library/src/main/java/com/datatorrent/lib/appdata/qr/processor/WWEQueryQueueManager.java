@@ -5,7 +5,6 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.processor.QueueList.QueueListNode;
 import org.apache.commons.lang3.mutable.MutableLong;
 
@@ -13,7 +12,7 @@ import org.apache.commons.lang3.mutable.MutableLong;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class WWEQueryQueueManager<QUERY_TYPE extends Query, META_QUERY> extends AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, MutableLong>
+public class WWEQueryQueueManager<QUERY_TYPE, META_QUERY> extends AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, MutableLong>
 {
   public WWEQueryQueueManager()
   {
@@ -35,5 +34,23 @@ public class WWEQueryQueueManager<QUERY_TYPE extends Query, META_QUERY> extends 
       MutableLong qc = tempNode.getPayload().getQueueContext();
       qc.decrement();
     }
+  }
+
+  @Override
+  public void addedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, MutableLong>> queryQueueable)
+  {
+    //Do nothing
+  }
+
+  @Override
+  public void removedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, MutableLong>> queryQueueable)
+  {
+    //Do nothing
+  }
+
+  @Override
+  public boolean addingFilter(QueryBundle<QUERY_TYPE, META_QUERY, MutableLong> queryBundle)
+  {
+    return true;
   }
 }

@@ -5,7 +5,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.QueryDeserializerFactory;
+import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class SchemaQueryTest
 
 
     @SuppressWarnings("unchecked")
-    QueryDeserializerFactory qb = new QueryDeserializerFactory(SchemaQuery.class);
+    DataDeserializerFactory qb = new DataDeserializerFactory(SchemaQuery.class);
 
     SchemaQuery schemaQuery = (SchemaQuery) qb.deserialize(schemaQueryJSON);
 

@@ -6,13 +6,14 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import java.io.InputStream;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,18 +30,19 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
   public static final String FIELD_KEYS = "keys";
   public static final String FIELD_KEY_NAME = "name";
   public static final String FIELD_KEY_VALS = "enumValues";
+  public static final String FIELD_KEY_TYPE = "type";
+
+  public static final String EXTRA_FIELD_NAME_TIME = "time";
+  public static final Type EXTRA_FIELD_TYPE_TIME = Type.STRING;
 
   private Map<String, Type> keyToType = Maps.newHashMap();
   private Map<String, Set<Object>> keyToValues = Maps.newHashMap();
-
-  public GenericSchemaDimensional(InputStream inputStream)
-  {
-    this(SchemaUtils.inputStreamToString(inputStream));
-  }
+  private Map<String, List<Object>> keyToValuesList = Maps.newHashMap();
+  private FieldsDescriptor keyFieldsDescriptor;
 
   public GenericSchemaDimensional(String schemaJSON)
   {
-    this(schemaJSON, true);
+    this(schemaJSON, false);
   }
 
   public GenericSchemaDimensional(String schemaJSON, boolean validate)
@@ -67,8 +69,8 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
         index < keys.length();
         index++) {
       JSONObject keyVal = keys.getJSONObject(index);
-
-      Preconditions.checkState(keyVal.length() != NUM_KEYS_KEY,
+      System.out.println("KeyVal: " + keyVal.toString());
+      Preconditions.checkState(keyVal.length() == NUM_KEYS_KEY,
                                "Expected " + NUM_KEYS_KEY +
                                " in the key definition, but found " + keyVal.length());
 
@@ -106,6 +108,7 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
 
       //Load the data into a set
       Set<Object> vals = Sets.newHashSet();
+      List<Object> valsList = Lists.newArrayList();
 
       for(int valIndex = 0;
           valIndex < valArray.length();
@@ -116,16 +119,22 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
 
         Preconditions.checkState(vals.add(promotedVal),
                                  "Duplicate value: " + promotedVal);
+
+        valsList.add(val);
       }
 
       vals = Collections.unmodifiableSet(vals);
+      valsList = Collections.unmodifiableList(valsList);
 
-      getKeyToType().put(keyName, maxType);
-      getKeyToValues().put(keyName, vals);
+      keyToType.put(keyName, maxType);
+      keyToValues.put(keyName, vals);
+      keyToValuesList.put(keyName, valsList);
     }
 
     keyToType = Collections.unmodifiableMap(getKeyToType());
     keyToValues = Collections.unmodifiableMap(getKeyToValues());
+    keyToValuesList = Collections.unmodifiableMap(getKeyToValuesList());
+    keyFieldsDescriptor = new FieldsDescriptor(keyToType);
   }
 
   /**
@@ -142,5 +151,18 @@ public class GenericSchemaDimensional extends GenericSchemaWithTime
   public Map<String, Set<Object>> getKeyToValues()
   {
     return keyToValues;
+  }
+
+  public Map<String, List<Object>> getKeyToValuesList()
+  {
+    return keyToValuesList;
+  }
+
+  /**
+   * @return the keyFieldsDescriptor
+   */
+  public FieldsDescriptor getKeyFieldsDescriptor()
+  {
+    return keyFieldsDescriptor;
   }
 }

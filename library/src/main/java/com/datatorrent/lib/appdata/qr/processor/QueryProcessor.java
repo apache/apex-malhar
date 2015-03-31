@@ -7,8 +7,6 @@ package com.datatorrent.lib.appdata.qr.processor;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.Result;
 import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,47 +15,47 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> implements Operator
+public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
 
-  private QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer;
+  private QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer;
   private QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager;
-  private QueryResultCacheManager<QUERY_TYPE, META_QUERY> queryResultCacheManager;
+  private QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager;
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer)
+  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer)
   {
     setQueryComputer(queryComputer);
     queryQueueManager = new SimpleQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>();
-    queryResultCacheManager = new NOPQueryResultCacheManager<QUERY_TYPE, META_QUERY>();
+    queryResultCacheManager = new NOPQueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT>();
   }
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer,
+  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
                         QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
   {
     setQueryComputer(queryComputer);
     setQueryQueueManager(queryQueueManager);
-    queryResultCacheManager = new NOPQueryResultCacheManager<QUERY_TYPE, META_QUERY>();
+    queryResultCacheManager = new NOPQueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT>();
   }
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer,
-                        QueryResultCacheManager<QUERY_TYPE, META_QUERY> queryResultCacheManager)
+  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
+                        QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager)
   {
     setQueryComputer(queryComputer);
     setQueryResultCacheManager(queryResultCacheManager);
     queryQueueManager = new SimpleQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>();
   }
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer,
+  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
                         QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager,
-                        QueryResultCacheManager<QUERY_TYPE, META_QUERY> queryResultCacheManager)
+                        QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager)
   {
     setQueryComputer(queryComputer);
     setQueryQueueManager(queryQueueManager);
     setQueryResultCacheManager(queryResultCacheManager);
   }
 
-  private void setQueryComputer(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT> queryComputer)
+  private void setQueryComputer(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer)
   {
     Preconditions.checkNotNull(queryComputer);
     this.queryComputer = queryComputer;
@@ -69,7 +67,7 @@ public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT,
     this.queryQueueManager = queryQueueManager;
   }
 
-  private void setQueryResultCacheManager(QueryResultCacheManager<QUERY_TYPE, META_QUERY> queryResultCacheManager)
+  private void setQueryResultCacheManager(QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager)
   {
     Preconditions.checkNotNull(queryResultCacheManager);
     this.queryResultCacheManager = queryResultCacheManager;
@@ -80,7 +78,7 @@ public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT,
     return queryQueueManager.enqueue(query, metaQuery, queueContext);
   }
 
-  public Result process(COMPUTE_CONTEXT context)
+  public RESULT process(COMPUTE_CONTEXT context)
   {
     QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryBundle = queryQueueManager.dequeue();
 
@@ -89,7 +87,7 @@ public class QueryProcessor<QUERY_TYPE extends Query, META_QUERY, QUEUE_CONTEXT,
       return null;
     }
 
-    Result result = queryResultCacheManager.getResult(queryBundle.getQuery(),
+    RESULT result = queryResultCacheManager.getResult(queryBundle.getQuery(),
                                                       queryBundle.getMetaQuery());
 
     if(result != null) {

@@ -5,17 +5,17 @@
 
 package com.datatorrent.demos.twitter.schemas;
 
-import com.datatorrent.lib.appdata.qr.QRType;
-import com.datatorrent.lib.appdata.qr.QueryDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.SimpleQueryDeserializer;
+import com.datatorrent.lib.appdata.qr.DataType;
+import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
+import com.datatorrent.lib.appdata.qr.SimpleDataDeserializer;
 
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@QRType(type=TwitterUpdateQuery.TYPE)
-@QueryDeserializerInfo(clazz=SimpleQueryDeserializer.class)
+@DataType(type=TwitterUpdateQuery.TYPE)
+@DataDeserializerInfo(clazz=SimpleDataDeserializer.class)
 public class TwitterUpdateQuery extends TwitterOneTimeQuery
 {
   public static final String TYPE = "updateQuery";
