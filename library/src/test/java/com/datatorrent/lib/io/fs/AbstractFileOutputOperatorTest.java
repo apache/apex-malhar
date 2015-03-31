@@ -21,6 +21,10 @@ import java.util.*;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import javax.crypto.Cipher;
+import javax.crypto.CipherOutputStream;
+import javax.crypto.SecretKey;
+import javax.crypto.spec.SecretKeySpec;
 import javax.validation.ConstraintViolationException;
 
 import com.google.common.collect.Maps;
@@ -32,7 +36,6 @@ import org.junit.Test;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -40,13 +43,13 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.fs.FilterStreamCodecContext.CipherFilterStreamContext;
+import com.datatorrent.lib.io.fs.FilterStreamProvider.FilterChainStreamProvider;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
-
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.StreamingApplication;
-
 import com.datatorrent.common.util.DTThrowable;
 
 public class AbstractFileOutputOperatorTest
@@ -108,6 +111,25 @@ public class AbstractFileOutputOperatorTest
     {
       return (tuple.toString() + "\n").getBytes();
     }
+  }
+  
+  private static class FileOutputOperator extends AbstractFileOutputOperator<String>
+  {
+
+    private static final String OUTPUT_FILENAME = "encrypted.txt";
+
+    @Override
+    protected String getFileName(String tuple)
+    {
+      return OUTPUT_FILENAME;
+    }
+
+    @Override
+    protected byte[] getBytesForTuple(String tuple)
+    {
+      return tuple.getBytes();
+    }
+
   }
 
   /**
@@ -1648,6 +1670,65 @@ public class AbstractFileOutputOperatorTest
     }
     Assert.assertEquals("Part file names", fileNames, getFileNames(files));
     writer.teardown();
+  }
+  
+  private byte[] getKey() throws Exception
+  {
+    String homeDir = System.getProperty("user.home");
+    File keyFile = new File(homeDir+"/temp/key.txt");
+    FileInputStream in = new FileInputStream(keyFile);
+    byte[] key = new byte[16];
+    in.read(key);
+    in.close();
+    return key;
+  }
+
+  @Test
+  public void testProviders() throws Exception
+  {
+    String homeDir = System.getProperty("user.home");
+    FileOutputOperator writer = new FileOutputOperator();
+    FilterChainStreamProvider providers = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
+    FilterStreamProvider<GZIPOutputStream, OutputStream> gzipStream = new FilterStreamProvider<GZIPOutputStream, OutputStream>() {
+
+      @Override
+      public FilterStreamContext<GZIPOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
+      {
+        return new FilterStreamCodecContext.GZIPFilterStreamContext(outputStream);
+      }
+    };
+    final Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+
+    SecretKey secret = new SecretKeySpec(getKey(), "AES");
+
+    cipher.init(Cipher.ENCRYPT_MODE, secret);
+    FilterStreamProvider<CipherOutputStream, OutputStream> cipherStream = new FilterStreamProvider<CipherOutputStream, OutputStream>() {
+
+      @Override
+      public FilterStreamContext<CipherOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
+      {
+        CipherFilterStreamContext cipherContext = new FilterStreamCodecContext.CipherFilterStreamContext(outputStream, cipher);
+        return cipherContext;
+      }
+
+    };
+    // providers.addStreamProvider(gzipStream);
+    providers.addStreamProvider(cipherStream);
+    writer.setFilterStreamProvider(providers);
+
+    writer.setFilePath(homeDir + "/temp");
+    writer.setup(testOperatorContext);
+
+    writer.beginWindow(0);
+    writer.input.put("hi ");
+    writer.input.put("let's try to put some bigger size data ");
+    // writer.endWindow();
+    writer.input.put("which crosses boundry of 16 bytes");
+    writer.endWindow();
+
+    // writer.teardown();
+
+    // TestUtils.clone(new Kryo(), writer);
   }
   
   @Test

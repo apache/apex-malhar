@@ -37,7 +37,7 @@ public class FilterStreamCodecContext
     {
       filterStream = new GZIPOutputStream(outputStream);
     }
-    
+
     @Override
     public void finalizeContext() throws IOException
     {
@@ -62,6 +62,12 @@ public class FilterStreamCodecContext
     public CipherFilterStreamContext(OutputStream outputStream) throws IOException
     {
       filterStream = new CipherOutputStream(outputStream, cipher);
+    }
+
+    public CipherFilterStreamContext(OutputStream outputStream, Cipher cipher)
+    {
+      this.cipher = cipher;
+      filterStream = new CipherOutputStream(outputStream, this.cipher);
     }
 
   }
