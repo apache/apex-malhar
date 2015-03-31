@@ -16,7 +16,7 @@
 package com.datatorrent.lib.bucket;
 
 
-public class BucketPOJOImpl extends AbstractBucket<SimpleEvent>
+public final class BucketPOJOImpl extends AbstractBucket<SimpleEvent>
 {
 
   protected BucketPOJOImpl(long bucketKey)

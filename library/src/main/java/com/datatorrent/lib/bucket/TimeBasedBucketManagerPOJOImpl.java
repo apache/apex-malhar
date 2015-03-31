@@ -18,7 +18,6 @@ package com.datatorrent.lib.bucket;
 /**
  * A {@link BucketManager} that creates buckets based on time.<br/>
  *
- * @param <T>
  * @since 0.9.4
  */
 public final  class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketManagerImpl<SimpleEvent>

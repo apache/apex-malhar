@@ -83,7 +83,6 @@ public interface BucketManager<T>
    * -ve values indicate invalid event.
    *
    * @param event event
-   * @param eventKey
    * @return bucket key for event.
    */
   long getBucketKeyFor(T event);
@@ -141,6 +140,7 @@ public interface BucketManager<T>
    * Constructs a new {@link BucketManager} with only the settings and not the data.
    *
    * @return newly created manager without any data.
+   * @throws java.lang.CloneNotSupportedException
    */
   BucketManager<T> cloneWithProperties() throws CloneNotSupportedException;
 

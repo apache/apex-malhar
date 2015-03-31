@@ -15,30 +15,36 @@
  */
 package com.datatorrent.lib.dedup;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.*;
-import com.datatorrent.api.StatsListener.BatchedOperatorStats;
-import com.datatorrent.api.StatsListener.Response;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.bucket.AbstractBucket;
-import com.datatorrent.lib.bucket.BucketManager;
-import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
-import com.datatorrent.lib.counters.BasicCounters;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
-import java.util.logging.Level;
+
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.lang.mutable.MutableLong;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableLong;
+
+import com.datatorrent.lib.bucket.AbstractBucket;
+import com.datatorrent.lib.bucket.BucketManager;
+import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
+import com.datatorrent.lib.counters.BasicCounters;
+
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.StatsListener.BatchedOperatorStats;
+import com.datatorrent.api.StatsListener.Response;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
+import com.datatorrent.common.util.DTThrowable;
 
 
 public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, BucketManager.Listener<INPUT>, Operator.IdleTimeHandler, Partitioner<AbstractDeduper<INPUT, OUTPUT>>
@@ -383,7 +389,6 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
   {
     return "Deduper{" + "partitionKeys=" + partitionKeys + ", partitionMask=" + partitionMask + '}';
   }
-
 
   public static enum CounterKeys
   {
