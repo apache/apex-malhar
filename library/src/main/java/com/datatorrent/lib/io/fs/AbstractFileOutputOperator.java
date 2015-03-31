@@ -16,8 +16,9 @@
 
 package com.datatorrent.lib.io.fs;
 
+import java.io.FilterOutputStream;
 import java.io.IOException;
-
+import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -29,11 +30,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Strings;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
+import com.google.common.cache.*;
 import com.google.common.collect.Maps;
 
 import org.slf4j.Logger;
@@ -42,15 +39,8 @@ import org.slf4j.LoggerFactory;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.FSDataInputStream;
-import org.apache.hadoop.fs.FSDataOutputStream;
-import org.apache.hadoop.fs.FileContext;
-import org.apache.hadoop.fs.FileStatus;
-import org.apache.hadoop.fs.FileSystem;
-import org.apache.hadoop.fs.LocalFileSystem;
-import org.apache.hadoop.fs.Options;
-import org.apache.hadoop.fs.Path;
-import org.apache.hadoop.fs.RawLocalFileSystem;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.permission.FsPermission;
 
 import com.datatorrent.lib.counters.BasicCounters;
 
@@ -60,7 +50,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.StreamCodec;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import org.apache.hadoop.fs.permission.FsPermission;
 
 /**
  * This base implementation for a fault tolerant HDFS output operator,
@@ -192,7 +181,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   /**
    * This is the cache which holds open file streams.
    */
-  protected transient LoadingCache<String, FSDataOutputStream> streamsCache;
+  protected transient LoadingCache<String, FSFilterStreamContext> streamsCache;
 
   /**
    * This is the operator context passed at setup.
@@ -215,6 +204,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * Number of windows since the last rotation
    */
   private int rotationCount;
+  
+  protected FilterStreamProvider filterStreamProvider;
 
   /**
    * This input port receives incoming tuples.
@@ -291,18 +282,20 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     LOG.debug("FS class {}", fs.getClass());
 
     //When an entry is removed from the cache, removal listener is notified and it closes the output stream.
-    RemovalListener<String, FSDataOutputStream> removalListener = new RemovalListener<String, FSDataOutputStream>()
+    RemovalListener<String, FSFilterStreamContext> removalListener = new RemovalListener<String, FSFilterStreamContext>()
     {
       @Override
-      public void onRemoval(RemovalNotification<String, FSDataOutputStream> notification)
+      public void onRemoval(RemovalNotification<String, FSFilterStreamContext> notification)
       {
-        FSDataOutputStream value = notification.getValue();
-        if (value != null) {
+        FSFilterStreamContext streamContext = notification.getValue();
+        if (streamContext != null) {
+          
+          //FilterOutputStream filterStream = streamContext.getFilterStream();
           try {
             LOG.debug("closing {}", notification.getKey());
-
             long start = System.currentTimeMillis();
-            value.close();
+            streamContext.close();
+            //filterStream.close();
             totalWritingTime += System.currentTimeMillis() - start;
           }
           catch (IOException e) {
@@ -313,10 +306,10 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     };
 
     //Define cache
-    CacheLoader<String, FSDataOutputStream> loader = new CacheLoader<String, FSDataOutputStream>()
+    CacheLoader<String, FSFilterStreamContext> loader = new CacheLoader<String, FSFilterStreamContext>()
     {
       @Override
-      public FSDataOutputStream load(String filename)
+      public FSFilterStreamContext load(String filename)
       {
         String partFileName = getPartFileNamePri(filename);
         Path lfilepath = new Path(filePath + Path.SEPARATOR + partFileName);
@@ -374,7 +367,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
           //Get the end offset of the file.
 
           LOG.info("opened: {}", fs.getFileStatus(lfilepath).getPath());
-          return fsOutput;
+          return new FSFilterStreamContext(fsOutput);
         }
         catch (IOException e) {
           throw new RuntimeException(e);
@@ -488,12 +481,14 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     IOException savedException = null;
 
     //Close all the streams you can
-    Map<String, FSDataOutputStream> openStreams = streamsCache.asMap();
+    Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
     for(String seenFileName: openStreams.keySet()) {
-      FSDataOutputStream outputStream = openStreams.get(seenFileName);
+      //FilterOutputStream filterStream = openStreams.get(seenFileName).getFilterStream();
+      FSFilterStreamContext fsFilterStreamContext = openStreams.get(seenFileName);
       try {
         long start = System.currentTimeMillis();
-        outputStream.close();
+        //filterStream.close();
+        fsFilterStreamContext.close();
         totalWritingTime += System.currentTimeMillis() - start;
       }
       catch (IOException ex) {
@@ -565,7 +560,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     }
 
     try {
-      FSDataOutputStream fsOutput = streamsCache.get(fileName);
+      FilterOutputStream fsOutput = streamsCache.get(fileName).getFilterStream();
       byte[] tupleBytes = getBytesForTuple(tuple);
       long start = System.currentTimeMillis();
       fsOutput.write(tupleBytes);
@@ -709,11 +704,12 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   public void endWindow()
   {
     try {
-      Map<String, FSDataOutputStream> openStreams = streamsCache.asMap();
-      for (FSDataOutputStream fsOutput : openStreams.values()) {
+      Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
+      for (FSFilterStreamContext streamContext: openStreams.values()) {
         long start = System.currentTimeMillis();
-        fsOutput.hflush();
+        streamContext.finalizeContext();
         totalWritingTime += System.currentTimeMillis() - start;
+        streamContext.resetFilter();
       }
     }
     catch (IOException e) {
@@ -866,6 +862,16 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     this.filePermission = filePermission;
   }
 
+  public FilterStreamProvider getFilterStreamProvider()
+  {
+    return filterStreamProvider;
+  }
+
+  public void setFilterStreamProvider(FilterStreamProvider filterStreamProvider)
+  {
+    this.filterStreamProvider = filterStreamProvider;
+  }
+
   public static enum Counters
   {
     /**
@@ -880,4 +886,83 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
      */
     TOTAL_TIME_WRITING_MILLISECONDS
   }
+
+  private class FSFilterStreamContext implements FilterStreamContext<FilterOutputStream>
+  {
+    
+    private FSDataOutputStream outputStream;
+    
+    private FilterStreamContext filterContext;
+    private NonCloseableFilterOutputStream outputWrapper;
+    
+    public FSFilterStreamContext(FSDataOutputStream outputStream) throws IOException
+    {
+      this.outputStream = outputStream;     
+      outputWrapper = new NonCloseableFilterOutputStream(outputStream);
+      resetFilter();
+    }
+
+    @Override
+    public FilterOutputStream getFilterStream()
+    {
+      if (filterContext != null) {
+        return filterContext.getFilterStream();
+      }
+      return outputStream;
+    }
+
+    @Override
+    public void finalizeContext() throws IOException
+    {
+      if (filterContext != null) {
+        filterContext.finalizeContext();
+        outputWrapper.flush();
+        filterContext.getFilterStream().close();
+      }
+      outputStream.hflush();
+    }
+    
+    public void resetFilter() throws IOException
+    {
+      if (filterStreamProvider != null) {
+        filterContext = filterStreamProvider.getFilterStreamContext(outputWrapper);
+      }
+    }
+    
+    public void close() throws IOException
+    {
+      finalizeContext();
+      outputStream.close();
+    }
+    
+  }
+  
+  private static class NonCloseableFilterOutputStream extends FilterOutputStream 
+  {
+    public NonCloseableFilterOutputStream(OutputStream out)
+    {
+      super(out);
+    }
+
+    @Override
+    public void close() throws IOException
+    {
+    }
+  }
+
+  /**
+   * Return the filter to use. If this method returns a filter the filter is applied to data before the data is stored
+   * in the file. If it returns null no filter is applied and data is written as is. Override this method to provide
+   * the filter implementation. Multiple filters can be chained together to return a chain filter.
+   *
+   * @param outputStream
+   * @return
+   */
+  /*
+  protected FilterStreamContext getStreamContext(OutputStream outputStream) throws IOException
+  {
+    return null;
+  }
+  */
+
 }
