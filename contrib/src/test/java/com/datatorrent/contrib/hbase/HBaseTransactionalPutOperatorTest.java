@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import org.apache.hadoop.hbase.client.Put;
 import org.junit.Assert;
@@ -70,6 +71,12 @@ public class HBaseTransactionalPutOperatorTest {
         public int getId() {
           // TODO Auto-generated method stub
           return 0;
+        }
+
+        @Override
+        public void sendCustomMetrics(Collection<String> metricNames)
+        {
+          throw new UnsupportedOperationException("not supported");
         }
 
         @Override
@@ -129,6 +136,12 @@ public class HBaseTransactionalPutOperatorTest {
         public int getId() {
           // TODO Auto-generated method stub
           return 0;
+        }
+
+        @Override
+        public void sendCustomMetrics(Collection<String> metricNames)
+        {
+          throw new UnsupportedOperationException("not supported");
         }
 
         @Override
@@ -192,6 +205,12 @@ public class HBaseTransactionalPutOperatorTest {
         public int getId() {
           // TODO Auto-generated method stub
           return 0;
+        }
+
+        @Override
+        public void sendCustomMetrics(Collection<String> metricNames)
+        {
+          throw new UnsupportedOperationException("not supported");
         }
 
         @Override
