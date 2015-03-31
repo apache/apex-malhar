@@ -5,6 +5,8 @@
 
 package com.datatorrent.lib.appdata.qr;
 
+import com.google.common.base.Preconditions;
+
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
@@ -17,6 +19,7 @@ public class Result
 
   private String id;
   private String type;
+  private Query query;
 
   public Result()
   {
@@ -24,12 +27,23 @@ public class Result
 
   public Result(Query query)
   {
-    this.id = query.getId();
+    setQuery(query);
+  }
+
+  private void setQuery(Query query)
+  {
+    Preconditions.checkNotNull(query);
+    this.query = query;
+  }
+
+  public Query getQuery()
+  {
+    return query;
   }
 
   public String getId()
   {
-    return id;
+    return query.getId();
   }
 
   /**

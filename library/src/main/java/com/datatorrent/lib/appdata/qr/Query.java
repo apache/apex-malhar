@@ -26,6 +26,7 @@ public class Query extends Data
   public Query(String id,
                String type)
   {
+    super(type);
     Preconditions.checkNotNull(id);
     this.id = id;
   }

@@ -8,7 +8,6 @@ package com.datatorrent.lib.appdata.schemas;
 import com.datatorrent.common.util.DTThrowable;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import java.io.InputStream;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 
@@ -37,11 +36,6 @@ public class GenericSchemaTabular implements GenericSchema
 
   private Map<String, Type> valueToType;
   private FieldsDescriptor valuesDescriptor;
-
-  public GenericSchemaTabular(InputStream inputStream)
-  {
-    this(SchemaUtils.inputStreamToString(inputStream));
-  }
 
   public GenericSchemaTabular(String schemaJSON)
   {
