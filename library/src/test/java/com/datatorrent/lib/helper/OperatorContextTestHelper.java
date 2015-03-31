@@ -7,6 +7,7 @@ package com.datatorrent.lib.helper;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Collection;
 
 import javax.annotation.Nonnull;
 
@@ -49,6 +50,12 @@ public class OperatorContextTestHelper
     public int getId()
     {
       return id;
+    }
+
+    @Override
+    public void sendCustomMetrics(Collection<String> metricNames)
+    {
+      throw new UnsupportedOperationException("not supported");
     }
 
     @Override

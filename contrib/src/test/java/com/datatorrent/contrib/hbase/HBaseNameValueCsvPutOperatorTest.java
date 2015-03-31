@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.hbase;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import org.junit.Assert;
 import org.junit.Test;
@@ -64,6 +65,12 @@ public class HBaseNameValueCsvPutOperatorTest
         {
           // TODO Auto-generated method stub
           return 0;
+        }
+
+        @Override
+        public void sendCustomMetrics(Collection<String> metricNames)
+        {
+          throw new UnsupportedOperationException("not supported");
         }
 
         @Override
