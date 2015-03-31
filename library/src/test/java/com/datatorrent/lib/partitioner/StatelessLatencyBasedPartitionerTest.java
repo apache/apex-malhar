@@ -111,7 +111,7 @@ public class StatelessLatencyBasedPartitionerTest
     Collection<Partitioner.Partition<DummyOperator>> partitions = Lists.newArrayList();
     partitions.add(defaultPartition);
     partitions = statelessLatencyBasedPartitioner.definePartitions(partitions, new StatelessPartitionerTest.PartitioningContextImpl(ports, 1));
-
+    Assert.assertTrue(1 == partitions.size());
     defaultPartition = (DefaultPartition<DummyOperator>) partitions.iterator().next();
     Map<Integer, Partitioner.Partition<DummyOperator>> partitionerMap = Maps.newHashMap();
     partitionerMap.put(2, defaultPartition);
