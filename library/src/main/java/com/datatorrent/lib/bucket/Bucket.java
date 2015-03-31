@@ -18,9 +18,9 @@ package com.datatorrent.lib.bucket;
 public class Bucket<T extends Bucketable> extends AbstractBucket<T>
 {
 
-  protected Bucket(long requestedKey)
+  protected Bucket(long bucketKey)
   {
-    super(requestedKey);
+    super(bucketKey);
   }
 
   @Override

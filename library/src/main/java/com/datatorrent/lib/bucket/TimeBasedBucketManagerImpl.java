@@ -20,11 +20,11 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Ab
 {
 
   @Override
-  protected Bucket<T> createBucket(long requestedKey)
+  protected Bucket<T> createBucket(long bucketKey)
   {
-    return new Bucket<T>(requestedKey);
+    return new Bucket<T>(bucketKey);
   }
-  
+
   @Override
   protected long getTime(T event)
   {

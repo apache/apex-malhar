@@ -24,9 +24,9 @@ package com.datatorrent.lib.bucket;
 public final  class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketManagerImpl<SimpleEvent>
 {
   @Override
-  protected BucketPOJOImpl createBucket(long requestedKey)
+  protected BucketPOJOImpl createBucket(long bucketKey)
   {
-    return new BucketPOJOImpl(requestedKey);
+    return new BucketPOJOImpl(bucketKey);
   }
 
   @Override

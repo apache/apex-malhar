@@ -97,7 +97,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   protected long committedWindow;
   //Not check-pointed
   //Indexed by bucketKey keys.
-  protected transient AbstractBucket[] buckets;
+  protected transient AbstractBucket<T>[] buckets;
   @NotNull
   protected transient Set<Integer> evictionCandidates;
   protected transient Listener<T> listener;
@@ -155,6 +155,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
 
   /**
    * Sets the number of buckets which will be kept in memory.
+   * @param noOfBucketsInMemory
    */
   public void setNoOfBucketsInMemory(int noOfBucketsInMemory)
   {
@@ -497,6 +498,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   @Override
   public AbstractBucketManager<T> cloneWithProperties() throws CloneNotSupportedException
   {
+    @SuppressWarnings("unchecked")
     AbstractBucketManager<T> clone = (AbstractBucketManager<T>)super.clone();
     copyPropertiesTo(clone);
     return clone;
