@@ -1,0 +1,6 @@
+{
+  "schemaType": "twitterTopCount",
+  "schemaVersion": "1.0",
+  "values": [{"name": "url", "type": "string"},
+             {"name": "count", "type": "integer"}]
+}

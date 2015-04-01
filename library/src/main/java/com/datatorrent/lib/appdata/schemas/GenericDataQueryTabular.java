@@ -27,9 +27,7 @@ public class GenericDataQueryTabular extends Query
   public static final String FIELD_FIELDS = "fields";
   public static final String FIELD_COUNTDOWN = "countdown";
 
-  private boolean oneTime = false;
   private Fields fields;
-  private long countdown;
 
   public GenericDataQueryTabular()
   {
@@ -43,7 +41,6 @@ public class GenericDataQueryTabular extends Query
           type);
 
     setFields(fields);
-    this.oneTime = true;
   }
 
   public GenericDataQueryTabular(String id,
@@ -52,11 +49,10 @@ public class GenericDataQueryTabular extends Query
                                  long countdown)
   {
     super(id,
-          type);
+          type,
+          countdown);
 
     setFields(fields);
-    setCountdown(countdown);
-    this.oneTime = false;
   }
 
   private void setFields(Fields fields)
@@ -68,32 +64,5 @@ public class GenericDataQueryTabular extends Query
   public Fields getFields()
   {
     return fields;
-  }
-
-  /**
-   * @return the oneTime
-   */
-  public boolean isOneTime()
-  {
-    return oneTime;
-  }
-
-  /**
-   * @param oneTime the oneTime to set
-   */
-  public void setOneTime(boolean oneTime)
-  {
-    this.oneTime = oneTime;
-  }
-
-  private void setCountdown(long countdown)
-  {
-    Preconditions.checkArgument(countdown > 0, "Countdown must be positive.");
-    this.countdown = countdown;
-  }
-
-  public long getCountdown()
-  {
-    return countdown;
   }
 }
