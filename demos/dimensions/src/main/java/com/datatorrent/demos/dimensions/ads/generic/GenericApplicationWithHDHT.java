@@ -15,24 +15,22 @@
  */
 package com.datatorrent.demos.dimensions.ads.generic;
 
-import com.datatorrent.contrib.dimensions.GenericAppDataDimensionStoreHDHT;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.contrib.dimensions.GenericAppDataDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.contrib.kafka.KafkaJsonEncoder;
 import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
 import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
 import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URI;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -148,30 +146,8 @@ public class GenericApplicationWithHDHT implements StreamingApplication
     store.setFileStore(hdsFile);
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
 
-    logger.info("Before reading schemas.");
-    StringWriter eventWriter = new StringWriter();
-    try {
-      IOUtils.copy(GenericApplicationWithHDHT.class.getClassLoader().getResourceAsStream(EVENT_SCHEMA),
-                   eventWriter);
-    }
-    catch(IOException ex) {
-      throw new RuntimeException(ex);
-    }
-    String eventSchema = eventWriter.toString();
-
-    StringWriter dimensionalWriter = new StringWriter();
-    try {
-      IOUtils.copy(GenericApplicationWithHDHT.class.getClassLoader().getResourceAsStream(DIMENSIONAL_SCHEMA),
-                   dimensionalWriter);
-    }
-    catch(IOException ex) {
-      throw new RuntimeException(ex);
-    }
-    String dimensionalSchema = dimensionalWriter.toString();
-
-    logger.info("After reading schemas.");
-    logger.info("Event Schema: {}");
-    logger.info("Dimensions Schema: {}");
+    String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
+    String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
 
     dimensions.setEventSchemaJSON(eventSchema);
     store.setEventSchemaJSON(eventSchema);

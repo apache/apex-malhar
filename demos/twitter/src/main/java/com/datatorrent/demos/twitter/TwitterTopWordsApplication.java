@@ -22,11 +22,13 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
+
 
 
 /**
@@ -46,6 +48,8 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name="RollingTopWordsDemo")
 public class TwitterTopWordsApplication implements StreamingApplication
 {
+  public static final String TABULAR_SCHEMA = "twitterDataSchema";
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
@@ -68,6 +72,9 @@ public class TwitterTopWordsApplication implements StreamingApplication
     TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueWordCounter", new UniqueCounter<String>());
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
+
+    String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);
+    topCounts.setDataSchema(tabularSchema);
     topCounts.setSlidingWindowWidth(120, 1);
 
     dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
