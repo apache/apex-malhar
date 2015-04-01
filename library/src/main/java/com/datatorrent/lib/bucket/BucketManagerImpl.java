@@ -460,6 +460,14 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     return clone;
   }
 
+  /*
+   * This method has been deprecated.Use clone instead.
+   */
+  @Deprecated
+  public BucketManagerImpl<T> cloneWithProperties()
+  {
+    return null;
+  }
 
   @SuppressWarnings("ClassMayBeInterface")
   private static class Lock

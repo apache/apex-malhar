@@ -144,6 +144,12 @@ public interface BucketManager<T extends Bucketable> extends Cloneable
    */
   BucketManager<T> clone() throws CloneNotSupportedException;
 
+  /*
+   * This method has been deprecated.Use clone instead.
+   */
+  @Deprecated
+  BucketManager<T> cloneWithProperties();
+
   void setBucketCounters(@Nonnull BasicCounters<MutableLong> stats);
 
   /**

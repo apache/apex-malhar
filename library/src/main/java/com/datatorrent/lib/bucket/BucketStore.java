@@ -78,6 +78,7 @@ public interface BucketStore<T extends Bucketable> extends Cloneable
    * @param writeEventKeysOnly
    */
   void setWriteEventKeysOnly(boolean writeEventKeysOnly);
+  
   BucketStore<T> clone() throws CloneNotSupportedException;
 
   public interface ExpirableBucketStore<T extends Bucketable & Event> extends BucketStore<T>

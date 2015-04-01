@@ -101,6 +101,15 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     return clone;
   }
 
+  /*
+   * This method has been deprecated.Use clone instead.
+   */
+  @Deprecated
+  public BucketManagerImpl<T> cloneWithProperties()
+  {
+    return null;
+  }
+
   @Override
   public void setBucketStore(@Nonnull BucketStore<T> store)
   {

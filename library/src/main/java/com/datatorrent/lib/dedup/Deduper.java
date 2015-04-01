@@ -329,6 +329,8 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
         deduperInstance.bucketManager = bucketManager.clone();
       }
       catch (CloneNotSupportedException ex) {
+        if(bucketManager.cloneWithProperties()==null)
+          logger.warn("Please use clone method of bucketManager instead of cloneWithProperties");
         DTThrowable.rethrow(ex);
       }
 
