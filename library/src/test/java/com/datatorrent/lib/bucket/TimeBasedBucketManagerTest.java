@@ -66,6 +66,7 @@ public class TimeBasedBucketManagerTest
   {
     TimeBasedBucketManagerImpl<DummyEvent> clonedManager = manager.clone();
     Assert.assertNotNull(clonedManager);
+    Assert.assertNotNull(clonedManager.getBucketStore());
     Assert.assertTrue(clonedManager.bucketStore.equals(manager.bucketStore));
     Assert.assertTrue(clonedManager.writeEventKeysOnly==manager.writeEventKeysOnly);
     Assert.assertTrue(clonedManager.noOfBuckets==manager.noOfBuckets);

@@ -129,7 +129,8 @@ public class BucketManagerTest
     BucketManagerImpl<DummyEvent> clonedManager = manager.clone();
     Assert.assertNull(clonedManager.getBucket(bucket1));
     Assert.assertNotNull(clonedManager.getBucket(bucket2));
-    Assert.assertTrue(clonedManager.bucketStore.equals(manager.bucketStore));
+    Assert.assertNotNull(clonedManager.getBucketStore());
+    Assert.assertNotNull(clonedManager.bucketStore.equals(manager.bucketStore));
     Assert.assertTrue(clonedManager.writeEventKeysOnly==manager.writeEventKeysOnly);
     Assert.assertTrue(clonedManager.noOfBuckets==manager.noOfBuckets);
     Assert.assertTrue(clonedManager.noOfBucketsInMemory==manager.noOfBucketsInMemory);
