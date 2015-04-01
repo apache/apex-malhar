@@ -61,6 +61,21 @@ public class TimeBasedBucketManagerTest
     Assert.assertEquals("valid event", bucket2, rBucket2);
   }
 
+  @Test
+  public void testClone() throws CloneNotSupportedException, InterruptedException
+  {
+    TimeBasedBucketManagerImpl<DummyEvent> clonedManager = manager.clone();
+    Assert.assertNotNull(clonedManager);
+    Assert.assertTrue(clonedManager.bucketStore.equals(manager.bucketStore));
+    Assert.assertTrue(clonedManager.writeEventKeysOnly==manager.writeEventKeysOnly);
+    Assert.assertTrue(clonedManager.noOfBuckets==manager.noOfBuckets);
+    Assert.assertTrue(clonedManager.noOfBucketsInMemory==manager.noOfBucketsInMemory);
+    Assert.assertTrue(clonedManager.maxNoOfBucketsInMemory==manager.maxNoOfBucketsInMemory);
+    Assert.assertTrue(clonedManager.millisPreventingBucketEviction== manager.millisPreventingBucketEviction);
+    Assert.assertTrue(clonedManager.committedWindow==manager.committedWindow);
+    Assert.assertTrue(clonedManager.getMaxTimesPerBuckets().length== manager.getMaxTimesPerBuckets().length);
+  }
+
   @BeforeClass
   public static void setup() throws Exception
   {
