@@ -369,6 +369,13 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
     return result;
   }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public HdfsBucketStore<T> clone() throws CloneNotSupportedException
+  {
+    return (HdfsBucketStore<T>)super.clone();
+  }
+
   private class Exchange<E> implements Comparable<Exchange<E>>
   {
     final long window;
