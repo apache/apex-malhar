@@ -24,7 +24,6 @@ import com.ning.http.client.AsyncHttpClient.BoundRequestBuilder;
 import com.ning.http.client.websocket.*;
 import java.io.IOException;
 import java.net.URI;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
 
@@ -50,12 +49,6 @@ public abstract class PubSubWebSocketClient implements Component<Context>
   private String loginUrl;
   private String userName;
   private String password;
-  private List<Callable> openHooks = new ArrayList<Callable>();
-
-  public void registerOpenHook(Callable c)
-  {
-    openHooks.add(c);
-  }
 
   private class PubSubWebSocket implements WebSocketTextListener
   {
@@ -81,13 +74,6 @@ public abstract class PubSubWebSocketClient implements Component<Context>
     public void onOpen(WebSocket ws)
     {
       LOG.debug("WebSocket connection opened");
-      for (Callable hook : openHooks) {
-        try {
-          hook.call();
-        } catch (Exception ex) {
-          LOG.error("Error calling hook on connection open", ex);
-        }
-      }
       PubSubWebSocketClient.this.onOpen(ws);
     }
 
