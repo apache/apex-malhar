@@ -28,6 +28,8 @@ import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 
@@ -48,6 +50,8 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name="RollingTopWordsDemo")
 public class TwitterTopWordsApplication implements StreamingApplication
 {
+  private static final Logger logger = LoggerFactory.getLogger(TwitterTopWordsApplication.class);
+
   public static final String TABULAR_SCHEMA = "twitterDataSchema";
 
   @Override
@@ -74,6 +78,7 @@ public class TwitterTopWordsApplication implements StreamingApplication
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
 
     String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);
+    logger.info("Tabular schema {}", tabularSchema);
     topCounts.setDataSchema(tabularSchema);
     topCounts.setSlidingWindowWidth(120, 1);
 
