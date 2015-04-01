@@ -24,6 +24,20 @@ public class AppDataWWEQueryQueueManager<QUERY extends Query, META_QUERY> extend
   {
   }
 
+  public boolean enqueue(QUERY query, META_QUERY metaQuery, MutableLong context)
+  {
+    if(context != null) {
+      query.setCountdown(context.getValue());
+    }
+
+    if(query.isOneTime()) {
+      return super.enqueue(query, metaQuery, new MutableLong(1L));
+    }
+    else {
+      return super.enqueue(query, metaQuery, new MutableLong(query.getCountdown()));
+    }
+  }
+
   @Override
   public void addedNode(QueueListNode<QueryBundle<QUERY, META_QUERY, MutableLong>> queryQueueable)
   {

@@ -97,7 +97,7 @@ public class GenericSchemaTabular implements GenericSchema
     valuesDescriptor = new FieldsDescriptor(valueToType);
   }
 
-  private void setSchema(String schemaJSON)
+  protected void setSchema(String schemaJSON)
   {
     Preconditions.checkNotNull(schemaJSON);
     this.schemaJSON = schemaJSON;

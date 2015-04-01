@@ -22,13 +22,16 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import java.net.URI;
 
 import org.apache.hadoop.conf.Configuration;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import static com.datatorrent.demos.twitter.TwitterTopCounterApplication.PROP_USE_WEBSOCKETS;
+
 
 /**
  * This application is same as other twitter demo
@@ -47,26 +50,25 @@ import static com.datatorrent.demos.twitter.TwitterTopCounterApplication.PROP_US
 @ApplicationAnnotation(name="RollingTopWordsDemo")
 public class TwitterTopWordsApplication implements StreamingApplication
 {
+  private static final Logger logger = LoggerFactory.getLogger(TwitterTopWordsApplication.class);
+
+  public static final String TABULAR_SCHEMA = "twitterDataSchema.json";
+
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
     Operator.OutputPort<String> queryPort = null;
     Operator.InputPort<String> queryResultPort = null;
 
-    if(conf.getBoolean(PROP_USE_WEBSOCKETS, false)) {
-      String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
-      PubSubWebSocketAppDataQuery wsIn = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
-      wsIn.setUri(uri);
-      queryPort = wsIn.outputPort;
-      PubSubWebSocketAppDataResult wsOut = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
-      wsOut.setUri(uri);
-      queryResultPort = wsOut.input;
-    }
-    else {
-      /*Add Kafka Later*/
-    }
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
+    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+    logger.info("WebSocket with gateway at: {}", gatewayAddress);
+    PubSubWebSocketAppDataQuery wsIn = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+    wsIn.setUri(uri);
+    queryPort = wsIn.outputPort;
+    PubSubWebSocketAppDataResult wsOut = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
+    wsOut.setUri(uri);
+    queryResultPort = wsOut.input;
 
     TwitterSampleInput twitterFeed = new TwitterSampleInput();
     twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
@@ -74,6 +76,10 @@ public class TwitterTopWordsApplication implements StreamingApplication
     TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueWordCounter", new UniqueCounter<String>());
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
+
+    String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);
+    logger.info("Tabular schema {}", tabularSchema);
+    topCounts.setDataSchema(tabularSchema);
     topCounts.setSlidingWindowWidth(120, 1);
 
     dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);

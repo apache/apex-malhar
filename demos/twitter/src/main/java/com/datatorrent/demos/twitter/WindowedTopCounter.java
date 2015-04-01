@@ -17,24 +17,21 @@ package com.datatorrent.demos.twitter;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.demos.twitter.schemas.TwitterDataValues;
-import com.datatorrent.demos.twitter.schemas.TwitterOneTimeQuery;
-import com.datatorrent.demos.twitter.schemas.TwitterOneTimeResult;
-import com.datatorrent.demos.twitter.schemas.TwitterOneTimeResult.TwitterData;
-import com.datatorrent.demos.twitter.schemas.TwitterSchemaResult;
-import com.datatorrent.demos.twitter.schemas.TwitterUpdateQuery;
-import com.datatorrent.demos.twitter.schemas.TwitterUpdateResult;
+import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.qr.processor.WWEQueryQueueManager;
+import com.datatorrent.lib.appdata.schemas.GenericDataQueryTabular;
+import com.datatorrent.lib.appdata.schemas.GenericDataResultTabular;
+import com.datatorrent.lib.appdata.schemas.GenericSchemaResult;
+import com.datatorrent.lib.appdata.schemas.GenericSchemaTabular;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,6 +55,9 @@ import java.util.PriorityQueue;
  */
 public class WindowedTopCounter<T> extends BaseOperator
 {
+  public static final String FIELD_URL = "url";
+  public static final String FIELD_COUNT = "count";
+
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
 
   //==========================================================================
@@ -68,8 +68,9 @@ public class WindowedTopCounter<T> extends BaseOperator
   @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
   private transient DataSerializerFactory resultSerializerFactory;
-  private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
-  private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
+
+  private String schemaJSON;
+  private transient GenericSchemaTabular schema;
 
   //==========================================================================
   // Query Processing - End
@@ -116,14 +117,12 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
 
       if(query instanceof SchemaQuery) {
-        String schemaResult = resultSerializerFactory.serialize(new TwitterSchemaResult((SchemaQuery) query));
+        String schemaResult = resultSerializerFactory.serialize(new GenericSchemaResult((SchemaQuery) query,
+                                                                                        schema));
         resultOutput.emit(schemaResult);
       }
-      else if(query instanceof TwitterUpdateQuery) {
-        queryProcessor.enqueue((TwitterOneTimeQuery) query, null, new MutableLong((long) QUERY_QUEUE_WINDOW_COUNT));
-      }
-      else if(query instanceof TwitterOneTimeQuery) {
-        queryProcessor.enqueue((TwitterOneTimeQuery) query, null, new MutableLong(1L));
+      else if(query instanceof GenericDataQueryTabular) {
+        queryProcessor.enqueue((GenericDataQueryTabular) query, null, null);
       }
     }
   };
@@ -151,16 +150,18 @@ public class WindowedTopCounter<T> extends BaseOperator
   {
     topCounter = new PriorityQueue<SlidingContainer<T>>(this.topCount, new TopSpotComparator());
 
+    schema = new GenericSchemaTabular(schemaJSON);
 
     //Setup for query processing
     queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void, Result>(
                      new WindowTopCounterComputer(),
-                     new WWEQueryQueueManager<Query, Void>());
-    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
-                                                            TwitterUpdateQuery.class,
-                                                            TwitterOneTimeQuery.class);
-    resultSerializerFactory = new DataSerializerFactory();
+                     new AppDataWWEQueryQueueManager<Query, Void>());
 
+    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
+                                                           GenericDataQueryTabular.class);
+    queryDeserializerFactory.setContext(GenericDataQueryTabular.class, schema);
+
+    resultSerializerFactory = new DataSerializerFactory();
     queryProcessor.setup(context);
   }
 
@@ -248,61 +249,46 @@ public class WindowedTopCounter<T> extends BaseOperator
     topCount = count;
   }
 
+  /**
+   * @return the schemaJSON
+   */
+  public String getSchemaJSON()
+  {
+    return schemaJSON;
+  }
+
+  /**
+   * @param schemaJSON the schemaJSON to set
+   */
+  public void setDataSchema(String schemaJSON)
+  {
+    this.schemaJSON = schemaJSON;
+  }
+
   class WindowTopCounterComputer implements QueryComputer<Query, Void, MutableLong, Void, Result>
   {
     @Override
     public Result processQuery(Query query, Void metaQuery, MutableLong queueContext, Void context)
     {
-      TwitterOneTimeQuery totq = (TwitterOneTimeQuery) query;
+      GenericDataQueryTabular gQuery = (GenericDataQueryTabular) query;
+      List<GPOMutable> data = Lists.newArrayList();
 
-      List<String> fields = totq.getFields();
-      Set<String> fieldSet = null;
-
-      if(fields == null) {
-        fieldSet = Sets.newHashSet();
-      }
-      else {
-        fieldSet = Sets.newHashSet(fields);
-      }
-
-      List<TwitterDataValues> tdvss = Lists.newArrayList();
       Iterator<SlidingContainer<T>> topIter = topCounter.iterator();
 
       while(topIter.hasNext()) {
         final SlidingContainer<T> wh = topIter.next();
-        TwitterDataValues tdvs = new TwitterDataValues();
 
-        if(fieldSet.isEmpty() || fieldSet.contains(TwitterSchemaResult.URL)) {
-          tdvs.setUrl(wh.identifier.toString());
-        }
+        GPOMutable dataPoint = new GPOMutable(schema.getValuesDescriptor());
 
-        if(fieldSet.isEmpty() || fieldSet.contains(TwitterSchemaResult.COUNT)) {
-          tdvs.setCount(wh.totalCount);
-        }
+        dataPoint.setField(FIELD_URL, wh.identifier.toString());
+        dataPoint.setField(FIELD_COUNT, wh.totalCount);
 
-        tdvss.add(tdvs);
+        data.add(dataPoint);
       }
 
-      TwitterData td = new TwitterData();
-      Result result = null;
-
-      if(query instanceof TwitterOneTimeQuery) {
-        TwitterOneTimeResult totr = new TwitterOneTimeResult(query);
-        td.setValues(tdvss);
-        totr.setData(td);
-
-        result = (Result) totr;
-      }
-      else if(query instanceof TwitterUpdateQuery) {
-        TwitterUpdateResult tur = new TwitterUpdateResult(query);
-        td.setValues(tdvss);
-        tur.setData(td);
-        tur.setCountdown(queueContext.longValue());
-
-        result = (Result) tur;
-      }
-
-      return result;
+      return new GenericDataResultTabular(gQuery,
+                                          data,
+                                          queueContext.longValue());
     }
 
     @Override

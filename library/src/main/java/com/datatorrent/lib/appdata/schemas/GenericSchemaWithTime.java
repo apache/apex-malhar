@@ -32,6 +32,7 @@ public class GenericSchemaWithTime extends GenericSchemaTabular
   private String from;
   private String to;
   private Set<TimeBucket> buckets;
+  private boolean fromTo;
 
   GenericSchemaWithTime(InputStream inputStream)
   {
@@ -55,32 +56,26 @@ public class GenericSchemaWithTime extends GenericSchemaTabular
     JSONObject schema = new JSONObject(getSchemaJSON());
     JSONObject time = schema.getJSONObject(FIELD_TIME);
 
-    boolean fromSpecified;
+    boolean fromSpecified = time.has(FIELD_TIME_FROM);
 
-    try {
+    if(fromSpecified) {
       from = time.getString(FIELD_TIME_FROM);
       SchemaUtils.checkDateEx(from);
-      fromSpecified = true;
-    }
-    catch(JSONException ex) {
-      fromSpecified = false;
     }
 
-    boolean toSpecified;
+    boolean toSpecified = time.has(FIELD_TIME_TO);
 
-    try {
+    if(toSpecified) {
       to = time.getString(FIELD_TIME_TO);
       SchemaUtils.checkDateEx(to);
-      toSpecified = true;
     }
-    catch(JSONException ex) {
-      toSpecified = false;
-    }
-
-    JSONArray bucketArray = time.getJSONArray(FIELD_TIME_BUCKETS);
 
     Preconditions.checkState(!(fromSpecified ^ toSpecified),
                              "Either both the from and to fields must be specified or none.");
+
+    fromTo = fromSpecified;
+
+    JSONArray bucketArray = time.getJSONArray(FIELD_TIME_BUCKETS);
 
     if(fromSpecified && toSpecified) {
       Preconditions.checkState(time.length() == NUM_KEYS_TIME,
@@ -122,6 +117,48 @@ public class GenericSchemaWithTime extends GenericSchemaTabular
     return from;
   }
 
+  public void setFrom(long time)
+  {
+    String dateString = getDateString(time);
+
+    try {
+      JSONObject schemaJo = new JSONObject(getSchemaJSON());
+      JSONObject timeJo = schemaJo.getJSONObject(FIELD_TIME);
+
+      timeJo.put(FIELD_TIME_FROM, dateString);
+
+      this.setSchema(schemaJo.toString());
+    }
+    catch(JSONException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  public void setTo(long time)
+  {
+    String dateString = getDateString(time);
+
+    try {
+      JSONObject schemaJo = new JSONObject(getSchemaJSON());
+      JSONObject timeJo = schemaJo.getJSONObject(FIELD_TIME);
+
+      timeJo.put(FIELD_TIME_TO, dateString);
+
+      this.setSchema(schemaJo.toString());
+    }
+    catch(JSONException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  private String getDateString(long time) {
+    if(!fromTo) {
+      Preconditions.checkState(fromTo, "This schema does not have from or to specified.");
+    }
+
+    return SchemaUtils.getDateString(time);
+  }
+
   public String getTo()
   {
     return to;
@@ -130,5 +167,13 @@ public class GenericSchemaWithTime extends GenericSchemaTabular
   public Set<TimeBucket> getBuckets()
   {
     return buckets;
+  }
+
+  /**
+   * @return the fromTo
+   */
+  public boolean isFromTo()
+  {
+    return fromTo;
   }
 }

@@ -18,6 +18,7 @@ public class Query extends Data
 
   @NotNull
   private String id;
+  private long countdown;
 
   public Query()
   {
@@ -29,6 +30,30 @@ public class Query extends Data
     super(type);
     Preconditions.checkNotNull(id);
     this.id = id;
+  }
+
+  public Query(String id,
+               String type,
+               long countdown)
+  {
+    this(id, type);
+    setCountdown(countdown);
+  }
+
+  public final void setCountdown(long countdown)
+  {
+    Preconditions.checkArgument(countdown > 0L);
+    this.countdown = countdown;
+  }
+
+  public long getCountdown()
+  {
+    return countdown;
+  }
+
+  public boolean isOneTime()
+  {
+    return countdown <= 0L;
   }
 
   /**

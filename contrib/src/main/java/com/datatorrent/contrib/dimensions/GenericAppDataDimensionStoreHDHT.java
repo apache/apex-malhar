@@ -139,8 +139,8 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
     //Setup for query processing
     queryProcessor =
     new QueryProcessor<GenericDataQuery, QueryMeta, MutableLong, MutableBoolean, Result>(
-                                                  new AdsQueryComputer(this),
-                                                  new AdsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
+                                                  new DimensionsQueryComputer(this),
+                                                  new DimensionsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            GenericDataQuery.class);
     queryDeserializerFactory.setContext(GenericDataQuery.class, dimensionalSchema);
@@ -247,12 +247,12 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
   // Query Processing Classes - Start
   //==========================================================================
 
-  class AdsQueryQueueManager extends AppDataWWEQueryQueueManager<GenericDataQuery, QueryMeta>
+  class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<GenericDataQuery, QueryMeta>
   {
     private GenericAppDataDimensionStoreHDHT operator;
     private int queueWindowCount;
 
-    public AdsQueryQueueManager(GenericAppDataDimensionStoreHDHT operator,
+    public DimensionsQueryQueueManager(GenericAppDataDimensionStoreHDHT operator,
                                 int queueWindowCount)
     {
       this.operator = operator;
@@ -359,15 +359,15 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
       qm.setEventKeys(eventKeys);
       qm.setHdsQueries(hdsQueries);
 
-      return super.enqueue(query, qm, new MutableLong(query.getCountdown()));
+      return super.enqueue(query, qm, null);
     }
   }
 
-  class AdsQueryComputer implements QueryComputer<GenericDataQuery, QueryMeta, MutableLong, MutableBoolean, Result>
+  class DimensionsQueryComputer implements QueryComputer<GenericDataQuery, QueryMeta, MutableLong, MutableBoolean, Result>
   {
     private GenericAppDataDimensionStoreHDHT operator;
 
-    public AdsQueryComputer(GenericAppDataDimensionStoreHDHT operator)
+    public DimensionsQueryComputer(GenericAppDataDimensionStoreHDHT operator)
     {
       this.operator = operator;
     }

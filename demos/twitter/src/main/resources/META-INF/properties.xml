@@ -48,4 +48,14 @@
     <name>dt.operator.TweetSampler.feedMultiplier</name>
     <value>20</value>
   </property>
+
+  <property>
+    <name>dt.operator.Query.topic</name>
+    <value>TwitterQuery</value>
+  </property>
+  <property>
+    <name>dt.operator.QueryResult.topic</name>
+    <value>TwitterQueryResult</value>
+  </property>
+
 </configuration>

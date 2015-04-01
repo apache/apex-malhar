@@ -24,11 +24,11 @@ public class AdsDataQuery extends Query
 
   @NotNull
   private AdsDataQueryData data;
-  private Long countdown = 30L;
   private boolean incompleteResultOK = true;
 
   public AdsDataQuery()
   {
+    setCountdown(30L);
   }
 
   public AdsDataQueryData getData()
@@ -60,17 +60,10 @@ public class AdsDataQuery extends Query
   /**
    * @return the countdown
    */
+  @Override
   public long getCountdown()
   {
-    return countdown;
-  }
-
-  /**
-   * @param countdown the countdown to set
-   */
-  public void setCountdown(long countdown)
-  {
-    this.countdown = countdown;
+    return super.getCountdown();
   }
 
   public static class AdsDataQueryData

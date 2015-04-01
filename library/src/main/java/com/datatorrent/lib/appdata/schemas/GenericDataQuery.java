@@ -52,7 +52,6 @@ public class GenericDataQuery extends GenericDataQueryTabular
   private TimeBucket timeBucket;
   private GPOMutable keys;
   //Value fields selected in query.
-  private long countdown;
   private boolean incompleteResultOK = true;
   private boolean hasTime = false;
   private boolean fromTo = false;
@@ -68,7 +67,6 @@ public class GenericDataQuery extends GenericDataQueryTabular
     super(id, type, fields);
     setKeys(keys);
     setIncompleteResultOK(incompleteResultOK);
-    setOneTime(false);
     this.hasTime = false;
 
     initialize();
@@ -87,7 +85,6 @@ public class GenericDataQuery extends GenericDataQueryTabular
     setTimeBucket(timeBucket);
     setKeys(keys);
     setIncompleteResultOK(incompleteResultOK);
-    setOneTime(true);
     this.fromTo = false;
     this.hasTime = true;
 
@@ -109,7 +106,6 @@ public class GenericDataQuery extends GenericDataQueryTabular
     setTimeBucket(timeBucket);
     setKeys(keys);
     setIncompleteResultOK(incompleteResultOK);
-    setOneTime(true);
     this.fromTo = true;
     this.hasTime = true;
 
@@ -132,7 +128,6 @@ public class GenericDataQuery extends GenericDataQueryTabular
     setTimeBucket(timeBucket);
     setKeys(keys);
     setIncompleteResultOK(incompleteResultOK);
-    setOneTime(false);
     this.fromTo = true;
     this.hasTime = true;
 
@@ -153,7 +148,6 @@ public class GenericDataQuery extends GenericDataQueryTabular
     setTimeBucket(timeBucket);
     setKeys(keys);
     setIncompleteResultOK(incompleteResultOK);
-    setOneTime(false);
     this.fromTo = false;
     this.hasTime = true;
 
@@ -313,6 +307,6 @@ public class GenericDataQuery extends GenericDataQueryTabular
   @Override
   public String toString()
   {
-    return "GenericDataQuery{" + "from=" + from + ", to=" + to + ", latestNumBuckets=" + latestNumBuckets + ", timeBucket=" + timeBucket + ", countdown=" + countdown + ", incompleteResultOK=" + incompleteResultOK + ", hasTime=" + hasTime + ", oneTime=" + isOneTime() + ", fromTo=" + fromTo + '}';
+    return "GenericDataQuery{" + "from=" + from + ", to=" + to + ", latestNumBuckets=" + latestNumBuckets + ", timeBucket=" + timeBucket + ", countdown=" + getCountdown() + ", incompleteResultOK=" + incompleteResultOK + ", hasTime=" + hasTime + ", oneTime=" + isOneTime() + ", fromTo=" + fromTo + '}';
   }
 }

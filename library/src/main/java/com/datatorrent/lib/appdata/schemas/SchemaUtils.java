@@ -43,6 +43,19 @@ public class SchemaUtils
     }
   }
 
+  public static String jarResourceFileToString(String resource)
+  {
+    StringWriter stringWriter = new StringWriter();
+    try {
+      IOUtils.copy(SchemaUtils.class.getClassLoader().getResourceAsStream(resource),
+                   stringWriter);
+    }
+    catch(IOException ex) {
+      throw new RuntimeException(ex);
+    }
+    return stringWriter.toString();
+  }
+
   public static String inputStreamToString(InputStream inputStream)
   {
     StringWriter stringWriter = new StringWriter();
