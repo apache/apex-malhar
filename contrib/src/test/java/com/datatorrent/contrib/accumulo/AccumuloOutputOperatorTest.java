@@ -16,6 +16,8 @@
 package com.datatorrent.contrib.accumulo;
 
 
+import java.util.Collection;
+
 import org.apache.accumulo.core.data.Mutation;
 import org.junit.Assert;
 import org.junit.Test;
@@ -59,6 +61,12 @@ public class AccumuloOutputOperatorTest {
       public int getId() {
         // TODO Auto-generated method stub
         return 0;
+      }
+
+      @Override
+      public void sendCustomMetrics(Collection<String> metricNames)
+      {
+        throw new UnsupportedOperationException("not supported");
       }
 
       @Override
