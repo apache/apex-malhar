@@ -29,6 +29,9 @@ import com.datatorrent.api.*;
 
 import com.datatorrent.lib.util.TestUtils;
 
+/**
+ * Test for {@link StatelessLatencyBasedPartitioner}
+ */
 public class StatelessLatencyBasedPartitionerTest
 {
 
@@ -118,7 +121,7 @@ public class StatelessLatencyBasedPartitionerTest
     statelessLatencyBasedPartitioner.partitioned(partitionerMap);
     StatsListener.Response response = statelessLatencyBasedPartitioner.processStats(mockStats);
     Assert.assertEquals("repartition is false", false, response.repartitionRequired);
-    Thread.sleep(15);
+    Thread.sleep(100);
     response = statelessLatencyBasedPartitioner.processStats(mockStats);
     Assert.assertEquals("repartition is true", true, response.repartitionRequired);
 
