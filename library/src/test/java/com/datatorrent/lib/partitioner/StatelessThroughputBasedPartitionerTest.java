@@ -35,7 +35,7 @@ import com.datatorrent.lib.util.TestUtils;
 /**
  * Test for {@link StatelessThroughputBasedPartitioner}
  */
-public class StatlessThroughputBasedPartitionerTest
+public class StatelessThroughputBasedPartitionerTest
 {
   public static class TestStats extends TestUtils.MockBatchedOperatorStats
   {
