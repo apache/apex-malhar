@@ -42,9 +42,8 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
- * A {@link BucketManager} implementation.
  * <p>
- * Configurable properties of the BucketManagerImpl.<br/>
+ * Configurable properties of the AbstractBucketManager.<br/>
  * <ol>
  * <li>
  * {@link #noOfBuckets}: total number of buckets.
@@ -248,8 +247,6 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
               logger.debug("deleted bucket {} {}", oldBucket.bucketKey, bucketIdx);
             }
 
-            logger.debug("bucketstore is {}",bucketStore.getClass());
-
             Map<Object, T> bucketDataInStore = bucketStore.fetchBucket(bucketIdx);
 
             //Delete the least recently used bucket in memory if the noOfBucketsInMemory threshold is reached.
@@ -357,16 +354,12 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   @Override
   public void newEvent(long bucketKey, T event)
   {
-    logger.debug("bucketkey is {}",bucketKey);
-    logger.debug("event is {}",event);
     int bucketIdx = (int) (bucketKey % noOfBuckets);
 
     AbstractBucket<T> bucket = buckets[bucketIdx];
 
     if (bucket == null || bucket.bucketKey != bucketKey) {
-      logger.debug("bucket is null");
       bucket = createBucket(bucketKey);
-      logger.debug("bucket created");
       buckets[bucketIdx] = bucket;
       dirtyBuckets.put(bucketIdx, bucket);
     }
@@ -432,7 +425,7 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
   }
 
 
-  protected abstract AbstractBucket<T> createBucket(long requestedKey);
+  protected abstract AbstractBucket<T> createBucket(long bucketKey);
 
 
 
@@ -448,8 +441,9 @@ public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runn
       return true;
     }
 
-    if(!(o instanceof AbstractBucketManager))
+    if(!(o instanceof AbstractBucketManager)) {
       return false;
+    }
 
     @SuppressWarnings("unchecked")
     AbstractBucketManager<T> that = (AbstractBucketManager<T>)o;

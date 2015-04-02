@@ -15,7 +15,11 @@
  */
 package com.datatorrent.lib.bucket;
 
-
+ /*
+  * <p>
+  * A {@link AbstractBucketManager} implementation.
+  * </p>
+  */
 public class BucketManagerImpl<T extends Bucketable> extends AbstractBucketManager<T>
 {
 

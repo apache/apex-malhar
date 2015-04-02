@@ -15,17 +15,22 @@
  */
 package com.datatorrent.lib.bucket;
 
-import com.datatorrent.lib.counters.BasicCounters;
-import com.google.common.base.Preconditions;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Timer;
 import java.util.TimerTask;
+
 import javax.annotation.Nonnull;
 import javax.validation.constraints.Min;
-import org.apache.commons.lang.mutable.MutableLong;
+
+import com.google.common.base.Preconditions;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang.mutable.MutableLong;
+
+import com.datatorrent.lib.counters.BasicCounters;
 
 /**
  *
@@ -133,7 +138,7 @@ public abstract class AbstractTimeBasedBucketManager<T> extends AbstractBucketMa
     recomputeNumBuckets();
   }
 
-  protected void recomputeNumBuckets()
+  private void recomputeNumBuckets()
   {
     Calendar calendar = Calendar.getInstance();
     long now = calendar.getTimeInMillis();
@@ -263,9 +268,9 @@ public abstract class AbstractTimeBasedBucketManager<T> extends AbstractBucketMa
     if (this == o) {
       return true;
     }
-    if(!(o instanceof AbstractTimeBasedBucketManager))
+    if(!(o instanceof AbstractTimeBasedBucketManager)){
       return false;
-
+    }
     if (!super.equals(o)) {
       return false;
     }
@@ -279,6 +284,7 @@ public abstract class AbstractTimeBasedBucketManager<T> extends AbstractBucketMa
       return false;
     }
     return expiryTime == that.expiryTime;
+
   }
 
   @Override
@@ -295,7 +301,7 @@ public abstract class AbstractTimeBasedBucketManager<T> extends AbstractBucketMa
   public void endWindow(long window)
   {
     long maxTime = -1;
-    for (int bucketIdx: dirtyBuckets.keySet()) {
+    for (int bucketIdx : dirtyBuckets.keySet()) {
       if (maxTimesPerBuckets[bucketIdx] > maxTime) {
         maxTime = maxTimesPerBuckets[bucketIdx];
       }
@@ -306,6 +312,6 @@ public abstract class AbstractTimeBasedBucketManager<T> extends AbstractBucketMa
     }
   }
 
-  protected static final transient Logger logger = LoggerFactory.getLogger(AbstractTimeBasedBucketManager.class);
+  private static final transient Logger logger = LoggerFactory.getLogger(AbstractTimeBasedBucketManager.class);
 
 }

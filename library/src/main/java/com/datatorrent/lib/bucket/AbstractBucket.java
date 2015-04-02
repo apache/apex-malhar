@@ -59,7 +59,7 @@ public abstract class AbstractBucket<T>
     bucketKey = -1L;
   }
 
-  public AbstractBucket(long bucketKey)
+  protected AbstractBucket(long bucketKey)
   {
     this.bucketKey = bucketKey;
     this.isDataOnDiskLoaded = false;
