@@ -19,11 +19,20 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 
 /**
- *
+ * An encapsulation of the filter stream that provides different methods to handle the stream.
  */
 public interface FilterStreamContext<F extends FilterOutputStream>
 {
+  /**
+   * Get the underlying filter stream encapsulated by the context
+   * @return The filter stream
+   */
   public F getFilterStream();
+
+  /**
+   * Finalize the context and write any pending data. The context may not be used after this.
+   * @throws IOException
+   */
   public void finalizeContext() throws IOException;
 
   /**
@@ -46,6 +55,14 @@ public interface FilterStreamContext<F extends FilterOutputStream>
       filterStream.flush();
     }
 
+  }
+  
+  public static class SimpleFilterStreamContext<F extends FilterOutputStream> extends BaseFilterStreamContext<F>
+  {
+    public SimpleFilterStreamContext(F filterStream)
+    {
+      this.filterStream = filterStream;
+    }
   }
 
 }
