@@ -19,12 +19,13 @@ import java.io.FilterOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
 /**
- * Interface and base class for implementations that want to provide filtering functionality to data being written to
- * file. Multiple filters can be chained together using the chain filter context. 
+ * An interface for classes that want to provide filtering functionality for data being written to a
+ * file. Multiple filters can be chained together using the chain filter provider.
  */
 public interface FilterStreamProvider<F extends FilterOutputStream, S extends OutputStream>
 {
@@ -38,7 +39,7 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
   {
     private List<FilterStreamProvider<?,?>> streamProviders = new ArrayList<FilterStreamProvider<?, ?>>();
     
-    public List<FilterStreamProvider<?,?>> getStreamProviders()
+    public Collection<FilterStreamProvider<?,?>> getStreamProviders()
     {
       return Collections.unmodifiableList(streamProviders);
     }
@@ -62,6 +63,7 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
         FilterOutputStream filterStream = null;
         OutputStream currOutputStream = outputStream;
         for (int i = streamProviders.size() - 1; i >= 0; i-- ) {
+        //for (FilterStreamProvider streamProvider : streamProviders) {
           FilterStreamProvider streamProvider = streamProviders.get(i);
           FilterStreamContext streamContext = streamProvider.getFilterStreamContext(currOutputStream);
           streamContexts.add(streamContext);
@@ -75,6 +77,8 @@ public interface FilterStreamProvider<F extends FilterOutputStream, S extends Ou
       public void finalizeContext() throws IOException
       {
         for (FilterStreamContext streamContext : streamContexts) {
+        //for (int i = streamContexts.size() - 1; i >= 0; i --) {
+          //FilterStreamContext streamContext = streamContexts.get(i);
           streamContext.finalizeContext();
         }
       }

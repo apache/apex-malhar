@@ -26,7 +26,7 @@ import javax.crypto.CipherOutputStream;
 /**
  * Filters for compression and encryption.
  */
-public class FilterStreamCodecContext
+public class FilterStreamCodec
 {
   /**
    * The GZIP filter to use for compression
@@ -45,9 +45,35 @@ public class FilterStreamCodecContext
     }
   }
 
+  /**
+   * A provider for GZIP filter
+   */
+  public static class GZipFilterStreamProvider implements FilterStreamProvider<GZIPOutputStream, OutputStream>
+  {
+    @Override
+    public FilterStreamContext<GZIPOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
+    {
+      return new GZIPFilterStreamContext(outputStream);
+    }
+  }
+
+  /**
+   * This filter should be used when cipher cannot be reused for example when writing to different output streams
+   */
   public static class CipherFilterStreamContext extends FilterStreamContext.BaseFilterStreamContext<CipherOutputStream>
   {
-    private Cipher cipher;
+    public CipherFilterStreamContext(OutputStream outputStream, Cipher cipher) throws IOException
+    {
+      filterStream = new CipherOutputStream(outputStream, cipher);
+    }
+  }
+
+  /**
+   * This provider is useful when writing to a single output stream so that the same cipher can be reused 
+   */
+  public static class CipherSimpleStreamProvider implements FilterStreamProvider<CipherOutputStream, OutputStream>
+  {
+    private transient Cipher cipher;
 
     public Cipher getCipher()
     {
@@ -59,9 +85,10 @@ public class FilterStreamCodecContext
       this.cipher = cipher;
     }
 
-    public CipherFilterStreamContext(OutputStream outputStream) throws IOException
+    @Override
+    public FilterStreamContext<CipherOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
     {
-      filterStream = new CipherOutputStream(outputStream, cipher);
+      return new FilterStreamContext.SimpleFilterStreamContext<CipherOutputStream>(new CipherOutputStream(outputStream, cipher));
     }
 
     public CipherFilterStreamContext(OutputStream outputStream, Cipher cipher)

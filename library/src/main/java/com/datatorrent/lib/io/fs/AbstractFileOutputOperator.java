@@ -204,7 +204,12 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
    * Number of windows since the last rotation
    */
   private int rotationCount;
-  
+
+  /**
+   * If a filter stream provider is set it is used to obtain the filter that will be applied to data before it is 
+   * stored in the file. If it null no filter is applied and data is written as is. Multiple filters can be chained 
+   * together by using a filter stream chain provider.
+   */
   protected FilterStreamProvider filterStreamProvider;
 
   /**
@@ -862,11 +867,20 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     this.filePermission = filePermission;
   }
 
+  /**
+   * Get the filter stream provider 
+   * @return The filter stream provider.
+   */
   public FilterStreamProvider getFilterStreamProvider()
   {
     return filterStreamProvider;
   }
 
+  /**
+   * Set the filter stream provider. When a non-null provider is specified it will be used to supply the filter that 
+   * will be  applied to data before it is stored in the file.
+   * @param filterStreamProvider The filter stream provider
+   */
   public void setFilterStreamProvider(FilterStreamProvider filterStreamProvider)
   {
     this.filterStreamProvider = filterStreamProvider;

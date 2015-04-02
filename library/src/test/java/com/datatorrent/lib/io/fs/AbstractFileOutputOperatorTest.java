@@ -17,14 +17,12 @@
 package com.datatorrent.lib.io.fs;
 
 import java.io.*;
+import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
-import javax.crypto.Cipher;
-import javax.crypto.CipherOutputStream;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
 import javax.validation.ConstraintViolationException;
 
 import com.google.common.collect.Maps;
@@ -1735,14 +1733,7 @@ public class AbstractFileOutputOperatorTest
   public void testCompression() throws IOException
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
-    writer.setFilterStreamProvider(new FilterStreamProvider<GZIPOutputStream,OutputStream>()
-    {
-      @Override
-      public FilterStreamContext getFilterStreamContext(OutputStream outputStream) throws IOException
-      {
-        return new FilterStreamCodecContext.GZIPFilterStreamContext(outputStream);
-      }
-    });
+    writer.setFilterStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
 
     File evenFile = new File(testMeta.getDir(), EVEN_FILE);
     File oddFile = new File(testMeta.getDir(), ODD_FILE);
@@ -1768,15 +1759,25 @@ public class AbstractFileOutputOperatorTest
 
     writer.teardown();
     
-    checkCompressedFile(evenFile, evenOffsets, 0);
-    checkCompressedFile(oddFile, oddOffsets, 1);
+    checkCompressedFile(evenFile, evenOffsets, 0, null, null);
+    checkCompressedFile(oddFile, oddOffsets, 1, null, null);
   }
 
-  private void checkCompressedFile(File file, List<Long> offsets, int start) throws IOException
+  private void checkCompressedFile(File file, List<Long> offsets, int start, SecretKey secretKey, byte[] iv) throws IOException
   {
     FileInputStream fis = null;
+    InputStream gss = null;
     GZIPInputStream gis = null;
     BufferedReader br = null;
+
+    Cipher cipher = null;
+    try {
+      cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+      IvParameterSpec ivps = new IvParameterSpec(iv);
+      cipher.init(Cipher.DECRYPT_MODE, secretKey, ivps);
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
 
     int numWindows = 0;
     long startOffset = 0;
@@ -1787,10 +1788,25 @@ public class AbstractFileOutputOperatorTest
         fis = new FileInputStream(file);
         fis.skip(startOffset);
         long limit = offset - startOffset;
-        LimitInputStream limitInputStream = new LimitInputStream(fis, limit);
+        LimitInputStream lis = new LimitInputStream(fis, limit);
+        gss = lis;
+        if (secretKey != null) {
+          try {
+            /*
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            IvParameterSpec ivps = new IvParameterSpec(iv);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivps);
+            */
+            CipherInputStream cis = new CipherInputStream(lis, cipher);
+            gss = cis;
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        }
         //gis = new GZIPInputStream(fis);
-        gis = new GZIPInputStream(limitInputStream);
+        gis = new GZIPInputStream(gss);
         br = new BufferedReader(new InputStreamReader(gis));
+        //br = new BufferedReader(new InputStreamReader(gss));
         String eline = "" + (start + numWindows * 2);
         int count = 0;
         String line;
@@ -1810,13 +1826,67 @@ public class AbstractFileOutputOperatorTest
         } else {
           if (gis != null) {
             gis.close();
-          } else if (fis != null) {
-            fis.close();
+          } else if (gss != null) {
+            gss.close();
           }
         }
       }
     }
     Assert.assertEquals("Total", 5, numWindows);
+  }
+  
+  @Test
+  public void testChainFilters() throws NoSuchAlgorithmException, IOException
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    KeyGenerator keygen = KeyGenerator.getInstance("AES");
+    keygen.init(128);
+    final SecretKey secretKey = keygen.generateKey();
+    byte[] iv = "TestParam16bytes".getBytes();
+    final IvParameterSpec ivps = new IvParameterSpec(iv);
+    FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream> chainStreamProvider
+            = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
+    chainStreamProvider.addStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
+    chainStreamProvider.addStreamProvider(new FilterStreamProvider<CipherOutputStream, OutputStream>()
+    {
+      @Override
+      public FilterStreamContext<CipherOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
+      {
+        try {
+          Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+          cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivps);
+          return new FilterStreamCodec.CipherFilterStreamContext(outputStream, cipher);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        }
+      }
+    });
+    writer.setFilterStreamProvider(chainStreamProvider);
+
+    File evenFile = new File(testMeta.getDir(), EVEN_FILE);
+    File oddFile = new File(testMeta.getDir(), ODD_FILE);
+
+    List<Long> evenOffsets = new ArrayList<Long>();
+    List<Long> oddOffsets = new ArrayList<Long>();
+
+    File dir = new File(testMeta.getDir());
+    writer.setFilePath(testMeta.getDir());
+    writer.setup(testOperatorContext);
+
+    for (int i = 0; i < 10; ++i) {
+      writer.beginWindow(i);
+      for (int j = 0; j < 1000; ++j) {
+        writer.input.put(i);
+      }
+      writer.endWindow();
+      evenOffsets.add(evenFile.length());
+      oddOffsets.add(oddFile.length());
+    }
+
+    writer.teardown();
+
+    checkCompressedFile(evenFile, evenOffsets, 0, secretKey, iv);
+    checkCompressedFile(oddFile, oddOffsets, 1, secretKey, iv);
   }
 
   private Set<String> getFileNames(Collection<File> files)
