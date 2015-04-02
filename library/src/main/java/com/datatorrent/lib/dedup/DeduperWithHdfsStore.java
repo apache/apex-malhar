@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -29,13 +29,15 @@ import com.datatorrent.lib.bucket.NonOperationalBucketStore;
  * when determining whether a duplicate event has occurred.&nbsp;
  * A concrete operator should be created from this skeleton implementation.
  * <p></p>
+ * @param <INPUT>
+ * @param <OUTPUT>
  * @displayName  HDFS Deduper
  * @category Deduplication
  * @tags hdfs
  *
  * @since 0.9.5
  */
-public abstract class DeduperWithHdfsStore<INPUT extends Bucketable & Event, OUTPUT> extends Deduper<INPUT, OUTPUT>
+public abstract class DeduperWithHdfsStore<INPUT extends Bucketable & Event, OUTPUT> extends AbstractDeduper<INPUT, OUTPUT>
 {
   @Override
   public void setup(Context.OperatorContext context)
@@ -48,5 +50,11 @@ public abstract class DeduperWithHdfsStore<INPUT extends Bucketable & Event, OUT
       ((HdfsBucketStore<INPUT>) bucketManager.getBucketStore()).setConfiguration(context.getId(), context.getValue(DAG.APPLICATION_PATH), partitionKeys, partitionMask);
     }
     super.setup(context);
+  }
+
+  @Override
+  protected Object getEventKey(INPUT event)
+  {
+    return event.getEventKey();
   }
 }

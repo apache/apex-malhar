@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.dedup;
 
+import com.datatorrent.api.Context;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.List;
@@ -36,32 +37,38 @@ import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DAG;
 
-import com.datatorrent.lib.bucket.AbstractBucket;
-import com.datatorrent.lib.bucket.DummyEvent;
-import com.datatorrent.lib.bucket.ExpirableHdfsBucketStore;
-import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
+import com.datatorrent.lib.bucket.*;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 
-/**
- * Tests for {@link Deduper}
- */
-public class DeduperTest
+public class DeduperSimpleTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(DeduperTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(DeduperSimpleTest.class);
 
-  private final static String APPLICATION_PATH_PREFIX = "target/DeduperTest";
-  private final static String APP_ID = "DeduperTest";
+  private final static String APPLICATION_PATH_PREFIX = "target/DeduperPOJOTest";
+  private final static String APP_ID = "DeduperPOJOTest";
   private final static int OPERATOR_ID = 0;
 
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
-  private static class DummyDeduper extends DeduperWithHdfsStore<DummyEvent, DummyEvent>
+  private static class DummyDeduper extends AbstractDeduper<SimpleEvent, SimpleEvent>
   {
+    @Override
+    public void setup(Context.OperatorContext context)
+    {
+      boolean stateless = context.getValue(Context.OperatorContext.STATELESS);
+      if (stateless) {
+        bucketManager.setBucketStore(new NonOperationalBucketStore<SimpleEvent>());
+      }
+      else {
+        ((HdfsBucketStore<SimpleEvent>)bucketManager.getBucketStore()).setConfiguration(context.getId(), context.getValue(DAG.APPLICATION_PATH), partitionKeys, partitionMask);
+      }
+      super.setup(context);
+    }
 
     @Override
-    public void bucketLoaded(AbstractBucket<DummyEvent> bucket)
+    public void bucketLoaded(AbstractBucket<SimpleEvent> bucket)
     {
       try {
         super.bucketLoaded(bucket);
@@ -72,16 +79,23 @@ public class DeduperTest
       }
     }
 
-    @Override
-    public DummyEvent convert(DummyEvent dummyEvent)
-    {
-      return dummyEvent;
-    }
-
-    public void addEventManuallyToWaiting(DummyEvent event)
+    public void addEventManuallyToWaiting(SimpleEvent event)
     {
       waitingEvents.put(bucketManager.getBucketKeyFor(event), Lists.newArrayList(event));
     }
+
+    @Override
+    protected SimpleEvent convert(SimpleEvent input)
+    {
+      return input;
+    }
+
+    @Override
+    protected Object getEventKey(SimpleEvent event)
+    {
+      return event.getId();
+    }
+
   }
 
   private static DummyDeduper deduper;
@@ -90,19 +104,26 @@ public class DeduperTest
   @Test
   public void testDedup()
   {
-    List<DummyEvent> events = Lists.newArrayList();
+    List<SimpleEvent> events = Lists.newArrayList();
     Calendar calendar = Calendar.getInstance();
     for (int i = 0; i < 10; i++) {
-      events.add(new DummyEvent(i, calendar.getTimeInMillis()));
+      SimpleEvent event = new SimpleEvent();
+      event.setId(i);
+      event.setHhmm(calendar.getTimeInMillis() + "");
+      events.add(event);
     }
-    events.add(new DummyEvent(5, calendar.getTimeInMillis()));
+    SimpleEvent event = new SimpleEvent();
+    event.setId(5);
+    event.setHhmm(calendar.getTimeInMillis() + "");
+
+    events.add(event);
 
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributes.put(DAG.APPLICATION_ID, APP_ID);
     attributes.put(DAG.APPLICATION_PATH, applicationPath);
 
     deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes));
-    CollectorTestSink<DummyEvent> collectorTestSink = new CollectorTestSink<DummyEvent>();
+    CollectorTestSink<SimpleEvent> collectorTestSink = new CollectorTestSink<SimpleEvent>();
     TestUtils.setSink(deduper.output, collectorTestSink);
 
     logger.debug("start round 0");
@@ -133,7 +154,10 @@ public class DeduperTest
     deduper.handleIdleTime();
     long now = System.currentTimeMillis();
     for (int i = 10; i < 15; i++) {
-      events.add(new DummyEvent(i, now));
+      event = new SimpleEvent();
+      event.setId(i);
+      event.setHhmm(now + "");
+      events.add(event);
     }
 
     logger.debug("start round 2");
@@ -145,11 +169,28 @@ public class DeduperTest
     collectorTestSink.clear();
     logger.debug("end round 2");
     deduper.teardown();
+
   }
 
-  private void testRound(List<DummyEvent> events)
+  @Test
+  public void testDeduperRedeploy() throws Exception
   {
-    for (DummyEvent event : events) {
+    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
+    attributes.put(DAG.APPLICATION_ID, APP_ID);
+    attributes.put(DAG.APPLICATION_PATH, applicationPath);
+    SimpleEvent simpleEvent = new SimpleEvent();
+    simpleEvent.setId(100);
+    simpleEvent.setHhmm(System.currentTimeMillis() + "");
+    deduper.addEventManuallyToWaiting(simpleEvent);
+    deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
+    eventBucketExchanger.exchange(null, 500, TimeUnit.MILLISECONDS);
+    deduper.endWindow();
+    deduper.teardown();
+  }
+
+  private void testRound(List<SimpleEvent> events)
+  {
+    for (SimpleEvent event: events) {
       deduper.input.process(event);
     }
     try {
@@ -163,31 +204,17 @@ public class DeduperTest
     }
   }
 
-  @Test
-  public void testDeduperRedeploy() throws Exception
-  {
-    com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
-    attributes.put(DAG.APPLICATION_ID, APP_ID);
-    attributes.put(DAG.APPLICATION_PATH, applicationPath);
-
-    deduper.addEventManuallyToWaiting(new DummyEvent(100, System.currentTimeMillis()));
-    deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(0, attributes));
-    eventBucketExchanger.exchange(null, 500, TimeUnit.MILLISECONDS);
-    deduper.endWindow();
-    deduper.teardown();
-  }
-
   @BeforeClass
   public static void setup()
   {
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
-    ExpirableHdfsBucketStore<DummyEvent>  bucketStore = new ExpirableHdfsBucketStore<DummyEvent>();
+    ExpirableHdfsBucketStore<SimpleEvent> bucketStore = new ExpirableHdfsBucketStore<SimpleEvent>();
     deduper = new DummyDeduper();
-    TimeBasedBucketManagerImpl<DummyEvent> storageManager = new TimeBasedBucketManagerImpl<DummyEvent>();
-    storageManager.setBucketSpanInMillis(1000);
-    storageManager.setMillisPreventingBucketEviction(60000);
-    storageManager.setBucketStore(bucketStore);
-    deduper.setBucketManager(storageManager);
+    TimeBasedBucketManagerPOJOImpl timeManager = new TimeBasedBucketManagerPOJOImpl();
+    timeManager.setBucketSpanInMillis(60000);
+    timeManager.setMillisPreventingBucketEviction(60000);
+    timeManager.setBucketStore(bucketStore);
+    deduper.setBucketManager(timeManager);
   }
 
   @AfterClass
@@ -202,4 +229,5 @@ public class DeduperTest
       throw new RuntimeException(e);
     }
   }
+
 }

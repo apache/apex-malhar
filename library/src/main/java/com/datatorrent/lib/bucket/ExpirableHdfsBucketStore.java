@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * @param <T>
  * @since 0.9.5
  */
-public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends HdfsBucketStore<T> implements BucketStore.ExpirableBucketStore<T>
+public class ExpirableHdfsBucketStore<T> extends HdfsBucketStore<T> implements BucketStore.ExpirableBucketStore<T>
 {
 
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
