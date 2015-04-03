@@ -45,11 +45,11 @@ public class GenericEventSchemaTest
       "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"},\n" +
        "{\"name\":\"" + keyName2 + "\",\"type\":\"" + keyName2Type + "\"}],\n" +
       "\"values\":\n" +
-      "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\",\"aggregations\":[\"min\",\"max\"]},\n" +
-       "{\"name\":\"" + valueName2 + "\",\"type\":\"" + valueName2Type + "\",\"aggregations\":[\"sum\",\"count\"]}],\n" +
+      "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\"},\n" +
+       "{\"name\":\"" + valueName2 + "\",\"type\":\"" + valueName2Type + "\"}],\n" +
       "\"aggregations\":\n" +
-      "[{\"descriptor\":\"" + keyName1 + ":" + keyName2 + "\",\"aggregations\":[\"min\",\"max\"]},\n" +
-       "{\"descriptor\":\"" + keyName1 + "\",\"aggregations\":[\"sum\",\"count\"]}]\n" +
+      "[{\"descriptor\":\"" + keyName1 + ":" + keyName2 + "\",\"aggregations\":{\"" + valueName1 + "\":[\"min\",\"max\"]}},\n" +
+       "{\"descriptor\":\"" + keyName1 + "\",\"aggregations\":{\"" + valueName2 + "\":[\"sum\",\"count\"]}}]\n" +
     "}";
 
     GenericEventSchema ges = new GenericEventSchema(jsonSchema);
@@ -77,26 +77,6 @@ public class GenericEventSchemaTest
 
     Set<String> ddKeys1 = Sets.newHashSet(keyName1, keyName2);
     Set<String> ddKeys2 = Sets.newHashSet(keyName1);
-
-    Assert.assertEquals("Checking if dimensionsDescriptor is correct", 1,
-                        ges.getAggregatorToDimensionsDescriptor().get("min").size());
-    Assert.assertTrue("Checking if dimensionsDescriptor is correct",
-                      ges.getAggregatorToDimensionsDescriptor().get("min").iterator().next().getFields().getFields().equals(ddKeys1));
-
-    Assert.assertEquals("Checking if dimensionsDescriptor is correct", 1,
-                        ges.getAggregatorToDimensionsDescriptor().get("max").size());
-    Assert.assertTrue("Checking if dimensionsDescriptor is correct",
-                      ges.getAggregatorToDimensionsDescriptor().get("max").iterator().next().getFields().getFields().equals(ddKeys1));
-
-    Assert.assertEquals("Checking if dimensionsDescriptor is correct", 1,
-                        ges.getAggregatorToDimensionsDescriptor().get("sum").size());
-    Assert.assertTrue("Checking if dimensionsDescriptor is correct",
-                      ges.getAggregatorToDimensionsDescriptor().get("sum").iterator().next().getFields().getFields().equals(ddKeys2));
-
-    Assert.assertEquals("Checking if dimensionsDescriptor is correct", 1,
-                        ges.getAggregatorToDimensionsDescriptor().get("count").size());
-    Assert.assertTrue("Checking if dimensionsDescriptor is correct",
-                      ges.getAggregatorToDimensionsDescriptor().get("count").iterator().next().getFields().getFields().equals(ddKeys2));
 
     Set<String> minAggFields = Sets.newHashSet(valueName1);
     Set<String> maxAggFields = Sets.newHashSet(valueName1);

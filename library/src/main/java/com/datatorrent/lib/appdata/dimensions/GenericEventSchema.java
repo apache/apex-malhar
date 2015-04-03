@@ -5,6 +5,7 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
+import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Lists;
@@ -16,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -28,11 +30,11 @@ import java.util.Set;
  *   [{"name":"keyName1","type":"type1"},
  *    {"name":"keyName2","type":"type2"}]
  *  "values":
- *   [{"name":"valueName1","type":"type1","aggregations":["min","max,"sum","count"]},
- *    {"name":"valueName2","type":"type2","aggregations":["min","max","sum","count"]}]
+ *   [{"name":"valueName1","type":"type1"},
+ *    {"name":"valueName2","type":"type2"}]
  *  "aggregations":
- *   [{"descriptor":"keyName1:keyName2","aggregations":["min","max"]},
- *    {"descriptor":"keyName1","aggregations":["sum"]}]
+ *   [{"descriptor":"keyName1:keyName2","aggregations":{"valueName1":["min","max"],"valueName2":["sum"]}},
+ *    {"descriptor":"keyName1","aggregations":{"valueName1":["sum"]}}]
  * }
  */
 public class GenericEventSchema
@@ -52,11 +54,16 @@ public class GenericEventSchema
   public static final String FIELD_AGGREGATIONS_DESCRIPTOR = "descriptor";
   public static final String FIELD_AGGREGATIONS_AGGREGATIONS = "aggregations";
 
+  //Done
   private FieldsDescriptor keyDescriptor;
+  //Done
   private List<FieldsDescriptor> ddIDToKeyDescriptor;
+  //Done
   private List<DimensionsDescriptor> ddIDToDD;
+  //Done
+  private List<Map<String, List<String>>> ddIDToValueToAggregator;
   private List<Map<String, FieldsDescriptor>> ddIDToAggregatorToAggregateDescriptor;
-  private Map<String, Set<DimensionsDescriptor>> aggregatorToDimensionsDescriptor;
+
   private Map<DimensionsDescriptor, Integer> dimensionsDescriptorToID;
 
   public GenericEventSchema()
@@ -75,7 +82,6 @@ public class GenericEventSchema
 
   private void initialize(String json) throws Exception
   {
-    System.out.println("Initializing: " + json);
     JSONObject jo = new JSONObject(json);
 
     JSONArray keysArray = jo.getJSONArray(FIELD_KEYS);
@@ -85,7 +91,6 @@ public class GenericEventSchema
         keyIndex < keysArray.length();
         keyIndex++) {
       JSONObject keyDescriptor = keysArray.getJSONObject(keyIndex);
-      System.out.println("keyDescriptor: " + keyDescriptor);
       String name = keyDescriptor.getString(FIELD_KEYS_NAME);
       String type = keyDescriptor.getString(FIELD_KEYS_TYPE);
 
@@ -95,8 +100,8 @@ public class GenericEventSchema
     //Key descriptor all
     keyDescriptor = new FieldsDescriptor(fieldToType);
 
+    Map<String, Type> aggFieldToType = Maps.newHashMap();
     JSONArray valuesArray = jo.getJSONArray(FIELD_VALUES);
-    Map<String, Map<String, Type>> aggregatorToFieldToType = Maps.newHashMap();
 
     for(int valueIndex = 0;
         valueIndex < valuesArray.length();
@@ -106,41 +111,12 @@ public class GenericEventSchema
       String type = value.getString(FIELD_VALUES_TYPE);
       Type typeT = Type.NAME_TO_TYPE.get(type);
 
-      JSONArray aggregators = value.getJSONArray(FIELD_VALUES_AGGREGATIONS);
-
-      for(int aggregatorIndex = 0;
-          aggregatorIndex < aggregators.length();
-          aggregatorIndex++) {
-        String aggregatorName = aggregators.getString(aggregatorIndex);
-
-        logger.info("aggregatorName {} field {} type {}", aggregatorName, name, typeT);
-
-        Map<String, Type> aggregatorFieldToType = aggregatorToFieldToType.get(aggregatorName);
-
-        if(aggregatorFieldToType == null) {
-          aggregatorFieldToType = Maps.newHashMap();
-          aggregatorToFieldToType.put(aggregatorName, aggregatorFieldToType);
-        }
-
-        aggregatorFieldToType.put(name, typeT);
-      }
+      aggFieldToType.put(name, typeT);
     }
 
-    logger.info("Building fields descriptor");
+    FieldsDescriptor allValuesFieldDescriptor = new FieldsDescriptor(aggFieldToType);
 
-    //Aggregator to fields descriptor
-    Map<String, FieldsDescriptor> aggregatorToFieldsDescriptor = Maps.newHashMap();
-
-    for(Map.Entry<String, Map<String, Type>> entry: aggregatorToFieldToType.entrySet()) {
-      FieldsDescriptor descriptor = new FieldsDescriptor(entry.getValue());
-      aggregatorToFieldsDescriptor.put(entry.getKey(), descriptor);
-
-      logger.info("Cost type {}", descriptor.getType("cost"));
-    }
-
-    //Aggregator to Dimensions descriptor
-    aggregatorToDimensionsDescriptor = Maps.newHashMap();
-
+    ddIDToValueToAggregator = Lists.newArrayList();
     ddIDToKeyDescriptor = Lists.newArrayList();
     ddIDToDD = Lists.newArrayList();
     ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
@@ -165,44 +141,90 @@ public class GenericEventSchema
       ddIDToKeyDescriptor.add(dimensionsDescriptor.createFieldsDescriptor(keyDescriptor));
       getDdIDToDD().add(dimensionsDescriptor);
 
-      JSONArray aggArray = aggregation.getJSONArray(FIELD_AGGREGATIONS_AGGREGATIONS);
-      Map<String, FieldsDescriptor> specificAggregatorToFieldsDescriptor = Maps.newHashMap();
+      JSONObject valuesToAggregationsJSON = aggregation.getJSONObject(FIELD_AGGREGATIONS_AGGREGATIONS);
+      Iterator valuesIterator = valuesToAggregationsJSON.keys();
 
-      for(int aggIndex = 0;
-          aggIndex < aggArray.length();
-          aggIndex++) {
-        String aggregator = aggArray.getString(aggIndex);
-        specificAggregatorToFieldsDescriptor.put(aggregator, aggregatorToFieldsDescriptor.get(aggregator));
+      Map<String, List<String>> valueToAggregators = Maps.newHashMap();
 
-        Set<DimensionsDescriptor> dds = aggregatorToDimensionsDescriptor.get(aggregator);
+      while(valuesIterator.hasNext()) {
+        String value = (String) valuesIterator.next();
 
-        if(dds == null) {
-          dds = Sets.newHashSet();
-          aggregatorToDimensionsDescriptor.put(aggregator, dds);
+        if(!aggFieldToType.containsKey(value)) {
+          throw new IllegalArgumentException("The value " + value +
+                                             " was not included in the " + FIELD_VALUES +
+                                             "section of the json.");
         }
 
-        dds.add(dimensionsDescriptor);
+        List<String> aggregators = Lists.newArrayList();
+        Set<String> aggregatorSet = Sets.newHashSet();
+        JSONArray aggregatorsForValue = valuesToAggregationsJSON.getJSONArray(value);
+
+        for(int aggregatorIndex = 0;
+            aggregatorIndex < aggregatorsForValue.length();
+            aggregatorIndex++) {
+          String aggregatorString = aggregatorsForValue.getString(aggregatorIndex);
+
+          if(!aggregatorSet.add(aggregatorString)) {
+            throw new IllegalArgumentException("The aggregator " + aggregatorString + " was listed more than once.");
+          }
+
+          aggregators.add(aggregatorString);
+        }
+
+        aggregators = Collections.unmodifiableList(aggregators);
+        valueToAggregators.put(value, aggregators);
       }
 
-      specificAggregatorToFieldsDescriptor = Collections.unmodifiableMap(specificAggregatorToFieldsDescriptor);
-      ddIDToAggregatorToAggregateDescriptor.add(specificAggregatorToFieldsDescriptor);
+      valueToAggregators = Collections.unmodifiableMap(valueToAggregators);
+      getDdIDToValueToAggregator().add(valueToAggregators);
     }
 
-    ddIDToDD = Collections.unmodifiableList(getDdIDToDD());
+    //DD ID To Aggregator To Aggregate Descriptor
+
+    ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
+
+    for(int ddID = 0;
+        ddID < getDdIDToValueToAggregator().size();
+        ddID++) {
+      Map<String, List<String>> valueToAggregator = getDdIDToValueToAggregator().get(ddID);
+      Map<String, Set<String>> aggregatorToValues = Maps.newHashMap();
+
+      for(Map.Entry<String, List<String>> entry: valueToAggregator.entrySet()) {
+        String value = entry.getKey();
+        for(String aggregator: entry.getValue()) {
+          Set<String> values = aggregatorToValues.get(aggregator);
+
+          if(values == null) {
+            values = Sets.newHashSet();
+            aggregatorToValues.put(aggregator, values);
+          }
+
+          values.add(value);
+        }
+      }
+
+      Map<String, FieldsDescriptor> aggregatorToValuesDescriptor = Maps.newHashMap();
+
+      for(Map.Entry<String, Set<String>> entry: aggregatorToValues.entrySet()) {
+        for(String value: entry.getValue()) {
+          aggFieldToType.get(value);
+        }
+
+        aggregatorToValuesDescriptor.put(
+        entry.getKey(),
+        allValuesFieldDescriptor.getSubset(new Fields(entry.getValue())));
+      }
+
+      aggregatorToValuesDescriptor = Collections.unmodifiableMap(aggregatorToValuesDescriptor);
+      ddIDToAggregatorToAggregateDescriptor.add(aggregatorToValuesDescriptor);
+    }
+
+    ddIDToDD = Collections.unmodifiableList(ddIDToDD);
     ddIDToKeyDescriptor = Collections.unmodifiableList(ddIDToKeyDescriptor);
     ddIDToAggregatorToAggregateDescriptor = Collections.unmodifiableList(ddIDToAggregatorToAggregateDescriptor);
 
-    //Making aggregator to dimensions descriptor unmodifiable
-
-    for(Map.Entry<String, Set<DimensionsDescriptor>> entry:
-        aggregatorToDimensionsDescriptor.entrySet()) {
-      aggregatorToDimensionsDescriptor.put(entry.getKey(),
-                                           Collections.unmodifiableSet(entry.getValue()));
-    }
-
-    aggregatorToDimensionsDescriptor = Collections.unmodifiableMap(aggregatorToDimensionsDescriptor);
-
-    /////////////////////
+    //
+    //Dimensions Descriptor To ID
 
     dimensionsDescriptorToID = Maps.newHashMap();
 
@@ -211,6 +233,8 @@ public class GenericEventSchema
         index++) {
       dimensionsDescriptorToID.put(ddIDToDD.get(index), index);
     }
+
+    //
   }
 
   public FieldsDescriptor getAllKeysDescriptor()
@@ -226,11 +250,6 @@ public class GenericEventSchema
   public List<Map<String, FieldsDescriptor>> getDdIDToAggregatorToAggregateDescriptor()
   {
     return ddIDToAggregatorToAggregateDescriptor;
-  }
-
-  public Map<String, Set<DimensionsDescriptor>> getAggregatorToDimensionsDescriptor()
-  {
-    return aggregatorToDimensionsDescriptor;
   }
 
   public List<Map<Integer, FieldsDescriptor>> getDdIDToAggregatorIDToFieldsDescriptor(Map<String, Integer> aggregatorNameToID)
@@ -269,5 +288,13 @@ public class GenericEventSchema
   public List<DimensionsDescriptor> getDdIDToDD()
   {
     return ddIDToDD;
+  }
+
+  /**
+   * @return the ddIDToValueToAggregator
+   */
+  public List<Map<String, List<String>>> getDdIDToValueToAggregator()
+  {
+    return ddIDToValueToAggregator;
   }
 }
