@@ -42,6 +42,8 @@ public class LongArrayGenerator implements InputOperator
           arrayIndex++) {
         outputArray[arrayIndex] = (long) arrayCounter;
       }
+
+      output.emit(outputArray);
     }
   }
 
