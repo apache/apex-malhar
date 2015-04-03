@@ -1694,12 +1694,14 @@ public class AbstractFileOutputOperatorTest
     BufferedReader br = null;
 
     Cipher cipher = null;
-    try {
-      cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
-      IvParameterSpec ivps = new IvParameterSpec(iv);
-      cipher.init(Cipher.DECRYPT_MODE, secretKey, ivps);
-    } catch (Exception e) {
-      throw new RuntimeException(e);
+    if (secretKey != null) {
+      try {
+        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        IvParameterSpec ivps = new IvParameterSpec(iv);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivps);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
 
     int numWindows = 0;
@@ -1737,11 +1739,17 @@ public class AbstractFileOutputOperatorTest
           Assert.assertEquals("File line", eline, line);
           ++count;
           //System.out.println("line " + line + " " + count);
+          if ((count % 1000) == 0) {
+            ++numWindows;
+            eline = "" + (start + numWindows * 2);
+          }
         }
+        /*
         if (count > 0) {
           Assert.assertEquals("Event count", 1000, count);
           ++numWindows;
         }
+        */
         startOffset = offset;
       } finally {
         if (br != null) {
@@ -1770,17 +1778,17 @@ public class AbstractFileOutputOperatorTest
     FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream> chainStreamProvider
             = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
     chainStreamProvider.addStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
-    chainStreamProvider.addStreamProvider(new FilterStreamProvider<CipherOutputStream, OutputStream>()
+    chainStreamProvider.addStreamProvider(new FilterStreamProvider.SimpleFilterReusableStreamProvider<CipherOutputStream, OutputStream>()
     {
       @Override
-      public FilterStreamContext<CipherOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
+      protected FilterStreamContext<CipherOutputStream> createFilterStreamContext(OutputStream outputStream) throws IOException
       {
         try {
           Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
           cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivps);
           return new FilterStreamCodec.CipherFilterStreamContext(outputStream, cipher);
         } catch (Exception e) {
-          throw new RuntimeException(e);
+          throw new IOException(e);
         }
       }
     });
@@ -1802,11 +1810,14 @@ public class AbstractFileOutputOperatorTest
         writer.input.put(i);
       }
       writer.endWindow();
-      evenOffsets.add(evenFile.length());
-      oddOffsets.add(oddFile.length());
+      //evenOffsets.add(evenFile.length());
+      //oddOffsets.add(oddFile.length());
     }
 
     writer.teardown();
+
+    evenOffsets.add(evenFile.length());
+    oddOffsets.add(oddFile.length());
 
     checkCompressedFile(evenFile, evenOffsets, 0, secretKey, iv);
     checkCompressedFile(oddFile, oddOffsets, 1, secretKey, iv);

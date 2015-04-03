@@ -55,6 +55,12 @@ public class FilterStreamCodec
     {
       return new GZIPFilterStreamContext(outputStream);
     }
+
+    @Override
+    public void reclaimFilterStreamContext(FilterStreamContext<GZIPOutputStream> filterStreamContext)
+    {
+
+    }
   }
 
   /**
@@ -89,6 +95,12 @@ public class FilterStreamCodec
     public FilterStreamContext<CipherOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
     {
       return new FilterStreamContext.SimpleFilterStreamContext<CipherOutputStream>(new CipherOutputStream(outputStream, cipher));
+    }
+
+    @Override
+    public void reclaimFilterStreamContext(FilterStreamContext<CipherOutputStream> filterStreamContext)
+    {
+
     }
   }
 }
