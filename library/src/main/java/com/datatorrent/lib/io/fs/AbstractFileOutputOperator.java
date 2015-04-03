@@ -948,7 +948,9 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     public void close() throws IOException
     {
       finalizeContext();
-      filterContext.getFilterStream().close();
+      if (filterContext != null) {
+        filterContext.getFilterStream().close();
+      }
       outputStream.close();
     }
     
