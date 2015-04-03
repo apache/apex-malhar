@@ -83,6 +83,7 @@ public class TestUtils
 
     final int operatorId;
     public List<Stats.OperatorStats> operatorStats;
+    public long latency;
 
     public MockBatchedOperatorStats(int operatorId)
     {
@@ -128,7 +129,13 @@ public class TestUtils
     @Override
     public long getLatencyMA()
     {
-      return 0;
+      return latency;
+    }
+
+    @Override
+    public List<StatsListener.OperatorResponse> getOperatorResponse()
+    {
+      return null;
     }
   }
 
