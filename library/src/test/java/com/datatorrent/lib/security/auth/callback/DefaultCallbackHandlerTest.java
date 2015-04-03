@@ -16,6 +16,7 @@
 package com.datatorrent.lib.security.auth.callback;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
@@ -81,7 +82,11 @@ public class DefaultCallbackHandlerTest
     @Override
     public void setCounters(Object counters)
     {
+    }
 
+    @Override
+    public void sendCustomMetrics(Collection<String> metricNames)
+    {
     }
   }
 }
