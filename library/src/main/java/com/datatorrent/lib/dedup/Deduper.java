@@ -325,7 +325,12 @@ public abstract class Deduper<INPUT extends Bucketable, OUTPUT>
       deduperInstance.partitionKeys = deduperPartition.getPartitionKeys().get(input).partitions;
       deduperInstance.partitionMask = lPartitionMask;
       logger.debug("partitions {},{}", deduperInstance.partitionKeys, deduperInstance.partitionMask);
-      deduperInstance.bucketManager = bucketManager.cloneWithProperties();
+      try {
+        deduperInstance.bucketManager = bucketManager.clone();
+      }
+      catch (CloneNotSupportedException ex) {
+        DTThrowable.rethrow(ex);
+      }
 
       for (int partitionKey : deduperInstance.partitionKeys) {
         partitionKeyToStorageManagers.put(partitionKey, deduperInstance.bucketManager);

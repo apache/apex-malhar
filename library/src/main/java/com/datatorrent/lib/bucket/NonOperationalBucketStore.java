@@ -95,5 +95,12 @@ public class NonOperationalBucketStore<T extends Bucketable & Event> implements 
   {
   }
 
+  @Override
+  @SuppressWarnings("unchecked")
+  public NonOperationalBucketStore<T> clone() throws CloneNotSupportedException
+  {
+    return (NonOperationalBucketStore<T>)super.clone();
+  }
+
   private static transient final Logger logger = LoggerFactory.getLogger(NonOperationalBucketStore.class);
 }

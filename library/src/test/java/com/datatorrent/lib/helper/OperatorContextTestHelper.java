@@ -52,7 +52,6 @@ public class OperatorContextTestHelper
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T getValue(Attribute<T> key)
     {
       T value = attributes.get(key);

@@ -452,23 +452,14 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   }
 
   @Override
-  public BucketManagerImpl<T> cloneWithProperties()
+  public BucketManagerImpl<T> clone() throws CloneNotSupportedException
   {
-    BucketManagerImpl<T> clone = new BucketManagerImpl<T>();
-    copyPropertiesTo(clone);
+    @SuppressWarnings("unchecked")
+    BucketManagerImpl<T> clone = (BucketManagerImpl<T>)super.clone();
+    clone.setBucketStore(clone.getBucketStore().clone());
     return clone;
   }
 
-  protected void copyPropertiesTo(BucketManagerImpl<T> other)
-  {
-    other.writeEventKeysOnly = writeEventKeysOnly;
-    other.noOfBuckets = noOfBuckets;
-    other.noOfBucketsInMemory = noOfBucketsInMemory;
-    other.maxNoOfBucketsInMemory = maxNoOfBucketsInMemory;
-    other.millisPreventingBucketEviction = millisPreventingBucketEviction;
-    other.bucketStore = bucketStore;
-    other.committedWindow = committedWindow;
-  }
 
   @SuppressWarnings("ClassMayBeInterface")
   private static class Lock

@@ -60,7 +60,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <T> event type
  * @since 0.9.4
  */
-public interface BucketManager<T extends Bucketable>
+public interface BucketManager<T extends Bucketable> extends Cloneable
 {
   void setBucketStore(@Nonnull BucketStore<T> bucketStore);
 
@@ -90,7 +90,7 @@ public interface BucketManager<T extends Bucketable>
   /**
    * <p>
    * Returns the bucket in memory corresponding to a bucket key.
-   * If the bucket is not created yet, it will return null.</br>
+   * If the bucket is not created yet, it will return null.
    * A bucket is created:
    * <ul>
    * <li> When the operator requests to load a bucket from store.</li>
@@ -140,8 +140,9 @@ public interface BucketManager<T extends Bucketable>
    * Constructs a new {@link BucketManager} with only the settings and not the data.
    *
    * @return newly created manager without any data.
+   * @throws java.lang.CloneNotSupportedException
    */
-  BucketManager<T> cloneWithProperties();
+  BucketManager<T> clone() throws CloneNotSupportedException;
 
   void setBucketCounters(@Nonnull BasicCounters<MutableLong> stats);
 
