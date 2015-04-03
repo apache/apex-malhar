@@ -30,7 +30,7 @@ public interface FilterStreamContext<F extends FilterOutputStream>
   public F getFilterStream();
 
   /**
-   * Finalize the context and write any pending data. The context may not be used after this.
+   * Finalize the context and write any pending data. The context may not be usable after this.
    * @throws IOException
    */
   public void finalizeContext() throws IOException;

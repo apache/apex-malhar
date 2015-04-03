@@ -931,9 +931,11 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       if (filterContext != null) {
         filterContext.finalizeContext();
         outputWrapper.flush();
-        filterContext.getFilterStream().close();
       }
       outputStream.hflush();
+      if (filterStreamProvider != null) {
+        filterStreamProvider.reclaimFilterStreamContext(filterContext);
+      }
     }
     
     public void resetFilter() throws IOException
@@ -946,6 +948,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     public void close() throws IOException
     {
       finalizeContext();
+      filterContext.getFilterStream().close();
       outputStream.close();
     }
     
