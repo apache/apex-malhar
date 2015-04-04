@@ -42,7 +42,6 @@ public class LongArrayPrimitiveGenerator implements InputOperator
           arrayIndex++) {
         outputArray[arrayIndex] = (long) arrayCounter;
       }
-      
       output.emit(outputArray);
     }
   }

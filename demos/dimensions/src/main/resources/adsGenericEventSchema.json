@@ -3,12 +3,12 @@
    {"name":"advertiser","type":"string"},
    {"name":"location","type":"string"}],
  "values":
-  [{"name":"impressions","type":"long","aggregations":["SUM"]},
-   {"name":"clicks","type":"long","aggregations":["SUM"]},
-   {"name":"cost","type":"double","aggregations":["SUM"]},
-   {"name":"revenue","type":"double","aggregations":["SUM"]}],
+  [{"name":"impressions","type":"long"},
+   {"name":"clicks","type":"long"},
+   {"name":"cost","type":"double"},
+   {"name":"revenue","type":"double"}],
  "aggregations":
-  [{"descriptor":"time=MINUTES", "aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
+  [{"descriptor":"time=MINUTES", "aggregations":{"impressions":["SUM", "MAX"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
    {"descriptor":"time=MINUTES:location","aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
    {"descriptor":"time=MINUTES:advertiser","aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
    {"descriptor":"time=MINUTES:publisher","aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
