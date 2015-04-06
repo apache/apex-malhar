@@ -117,7 +117,13 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   {
     GPOMutable keyGPO = new GPOMutable(keyFieldsDescriptor);
 
-    for(String field: keyFieldsDescriptor.getFields().getFields()) {
+    List<String> fields = keyFieldsDescriptor.getFields().getFieldsList();
+
+    for(int index = 0;
+        index < fields.size();
+        index++) {
+      String field = fields.get(index);
+
       if(field.equals(AdsSchemaResult.ADVERTISER)) {
         keyGPO.setField(field, ga.getAdvertiser());
       }

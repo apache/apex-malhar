@@ -116,7 +116,13 @@ public class GenericSalesDimensionComputation extends GenericDimensionsComputati
   {
     GPOMutable keyGPO = new GPOMutable(keyFieldsDescriptor);
 
-    for(String field: keyFieldsDescriptor.getFields().getFields()) {
+    List<String> fields = keyFieldsDescriptor.getFields().getFieldsList();
+
+    for(int index = 0;
+        index < fields.size();
+        index++) {
+      String field = fields.get(index);
+      
       if(field.equals(JsonSalesGenerator.KEY_CHANNEL)) {
         keyGPO.setField(field, ga.get(JsonSalesGenerator.KEY_CHANNEL));
       }
