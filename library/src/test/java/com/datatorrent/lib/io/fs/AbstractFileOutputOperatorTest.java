@@ -41,7 +41,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.fs.FilterStreamCodecContext.CipherFilterStreamContext;
 import com.datatorrent.lib.io.fs.FilterStreamProvider.FilterChainStreamProvider;
 import com.datatorrent.lib.testbench.RandomWordGenerator;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
@@ -1681,53 +1680,53 @@ public class AbstractFileOutputOperatorTest
     return key;
   }
 
-  @Test
-  public void testProviders() throws Exception
-  {
-    String homeDir = System.getProperty("user.home");
-    FileOutputOperator writer = new FileOutputOperator();
-    FilterChainStreamProvider providers = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
-    FilterStreamProvider<GZIPOutputStream, OutputStream> gzipStream = new FilterStreamProvider<GZIPOutputStream, OutputStream>() {
-
-      @Override
-      public FilterStreamContext<GZIPOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
-      {
-        return new FilterStreamCodecContext.GZIPFilterStreamContext(outputStream);
-      }
-    };
-    final Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
-
-    SecretKey secret = new SecretKeySpec(getKey(), "AES");
-
-    cipher.init(Cipher.ENCRYPT_MODE, secret);
-    FilterStreamProvider<CipherOutputStream, OutputStream> cipherStream = new FilterStreamProvider<CipherOutputStream, OutputStream>() {
-
-      @Override
-      public FilterStreamContext<CipherOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
-      {
-        CipherFilterStreamContext cipherContext = new FilterStreamCodecContext.CipherFilterStreamContext(outputStream, cipher);
-        return cipherContext;
-      }
-
-    };
-    // providers.addStreamProvider(gzipStream);
-    providers.addStreamProvider(cipherStream);
-    writer.setFilterStreamProvider(providers);
-
-    writer.setFilePath(homeDir + "/temp");
-    writer.setup(testOperatorContext);
-
-    writer.beginWindow(0);
-    writer.input.put("hi ");
-    writer.input.put("let's try to put some bigger size data ");
-    // writer.endWindow();
-    writer.input.put("which crosses boundry of 16 bytes");
-    writer.endWindow();
-
-    // writer.teardown();
-
-    // TestUtils.clone(new Kryo(), writer);
-  }
+//  @Test
+//  public void testProviders() throws Exception
+//  {
+//    String homeDir = System.getProperty("user.home");
+//    FileOutputOperator writer = new FileOutputOperator();
+//    FilterChainStreamProvider providers = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
+//    FilterStreamProvider<GZIPOutputStream, OutputStream> gzipStream = new FilterStreamProvider<GZIPOutputStream, OutputStream>() {
+//
+//      @Override
+//      public FilterStreamContext<GZIPOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
+//      {
+//        return new FilterStreamCodecContext.GZIPFilterStreamContext(outputStream);
+//      }
+//    };
+//    final Cipher cipher = Cipher.getInstance("AES/ECB/PKCS5Padding");
+//
+//    SecretKey secret = new SecretKeySpec(getKey(), "AES");
+//
+//    cipher.init(Cipher.ENCRYPT_MODE, secret);
+//    FilterStreamProvider<CipherOutputStream, OutputStream> cipherStream = new FilterStreamProvider<CipherOutputStream, OutputStream>() {
+//
+//      @Override
+//      public FilterStreamContext<CipherOutputStream> getFilterStreamContext(OutputStream outputStream) throws IOException
+//      {
+//        CipherFilterStreamContext cipherContext = new FilterStreamCodecContext.CipherFilterStreamContext(outputStream, cipher);
+//        return cipherContext;
+//      }
+//
+//    };
+//    // providers.addStreamProvider(gzipStream);
+//    providers.addStreamProvider(cipherStream);
+//    writer.setFilterStreamProvider(providers);
+//
+//    writer.setFilePath(homeDir + "/temp");
+//    writer.setup(testOperatorContext);
+//
+//    writer.beginWindow(0);
+//    writer.input.put("hi ");
+//    writer.input.put("let's try to put some bigger size data ");
+//    // writer.endWindow();
+//    writer.input.put("which crosses boundry of 16 bytes");
+//    writer.endWindow();
+//
+//    // writer.teardown();
+//
+//    // TestUtils.clone(new Kryo(), writer);
+//  }
   
   @Test
   public void testCompression() throws IOException

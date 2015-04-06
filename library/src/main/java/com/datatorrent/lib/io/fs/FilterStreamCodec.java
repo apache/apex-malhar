@@ -91,11 +91,5 @@ public class FilterStreamCodec
       return new FilterStreamContext.SimpleFilterStreamContext<CipherOutputStream>(new CipherOutputStream(outputStream, cipher));
     }
 
-    public CipherFilterStreamContext(OutputStream outputStream, Cipher cipher)
-    {
-      this.cipher = cipher;
-      filterStream = new CipherOutputStream(outputStream, this.cipher);
-    }
-
   }
 }
