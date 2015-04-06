@@ -9,7 +9,6 @@ import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
-import java.nio.ByteBuffer;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -18,6 +17,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,10 +28,6 @@ import java.util.Set;
 public class GPOUtils
 {
   private static final Logger logger = LoggerFactory.getLogger(GPOUtils.class);
-
-  private static ByteBuffer BB_2 = ByteBuffer.allocate(2);
-  private static ByteBuffer BB_4 = ByteBuffer.allocate(4);
-  private static ByteBuffer BB_8 = ByteBuffer.allocate(8);
 
   public static Map<String, Type> buildTypeMap(JSONObject jo) throws Exception
   {
@@ -500,7 +496,7 @@ public class GPOUtils
         jo.put(field, gpo.getFieldBool(field));
       }
       else if(fieldType == Type.CHAR) {
-        jo.put(field, gpo.getFieldChar(field).toString());
+        jo.put(field, ((Character) gpo.getFieldChar(field)).toString());
       }
       else if(fieldType == Type.STRING) {
         jo.put(field, gpo.getFieldString(field));
@@ -536,23 +532,26 @@ public class GPOUtils
     int arrayLength = 0;
     FieldsDescriptor fd = gpo.getFieldDescriptor();
 
-    for(String field: gpo.getFieldDescriptor().getFields().getFields()) {
-      Type type = fd.getType(field);
+    List<Type> types = fd.getTypesList();
 
-      int numBytes = 0;
+    for(int typeIndex = 0;
+        typeIndex < types.size();
+        typeIndex++) {
+      Type type = types.get(typeIndex);
 
       switch(type) {
         case STRING: {
-          numBytes = Type.INTEGER.getByteSize() +
-                     gpo.getFieldString(field).getBytes().length;
+          for(String val: gpo.getFieldsString()) {
+            arrayLength += Type.INTEGER.getByteSize();
+            arrayLength += val.getBytes().length;
+          }
           break;
         }
         default: {
-          numBytes = type.getByteSize();
+          arrayLength += fd.getTypeToFields().get(type).size() *
+                         type.getByteSize();
         }
       }
-
-      arrayLength += numBytes;
     }
 
     return arrayLength;
@@ -564,69 +563,102 @@ public class GPOUtils
     byte[] sbytes = new byte[slength];
     MutableInt offset = new MutableInt(0);
 
-    Set<String> fields = gpo.getFieldDescriptor().getFields().getFields();
-
-    for(String field: fields) {
-
-      Type type = gpo.getFieldDescriptor().getType(field);
-
-      switch(type) {
-      case BOOLEAN: {
-        serializeBoolean(gpo.getFieldBool(field),
+    boolean[] fieldsBoolean = gpo.getFieldsBoolean();
+    if(fieldsBoolean != null) {
+      for(int index = 0;
+          index < fieldsBoolean.length;
+          index++) {
+        serializeBoolean(fieldsBoolean[index],
                          sbytes,
                          offset);
-        break;
       }
-      case BYTE: {
-        serializeByte(gpo.getFieldByte(field),
+    }
+
+    char[] fieldsCharacter = gpo.getFieldsCharacter();
+    if(fieldsCharacter != null) {
+      for(int index = 0;
+          index < fieldsCharacter.length;
+          index++) {
+        serializeChar(fieldsCharacter[index],
                       sbytes,
                       offset);
-        break;
       }
-      case SHORT: {
-        serializeShort(gpo.getFieldShort(field),
+    }
+
+    byte[] fieldsByte = gpo.getFieldsByte();
+    if(fieldsByte != null) {
+      for(int index = 0;
+          index < fieldsByte.length;
+          index++) {
+        serializeByte(fieldsByte[index],
                       sbytes,
                       offset);
-        break;
       }
-      case INTEGER: {
-        serializeInt(gpo.getFieldInt(field),
-                     sbytes,
-                     offset);
-        break;
-      }
-      case LONG: {
-        serializeLong(gpo.getFieldLong(field),
-                     sbytes,
-                     offset);
-        break;
-      }
-      case CHAR: {
-        serializeChar(gpo.getFieldChar(field),
+    }
+
+    short[] fieldsShort = gpo.getFieldsShort();
+    if(fieldsShort != null) {
+      for(int index = 0;
+          index < fieldsShort.length;
+          index++) {
+        serializeShort(fieldsShort[index],
                       sbytes,
                       offset);
-        break;
       }
-      case STRING: {
-        serializeString(gpo.getFieldString(field),
-                        sbytes,
-                        offset);
-        break;
+    }
+
+    int[] fieldsInteger = gpo.getFieldsInteger();
+    if(fieldsInteger != null) {
+      for(int index = 0;
+          index < fieldsInteger.length;
+          index++) {
+        serializeInt(fieldsInteger[index],
+                      sbytes,
+                      offset);
       }
-      case FLOAT: {
-        serializeFloat(gpo.getFieldFloat(field),
-                       sbytes,
-                       offset);
-        break;
+    }
+
+    long[] fieldsLong = gpo.getFieldsLong();
+    if(fieldsLong != null) {
+      for(int index = 0;
+          index < fieldsLong.length;
+          index++) {
+        serializeLong(fieldsLong[index],
+                      sbytes,
+                      offset);
       }
-      case DOUBLE: {
-        serializeDouble(gpo.getFieldDouble(field),
-                        sbytes,
-                        offset);
-        break;
+    }
+
+    float[] fieldsFloat = gpo.getFieldsFloat();
+    if(fieldsFloat != null) {
+      for(int index = 0;
+          index < fieldsFloat.length;
+          index++) {
+        serializeFloat(fieldsFloat[index],
+                      sbytes,
+                      offset);
       }
-      default:
-        throw new UnsupportedOperationException("The field " + field + " doesn't have a valid type.");
+    }
+
+    double[] fieldsDouble = gpo.getFieldsDouble();
+    if(fieldsDouble != null) {
+      for(int index = 0;
+          index < fieldsDouble.length;
+          index++) {
+        serializeDouble(fieldsDouble[index],
+                      sbytes,
+                      offset);
+      }
+    }
+
+    String[] fieldsString = gpo.getFieldsString();
+    if(fieldsString != null) {
+      for(int index = 0;
+          index < fieldsString.length;
+          index++) {
+        serializeString(fieldsString[index],
+                      sbytes,
+                      offset);
       }
     }
 
@@ -712,65 +744,91 @@ public class GPOUtils
     return sbytes;
   }
 
-  public static GPOMutable deserialize(FieldsDescriptor fieldsDescriptor,
+  public static GPOMutable deserialize(FieldsDescriptor fd,
                                        byte[] serializedGPO,
                                        int offset)
   {
-    GPOMutable gpo = new GPOMutable(fieldsDescriptor);
+    GPOMutable gpo = new GPOMutable(fd);
     MutableInt offsetM = new MutableInt(offset);
 
-    for(String field: fieldsDescriptor.getFields().getFields()) {
-      Type type = fieldsDescriptor.getType(field);
+    boolean[] fieldsBoolean = gpo.getFieldsBoolean();
+    if(fieldsBoolean != null) {
+      for(int index = 0;
+          index < fieldsBoolean.length;
+          index++) {
+        fieldsBoolean[index] = deserializeBoolean(serializedGPO, offsetM);
+      }
+    }
 
-      switch(type)
-      {
-        case BOOLEAN: {
-          boolean val = deserializeBoolean(serializedGPO, offsetM);
-          gpo.setField(field, val);
-          break;
-        }
-        case BYTE: {
-          byte val = deserializeByte(serializedGPO, offsetM);
-          gpo.setField(field, val);
-          break;
-        }
-        case CHAR: {
-          char val = deserializeChar(serializedGPO, offsetM);
-          gpo.setField(field, val);
-          break;
-        }
-        case SHORT: {
-          short val = deserializeShort(serializedGPO, offsetM);
-          gpo.setField(field, val);
-          break;
-        }
-        case INTEGER: {
-          int val = deserializeInt(serializedGPO, offsetM);
-          gpo.setField(field, val);
-          break;
-        }
-        case LONG: {
-          long val = deserializeLong(serializedGPO, offsetM);
-          gpo.setField(field, val);
-          break;
-        }
-        case FLOAT: {
-          float val = deserializeFloat(serializedGPO, offsetM);
-          gpo.setField(field, val);
-          break;
-        }
-        case DOUBLE: {
-          double val = deserializeDouble(serializedGPO, offsetM);
-          gpo.setField(field, val);
-          break;
-        }
-        case STRING: {
-          String val = deserializeString(serializedGPO, offsetM);
-          gpo.setField(field, val);
-          break;
-        }
-        default:
-          throw new UnsupportedOperationException("Cannot deserialize type " + type);
+    char[] fieldsCharacter = gpo.getFieldsCharacter();
+    if(fieldsCharacter != null) {
+      for(int index = 0;
+          index < fieldsCharacter.length;
+          index++) {
+        fieldsCharacter[index] = deserializeChar(serializedGPO, offsetM);
+      }
+    }
+
+    byte[] fieldsByte = gpo.getFieldsByte();
+    if(fieldsByte != null) {
+      for(int index = 0;
+          index < fieldsByte.length;
+          index++) {
+        fieldsByte[index] = deserializeByte(serializedGPO, offsetM);
+      }
+    }
+
+    short[] fieldsShort = gpo.getFieldsShort();
+    if(fieldsShort != null) {
+      for(int index = 0;
+          index < fieldsShort.length;
+          index++) {
+        fieldsShort[index] = deserializeShort(serializedGPO, offsetM);
+      }
+    }
+
+    int[] fieldsInteger = gpo.getFieldsInteger();
+    if(fieldsInteger != null) {
+      for(int index = 0;
+          index < fieldsInteger.length;
+          index++) {
+        fieldsInteger[index] = deserializeInt(serializedGPO, offsetM);
+      }
+    }
+
+    long[] fieldsLong = gpo.getFieldsLong();
+    if(fieldsLong != null) {
+      for(int index = 0;
+          index < fieldsLong.length;
+          index++) {
+        fieldsLong[index] = deserializeLong(serializedGPO, offsetM);
+      }
+    }
+
+    float[] fieldsFloat = gpo.getFieldsFloat();
+    if(fieldsFloat != null) {
+      for(int index = 0;
+          index < fieldsFloat.length;
+          index++) {
+        fieldsFloat[index] = deserializeFloat(serializedGPO, offsetM);
+      }
+    }
+
+    double[] fieldsDouble = gpo.getFieldsDouble();
+    if(fieldsDouble != null) {
+      for(int index = 0;
+          index < fieldsDouble.length;
+          index++) {
+        fieldsDouble[index] = deserializeDouble(serializedGPO, offsetM);
+      }
+    }
+
+    String[] fieldsString = gpo.getFieldsString();
+    if(fieldsString != null) {
+      for(int index = 0;
+          index < fieldsString.length;
+          index++) {
+        fieldsString[index] = deserializeString(serializedGPO, offsetM);
       }
     }
 

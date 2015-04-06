@@ -9,7 +9,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.GenericDimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent.EventKey;
@@ -72,7 +72,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
   //TODO make all internal getters protected
   //timestamp prefix keys timestamp 0 if not needed but still there
 
-  protected abstract DimensionsAggregator<GenericAggregateEvent> getAggregator(int aggregatorID);
+  protected abstract GenericDimensionsAggregator getAggregator(int aggregatorID);
   protected abstract FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID);
   protected abstract FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID);
   protected abstract long getBucketForSchema(int schemaID);
@@ -157,7 +157,7 @@ public abstract class GenericDimensionsStoreHDHT extends AbstractSinglePortHDHTW
 
   protected void processGenericEvent(GenericAggregateEvent gae)
   {
-    DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
+    GenericDimensionsAggregator aggregator = getAggregator(gae.getAggregatorIndex());
     GenericAggregateEvent aggregate = null;
 
     try {

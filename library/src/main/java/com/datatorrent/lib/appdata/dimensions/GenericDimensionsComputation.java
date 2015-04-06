@@ -11,6 +11,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent.EventKey;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
@@ -82,7 +83,10 @@ public abstract class GenericDimensionsComputation<INPUT_EVENT> implements Opera
   }
 
   public abstract GenericAggregateEvent[] convertInputEvent(INPUT_EVENT inputEvent);
-  public abstract DimensionsAggregator<GenericAggregateEvent> getAggregator(int aggregatorID);
+  public abstract GenericDimensionsAggregator getAggregator(int aggregatorID);
+  public abstract FieldsDescriptor getAggregateFieldsDescriptor(int schemaID,
+                                                                int dimensionDescriptorID,
+                                                                int aggregatorID);
 
   public void processInputEvent(INPUT_EVENT inputEvent)
   {
@@ -95,14 +99,18 @@ public abstract class GenericDimensionsComputation<INPUT_EVENT> implements Opera
 
   public void processGenericEvent(GenericAggregateEvent gae)
   {
+    GenericDimensionsAggregator aggregator = getAggregator(gae.getAggregatorIndex());
     GenericAggregateEvent aggregate = cache.getIfPresent(gae.getEventKey());
 
     if(aggregate == null) {
+      gae = aggregator.createDest(gae,
+                                  getAggregateFieldsDescriptor(gae.getSchemaID(),
+                                                               gae.getDimensionDescriptorID(),
+                                                               gae.getAggregatorIndex()));
       cache.put(gae.getEventKey(), gae);
       return;
     }
 
-    DimensionsAggregator<GenericAggregateEvent> aggregator = getAggregator(gae.getAggregatorIndex());
     aggregator.aggregate(aggregate, gae);
   }
 

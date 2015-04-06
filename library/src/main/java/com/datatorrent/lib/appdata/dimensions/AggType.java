@@ -5,12 +5,6 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.dimensions.AggregatorCount;
-import com.datatorrent.lib.appdata.dimensions.AggregatorMax;
-import com.datatorrent.lib.appdata.dimensions.AggregatorMin;
-import com.datatorrent.lib.appdata.dimensions.AggregatorSum;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
-import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.slf4j.Logger;
@@ -32,7 +26,7 @@ public enum AggType
 
   private static final Logger logger = LoggerFactory.getLogger(AggType.class);
 
-  private DimensionsAggregator<GenericAggregateEvent> aggregator;
+  private GenericDimensionsAggregator aggregator;
   public static final Map<String, Integer> NAME_TO_ORDINAL;
 
   static {
@@ -46,18 +40,18 @@ public enum AggType
     NAME_TO_ORDINAL = Collections.unmodifiableMap(nameToOrdinal);
   }
 
-  AggType(DimensionsAggregator<GenericAggregateEvent> aggregator)
+  AggType(GenericDimensionsAggregator aggregator)
   {
     setAggregator(aggregator);
   }
 
-  private void setAggregator(DimensionsAggregator<GenericAggregateEvent> aggregator)
+  private void setAggregator(GenericDimensionsAggregator aggregator)
   {
     Preconditions.checkNotNull(aggregator);
     this.aggregator = aggregator;
   }
 
-  public DimensionsAggregator<GenericAggregateEvent> getAggregator()
+  public GenericDimensionsAggregator getAggregator()
   {
     return aggregator;
   }

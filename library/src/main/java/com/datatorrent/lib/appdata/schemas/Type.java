@@ -38,6 +38,8 @@ public enum Type
   BYTE("byte", 1, JSONType.NUMBER, Byte.class,
        ImmutableSet.of(SHORT, INTEGER, LONG));
 
+  public static final Set<Type> NUMERIC_TYPES = ImmutableSet.of(BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE);
+  public static final Set<Type> NON_NUMERIC_TYPES = ImmutableSet.of(BOOLEAN, CHAR, STRING);
   public static final Map<String, Type> NAME_TO_TYPE;
   public static final Map<Class, Type> CLASS_TO_TYPE;
 

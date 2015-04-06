@@ -14,7 +14,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.dimensions.GenericDimensionsStoreHDHT;
 import com.datatorrent.lib.appdata.dimensions.AggType;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.GenericDimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent.EventKey;
@@ -189,7 +189,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
   }
 
   @Override
-  public DimensionsAggregator<GenericAggregateEvent> getAggregator(int aggregatorID)
+  public GenericDimensionsAggregator getAggregator(int aggregatorID)
   {
     return AggType.values()[aggregatorID].getAggregator();
   }

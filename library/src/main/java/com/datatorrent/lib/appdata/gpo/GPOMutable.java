@@ -9,12 +9,12 @@ import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
 import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import java.util.Arrays;
+
 
 /**
  *
@@ -25,17 +25,20 @@ public class GPOMutable implements Serializable
   private static final Logger logger = LoggerFactory.getLogger(GPOMutable.class);
   private static final long serialVersionUID = 201503231207L;
 
-  private Map<String, Boolean> fieldToBoolean;
-  private Map<String, Character> fieldToCharacter;
-  private Map<String, String> fieldToString;
-  private Map<String, Byte> fieldToByte;
-  private Map<String, Short> fieldToShort;
-  private Map<String, Integer> fieldToInteger;
-  private Map<String, Long> fieldToLong;
-  private Map<String, Float> fieldToFloat;
-  private Map<String, Double> fieldToDouble;
+  private boolean[] fieldsBoolean;
+  private char[] fieldsCharacter;
 
-  private FieldsDescriptor fieldDescriptor;
+  private byte[] fieldsByte;
+  private short[] fieldsShort;
+  private int[] fieldsInteger;
+  private long[] fieldsLong;
+
+  private float[] fieldsFloat;
+  private double[] fieldsDouble;
+
+  private String[] fieldsString;
+
+  private transient FieldsDescriptor fieldDescriptor;
 
   public GPOMutable()
   {
@@ -46,8 +49,69 @@ public class GPOMutable implements Serializable
   {
     this(gpo.getFieldDescriptor());
 
-    for(String field: this.getFieldDescriptor().getFields().getFields()) {
-      this.setField(field, gpo.getField(field));
+    initialize();
+
+    {
+      boolean[] oldFieldsBoolean = gpo.getFieldsBoolean();
+      if(oldFieldsBoolean != null) {
+        System.arraycopy(oldFieldsBoolean, 0, fieldsBoolean, 0, fieldsBoolean.length);
+      }
+    }
+
+    {
+      char[] oldFieldsChar = gpo.getFieldsCharacter();
+      if(oldFieldsChar != null) {
+        System.arraycopy(oldFieldsChar, 0, fieldsCharacter, 0, fieldsCharacter.length);
+      }
+    }
+
+    {
+      byte[] oldFieldsByte = gpo.getFieldsByte();
+      if(oldFieldsByte != null) {
+        System.arraycopy(oldFieldsByte, 0, fieldsByte, 0, fieldsByte.length);
+      }
+    }
+
+    {
+      short[] oldFieldsShort = gpo.getFieldsShort();
+      if(oldFieldsShort != null) {
+        System.arraycopy(oldFieldsShort, 0, fieldsShort, 0, fieldsShort.length);
+      }
+    }
+
+    {
+      int[] oldFieldsInteger = gpo.getFieldsInteger();
+      if(oldFieldsInteger != null) {
+        System.arraycopy(oldFieldsInteger, 0, fieldsInteger, 0, fieldsInteger.length);
+      }
+    }
+
+    {
+      long[] oldFieldsLong = gpo.getFieldsLong();
+      if(oldFieldsLong != null) {
+        System.arraycopy(oldFieldsLong, 0, fieldsLong, 0, fieldsLong.length);
+      }
+    }
+
+    {
+      float[] oldFieldsFloat = gpo.getFieldsFloat();
+      if(oldFieldsFloat != null) {
+        System.arraycopy(oldFieldsFloat, 0, fieldsFloat, 0, fieldsFloat.length);
+      }
+    }
+
+    {
+      double[] oldFieldsDouble = gpo.getFieldsDouble();
+      if(oldFieldsDouble != null) {
+        System.arraycopy(oldFieldsDouble, 0, fieldsDouble, 0, fieldsDouble.length);
+      }
+    }
+
+    {
+      String[] oldFieldsString = gpo.getFieldsString();
+      if(oldFieldsString != null) {
+        System.arraycopy(oldFieldsString, 0, fieldsString, 0, fieldsString.length);
+      }
     }
   }
 
@@ -55,6 +119,8 @@ public class GPOMutable implements Serializable
                     Fields subsetFields)
   {
     this(gpo.getFieldDescriptor().getSubset(subsetFields));
+
+    initialize();
 
     for(String field: this.getFieldDescriptor().getFields().getFields()) {
       this.setField(field, gpo.getField(field));
@@ -66,18 +132,110 @@ public class GPOMutable implements Serializable
     setFieldDescriptor(fieldDescriptor);
   }
 
-  private void setFieldDescriptor(FieldsDescriptor fieldDescriptor)
+  private void initialize()
+  {
+    for(Type type: fieldDescriptor.getTypeToFields().keySet()) {
+      int size = fieldDescriptor.getTypeToSize().get(type);
+      switch(type) {
+        case BOOLEAN: {
+          fieldsBoolean = new boolean[size];
+          break;
+        }
+        case CHAR: {
+          fieldsCharacter = new char[size];
+          break;
+        }
+        case STRING: {
+          fieldsString = new String[size];
+          break;
+        }
+        case BYTE: {
+          fieldsByte = new byte[size];
+          break;
+        }
+        case SHORT: {
+          fieldsShort = new short[size];
+          break;
+        }
+        case INTEGER: {
+          fieldsInteger = new int[size];
+          break;
+        }
+        case LONG: {
+          fieldsLong = new long[size];
+          break;
+        }
+        case FLOAT: {
+          fieldsFloat = new float[size];
+          break;
+        }
+        case DOUBLE: {
+          fieldsDouble = new double[size];
+          break;
+        }
+        default:
+          throw new UnsupportedOperationException("The type " + type + " is not supported.");
+      }
+    }
+  }
+
+  public boolean[] getFieldsBoolean()
+  {
+    return fieldsBoolean;
+  }
+
+  public char[] getFieldsCharacter()
+  {
+    return fieldsCharacter;
+  }
+
+  public byte[] getFieldsByte()
+  {
+    return fieldsByte;
+  }
+
+  public short[] getFieldsShort()
+  {
+    return fieldsShort;
+  }
+
+  public int[] getFieldsInteger()
+  {
+    return fieldsInteger;
+  }
+
+  public long[] getFieldsLong()
+  {
+    return fieldsLong;
+  }
+
+  public float[] getFieldsFloat()
+  {
+    return fieldsFloat;
+  }
+
+  public double[] getFieldsDouble()
+  {
+    return fieldsDouble;
+  }
+
+  public String[] getFieldsString()
+  {
+    return fieldsString;
+  }
+
+  public final void setFieldDescriptor(FieldsDescriptor fieldDescriptor)
   {
     Preconditions.checkNotNull(fieldDescriptor);
     this.fieldDescriptor = fieldDescriptor;
   }
 
-  public FieldsDescriptor getFieldDescriptor()
+  public final FieldsDescriptor getFieldDescriptor()
   {
     return fieldDescriptor;
   }
 
-  public void setField(String field, Object val)
+  public final void setField(String field, Object val)
   {
     Type type = fieldDescriptor.getType(field);
 
@@ -85,62 +243,47 @@ public class GPOMutable implements Serializable
       throw new IllegalArgumentException(field + " is not a valid field of this object.");
     }
 
-    if(type.equals(Type.BOOLEAN)) {
-      if(fieldToBoolean == null) {
-         fieldToBoolean = Maps.newHashMap();
+    int index = fieldDescriptor.getTypeToFieldToIndex().get(type).get(field);
+
+    switch(type) {
+      case BOOLEAN: {
+        fieldsBoolean[index] = (Boolean) val;
+        break;
       }
-      fieldToBoolean.put(field, (Boolean) val);
-    }
-    else if(type.equals(Type.CHAR)) {
-      if(fieldToCharacter == null) {
-         fieldToCharacter = Maps.newHashMap();
+      case CHAR: {
+        fieldsCharacter[index] = (Character) val;
+        break;
       }
-      fieldToCharacter.put(field, (Character) val);
-    }
-    else if(type.equals(Type.STRING)) {
-      if(fieldToString == null) {
-        fieldToString = Maps.newHashMap();
+      case STRING: {
+        fieldsString[index] = (String) val;
+        break;
       }
-      fieldToString.put(field, (String) val);
-    }
-    else if(type.equals(Type.BYTE)) {
-      if(fieldToByte == null) {
-        fieldToByte = Maps.newHashMap();
+      case BYTE: {
+        fieldsByte[index] = (Byte) val;
+        break;
       }
-      fieldToByte.put(field, (Byte) val);
-    }
-    else if(type.equals(Type.SHORT)) {
-      if(fieldToShort == null) {
-        fieldToShort = Maps.newHashMap();
+      case SHORT: {
+        fieldsShort[index] = (Short) val;
+        break;
       }
-      fieldToShort.put(field, (Short) val);
-    }
-    else if(type.equals(Type.INTEGER)) {
-      if(fieldToInteger == null) {
-        fieldToInteger = Maps.newHashMap();
+      case INTEGER: {
+        fieldsInteger[index] = (Integer) val;
+        break;
       }
-      fieldToInteger.put(field, (Integer) val);
-    }
-    else if(type.equals(Type.LONG)) {
-      if(fieldToLong == null) {
-        fieldToLong = Maps.newHashMap();
+      case LONG: {
+        fieldsLong[index] = (Long) val;
+        break;
       }
-      fieldToLong.put(field, (Long) val);
-    }
-    else if(type.equals(Type.FLOAT)) {
-      if(fieldToFloat == null) {
-        fieldToFloat = Maps.newHashMap();
+      case FLOAT: {
+        fieldsFloat[index] = (Float) val;
+        break;
       }
-      fieldToFloat.put(field, (Float) val);
-    }
-    else if(type.equals(Type.DOUBLE)) {
-      if(fieldToDouble == null) {
-        fieldToDouble = Maps.newHashMap();
+      case DOUBLE: {
+        fieldsDouble[index] = (Double) val;
+        break;
       }
-      fieldToDouble.put(field, (Double) val);
-    }
-    else {
-      throw new IllegalArgumentException(field + " is not a valid field of this object.");
+      default:
+        throw new UnsupportedOperationException("The type " + type + " is not supported.");
     }
   }
 
@@ -152,217 +295,147 @@ public class GPOMutable implements Serializable
       throw new IllegalArgumentException(field + " is not a valid field of this object.");
     }
 
-    if(type.equals(Type.BOOLEAN)) {
-      if(fieldToBoolean == null) {
-        return null;
-      }
-      return fieldToBoolean.get(field);
-    }
-    else if(type.equals(Type.CHAR)) {
-      if(fieldToCharacter == null) {
-        return null;
-      }
-      return fieldToCharacter.get(field);
-    }
-    else if(type.equals(Type.BYTE)) {
-      if(fieldToByte == null) {
-        return null;
-      }
-      return fieldToByte.get(field);
-    }
-    else if(type.equals(Type.SHORT)) {
-      if(fieldToShort == null) {
-        return null;
-      }
-      return fieldToShort.get(field);
-    }
-    else if(type.equals(Type.INTEGER)) {
-      if(fieldToInteger == null) {
-        return null;
-      }
-      return fieldToInteger.get(field);
-    }
-    else if(type.equals(Type.LONG)) {
-      if(fieldToLong == null) {
-        return null;
-      }
-      return fieldToLong.get(field);
-    }
-    else if(type.equals(Type.FLOAT)) {
-      if(fieldToFloat == null) {
-        return null;
-      }
-      return fieldToFloat.get(field);
-    }
-    else if(type.equals(Type.DOUBLE)) {
-      if(fieldToDouble == null) {
-        return null;
-      }
-      return fieldToDouble.get(field);
-    }
-    else if(type.equals(Type.STRING)) {
-      if(fieldToString == null) {
-        return null;
-      }
+    int index = fieldDescriptor.getTypeToFieldToIndex().get(type).get(field);
 
-      return fieldToString.get(field);
-    }
-    else {
-      throw new IllegalArgumentException(field + " is not a valid field of this object.");
+    switch(type) {
+      case BOOLEAN: {
+        return fieldsBoolean[index];
+      }
+      case CHAR: {
+        return fieldsCharacter[index];
+      }
+      case STRING: {
+        return fieldsString[index];
+      }
+      case BYTE: {
+        return fieldsByte[index];
+      }
+      case SHORT: {
+        return fieldsShort[index];
+      }
+      case INTEGER: {
+        return fieldsInteger[index];
+      }
+      case LONG: {
+        return fieldsLong[index];
+      }
+      case FLOAT: {
+        return fieldsFloat[index];
+      }
+      case DOUBLE: {
+        return fieldsDouble[index];
+      }
+      default:
+        throw new UnsupportedOperationException("The type " + type + " is not supported.");
     }
   }
 
-  public void setField(String field, Boolean val)
+  public void setField(String field, boolean val)
   {
     throwInvalidField(field, Type.BOOLEAN);
-
-    if(fieldToBoolean == null) {
-      fieldToBoolean = Maps.newHashMap();
-    }
-
-    fieldToBoolean.put(field, val);
+    fieldsBoolean[fieldDescriptor.getTypeToFieldToIndex().get(Type.BOOLEAN).get(field)] = val;
   }
 
-  public Boolean getFieldBool(String field)
+  public boolean getFieldBool(String field)
   {
     throwInvalidField(field, Type.BOOLEAN);
-    return fieldToBoolean.get(field);
+    return fieldsBoolean[fieldDescriptor.getTypeToFieldToIndex().get(Type.BOOLEAN).get(field)];
   }
 
-  public void setField(String field, Character val)
+  public void setField(String field, char val)
   {
     throwInvalidField(field, Type.CHAR);
-
-    if(fieldToCharacter == null) {
-      fieldToCharacter = Maps.newHashMap();
-    }
-
-    fieldToCharacter.put(field, val);
+    fieldsCharacter[fieldDescriptor.getTypeToFieldToIndex().get(Type.CHAR).get(field)] = val;
   }
 
-  public Character getFieldChar(String field)
+  public char getFieldChar(String field)
   {
     throwInvalidField(field, Type.CHAR);
-    return fieldToCharacter.get(field);
+    return fieldsCharacter[fieldDescriptor.getTypeToFieldToIndex().get(Type.CHAR).get(field)];
   }
 
-  public void setField(String field, Byte val)
+  public void setField(String field, byte val)
   {
     throwInvalidField(field, Type.BYTE);
-
-    if(fieldToByte == null) {
-      fieldToByte = Maps.newHashMap();
-    }
-
-    fieldToByte.put(field, val);
+    fieldsByte[fieldDescriptor.getTypeToFieldToIndex().get(Type.BYTE).get(field)] = val;
   }
 
-  public String getFieldString(String field)
+  public byte getFieldByte(String field)
   {
-    throwInvalidField(field, Type.STRING);
-    return fieldToString.get(field);
+    throwInvalidField(field, Type.BYTE);
+    return fieldsByte[fieldDescriptor.getTypeToFieldToIndex().get(Type.BYTE).get(field)];
   }
 
   public void setField(String field, String val)
   {
     throwInvalidField(field, Type.STRING);
-
-    if(fieldToString == null) {
-      fieldToString = Maps.newHashMap();
-    }
-
-    fieldToString.put(field, val);
+    fieldsString[fieldDescriptor.getTypeToFieldToIndex().get(Type.STRING).get(field)] = val;
   }
 
-  public Byte getFieldByte(String field)
+  public String getFieldString(String field)
   {
-    throwInvalidField(field, Type.BYTE);
-    return fieldToByte.get(field);
+    throwInvalidField(field, Type.STRING);
+    return fieldsString[fieldDescriptor.getTypeToFieldToIndex().get(Type.STRING).get(field)];
   }
 
-  public void setField(String field, Short val)
+  public void setField(String field, short val)
   {
     throwInvalidField(field, Type.SHORT);
-
-    if(fieldToShort == null) {
-      fieldToShort = Maps.newHashMap();
-    }
-
-    fieldToShort.put(field, val);
+    fieldsShort[fieldDescriptor.getTypeToFieldToIndex().get(Type.SHORT).get(field)] = val;
   }
 
-  public Short getFieldShort(String field)
+  public short getFieldShort(String field)
   {
     throwInvalidField(field, Type.SHORT);
-    return fieldToShort.get(field);
+    return fieldsShort[fieldDescriptor.getTypeToFieldToIndex().get(Type.SHORT).get(field)];
   }
 
-  public void setField(String field, Integer val)
+  public void setField(String field, int val)
   {
     throwInvalidField(field, Type.INTEGER);
-
-    if(fieldToInteger == null) {
-      fieldToInteger = Maps.newHashMap();
-    }
-
-    fieldToInteger.put(field, val);
+    fieldsInteger[fieldDescriptor.getTypeToFieldToIndex().get(Type.INTEGER).get(field)] = val;
   }
 
-  public Integer getFieldInt(String field)
+  public int getFieldInt(String field)
   {
     throwInvalidField(field, Type.INTEGER);
-    return fieldToInteger.get(field);
+    return fieldsInteger[fieldDescriptor.getTypeToFieldToIndex().get(Type.INTEGER).get(field)];
   }
 
-  public void setField(String field, Long val)
+  public void setField(String field, long val)
   {
     throwInvalidField(field, Type.LONG);
-
-    if(fieldToLong == null) {
-      fieldToLong = Maps.newHashMap();
-    }
-
-    fieldToLong.put(field, val);
+    fieldsLong[fieldDescriptor.getTypeToFieldToIndex().get(Type.LONG).get(field)] = val;
   }
 
-  public Long getFieldLong(String field)
+  public long getFieldLong(String field)
   {
     throwInvalidField(field, Type.LONG);
-    return fieldToLong.get(field);
+    return fieldsLong[fieldDescriptor.getTypeToFieldToIndex().get(Type.LONG).get(field)];
   }
 
-  public void setField(String field, Float val)
+  public void setField(String field, float val)
   {
     throwInvalidField(field, Type.FLOAT);
-
-    if(fieldToFloat == null) {
-      fieldToFloat = Maps.newHashMap();
-    }
-
-    fieldToFloat.put(field, val);
+    fieldsFloat[fieldDescriptor.getTypeToFieldToIndex().get(Type.FLOAT).get(field)] = val;
   }
 
-  public Float getFieldFloat(String field)
+  public float getFieldFloat(String field)
   {
     throwInvalidField(field, Type.FLOAT);
-    return fieldToFloat.get(field);
+    return fieldsFloat[fieldDescriptor.getTypeToFieldToIndex().get(Type.FLOAT).get(field)];
   }
 
-  public void setField(String field, Double val)
+  public void setField(String field, double val)
   {
     throwInvalidField(field, Type.DOUBLE);
-
-    if(fieldToDouble == null) {
-      fieldToDouble = Maps.newHashMap();
-    }
-
-    fieldToDouble.put(field, val);
+    fieldsDouble[fieldDescriptor.getTypeToFieldToIndex().get(Type.DOUBLE).get(field)] = val;
   }
 
-  public Double getFieldDouble(String field)
+  public double getFieldDouble(String field)
   {
     throwInvalidField(field, Type.DOUBLE);
-    return fieldToDouble.get(field);
+    return fieldsDouble[fieldDescriptor.getTypeToFieldToIndex().get(Type.DOUBLE).get(field)];
   }
 
   private void throwInvalidField(String field, Type type)
@@ -377,17 +450,17 @@ public class GPOMutable implements Serializable
   @Override
   public int hashCode()
   {
-    int hash = 5;
-    hash = 19 * hash + (this.fieldToBoolean != null ? this.fieldToBoolean.hashCode() : 0);
-    hash = 19 * hash + (this.fieldToCharacter != null ? this.fieldToCharacter.hashCode() : 0);
-    hash = 19 * hash + (this.fieldToString != null ? this.fieldToString.hashCode() : 0);
-    hash = 19 * hash + (this.fieldToByte != null ? this.fieldToByte.hashCode() : 0);
-    hash = 19 * hash + (this.fieldToShort != null ? this.fieldToShort.hashCode() : 0);
-    hash = 19 * hash + (this.fieldToInteger != null ? this.fieldToInteger.hashCode() : 0);
-    hash = 19 * hash + (this.fieldToLong != null ? this.fieldToLong.hashCode() : 0);
-    hash = 19 * hash + (this.fieldToFloat != null ? this.fieldToFloat.hashCode() : 0);
-    hash = 19 * hash + (this.fieldToDouble != null ? this.fieldToDouble.hashCode() : 0);
-    hash = 19 * hash + (this.fieldDescriptor != null ? this.fieldDescriptor.hashCode() : 0);
+    int hash = 7;
+    hash = 23 * hash + Arrays.hashCode(this.fieldsBoolean);
+    hash = 23 * hash + Arrays.hashCode(this.fieldsCharacter);
+    hash = 23 * hash + Arrays.hashCode(this.fieldsByte);
+    hash = 23 * hash + Arrays.hashCode(this.fieldsShort);
+    hash = 23 * hash + Arrays.hashCode(this.fieldsInteger);
+    hash = 23 * hash + Arrays.hashCode(this.fieldsLong);
+    hash = 23 * hash + Arrays.hashCode(this.fieldsFloat);
+    hash = 23 * hash + Arrays.hashCode(this.fieldsDouble);
+    hash = 23 * hash + Arrays.deepHashCode(this.fieldsString);
+    hash = 23 * hash + (this.fieldDescriptor != null ? this.fieldDescriptor.hashCode() : 0);
     return hash;
   }
 
@@ -397,58 +470,46 @@ public class GPOMutable implements Serializable
     if(obj == null) {
       return false;
     }
-
-    if(!(obj instanceof GPOMutable)) {
+    if(getClass() != obj.getClass()) {
       return false;
     }
-
     final GPOMutable other = (GPOMutable)obj;
-    if(this.fieldToBoolean != other.fieldToBoolean && (this.fieldToBoolean == null || !this.fieldToBoolean.equals(other.fieldToBoolean))) {
+    if(!Arrays.equals(this.fieldsBoolean, other.fieldsBoolean)) {
       return false;
     }
-
-    if(this.fieldToCharacter != other.fieldToCharacter && (this.fieldToCharacter == null || !this.fieldToCharacter.equals(other.fieldToCharacter))) {
+    if(!Arrays.equals(this.fieldsCharacter, other.fieldsCharacter)) {
       return false;
     }
-
-    if(this.fieldToString != other.fieldToString && (this.fieldToString == null || !this.fieldToString.equals(other.fieldToString))) {
+    if(!Arrays.equals(this.fieldsByte, other.fieldsByte)) {
       return false;
     }
-
-    if(this.fieldToByte != other.fieldToByte && (this.fieldToByte == null || !this.fieldToByte.equals(other.fieldToByte))) {
+    if(!Arrays.equals(this.fieldsShort, other.fieldsShort)) {
       return false;
     }
-
-    if(this.fieldToShort != other.fieldToShort && (this.fieldToShort == null || !this.fieldToShort.equals(other.fieldToShort))) {
+    if(!Arrays.equals(this.fieldsInteger, other.fieldsInteger)) {
       return false;
     }
-
-    if(this.fieldToInteger != other.fieldToInteger && (this.fieldToInteger == null || !this.fieldToInteger.equals(other.fieldToInteger))) {
+    if(!Arrays.equals(this.fieldsLong, other.fieldsLong)) {
       return false;
     }
-
-    if(this.fieldToLong != other.fieldToLong && (this.fieldToLong == null || !this.fieldToLong.equals(other.fieldToLong))) {
+    if(!Arrays.equals(this.fieldsFloat, other.fieldsFloat)) {
       return false;
     }
-
-    if(this.fieldToFloat != other.fieldToFloat && (this.fieldToFloat == null || !this.fieldToFloat.equals(other.fieldToFloat))) {
+    if(!Arrays.equals(this.fieldsDouble, other.fieldsDouble)) {
       return false;
     }
-
-    if(this.fieldToDouble != other.fieldToDouble && (this.fieldToDouble == null || !this.fieldToDouble.equals(other.fieldToDouble))) {
+    if(!Arrays.deepEquals(this.fieldsString, other.fieldsString)) {
       return false;
     }
-
     if(this.fieldDescriptor != other.fieldDescriptor && (this.fieldDescriptor == null || !this.fieldDescriptor.equals(other.fieldDescriptor))) {
       return false;
     }
-
     return true;
   }
 
   @Override
   public String toString()
   {
-    return "GPOMutable{" + "fieldToBoolean=" + fieldToBoolean + ", fieldToCharacter=" + fieldToCharacter + ", fieldToString=" + fieldToString + ", fieldToByte=" + fieldToByte + ", fieldToShort=" + fieldToShort + ", fieldToInteger=" + fieldToInteger + ", fieldToLong=" + fieldToLong + ", fieldToFloat=" + fieldToFloat + ", fieldToDouble=" + fieldToDouble + ", fieldDescriptor=" + fieldDescriptor + '}';
+    return "GPOMutable{" + "fieldsBoolean=" + fieldsBoolean + ", fieldsCharacter=" + fieldsCharacter + ", fieldsByte=" + fieldsByte + ", fieldsShort=" + fieldsShort + ", fieldsInteger=" + fieldsInteger + ", fieldsLong=" + fieldsLong + ", fieldsFloat=" + fieldsFloat + ", fieldsDouble=" + fieldsDouble + ", fieldsString=" + fieldsString + ", fieldDescriptor=" + fieldDescriptor + '}';
   }
 }

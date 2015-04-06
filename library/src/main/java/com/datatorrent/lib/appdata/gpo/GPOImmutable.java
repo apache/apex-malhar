@@ -39,7 +39,55 @@ public class GPOImmutable extends GPOMutable implements Serializable
   }
 
   @Override
-  public void setField(String field, Boolean val)
+  public boolean[] getFieldsBoolean()
+  {
+    throw new UnsupportedOperationException("Cannot get the boolean array.");
+  }
+
+  @Override
+  public char[] getFieldsCharacter()
+  {
+    throw new UnsupportedOperationException("Cannot get the character array.");
+  }
+
+  @Override
+  public byte[] getFieldsByte()
+  {
+    throw new UnsupportedOperationException("Cannot get the byte array.");
+  }
+
+  @Override
+  public short[] getFieldsShort()
+  {
+    throw new UnsupportedOperationException("Cannot get the short array.");
+  }
+
+  @Override
+  public int[] getFieldsInteger()
+  {
+    throw new UnsupportedOperationException("Cannot get the integer array.");
+  }
+
+  @Override
+  public long[] getFieldsLong()
+  {
+    throw new UnsupportedOperationException("Cannot get the long array.");
+  }
+
+  @Override
+  public float[] getFieldsFloat()
+  {
+    throw new UnsupportedOperationException("Cannot get the float array.");
+  }
+
+  @Override
+  public double[] getFieldsDouble()
+  {
+    throw new UnsupportedOperationException("Cannot get the double array.");
+  }
+
+  @Override
+  public void setField(String field, boolean val)
   {
     if(constructorDone) {
       this.throwImmutable();
@@ -49,7 +97,7 @@ public class GPOImmutable extends GPOMutable implements Serializable
   }
 
   @Override
-  public void setField(String field, Character val)
+  public void setField(String field, char val)
   {
     if(constructorDone) {
       this.throwImmutable();
@@ -59,7 +107,7 @@ public class GPOImmutable extends GPOMutable implements Serializable
   }
 
   @Override
-  public void setField(String field, Byte val)
+  public void setField(String field, byte val)
   {
     if(constructorDone) {
       this.throwImmutable();
@@ -69,7 +117,7 @@ public class GPOImmutable extends GPOMutable implements Serializable
   }
 
   @Override
-  public void setField(String field, Short val)
+  public void setField(String field, short val)
   {
     if(constructorDone) {
       this.throwImmutable();
@@ -79,7 +127,7 @@ public class GPOImmutable extends GPOMutable implements Serializable
   }
 
   @Override
-  public void setField(String field, Integer val)
+  public void setField(String field, int val)
   {
     if(constructorDone) {
       this.throwImmutable();
@@ -89,7 +137,7 @@ public class GPOImmutable extends GPOMutable implements Serializable
   }
 
   @Override
-  public void setField(String field, Long val)
+  public void setField(String field, long val)
   {
     if(constructorDone) {
       this.throwImmutable();
@@ -99,7 +147,7 @@ public class GPOImmutable extends GPOMutable implements Serializable
   }
 
   @Override
-  public void setField(String field, Float val)
+  public void setField(String field, float val)
   {
     if(constructorDone) {
       this.throwImmutable();
@@ -109,7 +157,7 @@ public class GPOImmutable extends GPOMutable implements Serializable
   }
 
   @Override
-  public void setField(String field, Double val)
+  public void setField(String field, double val)
   {
     if(constructorDone) {
       this.throwImmutable();

@@ -6,17 +6,19 @@
 package com.datatorrent.demos.dimensions.ads.generic;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.dimensions.AggType;
 import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.AggType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
+import com.datatorrent.lib.appdata.dimensions.GenericDimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.GenericDimensionsComputation;
 import com.datatorrent.lib.appdata.dimensions.GenericEventSchema;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import javax.validation.constraints.NotNull;
 
 import java.util.List;
@@ -32,6 +34,8 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   private String eventSchemaJSON;
 
   private transient GenericEventSchema eventSchema;
+  private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToInputAggDescriptor;
+  private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToOutputAggDescriptor;
 
   public GenericAdsDimensionComputation()
   {
@@ -41,6 +45,31 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   public void setup(OperatorContext context)
   {
     eventSchema = new GenericEventSchema(eventSchemaJSON);
+
+    List<Map<String, FieldsDescriptor>> tempDescriptorList = eventSchema.getDdIDToAggregatorToAggregateDescriptor();
+    ddIDToAggIDToInputAggDescriptor = Lists.newArrayList();
+    ddIDToAggIDToOutputAggDescriptor = Lists.newArrayList();
+
+    for(int index = 0;
+        index < tempDescriptorList.size();
+        index++) {
+      Int2ObjectMap<FieldsDescriptor> inputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
+      Int2ObjectMap<FieldsDescriptor> outputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
+
+      ddIDToAggIDToInputAggDescriptor.add(inputMap);
+      ddIDToAggIDToOutputAggDescriptor.add(outputMap);
+
+      for(Map.Entry<String, FieldsDescriptor> entry:
+          tempDescriptorList.get(index).entrySet()) {
+        String aggregatorName = entry.getKey();
+        FieldsDescriptor inputDescriptor = entry.getValue();
+        AggType aggType = AggType.valueOf(aggregatorName);
+        inputMap.put(aggType.ordinal(), entry.getValue());
+        outputMap.put(aggType.ordinal(),
+                      aggType.getAggregator().getResultDescriptor(inputDescriptor));
+      }
+    }
+
     super.setup(context);
   }
 
@@ -54,15 +83,17 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
         index < keyFieldsDescriptors.size();
         index++) {
       FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(index);
-      Map<String, FieldsDescriptor> map = eventSchema.getDdIDToAggregatorToAggregateDescriptor().get(index);
+      Int2ObjectMap<FieldsDescriptor> map = ddIDToAggIDToInputAggDescriptor.get(index);
 
-      for(Map.Entry<String, FieldsDescriptor> entry: map.entrySet()) {
+      for(int mapIndex = 0;
+          mapIndex < map.size();
+          mapIndex++) {
         events.add(createGenericAggregateEvent(inputEvent,
                                                eventSchema.getDdIDToDD().get(index),
                                                keyFieldsDescriptor,
-                                               entry.getValue(),
+                                               map.get(mapIndex),
                                                index,
-                                               AggType.valueOf(entry.getKey()).ordinal()));
+                                               mapIndex));
       }
     }
 
@@ -86,51 +117,25 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   {
     GPOMutable keyGPO = new GPOMutable(keyFieldsDescriptor);
 
-    for(String field: keyFieldsDescriptor.getFields().getFields()) {
-      if(field.equals(AdsSchemaResult.ADVERTISER)) {
-        keyGPO.setField(field, ga.getAdvertiser());
-      }
-      else if(field.equals(AdsSchemaResult.PUBLISHER)) {
-        keyGPO.setField(field, ga.getPublisher());
-      }
-      else if(field.equals(AdsSchemaResult.LOCATION)) {
-        keyGPO.setField(field, ga.getLocation());
-      }
-      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
-        if(dd.getTimeBucket() == null) {
-          keyGPO.setField(field, ga.getTime());
-        }
-        else {
-          keyGPO.setField(field, dd.getTimeBucket().roundDown(ga.getTime()));
-        }
-      }
-      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
-        keyGPO.setField(field, dd.getTimeBucket().ordinal());
-      }
-      else {
-        throw new UnsupportedOperationException("This field is not supported: " + field);
-      }
+    keyGPO.setField(AdsSchemaResult.ADVERTISER, ga.getAdvertiser());
+    keyGPO.setField(AdsSchemaResult.PUBLISHER, ga.getPublisher());
+    keyGPO.setField(AdsSchemaResult.LOCATION, ga.getLocation());
+
+    if(dd.getTimeBucket() == null) {
+      keyGPO.setField(DimensionsDescriptor.DIMENSION_TIME, ga.getTime());
     }
+    else {
+      keyGPO.setField(DimensionsDescriptor.DIMENSION_TIME, dd.getTimeBucket().roundDown(ga.getTime()));
+    }
+
+    keyGPO.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, dd.getTimeBucket().ordinal());
 
     GPOMutable aggGPO = new GPOMutable(aggregateDescriptor);
 
-    for(String field: aggregateDescriptor.getFields().getFields()) {
-      if(field.equals(AdsSchemaResult.CLICKS)) {
-        aggGPO.setField(AdsSchemaResult.CLICKS, ga.getClicks());
-      }
-      else if(field.equals(AdsSchemaResult.IMPRESSIONS)) {
-        aggGPO.setField(AdsSchemaResult.IMPRESSIONS, ga.getImpressions());
-      }
-      else if(field.equals(AdsSchemaResult.REVENUE)) {
-        aggGPO.setField(AdsSchemaResult.REVENUE, ga.getRevenue());
-      }
-      else if(field.equals(AdsSchemaResult.COST)) {
-        aggGPO.setField(AdsSchemaResult.COST, ga.getCost());
-      }
-      else {
-        throw new UnsupportedOperationException("This field is not supported: " + field);
-      }
-    }
+    aggGPO.setField(AdsSchemaResult.CLICKS, ga.getClicks());
+    aggGPO.setField(AdsSchemaResult.IMPRESSIONS, ga.getImpressions());
+    aggGPO.setField(AdsSchemaResult.REVENUE, ga.getRevenue());
+    aggGPO.setField(AdsSchemaResult.COST, ga.getCost());
 
     GenericAggregateEvent gae = new GenericAggregateEvent(new GPOImmutable(keyGPO),
                                                           aggGPO,
@@ -141,7 +146,7 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   }
 
   @Override
-  public DimensionsAggregator<GenericAggregateEvent> getAggregator(int aggregatorID)
+  public GenericDimensionsAggregator getAggregator(int aggregatorID)
   {
     return AggType.values()[aggregatorID].getAggregator();
   }
@@ -160,5 +165,13 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   public void setEventSchemaJSON(String eventSchemaJSON)
   {
     this.eventSchemaJSON = eventSchemaJSON;
+  }
+
+  @Override
+  public FieldsDescriptor getAggregateFieldsDescriptor(int schemaID,
+                                                       int dimensionDescriptorID,
+                                                       int aggregatorID)
+  {
+    return ddIDToAggIDToOutputAggDescriptor.get(dimensionDescriptorID).get(aggregatorID);
   }
 }

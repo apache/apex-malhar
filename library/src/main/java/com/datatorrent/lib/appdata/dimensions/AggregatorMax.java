@@ -6,12 +6,16 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.Type;
+
+import java.util.Map;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class AggregatorMax implements DimensionsAggregator<GenericAggregateEvent>
+public class AggregatorMax implements GenericDimensionsAggregator
 {
   private static final long serialVersionUID = 201503120332L;
 
@@ -22,62 +26,119 @@ public class AggregatorMax implements DimensionsAggregator<GenericAggregateEvent
   @Override
   public void aggregate(GenericAggregateEvent dest, GenericAggregateEvent src)
   {
-    GPOMutable destGPO = dest.getAggregates();
-    GPOMutable srcGPO = src.getAggregates();
+    GPOMutable destAggs = dest.getAggregates();
+    GPOMutable srcAggs = src.getAggregates();
 
-    for(String field: destGPO.getFieldDescriptor().getFields().getFields()) {
-      Object destObj = destGPO.getField(field);
-      Object srcObj = srcGPO.getField(field);
+    {
+      byte[] destByte = destAggs.getFieldsByte();
+      if(destByte != null) {
+        byte[] srcByte = srcAggs.getFieldsByte();
 
-      if(!srcObj.getClass().equals(destObj)) {
-        throw new UnsupportedOperationException("Cannot aggregate different types.");
-      }
-      else if(srcObj instanceof Byte) {
-        Byte srcObjTemp = (Byte) srcObj;
-        Byte destObjTemp = (Byte) destObj;
-
-        Byte res = srcObjTemp > destObjTemp? srcObjTemp: destObjTemp;
-        destGPO.setField(field, res);
-      }
-      else if(srcObj instanceof Short) {
-        Short srcObjTemp = (Short) srcObj;
-        Short destObjTemp = (Short) destObj;
-
-        Short res = srcObjTemp > destObjTemp? srcObjTemp: destObjTemp;
-        destGPO.setField(field, res);
-      }
-      else if(srcObj instanceof Integer) {
-        Integer srcObjTemp = (Integer) srcObj;
-        Integer destObjTemp = (Integer) destObj;
-
-        Integer res = srcObjTemp > destObjTemp? srcObjTemp: destObjTemp;
-        destGPO.setField(field, res);
-      }
-      else if(srcObj instanceof Long) {
-        Long srcObjTemp = (Long) srcObj;
-        Long destObjTemp = (Long) destObj;
-
-        Long res = srcObjTemp > destObjTemp? srcObjTemp: destObjTemp;
-        destGPO.setField(field, res);
-      }
-      else if(srcObj instanceof Float) {
-        Float srcObjTemp = (Float) srcObj;
-        Float destObjTemp = (Float) destObj;
-
-        Float res = srcObjTemp > destObjTemp? srcObjTemp: destObjTemp;
-        destGPO.setField(field, res);
-      }
-      else if(srcObj instanceof Double) {
-        Double srcObjTemp = (Double) srcObj;
-        Double destObjTemp = (Double) destObj;
-
-        Double res = srcObjTemp > destObjTemp? srcObjTemp: destObjTemp;
-        destGPO.setField(field, res);
-      }
-      else {
-        throw new UnsupportedOperationException("Sum is not supported on object of type: " +
-                                                srcObj.getClass());
+        for(int index = 0;
+            index < destByte.length;
+            index++) {
+          if(destByte[index] < srcByte[index]) {
+            destByte[index] = srcByte[index];
+          }
+        }
       }
     }
+
+    {
+      short[] destShort = destAggs.getFieldsShort();
+      if(destShort != null) {
+        short[] srcShort = srcAggs.getFieldsShort();
+
+        for(int index = 0;
+            index < destShort.length;
+            index++) {
+          if(destShort[index] < srcShort[index]) {
+            destShort[index] = srcShort[index];
+          }
+        }
+      }
+    }
+
+    {
+      int[] destInteger = destAggs.getFieldsInteger();
+      if(destInteger != null) {
+        int[] srcInteger = srcAggs.getFieldsInteger();
+
+        for(int index = 0;
+            index < destInteger.length;
+            index++) {
+          if(destInteger[index] < srcInteger[index]) {
+            destInteger[index] = srcInteger[index];
+          }
+        }
+      }
+    }
+
+    {
+      long[] destLong = destAggs.getFieldsLong();
+      if(destLong != null) {
+        long[] srcLong = srcAggs.getFieldsLong();
+
+        for(int index = 0;
+            index < destLong.length;
+            index++) {
+          if(destLong[index] < srcLong[index]) {
+            destLong[index] = srcLong[index];
+          }
+        }
+      }
+    }
+
+    {
+      float[] destFloat = destAggs.getFieldsFloat();
+      if(destFloat != null) {
+        float[] srcFloat = srcAggs.getFieldsFloat();
+
+        for(int index = 0;
+            index < destFloat.length;
+            index++) {
+          if(destFloat[index] < srcFloat[index]) {
+            destFloat[index] = srcFloat[index];
+          }
+        }
+      }
+    }
+
+    {
+      double[] destDouble = destAggs.getFieldsDouble();
+      if(destDouble != null) {
+        double[] srcDouble = srcAggs.getFieldsDouble();
+
+        for(int index = 0;
+            index < destDouble.length;
+            index++) {
+          if(destDouble[index] < srcDouble[index]) {
+            destDouble[index] = srcDouble[index];
+          }
+        }
+      }
+    }
+  }
+
+  @Override
+  public Map<Type, Type> getTypeConversionMap()
+  {
+    return AggregatorUtils.IDENTITY_NUMBER_TYPE_MAP;
+  }
+
+  @Override
+  public FieldsDescriptor getResultDescriptor(FieldsDescriptor fd)
+  {
+    if(!Type.NUMERIC_TYPES.containsAll(fd.getTypes())) {
+      throw new UnsupportedOperationException("The given field descriptor can only contain numeric types.");
+    }
+
+    return fd;
+  }
+
+  @Override
+  public GenericAggregateEvent createDest(GenericAggregateEvent first, FieldsDescriptor fd)
+  {
+    return first;
   }
 }
