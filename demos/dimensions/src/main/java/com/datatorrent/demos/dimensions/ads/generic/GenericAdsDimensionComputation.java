@@ -20,6 +20,8 @@ import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -30,6 +32,8 @@ import java.util.Map;
  */
 public class GenericAdsDimensionComputation extends GenericDimensionsComputation<GenericAdInfo>
 {
+  private static final Logger logger = LoggerFactory.getLogger(GenericAdsDimensionComputation.class);
+
   @NotNull
   private String eventSchemaJSON;
 
@@ -65,6 +69,9 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
         FieldsDescriptor inputDescriptor = entry.getValue();
         AggType aggType = AggType.valueOf(aggregatorName);
         inputMap.put(aggType.ordinal(), entry.getValue());
+        logger.info("Adding desrcriptor {} {}", aggType.ordinal(),
+                                                aggType.getAggregator().getResultDescriptor(inputDescriptor));
+
         outputMap.put(aggType.ordinal(),
                       aggType.getAggregator().getResultDescriptor(inputDescriptor));
       }
@@ -85,6 +92,7 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
       FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(index);
       Int2ObjectMap<FieldsDescriptor> map = ddIDToAggIDToInputAggDescriptor.get(index);
 
+      logger.info("Map size: {}", map.size());
       for(int mapIndex = 0;
           mapIndex < map.size();
           mapIndex++) {
