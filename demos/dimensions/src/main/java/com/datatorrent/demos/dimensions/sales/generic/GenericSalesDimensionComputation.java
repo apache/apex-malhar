@@ -18,6 +18,7 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import javax.validation.constraints.NotNull;
 
 import java.util.List;
@@ -35,6 +36,7 @@ public class GenericSalesDimensionComputation extends GenericDimensionsComputati
   private transient GenericEventSchema eventSchema;
   private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToInputAggDescriptor;
   private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToOutputAggDescriptor;
+  private transient List<IntArrayList> ddIDToAggIDs;
 
   public GenericSalesDimensionComputation()
   {
@@ -52,9 +54,11 @@ public class GenericSalesDimensionComputation extends GenericDimensionsComputati
     for(int index = 0;
         index < tempDescriptorList.size();
         index++) {
+      IntArrayList aggIDList = new IntArrayList();
       Int2ObjectMap<FieldsDescriptor> inputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
       Int2ObjectMap<FieldsDescriptor> outputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
 
+      ddIDToAggIDs.add(aggIDList);
       ddIDToAggIDToInputAggDescriptor.add(inputMap);
       ddIDToAggIDToOutputAggDescriptor.add(outputMap);
 
@@ -63,7 +67,8 @@ public class GenericSalesDimensionComputation extends GenericDimensionsComputati
         String aggregatorName = entry.getKey();
         FieldsDescriptor inputDescriptor = entry.getValue();
         AggType aggType = AggType.valueOf(aggregatorName);
-        inputMap.put(aggType.ordinal(), entry.getValue());
+        aggIDList.add(aggType.ordinal());
+        inputMap.put(aggType.ordinal(), inputDescriptor);
         outputMap.put(aggType.ordinal(),
                       aggType.getAggregator().getResultDescriptor(inputDescriptor));
       }
@@ -83,16 +88,18 @@ public class GenericSalesDimensionComputation extends GenericDimensionsComputati
         index++) {
       FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(index);
       Int2ObjectMap<FieldsDescriptor> map = ddIDToAggIDToInputAggDescriptor.get(index);
+      IntArrayList aggIDList = ddIDToAggIDs.get(index);
 
-      for(int mapIndex = 0;
-          mapIndex < map.size();
-          mapIndex++) {
+      for(int aggIDIndex = 0;
+          aggIDIndex < aggIDList.size();
+          aggIDIndex++) {
+        int aggID = aggIDList.get(aggIDIndex);
         events.add(createGenericAggregateEvent(inputEvent,
                                                eventSchema.getDdIDToDD().get(index),
                                                keyFieldsDescriptor,
-                                               map.get(mapIndex),
+                                               map.get(aggID),
                                                index,
-                                               mapIndex));
+                                               aggID));
       }
     }
 
@@ -122,7 +129,7 @@ public class GenericSalesDimensionComputation extends GenericDimensionsComputati
         index < fields.size();
         index++) {
       String field = fields.get(index);
-      
+
       if(field.equals(JsonSalesGenerator.KEY_CHANNEL)) {
         keyGPO.setField(field, ga.get(JsonSalesGenerator.KEY_CHANNEL));
       }

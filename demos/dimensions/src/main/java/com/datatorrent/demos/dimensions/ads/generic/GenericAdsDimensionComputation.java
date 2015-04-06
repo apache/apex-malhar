@@ -19,6 +19,7 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,6 +41,7 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   private transient GenericEventSchema eventSchema;
   private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToInputAggDescriptor;
   private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToOutputAggDescriptor;
+  private transient List<IntArrayList> ddIDToAggIDs;
 
   public GenericAdsDimensionComputation()
   {
@@ -57,9 +59,11 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
     for(int index = 0;
         index < tempDescriptorList.size();
         index++) {
+      IntArrayList aggIDList = new IntArrayList();
       Int2ObjectMap<FieldsDescriptor> inputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
       Int2ObjectMap<FieldsDescriptor> outputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
 
+      ddIDToAggIDs.add(aggIDList);
       ddIDToAggIDToInputAggDescriptor.add(inputMap);
       ddIDToAggIDToOutputAggDescriptor.add(outputMap);
 
@@ -68,10 +72,8 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
         String aggregatorName = entry.getKey();
         FieldsDescriptor inputDescriptor = entry.getValue();
         AggType aggType = AggType.valueOf(aggregatorName);
-        inputMap.put(aggType.ordinal(), entry.getValue());
-        logger.info("Adding desrcriptor {} {}", aggType.ordinal(),
-                                                aggType.getAggregator().getResultDescriptor(inputDescriptor));
-
+        aggIDList.add(aggType.ordinal());
+        inputMap.put(aggType.ordinal(), inputDescriptor);
         outputMap.put(aggType.ordinal(),
                       aggType.getAggregator().getResultDescriptor(inputDescriptor));
       }
@@ -91,17 +93,18 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
         index++) {
       FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(index);
       Int2ObjectMap<FieldsDescriptor> map = ddIDToAggIDToInputAggDescriptor.get(index);
+      IntArrayList aggIDList = ddIDToAggIDs.get(index);
 
-      logger.info("Map size: {}", map.size());
-      for(int mapIndex = 0;
-          mapIndex < map.size();
-          mapIndex++) {
+      for(int aggIDIndex = 0;
+          aggIDIndex < aggIDList.size();
+          aggIDIndex++) {
+        int aggID = aggIDList.get(aggIDIndex);
         events.add(createGenericAggregateEvent(inputEvent,
                                                eventSchema.getDdIDToDD().get(index),
                                                keyFieldsDescriptor,
-                                               map.get(mapIndex),
+                                               map.get(aggID),
                                                index,
-                                               mapIndex));
+                                               aggID));
       }
     }
 
