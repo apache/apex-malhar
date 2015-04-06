@@ -30,7 +30,6 @@ import com.datatorrent.api.Operator;
  * <br>
  *
  * @param <T> Operator type
- * @since 1.0.2
  */
 public class StatelessLatencyBasedPartitioner<T extends Operator> extends StatsAwareStatelessPartitioner<T>
 {
