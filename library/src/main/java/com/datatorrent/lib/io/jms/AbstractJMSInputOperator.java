@@ -281,6 +281,7 @@ public abstract class AbstractJMSInputOperator<T> extends JMSBase implements Inp
     }
 
     Message msg;
+    LOG.debug("holding buffer is {}",holdingBuffer.toString());
     while (emitCount < bufferSize && (msg = holdingBuffer.poll()) != null) {
       processMessage(msg);
       emitCount++;
