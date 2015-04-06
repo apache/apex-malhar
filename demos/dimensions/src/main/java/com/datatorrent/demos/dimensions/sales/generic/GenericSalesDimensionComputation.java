@@ -116,19 +116,34 @@ public class GenericSalesDimensionComputation extends GenericDimensionsComputati
   {
     GPOMutable keyGPO = new GPOMutable(keyFieldsDescriptor);
 
-    keyGPO.setField(JsonSalesGenerator.KEY_CHANNEL, ga.get(JsonSalesGenerator.KEY_CHANNEL));
-    keyGPO.setField(JsonSalesGenerator.KEY_CUSTOMER, ga.get(JsonSalesGenerator.KEY_CUSTOMER));
-    keyGPO.setField(JsonSalesGenerator.KEY_PRODUCT, ga.get(JsonSalesGenerator.KEY_PRODUCT));
-    keyGPO.setField(JsonSalesGenerator.KEY_REGION, ga.get(JsonSalesGenerator.KEY_REGION));
-    if(dd.getTimeBucket() == null) {
-      keyGPO.setField(DimensionsDescriptor.DIMENSION_TIME, ga.get(DimensionsDescriptor.DIMENSION_TIME));
+    for(String field: keyFieldsDescriptor.getFields().getFields()) {
+      if(field.equals(JsonSalesGenerator.KEY_CHANNEL)) {
+        keyGPO.setField(field, ga.get(JsonSalesGenerator.KEY_CHANNEL));
+      }
+      else if(field.equals(JsonSalesGenerator.KEY_CUSTOMER)) {
+        keyGPO.setField(field, ga.get(JsonSalesGenerator.KEY_CUSTOMER));
+      }
+      else if(field.equals(JsonSalesGenerator.KEY_PRODUCT)) {
+        keyGPO.setField(field, ga.get(JsonSalesGenerator.KEY_PRODUCT));
+      }
+      else if(field.equals(JsonSalesGenerator.KEY_REGION)) {
+        keyGPO.setField(field, ga.get(JsonSalesGenerator.KEY_REGION));
+      }
+      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
+        if(dd.getTimeBucket() == null) {
+          keyGPO.setField(field, ga.get(DimensionsDescriptor.DIMENSION_TIME));
+        }
+        else {
+          keyGPO.setField(field, dd.getTimeBucket().roundDown((Long) ga.get(DimensionsDescriptor.DIMENSION_TIME)));
+        }
+      }
+      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+        keyGPO.setField(field, dd.getTimeBucket().ordinal());
+      }
+      else {
+        throw new UnsupportedOperationException("This field is not supported: " + field);
+      }
     }
-    else {
-      keyGPO.setField(DimensionsDescriptor.DIMENSION_TIME, dd.getTimeBucket().roundDown((Long)ga.get(DimensionsDescriptor.DIMENSION_TIME)));
-    }
-    keyGPO.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, dd.getTimeBucket().ordinal());
-
-    //
 
     GPOMutable aggGPO = new GPOMutable(aggregateDescriptor);
 

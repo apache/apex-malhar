@@ -6,8 +6,10 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -18,6 +20,7 @@ import java.util.Set;
 public class Fields
 {
   private Set<String> fields;
+  private List<String> fieldsList;
 
   public Fields()
   {
@@ -26,6 +29,10 @@ public class Fields
   public Fields(Set<String> fields)
   {
     setFields(fields);
+
+    fieldsList = Lists.newArrayList();
+    fieldsList.addAll(fields);
+    fieldsList = Collections.unmodifiableList(fieldsList);
   }
 
   public Fields(List<String> fields)
@@ -40,6 +47,10 @@ public class Fields
     }
 
     setFields(fieldsSet);
+    
+    fieldsList = Lists.newArrayList();
+    fieldsList.addAll(fields);
+    fieldsList = Collections.unmodifiableList(fieldsList);
   }
 
   private void setFields(Set<String> fields)
@@ -85,5 +96,13 @@ public class Fields
   public String toString()
   {
     return "Fields{" + "fields=" + fields + '}';
+  }
+
+  /**
+   * @return the fieldsList
+   */
+  public List<String> getFieldsList()
+  {
+    return fieldsList;
   }
 }

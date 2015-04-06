@@ -117,18 +117,31 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   {
     GPOMutable keyGPO = new GPOMutable(keyFieldsDescriptor);
 
-    keyGPO.setField(AdsSchemaResult.ADVERTISER, ga.getAdvertiser());
-    keyGPO.setField(AdsSchemaResult.PUBLISHER, ga.getPublisher());
-    keyGPO.setField(AdsSchemaResult.LOCATION, ga.getLocation());
-
-    if(dd.getTimeBucket() == null) {
-      keyGPO.setField(DimensionsDescriptor.DIMENSION_TIME, ga.getTime());
+    for(String field: keyFieldsDescriptor.getFields().getFields()) {
+      if(field.equals(AdsSchemaResult.ADVERTISER)) {
+        keyGPO.setField(field, ga.getAdvertiser());
+      }
+      else if(field.equals(AdsSchemaResult.PUBLISHER)) {
+        keyGPO.setField(field, ga.getPublisher());
+      }
+      else if(field.equals(AdsSchemaResult.LOCATION)) {
+        keyGPO.setField(field, ga.getLocation());
+      }
+      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
+        if(dd.getTimeBucket() == null) {
+          keyGPO.setField(field, ga.getTime());
+        }
+        else {
+          keyGPO.setField(field, dd.getTimeBucket().roundDown(ga.getTime()));
+        }
+      }
+      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+        keyGPO.setField(field, dd.getTimeBucket().ordinal());
+      }
+      else {
+        throw new UnsupportedOperationException("This field is not supported: " + field);
+      }
     }
-    else {
-      keyGPO.setField(DimensionsDescriptor.DIMENSION_TIME, dd.getTimeBucket().roundDown(ga.getTime()));
-    }
-
-    keyGPO.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, dd.getTimeBucket().ordinal());
 
     GPOMutable aggGPO = new GPOMutable(aggregateDescriptor);
 
