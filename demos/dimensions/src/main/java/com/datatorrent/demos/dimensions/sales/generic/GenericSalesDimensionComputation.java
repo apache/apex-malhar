@@ -48,6 +48,7 @@ public class GenericSalesDimensionComputation extends GenericDimensionsComputati
     eventSchema = new GenericEventSchema(eventSchemaJSON);
 
     List<Map<String, FieldsDescriptor>> tempDescriptorList = eventSchema.getDdIDToAggregatorToAggregateDescriptor();
+    ddIDToAggIDs = Lists.newArrayList();
     ddIDToAggIDToInputAggDescriptor = Lists.newArrayList();
     ddIDToAggIDToOutputAggDescriptor = Lists.newArrayList();
 
