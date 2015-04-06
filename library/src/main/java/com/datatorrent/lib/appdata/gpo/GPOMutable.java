@@ -130,6 +130,8 @@ public class GPOMutable implements Serializable
   public GPOMutable(FieldsDescriptor fieldDescriptor)
   {
     setFieldDescriptor(fieldDescriptor);
+
+    initialize();
   }
 
   private void initialize()
