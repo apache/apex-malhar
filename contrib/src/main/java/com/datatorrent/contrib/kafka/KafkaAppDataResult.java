@@ -15,7 +15,7 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.api.AppDataOperator;
+import com.datatorrent.api.AppData.AppDataOperator;
 import java.net.URI;
 import java.net.URISyntaxException;
 import org.apache.http.client.utils.URIBuilder;

@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.AppDataTopicResultOperator;
+import com.datatorrent.api.AppData.AppDataTopicResultOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.PubSubMessage.PubSubMessageType;
 import java.io.IOException;

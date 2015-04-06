@@ -15,11 +15,12 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.api.AppDataOperator;
+import com.datatorrent.api.AppData.AppDataOperator;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Iterator;
 import org.apache.http.client.utils.URIBuilder;
+
+import java.util.Iterator;
 
 public class KafkaAppDataQuery extends KafkaSinglePortStringInputOperator implements AppDataOperator
 {

@@ -8,16 +8,15 @@ package com.datatorrent.contrib.dimensions;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.AppDataQueryPort;
-import com.datatorrent.api.annotation.AppDataResultPort;
+import com.datatorrent.api.annotation.AppDataAnnotations.AppDataQueryPort;
+import com.datatorrent.api.annotation.AppDataAnnotations.AppDataResultPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.contrib.dimensions.GenericDimensionsStoreHDHT;
 import com.datatorrent.lib.appdata.dimensions.AggType;
-import com.datatorrent.lib.appdata.dimensions.GenericDimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent.EventKey;
+import com.datatorrent.lib.appdata.dimensions.GenericDimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.GenericEventSchema;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Data;
@@ -77,7 +76,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
 
   private transient long windowId;
 
-    @AppDataResultPort(schemaType = "default", schemaVersion = "1.0")
+  @AppDataResultPort(schemaType = "default", schemaVersion = "1.0")
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
 
   @InputPortFieldAnnotation(optional = true)

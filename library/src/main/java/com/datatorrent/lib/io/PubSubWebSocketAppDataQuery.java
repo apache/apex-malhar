@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.AppDataOperator;
+import com.datatorrent.api.AppData.AppDataOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.PubSubMessage;
 import org.codehaus.jettison.json.JSONArray;
