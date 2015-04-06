@@ -15,11 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
-
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
 public class GPOMutable implements Serializable
 {
   private static final Logger logger = LoggerFactory.getLogger(GPOMutable.class);

@@ -21,10 +21,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
 public class GPOUtils
 {
   private static final Logger logger = LoggerFactory.getLogger(GPOUtils.class);

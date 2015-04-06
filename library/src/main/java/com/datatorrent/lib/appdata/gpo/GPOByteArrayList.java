@@ -14,10 +14,6 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Iterator;
 
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
 public class GPOByteArrayList extends ByteArrayList
 {
   private static final long serialVersionUID = 201503091653L;
