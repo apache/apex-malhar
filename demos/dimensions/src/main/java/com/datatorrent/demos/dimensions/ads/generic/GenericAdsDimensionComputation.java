@@ -163,10 +163,29 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
 
     GPOMutable aggGPO = new GPOMutable(aggregateDescriptor);
 
-    aggGPO.setField(AdsSchemaResult.CLICKS, ga.getClicks());
-    aggGPO.setField(AdsSchemaResult.IMPRESSIONS, ga.getImpressions());
-    aggGPO.setField(AdsSchemaResult.REVENUE, ga.getRevenue());
-    aggGPO.setField(AdsSchemaResult.COST, ga.getCost());
+    fields = aggregateDescriptor.getFields().getFieldsList();
+
+    for(int index = 0;
+        index < fields.size();
+        index++) {
+      String field = fields.get(index);
+
+      if(field.equals(AdsSchemaResult.CLICKS)) {
+        aggGPO.setField(AdsSchemaResult.CLICKS, ga.getClicks());
+      }
+      else if(field.equals(AdsSchemaResult.IMPRESSIONS)) {
+        aggGPO.setField(AdsSchemaResult.IMPRESSIONS, ga.getImpressions());
+      }
+      else if(field.equals(AdsSchemaResult.REVENUE)) {
+        aggGPO.setField(AdsSchemaResult.REVENUE, ga.getRevenue());
+      }
+      else if(field.equals(AdsSchemaResult.COST)) {
+        aggGPO.setField(AdsSchemaResult.COST, ga.getCost());
+      }
+      else {
+        throw new UnsupportedOperationException("This field is not supported: " + field);
+      }
+    }
 
     GenericAggregateEvent gae = new GenericAggregateEvent(new GPOImmutable(keyGPO),
                                                           aggGPO,
