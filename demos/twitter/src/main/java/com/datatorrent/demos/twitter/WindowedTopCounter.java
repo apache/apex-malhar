@@ -17,6 +17,8 @@ package com.datatorrent.demos.twitter;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.AppDataAnnotations.AppDataQueryPort;
+import com.datatorrent.api.annotation.AppDataAnnotations.AppDataResultPort;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
@@ -81,6 +83,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   private int topCount = 10;
   private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
 
+  @AppDataResultPort(schemaType = "default", schemaVersion = "1.0")
   public final transient DefaultOutputPort<String> resultOutput = new DefaultOutputPort<String>();
 
   /**
@@ -102,6 +105,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     }
   };
 
+  @AppDataQueryPort
   public final transient DefaultInputPort<String> queryInput = new DefaultInputPort<String>() {
     @Override
     public void process(String s)
