@@ -112,6 +112,7 @@ public abstract class GenericDimensionsComputation<INPUT_EVENT> implements Opera
     }
 
     aggregator.aggregate(aggregate, gae);
+    
     /*GenericAggregateEvent newAggregate = new GenericAggregateEvent(aggregate.getEventKey(),
                                                                    new GPOMutable(aggregate.getAggregates()));
     cache.put(newAggregate.getEventKey(), newAggregate);*/

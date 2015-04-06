@@ -46,6 +46,8 @@ public class GenericAggregateEvent implements DimensionsComputation.AggregateEve
     this.aggregatorIndex = eventKey.getAggregatorIndex();
 
     this.setAggregates(aggregates);
+
+    initialize();
   }
 
   public GenericAggregateEvent(GPOImmutable keys,
