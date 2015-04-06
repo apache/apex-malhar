@@ -17,14 +17,14 @@ import java.util.Map;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public enum AggType
+public enum AggregatorType
 {
   SUM(new AggregatorSum()),
   MIN(new AggregatorMin()),
   MAX(new AggregatorMax()),
   COUNT(new AggregatorCount());
 
-  private static final Logger logger = LoggerFactory.getLogger(AggType.class);
+  private static final Logger logger = LoggerFactory.getLogger(AggregatorType.class);
 
   private GenericDimensionsAggregator aggregator;
   public static final Map<String, Integer> NAME_TO_ORDINAL;
@@ -32,7 +32,7 @@ public enum AggType
   static {
     Map<String, Integer> nameToOrdinal = Maps.newHashMap();
 
-    for(AggType aggType: AggType.values()) {
+    for(AggregatorType aggType: AggregatorType.values()) {
       logger.info("Aggs: {} {}", aggType.name(), aggType.ordinal());
       nameToOrdinal.put(aggType.name(), aggType.ordinal());
     }
@@ -40,7 +40,7 @@ public enum AggType
     NAME_TO_ORDINAL = Collections.unmodifiableMap(nameToOrdinal);
   }
 
-  AggType(GenericDimensionsAggregator aggregator)
+  AggregatorType(GenericDimensionsAggregator aggregator)
   {
     setAggregator(aggregator);
   }

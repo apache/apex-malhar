@@ -12,7 +12,7 @@ import com.datatorrent.api.annotation.AppDataAnnotations.AppDataQueryPort;
 import com.datatorrent.api.annotation.AppDataAnnotations.AppDataResultPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.lib.appdata.dimensions.AggType;
+import com.datatorrent.lib.appdata.dimensions.AggregatorType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent.EventKey;
@@ -131,7 +131,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
   {
     eventSchema = new GenericEventSchema(eventSchemaJSON);
     dimensionalSchema = new GenericSchemaDimensional(dimensionalSchemaJSON);
-    indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggType.NAME_TO_ORDINAL);
+    indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggregatorType.NAME_TO_ORDINAL);
     super.setup(context);
 
 
@@ -190,7 +190,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
   @Override
   public GenericDimensionsAggregator getAggregator(int aggregatorID)
   {
-    return AggType.values()[aggregatorID].getAggregator();
+    return AggregatorType.values()[aggregatorID].getAggregator();
   }
 
   @Override
@@ -275,7 +275,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
 
       EventKey eventKey = new EventKey(SCHEMA_ID,
                                        ddID,
-                                       AggType.SUM.ordinal(),
+                                       AggregatorType.SUM.ordinal(),
                                        gpoKey);
 
       long bucketKey = getBucketForSchema(SCHEMA_ID);

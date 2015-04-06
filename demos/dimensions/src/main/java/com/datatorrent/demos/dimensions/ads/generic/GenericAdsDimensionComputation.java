@@ -7,7 +7,7 @@ package com.datatorrent.demos.dimensions.ads.generic;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
-import com.datatorrent.lib.appdata.dimensions.AggType;
+import com.datatorrent.lib.appdata.dimensions.AggregatorType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.GenericDimensionsAggregator;
@@ -72,7 +72,7 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
           tempDescriptorList.get(index).entrySet()) {
         String aggregatorName = entry.getKey();
         FieldsDescriptor inputDescriptor = entry.getValue();
-        AggType aggType = AggType.valueOf(aggregatorName);
+        AggregatorType aggType = AggregatorType.valueOf(aggregatorName);
         aggIDList.add(aggType.ordinal());
         inputMap.put(aggType.ordinal(), inputDescriptor);
         outputMap.put(aggType.ordinal(),
@@ -198,7 +198,7 @@ public class GenericAdsDimensionComputation extends GenericDimensionsComputation
   @Override
   public GenericDimensionsAggregator getAggregator(int aggregatorID)
   {
-    return AggType.values()[aggregatorID].getAggregator();
+    return AggregatorType.values()[aggregatorID].getAggregator();
   }
 
   /**
