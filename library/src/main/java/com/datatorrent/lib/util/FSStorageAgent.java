@@ -17,18 +17,20 @@ package com.datatorrent.lib.util;
 
 import java.io.*;
 
+import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.*;
+import org.apache.hadoop.fs.FileSystem;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.hadoop.conf.Configuration;
-import org.apache.hadoop.fs.*;
-
 import com.datatorrent.api.StorageAgent;
 import com.datatorrent.api.annotation.Stateless;
+
+import com.datatorrent.common.util.DTThrowable;
 
 /**
  * FSStorageAgent
@@ -37,6 +39,7 @@ import com.datatorrent.api.annotation.Stateless;
  */
 public class FSStorageAgent implements StorageAgent, Serializable
 {
+  private static final String TMP_FILE = "._COPYING_";
   protected static final String STATELESS_CHECKPOINT_WINDOW_ID = Long.toHexString(Stateless.WINDOW_ID);
   public final String path;
   protected final transient FileSystem fs;
@@ -59,7 +62,6 @@ public class FSStorageAgent implements StorageAgent, Serializable
       logger.debug("Initialize storage agent with {}.", path);
       Path lPath = new Path(path);
       fs = FileSystem.newInstance(lPath.toUri(), conf == null ? new Configuration() : conf);
-
       try {
         if (fs.mkdirs(lPath)) {
           fs.setWorkingDirectory(lPath);
@@ -88,18 +90,41 @@ public class FSStorageAgent implements StorageAgent, Serializable
     super.finalize();
   }
 
+  @SuppressWarnings("ThrowFromFinallyBlock")
   @Override
   public void save(Object object, int operatorId, long windowId) throws IOException
   {
-    Path lPath = new Path(String.valueOf(operatorId), Long.toHexString(windowId));
-    logger.debug("Saving: {}", lPath);
-
-    FSDataOutputStream stream = fs.create(lPath);
+    String operatorIdStr = String.valueOf(operatorId);
+    Path lPath = new Path(operatorIdStr, TMP_FILE);
+    String window = Long.toHexString(windowId);
+    boolean stateSaved = false;
+    FSDataOutputStream stream = null;
     try {
+      stream = fs.create(lPath);
       store(stream, object);
+      stateSaved = true;
+    }
+    catch (Throwable t) {
+      logger.debug("while saving {} {}", operatorId, window, t);
+      stateSaved = false;
+      DTThrowable.rethrow(t);
     }
     finally {
-      stream.close();
+      try {
+        if (stream != null) {
+          stream.close();
+        }
+      }
+      catch (IOException ie){
+         stateSaved = false;
+         throw new RuntimeException(ie);
+      }
+      finally {
+        if (stateSaved) {
+          logger.debug("Saving {}: {}", operatorId, window);
+          fs.rename(lPath, new Path(operatorIdStr, window));
+        }
+      }
     }
   }
 
@@ -140,6 +165,9 @@ public class FSStorageAgent implements StorageAgent, Serializable
     long windowIds[] = new long[files.length];
     for (int i = files.length; i-- > 0; ) {
       String name = files[i].getPath().getName();
+      if (name.equals(TMP_FILE)) {
+        continue;
+      }
       windowIds[i] = STATELESS_CHECKPOINT_WINDOW_ID.equals(name) ? Stateless.WINDOW_ID : Long.parseLong(name, 16);
     }
     return windowIds;
