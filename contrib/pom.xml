@@ -218,10 +218,11 @@
       <optional>true</optional>
     </dependency>
     <dependency>
-	    <groupId>org.elasticsearch</groupId>
-	    <artifactId>elasticsearch</artifactId>
-	    <version>1.1.2</version>
-	</dependency>
+      <groupId>org.elasticsearch</groupId>
+      <artifactId>elasticsearch</artifactId>
+      <version>1.1.2</version>
+      <optional>true</optional>
+    </dependency>
     <dependency>
       <groupId>mysql</groupId>
       <artifactId>mysql-connector-java</artifactId>

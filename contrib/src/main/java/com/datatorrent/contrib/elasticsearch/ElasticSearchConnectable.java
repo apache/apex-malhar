@@ -39,7 +39,6 @@ import com.datatorrent.lib.db.Connectable;
  *
  * <b>Benchmarks</b>: <br>
  *
- * @since 0.3.2
  * */
 
 public class ElasticSearchConnectable implements Connectable
