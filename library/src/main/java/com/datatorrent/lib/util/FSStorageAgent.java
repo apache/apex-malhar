@@ -39,7 +39,7 @@ import com.datatorrent.common.util.DTThrowable;
  */
 public class FSStorageAgent implements StorageAgent, Serializable
 {
-  private static final String TMP_FILE = ".tmp";
+  private static final String TMP_FILE = "._COPYING_";
   protected static final String STATELESS_CHECKPOINT_WINDOW_ID = Long.toHexString(Stateless.WINDOW_ID);
   public final String path;
   protected final transient FileSystem fs;
@@ -97,7 +97,6 @@ public class FSStorageAgent implements StorageAgent, Serializable
     String operatorIdStr = String.valueOf(operatorId);
     Path lPath = new Path(operatorIdStr, TMP_FILE);
     String window = Long.toHexString(windowId);
-    logger.debug("Saving {}: {}", operatorId, window);
     boolean stateSaved = false;
     FSDataOutputStream stream = null;
     try {
@@ -122,13 +121,8 @@ public class FSStorageAgent implements StorageAgent, Serializable
       }
       finally {
         if (stateSaved) {
+          logger.debug("Saving {}: {}", operatorId, window);
           fs.rename(lPath, new Path(operatorIdStr, window));
-        }
-        else {
-          logger.debug("delete tmp of {} {}", operatorId, window);
-          if (fs.exists(lPath)) {
-            fs.delete(lPath, false);
-          }
         }
       }
     }
