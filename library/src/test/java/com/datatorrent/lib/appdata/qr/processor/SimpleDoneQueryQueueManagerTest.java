@@ -6,6 +6,8 @@
 package com.datatorrent.lib.appdata.qr.processor;
 
 import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.qr.processor.QueryBundle;
+import com.datatorrent.lib.appdata.qr.processor.SimpleDoneQueryQueueManager;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.junit.Assert;
 import org.junit.Test;

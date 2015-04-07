@@ -15,19 +15,8 @@
  */
 package com.datatorrent.demos.twitter;
 
-import java.util.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.PriorityQueue;
-
-import com.google.common.collect.Lists;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import org.apache.commons.lang3.mutable.MutableLong;
-
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
@@ -42,9 +31,18 @@ import com.datatorrent.lib.appdata.schemas.GenericDataResultTabular;
 import com.datatorrent.lib.appdata.schemas.GenericSchemaResult;
 import com.datatorrent.lib.appdata.schemas.GenericSchemaTabular;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.datatorrent.lib.appdata.schemas.Type;
+import com.google.common.collect.Lists;
+import org.apache.commons.lang3.mutable.MutableLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
+import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.PriorityQueue;
+
 
 /**
  *
@@ -285,9 +283,16 @@ public class WindowedTopCounter<T> extends BaseOperator
         final SlidingContainer<T> wh = topIter.next();
 
         GPOMutable dataPoint = new GPOMutable(schema.getValuesDescriptor());
+        Map<Type, List<String>> typeToFields = schema.getValuesDescriptor().getTypeToFields();
 
-        dataPoint.setField(FIELD_URL, wh.identifier.toString());
-        dataPoint.setField(FIELD_COUNT, wh.totalCount);
+        for(Map.Entry<Type, List<String>> entry: typeToFields.entrySet()) {
+          if(entry.getKey() == Type.STRING) {
+            dataPoint.setField(entry.getValue().get(0), wh.identifier.toString());
+          }
+          else if(entry.getKey() == Type.INTEGER) {
+            dataPoint.setField(entry.getValue().get(0), wh.totalCount);
+          }
+        }
 
         data.add(dataPoint);
       }

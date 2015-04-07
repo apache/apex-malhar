@@ -93,7 +93,7 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
   public void endWindow()
   {
     try {
-      Thread.sleep(1000);
+      Thread.sleep(10000);
     }
     catch(InterruptedException ex) {
       Logger.getLogger(UniqueCounter.class.getName()).log(Level.SEVERE, null, ex);

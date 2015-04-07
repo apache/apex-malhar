@@ -20,14 +20,7 @@
     <name>dt.application.*.operator.*.port.*.attr.BUFFER_MEMORY_MB</name>
     <value>256</value>
   </property>
-  <property>
-    <name>dt.application.RollingTopWordsDemo.operator.TopCounter.topCount</name>
-    <value>10</value>
-  </property>
-  <property>
-    <name>dt.application.RollingTopWordsDemo.stream.TweetStream.locality</name>
-    <value>CONTAINER_LOCAL</value>
-  </property>
+
   <property>
     <name>dt.operator.TweetSampler.consumerKey</name>
   </property>
@@ -49,13 +42,45 @@
     <value>20</value>
   </property>
 
+  <!-- RollingTopWordsDemo -->
+
   <property>
-    <name>dt.operator.Query.topic</name>
-    <value>TwitterQuery</value>
+    <name>dt.application.RollingTopWordsDemo.operator.TopCounter.topCount</name>
+    <value>10</value>
   </property>
   <property>
-    <name>dt.operator.QueryResult.topic</name>
-    <value>TwitterQueryResult</value>
+    <name>dt.application.RollingTopWordsDemo.stream.TweetStream.locality</name>
+    <value>CONTAINER_LOCAL</value>
+  </property>
+  <property>
+    <name>dt.application.RollingTopWordsDemo.operator.Query.topic</name>
+    <value>TwitterWordsQuery</value>
+  </property>
+  <property>
+    <name>dt.application.RollingTopWordsDemo.operator.QueryResult.topic</name>
+    <value>TwitterWordsQueryResult</value>
+  </property>
+
+  <!-- TwitterDemo -->
+
+  <property>
+    <name>dt.application.RollingTopWordsDemo.operator.Query.topic</name>
+    <value>TwitterURLQuery</value>
+  </property>
+  <property>
+    <name>dt.application.RollingTopWordsDemo.operator.QueryResult.topic</name>
+    <value>TwitterURLQueryResult</value>
+  </property>
+
+  <!-- TwitterTrendingDemo -->
+
+  <property>
+    <name>dt.application.TwitterTrendingDemo.operator.Query.topic</name>
+    <value>TwitterHashtagQuery</value>
+  </property>
+  <property>
+    <name>dt.application.TwitterTrendingDemo.operator.QueryResult.topic</name>
+    <value>TwitterHashtagQueryResult</value>
   </property>
 
 </configuration>

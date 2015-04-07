@@ -52,7 +52,7 @@ public class TwitterTopWordsApplication implements StreamingApplication
 {
   private static final Logger logger = LoggerFactory.getLogger(TwitterTopWordsApplication.class);
 
-  public static final String TABULAR_SCHEMA = "twitterDataSchema.json";
+  public static final String TABULAR_SCHEMA = "twitterWordDataSchema.json";
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)

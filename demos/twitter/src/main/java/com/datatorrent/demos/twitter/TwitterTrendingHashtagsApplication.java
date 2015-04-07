@@ -138,7 +138,7 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name="TwitterTrendingDemo")
 public class TwitterTrendingHashtagsApplication implements StreamingApplication
 {
-  public static final String TABULAR_SCHEMA = "twitterDataSchema.json";
+  public static final String TABULAR_SCHEMA = "twitterHashTagDataSchema.json";
   private final Locality locality = null;
 
   @Override

@@ -6,6 +6,8 @@
 package com.datatorrent.lib.appdata.qr.processor;
 
 import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.qr.processor.QueryBundle;
+import com.datatorrent.lib.appdata.qr.processor.WWEQueryQueueManager;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.junit.Assert;
 import org.junit.Test;

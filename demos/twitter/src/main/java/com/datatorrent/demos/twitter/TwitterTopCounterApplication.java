@@ -136,7 +136,7 @@ import org.apache.hadoop.conf.Configuration;
 @ApplicationAnnotation(name=TwitterTopCounterApplication.APP_NAME)
 public class TwitterTopCounterApplication implements StreamingApplication
 {
-  public static final String TABULAR_SCHEMA = "twitterDataSchema.json";
+  public static final String TABULAR_SCHEMA = "twitterURLDataSchema.json";
   public static final String APP_NAME = "TwitterDemo";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
 

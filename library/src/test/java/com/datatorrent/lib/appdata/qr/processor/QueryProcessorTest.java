@@ -7,8 +7,12 @@ package com.datatorrent.lib.appdata.qr.processor;
 
 import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
+import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
 import com.google.common.collect.Lists;
+
 import java.util.List;
+
 import org.junit.Assert;
 import org.junit.Test;
 
