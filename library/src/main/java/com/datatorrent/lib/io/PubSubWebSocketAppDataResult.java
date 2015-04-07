@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.AppData.AppDataTopicResultOperator;
+import com.datatorrent.api.AppData;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.PubSubMessage.PubSubMessageType;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppDataTopicResultOperator
+public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.TopicResultOperator
 {
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataResult.class);
 

@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.io;
 
-import com.datatorrent.api.AppData.AppDataOperator;
+import com.datatorrent.api.AppData;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.PubSubMessage;
 import org.codehaus.jettison.json.JSONArray;
@@ -24,7 +24,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppDataOperator
+public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.Operator
 {
   /**
    * Add optional error port

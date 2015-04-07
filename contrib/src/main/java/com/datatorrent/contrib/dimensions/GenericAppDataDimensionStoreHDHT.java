@@ -15,11 +15,10 @@
  */
 package com.datatorrent.contrib.dimensions;
 
+import com.datatorrent.api.AppData;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.AppDataAnnotations.AppDataQueryPort;
-import com.datatorrent.api.annotation.AppDataAnnotations.AppDataResultPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.appdata.dimensions.AggregatorType;
@@ -82,11 +81,11 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
 
   private transient long windowId;
 
-  @AppDataResultPort(schemaType = "default", schemaVersion = "1.0")
+  @AppData.ResultPort(schemaType = "default", schemaVersion = "1.0")
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
 
   @InputPortFieldAnnotation(optional = true)
-  @AppDataQueryPort
+  @AppData.QueryPort
   public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
   {
     @Override public void process(String s)

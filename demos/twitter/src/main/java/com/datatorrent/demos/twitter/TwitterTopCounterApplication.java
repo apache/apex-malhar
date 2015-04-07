@@ -180,7 +180,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
     // Count unique urls
     dag.addStream("UniqueURLCounts", uniqueCounter.count, topCounts.input).setLocality(locality);
 
-    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput);
+    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput).setLocality(Locality.THREAD_LOCAL);
     dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
   }
 }

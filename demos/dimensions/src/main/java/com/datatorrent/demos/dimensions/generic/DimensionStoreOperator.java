@@ -15,11 +15,10 @@
  */
 package com.datatorrent.demos.dimensions.generic;
 
+import com.datatorrent.api.AppData;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.AppDataAnnotations.AppDataQueryPort;
-import com.datatorrent.api.annotation.AppDataAnnotations.AppDataResultPort;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
@@ -93,7 +92,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDHTWriter<Generic
     this.aggregator = aggregator;
   }
 
-  @AppDataResultPort(schemaType=AdsSchemaResult.SCHEMA_TYPE,
+  @AppData.ResultPort(schemaType=AdsSchemaResult.SCHEMA_TYPE,
                      schemaVersion=AdsSchemaResult.SCHEMA_VERSION)
   public final transient DefaultOutputPort<HDSRangeQueryResult> queryResult = new DefaultOutputPort<HDSRangeQueryResult>();
 
@@ -128,7 +127,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDHTWriter<Generic
     return eventSchema;
   }
 
-  @AppDataQueryPort
+  @AppData.QueryPort
   public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
   {
     @Override

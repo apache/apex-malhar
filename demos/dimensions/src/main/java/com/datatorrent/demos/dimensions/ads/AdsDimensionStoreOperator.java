@@ -18,8 +18,7 @@ package com.datatorrent.demos.dimensions.ads;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.AppDataAnnotations.AppDataQueryPort;
-import com.datatorrent.api.annotation.AppDataAnnotations.AppDataResultPort;
+import com.datatorrent.api.AppData;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
@@ -77,11 +76,11 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 {
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionStoreOperator.class);
 
-  @AppDataResultPort(schemaType = "default", schemaVersion = "1.0")
+  @AppData.ResultPort(schemaType = "default", schemaVersion = "1.0")
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
 
   @InputPortFieldAnnotation(optional = true)
-  @AppDataQueryPort
+  @AppData.QueryPort
   public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
   {
     @Override public void process(String s)

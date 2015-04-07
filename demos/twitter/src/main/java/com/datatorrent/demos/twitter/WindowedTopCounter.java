@@ -15,10 +15,19 @@
  */
 package com.datatorrent.demos.twitter;
 
-import com.datatorrent.api.*;
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.AppDataAnnotations.AppDataQueryPort;
-import com.datatorrent.api.annotation.AppDataAnnotations.AppDataResultPort;
+import java.util.*;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.PriorityQueue;
+
+import com.google.common.collect.Lists;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import org.apache.commons.lang3.mutable.MutableLong;
+
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
@@ -33,16 +42,9 @@ import com.datatorrent.lib.appdata.schemas.GenericDataResultTabular;
 import com.datatorrent.lib.appdata.schemas.GenericSchemaResult;
 import com.datatorrent.lib.appdata.schemas.GenericSchemaTabular;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
-import com.google.common.collect.Lists;
-import org.apache.commons.lang3.mutable.MutableLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.PriorityQueue;
+import com.datatorrent.api.*;
+import com.datatorrent.api.Context.OperatorContext;
 
 /**
  *
@@ -83,7 +85,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   private int topCount = 10;
   private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
 
-  @AppDataResultPort(schemaType = "default", schemaVersion = "1.0")
+  @AppData.ResultPort(schemaType = "default", schemaVersion = "1.0")
   public final transient DefaultOutputPort<String> resultOutput = new DefaultOutputPort<String>();
 
   /**
@@ -105,7 +107,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     }
   };
 
-  @AppDataQueryPort
+  @AppData.QueryPort
   public final transient DefaultInputPort<String> queryInput = new DefaultInputPort<String>() {
     @Override
     public void process(String s)
