@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import javax.jms.*;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.junit.Assert;
@@ -46,7 +47,7 @@ public class JMSObjectInputOperatorTest
   {
     String baseDir;
     String recoveryDir;
-    JMSInputObjectOperator operator;
+    JMSObjectInputOperator operator;
     CollectorTestSink<Object> sink;
     Context.OperatorContext context;
     JMSTestBase testBase;
@@ -73,7 +74,7 @@ public class JMSObjectInputOperatorTest
       attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
-      operator = new JMSInputObjectOperator();
+      operator = new JMSObjectInputOperator();
       operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
       ((IdempotentStorageManager.FSIdempotentStorageManager)operator.getIdempotentStorageManager()).setRecoveryPath(recoveryDir);
 
@@ -143,6 +144,26 @@ public class JMSObjectInputOperatorTest
     Assert.assertEquals("num of messages", 10, testMeta.sink.collectedTuples.size());
   }
 
+  @Test
+  public void testByteInput() throws Exception
+  {
+    produceMsg();
+    createByteMsgs(10);
+    Thread.sleep(1000);
+    testMeta.operator.emitTuples();
+    Assert.assertEquals("num of messages", 10, testMeta.sink.collectedTuples.size());
+  }
+
+  @Test
+  public void testObjectInput() throws Exception
+  {
+    produceMsg();
+    createObjectMsgs(10);
+    Thread.sleep(1000);
+    testMeta.operator.emitTuples();
+    Assert.assertEquals("num of messages", 10, testMeta.sink.collectedTuples.size());
+  }
+
   private void produceMsg() throws Exception
   {
     // Create a ConnectionFactory
@@ -186,11 +207,34 @@ public class JMSObjectInputOperatorTest
   {
     Long value = (long)1013;
     StreamMessage message=testMeta.session.createStreamMessage();
-     message.writeObject(value);
+    message.writeObject(value);
     for (int i = 0; i < numMessages; i++) {
       testMeta.producer.send(message);
     }
+  }
 
+  private void createByteMsgs(int numMessages) throws Exception
+  {
+    BytesMessage message=testMeta.session.createBytesMessage();
+    //message.writeBytes(new byte[1024]);
+    for (int i = 0; i < numMessages; i++) {
+      message.writeBytes(("Message: " + i).getBytes());
+      message.setIntProperty("counter",i);
+      message.setJMSCorrelationID("MyCorrelationID");
+      message.setJMSReplyTo(new ActiveMQQueue("MyReplyTo"));
+      message.setJMSType("MyType");
+      message.setJMSPriority(5);
+      testMeta.producer.send(message);
+    }
+  }
+
+  private void createObjectMsgs(int numMessages) throws Exception
+  {
+    ObjectMessage message=testMeta.session.createObjectMessage();
+    message.setObject("Hi");
+    for (int i = 0; i < numMessages; i++) {
+      testMeta.producer.send(message);
+    }
   }
 
 }

@@ -12,7 +12,7 @@ import javax.jms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class JMSInputObjectOperator extends AbstractJMSInputOperator<Object>
+public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
 {
   /**
    * This implementation converts a TextMessage back to a String, a
@@ -57,6 +57,7 @@ public class JMSInputObjectOperator extends AbstractJMSInputOperator<Object>
   {
     byte[] bytes = new byte[(int)message.getBodyLength()];
     message.readBytes(bytes);
+    logger.debug("bytes are {}", bytes);
     return bytes;
   }
 
@@ -75,7 +76,6 @@ public class JMSInputObjectOperator extends AbstractJMSInputOperator<Object>
       String key = (String)en.nextElement();
       map.put(key, message.getObject(key));
     }
-    logger.debug("map is {}", map);
     return map;
   }
 
@@ -91,6 +91,6 @@ public class JMSInputObjectOperator extends AbstractJMSInputOperator<Object>
     return message.getObject();
   }
 
-  private static transient final Logger logger = LoggerFactory.getLogger(JMSInputObjectOperator.class);
+  private static transient final Logger logger = LoggerFactory.getLogger(JMSObjectInputOperator.class);
 
 }
