@@ -25,98 +25,59 @@ import org.junit.Test;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import com.datatorrent.api.*;
+import com.datatorrent.api.DefaultPartition;
+import com.datatorrent.api.Operator;
+import com.datatorrent.api.Partitioner;
+import com.datatorrent.api.StatsListener;
 
 import com.datatorrent.lib.util.TestUtils;
 
 /**
- * Test for {@link StatelessLatencyBasedPartitioner}
+ * Test for {@link StatelessThroughputBasedPartitioner}
  */
-public class StatelessLatencyBasedPartitionerTest
+public class StatelessThroughputBasedPartitionerTest
 {
-
-  public static class DummyOperator implements Operator
+  public static class TestStats extends TestUtils.MockBatchedOperatorStats
   {
-    public final DefaultOutputPort<Integer> output = new DefaultOutputPort<Integer>();
-    public final DefaultInputPort<Integer> input = new DefaultInputPort<Integer>()
+
+    public TestStats(int operatorId)
     {
-      @Override
-      public void process(Integer tuple)
-      {
-
-      }
-    };
-
-    private Integer value;
-
-    public DummyOperator()
-    {
+      super(operatorId);
     }
 
-    public DummyOperator(Integer value)
-    {
-      this.value = value;
-    }
+    public long tuplesProcessedPSMA;
 
     @Override
-    public void beginWindow(long windowId)
+    public long getTuplesProcessedPSMA()
     {
-      //Do nothing
-    }
-
-    @Override
-    public void endWindow()
-    {
-      //Do nothing
-    }
-
-    @Override
-    public void setup(Context.OperatorContext context)
-    {
-      //Do nothing
-    }
-
-    @Override
-    public void teardown()
-    {
-      //Do nothing
-    }
-
-    public void setValue(int value)
-    {
-      this.value = value;
-    }
-
-    public int getValue()
-    {
-      return value;
+      return tuplesProcessedPSMA;
     }
   }
 
   @Test
   public void testPartitioner() throws Exception
   {
-    DummyOperator dummyOperator = new DummyOperator(5);
+    StatelessLatencyBasedPartitionerTest.DummyOperator dummyOperator = new StatelessLatencyBasedPartitionerTest.DummyOperator(5);
 
-    StatelessLatencyBasedPartitioner<DummyOperator> statelessLatencyBasedPartitioner = new StatelessLatencyBasedPartitioner<DummyOperator>();
-    statelessLatencyBasedPartitioner.setMaximumLatency(10);
-    statelessLatencyBasedPartitioner.setMinimumLatency(1);
+    StatelessThroughputBasedPartitioner<StatelessLatencyBasedPartitionerTest.DummyOperator> statelessLatencyBasedPartitioner = new StatelessThroughputBasedPartitioner<StatelessLatencyBasedPartitionerTest.DummyOperator>();
+    statelessLatencyBasedPartitioner.setMaximumEvents(10);
+    statelessLatencyBasedPartitioner.setMinimumEvents(1);
     statelessLatencyBasedPartitioner.setCooldownMillis(10);
 
-    TestUtils.MockBatchedOperatorStats mockStats = new TestUtils.MockBatchedOperatorStats(2);
+    TestStats mockStats = new TestStats(2);
     mockStats.operatorStats = Lists.newArrayList();
-    mockStats.latency = 11;
+    mockStats.tuplesProcessedPSMA = 11;
 
     List<Operator.InputPort<?>> ports = Lists.newArrayList();
     ports.add(dummyOperator.input);
 
-    DefaultPartition<DummyOperator> defaultPartition = new DefaultPartition<DummyOperator>(dummyOperator);
-    Collection<Partitioner.Partition<DummyOperator>> partitions = Lists.newArrayList();
+    DefaultPartition<StatelessLatencyBasedPartitionerTest.DummyOperator> defaultPartition = new DefaultPartition<StatelessLatencyBasedPartitionerTest.DummyOperator>(dummyOperator);
+    Collection<Partitioner.Partition<StatelessLatencyBasedPartitionerTest.DummyOperator>> partitions = Lists.newArrayList();
     partitions.add(defaultPartition);
     partitions = statelessLatencyBasedPartitioner.definePartitions(partitions, new StatelessPartitionerTest.PartitioningContextImpl(ports, 1));
     Assert.assertTrue(1 == partitions.size());
-    defaultPartition = (DefaultPartition<DummyOperator>) partitions.iterator().next();
-    Map<Integer, Partitioner.Partition<DummyOperator>> partitionerMap = Maps.newHashMap();
+    defaultPartition = (DefaultPartition<StatelessLatencyBasedPartitionerTest.DummyOperator>) partitions.iterator().next();
+    Map<Integer, Partitioner.Partition<StatelessLatencyBasedPartitionerTest.DummyOperator>> partitionerMap = Maps.newHashMap();
     partitionerMap.put(2, defaultPartition);
     statelessLatencyBasedPartitioner.partitioned(partitionerMap);
     StatsListener.Response response = statelessLatencyBasedPartitioner.processStats(mockStats);
@@ -125,11 +86,11 @@ public class StatelessLatencyBasedPartitionerTest
     response = statelessLatencyBasedPartitioner.processStats(mockStats);
     Assert.assertEquals("repartition is true", true, response.repartitionRequired);
 
-    TestUtils.MockPartition<DummyOperator> mockPartition = new TestUtils.MockPartition<DummyOperator>(defaultPartition, mockStats);
+    TestUtils.MockPartition<StatelessLatencyBasedPartitionerTest.DummyOperator> mockPartition = new TestUtils.MockPartition<StatelessLatencyBasedPartitionerTest.DummyOperator>(defaultPartition, mockStats);
     partitions.clear();
     partitions.add(mockPartition);
 
-    Collection<Partitioner.Partition<DummyOperator>> newPartitions = statelessLatencyBasedPartitioner.definePartitions(partitions,
+    Collection<Partitioner.Partition<StatelessLatencyBasedPartitionerTest.DummyOperator>> newPartitions = statelessLatencyBasedPartitioner.definePartitions(partitions,
       new StatelessPartitionerTest.PartitioningContextImpl(ports, 5));
     Assert.assertEquals("after partition", 2, newPartitions.size());
   }
