@@ -56,7 +56,8 @@ public class ElasticSearchPercolateTest
       checkPercolateResponse();
     }
     catch(NoNodeAvailableException e){
-      // Silently ignore if elasticsearch is not running.
+      //This indicates that elasticsearch is not running on a particular machine.
+      //Silently ignore in this case.
     }
   }
 
@@ -114,8 +115,6 @@ public class ElasticSearchPercolateTest
       oper.inputPort.process(message);
     }
 
-    System.out.println(sink.collectedTuples);
-
     int i = 0;
     for (PercolateResponse response : sink.collectedTuples) {
       List<String> matchIds = new ArrayList<String>();
@@ -123,7 +122,6 @@ public class ElasticSearchPercolateTest
         matchIds.add(match.getId().toString());
       }
       Collections.sort(matchIds);
-      System.out.println("Matches for : "+ messages[i] + " = " + matchIds);
       
       Assert.assertArrayEquals(matchIds.toArray(), matches[i]);
       i++;

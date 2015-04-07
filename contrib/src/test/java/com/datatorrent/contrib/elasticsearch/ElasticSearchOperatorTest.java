@@ -72,7 +72,8 @@ public class ElasticSearchOperatorTest
       Collections.sort(tupleIDsRead);
       Assert.assertEquals("Data inconsistency in Elastic Search", writtenTupleIDs, tupleIDsRead);
     } catch (NoNodeAvailableException e) {
-      // Silently ignore if elasticsearch is not running.
+      //This indicates that elasticsearch is not running on a particular machine.
+      //Silently ignore in this case.
     }
   }
 
