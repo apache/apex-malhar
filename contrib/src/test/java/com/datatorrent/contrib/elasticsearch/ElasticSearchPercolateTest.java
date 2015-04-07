@@ -140,7 +140,8 @@ public class ElasticSearchPercolateTest
       store.disconnect();
     }
     catch(NoNodeAvailableException e){
-      // Silently ignore if elasticsearch is not running.
+      //This indicates that elasticsearch is not running on a particular machine.
+      //Silently ignore in this case.
     }
     
   }
