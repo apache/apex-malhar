@@ -17,6 +17,7 @@ package com.datatorrent.demos.twitter;
 
 
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
@@ -83,9 +84,9 @@ public class TwitterTopWordsApplication implements StreamingApplication
 
     dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
     dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
-    dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input);
+    dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input).setLocality(Locality.CONTAINER_LOCAL);
 
-    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput);
+    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
   }
 }
