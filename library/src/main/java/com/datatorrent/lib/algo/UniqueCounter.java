@@ -27,8 +27,6 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.util.BaseUniqueKeyCounter;
 import com.datatorrent.lib.util.UnifierHashMapSumKeys;
 
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  * This operator counts the number of times a key exists in a window.&nbsp;A map from keys to counts is emitted at the end of each window.
@@ -92,13 +90,6 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
   @Override
   public void endWindow()
   {
-    try {
-      Thread.sleep(10000);
-    }
-    catch(InterruptedException ex) {
-      Logger.getLogger(UniqueCounter.class.getName()).log(Level.SEVERE, null, ex);
-    }
-
     HashMap<K, Integer> tuple = null;
     for (Map.Entry<K, MutableInt> e: map.entrySet()) {
       if (tuple == null) {
