@@ -84,7 +84,7 @@ public class TwitterTopWordsApplication implements StreamingApplication
 
     dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
     dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
-    dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input);
+    dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input).setLocality(Locality.THREAD_LOCAL);
 
     dag.addStream("TopURLQuery", queryPort, topCounts.queryInput).setLocality(Locality.THREAD_LOCAL);
     dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
