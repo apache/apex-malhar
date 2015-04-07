@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,9 +17,15 @@ package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.qr.CustomDataValidator;
 import com.datatorrent.lib.appdata.qr.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Set;
 
 public class GenericDataQueryTabularValidator implements CustomDataValidator
 {
+  private static final Logger logger = LoggerFactory.getLogger(GenericDataQueryTabularValidator.class);
+
   public GenericDataQueryTabularValidator()
   {
   }
@@ -27,6 +33,18 @@ public class GenericDataQueryTabularValidator implements CustomDataValidator
   @Override
   public boolean validate(Data query, Object context)
   {
+    GenericDataQueryTabular gdqt = (GenericDataQueryTabular) query;
+    GenericSchemaTabular schema = (GenericSchemaTabular) context;
+
+    Set<String> fields = schema.getValuesDescriptor().getFields().getFields();
+
+    if(!fields.containsAll(gdqt.getFields().getFields())) {
+      logger.error("Some of the fields in the query {} are not one of the valid fields {}.",
+                   fields,
+                   gdqt.getFields().getFields());
+      return false;
+    }
+
     return true;
   }
 }

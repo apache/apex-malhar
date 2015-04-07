@@ -17,9 +17,14 @@ package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.qr.CustomDataValidator;
 import com.datatorrent.lib.appdata.qr.Data;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 public class GenericDataQueryValidator implements CustomDataValidator
 {
+  private static final Logger logger = LoggerFactory.getLogger(GenericDataQueryValidator.class);
+
   @Override
   public boolean validate(Data query, Object context)
   {
