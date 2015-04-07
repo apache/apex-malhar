@@ -64,11 +64,11 @@
   <!-- TwitterDemo -->
 
   <property>
-    <name>dt.application.RollingTopWordsDemo.operator.Query.topic</name>
+    <name>dt.application.TwitterDemo.operator.Query.topic</name>
     <value>TwitterURLQuery</value>
   </property>
   <property>
-    <name>dt.application.RollingTopWordsDemo.operator.QueryResult.topic</name>
+    <name>dt.application.TwitterDemo.operator.QueryResult.topic</name>
     <value>TwitterURLQueryResult</value>
   </property>
 
