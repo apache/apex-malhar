@@ -180,9 +180,9 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     //  Start counting the Hashtags coming out of Hashtag extractor
     dag.addStream("TwittedHashtags", HashtagExtractor.hashtags, uniqueCounter.data).setLocality(locality);
     // Count unique Hashtags
-    dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input).setLocality(Locality.THREAD_LOCAL);
+    dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input).setLocality(Locality.CONTAINER_LOCAL);
     // Count top 10
-    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput).setLocality(Locality.THREAD_LOCAL);
+    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
   }
 
