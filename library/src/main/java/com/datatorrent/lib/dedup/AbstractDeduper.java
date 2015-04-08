@@ -38,10 +38,6 @@ import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Partitioner.Partition;
-import com.datatorrent.api.Partitioner.PartitioningContext;
-import com.datatorrent.api.StatsListener.BatchedOperatorStats;
-import com.datatorrent.api.StatsListener.Response;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.DTThrowable;
 

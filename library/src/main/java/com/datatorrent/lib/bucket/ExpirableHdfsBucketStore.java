@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.bucket;
 
-import static com.datatorrent.lib.bucket.HdfsBucketStore.PATH_SEPARATOR;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
