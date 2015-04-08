@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.bucket;
 
+import static com.datatorrent.lib.bucket.HdfsBucketStore.PATH_SEPARATOR;
 import java.io.IOException;
 import java.util.Collection;
 import java.util.Iterator;
@@ -31,7 +32,7 @@ import org.slf4j.LoggerFactory;
  * @param <T>
  * @since 0.9.5
  */
-public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends HdfsBucketStore<T> implements BucketStore.ExpirableBucketStore<T>
+public class ExpirableHdfsBucketStore<T> extends HdfsBucketStore<T> implements BucketStore.ExpirableBucketStore<T>
 {
 
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
@@ -73,7 +74,7 @@ public class ExpirableHdfsBucketStore<T extends Bucketable & Event> extends Hdfs
       }
     }
   }
-  
+
   @Override
   @SuppressWarnings("unchecked")
   public ExpirableHdfsBucketStore<T> clone() throws CloneNotSupportedException

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -39,12 +39,16 @@ import com.google.common.collect.MinMaxPriorityQueue;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.common.util.DTThrowable;
+import com.datatorrent.lib.bucket.BucketManager.CounterKeys;
+import com.datatorrent.lib.bucket.BucketManager.Listener;
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
- * A {@link BucketManager} implementation.
+ * This is the base implementation of BucketManager.
+ * Subclasses must implement the createBucket method which creates the specific bucket based on bucketKey provided
+ * and getBucketKeyFor method which calculates the bucket key of an event.
  * <p>
- * Configurable properties of the BucketManagerImpl.<br/>
+ * Configurable properties of the AbstractBucketManager.<br/>
  * <ol>
  * <li>
  * {@link #noOfBuckets}: total number of buckets.
@@ -74,7 +78,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <T> event type
  * @since 0.9.4
  */
-public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>, Runnable
+public abstract class AbstractBucketManager<T> implements BucketManager<T>, Runnable
 {
   public static int DEF_NUM_BUCKETS = 1000;
   public static int DEF_NUM_BUCKETS_MEM = 120;
@@ -93,11 +97,11 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @NotNull
   protected BucketStore<T> bucketStore;
   @NotNull
-  protected final Map<Integer, Bucket<T>> dirtyBuckets;
+  protected final Map<Integer, AbstractBucket<T>> dirtyBuckets;
   protected long committedWindow;
   //Not check-pointed
   //Indexed by bucketKey keys.
-  protected transient Bucket<T>[] buckets;
+  protected transient AbstractBucket<T>[] buckets;
   @NotNull
   protected transient Set<Integer> evictionCandidates;
   protected transient Listener<T> listener;
@@ -107,20 +111,20 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   @NotNull
   private transient final Lock lock;
   @NotNull
-  private transient final MinMaxPriorityQueue<Bucket<T>> bucketHeap;
+  private transient final MinMaxPriorityQueue<AbstractBucket<T>> bucketHeap;
 
   protected transient boolean recordStats;
   protected transient BasicCounters<MutableLong> bucketCounters;
 
-  public BucketManagerImpl()
+  public AbstractBucketManager()
   {
     eventQueue = new LinkedBlockingQueue<Long>();
     evictionCandidates = Sets.newHashSet();
     dirtyBuckets = Maps.newConcurrentMap();
-    bucketHeap = MinMaxPriorityQueue.orderedBy(new Comparator<Bucket<T>>()
+    bucketHeap = MinMaxPriorityQueue.orderedBy(new Comparator<AbstractBucket<T>>()
     {
       @Override
-      public int compare(Bucket<T> bucket1, Bucket<T> bucket2)
+      public int compare(AbstractBucket<T> bucket1, AbstractBucket<T> bucket2)
       {
         if (bucket1.lastUpdateTime() < bucket2.lastUpdateTime()) {
           return -1;
@@ -154,6 +158,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
 
   /**
    * Sets the number of buckets which will be kept in memory.
+   * @param noOfBucketsInMemory
    */
   public void setNoOfBucketsInMemory(int noOfBucketsInMemory)
   {
@@ -162,6 +167,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
 
   /**
    * Sets the hard limit on no. of buckets in memory.
+   * @param maxNoOfBucketsInMemory
    */
   public void setMaxNoOfBucketsInMemory(int maxNoOfBucketsInMemory)
   {
@@ -170,6 +176,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
 
   /**
    * Sets the duration in millis that prevent a bucket from being off-loaded.
+   * @param millisPreventingBucketEviction
    */
   public void setMillisPreventingBucketEviction(long millisPreventingBucketEviction)
   {
@@ -208,11 +215,6 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     bucketStore.teardown();
   }
 
-  @Override
-  public long getBucketKeyFor(T event)
-  {
-    return Math.abs(event.getEventKey().hashCode()) / noOfBuckets;
-  }
 
   @Override
   public void run()
@@ -233,7 +235,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
             long numEventsRemoved = 0;
             if (buckets[bucketIdx] != null && buckets[bucketIdx].bucketKey != requestedKey) {
               //Delete the old bucket in memory at that index.
-              Bucket<T> oldBucket = buckets[bucketIdx];
+              AbstractBucket<T> oldBucket = buckets[bucketIdx];
 
               dirtyBuckets.remove(bucketIdx);
               evictionCandidates.remove(bucketIdx);
@@ -259,7 +261,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
               }
               int overFlow = evictionCandidates.size() + 1 - noOfBucketsInMemory;
               while (overFlow-- >= 0) {
-                Bucket<T> lruBucket = bucketHeap.poll();
+                AbstractBucket<T> lruBucket = bucketHeap.poll();
                 if (lruBucket == null) {
                   break;
                 }
@@ -284,9 +286,9 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
               }
             }
 
-            Bucket<T> bucket = buckets[bucketIdx];
+            AbstractBucket<T> bucket = buckets[bucketIdx];
             if (bucket == null || bucket.bucketKey != requestedKey) {
-              bucket = new Bucket<T>(requestedKey);
+              bucket = createBucket(requestedKey);
               buckets[bucketIdx] = bucket;
             }
             bucket.setWrittenEvents(bucketDataInStore);
@@ -328,10 +330,10 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     logger.debug("bucket properties {}, {}, {}, {}", noOfBuckets, noOfBucketsInMemory, maxNoOfBucketsInMemory, millisPreventingBucketEviction);
     this.listener = Preconditions.checkNotNull(listener, "storageHandler");
     @SuppressWarnings("unchecked")
-    Bucket<T>[] freshBuckets = (Bucket<T>[]) Array.newInstance(Bucket.class, noOfBuckets);
+    AbstractBucket<T>[] freshBuckets = (AbstractBucket<T>[]) Array.newInstance(AbstractBucket.class, noOfBuckets);
     buckets = freshBuckets;
     //Create buckets for unwritten events which were check-pointed
-    for (Map.Entry<Integer, Bucket<T>> bucketEntry : dirtyBuckets.entrySet()) {
+    for (Map.Entry<Integer, AbstractBucket<T>> bucketEntry : dirtyBuckets.entrySet()) {
       buckets[bucketEntry.getKey()] = bucketEntry.getValue();
     }
     Thread eventServiceThread = new Thread(this, "BucketLoaderService");
@@ -339,10 +341,10 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   }
 
   @Override
-  public Bucket<T> getBucket(long bucketKey)
+  public AbstractBucket<T> getBucket(long bucketKey)
   {
     int bucketIdx = (int) (bucketKey % noOfBuckets);
-    Bucket<T> bucket = buckets[bucketIdx];
+    AbstractBucket<T> bucket = buckets[bucketIdx];
     if (bucket == null) {
       return null;
     }
@@ -358,10 +360,10 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   {
     int bucketIdx = (int) (bucketKey % noOfBuckets);
 
-    Bucket<T> bucket = buckets[bucketIdx];
+    AbstractBucket<T> bucket = buckets[bucketIdx];
 
     if (bucket == null || bucket.bucketKey != bucketKey) {
-      bucket = new Bucket<T>(bucketKey);
+      bucket = createBucket(bucketKey);
       buckets[bucketIdx] = bucket;
       dirtyBuckets.put(bucketIdx, bucket);
     }
@@ -369,7 +371,7 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
       dirtyBuckets.put(bucketIdx, bucket);
     }
 
-    bucket.addNewEvent(event.getEventKey(), writeEventKeysOnly ? null : event);
+    bucket.addNewEvent(bucket.getEventKey(event), writeEventKeysOnly ? null : event);
     if (recordStats) {
       bucketCounters.getCounter(CounterKeys.EVENTS_IN_MEMORY).increment();
     }
@@ -385,8 +387,8 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
   {
     Map<Integer, Map<Object, T>> dataToStore = Maps.newHashMap();
     long eventsCount = 0;
-    for (Map.Entry<Integer, Bucket<T>> entry : dirtyBuckets.entrySet()) {
-      Bucket<T> bucket = entry.getValue();
+    for (Map.Entry<Integer, AbstractBucket<T>> entry : dirtyBuckets.entrySet()) {
+      AbstractBucket<T> bucket = entry.getValue();
       dataToStore.put(entry.getKey(), bucket.getUnwrittenEvents());
       eventsCount += bucket.countOfUnwrittenEvents();
       bucket.transferDataFromMemoryToStore();
@@ -426,38 +428,36 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     eventQueue.offer(bucketKey);
   }
 
-  @Override
+  /*
+   * Creates the specific bucket based on bucketKey provided.
+   * @param bucketKey
+   * @return Bucket
+   */
+  protected abstract AbstractBucket<T> createBucket(long bucketKey);
+
+   @Override
   public void definePartitions(List<BucketManager<T>> oldManagers, Map<Integer, BucketManager<T>> partitionKeysToManagers, int partitionMask)
   {
     for (BucketManager<T> manager : oldManagers) {
-      BucketManagerImpl<T> managerImpl = (BucketManagerImpl<T>) manager;
+      AbstractBucketManager<T> managerImpl = (AbstractBucketManager<T>) manager;
 
-      for (Map.Entry<Integer, Bucket<T>> bucketEntry : managerImpl.dirtyBuckets.entrySet()) {
-        Bucket<T> sourceBucket = bucketEntry.getValue();
+      for (Map.Entry<Integer, AbstractBucket<T>> bucketEntry : managerImpl.dirtyBuckets.entrySet()) {
+        AbstractBucket<T> sourceBucket = bucketEntry.getValue();
         int sourceBucketIdx = bucketEntry.getKey();
 
         for (Map.Entry<Object, T> eventEntry : sourceBucket.getUnwrittenEvents().entrySet()) {
           int partition = eventEntry.getKey().hashCode() & partitionMask;
-          BucketManagerImpl<T> newManagerImpl = (BucketManagerImpl<T>) partitionKeysToManagers.get(partition);
+          AbstractBucketManager<T> newManagerImpl = (AbstractBucketManager<T>) partitionKeysToManagers.get(partition);
 
-          Bucket<T> destBucket = newManagerImpl.dirtyBuckets.get(sourceBucketIdx);
+          AbstractBucket<T> destBucket = newManagerImpl.dirtyBuckets.get(sourceBucketIdx);
           if (destBucket == null) {
-            destBucket = new Bucket<T>(sourceBucket.bucketKey);
+            destBucket = createBucket(sourceBucket.bucketKey);
             newManagerImpl.dirtyBuckets.put(sourceBucketIdx, destBucket);
           }
           destBucket.addNewEvent(eventEntry.getKey(), eventEntry.getValue());
         }
       }
     }
-  }
-
-  @Override
-  public BucketManagerImpl<T> clone() throws CloneNotSupportedException
-  {
-    @SuppressWarnings("unchecked")
-    BucketManagerImpl<T> clone = (BucketManagerImpl<T>)super.clone();
-    clone.setBucketStore(clone.getBucketStore().clone());
-    return clone;
   }
 
 
@@ -472,12 +472,13 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     if (this == o) {
       return true;
     }
-    if (!(o instanceof BucketManagerImpl)) {
+
+    if(!(o instanceof AbstractBucketManager)) {
       return false;
     }
 
     @SuppressWarnings("unchecked")
-    BucketManagerImpl<T> that = (BucketManagerImpl<T>) o;
+    AbstractBucketManager<T> that = (AbstractBucketManager<T>)o;
 
     if (committedWindow != that.committedWindow) {
       return false;
@@ -518,5 +519,14 @@ public class BucketManagerImpl<T extends Bucketable> implements BucketManager<T>
     return result;
   }
 
-  private static transient final Logger logger = LoggerFactory.getLogger(BucketManagerImpl.class);
+  @Override
+  public AbstractBucketManager<T> clone() throws CloneNotSupportedException
+  {
+    @SuppressWarnings("unchecked")
+    AbstractBucketManager<T> clone = (AbstractBucketManager<T>)super.clone();
+    clone.setBucketStore(clone.getBucketStore().clone());
+    return clone;
+  }
+
+  private static transient final Logger logger = LoggerFactory.getLogger(AbstractBucketManager.class);
 }

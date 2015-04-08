@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -25,7 +25,8 @@ import com.google.common.collect.Maps;
 
 /**
  * <p>
- * The bucket data-structure contains all the events which belong to the same bucket.
+ * This is the base implementation of bucket which contains all the events which belong to the same bucket,
+ * Subclasses must implement the getEventKey method which gets the keys on which deduplication is done.
  * </p>
  * <p>
  * Events in a bucket are divided in 2 sections: <br/>
@@ -45,7 +46,7 @@ import com.google.common.collect.Maps;
  * @param <T> type of bucket events
  * @since 0.9.4
  */
-public class Bucket<T extends Bucketable>
+public abstract class AbstractBucket<T>
 {
   public final long bucketKey;
   private Map<Object, T> unwrittenEvents;
@@ -54,12 +55,12 @@ public class Bucket<T extends Bucketable>
   private transient boolean isDataOnDiskLoaded;
 
   @SuppressWarnings("unused")
-  private Bucket()
+  protected AbstractBucket()
   {
     bucketKey = -1L;
   }
 
-  Bucket(long bucketKey)
+  protected AbstractBucket(long bucketKey)
   {
     this.bucketKey = bucketKey;
     this.isDataOnDiskLoaded = false;
@@ -183,20 +184,6 @@ public class Bucket<T extends Bucketable>
     return isDataOnDiskLoaded;
   }
 
-  /**
-   * Finds whether the bucket contains the event.
-   *
-   * @param event the {@link Bucketable} to search for in the bucket.
-   * @return true if bucket has the event; false otherwise.
-   */
-  public boolean containsEvent(T event)
-  {
-    if (unwrittenEvents != null && unwrittenEvents.containsKey(event.getEventKey())) {
-      return true;
-    }
-    return writtenEvents != null && writtenEvents.containsKey(event.getEventKey());
-  }
-
   @Override
   public String toString()
   {
@@ -209,11 +196,11 @@ public class Bucket<T extends Bucketable>
     if (this == o) {
       return true;
     }
-    if (!(o instanceof Bucket)) {
+    if (!(o instanceof AbstractBucket)) {
       return false;
     }
 
-    return bucketKey == ((Bucket<?>)o).bucketKey;
+    return bucketKey == ((AbstractBucket<?>)o).bucketKey;
   }
 
   @Override
@@ -221,5 +208,21 @@ public class Bucket<T extends Bucketable>
   {
     return (int)(bucketKey ^ (bucketKey >>> 32));
   }
+
+  public boolean containsEvent(T event)
+  {
+    if (unwrittenEvents != null && unwrittenEvents.containsKey(getEventKey(event))) {
+      return true;
+    }
+    return writtenEvents != null && writtenEvents.containsKey(getEventKey(event));
+  }
+
+  /*
+   * Gets event keys on which deduplication is to be done.
+   *
+   * @param input input event.
+   * @return output Event Keys
+   */
+  protected abstract Object getEventKey(T event);
 
 }

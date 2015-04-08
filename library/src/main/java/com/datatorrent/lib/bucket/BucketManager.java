@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -60,7 +60,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <T> event type
  * @since 0.9.4
  */
-public interface BucketManager<T extends Bucketable> extends Cloneable
+public interface BucketManager<T> extends Cloneable
 {
   void setBucketStore(@Nonnull BucketStore<T> bucketStore);
 
@@ -103,7 +103,7 @@ public interface BucketManager<T extends Bucketable> extends Cloneable
    * @return bucket; null if the bucket is not yet created.
    */
   @Nullable
-  Bucket<T> getBucket(long bucketKey);
+  AbstractBucket<T> getBucket(long bucketKey);
 
   /**
    * Loads the events belonging to the bucket from the store. <br/>
@@ -144,6 +144,12 @@ public interface BucketManager<T extends Bucketable> extends Cloneable
    */
   BucketManager<T> clone() throws CloneNotSupportedException;
 
+  /*
+   * This method has been deprecated.Use clone instead.
+   */
+  @Deprecated
+  BucketManager<T> cloneWithProperties();
+
   void setBucketCounters(@Nonnull BasicCounters<MutableLong> stats);
 
   /**
@@ -162,14 +168,14 @@ public interface BucketManager<T extends Bucketable> extends Cloneable
    *
    * @param <T> Type of the values which can be bucketed.
    */
-  public static interface Listener<T extends Bucketable>
+  public static interface Listener<T>
   {
     /**
      * Invoked when a bucket is loaded from store.
      *
      * @param loadedBucket bucket that was loaded.
      */
-    void bucketLoaded(Bucket<T> loadedBucket);
+    void bucketLoaded(AbstractBucket<T> loadedBucket);
 
     /**
      * Invoked when a bucket is removed from memory.<br/>
