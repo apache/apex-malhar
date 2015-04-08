@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 public enum TimeBucket
 {
+  NONE("none", null),
   MINUTE("1m", TimeUnit.MINUTES),
   HOUR("1h", TimeUnit.HOURS),
   DAY("1d", TimeUnit.DAYS);
@@ -63,7 +64,6 @@ public enum TimeBucket
 
   private void setTimeUnit(TimeUnit timeUnit)
   {
-    Preconditions.checkNotNull(timeUnit);
     this.timeUnit = timeUnit;
   }
 

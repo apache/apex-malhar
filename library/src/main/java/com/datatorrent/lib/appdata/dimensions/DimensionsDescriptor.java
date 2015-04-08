@@ -61,6 +61,13 @@ public class DimensionsDescriptor
     initialize(aggregationString);
   }
 
+  public DimensionsDescriptor(TimeBucket timeBucket,
+                              String aggregationString)
+  {
+    setTimeBucket(timeBucket);
+    initialize(aggregationString);
+  }
+
   private void initialize(String aggregationString)
   {
     String[] fieldArray = aggregationString.split(DELIMETER_SEPERATOR);
@@ -72,6 +79,12 @@ public class DimensionsDescriptor
       fieldSet.add(fieldName);
 
       if(fieldName.equals(DIMENSION_TIME)) {
+        if(timeBucket != null) {
+          throw new IllegalArgumentException("Cannot specify time in a dimensions " +
+                                             "descriptor when a timebucket is also " +
+                                             "specified.");
+        }
+
         if(fieldAndValue.length == 2) {
           fieldSet.add(DIMENSION_TIME_BUCKET);
           timeBucket = TimeBucket.TIME_UNIT_TO_TIME_BUCKET.get(TimeUnit.valueOf(fieldAndValue[1]));

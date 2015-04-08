@@ -3,7 +3,7 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.lib.appdata.dimensions;
+package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.schemas.GenericEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -48,9 +48,9 @@ public class GenericEventSchemaTest
       "\"values\":\n" +
       "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\"},\n" +
        "{\"name\":\"" + valueName2 + "\",\"type\":\"" + valueName2Type + "\"}],\n" +
-      "\"aggregations\":\n" +
-      "[{\"descriptor\":\"" + keyName1 + ":" + keyName2 + "\",\"aggregations\":{\"" + valueName1 + "\":[\"min\",\"max\"]}},\n" +
-       "{\"descriptor\":\"" + keyName1 + "\",\"aggregations\":{\"" + valueName2 + "\":[\"sum\",\"count\"]}}]\n" +
+      "\"dimensions\":\n" +
+      "[{\"combinations\":[\"" + keyName1 + "\",\"" + keyName2 + "\"],\"additionalValues\":[\"" + valueName1 + ":MIN\"," + "\"" + valueName1 + ":MAX\"]},\n" +
+       "{\"combinations\":[\"" + keyName1 + "\"],\"additionalValues\":[\"" + valueName2 + ":SUM\"," + "\"" + valueName2 + ":COUNT\"]}]\n" +
     "}";
 
     GenericEventSchema ges = new GenericEventSchema(jsonSchema);

@@ -74,6 +74,20 @@ public class Fields
     return fields;
   }
 
+  /**
+   * @return the fieldsList
+   */
+  public List<String> getFieldsList()
+  {
+    return fieldsList;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "Fields{" + "fields=" + fields + '}';
+  }
+
   @Override
   public int hashCode()
   {
@@ -96,19 +110,5 @@ public class Fields
       return false;
     }
     return true;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "Fields{" + "fields=" + fields + '}';
-  }
-
-  /**
-   * @return the fieldsList
-   */
-  public List<String> getFieldsList()
-  {
-    return fieldsList;
   }
 }

@@ -1,4 +1,4 @@
-/* 
+/*
  * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,42 +38,45 @@ import java.util.Set;
  *
  * {"keys":
  *   [{"name":"keyName1","type":"type1"},
- *    {"name":"keyName2","type":"type2"}]
+ *    {"name":"keyName2","type":"type2"}],
+ *  "timeBuckets":["1m","1h","1d"],
  *  "values":
- *   [{"name":"valueName1","type":"type1"},
- *    {"name":"valueName2","type":"type2"}]
- *  "aggregations":
- *   [{"descriptor":"keyName1:keyName2","aggregations":{"valueName1":["min","max"],"valueName2":["sum"]}},
- *    {"descriptor":"keyName1","aggregations":{"valueName1":["sum"]}}]
+ *   [{"name":"valueName1","type":"type1","aggregators":["SUM"]},
+ *    {"name":"valueName2","type":"type2","aggregators":["SUM"]}]
+ *  "dimensions":
+ *   [{"combination":["keyName1","keyName2"],"additionalValues":["valueName1:MIN","valueName1:MAX","valueName2:MIN"]},
+ *    {"combination":["keyName1"],"additionalValues":["valueName1:MAX"]}]
  * }
  */
 public class GenericEventSchema
 {
   private static final Logger logger = LoggerFactory.getLogger(GenericEventSchema.class);
 
+  public static final String ADDITIONAL_VALUE_SEPERATOR = ":";
+  public static final int ADDITIONAL_VALUE_NUM_COMPONENTS = 2;
+  public static final int ADDITIONAL_VALUE_VALUE_INDEX = 0;
+  public static final int ADDITIONAL_VALUE_AGGREGATOR_INDEX = 1;
+
   public static final String FIELD_KEYS = "keys";
   public static final String FIELD_KEYS_NAME = "name";
   public static final String FIELD_KEYS_TYPE = "type";
 
+  public static final String FIELD_TIME_BUCKETS = "timeBuckets";
+
   public static final String FIELD_VALUES = "values";
   public static final String FIELD_VALUES_NAME = "name";
   public static final String FIELD_VALUES_TYPE = "type";
-  public static final String FIELD_VALUES_AGGREGATIONS = "aggregations";
+  public static final String FIELD_VALUES_AGGREGATIONS = "aggregators";
 
-  public static final String FIELD_AGGREGATIONS = "aggregations";
-  public static final String FIELD_AGGREGATIONS_DESCRIPTOR = "descriptor";
-  public static final String FIELD_AGGREGATIONS_AGGREGATIONS = "aggregations";
+  public static final String FIELD_DIMENSIONS = "dimensions";
+  public static final String FIELD_DIMENSIONS_COMBINATIONS = "combinations";
+  public static final String FIELD_DIMENSIONS_ADDITIONAL_VALUES = "additionalValues";
 
-  //Done
   private FieldsDescriptor keyDescriptor;
-  //Done
   private List<FieldsDescriptor> ddIDToKeyDescriptor;
-  //Done
   private List<DimensionsDescriptor> ddIDToDD;
-  //Done
-  private List<Map<String, List<String>>> ddIDToValueToAggregator;
+  private List<Map<String, Set<String>>> ddIDToValueToAggregator;
   private List<Map<String, FieldsDescriptor>> ddIDToAggregatorToAggregateDescriptor;
-
   private Map<DimensionsDescriptor, Integer> dimensionsDescriptorToID;
 
   public GenericEventSchema()
@@ -95,6 +97,8 @@ public class GenericEventSchema
   {
     JSONObject jo = new JSONObject(json);
 
+    //Keys
+
     JSONArray keysArray = jo.getJSONArray(FIELD_KEYS);
     Map<String, Type> fieldToType = Maps.newHashMap();
 
@@ -111,6 +115,35 @@ public class GenericEventSchema
     //Key descriptor all
     keyDescriptor = new FieldsDescriptor(fieldToType);
 
+    //Time Buckets
+
+    Set<TimeBucket> timeBuckets = Sets.newHashSet();
+
+    if(jo.has(FIELD_TIME_BUCKETS)) {
+      JSONArray timeBucketsJSON = jo.getJSONArray(FIELD_TIME_BUCKETS);
+
+      for(int timeBucketIndex = 0;
+          timeBucketIndex < timeBucketsJSON.length();
+          timeBucketIndex++) {
+        String timeBucketString = timeBucketsJSON.getString(timeBucketIndex);
+        TimeBucket timeBucket = TimeBucket.getBucketEx(timeBucketString);
+
+        if(!timeBuckets.add(timeBucket)) {
+          throw new IllegalArgumentException("The bucket " + timeBucket.getText() +
+                                             " was defined twice.");
+        }
+      }
+    }
+
+    //No time bucket
+    if(timeBuckets.isEmpty()) {
+      timeBuckets.add(TimeBucket.NONE);
+    }
+
+    //Values
+
+    Map<String, Set<String>> valueToAggregators = Maps.newHashMap();
+
     Map<String, Type> aggFieldToType = Maps.newHashMap();
     JSONArray valuesArray = jo.getJSONArray(FIELD_VALUES);
 
@@ -122,72 +155,142 @@ public class GenericEventSchema
       String type = value.getString(FIELD_VALUES_TYPE);
       Type typeT = Type.NAME_TO_TYPE.get(type);
 
+      if(aggFieldToType.containsKey(name)) {
+        throw new IllegalArgumentException("Cannot define the value " + name +
+                                           " twice.");
+      }
+
       aggFieldToType.put(name, typeT);
+      Set<String> aggregatorSet = Sets.newHashSet();
+
+      if(value.has(FIELD_VALUES_AGGREGATIONS)) {
+        JSONArray aggregators = value.getJSONArray(FIELD_VALUES_AGGREGATIONS);
+
+        for(int aggregatorIndex = 0;
+            aggregatorIndex < aggregators.length();
+            aggregatorIndex++) {
+          String aggregatorName = aggregators.getString(aggregatorIndex);
+
+          if(!aggregatorSet.add(aggregatorName)) {
+            throw new IllegalArgumentException("An aggregator " + aggregatorName
+                                               + " cannot be specified twice for a value");
+          }
+        }
+      }
+
+      if(!aggregatorSet.isEmpty()) {
+        valueToAggregators.put(name, aggregatorSet);
+      }
     }
 
     FieldsDescriptor allValuesFieldDescriptor = new FieldsDescriptor(aggFieldToType);
+
+    // Dimensions
 
     ddIDToValueToAggregator = Lists.newArrayList();
     ddIDToKeyDescriptor = Lists.newArrayList();
     ddIDToDD = Lists.newArrayList();
     ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
 
-    JSONArray aggregationsArray = jo.getJSONArray(FIELD_AGGREGATIONS);
-    Set<String> dimensionsDescriptors = Sets.newHashSet();
+    JSONArray dimensionsArray = jo.getJSONArray(FIELD_DIMENSIONS);
+    Set<Fields> dimensionsDescriptorFields = Sets.newHashSet();
 
-    for(int aggregationsIndex = 0;
-        aggregationsIndex < aggregationsArray.length();
-        aggregationsIndex++) {
-      JSONObject aggregation = aggregationsArray.getJSONObject(aggregationsIndex);
+    //loop through dimension descriptors
+    for(int dimensionsIndex = 0;
+        dimensionsIndex < dimensionsArray.length();
+        dimensionsIndex++) {
+      //Get a dimension descriptor
+      JSONObject dimension = dimensionsArray.getJSONObject(dimensionsIndex);
+      //Get the key fields of a descriptor
+      JSONArray combinationFields = dimension.getJSONArray(FIELD_DIMENSIONS_COMBINATIONS);
+      Map<String, Set<String>> specificValueToAggregator = Maps.newHashMap();
 
-      String descriptor = aggregation.getString(FIELD_AGGREGATIONS_DESCRIPTOR);
-
-      if(dimensionsDescriptors.contains(descriptor)) {
-        throw new IllegalArgumentException("Duplicate dimension descriptor: " + descriptor);
+      for(Map.Entry<String, Set<String>> entry:
+          valueToAggregators.entrySet()) {
+        Set<String> aggregators = Sets.newHashSet();
+        aggregators.addAll(entry.getValue());
+        specificValueToAggregator.put(entry.getKey(), aggregators);
       }
 
-      dimensionsDescriptors.add(descriptor);
-      DimensionsDescriptor dimensionsDescriptor = new DimensionsDescriptor(descriptor);
-
-      ddIDToKeyDescriptor.add(dimensionsDescriptor.createFieldsDescriptor(keyDescriptor));
-      getDdIDToDD().add(dimensionsDescriptor);
-
-      JSONObject valuesToAggregationsJSON = aggregation.getJSONObject(FIELD_AGGREGATIONS_AGGREGATIONS);
-      Iterator valuesIterator = valuesToAggregationsJSON.keys();
-
-      Map<String, List<String>> valueToAggregators = Maps.newHashMap();
-
-      while(valuesIterator.hasNext()) {
-        String value = (String) valuesIterator.next();
-
-        if(!aggFieldToType.containsKey(value)) {
-          throw new IllegalArgumentException("The value " + value +
-                                             " was not included in the " + FIELD_VALUES +
-                                             "section of the json.");
-        }
-
-        List<String> aggregators = Lists.newArrayList();
-        Set<String> aggregatorSet = Sets.newHashSet();
-        JSONArray aggregatorsForValue = valuesToAggregationsJSON.getJSONArray(value);
-
-        for(int aggregatorIndex = 0;
-            aggregatorIndex < aggregatorsForValue.length();
-            aggregatorIndex++) {
-          String aggregatorString = aggregatorsForValue.getString(aggregatorIndex);
-
-          if(!aggregatorSet.add(aggregatorString)) {
-            throw new IllegalArgumentException("The aggregator " + aggregatorString + " was listed more than once.");
-          }
-
-          aggregators.add(aggregatorString);
-        }
-
-        aggregators = Collections.unmodifiableList(aggregators);
-        valueToAggregators.put(value, aggregators);
+      List<String> keyNames = Lists.newArrayList();
+      //loop through the key fields of a descriptor
+      for(int keyIndex = 0;
+          keyIndex < combinationFields.length();
+          keyIndex++) {
+        String keyName = combinationFields.getString(keyIndex);
+        keyNames.add(keyName);
       }
 
-      valueToAggregators = Collections.unmodifiableMap(valueToAggregators);
-      getDdIDToValueToAggregator().add(valueToAggregators);
+      Fields dimensionDescriptorFields = new Fields(keyNames);
+
+      if(!dimensionsDescriptorFields.add(dimensionDescriptorFields)) {
+        throw new IllegalArgumentException("Duplicate dimension descriptor: " +
+                                           dimensionDescriptorFields);
+      }
+
+      //Loop through time to generate dimension descriptors
+      for(TimeBucket timeBucket: timeBuckets) {
+        DimensionsDescriptor dimensionsDescriptor =
+        new DimensionsDescriptor(timeBucket,
+                                 dimensionDescriptorFields);
+        ddIDToKeyDescriptor.add(dimensionsDescriptor.createFieldsDescriptor(keyDescriptor));
+        ddIDToDD.add(dimensionsDescriptor);
+      }
+
+      JSONArray additionalValues = dimension.getJSONArray(FIELD_DIMENSIONS_ADDITIONAL_VALUES);
+
+      //iterate over additional values
+      for(int additionalValueIndex = 0;
+          additionalValueIndex < additionalValues.length();
+          additionalValueIndex++) {
+        String additionalValue = additionalValues.getString(additionalValueIndex);
+        String[] components = additionalValue.split(ADDITIONAL_VALUE_SEPERATOR);
+
+        if(components.length != ADDITIONAL_VALUE_NUM_COMPONENTS) {
+          throw new IllegalArgumentException("The number of component values " +
+                                             "in an additional value must be " +
+                                             ADDITIONAL_VALUE_NUM_COMPONENTS +
+                                             " not " + components.length);
+        }
+
+        String valueName = components[ADDITIONAL_VALUE_VALUE_INDEX];
+        String aggregatorName = components[ADDITIONAL_VALUE_AGGREGATOR_INDEX];
+
+        Set<String> aggregators = specificValueToAggregator.get(valueName);
+
+        if(aggregators == null) {
+          aggregators = Sets.newHashSet();
+          specificValueToAggregator.put(valueName, aggregators);
+        }
+
+        if(aggregators == null) {
+          throw new IllegalArgumentException("The additional value " + additionalValue +
+                                             "Does not have a corresponding value " + valueName +
+                                             " defined in the " + FIELD_VALUES + " section.");
+        }
+
+        if(!aggregators.add(aggregatorName)) {
+          throw new IllegalArgumentException("The aggregator " + aggregatorName +
+                                             " was already defined in the " + FIELD_VALUES +
+                                             " section for the value " + valueName);
+        }
+      }
+
+      //Map specificValueToAggregator immutable and validate that atleast one aggregator is defined
+      //for each value
+      for(Map.Entry<String, Set<String>> entry:
+          specificValueToAggregator.entrySet()) {
+        if(!entry.getValue().isEmpty()) {
+          throw new IllegalArgumentException("No aggregations defined " + "for the value " +
+                                             entry.getKey());
+        }
+
+        specificValueToAggregator.put(entry.getKey(),
+                                      Collections.unmodifiableSet(entry.getValue()));
+      }
+
+      specificValueToAggregator = Collections.unmodifiableMap(specificValueToAggregator);
+      ddIDToValueToAggregator.add(specificValueToAggregator);
     }
 
     //DD ID To Aggregator To Aggregate Descriptor
@@ -197,10 +300,10 @@ public class GenericEventSchema
     for(int ddID = 0;
         ddID < getDdIDToValueToAggregator().size();
         ddID++) {
-      Map<String, List<String>> valueToAggregator = getDdIDToValueToAggregator().get(ddID);
+      Map<String, Set<String>> valueToAggregator = ddIDToValueToAggregator.get(ddID);
       Map<String, Set<String>> aggregatorToValues = Maps.newHashMap();
 
-      for(Map.Entry<String, List<String>> entry: valueToAggregator.entrySet()) {
+      for(Map.Entry<String, Set<String>> entry: valueToAggregator.entrySet()) {
         String value = entry.getKey();
         for(String aggregator: entry.getValue()) {
           Set<String> values = aggregatorToValues.get(aggregator);
@@ -304,7 +407,7 @@ public class GenericEventSchema
   /**
    * @return the ddIDToValueToAggregator
    */
-  public List<Map<String, List<String>>> getDdIDToValueToAggregator()
+  public List<Map<String, Set<String>>> getDdIDToValueToAggregator()
   {
     return ddIDToValueToAggregator;
   }
