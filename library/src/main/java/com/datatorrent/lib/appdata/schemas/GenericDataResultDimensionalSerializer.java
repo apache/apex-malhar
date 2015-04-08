@@ -29,11 +29,11 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Set;
 
-public class GenericDataResultSerializer implements CustomDataSerializer
+public class GenericDataResultDimensionalSerializer implements CustomDataSerializer
 {
-  private static final Logger logger = LoggerFactory.getLogger(GenericDataResultSerializer.class);
+  private static final Logger logger = LoggerFactory.getLogger(GenericDataResultDimensionalSerializer.class);
 
-  public GenericDataResultSerializer()
+  public GenericDataResultDimensionalSerializer()
   {
   }
 
@@ -50,7 +50,7 @@ public class GenericDataResultSerializer implements CustomDataSerializer
 
   private String serializeHelper(Result result) throws Exception
   {
-    GenericDataResult dataResult = (GenericDataResult) result;
+    GenericDataResultDimensional dataResult = (GenericDataResultDimensional) result;
 
     JSONObject jo = new JSONObject();
 
@@ -92,7 +92,7 @@ public class GenericDataResultSerializer implements CustomDataSerializer
     }
 
     if(!dataResult.getQuery().isOneTime()) {
-      jo.put(GenericDataResult.FIELD_COUNTDOWN,
+      jo.put(GenericDataResultDimensional.FIELD_COUNTDOWN,
              dataResult.getCountdown());
     }
 

@@ -14,9 +14,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class GenericDataQueryDeserializerTest
+public class GenericDataQueryDimensionalDeserializerTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(GenericDataQueryDeserializerTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(GenericDataQueryDimensionalDeserializerTest.class);
 
   @Test
   public void deserializeTest() throws Exception

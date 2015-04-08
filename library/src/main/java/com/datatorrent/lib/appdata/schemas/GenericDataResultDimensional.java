@@ -22,15 +22,15 @@ import com.google.common.base.Preconditions;
 
 import java.util.List;
 
-@DataType(type=GenericDataQuery.TYPE)
-@DataSerializerInfo(clazz=GenericDataResultSerializer.class)
-public class GenericDataResult extends GenericDataResultTabular
+@DataType(type=GenericDataQueryDimensional.TYPE)
+@DataSerializerInfo(clazz=GenericDataResultDimensionalSerializer.class)
+public class GenericDataResultDimensional extends GenericDataResultTabular
 {
   public static final String TYPE = "dataResult";
 
   private List<GPOMutable> keys;
 
-  public GenericDataResult(GenericDataQuery dataQuery,
+  public GenericDataResultDimensional(GenericDataQueryDimensional dataQuery,
                            List<GPOMutable> keys,
                            List<GPOMutable> values,
                            long countdown)
@@ -49,9 +49,9 @@ public class GenericDataResult extends GenericDataResultTabular
 
 
   @Override
-  public GenericDataQuery getQuery()
+  public GenericDataQueryDimensional getQuery()
   {
-    return (GenericDataQuery) super.getQuery();
+    return (GenericDataQueryDimensional) super.getQuery();
   }
 
   private void setKeys(List<GPOMutable> keys)

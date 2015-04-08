@@ -32,11 +32,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-public class GenericDataQueryDeserializer extends CustomDataDeserializer
+public class GenericDataQueryDimensionalDeserializer extends CustomDataDeserializer
 {
-  private static final Logger logger = LoggerFactory.getLogger(GenericDataQueryDeserializer.class);
+  private static final Logger logger = LoggerFactory.getLogger(GenericDataQueryDimensionalDeserializer.class);
 
-  public GenericDataQueryDeserializer()
+  public GenericDataQueryDimensionalDeserializer()
   {
   }
 
@@ -67,13 +67,13 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
     long countdown = 1;
 
     if(!oneTime) {
-      countdown = jo.getLong(GenericDataQuery.FIELD_COUNTDOWN);
+      countdown = jo.getLong(GenericDataQueryDimensional.FIELD_COUNTDOWN);
     }
 
-    boolean incompleteResultOK = jo.getBoolean(GenericDataQuery.FIELD_INCOMPLETE_RESULT_OK);
+    boolean incompleteResultOK = jo.getBoolean(GenericDataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK);
 
       //// Data
-    JSONObject data = jo.getJSONObject(GenericDataQuery.FIELD_DATA);
+    JSONObject data = jo.getJSONObject(GenericDataQueryDimensional.FIELD_DATA);
 
     boolean hasFromTo = false;
     int latestNumBuckets = -1;
@@ -81,33 +81,33 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
     String to = null;
     TimeBucket bucket = null;
 
-    boolean hasTime = data.has(GenericDataQuery.FIELD_TIME);
+    boolean hasTime = data.has(GenericDataQueryDimensional.FIELD_TIME);
 
     if(hasTime) {
       //// Time
-      JSONObject time = data.getJSONObject(GenericDataQuery.FIELD_TIME);
+      JSONObject time = data.getJSONObject(GenericDataQueryDimensional.FIELD_TIME);
 
-      if(time.has(GenericDataQuery.FIELD_FROM)
-         ^ time.has(GenericDataQuery.FIELD_TO)) {
+      if(time.has(GenericDataQueryDimensional.FIELD_FROM)
+         ^ time.has(GenericDataQueryDimensional.FIELD_TO)) {
         logger.error("Both from and to must be specified, or netiher");
         return null;
       }
 
-      hasFromTo = time.has(GenericDataQuery.FIELD_FROM);
+      hasFromTo = time.has(GenericDataQueryDimensional.FIELD_FROM);
 
       if(hasFromTo) {
-        from = time.getString(GenericDataQuery.FIELD_FROM);
-        to = time.getString(GenericDataQuery.FIELD_TO);
+        from = time.getString(GenericDataQueryDimensional.FIELD_FROM);
+        to = time.getString(GenericDataQueryDimensional.FIELD_TO);
       }
       else {
-        latestNumBuckets = time.getInt(GenericDataQuery.FIELD_LATEST_NUM_BUCKETS);
+        latestNumBuckets = time.getInt(GenericDataQueryDimensional.FIELD_LATEST_NUM_BUCKETS);
       }
 
-      bucket = TimeBucket.BUCKET_TO_TYPE.get(time.getString(GenericDataQuery.FIELD_BUCKET));
+      bucket = TimeBucket.BUCKET_TO_TYPE.get(time.getString(GenericDataQueryDimensional.FIELD_BUCKET));
     }
 
       //// Keys
-    JSONObject keys = data.getJSONObject(GenericDataQuery.FIELD_KEYS);
+    JSONObject keys = data.getJSONObject(GenericDataQueryDimensional.FIELD_KEYS);
 
     Iterator keyIterator = keys.keys();
     Set<String> keySet = Sets.newHashSet();
@@ -121,8 +121,8 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
     }
 
     List<String> fieldList = Lists.newArrayList();
-    if(data.has(GenericDataQuery.FIELD_FIELDS)) {
-      JSONArray fields = data.getJSONArray(GenericDataQuery.FIELD_FIELDS);
+    if(data.has(GenericDataQueryDimensional.FIELD_FIELDS)) {
+      JSONArray fields = data.getJSONArray(GenericDataQueryDimensional.FIELD_FIELDS);
 
       for(int fieldIndex = 0;
           fieldIndex < fields.length();
@@ -153,7 +153,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
     GPOImmutable gpoIm = new GPOImmutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
 
     if(!hasTime) {
-      return new GenericDataQuery(id,
+      return new GenericDataQueryDimensional(id,
                                   type,
                                   gpoIm,
                                   queryFields,
@@ -162,7 +162,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
     else {
       if(oneTime) {
         if(hasFromTo) {
-          return new GenericDataQuery(id,
+          return new GenericDataQueryDimensional(id,
                                       type,
                                       from,
                                       to,
@@ -172,7 +172,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
                                       incompleteResultOK);
         }
         else {
-          return new GenericDataQuery(id,
+          return new GenericDataQueryDimensional(id,
                                       type,
                                       latestNumBuckets,
                                       bucket,
@@ -183,7 +183,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
       }
       else {
         if(hasFromTo) {
-          return new GenericDataQuery(id,
+          return new GenericDataQueryDimensional(id,
                                       type,
                                       from,
                                       to,
@@ -194,7 +194,7 @@ public class GenericDataQueryDeserializer extends CustomDataDeserializer
                                       incompleteResultOK);
         }
         else {
-          return new GenericDataQuery(id,
+          return new GenericDataQueryDimensional(id,
                                       type,
                                       latestNumBuckets,
                                       bucket,

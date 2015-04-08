@@ -26,7 +26,7 @@ import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.GenericAggregateEvent.EventKey;
 import com.datatorrent.lib.appdata.dimensions.GenericDimensionsAggregator;
-import com.datatorrent.lib.appdata.dimensions.GenericEventSchema;
+import com.datatorrent.lib.appdata.schemas.GenericEventSchema;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
@@ -36,8 +36,8 @@ import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.GenericDataQuery;
-import com.datatorrent.lib.appdata.schemas.GenericDataResult;
+import com.datatorrent.lib.appdata.schemas.GenericDataQueryDimensional;
+import com.datatorrent.lib.appdata.schemas.GenericDataResultDimensional;
 import com.datatorrent.lib.appdata.schemas.GenericSchemaDimensional;
 import com.datatorrent.lib.appdata.schemas.GenericSchemaResult;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
@@ -72,7 +72,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
   // Query Processing - Start
   //==========================================================================
 
-  private transient QueryProcessor<GenericDataQuery, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
+  private transient QueryProcessor<GenericDataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
   private transient DataSerializerFactory resultSerializerFactory;
@@ -106,8 +106,8 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
                                                                   dimensionalSchema));
         queryResult.emit(schemaResult);
       }
-      else if(query instanceof GenericDataQuery) {
-        GenericDataQuery gdq = (GenericDataQuery) query;
+      else if(query instanceof GenericDataQueryDimensional) {
+        GenericDataQueryDimensional gdq = (GenericDataQueryDimensional) query;
         logger.info("GDQ: {}", gdq);
         queryProcessor.enqueue(gdq, null, null);
       }
@@ -142,12 +142,12 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
 
     //Setup for query processing
     queryProcessor =
-    new QueryProcessor<GenericDataQuery, QueryMeta, MutableLong, MutableBoolean, Result>(
+    new QueryProcessor<GenericDataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>(
                                                   new DimensionsQueryComputer(this),
                                                   new DimensionsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
-                                                           GenericDataQuery.class);
-    queryDeserializerFactory.setContext(GenericDataQuery.class, dimensionalSchema);
+                                                           GenericDataQueryDimensional.class);
+    queryDeserializerFactory.setContext(GenericDataQueryDimensional.class, dimensionalSchema);
     resultSerializerFactory = new DataSerializerFactory();
 
     queryProcessor.setup(context);
@@ -251,7 +251,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
   // Query Processing Classes - Start
   //==========================================================================
 
-  class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<GenericDataQuery, QueryMeta>
+  class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<GenericDataQueryDimensional, QueryMeta>
   {
     private GenericAppDataDimensionStoreHDHT operator;
     private int queueWindowCount;
@@ -264,7 +264,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
     }
 
     @Override
-    public boolean enqueue(GenericDataQuery query, QueryMeta queryMeta, MutableLong windowExpireCount)
+    public boolean enqueue(GenericDataQueryDimensional query, QueryMeta queryMeta, MutableLong windowExpireCount)
     {
       logger.info("Enqueueing query {}", query);
 
@@ -367,7 +367,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
     }
   }
 
-  class DimensionsQueryComputer implements QueryComputer<GenericDataQuery, QueryMeta, MutableLong, MutableBoolean, Result>
+  class DimensionsQueryComputer implements QueryComputer<GenericDataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>
   {
     private GenericAppDataDimensionStoreHDHT operator;
 
@@ -377,7 +377,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
     }
 
     @Override
-    public Result processQuery(GenericDataQuery query, QueryMeta adsQueryMeta, MutableLong queueContext, MutableBoolean context)
+    public Result processQuery(GenericDataQueryDimensional query, QueryMeta adsQueryMeta, MutableLong queueContext, MutableBoolean context)
     {
       logger.debug("Processing query {}", query);
 
@@ -438,7 +438,7 @@ public class GenericAppDataDimensionStoreHDHT extends GenericDimensionsStoreHDHT
         }
       }
 
-      return new GenericDataResult(query,
+      return new GenericDataResultDimensional(query,
                             keys,
                             values,
                             queueContext.longValue());

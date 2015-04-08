@@ -28,10 +28,10 @@ import com.google.common.collect.Sets;
 import java.util.Map;
 import java.util.Set;
 
-@DataType(type=GenericDataQuery.TYPE)
-@DataDeserializerInfo(clazz=GenericDataQueryDeserializer.class)
-@DataValidatorInfo(clazz=GenericDataQueryValidator.class)
-public class GenericDataQuery extends GenericDataQueryTabular
+@DataType(type=GenericDataQueryDimensional.TYPE)
+@DataDeserializerInfo(clazz=GenericDataQueryDimensionalDeserializer.class)
+@DataValidatorInfo(clazz=GenericDataQueryDimensionalValidator.class)
+public class GenericDataQueryDimensional extends GenericDataQueryTabular
 {
   public static final String TYPE = "dataQuery";
 
@@ -68,7 +68,7 @@ public class GenericDataQuery extends GenericDataQueryTabular
   private Fields keyFields;
   private DimensionsDescriptor dd;
 
-  public GenericDataQuery(String id,
+  public GenericDataQueryDimensional(String id,
                           String type,
                           GPOImmutable keys,
                           Fields fields,
@@ -82,7 +82,7 @@ public class GenericDataQuery extends GenericDataQueryTabular
     initialize();
   }
 
-  public GenericDataQuery(String id,
+  public GenericDataQueryDimensional(String id,
                           String type,
                           int latestNumBuckets,
                           TimeBucket timeBucket,
@@ -101,7 +101,7 @@ public class GenericDataQuery extends GenericDataQueryTabular
     initialize();
   }
 
-  public GenericDataQuery(String id,
+  public GenericDataQueryDimensional(String id,
                           String type,
                           String from,
                           String to,
@@ -122,7 +122,7 @@ public class GenericDataQuery extends GenericDataQueryTabular
     initialize();
   }
 
-  public GenericDataQuery(String id,
+  public GenericDataQueryDimensional(String id,
                           String type,
                           String from,
                           String to,
@@ -144,7 +144,7 @@ public class GenericDataQuery extends GenericDataQueryTabular
     initialize();
   }
 
-  public GenericDataQuery(String id,
+  public GenericDataQueryDimensional(String id,
                           String type,
                           int latestNumBuckets,
                           TimeBucket timeBucket,

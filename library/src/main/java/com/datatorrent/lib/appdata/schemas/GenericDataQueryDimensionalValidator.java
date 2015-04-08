@@ -21,9 +21,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class GenericDataQueryValidator implements CustomDataValidator
+public class GenericDataQueryDimensionalValidator implements CustomDataValidator
 {
-  private static final Logger logger = LoggerFactory.getLogger(GenericDataQueryValidator.class);
+  private static final Logger logger = LoggerFactory.getLogger(GenericDataQueryDimensionalValidator.class);
 
   @Override
   public boolean validate(Data query, Object context)

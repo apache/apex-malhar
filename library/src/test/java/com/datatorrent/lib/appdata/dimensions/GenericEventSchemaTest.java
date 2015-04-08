@@ -5,6 +5,7 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
+import com.datatorrent.lib.appdata.schemas.GenericEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;

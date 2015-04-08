@@ -23,7 +23,7 @@ import com.google.common.base.Preconditions;
 
 import java.util.List;
 
-@DataType(type=GenericDataQuery.TYPE)
+@DataType(type=GenericDataQueryDimensional.TYPE)
 @DataSerializerInfo(clazz=GenericDataResultTabularSerializer.class)
 public class GenericDataResultTabular extends Result
 {
