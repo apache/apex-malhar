@@ -80,12 +80,17 @@ public class CacheLRUSynchronousFlush<KEY, VALUE>
 
   public VALUE put(KEY key, VALUE value)
   {
+    long timeStamp = System.currentTimeMillis();
+    return put(timeStamp, key, value);
+  }
+
+  public VALUE put(long timeStamp, KEY key, VALUE value)
+  {
     Preconditions.checkNotNull(key);
     Preconditions.checkNotNull(value);
 
     changed.add(key);
 
-    long timeStamp = System.currentTimeMillis();
     Long oldTimeStamp = keyToTimeStamp.put(key, timeStamp);
 
     if(oldTimeStamp == null || oldTimeStamp != timeStamp) {

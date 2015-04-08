@@ -18,7 +18,7 @@ package com.datatorrent.lib.appdata.qr.processor.cache;
 
 import com.datatorrent.lib.appdata.qr.processor.cache.CacheLRUSynchronousFlush.CacheFlushListener;
 
-public class NopCacheFlushListener<KEY, VALUE> implements CacheFlushListener<KEY, VALUE>
+public class NOPCacheFlushListener<KEY, VALUE> implements CacheFlushListener<KEY, VALUE>
 {
   @Override
   public void flush(KEY key, VALUE value)
