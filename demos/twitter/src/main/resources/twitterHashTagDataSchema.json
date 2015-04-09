@@ -1,5 +1,5 @@
 {
-  "schemaType": "twitterTopCount",
+  "schemaType": "table",
   "schemaVersion": "1.0",
   "values": [{"name": "hashtag", "type": "string"},
              {"name": "count", "type": "integer"}]

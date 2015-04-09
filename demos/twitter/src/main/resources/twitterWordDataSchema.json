@@ -1,5 +1,5 @@
 {
-  "schemaType": "tabular",
+  "schemaType": "table",
   "schemaVersion": "1.0",
   "values": [{"name": "word", "type": "string"},
              {"name": "count", "type": "integer"}]
