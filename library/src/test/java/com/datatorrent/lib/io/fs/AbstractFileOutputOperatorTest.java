@@ -16,16 +16,17 @@
 
 package com.datatorrent.lib.io.fs;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Set;
-import java.util.TreeSet;
+import java.io.*;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
+import java.util.zip.GZIPInputStream;
 
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
 import javax.validation.ConstraintViolationException;
 
 import com.google.common.collect.Maps;
+import com.google.common.io.LimitInputStream;
 
 import org.junit.Assert;
 import org.junit.Rule;
@@ -1651,6 +1652,177 @@ public class AbstractFileOutputOperatorTest
     writer.teardown();
   }
   
+  @Test
+  public void testCompression() throws IOException
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    writer.setFilterStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
+
+    File evenFile = new File(testMeta.getDir(), EVEN_FILE);
+    File oddFile = new File(testMeta.getDir(), ODD_FILE);
+    
+    // To get around the multi member gzip issue
+    // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
+    List<Long> evenOffsets = new ArrayList<Long>();
+    List<Long> oddOffsets = new ArrayList<Long>();
+
+    File dir = new File(testMeta.getDir());
+    writer.setFilePath(testMeta.getDir());
+    writer.setup(testOperatorContext);
+
+    for (int i = 0; i < 10; ++i) {
+      writer.beginWindow(i);
+      for (int j = 0; j < 1000; ++j) {
+        writer.input.put(i);
+      }
+      writer.endWindow();
+      evenOffsets.add(evenFile.length());
+      oddOffsets.add(oddFile.length());
+    }
+
+    writer.teardown();
+    
+    checkCompressedFile(evenFile, evenOffsets, 0, null, null);
+    checkCompressedFile(oddFile, oddOffsets, 1, null, null);
+  }
+
+  private void checkCompressedFile(File file, List<Long> offsets, int start, SecretKey secretKey, byte[] iv) throws IOException
+  {
+    FileInputStream fis = null;
+    InputStream gss = null;
+    GZIPInputStream gis = null;
+    BufferedReader br = null;
+
+    Cipher cipher = null;
+    if (secretKey != null) {
+      try {
+        cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+        IvParameterSpec ivps = new IvParameterSpec(iv);
+        cipher.init(Cipher.DECRYPT_MODE, secretKey, ivps);
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+
+    int numWindows = 0;
+    long startOffset = 0;
+    for (long offset : offsets) {
+      // Skip initial case in case file is not yet created
+      if (offset == 0) continue;
+      try {
+        fis = new FileInputStream(file);
+        fis.skip(startOffset);
+        long limit = offset - startOffset;
+        LimitInputStream lis = new LimitInputStream(fis, limit);
+        gss = lis;
+        if (secretKey != null) {
+          try {
+            /*
+            Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+            IvParameterSpec ivps = new IvParameterSpec(iv);
+            cipher.init(Cipher.DECRYPT_MODE, secretKey, ivps);
+            */
+            CipherInputStream cis = new CipherInputStream(lis, cipher);
+            gss = cis;
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+        }
+        //gis = new GZIPInputStream(fis);
+        gis = new GZIPInputStream(gss);
+        br = new BufferedReader(new InputStreamReader(gis));
+        //br = new BufferedReader(new InputStreamReader(gss));
+        String eline = "" + (start + numWindows * 2);
+        int count = 0;
+        String line;
+        while ((line = br.readLine()) != null) {
+          Assert.assertEquals("File line", eline, line);
+          ++count;
+          //System.out.println("line " + line + " " + count);
+          if ((count % 1000) == 0) {
+            ++numWindows;
+            eline = "" + (start + numWindows * 2);
+          }
+        }
+        /*
+        if (count > 0) {
+          Assert.assertEquals("Event count", 1000, count);
+          ++numWindows;
+        }
+        */
+        startOffset = offset;
+      } finally {
+        if (br != null) {
+          br.close();
+        } else {
+          if (gis != null) {
+            gis.close();
+          } else if (gss != null) {
+            gss.close();
+          }
+        }
+      }
+    }
+    Assert.assertEquals("Total", 5, numWindows);
+  }
+  
+  @Test
+  public void testChainFilters() throws NoSuchAlgorithmException, IOException
+  {
+    EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
+    KeyGenerator keygen = KeyGenerator.getInstance("AES");
+    keygen.init(128);
+    final SecretKey secretKey = keygen.generateKey();
+    byte[] iv = "TestParam16bytes".getBytes();
+    final IvParameterSpec ivps = new IvParameterSpec(iv);
+    FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream> chainStreamProvider
+            = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
+    chainStreamProvider.addStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
+    chainStreamProvider.addStreamProvider(new FilterStreamProvider.SimpleFilterReusableStreamProvider<CipherOutputStream, OutputStream>()
+    {
+      @Override
+      protected FilterStreamContext<CipherOutputStream> createFilterStreamContext(OutputStream outputStream) throws IOException
+      {
+        try {
+          Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
+          cipher.init(Cipher.ENCRYPT_MODE, secretKey, ivps);
+          return new FilterStreamCodec.CipherFilterStreamContext(outputStream, cipher);
+        } catch (Exception e) {
+          throw new IOException(e);
+        }
+      }
+    });
+    writer.setFilterStreamProvider(chainStreamProvider);
+
+    File evenFile = new File(testMeta.getDir(), EVEN_FILE);
+    File oddFile = new File(testMeta.getDir(), ODD_FILE);
+
+    List<Long> evenOffsets = new ArrayList<Long>();
+    List<Long> oddOffsets = new ArrayList<Long>();
+
+    File dir = new File(testMeta.getDir());
+    writer.setFilePath(testMeta.getDir());
+    writer.setup(testOperatorContext);
+
+    for (int i = 0; i < 10; ++i) {
+      writer.beginWindow(i);
+      for (int j = 0; j < 1000; ++j) {
+        writer.input.put(i);
+      }
+      writer.endWindow();
+      //evenOffsets.add(evenFile.length());
+      //oddOffsets.add(oddFile.length());
+    }
+
+    writer.teardown();
+
+    evenOffsets.add(evenFile.length());
+    oddOffsets.add(oddFile.length());
+
+    checkCompressedFile(evenFile, evenOffsets, 0, secretKey, iv);
+    checkCompressedFile(oddFile, oddOffsets, 1, secretKey, iv);
+  }
+
   private Set<String> getFileNames(Collection<File> files)
   {
     Set<String> filesNames = new TreeSet<String>();
