@@ -238,6 +238,7 @@ public class GenericEventSchema
       }
 
       JSONArray additionalValues = dimension.getJSONArray(FIELD_DIMENSIONS_ADDITIONAL_VALUES);
+      logger.info("Additional values length {}", additionalValues.length());
 
       //iterate over additional values
       for(int additionalValueIndex = 0;
@@ -255,6 +256,8 @@ public class GenericEventSchema
 
         String valueName = components[ADDITIONAL_VALUE_VALUE_INDEX];
         String aggregatorName = components[ADDITIONAL_VALUE_AGGREGATOR_INDEX];
+
+        logger.info("Aggregator name {}", aggregatorName);
 
         Set<String> aggregators = specificValueToAggregator.get(valueName);
 
@@ -276,15 +279,16 @@ public class GenericEventSchema
         }
       }
 
+      if(specificValueToAggregator.isEmpty()) {
+        throw new IllegalArgumentException("No aggregations defined for the " +
+                                           "following field combination " +
+                                           combinationFields.toString());
+      }
+
       //Map specificValueToAggregator immutable and validate that atleast one aggregator is defined
       //for each value
       for(Map.Entry<String, Set<String>> entry:
           specificValueToAggregator.entrySet()) {
-        if(!entry.getValue().isEmpty()) {
-          throw new IllegalArgumentException("No aggregations defined " + "for the value " +
-                                             entry.getKey());
-        }
-
         specificValueToAggregator.put(entry.getKey(),
                                       Collections.unmodifiableSet(entry.getValue()));
       }

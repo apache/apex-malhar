@@ -87,13 +87,13 @@ public class GenericEventSchemaTest
     logger.debug("map: {}", ges.getDdIDToAggregatorToAggregateDescriptor().get(0));
 
     Assert.assertTrue("Incorrect aggregate fields.",
-                        ges.getDdIDToAggregatorToAggregateDescriptor().get(0).get("min").getFields().getFields().equals(minAggFields));
+                        ges.getDdIDToAggregatorToAggregateDescriptor().get(0).get("MIN").getFields().getFields().equals(minAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
-                        ges.getDdIDToAggregatorToAggregateDescriptor().get(0).get("max").getFields().getFields().equals(maxAggFields));
+                        ges.getDdIDToAggregatorToAggregateDescriptor().get(0).get("MAX").getFields().getFields().equals(maxAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
-                        ges.getDdIDToAggregatorToAggregateDescriptor().get(1).get("sum").getFields().getFields().equals(sumAggFields));
+                        ges.getDdIDToAggregatorToAggregateDescriptor().get(1).get("SUM").getFields().getFields().equals(sumAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
-                        ges.getDdIDToAggregatorToAggregateDescriptor().get(1).get("count").getFields().getFields().equals(countAggFields));
+                        ges.getDdIDToAggregatorToAggregateDescriptor().get(1).get("COUNT").getFields().getFields().equals(countAggFields));
 
     final Map<String, Integer> aggToId = Maps.newHashMap();
     aggToId.put("min", 0);
