@@ -170,7 +170,7 @@ public class HDHTBenchmarkTest implements StreamingApplication
           if (adjustRate) {
             Response rsp = new Response();
             cmd.rate = resumewid < dwId ? rate : 0;
-            rsp.operatorRequests = Lists.newArrayList(cmd);
+            //rsp.operatorRequests = Lists.newArrayList(cmd);
             return rsp;
           }
         }
@@ -178,18 +178,18 @@ public class HDHTBenchmarkTest implements StreamingApplication
       return null;
     }
 
-    public static class SetPropertyRequest implements OperatorRequest, Serializable
+    public static class SetPropertyRequest implements OperatorCommand, Serializable
     {
       private static final long serialVersionUID = 1L;
       int rate;
       @Override
-      public OperatorResponse execute(Operator oper, int arg1, long arg2) throws IOException
+      public void execute(Operator oper, int arg1, long arg2) throws IOException
       {
         if (oper instanceof TestGenerator) {
           LOG.debug("Setting rate to {}", rate);
           ((TestGenerator)oper).rate = rate;
         }
-        return null;
+        //return null;
       }
     }
   }

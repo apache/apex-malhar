@@ -59,7 +59,7 @@ import com.datatorrent.lib.counters.BasicCounters;
  * @param <STREAM> type of stream.
  */
 
-@StatsListener.DataQueueSize
+//@StatsListener.DataQueueSize
 public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM extends InputStream & PositionedReadable> extends BaseOperator implements
   Partitioner<AbstractBlockReader<R, B, STREAM>>, StatsListener, Operator.IdleTimeHandler
 {
