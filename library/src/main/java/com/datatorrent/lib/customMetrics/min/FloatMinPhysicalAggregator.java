@@ -16,18 +16,17 @@
 package com.datatorrent.lib.customMetrics.min;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 import com.datatorrent.api.CustomMetrics;
 
 public class FloatMinPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Float>, Serializable
 {
   @Override
-  public Float aggregate(Collection<Object> metrics)
+  public Float aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
   {
     Float min = null;
-    for (Object metric : metrics) {
-      float value = ((Number) metric).floatValue();
+    for (Number metric : physicalMetrics.<Number>getValues()) {
+      float value = metric.floatValue();
       if (min == null || value < min) {
         min = value;
       }

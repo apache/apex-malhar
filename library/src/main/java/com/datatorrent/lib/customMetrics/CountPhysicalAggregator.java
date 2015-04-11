@@ -16,16 +16,15 @@
 package com.datatorrent.lib.customMetrics;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 import com.datatorrent.api.CustomMetrics;
 
 public class CountPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Integer>, Serializable
 {
   @Override
-  public Integer aggregate(Collection<Object> metrics)
+  public Integer aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
   {
-    return metrics.size();
+    return physicalMetrics.getValues().size();
   }
 
   private static final long serialVersionUID = 201504080956L;

@@ -16,18 +16,17 @@
 package com.datatorrent.lib.customMetrics.min;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 import com.datatorrent.api.CustomMetrics;
 
 public class DoubleMinPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Double>, Serializable
 {
   @Override
-  public Double aggregate(Collection<Object> metrics)
+  public Double aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
   {
     Double min = null;
-    for (Object metric : metrics) {
-      double value = ((Number) metric).doubleValue();
+    for (Number metric : physicalMetrics.<Number>getValues()) {
+      double value = metric.doubleValue();
       if (min == null || value < min) {
         min = value;
       }

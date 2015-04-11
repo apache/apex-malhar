@@ -16,21 +16,22 @@
 package com.datatorrent.lib.customMetrics;
 
 import java.io.Serializable;
-import java.util.Collection;
+import java.util.List;
 
 import com.datatorrent.api.CustomMetrics;
 
 public class AvgPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Double>, Serializable
 {
   @Override
-  public Double aggregate(Collection<Object> metrics)
+  public Double aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
   {
     double sum = 0;
 
-    for (Object metric : metrics) {
-      sum += ((Number) metric).doubleValue();
+    List<Number> physicalValues = physicalMetrics.getValues();
+    for (Number metric : physicalValues) {
+      sum += metric.doubleValue();
     }
-    return sum / metrics.size();
+    return sum / physicalValues.size();
   }
 
   private static final long serialVersionUID = 201504081330L;
