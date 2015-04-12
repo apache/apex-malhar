@@ -16,19 +16,18 @@
 package com.datatorrent.lib.customMetrics.sum;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 import com.datatorrent.api.CustomMetrics;
 
 public class DoubleSumPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Double>, Serializable
 {
   @Override
-  public Double aggregate(Collection<Object> metrics)
+  public Double aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
   {
     double sum = 0;
 
-    for (Object metric : metrics) {
-      sum += ((Number) metric).doubleValue();
+    for (Number metric : physicalMetrics.<Number>getValues()) {
+      sum += metric.doubleValue();
     }
     return sum;
   }

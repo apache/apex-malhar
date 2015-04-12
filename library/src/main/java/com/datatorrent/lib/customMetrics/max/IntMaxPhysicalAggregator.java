@@ -16,18 +16,17 @@
 package com.datatorrent.lib.customMetrics.max;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 import com.datatorrent.api.CustomMetrics;
 
 public class IntMaxPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Integer>, Serializable
 {
   @Override
-  public Integer aggregate(Collection<Object> metrics)
+  public Integer aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
   {
     Integer max = null;
-    for (Object metric : metrics) {
-      int value = ((Number) metric).intValue();
+    for (Number metric : physicalMetrics.<Number>getValues()) {
+      int value = metric.intValue();
       if (max == null || value > max) {
         max = value;
       }

@@ -16,18 +16,17 @@
 package com.datatorrent.lib.customMetrics.sum;
 
 import java.io.Serializable;
-import java.util.Collection;
 
 import com.datatorrent.api.CustomMetrics;
 
 public class LongSumPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Long>, Serializable
 {
   @Override
-  public Long aggregate(Collection<Object> metrics)
+  public Long aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
   {
     long sum = 0;
-    for (Object metric : metrics) {
-      sum += ((Number) metric).longValue();
+    for (Number metric : physicalMetrics.<Number>getValues()) {
+      sum += metric.longValue();
     }
     return sum;
   }
