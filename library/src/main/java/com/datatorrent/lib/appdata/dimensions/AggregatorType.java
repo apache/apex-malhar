@@ -32,31 +32,36 @@ public enum AggregatorType
 
   private static final Logger logger = LoggerFactory.getLogger(AggregatorType.class);
 
-  private GenericDimensionsAggregator aggregator;
   public static final Map<String, Integer> NAME_TO_ORDINAL;
+  public static final Map<String, DimensionsAggregator> NAME_TO_AGGREGATOR;
+
+  private DimensionsAggregator aggregator;
 
   static {
     Map<String, Integer> nameToOrdinal = Maps.newHashMap();
+    Map<String, DimensionsAggregator> nameToAggregator = Maps.newHashMap();
 
     for(AggregatorType aggType: AggregatorType.values()) {
       nameToOrdinal.put(aggType.name(), aggType.ordinal());
+      nameToAggregator.put(aggType.name(), aggType.getAggregator());
     }
 
     NAME_TO_ORDINAL = Collections.unmodifiableMap(nameToOrdinal);
+    NAME_TO_AGGREGATOR = Collections.unmodifiableMap(nameToAggregator);
   }
 
-  AggregatorType(GenericDimensionsAggregator aggregator)
+  AggregatorType(DimensionsAggregator aggregator)
   {
     setAggregator(aggregator);
   }
 
-  private void setAggregator(GenericDimensionsAggregator aggregator)
+  private void setAggregator(DimensionsAggregator aggregator)
   {
     Preconditions.checkNotNull(aggregator);
     this.aggregator = aggregator;
   }
 
-  public GenericDimensionsAggregator getAggregator()
+  public DimensionsAggregator getAggregator()
   {
     return aggregator;
   }

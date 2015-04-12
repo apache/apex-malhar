@@ -21,6 +21,8 @@ import javax.validation.constraints.NotNull;
 public class Query extends Data
 {
   public static final String FIELD_ID = "id";
+  
+  public static final String FIELD_COUNTDOWN = "countdown";
 
   @NotNull
   private String id;

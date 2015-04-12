@@ -22,10 +22,13 @@ public class Result
   public static final String FIELD_ID = "id";
   public static final String FIELD_TYPE = "type";
   public static final String FIELD_DATA = "data";
+  public static final String FIELD_COUNTDOWN = "countdown";
 
-  private String id;
   private String type;
   private Query query;
+
+  private long countdown;
+  private boolean oneTime;
 
   public Result()
   {
@@ -34,6 +37,17 @@ public class Result
   public Result(Query query)
   {
     setQuery(query);
+
+    this.oneTime = true;
+  }
+
+  public Result(Query query,
+                long countdown)
+  {
+    setQuery(query);
+    setCountdown(countdown);
+
+    this.oneTime = false;
   }
 
   private void setQuery(Query query)
@@ -66,5 +80,20 @@ public class Result
   public void setType(String type)
   {
     this.type = type;
+  }
+
+  private void setCountdown(long countdown)
+  {
+    this.countdown = countdown;
+  }
+
+  public long getCountdown()
+  {
+    return countdown;
+  }
+
+  public boolean isOneTime()
+  {
+    return oneTime;
   }
 }

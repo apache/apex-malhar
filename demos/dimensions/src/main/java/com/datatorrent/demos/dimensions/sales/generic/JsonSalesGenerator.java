@@ -18,7 +18,8 @@ package com.datatorrent.demos.dimensions.sales.generic;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.appdata.schemas.GenericSchemaDimensional;
+import com.datatorrent.lib.appdata.dimensions.AggregatorType;
+import com.datatorrent.lib.appdata.schemas.SchemaDimensional;
 import com.google.common.collect.Maps;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -103,8 +104,8 @@ public class JsonSalesGenerator implements InputOperator
   private int channelCycle = 60;
 
   @NotNull
-  private String dataSchemaJSON;
-  private transient GenericSchemaDimensional schema;
+  private String eventSchemaJSON;
+  private transient SchemaDimensional schema;
 
   /**
    * Outputs sales event in JSON format as a byte array
@@ -157,11 +158,13 @@ public class JsonSalesGenerator implements InputOperator
   @Override
   public void setup(Context.OperatorContext context)
   {
-    schema = new GenericSchemaDimensional(dataSchemaJSON);
-    maxProductId = schema.getKeyToValuesList().get(KEY_PRODUCT).size() - 1;
-    maxCustomerId = schema.getKeyToValuesList().get(KEY_CUSTOMER).size() - 1;
-    maxChannelId = schema.getKeyToValuesList().get(KEY_CHANNEL).size() - 1;
-    maxRegionId = schema.getKeyToValuesList().get(KEY_REGION).size() - 1;
+    schema = new SchemaDimensional(eventSchemaJSON,
+                                   AggregatorType.NAME_TO_AGGREGATOR);
+
+    maxProductId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_PRODUCT).size() - 1;
+    maxCustomerId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_CUSTOMER).size() - 1;
+    maxChannelId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_CHANNEL).size() - 1;
+    maxRegionId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_REGION).size() - 1;
 
     tuplesPerCurrentWindow = maxTuplesPerWindow;
     generateDiscounts();
@@ -237,10 +240,10 @@ public class JsonSalesGenerator implements InputOperator
 
     SalesEvent salesEvent = new SalesEvent();
     salesEvent.time = System.currentTimeMillis();
-    salesEvent.product = (String) schema.getKeyToValuesList().get(KEY_PRODUCT).get(productId);
-    salesEvent.channel = (String) schema.getKeyToValuesList().get(KEY_CHANNEL).get(channelId);
-    salesEvent.region = (String) schema.getKeyToValuesList().get(KEY_REGION).get(regionId);
-    salesEvent.customer = (String) schema.getKeyToValuesList().get(KEY_CUSTOMER).get(customerId);
+    salesEvent.product = (String) schema.getGenericEventSchema().getKeysToValuesList().get(KEY_PRODUCT).get(productId);
+    salesEvent.channel = (String) schema.getGenericEventSchema().getKeysToValuesList().get(KEY_CHANNEL).get(channelId);
+    salesEvent.region = (String) schema.getGenericEventSchema().getKeysToValuesList().get(KEY_REGION).get(regionId);
+    salesEvent.customer = (String) schema.getGenericEventSchema().getKeysToValuesList().get(KEY_CUSTOMER).get(customerId);
     salesEvent.amount = randomAmount(minAmount, maxAmount);
     salesEvent.tax = calculateTax(salesEvent.amount, regionId);
     salesEvent.discount = calculateDiscount(salesEvent.amount, channelId, regionId);
@@ -368,19 +371,19 @@ public class JsonSalesGenerator implements InputOperator
   }
 
   /**
-   * @return the dataSchemaJSON
+   * @return the eventSchemaJSON
    */
-  public String getDataSchemaJSON()
+  public String getEventSchemaJSON()
   {
-    return dataSchemaJSON;
+    return eventSchemaJSON;
   }
 
   /**
-   * @param dataSchemaJSON the dataSchemaJSON to set
+   * @param eventSchemaJSON the eventSchemaJSON to set
    */
-  public void setDataSchemaJSON(String dataSchemaJSON)
+  public void setEventSchemaJSON(String eventSchemaJSON)
   {
-    this.dataSchemaJSON = dataSchemaJSON;
+    this.eventSchemaJSON = eventSchemaJSON;
   }
 }
 

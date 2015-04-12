@@ -21,14 +21,14 @@ import com.datatorrent.lib.appdata.schemas.Type;
 
 import java.util.Map;
 
-public class AggregatorMin implements GenericDimensionsAggregator
+public class AggregatorMin implements DimensionsAggregator
 {
   public AggregatorMin()
   {
   }
 
   @Override
-  public void aggregate(GenericAggregateEvent dest, GenericAggregateEvent src)
+  public void aggregate(AggregateEvent dest, AggregateEvent src)
   {
     GPOMutable destAggs = dest.getAggregates();
     GPOMutable srcAggs = src.getAggregates();
@@ -141,7 +141,7 @@ public class AggregatorMin implements GenericDimensionsAggregator
   }
 
   @Override
-  public GenericAggregateEvent createDest(GenericAggregateEvent first, FieldsDescriptor fd)
+  public AggregateEvent createDest(AggregateEvent first, FieldsDescriptor fd)
   {
     return first;
   }

@@ -26,11 +26,11 @@ import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.schemas.GenericDataQueryTabular;
-import com.datatorrent.lib.appdata.schemas.GenericDataResultTabular;
-import com.datatorrent.lib.appdata.schemas.GenericSchemaResult;
-import com.datatorrent.lib.appdata.schemas.GenericSchemaTabular;
+import com.datatorrent.lib.appdata.schemas.DataQueryTabular;
+import com.datatorrent.lib.appdata.schemas.DataResultTabular;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.datatorrent.lib.appdata.schemas.SchemaResult;
+import com.datatorrent.lib.appdata.schemas.SchemaTabular;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang3.mutable.MutableLong;
@@ -72,7 +72,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   private transient DataSerializerFactory resultSerializerFactory;
 
   private String schemaJSON;
-  private transient GenericSchemaTabular schema;
+  private transient SchemaTabular schema;
 
   //==========================================================================
   // Query Processing - End
@@ -121,12 +121,12 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
 
       if(query instanceof SchemaQuery) {
-        String schemaResult = resultSerializerFactory.serialize(new GenericSchemaResult((SchemaQuery) query,
-                                                                                        schema));
+        String schemaResult = resultSerializerFactory.serialize(new SchemaResult((SchemaQuery) query,
+                                                                                  schema));
         resultOutput.emit(schemaResult);
       }
-      else if(query instanceof GenericDataQueryTabular) {
-        queryProcessor.enqueue((GenericDataQueryTabular) query, null, null);
+      else if(query instanceof DataQueryTabular) {
+        queryProcessor.enqueue((DataQueryTabular) query, null, null);
       }
     }
   };
@@ -154,7 +154,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   {
     topCounter = new PriorityQueue<SlidingContainer<T>>(this.topCount, new TopSpotComparator());
 
-    schema = new GenericSchemaTabular(schemaJSON);
+    schema = new SchemaTabular(schemaJSON);
 
     //Setup for query processing
     queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void, Result>(
@@ -162,10 +162,8 @@ public class WindowedTopCounter<T> extends BaseOperator
                      new AppDataWWEQueryQueueManager<Query, Void>());
 
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
-                                                           GenericDataQueryTabular.class);
-    queryDeserializerFactory.setContext(GenericDataQueryTabular.class, schema);
-
-    resultSerializerFactory = new DataSerializerFactory();
+                                                           DataQueryTabular.class);
+    queryDeserializerFactory.setContext(DataQueryTabular.class, schema);
     queryProcessor.setup(context);
   }
 
@@ -274,7 +272,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     @Override
     public Result processQuery(Query query, Void metaQuery, MutableLong queueContext, Void context)
     {
-      GenericDataQueryTabular gQuery = (GenericDataQueryTabular) query;
+      DataQueryTabular gQuery = (DataQueryTabular) query;
       List<GPOMutable> data = Lists.newArrayList();
 
       Iterator<SlidingContainer<T>> topIter = topCounter.iterator();
@@ -297,9 +295,8 @@ public class WindowedTopCounter<T> extends BaseOperator
         data.add(dataPoint);
       }
 
-      return new GenericDataResultTabular(gQuery,
-                                          data,
-                                          queueContext.longValue());
+      return new DataResultTabular(gQuery,
+                                   data);
     }
 
     @Override

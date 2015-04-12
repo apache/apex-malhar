@@ -26,6 +26,7 @@ import com.google.common.collect.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -34,8 +35,11 @@ public class DimensionsDescriptor
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsDescriptor.class);
 
+  public static final Map<String, Type> DIMENSION_FIELD_TO_TYPE;
+
   public static final String DIMENSION_TIME = "time";
   public static final Type DIMENSION_TIME_TYPE = Type.LONG;
+
   public static final String DIMENSION_TIME_BUCKET = "timeBucket";
   public static final Type DIMENSION_TIME_BUCKET_TYPE = Type.INTEGER;
 
@@ -48,6 +52,16 @@ public class DimensionsDescriptor
 
   private TimeBucket timeBucket;
   private Fields fields;
+
+  static
+  {
+    Map<String, Type> dimensionFieldToType = Maps.newHashMap();
+
+    dimensionFieldToType.put(DIMENSION_TIME, DIMENSION_TIME_TYPE);
+    dimensionFieldToType.put(DIMENSION_TIME_BUCKET, DIMENSION_TIME_BUCKET_TYPE);
+
+    DIMENSION_FIELD_TO_TYPE = Collections.unmodifiableMap(dimensionFieldToType);
+  }
 
   public DimensionsDescriptor(TimeBucket timeBucket,
                               Fields fields)

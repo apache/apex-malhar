@@ -523,6 +523,11 @@ public class GPOUtils
     return jo;
   }
 
+  public static JSONObject serializeJSONObject(GPOMutable gpo) throws JSONException
+  {
+    return serializeJSONObject(gpo, gpo.getFieldDescriptor().getFields());
+  }
+
   public static int serializedLength(GPOMutable gpo)
   {
     int arrayLength = 0;

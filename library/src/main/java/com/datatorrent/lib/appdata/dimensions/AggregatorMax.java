@@ -21,7 +21,7 @@ import com.datatorrent.lib.appdata.schemas.Type;
 
 import java.util.Map;
 
-public class AggregatorMax implements GenericDimensionsAggregator
+public class AggregatorMax implements DimensionsAggregator
 {
   private static final long serialVersionUID = 201503120332L;
 
@@ -30,7 +30,7 @@ public class AggregatorMax implements GenericDimensionsAggregator
   }
 
   @Override
-  public void aggregate(GenericAggregateEvent dest, GenericAggregateEvent src)
+  public void aggregate(AggregateEvent dest, AggregateEvent src)
   {
     GPOMutable destAggs = dest.getAggregates();
     GPOMutable srcAggs = src.getAggregates();
@@ -143,7 +143,7 @@ public class AggregatorMax implements GenericDimensionsAggregator
   }
 
   @Override
-  public GenericAggregateEvent createDest(GenericAggregateEvent first, FieldsDescriptor fd)
+  public AggregateEvent createDest(AggregateEvent first, FieldsDescriptor fd)
   {
     return first;
   }

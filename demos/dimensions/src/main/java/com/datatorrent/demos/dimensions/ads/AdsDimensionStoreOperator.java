@@ -601,9 +601,9 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 
       fieldSet = Sets.newHashSet(fields);
 
-      result = new AdsDataResult(query);
+      result = new AdsDataResult(query,
+                                 queueContext.longValue());
       result.setData(new ArrayList<AdsDataResult.AdsOneTimeData>());
-      result.setCountdown(queueContext.longValue());
 
       AdInfo.AdInfoAggregateEvent prototype = adsQueryMeta.getAdInofAggregateEvent();
       TimeUnit bucketUnit = AdInfo.BUCKET_TO_TIMEUNIT.get(prototype.bucket);

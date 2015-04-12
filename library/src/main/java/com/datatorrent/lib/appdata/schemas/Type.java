@@ -112,6 +112,16 @@ public enum Type
     return higherTypes;
   }
 
+  public boolean isChildOf(Type type)
+  {
+    return higherTypes.contains(type);
+  }
+
+  public static boolean areRelated(Type a, Type b)
+  {
+    return a.isChildOf(b) || b.isChildOf(a);
+  }
+
   public static Type getType(String name)
   {
     return NAME_TO_TYPE.get(name);

@@ -36,6 +36,13 @@ public class AdsDataResult extends Result
     super(query);
   }
 
+  public AdsDataResult(Query query,
+                       long countdown)
+  {
+    super(query,
+          countdown);
+  }
+
   /**
    * @return the data
    */
@@ -50,22 +57,6 @@ public class AdsDataResult extends Result
   public void setData(List<AdsOneTimeData> data)
   {
     this.data = data;
-  }
-
-  /**
-   * @return the countdown
-   */
-  public Long getCountdown()
-  {
-    return countdown;
-  }
-
-  /**
-   * @param countdown the countdown to set
-   */
-  public void setCountdown(Long countdown)
-  {
-    this.countdown = countdown;
   }
 
   public static class AdsOneTimeData

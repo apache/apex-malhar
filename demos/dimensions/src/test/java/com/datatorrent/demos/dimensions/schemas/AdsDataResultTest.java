@@ -78,7 +78,7 @@ public class AdsDataResultTest
     auds.add(aud);
 
     adr.setData(auds);
-    adr.setCountdown(countdown);
+    //adr.setCountdown(countdown);
 
     DataSerializerFactory rsf = new DataSerializerFactory();
 

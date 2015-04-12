@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class AggregatorCount implements GenericDimensionsAggregator
+public class AggregatorCount implements DimensionsAggregator
 {
   public static final Map<Type, Type> TYPE_CONVERSION_MAP;
 
@@ -45,7 +45,7 @@ public class AggregatorCount implements GenericDimensionsAggregator
   }
 
   @Override
-  public void aggregate(GenericAggregateEvent dest, GenericAggregateEvent src)
+  public void aggregate(AggregateEvent dest, AggregateEvent src)
   {
     dest.getAggregates().getFieldsLong()[0]++;
   }
@@ -79,11 +79,11 @@ public class AggregatorCount implements GenericDimensionsAggregator
   }
 
   @Override
-  public GenericAggregateEvent createDest(GenericAggregateEvent first, FieldsDescriptor fd)
+  public AggregateEvent createDest(AggregateEvent first, FieldsDescriptor fd)
   {
     GPOMutable aggregates = new GPOMutable(fd);
     aggregates.getFieldsLong()[0] = 1;
 
-    return new GenericAggregateEvent(first.getEventKey(), aggregates);
+    return new AggregateEvent(first.getEventKey(), aggregates);
   }
 }

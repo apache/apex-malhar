@@ -15,14 +15,19 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.apache.commons.io.IOUtils;
+import org.codehaus.jettison.json.JSONObject;
 
 import java.util.Date;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Set;
 
 public class SchemaUtils
 {
@@ -94,5 +99,71 @@ public class SchemaUtils
     }
 
     return true;
+  }
+
+  public static boolean checkValidKeys(JSONObject jo,
+                                       Fields fields)
+  {
+    Iterator keyIterator = jo.keys();
+    Set<String> fieldSet = fields.getFields();
+
+    while(keyIterator.hasNext()) {
+      String key = (String) keyIterator.next();
+
+      if(!fieldSet.contains(key)) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  public static void checkValidKeysEx(JSONObject jo,
+                                      Fields fields)
+  {
+    Iterator keyIterator = jo.keys();
+    Set<String> fieldSet = fields.getFields();
+
+    while(keyIterator.hasNext()) {
+      String key = (String) keyIterator.next();
+
+      if(!fieldSet.contains(key)) {
+        throw new IllegalArgumentException("The key " + key +
+                                           " is not valid.");
+      }
+    }
+  }
+
+  public static boolean checkValidKeys(JSONObject jo,
+                                       List<Fields> fieldsList)
+  {
+    for(Fields fields: fieldsList) {
+      if(checkValidKeys(jo, fields)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  public static boolean checkValidKeysEx(JSONObject jo,
+                                         List<Fields> fieldsList)
+  {
+    for(Fields fields: fieldsList) {
+      if(checkValidKeys(jo, fields)) {
+        return true;
+      }
+    }
+
+    Set<String> keys = Sets.newHashSet();
+    Iterator keyIterator = jo.keys();
+
+    while(keyIterator.hasNext()) {
+      String key = (String) keyIterator.next();
+      keys.add(key);
+    }
+
+    throw new IllegalArgumentException("The given json object has an invalid set of keys: " +
+                                       keys);
   }
 }
