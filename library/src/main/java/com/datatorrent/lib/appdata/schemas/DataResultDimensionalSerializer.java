@@ -82,7 +82,7 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
       JSONObject valueJO = new JSONObject();
 
       if(hasTime) {
-        logger.info("Adding time to result");
+        logger.info("Adding time to result {}", time);
         valueJO.put(DimensionsDescriptor.DIMENSION_TIME, time);
       }
 
