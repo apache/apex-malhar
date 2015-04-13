@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -78,7 +79,7 @@ public class EventSchema
   public static final String FIELD_VALUES_AGGREGATIONS = "aggregators";
 
   public static final String FIELD_DIMENSIONS = "dimensions";
-  public static final String FIELD_DIMENSIONS_COMBINATIONS = "combinations";
+  public static final String FIELD_DIMENSIONS_COMBINATIONS = "combination";
   public static final String FIELD_DIMENSIONS_ADDITIONAL_VALUES = "additionalValues";
 
   private FieldsDescriptor keyDescriptor;
@@ -114,6 +115,12 @@ public class EventSchema
   {
     JSONObject jo = new JSONObject(json);
 
+    Iterator keyIterator = jo.keys();
+
+    while(keyIterator.hasNext()) {
+      logger.info("The key {}", keyIterator.next());
+    }
+
     //Keys
 
     keysToValuesList = Maps.newHashMap();
@@ -127,7 +134,7 @@ public class EventSchema
         keyIndex++) {
       JSONObject keyDescriptor = keysArray.getJSONObject(keyIndex);
 
-      SchemaUtils.checkValidKeysEx(jo, VALID_KEY_FIELDS);
+      SchemaUtils.checkValidKeysEx(keyDescriptor, VALID_KEY_FIELDS);
 
       String keyName = keyDescriptor.getString(FIELD_KEYS_NAME);
       String typeName = keyDescriptor.getString(FIELD_KEYS_TYPE);
@@ -147,7 +154,7 @@ public class EventSchema
             valIndex++) {
           Object val = valArray.get(valIndex);
           valuesList.add(val);
-          
+
           Preconditions.checkState(!(val instanceof JSONArray
                                      || val instanceof JSONObject),
                                    "The value must be a primitive.");
@@ -313,53 +320,55 @@ public class EventSchema
         ddIDToDD.add(dimensionsDescriptor);
       }
 
-      JSONArray additionalValues = dimension.getJSONArray(FIELD_DIMENSIONS_ADDITIONAL_VALUES);
-      logger.info("Additional values length {}", additionalValues.length());
+      if(dimension.has(FIELD_DIMENSIONS_ADDITIONAL_VALUES)) {
+        JSONArray additionalValues = dimension.getJSONArray(FIELD_DIMENSIONS_ADDITIONAL_VALUES);
+        logger.info("Additional values length {}", additionalValues.length());
 
-      //iterate over additional values
-      for(int additionalValueIndex = 0;
-          additionalValueIndex < additionalValues.length();
-          additionalValueIndex++) {
-        String additionalValue = additionalValues.getString(additionalValueIndex);
-        String[] components = additionalValue.split(ADDITIONAL_VALUE_SEPERATOR);
+        //iterate over additional values
+        for(int additionalValueIndex = 0;
+            additionalValueIndex < additionalValues.length();
+            additionalValueIndex++) {
+          String additionalValue = additionalValues.getString(additionalValueIndex);
+          String[] components = additionalValue.split(ADDITIONAL_VALUE_SEPERATOR);
 
-        if(components.length != ADDITIONAL_VALUE_NUM_COMPONENTS) {
-          throw new IllegalArgumentException("The number of component values " +
-                                             "in an additional value must be " +
-                                             ADDITIONAL_VALUE_NUM_COMPONENTS +
-                                             " not " + components.length);
-        }
+          if(components.length != ADDITIONAL_VALUE_NUM_COMPONENTS) {
+            throw new IllegalArgumentException("The number of component values "
+                                               + "in an additional value must be "
+                                               + ADDITIONAL_VALUE_NUM_COMPONENTS
+                                               + " not " + components.length);
+          }
 
-        String valueName = components[ADDITIONAL_VALUE_VALUE_INDEX];
-        String aggregatorName = components[ADDITIONAL_VALUE_AGGREGATOR_INDEX];
+          String valueName = components[ADDITIONAL_VALUE_VALUE_INDEX];
+          String aggregatorName = components[ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
-        Set<String> aggregatorNames = allValueToAggregator.get(valueName);
+          Set<String> aggregatorNames = allValueToAggregator.get(valueName);
 
-        if(aggregatorNames == null) {
-          aggregatorNames = Sets.newHashSet();
-          allValueToAggregator.put(valueName, aggregatorNames);
-        }
+          if(aggregatorNames == null) {
+            aggregatorNames = Sets.newHashSet();
+            allValueToAggregator.put(valueName, aggregatorNames);
+          }
 
-        aggregatorNames.add(aggregatorName);
-        logger.info("Aggregator name {}", aggregatorName);
+          aggregatorNames.add(aggregatorName);
+          logger.info("Aggregator name {}", aggregatorName);
 
-        Set<String> aggregators = specificValueToAggregator.get(valueName);
+          Set<String> aggregators = specificValueToAggregator.get(valueName);
 
-        if(aggregators == null) {
-          aggregators = Sets.newHashSet();
-          specificValueToAggregator.put(valueName, aggregators);
-        }
+          if(aggregators == null) {
+            aggregators = Sets.newHashSet();
+            specificValueToAggregator.put(valueName, aggregators);
+          }
 
-        if(aggregators == null) {
-          throw new IllegalArgumentException("The additional value " + additionalValue +
-                                             "Does not have a corresponding value " + valueName +
-                                             " defined in the " + FIELD_VALUES + " section.");
-        }
+          if(aggregators == null) {
+            throw new IllegalArgumentException("The additional value " + additionalValue
+                                               + "Does not have a corresponding value " + valueName
+                                               + " defined in the " + FIELD_VALUES + " section.");
+          }
 
-        if(!aggregators.add(aggregatorName)) {
-          throw new IllegalArgumentException("The aggregator " + aggregatorName +
-                                             " was already defined in the " + FIELD_VALUES +
-                                             " section for the value " + valueName);
+          if(!aggregators.add(aggregatorName)) {
+            throw new IllegalArgumentException("The aggregator " + aggregatorName
+                                               + " was already defined in the " + FIELD_VALUES
+                                               + " section for the value " + valueName);
+          }
         }
       }
 
@@ -378,7 +387,10 @@ public class EventSchema
       }
 
       specificValueToAggregator = Collections.unmodifiableMap(specificValueToAggregator);
-      ddIDToValueToAggregator.add(specificValueToAggregator);
+
+      for(TimeBucket timeBucket: timeBuckets) {
+        ddIDToValueToAggregator.add(specificValueToAggregator);
+      }
     }
 
     //DD ID To Aggregator To Aggregate Descriptor
@@ -386,7 +398,7 @@ public class EventSchema
     ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
 
     for(int ddID = 0;
-        ddID < getDdIDToValueToAggregator().size();
+        ddID < ddIDToValueToAggregator.size();
         ddID++) {
       Map<String, Set<String>> valueToAggregator = ddIDToValueToAggregator.get(ddID);
       Map<String, Set<String>> aggregatorToValues = Maps.newHashMap();
@@ -469,7 +481,7 @@ public class EventSchema
   public List<Map<Integer, FieldsDescriptor>> getDdIDToAggregatorIDToFieldsDescriptor(Map<String, Integer> aggregatorNameToID)
   {
     List<Map<Integer, FieldsDescriptor>> lists = Lists.newArrayList();
-    List<Map<String, FieldsDescriptor>> ddIDToAToAD = getDdIDToAggregatorToAggregateDescriptor();
+    List<Map<String, FieldsDescriptor>> ddIDToAToAD = ddIDToAggregatorToAggregateDescriptor;
 
     for(Map<String, FieldsDescriptor> aToAD: ddIDToAToAD) {
       logger.info("Dd to string aggMap: {}", aToAD);

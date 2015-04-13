@@ -158,6 +158,19 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   @Override
   protected void processEvent(AggregateEvent gae)
   {
+    GPOImmutable keys = gae.getKeys();
+    GPOMutable aggregates = gae.getAggregates();
+
+    int schemaID = gae.getSchemaID();
+    int ddID = gae.getDimensionDescriptorID();
+    int aggregatorID = gae.getAggregatorIndex();
+
+    FieldsDescriptor keyFieldsDescriptor = getKeyDescriptor(schemaID, ddID);
+    FieldsDescriptor valueFieldsDescriptor = getValueDescriptor(schemaID, ddID, aggregatorID);
+
+    keys.setFieldDescriptor(keyFieldsDescriptor);
+    aggregates.setFieldDescriptor(valueFieldsDescriptor);
+
     processGenericEvent(gae);
   }
 

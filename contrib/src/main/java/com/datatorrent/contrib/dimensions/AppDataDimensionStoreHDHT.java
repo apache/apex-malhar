@@ -142,7 +142,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryDimensional.class);
     eventSchema = new EventSchema(eventSchemaJSON);
-    dimensionalSchema = new SchemaDimensional(dimensionalSchemaJSON,
+    dimensionalSchema = new SchemaDimensional(eventSchemaJSON,
                                               AggregatorType.NAME_TO_AGGREGATOR);
     indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggregatorType.NAME_TO_ORDINAL);
     super.setup(context);

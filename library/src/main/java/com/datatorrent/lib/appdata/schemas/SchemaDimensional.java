@@ -23,6 +23,8 @@ import com.google.common.collect.Sets;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -40,6 +42,8 @@ import java.util.Set;
  */
 public class SchemaDimensional implements Schema
 {
+  private static final Logger logger = LoggerFactory.getLogger(SchemaDimensional.class);
+
   public static final String SCHEMA_TYPE = "dimensional";
   public static final String SCHEMA_VERSION = "1.0";
 
@@ -146,7 +150,7 @@ public class SchemaDimensional implements Schema
     time.put(SchemaWithTime.FIELD_TIME_BUCKETS, bucketsArray);
 
     //keys
-    JSONObject keys = new JSONObject(eventSchema.getKeysString());
+    JSONArray keys = new JSONArray(eventSchema.getKeysString());
     schema.put(EventSchema.FIELD_KEYS, keys);
 
     //values;
@@ -175,7 +179,7 @@ public class SchemaDimensional implements Schema
     }
 
     //dimensions
-    JSONObject dimensions = new JSONObject(eventSchema.getDimensionsString());
+    JSONArray dimensions = new JSONArray(eventSchema.getDimensionsString());
     schema.put(EventSchema.FIELD_DIMENSIONS, dimensions);
 
     getSchemaJSON();

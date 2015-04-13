@@ -57,6 +57,9 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
     ddIDToAggIDToInputAggDescriptor = Lists.newArrayList();
     ddIDToAggIDToOutputAggDescriptor = Lists.newArrayList();
 
+    logger.info("getDdIDToAggregatorToAggregateDescriptor size {}", tempDescriptorList.size());
+    logger.info("getDdIDToKeyDescriptor size {}", eventSchema.getDdIDToKeyDescriptor().size());
+
     for(int index = 0;
         index < tempDescriptorList.size();
         index++) {

@@ -164,6 +164,8 @@ public class SchemaUtils
     }
 
     throw new IllegalArgumentException("The given json object has an invalid set of keys: " +
-                                       keys);
+                                       keys +
+                                       "\nOne of the following key combinations was expected:\n" +
+                                       fieldsList);
   }
 }

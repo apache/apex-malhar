@@ -113,8 +113,7 @@
     <value>7000</value>
   </property>
 
-  <!--
-
+<!--
   <property>
       <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
       <value>256</value>
@@ -122,16 +121,11 @@
 
   <property>
       <name>dt.operator.DimensionsComputation.attr.MEMORY_MB</name>
-      <value>512</value>
+      <value>256</value>
   </property>
 
   <property>
       <name>dt.operator.Store.attr.MEMORY_MB</name>
-      <value>1024</value>
-  </property>
-
-  <property>
-      <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
       <value>512</value>
   </property>
 
@@ -145,7 +139,10 @@
       <value>256</value>
   </property>
 
-  -->
+  <property>
+    <name>dt.attr.MASTER_MEMORY_MB</name>
+    <value>256</value>
+  </property>-->
 
   <!-- Settings for all Query and QueryResult operators -->
   <property>
