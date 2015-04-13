@@ -113,7 +113,6 @@
     <value>7000</value>
   </property>
 
-<!--
   <property>
       <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
       <value>256</value>
@@ -142,7 +141,7 @@
   <property>
     <name>dt.attr.MASTER_MEMORY_MB</name>
     <value>256</value>
-  </property>-->
+  </property>
 
   <!-- Settings for all Query and QueryResult operators -->
   <property>
