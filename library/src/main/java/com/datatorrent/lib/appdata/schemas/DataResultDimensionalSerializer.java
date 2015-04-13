@@ -97,6 +97,7 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
         }
       }
 
+      logger.info("valueJO {}", valueJO.toString());
       data.put(valueJO);
     }
 
