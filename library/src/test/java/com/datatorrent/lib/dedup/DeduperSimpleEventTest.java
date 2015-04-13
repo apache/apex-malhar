@@ -42,9 +42,9 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 
-public class DeduperSimpleTest
+public class DeduperSimpleEventTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(DeduperSimpleTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(DeduperSimpleEventTest.class);
 
   private final static String APPLICATION_PATH_PREFIX = "target/DeduperPOJOTest";
   private final static String APP_ID = "DeduperPOJOTest";

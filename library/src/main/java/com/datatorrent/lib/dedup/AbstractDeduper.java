@@ -329,7 +329,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
         deduperInstance.bucketManager = bucketManager.clone();
       }
       catch (CloneNotSupportedException ex) {
-        if (bucketManager.cloneWithProperties() == null) {
+        if ((deduperInstance.bucketManager = bucketManager.cloneWithProperties()) == null) {
           DTThrowable.rethrow(ex);
         }
         else {
