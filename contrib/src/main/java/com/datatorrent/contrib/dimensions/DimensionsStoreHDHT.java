@@ -43,7 +43,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -171,25 +170,6 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
     keys.setFieldDescriptor(keyFieldsDescriptor);
     aggregates.setFieldDescriptor(valueFieldsDescriptor);
-
-    Set<String> fields = keys.getFieldDescriptor().getFields().getFields();
-
-    if(fields.contains("advertiser") &&
-       fields.contains("publisher") &&
-       fields.contains("location") &&
-       keys.getFieldString("advertiser").equals("starbucks") &&
-       keys.getFieldString("publisher").equals("google") &&
-       keys.getFieldString("location").equals("SKY")) {
-      logger.info("recieved needed data");
-
-      if(fields.contains(DimensionsDescriptor.DIMENSION_TIME)) {
-        logger.info("Time info {} {}", keys.getField(DimensionsDescriptor.DIMENSION_TIME),
-                                       keys.getField(DimensionsDescriptor.DIMENSION_TIME_BUCKET));
-      }
-      else {
-        logger.info("No time");
-      }
-    }
 
     processGenericEvent(gae);
   }
