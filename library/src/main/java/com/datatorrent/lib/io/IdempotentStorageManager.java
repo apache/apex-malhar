@@ -147,6 +147,9 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
 
             for (FileStatus status : fs.listStatus(operatorDirStatus.getPath())) {
               String fileName = status.getPath().getName();
+              if(fileName.endsWith(FSStorageAgent.TMP_FILE)) {
+                continue;
+              }
               long windowId = Long.parseLong(fileName, 16);
               replayState.put(windowId, operatorId);
               if (windowId > largestRecoveryWindow) {
