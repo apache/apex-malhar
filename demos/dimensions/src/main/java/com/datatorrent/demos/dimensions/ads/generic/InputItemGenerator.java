@@ -24,7 +24,7 @@ import java.util.Random;
  */
 public class InputItemGenerator implements InputOperator
 {
-  private double expectedClickThruRate = 0.015;
+  private double expectedClickThruRate = .2;//0.015;
   @Min(1)
   private int blastCount = 30000;
   @Min(1)
