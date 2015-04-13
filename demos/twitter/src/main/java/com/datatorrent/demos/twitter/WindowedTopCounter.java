@@ -121,6 +121,7 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
 
       if(query instanceof SchemaQuery) {
+        logger.info("resultSerializerFactory {}", resultSerializerFactory);
         String schemaResult = resultSerializerFactory.serialize(new SchemaResult((SchemaQuery) query,
                                                                                   schema));
         resultOutput.emit(schemaResult);
