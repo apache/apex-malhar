@@ -28,7 +28,7 @@ public class InputItemGenerator implements InputOperator
   @Min(1)
   private int blastCount = 30000;
   @Min(1)
-  private int numTuplesPerWindow = 3000;
+  private int numTuplesPerWindow = 1000;
   private transient int windowCount = 0;
   private final Random random = new Random(0);
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
