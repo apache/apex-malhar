@@ -63,6 +63,8 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
 
     boolean hasTime = dataResult.getQuery().isHasTime();
 
+    logger.info("Serializing result hasTime {}", hasTime);
+
     FieldsAggregatable fieldsAggregatable = dataResult.getQuery().getFieldsAggregatable();
     Map<String, Set<String>> aggregatorToFields = fieldsAggregatable.getAggregatorToFields();
     Map<String, Map<String, String>> aggregatorToFieldToName = fieldsAggregatable.getAggregatorToFieldToName();

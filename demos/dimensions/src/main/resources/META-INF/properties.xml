@@ -125,7 +125,7 @@
 
   <property>
       <name>dt.operator.Store.attr.MEMORY_MB</name>
-      <value>512</value>
+      <value>1024</value>
   </property>
 
   <property>

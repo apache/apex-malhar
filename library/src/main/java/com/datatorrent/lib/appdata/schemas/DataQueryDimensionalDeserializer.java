@@ -122,6 +122,8 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
     DimensionsDescriptor dimensionDescriptor = new DimensionsDescriptor(bucket,
                                                                         new Fields(keySet));
+    logger.info("GSD {}", gsd);
+    logger.info("Dimension Descriptor to ID {}", gsd.getGenericEventSchema().getDimensionsDescriptorToID());
     Integer ddID = gsd.getGenericEventSchema().getDimensionsDescriptorToID().get(dimensionDescriptor);
 
     if(ddID == null) {
@@ -134,9 +136,11 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
     ////Fields
 
     Set<String> nonAggregatedFields = Sets.newHashSet();
-    Map<String, Set<String>> fieldToAggregator = Maps.newHashMap();
+    Map<String, Set<String>> fieldToAggregator;
 
     if(data.has(DataQueryDimensional.FIELD_FIELDS)) {
+      fieldToAggregator = Maps.newHashMap();
+
       JSONArray fields = data.getJSONArray(DataQueryDimensional.FIELD_FIELDS);
 
       for(int fieldIndex = 0;
@@ -177,6 +181,14 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
           logger.error("A field selector can have at most one {}.", EventSchema.ADDITIONAL_VALUE_SEPERATOR);
         }
       }
+    }
+    else {
+      logger.info("Has time: {}", hasTime);
+      if(hasTime) {
+        nonAggregatedFields.add(DimensionsDescriptor.DIMENSION_TIME);
+      }
+
+      fieldToAggregator = valueToAggregator;
     }
 
     FieldsAggregatable queryFields = new FieldsAggregatable(nonAggregatedFields,

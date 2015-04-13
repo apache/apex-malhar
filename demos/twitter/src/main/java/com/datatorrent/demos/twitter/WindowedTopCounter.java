@@ -164,6 +164,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryTabular.class);
     queryDeserializerFactory.setContext(DataQueryTabular.class, schema);
+    resultSerializerFactory = new DataSerializerFactory();
     queryProcessor.setup(context);
   }
 

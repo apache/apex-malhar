@@ -1,7 +1,6 @@
-{"keys":
-  [{"name":"publisher","type":"string"},
-   {"name":"advertiser","type":"string"},
-   {"name":"location","type":"string"}],
+{"keys":[{"name":"publisher","type":"string","enumValues":["twitter","facebook","yahoo","google","bing","amazon"]},
+         {"name":"advertiser","type":"string","enumValues":["starbucks","safeway","mcdonalds","macys","taco bell","walmart","khol's","san diego zoo","pandas","jack in the box","tomatina","ron swanson"]},
+         {"name":"location","type":"string","enumValues":["N","LREC","SKY","AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID"]}],
  "timeBuckets":["1m","1h","1d"],
  "values":
   [{"name":"impressions","type":"long","aggregators":["SUM"]},
@@ -11,10 +10,10 @@
  "dimensions":
   [{"combination":[]},
    {"combination":["location"]},
-   {"combination":["advertiser"],"aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
-   {"combination":["publisher"],"aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
-   {"combination":["advertiser","location"],"aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
-   {"combination":["publisher","location"],"aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
-   {"combination":["publisher","advertiser"],"aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}},
-   {"combination":["publisher","advertiser","location"],"aggregations":{"impressions":["SUM"],"clicks":["SUM"],"cost":["SUM"],"revenue":["SUM"]}}]
+   {"combination":["advertiser"]},
+   {"combination":["publisher"]},
+   {"combination":["advertiser","location"]},
+   {"combination":["publisher","location"]},
+   {"combination":["publisher","advertiser"]},
+   {"combination":["publisher","advertiser","location"]}]
 }

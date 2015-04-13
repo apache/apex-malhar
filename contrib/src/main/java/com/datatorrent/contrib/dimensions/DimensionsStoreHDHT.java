@@ -19,10 +19,10 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
+import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
@@ -43,6 +43,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -54,7 +55,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsStoreHDHT.class);
 
-  public static final int CACHE_SIZE = 10000;
+  public static final int CACHE_SIZE = 1000;
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
 
   //HDHT Aggregation parameters
@@ -100,9 +101,9 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     long timestamp = 0;
 
     if(eventKey.getKey().
-       getFieldDescriptor().
-       getFields().getFields().
-       contains(DimensionsDescriptor.DIMENSION_TIME)) {
+            getFieldDescriptor().
+            getFields().getFields().
+            contains(DimensionsDescriptor.DIMENSION_TIME)) {
       timestamp = eventKey.getKey().getFieldLong(DimensionsDescriptor.DIMENSION_TIME);
     }
 
@@ -170,6 +171,25 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
     keys.setFieldDescriptor(keyFieldsDescriptor);
     aggregates.setFieldDescriptor(valueFieldsDescriptor);
+
+    Set<String> fields = keys.getFieldDescriptor().getFields().getFields();
+
+    if(fields.contains("advertiser") &&
+       fields.contains("publisher") &&
+       fields.contains("location") &&
+       keys.getFieldString("advertiser").equals("starbucks") &&
+       keys.getFieldString("publisher").equals("google") &&
+       keys.getFieldString("location").equals("SKY")) {
+      logger.info("recieved needed data");
+
+      if(fields.contains(DimensionsDescriptor.DIMENSION_TIME)) {
+        logger.info("Time info {} {}", keys.getField(DimensionsDescriptor.DIMENSION_TIME),
+                                       keys.getField(DimensionsDescriptor.DIMENSION_TIME_BUCKET));
+      }
+      else {
+        logger.info("No time");
+      }
+    }
 
     processGenericEvent(gae);
   }
@@ -240,7 +260,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     for(Map.Entry<EventKey, AggregateEvent> entry: cache.asMap().entrySet()) {
       AggregateEvent gae = entry.getValue();
 
-      if(gae == null) {
+      if(gae == null || gae.isEmpty()) {
         continue;
       }
 
@@ -337,6 +357,11 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     public void onRemoval(RemovalNotification<EventKey, AggregateEvent> notification)
     {
       AggregateEvent gae = notification.getValue();
+
+      if(gae.isEmpty()) {
+        return;
+      }
+
       putGAE(gae);
     }
   }

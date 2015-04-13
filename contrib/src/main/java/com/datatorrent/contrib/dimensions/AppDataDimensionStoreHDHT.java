@@ -102,10 +102,14 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       }
 
       if(query instanceof SchemaQuery) {
+        try{
         String schemaResult =
         resultSerializerFactory.serialize(new SchemaResult((SchemaQuery)query,
                                                            dimensionalSchema));
-        queryResult.emit(schemaResult);
+        queryResult.emit(schemaResult);}
+        catch(Exception e) {
+          logger.error("Exception {}", e);
+        }
       }
       else if(query instanceof DataQueryDimensional) {
         DataQueryDimensional gdq = (DataQueryDimensional) query;
@@ -144,7 +148,9 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     eventSchema = new EventSchema(eventSchemaJSON);
     dimensionalSchema = new SchemaDimensional(eventSchemaJSON,
                                               AggregatorType.NAME_TO_AGGREGATOR);
+    queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
     indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggregatorType.NAME_TO_ORDINAL);
+    resultSerializerFactory = new DataSerializerFactory();
     super.setup(context);
   }
 
@@ -270,6 +276,12 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDd());
 
       if(ddID == null) {
+        logger.info("Request Dimension Descriptor: {}", query.getDd());
+
+        for(Map.Entry<DimensionsDescriptor, Integer> entry: eventSchema.getDimensionsDescriptorToID().entrySet()) {
+          logger.info("Dimension Descriptor: {}", entry.getKey());
+        }
+
         logger.error("No aggregations for keys: {}", query.getKeyFields());
         return false;
       }
@@ -279,6 +291,8 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
 
       Map<String, EventKey> aggregatorToEventKey = Maps.newHashMap();
 
+      logger.info("FieldsAggregatable {}", query.getFieldsAggregatable());
+
       for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
         EventKey eventKey = new EventKey(SCHEMA_ID,
                                          ddID,
@@ -286,6 +300,8 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
                                          gpoKey);
         aggregatorToEventKey.put(aggregatorName, eventKey);
       }
+
+      logger.info("Aggregator to event key size {}", aggregatorToEventKey.size());
 
       long bucketKey = getBucketForSchema(SCHEMA_ID);
 
@@ -322,36 +338,41 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
         }
 
         hdsQueries.add(aggregatorToQueryMap);
+        eventKeys.add(aggregatorToEventKeyMap);
       }
       else {
-        Map<String, HDSQuery> aggregatorToQueryMap = Maps.newHashMap();
-        Map<String, EventKey> aggregatorToEventKeyMap = Maps.newHashMap();
+        long endTime = -1L;
+        long startTime = -1L;
 
-        for(Map.Entry<String, EventKey> entry: aggregatorToEventKey.entrySet()) {
-          String aggregatorName = entry.getKey();
-          EventKey eventKey = entry.getValue();
+        if(query.isFromTo()) {
+          startTime = query.getTimeBucket().roundDown(query.getFromLong());
+          endTime = query.getTimeBucket().roundDown(query.getToLong());
+        }
+        else {
+          long time = System.currentTimeMillis();
+          endTime = query.getTimeBucket().roundDown(time);
+          startTime = endTime - query.getTimeBucket().getTimeUnit().toMillis(query.getLatestNumBuckets() - 1);
+        }
 
-          long endTime = -1L;
-          long startTime = -1L;
+        gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
 
-          if(query.isFromTo()) {
-            startTime = query.getTimeBucket().roundDown(query.getFromLong());
-            endTime = query.getTimeBucket().roundDown(query.getToLong());
-          }
-          else {
-            long time = System.currentTimeMillis();
-            endTime = query.getTimeBucket().roundDown(time);
-            startTime = endTime - query.getTimeBucket().getTimeUnit().toMillis(query.getLatestNumBuckets() - 1);
-          }
+        for(long timestamp = startTime;
+            timestamp <= endTime;
+            timestamp += query.getTimeBucket().getTimeUnit().toMillis(1)) {
 
-          gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
+          Map<String, HDSQuery> aggregatorToQueryMap = Maps.newHashMap();
+          Map<String, EventKey> aggregatorToEventKeyMap = Maps.newHashMap();
 
-          for(long timestamp = startTime;
-              timestamp <= endTime;
-              timestamp += query.getTimeBucket().getTimeUnit().toMillis(1)) {
-            logger.info("Timestamp {}", timestamp);
+          for(Map.Entry<String, EventKey> entry: aggregatorToEventKey.entrySet()) {
+            String aggregatorName = entry.getKey();
+            EventKey eventKey = entry.getValue();
+
             gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
             gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
+
+            logger.info("Query event key {}", eventKey);
+            logger.info("Timestamp {}", timestamp);
+            logger.info("Time bucket {}", query.getTimeBucket().ordinal());
 
             EventKey queryEventKey = new EventKey(eventKey);
             Slice key = new Slice(getEventKeyBytesGAE(eventKey));
@@ -372,12 +393,13 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
 
             hdsQuery.keepAliveCount = (int)query.getCountdown();
 
-            aggregatorToEventKeyMap.put(aggregatorName, eventKey);
+            aggregatorToEventKeyMap.put(aggregatorName, queryEventKey);
             aggregatorToQueryMap.put(aggregatorName, hdsQuery);
           }
-        }
 
-        hdsQueries.add(aggregatorToQueryMap);
+          hdsQueries.add(aggregatorToQueryMap);
+          eventKeys.add(aggregatorToEventKeyMap);
+        }
       }
 
       QueryMeta qm = new QueryMeta();
@@ -442,8 +464,8 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
               if(hdsQuery.result != null) {
                 AggregateEvent tgae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
 
-                aggregatorKeys.put(aggregatorName, gae.getKeys());
-                aggregatorValues.put(aggregatorName, gae.getAggregates());
+                aggregatorKeys.put(aggregatorName, tgae.getKeys());
+                aggregatorValues.put(aggregatorName, tgae.getAggregates());
               }
               else {
                 allSatisfied = false;

@@ -179,11 +179,6 @@ public class DataQueryDimensional extends Query
     Set<String> keyFieldSet = Sets.newHashSet();
     keyFieldSet.addAll(keys.getFieldDescriptor().getFields().getFields());
 
-    if(hasTime) {
-      keyFieldSet.add(DimensionsDescriptor.DIMENSION_TIME);
-      keyFieldSet.add(DimensionsDescriptor.DIMENSION_TIME_BUCKET);
-    }
-
     keyFields = new Fields(keyFieldSet);
     dd = new DimensionsDescriptor(timeBucket,
                                   keyFields);
