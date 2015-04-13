@@ -66,6 +66,7 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
     logger.info("Serializing result hasTime {}", hasTime);
 
     FieldsAggregatable fieldsAggregatable = dataResult.getQuery().getFieldsAggregatable();
+    Fields nonAggregatedFields = fieldsAggregatable.getNonAggregatedFields();
     Map<String, Set<String>> aggregatorToFields = fieldsAggregatable.getAggregatorToFields();
     Map<String, Map<String, String>> aggregatorToFieldToName = fieldsAggregatable.getAggregatorToFieldToName();
 
@@ -78,11 +79,10 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
       Map<String, GPOMutable> key = keys.get(index);
       Map<String, GPOMutable> value = values.get(index);
 
-      Object time = key.get(DimensionsDescriptor.DIMENSION_TIME);
       JSONObject valueJO = new JSONObject();
 
-      if(hasTime) {
-        logger.info("Adding time to result {}", time);
+      if(hasTime && nonAggregatedFields.getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
+        Object time = key.values().iterator().next().getField(DimensionsDescriptor.DIMENSION_TIME);
         valueJO.put(DimensionsDescriptor.DIMENSION_TIME, time);
       }
 
