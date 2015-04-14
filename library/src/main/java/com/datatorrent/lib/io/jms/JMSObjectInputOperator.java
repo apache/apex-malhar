@@ -40,7 +40,7 @@ public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
    * and an ObjectMessage back to a Serializable object. Returns
    * the plain Message object in case of an unknown message type.
    *
-   * @return
+   * @return payload
    * @throws javax.jms.JMSException
    */
   @Override
@@ -90,7 +90,7 @@ public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
   protected Map<String, Object> extractMapFromMessage(MapMessage message) throws JMSException
   {
     Map<String, Object> map = new HashMap<String, Object>();
-    Enumeration en = message.getMapNames();
+    Enumeration<?> en = message.getMapNames();
     while (en.hasMoreElements()) {
       String key = (String)en.nextElement();
       map.put(key, message.getObject(key));
@@ -128,6 +128,7 @@ public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
     }
   }
 
+  @SuppressWarnings("unused")
   private static transient final Logger logger = LoggerFactory.getLogger(JMSObjectInputOperator.class);
 
 }
