@@ -19,7 +19,9 @@ import java.io.Serializable;
 import java.util.List;
 
 import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.annotation.Name;
 
+@Name("Avg")
 public class AvgPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Double>, Serializable
 {
   @Override

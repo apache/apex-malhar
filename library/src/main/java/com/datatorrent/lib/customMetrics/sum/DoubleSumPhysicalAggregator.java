@@ -18,7 +18,9 @@ package com.datatorrent.lib.customMetrics.sum;
 import java.io.Serializable;
 
 import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.annotation.Name;
 
+@Name("Sum")
 public class DoubleSumPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Double>, Serializable
 {
   @Override
