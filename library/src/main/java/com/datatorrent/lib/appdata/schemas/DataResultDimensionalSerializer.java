@@ -91,8 +91,9 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
       }
 
       for(String field: nonAggregatedFields.getFields()) {
+        logger.info("The field {}", field);
         if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
-          continue;
+          //Do nothing
         }
         else if(gpoKey.getFieldDescriptor().getFields().getFields().contains(field)) {
           valueJO.put(field, gpoKey.getField(field));
