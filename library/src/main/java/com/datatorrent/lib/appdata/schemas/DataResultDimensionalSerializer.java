@@ -63,7 +63,10 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
 
     boolean hasTime = dataResult.getQuery().isHasTime();
 
+    logger.info("Serializing result hasTime {}", hasTime);
+
     FieldsAggregatable fieldsAggregatable = dataResult.getQuery().getFieldsAggregatable();
+    Fields nonAggregatedFields = fieldsAggregatable.getNonAggregatedFields();
     Map<String, Set<String>> aggregatorToFields = fieldsAggregatable.getAggregatorToFields();
     Map<String, Map<String, String>> aggregatorToFieldToName = fieldsAggregatable.getAggregatorToFieldToName();
 
@@ -76,10 +79,10 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
       Map<String, GPOMutable> key = keys.get(index);
       Map<String, GPOMutable> value = values.get(index);
 
-      Object time = key.get(DimensionsDescriptor.DIMENSION_TIME);
       JSONObject valueJO = new JSONObject();
 
-      if(hasTime) {
+      if(hasTime && nonAggregatedFields.getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
+        Object time = key.values().iterator().next().getField(DimensionsDescriptor.DIMENSION_TIME);
         valueJO.put(DimensionsDescriptor.DIMENSION_TIME, time);
       }
 
@@ -94,6 +97,7 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
         }
       }
 
+      logger.info("valueJO {}", valueJO.toString());
       data.put(valueJO);
     }
 

@@ -144,12 +144,9 @@ public class DimensionsDescriptor
       fieldToType.put(field, parentFieldToType.get(field));
     }
 
-    if(fields.getFields().contains(DIMENSION_TIME)) {
-      fieldToType.put(DIMENSION_TIME, Type.LONG);
-    }
-
     if(timeBucket != null) {
       fieldToType.put(DIMENSION_TIME_BUCKET, DIMENSION_TIME_BUCKET_TYPE);
+      fieldToType.put(DIMENSION_TIME, Type.LONG);
     }
 
     return new FieldsDescriptor(fieldToType);
@@ -181,6 +178,12 @@ public class DimensionsDescriptor
       return false;
     }
     return true;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "DimensionsDescriptor{" + "timeBucket=" + timeBucket + ", fields=" + fields + '}';
   }
 
   public static boolean validateDimensions(DimensionsSchema schema,

@@ -249,4 +249,10 @@ public class FieldsAggregatable
     aggregatorToFieldToName = Collections.unmodifiableMap(aggregatorToFieldToName);
     return aggregatorToFieldToName;
   }
+  
+  @Override
+  public String toString()
+  {
+    return "FieldsAggregatable{" + "fieldToAggregator=" + fieldToAggregator + ", nonAggregatedFields=" + nonAggregatedFields + '}';
+  }
 }

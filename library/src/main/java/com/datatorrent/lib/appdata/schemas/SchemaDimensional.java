@@ -199,7 +199,7 @@ public class SchemaDimensional implements Schema
 
   public String getSchemaJSON()
   {
-    if(!changed) {
+    if(!changed && schemaJSON != null) {
       return schemaJSON;
     }
 

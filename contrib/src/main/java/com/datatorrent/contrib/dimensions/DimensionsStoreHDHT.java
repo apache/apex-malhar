@@ -19,10 +19,10 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
+import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
@@ -54,7 +54,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsStoreHDHT.class);
 
-  public static final int CACHE_SIZE = 10000;
+  public static final int CACHE_SIZE = 50000;
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
 
   //HDHT Aggregation parameters
@@ -100,9 +100,9 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     long timestamp = 0;
 
     if(eventKey.getKey().
-       getFieldDescriptor().
-       getFields().getFields().
-       contains(DimensionsDescriptor.DIMENSION_TIME)) {
+            getFieldDescriptor().
+            getFields().getFields().
+            contains(DimensionsDescriptor.DIMENSION_TIME)) {
       timestamp = eventKey.getKey().getFieldLong(DimensionsDescriptor.DIMENSION_TIME);
     }
 
@@ -240,7 +240,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     for(Map.Entry<EventKey, AggregateEvent> entry: cache.asMap().entrySet()) {
       AggregateEvent gae = entry.getValue();
 
-      if(gae == null) {
+      if(gae == null || gae.isEmpty()) {
         continue;
       }
 
@@ -337,6 +337,11 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     public void onRemoval(RemovalNotification<EventKey, AggregateEvent> notification)
     {
       AggregateEvent gae = notification.getValue();
+
+      if(gae.isEmpty()) {
+        return;
+      }
+
       putGAE(gae);
     }
   }

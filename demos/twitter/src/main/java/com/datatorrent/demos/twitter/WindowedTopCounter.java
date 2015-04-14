@@ -43,7 +43,6 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
 
-
 /**
  *
  * WindowedTopCounter is an operator which counts the most often occurring tuples in a sliding window of a specific size.
@@ -164,6 +163,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryTabular.class);
     queryDeserializerFactory.setContext(DataQueryTabular.class, schema);
+    resultSerializerFactory = new DataSerializerFactory();
     queryProcessor.setup(context);
   }
 

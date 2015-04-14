@@ -40,7 +40,7 @@ public class InputItemGenerator implements InputOperator
 {
   private double expectedClickThruRate = 0.005;
   @Min(1)
-  private int blastCount = 30000;
+  private int blastCount = 500;
   private final Random random = new Random();
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 

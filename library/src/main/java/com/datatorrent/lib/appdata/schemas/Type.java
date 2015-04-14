@@ -119,7 +119,7 @@ public enum Type
 
   public static boolean areRelated(Type a, Type b)
   {
-    return a.isChildOf(b) || b.isChildOf(a);
+    return a == b || a.isChildOf(b) || b.isChildOf(a);
   }
 
   public static Type getType(String name)

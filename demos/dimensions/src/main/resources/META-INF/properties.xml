@@ -80,6 +80,10 @@
     <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.QueryResult.topic</name>
     <value>AdsQueryResult</value>
   </property>
+  <property>
+    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.DimensionsComputation.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:3</value>
+  </property>
 
 
   <!-- Settings for GenericSalesDemoWithHDHT -->
@@ -113,6 +117,7 @@
     <value>7000</value>
   </property>
 
+<!--
   <property>
       <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
       <value>256</value>
@@ -125,7 +130,7 @@
 
   <property>
       <name>dt.operator.Store.attr.MEMORY_MB</name>
-      <value>512</value>
+      <value>1024</value>
   </property>
 
   <property>
@@ -142,6 +147,7 @@
     <name>dt.attr.MASTER_MEMORY_MB</name>
     <value>256</value>
   </property>
+  -->
 
   <!-- Settings for all Query and QueryResult operators -->
   <property>

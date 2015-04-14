@@ -316,6 +316,7 @@ public class EventSchema
         DimensionsDescriptor dimensionsDescriptor =
         new DimensionsDescriptor(timeBucket,
                                  dimensionDescriptorFields);
+        logger.info("Event Schema Dimension Descriptor: {}", dimensionsDescriptor);
         ddIDToKeyDescriptor.add(dimensionsDescriptor.createFieldsDescriptor(keyDescriptor));
         ddIDToDD.add(dimensionsDescriptor);
       }
