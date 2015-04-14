@@ -98,7 +98,7 @@ public class JMSObjectInputOperatorTest
         throw new RuntimeException(e);
       }
       catch (Exception e) {
-        throw new RuntimeException(e);
+        DTThrowable.rethrow(e);
       }
     }
 

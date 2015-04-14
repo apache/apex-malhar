@@ -24,11 +24,15 @@ import javax.jms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/*
+ * An implementation of AbstractJMSInputOperator which emits TextMessage,StreamMessage,BytesMessage,MapMessage
+ * and ObjectMessage on their respective ports.
+ */
 public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
 {
   public final transient DefaultOutputPort<String> outputString = new DefaultOutputPort<String>();
   public final transient DefaultOutputPort<byte[]> outputBytes = new DefaultOutputPort<byte[]>();
-  public final transient DefaultOutputPort<Map<String,Object>> outputMap = new DefaultOutputPort<Map<String,Object>>();
+  public final transient DefaultOutputPort<Map<String, Object>> outputMap = new DefaultOutputPort<Map<String, Object>>();
 
   /**
    * This implementation converts a TextMessage back to a String, a
@@ -83,9 +87,9 @@ public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
    * @return the resulting Map
    * @throws JMSException if thrown by JMS methods
    */
-  protected Map<String,Object> extractMapFromMessage(MapMessage message) throws JMSException
+  protected Map<String, Object> extractMapFromMessage(MapMessage message) throws JMSException
   {
-    Map<String,Object> map = new HashMap<String,Object>();
+    Map<String, Object> map = new HashMap<String, Object>();
     Enumeration en = message.getMapNames();
     while (en.hasMoreElements()) {
       String key = (String)en.nextElement();
@@ -110,17 +114,20 @@ public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
   @SuppressWarnings("unchecked")
   protected void emit(Object payload)
   {
-    if(outputString.isConnected())
+    if (outputString.isConnected()) {
       outputString.emit((String)payload);
-    else if(outputMap.isConnected())
+    }
+    else if (outputMap.isConnected()) {
       outputMap.emit((Map<String, Object>)payload);
-    else if(outputBytes.isConnected())
+    }
+    else if (outputBytes.isConnected()) {
       outputBytes.emit((byte[])payload);
-    else
+    }
+    else {
       output.emit(payload);
+    }
   }
 
   private static transient final Logger logger = LoggerFactory.getLogger(JMSObjectInputOperator.class);
-
 
 }
