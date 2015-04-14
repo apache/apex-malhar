@@ -159,10 +159,11 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
           if(aggregators == null) {
             logger.error("The provided field {} is not a valid field.", field);
-            return null;
+            nonAggregatedFields.add(field);
           }
-
-          fieldToAggregator.put(field, aggregators);
+          else {
+            fieldToAggregator.put(field, aggregators);
+          }
         }
         else if(components.length == 2) {
           String value = components[EventSchema.ADDITIONAL_VALUE_VALUE_INDEX];

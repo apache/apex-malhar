@@ -30,6 +30,8 @@ import java.util.Set;
 
 public class DataResultDimensionalSerializer implements CustomDataSerializer
 {
+  public static final String ALL = "ALL";
+
   private static final Logger logger = LoggerFactory.getLogger(DataResultDimensionalSerializer.class);
 
   public DataResultDimensionalSerializer()
@@ -81,9 +83,23 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
 
       JSONObject valueJO = new JSONObject();
 
+      GPOMutable gpoKey = key.values().iterator().next();
+
       if(hasTime && nonAggregatedFields.getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
-        Object time = key.values().iterator().next().getField(DimensionsDescriptor.DIMENSION_TIME);
+        Object time = gpoKey.getField(DimensionsDescriptor.DIMENSION_TIME);
         valueJO.put(DimensionsDescriptor.DIMENSION_TIME, time);
+      }
+
+      for(String field: nonAggregatedFields.getFields()) {
+        if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
+          continue;
+        }
+        else if(gpoKey.getFieldDescriptor().getFields().getFields().contains(field)) {
+          valueJO.put(field, gpoKey.getField(field));
+        }
+        else {
+          valueJO.put(field, ALL);
+        }
       }
 
       for(Map.Entry<String, GPOMutable> entry: value.entrySet()) {
