@@ -18,7 +18,9 @@ package com.datatorrent.lib.customMetrics.max;
 import java.io.Serializable;
 
 import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.annotation.Name;
 
+@Name("Max")
 public class DoubleMaxPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Double>, Serializable
 {
   @Override

@@ -18,7 +18,9 @@ package com.datatorrent.lib.customMetrics.min;
 import java.io.Serializable;
 
 import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.annotation.Name;
 
+@Name("Min")
 public class IntMinPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Integer>, Serializable
 {
   @Override

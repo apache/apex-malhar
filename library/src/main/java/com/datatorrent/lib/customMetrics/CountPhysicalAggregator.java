@@ -18,7 +18,9 @@ package com.datatorrent.lib.customMetrics;
 import java.io.Serializable;
 
 import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.annotation.Name;
 
+@Name("Count")
 public class CountPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Integer>, Serializable
 {
   @Override

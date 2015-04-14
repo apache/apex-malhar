@@ -18,7 +18,9 @@ package com.datatorrent.lib.customMetrics.max;
 import java.io.Serializable;
 
 import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.annotation.Name;
 
+@Name("Max")
 public class FloatMaxPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Float>, Serializable
 {
   @Override
