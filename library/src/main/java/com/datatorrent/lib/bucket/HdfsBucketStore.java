@@ -47,7 +47,7 @@ import com.datatorrent.common.util.NameableThreadFactory;
  * @param <T> type of bucket event
  * @since 0.9.4
  */
-public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
+public class HdfsBucketStore<T> implements BucketStore<T>
 {
   public static transient String OPERATOR_ID = "operatorId";
   public static transient String STORE_ROOT = "storeRoot";
@@ -191,6 +191,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 
   /**
    * {@inheritDoc}
+   * @throws java.io.IOException
    */
   @Override
   public void storeBucketData(long window, long timestamp, Map<Integer, Map<Object, T>> data) throws IOException
@@ -251,6 +252,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 
   /**
    * {@inheritDoc}
+   * @throws java.io.IOException
    */
   @SuppressWarnings("SynchronizationOnLocalVariableOrMethodParameter")
   @Override
@@ -286,6 +288,7 @@ public class HdfsBucketStore<T extends Bucketable> implements BucketStore<T>
 
   /**
    * {@inheritDoc}
+   * @throws java.lang.Exception
    */
   @Override
   @Nonnull
