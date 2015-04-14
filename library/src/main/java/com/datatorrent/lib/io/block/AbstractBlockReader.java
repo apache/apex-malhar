@@ -54,6 +54,9 @@ import com.datatorrent.lib.counters.BasicCounters;
  * {@link #minReaders}: Minimum number of readers when dynamic partitioning is on.<br/>
  * {@link #intervalMillis}: interval at which stats are processed by the block reader.<br/>
  *
+ * <p/>
+ * It emits a {@link ReaderRecord} which wraps the record and the block id of the record.
+ *
  * @param <R>      type of records.
  * @param <B>      type of blocks.
  * @param <STREAM> type of stream.

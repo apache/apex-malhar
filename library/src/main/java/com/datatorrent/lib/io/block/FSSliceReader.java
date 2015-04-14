@@ -17,11 +17,14 @@ package com.datatorrent.lib.io.block;
 
 import org.apache.hadoop.fs.FSDataInputStream;
 
+import com.datatorrent.api.StatsListener;
+
 import com.datatorrent.common.util.Slice;
 
 /**
  * An {@link AbstractFSBlockReader} which emits fixed-size byte-arrays wrapped in {@link Slice}.<br/>
  */
+@StatsListener.DataQueueSize
 public class FSSliceReader extends AbstractFSBlockReader<Slice>
 {
   public FSSliceReader()
