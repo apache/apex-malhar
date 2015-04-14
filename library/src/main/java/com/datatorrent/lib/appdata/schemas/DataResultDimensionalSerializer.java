@@ -90,6 +90,7 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
         valueJO.put(DimensionsDescriptor.DIMENSION_TIME, time);
       }
 
+      logger.info("nonAggregatedFields {}", nonAggregatedFields);
       for(String field: nonAggregatedFields.getFields()) {
         logger.info("The field {}", field);
         if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
