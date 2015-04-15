@@ -129,7 +129,13 @@ public class FieldsDescriptor
 
     //Types
 
-    types = EnumSet.copyOf(typeToFields.keySet());
+    if(!typeToFields.isEmpty()) {
+      types = EnumSet.copyOf(typeToFields.keySet());
+    }
+    else {
+      types = Sets.newHashSet();
+    }
+
     types = Collections.unmodifiableSet(types);
 
     //Types list
