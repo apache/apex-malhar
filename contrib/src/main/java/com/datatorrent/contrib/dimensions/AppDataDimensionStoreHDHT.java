@@ -271,17 +271,9 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     @Override
     public boolean enqueue(DataQueryDimensional query, QueryMeta queryMeta, MutableLong windowExpireCount)
     {
-      logger.info("Enqueueing query {}", query);
-
       Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDd());
 
       if(ddID == null) {
-        logger.info("Request Dimension Descriptor: {}", query.getDd());
-
-        for(Map.Entry<DimensionsDescriptor, Integer> entry: eventSchema.getDimensionsDescriptorToID().entrySet()) {
-          logger.info("Dimension Descriptor: {}", entry.getKey());
-        }
-
         logger.error("No aggregations for keys: {}", query.getKeyFields());
         return false;
       }
@@ -291,8 +283,6 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
 
       Map<String, EventKey> aggregatorToEventKey = Maps.newHashMap();
 
-      logger.info("FieldsAggregatable {}", query.getFieldsAggregatable());
-
       for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
         EventKey eventKey = new EventKey(SCHEMA_ID,
                                          ddID,
@@ -300,8 +290,6 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
                                          gpoKey);
         aggregatorToEventKey.put(aggregatorName, eventKey);
       }
-
-      logger.info("Aggregator to event key size {}", aggregatorToEventKey.size());
 
       long bucketKey = getBucketForSchema(SCHEMA_ID);
 
@@ -370,10 +358,6 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
             gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
             gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
 
-            logger.info("Query event key {}", eventKey);
-            logger.info("Timestamp {}", timestamp);
-            logger.info("Time bucket {}", query.getTimeBucket().ordinal());
-
             EventKey queryEventKey = new EventKey(eventKey);
             Slice key = new Slice(getEventKeyBytesGAE(eventKey));
 
@@ -422,8 +406,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     @Override
     public Result processQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext, MutableBoolean context)
     {
-      logger.debug("Processing query {}", query);
-
+      logger.info("Processing query {} with countdown {}", query.getId(), query.getCountdown());
       List<Map<String, GPOMutable>> keys = Lists.newArrayList();
       List<Map<String, GPOMutable>> values = Lists.newArrayList();
 
@@ -431,8 +414,6 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       List<Map<String, EventKey>> eventKeys = qm.getEventKeys();
 
       boolean allSatisfied = true;
-
-      logger.info("Num queries: {}", queries.size());
 
       for(int index = 0; index < queries.size(); index++) {
         Map<String, HDSQuery> aggregatorToQuery = queries.get(index);
@@ -447,14 +428,15 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
 
           AggregateEvent gae;
           gae = operator.cache.getIfPresent(eventKey);
+          logger.info("Getting data with timestamp {}", eventKey.getKey().getField(DimensionsDescriptor.DIMENSION_TIME));
 
-        // TODO
+          // TODO
           // There is a race condition with retrieving from the cache and doing
           // an hds query. If an hds query finishes for a key while it is in the minuteCache, but
           // then that key gets evicted from the minuteCache, then the value will never be retrieved.
           // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
           if(gae != null) {
-            logger.debug("Adding from aggregation buffer");
+            logger.info("Retrieved from cache.");
             aggregatorKeys.put(aggregatorName, gae.getKeys());
             aggregatorValues.put(aggregatorName, gae.getAggregates());
           }
