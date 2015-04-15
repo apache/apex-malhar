@@ -29,7 +29,8 @@ public enum AggregatorType
   MIN(new AggregatorMin()),
   MAX(new AggregatorMax()),
   COUNT(new AggregatorCount()),
-  LAST(new AggregatorLast());
+  LAST(new AggregatorLast()),
+  FIRST(new AggregatorFirst());
 
   private static final Logger logger = LoggerFactory.getLogger(AggregatorType.class);
 
