@@ -213,8 +213,8 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     super.setup(context);
 
     cache = CacheBuilder.newBuilder()
-         .maximumSize(getCacheSize())
-         .removalListener(new HDHTCacheRemoval())
+         //.maximumSize(getCacheSize())
+         //.removalListener(new HDHTCacheRemoval())
          .build(new HDHTCacheLoader());
 
     //TODO reissue hdht queries for waiting cache entries.
