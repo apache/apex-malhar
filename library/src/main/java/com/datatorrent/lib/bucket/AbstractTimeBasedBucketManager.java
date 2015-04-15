@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.bucket;
 
-import com.datatorrent.lib.bucket.BucketManager.Listener;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Timer;
