@@ -20,7 +20,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
@@ -54,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Map;
 
-@OperatorAnnotation(partitionable = false)
 public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Serializable
 {
   private static final long serialVersionUID = 201503231218L;
