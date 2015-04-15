@@ -22,7 +22,7 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator.ProcessingMode;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
-import com.datatorrent.lib.util.ActiveMQMessageListener;
+import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
 import java.io.File;
 import java.io.IOException;
 import java.util.Random;
@@ -156,7 +156,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public void testJMSOutputOperator1() throws Exception
   {
     // Setup a message listener to receive the message
-    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setupConnection();
     listener.run();
 
@@ -195,7 +195,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public void testJMSOutputOperator2() throws Exception
   {
     // Setup a message listener to receive the message
-    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setTopic(true);
     listener.setupConnection();
     listener.run();
@@ -231,7 +231,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public void testBatch()
   {
     // Setup a message listener to receive the message
-    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setTopic(false);
 
     try {
@@ -315,7 +315,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public void testAtLeastOnceFullBatch()
   {
     // Setup a message listener to receive the message
-    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setTopic(false);
 
     try {
@@ -431,7 +431,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public void testAtLeastOnceHalfBatch()
   {
     // Setup a message listener to receive the message
-    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setTopic(false);
 
     try {
@@ -547,7 +547,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public void testAtMostOnceFullBatch()
   {
     // Setup a message listener to receive the message
-    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setTopic(false);
 
     try {
@@ -633,7 +633,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public void testAtMostOnceHalfBatch()
   {
     // Setup a message listener to receive the message
-    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setTopic(false);
 
     try {
@@ -725,7 +725,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   }
 
   /**
-   * Concrete class of JMSStringSinglePortOutputOperator2 for testing.
+   * Concrete class of JMSMultiPortOutputOperator for testing.
    */
   public static class JMSMultiPortOutputOperator extends AbstractJMSOutputOperator
   {
@@ -769,7 +769,7 @@ public class JMSOutputOperatorTest extends JMSTestBase
   public void testJMSMultiPortOutputOperator() throws Exception
   {
     // Setup a message listener to receive the message
-    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setMaximumReceiveMessages(0);
     listener.setupConnection();
     listener.run();

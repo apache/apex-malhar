@@ -9,7 +9,7 @@ import com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap;
 import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.OperatorContextTestHelper.TestIdOperatorContext;
 import com.datatorrent.lib.io.jms.JMSOutputOperatorTest.JMSStringSinglePortOutputOperator;
-import com.datatorrent.lib.util.ActiveMQMessageListener;
+import com.datatorrent.lib.util.ActiveMQMultiTypeMessageListener;
 import java.io.File;
 import javax.jms.JMSException;
 import org.apache.commons.io.FileUtils;
@@ -183,7 +183,7 @@ public class JMSTransactionableStoreTestBase extends JMSTestBase
   @Test
   public void commitTest()
   {
-    final ActiveMQMessageListener listener = new ActiveMQMessageListener();
+    final ActiveMQMultiTypeMessageListener listener = new ActiveMQMultiTypeMessageListener();
     listener.setSubject(SUBJECT);
 
     try {
