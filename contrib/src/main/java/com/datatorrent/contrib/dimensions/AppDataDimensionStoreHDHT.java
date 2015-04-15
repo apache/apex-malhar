@@ -425,6 +425,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
         for(String aggregatorName: aggregatorToQuery.keySet()) {
           HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
           EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
+          logger.info("looking up event key {}", eventKey);
 
           AggregateEvent gae;
           //gae = operator.cache.getIfPresent(eventKey);

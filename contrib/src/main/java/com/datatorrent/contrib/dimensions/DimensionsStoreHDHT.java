@@ -27,6 +27,7 @@ import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
+import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.cache.CacheLoader;
@@ -175,6 +176,16 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   {
     DimensionsAggregator aggregator = getAggregator(gae.getAggregatorIndex());
     AggregateEvent aggregate = null;
+
+    EventKey eventKey = gae.getEventKey();
+    GPOMutable gpoKey = eventKey.getKey();
+    Fields fields = gpoKey.getFieldDescriptor().getFields();
+
+    if(fields.getFields().contains("advertiser") &&
+       fields.getFields().contains("publisher") &&
+       fields.getFields().contains("location")) {
+      logger.info("Event key {}", eventKey);
+    }
 
     //try {
       aggregate = cache.get(gae.getEventKey());
