@@ -22,9 +22,9 @@ import com.datatorrent.lib.appdata.schemas.Type;
 
 import java.util.Map;
 
-public class AggregatorMostRecent implements DimensionsAggregator
+public class AggregatorLast implements DimensionsAggregator
 {
-  public AggregatorMostRecent()
+  public AggregatorLast()
   {
   }
 
