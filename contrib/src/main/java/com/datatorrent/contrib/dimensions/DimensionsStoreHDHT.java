@@ -29,9 +29,7 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import com.google.common.primitives.Ints;
@@ -43,7 +41,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * TODO aggregate by windowID in waiting cache.
@@ -65,7 +62,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   //TODO this is not fault tolerant. Need to create a custom cache which has old entries removed in end window.
   //Can't write out incomplete aggregates in the middle of a window.
   private int cacheSize = CACHE_SIZE;
-  protected transient LoadingCache<EventKey, AggregateEvent> cache = null;
+  protected transient Map<EventKey, AggregateEvent> cache = null;
 
   ////////////////////// Caching /////////////////////////////
 
@@ -178,14 +175,14 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     DimensionsAggregator aggregator = getAggregator(gae.getAggregatorIndex());
     AggregateEvent aggregate = null;
 
-    try {
+    //try {
       aggregate = cache.get(gae.getEventKey());
-    }
+    /*}
     catch(ExecutionException ex) {
       throw new RuntimeException(ex);
-    }
+    }*/
 
-    if(aggregate.isEmpty()) {
+    if(aggregate == null) {
       cache.put(gae.getEventKey(), gae);
     }
     else {
@@ -212,10 +209,10 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   {
     super.setup(context);
 
-    cache = CacheBuilder.newBuilder()
+    /*cache = CacheBuilder.newBuilder()
          //.maximumSize(getCacheSize())
          //.removalListener(new HDHTCacheRemoval())
-         .build(new HDHTCacheLoader());
+         .build(new HDHTCacheLoader());*/
 
     //TODO reissue hdht queries for waiting cache entries.
   }
@@ -234,7 +231,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
   @Override
   public void endWindow()
-  {
+  {/*
     for(Map.Entry<EventKey, AggregateEvent> entry: cache.asMap().entrySet()) {
       AggregateEvent gae = entry.getValue();
 
@@ -248,7 +245,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       catch(IOException ex) {
         throw new RuntimeException(ex);
       }
-    }
+    }*/
 
     super.endWindow();
   }

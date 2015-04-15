@@ -427,7 +427,8 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
           EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
 
           AggregateEvent gae;
-          gae = operator.cache.getIfPresent(eventKey);
+          //gae = operator.cache.getIfPresent(eventKey);
+          gae = operator.cache.get(eventKey);
           logger.info("Getting data with timestamp {} id {} countdown {}",
                       eventKey.getKey().getField(DimensionsDescriptor.DIMENSION_TIME),
                       query.getId(),
