@@ -44,7 +44,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * TODO aggregate by windowID in waiting cache.
@@ -216,7 +215,6 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     cache = CacheBuilder.newBuilder()
          .maximumSize(getCacheSize())
          .removalListener(new HDHTCacheRemoval())
-         .expireAfterWrite(5, TimeUnit.MINUTES)
          .build(new HDHTCacheLoader());
 
     //TODO reissue hdht queries for waiting cache entries.

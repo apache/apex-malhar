@@ -36,7 +36,7 @@ import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
-import com.datatorrent.lib.appdata.schemas.EventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaDimensional;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
@@ -65,7 +65,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
   @NotNull
   private String dimensionalSchemaJSON;
 
-  private transient EventSchema eventSchema;
+  private transient DimensionalEventSchema eventSchema;
   private transient SchemaDimensional dimensionalSchema;
   private transient List<Map<Integer, FieldsDescriptor>> indexToFieldsDescriptor;
 
@@ -145,7 +145,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
                                                   new DimensionsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryDimensional.class);
-    eventSchema = new EventSchema(eventSchemaJSON);
+    eventSchema = new DimensionalEventSchema(eventSchemaJSON);
     dimensionalSchema = new SchemaDimensional(eventSchemaJSON,
                                               AggregatorType.NAME_TO_AGGREGATOR);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);

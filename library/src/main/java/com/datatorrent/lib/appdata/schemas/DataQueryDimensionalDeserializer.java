@@ -152,7 +152,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
           nonAggregatedFields.add(field);
         }
 
-        String[] components = field.split(EventSchema.ADDITIONAL_VALUE_SEPERATOR);
+        String[] components = field.split(DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR);
 
         if(components.length == 1) {
           Set<String> aggregators = valueToAggregator.get(field);
@@ -166,8 +166,8 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
           }
         }
         else if(components.length == 2) {
-          String value = components[EventSchema.ADDITIONAL_VALUE_VALUE_INDEX];
-          String aggregator = components[EventSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
+          String value = components[DimensionalEventSchema.ADDITIONAL_VALUE_VALUE_INDEX];
+          String aggregator = components[DimensionalEventSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
           Set<String> aggregators = fieldToAggregator.get(value);
 
@@ -179,7 +179,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
           aggregators.add(aggregator);
         }
         else {
-          logger.error("A field selector can have at most one {}.", EventSchema.ADDITIONAL_VALUE_SEPERATOR);
+          logger.error("A field selector can have at most one {}.", DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR);
         }
       }
     }

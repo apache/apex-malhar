@@ -51,9 +51,9 @@ import java.util.Set;
  *    {"combination":["keyName1"],"additionalValues":["valueName1:MAX"]}]
  * }
  */
-public class EventSchema
+public class DimensionalEventSchema
 {
-  private static final Logger logger = LoggerFactory.getLogger(EventSchema.class);
+  private static final Logger logger = LoggerFactory.getLogger(DimensionalEventSchema.class);
 
   public static final String ADDITIONAL_VALUE_SEPERATOR = ":";
   public static final int ADDITIONAL_VALUE_NUM_COMPONENTS = 2;
@@ -97,11 +97,11 @@ public class EventSchema
   private String keysString;
   private String bucketsString;
 
-  public EventSchema()
+  public DimensionalEventSchema()
   {
   }
 
-  public EventSchema(String json)
+  public DimensionalEventSchema(String json)
   {
     try {
       initialize(json);

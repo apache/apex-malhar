@@ -5,7 +5,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.schemas.EventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
@@ -22,9 +22,9 @@ import java.util.Set;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class EventSchemaTest
+public class DimensionalEventSchemaTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(EventSchemaTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(DimensionalEventSchemaTest.class);
 
   @Test
   public void simpleTest()
@@ -54,7 +54,7 @@ public class EventSchemaTest
        "{\"combination\":[\"" + keyName1 + "\"],\"additionalValues\":[\"" + valueName2 + ":SUM\"," + "\"" + valueName2 + ":COUNT\"]}]\n" +
     "}";
 
-    EventSchema ges = new EventSchema(jsonSchema);
+    DimensionalEventSchema ges = new DimensionalEventSchema(jsonSchema);
 
     FieldsDescriptor allKeysDescriptor = ges.getAllKeysDescriptor();
 

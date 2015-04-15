@@ -12,7 +12,7 @@ import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputation;
-import com.datatorrent.lib.appdata.schemas.EventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -38,7 +38,7 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
   @NotNull
   private String eventSchemaJSON;
 
-  private transient EventSchema eventSchema;
+  private transient DimensionalEventSchema eventSchema;
   private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToInputAggDescriptor;
   private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToOutputAggDescriptor;
   private transient List<IntArrayList> ddIDToAggIDs;
@@ -50,7 +50,7 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
   @Override
   public void setup(OperatorContext context)
   {
-    eventSchema = new EventSchema(eventSchemaJSON);
+    eventSchema = new DimensionalEventSchema(eventSchemaJSON);
 
     List<Map<String, FieldsDescriptor>> tempDescriptorList = eventSchema.getDdIDToAggregatorToAggregateDescriptor();
     ddIDToAggIDs = Lists.newArrayList();

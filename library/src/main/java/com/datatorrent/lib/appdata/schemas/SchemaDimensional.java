@@ -57,13 +57,13 @@ public class SchemaDimensional implements Schema
   private boolean changed = false;
   private String schemaJSON;
 
-  private EventSchema eventSchema;
+  private DimensionalEventSchema eventSchema;
   private Map<String, DimensionsAggregator> nameToAggregator;
   private JSONObject schema;
   private JSONObject time;
 
   public SchemaDimensional(String schemaStub,
-                                  EventSchema eventSchema,
+                                  DimensionalEventSchema eventSchema,
                                   Map<String, DimensionsAggregator> nameToAggregator)
   {
     this(eventSchema,
@@ -84,7 +84,7 @@ public class SchemaDimensional implements Schema
                            Map<String, DimensionsAggregator> nameToAggregator)
   {
     this(schemaStub,
-         new EventSchema(eventSchemaJSON),
+         new DimensionalEventSchema(eventSchemaJSON),
          nameToAggregator);
   }
 
@@ -96,7 +96,7 @@ public class SchemaDimensional implements Schema
          nameToAggregator);
   }
 
-  public SchemaDimensional(EventSchema eventSchema,
+  public SchemaDimensional(DimensionalEventSchema eventSchema,
                                   Map<String, DimensionsAggregator> nameToAggregator)
   {
     setEventSchema(eventSchema);
@@ -110,7 +110,7 @@ public class SchemaDimensional implements Schema
     }
   }
 
-  private void setEventSchema(EventSchema eventSchema)
+  private void setEventSchema(DimensionalEventSchema eventSchema)
   {
     this.eventSchema = Preconditions.checkNotNull(eventSchema, "eventSchema");
   }
@@ -151,7 +151,7 @@ public class SchemaDimensional implements Schema
 
     //keys
     JSONArray keys = new JSONArray(eventSchema.getKeysString());
-    schema.put(EventSchema.FIELD_KEYS, keys);
+    schema.put(DimensionalEventSchema.FIELD_KEYS, keys);
 
     //values;
     JSONArray values = new JSONArray();
@@ -170,7 +170,7 @@ public class SchemaDimensional implements Schema
 
         JSONObject value = new JSONObject();
         String combinedName = valueName +
-                              EventSchema.ADDITIONAL_VALUE_SEPERATOR +
+                              DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR +
                               aggregatorName;
         value.put(SchemaTabular.FIELD_VALUES_NAME, combinedName);
         value.put(SchemaTabular.FIELD_VALUES_TYPE, outputValueType.getName());
@@ -180,7 +180,7 @@ public class SchemaDimensional implements Schema
 
     //dimensions
     JSONArray dimensions = new JSONArray(eventSchema.getDimensionsString());
-    schema.put(EventSchema.FIELD_DIMENSIONS, dimensions);
+    schema.put(DimensionalEventSchema.FIELD_DIMENSIONS, dimensions);
 
     getSchemaJSON();
   }
@@ -229,7 +229,7 @@ public class SchemaDimensional implements Schema
     return schemaJSON;
   }
 
-  public EventSchema getGenericEventSchema()
+  public DimensionalEventSchema getGenericEventSchema()
   {
     return eventSchema;
   }
