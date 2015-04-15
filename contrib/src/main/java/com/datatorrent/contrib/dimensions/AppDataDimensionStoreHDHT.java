@@ -428,7 +428,10 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
 
           AggregateEvent gae;
           gae = operator.cache.getIfPresent(eventKey);
-          logger.info("Getting data with timestamp {}", eventKey.getKey().getField(DimensionsDescriptor.DIMENSION_TIME));
+          logger.info("Getting data with timestamp {} id {} countdown {}",
+                      eventKey.getKey().getField(DimensionsDescriptor.DIMENSION_TIME),
+                      query.getId(),
+                      query.getCountdown());
 
           // TODO
           // There is a race condition with retrieving from the cache and doing
