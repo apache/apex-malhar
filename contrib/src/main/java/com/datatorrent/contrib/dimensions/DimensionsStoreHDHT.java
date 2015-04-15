@@ -32,6 +32,7 @@ import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import com.google.common.collect.Maps;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import java.io.IOException;
@@ -62,7 +63,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   //TODO this is not fault tolerant. Need to create a custom cache which has old entries removed in end window.
   //Can't write out incomplete aggregates in the middle of a window.
   private int cacheSize = CACHE_SIZE;
-  protected transient Map<EventKey, AggregateEvent> cache = null;
+  protected transient Map<EventKey, AggregateEvent> cache = Maps.newHashMap();
 
   ////////////////////// Caching /////////////////////////////
 
