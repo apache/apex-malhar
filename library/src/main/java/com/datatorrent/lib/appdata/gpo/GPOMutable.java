@@ -507,6 +507,6 @@ public class GPOMutable implements Serializable
   @Override
   public String toString()
   {
-    return "GPOMutable{" + "fieldsBoolean=" + fieldsBoolean + ", fieldsCharacter=" + fieldsCharacter + ", fieldsByte=" + fieldsByte + ", fieldsShort=" + fieldsShort + ", fieldsInteger=" + fieldsInteger + ", fieldsLong=" + fieldsLong + ", fieldsFloat=" + fieldsFloat + ", fieldsDouble=" + fieldsDouble + ", fieldsString=" + fieldsString + ", fieldDescriptor=" + fieldDescriptor + '}';
+    return "GPOMutable{" + "fieldsBoolean=" + Arrays.toString(fieldsBoolean) + ", fieldsCharacter=" + Arrays.toString(fieldsCharacter) + ", fieldsByte=" + Arrays.toString(fieldsByte) + ", fieldsShort=" + Arrays.toString(fieldsShort) + ", fieldsInteger=" + Arrays.toString(fieldsInteger) + ", fieldsLong=" + Arrays.toString(fieldsLong) + ", fieldsFloat=" + Arrays.toString(fieldsFloat) + ", fieldsDouble=" + Arrays.toString(fieldsDouble) + ", fieldsString=" + Arrays.toString(fieldsString) + ", fieldDescriptor=" + fieldDescriptor + '}';
   }
 }
