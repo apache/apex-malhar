@@ -732,7 +732,16 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
           existingIds.addAll(pio.kpids);
         }
 
-        for (Map.Entry<String, List<PartitionMetadata>> en : KafkaMetadataUtil.getPartitionsForTopic(consumer.brokers, consumer.getTopic()).entrySet()) {
+        Map<String, List<PartitionMetadata>> partitionsMeta = KafkaMetadataUtil.getPartitionsForTopic(consumer.brokers, consumer.getTopic());
+        if(partitionsMeta == null){
+          //broker(s) has temporary issue to get metadata
+          return false;
+        }
+        for (Map.Entry<String, List<PartitionMetadata>> en : partitionsMeta.entrySet()) {
+          if(en == null){
+            //broker(s) has temporary issue to get metadata
+            continue;
+          }
           for (PartitionMetadata pm : en.getValue()) {
             KafkaPartition pa = new KafkaPartition(en.getKey(), consumer.topic, pm.partitionId());
             if(!existingIds.contains(pa)){
