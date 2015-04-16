@@ -65,6 +65,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   //Can't write out incomplete aggregates in the middle of a window.
   private int cacheSize = CACHE_SIZE;
   protected transient Map<EventKey, AggregateEvent> cache = Maps.newHashMap();
+  protected EventKey maxEventKey;
 
   ////////////////////// Caching /////////////////////////////
 
@@ -187,8 +188,17 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
       if(gpoKey.getFieldString("advertiser").equals("starbucks") &&
          gpoKey.getFieldString("publisher").equals("google") &&
-         gpoKey.getFieldString("location").equals("SKY"))
-      logger.info("Event key {}", eventKey);
+         gpoKey.getFieldString("location").equals("SKY") &&
+         gpoKey.getFieldInt(DimensionsDescriptor.DIMENSION_TIME_BUCKET) == 1)
+      {
+        if(maxEventKey == null) {
+          maxEventKey = eventKey;
+        }
+        else if(gpoKey.getFieldLong(DimensionsDescriptor.DIMENSION_TIME) >
+           maxEventKey.getKey().getFieldLong(DimensionsDescriptor.DIMENSION_TIME)) {
+          maxEventKey = eventKey;
+        }
+      }
     }
 
     //try {

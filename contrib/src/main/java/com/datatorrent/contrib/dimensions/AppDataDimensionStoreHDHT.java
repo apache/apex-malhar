@@ -426,6 +426,8 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
           HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
           EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
           logger.info("looking up event key {}", eventKey);
+          logger.info("max event {}", operator.maxEventKey);
+          logger.info("is equals {}", operator.maxEventKey.equals(eventKey));
 
           AggregateEvent gae;
           logger.info("Map size {}", operator.cache.size());
