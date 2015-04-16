@@ -425,9 +425,14 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
         for(String aggregatorName: aggregatorToQuery.keySet()) {
           HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
           EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
+
+          operator.maxEventKey.logEquals = true;
+
           logger.info("looking up event key {}", eventKey);
           logger.info("max event {}", operator.maxEventKey);
           logger.info("is equals {}", operator.maxEventKey.equals(eventKey));
+
+          operator.maxEventKey.logEquals = false;
 
           AggregateEvent gae;
           logger.info("Map size {}", operator.cache.size());

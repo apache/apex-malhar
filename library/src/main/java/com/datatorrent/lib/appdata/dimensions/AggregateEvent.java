@@ -236,7 +236,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       return hash;
     }
 
-    boolean logEquals = false;
+    public boolean logEquals = false;
 
     @Override
     public boolean equals(Object obj)
@@ -279,7 +279,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       if(this.dimensionDescriptorID != other.dimensionDescriptorID) {
         return false;
       }
-      
+
       if(logEquals) {
       counter++;
       logger.info("Got here {}", counter);
