@@ -467,7 +467,7 @@ public class GPOMutable implements Serializable
     if(obj == null) {
       return false;
     }
-    if(this instanceof GPOMutable) {
+    if(!(obj instanceof GPOMutable)) {
       return false;
     }
     final GPOMutable other = (GPOMutable)obj;
