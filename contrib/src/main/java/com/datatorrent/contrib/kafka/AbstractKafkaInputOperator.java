@@ -507,10 +507,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         lastRepartitionTime = System.currentTimeMillis();
         logger.info("[ONE_TO_MANY]: Initializing partition(s)");
         int size = initialPartitionCount;
-        //Set<KafkaPartition>[] kps = new Set[size];
         @SuppressWarnings("unchecked")
         Set<KafkaPartition>[] kps = (Set<KafkaPartition>[]) Array.newInstance((new HashSet<KafkaPartition>()).getClass(), size);
-        newPartitions = new ArrayList<Partitioner.Partition<AbstractKafkaInputOperator<K>>>(size);
         int i = 0;
         for (Map.Entry<String, List<PartitionMetadata>> en : kafkaPartitions.entrySet()) {
           String clusterId = en.getKey();
@@ -522,7 +520,9 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
             i++;
           }
         }
-        for (i = 0; i < kps.length; i++) {
+        size = i > size ? size : i;
+        newPartitions = new ArrayList<Partitioner.Partition<AbstractKafkaInputOperator<K>>>(size);
+        for (i = 0; i < size; i++) {
           logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): {} ", StringUtils.join(kps[i], ", "));
           newPartitions.add(createPartition(kps[i], initOffset, newManagers));
         }
