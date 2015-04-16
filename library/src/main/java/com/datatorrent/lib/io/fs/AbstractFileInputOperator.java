@@ -613,9 +613,15 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
         if (currentFile != null && offset > 0) {
           //open file resets offset to 0 so this a way around it.
           int tmpOffset = offset;
-          this.inputStream = openFile(new Path(currentFile));
-          offset = tmpOffset;
-          skipCount = tmpOffset;
+          if (fs.exists(new Path(currentFile))) {
+            this.inputStream = openFile(new Path(currentFile));
+            offset = tmpOffset;
+            skipCount = tmpOffset;
+          } else {
+            currentFile = null;
+            offset = 0;
+            skipCount = 0;
+          }
         }
         else if (!unfinishedFiles.isEmpty()) {
           retryFailedFile(unfinishedFiles.poll());
@@ -623,7 +629,8 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
         else if (!pendingFiles.isEmpty()) {
           String newPathString = pendingFiles.iterator().next();
           pendingFiles.remove(newPathString);
-          this.inputStream = openFile(new Path(newPathString));
+          if (fs.exists(new Path(newPathString)))
+            this.inputStream = openFile(new Path(newPathString));
         }
         else if (!failedFiles.isEmpty()) {
           retryFailedFile(failedFiles.poll());
@@ -739,6 +746,8 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
   {
     LOG.info("retrying failed file {} offset {} retry {}", ff.path, ff.offset, ff.retryCount);
     String path = ff.path;
+    if (!fs.exists(new Path(path)))
+      return null;
     this.inputStream = openFile(new Path(path));
     this.offset = ff.offset;
     this.retryCount = ff.retryCount;
@@ -748,12 +757,12 @@ public abstract class AbstractFileInputOperator<T> implements InputOperator, Par
 
   protected InputStream openFile(Path path) throws IOException
   {
-    LOG.info("opening file {}", path);
-    InputStream input = fs.open(path);
     currentFile = path.toString();
     offset = 0;
     retryCount = 0;
     skipCount = 0;
+    LOG.info("opening file {}", path);
+    InputStream input = fs.open(path);
     return input;
   }
 
