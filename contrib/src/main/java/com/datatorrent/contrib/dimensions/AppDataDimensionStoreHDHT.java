@@ -428,6 +428,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
           logger.info("looking up event key {}", eventKey);
 
           AggregateEvent gae;
+          logger.info("Map size {}", operator.cache.size());
           //gae = operator.cache.getIfPresent(eventKey);
           gae = operator.cache.get(eventKey);
           logger.info("Getting data with timestamp {} id {} countdown {}",
