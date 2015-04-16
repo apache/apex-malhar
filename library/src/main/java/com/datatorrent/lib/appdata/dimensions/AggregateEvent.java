@@ -288,9 +288,22 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       if(this.aggregatorIndex != other.aggregatorIndex) {
         return false;
       }
+
+
+      if(logEquals) {
+      counter++;
+      logger.info("Got here {}", counter);
+      }
+
       if(this.key != other.key && (this.key == null || !this.key.equals(other.key))) {
         return false;
       }
+      
+      if(logEquals) {
+      counter++;
+      logger.info("Got here {}", counter);
+      }
+
       return true;
     }
 
