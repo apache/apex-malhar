@@ -184,6 +184,10 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     if(fields.getFields().contains("advertiser") &&
        fields.getFields().contains("publisher") &&
        fields.getFields().contains("location")) {
+
+      if(gpoKey.getFieldString("advertiser").equals("starbucks") &&
+         gpoKey.getFieldString("publisher").equals("google") &&
+         gpoKey.getFieldString("location").equals("SKY"))
       logger.info("Event key {}", eventKey);
     }
 
