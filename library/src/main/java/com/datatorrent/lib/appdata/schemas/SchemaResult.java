@@ -26,23 +26,25 @@ public class SchemaResult extends Result
 {
   public static final String TYPE = "schemaResult";
 
-  private Schema genericSchema;
+  private Schema[] genericSchemas;
 
   public SchemaResult(SchemaQuery schemaQuery,
-                      Schema genericSchema)
+                      Schema... genericSchemas)
   {
     super(schemaQuery);
-    setGenericSchema(genericSchema);
+    setGenericSchemas(genericSchemas);
   }
 
-  private void setGenericSchema(Schema genericSchema)
+  private void setGenericSchemas(Schema... genericSchemas)
   {
-    Preconditions.checkNotNull(genericSchema);
-    this.genericSchema = genericSchema;
+    Preconditions.checkNotNull(genericSchemas);
+    Preconditions.checkArgument(genericSchemas.length > 0, "Atleast one schema must be provided.");
+
+    this.genericSchemas = genericSchemas;
   }
 
-  public Schema getGenericSchema()
+  public Schema[] getGenericSchemas()
   {
-    return genericSchema;
+    return genericSchemas;
   }
 }

@@ -17,6 +17,10 @@ package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.qr.CustomDataSerializer;
 import com.datatorrent.lib.appdata.qr.Result;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
+
 
 public class SchemaSerializer implements CustomDataSerializer
 {
@@ -44,8 +48,20 @@ public class SchemaSerializer implements CustomDataSerializer
     append("\",\"").append(Result.FIELD_TYPE).
     append("\":\"").append(result.getType()).
     append("\",\"").append(Result.FIELD_DATA).
-    append("\":").append(genericSchemaResult.getGenericSchema().getSchemaJSON()).
-    append("}");
+    append("\":");
+
+    JSONArray schemaArray = new JSONArray();
+
+    for(Schema schema: genericSchemaResult.getGenericSchemas()) {
+      try {
+        schemaArray.put(new JSONObject(schema.getSchemaJSON()));
+      }
+      catch(JSONException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    sb.append(schemaArray.toString()).append("}");
 
     return sb.toString();
   }
