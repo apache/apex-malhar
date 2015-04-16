@@ -738,7 +738,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
           return false;
         }
         for (Map.Entry<String, List<PartitionMetadata>> en : partitionsMeta.entrySet()) {
-          if(en == null){
+          if(en.getValue() == null){
             //broker(s) has temporary issue to get metadata
             continue;
           }
