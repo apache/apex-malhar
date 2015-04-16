@@ -213,7 +213,7 @@ public abstract class AbstractPartitionableKafkaInputOperator extends AbstractKa
         if (isInitialParitition) {
           lastRepartitionTime = System.currentTimeMillis();
           logger.info("[ONE_TO_MANY]: Initializing partition(s)");
-          int size = initialPartitionCount;
+          int size = initialPartitionCount > kafkaPartitionList.size() ? kafkaPartitionList.size():initialPartitionCount;
           @SuppressWarnings("unchecked")
           Set<Integer>[] pIds = new Set[size];
           newPartitions = new ArrayList<Partition<AbstractPartitionableKafkaInputOperator>>(size);
