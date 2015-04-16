@@ -426,22 +426,8 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
           HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
           EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
 
-          operator.maxEventKey.logEquals = true;
-
-          logger.info("looking up event key {}", eventKey);
-          logger.info("max event {}", operator.maxEventKey);
-          logger.info("is equals {}", operator.maxEventKey.equals(eventKey));
-
-          operator.maxEventKey.logEquals = false;
-
           AggregateEvent gae;
-          logger.info("Map size {}", operator.cache.size());
-          //gae = operator.cache.getIfPresent(eventKey);
-          gae = operator.cache.get(eventKey);
-          logger.info("Getting data with timestamp {} id {} countdown {}",
-                      eventKey.getKey().getField(DimensionsDescriptor.DIMENSION_TIME),
-                      query.getId(),
-                      query.getCountdown());
+          gae = operator.cache.getIfPresent(eventKey);
 
           // TODO
           // There is a race condition with retrieving from the cache and doing

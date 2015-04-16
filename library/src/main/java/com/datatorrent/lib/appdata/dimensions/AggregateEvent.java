@@ -236,34 +236,15 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       return hash;
     }
 
-    public boolean logEquals = false;
-
     @Override
     public boolean equals(Object obj)
     {
-      int counter = 0;
-
-      if(logEquals) {
-      counter++;
-      logger.info("Got here {}", counter);
-      }
-
       if(obj == null) {
         return false;
       }
 
-      if(logEquals) {
-      counter++;
-      logger.info("Got here {}", counter);
-      }
-
       if(getClass() != obj.getClass()) {
         return false;
-      }
-
-      if(logEquals) {
-      counter++;
-      logger.info("Got here {}", counter);
       }
 
       final EventKey other = (EventKey)obj;
@@ -271,37 +252,16 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
         return false;
       }
 
-      if(logEquals) {
-      counter++;
-      logger.info("Got here {}", counter);
-      }
-
       if(this.dimensionDescriptorID != other.dimensionDescriptorID) {
         return false;
-      }
-
-      if(logEquals) {
-      counter++;
-      logger.info("Got here {}", counter);
       }
 
       if(this.aggregatorIndex != other.aggregatorIndex) {
         return false;
       }
 
-
-      if(logEquals) {
-      counter++;
-      logger.info("Got here {}", counter);
-      }
-
       if(this.key != other.key && (this.key == null || !this.key.equals(other.key))) {
         return false;
-      }
-      
-      if(logEquals) {
-      counter++;
-      logger.info("Got here {}", counter);
       }
 
       return true;
