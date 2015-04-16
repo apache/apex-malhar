@@ -21,9 +21,12 @@ import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.google.common.base.Preconditions;
 import com.google.common.primitives.Longs;
 import java.io.Serializable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class AggregateEvent implements DimensionsComputation.AggregateEvent, Serializable
 {
+  private static final Logger logger = LoggerFactory.getLogger(AggregateEvent.class);
   private static final long serialVersionUID = 201503231204L;
 
   private int schemaID;
@@ -242,13 +245,23 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       if(getClass() != obj.getClass()) {
         return false;
       }
+
+      int counter = 0;
+
+      counter++;
+      logger.info("Got here {}", counter);
+
       final EventKey other = (EventKey)obj;
       if(this.schemaID != other.schemaID) {
         return false;
       }
+            counter++;
+      logger.info("Got here {}", counter);
       if(this.dimensionDescriptorID != other.dimensionDescriptorID) {
         return false;
       }
+            counter++;
+      logger.info("Got here {}", counter);
       if(this.aggregatorIndex != other.aggregatorIndex) {
         return false;
       }
