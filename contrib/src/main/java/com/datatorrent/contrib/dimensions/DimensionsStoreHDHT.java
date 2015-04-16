@@ -186,8 +186,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
        fields.getFields().contains("publisher") &&
        fields.getFields().contains("location")) {
 
-      if(eventKey.getDimensionDescriptorID() == 21 &&
-         gpoKey.getFieldString("advertiser").equals("starbucks") &&
+      if(gpoKey.getFieldString("advertiser").equals("starbucks") &&
          gpoKey.getFieldString("publisher").equals("google") &&
          gpoKey.getFieldString("location").equals("SKY") &&
          gpoKey.getFieldInt(DimensionsDescriptor.DIMENSION_TIME_BUCKET) == 1)
