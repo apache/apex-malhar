@@ -239,14 +239,21 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
     @Override
     public boolean equals(Object obj)
     {
+      int counter = 0;
+
+      counter++;
+      logger.info("Got here {}", counter);
+
       if(obj == null) {
         return false;
       }
+
+      counter++;
+      logger.info("Got here {}", counter);
+
       if(getClass() != obj.getClass()) {
         return false;
       }
-
-      int counter = 0;
 
       counter++;
       logger.info("Got here {}", counter);
