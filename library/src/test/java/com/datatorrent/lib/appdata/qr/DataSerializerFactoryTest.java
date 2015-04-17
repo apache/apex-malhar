@@ -16,6 +16,7 @@
 
 package com.datatorrent.lib.appdata.qr;
 
+import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import org.junit.Test;
@@ -26,7 +27,14 @@ public class DataSerializerFactoryTest
   @Test
   public void testSerialization() throws Exception
   {
-    DataSerializerFactory dsf = new DataSerializerFactory();
+    DataSerializerFactory dsf = new DataSerializerFactory(new AppDataFormatter());
     DataSerializerFactory dsf1 = TestUtils.clone(new Kryo(), dsf);
+  }
+
+  @Test
+  public void testAppDataFormatter()
+  {
+    DataSerializerFactory dsf = new DataSerializerFactory(new AppDataFormatter());
+    dsf.getAppDataFormatter().setDecimalFormatString("#.##");
   }
 }

@@ -34,6 +34,7 @@ import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
+import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
@@ -76,7 +77,8 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
   private transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
-  private DataSerializerFactory resultSerializerFactory = new DataSerializerFactory();
+  private AppDataFormatter appDataFormatter = new AppDataFormatter();
+  private transient DataSerializerFactory resultSerializerFactory;
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
   private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
 
@@ -104,7 +106,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       if(query instanceof SchemaQuery) {
         try{
         String schemaResult =
-          getResultSerializerFactory().serialize(new SchemaResult((SchemaQuery)query,
+          resultSerializerFactory.serialize(new SchemaResult((SchemaQuery)query,
                                                            dimensionalSchema));
         queryResult.emit(schemaResult);}
         catch(Exception e) {
@@ -148,6 +150,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     eventSchema = new DimensionalEventSchema(eventSchemaJSON);
     dimensionalSchema = new SchemaDimensional(eventSchemaJSON,
                                               AggregatorType.NAME_TO_AGGREGATOR);
+    resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
     indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggregatorType.NAME_TO_ORDINAL);
     super.setup(context);
@@ -176,7 +179,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       }
 
       if(aotr != null) {
-        String result = getResultSerializerFactory().serialize(aotr);
+        String result = resultSerializerFactory.serialize(aotr);
         logger.info("Emitting the result: {}", result);
         queryResult.emit(result);
       }
@@ -252,11 +255,11 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
   }
 
   /**
-   * @return the resultSerializerFactory
+   * @return the appDataFormatter
    */
-  public DataSerializerFactory getResultSerializerFactory()
+  public AppDataFormatter getAppDataFormatter()
   {
-    return resultSerializerFactory;
+    return appDataFormatter;
   }
 
   //==========================================================================

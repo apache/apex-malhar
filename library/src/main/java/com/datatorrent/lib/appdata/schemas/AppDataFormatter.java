@@ -18,10 +18,10 @@ package com.datatorrent.lib.appdata.schemas;
 
 import java.text.DecimalFormat;
 import javax.validation.constraints.NotNull;
+import jline.internal.Preconditions;
 
 public class AppDataFormatter
 {
-  @NotNull
   private String decimalFormatString;
   private transient DecimalFormat decimalFormat;
 
@@ -32,7 +32,12 @@ public class AppDataFormatter
   public DecimalFormat getDecimalFormat()
   {
     if(decimalFormat == null) {
-      decimalFormat = new DecimalFormat(getDecimalFormatString());
+      if(decimalFormatString != null) {
+        decimalFormat = new DecimalFormat(decimalFormatString);
+      }
+      else {
+        decimalFormat = new DecimalFormat();
+      }
     }
 
     return decimalFormat;
@@ -49,8 +54,8 @@ public class AppDataFormatter
   /**
    * @param decimalFormatString the decimalFormatString to set
    */
-  public void setDecimalFormatString(String decimalFormatString)
+  public void setDecimalFormatString(@NotNull String decimalFormatString)
   {
-    this.decimalFormatString = decimalFormatString;
+    this.decimalFormatString = Preconditions.checkNotNull(decimalFormatString);
   }
 }

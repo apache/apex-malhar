@@ -16,6 +16,7 @@
 package com.datatorrent.lib.appdata.qr;
 
 import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.lang.annotation.Annotation;
 import org.slf4j.Logger;
@@ -32,8 +33,14 @@ public class DataSerializerFactory
 
   private AppDataFormatter appDataFormatter = new AppDataFormatter();
 
-  public DataSerializerFactory()
+  public DataSerializerFactory(AppDataFormatter appDataFormatter)
   {
+    setAppDataFormatter(appDataFormatter);
+  }
+
+  private void setAppDataFormatter(AppDataFormatter appDataFormatter)
+  {
+    this.appDataFormatter = Preconditions.checkNotNull(appDataFormatter);
   }
 
   public AppDataFormatter getAppDataFormatter()
