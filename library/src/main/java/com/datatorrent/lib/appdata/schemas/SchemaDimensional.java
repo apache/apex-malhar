@@ -166,7 +166,7 @@ public class SchemaDimensional implements Schema
 
       for(String aggregatorName: entry.getValue()) {
         DimensionsAggregator aggregator = nameToAggregator.get(aggregatorName);
-        Type outputValueType = aggregator.getTypeConversionMap().get(inputValueType);
+        Type outputValueType = aggregator.getTypeMap().getTypeMap().get(inputValueType);
 
         JSONObject value = new JSONObject();
         String combinedName = valueName +

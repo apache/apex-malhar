@@ -28,9 +28,7 @@ public class AggregationEventSchema
   public static final String FIELD_TIMEBUCKETS = "timeBuckets";
   public static final String FIELD_VALUES = "values";
 
-  public AggregationEventSchema()
+  public AggregationEventSchema(String aggregationJSON)
   {
   }
-
-  
 }

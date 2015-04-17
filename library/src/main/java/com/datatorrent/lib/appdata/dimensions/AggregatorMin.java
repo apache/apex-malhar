@@ -19,7 +19,6 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 
-import java.util.Map;
 
 public class AggregatorMin implements DimensionsAggregator
 {
@@ -125,7 +124,7 @@ public class AggregatorMin implements DimensionsAggregator
   }
 
   @Override
-  public Map<Type, Type> getTypeConversionMap()
+  public AggregatorTypeMap getTypeMap()
   {
     return AggregatorUtils.IDENTITY_NUMBER_TYPE_MAP;
   }

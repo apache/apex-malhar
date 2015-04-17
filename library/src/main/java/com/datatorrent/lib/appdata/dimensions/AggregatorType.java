@@ -34,20 +34,24 @@ public enum AggregatorType
 
   private static final Logger logger = LoggerFactory.getLogger(AggregatorType.class);
 
+  public static final Map<Integer, DimensionsAggregator> ORDINAL_TO_AGGREGATOR;
   public static final Map<String, Integer> NAME_TO_ORDINAL;
   public static final Map<String, DimensionsAggregator> NAME_TO_AGGREGATOR;
 
   private DimensionsAggregator aggregator;
 
   static {
+    Map<Integer, DimensionsAggregator> ordinalToAggregator = Maps.newHashMap();
     Map<String, Integer> nameToOrdinal = Maps.newHashMap();
     Map<String, DimensionsAggregator> nameToAggregator = Maps.newHashMap();
 
     for(AggregatorType aggType: AggregatorType.values()) {
+      ordinalToAggregator.put(aggType.ordinal(), aggType.getAggregator());
       nameToOrdinal.put(aggType.name(), aggType.ordinal());
       nameToAggregator.put(aggType.name(), aggType.getAggregator());
     }
 
+    ORDINAL_TO_AGGREGATOR = Collections.unmodifiableMap(ordinalToAggregator);
     NAME_TO_ORDINAL = Collections.unmodifiableMap(nameToOrdinal);
     NAME_TO_AGGREGATOR = Collections.unmodifiableMap(nameToAggregator);
   }

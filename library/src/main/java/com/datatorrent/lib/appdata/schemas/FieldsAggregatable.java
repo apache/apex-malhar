@@ -158,7 +158,7 @@ public class FieldsAggregatable
 
         String fieldValue = sb.toString();
         sb.delete(0, sb.length());
-        Type aggType = nameToAggregator.get(aggregatorName).getTypeConversionMap().get(inputType);
+        Type aggType = nameToAggregator.get(aggregatorName).getTypeMap().getTypeMap().get(inputType);
         fieldToType.put(fieldValue, aggType);
       }
     }
@@ -249,7 +249,7 @@ public class FieldsAggregatable
     aggregatorToFieldToName = Collections.unmodifiableMap(aggregatorToFieldToName);
     return aggregatorToFieldToName;
   }
-  
+
   @Override
   public String toString()
   {

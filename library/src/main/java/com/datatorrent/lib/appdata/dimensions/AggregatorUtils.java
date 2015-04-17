@@ -18,13 +18,12 @@ package com.datatorrent.lib.appdata.dimensions;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
 
-import java.util.Collections;
 import java.util.Map;
 
 public final class AggregatorUtils
 {
-  public static final Map<Type, Type> IDENTITY_TYPE_MAP;
-  public static final Map<Type, Type> IDENTITY_NUMBER_TYPE_MAP;
+  public static final AggregatorTypeMap IDENTITY_TYPE_MAP;
+  public static final AggregatorTypeMap IDENTITY_NUMBER_TYPE_MAP;
 
   static {
     Map<Type, Type> identityTypeMap = Maps.newHashMap();
@@ -33,7 +32,7 @@ public final class AggregatorUtils
       identityTypeMap.put(type, type);
     }
 
-    IDENTITY_TYPE_MAP = Collections.unmodifiableMap(identityTypeMap);
+    IDENTITY_TYPE_MAP = new AggregatorTypeMap(identityTypeMap);
 
     Map<Type, Type> identityNumberTypeMap = Maps.newHashMap();
 
@@ -41,7 +40,7 @@ public final class AggregatorUtils
       identityNumberTypeMap.put(type, type);
     }
 
-    IDENTITY_NUMBER_TYPE_MAP = Collections.unmodifiableMap(identityNumberTypeMap);
+    IDENTITY_NUMBER_TYPE_MAP = new AggregatorTypeMap(identityNumberTypeMap);
   }
 
   private AggregatorUtils()

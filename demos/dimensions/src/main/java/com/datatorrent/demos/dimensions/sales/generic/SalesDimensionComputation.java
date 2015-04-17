@@ -206,4 +206,10 @@ public class SalesDimensionComputation extends DimensionsComputation<Map<String,
   {
     return AggregatorType.NAME_TO_AGGREGATOR.get(aggregatorName);
   }
+
+  @Override
+  public Map<Integer, DimensionsAggregator> getAggregatorIDToAggregator()
+  {
+    return AggregatorType.ORDINAL_TO_AGGREGATOR;
+  }
 }

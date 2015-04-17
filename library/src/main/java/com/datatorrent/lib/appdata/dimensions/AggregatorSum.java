@@ -21,7 +21,6 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 
 public class AggregatorSum implements DimensionsAggregator
 {
@@ -116,9 +115,8 @@ public class AggregatorSum implements DimensionsAggregator
     }
   }
 
-
   @Override
-  public Map<Type, Type> getTypeConversionMap()
+  public AggregatorTypeMap getTypeMap()
   {
     return AggregatorUtils.IDENTITY_NUMBER_TYPE_MAP;
   }

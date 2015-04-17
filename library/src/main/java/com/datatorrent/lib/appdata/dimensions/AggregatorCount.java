@@ -21,14 +21,13 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 public class AggregatorCount implements DimensionsAggregator
 {
-  public static final Map<Type, Type> TYPE_CONVERSION_MAP;
+  public static final AggregatorTypeMap TYPE_CONVERSION_MAP;
 
   static {
     Map<Type, Type> typeConversionMap = Maps.newHashMap();
@@ -37,7 +36,7 @@ public class AggregatorCount implements DimensionsAggregator
       typeConversionMap.put(type, Type.LONG);
     }
 
-    TYPE_CONVERSION_MAP = Collections.unmodifiableMap(typeConversionMap);
+    TYPE_CONVERSION_MAP = new AggregatorTypeMap(typeConversionMap);
   }
 
   public AggregatorCount()
@@ -51,7 +50,7 @@ public class AggregatorCount implements DimensionsAggregator
   }
 
   @Override
-  public Map<Type, Type> getTypeConversionMap()
+  public AggregatorTypeMap getTypeMap()
   {
     return TYPE_CONVERSION_MAP;
   }

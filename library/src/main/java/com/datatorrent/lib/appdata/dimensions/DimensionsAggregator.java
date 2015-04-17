@@ -16,13 +16,10 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.Type;
-
-import java.util.Map;
 
 public interface DimensionsAggregator
 {
-  public Map<Type, Type> getTypeConversionMap();
+  public AggregatorTypeMap getTypeMap();
   public FieldsDescriptor getResultDescriptor(FieldsDescriptor fd);
   public AggregateEvent createDest(AggregateEvent first, FieldsDescriptor fd);
   public void aggregate(AggregateEvent dest, AggregateEvent src);

@@ -17,9 +17,6 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.Type;
-
-import java.util.Map;
 
 public class AggregatorFirst implements DimensionsAggregator
 {
@@ -28,7 +25,7 @@ public class AggregatorFirst implements DimensionsAggregator
   }
 
   @Override
-  public Map<Type, Type> getTypeConversionMap()
+  public AggregatorTypeMap getTypeMap()
   {
     return AggregatorUtils.IDENTITY_TYPE_MAP;
   }
