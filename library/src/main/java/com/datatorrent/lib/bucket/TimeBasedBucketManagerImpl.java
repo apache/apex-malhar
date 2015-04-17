@@ -84,15 +84,20 @@ public class TimeBasedBucketManagerImpl<T extends Event & Bucketable> extends Bu
     recomputeNumBuckets();
   }
 
-  @Override
-  public TimeBasedBucketManagerImpl<T> cloneWithProperties()
+  /*
+   * Gets the maximum Times Per Buckets.
+   */
+  public Long[] getMaxTimesPerBuckets()
   {
-    TimeBasedBucketManagerImpl<T> clone = new TimeBasedBucketManagerImpl<T>();
-    copyPropertiesTo(clone);
-    clone.bucketSpanInMillis = bucketSpanInMillis;
-    clone.startOfBucketsInMillis = startOfBucketsInMillis;
-    clone.expiryTime = expiryTime;
-    clone.maxTimesPerBuckets = maxTimesPerBuckets;
+    return maxTimesPerBuckets;
+  }
+
+  @Override
+  public TimeBasedBucketManagerImpl<T> clone() throws CloneNotSupportedException
+  {
+    @SuppressWarnings("unchecked")
+    TimeBasedBucketManagerImpl<T> clone = (TimeBasedBucketManagerImpl<T>)super.clone();
+    clone.maxTimesPerBuckets = maxTimesPerBuckets.clone();
     return clone;
   }
 

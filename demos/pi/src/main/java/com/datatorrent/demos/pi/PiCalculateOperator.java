@@ -85,5 +85,4 @@ public class PiCalculateOperator extends BaseOperator
   }
 
   private static Logger logger = LoggerFactory.getLogger(PiCalculateOperator.class);
-  private static final long serialVersionUID = 201405141605L;
 }

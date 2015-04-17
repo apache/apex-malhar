@@ -16,15 +16,13 @@
 package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.AppData;
-import java.net.URI;
-import java.net.URISyntaxException;
-import org.apache.http.client.utils.URIBuilder;
 
 public class KafkaAppDataResult extends KafkaSinglePortOutputOperator<String, String> implements AppData.Operator
 {
   @Override
   public String getAppDataURL()
   {
+    /*
     String brokerList = this.getConfigProperties().getProperty("metadata.broker.list");
     String[] brokers = brokerList.split(",");
     String mainBroker = brokers[0];
@@ -45,7 +43,8 @@ public class KafkaAppDataResult extends KafkaSinglePortOutputOperator<String, St
     catch(URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
+    */
 
-    return uri.toString();
+    return null;//uri.toString();
   }
 }

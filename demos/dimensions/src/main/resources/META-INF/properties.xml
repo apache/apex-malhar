@@ -157,7 +157,7 @@
 
   <!-- Ensure that Kafka connect address is set locally - deployment specific configuration -->
   <!--<property>-->
-    <!--<name>dt.operator.Query.brokerSet</name>-->
+    <!--<name>dt.operator.Query.zookeeper</name>-->
     <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
   <!--</property>-->
   <!--<property>-->

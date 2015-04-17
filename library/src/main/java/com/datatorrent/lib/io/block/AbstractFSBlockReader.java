@@ -27,7 +27,7 @@ import com.datatorrent.api.Context;
 /**
  * An {@link AbstractBlockReader} that assumes the blocks are part of files.
  *
- * @param <R>
+ * @param <R> type of record
  */
 public abstract class AbstractFSBlockReader<R> extends AbstractBlockReader<R, BlockMetadata.FileBlockMetadata, FSDataInputStream>
 {

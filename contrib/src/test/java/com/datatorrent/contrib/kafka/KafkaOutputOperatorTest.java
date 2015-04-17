@@ -76,7 +76,6 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
       dataGeneratorThread = new Thread("String Generator")
       {
         @Override
-        @SuppressWarnings("SleepWhileInLoop")
         public void run()
         {
           try {
@@ -119,7 +118,7 @@ public class KafkaOutputOperatorTest extends KafkaOperatorTestBase
    * @throws Exception
    */
   @Test
-  @SuppressWarnings({"SleepWhileInLoop", "empty-statement", "rawtypes"})
+  @SuppressWarnings({"rawtypes", "unchecked"})
   public void testKafkaOutputOperator() throws Exception
   {
     //initialize the latch to synchronize the threads

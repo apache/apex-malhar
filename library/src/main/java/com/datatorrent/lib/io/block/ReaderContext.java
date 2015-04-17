@@ -22,6 +22,8 @@ import java.io.InputStream;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.PositionedReadable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This controls how an {@link AbstractBlockReader} reads a {@link BlockMetadata}.
@@ -32,7 +34,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
 {
 
   /**
-   * Initialized the reader.
+   * Initializes the reader context.
    *
    * @param stream           input stream
    * @param blockMetadata    block-metadata
@@ -58,7 +60,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     private byte[] record;
     private long usedBytes;
 
-    private void clear()
+    public void clear()
     {
       record = null;
       usedBytes = -1;
@@ -69,11 +71,20 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
       return record;
     }
 
+    public void setRecord(byte[] record)
+    {
+      this.record = record;
+    }
+
     public long getUsedBytes()
     {
       return usedBytes;
     }
 
+    public void setUsedBytes(long usedBytes)
+    {
+      this.usedBytes = usedBytes;
+    }
   }
 
   /**
@@ -305,6 +316,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     {
       if (length == null) {
         length = (int) new Configuration().getLong("fs.local.block.size", 32 * 1024 * 1024);
+        LOG.debug("length init {}", length);
       }
       super.initialize(stream, blockMetadata, consecutiveBlock);
     }
@@ -342,5 +354,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
     {
       return this.length;
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(FixedBytesReaderContext.class);
   }
 }

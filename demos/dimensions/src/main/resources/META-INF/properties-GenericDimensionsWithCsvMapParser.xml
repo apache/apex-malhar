@@ -1,0 +1,9 @@
+
+<!-- properties for the GenericDimensionsWithCsvMapParser demo -->
+<configuration>
+  <!--FieldMappingFile for GenericDimensionsWithCsvMapParser-->
+  <property>
+    <name>dt.application.GenericDimensionsWithCsvMapParser.operator.Parser.fieldmappingFile</name>
+    <value></value>
+  </property>
+</configuration>

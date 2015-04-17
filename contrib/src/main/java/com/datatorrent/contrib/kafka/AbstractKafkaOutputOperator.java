@@ -96,7 +96,7 @@ public abstract class AbstractKafkaOutputOperator<K, V> implements Operator
     configProperties.putAll(prop);
 
     return new ProducerConfig(configProperties);
-  };
+  }
 
   public Producer<K, V> getProducer()
   {

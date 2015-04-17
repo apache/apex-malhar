@@ -15,22 +15,22 @@
  */
 package com.datatorrent.demos.pi;
 
-import java.net.URI;
-
 import org.apache.hadoop.conf.Configuration;
 
+import com.datatorrent.api.DAG;
+import com.datatorrent.api.StreamingApplication;
+import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.HttpOutputOperator;
-import com.datatorrent.lib.math.*;
+import com.datatorrent.lib.math.Division;
+import com.datatorrent.lib.math.LogicalCompareToConstant;
+import com.datatorrent.lib.math.MultiplyByConstant;
+import com.datatorrent.lib.math.RunningAverage;
+import com.datatorrent.lib.math.Sigma;
+import com.datatorrent.lib.math.SquareCalculus;
 import com.datatorrent.lib.stream.AbstractAggregator;
 import com.datatorrent.lib.stream.ArrayListAggregator;
 import com.datatorrent.lib.stream.Counter;
 import com.datatorrent.lib.testbench.RandomEventGenerator;
-import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
-import com.datatorrent.api.Operator.InputPort;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.api.StreamingApplication;
 
 /**
  * <p>Calculator class.</p>
@@ -40,23 +40,6 @@ import com.datatorrent.api.StreamingApplication;
 @ApplicationAnnotation(name="PiLibraryDemo")
 public class Calculator implements StreamingApplication
 {
-  private final Locality locality = null;
-
-  private InputPort<Object> getConsolePort(DAG b, String name)
-  {
-    // output to HTTP server when specified in environment setting
-    String serverAddr = System.getenv("MALHAR_AJAXSERVER_ADDRESS");
-    if (serverAddr == null) {
-      ConsoleOutputOperator oper = b.addOperator(name, new ConsoleOutputOperator());
-      oper.setStringFormat(name + ": %s");
-      return oper.input;
-    }
-    HttpOutputOperator<Object> oper = b.addOperator(name, new HttpOutputOperator<Object>());
-    URI u = URI.create("http://" + serverAddr + "/channel/" + name);
-    oper.setResourceURL(u);
-    return oper.input;
-  }
-
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
@@ -77,6 +60,7 @@ public class Calculator implements StreamingApplication
     MultiplyByConstant multiplication = dag.addOperator("InstantPI", MultiplyByConstant.class);
     multiplication.setMultiplier(4);
     RunningAverage average = dag.addOperator("AveragePI", new RunningAverage());
+    ConsoleOutputOperator oper = dag.addOperator("Console", new ConsoleOutputOperator());
 
     dag.addStream("x", xyGenerator.integer_data, squareOperator.input);
     dag.addStream("sqr", squareOperator.integerResult, pairOperator.input);
@@ -87,7 +71,7 @@ public class Calculator implements StreamingApplication
     dag.addStream("denominator", inSquare.output, division.denominator);
     dag.addStream("ratio", division.doubleQuotient, multiplication.input);
     dag.addStream("instantPi", multiplication.doubleProduct, average.input);
-    dag.addStream("averagePi", average.doubleAverage, getConsolePort(dag, "Console"));
+    dag.addStream("averagePi", average.doubleAverage, oper.input);
 
   }
 

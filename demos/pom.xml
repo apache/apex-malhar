@@ -24,6 +24,8 @@
     <module>mrmonitor</module>
     <module>mroperator</module>
     <module>uniquecount</module>
+    <module>r</module>
+    <module>echoserver</module>
   </modules>
 
 </project>

@@ -23,7 +23,6 @@ import com.amazonaws.services.kinesis.model.*;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
 /**
  * A kinesis producer for testing
  */
@@ -34,8 +33,6 @@ public class KinesisTestProducer implements Runnable
 
   private int sendCount = 20;
   private int batchSize = 92;
-  // to generate a random int as a key for partition
-  private final Random rand = new Random();
   List<PutRecordsRequestEntry> putRecordsRequestEntryList = new ArrayList<PutRecordsRequestEntry>();
   private boolean hasPartition = false;
   private List<String> records;
@@ -57,8 +54,6 @@ public class KinesisTestProducer implements Runnable
 
   public KinesisTestProducer(String topic, boolean hasPartition)
   {
-    // Use random partitioner. Don't need the key type. Just set it to Integer.
-    // The message is of type String.
     this.streamName = topic;
     this.hasPartition = hasPartition;
     createClient();
@@ -79,7 +74,7 @@ public class KinesisTestProducer implements Runnable
         PutRecordsRequest putRecordsRequest = new PutRecordsRequest();
         putRecordsRequest.setStreamName(streamName);
         putRecordsRequest.setRecords(putRecordsRequestEntryList);
-        PutRecordsResult putRecordsResult = client.putRecords(putRecordsRequest);
+        client.putRecords(putRecordsRequest);
         putRecordsRequestEntryList.clear();
       }
       recordNo++;
@@ -97,7 +92,7 @@ public class KinesisTestProducer implements Runnable
         putRecordRequest.setStreamName(streamName);
         putRecordRequest.setData(ByteBuffer.wrap(msg.getBytes()));
         putRecordRequest.setPartitionKey(msg);
-        PutRecordResult putRecordResult = client.putRecord(putRecordRequest);
+        client.putRecord(putRecordRequest);
       }
     }
   }

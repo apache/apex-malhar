@@ -40,14 +40,19 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
  */
 public class FSSliceReaderTest
 {
-  public static class TestMeta extends TestWatcher
+  protected FSSliceReader getBlockReader()
   {
-    String output;
-    File dataFile;
-    Context.OperatorContext readerContext;
-    FSSliceReader blockReader;
-    CollectorTestSink<Object> blockMetadataSink;
-    CollectorTestSink<Object> messageSink;
+    return new FSSliceReader();
+  }
+
+  public class TestMeta extends TestWatcher
+  {
+    public String output;
+    public File dataFile;
+    public Context.OperatorContext readerContext;
+    public FSSliceReader blockReader;
+    public CollectorTestSink<Object> blockMetadataSink;
+    public CollectorTestSink<Object> messageSink;
 
     @Override
     protected void starting(org.junit.runner.Description description)
@@ -60,7 +65,7 @@ public class FSSliceReaderTest
         throw new RuntimeException(e);
       }
       dataFile = new File("src/test/resources/reader_test_data.csv");
-      blockReader = new FSSliceReader();
+      blockReader = getBlockReader();
 
       Attribute.AttributeMap.DefaultAttributeMap readerAttr = new Attribute.AttributeMap.DefaultAttributeMap();
       readerAttr.put(DAG.APPLICATION_ID, Long.toHexString(System.currentTimeMillis()));
@@ -81,7 +86,7 @@ public class FSSliceReaderTest
     {
       blockReader.teardown();
       try {
-        FileUtils.forceDelete(new File(output));
+        FileUtils.forceDelete(new File("target/" + description.getClassName()));
       }
       catch (IOException e) {
         throw new RuntimeException(e);

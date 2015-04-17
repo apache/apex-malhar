@@ -20,13 +20,10 @@ import com.amazonaws.services.kinesis.AmazonKinesisClient;
 import com.amazonaws.services.kinesis.model.PutRecordRequest;
 import com.amazonaws.services.kinesis.model.PutRecordsRequest;
 import com.amazonaws.services.kinesis.model.PutRecordsRequestEntry;
-import com.amazonaws.services.kinesis.model.PutRecordsResult;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.common.util.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
@@ -47,8 +44,6 @@ import java.util.List;
  */
 public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractKinesisOutputOperator.class);
-
   protected String streamName;
   @NotNull
   private String accessKey;
@@ -172,7 +167,7 @@ public abstract class AbstractKinesisOutputOperator<V, T> implements Operator
       PutRecordsRequest putRecordsRequest = new PutRecordsRequest();
       putRecordsRequest.setStreamName(streamName);
       putRecordsRequest.setRecords(putRecordsRequestEntryList);
-      PutRecordsResult putRecordsResult = client.putRecords(putRecordsRequest);
+      client.putRecords(putRecordsRequest);
       putRecordsRequestEntryList.clear();
     } catch (AmazonClientException e) {
       throw new RuntimeException(e);

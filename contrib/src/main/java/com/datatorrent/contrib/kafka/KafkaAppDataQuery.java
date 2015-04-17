@@ -16,9 +16,6 @@
 package com.datatorrent.contrib.kafka;
 
 import com.datatorrent.api.AppData;
-import java.net.URI;
-import java.net.URISyntaxException;
-import org.apache.http.client.utils.URIBuilder;
 
 import java.util.Iterator;
 
@@ -27,10 +24,10 @@ public class KafkaAppDataQuery extends KafkaSinglePortStringInputOperator implem
   @Override
   public String getAppDataURL()
   {
-    String mainBroker = this.consumer.brokerSet.iterator().next();
+    String mainBroker = null;// = this.consumer.brokerSet.iterator().next();
     StringBuilder sb = new StringBuilder();
 
-    Iterator<String> bi = this.consumer.brokerSet.iterator();
+    Iterator<String> bi = null;// = this.consumer.brokerSet.iterator();
 
     while(bi.hasNext()) {
       sb.append(bi.next());
@@ -42,22 +39,22 @@ public class KafkaAppDataQuery extends KafkaSinglePortStringInputOperator implem
       sb.append(",");
     }
 
-    URIBuilder ub = new URIBuilder();
+    /*URIBuilder ub = new URIBuilder();
     ub.setScheme("kafka");
     ub.setHost(mainBroker);
     ub.setPath("/");
     ub.addParameter("brokerSet", sb.toString());
 
     URI uri = null;
-
+/*
     try {
       uri = ub.build();
     }
     catch(URISyntaxException ex) {
       throw new RuntimeException(ex);
     }
-
-    return uri.toString();
+*/
+    return null;//uri.toString();
   }
 
   @Override

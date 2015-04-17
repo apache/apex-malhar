@@ -23,9 +23,10 @@ import javax.annotation.Nonnull;
 /**
  * Bucket store API.<br/>
  *
+ * @param <T>
  * @since 0.9.4
  */
-public interface BucketStore<T extends Bucketable>
+public interface BucketStore<T extends Bucketable> extends Cloneable
 {
   /**
    * Performs setup operations eg. crate database connections, delete events of windows greater than last committed
@@ -77,6 +78,7 @@ public interface BucketStore<T extends Bucketable>
    * @param writeEventKeysOnly
    */
   void setWriteEventKeysOnly(boolean writeEventKeysOnly);
+  BucketStore<T> clone() throws CloneNotSupportedException;
 
   public interface ExpirableBucketStore<T extends Bucketable & Event> extends BucketStore<T>
   {

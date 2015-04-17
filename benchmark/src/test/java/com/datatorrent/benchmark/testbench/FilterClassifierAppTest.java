@@ -15,24 +15,30 @@
  */
 package com.datatorrent.benchmark.testbench;
 
-import com.datatorrent.api.LocalMode;
+import java.io.FileInputStream;
 import java.io.InputStream;
-import org.apache.hadoop.conf.Configuration;
+
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import org.apache.hadoop.conf.Configuration;
+
+import com.datatorrent.api.LocalMode;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 /**
  * Benchmark Test for FilterClassifierApp Operator in local mode.
  */
 public class FilterClassifierAppTest
 {
   @Test
-  public void testFilterClassifierApp() throws Exception
+  public void testFilterClassifierApp() throws FileNotFoundException, IOException
   {
     Logger logger = LoggerFactory.getLogger(FilterClassifierAppTest.class);
-    Configuration conf = new Configuration();
     LocalMode lm = LocalMode.newInstance();
-    InputStream is = getClass().getResourceAsStream("/dt-site-testbench.xml");
+    Configuration conf = new Configuration();
+    InputStream is = new FileInputStream("src/site/conf/dt-site-testbench.xml");
     conf.addResource(is);
     conf.get("dt.application.FilterClassifier.operator.hmapOper.keys");
     conf.get("dt.application.FilterClassifier.operator.hmapOper.numKeys");

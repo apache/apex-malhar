@@ -185,5 +185,4 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     dag.addStream("TopURLQuery", queryPort, topCounts.queryInput);
     dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
   }
-
 }

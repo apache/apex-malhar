@@ -118,6 +118,26 @@ public class BucketManagerTest
     }
   }
 
+  @Test
+  public void testClone() throws CloneNotSupportedException, InterruptedException
+  {
+    manager.loadBucketData(bucket1);
+    eventBucketExchanger.exchange(null);
+    manager.loadBucketData(bucket2);
+    eventBucketExchanger.exchange(null);
+    Assert.assertNotNull(manager.getBucket(bucket2));
+    BucketManagerImpl<DummyEvent> clonedManager = manager.clone();
+    Assert.assertNull(clonedManager.getBucket(bucket1));
+    Assert.assertNotNull(clonedManager.getBucket(bucket2));
+    Assert.assertNotNull(clonedManager.getBucketStore());
+    Assert.assertNotNull(clonedManager.bucketStore.equals(manager.bucketStore));
+    Assert.assertTrue(clonedManager.writeEventKeysOnly==manager.writeEventKeysOnly);
+    Assert.assertTrue(clonedManager.noOfBuckets==manager.noOfBuckets);
+    Assert.assertTrue(clonedManager.noOfBucketsInMemory==manager.noOfBucketsInMemory);
+    Assert.assertTrue(clonedManager.maxNoOfBucketsInMemory==manager.maxNoOfBucketsInMemory);
+    Assert.assertTrue(clonedManager.millisPreventingBucketEviction== manager.millisPreventingBucketEviction);
+    Assert.assertTrue(clonedManager.committedWindow==manager.committedWindow);
+  }
 
   @BeforeClass
   public static void setup() throws Exception

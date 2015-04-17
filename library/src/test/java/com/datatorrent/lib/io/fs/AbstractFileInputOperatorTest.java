@@ -22,6 +22,8 @@ import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.io.fs.AbstractFileInputOperator.DirectoryScanner;
 import com.datatorrent.lib.partitioner.StatelessPartitionerTest.PartitioningContextImpl;
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
+
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.*;
 
@@ -621,9 +623,7 @@ public class AbstractFileInputOperatorTest
     oper.setIdempotentStorageManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
-    oper.output.setSink(sink);
+    TestUtils.setSink(oper.output, queryResults);
 
     oper.setDirectory(testMeta.dir);
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
@@ -635,8 +635,9 @@ public class AbstractFileInputOperatorTest
       oper.endWindow();
     }
     oper.teardown();
+    List<String> beforeRecovery = Lists.newArrayList(queryResults.collectedTuples);
 
-    sink.clear();
+    queryResults.clear();
 
     //idempotency  part
     oper.setup(testMeta.context);
@@ -645,7 +646,7 @@ public class AbstractFileInputOperatorTest
       oper.endWindow();
     }
     Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
-    Assert.assertEquals("lines", allLines, queryResults.collectedTuples);
+    Assert.assertEquals("lines", beforeRecovery, queryResults.collectedTuples);
     oper.teardown();
   }
 
@@ -671,9 +672,7 @@ public class AbstractFileInputOperatorTest
     oper.setIdempotentStorageManager(manager);
 
     CollectorTestSink<String> queryResults = new CollectorTestSink<String>();
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    CollectorTestSink<Object> sink = (CollectorTestSink) queryResults;
-    oper.output.setSink(sink);
+    TestUtils.setSink(oper.output, queryResults);
 
     oper.setDirectory(testMeta.dir);
     oper.getScanner().setFilePatternRegexp(".*file[\\d]");
@@ -685,15 +684,16 @@ public class AbstractFileInputOperatorTest
     }
     oper.endWindow();
     oper.teardown();
+    List<String> beforeRecovery = Lists.newArrayList(queryResults.collectedTuples);
 
-    sink.clear();
+    queryResults.clear();
 
     //idempotency  part
     oper.setup(testMeta.context);
     oper.beginWindow(0);
     oper.endWindow();
     Assert.assertEquals("number tuples", 4, queryResults.collectedTuples.size());
-    Assert.assertEquals("lines", allLines, queryResults.collectedTuples);
+    Assert.assertEquals("lines", beforeRecovery, queryResults.collectedTuples);
     oper.teardown();
   }
 
