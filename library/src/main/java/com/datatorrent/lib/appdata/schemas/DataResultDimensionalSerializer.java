@@ -39,17 +39,17 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
   }
 
   @Override
-  public String serialize(Result result)
+  public String serialize(Result result, AppDataFormatter appDataFormatter)
   {
     try {
-      return serializeHelper(result);
+      return serializeHelper(result, appDataFormatter);
     }
     catch(Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private String serializeHelper(Result result) throws Exception
+  private String serializeHelper(Result result, AppDataFormatter appDataFormatter) throws Exception
   {
     DataResultDimensional dataResult = (DataResultDimensional) result;
 

@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.appdata.qr;
 
+import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -27,7 +28,7 @@ public class SimpleDataSerializer implements CustomDataSerializer
   }
 
   @Override
-  public String serialize(Result result)
+  public String serialize(Result result, AppDataFormatter appDataFormatter)
   {
     try {
       return om.writeValueAsString(result);

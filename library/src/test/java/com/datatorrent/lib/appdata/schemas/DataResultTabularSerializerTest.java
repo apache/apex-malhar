@@ -61,6 +61,6 @@ public class DataResultTabularSerializerTest
     final String expectedJSONResult =
     "{\"id\":\"1\",\"type\":\"dataResult\",\"data\":[{\"b\":\"hello\",\"a\":1},{\"b\":\"world\",\"a\":2}]}";
 
-    Assert.assertEquals("The json doesn't match.", expectedJSONResult, serializer.serialize(result));
+    Assert.assertEquals("The json doesn't match.", expectedJSONResult, serializer.serialize(result, null));
   }
 }

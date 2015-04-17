@@ -76,7 +76,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
   private transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
-  private transient DataSerializerFactory resultSerializerFactory;
+  private DataSerializerFactory resultSerializerFactory = new DataSerializerFactory();
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
   private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
 
@@ -104,7 +104,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       if(query instanceof SchemaQuery) {
         try{
         String schemaResult =
-        resultSerializerFactory.serialize(new SchemaResult((SchemaQuery)query,
+          getResultSerializerFactory().serialize(new SchemaResult((SchemaQuery)query,
                                                            dimensionalSchema));
         queryResult.emit(schemaResult);}
         catch(Exception e) {
@@ -150,7 +150,6 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
                                               AggregatorType.NAME_TO_AGGREGATOR);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
     indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggregatorType.NAME_TO_ORDINAL);
-    resultSerializerFactory = new DataSerializerFactory();
     super.setup(context);
   }
 
@@ -177,7 +176,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       }
 
       if(aotr != null) {
-        String result = resultSerializerFactory.serialize(aotr);
+        String result = getResultSerializerFactory().serialize(aotr);
         logger.info("Emitting the result: {}", result);
         queryResult.emit(result);
       }
@@ -250,6 +249,14 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
   protected int getAggregatorID(String aggregatorName)
   {
     return AggregatorType.NAME_TO_ORDINAL.get(aggregatorName);
+  }
+
+  /**
+   * @return the resultSerializerFactory
+   */
+  public DataSerializerFactory getResultSerializerFactory()
+  {
+    return resultSerializerFactory;
   }
 
   //==========================================================================

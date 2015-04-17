@@ -181,8 +181,6 @@ public class SchemaDimensional implements Schema
     //dimensions
     JSONArray dimensions = new JSONArray(eventSchema.getDimensionsString());
     schema.put(DimensionalEventSchema.FIELD_DIMENSIONS, dimensions);
-
-    getSchemaJSON();
   }
 
   public void setFrom(Long from)
@@ -197,6 +195,7 @@ public class SchemaDimensional implements Schema
     changed = true;
   }
 
+  @Override
   public String getSchemaJSON()
   {
     if(!changed && schemaJSON != null) {
