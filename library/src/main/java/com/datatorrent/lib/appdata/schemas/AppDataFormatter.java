@@ -16,11 +16,12 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import java.io.Serializable;
 import java.text.DecimalFormat;
 import javax.validation.constraints.NotNull;
 import jline.internal.Preconditions;
 
-public class AppDataFormatter
+public class AppDataFormatter implements Serializable
 {
   private String decimalFormatString;
   private transient DecimalFormat decimalFormat;
