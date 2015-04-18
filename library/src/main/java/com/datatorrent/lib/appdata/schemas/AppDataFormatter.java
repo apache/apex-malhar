@@ -76,7 +76,7 @@ public class AppDataFormatter implements Serializable
       }
       case LONG:
       {
-        return longFormat.format((Long) object);
+        return getLongFormat().format((Long) object);
       }
       default:
         return object.toString();
