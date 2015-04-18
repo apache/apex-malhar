@@ -151,7 +151,7 @@ public class AppDataFormatter implements Serializable
 
   public DecimalFormat getFloatFormat()
   {
-    if(floatFormat == null && getFloatFormatString() != null) {
+    if(floatFormat == null && floatFormatString != null) {
       floatFormat = new DecimalFormat(floatFormatString);
     }
 
@@ -163,7 +163,7 @@ public class AppDataFormatter implements Serializable
    */
   public DecimalFormat getDoubleFormat()
   {
-    if(doubleFormat == null && getFloatFormatString() != null) {
+    if(doubleFormat == null && doubleFormatString != null) {
       doubleFormat = new DecimalFormat(doubleFormatString);
     }
 
@@ -175,7 +175,7 @@ public class AppDataFormatter implements Serializable
    */
   public DecimalFormat getByteFormat()
   {
-    if(byteFormat == null && getFloatFormatString() != null) {
+    if(byteFormat == null && byteFormatString != null) {
       byteFormat = new DecimalFormat(byteFormatString);
     }
 
@@ -187,7 +187,7 @@ public class AppDataFormatter implements Serializable
    */
   public DecimalFormat getShortFormat()
   {
-    if(shortFormat == null && getFloatFormatString() != null) {
+    if(shortFormat == null && shortFormatString != null) {
       shortFormat = new DecimalFormat(shortFormatString);
     }
 
@@ -196,7 +196,7 @@ public class AppDataFormatter implements Serializable
 
   public DecimalFormat getIntFormat()
   {
-    if(intFormat == null && getIntFormatString() != null) {
+    if(intFormat == null && intFormatString != null) {
       intFormat = new DecimalFormat(intFormatString);
     }
 
@@ -208,7 +208,7 @@ public class AppDataFormatter implements Serializable
    */
   public DecimalFormat getLongFormat()
   {
-    if(longFormat == null && getFloatFormatString() != null) {
+    if(longFormat == null && longFormatString != null) {
       longFormat = new DecimalFormat(longFormatString);
     }
 
