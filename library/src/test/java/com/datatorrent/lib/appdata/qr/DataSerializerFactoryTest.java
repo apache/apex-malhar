@@ -35,6 +35,6 @@ public class DataSerializerFactoryTest
   public void testAppDataFormatter()
   {
     DataSerializerFactory dsf = new DataSerializerFactory(new AppDataFormatter());
-    dsf.getAppDataFormatter().setDecimalFormatString("#.##");
+    dsf.getAppDataFormatter().setContinuousFormatString("#.##");
   }
 }
