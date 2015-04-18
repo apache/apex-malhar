@@ -56,27 +56,27 @@ public class AppDataFormatter implements Serializable
     switch(type) {
       case FLOAT:
       {
-        return getFloatFormat().format((Float) object);
+        return format((Float) object);
       }
       case DOUBLE:
       {
-        return getDoubleFormat().format((Double) object);
+        return format((Double) object);
       }
       case BYTE:
       {
-        return getByteFormat().format((Byte) object);
+        return format((Byte) object);
       }
       case SHORT:
       {
-        return getShortFormat().format((Short) object);
+        return format((Short) object);
       }
       case INTEGER:
       {
-        return getIntFormat().format((Integer) object);
+        return format((Integer) object);
       }
       case LONG:
       {
-        return getLongFormat().format((Long) object);
+        return format((Long) object);
       }
       default:
         return object.toString();
@@ -85,43 +85,74 @@ public class AppDataFormatter implements Serializable
 
   public String format(float val)
   {
-    return getFloatFormat().format(val);
+    DecimalFormat df = getFloatFormat();
+
+    if(df != null) {
+      return df.format(val);
+    }
+
+    return Float.toString(val);
   }
 
   public String format(double val)
   {
-    return getDoubleFormat().format(val);
+    DecimalFormat df = getDoubleFormat();
+
+    if(df != null) {
+      return df.format(val);
+    }
+
+    return Double.toString(val);
   }
 
   public String format(byte val)
   {
-    return getByteFormat().format(val);
+    DecimalFormat df = getByteFormat();
+
+    if(df != null) {
+      return df.format(val);
+    }
+
+    return Byte.toString(val);
   }
 
   public String format(short val)
   {
-    return getShortFormat().format(val);
+    DecimalFormat df = getShortFormat();
+
+    if(df != null) {
+      return df.format(val);
+    }
+
+    return Short.toString(val);
   }
 
   public String format(int val)
   {
-    return getIntFormat().format(val);
+    DecimalFormat df = getIntFormat();
+
+    if(df != null) {
+      return df.format(val);
+    }
+
+    return Integer.toString(val);
   }
 
   public String format(long val)
   {
-    return getLongFormat().format(val);
+    DecimalFormat df = getLongFormat();
+
+    if(df != null) {
+      return df.format(val);
+    }
+
+    return Long.toString(val);
   }
 
   public DecimalFormat getFloatFormat()
   {
-    if(floatFormat == null) {
-      if(getFloatFormatString() != null) {
-        floatFormat = new DecimalFormat(floatFormatString);
-      }
-      else {
-        floatFormat = new DecimalFormat();
-      }
+    if(floatFormat == null && getFloatFormatString() != null) {
+      floatFormat = new DecimalFormat(floatFormatString);
     }
 
     return floatFormat;
@@ -132,13 +163,8 @@ public class AppDataFormatter implements Serializable
    */
   public DecimalFormat getDoubleFormat()
   {
-    if(doubleFormat == null) {
-      if(getFloatFormatString() != null) {
-        doubleFormat = new DecimalFormat(doubleFormatString);
-      }
-      else {
-        doubleFormat = new DecimalFormat();
-      }
+    if(doubleFormat == null && getFloatFormatString() != null) {
+      doubleFormat = new DecimalFormat(doubleFormatString);
     }
 
     return doubleFormat;
@@ -149,13 +175,8 @@ public class AppDataFormatter implements Serializable
    */
   public DecimalFormat getByteFormat()
   {
-    if(byteFormat == null) {
-      if(getFloatFormatString() != null) {
-        byteFormat = new DecimalFormat(byteFormatString);
-      }
-      else {
-        byteFormat = new DecimalFormat();
-      }
+    if(byteFormat == null && getFloatFormatString() != null) {
+      byteFormat = new DecimalFormat(byteFormatString);
     }
 
     return byteFormat;
@@ -166,13 +187,8 @@ public class AppDataFormatter implements Serializable
    */
   public DecimalFormat getShortFormat()
   {
-    if(shortFormat == null) {
-      if(getFloatFormatString() != null) {
-        shortFormat = new DecimalFormat(shortFormatString);
-      }
-      else {
-        shortFormat = new DecimalFormat();
-      }
+    if(shortFormat == null && getFloatFormatString() != null) {
+      shortFormat = new DecimalFormat(shortFormatString);
     }
 
     return shortFormat;
@@ -180,31 +196,20 @@ public class AppDataFormatter implements Serializable
 
   public DecimalFormat getIntFormat()
   {
-    if(intFormat == null) {
-      if(getIntFormatString() != null) {
-        intFormat = new DecimalFormat(intFormatString);
-      }
-      else {
-        intFormat = new DecimalFormat();
-      }
+    if(intFormat == null && getIntFormatString() != null) {
+      intFormat = new DecimalFormat(intFormatString);
     }
 
     return intFormat;
   }
-
 
   /**
    * @return the longFormat
    */
   public DecimalFormat getLongFormat()
   {
-    if(longFormat == null) {
-      if(getFloatFormatString() != null) {
-        longFormat = new DecimalFormat(longFormatString);
-      }
-      else {
-        longFormat = new DecimalFormat();
-      }
+    if(longFormat == null && getFloatFormatString() != null) {
+      longFormat = new DecimalFormat(longFormatString);
     }
 
     return longFormat;
