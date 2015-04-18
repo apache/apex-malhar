@@ -56,27 +56,27 @@ public class AppDataFormatter implements Serializable
     switch(type) {
       case FLOAT:
       {
-        return format((Float) object);
+        return format((float) ((Float) object));
       }
       case DOUBLE:
       {
-        return format((Double) object);
+        return format((double) ((Double) object));
       }
       case BYTE:
       {
-        return format((Byte) object);
+        return format((byte) ((Byte) object));
       }
       case SHORT:
       {
-        return format((Short) object);
+        return format((short) ((Short) object));
       }
       case INTEGER:
       {
-        return format((Integer) object);
+        return format((int) ((Integer) object));
       }
       case LONG:
       {
-        return format((Long) object);
+        return format((long) ((Long) object));
       }
       default:
         return object.toString();
