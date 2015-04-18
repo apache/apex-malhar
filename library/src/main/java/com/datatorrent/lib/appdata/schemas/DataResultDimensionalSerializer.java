@@ -89,8 +89,6 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
       }
 
       for(String field: nonAggregatedFields.getFields()) {
-        Type type = fieldsAggregatable.getFieldsDescriptor().getType(field);
-
         if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
           //Do nothing
         }
