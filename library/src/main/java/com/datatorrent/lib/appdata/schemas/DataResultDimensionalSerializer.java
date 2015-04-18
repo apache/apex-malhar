@@ -65,8 +65,6 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
 
     boolean hasTime = dataResult.getQuery().isHasTime();
 
-    logger.info("Serializing result hasTime {}", hasTime);
-
     FieldsAggregatable fieldsAggregatable = dataResult.getQuery().getFieldsAggregatable();
     Fields nonAggregatedFields = fieldsAggregatable.getNonAggregatedFields();
     Map<String, Set<String>> aggregatorToFields = fieldsAggregatable.getAggregatorToFields();
@@ -90,14 +88,14 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
         valueJO.put(DimensionsDescriptor.DIMENSION_TIME, time);
       }
 
-      logger.info("nonAggregatedFields {}", nonAggregatedFields);
       for(String field: nonAggregatedFields.getFields()) {
-        logger.info("The field {}", field);
+        Type type = fieldsAggregatable.getFieldsDescriptor().getType(field);
+
         if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
           //Do nothing
         }
         else if(gpoKey.getFieldDescriptor().getFields().getFields().contains(field)) {
-          valueJO.put(field, gpoKey.getField(field));
+          valueJO.put(field, appDataFormatter.format(gpoKey.getField(field)));
         }
         else {
           valueJO.put(field, ALL);
@@ -111,11 +109,10 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
 
         for(String field: fields) {
           String compoundName = aggregatorToFieldToName.get(aggregatorName).get(field);
-          valueJO.put(compoundName, aggregateValues.getField(field));
+          valueJO.put(compoundName, appDataFormatter.format(aggregateValues.getField(field)));
         }
       }
 
-      logger.info("valueJO {}", valueJO.toString());
       data.put(valueJO);
     }
 

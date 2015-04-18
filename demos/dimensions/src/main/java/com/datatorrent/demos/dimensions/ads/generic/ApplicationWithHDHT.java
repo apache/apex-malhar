@@ -139,7 +139,7 @@ public class ApplicationWithHDHT implements StreamingApplication
     }
 
     store.setFileStore(hdsFile);
-    store.getAppDataFormatter().setDecimalFormatString("#.##");
+    store.getAppDataFormatter().setContinuousFormatString("#.##");
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
 
     String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);

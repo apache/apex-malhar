@@ -499,28 +499,22 @@ public class GPOUtils
         jo.put(field, gpo.getFieldString(field));
       }
       else if(fieldType == Type.BYTE) {
-        String val = adFormatter.getDecimalFormat().format(gpo.getFieldByte(field));
-        jo.put(field, val);
+        jo.put(field, adFormatter.format(gpo.getFieldByte(field)));
       }
       else if(fieldType == Type.SHORT) {
-        String val = adFormatter.getDecimalFormat().format(gpo.getFieldShort(field));
-        jo.put(field, val);
+        jo.put(field, adFormatter.format(gpo.getFieldShort(field)));
       }
       else if(fieldType == Type.INTEGER) {
-        String val = adFormatter.getDecimalFormat().format(gpo.getFieldInt(field));
-        jo.put(field, val);
+        jo.put(field, adFormatter.format(gpo.getFieldInt(field)));
       }
       else if(fieldType == Type.LONG) {
-        String val = adFormatter.getDecimalFormat().format(gpo.getFieldLong(field));
-        jo.put(field, val);
+        jo.put(field, adFormatter.format(gpo.getFieldLong(field)));
       }
       else if(fieldType == Type.FLOAT) {
-        String val = adFormatter.getDecimalFormat().format(gpo.getFieldFloat(field));
-        jo.put(field, val);
+        jo.put(field, adFormatter.format(gpo.getFieldFloat(field)));
       }
       else if(fieldType == Type.DOUBLE) {
-        String val = adFormatter.getDecimalFormat().format(gpo.getFieldDouble(field));
-        jo.put(field, val);
+        jo.put(field, adFormatter.format(gpo.getFieldDouble(field)));
       }
       else {
         throw new UnsupportedOperationException("The type " + fieldType + " is not supported.");
