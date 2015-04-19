@@ -16,7 +16,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -142,7 +142,7 @@ public class FieldsAggregatable
   }
 
   public FieldsDescriptor buildFieldsDescriptor(FieldsDescriptor inputValuesDescriptor,
-                                                Map<String, DimensionsAggregator> nameToAggregator)
+                                                Map<String, DimensionsStaticAggregator> nameToAggregator)
   {
     StringBuilder sb = new StringBuilder();
     Map<String, Type> fieldToType = Maps.newHashMap();

@@ -20,7 +20,7 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 
 
-public class AggregatorMax implements DimensionsAggregator
+public class AggregatorMax implements DimensionsStaticAggregator
 {
   private static final long serialVersionUID = 201503120332L;
 

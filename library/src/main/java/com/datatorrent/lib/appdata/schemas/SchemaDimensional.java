@@ -16,7 +16,7 @@
 package com.datatorrent.lib.appdata.schemas;
 
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -58,13 +58,13 @@ public class SchemaDimensional implements Schema
   private String schemaJSON;
 
   private DimensionalEventSchema eventSchema;
-  private Map<String, DimensionsAggregator> nameToAggregator;
+  private Map<String, DimensionsStaticAggregator> nameToAggregator;
   private JSONObject schema;
   private JSONObject time;
 
   public SchemaDimensional(String schemaStub,
                                   DimensionalEventSchema eventSchema,
-                                  Map<String, DimensionsAggregator> nameToAggregator)
+                                  Map<String, DimensionsStaticAggregator> nameToAggregator)
   {
     this(eventSchema,
          nameToAggregator);
@@ -81,7 +81,7 @@ public class SchemaDimensional implements Schema
 
   public SchemaDimensional(String schemaStub,
                            String eventSchemaJSON,
-                           Map<String, DimensionsAggregator> nameToAggregator)
+                           Map<String, DimensionsStaticAggregator> nameToAggregator)
   {
     this(schemaStub,
          new DimensionalEventSchema(eventSchemaJSON),
@@ -89,7 +89,7 @@ public class SchemaDimensional implements Schema
   }
 
   public SchemaDimensional(String eventSchemaJSON,
-                           Map<String, DimensionsAggregator> nameToAggregator)
+                           Map<String, DimensionsStaticAggregator> nameToAggregator)
   {
     this(null,
          eventSchemaJSON,
@@ -97,7 +97,7 @@ public class SchemaDimensional implements Schema
   }
 
   public SchemaDimensional(DimensionalEventSchema eventSchema,
-                                  Map<String, DimensionsAggregator> nameToAggregator)
+                                  Map<String, DimensionsStaticAggregator> nameToAggregator)
   {
     setEventSchema(eventSchema);
     setNameToAggregator(nameToAggregator);
@@ -115,11 +115,11 @@ public class SchemaDimensional implements Schema
     this.eventSchema = Preconditions.checkNotNull(eventSchema, "eventSchema");
   }
 
-  private void setNameToAggregator(Map<String, DimensionsAggregator> nameToAggregator)
+  private void setNameToAggregator(Map<String, DimensionsStaticAggregator> nameToAggregator)
   {
     this.nameToAggregator = Preconditions.checkNotNull(nameToAggregator, "nameToAggregator");
 
-    for(Map.Entry<String, DimensionsAggregator> entry: nameToAggregator.entrySet()) {
+    for(Map.Entry<String, DimensionsStaticAggregator> entry: nameToAggregator.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }
@@ -165,7 +165,7 @@ public class SchemaDimensional implements Schema
       Type inputValueType = inputValuesDescriptor.getType(valueName);
 
       for(String aggregatorName: entry.getValue()) {
-        DimensionsAggregator aggregator = nameToAggregator.get(aggregatorName);
+        DimensionsStaticAggregator aggregator = nameToAggregator.get(aggregatorName);
         Type outputValueType = aggregator.getTypeMap().getTypeMap().get(inputValueType);
 
         JSONObject value = new JSONObject();

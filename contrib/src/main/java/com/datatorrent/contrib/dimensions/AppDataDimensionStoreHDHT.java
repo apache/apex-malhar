@@ -23,8 +23,8 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.AggregatorType;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Data;
@@ -149,10 +149,10 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
                                                            DataQueryDimensional.class);
     eventSchema = new DimensionalEventSchema(eventSchemaJSON);
     dimensionalSchema = new SchemaDimensional(eventSchemaJSON,
-                                              AggregatorType.NAME_TO_AGGREGATOR);
+                                              AggregatorStaticType.NAME_TO_AGGREGATOR);
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
-    indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggregatorType.NAME_TO_ORDINAL);
+    indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggregatorStaticType.NAME_TO_ORDINAL);
     super.setup(context);
   }
 
@@ -196,9 +196,9 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
   }
 
   @Override
-  public DimensionsAggregator getAggregator(int aggregatorID)
+  public DimensionsStaticAggregator getAggregator(int aggregatorID)
   {
-    return AggregatorType.values()[aggregatorID].getAggregator();
+    return AggregatorStaticType.values()[aggregatorID].getAggregator();
   }
 
   @Override
@@ -251,7 +251,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
   @Override
   protected int getAggregatorID(String aggregatorName)
   {
-    return AggregatorType.NAME_TO_ORDINAL.get(aggregatorName);
+    return AggregatorStaticType.NAME_TO_ORDINAL.get(aggregatorName);
   }
 
   /**
@@ -296,7 +296,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
         EventKey eventKey = new EventKey(SCHEMA_ID,
                                          ddID,
-                                         AggregatorType.SUM.ordinal(),
+                                         AggregatorStaticType.SUM.ordinal(),
                                          gpoKey);
         aggregatorToEventKey.put(aggregatorName, eventKey);
       }

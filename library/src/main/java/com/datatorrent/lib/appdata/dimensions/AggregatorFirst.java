@@ -18,7 +18,7 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
-public class AggregatorFirst implements DimensionsAggregator
+public class AggregatorFirst implements DimensionsStaticAggregator
 {
   public AggregatorFirst()
   {

@@ -19,7 +19,7 @@ package com.datatorrent.lib.appdata.dimensions;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
-public class AggregatorLast implements DimensionsAggregator
+public class AggregatorLast implements DimensionsStaticAggregator
 {
   public AggregatorLast()
   {

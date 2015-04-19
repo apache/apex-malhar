@@ -7,10 +7,10 @@ package com.datatorrent.demos.dimensions.ads.generic;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
-import com.datatorrent.lib.appdata.dimensions.AggregatorType;
+import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputation;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
@@ -75,7 +75,7 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
           tempDescriptorList.get(index).entrySet()) {
         String aggregatorName = entry.getKey();
         FieldsDescriptor inputDescriptor = entry.getValue();
-        AggregatorType aggType = AggregatorType.valueOf(aggregatorName);
+        AggregatorStaticType aggType = AggregatorStaticType.valueOf(aggregatorName);
         aggIDList.add(aggType.ordinal());
         inputMap.put(aggType.ordinal(), inputDescriptor);
         outputMap.put(aggType.ordinal(),
@@ -199,9 +199,9 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
   }
 
   @Override
-  public DimensionsAggregator getAggregator(int aggregatorID)
+  public DimensionsStaticAggregator getAggregator(int aggregatorID)
   {
-    return AggregatorType.values()[aggregatorID].getAggregator();
+    return AggregatorStaticType.values()[aggregatorID].getAggregator();
   }
 
   /**
@@ -229,14 +229,14 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
   }
 
   @Override
-  public DimensionsAggregator getAggregator(String aggregatorName)
+  public DimensionsStaticAggregator getAggregator(String aggregatorName)
   {
-    return AggregatorType.NAME_TO_AGGREGATOR.get(aggregatorName);
+    return AggregatorStaticType.NAME_TO_AGGREGATOR.get(aggregatorName);
   }
 
   @Override
-  public Map<Integer, DimensionsAggregator> getAggregatorIDToAggregator()
+  public Map<Integer, DimensionsStaticAggregator> getAggregatorIDToAggregator()
   {
-    return AggregatorType.ORDINAL_TO_AGGREGATOR;
+    return AggregatorStaticType.ORDINAL_TO_AGGREGATOR;
   }
 }

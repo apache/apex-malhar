@@ -96,9 +96,9 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   }
 
   public abstract AggregateEvent[] convertInputEvent(INPUT_EVENT inputEvent);
-  public abstract DimensionsAggregator getAggregator(String aggregatorName);
-  public abstract DimensionsAggregator getAggregator(int aggregatorID);
-  public abstract Map<Integer, DimensionsAggregator> getAggregatorIDToAggregator();
+  public abstract DimensionsStaticAggregator getAggregator(String aggregatorName);
+  public abstract DimensionsStaticAggregator getAggregator(int aggregatorID);
+  public abstract Map<Integer, DimensionsStaticAggregator> getAggregatorIDToAggregator();
   public abstract FieldsDescriptor getAggregateFieldsDescriptor(int schemaID,
                                                                 int dimensionDescriptorID,
                                                                 int aggregatorID);
@@ -114,7 +114,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
   public void processGenericEvent(AggregateEvent gae)
   {
-    DimensionsAggregator aggregator = getAggregator(gae.getAggregatorIndex());
+    DimensionsStaticAggregator aggregator = getAggregator(gae.getAggregatorIndex());
     AggregateEvent aggregate = cache.getIfPresent(gae.getEventKey());
 
     if(aggregate == null) {
@@ -159,14 +159,14 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     private transient Cache<EventKey, AggregateEvent> cache =
     CacheBuilder.newBuilder().maximumSize(getCacheSize()).removalListener(new CacheRemovalListener()).build();
 
-    private Map<Integer, DimensionsAggregator> aggregatorIDToAggregator;
+    private Map<Integer, DimensionsStaticAggregator> aggregatorIDToAggregator;
 
-    public DimensionsComputationUnifier(Map<Integer, DimensionsAggregator> aggregatorIDToAggregator)
+    public DimensionsComputationUnifier(Map<Integer, DimensionsStaticAggregator> aggregatorIDToAggregator)
     {
       setAggregatorIDToAggregator(aggregatorIDToAggregator);
     }
 
-    private void setAggregatorIDToAggregator(Map<Integer, DimensionsAggregator> aggregatorIDToAggregator)
+    private void setAggregatorIDToAggregator(Map<Integer, DimensionsStaticAggregator> aggregatorIDToAggregator)
     {
       this.aggregatorIDToAggregator = Preconditions.checkNotNull(aggregatorIDToAggregator,
                                                                  "aggregatorIDToAggregator");
@@ -175,7 +175,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     @Override
     public void process(AggregateEvent srcAgg)
     {
-      DimensionsAggregator aggregator = aggregatorIDToAggregator.get(srcAgg.getAggregatorIndex());
+      DimensionsStaticAggregator aggregator = aggregatorIDToAggregator.get(srcAgg.getAggregatorIndex());
       AggregateEvent destAgg = cache.getIfPresent(srcAgg.getEventKey());
 
       if(destAgg == null) {
