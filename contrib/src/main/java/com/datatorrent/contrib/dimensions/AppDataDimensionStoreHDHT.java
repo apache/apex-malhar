@@ -23,6 +23,7 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
+import com.datatorrent.lib.appdata.dimensions.AggregatorOTFType;
 import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
@@ -147,9 +148,13 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
                                                   new DimensionsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryDimensional.class);
-    eventSchema = new DimensionalEventSchema(eventSchemaJSON);
+    eventSchema = new DimensionalEventSchema(eventSchemaJSON,
+                                             AggregatorStaticType.CLASS_TO_NAME,
+                                             AggregatorOTFType.NAME_TO_AGGREGATOR);
     dimensionalSchema = new SchemaDimensional(eventSchemaJSON,
-                                              AggregatorStaticType.NAME_TO_AGGREGATOR);
+                                              AggregatorStaticType.NAME_TO_AGGREGATOR,
+                                              AggregatorStaticType.CLASS_TO_NAME,
+                                              AggregatorOTFType.NAME_TO_AGGREGATOR);
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
     indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggregatorStaticType.NAME_TO_ORDINAL);

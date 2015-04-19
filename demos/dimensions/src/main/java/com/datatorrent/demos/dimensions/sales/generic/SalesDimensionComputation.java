@@ -6,14 +6,15 @@
 package com.datatorrent.demos.dimensions.sales.generic;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
+import com.datatorrent.lib.appdata.dimensions.AggregatorOTFType;
+import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputation;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -45,7 +46,9 @@ public class SalesDimensionComputation extends DimensionsComputation<Map<String,
   @Override
   public void setup(OperatorContext context)
   {
-    eventSchema = new DimensionalEventSchema(eventSchemaJSON);
+    eventSchema = new DimensionalEventSchema(eventSchemaJSON,
+                                             AggregatorStaticType.CLASS_TO_NAME,
+                                             AggregatorOTFType.NAME_TO_AGGREGATOR);
 
     List<Map<String, FieldsDescriptor>> tempDescriptorList = eventSchema.getDdIDToAggregatorToAggregateDescriptor();
     ddIDToAggIDs = Lists.newArrayList();

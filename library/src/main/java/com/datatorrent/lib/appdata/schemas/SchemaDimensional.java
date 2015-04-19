@@ -16,6 +16,7 @@
 package com.datatorrent.lib.appdata.schemas;
 
 
+import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -81,19 +82,27 @@ public class SchemaDimensional implements Schema
 
   public SchemaDimensional(String schemaStub,
                            String eventSchemaJSON,
-                           Map<String, DimensionsStaticAggregator> nameToAggregator)
+                           Map<String, DimensionsStaticAggregator> nameToAggregator,
+                           Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators,
+                           Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
   {
     this(schemaStub,
-         new DimensionalEventSchema(eventSchemaJSON),
+         new DimensionalEventSchema(eventSchemaJSON,
+                                    staticAggregators,
+                                    nameToOTFAggregator),
          nameToAggregator);
   }
 
   public SchemaDimensional(String eventSchemaJSON,
-                           Map<String, DimensionsStaticAggregator> nameToAggregator)
+                           Map<String, DimensionsStaticAggregator> nameToAggregator,
+                           Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators,
+                           Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
   {
     this(null,
          eventSchemaJSON,
-         nameToAggregator);
+         nameToAggregator,
+         staticAggregators,
+         nameToOTFAggregator);
   }
 
   public SchemaDimensional(DimensionalEventSchema eventSchema,

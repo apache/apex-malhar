@@ -26,16 +26,14 @@ public enum AggregatorOTFType
 {
   AVG(new AggregatorAverage());
 
-  public static final Map<Class<? extends DimensionsStaticAggregator>, String> CLASS_TO_NAME;
-  public static final Map<String, DimensionsStaticAggregator> NAME_TO_AGGREGATOR;
-
-  private DimensionsOTFAggregator aggregator;
+  public static final Map<Class<? extends DimensionsOTFAggregator>, String> CLASS_TO_NAME;
+  public static final Map<String, DimensionsOTFAggregator> NAME_TO_AGGREGATOR;
 
   static {
-    Map<Class<? extends DimensionsStaticAggregator>, String> classToName = Maps.newHashMap();
-    Map<String, DimensionsStaticAggregator> nameToAggregator = Maps.newHashMap();
+    Map<Class<? extends DimensionsOTFAggregator>, String> classToName = Maps.newHashMap();
+    Map<String, DimensionsOTFAggregator> nameToAggregator = Maps.newHashMap();
 
-    for(AggregatorStaticType aggType: AggregatorStaticType.values()) {
+    for(AggregatorOTFType aggType: AggregatorOTFType.values()) {
       classToName.put(aggType.getAggregator().getClass(), aggType.name());
       nameToAggregator.put(aggType.name(), aggType.getAggregator());
     }
@@ -43,6 +41,8 @@ public enum AggregatorOTFType
     CLASS_TO_NAME = Collections.unmodifiableMap(classToName);
     NAME_TO_AGGREGATOR = Collections.unmodifiableMap(nameToAggregator);
   }
+
+  private DimensionsOTFAggregator aggregator;
 
   AggregatorOTFType(DimensionsOTFAggregator aggregator)
   {

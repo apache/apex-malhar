@@ -16,6 +16,8 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -97,18 +99,70 @@ public class DimensionalEventSchema
   private String keysString;
   private String bucketsString;
 
+  private Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators;
+  private Map<String, DimensionsOTFAggregator> nameToOTFAggregator;
+
   public DimensionalEventSchema()
   {
   }
 
-  public DimensionalEventSchema(String json)
+  public DimensionalEventSchema(String json,
+                                Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators,
+                                Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
   {
+
+    setStaticAggregators(staticAggregators);
+    setNameToOTFAggregators(nameToOTFAggregator);
+
     try {
       initialize(json);
     }
     catch(Exception e) {
       throw new IllegalArgumentException(e);
     }
+  }
+
+  private void setStaticAggregators(Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators)
+  {
+    this.staticAggregators = Preconditions.checkNotNull(staticAggregators, "staticAggregators");
+
+    for(Map.Entry<Class<? extends DimensionsStaticAggregator>, String> entry: staticAggregators.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+  }
+
+  private void setNameToOTFAggregators(Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
+  {
+    this.nameToOTFAggregator = Preconditions.checkNotNull(nameToOTFAggregator, "nameToOTFAggregator");
+
+    for(Map.Entry<String, DimensionsOTFAggregator> entry: nameToOTFAggregator.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+  }
+
+  private boolean isAggregator(String aggregatorName)
+  {
+    return staticAggregators.values().contains(aggregatorName) ||
+           nameToOTFAggregator.containsKey(aggregatorName);
+  }
+
+  private boolean isAggregatorStatic(String aggregatorName)
+  {
+    return staticAggregators.values().contains(aggregatorName);
+  }
+
+  private List<String> getChildAggregators(String aggregatorOTFName)
+  {
+    List<String> childAggregators = Lists.newArrayList();
+
+    for(Class<? extends DimensionsStaticAggregator> clazz:
+        nameToOTFAggregator.get(aggregatorOTFName).getChildAggregators()) {
+      childAggregators.add(staticAggregators.get(clazz));
+    }
+
+    return childAggregators;
   }
 
   private void initialize(String json) throws Exception
@@ -216,6 +270,7 @@ public class DimensionalEventSchema
     //Values
 
     allValueToAggregator = Maps.newHashMap();
+    Map<String, Set<String>> allValueToOTFAggregator = Maps.newHashMap();
     Map<String, Set<String>> valueToAggregators = Maps.newHashMap();
 
     Map<String, Type> aggFieldToType = Maps.newHashMap();
@@ -244,18 +299,49 @@ public class DimensionalEventSchema
             aggregatorIndex < aggregators.length();
             aggregatorIndex++) {
           String aggregatorName = aggregators.getString(aggregatorIndex);
-          Set<String> aggregatorNames = allValueToAggregator.get(name);
 
-          if(aggregatorNames == null) {
-            aggregatorNames = Sets.newHashSet();
-            allValueToAggregator.put(name, aggregatorNames);
+          if(!isAggregator(aggregatorName)) {
+            throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
           }
 
-          aggregatorNames.add(aggregatorName);
+          if(isAggregatorStatic(aggregatorName)) {
+            Set<String> aggregatorNames = allValueToAggregator.get(name);
 
-          if(!aggregatorSet.add(aggregatorName)) {
-            throw new IllegalArgumentException("An aggregator " + aggregatorName
-                                               + " cannot be specified twice for a value");
+            if(aggregatorNames == null) {
+              aggregatorNames = Sets.newHashSet();
+              allValueToAggregator.put(name, aggregatorNames);
+            }
+
+            aggregatorNames.add(aggregatorName);
+
+            if(!aggregatorSet.add(aggregatorName)) {
+              throw new IllegalArgumentException("An aggregator " + aggregatorName
+                                                 + " cannot be specified twice for a value");
+            }
+          }
+          else {
+            //Check for duplicate on the fly aggregators
+            Set<String> aggregatorNames = allValueToOTFAggregator.get(name);
+
+            if(aggregatorNames == null) {
+              aggregatorNames = Sets.newHashSet();
+              allValueToOTFAggregator.put(name, aggregatorNames);
+            }
+
+            if(!aggregatorNames.add(aggregatorName)) {
+              throw new IllegalArgumentException("An aggregator " + aggregatorName +
+                                                 " cannot be specified twice for a value");
+            }
+
+            //Add child aggregators
+            aggregatorNames = allValueToAggregator.get(name);
+
+            if(aggregatorNames == null) {
+              aggregatorNames = Sets.newHashSet();
+              allValueToAggregator.put(name, aggregatorNames);
+            }
+
+            aggregatorNames.addAll(getChildAggregators(aggregatorName));
           }
         }
       }
@@ -287,6 +373,7 @@ public class DimensionalEventSchema
       //Get the key fields of a descriptor
       JSONArray combinationFields = dimension.getJSONArray(FIELD_DIMENSIONS_COMBINATIONS);
       Map<String, Set<String>> specificValueToAggregator = Maps.newHashMap();
+      Map<String, Set<String>> specificValueToOTFAggregator = Maps.newHashMap();
 
       for(Map.Entry<String, Set<String>> entry:
           valueToAggregators.entrySet()) {
@@ -342,33 +429,81 @@ public class DimensionalEventSchema
           String valueName = components[ADDITIONAL_VALUE_VALUE_INDEX];
           String aggregatorName = components[ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
-          Set<String> aggregatorNames = allValueToAggregator.get(valueName);
-
-          if(aggregatorNames == null) {
-            aggregatorNames = Sets.newHashSet();
-            allValueToAggregator.put(valueName, aggregatorNames);
+          if(!isAggregator(aggregatorName)) {
+            throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
           }
 
-          aggregatorNames.add(aggregatorName);
-          logger.info("Aggregator name {}", aggregatorName);
+          if(isAggregatorStatic(aggregatorName)) {
+            Set<String> aggregatorNames = allValueToAggregator.get(valueName);
 
-          Set<String> aggregators = specificValueToAggregator.get(valueName);
+            if(aggregatorNames == null) {
+              aggregatorNames = Sets.newHashSet();
+              allValueToAggregator.put(valueName, aggregatorNames);
+            }
 
-          if(aggregators == null) {
-            aggregators = Sets.newHashSet();
-            specificValueToAggregator.put(valueName, aggregators);
+            aggregatorNames.add(aggregatorName);
+
+            Set<String> aggregators = specificValueToAggregator.get(valueName);
+
+            if(aggregators == null) {
+              aggregators = Sets.newHashSet();
+              specificValueToAggregator.put(valueName, aggregators);
+            }
+
+            if(aggregators == null) {
+              throw new IllegalArgumentException("The additional value " + additionalValue
+                                                 + "Does not have a corresponding value " + valueName
+                                                 + " defined in the " + FIELD_VALUES + " section.");
+            }
+
+            if(!aggregators.add(aggregatorName)) {
+              throw new IllegalArgumentException("The aggregator " + aggregatorName
+                                                 + " was already defined in the " + FIELD_VALUES
+                                                 + " section for the value " + valueName);
+            }
           }
+          else {
+            //Check for duplicate on the fly aggregators
+            Set<String> aggregatorNames = specificValueToOTFAggregator.get(valueName);
 
-          if(aggregators == null) {
-            throw new IllegalArgumentException("The additional value " + additionalValue
-                                               + "Does not have a corresponding value " + valueName
-                                               + " defined in the " + FIELD_VALUES + " section.");
-          }
+            if(aggregatorNames == null) {
+              aggregatorNames = Sets.newHashSet();
+              specificValueToOTFAggregator.put(valueName, aggregatorNames);
+            }
 
-          if(!aggregators.add(aggregatorName)) {
-            throw new IllegalArgumentException("The aggregator " + aggregatorName
-                                               + " was already defined in the " + FIELD_VALUES
-                                               + " section for the value " + valueName);
+            if(!aggregatorNames.add(aggregatorName)) {
+              throw new IllegalArgumentException("The aggregator " + aggregatorName +
+                                                 " cannot be specified twice for the value " + valueName);
+            }
+
+            aggregatorNames = allValueToOTFAggregator.get(valueName);
+
+            if(aggregatorNames == null) {
+              aggregatorNames = Sets.newHashSet();
+              allValueToOTFAggregator.put(valueName, aggregatorNames);
+            }
+
+            if(!aggregatorNames.add(aggregatorName)) {
+              throw new IllegalArgumentException("The aggregator " + aggregatorName +
+                                                 " cannot be specified twice for the value " + valueName);
+            }
+
+            //
+
+            Set<String> aggregators = specificValueToAggregator.get(valueName);
+
+            if(aggregators == null) {
+              aggregators = Sets.newHashSet();
+              specificValueToAggregator.put(valueName, aggregators);
+            }
+
+            if(aggregators == null) {
+              throw new IllegalArgumentException("The additional value " + additionalValue
+                                                 + "Does not have a corresponding value " + valueName
+                                                 + " defined in the " + FIELD_VALUES + " section.");
+            }
+
+            aggregators.addAll(getChildAggregators(aggregatorName));
           }
         }
       }
