@@ -16,5 +16,7 @@
 
 /**
  * Basic counters and aggregates implementations.
+ * @deprecated use {@link com.datatorrent.api.CustomMetrics}
  */
+@Deprecated
 package com.datatorrent.lib.counters;
