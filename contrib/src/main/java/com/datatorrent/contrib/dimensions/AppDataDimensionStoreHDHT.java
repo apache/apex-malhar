@@ -567,7 +567,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
           dimensionalSchema.getGenericEventSchema().getInputValuesDescriptor().getSubset(new Fields(fields));
 
           DimensionsOTFAggregator aggregator = AggregatorOTFType.NAME_TO_AGGREGATOR.get(aggregatorName);
-          GPOMutable result = aggregator.aggregate(fd, (GPOMutable[]) mutableValues.toArray());
+          GPOMutable result = aggregator.aggregate(fd, mutableValues.toArray(new GPOMutable[mutableValues.size()]));
           prunedValue.put(aggregatorName, result);
           prunedKey.put(aggregatorName, singleKey);
         }
