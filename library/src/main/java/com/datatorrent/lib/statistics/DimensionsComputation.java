@@ -128,6 +128,11 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
 
   public Aggregator<EVENT, AGGREGATE>[] getAggregators()
   {
+    //Fix for app builder
+    if(aggregatorMaps == null) {
+      return null;
+    }
+
     @SuppressWarnings("unchecked")
     Aggregator<EVENT, AGGREGATE>[] aggregators = (Aggregator<EVENT, AGGREGATE>[]) Array.newInstance(Aggregator.class, aggregatorMaps.length);
     for (int i = aggregatorMaps.length; i-- > 0; ) {

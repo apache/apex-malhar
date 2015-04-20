@@ -545,8 +545,21 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
           List<GPOMutable> mutableValues = Lists.newArrayList();
           List<String> childAggregators = aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName);
 
+          boolean gotAllStaticAggregators = true;
+
           for(String childAggregator: childAggregators) {
-            mutableValues.add(value.get(childAggregator));
+            GPOMutable valueGPO = value.get(childAggregator);
+
+            if(valueGPO == null) {
+              gotAllStaticAggregators = false;
+              break;
+            }
+
+            mutableValues.add(valueGPO);
+          }
+
+          if(!gotAllStaticAggregators) {
+            continue;
           }
 
           Set<String> fields = query.getFieldsAggregatable().getAggregatorToFields().get(aggregatorName);
