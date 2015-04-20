@@ -525,6 +525,8 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
         Map<String, GPOMutable> key = keys.get(index);
         Map<String, GPOMutable> value = values.get(index);
 
+        logger.info("result size {}", value.size());
+
         Map<String, GPOMutable> prunedKey = Maps.newHashMap();
         Map<String, GPOMutable> prunedValue = Maps.newHashMap();
 
