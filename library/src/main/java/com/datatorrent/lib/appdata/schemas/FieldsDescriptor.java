@@ -121,7 +121,7 @@ public class FieldsDescriptor
       }
 
       if(compressedTypes.contains(type)) {
-        fieldToIndex.put(field, 1);
+        fieldToIndex.put(field, 0);
       }
       else {
         fieldToIndex.put(field, fields.size() - 1);

@@ -628,28 +628,6 @@ public class DimensionalEventSchema
     return ddIDToAggregatorToAggregateDescriptor;
   }
 
-  public List<Map<Integer, FieldsDescriptor>> getDdIDToAggregatorIDToFieldsDescriptor(Map<String, Integer> aggregatorNameToID)
-  {
-    List<Map<Integer, FieldsDescriptor>> lists = Lists.newArrayList();
-    List<Map<String, FieldsDescriptor>> ddIDToAToAD = ddIDToAggregatorToAggregateDescriptor;
-
-    for(Map<String, FieldsDescriptor> aToAD: ddIDToAToAD) {
-      logger.info("Dd to string aggMap: {}", aToAD);
-      Map<Integer, FieldsDescriptor> aggDescriptorsList = Maps.newHashMap();
-
-      for(Map.Entry<String, FieldsDescriptor> entry: aToAD.entrySet()) {
-        aggDescriptorsList.put(aggregatorNameToID.get(entry.getKey()), entry.getValue());
-        logger.info("Cost Type {}", entry.getValue().getType("cost"));
-      }
-
-      lists.add(aggDescriptorsList);
-    }
-
-    logger.info("Cost Type check {}", lists.get(0).get(0).getType("cost"));
-
-    return lists;
-  }
-
   /**
    * @return the fieldsToDimensionDescriptor
    */
