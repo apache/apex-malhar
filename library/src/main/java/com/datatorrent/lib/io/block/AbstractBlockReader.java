@@ -70,8 +70,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   protected ReaderContext<STREAM> readerContext;
   protected transient STREAM stream;
 
-  protected transient int blocksPerWindow;
-
   protected final BasicCounters<MutableLong> counters;
 
   protected transient Context.OperatorContext context;
@@ -140,7 +138,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
     LOG.debug("{}: partition keys {} mask {}", operatorId, partitionKeys, partitionMask);
 
     this.context = context;
-    counters.setCounter(ReaderCounterKeys.BLOCKS, new MutableLong());
     counters.setCounter(ReaderCounterKeys.RECORDS, new MutableLong());
     counters.setCounter(ReaderCounterKeys.BYTES, new MutableLong());
     counters.setCounter(ReaderCounterKeys.TIME, new MutableLong());
@@ -151,7 +148,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   public void beginWindow(long windowId)
   {
     this.windowId = windowId;
-    blocksPerWindow = 0;
   }
 
   @Override
@@ -180,7 +176,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
   @Override
   public void endWindow()
   {
-    counters.getCounter(ReaderCounterKeys.BLOCKS).add(blocksPerWindow);
     context.setCounters(counters);
   }
 
@@ -204,7 +199,6 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
       if (blocksMetadataOutput.isConnected()) {
         blocksMetadataOutput.emit(block);
       }
-      blocksPerWindow++;
     }
     catch (IOException ie) {
       try {
@@ -565,7 +559,7 @@ public abstract class AbstractBlockReader<R, B extends BlockMetadata, STREAM ext
 
   public static enum ReaderCounterKeys
   {
-    RECORDS, BLOCKS, BYTES, TIME
+    RECORDS, BYTES, TIME
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractBlockReader.class);

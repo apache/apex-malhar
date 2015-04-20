@@ -132,7 +132,7 @@ public class AbstractBlockReaderTest
 
     for (Partitioner.Partition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>> partition :
       newPartitions) {
-      partition.getPartitionedInstance().counters.setCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS, new MutableLong(1));
+      partition.getPartitionedInstance().counters.setCounter(AbstractBlockReader.ReaderCounterKeys.BYTES, new MutableLong(1));
 
       newMocks.add(
         new TestUtils.MockPartition<AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream>>(
@@ -145,7 +145,7 @@ public class AbstractBlockReaderTest
     Assert.assertEquals(1, newPartitions.size());
 
     AbstractBlockReader<Slice, BlockMetadata.FileBlockMetadata, FSDataInputStream> last = newPartitions.iterator().next().getPartitionedInstance();
-    Assert.assertEquals("num blocks", 8, last.counters.getCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS).longValue());
+    Assert.assertEquals("num bytes", 8, last.counters.getCounter(AbstractBlockReader.ReaderCounterKeys.BYTES).longValue());
   }
 
   static class ReaderStats extends Stats.OperatorStats
@@ -154,7 +154,6 @@ public class AbstractBlockReaderTest
     ReaderStats(int backlog, long readBlocks, long bytes, long time)
     {
       BasicCounters<MutableLong> bc = new BasicCounters<MutableLong>(MutableLong.class);
-      bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BLOCKS, new MutableLong(readBlocks));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.BYTES, new MutableLong(bytes));
       bc.setCounter(AbstractBlockReader.ReaderCounterKeys.TIME, new MutableLong(time));
 
