@@ -108,6 +108,8 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
                     aggregateValues);
 
         logger.info("aggregate fields {}", aggregateValues.getFieldDescriptor().getFields().getFields());
+        logger.info("Type to field to index {}", aggregateValues.getFieldDescriptor().getTypeToFieldToIndex());
+        logger.info("Type to field {}", aggregateValues.getFieldDescriptor().getFieldToType());
 
         Set<String> fields = aggregatorToFields.get(aggregatorName);
 
