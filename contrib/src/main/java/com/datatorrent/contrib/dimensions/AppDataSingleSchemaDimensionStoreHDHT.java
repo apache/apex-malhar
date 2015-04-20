@@ -54,6 +54,7 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableLong;
+import org.python.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -61,12 +62,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Serializable
+public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT implements Serializable
 {
   private static final long serialVersionUID = 201503231218L;
-  private static final Logger logger = LoggerFactory.getLogger(AppDataDimensionStoreHDHT.class);
+  private static final Logger logger = LoggerFactory.getLogger(AppDataSingleSchemaDimensionStoreHDHT.class);
 
   public static final int SCHEMA_ID = 0;
+  public static final long DEFAULT_BUCKET_ID = 0;
 
   @NotNull
   private String eventSchemaJSON;
@@ -134,7 +136,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
   // Query Processing - End
   //==========================================================================
 
-  public AppDataDimensionStoreHDHT()
+  public AppDataSingleSchemaDimensionStoreHDHT()
   {
   }
 
@@ -154,8 +156,9 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryDimensional.class);
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
-                                             AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
-    dimensionalSchema = new SchemaDimensional(eventSchema);
+                                             getAggregatorInfo());
+    dimensionalSchema = new SchemaDimensional(dimensionalSchemaJSON,
+                                              eventSchema);
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
     super.setup(context);
@@ -200,10 +203,15 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     super.teardown();
   }
 
+  public AggregatorInfo getAggregatorInfo()
+  {
+    return AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
+  }
+
   @Override
   public DimensionsStaticAggregator getAggregator(int aggregatorID)
   {
-    return AggregatorStaticType.values()[aggregatorID].getAggregator();
+    return getAggregatorInfo().getStaticAggregatorIDToAggregator().get(aggregatorID);
   }
 
   @Override
@@ -229,7 +237,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
   @Override
   public long getBucketForSchema(int schemaID)
   {
-    return 0;
+    return DEFAULT_BUCKET_ID;
   }
 
   @Override
@@ -259,6 +267,11 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     return AggregatorStaticType.NAME_TO_ORDINAL.get(aggregatorName);
   }
 
+  public void setAppDataFormatter(AppDataFormatter appDataFormatter)
+  {
+    this.appDataFormatter = Preconditions.checkNotNull(appDataFormatter);
+  }
+
   /**
    * @return the appDataFormatter
    */
@@ -273,10 +286,10 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
 
   class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<DataQueryDimensional, QueryMeta>
   {
-    private AppDataDimensionStoreHDHT operator;
+    private AppDataSingleSchemaDimensionStoreHDHT operator;
     private int queueWindowCount;
 
-    public DimensionsQueryQueueManager(AppDataDimensionStoreHDHT operator,
+    public DimensionsQueryQueueManager(AppDataSingleSchemaDimensionStoreHDHT operator,
                                 int queueWindowCount)
     {
       this.operator = operator;
@@ -299,20 +312,18 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       Map<String, EventKey> aggregatorToEventKey = Maps.newHashMap();
       Set<String> aggregatorNames = Sets.newHashSet();
 
-      AggregatorInfo aggregatorInfo = dimensionalSchema.getGenericEventSchema().getAggregatorInfo();
-
       for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
-        if(!aggregatorInfo.isAggregator(aggregatorName)) {
+        if(!getAggregatorInfo().isAggregator(aggregatorName)) {
           logger.error(aggregatorName + " is not a valid aggregator.");
           return false;
         }
 
-        if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+        if(getAggregatorInfo().isStaticAggregator(aggregatorName)) {
           aggregatorNames.add(aggregatorName);
           continue;
         }
 
-        aggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+        aggregatorNames.addAll(getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(aggregatorName));
       }
 
       for(String aggregatorName: aggregatorNames) {
@@ -430,9 +441,9 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
 
   class DimensionsQueryComputer implements QueryComputer<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>
   {
-    private AppDataDimensionStoreHDHT operator;
+    private AppDataSingleSchemaDimensionStoreHDHT operator;
 
-    public DimensionsQueryComputer(AppDataDimensionStoreHDHT operator)
+    public DimensionsQueryComputer(AppDataSingleSchemaDimensionStoreHDHT operator)
     {
       this.operator = operator;
     }
@@ -441,7 +452,6 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     public Result processQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext, MutableBoolean context)
     {
       logger.info("Processing query {} with countdown {}", query.getId(), query.getCountdown());
-      AggregatorInfo aggregatorInfo = dimensionalSchema.getGenericEventSchema().getAggregatorInfo();
 
       List<Map<String, GPOMutable>> keys = Lists.newArrayList();
       List<Map<String, GPOMutable>> values = Lists.newArrayList();
@@ -536,14 +546,14 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
 
         for(String aggregatorName: query.getFieldsAggregatable().getAggregators())
         {
-          if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+          if(getAggregatorInfo().isStaticAggregator(aggregatorName)) {
             prunedKey.put(aggregatorName, key.get(aggregatorName));
             prunedValue.put(aggregatorName, value.get(aggregatorName));
             continue;
           }
 
           List<GPOMutable> mutableValues = Lists.newArrayList();
-          List<String> childAggregators = aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName);
+          List<String> childAggregators = getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(aggregatorName);
 
           boolean gotAllStaticAggregators = true;
 

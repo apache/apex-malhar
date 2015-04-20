@@ -20,12 +20,12 @@ import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import org.junit.Test;
 
-public class AppDataDimensionStoreHDHTTest
+public class AppDataSingleSchemaDimensionStoreHDHTTest
 {
   @Test
   public void serializationTest() throws Exception
   {
-    AppDataDimensionStoreHDHT store = new AppDataDimensionStoreHDHT();
-    AppDataDimensionStoreHDHT store1 = TestUtils.clone(new Kryo(), store);
+    AppDataSingleSchemaDimensionStoreHDHT store = new AppDataSingleSchemaDimensionStoreHDHT();
+    AppDataSingleSchemaDimensionStoreHDHT store1 = TestUtils.clone(new Kryo(), store);
   }
 }

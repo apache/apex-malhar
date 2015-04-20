@@ -16,7 +16,7 @@
 
 package com.datatorrent.demos.dimensions.ads.generic;
 
-import com.datatorrent.contrib.dimensions.AppDataDimensionStoreHDHT;
+import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 
 import static com.datatorrent.demos.dimensions.ads.generic.ApplicationWithHDHT.*;
@@ -94,7 +94,7 @@ public class AdsDimensionComputationTest
                         fieldToType,
                         ae.getAggregates().getFieldDescriptor().getFieldToType());
 
-    AppDataDimensionStoreHDHT store = new AppDataDimensionStoreHDHT();
+    AppDataSingleSchemaDimensionStoreHDHT store = new AppDataSingleSchemaDimensionStoreHDHT();
 
     String basePath = testMeta.getDir();
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();

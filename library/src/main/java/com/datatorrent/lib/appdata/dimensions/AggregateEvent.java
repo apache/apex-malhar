@@ -28,11 +28,6 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
   private static final Logger logger = LoggerFactory.getLogger(AggregateEvent.class);
   private static final long serialVersionUID = 201503231204L;
 
-  private int schemaID;
-  private int dimensionDescriptorID;
-  private int aggregatorIndex;
-
-  private GPOImmutable keys;
   private GPOMutable aggregates;
   private EventKey eventKey;
 
@@ -44,52 +39,43 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
   }
 
   public AggregateEvent(EventKey eventKey,
-                               GPOMutable aggregates)
+                        GPOMutable aggregates)
   {
-    Preconditions.checkNotNull(eventKey);
-
-    this.keys = (GPOImmutable) eventKey.getKey();
-    this.schemaID = eventKey.getSchemaID();
-    this.dimensionDescriptorID = eventKey.getDimensionDescriptorID();
-    this.aggregatorIndex = eventKey.getAggregatorIndex();
-
-    this.setAggregates(aggregates);
-
-    initialize();
+    setEventKey(eventKey);
+    setAggregates(aggregates);
   }
 
   public AggregateEvent(GPOImmutable keys,
-                               GPOMutable aggregates,
-                               int schemaID,
-                               int dimensionDescriptorID,
-                               int aggregatorIndex)
+                        GPOMutable aggregates,
+                        int bucketID,
+                        int schemaID,
+                        int dimensionDescriptorID,
+                        int aggregatorIndex)
   {
-    setKeys(keys);
+    this.eventKey = new EventKey(bucketID,
+                                 schemaID,
+                                 dimensionDescriptorID,
+                                 aggregatorIndex,
+                                 keys);
     setAggregates(aggregates);
-    this.dimensionDescriptorID = dimensionDescriptorID;
-    this.schemaID = schemaID;
-    this.aggregatorIndex = aggregatorIndex;
-
-    initialize();
   }
 
-  private void initialize()
+  public AggregateEvent(GPOImmutable keys,
+                        GPOMutable aggregates,
+                        int schemaID,
+                        int dimensionDescriptorID,
+                        int aggregatorIndex)
   {
-    eventKey = new EventKey(schemaID,
-                            dimensionDescriptorID,
-                            aggregatorIndex,
-                            keys);
+    this.eventKey = new EventKey(schemaID,
+                                 dimensionDescriptorID,
+                                 aggregatorIndex,
+                                 keys);
+    setAggregates(aggregates);
   }
 
-  private void setKeys(GPOImmutable keys)
+  private void setEventKey(EventKey eventKey)
   {
-    Preconditions.checkNotNull(keys);
-    this.keys = keys;
-  }
-
-  public GPOImmutable getKeys()
-  {
-    return keys;
+    this.eventKey = new EventKey(eventKey);
   }
 
   private void setAggregates(GPOMutable aggregates)
@@ -103,25 +89,35 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
     return aggregates;
   }
 
+  public EventKey getEventKey()
+  {
+    return eventKey;
+  }
+
+  public GPOMutable getKeys()
+  {
+    return eventKey.getKey();
+  }
+
   public int getSchemaID()
   {
-    return schemaID;
+    return eventKey.getSchemaID();
   }
 
   public int getDimensionDescriptorID()
   {
-    return dimensionDescriptorID;
+    return eventKey.getDimensionDescriptorID();
   }
 
   @Override
   public int getAggregatorIndex()
   {
-    return aggregatorIndex;
+    return eventKey.getAggregatorIndex();
   }
 
-  public EventKey getEventKey()
+  public int getBucketID()
   {
-    return eventKey;
+    return eventKey.getBucketID();
   }
 
   /**
@@ -136,6 +132,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
   {
     private static final long serialVersionUID = 201503231205L;
 
+    private int bucketID;
     private int schemaID;
     private int dimensionDescriptorID;
     private int aggregatorIndex;
@@ -147,11 +144,25 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
 
     public EventKey(EventKey eventKey)
     {
+      this.bucketID = eventKey.bucketID;
       this.schemaID = eventKey.schemaID;
       this.dimensionDescriptorID = eventKey.dimensionDescriptorID;
       this.aggregatorIndex = eventKey.aggregatorIndex;
 
       this.key = new GPOMutable(eventKey.getKey());
+    }
+
+    public EventKey(int bucketID,
+                    int schemaID,
+                    int dimensionDescriptorID,
+                    int aggregatorIndex,
+                    GPOMutable key)
+    {
+      setBucketID(bucketID);
+      setSchemaID(schemaID);
+      setDimensionDescriptorID(dimensionDescriptorID);
+      setAggregatorIndex(aggregatorIndex);
+      setKey(key);
     }
 
     public EventKey(int schemaID,
@@ -215,6 +226,16 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       return key;
     }
 
+    private void setBucketID(int bucketID)
+    {
+      this.bucketID = bucketID;
+    }
+
+    public int getBucketID()
+    {
+      return bucketID;
+    }
+
     /**
      * @param key the key to set
      */
@@ -228,6 +249,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
     public int hashCode()
     {
       int hash = 3;
+      hash = 97 * hash + this.bucketID;
       hash = 97 * hash + this.schemaID;
       hash = 97 * hash + this.dimensionDescriptorID;
       hash = 97 * hash + this.aggregatorIndex;
@@ -247,6 +269,11 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       }
 
       final EventKey other = (EventKey)obj;
+
+      if(this.bucketID != other.bucketID) {
+        return false;
+      }
+
       if(this.schemaID != other.schemaID) {
         return false;
       }

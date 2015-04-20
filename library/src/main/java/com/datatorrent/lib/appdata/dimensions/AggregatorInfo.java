@@ -31,13 +31,16 @@ public class AggregatorInfo
   private Map<String, List<String>> otfAggregatorToStaticAggregators;
   private Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator;
   private Map<String, Integer> staticAggregatorNameToID;
+  private Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator;
 
   public AggregatorInfo(Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName,
+                        Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator,
                         Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator,
                         Map<String, Integer> staticAggregatorNameToID,
                         Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
   {
     setClassToStaticAggregatorName(classToStaticAggregatorName);
+    setStaticAggregatorIDToAggregator(staticAggregatorIDToAggregator);
     setNameToOTFAggregators(nameToOTFAggregator);
     setStaticAggregatorNameToStaticAggregator(staticAggregatorNameToStaticAggregator);
     setStaticAggregatorNameToID(staticAggregatorNameToID);
@@ -92,6 +95,24 @@ public class AggregatorInfo
   public Map<Class<? extends DimensionsStaticAggregator>, String> getClassToStaticAggregatorName()
   {
     return classToStaticAggregatorName;
+  }
+
+  private void setStaticAggregatorIDToAggregator(Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator)
+  {
+    Preconditions.checkNotNull(staticAggregatorIDToAggregator, "staticAggregatorIDToAggregator");
+
+    for(Map.Entry<Integer, DimensionsStaticAggregator> entry: staticAggregatorIDToAggregator.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+
+    this.staticAggregatorIDToAggregator = Maps.newHashMap(staticAggregatorIDToAggregator);
+    this.staticAggregatorIDToAggregator = Collections.unmodifiableMap(staticAggregatorIDToAggregator);
+  }
+
+  public Map<Integer, DimensionsStaticAggregator> getStaticAggregatorIDToAggregator()
+  {
+    return staticAggregatorIDToAggregator;
   }
 
   private void setStaticAggregatorNameToStaticAggregator(Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator)

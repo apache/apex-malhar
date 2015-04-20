@@ -78,23 +78,6 @@ public class SchemaDimensional implements Schema
     }
   }
 
-  public SchemaDimensional(String schemaStub,
-                           String eventSchemaJSON,
-                           AggregatorInfo aggregatorInfo)
-  {
-    this(schemaStub,
-         new DimensionalEventSchema(eventSchemaJSON,
-                                    aggregatorInfo));
-  }
-
-  public SchemaDimensional(String eventSchemaJSON,
-                           AggregatorInfo aggregatorInfo)
-  {
-    this(null,
-         eventSchemaJSON,
-         aggregatorInfo);
-  }
-
   public SchemaDimensional(DimensionalEventSchema eventSchema)
   {
     setEventSchema(eventSchema);

@@ -20,7 +20,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.dimensions.AppDataDimensionStoreHDHT;
+import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
@@ -127,7 +127,7 @@ public class ApplicationWithHDHT implements StreamingApplication
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     AdsDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new AdsDimensionComputation());
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
-    AppDataDimensionStoreHDHT store = dag.addOperator("Store", AppDataDimensionStoreHDHT.class);
+    AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
     String basePath = conf.get(PROP_STORE_PATH);
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();

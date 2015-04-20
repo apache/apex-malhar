@@ -30,8 +30,10 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import com.google.common.collect.Lists;
 import javax.validation.constraints.Min;
 
+import java.util.List;
 import java.util.Map;
 
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
@@ -45,6 +47,8 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   @VisibleForTesting
   public transient Cache<EventKey, AggregateEvent> cache =
   CacheBuilder.newBuilder().maximumSize(cacheSize).removalListener(new CacheRemovalListener()).build();
+
+  private transient List<AggregateEvent> aggregateEventBuffer = Lists.newArrayList();
 
   public transient final DefaultInputPort<INPUT_EVENT> inputEvent = new DefaultInputPort<INPUT_EVENT>() {
     @Override
