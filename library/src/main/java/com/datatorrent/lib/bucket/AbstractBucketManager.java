@@ -39,8 +39,6 @@ import com.google.common.collect.MinMaxPriorityQueue;
 import com.google.common.collect.Sets;
 
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.lib.bucket.BucketManager.CounterKeys;
-import com.datatorrent.lib.bucket.BucketManager.Listener;
 import com.datatorrent.lib.counters.BasicCounters;
 
 /**
