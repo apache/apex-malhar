@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
@@ -92,27 +93,25 @@ public class DimensionalEventSchema
   private List<FieldsDescriptor> ddIDToKeyDescriptor;
   private List<DimensionsDescriptor> ddIDToDD;
   private List<Map<String, Set<String>>> ddIDToValueToAggregator;
+  private List<Map<String, Set<String>>> ddIDToValueToOTFAggregator;
   private List<Map<String, FieldsDescriptor>> ddIDToAggregatorToAggregateDescriptor;
+  private List<Map<String, FieldsDescriptor>> ddIDToOTFAggregatorToAggregateDescriptor;
   private Map<DimensionsDescriptor, Integer> dimensionsDescriptorToID;
 
   private String dimensionsString;
   private String keysString;
   private String bucketsString;
 
-  private Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators;
-  private Map<String, DimensionsOTFAggregator> nameToOTFAggregator;
+  private AggregatorInfo aggregatorInfo;
 
   public DimensionalEventSchema()
   {
   }
 
   public DimensionalEventSchema(String json,
-                                Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators,
-                                Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
+                                AggregatorInfo aggregatorInfo)
   {
-
-    setStaticAggregators(staticAggregators);
-    setNameToOTFAggregators(nameToOTFAggregator);
+    setAggregatorInfo(aggregatorInfo);
 
     try {
       initialize(json);
@@ -122,47 +121,68 @@ public class DimensionalEventSchema
     }
   }
 
-  private void setStaticAggregators(Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators)
+  public DimensionalEventSchema(String json,
+                                Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators,
+                                Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
   {
-    this.staticAggregators = Preconditions.checkNotNull(staticAggregators, "staticAggregators");
+    this.aggregatorInfo = new AggregatorInfo(staticAggregators,
+                                             nameToOTFAggregator);
 
-    for(Map.Entry<Class<? extends DimensionsStaticAggregator>, String> entry: staticAggregators.entrySet()) {
-      Preconditions.checkNotNull(entry.getKey());
-      Preconditions.checkNotNull(entry.getValue());
+    try {
+      initialize(json);
+    }
+    catch(Exception e) {
+      throw new IllegalArgumentException(e);
     }
   }
 
-  private void setNameToOTFAggregators(Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
+  private void setAggregatorInfo(AggregatorInfo aggregatorInfo)
   {
-    this.nameToOTFAggregator = Preconditions.checkNotNull(nameToOTFAggregator, "nameToOTFAggregator");
+    this.aggregatorInfo = Preconditions.checkNotNull(aggregatorInfo);
+  }
 
-    for(Map.Entry<String, DimensionsOTFAggregator> entry: nameToOTFAggregator.entrySet()) {
-      Preconditions.checkNotNull(entry.getKey());
-      Preconditions.checkNotNull(entry.getValue());
+  private List<Map<String, FieldsDescriptor>> computeAggregatorToAggregateDescriptor(List<Map<String, Set<String>>> ddIDToValueToAggregator,
+                                                                                     Map<String, Type> aggFieldToType)
+  {
+    List<Map<String, FieldsDescriptor>> ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
+
+    for(int ddID = 0;
+        ddID < ddIDToValueToAggregator.size();
+        ddID++) {
+      Map<String, Set<String>> valueToAggregator = ddIDToValueToAggregator.get(ddID);
+      Map<String, Set<String>> aggregatorToValues = Maps.newHashMap();
+
+      for(Map.Entry<String, Set<String>> entry: valueToAggregator.entrySet()) {
+        String value = entry.getKey();
+        for(String aggregator: entry.getValue()) {
+          Set<String> values = aggregatorToValues.get(aggregator);
+
+          if(values == null) {
+            values = Sets.newHashSet();
+            aggregatorToValues.put(aggregator, values);
+          }
+
+          values.add(value);
+        }
+      }
+
+      Map<String, FieldsDescriptor> aggregatorToValuesDescriptor = Maps.newHashMap();
+
+      for(Map.Entry<String, Set<String>> entry: aggregatorToValues.entrySet()) {
+        for(String value: entry.getValue()) {
+          aggFieldToType.get(value);
+        }
+
+        aggregatorToValuesDescriptor.put(
+        entry.getKey(),
+        inputValuesDescriptor.getSubset(new Fields(entry.getValue())));
+      }
+
+      aggregatorToValuesDescriptor = Collections.unmodifiableMap(aggregatorToValuesDescriptor);
+      ddIDToAggregatorToAggregateDescriptor.add(aggregatorToValuesDescriptor);
     }
-  }
 
-  private boolean isAggregator(String aggregatorName)
-  {
-    return staticAggregators.values().contains(aggregatorName) ||
-           nameToOTFAggregator.containsKey(aggregatorName);
-  }
-
-  private boolean isAggregatorStatic(String aggregatorName)
-  {
-    return staticAggregators.values().contains(aggregatorName);
-  }
-
-  private List<String> getChildAggregators(String aggregatorOTFName)
-  {
-    List<String> childAggregators = Lists.newArrayList();
-
-    for(Class<? extends DimensionsStaticAggregator> clazz:
-        nameToOTFAggregator.get(aggregatorOTFName).getChildAggregators()) {
-      childAggregators.add(staticAggregators.get(clazz));
-    }
-
-    return childAggregators;
+    return ddIDToAggregatorToAggregateDescriptor;
   }
 
   private void initialize(String json) throws Exception
@@ -300,11 +320,11 @@ public class DimensionalEventSchema
             aggregatorIndex++) {
           String aggregatorName = aggregators.getString(aggregatorIndex);
 
-          if(!isAggregator(aggregatorName)) {
+          if(!aggregatorInfo.isAggregator(aggregatorName)) {
             throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
           }
 
-          if(isAggregatorStatic(aggregatorName)) {
+          if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
             Set<String> aggregatorNames = allValueToAggregator.get(name);
 
             if(aggregatorNames == null) {
@@ -341,7 +361,7 @@ public class DimensionalEventSchema
               allValueToAggregator.put(name, aggregatorNames);
             }
 
-            aggregatorNames.addAll(getChildAggregators(aggregatorName));
+            aggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
           }
         }
       }
@@ -356,6 +376,7 @@ public class DimensionalEventSchema
     // Dimensions
 
     ddIDToValueToAggregator = Lists.newArrayList();
+    ddIDToValueToOTFAggregator = Lists.newArrayList();
     ddIDToKeyDescriptor = Lists.newArrayList();
     ddIDToDD = Lists.newArrayList();
     ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
@@ -429,11 +450,11 @@ public class DimensionalEventSchema
           String valueName = components[ADDITIONAL_VALUE_VALUE_INDEX];
           String aggregatorName = components[ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
-          if(!isAggregator(aggregatorName)) {
+          if(!aggregatorInfo.isAggregator(aggregatorName)) {
             throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
           }
 
-          if(isAggregatorStatic(aggregatorName)) {
+          if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
             Set<String> aggregatorNames = allValueToAggregator.get(valueName);
 
             if(aggregatorNames == null) {
@@ -503,7 +524,7 @@ public class DimensionalEventSchema
                                                  + " defined in the " + FIELD_VALUES + " section.");
             }
 
-            aggregators.addAll(getChildAggregators(aggregatorName));
+            aggregators.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
           }
         }
       }
@@ -524,56 +545,29 @@ public class DimensionalEventSchema
 
       specificValueToAggregator = Collections.unmodifiableMap(specificValueToAggregator);
 
-      for(TimeBucket timeBucket: timeBuckets) {
+      for(int timeBucketCounter = 0;
+          timeBucketCounter < timeBuckets.size();
+          timeBucketCounter++) {
         ddIDToValueToAggregator.add(specificValueToAggregator);
+        ddIDToValueToOTFAggregator.add(specificValueToOTFAggregator);
       }
-    }
-
-    //DD ID To Aggregator To Aggregate Descriptor
-
-    ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
-
-    for(int ddID = 0;
-        ddID < ddIDToValueToAggregator.size();
-        ddID++) {
-      Map<String, Set<String>> valueToAggregator = ddIDToValueToAggregator.get(ddID);
-      Map<String, Set<String>> aggregatorToValues = Maps.newHashMap();
-
-      for(Map.Entry<String, Set<String>> entry: valueToAggregator.entrySet()) {
-        String value = entry.getKey();
-        for(String aggregator: entry.getValue()) {
-          Set<String> values = aggregatorToValues.get(aggregator);
-
-          if(values == null) {
-            values = Sets.newHashSet();
-            aggregatorToValues.put(aggregator, values);
-          }
-
-          values.add(value);
-        }
-      }
-
-      Map<String, FieldsDescriptor> aggregatorToValuesDescriptor = Maps.newHashMap();
-
-      for(Map.Entry<String, Set<String>> entry: aggregatorToValues.entrySet()) {
-        for(String value: entry.getValue()) {
-          aggFieldToType.get(value);
-        }
-
-        aggregatorToValuesDescriptor.put(
-        entry.getKey(),
-        inputValuesDescriptor.getSubset(new Fields(entry.getValue())));
-      }
-
-      aggregatorToValuesDescriptor = Collections.unmodifiableMap(aggregatorToValuesDescriptor);
-      ddIDToAggregatorToAggregateDescriptor.add(aggregatorToValuesDescriptor);
     }
 
     ddIDToDD = Collections.unmodifiableList(ddIDToDD);
     ddIDToKeyDescriptor = Collections.unmodifiableList(ddIDToKeyDescriptor);
+
+    //DD ID To Aggregator To Aggregate Descriptor
+
+    ddIDToAggregatorToAggregateDescriptor = computeAggregatorToAggregateDescriptor(ddIDToValueToAggregator,
+                                                                                   aggFieldToType);
     ddIDToAggregatorToAggregateDescriptor = Collections.unmodifiableList(ddIDToAggregatorToAggregateDescriptor);
 
-    //
+    //DD ID To OTF Aggregator To Aggregator Descriptor
+
+    ddIDToOTFAggregatorToAggregateDescriptor = computeAggregatorToAggregateDescriptor(ddIDToValueToOTFAggregator,
+                                                                                      aggFieldToType);
+    ddIDToOTFAggregatorToAggregateDescriptor = Collections.unmodifiableList(ddIDToOTFAggregatorToAggregateDescriptor);
+
     //Dimensions Descriptor To ID
 
     dimensionsDescriptorToID = Maps.newHashMap();
@@ -689,5 +683,29 @@ public class DimensionalEventSchema
   public Map<String, List<Object>> getKeysToValuesList()
   {
     return keysToValuesList;
+  }
+
+  /**
+   * @return the ddIDToValueToOTFAggregator
+   */
+  public List<Map<String, Set<String>>> getDdIDToValueToOTFAggregator()
+  {
+    return ddIDToValueToOTFAggregator;
+  }
+
+  /**
+   * @return the ddIDToOTFAggregatorToAggregateDescriptor
+   */
+  public List<Map<String, FieldsDescriptor>> getDdIDToOTFAggregatorToAggregateDescriptor()
+  {
+    return ddIDToOTFAggregatorToAggregateDescriptor;
+  }
+
+  /**
+   * @return the aggregatorInfo
+   */
+  public AggregatorInfo getAggregatorInfo()
+  {
+    return aggregatorInfo;
   }
 }

@@ -169,6 +169,11 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
           String value = components[DimensionalEventSchema.ADDITIONAL_VALUE_VALUE_INDEX];
           String aggregator = components[DimensionalEventSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
+          if(!gsd.getGenericEventSchema().getAggregatorInfo().isAggregator(aggregator)) {
+            logger.error("{} is not a valid aggregator", aggregator);
+            return null;
+          }
+
           Set<String> aggregators = fieldToAggregator.get(value);
 
           if(aggregators == null) {

@@ -23,10 +23,12 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
+import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.AggregatorOTFType;
 import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
@@ -39,12 +41,14 @@ import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaDimensional;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaResult;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.mutable.MutableBoolean;
@@ -54,6 +58,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Serializable
 {
@@ -297,11 +302,30 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       GPOMutable gpoKey = query.createKeyGPO(dd);
 
       Map<String, EventKey> aggregatorToEventKey = Maps.newHashMap();
+      Set<String> aggregatorNames = Sets.newHashSet();
+
+      AggregatorInfo aggregatorInfo = dimensionalSchema.getGenericEventSchema().getAggregatorInfo();
 
       for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
+        if(!aggregatorInfo.isAggregator(aggregatorName)) {
+          logger.error(aggregatorName + " is not a valid aggregator.");
+          return false;
+        }
+
+        if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+          aggregatorNames.add(aggregatorName);
+          continue;
+        }
+
+        aggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+      }
+
+      for(String aggregatorName: aggregatorNames) {
+        Integer aggregatorID = AggregatorStaticType.NAME_TO_ORDINAL.get(aggregatorName);
+
         EventKey eventKey = new EventKey(SCHEMA_ID,
                                          ddID,
-                                         AggregatorStaticType.SUM.ordinal(),
+                                         aggregatorID,
                                          gpoKey);
         aggregatorToEventKey.put(aggregatorName, eventKey);
       }
@@ -422,6 +446,8 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     public Result processQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext, MutableBoolean context)
     {
       logger.info("Processing query {} with countdown {}", query.getId(), query.getCountdown());
+      AggregatorInfo aggregatorInfo = dimensionalSchema.getGenericEventSchema().getAggregatorInfo();
+
       List<Map<String, GPOMutable>> keys = Lists.newArrayList();
       List<Map<String, GPOMutable>> values = Lists.newArrayList();
 
@@ -490,9 +516,56 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
         }
       }
 
+      List<Map<String, GPOMutable>> prunedKeys = Lists.newArrayList();
+      List<Map<String, GPOMutable>> prunedValues = Lists.newArrayList();
+
+      for(int index = 0;
+          index < keys.size();
+          index++) {
+        Map<String, GPOMutable> key = keys.get(index);
+        Map<String, GPOMutable> value = values.get(index);
+
+        Map<String, GPOMutable> prunedKey = Maps.newHashMap();
+        Map<String, GPOMutable> prunedValue = Maps.newHashMap();
+
+        prunedKeys.add(prunedKey);
+        prunedValues.add(prunedValue);
+
+        if(key.isEmpty()) {
+          continue;
+        }
+
+        GPOMutable singleKey = key.entrySet().iterator().next().getValue();
+
+        for(String aggregatorName: query.getFieldsAggregatable().getAggregators())
+        {
+          if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+            prunedKey.put(aggregatorName, key.get(aggregatorName));
+            prunedValue.put(aggregatorName, value.get(aggregatorName));
+            continue;
+          }
+
+          List<GPOMutable> mutableValues = Lists.newArrayList();
+          List<String> childAggregators = aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName);
+
+          for(String childAggregator: childAggregators) {
+            mutableValues.add(value.get(childAggregator));
+          }
+
+          Set<String> fields = query.getFieldsAggregatable().getAggregatorToFields().get(aggregatorName);
+          FieldsDescriptor fd =
+          dimensionalSchema.getGenericEventSchema().getInputValuesDescriptor().getSubset(new Fields(fields));
+
+          DimensionsOTFAggregator aggregator = AggregatorOTFType.NAME_TO_AGGREGATOR.get(aggregatorName);
+          GPOMutable result = aggregator.aggregate(fd, (GPOMutable[]) mutableValues.toArray());
+          prunedValue.put(aggregatorName, result);
+          prunedKey.put(aggregatorName, singleKey);
+        }
+      }
+
       return new DataResultDimensional(query,
-                            keys,
-                            values,
+                            prunedKeys,
+                            prunedValues,
                             queueContext.longValue());
     }
 
