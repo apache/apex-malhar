@@ -5,6 +5,7 @@
 
 package com.datatorrent.lib.appdata.gpo;
 
+import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -480,7 +481,7 @@ public class GPOUtils
     }
   }
 
-  public static JSONObject serializeJSONObject(GPOMutable gpo, Fields fields) throws JSONException
+  public static JSONObject serializeJSONObject(GPOMutable gpo, Fields fields, AppDataFormatter adFormatter) throws JSONException
   {
     JSONObject jo = new JSONObject();
     FieldsDescriptor fd = gpo.getFieldDescriptor();
@@ -498,22 +499,22 @@ public class GPOUtils
         jo.put(field, gpo.getFieldString(field));
       }
       else if(fieldType == Type.BYTE) {
-        jo.put(field, gpo.getFieldByte(field));
+        jo.put(field, adFormatter.format(gpo.getFieldByte(field)));
       }
       else if(fieldType == Type.SHORT) {
-        jo.put(field, gpo.getFieldShort(field));
+        jo.put(field, adFormatter.format(gpo.getFieldShort(field)));
       }
       else if(fieldType == Type.INTEGER) {
-        jo.put(field, gpo.getFieldInt(field));
+        jo.put(field, adFormatter.format(gpo.getFieldInt(field)));
       }
       else if(fieldType == Type.LONG) {
-        jo.put(field, gpo.getFieldLong(field));
+        jo.put(field, adFormatter.format(gpo.getFieldLong(field)));
       }
       else if(fieldType == Type.FLOAT) {
-        jo.put(field, gpo.getFieldFloat(field));
+        jo.put(field, adFormatter.format(gpo.getFieldFloat(field)));
       }
       else if(fieldType == Type.DOUBLE) {
-        jo.put(field, gpo.getFieldDouble(field));
+        jo.put(field, adFormatter.format(gpo.getFieldDouble(field)));
       }
       else {
         throw new UnsupportedOperationException("The type " + fieldType + " is not supported.");
@@ -523,9 +524,9 @@ public class GPOUtils
     return jo;
   }
 
-  public static JSONObject serializeJSONObject(GPOMutable gpo) throws JSONException
+  public static JSONObject serializeJSONObject(GPOMutable gpo, AppDataFormatter adFormatter) throws JSONException
   {
-    return serializeJSONObject(gpo, gpo.getFieldDescriptor().getFields());
+    return serializeJSONObject(gpo, gpo.getFieldDescriptor().getFields(), adFormatter);
   }
 
   public static int serializedLength(GPOMutable gpo)

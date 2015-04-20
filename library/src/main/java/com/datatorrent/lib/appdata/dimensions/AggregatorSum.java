@@ -22,7 +22,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class AggregatorSum implements DimensionsAggregator
+public class AggregatorSum implements DimensionsStaticAggregator
 {
   private static final Logger logger = LoggerFactory.getLogger(AggregatorSum.class);
 

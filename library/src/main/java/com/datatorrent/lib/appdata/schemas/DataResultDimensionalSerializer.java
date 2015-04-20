@@ -39,17 +39,17 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
   }
 
   @Override
-  public String serialize(Result result)
+  public String serialize(Result result, AppDataFormatter appDataFormatter)
   {
     try {
-      return serializeHelper(result);
+      return serializeHelper(result, appDataFormatter);
     }
     catch(Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private String serializeHelper(Result result) throws Exception
+  private String serializeHelper(Result result, AppDataFormatter appDataFormatter) throws Exception
   {
     DataResultDimensional dataResult = (DataResultDimensional) result;
 
@@ -64,8 +64,6 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
     //dataResult.getQuery().g
 
     boolean hasTime = dataResult.getQuery().isHasTime();
-
-    logger.info("Serializing result hasTime {}", hasTime);
 
     FieldsAggregatable fieldsAggregatable = dataResult.getQuery().getFieldsAggregatable();
     Fields nonAggregatedFields = fieldsAggregatable.getNonAggregatedFields();
@@ -90,14 +88,12 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
         valueJO.put(DimensionsDescriptor.DIMENSION_TIME, time);
       }
 
-      logger.info("nonAggregatedFields {}", nonAggregatedFields);
       for(String field: nonAggregatedFields.getFields()) {
-        logger.info("The field {}", field);
         if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
           //Do nothing
         }
         else if(gpoKey.getFieldDescriptor().getFields().getFields().contains(field)) {
-          valueJO.put(field, gpoKey.getField(field));
+          valueJO.put(field, appDataFormatter.format(gpoKey.getField(field)));
         }
         else {
           valueJO.put(field, ALL);
@@ -107,15 +103,25 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
       for(Map.Entry<String, GPOMutable> entry: value.entrySet()) {
         String aggregatorName = entry.getKey();
         GPOMutable aggregateValues = entry.getValue();
+        logger.info("Serializing aggregator name {}, {}",
+                    aggregatorName,
+                    aggregateValues);
+
+        logger.info("aggregate fields {}", aggregateValues.getFieldDescriptor().getFields().getFields());
+        logger.info("Type to field to index {}", aggregateValues.getFieldDescriptor().getTypeToFieldToIndex());
+        logger.info("Type to field {}", aggregateValues.getFieldDescriptor().getFieldToType());
+
         Set<String> fields = aggregatorToFields.get(aggregatorName);
 
+        logger.info("serialized fields: {}", fields);
+
         for(String field: fields) {
+          logger.info("Field {}", field);
           String compoundName = aggregatorToFieldToName.get(aggregatorName).get(field);
-          valueJO.put(compoundName, aggregateValues.getField(field));
+          valueJO.put(compoundName, appDataFormatter.format(aggregateValues.getField(field)));
         }
       }
 
-      logger.info("valueJO {}", valueJO.toString());
       data.put(valueJO);
     }
 

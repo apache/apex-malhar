@@ -6,8 +6,9 @@
 package com.datatorrent.demos.dimensions.schemas;
 
 import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
-import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
+import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaTestUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -79,7 +80,7 @@ public class AdsSchemaResultTest
 
     AdsSchemaResult asr = new AdsSchemaResult(sq);
 
-    DataSerializerFactory rsf = new DataSerializerFactory();
+    DataSerializerFactory rsf = new DataSerializerFactory(new AppDataFormatter());
 
     String jsonResult = rsf.serialize(asr);
 

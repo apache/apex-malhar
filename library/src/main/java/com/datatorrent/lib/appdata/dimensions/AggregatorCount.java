@@ -25,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class AggregatorCount implements DimensionsAggregator
+public class AggregatorCount implements DimensionsStaticAggregator
 {
   public static final AggregatorTypeMap TYPE_CONVERSION_MAP;
 

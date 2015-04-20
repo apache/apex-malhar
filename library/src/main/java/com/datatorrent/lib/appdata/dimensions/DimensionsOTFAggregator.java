@@ -13,11 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.qr;
 
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
+package com.datatorrent.lib.appdata.dimensions;
 
-public interface CustomDataSerializer
+import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+
+import java.util.List;
+
+public interface DimensionsOTFAggregator extends DimensionsAggregator
 {
-  public abstract String serialize(Result result, AppDataFormatter appDataFormatter);
+  public List<Class<? extends DimensionsStaticAggregator>> getChildAggregators();
+  public GPOMutable aggregate(FieldsDescriptor fd, GPOMutable... aggregates);
 }

@@ -13,11 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.datatorrent.lib.appdata.qr;
 
 import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
+import com.datatorrent.lib.util.TestUtils;
+import com.esotericsoftware.kryo.Kryo;
+import org.junit.Test;
 
-public interface CustomDataSerializer
+
+public class DataSerializerFactoryTest
 {
-  public abstract String serialize(Result result, AppDataFormatter appDataFormatter);
+  @Test
+  public void testSerialization() throws Exception
+  {
+    DataSerializerFactory dsf = new DataSerializerFactory(new AppDataFormatter());
+    DataSerializerFactory dsf1 = TestUtils.clone(new Kryo(), dsf);
+  }
+
+  @Test
+  public void testAppDataFormatter()
+  {
+    DataSerializerFactory dsf = new DataSerializerFactory(new AppDataFormatter());
+    dsf.getAppDataFormatter().setContinuousFormatString("#.##");
+  }
 }

@@ -15,11 +15,14 @@
  */
 package com.datatorrent.lib.appdata.qr;
 
+import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.lang.annotation.Annotation;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 public class DataSerializerFactory
 {
@@ -28,8 +31,21 @@ public class DataSerializerFactory
   private Map<Class<? extends Result>, CustomDataSerializer> clazzToCustomResultBuilder = Maps.newHashMap();
   private Map<Class<? extends Result>, String> clazzToType = Maps.newHashMap();
 
-  public DataSerializerFactory()
+  private AppDataFormatter appDataFormatter = new AppDataFormatter();
+
+  public DataSerializerFactory(AppDataFormatter appDataFormatter)
   {
+    setAppDataFormatter(appDataFormatter);
+  }
+
+  private void setAppDataFormatter(AppDataFormatter appDataFormatter)
+  {
+    this.appDataFormatter = Preconditions.checkNotNull(appDataFormatter);
+  }
+
+  public AppDataFormatter getAppDataFormatter()
+  {
+    return appDataFormatter;
   }
 
   public String serialize(Result result)
@@ -93,6 +109,6 @@ public class DataSerializerFactory
 
     result.setType(clazzToType.get(schema));
 
-    return mcrs.serialize(result);
+    return mcrs.serialize(result, appDataFormatter);
   }
 }

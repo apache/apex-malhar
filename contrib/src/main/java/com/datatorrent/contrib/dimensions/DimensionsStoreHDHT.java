@@ -21,14 +21,15 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
@@ -65,7 +66,8 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   //TODO this is not fault tolerant. Need to create a custom cache which has old entries removed in end window.
   //Can't write out incomplete aggregates in the middle of a window.
   private int cacheSize = CACHE_SIZE;
-  protected transient LoadingCache<EventKey, AggregateEvent> cache = null;
+  @VisibleForTesting
+  public transient LoadingCache<EventKey, AggregateEvent> cache = null;
 
   ////////////////////// Caching /////////////////////////////
 
@@ -77,7 +79,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   //timestamp prefix keys timestamp 0 if not needed but still there
 
   protected abstract int getAggregatorID(String aggregatorName);
-  protected abstract DimensionsAggregator getAggregator(int aggregatorID);
+  protected abstract DimensionsStaticAggregator getAggregator(int aggregatorID);
   protected abstract FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID);
   protected abstract FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID);
   protected abstract long getBucketForSchema(int schemaID);
@@ -175,7 +177,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
   protected void processGenericEvent(AggregateEvent gae)
   {
-    DimensionsAggregator aggregator = getAggregator(gae.getAggregatorIndex());
+    DimensionsStaticAggregator aggregator = getAggregator(gae.getAggregatorIndex());
     AggregateEvent aggregate = null;
 
     try {

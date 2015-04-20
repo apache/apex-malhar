@@ -16,8 +16,6 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -35,7 +33,6 @@ public class FieldsAggregatable
   private Fields aggregatedFields;
   private Fields nonAggregatedFields;
   private Set<String> fieldNames;
-  private FieldsDescriptor fd;
   private Set<String> aggregators;
 
   public FieldsAggregatable(Set<String> fields,
@@ -139,48 +136,6 @@ public class FieldsAggregatable
     }
 
     return fieldNames;
-  }
-
-  public FieldsDescriptor buildFieldsDescriptor(FieldsDescriptor inputValuesDescriptor,
-                                                Map<String, DimensionsAggregator> nameToAggregator)
-  {
-    StringBuilder sb = new StringBuilder();
-    Map<String, Type> fieldToType = Maps.newHashMap();
-
-    for(Map.Entry<String, Set<String>> entry: fieldToAggregator.entrySet()) {
-      String value = entry.getKey();
-      Type inputType = inputValuesDescriptor.getType(value);
-
-      for(String aggregatorName: entry.getValue()) {
-        sb.append(value);
-        sb.append(DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR);
-        sb.append(aggregatorName);
-
-        String fieldValue = sb.toString();
-        sb.delete(0, sb.length());
-        Type aggType = nameToAggregator.get(aggregatorName).getTypeMap().getTypeMap().get(inputType);
-        fieldToType.put(fieldValue, aggType);
-      }
-    }
-
-    for(String nonAggregatedField: nonAggregatedFields.getFields()) {
-      Type nonAggregatedFieldType =
-      DimensionsDescriptor.DIMENSION_FIELD_TO_TYPE.get(nonAggregatedField);
-
-      fieldToType.put(nonAggregatedField, nonAggregatedFieldType);
-    }
-
-    fd = new FieldsDescriptor(fieldToType);
-    return fd;
-  }
-
-  public FieldsDescriptor getFieldsDescriptor()
-  {
-    if(fd == null) {
-      throw new UnsupportedOperationException("A field descriptor must first be built with buildFieldsDescriptor");
-    }
-
-    return fd;
   }
 
   public Map<String, Set<String>> getAggregatorToFields()

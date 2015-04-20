@@ -6,14 +6,15 @@
 package com.datatorrent.demos.dimensions.sales.generic;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.dimensions.AggregatorType;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
+import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputation;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -45,7 +46,8 @@ public class SalesDimensionComputation extends DimensionsComputation<Map<String,
   @Override
   public void setup(OperatorContext context)
   {
-    eventSchema = new DimensionalEventSchema(eventSchemaJSON);
+    eventSchema = new DimensionalEventSchema(eventSchemaJSON,
+                                             AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
 
     List<Map<String, FieldsDescriptor>> tempDescriptorList = eventSchema.getDdIDToAggregatorToAggregateDescriptor();
     ddIDToAggIDs = Lists.newArrayList();
@@ -67,7 +69,7 @@ public class SalesDimensionComputation extends DimensionsComputation<Map<String,
           : tempDescriptorList.get(index).entrySet()) {
         String aggregatorName = entry.getKey();
         FieldsDescriptor inputDescriptor = entry.getValue();
-        AggregatorType aggType = AggregatorType.valueOf(aggregatorName);
+        AggregatorStaticType aggType = AggregatorStaticType.valueOf(aggregatorName);
         aggIDList.add(aggType.ordinal());
         inputMap.put(aggType.ordinal(), inputDescriptor);
         outputMap.put(aggType.ordinal(),
@@ -190,9 +192,9 @@ public class SalesDimensionComputation extends DimensionsComputation<Map<String,
   }
 
   @Override
-  public DimensionsAggregator getAggregator(int aggregatorID)
+  public DimensionsStaticAggregator getAggregator(int aggregatorID)
   {
-    return AggregatorType.values()[aggregatorID].getAggregator();
+    return AggregatorStaticType.values()[aggregatorID].getAggregator();
   }
 
   @Override
@@ -202,14 +204,14 @@ public class SalesDimensionComputation extends DimensionsComputation<Map<String,
   }
 
   @Override
-  public DimensionsAggregator getAggregator(String aggregatorName)
+  public DimensionsStaticAggregator getAggregator(String aggregatorName)
   {
-    return AggregatorType.NAME_TO_AGGREGATOR.get(aggregatorName);
+    return AggregatorStaticType.NAME_TO_AGGREGATOR.get(aggregatorName);
   }
 
   @Override
-  public Map<Integer, DimensionsAggregator> getAggregatorIDToAggregator()
+  public Map<Integer, DimensionsStaticAggregator> getAggregatorIDToAggregator()
   {
-    return AggregatorType.ORDINAL_TO_AGGREGATOR;
+    return AggregatorStaticType.ORDINAL_TO_AGGREGATOR;
   }
 }

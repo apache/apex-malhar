@@ -26,6 +26,7 @@ import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
+import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import com.datatorrent.lib.appdata.schemas.DataQueryTabular;
 import com.datatorrent.lib.appdata.schemas.DataResultTabular;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
@@ -69,7 +70,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
   private transient DataSerializerFactory resultSerializerFactory;
-
+  private AppDataFormatter appDataFormatter = new AppDataFormatter();
   private String schemaJSON;
   private transient SchemaTabular schema;
 
@@ -163,7 +164,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryTabular.class);
     queryDeserializerFactory.setContext(DataQueryTabular.class, schema);
-    resultSerializerFactory = new DataSerializerFactory();
+    resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryProcessor.setup(context);
   }
 
@@ -265,6 +266,14 @@ public class WindowedTopCounter<T> extends BaseOperator
   public void setDataSchema(String schemaJSON)
   {
     this.schemaJSON = schemaJSON;
+  }
+
+  /**
+   * @return the appDataFormatter
+   */
+  public AppDataFormatter getAppDataFormatter()
+  {
+    return appDataFormatter;
   }
 
   class WindowTopCounterComputer implements QueryComputer<Query, Void, MutableLong, Void, Result>

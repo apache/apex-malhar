@@ -25,6 +25,7 @@ import java.util.concurrent.TimeUnit;
 public enum TimeBucket
 {
   ALL("all", null),
+  SECOND("1s", TimeUnit.SECONDS),
   MINUTE("1m", TimeUnit.MINUTES),
   HOUR("1h", TimeUnit.HOURS),
   DAY("1d", TimeUnit.DAYS);

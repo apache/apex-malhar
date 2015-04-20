@@ -24,6 +24,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -41,7 +42,8 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   @Min(1)
   private long cacheSize = DEFAULT_CACHE_SIZE;
 
-  private transient Cache<EventKey, AggregateEvent> cache =
+  @VisibleForTesting
+  public transient Cache<EventKey, AggregateEvent> cache =
   CacheBuilder.newBuilder().maximumSize(cacheSize).removalListener(new CacheRemovalListener()).build();
 
   public transient final DefaultInputPort<INPUT_EVENT> inputEvent = new DefaultInputPort<INPUT_EVENT>() {
@@ -96,9 +98,9 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   }
 
   public abstract AggregateEvent[] convertInputEvent(INPUT_EVENT inputEvent);
-  public abstract DimensionsAggregator getAggregator(String aggregatorName);
-  public abstract DimensionsAggregator getAggregator(int aggregatorID);
-  public abstract Map<Integer, DimensionsAggregator> getAggregatorIDToAggregator();
+  public abstract DimensionsStaticAggregator getAggregator(String aggregatorName);
+  public abstract DimensionsStaticAggregator getAggregator(int aggregatorID);
+  public abstract Map<Integer, DimensionsStaticAggregator> getAggregatorIDToAggregator();
   public abstract FieldsDescriptor getAggregateFieldsDescriptor(int schemaID,
                                                                 int dimensionDescriptorID,
                                                                 int aggregatorID);
@@ -114,7 +116,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
   public void processGenericEvent(AggregateEvent gae)
   {
-    DimensionsAggregator aggregator = getAggregator(gae.getAggregatorIndex());
+    DimensionsStaticAggregator aggregator = getAggregator(gae.getAggregatorIndex());
     AggregateEvent aggregate = cache.getIfPresent(gae.getEventKey());
 
     if(aggregate == null) {
@@ -159,14 +161,14 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     private transient Cache<EventKey, AggregateEvent> cache =
     CacheBuilder.newBuilder().maximumSize(getCacheSize()).removalListener(new CacheRemovalListener()).build();
 
-    private Map<Integer, DimensionsAggregator> aggregatorIDToAggregator;
+    private Map<Integer, DimensionsStaticAggregator> aggregatorIDToAggregator;
 
-    public DimensionsComputationUnifier(Map<Integer, DimensionsAggregator> aggregatorIDToAggregator)
+    public DimensionsComputationUnifier(Map<Integer, DimensionsStaticAggregator> aggregatorIDToAggregator)
     {
       setAggregatorIDToAggregator(aggregatorIDToAggregator);
     }
 
-    private void setAggregatorIDToAggregator(Map<Integer, DimensionsAggregator> aggregatorIDToAggregator)
+    private void setAggregatorIDToAggregator(Map<Integer, DimensionsStaticAggregator> aggregatorIDToAggregator)
     {
       this.aggregatorIDToAggregator = Preconditions.checkNotNull(aggregatorIDToAggregator,
                                                                  "aggregatorIDToAggregator");
@@ -175,7 +177,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     @Override
     public void process(AggregateEvent srcAgg)
     {
-      DimensionsAggregator aggregator = aggregatorIDToAggregator.get(srcAgg.getAggregatorIndex());
+      DimensionsStaticAggregator aggregator = aggregatorIDToAggregator.get(srcAgg.getAggregatorIndex());
       AggregateEvent destAgg = cache.getIfPresent(srcAgg.getEventKey());
 
       if(destAgg == null) {

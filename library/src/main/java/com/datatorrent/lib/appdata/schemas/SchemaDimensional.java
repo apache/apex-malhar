@@ -16,7 +16,8 @@
 package com.datatorrent.lib.appdata.schemas;
 
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
+import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
+import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Sets;
@@ -58,16 +59,14 @@ public class SchemaDimensional implements Schema
   private String schemaJSON;
 
   private DimensionalEventSchema eventSchema;
-  private Map<String, DimensionsAggregator> nameToAggregator;
+  //private Map<String, DimensionsStaticAggregator> nameToAggregator;
   private JSONObject schema;
   private JSONObject time;
 
   public SchemaDimensional(String schemaStub,
-                                  DimensionalEventSchema eventSchema,
-                                  Map<String, DimensionsAggregator> nameToAggregator)
+                           DimensionalEventSchema eventSchema)
   {
-    this(eventSchema,
-         nameToAggregator);
+    this(eventSchema);
 
     if(schemaStub != null) {
       try {
@@ -81,26 +80,24 @@ public class SchemaDimensional implements Schema
 
   public SchemaDimensional(String schemaStub,
                            String eventSchemaJSON,
-                           Map<String, DimensionsAggregator> nameToAggregator)
+                           AggregatorInfo aggregatorInfo)
   {
     this(schemaStub,
-         new DimensionalEventSchema(eventSchemaJSON),
-         nameToAggregator);
+         new DimensionalEventSchema(eventSchemaJSON,
+                                    aggregatorInfo));
   }
 
   public SchemaDimensional(String eventSchemaJSON,
-                           Map<String, DimensionsAggregator> nameToAggregator)
+                           AggregatorInfo aggregatorInfo)
   {
     this(null,
          eventSchemaJSON,
-         nameToAggregator);
+         aggregatorInfo);
   }
 
-  public SchemaDimensional(DimensionalEventSchema eventSchema,
-                                  Map<String, DimensionsAggregator> nameToAggregator)
+  public SchemaDimensional(DimensionalEventSchema eventSchema)
   {
     setEventSchema(eventSchema);
-    setNameToAggregator(nameToAggregator);
 
     try {
       initialize();
@@ -110,19 +107,14 @@ public class SchemaDimensional implements Schema
     }
   }
 
+  public AggregatorInfo getAggregatorInfo()
+  {
+    return eventSchema.getAggregatorInfo();
+  }
+
   private void setEventSchema(DimensionalEventSchema eventSchema)
   {
     this.eventSchema = Preconditions.checkNotNull(eventSchema, "eventSchema");
-  }
-
-  private void setNameToAggregator(Map<String, DimensionsAggregator> nameToAggregator)
-  {
-    this.nameToAggregator = Preconditions.checkNotNull(nameToAggregator, "nameToAggregator");
-
-    for(Map.Entry<String, DimensionsAggregator> entry: nameToAggregator.entrySet()) {
-      Preconditions.checkNotNull(entry.getKey());
-      Preconditions.checkNotNull(entry.getValue());
-    }
   }
 
   private void setSchemaStub(String schemaStub) throws Exception
@@ -165,7 +157,7 @@ public class SchemaDimensional implements Schema
       Type inputValueType = inputValuesDescriptor.getType(valueName);
 
       for(String aggregatorName: entry.getValue()) {
-        DimensionsAggregator aggregator = nameToAggregator.get(aggregatorName);
+        DimensionsStaticAggregator aggregator = eventSchema.getAggregatorInfo().getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
         Type outputValueType = aggregator.getTypeMap().getTypeMap().get(inputValueType);
 
         JSONObject value = new JSONObject();
@@ -181,8 +173,6 @@ public class SchemaDimensional implements Schema
     //dimensions
     JSONArray dimensions = new JSONArray(eventSchema.getDimensionsString());
     schema.put(DimensionalEventSchema.FIELD_DIMENSIONS, dimensions);
-
-    getSchemaJSON();
   }
 
   public void setFrom(Long from)
@@ -197,6 +187,7 @@ public class SchemaDimensional implements Schema
     changed = true;
   }
 
+  @Override
   public String getSchemaJSON()
   {
     if(!changed && schemaJSON != null) {

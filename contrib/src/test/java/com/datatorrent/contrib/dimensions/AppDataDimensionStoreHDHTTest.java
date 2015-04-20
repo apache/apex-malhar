@@ -13,11 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.qr;
 
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
+package com.datatorrent.contrib.dimensions;
 
-public interface CustomDataSerializer
+import com.datatorrent.lib.util.TestUtils;
+import com.esotericsoftware.kryo.Kryo;
+import org.junit.Test;
+
+public class AppDataDimensionStoreHDHTTest
 {
-  public abstract String serialize(Result result, AppDataFormatter appDataFormatter);
+  @Test
+  public void serializationTest() throws Exception
+  {
+    AppDataDimensionStoreHDHT store = new AppDataDimensionStoreHDHT();
+    AppDataDimensionStoreHDHT store1 = TestUtils.clone(new Kryo(), store);
+  }
 }

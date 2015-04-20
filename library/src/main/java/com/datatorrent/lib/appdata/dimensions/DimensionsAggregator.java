@@ -13,14 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
-public interface DimensionsAggregator
-{
+public interface DimensionsAggregator {
   public AggregatorTypeMap getTypeMap();
   public FieldsDescriptor getResultDescriptor(FieldsDescriptor fd);
-  public AggregateEvent createDest(AggregateEvent first, FieldsDescriptor fd);
-  public void aggregate(AggregateEvent dest, AggregateEvent src);
 }

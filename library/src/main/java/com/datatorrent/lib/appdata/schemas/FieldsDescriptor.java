@@ -61,6 +61,7 @@ public class FieldsDescriptor
     setFieldToType(fieldToType);
     setCompressedTypes(compressedTypes);
 
+    initialize();
   }
 
   public FieldsDescriptor(FieldsDescriptor fda, FieldsDescriptor fdb)

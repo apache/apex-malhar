@@ -13,11 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.qr;
+package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
-public interface CustomDataSerializer
+public interface DimensionsStaticAggregator extends DimensionsAggregator
 {
-  public abstract String serialize(Result result, AppDataFormatter appDataFormatter);
+  public AggregateEvent createDest(AggregateEvent first, FieldsDescriptor fd);
+  public void aggregate(AggregateEvent dest, AggregateEvent src);
 }

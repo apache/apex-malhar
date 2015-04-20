@@ -20,7 +20,7 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 
 
-public class AggregatorMin implements DimensionsAggregator
+public class AggregatorMin implements DimensionsStaticAggregator
 {
   public AggregatorMin()
   {
