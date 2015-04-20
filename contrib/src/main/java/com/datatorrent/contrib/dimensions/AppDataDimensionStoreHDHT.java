@@ -26,6 +26,7 @@ import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
 import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.AggregatorOTFType;
 import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
+import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
@@ -74,7 +75,6 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
 
   private transient DimensionalEventSchema eventSchema;
   private transient SchemaDimensional dimensionalSchema;
-  private transient List<Map<Integer, FieldsDescriptor>> indexToFieldsDescriptor;
 
   //==========================================================================
   // Query Processing - Start
@@ -154,15 +154,10 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryDimensional.class);
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
-                                             AggregatorStaticType.CLASS_TO_NAME,
-                                             AggregatorOTFType.NAME_TO_AGGREGATOR);
-    dimensionalSchema = new SchemaDimensional(eventSchemaJSON,
-                                              AggregatorStaticType.NAME_TO_AGGREGATOR,
-                                              AggregatorStaticType.CLASS_TO_NAME,
-                                              AggregatorOTFType.NAME_TO_AGGREGATOR);
+                                             AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+    dimensionalSchema = new SchemaDimensional(eventSchema);
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
-    indexToFieldsDescriptor = eventSchema.getDdIDToAggregatorIDToFieldsDescriptor(AggregatorStaticType.NAME_TO_ORDINAL);
     super.setup(context);
   }
 
@@ -228,7 +223,7 @@ public class AppDataDimensionStoreHDHT extends DimensionsStoreHDHT implements Se
       throw new UnsupportedOperationException("Invalid schemaID: " + schemaID);
     }
 
-    return indexToFieldsDescriptor.get(dimensionsDescriptorID).get(aggregatorID);
+    return eventSchema.getDdIDToAggIDToOutputAggDescriptor().get(dimensionsDescriptorID).get(aggregatorID);
   }
 
   @Override

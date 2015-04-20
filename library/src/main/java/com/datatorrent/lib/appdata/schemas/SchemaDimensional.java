@@ -16,7 +16,7 @@
 package com.datatorrent.lib.appdata.schemas;
 
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
+import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -59,16 +59,14 @@ public class SchemaDimensional implements Schema
   private String schemaJSON;
 
   private DimensionalEventSchema eventSchema;
-  private Map<String, DimensionsStaticAggregator> nameToAggregator;
+  //private Map<String, DimensionsStaticAggregator> nameToAggregator;
   private JSONObject schema;
   private JSONObject time;
 
   public SchemaDimensional(String schemaStub,
-                                  DimensionalEventSchema eventSchema,
-                                  Map<String, DimensionsStaticAggregator> nameToAggregator)
+                           DimensionalEventSchema eventSchema)
   {
-    this(eventSchema,
-         nameToAggregator);
+    this(eventSchema);
 
     if(schemaStub != null) {
       try {
@@ -82,34 +80,24 @@ public class SchemaDimensional implements Schema
 
   public SchemaDimensional(String schemaStub,
                            String eventSchemaJSON,
-                           Map<String, DimensionsStaticAggregator> nameToAggregator,
-                           Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators,
-                           Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
+                           AggregatorInfo aggregatorInfo)
   {
     this(schemaStub,
          new DimensionalEventSchema(eventSchemaJSON,
-                                    staticAggregators,
-                                    nameToOTFAggregator),
-         nameToAggregator);
+                                    aggregatorInfo));
   }
 
   public SchemaDimensional(String eventSchemaJSON,
-                           Map<String, DimensionsStaticAggregator> nameToAggregator,
-                           Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators,
-                           Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
+                           AggregatorInfo aggregatorInfo)
   {
     this(null,
          eventSchemaJSON,
-         nameToAggregator,
-         staticAggregators,
-         nameToOTFAggregator);
+         aggregatorInfo);
   }
 
-  public SchemaDimensional(DimensionalEventSchema eventSchema,
-                                  Map<String, DimensionsStaticAggregator> nameToAggregator)
+  public SchemaDimensional(DimensionalEventSchema eventSchema)
   {
     setEventSchema(eventSchema);
-    setNameToAggregator(nameToAggregator);
 
     try {
       initialize();
@@ -119,19 +107,14 @@ public class SchemaDimensional implements Schema
     }
   }
 
+  public AggregatorInfo getAggregatorInfo()
+  {
+    return eventSchema.getAggregatorInfo();
+  }
+
   private void setEventSchema(DimensionalEventSchema eventSchema)
   {
     this.eventSchema = Preconditions.checkNotNull(eventSchema, "eventSchema");
-  }
-
-  private void setNameToAggregator(Map<String, DimensionsStaticAggregator> nameToAggregator)
-  {
-    this.nameToAggregator = Preconditions.checkNotNull(nameToAggregator, "nameToAggregator");
-
-    for(Map.Entry<String, DimensionsStaticAggregator> entry: nameToAggregator.entrySet()) {
-      Preconditions.checkNotNull(entry.getKey());
-      Preconditions.checkNotNull(entry.getValue());
-    }
   }
 
   private void setSchemaStub(String schemaStub) throws Exception
@@ -174,7 +157,7 @@ public class SchemaDimensional implements Schema
       Type inputValueType = inputValuesDescriptor.getType(valueName);
 
       for(String aggregatorName: entry.getValue()) {
-        DimensionsStaticAggregator aggregator = nameToAggregator.get(aggregatorName);
+        DimensionsStaticAggregator aggregator = eventSchema.getAggregatorInfo().getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
         Type outputValueType = aggregator.getTypeMap().getTypeMap().get(inputValueType);
 
         JSONObject value = new JSONObject();

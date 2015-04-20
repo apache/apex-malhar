@@ -7,8 +7,8 @@ package com.datatorrent.demos.dimensions.sales.generic;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.AggregatorOTFType;
 import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
+import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputation;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
@@ -47,8 +47,7 @@ public class SalesDimensionComputation extends DimensionsComputation<Map<String,
   public void setup(OperatorContext context)
   {
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
-                                             AggregatorStaticType.CLASS_TO_NAME,
-                                             AggregatorOTFType.NAME_TO_AGGREGATOR);
+                                             AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
 
     List<Map<String, FieldsDescriptor>> tempDescriptorList = eventSchema.getDdIDToAggregatorToAggregateDescriptor();
     ddIDToAggIDs = Lists.newArrayList();

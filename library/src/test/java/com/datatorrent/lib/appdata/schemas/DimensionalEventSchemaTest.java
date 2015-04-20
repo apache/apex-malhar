@@ -5,8 +5,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.dimensions.AggregatorOTFType;
-import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
+import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -57,8 +56,7 @@ public class DimensionalEventSchemaTest
     "}";
 
     DimensionalEventSchema ges = new DimensionalEventSchema(jsonSchema,
-                                                            AggregatorStaticType.CLASS_TO_NAME,
-                                                            AggregatorOTFType.NAME_TO_AGGREGATOR);
+                                                            AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
 
     FieldsDescriptor allKeysDescriptor = ges.getAllKeysDescriptor();
 

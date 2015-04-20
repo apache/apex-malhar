@@ -24,6 +24,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -41,7 +42,8 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   @Min(1)
   private long cacheSize = DEFAULT_CACHE_SIZE;
 
-  private transient Cache<EventKey, AggregateEvent> cache =
+  @VisibleForTesting
+  public transient Cache<EventKey, AggregateEvent> cache =
   CacheBuilder.newBuilder().maximumSize(cacheSize).removalListener(new CacheRemovalListener()).build();
 
   public transient final DefaultInputPort<INPUT_EVENT> inputEvent = new DefaultInputPort<INPUT_EVENT>() {

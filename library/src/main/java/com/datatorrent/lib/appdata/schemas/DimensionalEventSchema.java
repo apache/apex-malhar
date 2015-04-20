@@ -16,9 +16,8 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
+import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -27,6 +26,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -98,6 +100,10 @@ public class DimensionalEventSchema
   private List<Map<String, FieldsDescriptor>> ddIDToOTFAggregatorToAggregateDescriptor;
   private Map<DimensionsDescriptor, Integer> dimensionsDescriptorToID;
 
+  private List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToInputAggDescriptor;
+  private List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToOutputAggDescriptor;
+  private List<IntArrayList> ddIDToAggIDs;
+
   private String dimensionsString;
   private String keysString;
   private String bucketsString;
@@ -112,21 +118,6 @@ public class DimensionalEventSchema
                                 AggregatorInfo aggregatorInfo)
   {
     setAggregatorInfo(aggregatorInfo);
-
-    try {
-      initialize(json);
-    }
-    catch(Exception e) {
-      throw new IllegalArgumentException(e);
-    }
-  }
-
-  public DimensionalEventSchema(String json,
-                                Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators,
-                                Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
-  {
-    this.aggregatorInfo = new AggregatorInfo(staticAggregators,
-                                             nameToOTFAggregator);
 
     try {
       initialize(json);
@@ -586,6 +577,35 @@ public class DimensionalEventSchema
     }
 
     allValueToAggregator = Collections.unmodifiableMap(allValueToAggregatorUnmodifiable);
+
+    //Build id maps
+
+    ddIDToAggIDs = Lists.newArrayList();
+    ddIDToAggIDToInputAggDescriptor = Lists.newArrayList();
+    ddIDToAggIDToOutputAggDescriptor = Lists.newArrayList();
+
+    for(int index = 0;
+        index < ddIDToAggregatorToAggregateDescriptor.size();
+        index++) {
+      IntArrayList aggIDList = new IntArrayList();
+      Int2ObjectMap<FieldsDescriptor> inputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
+      Int2ObjectMap<FieldsDescriptor> outputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
+
+      ddIDToAggIDs.add(aggIDList);
+      ddIDToAggIDToInputAggDescriptor.add(inputMap);
+      ddIDToAggIDToOutputAggDescriptor.add(outputMap);
+
+      for(Map.Entry<String, FieldsDescriptor> entry:
+          ddIDToAggregatorToAggregateDescriptor.get(index).entrySet()) {
+        String aggregatorName = entry.getKey();
+        FieldsDescriptor inputDescriptor = entry.getValue();
+        AggregatorStaticType aggType = AggregatorStaticType.valueOf(aggregatorName);
+        aggIDList.add(aggType.ordinal());
+        inputMap.put(aggType.ordinal(), inputDescriptor);
+        outputMap.put(aggType.ordinal(),
+                      aggType.getAggregator().getResultDescriptor(inputDescriptor));
+      }
+    }
   }
 
   public FieldsDescriptor getAllKeysDescriptor()
@@ -707,5 +727,45 @@ public class DimensionalEventSchema
   public AggregatorInfo getAggregatorInfo()
   {
     return aggregatorInfo;
+  }
+
+  /**
+   * @return the ddIDToAggIDToInputAggDescriptor
+   */
+  public List<Int2ObjectMap<FieldsDescriptor>> getDdIDToAggIDToInputAggDescriptor()
+  {
+    return ddIDToAggIDToInputAggDescriptor;
+  }
+
+  /**
+   * @param ddIDToAggIDToInputAggDescriptor the ddIDToAggIDToInputAggDescriptor to set
+   */
+  public void setDdIDToAggIDToInputAggDescriptor(List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToInputAggDescriptor)
+  {
+    this.ddIDToAggIDToInputAggDescriptor = ddIDToAggIDToInputAggDescriptor;
+  }
+
+  /**
+   * @return the ddIDToAggIDToOutputAggDescriptor
+   */
+  public List<Int2ObjectMap<FieldsDescriptor>> getDdIDToAggIDToOutputAggDescriptor()
+  {
+    return ddIDToAggIDToOutputAggDescriptor;
+  }
+
+  /**
+   * @param ddIDToAggIDToOutputAggDescriptor the ddIDToAggIDToOutputAggDescriptor to set
+   */
+  public void setDdIDToAggIDToOutputAggDescriptor(List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToOutputAggDescriptor)
+  {
+    this.ddIDToAggIDToOutputAggDescriptor = ddIDToAggIDToOutputAggDescriptor;
+  }
+
+  /**
+   * @return the ddIDToAggIDs
+   */
+  public List<IntArrayList> getDdIDToAggIDs()
+  {
+    return ddIDToAggIDs;
   }
 }

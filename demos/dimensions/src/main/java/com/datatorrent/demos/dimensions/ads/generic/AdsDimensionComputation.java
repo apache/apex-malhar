@@ -8,8 +8,8 @@ package com.datatorrent.demos.dimensions.ads.generic;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.AggregatorOTFType;
 import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
+import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputation;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
@@ -19,7 +19,6 @@ import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -40,9 +39,6 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
   private String eventSchemaJSON;
 
   private transient DimensionalEventSchema eventSchema;
-  private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToInputAggDescriptor;
-  private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToOutputAggDescriptor;
-  private transient List<IntArrayList> ddIDToAggIDs;
 
   public AdsDimensionComputation()
   {
@@ -52,39 +48,7 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
   public void setup(OperatorContext context)
   {
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
-                                             AggregatorStaticType.CLASS_TO_NAME,
-                                             AggregatorOTFType.NAME_TO_AGGREGATOR);
-
-    List<Map<String, FieldsDescriptor>> tempDescriptorList = eventSchema.getDdIDToAggregatorToAggregateDescriptor();
-    ddIDToAggIDs = Lists.newArrayList();
-    ddIDToAggIDToInputAggDescriptor = Lists.newArrayList();
-    ddIDToAggIDToOutputAggDescriptor = Lists.newArrayList();
-
-    logger.info("getDdIDToAggregatorToAggregateDescriptor size {}", tempDescriptorList.size());
-    logger.info("getDdIDToKeyDescriptor size {}", eventSchema.getDdIDToKeyDescriptor().size());
-
-    for(int index = 0;
-        index < tempDescriptorList.size();
-        index++) {
-      IntArrayList aggIDList = new IntArrayList();
-      Int2ObjectMap<FieldsDescriptor> inputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
-      Int2ObjectMap<FieldsDescriptor> outputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
-
-      ddIDToAggIDs.add(aggIDList);
-      ddIDToAggIDToInputAggDescriptor.add(inputMap);
-      ddIDToAggIDToOutputAggDescriptor.add(outputMap);
-
-      for(Map.Entry<String, FieldsDescriptor> entry:
-          tempDescriptorList.get(index).entrySet()) {
-        String aggregatorName = entry.getKey();
-        FieldsDescriptor inputDescriptor = entry.getValue();
-        AggregatorStaticType aggType = AggregatorStaticType.valueOf(aggregatorName);
-        aggIDList.add(aggType.ordinal());
-        inputMap.put(aggType.ordinal(), inputDescriptor);
-        outputMap.put(aggType.ordinal(),
-                      aggType.getAggregator().getResultDescriptor(inputDescriptor));
-      }
-    }
+                                             AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
 
     super.setup(context);
   }
@@ -99,8 +63,8 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
         index < keyFieldsDescriptors.size();
         index++) {
       FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(index);
-      Int2ObjectMap<FieldsDescriptor> map = ddIDToAggIDToInputAggDescriptor.get(index);
-      IntArrayList aggIDList = ddIDToAggIDs.get(index);
+      Int2ObjectMap<FieldsDescriptor> map = eventSchema.getDdIDToAggIDToInputAggDescriptor().get(index);
+      IntArrayList aggIDList = eventSchema.getDdIDToAggIDs().get(index);
 
       for(int aggIDIndex = 0;
           aggIDIndex < aggIDList.size();
@@ -228,7 +192,7 @@ public class AdsDimensionComputation extends DimensionsComputation<AdInfo>
                                                        int dimensionDescriptorID,
                                                        int aggregatorID)
   {
-    return ddIDToAggIDToOutputAggDescriptor.get(dimensionDescriptorID).get(aggregatorID);
+    return eventSchema.getDdIDToAggIDToOutputAggDescriptor().get(dimensionDescriptorID).get(aggregatorID);
   }
 
   @Override

@@ -29,12 +29,18 @@ public class AggregatorInfo
   private Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName;
   private Map<String, DimensionsOTFAggregator> nameToOTFAggregator;
   private Map<String, List<String>> otfAggregatorToStaticAggregators;
+  private Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator;
+  private Map<String, Integer> staticAggregatorNameToID;
 
   public AggregatorInfo(Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName,
+                        Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator,
+                        Map<String, Integer> staticAggregatorNameToID,
                         Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
   {
     setClassToStaticAggregatorName(classToStaticAggregatorName);
     setNameToOTFAggregators(nameToOTFAggregator);
+    setStaticAggregatorNameToStaticAggregator(staticAggregatorNameToStaticAggregator);
+    setStaticAggregatorNameToID(staticAggregatorNameToID);
 
     initialize();
   }
@@ -83,6 +89,47 @@ public class AggregatorInfo
     this.classToStaticAggregatorName = Collections.unmodifiableMap(this.classToStaticAggregatorName);
   }
 
+  public Map<Class<? extends DimensionsStaticAggregator>, String> getClassToStaticAggregatorName()
+  {
+    return classToStaticAggregatorName;
+  }
+
+  private void setStaticAggregatorNameToStaticAggregator(Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator)
+  {
+    Preconditions.checkNotNull(staticAggregatorNameToStaticAggregator, "staticAggregatorNameToStaticAggregator");
+
+    for(Map.Entry<String, DimensionsStaticAggregator> entry: staticAggregatorNameToStaticAggregator.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+
+    this.staticAggregatorNameToStaticAggregator = Maps.newHashMap(staticAggregatorNameToStaticAggregator);
+    this.staticAggregatorNameToStaticAggregator = Collections.unmodifiableMap(staticAggregatorNameToStaticAggregator);
+  }
+
+  public Map<String, DimensionsStaticAggregator> getStaticAggregatorNameToStaticAggregator()
+  {
+    return this.staticAggregatorNameToStaticAggregator;
+  }
+
+  private void setStaticAggregatorNameToID(Map<String, Integer> staticAggregatorNameToID)
+  {
+    Preconditions.checkNotNull(staticAggregatorNameToID);
+
+    for(Map.Entry<String, Integer> entry: staticAggregatorNameToID.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+
+    this.staticAggregatorNameToID = Maps.newHashMap(staticAggregatorNameToID);
+    this.staticAggregatorNameToID = Collections.unmodifiableMap(staticAggregatorNameToID);
+  }
+
+  public Map<String, Integer> getStaticAggregatorNameToID()
+  {
+    return staticAggregatorNameToID;
+  }
+
   private void setNameToOTFAggregators(Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
   {
     Preconditions.checkNotNull(nameToOTFAggregator, "nameToOTFAggregator");
@@ -94,6 +141,11 @@ public class AggregatorInfo
 
     this.nameToOTFAggregator = Maps.newHashMap(nameToOTFAggregator);
     this.nameToOTFAggregator = Collections.unmodifiableMap(nameToOTFAggregator);
+  }
+
+  public Map<String, DimensionsOTFAggregator> getNameToOTFAggregators()
+  {
+    return nameToOTFAggregator;
   }
 
   public Map<String, List<String>> getOTFAggregatorToStaticAggregators()
