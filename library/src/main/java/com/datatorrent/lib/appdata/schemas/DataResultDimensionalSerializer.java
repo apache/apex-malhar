@@ -106,7 +106,12 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
         logger.info("Serializing aggregator name {}, {}",
                     aggregatorName,
                     aggregateValues);
+
+        logger.info("aggregate fields {}", aggregateValues.getFieldDescriptor().getFields().getFields());
+
         Set<String> fields = aggregatorToFields.get(aggregatorName);
+
+        logger.info("serialized fields: {}", fields);
 
         for(String field: fields) {
           logger.info("Field {}", field);
