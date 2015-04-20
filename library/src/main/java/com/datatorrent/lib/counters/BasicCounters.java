@@ -32,6 +32,8 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 
 import com.datatorrent.api.Context;
+import com.datatorrent.api.CustomMetrics;
+
 import com.datatorrent.lib.util.NumberAggregate;
 
 /**
@@ -39,7 +41,9 @@ import com.datatorrent.lib.util.NumberAggregate;
  *
  * @param <T> type of counter
  * @since 1.0.2
+ * @deprecated use {@link CustomMetrics}
  */
+@Deprecated
 @JsonSerialize(using = BasicCounters.Serializer.class)
 public class BasicCounters<T extends Number & Mutable> implements Serializable
 {
