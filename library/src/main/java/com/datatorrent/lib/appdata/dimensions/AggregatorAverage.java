@@ -141,8 +141,8 @@ public class AggregatorAverage implements DimensionsOTFAggregator
   {
     Map<String, Type> fieldToType = Maps.newHashMap();
 
-    Preconditions.checkArgument(fd.getFieldToType().values().containsAll(
-                                TYPE_CONVERSION_MAP.getTypeMap().keySet()));
+    Preconditions.checkArgument(TYPE_CONVERSION_MAP.getTypeMap().keySet().containsAll(
+                                fd.getFieldToType().values()));
 
     for(Map.Entry<String, Type> entry: fd.getFieldToType().entrySet()) {
       fieldToType.put(entry.getKey(), TYPE_CONVERSION_MAP.getTypeMap().get(entry.getValue()));
