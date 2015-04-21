@@ -240,61 +240,57 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     try {
       @SuppressWarnings("unchecked")
       Map<KafkaPartition, MutablePair<Long, Integer>> recoveredData = (Map<KafkaPartition, MutablePair<Long, Integer>>) idempotentStorageManager.load(operatorId, windowId);
-      if (recoveredData == null) {
-        return;
-      }
+      if (recoveredData != null) {
+        Map<String, List<PartitionMetadata>> pms = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().topic);
+        if (pms != null) {
+          SimpleKafkaConsumer cons = (SimpleKafkaConsumer) getConsumer();
+          // add all partition request in one Fretch request together
+          FetchRequestBuilder frb = new FetchRequestBuilder().clientId(cons.getClientId());
+          for (Map.Entry<KafkaPartition, MutablePair<Long, Integer>> rc : recoveredData.entrySet()) {
+            KafkaPartition kp = rc.getKey();
+            List<PartitionMetadata> pmsVal = pms.get(kp.getClusterId());
 
-      Map<String, List<PartitionMetadata>> pms = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().topic);
-      if (pms == null) {
-       return;
-      }
+            Iterator<PartitionMetadata> pmIterator = pmsVal.iterator();
+            PartitionMetadata pm = pmIterator.next();
+            while (pm.partitionId() != kp.getPartitionId()) {
+              if (!pmIterator.hasNext())
+                break;
+              pm = pmIterator.next();
+            }
+            if (pm.partitionId() != kp.getPartitionId())
+              continue;
 
-      SimpleKafkaConsumer cons = (SimpleKafkaConsumer)getConsumer();
-      // add all partition request in one Fretch request together
-      FetchRequestBuilder frb = new FetchRequestBuilder().clientId(cons.getClientId());
-      for (Map.Entry<KafkaPartition, MutablePair<Long, Integer>> rc: recoveredData.entrySet()) {
-        KafkaPartition kp = rc.getKey();
-        List<PartitionMetadata> pmsVal = pms.get(kp.getClusterId());
+            Broker bk = pm.leader();
 
-        Iterator<PartitionMetadata> pmIterator = pmsVal.iterator();
-        PartitionMetadata pm = pmIterator.next();
-        while (pm.partitionId() != kp.getPartitionId()) {
-          if (!pmIterator.hasNext())
-            break;
-          pm = pmIterator.next();
-        }
-        if (pm.partitionId() != kp.getPartitionId())
-          continue;
+            frb.addFetch(consumer.topic, rc.getKey().getPartitionId(), rc.getValue().left, cons.getBufferSize());
+            FetchRequest req = frb.build();
 
-        Broker bk = pm.leader();
-
-        frb.addFetch(consumer.topic, rc.getKey().getPartitionId(), rc.getValue().left, cons.getBufferSize());
-        FetchRequest req = frb.build();
-
-        SimpleConsumer ksc = new SimpleConsumer(bk.host(), bk.port(), cons.getTimeout(), cons.getBufferSize(), cons.getClientId());
-        FetchResponse fetchResponse = ksc.fetch(req);
-        Integer count = 0;
-        for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kp.getPartitionId())) {
-          emitTuple(msg.message());
-          offsetStats.put(kp, msg.offset());
-          count = count + 1;
-          if (count.equals(rc.getValue().right))
-            break;
+            SimpleConsumer ksc = new SimpleConsumer(bk.host(), bk.port(), cons.getTimeout(), cons.getBufferSize(), cons.getClientId());
+            FetchResponse fetchResponse = ksc.fetch(req);
+            Integer count = 0;
+            for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kp.getPartitionId())) {
+              emitTuple(msg.message());
+              offsetStats.put(kp, msg.offset());
+              count = count + 1;
+              if (count.equals(rc.getValue().right))
+                break;
+            }
+          }
         }
       }
       if(windowId == idempotentStorageManager.getLargestRecoveryWindow()) {
+        // Start the consumer at the largest recovery window
+        SimpleKafkaConsumer cons = (SimpleKafkaConsumer)getConsumer();
         // Set the offset positions to the consumer
         Map<KafkaPartition, Long> currentOffsets = new HashMap<KafkaPartition, Long>(cons.getCurrentOffsets());
         // Increment the offsets
         for (Map.Entry<KafkaPartition, Long> e: offsetStats.entrySet()) {
           currentOffsets.put(e.getKey(), e.getValue() + 1);
         }
-
         cons.resetOffset(currentOffsets);
         cons.start();
       }
     }
-
     catch (IOException e) {
       throw new RuntimeException("replay", e);
     }
