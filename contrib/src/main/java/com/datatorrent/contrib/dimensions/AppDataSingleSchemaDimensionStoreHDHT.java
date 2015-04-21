@@ -92,7 +92,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   private transient long windowId;
 
-  @AppData.ResultPort(schemaType = "default", schemaVersion = "1.0")
+  @AppData.ResultPort()
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
 
   @InputPortFieldAnnotation(optional = true)

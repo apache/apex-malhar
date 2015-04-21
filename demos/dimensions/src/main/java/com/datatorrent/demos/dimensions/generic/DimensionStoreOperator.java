@@ -92,8 +92,7 @@ public class DimensionStoreOperator extends AbstractSinglePortHDHTWriter<Generic
     this.aggregator = aggregator;
   }
 
-  @AppData.ResultPort(schemaType=AdsSchemaResult.SCHEMA_TYPE,
-                     schemaVersion=AdsSchemaResult.SCHEMA_VERSION)
+  @AppData.ResultPort()
   public final transient DefaultOutputPort<HDSRangeQueryResult> queryResult = new DefaultOutputPort<HDSRangeQueryResult>();
 
   private String eventSchemaJSON = EventSchema.DEFAULT_SCHEMA_SALES;
