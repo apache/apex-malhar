@@ -77,7 +77,7 @@ public class AdsDimensionStoreOperator extends AbstractSinglePortHDHTWriter<AdIn
 {
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionStoreOperator.class);
 
-  @AppData.ResultPort(schemaType = "default", schemaVersion = "1.0")
+  @AppData.ResultPort()
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
 
   @InputPortFieldAnnotation(optional = true)

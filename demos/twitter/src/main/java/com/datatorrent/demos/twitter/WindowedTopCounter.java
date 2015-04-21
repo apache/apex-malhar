@@ -83,7 +83,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   private int topCount = 10;
   private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
 
-  @AppData.ResultPort(schemaType = "default", schemaVersion = "1.0")
+  @AppData.ResultPort()
   public final transient DefaultOutputPort<String> resultOutput = new DefaultOutputPort<String>();
 
   /**
