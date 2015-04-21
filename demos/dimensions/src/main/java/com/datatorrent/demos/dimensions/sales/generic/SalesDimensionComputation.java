@@ -25,6 +25,7 @@ public class SalesDimensionComputation extends DimensionsComputationSingleSchema
   {
   }
 
+  @Override
   public AggregateEvent createGenericAggregateEvent(Map<String, Object> ga,
                                                     DimensionsDescriptor dd,
                                                     FieldsDescriptor keyFieldsDescriptor,
@@ -77,7 +78,7 @@ public class SalesDimensionComputation extends DimensionsComputationSingleSchema
 
     AggregateEvent gae = new AggregateEvent(new GPOImmutable(keyGPO),
                                                           aggGPO,
-                                                          0,
+                                                          DEFAULT_SCHEMA_ID,
                                                           dimensionDescriptorID,
                                                           aggregateID);
     return gae;

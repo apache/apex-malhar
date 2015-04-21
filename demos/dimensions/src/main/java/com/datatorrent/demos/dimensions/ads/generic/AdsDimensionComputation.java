@@ -99,7 +99,7 @@ public class AdsDimensionComputation extends DimensionsComputationSingleSchema<A
 
     AggregateEvent gae = new AggregateEvent(new GPOImmutable(keyGPO),
                                                           aggGPO,
-                                                          0,
+                                                          DEFAULT_SCHEMA_ID,
                                                           dimensionDescriptorID,
                                                           aggregateID);
     return gae;
