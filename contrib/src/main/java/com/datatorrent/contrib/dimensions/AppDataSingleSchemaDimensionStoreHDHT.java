@@ -175,10 +175,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void endWindow()
   {
-    logger.info("Current time stamp {}", System.currentTimeMillis());
-
-    super.endWindow();
-
     MutableBoolean done = new MutableBoolean(false);
 
     while(done.isFalse()) {
@@ -307,6 +303,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         logger.error("No aggregations for keys: {}", query.getKeyFields());
         return false;
       }
+
+      logger.info("Current time stamp {}", System.currentTimeMillis());
 
       FieldsDescriptor dd = eventSchema.getDdIDToKeyDescriptor().get(ddID);
       GPOMutable gpoKey = query.createKeyGPO(dd);
