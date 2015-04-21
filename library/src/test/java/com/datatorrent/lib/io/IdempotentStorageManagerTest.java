@@ -48,7 +48,7 @@ public class IdempotentStorageManagerTest
   private static class TestMeta extends TestWatcher
   {
 
-    String recoveryPath;
+    String applicationPath;
     IdempotentStorageManager.FSIdempotentStorageManager storageManager;
     Context.OperatorContext context;
 
@@ -57,11 +57,10 @@ public class IdempotentStorageManagerTest
     {
       super.starting(description);
       storageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
-      recoveryPath = "target/" + description.getClassName() + "/" + description.getMethodName();
-      storageManager.setRecoveryPath(recoveryPath);
+      applicationPath = "target/" + description.getClassName() + "/" + description.getMethodName();
 
       Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-      attributes.put(DAG.APPLICATION_ID, "IdempotentStorageManagerTest");
+      attributes.put(DAG.APPLICATION_PATH, applicationPath);
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
 
       storageManager.setup(context);
@@ -72,7 +71,7 @@ public class IdempotentStorageManagerTest
     {
       storageManager.teardown();
       try {
-        FileUtils.deleteDirectory(new File(recoveryPath));
+        FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
       }
       catch (IOException e) {
         throw new RuntimeException(e);
@@ -173,11 +172,12 @@ public class IdempotentStorageManagerTest
     testMeta.storageManager.save(dataOf2, 2, 1);
     testMeta.storageManager.save(dataOf3, 3, 1);
 
-    testMeta.storageManager.partitioned(Lists.<IdempotentStorageManager>newArrayList(testMeta.storageManager), Sets.newHashSet(2, 3));
+    testMeta.storageManager.partitioned(Lists.<IdempotentStorageManager>newArrayList(testMeta.storageManager),
+      Sets.newHashSet(2, 3));
     testMeta.storageManager.setup(testMeta.context);
     testMeta.storageManager.deleteUpTo(1, 1);
 
-    Path appPath = new Path(testMeta.recoveryPath + '/' + testMeta.context.getValue(DAG.APPLICATION_ID));
+    Path appPath = new Path(testMeta.applicationPath + '/' + testMeta.storageManager.recoveryPath);
     FileSystem fs = FileSystem.newInstance(appPath.toUri(), new Configuration());
     Assert.assertEquals("no data for 1", 0, fs.listStatus(new Path(appPath, Integer.toString(1))).length);
     Assert.assertEquals("no data for 2", false, fs.exists(new Path(appPath, Integer.toString(2))));

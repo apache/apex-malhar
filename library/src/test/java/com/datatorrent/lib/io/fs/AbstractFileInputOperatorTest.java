@@ -37,6 +37,7 @@ import org.apache.hadoop.fs.*;
 import org.apache.hadoop.fs.FileSystem;
 import org.junit.*;
 import org.junit.rules.TestWatcher;
+import org.junit.runner.Description;
 
 public class AbstractFileInputOperatorTest
 {
@@ -52,8 +53,19 @@ public class AbstractFileInputOperatorTest
       String className = description.getClassName();
       this.dir = "target/" + className + "/" + methodName;
       Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-      attributes.put(DAG.DAGContext.APPLICATION_ID, "FileInputOperatorTest");
+      attributes.put(Context.DAGContext.APPLICATION_PATH, dir);
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributes);
+    }
+
+    @Override
+    protected void finished(Description description)
+    {
+      try {
+        FileUtils.deleteDirectory(new File("target/" + description.getClassName()));
+      }
+      catch (IOException e) {
+        throw new RuntimeException(e);
+      }
     }
   }
 
@@ -237,7 +249,8 @@ public class AbstractFileInputOperatorTest
     List<Partition<AbstractFileInputOperator<String>>> partitions = Lists.newArrayList();
     partitions.add(new DefaultPartition<AbstractFileInputOperator<String>>(oper));
     // incremental capacity controlled partitionCount property
-    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions, new PartitioningContextImpl(null, 0));
+    Collection<Partition<AbstractFileInputOperator<String>>> newPartitions = initialState.definePartitions(partitions,
+      new PartitioningContextImpl(null, 0));
     Assert.assertEquals(2, newPartitions.size());
     Assert.assertEquals(1, initialState.getCurrentPartitions());
     Map<Integer, Partition<AbstractFileInputOperator<String>>> m = Maps.newHashMap();
