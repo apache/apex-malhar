@@ -16,7 +16,7 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.gpo.GPOImmutable;
+import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.qr.CustomDataDeserializer;
 import com.datatorrent.lib.appdata.qr.Data;
@@ -200,7 +200,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
     FieldsAggregatable queryFields = new FieldsAggregatable(nonAggregatedFields,
                                                                    fieldToAggregator);
     FieldsDescriptor keyFieldsDescriptor = gsd.getGenericEventSchema().getAllKeysDescriptor().getSubset(new Fields(keySet));
-    GPOImmutable gpoIm = new GPOImmutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
+    GPOMutable gpoIm = new GPOMutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
 
     if(!hasTime) {
       return new DataQueryDimensional(id,

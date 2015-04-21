@@ -15,7 +15,6 @@
  */
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.google.common.base.Preconditions;
 import java.io.Serializable;
@@ -44,7 +43,7 @@ public class AggregateEvent implements Serializable
     setAggregates(aggregates);
   }
 
-  public AggregateEvent(GPOImmutable keys,
+  public AggregateEvent(GPOMutable keys,
                         GPOMutable aggregates,
                         int bucketID,
                         int schemaID,
@@ -59,7 +58,7 @@ public class AggregateEvent implements Serializable
     setAggregates(aggregates);
   }
 
-  public AggregateEvent(GPOImmutable keys,
+  public AggregateEvent(GPOMutable keys,
                         GPOMutable aggregates,
                         int schemaID,
                         int dimensionDescriptorID,
@@ -147,7 +146,7 @@ public class AggregateEvent implements Serializable
       this.dimensionDescriptorID = eventKey.dimensionDescriptorID;
       this.aggregatorID = eventKey.aggregatorID;
 
-      this.key = eventKey.getKey();
+      this.key = new GPOMutable(eventKey.getKey());
     }
 
     public EventKey(int bucketID,

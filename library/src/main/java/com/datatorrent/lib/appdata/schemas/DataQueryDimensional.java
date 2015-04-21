@@ -16,7 +16,6 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.DataType;
@@ -75,7 +74,7 @@ public class DataQueryDimensional extends Query
 
   public DataQueryDimensional(String id,
                           String type,
-                          GPOImmutable keys,
+                          GPOMutable keys,
                           FieldsAggregatable fieldsAggregatable,
                           boolean incompleteResultOK)
   {
@@ -92,7 +91,7 @@ public class DataQueryDimensional extends Query
                           String type,
                           int latestNumBuckets,
                           TimeBucket timeBucket,
-                          GPOImmutable keys,
+                          GPOMutable keys,
                           FieldsAggregatable fieldsAggregatable,
                           boolean incompleteResultOK)
   {
@@ -113,7 +112,7 @@ public class DataQueryDimensional extends Query
                           String from,
                           String to,
                           TimeBucket timeBucket,
-                          GPOImmutable keys,
+                          GPOMutable keys,
                           FieldsAggregatable fieldsAggregatable,
                           boolean incompleteResultOK)
   {
@@ -135,7 +134,7 @@ public class DataQueryDimensional extends Query
                           String from,
                           String to,
                           TimeBucket timeBucket,
-                          GPOImmutable keys,
+                          GPOMutable keys,
                           FieldsAggregatable fieldsAggregatable,
                           long countdown,
                           boolean incompleteResultOK)
@@ -157,7 +156,7 @@ public class DataQueryDimensional extends Query
                           String type,
                           int latestNumBuckets,
                           TimeBucket timeBucket,
-                          GPOImmutable keys,
+                          GPOMutable keys,
                           FieldsAggregatable fieldsAggregatable,
                           long countdown,
                           boolean incompleteResultOK)

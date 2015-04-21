@@ -17,7 +17,6 @@
 package com.datatorrent.lib.appdata.dimensions.converter;
 
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.converter.Converter;
 import com.google.common.base.Preconditions;
@@ -102,7 +101,7 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
       aggregates.setField(field, inputEvent.get(getMapField(field)));
     }
 
-    return new AggregateEvent(new GPOImmutable(key),
+    return new AggregateEvent(new GPOMutable(key),
                               aggregates,
                               context.schemaID,
                               context.dimensionDescriptorID,

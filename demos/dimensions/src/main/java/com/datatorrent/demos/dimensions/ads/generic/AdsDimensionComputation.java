@@ -10,7 +10,6 @@ import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.converter.DimensionsConversionContext;
-import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -88,7 +87,7 @@ public class AdsDimensionComputation extends DimensionsComputationSingleSchema<A
       }
     }
 
-    AggregateEvent gae = new AggregateEvent(new GPOImmutable(keyGPO),
+    AggregateEvent gae = new AggregateEvent(new GPOMutable(keyGPO),
                                                           aggGPO,
                                                           DEFAULT_SCHEMA_ID,
                                                           context.dimensionDescriptorID,

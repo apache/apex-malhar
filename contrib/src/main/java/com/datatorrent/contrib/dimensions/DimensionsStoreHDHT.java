@@ -24,7 +24,6 @@ import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
-import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -148,7 +147,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       keys.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
     }
 
-    AggregateEvent gae = new AggregateEvent(new GPOImmutable(keys),
+    AggregateEvent gae = new AggregateEvent(new GPOMutable(keys),
                                             aggs,
                                             schemaID,
                                             dimensionDescriptorID,
