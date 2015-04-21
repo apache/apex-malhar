@@ -230,8 +230,8 @@ public class FieldsDescriptor
   public int hashCode()
   {
     int hash = 7;
-    hash = 47 * hash + (this.fieldToType != null ? this.fieldToType.hashCode() : 0);
-    hash = 47 * hash + (this.fields != null ? this.fields.hashCode() : 0);
+    hash = 53 * hash + (this.fieldToType != null ? this.fieldToType.hashCode() : 0);
+    hash = 53 * hash + (this.compressedTypes != null ? this.compressedTypes.hashCode() : 0);
     return hash;
   }
 
@@ -248,7 +248,7 @@ public class FieldsDescriptor
     if(this.fieldToType != other.fieldToType && (this.fieldToType == null || !this.fieldToType.equals(other.fieldToType))) {
       return false;
     }
-    if(this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
+    if(this.compressedTypes != other.compressedTypes && (this.compressedTypes == null || !this.compressedTypes.equals(other.compressedTypes))) {
       return false;
     }
     return true;

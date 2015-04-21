@@ -223,8 +223,7 @@ public class GPOMutable implements Serializable
 
   public final void setFieldDescriptor(FieldsDescriptor fieldDescriptor)
   {
-    Preconditions.checkNotNull(fieldDescriptor);
-    this.fieldDescriptor = fieldDescriptor;
+    this.fieldDescriptor = Preconditions.checkNotNull(fieldDescriptor);
   }
 
   public final FieldsDescriptor getFieldDescriptor()

@@ -110,7 +110,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     byte[] timeBytes = Longs.toByteArray(timestamp);
     byte[] schemaIDBytes = Ints.toByteArray(eventKey.getSchemaID());
     byte[] dimensionDescriptorIDBytes = Ints.toByteArray(eventKey.getDimensionDescriptorID());
-    byte[] aggregatorIDBytes = Ints.toByteArray(eventKey.getAggregatorIndex());
+    byte[] aggregatorIDBytes = Ints.toByteArray(eventKey.getAggregatorID());
     byte[] gpoBytes = GPOUtils.serialize(eventKey.getKey(), DimensionsDescriptor.TIME_FIELDS);
 
     bal.add(timeBytes);
@@ -164,7 +164,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
     int schemaID = gae.getSchemaID();
     int ddID = gae.getDimensionDescriptorID();
-    int aggregatorID = gae.getAggregatorIndex();
+    int aggregatorID = gae.getAggregatorID();
 
     FieldsDescriptor keyFieldsDescriptor = getKeyDescriptor(schemaID, ddID);
     FieldsDescriptor valueFieldsDescriptor = getValueDescriptor(schemaID, ddID, aggregatorID);
@@ -177,7 +177,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
   protected void processGenericEvent(AggregateEvent gae)
   {
-    DimensionsStaticAggregator aggregator = getAggregator(gae.getAggregatorIndex());
+    DimensionsStaticAggregator aggregator = getAggregator(gae.getAggregatorID());
     AggregateEvent aggregate = null;
 
     try {

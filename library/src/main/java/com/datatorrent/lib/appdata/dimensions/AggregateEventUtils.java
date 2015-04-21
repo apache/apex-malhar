@@ -43,7 +43,7 @@ public class AggregateEventUtils
     bal.add(BB_4.array());
     BB_4.clear();
 
-    BB_4.putInt(gae.getAggregatorIndex());
+    BB_4.putInt(gae.getAggregatorID());
     bal.add(BB_4.array());
     BB_4.clear();
 

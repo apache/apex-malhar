@@ -17,6 +17,7 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.appdata.dimensions.converter.DimensionsConversionContext;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.base.Preconditions;
@@ -33,6 +34,7 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
   @NotNull
   private String eventSchemaJSON;
   private transient DimensionalEventSchema eventSchema;
+  private transient DimensionsConversionContext conversionContext = new DimensionsConversionContext();
 
   public DimensionsComputationSingleSchema()
   {
@@ -62,23 +64,28 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
   {
     List<FieldsDescriptor> keyFieldsDescriptors = eventSchema.getDdIDToKeyDescriptor();
 
-    for(int index = 0;
-        index < keyFieldsDescriptors.size();
-        index++) {
-      FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(index);
-      Int2ObjectMap<FieldsDescriptor> map = eventSchema.getDdIDToAggIDToInputAggDescriptor().get(index);
-      IntArrayList aggIDList = eventSchema.getDdIDToAggIDs().get(index);
+    for(int ddID = 0;
+        ddID < keyFieldsDescriptors.size();
+        ddID++) {
+      FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(ddID);
+      Int2ObjectMap<FieldsDescriptor> map = eventSchema.getDdIDToAggIDToInputAggDescriptor().get(ddID);
+      IntArrayList aggIDList = eventSchema.getDdIDToAggIDs().get(ddID);
 
       for(int aggIDIndex = 0;
           aggIDIndex < aggIDList.size();
           aggIDIndex++) {
         int aggID = aggIDList.get(aggIDIndex);
+
+        conversionContext.schemaID = DEFAULT_SCHEMA_ID;
+        conversionContext.dimensionDescriptorID = ddID;
+        conversionContext.aggregatorID = aggID;
+
+        conversionContext.dd = eventSchema.getDdIDToDD().get(ddID);
+        conversionContext.keyFieldsDescriptor = keyFieldsDescriptor;
+        conversionContext.aggregateDescriptor = map.get(aggID);
+
         aggregateEventBuffer.add(createGenericAggregateEvent(inputEvent,
-                                                             eventSchema.getDdIDToDD().get(index),
-                                                             keyFieldsDescriptor,
-                                                             map.get(aggID),
-                                                             index,
-                                                             aggID));
+                                                             conversionContext));
       }
     }
   }
@@ -90,9 +97,5 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
   }
 
   public abstract AggregateEvent createGenericAggregateEvent(INPUT_EVENT inputEvent,
-                                                             DimensionsDescriptor dd,
-                                                             FieldsDescriptor keyFieldsDescriptor,
-                                                             FieldsDescriptor aggregateDescriptor,
-                                                             int dimensionDescriptorID,
-                                                             int aggregateID);
+                                                             DimensionsConversionContext conversionContext);
 }

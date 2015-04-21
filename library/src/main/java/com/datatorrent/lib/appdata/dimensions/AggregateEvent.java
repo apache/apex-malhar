@@ -17,13 +17,12 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AggregateEvent implements DimensionsComputation.AggregateEvent, Serializable
+public class AggregateEvent implements Serializable
 {
   private static final Logger logger = LoggerFactory.getLogger(AggregateEvent.class);
   private static final long serialVersionUID = 201503231204L;
@@ -109,10 +108,9 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
     return eventKey.getDimensionDescriptorID();
   }
 
-  @Override
-  public int getAggregatorIndex()
+  public int getAggregatorID()
   {
-    return eventKey.getAggregatorIndex();
+    return eventKey.getAggregatorID();
   }
 
   public int getBucketID()
@@ -135,7 +133,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
     private int bucketID;
     private int schemaID;
     private int dimensionDescriptorID;
-    private int aggregatorIndex;
+    private int aggregatorID;
     private GPOMutable key;
 
     public EventKey()
@@ -147,7 +145,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       this.bucketID = eventKey.bucketID;
       this.schemaID = eventKey.schemaID;
       this.dimensionDescriptorID = eventKey.dimensionDescriptorID;
-      this.aggregatorIndex = eventKey.aggregatorIndex;
+      this.aggregatorID = eventKey.aggregatorID;
 
       this.key = eventKey.getKey();
     }
@@ -161,7 +159,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       setBucketID(bucketID);
       setSchemaID(schemaID);
       setDimensionDescriptorID(dimensionDescriptorID);
-      setAggregatorIndex(aggregatorIndex);
+      setAggregatorID(aggregatorIndex);
       setKey(key);
     }
 
@@ -172,7 +170,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
     {
       setSchemaID(schemaID);
       setDimensionDescriptorID(dimensionDescriptorID);
-      setAggregatorIndex(aggregatorIndex);
+      setAggregatorID(aggregatorIndex);
       setKey(key);
     }
 
@@ -187,19 +185,19 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
     }
 
     /**
-     * @return the aggregatorIndex
+     * @return the aggregatorID
      */
-    public int getAggregatorIndex()
+    public int getAggregatorID()
     {
-      return aggregatorIndex;
+      return aggregatorID;
     }
 
     /**
-     * @param aggregatorIndex the aggregatorIndex to set
+     * @param aggregatorID the aggregatorID to set
      */
-    private void setAggregatorIndex(int aggregatorIndex)
+    private void setAggregatorID(int aggregatorID)
     {
-      this.aggregatorIndex = aggregatorIndex;
+      this.aggregatorID = aggregatorID;
     }
 
     /**
@@ -252,7 +250,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       hash = 97 * hash + this.bucketID;
       hash = 97 * hash + this.schemaID;
       hash = 97 * hash + this.dimensionDescriptorID;
-      hash = 97 * hash + this.aggregatorIndex;
+      hash = 97 * hash + this.aggregatorID;
       hash = 97 * hash + (this.key != null ? this.key.hashCode() : 0);
       return hash;
     }
@@ -282,7 +280,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
         return false;
       }
 
-      if(this.aggregatorIndex != other.aggregatorIndex) {
+      if(this.aggregatorID != other.aggregatorID) {
         return false;
       }
 
@@ -296,7 +294,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
     @Override
     public String toString()
     {
-      return "EventKey{" + "schemaID=" + schemaID + ", dimensionDescriptorID=" + dimensionDescriptorID + ", aggregatorIndex=" + aggregatorIndex + ", key=" + key + '}';
+      return "EventKey{" + "schemaID=" + schemaID + ", dimensionDescriptorID=" + dimensionDescriptorID + ", aggregatorIndex=" + aggregatorID + ", key=" + key + '}';
     }
   }
 }

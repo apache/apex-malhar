@@ -19,16 +19,16 @@ package com.datatorrent.lib.appdata.dimensions.converter;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
-public class DimensionConversionContext
+public class DimensionsConversionContext
 {
   public int schemaID;
   public int dimensionDescriptorID;
-  public int aggregateID;
+  public int aggregatorID;
   public DimensionsDescriptor dd;
   public FieldsDescriptor keyFieldsDescriptor;
   public FieldsDescriptor aggregateDescriptor;
 
-  public DimensionConversionContext()
+  public DimensionsConversionContext()
   {
   }
 }

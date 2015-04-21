@@ -37,7 +37,7 @@ import java.util.Map;
  * }
  *
  */
-public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent, DimensionConversionContext>
+public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent, DimensionsConversionContext>
 {
   private String pojoMappingSchema;
   private Map<String, List<String>> gpoFieldToPojoGetters = Maps.newHashMap();
@@ -98,7 +98,7 @@ public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent
   }
 
   @Override
-  public AggregateEvent convert(Object inputEvent, DimensionConversionContext context)
+  public AggregateEvent convert(Object inputEvent, DimensionsConversionContext context)
   {
     throw new UnsupportedOperationException("This is not implemented yet.");
   }

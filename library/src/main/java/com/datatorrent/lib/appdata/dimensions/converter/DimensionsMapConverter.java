@@ -34,7 +34,7 @@ import java.util.Map;
  * "gpoField":"mapField"
  * }
  */
-public class DimensionsMapConverter implements Converter<Map<String, Object>, AggregateEvent, DimensionConversionContext>
+public class DimensionsMapConverter implements Converter<Map<String, Object>, AggregateEvent, DimensionsConversionContext>
 {
   private String conversionSchema;
   private Map<String, String> gpoFieldToMapField = Maps.newHashMap();
@@ -78,7 +78,7 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
   }
 
   @Override
-  public AggregateEvent convert(Map<String, Object> inputEvent, DimensionConversionContext context)
+  public AggregateEvent convert(Map<String, Object> inputEvent, DimensionsConversionContext context)
   {
     GPOMutable key = new GPOMutable(context.keyFieldsDescriptor);
 
@@ -106,7 +106,7 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
                               aggregates,
                               context.schemaID,
                               context.dimensionDescriptorID,
-                              context.aggregateID);
+                              context.aggregatorID);
   }
 
   private String getMapField(String gpoField)

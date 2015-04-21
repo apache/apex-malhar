@@ -84,7 +84,7 @@ public class AdsDimensionComputationTest
     for(Map.Entry<EventKey, AggregateEvent> entry: entries) {
       EventKey eventKey = entry.getKey();
 
-      if(eventKey.getAggregatorIndex() == AggregatorStaticType.COUNT.ordinal()) {
+      if(eventKey.getAggregatorID() == AggregatorStaticType.COUNT.ordinal()) {
         ae = entry.getValue();
         break;
       }

@@ -124,14 +124,14 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
   public void processGenericEvent(AggregateEvent gae)
   {
-    DimensionsStaticAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorIndex());
+    DimensionsStaticAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorID());
     AggregateEvent aggregate = cache.getIfPresent(gae.getEventKey());
 
     if(aggregate == null) {
       gae = aggregator.createDest(gae,
                                   getAggregateFieldsDescriptor(gae.getSchemaID(),
                                                                gae.getDimensionDescriptorID(),
-                                                               gae.getAggregatorIndex()));
+                                                               gae.getAggregatorID()));
       cache.put(gae.getEventKey(), gae);
       return;
     }
@@ -185,7 +185,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     @Override
     public void process(AggregateEvent srcAgg)
     {
-      DimensionsStaticAggregator aggregator = aggregatorIDToAggregator.get(srcAgg.getAggregatorIndex());
+      DimensionsStaticAggregator aggregator = aggregatorIDToAggregator.get(srcAgg.getAggregatorID());
       AggregateEvent destAgg = cache.getIfPresent(srcAgg.getEventKey());
 
       if(destAgg == null) {

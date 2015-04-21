@@ -8,9 +8,9 @@ package com.datatorrent.demos.dimensions.sales.generic;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.appdata.dimensions.converter.DimensionsConversionContext;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
 import java.util.List;
 import java.util.Map;
@@ -27,15 +27,11 @@ public class SalesDimensionComputation extends DimensionsComputationSingleSchema
 
   @Override
   public AggregateEvent createGenericAggregateEvent(Map<String, Object> ga,
-                                                    DimensionsDescriptor dd,
-                                                    FieldsDescriptor keyFieldsDescriptor,
-                                                    FieldsDescriptor aggregateDescriptor,
-                                                    int dimensionDescriptorID,
-                                                    int aggregateID)
+                                                    DimensionsConversionContext context)
   {
-    GPOMutable keyGPO = new GPOMutable(keyFieldsDescriptor);
+    GPOMutable keyGPO = new GPOMutable(context.keyFieldsDescriptor);
 
-    List<String> fields = keyFieldsDescriptor.getFields().getFieldsList();
+    List<String> fields = context.keyFieldsDescriptor.getFields().getFieldsList();
 
     for(int index = 0;
         index < fields.size();
@@ -55,22 +51,17 @@ public class SalesDimensionComputation extends DimensionsComputationSingleSchema
         keyGPO.setField(field, ga.get(JsonSalesGenerator.KEY_REGION));
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
-        if(dd.getTimeBucket() == null) {
-          keyGPO.setField(field, ga.get(DimensionsDescriptor.DIMENSION_TIME));
-        }
-        else {
-          keyGPO.setField(field, dd.getTimeBucket().roundDown((Long) ga.get(DimensionsDescriptor.DIMENSION_TIME)));
-        }
+        keyGPO.setField(field, context.dd.getTimeBucket().roundDown((Long)ga.get(DimensionsDescriptor.DIMENSION_TIME)));
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
-        keyGPO.setField(field, dd.getTimeBucket().ordinal());
+        keyGPO.setField(field, context.dd.getTimeBucket().ordinal());
       }
       else {
         throw new UnsupportedOperationException("This field is not supported: " + field);
       }
     }
 
-    GPOMutable aggGPO = new GPOMutable(aggregateDescriptor);
+    GPOMutable aggGPO = new GPOMutable(context.aggregateDescriptor);
 
     aggGPO.setField(JsonSalesGenerator.AGG_AMOUNT, ga.get(JsonSalesGenerator.AGG_AMOUNT));
     aggGPO.setField(JsonSalesGenerator.AGG_DISCOUNT, ga.get(JsonSalesGenerator.AGG_DISCOUNT));
@@ -79,8 +70,8 @@ public class SalesDimensionComputation extends DimensionsComputationSingleSchema
     AggregateEvent gae = new AggregateEvent(new GPOImmutable(keyGPO),
                                                           aggGPO,
                                                           DEFAULT_SCHEMA_ID,
-                                                          dimensionDescriptorID,
-                                                          aggregateID);
+                                                          context.dimensionDescriptorID,
+                                                          context.aggregatorID);
     return gae;
   }
 }
