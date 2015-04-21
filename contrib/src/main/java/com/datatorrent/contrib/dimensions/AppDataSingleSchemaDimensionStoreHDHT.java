@@ -175,6 +175,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void endWindow()
   {
+    logger.info("Current time stamp {}", System.currentTimeMillis());
+
     super.endWindow();
 
     MutableBoolean done = new MutableBoolean(false);
