@@ -149,7 +149,7 @@ public class AggregateEvent implements DimensionsComputation.AggregateEvent, Ser
       this.dimensionDescriptorID = eventKey.dimensionDescriptorID;
       this.aggregatorIndex = eventKey.aggregatorIndex;
 
-      this.key = new GPOMutable(eventKey.getKey());
+      this.key = eventKey.getKey();
     }
 
     public EventKey(int bucketID,
