@@ -5,9 +5,9 @@
    {"name":"product","type":"string"}],
  "timeBuckets":["1m", "1h", "1d"],
  "values":
-  [{"name":"amount","type":"double","aggregations":["SUM"]},
-   {"name":"discount","type":"double","aggregations":["SUM"]},
-   {"name":"tax","type":"double","aggregations":["SUM"]}],
+  [{"name":"amount","type":"double","aggregators":["SUM"]},
+   {"name":"discount","type":"double","aggregators":["SUM"]},
+   {"name":"tax","type":"double","aggregators":["SUM"]}],
  "dimensions":
   [{"combination":[]},
    {"combination":["channel"]},
