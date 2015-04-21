@@ -15,12 +15,12 @@
  */
 package com.datatorrent.contrib.kafka;
 
+import com.datatorrent.common.util.DTThrowable;
 import java.nio.ByteBuffer;
 import kafka.message.Message;
 
   public class KafkaSinglePortByteArrayInputOperator extends AbstractKafkaSinglePortInputOperator<byte[]>
   {
-
     /**
      * Implement abstract method of AbstractKafkaSinglePortInputOperator
      *
@@ -30,16 +30,17 @@ import kafka.message.Message;
     @Override
     public byte[] getTuple(Message message)
     {
-      byte[] bytes = null;
       try {
+        byte[] bytes;
         ByteBuffer buffer = message.payload();
         bytes = new byte[buffer.remaining()];
         buffer.get(bytes);
-      }
-      catch (Exception ex) {
         return bytes;
       }
-      return bytes;
+      catch (Exception ex) {
+        DTThrowable.rethrow(ex);
+      }
+      return null;
     }
 
   }
