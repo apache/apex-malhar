@@ -18,9 +18,26 @@ package com.datatorrent.lib.converter;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
+import java.nio.charset.Charset;
 
 public class ByteArrayToStringConverterOperator extends BaseOperator
 {
+  private Charset characterEncoding;
+
+  public ByteArrayToStringConverterOperator()
+  {
+    characterEncoding = Charset.forName("UTF-8");
+  }
+
+  public Charset getCharacterEncoding()
+  {
+    return characterEncoding;
+  }
+
+  public void setCharacterEncoding(Charset characterEncoding)
+  {
+    this.characterEncoding = characterEncoding;
+  }
   /**
    * Accepts byte arrays
    */
@@ -30,7 +47,7 @@ public class ByteArrayToStringConverterOperator extends BaseOperator
     public void process(byte[] message)
     {
       if (message != null) {
-        outputString.emit(new String(message));
+        outputString.emit(new String(message,characterEncoding));
       }
       else {
         outputString.emit(null);

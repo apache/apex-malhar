@@ -21,7 +21,6 @@ import kafka.message.Message;
 
   public class KafkaSinglePortByteArrayInputOperator extends AbstractKafkaSinglePortInputOperator<byte[]>
   {
-    
     /**
      * Implement abstract method of AbstractKafkaSinglePortInputOperator
      *
