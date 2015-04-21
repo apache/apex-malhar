@@ -101,26 +101,30 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   {
   }
 
-  public abstract AggregateEvent[] convertInputEvent(INPUT_EVENT inputEvent);
-  public abstract DimensionsStaticAggregator getAggregator(String aggregatorName);
-  public abstract DimensionsStaticAggregator getAggregator(int aggregatorID);
-  public abstract Map<Integer, DimensionsStaticAggregator> getAggregatorIDToAggregator();
+  public abstract void convertInputEvent(INPUT_EVENT inputEvent, List<AggregateEvent> aggregateEventBuffer);
   public abstract FieldsDescriptor getAggregateFieldsDescriptor(int schemaID,
                                                                 int dimensionDescriptorID,
                                                                 int aggregatorID);
 
+  public AggregatorInfo getAggregatorInfo()
+  {
+    return AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
+  }
+
   public void processInputEvent(INPUT_EVENT inputEvent)
   {
-    AggregateEvent[] gaes = convertInputEvent(inputEvent);
+    convertInputEvent(inputEvent, aggregateEventBuffer);
 
-    for(AggregateEvent gae: gaes) {
+    for(AggregateEvent gae: aggregateEventBuffer) {
       processGenericEvent(gae);
     }
+
+    aggregateEventBuffer.clear();
   }
 
   public void processGenericEvent(AggregateEvent gae)
   {
-    DimensionsStaticAggregator aggregator = getAggregator(gae.getAggregatorIndex());
+    DimensionsStaticAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorIndex());
     AggregateEvent aggregate = cache.getIfPresent(gae.getEventKey());
 
     if(aggregate == null) {

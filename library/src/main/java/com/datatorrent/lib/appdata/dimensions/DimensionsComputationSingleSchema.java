@@ -16,53 +16,77 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.google.common.base.Preconditions;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import javax.validation.constraints.NotNull;
 
-import java.util.Map;
+import java.util.List;
 
 public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends DimensionsComputation<INPUT_EVENT>
 {
   public static final int DEFAULT_SCHEMA_ID = 0;
 
+  @NotNull
   private String eventSchemaJSON;
+  private transient DimensionalEventSchema eventSchema;
 
   public DimensionsComputationSingleSchema()
   {
   }
 
-  public AggregatorInfo getAggregatorInfo()
+  public void setEventSchemaJSON(String eventSchemaJSON)
   {
-    return AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
+    this.eventSchemaJSON = Preconditions.checkNotNull(eventSchemaJSON, "eventSchemaJSON");
+  }
+
+  public String getEventSchemaJSON()
+  {
+    return eventSchemaJSON;
   }
 
   @Override
-  public AggregateEvent[] convertInputEvent(INPUT_EVENT inputEvent)
+  public void setup(OperatorContext context)
   {
-    return null;
+    super.setup(context);
+
+    eventSchema = new DimensionalEventSchema(eventSchemaJSON,
+                                             getAggregatorInfo());
   }
 
   @Override
-  public DimensionsStaticAggregator getAggregator(String aggregatorName)
+  public void convertInputEvent(INPUT_EVENT inputEvent, List<AggregateEvent> aggregateEventBuffer)
   {
-    return null;
-  }
+    List<FieldsDescriptor> keyFieldsDescriptors = eventSchema.getDdIDToKeyDescriptor();
 
-  @Override
-  public DimensionsStaticAggregator getAggregator(int aggregatorID)
-  {
-    return null;
-  }
+    for(int index = 0;
+        index < keyFieldsDescriptors.size();
+        index++) {
+      FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(index);
+      Int2ObjectMap<FieldsDescriptor> map = eventSchema.getDdIDToAggIDToInputAggDescriptor().get(index);
+      IntArrayList aggIDList = eventSchema.getDdIDToAggIDs().get(index);
 
-  @Override
-  public Map<Integer, DimensionsStaticAggregator> getAggregatorIDToAggregator()
-  {
-    return null;
+      for(int aggIDIndex = 0;
+          aggIDIndex < aggIDList.size();
+          aggIDIndex++) {
+        int aggID = aggIDList.get(aggIDIndex);
+        aggregateEventBuffer.add(createGenericAggregateEvent(inputEvent,
+                                                             eventSchema.getDdIDToDD().get(index),
+                                                             keyFieldsDescriptor,
+                                                             map.get(aggID),
+                                                             index,
+                                                             aggID));
+      }
+    }
   }
 
   @Override
   public FieldsDescriptor getAggregateFieldsDescriptor(int schemaID, int dimensionDescriptorID, int aggregatorID)
   {
-    return null;
+    return eventSchema.getDdIDToAggIDToOutputAggDescriptor().get(dimensionDescriptorID).get(aggregatorID);
   }
 
   public abstract AggregateEvent createGenericAggregateEvent(INPUT_EVENT inputEvent,

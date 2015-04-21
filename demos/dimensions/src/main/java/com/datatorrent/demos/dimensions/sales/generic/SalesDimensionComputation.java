@@ -5,22 +5,12 @@
 
 package com.datatorrent.demos.dimensions.sales.generic;
 
-import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
-import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputation;
+import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.google.common.collect.Lists;
-import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import javax.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.Map;
@@ -29,100 +19,18 @@ import java.util.Map;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SalesDimensionComputation extends DimensionsComputation<Map<String,Object>>
+public class SalesDimensionComputation extends DimensionsComputationSingleSchema<Map<String,Object>>
 {
-  @NotNull
-  private String eventSchemaJSON;
-
-  private transient DimensionalEventSchema eventSchema;
-  private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToInputAggDescriptor;
-  private transient List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToOutputAggDescriptor;
-  private transient List<IntArrayList> ddIDToAggIDs;
-
   public SalesDimensionComputation()
   {
   }
 
-  @Override
-  public void setup(OperatorContext context)
-  {
-    eventSchema = new DimensionalEventSchema(eventSchemaJSON,
-                                             AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
-
-    List<Map<String, FieldsDescriptor>> tempDescriptorList = eventSchema.getDdIDToAggregatorToAggregateDescriptor();
-    ddIDToAggIDs = Lists.newArrayList();
-    ddIDToAggIDToInputAggDescriptor = Lists.newArrayList();
-    ddIDToAggIDToOutputAggDescriptor = Lists.newArrayList();
-
-    for(int index = 0;
-        index < tempDescriptorList.size();
-        index++) {
-      IntArrayList aggIDList = new IntArrayList();
-      Int2ObjectMap<FieldsDescriptor> inputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
-      Int2ObjectMap<FieldsDescriptor> outputMap = new Int2ObjectOpenHashMap<FieldsDescriptor>();
-
-      ddIDToAggIDs.add(aggIDList);
-      ddIDToAggIDToInputAggDescriptor.add(inputMap);
-      ddIDToAggIDToOutputAggDescriptor.add(outputMap);
-
-      for(Map.Entry<String, FieldsDescriptor> entry
-          : tempDescriptorList.get(index).entrySet()) {
-        String aggregatorName = entry.getKey();
-        FieldsDescriptor inputDescriptor = entry.getValue();
-        AggregatorStaticType aggType = AggregatorStaticType.valueOf(aggregatorName);
-        aggIDList.add(aggType.ordinal());
-        inputMap.put(aggType.ordinal(), inputDescriptor);
-        outputMap.put(aggType.ordinal(),
-                      aggType.getAggregator().getResultDescriptor(inputDescriptor));
-      }
-    }
-
-    super.setup(context);
-  }
-
-  @Override
-  public AggregateEvent[] convertInputEvent(Map<String, Object> inputEvent)
-  {
-    List<AggregateEvent> events = Lists.newArrayList();
-    List<FieldsDescriptor> keyFieldsDescriptors = eventSchema.getDdIDToKeyDescriptor();
-
-    for(int index = 0;
-        index < keyFieldsDescriptors.size();
-        index++) {
-      FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(index);
-      Int2ObjectMap<FieldsDescriptor> map = ddIDToAggIDToInputAggDescriptor.get(index);
-      IntArrayList aggIDList = ddIDToAggIDs.get(index);
-
-      for(int aggIDIndex = 0;
-          aggIDIndex < aggIDList.size();
-          aggIDIndex++) {
-        int aggID = aggIDList.get(aggIDIndex);
-        events.add(createGenericAggregateEvent(inputEvent,
-                                               eventSchema.getDdIDToDD().get(index),
-                                               keyFieldsDescriptor,
-                                               map.get(aggID),
-                                               index,
-                                               aggID));
-      }
-    }
-
-    AggregateEvent[] gaes = new AggregateEvent[events.size()];
-
-    for(int gaeIndex = 0;
-        gaeIndex < events.size();
-        gaeIndex++) {
-      gaes[gaeIndex] = events.get(gaeIndex);
-    }
-
-    return gaes;
-  }
-
-  private AggregateEvent createGenericAggregateEvent(Map<String, Object> ga,
-                                                            DimensionsDescriptor dd,
-                                                            FieldsDescriptor keyFieldsDescriptor,
-                                                            FieldsDescriptor aggregateDescriptor,
-                                                            int dimensionDescriptorID,
-                                                            int aggregateID)
+  public AggregateEvent createGenericAggregateEvent(Map<String, Object> ga,
+                                                    DimensionsDescriptor dd,
+                                                    FieldsDescriptor keyFieldsDescriptor,
+                                                    FieldsDescriptor aggregateDescriptor,
+                                                    int dimensionDescriptorID,
+                                                    int aggregateID)
   {
     GPOMutable keyGPO = new GPOMutable(keyFieldsDescriptor);
 
@@ -173,45 +81,5 @@ public class SalesDimensionComputation extends DimensionsComputation<Map<String,
                                                           dimensionDescriptorID,
                                                           aggregateID);
     return gae;
-  }
-
-  /**
-   * @return the eventSchemaJSON
-   */
-  public String getEventSchemaJSON()
-  {
-    return eventSchemaJSON;
-  }
-
-  /**
-   * @param eventSchemaJSON the eventSchemaJSON to set
-   */
-  public void setEventSchemaJSON(String eventSchemaJSON)
-  {
-    this.eventSchemaJSON = eventSchemaJSON;
-  }
-
-  @Override
-  public DimensionsStaticAggregator getAggregator(int aggregatorID)
-  {
-    return AggregatorStaticType.values()[aggregatorID].getAggregator();
-  }
-
-  @Override
-  public FieldsDescriptor getAggregateFieldsDescriptor(int schemaID, int dimensionDescriptorID, int aggregatorID)
-  {
-    return ddIDToAggIDToOutputAggDescriptor.get(dimensionDescriptorID).get(aggregatorID);
-  }
-
-  @Override
-  public DimensionsStaticAggregator getAggregator(String aggregatorName)
-  {
-    return AggregatorStaticType.NAME_TO_AGGREGATOR.get(aggregatorName);
-  }
-
-  @Override
-  public Map<Integer, DimensionsStaticAggregator> getAggregatorIDToAggregator()
-  {
-    return AggregatorStaticType.ORDINAL_TO_AGGREGATOR;
   }
 }
