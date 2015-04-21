@@ -80,6 +80,10 @@ public enum TimeBucket
 
   public long roundDown(long timestamp)
   {
+    if(timeUnit == null) {
+      return 0;
+    }
+    
     long millis = timeUnit.toMillis(1L);
     return (timestamp / millis) * millis;
   }
