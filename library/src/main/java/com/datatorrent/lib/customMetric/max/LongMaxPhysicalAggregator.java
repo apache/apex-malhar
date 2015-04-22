@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetrics.min;
+package com.datatorrent.lib.customMetric.max;
 
 import java.io.Serializable;
 
-import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
-@Name("Min")
-public class LongMinPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Long>, Serializable
+@Name("Max")
+public class LongMaxPhysicalAggregator implements CustomMetric.PhysicalAggregator<Long>, Serializable
 {
   @Override
-  public Long aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
+  public Long aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
   {
-    Long min = null;
+    Long max = null;
     for (Number metric : physicalMetrics.<Number>getValues()) {
       long value = metric.longValue();
-      if (min == null || value < min) {
-        min = value;
+      if (max == null || value > max) {
+        max = value;
       }
     }
-    return min;
+    return max;
   }
 
-  private static final long serialVersionUID = 201504081319L;
+  private static final long serialVersionUID = 201504081325L;
 }

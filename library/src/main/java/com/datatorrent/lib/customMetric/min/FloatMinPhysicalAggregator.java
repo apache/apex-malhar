@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetrics.min;
+package com.datatorrent.lib.customMetric.min;
 
 import java.io.Serializable;
 
-import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
 @Name("Min")
-public class DoubleMinPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Double>, Serializable
+public class FloatMinPhysicalAggregator implements CustomMetric.PhysicalAggregator<Float>, Serializable
 {
   @Override
-  public Double aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
+  public Float aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
   {
-    Double min = null;
+    Float min = null;
     for (Number metric : physicalMetrics.<Number>getValues()) {
-      double value = metric.doubleValue();
+      float value = metric.floatValue();
       if (min == null || value < min) {
         min = value;
       }
@@ -36,5 +36,5 @@ public class DoubleMinPhysicalAggregator implements CustomMetrics.PhysicalAggreg
     return min;
   }
 
-  private static final long serialVersionUID = 201504081324L;
+  private static final long serialVersionUID = 201504081322L;
 }

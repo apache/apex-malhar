@@ -13,28 +13,28 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetrics.max;
+package com.datatorrent.lib.customMetric;
 
 import java.io.Serializable;
+import java.util.List;
 
-import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
-@Name("Max")
-public class DoubleMaxPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Double>, Serializable
+@Name("Avg")
+public class AvgPhysicalAggregator implements CustomMetric.PhysicalAggregator<Double>, Serializable
 {
   @Override
-  public Double aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
+  public Double aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
   {
-    Double max = null;
-    for (Number metric : physicalMetrics.<Number>getValues()) {
-      double value = metric.doubleValue();
-      if (max == null || value > max) {
-        max = value;
-      }
+    double sum = 0;
+
+    List<Number> physicalValues = physicalMetrics.getValues();
+    for (Number metric : physicalValues) {
+      sum += metric.doubleValue();
     }
-    return max;
+    return sum / physicalValues.size();
   }
 
-  private static final long serialVersionUID = 201504081328L;
+  private static final long serialVersionUID = 201504081330L;
 }

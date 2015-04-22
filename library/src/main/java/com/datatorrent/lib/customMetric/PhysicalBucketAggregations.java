@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetrics;
+package com.datatorrent.lib.customMetric;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -24,25 +24,25 @@ import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Preconditions;
 
-import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.CustomMetric;
 
 /**
- * An implementation of {@link PhysicalAggregations} and {@link CustomMetrics.BucketAggregations} that
+ * An implementation of {@link PhysicalAggregations} and {@link CustomMetric.BucketAggregations} that
  * requires a map from metrics to a sub map that links a physical aggregator to a collection of bucket aggregations.
  */
-public class PhysicalBucketAggregations implements CustomMetrics.PhysicalAggregations,
-  CustomMetrics.BucketAggregations, Serializable
+public class PhysicalBucketAggregations implements CustomMetric.PhysicalAggregations,
+  CustomMetric.BucketAggregations, Serializable
 {
   //metric -> (physical aggregator -> collection of bucket aggregations)
-  private Map<String, LinkedHashMap<CustomMetrics.PhysicalAggregator<?>, Collection<String>>> aggregations;
+  private Map<String, LinkedHashMap<CustomMetric.PhysicalAggregator<?>, Collection<String>>> aggregations;
 
   @Override
-  public Collection<String> getBucketAggregatorsFor(String metricKey, CustomMetrics.PhysicalAggregator<?> aggregator)
+  public Collection<String> getBucketAggregatorsFor(String metricKey, CustomMetric.PhysicalAggregator<?> aggregator)
   {
     if (aggregations == null) {
       return null;
     }
-    LinkedHashMap<CustomMetrics.PhysicalAggregator<?>, Collection<String>> aggregatorBuckets = aggregations.get(metricKey);
+    LinkedHashMap<CustomMetric.PhysicalAggregator<?>, Collection<String>> aggregatorBuckets = aggregations.get(metricKey);
     if (aggregatorBuckets == null) {
       return null;
     }
@@ -50,7 +50,7 @@ public class PhysicalBucketAggregations implements CustomMetrics.PhysicalAggrega
   }
 
   @Override
-  public Collection<CustomMetrics.PhysicalAggregator<?>> getAggregatorsFor(String metricKey)
+  public Collection<CustomMetric.PhysicalAggregator<?>> getAggregatorsFor(String metricKey)
   {
     if (aggregations == null) {
       return null;
@@ -59,12 +59,12 @@ public class PhysicalBucketAggregations implements CustomMetrics.PhysicalAggrega
   }
 
   public void setAggregations(@NotNull Map<String,
-    LinkedHashMap<CustomMetrics.PhysicalAggregator<?>, Collection<String>>> aggregations)
+    LinkedHashMap<CustomMetric.PhysicalAggregator<?>, Collection<String>>> aggregations)
   {
     aggregations = Preconditions.checkNotNull(aggregations, "aggregations");
   }
 
-  public Map<String, LinkedHashMap<CustomMetrics.PhysicalAggregator<?>, Collection<String>>> getAggregations()
+  public Map<String, LinkedHashMap<CustomMetric.PhysicalAggregator<?>, Collection<String>>> getAggregations()
   {
     return aggregations;
   }

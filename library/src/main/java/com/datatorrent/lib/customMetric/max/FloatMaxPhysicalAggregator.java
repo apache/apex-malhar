@@ -13,22 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetrics.max;
+package com.datatorrent.lib.customMetric.max;
 
 import java.io.Serializable;
 
-import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
 @Name("Max")
-public class IntMaxPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Integer>, Serializable
+public class FloatMaxPhysicalAggregator implements CustomMetric.PhysicalAggregator<Float>, Serializable
 {
   @Override
-  public Integer aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
+  public Float aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
   {
-    Integer max = null;
+    Float max = null;
     for (Number metric : physicalMetrics.<Number>getValues()) {
-      int value = metric.intValue();
+      float value = metric.floatValue();
       if (max == null || value > max) {
         max = value;
       }
@@ -36,5 +36,5 @@ public class IntMaxPhysicalAggregator implements CustomMetrics.PhysicalAggregato
     return max;
   }
 
-  private static final long serialVersionUID = 201504081326L;
+  private static final long serialVersionUID = 201504081327L;
 }
