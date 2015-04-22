@@ -143,8 +143,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   private int windowCount = 0;
   private boolean receivedWindow1m = false;
+  private EventKey eventKey1m;
   private boolean receivedWindow1h = false;
+  private EventKey eventKey1h;
   private boolean receivedWindow1d = false;
+  private EventKey eventKey1d;
 
   @Override
   public void processEvent(AggregateEvent gae) {
@@ -154,6 +157,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
        && !receivedWindow1m) {
       logger.info("Incoming key {}", gae.getKeys());
       receivedWindow1m = true;
+      eventKey1m = gae.getEventKey();
     }
 
     if(windowCount == 0 &&
@@ -161,6 +165,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
        && !receivedWindow1h) {
       logger.info("Incoming key {}", gae.getKeys());
       receivedWindow1h = true;
+      eventKey1h = gae.getEventKey();
     }
 
     if(windowCount == 0 &&
@@ -168,6 +173,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
        && !receivedWindow1d) {
       logger.info("Incoming key {}", gae.getKeys());
       receivedWindow1d = true;
+      eventKey1d = gae.getEventKey();
     }
 
     super.processEvent(gae);
@@ -386,6 +392,20 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           String aggregatorName = entry.getKey();
           EventKey eventKey = entry.getValue();
           Slice key = new Slice(getEventKeyBytesGAE(eventKey));
+
+          if(eventKey.getDimensionDescriptorID() == 0) {
+            logger.info("Query key: {}", eventKey);
+            logger.info("Saved key: {}", eventKey1m);
+            logger.info("equals {}", eventKey.equals(eventKey1m));
+          }
+          else if(eventKey.getDimensionDescriptorID() == 1) {
+            logger.info("Query key: {}", eventKey);
+            logger.info("Saved key: {}", eventKey.equals(eventKey1h));
+          }
+          else if(eventKey.getDimensionDescriptorID() == 2) {
+            logger.info("Query key: {}", eventKey);
+            logger.info("Saved key: {}", eventKey.equals(eventKey1d));
+          }
 
           HDSQuery hdsQuery = operator.queries.get(key);
 
