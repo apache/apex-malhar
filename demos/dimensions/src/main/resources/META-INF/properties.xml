@@ -165,6 +165,13 @@
     <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
   <!--</property>-->
 
+  <!-- Settings for GenericSalesDemoWithHDHTNew -->
+
+  <property>
+    <name>dt.application.GenericSalesDemoWithHDHTNew.operator.Store.fileStore.basePathPrefix</name>
+    <value>GenericSalesDemoWithHDHTNew/Store</value>
+  </property>
+
   <!-- Settings for all the apps -->
   <property>
     <name>dt.operator.*.attr.MEMORY_MB</name>
