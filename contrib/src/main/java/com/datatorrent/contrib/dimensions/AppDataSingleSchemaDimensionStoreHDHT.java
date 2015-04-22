@@ -140,8 +140,32 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   {
   }
 
+
+  private boolean receivedWindow1m = false;
+  private boolean receivedWindow1h = false;
+  private boolean receivedWindow1d = false;
+
   @Override
   public void processEvent(AggregateEvent gae) {
+
+    if(gae.getDimensionDescriptorID() == 0
+       && !receivedWindow1m) {
+      logger.info("Incoming key {}", gae.getKeys());
+      receivedWindow1m = true;
+    }
+
+    if(gae.getDimensionDescriptorID() == 1
+       && !receivedWindow1h) {
+      logger.info("Incoming key {}", gae.getKeys());
+      receivedWindow1h = true;
+    }
+
+    if(gae.getDimensionDescriptorID() == 2
+       && !receivedWindow1d) {
+      logger.info("Incoming key {}", gae.getKeys());
+      receivedWindow1d = true;
+    }
+
     super.processEvent(gae);
   }
 
@@ -175,6 +199,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void endWindow()
   {
+    receivedWindow1m = false;
+    receivedWindow1h = false;
+    receivedWindow1d = false;
+
     MutableBoolean done = new MutableBoolean(false);
 
     while(done.isFalse()) {
