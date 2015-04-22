@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetrics;
+package com.datatorrent.lib.customMetric;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -23,19 +23,19 @@ import javax.validation.constraints.NotNull;
 
 import com.google.common.base.Preconditions;
 
-import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.CustomMetric;
 
 /**
- * An implementation of {@link CustomMetrics.PhysicalAggregations} which requires a map from metrics to a collection of
+ * An implementation of {@link CustomMetric.PhysicalAggregations} which requires a map from metrics to a collection of
  * aggregators.
  */
-public class PhysicalAggregations implements CustomMetrics.PhysicalAggregations, Serializable
+public class PhysicalAggregations implements CustomMetric.PhysicalAggregations, Serializable
 {
   //metric key -> collection of physical aggregators
-  private Map<String, Collection<CustomMetrics.PhysicalAggregator<?>>> aggregations;
+  private Map<String, Collection<CustomMetric.PhysicalAggregator<?>>> aggregations;
 
   @Override
-  public Collection<CustomMetrics.PhysicalAggregator<?>> getAggregatorsFor(@NotNull String metricKey)
+  public Collection<CustomMetric.PhysicalAggregator<?>> getAggregatorsFor(@NotNull String metricKey)
   {
     if (aggregations == null) {
       return null;
@@ -43,12 +43,12 @@ public class PhysicalAggregations implements CustomMetrics.PhysicalAggregations,
     return aggregations.get(metricKey);
   }
 
-  public void setAggregations(@NotNull Map<String, Collection<CustomMetrics.PhysicalAggregator<?>>> aggregations)
+  public void setAggregations(@NotNull Map<String, Collection<CustomMetric.PhysicalAggregator<?>>> aggregations)
   {
     this.aggregations = Preconditions.checkNotNull(aggregations, "aggregations");
   }
 
-  public Map<String, Collection<CustomMetrics.PhysicalAggregator<?>>> getAggregations()
+  public Map<String, Collection<CustomMetric.PhysicalAggregator<?>>> getAggregations()
   {
     return this.aggregations;
   }

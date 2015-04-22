@@ -13,18 +13,18 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetrics.sum;
+package com.datatorrent.lib.customMetric.sum;
 
 import java.io.Serializable;
 
-import com.datatorrent.api.CustomMetrics;
+import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
 @Name("Sum")
-public class DoubleSumPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Double>, Serializable
+public class DoubleSumPhysicalAggregator implements CustomMetric.PhysicalAggregator<Double>, Serializable
 {
   @Override
-  public Double aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
+  public Double aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
   {
     double sum = 0;
 

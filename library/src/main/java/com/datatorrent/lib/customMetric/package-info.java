@@ -13,25 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetrics.sum;
-
-import java.io.Serializable;
-
-import com.datatorrent.api.CustomMetrics;
-import com.datatorrent.api.annotation.Name;
-
-@Name("Sum")
-public class LongSumPhysicalAggregator implements CustomMetrics.PhysicalAggregator<Long>, Serializable
-{
-  @Override
-  public Long aggregate(CustomMetrics.PhysicalMetrics physicalMetrics)
-  {
-    long sum = 0;
-    for (Number metric : physicalMetrics.<Number>getValues()) {
-      sum += metric.longValue();
-    }
-    return sum;
-  }
-
-  private static final long serialVersionUID = 201504081002L;
-}
+/**
+ * This package contains simple physical metrics aggregators.
+ */
+package com.datatorrent.lib.customMetric;

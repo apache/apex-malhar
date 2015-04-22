@@ -13,7 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * This package contains simple physical metrics aggregators.
- */
-package com.datatorrent.lib.customMetrics;
+package com.datatorrent.lib.customMetric;
+
+import java.io.Serializable;
+
+import com.datatorrent.api.CustomMetric;
+import com.datatorrent.api.annotation.Name;
+
+@Name("Count")
+public class CountPhysicalAggregator implements CustomMetric.PhysicalAggregator<Integer>, Serializable
+{
+  @Override
+  public Integer aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
+  {
+    return physicalMetrics.getValues().size();
+  }
+
+  private static final long serialVersionUID = 201504080956L;
+}
