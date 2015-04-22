@@ -257,7 +257,7 @@ public class DimensionalEventSchema
     keyDescriptor = new FieldsDescriptor(fieldToType);
 
     //Time Buckets
-    Set<TimeBucket> timeBuckets = Sets.newHashSet();
+    List<TimeBucket> timeBuckets = Lists.newArrayList();
 
     JSONArray timeBucketsJSON = jo.getJSONArray(FIELD_TIME_BUCKETS);
     bucketsString = timeBucketsJSON.toString();
