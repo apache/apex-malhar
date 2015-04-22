@@ -28,9 +28,9 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SalesDemoWithHDHT implements StreamingApplication
+public class GenericSalesDemoWithHDHT implements StreamingApplication
 {
-  private static final Logger logger = LoggerFactory.getLogger(SalesDemoWithHDHT.class);
+  private static final Logger logger = LoggerFactory.getLogger(GenericSalesDemoWithHDHT.class);
 
   public static final String APP_NAME = "GenericSalesDemoWithHDHT";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
@@ -39,7 +39,7 @@ public class SalesDemoWithHDHT implements StreamingApplication
   public static final String EVENT_SCHEMA = "salesGenericEventSchema.json";
   public static final String DIMENSIONAL_SCHEMA = "salesGenericDataSchema.json";
 
-  public SalesDemoWithHDHT()
+  public GenericSalesDemoWithHDHT()
   {
   }
 
