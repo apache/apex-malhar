@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.common.util.DTThrowable;
 import kafka.message.Message;
 
 import java.nio.ByteBuffer;
@@ -23,7 +22,7 @@ import java.nio.ByteBuffer;
 /**
  * Kafka input adapter operator with a single output port, which consumes String data from the Kafka message bus.
  * <p></p>
- * @deprecated Please use KafkaSinglePortByteArrayInputOperator and ByteArrayToStringConverter as Thread Local instead of KafkaSinglePortStringInputOperator.
+ *
  * @displayName Kafka Single Port String Input
  * @category Messaging
  * @tags input operator, string
@@ -39,19 +38,18 @@ public class KafkaSinglePortStringInputOperator extends AbstractKafkaSinglePortI
   @Override
   public String getTuple(Message message)
   {
+    String data = "";
     try {
-      String data;
       ByteBuffer buffer = message.payload();
       byte[] bytes = new byte[buffer.remaining()];
       buffer.get(bytes);
       data = new String(bytes);
-      return data;
       //logger.debug("Consuming {}", data);
     }
     catch (Exception ex) {
-      DTThrowable.rethrow(ex);
+      return data;
     }
-    return null;
+    return data;
   }
 
 }
