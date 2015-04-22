@@ -484,6 +484,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
           if(gae != null) {
             logger.info("Retrieved from cache.");
+
+            if(gae.getKeys() == null) {
+              logger.info("A Keys are null and they shouldn't be");
+            }
+
             aggregatorKeys.put(aggregatorName, gae.getKeys());
             aggregatorValues.put(aggregatorName, gae.getAggregates());
           }
@@ -492,6 +497,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             if(hdsQuery.processed) {
               if(hdsQuery.result != null) {
                 AggregateEvent tgae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+
+                if(tgae.getKeys() == null) {
+                  logger.info("B Keys are null and they shouldn't be");
+                }
 
                 aggregatorKeys.put(aggregatorName, tgae.getKeys());
                 aggregatorValues.put(aggregatorName, tgae.getAggregates());

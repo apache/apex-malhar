@@ -147,7 +147,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       keys.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
     }
 
-    AggregateEvent gae = new AggregateEvent(new GPOMutable(keys),
+    AggregateEvent gae = new AggregateEvent(keys,
                                             aggs,
                                             schemaID,
                                             dimensionDescriptorID,
