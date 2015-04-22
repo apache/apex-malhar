@@ -23,6 +23,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +37,8 @@ import java.util.Map;
  */
 public class DimensionsMapConverter implements Converter<Map<String, Object>, AggregateEvent, DimensionsConversionContext>
 {
+  private static final Logger logger = LoggerFactory.getLogger(DimensionsMapConverter.class);
+
   private String conversionSchema;
   private Map<String, String> gpoFieldToMapField = Maps.newHashMap();
 
@@ -87,6 +91,8 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
         fieldIndex < fields.size();
         fieldIndex++) {
       String field = fields.get(fieldIndex);
+      logger.info("input event {}", inputEvent);
+      logger.info("map field {}", getMapField(field));
       key.setField(field, inputEvent.get(getMapField(field)));
     }
 
