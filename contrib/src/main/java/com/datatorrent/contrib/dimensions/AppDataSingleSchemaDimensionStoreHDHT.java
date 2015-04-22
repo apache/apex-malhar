@@ -141,6 +141,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   }
 
 
+  private int windowCount = 0;
   private boolean receivedWindow1m = false;
   private boolean receivedWindow1h = false;
   private boolean receivedWindow1d = false;
@@ -148,19 +149,22 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void processEvent(AggregateEvent gae) {
 
-    if(gae.getDimensionDescriptorID() == 0
+    if(windowCount == 0 &&
+       gae.getDimensionDescriptorID() == 0
        && !receivedWindow1m) {
       logger.info("Incoming key {}", gae.getKeys());
       receivedWindow1m = true;
     }
 
-    if(gae.getDimensionDescriptorID() == 1
+    if(windowCount == 0 &&
+       gae.getDimensionDescriptorID() == 1
        && !receivedWindow1h) {
       logger.info("Incoming key {}", gae.getKeys());
       receivedWindow1h = true;
     }
 
-    if(gae.getDimensionDescriptorID() == 2
+    if(windowCount == 0 &&
+       gae.getDimensionDescriptorID() == 2
        && !receivedWindow1d) {
       logger.info("Incoming key {}", gae.getKeys());
       receivedWindow1d = true;
@@ -199,9 +203,14 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void endWindow()
   {
-    receivedWindow1m = false;
-    receivedWindow1h = false;
-    receivedWindow1d = false;
+    windowCount++;
+
+    if(windowCount == 50) {
+      receivedWindow1m = false;
+      receivedWindow1h = false;
+      receivedWindow1d = false;
+      windowCount = 0;
+    }
 
     MutableBoolean done = new MutableBoolean(false);
 
