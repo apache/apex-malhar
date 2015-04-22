@@ -13,8 +13,7 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaConv;
-import com.datatorrent.lib.appdata.dimensions.converter.DimensionsMapConverter;
+import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaMap;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
@@ -25,7 +24,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 
 /**
  *
@@ -52,10 +50,8 @@ public class SalesDemoWithHDHT implements StreamingApplication
   {
     JsonSalesGenerator input = dag.addOperator("InputGenerator", JsonSalesGenerator.class);
     JsonToMapConverter converter = dag.addOperator("Converter", JsonToMapConverter.class);
-    DimensionsComputationSingleSchemaConv<Map<String, Object>> dimensions =
-    dag.addOperator("DimensionsComputation", new DimensionsComputationSingleSchemaConv<Map<String, Object>>());
-
-    dimensions.setConverter(new DimensionsMapConverter());
+    DimensionsComputationSingleSchemaMap dimensions =
+    dag.addOperator("DimensionsComputation", DimensionsComputationSingleSchemaMap.class);
 
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);

@@ -24,7 +24,7 @@ import javax.validation.constraints.NotNull;
 public class DimensionsComputationSingleSchemaConv<INPUT_EVENT> extends DimensionsComputationSingleSchema<INPUT_EVENT>
 {
   @NotNull
-  private Converter<INPUT_EVENT, AggregateEvent, DimensionsConversionContext> converter;
+  protected Converter<INPUT_EVENT, AggregateEvent, DimensionsConversionContext> converter;
 
   public DimensionsComputationSingleSchemaConv()
   {

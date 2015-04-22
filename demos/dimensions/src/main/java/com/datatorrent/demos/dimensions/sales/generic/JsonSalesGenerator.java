@@ -86,7 +86,7 @@ public class JsonSalesGenerator implements InputOperator
 
   // Limit number of emitted tuples per window
   @Min(0)
-  private long maxTuplesPerWindow = 1000;
+  private long maxTuplesPerWindow = 300;
 
   // Maximum amount of deviation below the maximum tuples per window
   @Min(0)
