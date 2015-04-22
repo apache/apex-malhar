@@ -17,6 +17,7 @@
 package com.datatorrent.lib.appdata.dimensions.converter;
 
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.converter.Converter;
 import com.google.common.base.Preconditions;
@@ -91,9 +92,16 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
         fieldIndex < fields.size();
         fieldIndex++) {
       String field = fields.get(fieldIndex);
-      logger.info("input event {}", inputEvent);
-      logger.info("map field {}", getMapField(field));
-      key.setField(field, inputEvent.get(getMapField(field)));
+      if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+      }
+      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
+        long timestamp = (Long) inputEvent.get(getMapField(field));
+        context.dd.getTimeBucket().roundDown(timestamp);
+        key.setField(field, timestamp);
+      }
+      else {
+        key.setField(field, inputEvent.get(getMapField(field)));
+      }
     }
 
     GPOMutable aggregates = new GPOMutable(context.aggregateDescriptor);
