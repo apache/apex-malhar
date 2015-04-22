@@ -21,7 +21,7 @@ import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
 @Name("Max")
-public class LongMaxPhysicalAggregator implements CustomMetric.PhysicalAggregator<Long>, Serializable
+public class LongMaxPhysicalAggregator implements CustomMetric.Aggregator<Long>, Serializable
 {
   @Override
   public Long aggregate(CustomMetric.PhysicalMetrics physicalMetrics)

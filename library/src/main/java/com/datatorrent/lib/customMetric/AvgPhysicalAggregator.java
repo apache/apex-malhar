@@ -22,7 +22,7 @@ import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
 @Name("Avg")
-public class AvgPhysicalAggregator implements CustomMetric.PhysicalAggregator<Double>, Serializable
+public class AvgPhysicalAggregator implements CustomMetric.Aggregator<Double>, Serializable
 {
   @Override
   public Double aggregate(CustomMetric.PhysicalMetrics physicalMetrics)

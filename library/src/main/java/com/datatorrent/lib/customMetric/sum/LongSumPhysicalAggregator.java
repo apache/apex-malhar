@@ -21,7 +21,7 @@ import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
 @Name("Sum")
-public class LongSumPhysicalAggregator implements CustomMetric.PhysicalAggregator<Long>, Serializable
+public class LongSumPhysicalAggregator implements CustomMetric.Aggregator<Long>, Serializable
 {
   @Override
   public Long aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
