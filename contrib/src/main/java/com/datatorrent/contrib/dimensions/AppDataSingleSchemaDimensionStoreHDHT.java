@@ -140,8 +140,42 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   {
   }
 
+
+  private int windowCount = 0;
+  private boolean receivedWindow1m = false;
+  private EventKey eventKey1m;
+  private boolean receivedWindow1h = false;
+  private EventKey eventKey1h;
+  private boolean receivedWindow1d = false;
+  private EventKey eventKey1d;
+
   @Override
   public void processEvent(AggregateEvent gae) {
+
+    if(windowCount == 0 &&
+       gae.getDimensionDescriptorID() == 0
+       && !receivedWindow1m) {
+      logger.info("Incoming key {}", gae.getKeys());
+      receivedWindow1m = true;
+      eventKey1m = gae.getEventKey();
+    }
+
+    if(windowCount == 0 &&
+       gae.getDimensionDescriptorID() == 1
+       && !receivedWindow1h) {
+      logger.info("Incoming key {}", gae.getKeys());
+      receivedWindow1h = true;
+      eventKey1h = gae.getEventKey();
+    }
+
+    if(windowCount == 0 &&
+       gae.getDimensionDescriptorID() == 2
+       && !receivedWindow1d) {
+      logger.info("Incoming key {}", gae.getKeys());
+      receivedWindow1d = true;
+      eventKey1d = gae.getEventKey();
+    }
+
     super.processEvent(gae);
   }
 
@@ -175,7 +209,14 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void endWindow()
   {
-    super.endWindow();
+    windowCount++;
+
+    if(windowCount == 50) {
+      receivedWindow1m = false;
+      receivedWindow1h = false;
+      receivedWindow1d = false;
+      windowCount = 0;
+    }
 
     MutableBoolean done = new MutableBoolean(false);
 
@@ -306,6 +347,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         return false;
       }
 
+      logger.info("Current time stamp {}", System.currentTimeMillis());
+
       FieldsDescriptor dd = eventSchema.getDdIDToKeyDescriptor().get(ddID);
       GPOMutable gpoKey = query.createKeyGPO(dd);
 
@@ -349,6 +392,31 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           String aggregatorName = entry.getKey();
           EventKey eventKey = entry.getValue();
           Slice key = new Slice(getEventKeyBytesGAE(eventKey));
+
+          if(eventKey.getDimensionDescriptorID() == 0) {
+            logger.info("Query key: {}", eventKey);
+            logger.info("Saved key: {}", eventKey1m);
+            logger.info("equals {}", eventKey.equals(eventKey1m));
+          }
+          else if(eventKey.getDimensionDescriptorID() == 1) {
+            logger.info("Query key: {}", eventKey);
+            logger.info("Saved key: {}", eventKey1h);
+            logger.info("equals {}", eventKey.equals(eventKey1h));
+          }
+          else if(eventKey.getDimensionDescriptorID() == 2) {
+            logger.info("Query key: {}", eventKey);
+            logger.info("Saved key: {}", eventKey1d);
+            logger.info("equals {}", eventKey.equals(eventKey1d));
+          }
+          else {
+            logger.info("Query key: {}", eventKey);
+            logger.info("Saved key: {}", eventKey1m);
+            logger.info("equals {}", eventKey.equals(eventKey1m));
+            logger.info("Saved key: {}", eventKey1h);
+            logger.info("equals {}", eventKey.equals(eventKey1h));
+            logger.info("Saved key: {}", eventKey1d);
+            logger.info("equals {}", eventKey.equals(eventKey1d));
+          }
 
           HDSQuery hdsQuery = operator.queries.get(key);
 
@@ -405,6 +473,31 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
             EventKey queryEventKey = new EventKey(eventKey);
             Slice key = new Slice(getEventKeyBytesGAE(eventKey));
+           
+            if(eventKey.getDimensionDescriptorID() == 0) {
+              logger.info("Query key: {}", eventKey);
+              logger.info("Saved key: {}", eventKey1m);
+              logger.info("equals {}", eventKey.equals(eventKey1m));
+            }
+            else if(eventKey.getDimensionDescriptorID() == 1) {
+              logger.info("Query key: {}", eventKey);
+              logger.info("Saved key: {}", eventKey1h);
+              logger.info("equals {}", eventKey.equals(eventKey1h));
+            }
+            else if(eventKey.getDimensionDescriptorID() == 2) {
+              logger.info("Query key: {}", eventKey);
+              logger.info("Saved key: {}", eventKey1d);
+              logger.info("equals {}", eventKey.equals(eventKey1d));
+            }
+            else {
+              logger.info("Query key: {}", eventKey);
+              logger.info("Saved key: {}", eventKey1m);
+              logger.info("equals {}", eventKey.equals(eventKey1m));
+              logger.info("Saved key: {}", eventKey1h);
+              logger.info("equals {}", eventKey.equals(eventKey1h));
+              logger.info("Saved key: {}", eventKey1d);
+              logger.info("equals {}", eventKey.equals(eventKey1d));
+            }
 
             HDSQuery hdsQuery = operator.queries.get(key);
 
@@ -482,6 +575,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
           if(gae != null) {
             logger.info("Retrieved from cache.");
+
+            if(gae.getKeys() == null) {
+              logger.info("A Keys are null and they shouldn't be");
+            }
+
             aggregatorKeys.put(aggregatorName, gae.getKeys());
             aggregatorValues.put(aggregatorName, gae.getAggregates());
           }
@@ -490,6 +588,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             if(hdsQuery.processed) {
               if(hdsQuery.result != null) {
                 AggregateEvent tgae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+
+                if(tgae.getKeys() == null) {
+                  logger.info("B Keys are null and they shouldn't be");
+                }
 
                 aggregatorKeys.put(aggregatorName, tgae.getKeys());
                 aggregatorValues.put(aggregatorName, tgae.getAggregates());

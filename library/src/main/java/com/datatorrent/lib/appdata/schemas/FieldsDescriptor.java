@@ -149,7 +149,8 @@ public class FieldsDescriptor
     fieldList = Lists.newArrayList();
     getFieldList().addAll(fieldToType.keySet());
     ((ArrayList<String>)getFieldList()).trimToSize();
-    fieldList = Collections.unmodifiableList(getFieldList());
+    Collections.sort(fieldList);
+    fieldList = Collections.unmodifiableList(fieldList);
 
     //Array Sizes
     typeToSize = new Object2IntLinkedOpenHashMap<Type>();

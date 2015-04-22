@@ -64,6 +64,7 @@ public class InputItemGenerator implements InputOperator
   @Override
   public void endWindow()
   {
+    logger.info("Current time stamp {}", System.currentTimeMillis());
   }
 
   @Override

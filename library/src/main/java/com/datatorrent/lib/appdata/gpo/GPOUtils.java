@@ -95,11 +95,11 @@ public class GPOUtils
     return typeMap;
   }
 
-  public static GPOImmutable deserializeIm(FieldsDescriptor fieldsDescriptor,
+  public static GPOMutable deserializeIm(FieldsDescriptor fieldsDescriptor,
                                            JSONObject dpou)
   {
     GPOMutable gpoMutable = deserialize(fieldsDescriptor, dpou);
-    return new GPOImmutable(gpoMutable);
+    return new GPOMutable(gpoMutable);
   }
 
   public static GPOMutable deserialize(FieldsDescriptor fieldsDescriptor,

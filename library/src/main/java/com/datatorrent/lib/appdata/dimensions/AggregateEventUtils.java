@@ -16,7 +16,6 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
-import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -193,7 +192,7 @@ public class AggregateEventUtils
       }
     }
 
-    return new AggregateEvent(new GPOImmutable(gpoKeys),
+    return new AggregateEvent(new GPOMutable(gpoKeys),
                                      gpoAggregates,
                                      schemaID,
                                      dimensionDescriptorID,

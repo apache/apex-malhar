@@ -9,7 +9,6 @@ import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.dimensions.converter.DimensionsConversionContext;
-import com.datatorrent.lib.appdata.gpo.GPOImmutable;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 
 import java.util.List;
@@ -67,7 +66,7 @@ public class SalesDimensionComputation extends DimensionsComputationSingleSchema
     aggGPO.setField(JsonSalesGenerator.AGG_DISCOUNT, ga.get(JsonSalesGenerator.AGG_DISCOUNT));
     aggGPO.setField(JsonSalesGenerator.AGG_TAX, ga.get(JsonSalesGenerator.AGG_TAX));
 
-    AggregateEvent gae = new AggregateEvent(new GPOImmutable(keyGPO),
+    AggregateEvent gae = new AggregateEvent(new GPOMutable(keyGPO),
                                                           aggGPO,
                                                           DEFAULT_SCHEMA_ID,
                                                           context.dimensionDescriptorID,
