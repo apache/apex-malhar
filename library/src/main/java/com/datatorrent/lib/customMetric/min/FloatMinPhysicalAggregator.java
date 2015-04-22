@@ -21,7 +21,7 @@ import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
 @Name("Min")
-public class FloatMinPhysicalAggregator implements CustomMetric.PhysicalAggregator<Float>, Serializable
+public class FloatMinPhysicalAggregator implements CustomMetric.Aggregator<Float>, Serializable
 {
   @Override
   public Float aggregate(CustomMetric.PhysicalMetrics physicalMetrics)

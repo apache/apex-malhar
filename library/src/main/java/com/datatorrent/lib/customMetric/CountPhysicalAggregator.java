@@ -21,7 +21,7 @@ import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
 @Name("Count")
-public class CountPhysicalAggregator implements CustomMetric.PhysicalAggregator<Integer>, Serializable
+public class CountPhysicalAggregator implements CustomMetric.Aggregator<Integer>, Serializable
 {
   @Override
   public Integer aggregate(CustomMetric.PhysicalMetrics physicalMetrics)

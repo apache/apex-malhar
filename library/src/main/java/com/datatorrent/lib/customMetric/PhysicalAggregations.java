@@ -32,10 +32,10 @@ import com.datatorrent.api.CustomMetric;
 public class PhysicalAggregations implements CustomMetric.PhysicalAggregations, Serializable
 {
   //metric key -> collection of physical aggregators
-  private Map<String, Collection<CustomMetric.PhysicalAggregator<?>>> aggregations;
+  private Map<String, Collection<CustomMetric.Aggregator<?>>> aggregations;
 
   @Override
-  public Collection<CustomMetric.PhysicalAggregator<?>> getAggregatorsFor(@NotNull String metricKey)
+  public Collection<CustomMetric.Aggregator<?>> getAggregatorsFor(@NotNull String metricKey)
   {
     if (aggregations == null) {
       return null;
@@ -43,12 +43,12 @@ public class PhysicalAggregations implements CustomMetric.PhysicalAggregations, 
     return aggregations.get(metricKey);
   }
 
-  public void setAggregations(@NotNull Map<String, Collection<CustomMetric.PhysicalAggregator<?>>> aggregations)
+  public void setAggregations(@NotNull Map<String, Collection<CustomMetric.Aggregator<?>>> aggregations)
   {
     this.aggregations = Preconditions.checkNotNull(aggregations, "aggregations");
   }
 
-  public Map<String, Collection<CustomMetric.PhysicalAggregator<?>>> getAggregations()
+  public Map<String, Collection<CustomMetric.Aggregator<?>>> getAggregations()
   {
     return this.aggregations;
   }

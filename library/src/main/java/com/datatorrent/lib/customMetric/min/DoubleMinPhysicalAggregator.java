@@ -21,7 +21,7 @@ import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
 @Name("Min")
-public class DoubleMinPhysicalAggregator implements CustomMetric.PhysicalAggregator<Double>, Serializable
+public class DoubleMinPhysicalAggregator implements CustomMetric.Aggregator<Double>, Serializable
 {
   @Override
   public Double aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
