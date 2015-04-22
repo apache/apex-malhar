@@ -158,8 +158,9 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   @Override
   protected void processEvent(AggregateEvent gae)
   {
-    if(gae.getDimensionDescriptorID() == 0) {
+    if(gae.getDimensionDescriptorID() == 0 && !receivedWindow) {
       logger.info("Incoming key {}", gae.getKeys());
+      receivedWindow = true;
     }
 
     GPOMutable keys = gae.getKeys();
@@ -231,6 +232,9 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     super.teardown();
   }
 
+
+  private boolean receivedWindow = false;
+
   @Override
   public void beginWindow(long windowId)
   {
@@ -240,6 +244,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   @Override
   public void endWindow()
   {
+    receivedWindow = false;
     for(Map.Entry<EventKey, AggregateEvent> entry: cache.asMap().entrySet()) {
       AggregateEvent gae = entry.getValue();
 
