@@ -10,7 +10,6 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaMap;
@@ -29,7 +28,6 @@ import org.slf4j.LoggerFactory;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@ApplicationAnnotation(name=SalesDemoWithHDHT.APP_NAME)
 public class SalesDemoWithHDHT implements StreamingApplication
 {
   private static final Logger logger = LoggerFactory.getLogger(SalesDemoWithHDHT.class);
