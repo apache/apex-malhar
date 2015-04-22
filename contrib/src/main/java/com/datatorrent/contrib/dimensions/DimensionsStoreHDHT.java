@@ -100,8 +100,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     long timestamp = 0;
 
     if(eventKey.getKey().
-            getFieldDescriptor().
-            getFields().getFields().
+            getFieldDescriptor().getFieldList().
             contains(DimensionsDescriptor.DIMENSION_TIME)) {
       timestamp = eventKey.getKey().getFieldLong(DimensionsDescriptor.DIMENSION_TIME);
     }

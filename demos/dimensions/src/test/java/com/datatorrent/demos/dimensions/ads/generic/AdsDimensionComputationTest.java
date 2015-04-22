@@ -98,13 +98,7 @@ public class AdsDimensionComputationTest
 
     String basePath = testMeta.getDir();
     TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
-
-    if(basePath != null) {
-      basePath += System.currentTimeMillis();
-      hdsFile.setBasePath(basePath);
-      System.out.println("Setting basePath " + basePath);
-    }
-
+    hdsFile.setBasePath(basePath);
     store.setFileStore(hdsFile);
     store.getAppDataFormatter().setContinuousFormatString("#.00");
 
