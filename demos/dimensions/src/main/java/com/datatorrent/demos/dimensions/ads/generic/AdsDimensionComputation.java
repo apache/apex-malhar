@@ -60,7 +60,7 @@ public class AdsDimensionComputation extends DimensionsComputationSingleSchema<A
         throw new UnsupportedOperationException("This field is not supported: " + field);
       }
     }
-
+    
     GPOMutable aggGPO = new GPOMutable(context.aggregateDescriptor);
 
     fields = context.aggregateDescriptor.getFields().getFieldsList();

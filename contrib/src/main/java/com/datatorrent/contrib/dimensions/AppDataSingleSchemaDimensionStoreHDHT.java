@@ -403,6 +403,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
             gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
 
+            logger.info("Query key {}", gpoKey);
+
             EventKey queryEventKey = new EventKey(eventKey);
             Slice key = new Slice(getEventKeyBytesGAE(eventKey));
 
