@@ -408,6 +408,15 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             logger.info("Saved key: {}", eventKey1d);
             logger.info("equals {}", eventKey.equals(eventKey1d));
           }
+          else {
+            logger.info("Query key: {}", eventKey);
+            logger.info("Saved key: {}", eventKey1m);
+            logger.info("equals {}", eventKey.equals(eventKey1m));
+            logger.info("Saved key: {}", eventKey1h);
+            logger.info("equals {}", eventKey.equals(eventKey1h));
+            logger.info("Saved key: {}", eventKey1d);
+            logger.info("equals {}", eventKey.equals(eventKey1d));
+          }
 
           HDSQuery hdsQuery = operator.queries.get(key);
 
