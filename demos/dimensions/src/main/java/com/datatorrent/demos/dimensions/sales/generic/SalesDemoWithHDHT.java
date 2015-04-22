@@ -13,20 +13,13 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
-import com.datatorrent.contrib.kafka.KafkaJsonEncoder;
-import com.datatorrent.contrib.kafka.KafkaSinglePortOutputOperator;
-import com.datatorrent.contrib.kafka.KafkaSinglePortStringInputOperator;
-import com.datatorrent.contrib.kafka.SimpleKafkaConsumer;
-import com.datatorrent.demos.dimensions.ads.generic.ApplicationWithHDHT;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaConv;
 import com.datatorrent.lib.appdata.dimensions.converter.DimensionsMapConverter;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
-import java.io.IOException;
-import java.io.StringWriter;
 import java.net.URI;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
@@ -78,27 +71,8 @@ public class SalesDemoWithHDHT implements StreamingApplication
 
     store.setFileStore(hdsFile);
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
-
-    logger.info("Before reading schemas.");
-    StringWriter eventWriter = new StringWriter();
-    try {
-      IOUtils.copy(ApplicationWithHDHT.class.getClassLoader().getResourceAsStream(EVENT_SCHEMA),
-                   eventWriter);
-    }
-    catch(IOException ex) {
-      throw new RuntimeException(ex);
-    }
-    String eventSchema = eventWriter.toString();
-
-    StringWriter dimensionalWriter = new StringWriter();
-    try {
-      IOUtils.copy(ApplicationWithHDHT.class.getClassLoader().getResourceAsStream(DIMENSIONAL_SCHEMA),
-                   dimensionalWriter);
-    }
-    catch(IOException ex) {
-      throw new RuntimeException(ex);
-    }
-    String dimensionalSchema = dimensionalWriter.toString();
+    String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
+    String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
 
     logger.info("After reading schemas.");
     logger.info("Event Schema: {}");
@@ -107,28 +81,20 @@ public class SalesDemoWithHDHT implements StreamingApplication
     dimensions.setEventSchemaJSON(eventSchema);
     store.setEventSchemaJSON(eventSchema);
     store.setDimensionalSchemaJSON(dimensionalSchema);
-    input.setEventSchemaJSON(dimensionalSchema);
+    input.setEventSchemaJSON(eventSchema);
 
     Operator.OutputPort<String> queryPort;
     Operator.InputPort<String> queryResultPort;
-    if (conf.getBoolean(PROP_USE_WEBSOCKETS,  false)) {
-      String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
-      URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-      //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
-      PubSubWebSocketAppDataQuery wsIn = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
-      wsIn.setUri(uri);
-      queryPort = wsIn.outputPort;
-      PubSubWebSocketAppDataResult wsOut = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
-      wsOut.setUri(uri);
-      queryResultPort = wsOut.input;
-    } else {
-      KafkaSinglePortStringInputOperator queries = dag.addOperator("Query", new KafkaSinglePortStringInputOperator());
-      queries.setConsumer(new SimpleKafkaConsumer());
-      queryPort = queries.outputPort;
-      KafkaSinglePortOutputOperator<String, String> queryResult = dag.addOperator("QueryResult", new KafkaSinglePortOutputOperator<String, String>());
-      queryResult.getConfigProperties().put("serializer.class", KafkaJsonEncoder.class.getName());
-      queryResultPort = queryResult.inputPort;
-    }
+
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
+    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+    //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
+    PubSubWebSocketAppDataQuery wsIn = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+    wsIn.setUri(uri);
+    queryPort = wsIn.outputPort;
+    PubSubWebSocketAppDataResult wsOut = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
+    wsOut.setUri(uri);
+    queryResultPort = wsOut.input;
 
     dag.addStream("InputStream", input.jsonBytes, converter.input);
     dag.addStream("ConvertStream", converter.outputMap, dimensions.inputEvent);
