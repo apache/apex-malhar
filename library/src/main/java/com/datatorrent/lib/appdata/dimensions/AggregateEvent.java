@@ -296,4 +296,32 @@ public class AggregateEvent implements Serializable
       return "EventKey{" + "schemaID=" + schemaID + ", dimensionDescriptorID=" + dimensionDescriptorID + ", aggregatorIndex=" + aggregatorID + ", key=" + key + '}';
     }
   }
+
+  @Override
+  public int hashCode()
+  {
+    int hash = 5;
+    hash = 79 * hash + (this.aggregates != null ? this.aggregates.hashCode() : 0);
+    hash = 79 * hash + (this.eventKey != null ? this.eventKey.hashCode() : 0);
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if(obj == null) {
+      return false;
+    }
+    if(getClass() != obj.getClass()) {
+      return false;
+    }
+    final AggregateEvent other = (AggregateEvent)obj;
+    if(this.aggregates != other.aggregates && (this.aggregates == null || !this.aggregates.equals(other.aggregates))) {
+      return false;
+    }
+    if(this.eventKey != other.eventKey && (this.eventKey == null || !this.eventKey.equals(other.eventKey))) {
+      return false;
+    }
+    return true;
+  }
 }

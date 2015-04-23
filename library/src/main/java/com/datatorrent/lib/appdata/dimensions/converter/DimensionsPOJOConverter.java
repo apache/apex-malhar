@@ -33,14 +33,20 @@ import java.util.Map;
 /**
  *
  * {
- *    "gpoField":["pojoField1","pojoField2"];
+ *    "class":"com.comp.MyObject"
+ *    "fields":{gpoField":["pojoField1","pojoField2"]}
  * }
  *
  */
 public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent, DimensionsConversionContext>
 {
+  public static final String FIELD_CLASS = "class";
+  public static final String FIELD_FIELDS = "fields";
+
   private String pojoMappingSchema;
   private Map<String, List<String>> gpoFieldToPojoGetters = Maps.newHashMap();
+  private String className;
+  private ObjectConverter converter;
 
   public DimensionsPOJOConverter()
   {
@@ -48,29 +54,32 @@ public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent
 
   public void setPojoMappingSchema(String pojoMappingSchema)
   {
+    try {
+      setPojoMappingSchemaHelper(pojoMappingSchema);
+    }
+    catch(JSONException exception) {
+      throw new RuntimeException(exception);
+    }
+  }
+
+  private void setPojoMappingSchemaHelper(String pojoMappingSchema) throws JSONException
+  {
     this.pojoMappingSchema = Preconditions.checkNotNull(pojoMappingSchema);
 
     JSONObject jo = null;
+    JSONObject fields = null;
 
-    try {
-      jo = new JSONObject(pojoMappingSchema);
-    }
-    catch(JSONException ex) {
-      throw new RuntimeException(ex);
-    }
+    jo = new JSONObject(pojoMappingSchema);
+    className = jo.getString(FIELD_CLASS);
+    fields = jo.getJSONObject(FIELD_FIELDS);
 
-    Iterator keyIterator = jo.keys();
+    Iterator keyIterator = fields.keys();
 
     while(keyIterator.hasNext()) {
       String gpoField = (String) keyIterator.next();
       JSONArray pojoGettersArray = null;
 
-      try {
-        pojoGettersArray = jo.getJSONArray(gpoField);
-      }
-      catch(JSONException ex) {
-        throw new RuntimeException(ex);
-      }
+      pojoGettersArray = fields.getJSONArray(gpoField);
 
       Preconditions.checkArgument(pojoGettersArray.length() > 0,
                                   "pojo getters array cannot be empty");
@@ -80,12 +89,7 @@ public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent
       for(int getterIndex = 0;
           getterIndex < pojoGettersArray.length();
           getterIndex++) {
-        try {
-          getters.add(pojoGettersArray.getString(getterIndex));
-        }
-        catch(JSONException ex) {
-          throw new RuntimeException(ex);
-        }
+        getters.add(pojoGettersArray.getString(getterIndex));
       }
 
       gpoFieldToPojoGetters.put(gpoField, getters);
@@ -100,6 +104,21 @@ public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent
   @Override
   public AggregateEvent convert(Object inputEvent, DimensionsConversionContext context)
   {
-    throw new UnsupportedOperationException("This is not implemented yet.");
+    return null;
+  }
+
+  private ObjectConverter getConverter()
+  {
+    if(converter != null) {
+      return converter;
+    }
+
+    StringBuilder sb = new StringBuilder();
+    return null;
+  }
+
+  //Interface for janino
+  interface ObjectConverter extends Converter<Object, AggregateEvent, DimensionsConversionContext>
+  {
   }
 }

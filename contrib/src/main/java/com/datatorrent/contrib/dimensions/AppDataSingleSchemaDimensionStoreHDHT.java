@@ -181,6 +181,12 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   }
 
   @Override
+  protected long getBucketKey(AggregateEvent event)
+  {
+    return AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID;
+  }
+
+  @Override
   public void setup(OperatorContext context)
   {
     //Setup for query processing
@@ -236,6 +242,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     }
 
     queryProcessor.endWindow();
+
+    super.endWindow();
   }
 
   @Override

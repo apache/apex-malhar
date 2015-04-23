@@ -95,13 +95,6 @@ public class GPOUtils
     return typeMap;
   }
 
-  public static GPOMutable deserializeIm(FieldsDescriptor fieldsDescriptor,
-                                           JSONObject dpou)
-  {
-    GPOMutable gpoMutable = deserialize(fieldsDescriptor, dpou);
-    return new GPOMutable(gpoMutable);
-  }
-
   public static GPOMutable deserialize(FieldsDescriptor fieldsDescriptor,
                                        JSONObject dpou)
   {
@@ -947,7 +940,7 @@ public class GPOUtils
   public static long deserializeLong(byte[] buffer,
                                      MutableInt offset)
   {
-    long val = (((long) buffer[0 + offset.intValue()]) & 0xFFL) << 56 |
+    long val = ((((long) buffer[0 + offset.intValue()]) & 0xFFL) << 56) |
            ((((long) buffer[1 + offset.intValue()]) & 0xFFL) << 48) |
            ((((long) buffer[2 + offset.intValue()]) & 0xFFL) << 40) |
            ((((long) buffer[3 + offset.intValue()]) & 0xFFL) << 32) |
