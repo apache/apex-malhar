@@ -141,7 +141,7 @@ public class AbstractFileOutputOperatorTest
    */
   private static class SingleHDFSByteExactlyOnceWriter extends AbstractFileOutputOperator<byte[]>
   {
-    public SingleHDFSByteExactlyOnceWriter()
+    SingleHDFSByteExactlyOnceWriter()
     {
     }
 
@@ -201,7 +201,7 @@ public class AbstractFileOutputOperatorTest
     private final Long maxLength;
     private final AbstractFileOutputOperator<byte[]> fsWriter;
 
-    public ValidationTestApp(File testDir,
+    ValidationTestApp(File testDir,
                              Long maxLength,
                              AbstractFileOutputOperator<byte[]> fsWriter)
     {
@@ -1593,30 +1593,30 @@ public class AbstractFileOutputOperatorTest
 
     Assert.assertEquals("Max length validation not thrown with -1 max length", true, error);
   }
-  
+
   @Test
-  public void testPeriodicRotation() 
+  public void testPeriodicRotation()
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     File dir = new File(testMeta.getDir());
     writer.setFilePath(testMeta.getDir());
     writer.setRotationWindows(30);
     writer.setup(testOperatorContext);
-    
+
     // Check that rotation doesn't happen prematurely
     for (int i = 0; i < 30; ++i) {
       writer.beginWindow(i);
       for (int j = 0; j < i; ++j) {
         writer.input.put(2 * j + 1);
       }
-      writer.endWindow();      
+      writer.endWindow();
     }
     Set<String> fileNames = new TreeSet<String>();
     fileNames.add(ODD_FILE + ".0");
     Collection<File> files = FileUtils.listFiles(dir, null, false);
     Assert.assertEquals("Number of part files", 1, files.size());
     Assert.assertEquals("Part file names", fileNames, getFileNames(files));
-    
+
     // Check that rotation is happening consistently and for all files
     for (int i = 30; i < 120; ++i) {
       writer.beginWindow(i);
@@ -1651,7 +1651,7 @@ public class AbstractFileOutputOperatorTest
     Assert.assertEquals("Part file names", fileNames, getFileNames(files));
     writer.teardown();
   }
-  
+
   @Test
   public void testCompression() throws IOException
   {
@@ -1660,13 +1660,12 @@ public class AbstractFileOutputOperatorTest
 
     File evenFile = new File(testMeta.getDir(), EVEN_FILE);
     File oddFile = new File(testMeta.getDir(), ODD_FILE);
-    
+
     // To get around the multi member gzip issue
     // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
     List<Long> evenOffsets = new ArrayList<Long>();
     List<Long> oddOffsets = new ArrayList<Long>();
 
-    File dir = new File(testMeta.getDir());
     writer.setFilePath(testMeta.getDir());
     writer.setup(testOperatorContext);
 
@@ -1681,14 +1680,14 @@ public class AbstractFileOutputOperatorTest
     }
 
     writer.teardown();
-    
+
     checkCompressedFile(evenFile, evenOffsets, 0, null, null);
     checkCompressedFile(oddFile, oddOffsets, 1, null, null);
   }
 
   private void checkCompressedFile(File file, List<Long> offsets, int start, SecretKey secretKey, byte[] iv) throws IOException
   {
-    FileInputStream fis = null;
+    FileInputStream fis;
     InputStream gss = null;
     GZIPInputStream gis = null;
     BufferedReader br = null;
@@ -1708,7 +1707,9 @@ public class AbstractFileOutputOperatorTest
     long startOffset = 0;
     for (long offset : offsets) {
       // Skip initial case in case file is not yet created
-      if (offset == 0) continue;
+      if (offset == 0) {
+        continue;
+      }
       try {
         fis = new FileInputStream(file);
         fis.skip(startOffset);
@@ -1765,7 +1766,7 @@ public class AbstractFileOutputOperatorTest
     }
     Assert.assertEquals("Total", 5, numWindows);
   }
-  
+
   @Test
   public void testChainFilters() throws NoSuchAlgorithmException, IOException
   {
@@ -1831,5 +1832,5 @@ public class AbstractFileOutputOperatorTest
     }
     return filesNames;
   }
-  
+
 }
