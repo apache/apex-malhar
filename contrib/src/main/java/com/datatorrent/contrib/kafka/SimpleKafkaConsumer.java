@@ -33,6 +33,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.validation.constraints.NotNull;
 
+import org.apache.commons.collections.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -299,30 +300,6 @@ public class SimpleKafkaConsumer extends KafkaConsumer
   private final ConcurrentHashMap<KafkaPartition, Long> offsetTrack = new ConcurrentHashMap<KafkaPartition, Long>();
 
   @Override
-  public void create()
-  {
-    super.create();
-    Map<String, List<PartitionMetadata>> partitionMetas = KafkaMetadataUtil.getPartitionsForTopic(brokers, topic);
-    if (kps == null) {
-      kps = new HashSet<KafkaPartition>();
-    }
-    if (kps.size() != 0) {
-      return;
-    }
-
-    // if partition ids are null or not specified , find all the partition metadata for
-    // the specific topic from broker
-    for (Entry<String, List<PartitionMetadata>> en : partitionMetas.entrySet()) {
-      String clusterId = en.getKey();
-      for (PartitionMetadata part : en.getValue()) {
-        KafkaPartition kp = new KafkaPartition(clusterId, topic, part.partitionId());
-        kps.add(kp);
-      }
-    }
-
-  }
-
-  @Override
   public void start()
   {
     super.start();
@@ -330,7 +307,7 @@ public class SimpleKafkaConsumer extends KafkaConsumer
     // thread to consume the kafka data
     kafkaConsumerExecutor = Executors.newCachedThreadPool(new ThreadFactoryBuilder().setNameFormat("kafka-consumer-" + topic + "-%d").build());
 
-    if(metadataRefreshInterval <= 0) {
+    if(metadataRefreshInterval <= 0 || CollectionUtils.isEmpty(kps)) {
       return;
     }
 

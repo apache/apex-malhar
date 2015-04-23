@@ -13,9 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.dimensions.generic;
+package com.datatorrent.contrib.kafka;
 
-import com.datatorrent.contrib.kafka.AbstractKafkaSinglePortInputOperator;
 import java.nio.ByteBuffer;
 import kafka.message.Message;
 

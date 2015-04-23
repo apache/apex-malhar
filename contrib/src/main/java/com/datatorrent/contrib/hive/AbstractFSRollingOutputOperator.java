@@ -50,7 +50,6 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   private transient String outputFilePath;
   protected MutableInt partNumber;
   protected HashMap<Long, ArrayList<String>> mapFilenames = new HashMap<Long, ArrayList<String>>();
-  protected ArrayList<String> listFileNames = new ArrayList<String>();
   protected HashMap<String, ArrayList<String>> mapPartition = new HashMap<String, ArrayList<String>>();
   protected Queue<Long> queueWindows = new LinkedList<Long>();
   protected long windowIDOfCompletedPart = Stateless.WINDOW_ID;
@@ -103,15 +102,15 @@ public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOut
   {
     isEmptyWindow = false;
     if (mapFilenames.containsKey(windowIDOfCompletedPart)) {
-      listFileNames.add(finishedFile);
+      mapFilenames.get(windowIDOfCompletedPart).add(finishedFile);
     }
     else {
-      listFileNames = new ArrayList<String>();
+      ArrayList<String> listFileNames = new ArrayList<String>();
       listFileNames.add(finishedFile);
+      mapFilenames.put(windowIDOfCompletedPart, listFileNames);
     }
     queueWindows.add(windowIDOfCompletedPart);
 
-    mapFilenames.put(windowIDOfCompletedPart, listFileNames);
   }
 
   /*

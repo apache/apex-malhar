@@ -42,7 +42,6 @@ import com.datatorrent.api.StatsListener;
  * <br>
  *
  * @param <T> Operator type
- * @since 1.0.2
  */
 public abstract class StatsAwareStatelessPartitioner<T extends Operator> implements StatsListener, Partitioner<T>, Serializable
 {

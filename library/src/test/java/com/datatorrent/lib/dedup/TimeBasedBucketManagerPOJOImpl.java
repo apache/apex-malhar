@@ -13,36 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.bucket;
+package com.datatorrent.lib.dedup;
 
- /*
-  * <p>
-  * A {@link AbstractBucketManager} implementation.
-  * </p>
-  */
-public class BucketManagerImpl<T extends Bucketable> extends AbstractBucketManager<T>
+import com.datatorrent.lib.bucket.AbstractTimeBasedBucketManager;
+
+/**
+ * A {@link BucketManager} that creates buckets based on time.<br/>
+ *
+ * @since 0.9.4
+ */
+public class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketManager<SimpleEvent>
 {
-
   @Override
-  protected Bucket<T> createBucket(long bucketKey)
+  protected BucketPOJOImpl createBucket(long bucketKey)
   {
-    return new Bucket<T>(bucketKey);
+    return new BucketPOJOImpl(bucketKey);
   }
 
   @Override
-  public long getBucketKeyFor(T event)
+  protected long getTime(SimpleEvent event)
   {
-    return Math.abs(event.getEventKey().hashCode()) / noOfBuckets;
+    return Long.parseLong(event.getHhmm());
   }
-
-  /*
-   * This method has been deprecated.Use clone instead.
-   */
-  @Deprecated
-  @Override
-  public BucketManagerImpl<T> cloneWithProperties()
-  {
-    return null;
-  }
-
 }

@@ -13,36 +13,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.bucket;
+package com.datatorrent.lib.dedup;
 
- /*
-  * <p>
-  * A {@link AbstractBucketManager} implementation.
-  * </p>
-  */
-public class BucketManagerImpl<T extends Bucketable> extends AbstractBucketManager<T>
+public class SimpleEvent
 {
+  int id;
+  double metric;
+  String hhmm;
 
-  @Override
-  protected Bucket<T> createBucket(long bucketKey)
+  public String getHhmm()
   {
-    return new Bucket<T>(bucketKey);
+    return hhmm;
   }
 
-  @Override
-  public long getBucketKeyFor(T event)
+  public void setHhmm(String hhmm)
   {
-    return Math.abs(event.getEventKey().hashCode()) / noOfBuckets;
+    this.hhmm = hhmm;
   }
 
-  /*
-   * This method has been deprecated.Use clone instead.
-   */
-  @Deprecated
-  @Override
-  public BucketManagerImpl<T> cloneWithProperties()
+  public int getId()
   {
-    return null;
+    return id;
   }
+
+  public void setId(int id)
+  {
+    this.id = id;
+  }
+
+  public double getMetric()
+  {
+    return metric;
+  }
+
+  public void setMetric(double metric)
+  {
+    this.metric = metric;
+  }
+
+
+
 
 }
