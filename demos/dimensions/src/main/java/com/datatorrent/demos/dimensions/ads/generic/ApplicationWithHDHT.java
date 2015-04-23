@@ -148,7 +148,6 @@ public class ApplicationWithHDHT implements StreamingApplication
     dimensions.setEventSchemaJSON(eventSchema);
     store.setEventSchemaJSON(eventSchema);
     store.setDimensionalSchemaJSON(dimensionalSchema);
-    store.setCacheSize(500);
 
     Operator.OutputPort<String> queryPort;
     Operator.InputPort<String> queryResultPort;
