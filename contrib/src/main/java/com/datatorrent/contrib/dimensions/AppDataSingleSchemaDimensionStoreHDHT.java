@@ -402,31 +402,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           EventKey eventKey = entry.getValue();
           Slice key = new Slice(getEventKeyBytesGAE(eventKey));
 
-          if(eventKey.getDimensionDescriptorID() == 0) {
-            logger.info("Query key: {}", eventKey);
-            logger.info("Saved key: {}", eventKey1m);
-            logger.info("equals {}", eventKey.equals(eventKey1m));
-          }
-          else if(eventKey.getDimensionDescriptorID() == 1) {
-            logger.info("Query key: {}", eventKey);
-            logger.info("Saved key: {}", eventKey1h);
-            logger.info("equals {}", eventKey.equals(eventKey1h));
-          }
-          else if(eventKey.getDimensionDescriptorID() == 2) {
-            logger.info("Query key: {}", eventKey);
-            logger.info("Saved key: {}", eventKey1d);
-            logger.info("equals {}", eventKey.equals(eventKey1d));
-          }
-          else {
-            logger.info("Query key: {}", eventKey);
-            logger.info("Saved key: {}", eventKey1m);
-            logger.info("equals {}", eventKey.equals(eventKey1m));
-            logger.info("Saved key: {}", eventKey1h);
-            logger.info("equals {}", eventKey.equals(eventKey1h));
-            logger.info("Saved key: {}", eventKey1d);
-            logger.info("equals {}", eventKey.equals(eventKey1d));
-          }
-
           HDSQuery hdsQuery = operator.queries.get(key);
 
           if(hdsQuery == null) {
@@ -482,31 +457,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
             EventKey queryEventKey = new EventKey(eventKey);
             Slice key = new Slice(getEventKeyBytesGAE(eventKey));
-
-            if(eventKey.getDimensionDescriptorID() == 0) {
-              logger.info("Query key: {}", eventKey);
-              logger.info("Saved key: {}", eventKey1m);
-              logger.info("equals {}", eventKey.equals(eventKey1m));
-            }
-            else if(eventKey.getDimensionDescriptorID() == 1) {
-              logger.info("Query key: {}", eventKey);
-              logger.info("Saved key: {}", eventKey1h);
-              logger.info("equals {}", eventKey.equals(eventKey1h));
-            }
-            else if(eventKey.getDimensionDescriptorID() == 2) {
-              logger.info("Query key: {}", eventKey);
-              logger.info("Saved key: {}", eventKey1d);
-              logger.info("equals {}", eventKey.equals(eventKey1d));
-            }
-            else {
-              logger.info("Query key: {}", eventKey);
-              logger.info("Saved key: {}", eventKey1m);
-              logger.info("equals {}", eventKey.equals(eventKey1m));
-              logger.info("Saved key: {}", eventKey1h);
-              logger.info("equals {}", eventKey.equals(eventKey1h));
-              logger.info("Saved key: {}", eventKey1d);
-              logger.info("equals {}", eventKey.equals(eventKey1d));
-            }
 
             HDSQuery hdsQuery = operator.queries.get(key);
 
@@ -640,8 +590,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           index++) {
         Map<String, GPOMutable> key = keys.get(index);
         Map<String, GPOMutable> value = values.get(index);
-
-        logger.info("result size {}", value.size());
 
         Map<String, GPOMutable> prunedKey = Maps.newHashMap();
         Map<String, GPOMutable> prunedValue = Maps.newHashMap();
