@@ -505,10 +505,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             byte[] value = operator.getUncommitted(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID,
                                                    keySlice);
 
-            if(value != null &&
-               (gae = operator.fromKeyValueGAE(keySlice, value)) != null) {
+            if(value != null) {
+              gae = operator.fromKeyValueGAE(keySlice, value);
               aggregatorKeys.put(aggregatorName, gae.getKeys());
               aggregatorValues.put(aggregatorName, gae.getAggregates());
+              logger.info("Retrieved from uncommited");
             }
             else if(hdsQuery.processed) {
               if(hdsQuery.result != null) {
