@@ -13,21 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetric;
+package com.datatorrent.lib.customMetric.sum;
 
 import java.io.Serializable;
+import java.util.Collection;
 
-import com.datatorrent.api.CustomMetric;
-import com.datatorrent.api.annotation.Name;
+import com.datatorrent.lib.customMetric.Name;
+import com.datatorrent.lib.customMetric.SingleMetricAggregator;
 
-@Name("Count")
-public class CountPhysicalAggregator implements CustomMetric.Aggregator<Integer>, Serializable
+@Name("Sum")
+public class LongSumAggregator implements SingleMetricAggregator<Long>, Serializable
 {
   @Override
-  public Integer aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
+  public Long aggregate(Collection<Object> metricValues)
   {
-    return physicalMetrics.getValues().size();
+    long sum = 0;
+    for (Object value : metricValues) {
+      sum += ((Number)value).longValue();
+    }
+    return sum;
   }
 
-  private static final long serialVersionUID = 201504080956L;
+  private static final long serialVersionUID = 201504081002L;
+
 }

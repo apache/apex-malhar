@@ -16,25 +16,24 @@
 package com.datatorrent.lib.customMetric.min;
 
 import java.io.Serializable;
+import java.util.Collection;
 
-import com.datatorrent.api.CustomMetric;
-import com.datatorrent.api.annotation.Name;
+import com.datatorrent.lib.customMetric.SingleMetricAggregator;
 
-@Name("Min")
-public class LongMinPhysicalAggregator implements CustomMetric.Aggregator<Long>, Serializable
+public class IntMinAggregator implements SingleMetricAggregator<Integer>, Serializable
 {
   @Override
-  public Long aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
+  public Integer aggregate(Collection<Object> metricValues)
   {
-    Long min = null;
-    for (Number metric : physicalMetrics.<Number>getValues()) {
-      long value = metric.longValue();
-      if (min == null || value < min) {
-        min = value;
+    Integer min = null;
+    for (Object value : metricValues) {
+      int ival = ((Number) value).intValue();
+      if (min == null || ival < min) {
+        min = ival;
       }
     }
     return min;
   }
 
-  private static final long serialVersionUID = 201504081319L;
+  private static final long serialVersionUID = 201504081308L;
 }

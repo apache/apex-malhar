@@ -13,28 +13,27 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetric.min;
+package com.datatorrent.lib.customMetric.sum;
 
 import java.io.Serializable;
+import java.util.Collection;
 
-import com.datatorrent.api.CustomMetric;
-import com.datatorrent.api.annotation.Name;
+import com.datatorrent.lib.customMetric.Name;
+import com.datatorrent.lib.customMetric.SingleMetricAggregator;
 
-@Name("Min")
-public class DoubleMinPhysicalAggregator implements CustomMetric.Aggregator<Double>, Serializable
+@Name("Sum")
+public class DoubleSumAggregator implements SingleMetricAggregator<Double>, Serializable
 {
   @Override
-  public Double aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
+  public Double aggregate(Collection<Object> metricValues)
   {
-    Double min = null;
-    for (Number metric : physicalMetrics.<Number>getValues()) {
-      double value = metric.doubleValue();
-      if (min == null || value < min) {
-        min = value;
-      }
+    double sum = 0;
+
+    for (Object value : metricValues) {
+      sum += ((Number)value).doubleValue();
     }
-    return min;
+    return sum;
   }
 
-  private static final long serialVersionUID = 201504081324L;
+  private static final long serialVersionUID = 201504081008L;
 }

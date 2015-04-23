@@ -13,26 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.customMetric.sum;
+package com.datatorrent.lib.customMetric;
 
-import java.io.Serializable;
+import java.util.Collection;
 
-import com.datatorrent.api.CustomMetric;
-import com.datatorrent.api.annotation.Name;
-
-@Name("Sum")
-public class DoubleSumPhysicalAggregator implements CustomMetric.Aggregator<Double>, Serializable
+public interface SingleMetricAggregator<T>
 {
-  @Override
-  public Double aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
-  {
-    double sum = 0;
-
-    for (Number metric : physicalMetrics.<Number>getValues()) {
-      sum += metric.doubleValue();
-    }
-    return sum;
-  }
-
-  private static final long serialVersionUID = 201504081008L;
+  T aggregate(Collection<Object> metricValues);
 }

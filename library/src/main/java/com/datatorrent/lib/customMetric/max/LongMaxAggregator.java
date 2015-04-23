@@ -16,25 +16,26 @@
 package com.datatorrent.lib.customMetric.max;
 
 import java.io.Serializable;
+import java.util.Collection;
 
-import com.datatorrent.api.CustomMetric;
-import com.datatorrent.api.annotation.Name;
+import com.datatorrent.lib.customMetric.Name;
+import com.datatorrent.lib.customMetric.SingleMetricAggregator;
 
 @Name("Max")
-public class DoubleMaxPhysicalAggregator implements CustomMetric.Aggregator<Double>, Serializable
+public class LongMaxAggregator implements SingleMetricAggregator<Long>, Serializable
 {
   @Override
-  public Double aggregate(CustomMetric.PhysicalMetrics physicalMetrics)
+  public Long aggregate(Collection<Object> metricValues)
   {
-    Double max = null;
-    for (Number metric : physicalMetrics.<Number>getValues()) {
-      double value = metric.doubleValue();
-      if (max == null || value > max) {
-        max = value;
+    Long max = null;
+    for (Object value : metricValues) {
+      long lval = ((Number)value).longValue();
+      if (max == null || lval > max) {
+        max = lval;
       }
     }
     return max;
   }
 
-  private static final long serialVersionUID = 201504081328L;
+  private static final long serialVersionUID = 201504081325L;
 }
