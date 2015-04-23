@@ -547,9 +547,9 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             Slice keySlice = new Slice(operator.getEventKeyBytesGAE(eventKey));
             byte[] value = operator.getUncommitted(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID,
                                                    keySlice);
-            gae = operator.fromKeyValueGAE(keySlice, value);
 
-            if(gae != null) {
+            if(value != null &&
+               (gae = operator.fromKeyValueGAE(keySlice, value)) != null) {
               aggregatorKeys.put(aggregatorName, gae.getKeys());
               aggregatorValues.put(aggregatorName, gae.getAggregates());
             }
