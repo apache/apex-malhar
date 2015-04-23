@@ -15,11 +15,14 @@
  */
 package com.datatorrent.lib.customMetric;
 
+import java.io.Serializable;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import javax.validation.constraints.NotNull;
+
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -28,11 +31,11 @@ import com.google.common.collect.Multimap;
 import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
-public class MetricsAggregator implements CustomMetric.Aggregator
+public class MetricsAggregator implements CustomMetric.Aggregator, Serializable
 {
   protected static final String DEFAULT_SEPARATOR = "-";
 
-  protected Map<String, List<SingleMetricAggregator>> metricsToAggregators;
+  protected final Map<String, List<AggregatorMeta>> metricsToAggregators;
   protected String aggregatorMetricSeparator;
 
   public MetricsAggregator()
@@ -46,20 +49,20 @@ public class MetricsAggregator implements CustomMetric.Aggregator
   {
     Multimap<String, Object> metricValues = ArrayListMultimap.create();
 
-    for(CustomMetric.PhysicalMetricsContext pmCtx : physicalMetrics){
-      for(Map.Entry<String, Object> entry : pmCtx.getCustomMetrics().entrySet()){
+    for (CustomMetric.PhysicalMetricsContext pmCtx : physicalMetrics) {
+      for (Map.Entry<String, Object> entry : pmCtx.getCustomMetrics().entrySet()) {
         metricValues.put(entry.getKey(), entry.getValue());
       }
     }
 
     Map<String, Object> aggregates = Maps.newHashMap();
-    for(String metric : metricValues.keySet()){
-      List<SingleMetricAggregator> aggregators =  metricsToAggregators.get(metric);
-      if(aggregators!=null){
-        for (SingleMetricAggregator aggregator : aggregators){
-          Object aggregatedVal = aggregator.aggregate( metricValues.get(metric));
-          String aggregateKey = deriveAggregateMetricKey(metric, aggregator);
-          aggregates.put(aggregateKey, aggregatedVal);
+    for (String metric : metricValues.keySet()) {
+      List<AggregatorMeta> aggregatorMetas = metricsToAggregators.get(metric);
+      if (aggregatorMetas != null) {
+        for (AggregatorMeta aggregatorMeta : aggregatorMetas) {
+
+          Object aggregatedVal = aggregatorMeta.aggregator.aggregate(metricValues.get(metric));
+          aggregates.put(aggregatorMeta.aggregateKey, aggregatedVal);
         }
       }
     }
@@ -69,8 +72,8 @@ public class MetricsAggregator implements CustomMetric.Aggregator
   /**
    * This can be overridden to change name of aggregated key.
    *
-   * @param metric      metric name
-   * @param aggregator  aggregator
+   * @param metric     metric name
+   * @param aggregator aggregator
    * @return key of the aggregated value in the logical metrics.
    */
   protected String deriveAggregateMetricKey(String metric, SingleMetricAggregator aggregator)
@@ -86,24 +89,35 @@ public class MetricsAggregator implements CustomMetric.Aggregator
     return aggregatorDesc + aggregatorMetricSeparator + metric;
   }
 
-  public void addAggregator(String metricKey, SingleMetricAggregator aggregator)
+  public void addAggregators(@NotNull String metric, @NotNull SingleMetricAggregator[] aggregators)
   {
-    List<SingleMetricAggregator> aggregators = metricsToAggregators.get(metricKey);
-    if(aggregators == null){
-      aggregators = Lists.newArrayList();
-      metricsToAggregators.put(metricKey, aggregators);
+    Preconditions.checkNotNull(metric, "metric");
+    Preconditions.checkNotNull(aggregators, "aggregators");
+    addAggregatorsHelper(metric, aggregators, null);
+  }
+
+  public void addAggregators(@NotNull String metric, @NotNull SingleMetricAggregator[] aggregators,
+                             @NotNull String[] aggregateKeys)
+  {
+    Preconditions.checkNotNull(metric, "metric");
+    Preconditions.checkNotNull(aggregators, "aggregators");
+    Preconditions.checkNotNull(aggregateKeys, "result metric keys");
+    Preconditions.checkArgument(aggregators.length == aggregateKeys.length, "different length aggregators and aggregateKeys");
+    addAggregatorsHelper(metric, aggregators, aggregateKeys);
+  }
+
+  private void addAggregatorsHelper(String metric, SingleMetricAggregator[] aggregators, String[] aggregateKeys)
+  {
+    List<AggregatorMeta> laggregators = metricsToAggregators.get(metric);
+    if (laggregators == null) {
+      laggregators = Lists.newArrayList();
+      metricsToAggregators.put(metric, laggregators);
     }
-    aggregators.add(aggregator);
-  }
+    for (int i = 0; i < aggregators.length; i++) {
 
-  public void setMetricsToAggregators(Map<String, List<SingleMetricAggregator>> metricsToAggregators)
-  {
-    this.metricsToAggregators = metricsToAggregators;
-  }
-
-  public Map<String, List<SingleMetricAggregator>> getMetricsToAggregators()
-  {
-    return Collections.unmodifiableMap(metricsToAggregators);
+      laggregators.add(new AggregatorMeta(aggregators[i], (aggregateKeys == null || aggregateKeys[i] == null) ?
+        deriveAggregateMetricKey(metric, aggregators[i]) : aggregateKeys[i]));
+    }
   }
 
   public String getAggregatorMetricSeparator()
@@ -115,4 +129,41 @@ public class MetricsAggregator implements CustomMetric.Aggregator
   {
     this.aggregatorMetricSeparator = aggregatorMetricSeparator;
   }
+
+  public static class AggregatorMeta implements Serializable
+  {
+    private SingleMetricAggregator aggregator;
+
+    private String aggregateKey;
+
+    private AggregatorMeta(@NotNull SingleMetricAggregator aggregator, @NotNull String aggregateKey)
+    {
+      this.aggregator = Preconditions.checkNotNull(aggregator, "aggregator");
+      this.aggregateKey = Preconditions.checkNotNull(aggregateKey, "result metric key");
+    }
+
+    public SingleMetricAggregator getAggregator()
+    {
+      return aggregator;
+    }
+
+    private void setAggregator(SingleMetricAggregator aggregator)
+    {
+      this.aggregator = aggregator;
+    }
+
+    public String getAggregateKey()
+    {
+      return aggregateKey;
+    }
+
+    private void setAggregateKey(String aggregateKey)
+    {
+      this.aggregateKey = aggregateKey;
+    }
+
+    private static final long serialVersionUID = 201604231340L;
+  }
+
+  private static final long serialVersionUID = 201604231337L;
 }
