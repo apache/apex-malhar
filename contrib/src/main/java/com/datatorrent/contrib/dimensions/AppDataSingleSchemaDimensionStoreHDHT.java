@@ -480,7 +480,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         for(String aggregatorName: aggregatorToQuery.keySet()) {
           HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
           hdsQuery.keepAliveCount = queueContext.intValue();
-          
+
           EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
 
           AggregateEvent gae;
@@ -513,26 +513,23 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
               aggregatorValues.put(aggregatorName, gae.getAggregates());
               logger.info("Retrieved from uncommited");
             }
-            else if(hdsQuery.processed) {
-              if(hdsQuery.result != null) {
-                gae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+            else if(hdsQuery.result != null) {
+              gae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
 
-                if(gae.getKeys() == null) {
-                  logger.info("B Keys are null and they shouldn't be");
-                }
-
-                logger.info("Retrieved from hds");
-                aggregatorKeys.put(aggregatorName, gae.getKeys());
-                aggregatorValues.put(aggregatorName, gae.getAggregates());
-              }
-              else {
-                allSatisfied = false;
+              if(gae.getKeys() == null) {
+                logger.info("B Keys are null and they shouldn't be");
               }
 
-              hdsQuery.processed = false;
+              logger.info("Retrieved from hds");
+              aggregatorKeys.put(aggregatorName, gae.getKeys());
+              aggregatorValues.put(aggregatorName, gae.getAggregates());
             }
             else {
               allSatisfied = false;
+            }
+
+            if(hdsQuery.processed) {
+              hdsQuery.processed = false;
             }
           }
         }
