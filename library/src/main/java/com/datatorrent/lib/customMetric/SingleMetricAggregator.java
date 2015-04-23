@@ -17,7 +17,7 @@ package com.datatorrent.lib.customMetric;
 
 import java.util.Collection;
 
-public interface SingleMetricAggregator<T>
+public interface SingleMetricAggregator
 {
-  T aggregate(Collection<Object> metricValues);
+  Object aggregate(Collection<Object> metricValues);
 }

@@ -18,14 +18,15 @@ package com.datatorrent.lib.customMetric.sum;
 import java.io.Serializable;
 import java.util.Collection;
 
-import com.datatorrent.lib.customMetric.Name;
+import com.datatorrent.api.annotation.Name;
+
 import com.datatorrent.lib.customMetric.SingleMetricAggregator;
 
-@Name("Sum")
-public class LongSumAggregator implements SingleMetricAggregator<Long>, Serializable
+@Name("sum")
+public class LongSumAggregator implements SingleMetricAggregator, Serializable
 {
   @Override
-  public Long aggregate(Collection<Object> metricValues)
+  public Object aggregate(Collection<Object> metricValues)
   {
     long sum = 0;
     for (Object value : metricValues) {
