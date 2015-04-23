@@ -349,6 +349,46 @@ public class DataQueryDimensional extends Query
   }
 
   @Override
+  public boolean queueEquals(Query query)
+  {
+    if(query == null) {
+      return false;
+    }
+    if(getClass() != query.getClass()) {
+      return false;
+    }
+    final DataQueryDimensional other = (DataQueryDimensional) query;
+    if((this.from == null) ? (other.from != null) : !this.from.equals(other.from)) {
+      return false;
+    }
+    if((this.to == null) ? (other.to != null) : !this.to.equals(other.to)) {
+      return false;
+    }
+    if(this.timeBucket != other.timeBucket) {
+      return false;
+    }
+    if(this.keys != other.keys && (this.keys == null || !this.keys.equals(other.keys))) {
+      return false;
+    }
+    if(this.incompleteResultOK != other.incompleteResultOK) {
+      return false;
+    }
+    if(this.hasTime != other.hasTime) {
+      return false;
+    }
+    if(this.fromTo != other.fromTo) {
+      return false;
+    }
+    if(this.dd != other.dd && (this.dd == null || !this.dd.equals(other.dd))) {
+      return false;
+    }
+    if(this.fieldsAggregatable != other.fieldsAggregatable && (this.fieldsAggregatable == null || !this.fieldsAggregatable.equals(other.fieldsAggregatable))) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
   public boolean equals(Object obj)
   {
     if(obj == null) {
@@ -390,7 +430,7 @@ public class DataQueryDimensional extends Query
     }
     return true;
   }
-  
+
   @Override
   public String toString()
   {

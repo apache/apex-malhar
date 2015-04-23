@@ -21,7 +21,7 @@ import javax.validation.constraints.NotNull;
 public class Query extends Data
 {
   public static final String FIELD_ID = "id";
-  
+
   public static final String FIELD_COUNTDOWN = "countdown";
 
   @NotNull
@@ -80,6 +80,10 @@ public class Query extends Data
     this.id = id;
   }
 
+  public boolean queueEquals(Query query)
+  {
+    return false;
+  }
 
   @Override
   public String toString()
