@@ -206,6 +206,34 @@ public class FieldsAggregatable
   }
 
   @Override
+  public int hashCode()
+  {
+    int hash = 7;
+    hash = 97 * hash + (this.fieldToAggregator != null ? this.fieldToAggregator.hashCode() : 0);
+    hash = 97 * hash + (this.nonAggregatedFields != null ? this.nonAggregatedFields.hashCode() : 0);
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if(obj == null) {
+      return false;
+    }
+    if(getClass() != obj.getClass()) {
+      return false;
+    }
+    final FieldsAggregatable other = (FieldsAggregatable)obj;
+    if(this.fieldToAggregator != other.fieldToAggregator && (this.fieldToAggregator == null || !this.fieldToAggregator.equals(other.fieldToAggregator))) {
+      return false;
+    }
+    if(this.nonAggregatedFields != other.nonAggregatedFields && (this.nonAggregatedFields == null || !this.nonAggregatedFields.equals(other.nonAggregatedFields))) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
   public String toString()
   {
     return "FieldsAggregatable{" + "fieldToAggregator=" + fieldToAggregator + ", nonAggregatedFields=" + nonAggregatedFields + '}';

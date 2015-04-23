@@ -479,6 +479,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
         for(String aggregatorName: aggregatorToQuery.keySet()) {
           HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
+          hdsQuery.keepAliveCount = queueContext.intValue();
+
           EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
 
           AggregateEvent gae;
@@ -505,31 +507,29 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             byte[] value = operator.getUncommitted(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID,
                                                    keySlice);
 
-            if(value != null &&
-               (gae = operator.fromKeyValueGAE(keySlice, value)) != null) {
+            if(value != null) {
+              gae = operator.fromKeyValueGAE(keySlice, value);
+              aggregatorKeys.put(aggregatorName, gae.getKeys());
+              aggregatorValues.put(aggregatorName, gae.getAggregates());
+              logger.info("Retrieved from uncommited");
+            }
+            else if(hdsQuery.result != null) {
+              gae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+
+              if(gae.getKeys() == null) {
+                logger.info("B Keys are null and they shouldn't be");
+              }
+
+              logger.info("Retrieved from hds");
               aggregatorKeys.put(aggregatorName, gae.getKeys());
               aggregatorValues.put(aggregatorName, gae.getAggregates());
             }
-            else if(hdsQuery.processed) {
-              if(hdsQuery.result != null) {
-                gae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
-
-                if(gae.getKeys() == null) {
-                  logger.info("B Keys are null and they shouldn't be");
-                }
-
-                logger.info("Retrieved from hds");
-                aggregatorKeys.put(aggregatorName, gae.getKeys());
-                aggregatorValues.put(aggregatorName, gae.getAggregates());
-              }
-              else {
-                allSatisfied = false;
-              }
-
-              hdsQuery.processed = false;
-            }
             else {
               allSatisfied = false;
+            }
+
+            if(hdsQuery.processed) {
+              hdsQuery.processed = false;
             }
           }
         }
@@ -540,13 +540,9 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         }
       }
 
-      if(!query.getIncompleteResultOK()) {
-        if(!allSatisfied && queueContext.longValue() > 1L) {
-          return null;
-        }
-        else {
-          queueContext.setValue(0L);
-        }
+      if(!query.getIncompleteResultOK() &&
+         !allSatisfied && queueContext.longValue() > 1L) {
+        return null;
       }
 
       List<Map<String, GPOMutable>> prunedKeys = Lists.newArrayList();

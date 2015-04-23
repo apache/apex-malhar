@@ -66,7 +66,17 @@ public class AppDataWWEQueryQueueManager<QUERY extends Query, META_QUERY> extend
       return true;
     }
 
-    queryNode.setPayload(queryBundle);
+    /*if(queryNode.getPayload().getQuery().queueEquals(queryBundle.getQuery())) {
+      //Old query equals new query we want to to keep existing asynchronous queries active.
+      //TODO need to generate
+      queryNode.getPayload().getQueueContext().setValue(queryBundle.getQueueContext().getValue());
+    }
+    else {*/
+      //Otherwise replace existing query.
+
+      queryNode.setPayload(queryBundle);
+    //}
+
     return false;
   }
 }

@@ -332,6 +332,106 @@ public class DataQueryDimensional extends Query
   }
 
   @Override
+  public int hashCode()
+  {
+    int hash = 3;
+    hash = 59 * hash + (this.from != null ? this.from.hashCode() : 0);
+    hash = 59 * hash + (this.to != null ? this.to.hashCode() : 0);
+    hash = 59 * hash + this.latestNumBuckets;
+    hash = 59 * hash + (this.timeBucket != null ? this.timeBucket.hashCode() : 0);
+    hash = 59 * hash + (this.keys != null ? this.keys.hashCode() : 0);
+    hash = 59 * hash + (this.incompleteResultOK ? 1 : 0);
+    hash = 59 * hash + (this.hasTime ? 1 : 0);
+    hash = 59 * hash + (this.fromTo ? 1 : 0);
+    hash = 59 * hash + (this.dd != null ? this.dd.hashCode() : 0);
+    hash = 59 * hash + (this.fieldsAggregatable != null ? this.fieldsAggregatable.hashCode() : 0);
+    return hash;
+  }
+
+  @Override
+  public boolean queueEquals(Query query)
+  {
+    if(query == null) {
+      return false;
+    }
+    if(getClass() != query.getClass()) {
+      return false;
+    }
+    final DataQueryDimensional other = (DataQueryDimensional) query;
+    if((this.from == null) ? (other.from != null) : !this.from.equals(other.from)) {
+      return false;
+    }
+    if((this.to == null) ? (other.to != null) : !this.to.equals(other.to)) {
+      return false;
+    }
+    if(this.timeBucket != other.timeBucket) {
+      return false;
+    }
+    if(this.keys != other.keys && (this.keys == null || !this.keys.equals(other.keys))) {
+      return false;
+    }
+    if(this.incompleteResultOK != other.incompleteResultOK) {
+      return false;
+    }
+    if(this.hasTime != other.hasTime) {
+      return false;
+    }
+    if(this.fromTo != other.fromTo) {
+      return false;
+    }
+    if(this.dd != other.dd && (this.dd == null || !this.dd.equals(other.dd))) {
+      return false;
+    }
+    if(this.fieldsAggregatable != other.fieldsAggregatable && (this.fieldsAggregatable == null || !this.fieldsAggregatable.equals(other.fieldsAggregatable))) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if(obj == null) {
+      return false;
+    }
+    if(getClass() != obj.getClass()) {
+      return false;
+    }
+    final DataQueryDimensional other = (DataQueryDimensional)obj;
+    if((this.from == null) ? (other.from != null) : !this.from.equals(other.from)) {
+      return false;
+    }
+    if((this.to == null) ? (other.to != null) : !this.to.equals(other.to)) {
+      return false;
+    }
+    if(this.latestNumBuckets != other.latestNumBuckets) {
+      return false;
+    }
+    if(this.timeBucket != other.timeBucket) {
+      return false;
+    }
+    if(this.keys != other.keys && (this.keys == null || !this.keys.equals(other.keys))) {
+      return false;
+    }
+    if(this.incompleteResultOK != other.incompleteResultOK) {
+      return false;
+    }
+    if(this.hasTime != other.hasTime) {
+      return false;
+    }
+    if(this.fromTo != other.fromTo) {
+      return false;
+    }
+    if(this.dd != other.dd && (this.dd == null || !this.dd.equals(other.dd))) {
+      return false;
+    }
+    if(this.fieldsAggregatable != other.fieldsAggregatable && (this.fieldsAggregatable == null || !this.fieldsAggregatable.equals(other.fieldsAggregatable))) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
   public String toString()
   {
     return "GenericDataQuery{" + "from=" + from + ", to=" + to + ", latestNumBuckets=" + latestNumBuckets + ", timeBucket=" + timeBucket + ", countdown=" + getCountdown() + ", incompleteResultOK=" + incompleteResultOK + ", hasTime=" + hasTime + ", oneTime=" + isOneTime() + ", fromTo=" + fromTo + '}';

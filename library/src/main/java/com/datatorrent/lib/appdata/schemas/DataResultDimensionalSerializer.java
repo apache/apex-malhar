@@ -103,20 +103,9 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
       for(Map.Entry<String, GPOMutable> entry: value.entrySet()) {
         String aggregatorName = entry.getKey();
         GPOMutable aggregateValues = entry.getValue();
-        logger.info("Serializing aggregator name {}, {}",
-                    aggregatorName,
-                    aggregateValues);
-
-        logger.info("aggregate fields {}", aggregateValues.getFieldDescriptor().getFields().getFields());
-        logger.info("Type to field to index {}", aggregateValues.getFieldDescriptor().getTypeToFieldToIndex());
-        logger.info("Type to field {}", aggregateValues.getFieldDescriptor().getFieldToType());
-
         Set<String> fields = aggregatorToFields.get(aggregatorName);
 
-        logger.info("serialized fields: {}", fields);
-
         for(String field: fields) {
-          logger.info("Field {}", field);
           String compoundName = aggregatorToFieldToName.get(aggregatorName).get(field);
           valueJO.put(compoundName, appDataFormatter.format(aggregateValues.getField(field)));
         }
