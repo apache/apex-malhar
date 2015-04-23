@@ -15,20 +15,15 @@
  */
 package com.datatorrent.lib.customMetric;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Multimap;
-
-import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
-public class MetricsAggregator implements CustomMetric.Aggregator
+public class MetricsAggregator// implements CustomMetric.Aggregator
 {
   protected static final String DEFAULT_SEPARATOR = "-";
 
@@ -41,6 +36,7 @@ public class MetricsAggregator implements CustomMetric.Aggregator
     aggregatorMetricSeparator = DEFAULT_SEPARATOR;
   }
 
+  /*
   @Override
   public Map<String, Object> aggregate(long windowId, Collection<CustomMetric.PhysicalMetricsContext> physicalMetrics)
   {
@@ -64,7 +60,7 @@ public class MetricsAggregator implements CustomMetric.Aggregator
       }
     }
     return aggregates;
-  }
+  }*/
 
   /**
    * This can be overridden to change name of aggregated key.
