@@ -540,13 +540,9 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         }
       }
 
-      if(!query.getIncompleteResultOK()) {
-        if(!allSatisfied && queueContext.longValue() > 1L) {
-          return null;
-        }
-        else {
-          queueContext.setValue(0L);
-        }
+      if(!query.getIncompleteResultOK() &&
+         !allSatisfied && queueContext.longValue() > 1L) {
+        return null;
       }
 
       List<Map<String, GPOMutable>> prunedKeys = Lists.newArrayList();
