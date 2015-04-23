@@ -18,11 +18,13 @@ package com.datatorrent.lib.customMetric;
 import java.io.Serializable;
 import java.util.Collection;
 
-@Name("Avg")
-public class AvgAggregator implements SingleMetricAggregator<Double>, Serializable
+import com.datatorrent.api.annotation.Name;
+
+@Name("avg")
+public class AvgAggregator implements SingleMetricAggregator, Serializable
 {
   @Override
-  public Double aggregate(Collection<Object> metricValues)
+  public Object aggregate(Collection<Object> metricValues)
   {
     double sum = 0;
 

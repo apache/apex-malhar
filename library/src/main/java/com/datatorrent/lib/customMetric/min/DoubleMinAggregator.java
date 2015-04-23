@@ -18,14 +18,15 @@ package com.datatorrent.lib.customMetric.min;
 import java.io.Serializable;
 import java.util.Collection;
 
-import com.datatorrent.lib.customMetric.Name;
+import com.datatorrent.api.annotation.Name;
+
 import com.datatorrent.lib.customMetric.SingleMetricAggregator;
 
-@Name("Min")
-public class DoubleMinAggregator implements SingleMetricAggregator<Double>, Serializable
+@Name("min")
+public class DoubleMinAggregator implements SingleMetricAggregator, Serializable
 {
   @Override
-  public Double aggregate(Collection<Object> metricValues)
+  public Object aggregate(Collection<Object> metricValues)
   {
     Double min = null;
     for (Object value : metricValues) {

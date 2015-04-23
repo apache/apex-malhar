@@ -18,14 +18,15 @@ package com.datatorrent.lib.customMetric.max;
 import java.io.Serializable;
 import java.util.Collection;
 
-import com.datatorrent.lib.customMetric.Name;
+import com.datatorrent.api.annotation.Name;
+
 import com.datatorrent.lib.customMetric.SingleMetricAggregator;
 
-@Name("Max")
-public class IntMaxAggregator implements SingleMetricAggregator<Integer>, Serializable
+@Name("max")
+public class IntMaxAggregator implements SingleMetricAggregator, Serializable
 {
   @Override
-  public Integer aggregate(Collection<Object> metricValues)
+  public Object aggregate(Collection<Object> metricValues)
   {
     Integer max = null;
     for (Object value : metricValues) {
