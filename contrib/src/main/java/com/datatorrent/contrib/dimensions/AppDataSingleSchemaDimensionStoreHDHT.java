@@ -142,6 +142,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   }
 
   @Override
+  public void processEvent(AggregateEvent gae) {
+    super.processEvent(gae);
+  }
+
+  @Override
   protected long getBucketKey(AggregateEvent event)
   {
     return AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID;
