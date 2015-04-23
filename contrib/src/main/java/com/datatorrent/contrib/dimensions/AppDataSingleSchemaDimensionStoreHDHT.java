@@ -47,6 +47,7 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaDimensional;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaResult;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -72,10 +73,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   @NotNull
   private String eventSchemaJSON;
-  @NotNull
   private String dimensionalSchemaJSON;
 
-  private transient DimensionalEventSchema eventSchema;
+  @VisibleForTesting
+  protected transient DimensionalEventSchema eventSchema;
   private transient SchemaDimensional dimensionalSchema;
 
   //==========================================================================
@@ -180,6 +181,12 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   }
 
   @Override
+  protected long getBucketKey(AggregateEvent event)
+  {
+    return AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID;
+  }
+
+  @Override
   public void setup(OperatorContext context)
   {
     //Setup for query processing
@@ -235,6 +242,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     }
 
     queryProcessor.endWindow();
+
+    super.endWindow();
   }
 
   @Override
@@ -473,7 +482,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
             EventKey queryEventKey = new EventKey(eventKey);
             Slice key = new Slice(getEventKeyBytesGAE(eventKey));
-           
+
             if(eventKey.getDimensionDescriptorID() == 0) {
               logger.info("Query key: {}", eventKey);
               logger.info("Saved key: {}", eventKey1m);

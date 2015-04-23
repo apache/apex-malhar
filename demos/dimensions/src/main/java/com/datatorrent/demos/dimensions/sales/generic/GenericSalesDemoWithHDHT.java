@@ -13,8 +13,7 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaConv;
-import com.datatorrent.lib.appdata.dimensions.converter.DimensionsMapConverter;
+import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaMap;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
@@ -25,25 +24,24 @@ import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
 
 /**
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-@ApplicationAnnotation(name=SalesDemoWithHDHT.APP_NAME)
-public class SalesDemoWithHDHT implements StreamingApplication
+@ApplicationAnnotation(name=GenericSalesDemoWithHDHT.APP_NAME)
+public class GenericSalesDemoWithHDHT implements StreamingApplication
 {
-  private static final Logger logger = LoggerFactory.getLogger(SalesDemoWithHDHT.class);
+  private static final Logger logger = LoggerFactory.getLogger(GenericSalesDemoWithHDHT.class);
 
-  public static final String APP_NAME = "GenericSalesDemoWithHDHT";
+  public static final String APP_NAME = "GenericSalesDemoWithHDHTNew";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
   public static final String EVENT_SCHEMA = "salesGenericEventSchema.json";
   public static final String DIMENSIONAL_SCHEMA = "salesGenericDataSchema.json";
 
-  public SalesDemoWithHDHT()
+  public GenericSalesDemoWithHDHT()
   {
   }
 
@@ -52,10 +50,8 @@ public class SalesDemoWithHDHT implements StreamingApplication
   {
     JsonSalesGenerator input = dag.addOperator("InputGenerator", JsonSalesGenerator.class);
     JsonToMapConverter converter = dag.addOperator("Converter", JsonToMapConverter.class);
-    DimensionsComputationSingleSchemaConv<Map<String, Object>> dimensions =
-    dag.addOperator("DimensionsComputation", new DimensionsComputationSingleSchemaConv<Map<String, Object>>());
-
-    dimensions.setConverter(new DimensionsMapConverter());
+    DimensionsComputationSingleSchemaMap dimensions =
+    dag.addOperator("DimensionsComputation", DimensionsComputationSingleSchemaMap.class);
 
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);

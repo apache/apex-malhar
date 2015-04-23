@@ -100,8 +100,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     long timestamp = 0;
 
     if(eventKey.getKey().
-            getFieldDescriptor().
-            getFields().getFields().
+            getFieldDescriptor().getFieldList().
             contains(DimensionsDescriptor.DIMENSION_TIME)) {
       timestamp = eventKey.getKey().getFieldLong(DimensionsDescriptor.DIMENSION_TIME);
     }
@@ -139,6 +138,8 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
     FieldsDescriptor keysDescriptor = getKeyDescriptor(schemaID, dimensionDescriptorID);
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
+
+    logger.debug("aggregate {}", aggregate);
 
     GPOMutable keys = GPOUtils.deserialize(keysDescriptor, DimensionsDescriptor.TIME_FIELDS, key.buffer, offset.intValue());
     GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, 0);
@@ -243,12 +244,8 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
         continue;
       }
 
-      try {
-        super.processEvent(entry.getValue());
-      }
-      catch(IOException ex) {
-        throw new RuntimeException(ex);
-      }
+      logger.debug("putting GAE");
+      putGAE(entry.getValue());
     }
 
     super.endWindow();
@@ -335,7 +332,11 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     @Override
     public void onRemoval(RemovalNotification<EventKey, AggregateEvent> notification)
     {
+      logger.debug("Entry removed");
+
       AggregateEvent gae = notification.getValue();
+
+      logger.debug("GAE is empty {}", gae.isEmpty());
 
       if(gae.isEmpty()) {
         return;
