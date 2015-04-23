@@ -479,6 +479,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
         for(String aggregatorName: aggregatorToQuery.keySet()) {
           HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
+          hdsQuery.keepAliveCount = queueContext.intValue();
+          
           EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
 
           AggregateEvent gae;

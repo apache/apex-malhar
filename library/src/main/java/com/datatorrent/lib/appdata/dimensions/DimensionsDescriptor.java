@@ -152,40 +152,6 @@ public class DimensionsDescriptor
     return new FieldsDescriptor(fieldToType);
   }
 
-  @Override
-  public int hashCode()
-  {
-    int hash = 7;
-    hash = 83 * hash + (this.timeBucket != null ? this.timeBucket.hashCode() : 0);
-    hash = 83 * hash + (this.fields != null ? this.fields.hashCode() : 0);
-    return hash;
-  }
-
-  @Override
-  public boolean equals(Object obj)
-  {
-    if(obj == null) {
-      return false;
-    }
-    if(getClass() != obj.getClass()) {
-      return false;
-    }
-    final DimensionsDescriptor other = (DimensionsDescriptor)obj;
-    if(this.timeBucket != other.timeBucket) {
-      return false;
-    }
-    if(this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "DimensionsDescriptor{" + "timeBucket=" + timeBucket + ", fields=" + fields + '}';
-  }
-
   public static boolean validateDimensions(DimensionsSchema schema,
                                            String aggregationString)
   {
@@ -244,5 +210,39 @@ public class DimensionsDescriptor
     }
 
     return true;
+  }
+
+  @Override
+  public int hashCode()
+  {
+    int hash = 7;
+    hash = 83 * hash + (this.timeBucket != null ? this.timeBucket.hashCode() : 0);
+    hash = 83 * hash + (this.fields != null ? this.fields.hashCode() : 0);
+    return hash;
+  }
+
+  @Override
+  public boolean equals(Object obj)
+  {
+    if(obj == null) {
+      return false;
+    }
+    if(getClass() != obj.getClass()) {
+      return false;
+    }
+    final DimensionsDescriptor other = (DimensionsDescriptor)obj;
+    if(this.timeBucket != other.timeBucket) {
+      return false;
+    }
+    if(this.fields != other.fields && (this.fields == null || !this.fields.equals(other.fields))) {
+      return false;
+    }
+    return true;
+  }
+
+  @Override
+  public String toString()
+  {
+    return "DimensionsDescriptor{" + "timeBucket=" + timeBucket + ", fields=" + fields + '}';
   }
 }
