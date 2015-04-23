@@ -138,6 +138,7 @@ public class ApplicationWithHDHT implements StreamingApplication
       System.out.println("Setting basePath " + basePath);
     }
 
+    store.setCacheSize(500);
     store.setFileStore(hdsFile);
     store.getAppDataFormatter().setContinuousFormatString("#.00");
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());

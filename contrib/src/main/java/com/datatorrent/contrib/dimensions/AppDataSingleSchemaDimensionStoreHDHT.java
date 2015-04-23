@@ -532,6 +532,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           // an hds query. If an hds query finishes for a key while it is in the minuteCache, but
           // then that key gets evicted from the minuteCache, then the value will never be retrieved.
           // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
+          // Temporary work around is to get from uncommitted
           if(gae != null) {
             logger.info("Retrieved from cache.");
 
@@ -543,18 +544,26 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             aggregatorValues.put(aggregatorName, gae.getAggregates());
           }
           else {
+            Slice keySlice = new Slice(operator.getEventKeyBytesGAE(eventKey));
+            byte[] value = operator.getUncommitted(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID,
+                                                   keySlice);
+            gae = operator.fromKeyValueGAE(keySlice, value);
 
-            if(hdsQuery.processed) {
+            if(gae != null) {
+              aggregatorKeys.put(aggregatorName, gae.getKeys());
+              aggregatorValues.put(aggregatorName, gae.getAggregates());
+            }
+            else if(hdsQuery.processed) {
               if(hdsQuery.result != null) {
-                AggregateEvent tgae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+                gae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
 
-                if(tgae.getKeys() == null) {
+                if(gae.getKeys() == null) {
                   logger.info("B Keys are null and they shouldn't be");
                 }
 
                 logger.info("Retrieved from hds");
-                aggregatorKeys.put(aggregatorName, tgae.getKeys());
-                aggregatorValues.put(aggregatorName, tgae.getAggregates());
+                aggregatorKeys.put(aggregatorName, gae.getKeys());
+                aggregatorValues.put(aggregatorName, gae.getAggregates());
               }
               else {
                 allSatisfied = false;
