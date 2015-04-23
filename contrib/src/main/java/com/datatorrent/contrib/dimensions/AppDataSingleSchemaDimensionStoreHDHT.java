@@ -552,6 +552,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
                   logger.info("B Keys are null and they shouldn't be");
                 }
 
+                logger.info("Retrieved from hds");
                 aggregatorKeys.put(aggregatorName, tgae.getKeys());
                 aggregatorValues.put(aggregatorName, tgae.getAggregates());
               }
