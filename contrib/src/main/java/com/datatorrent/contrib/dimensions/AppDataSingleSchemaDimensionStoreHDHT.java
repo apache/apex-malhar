@@ -141,45 +141,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   {
   }
 
-
-  private int windowCount = 0;
-  private boolean receivedWindow1m = false;
-  private EventKey eventKey1m;
-  private boolean receivedWindow1h = false;
-  private EventKey eventKey1h;
-  private boolean receivedWindow1d = false;
-  private EventKey eventKey1d;
-
-  @Override
-  public void processEvent(AggregateEvent gae) {
-
-    if(windowCount == 0 &&
-       gae.getDimensionDescriptorID() == 0
-       && !receivedWindow1m) {
-      logger.info("Incoming key {}", gae.getKeys());
-      receivedWindow1m = true;
-      eventKey1m = gae.getEventKey();
-    }
-
-    if(windowCount == 0 &&
-       gae.getDimensionDescriptorID() == 1
-       && !receivedWindow1h) {
-      logger.info("Incoming key {}", gae.getKeys());
-      receivedWindow1h = true;
-      eventKey1h = gae.getEventKey();
-    }
-
-    if(windowCount == 0 &&
-       gae.getDimensionDescriptorID() == 2
-       && !receivedWindow1d) {
-      logger.info("Incoming key {}", gae.getKeys());
-      receivedWindow1d = true;
-      eventKey1d = gae.getEventKey();
-    }
-
-    super.processEvent(gae);
-  }
-
   @Override
   protected long getBucketKey(AggregateEvent event)
   {
@@ -216,14 +177,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void endWindow()
   {
-    windowCount++;
-
-    if(windowCount == 50) {
-      receivedWindow1m = false;
-      receivedWindow1h = false;
-      receivedWindow1d = false;
-      windowCount = 0;
-    }
+    super.endWindow();
 
     MutableBoolean done = new MutableBoolean(false);
 
@@ -242,8 +196,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     }
 
     queryProcessor.endWindow();
-
-    super.endWindow();
   }
 
   @Override
