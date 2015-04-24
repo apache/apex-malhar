@@ -16,16 +16,19 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
-import java.util.Map;
-
-/**
- * Implementation for App Builder
- */
-public class DimensionsComputationSingleSchemaMap extends DimensionsComputationSingleSchemaConv<Map<String, Object>>
+public class DimensionsConversionContext
 {
-  public DimensionsComputationSingleSchemaMap()
+  public int schemaID;
+  public int dimensionDescriptorID;
+  public int aggregatorID;
+  public DimensionsDescriptor dd;
+  public FieldsDescriptor keyFieldsDescriptor;
+  public FieldsDescriptor aggregateDescriptor;
+
+  public DimensionsConversionContext()
   {
-    this.converter = new DimensionsMapConverter();
   }
 }

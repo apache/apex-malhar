@@ -26,11 +26,12 @@ import java.util.Map;
 
 public class MapGPOConverterSchema
 {
-  private Map<String, String> gpoFieldToMapField = Maps.newHashMap();
+  private String jsonString;
+  private final Map<String, String> gpoFieldToMapField = Maps.newHashMap();
 
   public MapGPOConverterSchema(String jsonString)
   {
-    Preconditions.checkNotNull(jsonString);
+    this.jsonString = Preconditions.checkNotNull(jsonString);
     JSONObject jo = null;
 
     try {
@@ -66,5 +67,21 @@ public class MapGPOConverterSchema
     }
 
     return mapField;
+  }
+
+  /**
+   * @return the jsonString
+   */
+  public String getJsonString()
+  {
+    return jsonString;
+  }
+
+  /**
+   * @param jsonString the jsonString to set
+   */
+  public void setJsonString(String jsonString)
+  {
+    this.jsonString = jsonString;
   }
 }

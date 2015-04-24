@@ -17,7 +17,6 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.dimensions.converter.DimensionsConversionContext;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.base.Preconditions;

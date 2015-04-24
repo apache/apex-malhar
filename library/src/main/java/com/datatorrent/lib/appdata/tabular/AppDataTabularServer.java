@@ -44,9 +44,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Operator
+public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractAppDataTabularServer.class);
+  private static final Logger logger = LoggerFactory.getLogger(AppDataTabularServer.class);
 
   private transient QueryProcessor<Query, Void, MutableLong, Void, Result> queryProcessor;
   private transient DataDeserializerFactory queryDeserializerFactory;
@@ -55,7 +55,7 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
   private AppDataFormatter appDataFormatter = new AppDataFormatter();
 
   private String tabularSchemaJSON;
-  private SchemaTabular schema;
+  protected SchemaTabular schema;
 
   private List<GPOMutable> currentData = Lists.newArrayList();
 
@@ -103,7 +103,7 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
     }
   };
 
-  public AbstractAppDataTabularServer()
+  public AppDataTabularServer()
   {
   }
 

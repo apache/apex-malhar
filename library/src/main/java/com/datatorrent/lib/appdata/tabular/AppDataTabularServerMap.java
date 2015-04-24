@@ -14,21 +14,14 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appdata.dimensions.converter;
+package com.datatorrent.lib.appdata.tabular;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import java.util.Map;
 
-public class DimensionsConversionContext
+public class AppDataTabularServerMap extends AppDataTabularServerConv<Map<String, Object>>
 {
-  public int schemaID;
-  public int dimensionDescriptorID;
-  public int aggregatorID;
-  public DimensionsDescriptor dd;
-  public FieldsDescriptor keyFieldsDescriptor;
-  public FieldsDescriptor aggregateDescriptor;
-
-  public DimensionsConversionContext()
+  public AppDataTabularServerMap()
   {
+    this.converter = new TabularMapConverter();
   }
 }

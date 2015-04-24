@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appdata.dimensions.converter;
+package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.converter.MapGPOConverterSchema;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
@@ -46,36 +46,12 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
 
   public void setConversionSchema(String conversionSchema)
   {
-    /*this.conversionSchema = Preconditions.checkNotNull(conversionSchema);
-    JSONObject jo = null;
-
-    try {
-      jo = new JSONObject(conversionSchema);
-    }
-    catch(JSONException ex) {
-      throw new RuntimeException(ex);
-    }
-
-    Iterator keyIterator = jo.keys();
-
-    while(keyIterator.hasNext()) {
-      String key = (String) keyIterator.next();
-      String value = null;
-
-      try {
-        value = jo.getString((String) keyIterator.next());
-      }
-      catch(JSONException ex) {
-        throw new IllegalArgumentException(ex);
-      }
-
-      gpoFieldToMapField.put(key, value);
-    }*/
+    converterSchema = new MapGPOConverterSchema(conversionSchema);
   }
 
   public String getConversionSchema()
   {
-    return null;//conversionSchema;
+    return converterSchema.getJsonString();
   }
 
   @Override
@@ -92,12 +68,12 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
       if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
-        long timestamp = (Long) inputEvent.get(getMapField(field));
+        long timestamp = (Long) inputEvent.get(converterSchema.getMapField(field));
         context.dd.getTimeBucket().roundDown(timestamp);
         key.setField(field, timestamp);
       }
       else {
-        key.setField(field, inputEvent.get(getMapField(field)));
+        key.setField(field, inputEvent.get(converterSchema.getMapField(field)));
       }
     }
 
@@ -109,7 +85,7 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
         fieldIndex < fields.size();
         fieldIndex++) {
       String field = fields.get(fieldIndex);
-      aggregates.setField(field, inputEvent.get(getMapField(field)));
+      aggregates.setField(field, inputEvent.get(converterSchema.getMapField(field)));
     }
 
     return new AggregateEvent(new GPOMutable(key),
@@ -117,16 +93,5 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
                               context.schemaID,
                               context.dimensionDescriptorID,
                               context.aggregatorID);
-  }
-
-  private String getMapField(String gpoField)
-  {
-    String mapField = gpoFieldToMapField.get(gpoField);
-
-    if(mapField == null) {
-      return gpoField;
-    }
-
-    return mapField;
   }
 }
