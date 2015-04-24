@@ -28,12 +28,12 @@ import com.google.common.collect.Maps;
 
 import com.datatorrent.api.CustomMetric;
 
-public class TimeBasedMetricsAggregator implements CustomMetric.Aggregator, Serializable
+public class TimeAwareMetricsAggregatorImpl implements TimeAwareMetricsAggregator, Serializable
 {
   protected final MetricsAggregator metricsAggregator;
   protected final Map<String, TimeBasedAggregatorMeta> aggregateKeyToMeta;
 
-  public TimeBasedMetricsAggregator()
+  public TimeAwareMetricsAggregatorImpl()
   {
     metricsAggregator = new MetricsAggregator();
     aggregateKeyToMeta = Maps.newHashMap();
