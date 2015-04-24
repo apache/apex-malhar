@@ -374,7 +374,12 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             }
           }
 
-          hdsQuery.keepAliveCount = (int)query.getCountdown();
+          int countDown = (int)query.getCountdown();
+
+          if(hdsQuery.keepAliveCount < countDown) {
+            hdsQuery.keepAliveCount = countDown;
+          }
+
           aggregatorToEventKeyMap.put(aggregatorName, eventKey);
           aggregatorToQueryMap.put(aggregatorName, hdsQuery);
         }
@@ -429,7 +434,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
               }
             }
 
-            hdsQuery.keepAliveCount = (int)query.getCountdown();
+            int countDown = (int)query.getCountdown();
+
+            if(hdsQuery.keepAliveCount < countDown) {
+              hdsQuery.keepAliveCount = countDown;
+            }
 
             aggregatorToEventKeyMap.put(aggregatorName, queryEventKey);
             aggregatorToQueryMap.put(aggregatorName, hdsQuery);
@@ -479,7 +488,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
         for(String aggregatorName: aggregatorToQuery.keySet()) {
           HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
-          hdsQuery.keepAliveCount = queueContext.intValue();
 
           EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
 
