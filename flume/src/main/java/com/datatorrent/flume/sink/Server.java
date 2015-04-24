@@ -22,7 +22,8 @@ import com.datatorrent.netlet.AbstractServer;
 import com.datatorrent.netlet.EventLoop;
 
 /**
- * <p>Server class.</p>
+ * <p>
+ * Server class.</p>
  *
  * @author Chetan Narsude <chetan@datatorrent.com>
  * @since 0.9.2
@@ -99,7 +100,7 @@ public class Server extends AbstractServer
     @Override
     public String toString()
     {
-      return "Server.Service{id=" + id + ", host=" + getHost() + ", port=" + getPort() + ", payload=" + getPayload() + '}';
+      return "Server.Service{id=" + id + ", host=" + getHost() + ", port=" + getPort() + ", payload=" + Arrays.toString(getPayload()) + '}';
     }
 
   };
@@ -207,15 +208,18 @@ public class Server extends AbstractServer
         write(buffer, offset, size);
         return;
       }
-      if(buffer.length != 17){
-        logger.error("This {} is invalid request ", Arrays.toString(buffer));
+
+      if (size != Request.FIXED_SIZE) {
+        logger.warn("Invalid Request Received: {} from {}", Arrays.copyOfRange(buffer, offset, offset + size), key.channel());
         return;
       }
-      long requestTime = Server.readLong(buffer,9);
-      if (System.currentTimeMillis() > (requestTime + acceptedTolerance)){
-        logger.error("This {} is invalid request as it reached outside the accepted tolerance of {}", Arrays.toString(buffer), acceptedTolerance);
+
+      long requestTime = Server.readLong(buffer, offset + Request.TIME_OFFSET);
+      if (System.currentTimeMillis() > (requestTime + acceptedTolerance)) {
+        logger.warn("Expired Request Received: {} from {}", Arrays.copyOfRange(buffer, offset, offset + size), key.channel());
         return;
       }
+
       Request r = Request.getRequest(buffer, offset, this);
       synchronized (requests) {
         requests.add(r);
@@ -245,6 +249,8 @@ public class Server extends AbstractServer
 
   public static abstract class Request
   {
+    public static final int FIXED_SIZE = 17;
+    public static final int TIME_OFFSET = 9;
     public final Command type;
     public final Client client;
 
