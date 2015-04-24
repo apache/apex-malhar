@@ -20,12 +20,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Iterator;
 import java.util.Map;
 
 public class MapGPOConverterSchema
 {
+  private static final Logger logger = LoggerFactory.getLogger(MapGPOConverterSchema.class);
+
   private String jsonString;
   private final Map<String, String> gpoFieldToMapField = Maps.newHashMap();
 
@@ -43,12 +47,14 @@ public class MapGPOConverterSchema
 
     Iterator keyIterator = jo.keys();
 
+    logger.debug("Has Next {}", keyIterator.hasNext());
+
     while(keyIterator.hasNext()) {
       String key = (String) keyIterator.next();
       String value = null;
 
       try {
-        value = jo.getString((String) keyIterator.next());
+        value = jo.getString(key);
       }
       catch(JSONException ex) {
         throw new IllegalArgumentException(ex);

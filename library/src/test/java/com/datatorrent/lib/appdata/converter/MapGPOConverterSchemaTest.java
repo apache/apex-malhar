@@ -16,6 +16,7 @@
 
 package com.datatorrent.lib.appdata.converter;
 
+import org.junit.Assert;
 import org.junit.Test;
 
 public class MapGPOConverterSchemaTest
@@ -26,5 +27,11 @@ public class MapGPOConverterSchemaTest
     final String schemaJSON = "{\"a\":\"b\"}";
 
     MapGPOConverterSchema mapGPOSchema = new MapGPOConverterSchema(schemaJSON);
+
+    String resulta = mapGPOSchema.getMapField("a");
+    String resultc = mapGPOSchema.getMapField("c");
+
+    Assert.assertEquals("The results don't match.", "b", resulta);
+    Assert.assertEquals("The results don't match.", "c", resultc);
   }
 }
