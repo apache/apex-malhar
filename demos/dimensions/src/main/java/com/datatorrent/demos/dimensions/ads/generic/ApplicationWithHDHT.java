@@ -124,7 +124,6 @@ public class ApplicationWithHDHT implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    dag.setAttribute(DAG.CONTAINER_JVM_OPTIONS, "-Dlog4j.debug=true -Dlog4j.appender.RFA.layout.ConversionPattern=\"%d{ISO8601} [%t] %-5p %c{2} %M - %m%n\"");
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     AdsDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new AdsDimensionComputation());
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
