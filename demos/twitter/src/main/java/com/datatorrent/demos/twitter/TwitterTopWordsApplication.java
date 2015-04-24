@@ -24,6 +24,8 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.appdata.tabular.AppDataTabularServerMap;
+import com.datatorrent.lib.appdata.tabular.TabularMapConverter;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import java.net.URI;
@@ -53,6 +55,7 @@ public class TwitterTopWordsApplication implements StreamingApplication
   private static final Logger logger = LoggerFactory.getLogger(TwitterTopWordsApplication.class);
 
   public static final String TABULAR_SCHEMA = "twitterWordDataSchema.json";
+  public static final String CONVERSION_SCHEMA = "twitterWordConverterSchema.json";
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -76,17 +79,23 @@ public class TwitterTopWordsApplication implements StreamingApplication
     TwitterStatusWordExtractor wordExtractor = dag.addOperator("WordExtractor", TwitterStatusWordExtractor.class);
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueWordCounter", new UniqueCounter<String>());
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
+    AppDataTabularServerMap tabularServer = dag.addOperator("Tabular Server", new AppDataTabularServerMap());
 
+    TabularMapConverter mapConverter = new TabularMapConverter();
+    mapConverter.setConversionSchema(SchemaUtils.jarResourceFileToString(CONVERSION_SCHEMA));
     String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);
+
+    tabularServer.setTabularSchemaJSON(tabularSchema);
+    tabularServer.setConverter(mapConverter);
+
     logger.info("Tabular schema {}", tabularSchema);
-    topCounts.setDataSchema(tabularSchema);
     topCounts.setSlidingWindowWidth(120, 1);
 
     dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
     dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
     dag.addStream("UniqueWordCounts", uniqueCounter.count, topCounts.input).setLocality(Locality.CONTAINER_LOCAL);
-
-    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
+    dag.addStream("MapProvider", topCounts.output, tabularServer.input);
+    dag.addStream("TopURLQuery", queryPort, tabularServer.query).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("TopURLResult", tabularServer.queryResult, queryResultPort);
   }
 }
