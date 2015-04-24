@@ -136,7 +136,7 @@ public class MetricsAggregator implements CustomMetric.Aggregator, Serializable
 
     private String aggregateKey;
 
-    private AggregatorMeta(@NotNull SingleMetricAggregator aggregator, @NotNull String aggregateKey)
+    protected AggregatorMeta(@NotNull SingleMetricAggregator aggregator, @NotNull String aggregateKey)
     {
       this.aggregator = Preconditions.checkNotNull(aggregator, "aggregator");
       this.aggregateKey = Preconditions.checkNotNull(aggregateKey, "result metric key");
@@ -147,7 +147,7 @@ public class MetricsAggregator implements CustomMetric.Aggregator, Serializable
       return aggregator;
     }
 
-    private void setAggregator(SingleMetricAggregator aggregator)
+    protected void setAggregator(SingleMetricAggregator aggregator)
     {
       this.aggregator = aggregator;
     }
@@ -157,7 +157,7 @@ public class MetricsAggregator implements CustomMetric.Aggregator, Serializable
       return aggregateKey;
     }
 
-    private void setAggregateKey(String aggregateKey)
+    protected void setAggregateKey(String aggregateKey)
     {
       this.aggregateKey = aggregateKey;
     }
