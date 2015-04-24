@@ -57,9 +57,6 @@ import java.util.PriorityQueue;
  */
 public class WindowedTopCounter<T> extends BaseOperator
 {
-  public static final String FIELD_URL = "url";
-  public static final String FIELD_COUNT = "count";
-
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
 
   //==========================================================================
@@ -67,7 +64,6 @@ public class WindowedTopCounter<T> extends BaseOperator
   //==========================================================================
 
   private transient QueryProcessor<Query, Void, MutableLong, Void, Result> queryProcessor;
-  @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
   private transient DataSerializerFactory resultSerializerFactory;
   private AppDataFormatter appDataFormatter = new AppDataFormatter();

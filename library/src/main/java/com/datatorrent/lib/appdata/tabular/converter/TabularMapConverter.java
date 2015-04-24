@@ -16,6 +16,6 @@
 
 package com.datatorrent.lib.appdata.tabular.converter;
 
-public class TabularConverter {
+public class TabularMapConverter {
 
 }
