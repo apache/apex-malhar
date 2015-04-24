@@ -55,7 +55,6 @@ import java.io.Serializable;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableLong;
-import org.python.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -86,6 +85,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   private transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
+  @NotNull
   private AppDataFormatter appDataFormatter = new AppDataFormatter();
   private transient DataSerializerFactory resultSerializerFactory;
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
@@ -276,7 +276,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   public void setAppDataFormatter(AppDataFormatter appDataFormatter)
   {
-    this.appDataFormatter = Preconditions.checkNotNull(appDataFormatter);
+    this.appDataFormatter = appDataFormatter;
   }
 
   /**

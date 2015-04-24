@@ -282,6 +282,7 @@ public class HDHTReader implements Operator, HDHT.Reader
         bucket = getReader(bucketKey);
         Map.Entry<Slice, BucketFileMeta> newEntry = bucket.bucketMeta.files.floorEntry(key);
         if (newEntry != null && newEntry.getValue().name.compareTo(floorEntry.getValue().name) == 0) {
+          LOG.debug("File is the same {} {} ", bucketKey, floorEntry.getValue().name);
           // file still the same - error unrelated to rewrite
           throw e;
         }

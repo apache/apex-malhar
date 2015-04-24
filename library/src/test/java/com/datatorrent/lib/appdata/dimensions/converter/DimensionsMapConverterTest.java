@@ -16,6 +16,8 @@
 
 package com.datatorrent.lib.appdata.dimensions.converter;
 
+import com.datatorrent.lib.appdata.dimensions.DimensionsMapConverter;
+import com.datatorrent.lib.appdata.dimensions.DimensionsConversionContext;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;

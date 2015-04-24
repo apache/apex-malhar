@@ -16,7 +16,6 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.dimensions.converter.DimensionsMapConverter;
 
 import java.util.Map;
 

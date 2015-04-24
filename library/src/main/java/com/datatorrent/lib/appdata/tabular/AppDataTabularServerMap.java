@@ -14,8 +14,14 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appdata.tabular.converter;
+package com.datatorrent.lib.appdata.tabular;
 
-public class TabularConverter {
+import java.util.Map;
 
+public class AppDataTabularServerMap extends AppDataTabularServerConv<Map<String, Object>>
+{
+  public AppDataTabularServerMap()
+  {
+    this.converter = new TabularMapConverter();
+  }
 }

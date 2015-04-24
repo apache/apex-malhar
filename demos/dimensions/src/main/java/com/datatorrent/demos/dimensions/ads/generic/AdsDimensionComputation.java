@@ -9,7 +9,7 @@ import com.datatorrent.demos.dimensions.ads.schemas.AdsSchemaResult;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensions.converter.DimensionsConversionContext;
+import com.datatorrent.lib.appdata.dimensions.DimensionsConversionContext;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
