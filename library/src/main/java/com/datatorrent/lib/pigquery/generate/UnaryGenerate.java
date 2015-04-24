@@ -30,6 +30,7 @@ import javax.validation.constraints.NotNull;
  * @tags string, unary
  * @since 0.3.4
  */
+@Deprecated
 abstract public class UnaryGenerate  implements Generate 
 {
   /**

@@ -19,11 +19,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.datatorrent.lib.pigquery.generate.Generate;
+import com.datatorrent.lib.util.UnifierMap;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.pigquery.generate.Generate;
-import com.datatorrent.lib.util.UnifierMap;
 
 
 /**
@@ -33,6 +34,7 @@ import com.datatorrent.lib.util.UnifierMap;
  * @tags map, string, foreach operator
  * @since 0.3.4
  */
+@Deprecated
 public class PigForeachOperator extends BaseOperator
 {
   /**

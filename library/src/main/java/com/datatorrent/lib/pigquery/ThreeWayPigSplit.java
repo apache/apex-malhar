@@ -38,6 +38,7 @@ import java.util.Map;
  * @tags split operator, map, string
  * @since 0.3.4
  */
+@Deprecated
 public class ThreeWayPigSplit  extends PigSplitOperator<Map<String, Integer>>
 {
 

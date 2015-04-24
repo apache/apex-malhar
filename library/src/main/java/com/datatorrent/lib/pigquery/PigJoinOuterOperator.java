@@ -24,11 +24,12 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
+import com.datatorrent.lib.streamquery.condition.Condition;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
  * An implementation of BaseOperator that implements Pig Join(Outer) semantic on live stream.
@@ -50,6 +51,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * @tags map, string, outer join operator
  * @since 0.3.4
  */
+@Deprecated
 @OperatorAnnotation(partitionable = false)
 public class PigJoinOuterOperator extends BaseOperator
 {

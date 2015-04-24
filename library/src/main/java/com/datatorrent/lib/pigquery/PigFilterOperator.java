@@ -17,10 +17,11 @@ package com.datatorrent.lib.pigquery;
 
 import java.util.Map;
 
+import com.datatorrent.lib.streamquery.condition.Condition;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.streamquery.condition.Condition;
 
 
 /**
@@ -44,6 +45,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * @tags map, string, filter operator
  * @since 0.3.4
  */
+@Deprecated
 public class PigFilterOperator  extends BaseOperator
 {
   /**

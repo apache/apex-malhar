@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
  * @tags group, condition, map, string
  * @since 0.3.4
  */
+@Deprecated
 public class PigNameGroupCondition implements PigGroupCondition
 {
   /**
