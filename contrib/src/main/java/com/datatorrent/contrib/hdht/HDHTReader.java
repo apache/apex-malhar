@@ -53,7 +53,7 @@ import com.google.common.collect.Maps;
  *
  * @displayName HDHT Reader
  * @category Input
- * @tags hds, input operator
+ * @tags hdht, input operator
  *
  * @since 2.0.0
  */
@@ -243,8 +243,9 @@ public class HDHTReader implements Operator, HDHT.Reader
   private static Slice GET_KEY = new Slice(null, 0, 0);
 
   @Override
-  public byte[] get(long bucketKey, Slice key) throws IOException
+  public synchronized byte[] get(long bucketKey, Slice key) throws IOException
   {
+    // this method is synchronized to support asynchronous reads outside operator thread
     for (int i=0; i<10; i++) {
       BucketReader bucket = getReader(bucketKey);
       BucketMeta bucketMeta = bucket.bucketMeta;
