@@ -29,6 +29,7 @@ import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.flume.discovery.ZKAssistedDiscovery;
 import com.datatorrent.flume.sink.Server;
 import com.datatorrent.flume.sink.Server.Command;
+import com.datatorrent.flume.sink.Server.Request;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
 
@@ -159,12 +160,12 @@ public abstract class AbstractFlumeInputOperator<T>
   public void endWindow()
   {
     if (connected) {
-      byte[] array = new byte[17];
+      byte[] array = new byte[Request.FIXED_SIZE];
 
       array[0] = Command.WINDOWED.getOrdinal();
       Server.writeInt(array, 1, eventCounter);
       Server.writeInt(array, 5, idleCounter);
-      Server.writeLong(array, 9 , System.currentTimeMillis());
+      Server.writeLong(array, Request.TIME_OFFSET , System.currentTimeMillis());
 
       logger.debug("wrote {} with eventCounter = {} and idleCounter = {}", Command.WINDOWED, eventCounter, idleCounter);
       client.write(array);
@@ -327,7 +328,7 @@ public abstract class AbstractFlumeInputOperator<T>
 
         array[0] = Command.COMMITTED.getOrdinal();
         System.arraycopy(addr, 0, array, 1, 8);
-        Server.writeLong(array, 9, System.currentTimeMillis());
+        Server.writeLong(array, Request.TIME_OFFSET, System.currentTimeMillis());
         logger.debug("wrote {} with recoveryOffset = {}", Command.COMMITTED, Arrays.toString(addr));
         client.write(array);
       }
