@@ -499,7 +499,7 @@ public abstract class AbstractFlumeInputOperator<T>
 
       int len = 1 /* for the message type SEEK */
                 + 8 /* for the address */
-                + 8 /* for storing the current time stamp*/;;
+                + 8 /* for storing the current time stamp*/;
 
       byte[] array = new byte[len];
       array[0] = Command.SEEK.getOrdinal();

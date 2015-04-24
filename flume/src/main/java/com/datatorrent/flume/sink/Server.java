@@ -204,10 +204,17 @@ public class Server extends AbstractServer
     @Override
     public void onMessage(byte[] buffer, int offset, int size)
     {
-      if (Command.getCommand(buffer[offset]) == Command.ECHO) {
-        write(buffer, offset, size);
+      try {
+        if (Command.getCommand(buffer[offset]) == Command.ECHO) {
+          write(buffer, offset, size);
+          return;
+        }
+      }
+      catch (IllegalArgumentException ex) {
+        logger.warn("Invalid Request Received: {} from {}!", Arrays.copyOfRange(buffer, offset, offset + size), key.channel(), ex);
         return;
       }
+
 
       if (size != Request.FIXED_SIZE) {
         logger.warn("Invalid Request Received: {} from {}", Arrays.copyOfRange(buffer, offset, offset + size), key.channel());

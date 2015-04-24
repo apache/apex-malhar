@@ -132,7 +132,7 @@ public class DTFlumeSink extends AbstractSink implements Configurable
       return Status.BACKOFF;
     }
     else if (System.currentTimeMillis() - lastCommitEventTimeMillis > commitEventTimeoutMillis) {
-      logger.info("Client has not processsed the workload given for the last {} milliseconds, so backing off.", System.currentTimeMillis() - lastCommitEventTimeMillis);
+      logger.info("Client has not processed the workload given for the last {} milliseconds, so backing off.", System.currentTimeMillis() - lastCommitEventTimeMillis);
       return Status.BACKOFF;
     }
 

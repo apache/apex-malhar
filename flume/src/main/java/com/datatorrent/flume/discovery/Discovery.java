@@ -21,18 +21,18 @@ import java.util.Collection;
 public interface Discovery<T>
 {
   /**
-   * Advertise the host/port address where DTFlumeSink is accepting a client connection.
+   * Recall the previously published address as it's no longer valid.
    *
    * @param service
    */
   void unadvertise(Service<T> service);
 
   /**
-   * Recall the previously published address as it's no longer valid.
+   * Advertise the host/port address where DTFlumeSink is accepting a client connection.
    *
    * @param service
    */
-  public void advertise(Service<T> service);
+  void advertise(Service<T> service);
 
   /**
    * Discover all the addresses which are actively accepting the client connections.
