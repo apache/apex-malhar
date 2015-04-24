@@ -17,7 +17,7 @@ package com.datatorrent.lib.customMetric;
 
 import com.datatorrent.api.CustomMetric;
 
-public interface TimeAwareMetricsAggregator extends CustomMetric.Aggregator
+public interface DimensionAwareMetricsAggregator extends CustomMetric.Aggregator
 {
-  String[] getTimeAggregators(String aggregateKey);
+  String[] getDimensionAggregators(String aggregateKey);
 }

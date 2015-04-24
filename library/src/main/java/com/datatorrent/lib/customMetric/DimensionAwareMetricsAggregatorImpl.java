@@ -28,12 +28,12 @@ import com.google.common.collect.Maps;
 
 import com.datatorrent.api.CustomMetric;
 
-public class TimeAwareMetricsAggregatorImpl implements TimeAwareMetricsAggregator, Serializable
+public class DimensionAwareMetricsAggregatorImpl implements DimensionAwareMetricsAggregator, Serializable
 {
   protected final MetricsAggregator metricsAggregator;
   protected final Map<String, TimeBasedAggregatorMeta> aggregateKeyToMeta;
 
-  public TimeAwareMetricsAggregatorImpl()
+  public DimensionAwareMetricsAggregatorImpl()
   {
     metricsAggregator = new MetricsAggregator();
     aggregateKeyToMeta = Maps.newHashMap();
@@ -68,9 +68,9 @@ public class TimeAwareMetricsAggregatorImpl implements TimeAwareMetricsAggregato
     addAggregatorsHelper(metric, aggregators, timeAggregators, aggregateKeys);
   }
 
-  public String[] getTimeAggregators(String aggregateKey)
+  public String[] getDimensionAggregators(String aggregateKey)
   {
-    return aggregateKeyToMeta.get(aggregateKey).timeAggregators;
+    return aggregateKeyToMeta.get(aggregateKey).dimensionAggregators;
   }
 
   private void addAggregatorsHelper(String metric, SingleMetricAggregator[] aggregators,
@@ -94,13 +94,13 @@ public class TimeAwareMetricsAggregatorImpl implements TimeAwareMetricsAggregato
   public static class TimeBasedAggregatorMeta extends MetricsAggregator.AggregatorMeta
   {
 
-    private String[] timeAggregators;
+    private String[] dimensionAggregators;
 
     protected TimeBasedAggregatorMeta(@NotNull SingleMetricAggregator aggregator, @NotNull String aggregateKey,
-                                      @NotNull String[] timeAggregators)
+                                      @NotNull String[] dimensionAggregators)
     {
       super(aggregator, aggregateKey);
-      this.timeAggregators = Preconditions.checkNotNull(timeAggregators, "time aggregators");
+      this.dimensionAggregators = Preconditions.checkNotNull(dimensionAggregators, "time aggregators");
     }
   }
 
