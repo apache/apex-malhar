@@ -20,7 +20,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -32,6 +31,11 @@ public class AggregatorInfo
   private Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator;
   private Map<String, Integer> staticAggregatorNameToID;
   private Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator;
+
+  public AggregatorInfo()
+  {
+    //for kryo
+  }
 
   public AggregatorInfo(Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName,
                         Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator,
@@ -62,10 +66,13 @@ public class AggregatorInfo
         staticAggregators.add(classToStaticAggregatorName.get(clazz));
       }
 
-      otfAggregatorToStaticAggregators.put(name, Collections.unmodifiableList(staticAggregators));
+      //TODO make unmodifiable
+      //otfAggregatorToStaticAggregators.put(name, Collections.unmodifiableList(staticAggregators));
+      otfAggregatorToStaticAggregators.put(name, staticAggregators);
     }
 
-    otfAggregatorToStaticAggregators = Collections.unmodifiableMap(otfAggregatorToStaticAggregators);
+    //TODO make this map unmodifiable
+    //otfAggregatorToStaticAggregators = Collections.unmodifiableMap(otfAggregatorToStaticAggregators);
   }
 
   public boolean isAggregator(String aggregatorName)
@@ -89,7 +96,8 @@ public class AggregatorInfo
     }
 
     this.classToStaticAggregatorName = Maps.newHashMap(staticAggregators);
-    this.classToStaticAggregatorName = Collections.unmodifiableMap(this.classToStaticAggregatorName);
+    //TODO this map should be made unmodifiable
+    //this.classToStaticAggregatorName = Collections.unmodifiableMap(this.classToStaticAggregatorName);
   }
 
   public Map<Class<? extends DimensionsStaticAggregator>, String> getClassToStaticAggregatorName()
@@ -107,7 +115,8 @@ public class AggregatorInfo
     }
 
     this.staticAggregatorIDToAggregator = Maps.newHashMap(staticAggregatorIDToAggregator);
-    this.staticAggregatorIDToAggregator = Collections.unmodifiableMap(staticAggregatorIDToAggregator);
+    //TODO this map should be made unmodifiable
+    //this.staticAggregatorIDToAggregator = Collections.unmodifiableMap(staticAggregatorIDToAggregator);
   }
 
   public Map<Integer, DimensionsStaticAggregator> getStaticAggregatorIDToAggregator()
@@ -125,7 +134,8 @@ public class AggregatorInfo
     }
 
     this.staticAggregatorNameToStaticAggregator = Maps.newHashMap(staticAggregatorNameToStaticAggregator);
-    this.staticAggregatorNameToStaticAggregator = Collections.unmodifiableMap(staticAggregatorNameToStaticAggregator);
+    //TODO this map should be made unmodifiable
+    //this.staticAggregatorNameToStaticAggregator = Collections.unmodifiableMap(staticAggregatorNameToStaticAggregator);
   }
 
   public Map<String, DimensionsStaticAggregator> getStaticAggregatorNameToStaticAggregator()
@@ -143,7 +153,8 @@ public class AggregatorInfo
     }
 
     this.staticAggregatorNameToID = Maps.newHashMap(staticAggregatorNameToID);
-    this.staticAggregatorNameToID = Collections.unmodifiableMap(staticAggregatorNameToID);
+    //TODO this map should be made unmodifiable
+    //this.staticAggregatorNameToID = Collections.unmodifiableMap(staticAggregatorNameToID);
   }
 
   public Map<String, Integer> getStaticAggregatorNameToID()
@@ -161,7 +172,8 @@ public class AggregatorInfo
     }
 
     this.nameToOTFAggregator = Maps.newHashMap(nameToOTFAggregator);
-    this.nameToOTFAggregator = Collections.unmodifiableMap(nameToOTFAggregator);
+    //TODO this map should be made unmodifiable
+    //this.nameToOTFAggregator = Collections.unmodifiableMap(nameToOTFAggregator);
   }
 
   public Map<String, DimensionsOTFAggregator> getNameToOTFAggregators()
