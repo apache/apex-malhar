@@ -47,4 +47,10 @@ public class AggregatorFirst implements DimensionsStaticAggregator
   {
     //Do nothing
   }
+
+  @Override
+  public void aggregateAggs(AggregateEvent agg1, AggregateEvent agg2)
+  {
+    throw new UnsupportedOperationException("This operation is not supported");
+  }
 }

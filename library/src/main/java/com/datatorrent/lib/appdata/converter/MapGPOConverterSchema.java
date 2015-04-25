@@ -33,6 +33,11 @@ public class MapGPOConverterSchema
   private String jsonString;
   private final Map<String, String> gpoFieldToMapField = Maps.newHashMap();
 
+  public MapGPOConverterSchema()
+  {
+    //For Kryo
+  }
+
   public MapGPOConverterSchema(String jsonString)
   {
     this.jsonString = Preconditions.checkNotNull(jsonString);

@@ -20,7 +20,7 @@ import com.datatorrent.lib.converter.Converter;
 import com.google.common.base.Preconditions;
 import javax.validation.constraints.NotNull;
 
-public class DimensionsComputationSingleSchemaConv<INPUT_EVENT> extends DimensionsComputationSingleSchema<INPUT_EVENT>
+public abstract class DimensionsComputationSingleSchemaConv<INPUT_EVENT> extends DimensionsComputationSingleSchema<INPUT_EVENT>
 {
   @NotNull
   protected Converter<INPUT_EVENT, AggregateEvent, DimensionsConversionContext> converter;

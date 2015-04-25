@@ -50,6 +50,19 @@ public class AggregatorCount implements DimensionsStaticAggregator
   }
 
   @Override
+  public void aggregateAggs(AggregateEvent destAgg, AggregateEvent srcAgg)
+  {
+    long[] destLongs = destAgg.getAggregates().getFieldsLong();
+    long[] srcLongs = srcAgg.getAggregates().getFieldsLong();
+
+    for(int index = 0;
+        index < destLongs.length;
+        index++) {
+      destLongs[index] += srcLongs[index];
+    }
+  }
+
+  @Override
   public AggregatorTypeMap getTypeMap()
   {
     return TYPE_CONVERSION_MAP;

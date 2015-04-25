@@ -136,4 +136,10 @@ public class AggregatorSum implements DimensionsStaticAggregator
   {
     return first;
   }
+
+  @Override
+  public void aggregateAggs(AggregateEvent agg1, AggregateEvent agg2)
+  {
+    aggregate(agg1, agg2);
+  }
 }

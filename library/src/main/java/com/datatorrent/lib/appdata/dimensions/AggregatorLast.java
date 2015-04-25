@@ -16,7 +16,6 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
 public class AggregatorLast implements DimensionsStaticAggregator
@@ -46,18 +45,12 @@ public class AggregatorLast implements DimensionsStaticAggregator
   @Override
   public void aggregate(AggregateEvent dest, AggregateEvent src)
   {
-    GPOMutable destAggs = dest.getAggregates();
-    GPOMutable srcAggs = src.getAggregates();
+    AggregateEvent.copy(dest, src);
+  }
 
-    System.arraycopy(srcAggs.getFieldsBoolean(), 0, destAggs.getFieldsBoolean(), 0, srcAggs.getFieldsBoolean().length);
-    System.arraycopy(srcAggs.getFieldsCharacter(), 0, destAggs.getFieldsCharacter(), 0, srcAggs.getFieldsCharacter().length);
-    System.arraycopy(srcAggs.getFieldsString(), 0, destAggs.getFieldsString(), 0, srcAggs.getFieldsString().length);
-
-    System.arraycopy(srcAggs.getFieldsShort(), 0, destAggs.getFieldsShort(), 0, srcAggs.getFieldsShort().length);
-    System.arraycopy(srcAggs.getFieldsInteger(), 0, destAggs.getFieldsInteger(), 0, srcAggs.getFieldsInteger().length);
-    System.arraycopy(srcAggs.getFieldsLong(), 0, destAggs.getFieldsLong(), 0, srcAggs.getFieldsLong().length);
-
-    System.arraycopy(srcAggs.getFieldsFloat(), 0, destAggs.getFieldsFloat(), 0, srcAggs.getFieldsFloat().length);
-    System.arraycopy(srcAggs.getFieldsDouble(), 0, destAggs.getFieldsDouble(), 0, srcAggs.getFieldsDouble().length);
+  @Override
+  public void aggregateAggs(AggregateEvent agg1, AggregateEvent agg2)
+  {
+    throw new UnsupportedOperationException("This operation is not supported.");
   }
 }
