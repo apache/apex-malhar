@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
-import java.net.URISyntaxException;
 
 /**
  * Reads via WebSocket from given URL as input stream.&nbsp;Incoming data is interpreted as JSONObject and converted to {@link java.util.Map}.
@@ -80,24 +79,6 @@ public class WebSocketOutputOperator<T> extends BaseOperator
   public void setUri(URI uri)
   {
     this.uri = uri;
-  }
-  
-  public void setUriString(String uri)
-  {
-    try {
-      this.uri = new URI(uri);
-    }
-    catch(URISyntaxException ex) {
-    }
-  }
-
-  public String getUriString()
-  {
-    if(uri == null) {
-      return null;
-    }
-
-    return uri.toString();
   }
 
   /**

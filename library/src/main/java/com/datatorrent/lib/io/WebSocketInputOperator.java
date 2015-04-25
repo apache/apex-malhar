@@ -24,7 +24,6 @@ import com.ning.http.client.websocket.WebSocketUpgradeHandler;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
@@ -83,24 +82,6 @@ public class WebSocketInputOperator<T> extends SimpleSinglePortInputOperator<T> 
   public void setUri(URI uri)
   {
     this.uri = uri;
-  }
-
-  public void setUriString(String uri)
-  {
-    try {
-      this.uri = new URI(uri);
-    }
-    catch(URISyntaxException ex) {
-    }
-  }
-
-  public String getUriString()
-  {
-    if(uri == null) {
-      return null;
-    }
-
-    return uri.toString();
   }
 
   /**

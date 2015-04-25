@@ -243,7 +243,7 @@ public class HDHTReader implements Operator, HDHT.Reader
   private static Slice GET_KEY = new Slice(null, 0, 0);
 
   @Override
-  public byte[] get(long bucketKey, Slice key) throws IOException
+  public synchronized byte[] get(long bucketKey, Slice key) throws IOException
   {
     for (int i=0; i<10; i++) {
       BucketReader bucket = getReader(bucketKey);
