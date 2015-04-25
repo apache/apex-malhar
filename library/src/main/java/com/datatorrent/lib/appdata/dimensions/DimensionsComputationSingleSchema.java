@@ -37,6 +37,7 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
 
   public DimensionsComputationSingleSchema()
   {
+    this.aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
   }
 
   public void setEventSchemaJSON(String eventSchemaJSON)

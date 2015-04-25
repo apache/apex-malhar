@@ -51,7 +51,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   private transient List<AggregateEvent> aggregateEventBuffer = Lists.newArrayList();
 
   @NotNull
-  private AggregatorInfo aggregatorInfo;
+  protected AggregatorInfo aggregatorInfo;
 
   public transient final DefaultInputPort<INPUT_EVENT> inputEvent = new DefaultInputPort<INPUT_EVENT>() {
     @Override
