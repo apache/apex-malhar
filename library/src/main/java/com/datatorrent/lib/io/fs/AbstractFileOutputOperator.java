@@ -706,6 +706,19 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
   }
 
   @Override
+  public void beginWindow(long windowId)
+  {
+    try {
+      Map<String, FSFilterStreamContext> openStreams = streamsCache.asMap();
+      for (FSFilterStreamContext streamContext : openStreams.values()) {
+        streamContext.initializeContext();
+      }
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+    @Override
   public void endWindow()
   {
     try {
@@ -714,7 +727,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
         long start = System.currentTimeMillis();
         streamContext.finalizeContext();
         totalWritingTime += System.currentTimeMillis() - start;
-        streamContext.resetFilter();
+        //streamContext.resetFilter();
       }
     }
     catch (IOException e) {
@@ -913,7 +926,8 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     {
       this.outputStream = outputStream;     
       outputWrapper = new NonCloseableFilterOutputStream(outputStream);
-      resetFilter();
+      //resetFilter();
+      initializeContext();
     }
 
     @Override
@@ -938,7 +952,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
       }
     }
     
-    public void resetFilter() throws IOException
+    public void initializeContext() throws IOException
     {
       if (filterStreamProvider != null) {
         filterContext = filterStreamProvider.getFilterStreamContext(outputWrapper);
@@ -947,7 +961,7 @@ public abstract class AbstractFileOutputOperator<INPUT> extends BaseOperator
     
     public void close() throws IOException
     {
-      finalizeContext();
+      //finalizeContext();
       if (filterContext != null) {
         filterContext.getFilterStream().close();
       }
