@@ -226,7 +226,7 @@ public abstract class PojoFieldRetriever
 
     Preconditions.checkArgument(fieldType != null, "There is no field called " + field);
     Preconditions.checkArgument(fieldType == type, "The field " + field +
-                                                   " is of type " + type +
-                                                   " no type " + fieldType);
+                                                   " is of type " + fieldType +
+                                                   " no type " + type);
   }
 }
