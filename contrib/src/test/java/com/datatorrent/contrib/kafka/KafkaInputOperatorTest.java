@@ -24,7 +24,6 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.io.File;
 import java.io.IOException;
@@ -242,10 +241,10 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
+    attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
 
     testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
     testMeta.operator = new KafkaSinglePortStringInputOperator();
-    ((IdempotentStorageManager.FSIdempotentStorageManager) testMeta.operator.getIdempotentStorageManager()).setRecoveryPath(testMeta.recoveryDir);
 
     KafkaConsumer consumer = new SimpleKafkaConsumer();
     consumer.setTopic(TEST_TOPIC);

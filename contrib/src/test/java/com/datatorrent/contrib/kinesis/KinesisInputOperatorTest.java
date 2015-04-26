@@ -18,7 +18,6 @@ package com.datatorrent.contrib.kinesis;
 import com.datatorrent.api.*;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import org.junit.After;
 import org.junit.Assert;
@@ -158,7 +157,6 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
   public static class TestMeta extends TestWatcher
   {
     String baseDir;
-    String recoveryDir;
     KinesisStringInputOperator operator;
     CollectorTestSink<Object> sink;
     Context.OperatorContext context;
@@ -169,7 +167,6 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
       String methodName = description.getMethodName();
       String className = description.getClassName();
       baseDir = "target/" + className + "/" + methodName;
-      recoveryDir = baseDir + "/" + "recovery";
     }
 
     @Override
@@ -199,10 +196,10 @@ public class KinesisInputOperatorTest extends KinesisOperatorTestBase
 
     Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
+    attributeMap.put(Context.DAGContext.APPLICATION_PATH, testMeta.baseDir);
 
     testMeta.context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
     testMeta.operator = new KinesisStringInputOperator();
-    ((IdempotentStorageManager.FSIdempotentStorageManager) testMeta.operator.getIdempotentStorageManager()).setRecoveryPath(testMeta.recoveryDir);
 
     KinesisUtil.getInstance().setClient(client);
 

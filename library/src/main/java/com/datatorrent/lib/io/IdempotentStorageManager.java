@@ -97,8 +97,13 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
    */
   public static class FSIdempotentStorageManager implements IdempotentStorageManager
   {
+    private static final String DEF_RECOVERY_PATH = "recovery";
+
     protected transient FSStorageAgent storageAgent;
 
+    /**
+     * Recovery path relative to app path where state is saved.
+     */
     @NotNull
     protected String recoveryPath;
 
@@ -126,13 +131,14 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
     {
       replayState = TreeMultimap.create();
       largestRecoveryWindow = Stateless.WINDOW_ID;
+      recoveryPath = DEF_RECOVERY_PATH;
     }
 
     @Override
     public void setup(Context.OperatorContext context)
     {
       Configuration configuration = new Configuration();
-      appPath = new Path(recoveryPath + '/' + context.getValue(DAG.APPLICATION_ID));
+      appPath = new Path(context.getValue(DAG.APPLICATION_PATH), recoveryPath);
 
       try {
         storageAgent = new FSStorageAgent(appPath.toString(), configuration);
