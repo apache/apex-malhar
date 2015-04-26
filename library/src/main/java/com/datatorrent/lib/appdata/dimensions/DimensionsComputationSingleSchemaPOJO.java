@@ -14,8 +14,11 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appbuilder.convert.pojo;
+package com.datatorrent.lib.appdata.dimensions;
 
-public class PojoFieldRetrieverExtraction {
-
+public class DimensionsComputationSingleSchemaPOJO extends DimensionsComputationSingleSchemaConv<Object>
+{
+  public DimensionsComputationSingleSchemaPOJO()
+  {
+  }
 }

@@ -16,18 +16,7 @@
 
 package com.datatorrent.lib.appbuilder.convert.pojo;
 
-import java.util.ArrayList;
-
-public class AbstractFieldListGetter extends AbstractExpressionGetter
+public interface GetterObject
 {
-  public AbstractFieldListGetter(String fqClassName,
-                                 ArrayList<String> fieldList,
-                                 Class castClass,
-                                 Class getterInterface)
-  {
-    super(fqClassName,
-          null,
-          castClass,
-          getterInterface);
-  }
+  public long get(Object obj);
 }

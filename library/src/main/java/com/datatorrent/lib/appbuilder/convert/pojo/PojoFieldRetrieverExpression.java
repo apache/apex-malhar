@@ -16,7 +16,161 @@
 
 package com.datatorrent.lib.appbuilder.convert.pojo;
 
-public class PojoFieldRetrieverExpression
-{
+import com.datatorrent.lib.appdata.schemas.Type;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 
+import java.util.Map;
+
+public class PojoFieldRetrieverExpression extends PojoFieldRetriever
+{
+  private Map<String, String> fieldToExpression;
+
+  public PojoFieldRetrieverExpression()
+  {
+  }
+  
+  @Override
+  public void setup()
+  {
+    for(Map.Entry<String, Type> entry: getFieldToType().entrySet()) {
+      String fieldName = entry.getKey();
+      Type type = entry.getValue();
+
+      String expression = fieldToExpression.get(fieldName);
+
+      switch(type)
+      {
+        case BOOLEAN:
+        {
+          if(fieldToGetterBoolean == null) {
+            fieldToGetterBoolean = Maps.newHashMap();
+          }
+
+          fieldToGetterBoolean.put(fieldName,
+          ConvertUtils.createExpressionGetterBoolean(getFQClassName(), expression));
+
+          break;
+        }
+        case BYTE:
+        {
+          if(fieldToGetterByte == null) {
+            fieldToGetterByte = Maps.newHashMap();
+          }
+
+          fieldToGetterByte.put(fieldName,
+          ConvertUtils.createExpressionGetterByte(getFQClassName(), expression));
+
+          break;
+        }
+        case CHAR:
+        {
+          if(fieldToGetterChar == null) {
+            fieldToGetterChar = Maps.newHashMap();
+          }
+
+          fieldToGetterChar.put(fieldName,
+          ConvertUtils.createExpressionGetterChar(getFQClassName(), expression));
+
+          break;
+        }
+        case DOUBLE:
+        {
+          if(fieldToGetterDouble == null) {
+            fieldToGetterDouble = Maps.newHashMap();
+          }
+
+          fieldToGetterDouble.put(fieldName,
+          ConvertUtils.createExpressionGetterDouble(getFQClassName(), expression));
+
+          break;
+        }
+        case FLOAT:
+        {
+          if(fieldToGetterFloat == null) {
+            fieldToGetterFloat = Maps.newHashMap();
+          }
+
+          fieldToGetterFloat.put(fieldName,
+          ConvertUtils.createExpressionGetterFloat(getFQClassName(), expression));
+
+          break;
+        }
+        case INTEGER:
+        {
+          if(fieldToGetterInt == null) {
+            fieldToGetterInt = Maps.newHashMap();
+          }
+
+          fieldToGetterInt.put(fieldName,
+          ConvertUtils.createExpressionGetterInt(getFQClassName(), expression));
+
+          break;
+        }
+        case LONG:
+        {
+          if(fieldToGetterLong == null) {
+            fieldToGetterLong = Maps.newHashMap();
+          }
+
+          fieldToGetterLong.put(fieldName,
+          ConvertUtils.createExpressionGetterLong(getFQClassName(), expression));
+
+          break;
+        }
+        case SHORT:
+        {
+          if(fieldToGetterShort == null) {
+            fieldToGetterShort = Maps.newHashMap();
+          }
+
+          fieldToGetterShort.put(fieldName,
+          ConvertUtils.createExpressionGetterShort(getFQClassName(), expression));
+
+          break;
+        }
+        case STRING:
+        {
+          if(fieldToGetterString == null) {
+            fieldToGetterString = Maps.newHashMap();
+          }
+
+          fieldToGetterString.put(fieldName,
+          ConvertUtils.createExpressionGetterString(getFQClassName(), expression));
+
+          break;
+        }
+        case OBJECT:
+        {
+          if(fieldToGetterObject == null) {
+            fieldToGetterObject = Maps.newHashMap();
+          }
+
+          fieldToGetterObject.put(fieldName,
+          ConvertUtils.createExpressionGetterObject(getFQClassName(), expression));
+
+          break;
+        }
+        default:
+        {
+          throw new UnsupportedOperationException("The type " + type + " is not supported.");
+        }
+      }
+    }
+  }
+
+  public Map<String, String> getFieldToExpression()
+  {
+    return fieldToExpression;
+  }
+
+  public void setFieldToExpression(Map<String, String> fieldToExpression)
+  {
+    this.fieldToExpression = Preconditions.checkNotNull(fieldToExpression);
+
+    for(Map.Entry<String, String> entry: fieldToExpression.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+  }
 }

@@ -16,31 +16,24 @@
 
 package com.datatorrent.lib.appdata.tabular;
 
-import com.datatorrent.lib.appdata.converter.MapGPOConverterSchema;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaTabular;
 import com.datatorrent.lib.converter.Converter;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.Map;
 
 public class TabularMapConverter implements Converter<Map<String, Object>, GPOMutable, SchemaTabular>
 {
-  private MapGPOConverterSchema converterSchema;
+  @NotNull
+  private Map<String, String> tableFieldToMapField;
 
   public TabularMapConverter()
   {
-  }
-
-  public void setConversionSchema(String conversionSchema)
-  {
-    converterSchema = new MapGPOConverterSchema(conversionSchema);
-  }
-
-  public MapGPOConverterSchema getConversionSchema()
-  {
-    return converterSchema;
   }
 
   @Override
@@ -55,9 +48,43 @@ public class TabularMapConverter implements Converter<Map<String, Object>, GPOMu
         index < fields.size();
         index++) {
       String field = fields.get(index);
-      values.setField(field, inputEvent.get(converterSchema.getMapField(field)));
+      values.setField(field, inputEvent.get(getMapField(field)));
     }
 
     return values;
+  }
+
+  private String getMapField(String field)
+  {
+    String mapField = tableFieldToMapField.get(field);
+
+    if(mapField == null) {
+      return field;
+    }
+
+    return mapField;
+  }
+
+  /**
+   * @return the tableFieldToMapField
+   */
+  public Map<String, String> getTableFieldToMapField()
+  {
+    return tableFieldToMapField;
+  }
+
+  /**
+   * @param tableFieldToMapField the tableFieldToMapField to set
+   */
+  public void setTableFieldToMapField(@NotNull Map<String, String> tableFieldToMapField)
+  {
+    Preconditions.checkNotNull(tableFieldToMapField);
+
+    for(Map.Entry<String, String> entry: tableFieldToMapField.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+
+    this.tableFieldToMapField = Maps.newHashMap(tableFieldToMapField);
   }
 }

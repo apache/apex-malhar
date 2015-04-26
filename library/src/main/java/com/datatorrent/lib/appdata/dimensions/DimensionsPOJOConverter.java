@@ -16,109 +16,77 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
+import com.datatorrent.lib.appbuilder.convert.pojo.PojoFieldRetriever;
+import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.converter.Converter;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import javax.validation.constraints.NotNull;
 
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
-
-/**
- *
- * {
- *    "class":"com.comp.MyObject"
- *    "fields":{gpoField":["pojoField1","pojoField2"]}
- * }
- *
- */
 public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent, DimensionsConversionContext>
 {
-  public static final String FIELD_CLASS = "class";
-  public static final String FIELD_FIELDS = "fields";
-
-  private String pojoMappingSchema;
-  private Map<String, List<String>> gpoFieldToPojoGetters = Maps.newHashMap();
-  private String className;
-  private ObjectConverter converter;
+  @NotNull
+  private PojoFieldRetriever pojoFieldRetriever;
 
   public DimensionsPOJOConverter()
   {
   }
 
-  public void setPojoMappingSchema(String pojoMappingSchema)
-  {
-    try {
-      setPojoMappingSchemaHelper(pojoMappingSchema);
-    }
-    catch(JSONException exception) {
-      throw new RuntimeException(exception);
-    }
-  }
-
-  private void setPojoMappingSchemaHelper(String pojoMappingSchema) throws JSONException
-  {
-    this.pojoMappingSchema = Preconditions.checkNotNull(pojoMappingSchema);
-
-    JSONObject jo = null;
-    JSONObject fields = null;
-
-    jo = new JSONObject(pojoMappingSchema);
-    className = jo.getString(FIELD_CLASS);
-    fields = jo.getJSONObject(FIELD_FIELDS);
-
-    Iterator keyIterator = fields.keys();
-
-    while(keyIterator.hasNext()) {
-      String gpoField = (String) keyIterator.next();
-      JSONArray pojoGettersArray = null;
-
-      pojoGettersArray = fields.getJSONArray(gpoField);
-
-      Preconditions.checkArgument(pojoGettersArray.length() > 0,
-                                  "pojo getters array cannot be empty");
-
-      List<String> getters = Lists.newArrayList();
-
-      for(int getterIndex = 0;
-          getterIndex < pojoGettersArray.length();
-          getterIndex++) {
-        getters.add(pojoGettersArray.getString(getterIndex));
-      }
-
-      gpoFieldToPojoGetters.put(gpoField, getters);
-    }
-  }
-
-  public String getPojoMappingSchema()
-  {
-    return pojoMappingSchema;
-  }
-
   @Override
   public AggregateEvent convert(Object inputEvent, DimensionsConversionContext context)
   {
-    return null;
-  }
+    GPOMutable key = new GPOMutable(context.keyFieldsDescriptor);
 
-  private ObjectConverter getConverter()
-  {
-    if(converter != null) {
-      return converter;
+    List<String> fields = key.getFieldDescriptor().getFields().getFieldsList();
+
+    for(int fieldIndex = 0;
+        fieldIndex < fields.size();
+        fieldIndex++) {
+      String field = fields.get(fieldIndex);
+      if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+      }
+      else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
+        long timestamp = pojoFieldRetriever.getLong(field, inputEvent);
+        context.dd.getTimeBucket().roundDown(timestamp);
+        key.setField(field, timestamp);
+      }
+      else {
+        key.setField(field, pojoFieldRetriever.getLong(field, inputEvent));
+      }
     }
 
-    StringBuilder sb = new StringBuilder();
-    return null;
+    GPOMutable aggregates = new GPOMutable(context.aggregateDescriptor);
+
+    fields = aggregates.getFieldDescriptor().getFields().getFieldsList();
+
+    for(int fieldIndex = 0;
+        fieldIndex < fields.size();
+        fieldIndex++) {
+      String field = fields.get(fieldIndex);
+      aggregates.setField(field, pojoFieldRetriever.getLong(field, inputEvent));
+    }
+
+    return new AggregateEvent(new GPOMutable(key),
+                              aggregates,
+                              context.schemaID,
+                              context.dimensionDescriptorID,
+                              context.aggregatorID);
   }
 
-  //Interface for janino
-  interface ObjectConverter extends Converter<Object, AggregateEvent, DimensionsConversionContext>
+  /**
+   * @return the pojoFieldRetriever
+   */
+  public PojoFieldRetriever getPojoFieldRetriever()
   {
+    return pojoFieldRetriever;
+  }
+
+  /**
+   * @param pojoFieldRetriever the pojoFieldRetriever to set
+   */
+  public void setPojoFieldRetriever(@NotNull PojoFieldRetriever pojoFieldRetriever)
+  {
+    this.pojoFieldRetriever = Preconditions.checkNotNull(pojoFieldRetriever);
   }
 }
