@@ -20,21 +20,21 @@ import com.datatorrent.lib.converter.Converter;
 import com.google.common.base.Preconditions;
 import javax.validation.constraints.NotNull;
 
-public abstract class DimensionsComputationSingleSchemaConv<INPUT_EVENT> extends DimensionsComputationSingleSchema<INPUT_EVENT>
+public abstract class DimensionsComputationSingleSchemaConv<INPUT_EVENT, CONVERTER extends Converter<INPUT_EVENT, AggregateEvent, DimensionsConversionContext>> extends DimensionsComputationSingleSchema<INPUT_EVENT>
 {
   @NotNull
-  protected Converter<INPUT_EVENT, AggregateEvent, DimensionsConversionContext> converter;
+  protected CONVERTER converter;
 
   public DimensionsComputationSingleSchemaConv()
   {
   }
 
-  public void setConverter(Converter<INPUT_EVENT, AggregateEvent, DimensionsConversionContext> converter)
+  public void setConverter(CONVERTER converter)
   {
     this.converter = Preconditions.checkNotNull(converter, "converter");
   }
 
-  public Converter<INPUT_EVENT, AggregateEvent, DimensionsConversionContext> getConverter()
+  public CONVERTER getConverter()
   {
     return converter;
   }

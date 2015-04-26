@@ -14,18 +14,13 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appdata.dimensions;
+package com.datatorrent.lib.appbuilder.convert.pojo;
 
-
-import java.util.Map;
-
-/**
- * Implementation for App Builder
- */
-public class DimensionsComputationSingleSchemaMap extends DimensionsComputationSingleSchemaConv<Map<String, Object>, DimensionsMapConverter>
+public class PojoFieldRetrieverExpressionTest
 {
-  public DimensionsComputationSingleSchemaMap()
+  public PojoFieldRetrieverExpressionTest()
   {
-    this.converter = new DimensionsMapConverter();
   }
+
+
 }

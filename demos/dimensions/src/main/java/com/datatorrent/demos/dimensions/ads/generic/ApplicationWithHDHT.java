@@ -22,6 +22,7 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
+import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaPOJO;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
@@ -125,7 +126,7 @@ public class ApplicationWithHDHT implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    AdsDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new AdsDimensionComputation());
+    DimensionsComputationSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", DimensionsComputationSingleSchemaPOJO.class);
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
@@ -146,6 +147,8 @@ public class ApplicationWithHDHT implements StreamingApplication
     String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
 
     dimensions.setEventSchemaJSON(eventSchema);
+    
+
     store.setEventSchemaJSON(eventSchema);
     store.setDimensionalSchemaJSON(dimensionalSchema);
 

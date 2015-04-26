@@ -32,7 +32,7 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
 
   @NotNull
   private String eventSchemaJSON;
-  private transient DimensionalEventSchema eventSchema;
+  protected transient DimensionalEventSchema eventSchema;
   private transient DimensionsConversionContext conversionContext = new DimensionsConversionContext();
 
   public DimensionsComputationSingleSchema()

@@ -746,4 +746,13 @@ public class DimensionalEventSchema
   {
     return ddIDToAggIDs;
   }
+
+  public Map<String, Type> getAllFieldToType()
+  {
+    Map<String, Type> fieldToType = Maps.newHashMap();
+    fieldToType.putAll(keyDescriptor.getFieldToType());
+    fieldToType.putAll(inputValuesDescriptor.getFieldToType());
+
+    return fieldToType;
+  }
 }

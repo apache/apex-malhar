@@ -16,9 +16,20 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-public class DimensionsComputationSingleSchemaPOJO extends DimensionsComputationSingleSchemaConv<Object>
+import com.datatorrent.api.Context.OperatorContext;
+
+public class DimensionsComputationSingleSchemaPOJO extends DimensionsComputationSingleSchemaConv<Object, DimensionsPOJOConverter>
 {
   public DimensionsComputationSingleSchemaPOJO()
   {
+    this.converter = new DimensionsPOJOConverter();
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+
+    converter.getPojoFieldRetriever().setFieldToType(eventSchema.getAllFieldToType());
   }
 }
