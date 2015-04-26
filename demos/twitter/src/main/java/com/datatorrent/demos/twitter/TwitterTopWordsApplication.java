@@ -28,10 +28,13 @@ import com.datatorrent.lib.appdata.tabular.AppDataTabularServerMap;
 import com.datatorrent.lib.appdata.tabular.TabularMapConverter;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+import com.google.common.collect.Maps;
 import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 
 
@@ -82,7 +85,9 @@ public class TwitterTopWordsApplication implements StreamingApplication
     AppDataTabularServerMap tabularServer = dag.addOperator("Tabular Server", new AppDataTabularServerMap());
 
     TabularMapConverter mapConverter = new TabularMapConverter();
-    mapConverter.setConversionSchema(SchemaUtils.jarResourceFileToString(CONVERSION_SCHEMA));
+    Map<String, String> conversionMap = Maps.newHashMap();
+    conversionMap.put("word", "name");
+    mapConverter.setTableFieldToMapField(conversionMap);
     String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);
 
     tabularServer.setTabularSchemaJSON(tabularSchema);
