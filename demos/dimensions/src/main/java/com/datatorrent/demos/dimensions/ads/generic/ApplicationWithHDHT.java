@@ -161,6 +161,7 @@ public class ApplicationWithHDHT implements StreamingApplication
     fieldToExpression.put("revenue", "getRevenue()");
     fieldToExpression.put("impressions", "getImpressions()");
     fieldToExpression.put("clicks", "getClicks()");
+    fieldToExpression.put("time", "getTime()");
     pfre.setFieldToExpression(fieldToExpression);
     dimensions.getConverter().setPojoFieldRetriever(pfre);
 
