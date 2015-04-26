@@ -22,16 +22,29 @@ import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Maps;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class DimensionsComputationSingleSchemaPOJOTest
 {
+  private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationSingleSchemaPOJOTest.class);
   public static final String EVENT_SCHEMA = "adsGenericEventSchema.json";
 
   @Test
-  public void simpleSerializeSetupTest() throws Exception
+  public void simpleTest() throws Exception
   {
+    AdInfo ai = new AdInfo();
+    ai.setPublisher("google");
+    ai.setAdvertiser("starbucks");
+    ai.setLocation("SKY");
+
+    ai.setClicks(100L);
+    ai.setImpressions(1000L);
+    ai.setRevenue(10.0);
+    ai.setCost(5.5);
+
     DimensionsComputationSingleSchemaPOJO dimensions = new DimensionsComputationSingleSchemaPOJO();
 
     String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
@@ -39,6 +52,7 @@ public class DimensionsComputationSingleSchemaPOJOTest
     dimensions.setEventSchemaJSON(eventSchema);
 
     PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
+    pfre.setFQClassName(AdInfo.class.getName());
     Map<String, String> fieldToExpression = Maps.newHashMap();
     fieldToExpression.put("publisher", "getPublisher()");
     fieldToExpression.put("advertiser", "getAdvertiser()");
@@ -47,11 +61,16 @@ public class DimensionsComputationSingleSchemaPOJOTest
     fieldToExpression.put("revenue", "getRevenue()");
     fieldToExpression.put("impressions", "getImpressions()");
     fieldToExpression.put("clicks", "getClicks()");
+    fieldToExpression.put("time", "getTime()");
     pfre.setFieldToExpression(fieldToExpression);
     dimensions.getConverter().setPojoFieldRetriever(pfre);
 
     dimensions = TestUtils.clone(new Kryo(), dimensions);
 
     dimensions.setup(null);
+
+    dimensions.beginWindow(0L);
+    dimensions.inputEvent.put(ai);
+    dimensions.endWindow();
   }
 }

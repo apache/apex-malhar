@@ -153,6 +153,7 @@ public class ApplicationWithHDHT implements StreamingApplication
     dimensions.setEventSchemaJSON(eventSchema);
 
     PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
+    pfre.setFQClassName(AdInfo.class.getName());
     Map<String, String> fieldToExpression = Maps.newHashMap();
     fieldToExpression.put("publisher", "getPublisher()");
     fieldToExpression.put("advertiser", "getAdvertiser()");
