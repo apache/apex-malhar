@@ -23,13 +23,16 @@ import com.datatorrent.lib.converter.Converter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
 public class TabularMapConverter implements Converter<Map<String, Object>, GPOMutable, SchemaTabular>
 {
-  @NotNull
+  private static final Logger logger = LoggerFactory.getLogger(TabularMapConverter.class);
+
   private Map<String, String> tableFieldToMapField;
 
   public TabularMapConverter()
@@ -39,6 +42,8 @@ public class TabularMapConverter implements Converter<Map<String, Object>, GPOMu
   @Override
   public GPOMutable convert(Map<String, Object> inputEvent, SchemaTabular context)
   {
+    logger.info("input event {}", inputEvent);
+
     FieldsDescriptor fd = context.getValuesDescriptor();
     GPOMutable values = new GPOMutable(fd);
 
@@ -49,6 +54,7 @@ public class TabularMapConverter implements Converter<Map<String, Object>, GPOMu
         index++) {
       String field = fields.get(index);
       values.setField(field, inputEvent.get(getMapField(field)));
+      logger.info("{} {} {}", field, getMapField(field), values.getField(field));
     }
 
     return values;
@@ -56,6 +62,10 @@ public class TabularMapConverter implements Converter<Map<String, Object>, GPOMu
 
   private String getMapField(String field)
   {
+    if(tableFieldToMapField == null) {
+      return field;
+    }
+
     String mapField = tableFieldToMapField.get(field);
 
     if(mapField == null) {

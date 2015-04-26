@@ -18,7 +18,7 @@ package com.datatorrent.lib.appdata.tabular;
 
 import java.util.Map;
 
-public class AppDataTabularServerMap extends AppDataTabularServerConv<Map<String, Object>>
+public class AppDataTabularServerMap extends AppDataTabularServerConv<Map<String, Object>, TabularMapConverter>
 {
   public AppDataTabularServerMap()
   {

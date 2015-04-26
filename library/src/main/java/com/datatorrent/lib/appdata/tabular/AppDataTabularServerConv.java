@@ -21,20 +21,20 @@ import com.datatorrent.lib.appdata.schemas.SchemaTabular;
 import com.datatorrent.lib.converter.Converter;
 
 
-public class AppDataTabularServerConv<INPUT_EVENT> extends AppDataTabularServer<INPUT_EVENT>
+public class AppDataTabularServerConv<INPUT_EVENT, CONVERTER extends Converter<INPUT_EVENT, GPOMutable, SchemaTabular>> extends AppDataTabularServer<INPUT_EVENT>
 {
-  protected Converter<INPUT_EVENT, GPOMutable, SchemaTabular> converter;
+  protected CONVERTER converter;
 
   public AppDataTabularServerConv()
   {
   }
 
-  public void setConverter(Converter<INPUT_EVENT, GPOMutable, SchemaTabular> converter)
+  public void setConverter(CONVERTER converter)
   {
     this.converter = converter;
   }
 
-  public Converter<INPUT_EVENT, GPOMutable, SchemaTabular> getConverter()
+  public CONVERTER getConverter()
   {
     return converter;
   }
