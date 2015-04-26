@@ -17,13 +17,15 @@
 package com.datatorrent.lib.appbuilder.convert.pojo;
 
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
 
+import java.util.ArrayList;
 import java.util.Map;
 
-public class PojoFieldRetrieverExpressionTest
+public class PojoFieldRetrieverFieldListTest
 {
   @Test
   public void simpleTest()
@@ -41,22 +43,22 @@ public class PojoFieldRetrieverExpressionTest
     fieldToType.put("doubleVal", Type.DOUBLE);
     fieldToType.put("objVal", Type.OBJECT);
 
-    Map<String, String> fieldToExpression = Maps.newHashMap();
+    Map<String, ArrayList<String>> fieldToFieldList = Maps.newHashMap();
 
-    fieldToExpression.put("boolVal", "innerObj.boolVal");
-    fieldToExpression.put("byteVal", "innerObj.byteVal");
-    fieldToExpression.put("charVal", "innerObj.charVal");
-    fieldToExpression.put("stringVal", "innerObj.stringVal");
-    fieldToExpression.put("shortVal", "innerObj.shortVal");
-    fieldToExpression.put("intVal", "innerObj.intVal");
-    fieldToExpression.put("longVal", "innerObj.longVal");
-    fieldToExpression.put("floatVal", "innerObj.floatVal");
-    fieldToExpression.put("doubleVal", "innerObj.doubleVal");
-    fieldToExpression.put("objVal", "innerObj.objVal");
+    fieldToFieldList.put("boolVal", Lists.newArrayList("innerObj", "boolVal"));
+    fieldToFieldList.put("byteVal", Lists.newArrayList("innerObj", "byteVal"));
+    fieldToFieldList.put("charVal", Lists.newArrayList("innerObj", "charVal"));
+    fieldToFieldList.put("stringVal", Lists.newArrayList("innerObj", "stringVal"));
+    fieldToFieldList.put("shortVal", Lists.newArrayList("innerObj", "shortVal"));
+    fieldToFieldList.put("intVal", Lists.newArrayList("innerObj", "intVal"));
+    fieldToFieldList.put("longVal", Lists.newArrayList("innerObj", "longVal"));
+    fieldToFieldList.put("floatVal", Lists.newArrayList("innerObj", "floatVal"));
+    fieldToFieldList.put("doubleVal", Lists.newArrayList("innerObj", "doubleVal"));
+    fieldToFieldList.put("objVal", Lists.newArrayList("innerObj", "objVal"));
 
-    PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
+    PojoFieldRetrieverFieldList pfre = new PojoFieldRetrieverFieldList();
     pfre.setFieldToType(fieldToType);
-    pfre.setFieldToExpression(fieldToExpression);
+    pfre.setFieldToFieldList(fieldToFieldList);
     pfre.setFQClassName(TestObjAllTypes.class.getName());
 
     TestObjAllTypes testObj = new TestObjAllTypes();

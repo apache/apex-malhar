@@ -158,4 +158,20 @@ public class PojoFieldRetrieverFieldList extends PojoFieldRetriever
       }
     }
   }
+
+  /**
+   * @return the fieldToFieldList
+   */
+  public Map<String, ArrayList<String>> getFieldToFieldList()
+  {
+    return fieldToFieldList;
+  }
+
+  /**
+   * @param fieldToFieldList the fieldToFieldList to set
+   */
+  public void setFieldToFieldList(Map<String, ArrayList<String>> fieldToFieldList)
+  {
+    this.fieldToFieldList = fieldToFieldList;
+  }
 }

@@ -20,31 +20,22 @@ import com.google.common.base.Preconditions;
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.commons.compiler.CompilerFactoryFactory;
 import org.codehaus.commons.compiler.IScriptEvaluator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class ConvertUtils
 {
+  private static final Logger logger = LoggerFactory.getLogger(ConvertUtils.class);
+
   public static final String JAVA_DOT = ".";
   public static final String DEFAULT_TEMP_POJO_NAME = "dt_pojo";
   public static final String DEFAULT_POJO_NAME = "pojo";
 
   public static final String GET = "get";
   public static final String IS = "is";
-
-  private static final IScriptEvaluator se;
-
-  static {
-    try
-    {
-      se = CompilerFactoryFactory.getDefaultCompilerFactory().newScriptEvaluator();
-    }
-    catch(Exception ex)
-    {
-      throw new RuntimeException(ex);
-    }
-  }
 
   private ConvertUtils()
   {
@@ -84,10 +75,10 @@ public class ConvertUtils
         index < fields.size() - 1;
         index++) {
       String field = fields.get(index);
-      sb.append(sb).append(getFieldGetter(field)).append(JAVA_DOT);
+      sb.append(sb).append(getFieldGetter(field)).append("()").append(JAVA_DOT);
     }
 
-    sb.append(getFieldGetter(fields.get(fields.size() - 1), isBoolean));
+    sb.append(getFieldGetter(fields.get(fields.size() - 1), isBoolean)).append("()");
 
     return sb.toString();
   }
@@ -97,6 +88,8 @@ public class ConvertUtils
                                               Class castClass,
                                               Class getterClass)
   {
+    logger.debug("{} {} {} {}", fqClassName, getterString, castClass, getterClass);
+
     if(getterString.startsWith(".")) {
       getterString = getterString.substring(1);
     }
@@ -107,6 +100,17 @@ public class ConvertUtils
                                          + "\nis invalid.");
     }
 
+    IScriptEvaluator se = null;
+
+    try
+    {
+      se = CompilerFactoryFactory.getDefaultCompilerFactory().newScriptEvaluator();
+    }
+    catch(Exception ex)
+    {
+      throw new RuntimeException(ex);
+    }
+
     try {
       //TODO In the future go through method stack and determine return types to avoid creating
       //an object if a primitive is present instead.
@@ -114,14 +118,17 @@ public class ConvertUtils
       //Corner cases return type was specified to be Boolean via generics
       //Return type is a Boolean object
       //Return type is a boolean primitive
-      return se.createFastEvaluator("return (" + castClass.getName() +
+      String code = "return (" + castClass.getName() +
                                       ") (((" + fqClassName +
-                                      ")obj)." + getterString + ");",
-                                      getterClass,
-                                      new String[] {ConvertUtils.DEFAULT_POJO_NAME});
+                                      ")" + ConvertUtils.DEFAULT_POJO_NAME + ")." + getterString + ");";
+      logger.debug("{}", code);
+
+      return se.createFastEvaluator(code,
+                                    getterClass,
+                                    new String[] {ConvertUtils.DEFAULT_POJO_NAME});
     }
     catch(CompileException ex) {
-      throw new RuntimeException();
+      throw new RuntimeException(ex);
     }
   }
 
@@ -319,6 +326,17 @@ public class ConvertUtils
   public static Object createExtractionGetter(String extractionString,
                                               Class getterClass)
   {
+    IScriptEvaluator se = null;
+
+    try
+    {
+      se = CompilerFactoryFactory.getDefaultCompilerFactory().newScriptEvaluator();
+    }
+    catch(Exception ex)
+    {
+      throw new RuntimeException(ex);
+    }
+
     try {
       return (Object) se.createFastEvaluator(extractionString,
                                             getterClass,

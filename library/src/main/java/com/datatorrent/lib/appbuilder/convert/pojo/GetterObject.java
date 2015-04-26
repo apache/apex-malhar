@@ -18,5 +18,5 @@ package com.datatorrent.lib.appbuilder.convert.pojo;
 
 public interface GetterObject
 {
-  public long get(Object obj);
+  public Object get(Object obj);
 }

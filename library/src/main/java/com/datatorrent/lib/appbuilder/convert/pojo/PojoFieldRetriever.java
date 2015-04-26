@@ -70,7 +70,7 @@ public abstract class PojoFieldRetriever
       Preconditions.checkNotNull(entry.getValue());
     }
 
-    fieldToType = Maps.newHashMap(fieldToType);
+    this.fieldToType = Maps.newHashMap(fieldToType);
   }
 
   public String getFQClassName()
@@ -89,7 +89,7 @@ public abstract class PojoFieldRetriever
 
     Type fieldType = this.fieldToType.get(field);
 
-    Preconditions.checkArgument(fieldType == null, field + " is not a valid field.");
+    Preconditions.checkArgument(fieldType != null, field + " is not a valid field.");
     callSetup();
 
     switch(fieldType) {
