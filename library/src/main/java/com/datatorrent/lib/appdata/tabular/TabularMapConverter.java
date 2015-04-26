@@ -42,8 +42,6 @@ public class TabularMapConverter implements Converter<Map<String, Object>, GPOMu
   @Override
   public GPOMutable convert(Map<String, Object> inputEvent, SchemaTabular context)
   {
-    logger.info("input event {}", inputEvent);
-
     FieldsDescriptor fd = context.getValuesDescriptor();
     GPOMutable values = new GPOMutable(fd);
 
@@ -54,7 +52,6 @@ public class TabularMapConverter implements Converter<Map<String, Object>, GPOMu
         index++) {
       String field = fields.get(index);
       values.setField(field, inputEvent.get(getMapField(field)));
-      logger.info("{} {} {}", field, getMapField(field), values.getField(field));
     }
 
     return values;

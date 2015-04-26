@@ -180,7 +180,7 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
 
     TabularMapConverter mapConverter = new TabularMapConverter();
     Map<String, String> conversionMap = Maps.newHashMap();
-    conversionMap.put("hashtag", "name");
+    conversionMap.put("hashtag", WindowedTopCounter.FIELD_TYPE);
     mapConverter.setTableFieldToMapField(conversionMap);
 
     String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);

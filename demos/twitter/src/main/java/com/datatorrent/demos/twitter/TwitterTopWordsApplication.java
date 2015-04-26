@@ -86,7 +86,7 @@ public class TwitterTopWordsApplication implements StreamingApplication
 
     TabularMapConverter mapConverter = new TabularMapConverter();
     Map<String, String> conversionMap = Maps.newHashMap();
-    conversionMap.put("word", "name");
+    conversionMap.put("word", WindowedTopCounter.FIELD_TYPE);
     mapConverter.setTableFieldToMapField(conversionMap);
     String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);
 
