@@ -18,6 +18,11 @@ package com.datatorrent.lib.appdata.tabular;
 
 import java.util.Map;
 
+/*
+ * @displayName App Data Tabular Map Server
+ * @category App Data
+ * @tags appdata, tabular, map
+ */
 public class AppDataTabularServerMap extends AppDataTabularServerConv<Map<String, Object>, TabularMapConverter>
 {
   public AppDataTabularServerMap()

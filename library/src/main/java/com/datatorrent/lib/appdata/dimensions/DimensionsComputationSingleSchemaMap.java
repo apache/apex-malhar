@@ -19,8 +19,10 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import java.util.Map;
 
-/**
- * Implementation for App Builder
+/*
+ * @displayName Simple Map Dimensions Computation
+ * @category Statistics
+ * @tags event, dimension, aggregation, computation, map
  */
 public class DimensionsComputationSingleSchemaMap extends DimensionsComputationSingleSchemaConv<Map<String, Object>, DimensionsMapConverter>
 {

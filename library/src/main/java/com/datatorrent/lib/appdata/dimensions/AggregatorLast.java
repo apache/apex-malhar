@@ -18,6 +18,10 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 
+/**
+ * Note when aggregates are combined in a unifier it is not possible to tell which came first or last,
+ * one is picked arbitrarily.
+ */
 public class AggregatorLast implements DimensionsStaticAggregator
 {
   public AggregatorLast()
@@ -51,6 +55,6 @@ public class AggregatorLast implements DimensionsStaticAggregator
   @Override
   public void aggregateAggs(AggregateEvent agg1, AggregateEvent agg2)
   {
-    throw new UnsupportedOperationException("This operation is not supported.");
+    //Do nothing
   }
 }
