@@ -18,7 +18,7 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
 
-/*
+/**
  * @displayName Simple Pojo Dimensions Computation
  * @category Statistics
  * @tags event, dimension, aggregation, computation, pojo
