@@ -31,18 +31,18 @@ public abstract class PojoFieldRetriever
   @NotNull
   private Map<String, Type> fieldToType;
 
-  protected Map<String, GetterBoolean> fieldToGetterBoolean;
-  protected Map<String, GetterByte> fieldToGetterByte;
-  protected Map<String, GetterChar> fieldToGetterChar;
-  protected Map<String, GetterDouble> fieldToGetterDouble;
-  protected Map<String, GetterFloat> fieldToGetterFloat;
-  protected Map<String, GetterInt> fieldToGetterInt;
-  protected Map<String, GetterLong> fieldToGetterLong;
-  protected Map<String, GetterShort> fieldToGetterShort;
-  protected Map<String, GetterString> fieldToGetterString;
-  protected Map<String, GetterObject> fieldToGetterObject;
+  protected transient Map<String, GetterBoolean> fieldToGetterBoolean;
+  protected transient Map<String, GetterByte> fieldToGetterByte;
+  protected transient Map<String, GetterChar> fieldToGetterChar;
+  protected transient Map<String, GetterDouble> fieldToGetterDouble;
+  protected transient Map<String, GetterFloat> fieldToGetterFloat;
+  protected transient Map<String, GetterInt> fieldToGetterInt;
+  protected transient Map<String, GetterLong> fieldToGetterLong;
+  protected transient Map<String, GetterShort> fieldToGetterShort;
+  protected transient Map<String, GetterString> fieldToGetterString;
+  protected transient Map<String, GetterObject> fieldToGetterObject;
 
-  private boolean isSetup = false;
+  private transient boolean isSetup = false;
 
   public PojoFieldRetriever()
   {

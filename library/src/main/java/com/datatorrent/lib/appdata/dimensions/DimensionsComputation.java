@@ -43,6 +43,9 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
   @Min(1)
   private long cacheSize = DEFAULT_CACHE_SIZE;
+  @Min(1)
+  private int aggregationWindowCount = 1;
+  private int windowCount = 0;
 
   @VisibleForTesting
   public transient Cache<EventKey, AggregateEvent> cache =
@@ -98,12 +101,16 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   @Override
   public void beginWindow(long windowId)
   {
+    windowCount++;
   }
 
   @Override
   public void endWindow()
   {
-    cache.invalidateAll();
+    if(windowCount == aggregationWindowCount) {
+      cache.invalidateAll();
+      windowCount = 0;
+    }
   }
 
   @Override
@@ -159,6 +166,22 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     AggregateEvent newAggregate = new AggregateEvent(aggregate.getEventKey(),
                                                                    new GPOMutable(aggregate.getAggregates()));
     cache.put(newAggregate.getEventKey(), newAggregate);
+  }
+
+  /**
+   * @return the aggregationWindowCount
+   */
+  public int getAggregationWindowCount()
+  {
+    return aggregationWindowCount;
+  }
+
+  /**
+   * @param aggregationWindowCount the aggregationWindowCount to set
+   */
+  public void setAggregationWindowCount(int aggregationWindowCount)
+  {
+    this.aggregationWindowCount = aggregationWindowCount;
   }
 
   class CacheRemovalListener implements RemovalListener<EventKey, AggregateEvent>
