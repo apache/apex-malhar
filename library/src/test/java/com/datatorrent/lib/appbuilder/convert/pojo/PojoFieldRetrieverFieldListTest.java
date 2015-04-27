@@ -17,6 +17,8 @@
 package com.datatorrent.lib.appbuilder.convert.pojo;
 
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.datatorrent.lib.util.TestUtils;
+import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
@@ -28,7 +30,7 @@ import java.util.Map;
 public class PojoFieldRetrieverFieldListTest
 {
   @Test
-  public void simpleTest()
+  public void simpleTest() throws Exception
   {
     Map<String, Type> fieldToType = Maps.newHashMap();
 
@@ -84,5 +86,8 @@ public class PojoFieldRetrieverFieldListTest
     Assert.assertEquals((Float) testObj.innerObj.getFloatVal(), pfre.get("floatVal", testObj));
     Assert.assertEquals((Double) testObj.innerObj.getDoubleVal(), pfre.get("doubleVal", testObj));
     Assert.assertEquals(testObj.innerObj.getObjVal(), pfre.get("objVal", testObj));
+
+    //Check serialization
+    TestUtils.clone(new Kryo(), pfre);
   }
 }
