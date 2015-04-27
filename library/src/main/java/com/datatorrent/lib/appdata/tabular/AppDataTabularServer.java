@@ -55,7 +55,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
   private AppDataFormatter appDataFormatter = new AppDataFormatter();
 
   private String tabularSchemaJSON;
-  protected SchemaTabular schema;
+  protected transient SchemaTabular schema;
 
   private List<GPOMutable> currentData = Lists.newArrayList();
 

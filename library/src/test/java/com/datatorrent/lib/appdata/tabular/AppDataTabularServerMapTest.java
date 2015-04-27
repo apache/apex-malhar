@@ -17,6 +17,8 @@
 package com.datatorrent.lib.appdata.tabular;
 
 import com.datatorrent.lib.testbench.CollectorTestSink;
+import com.datatorrent.lib.util.TestUtils;
+import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
@@ -32,7 +34,7 @@ public class AppDataTabularServerMapTest
   private static final Logger logger = LoggerFactory.getLogger(AppDataTabularServerMapTest.class);
 
   @Test
-  public void simpleTest()
+  public void simpleTest() throws Exception
   {
     final String result = "{\"id\":\"1\",\"type\":\"dataQuery\",\"data\":[{\"count\":\"2\",\"word\":\"a\"},{\"count\":\"3\",\"word\":\"b\"}]}";
     final String query = "{\"id\": \"1\",\n" +
@@ -88,5 +90,10 @@ public class AppDataTabularServerMapTest
 
     Assert.assertEquals("Should get only 1 result back", 1, tempResultSink.collectedTuples.size());
     Assert.assertEquals("The result was incorrect.", result, tempResultSink.collectedTuples.get(0));
+
+    //Test serialization
+    TestUtils.clone(new Kryo(), tabularServer);
   }
+
+
 }
