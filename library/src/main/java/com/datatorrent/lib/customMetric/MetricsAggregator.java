@@ -31,9 +31,7 @@ import com.google.common.collect.Multimap;
 import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
-import com.datatorrent.lib.customMetric.max.DoubleMaxAggregator;
-import com.datatorrent.lib.customMetric.min.IntMinAggregator;
-import com.datatorrent.lib.customMetric.sum.LongSumAggregator;
+
 
 /**
  * An easy to use {@link CustomMetric.Aggregator} that can be configured to perform multiple aggregations on each
@@ -43,8 +41,7 @@ import com.datatorrent.lib.customMetric.sum.LongSumAggregator;
  * metric will be executed during aggregation.
  * <p/>
  * There are examples of {@link SingleMetricAggregator} provided in the library for common number
- * aggregations- {@link LongSumAggregator}, {@link AvgAggregator}, {@link IntMinAggregator},
- * {@link DoubleMaxAggregator}.
+ * aggregations- sum, min, max, avg.
  */
 public class MetricsAggregator implements CustomMetric.Aggregator, Serializable
 {
