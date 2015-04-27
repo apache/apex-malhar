@@ -19,23 +19,29 @@ package com.datatorrent.lib.appbuilder.convert.pojo;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
 public class PojoFieldRetrieverExpression extends PojoFieldRetriever
 {
+  private static final Logger logger = LoggerFactory.getLogger(PojoFieldRetrieverExpression.class);
+
   private Map<String, String> fieldToExpression;
 
   public PojoFieldRetrieverExpression()
   {
   }
-  
+
   @Override
   public void setup()
   {
     for(Map.Entry<String, Type> entry: getFieldToType().entrySet()) {
       String fieldName = entry.getKey();
       Type type = entry.getValue();
+
+      logger.debug("fieldName {} type {}", fieldName, type);
 
       String expression = fieldToExpression.get(fieldName);
 

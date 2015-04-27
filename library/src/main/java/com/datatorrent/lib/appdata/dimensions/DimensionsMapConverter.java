@@ -49,10 +49,11 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
         fieldIndex++) {
       String field = fields.get(fieldIndex);
       if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+        key.setField(field, context.dd.getTimeBucket().ordinal());
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
         long timestamp = (Long) inputEvent.get(getMapField(field));
-        context.dd.getTimeBucket().roundDown(timestamp);
+        timestamp = context.dd.getTimeBucket().roundDown(timestamp);
         key.setField(field, timestamp);
       }
       else {

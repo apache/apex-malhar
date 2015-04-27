@@ -22,11 +22,15 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.converter.Converter;
 import com.google.common.base.Preconditions;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent, DimensionsConversionContext>
 {
+  private static final Logger logger = LoggerFactory.getLogger(DimensionsPOJOConverter.class);
+
   @NotNull
   private PojoFieldRetriever pojoFieldRetriever;
 
@@ -47,10 +51,11 @@ public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent
       String field = fields.get(fieldIndex);
       Type type = key.getFieldDescriptor().getType(field);
       if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+        key.setField(field, context.dd.getTimeBucket().ordinal());
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
         long timestamp = pojoFieldRetriever.getLong(field, inputEvent);
-        context.dd.getTimeBucket().roundDown(timestamp);
+        timestamp = context.dd.getTimeBucket().roundDown(timestamp);
         key.setField(field, timestamp);
       }
       else {
