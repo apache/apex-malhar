@@ -16,12 +16,10 @@
 
 package com.datatorrent.demos.dimensions.sales.generic;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaConv;
+import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaMap;
 import com.datatorrent.lib.appdata.dimensions.DimensionsMapConverter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import org.junit.Test;
-
-import java.util.Map;
 
 import static com.datatorrent.demos.dimensions.ads.generic.ApplicationWithHDHT.EVENT_SCHEMA;
 
@@ -30,12 +28,12 @@ public class SalesDemoWithHDHTTest
   @Test
   public void salesDemoWithHDHT()
   {
-    DimensionsComputationSingleSchemaConv<Map<String, Object>> dcssc =
-    new DimensionsComputationSingleSchemaConv<Map<String, Object>>();
+    DimensionsComputationSingleSchemaMap dcss =
+    new DimensionsComputationSingleSchemaMap();
 
-    dcssc.setEventSchemaJSON(SchemaUtils.jarResourceFileToString(EVENT_SCHEMA));
-    dcssc.setConverter(new DimensionsMapConverter());
+    dcss.setEventSchemaJSON(SchemaUtils.jarResourceFileToString(EVENT_SCHEMA));
+    dcss.setConverter(new DimensionsMapConverter());
 
-    dcssc.setup(null);
+    dcss.setup(null);
   }
 }

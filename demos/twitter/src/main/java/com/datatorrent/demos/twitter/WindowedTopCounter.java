@@ -17,24 +17,8 @@ package com.datatorrent.demos.twitter;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.qr.Data;
-import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
-import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
-import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
-import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
-import com.datatorrent.lib.appdata.schemas.DataQueryTabular;
-import com.datatorrent.lib.appdata.schemas.DataResultTabular;
-import com.datatorrent.lib.appdata.schemas.SchemaQuery;
-import com.datatorrent.lib.appdata.schemas.SchemaResult;
-import com.datatorrent.lib.appdata.schemas.SchemaTabular;
-import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang3.mutable.MutableLong;
+import com.google.common.collect.Maps;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,34 +41,15 @@ import java.util.PriorityQueue;
  */
 public class WindowedTopCounter<T> extends BaseOperator
 {
-  public static final String FIELD_URL = "url";
+  public static final String FIELD_TYPE = "type";
   public static final String FIELD_COUNT = "count";
 
   private static final Logger logger = LoggerFactory.getLogger(WindowedTopCounter.class);
-
-  //==========================================================================
-  // Query Processing - Start
-  //==========================================================================
-
-  private transient QueryProcessor<Query, Void, MutableLong, Void, Result> queryProcessor;
-  @SuppressWarnings("unchecked")
-  private transient DataDeserializerFactory queryDeserializerFactory;
-  private transient DataSerializerFactory resultSerializerFactory;
-  private AppDataFormatter appDataFormatter = new AppDataFormatter();
-  private String schemaJSON;
-  private transient SchemaTabular schema;
-
-  //==========================================================================
-  // Query Processing - End
-  //==========================================================================
 
   private PriorityQueue<SlidingContainer<T>> topCounter;
   private int windows;
   private int topCount = 10;
   private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
-
-  @AppData.ResultPort()
-  public final transient DefaultOutputPort<String> resultOutput = new DefaultOutputPort<String>();
 
   /**
    * Input port on which map objects containing keys with their respective frequency as values will be accepted.
@@ -105,31 +70,7 @@ public class WindowedTopCounter<T> extends BaseOperator
     }
   };
 
-  @AppData.QueryPort
-  public final transient DefaultInputPort<String> queryInput = new DefaultInputPort<String>() {
-    @Override
-    public void process(String s)
-    {
-      logger.info("Received: {}", s);
-
-      Data query = queryDeserializerFactory.deserialize(s);
-
-      //Query was not parseable
-      if(query == null) {
-        logger.info("Not parseable.");
-        return;
-      }
-
-      if(query instanceof SchemaQuery) {
-        String schemaResult = resultSerializerFactory.serialize(new SchemaResult((SchemaQuery) query,
-                                                                                  schema));
-        resultOutput.emit(schemaResult);
-      }
-      else if(query instanceof DataQueryTabular) {
-        queryProcessor.enqueue((DataQueryTabular) query, null, null);
-      }
-    }
-  };
+  public final transient DefaultOutputPort<List<Map<String, Object>>> output = new DefaultOutputPort<List<Map<String, Object>>>();
 
   /**
    * Set the width of the sliding window.
@@ -153,26 +94,12 @@ public class WindowedTopCounter<T> extends BaseOperator
   public void setup(OperatorContext context)
   {
     topCounter = new PriorityQueue<SlidingContainer<T>>(this.topCount, new TopSpotComparator());
-
-    schema = new SchemaTabular(schemaJSON);
-
-    //Setup for query processing
-    queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void, Result>(
-                     new WindowTopCounterComputer(),
-                     new AppDataWWEQueryQueueManager<Query, Void>());
-
-    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
-                                                           DataQueryTabular.class);
-    queryDeserializerFactory.setContext(DataQueryTabular.class, schema);
-    resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
-    queryProcessor.setup(context);
   }
 
   @Override
   public void beginWindow(long windowId)
   {
     topCounter.clear();
-    queryProcessor.beginWindow(windowId);
   }
 
   @Override
@@ -222,15 +149,21 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
     }
 
-    {
-      Result result = null;
+    List<Map<String, Object>> data = Lists.newArrayList();
 
-      while((result = queryProcessor.process(null)) != null) {
-        resultOutput.emit(resultSerializerFactory.serialize(result));
-      }
+    Iterator<SlidingContainer<T>> topIter = topCounter.iterator();
+
+    while(topIter.hasNext()) {
+      final SlidingContainer<T> wh = topIter.next();
+      Map<String, Object> tableRow = Maps.newHashMap();
+
+      tableRow.put(FIELD_TYPE, wh.identifier.toString());
+      tableRow.put(FIELD_COUNT, wh.totalCount);
+
+      data.add(tableRow);
     }
-
-    queryProcessor.endWindow();
+    
+    output.emit(data);
     topCounter.clear();
   }
 
@@ -239,7 +172,6 @@ public class WindowedTopCounter<T> extends BaseOperator
   {
     topCounter = null;
     objects = null;
-    queryProcessor.teardown();
   }
 
   /**
@@ -250,68 +182,6 @@ public class WindowedTopCounter<T> extends BaseOperator
   public void setTopCount(int count)
   {
     topCount = count;
-  }
-
-  /**
-   * @return the schemaJSON
-   */
-  public String getSchemaJSON()
-  {
-    return schemaJSON;
-  }
-
-  /**
-   * @param schemaJSON the schemaJSON to set
-   */
-  public void setDataSchema(String schemaJSON)
-  {
-    this.schemaJSON = schemaJSON;
-  }
-
-  /**
-   * @return the appDataFormatter
-   */
-  public AppDataFormatter getAppDataFormatter()
-  {
-    return appDataFormatter;
-  }
-
-  class WindowTopCounterComputer implements QueryComputer<Query, Void, MutableLong, Void, Result>
-  {
-    @Override
-    public Result processQuery(Query query, Void metaQuery, MutableLong queueContext, Void context)
-    {
-      DataQueryTabular gQuery = (DataQueryTabular) query;
-      List<GPOMutable> data = Lists.newArrayList();
-
-      Iterator<SlidingContainer<T>> topIter = topCounter.iterator();
-
-      while(topIter.hasNext()) {
-        final SlidingContainer<T> wh = topIter.next();
-
-        GPOMutable dataPoint = new GPOMutable(schema.getValuesDescriptor());
-        Map<Type, List<String>> typeToFields = schema.getValuesDescriptor().getTypeToFields();
-
-        for(Map.Entry<Type, List<String>> entry: typeToFields.entrySet()) {
-          if(entry.getKey() == Type.STRING) {
-            dataPoint.setField(entry.getValue().get(0), wh.identifier.toString());
-          }
-          else if(entry.getKey() == Type.INTEGER) {
-            dataPoint.setField(entry.getValue().get(0), wh.totalCount);
-          }
-        }
-
-        data.add(dataPoint);
-      }
-
-      return new DataResultTabular(gQuery,
-                                   data);
-    }
-
-    @Override
-    public void queueDepleted(Void context)
-    {
-    }
   }
 
   static class TopSpotComparator implements Comparator<SlidingContainer<?>>

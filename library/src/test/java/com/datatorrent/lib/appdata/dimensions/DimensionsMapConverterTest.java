@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appdata.dimensions.converter;
+package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.dimensions.DimensionsMapConverter;
 import com.datatorrent.lib.appdata.dimensions.DimensionsConversionContext;

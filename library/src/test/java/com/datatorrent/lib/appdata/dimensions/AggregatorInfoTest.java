@@ -14,27 +14,17 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appdata.qr;
+package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import org.junit.Test;
 
-
-public class DataSerializerFactoryTest
+public class AggregatorInfoTest
 {
   @Test
-  public void testSerialization() throws Exception
+  public void serializationTest() throws Exception
   {
-    DataSerializerFactory dsf = new DataSerializerFactory(new AppDataFormatter());
-    DataSerializerFactory dsf1 = TestUtils.clone(new Kryo(), dsf);
-  }
-
-  @Test
-  public void testAppDataFormatter()
-  {
-    DataSerializerFactory dsf = new DataSerializerFactory(new AppDataFormatter());
-    dsf.getAppDataFormatter().setContinuousFormatString("#.##");
+    TestUtils.clone(new Kryo(), AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
   }
 }

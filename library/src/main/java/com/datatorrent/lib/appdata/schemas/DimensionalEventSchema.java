@@ -110,6 +110,8 @@ public class DimensionalEventSchema
 
   private AggregatorInfo aggregatorInfo;
 
+  List<TimeBucket> timeBuckets;
+
   public DimensionalEventSchema()
   {
   }
@@ -257,7 +259,7 @@ public class DimensionalEventSchema
     keyDescriptor = new FieldsDescriptor(fieldToType);
 
     //Time Buckets
-    List<TimeBucket> timeBuckets = Lists.newArrayList();
+    timeBuckets = Lists.newArrayList();
 
     JSONArray timeBucketsJSON = jo.getJSONArray(FIELD_TIME_BUCKETS);
     bucketsString = timeBucketsJSON.toString();
@@ -745,5 +747,18 @@ public class DimensionalEventSchema
   public List<IntArrayList> getDdIDToAggIDs()
   {
     return ddIDToAggIDs;
+  }
+
+  public Map<String, Type> getAllFieldToType()
+  {
+    Map<String, Type> fieldToType = Maps.newHashMap();
+    fieldToType.putAll(keyDescriptor.getFieldToType());
+    fieldToType.putAll(inputValuesDescriptor.getFieldToType());
+
+    if(!(timeBuckets.size() == 1 && timeBuckets.get(0) == TimeBucket.ALL)) {
+      fieldToType.put(DimensionsDescriptor.DIMENSION_TIME, DimensionsDescriptor.DIMENSION_TIME_TYPE);
+    }
+
+    return fieldToType;
   }
 }

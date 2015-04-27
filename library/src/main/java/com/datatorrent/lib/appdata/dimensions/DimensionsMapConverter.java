@@ -16,42 +16,25 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.converter.MapGPOConverterSchema;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.converter.Converter;
-import com.google.common.collect.Maps;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.List;
 import java.util.Map;
 
-/**
- * {
- * "gpoField":"mapField"
- * }
- */
+import com.google.common.collect.Maps;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.converter.Converter;
+
 public class DimensionsMapConverter implements Converter<Map<String, Object>, AggregateEvent, DimensionsConversionContext>
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsMapConverter.class);
 
-  private MapGPOConverterSchema converterSchema;
   private Map<String, String> gpoFieldToMapField = Maps.newHashMap();
 
   public DimensionsMapConverter()
   {
-  }
-
-  public void setConversionSchema(String conversionSchema)
-  {
-    converterSchema = new MapGPOConverterSchema(conversionSchema);
-  }
-
-  public String getConversionSchema()
-  {
-    return converterSchema.getJsonString();
   }
 
   @Override
@@ -66,14 +49,15 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
         fieldIndex++) {
       String field = fields.get(fieldIndex);
       if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+        key.setField(field, context.dd.getTimeBucket().ordinal());
       }
       else if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
-        long timestamp = (Long) inputEvent.get(converterSchema.getMapField(field));
-        context.dd.getTimeBucket().roundDown(timestamp);
+        long timestamp = (Long) inputEvent.get(getMapField(field));
+        timestamp = context.dd.getTimeBucket().roundDown(timestamp);
         key.setField(field, timestamp);
       }
       else {
-        key.setField(field, inputEvent.get(converterSchema.getMapField(field)));
+        key.setField(field, inputEvent.get(getMapField(field)));
       }
     }
 
@@ -85,7 +69,7 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
         fieldIndex < fields.size();
         fieldIndex++) {
       String field = fields.get(fieldIndex);
-      aggregates.setField(field, inputEvent.get(converterSchema.getMapField(field)));
+      aggregates.setField(field, inputEvent.get(getMapField(field)));
     }
 
     return new AggregateEvent(new GPOMutable(key),
@@ -93,5 +77,32 @@ public class DimensionsMapConverter implements Converter<Map<String, Object>, Ag
                               context.schemaID,
                               context.dimensionDescriptorID,
                               context.aggregatorID);
+  }
+
+  private String getMapField(String gpoField)
+  {
+    String mapField = gpoFieldToMapField.get(gpoField);
+
+    if(mapField == null) {
+      return gpoField;
+    }
+
+    return mapField;
+  }
+
+  /**
+   * @return the gpoFieldToMapField
+   */
+  public Map<String, String> getGpoFieldToMapField()
+  {
+    return gpoFieldToMapField;
+  }
+
+  /**
+   * @param gpoFieldToMapField the gpoFieldToMapField to set
+   */
+  public void setGpoFieldToMapField(Map<String, String> gpoFieldToMapField)
+  {
+    this.gpoFieldToMapField = gpoFieldToMapField;
   }
 }

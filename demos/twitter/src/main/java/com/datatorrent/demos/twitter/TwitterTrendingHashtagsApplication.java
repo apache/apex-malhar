@@ -23,10 +23,15 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.appdata.tabular.AppDataTabularServerMap;
+import com.datatorrent.lib.appdata.tabular.TabularMapConverter;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+import com.google.common.collect.Maps;
 import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
+
+import java.util.Map;
 
 
 
@@ -139,6 +144,8 @@ import org.apache.hadoop.conf.Configuration;
 public class TwitterTrendingHashtagsApplication implements StreamingApplication
 {
   public static final String TABULAR_SCHEMA = "twitterHashTagDataSchema.json";
+  public static final String CONVERSION_SCHEMA = "twitterHashTagConverterSchema.json";
+
   private final Locality locality = null;
 
   @Override
@@ -169,9 +176,18 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
 
     // Get the aggregated Hashtag counts and count them over last 5 mins.
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
+    AppDataTabularServerMap tabularServer = dag.addOperator("Tabular Server", new AppDataTabularServerMap());
+
+    TabularMapConverter mapConverter = new TabularMapConverter();
+    Map<String, String> conversionMap = Maps.newHashMap();
+    conversionMap.put("hashtag", WindowedTopCounter.FIELD_TYPE);
+    mapConverter.setTableFieldToMapField(conversionMap);
 
     String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);
-    topCounts.setDataSchema(tabularSchema);
+
+    tabularServer.setTabularSchemaJSON(tabularSchema);
+    tabularServer.setConverter(mapConverter);
+
     topCounts.setTopCount(10);
     topCounts.setSlidingWindowWidth(600, 1);
 
@@ -182,7 +198,7 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     // Count unique Hashtags
     dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input);
     // Count top 10
-    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput);
-    dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
+    dag.addStream("TopURLQuery", queryPort, tabularServer.query);
+    dag.addStream("TopURLResult", tabularServer.queryResult, queryResultPort);
   }
 }

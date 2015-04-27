@@ -21,9 +21,13 @@ import com.datatorrent.lib.appdata.qr.CustomDataSerializer;
 import com.datatorrent.lib.appdata.qr.Result;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DataResultTabularSerializer implements CustomDataSerializer
 {
+  private static final Logger logger = LoggerFactory.getLogger(DataResultTabularSerializer.class);
+
   public DataResultTabularSerializer()
   {
   }
@@ -50,6 +54,10 @@ public class DataResultTabularSerializer implements CustomDataSerializer
     JSONArray ja = new JSONArray();
 
     for(GPOMutable value: gResult.getValues()) {
+      Fields fields = ((DataQueryTabular) gResult.getQuery()).getFields();
+      logger.debug("{}", value);
+      logger.debug("{}", value.getFieldDescriptor().getFields().getFields());
+      logger.debug("{}", fields.getFields());
       JSONObject dataValue = GPOUtils.serializeJSONObject(value,
                                                           ((DataQueryTabular) gResult.getQuery()).getFields(),
                                                           appDataFormatter);

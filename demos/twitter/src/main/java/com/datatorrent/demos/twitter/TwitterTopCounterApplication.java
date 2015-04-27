@@ -23,10 +23,15 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.appdata.tabular.AppDataTabularServerMap;
+import com.datatorrent.lib.appdata.tabular.TabularMapConverter;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+import com.google.common.collect.Maps;
 import java.net.URI;
 import org.apache.hadoop.conf.Configuration;
+
+import java.util.Map;
 
 
 
@@ -137,6 +142,7 @@ import org.apache.hadoop.conf.Configuration;
 public class TwitterTopCounterApplication implements StreamingApplication
 {
   public static final String TABULAR_SCHEMA = "twitterURLDataSchema.json";
+  public static final String CONVERSION_SCHEMA = "twitterURLConverterSchema.json";
   public static final String APP_NAME = "TwitterDemo";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
 
@@ -151,6 +157,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
     String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
     //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
+
     PubSubWebSocketAppDataQuery wsIn = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
     wsIn.setUri(uri);
     queryPort = wsIn.outputPort;
@@ -167,9 +174,17 @@ public class TwitterTopCounterApplication implements StreamingApplication
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueURLCounter", new UniqueCounter<String>());
     // Get the aggregated url counts and count them over last 5 mins.
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
+    AppDataTabularServerMap tabularServer = dag.addOperator("Tabular Server", new AppDataTabularServerMap());
 
+    TabularMapConverter mapConverter = new TabularMapConverter();
+    Map<String, String> conversionMap = Maps.newHashMap();
+    conversionMap.put("url", WindowedTopCounter.FIELD_TYPE);
+    mapConverter.setTableFieldToMapField(conversionMap);
     String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);
-    topCounts.setDataSchema(tabularSchema);
+
+    tabularServer.setTabularSchemaJSON(tabularSchema);
+    tabularServer.setConverter(mapConverter);
+
     topCounts.setTopCount(10);
     topCounts.setSlidingWindowWidth(600, 1);
 
@@ -179,8 +194,8 @@ public class TwitterTopCounterApplication implements StreamingApplication
     dag.addStream("TwittedURLs", urlExtractor.url, uniqueCounter.data).setLocality(locality);
     // Count unique urls
     dag.addStream("UniqueURLCounts", uniqueCounter.count, topCounts.input);
-
-    dag.addStream("TopURLQuery", queryPort, topCounts.queryInput);
-    dag.addStream("TopURLResult", topCounts.resultOutput, queryResultPort);
+    dag.addStream("MapProvider", topCounts.output, tabularServer.input);
+    dag.addStream("TopURLQuery", queryPort, tabularServer.query);
+    dag.addStream("TopURLResult", tabularServer.queryResult, queryResultPort);
   }
 }

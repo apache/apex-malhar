@@ -22,7 +22,7 @@ import java.util.Map;
 /**
  * Implementation for App Builder
  */
-public class DimensionsComputationSingleSchemaMap extends DimensionsComputationSingleSchemaConv<Map<String, Object>>
+public class DimensionsComputationSingleSchemaMap extends DimensionsComputationSingleSchemaConv<Map<String, Object>, DimensionsMapConverter>
 {
   public DimensionsComputationSingleSchemaMap()
   {

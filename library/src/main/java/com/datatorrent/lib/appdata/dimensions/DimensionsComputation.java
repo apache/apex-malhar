@@ -32,9 +32,9 @@ import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
 import com.google.common.collect.Lists;
 import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 import java.util.List;
-import java.util.Map;
 
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
 public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
@@ -50,6 +50,9 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
   private transient List<AggregateEvent> aggregateEventBuffer = Lists.newArrayList();
 
+  @NotNull
+  protected AggregatorInfo aggregatorInfo;
+
   public transient final DefaultInputPort<INPUT_EVENT> inputEvent = new DefaultInputPort<INPUT_EVENT>() {
     @Override
     public void process(INPUT_EVENT tuple)
@@ -58,7 +61,14 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     }
   };
 
-  public final transient DefaultOutputPort<AggregateEvent> aggregateOutput = new DefaultOutputPort<AggregateEvent>();
+  public final transient DefaultOutputPort<AggregateEvent> aggregateOutput = new DefaultOutputPort<AggregateEvent>()
+  {
+    @Override
+    public Unifier<AggregateEvent> getUnifier()
+    {
+      return new DimensionsComputation.DimensionsComputationUnifier(getAggregatorInfo());
+    }
+  };
 
   public DimensionsComputation()
   {
@@ -108,7 +118,15 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
   public AggregatorInfo getAggregatorInfo()
   {
-    return AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
+    return aggregatorInfo;
+  }
+
+  /**
+   * @param aggregatorInfo the aggregatorInfo to set
+   */
+  public void setAggregatorInfo(AggregatorInfo aggregatorInfo)
+  {
+    this.aggregatorInfo = aggregatorInfo;
   }
 
   public void processInputEvent(INPUT_EVENT inputEvent)
@@ -157,7 +175,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   }
 
   @OperatorAnnotation(checkpointableWithinAppWindow=false)
-  class DimensionsComputationUnifier extends BaseOperator implements Operator.Unifier<AggregateEvent>
+  public static class DimensionsComputationUnifier extends BaseOperator implements Operator.Unifier<AggregateEvent>
   {
     public static final long DEFAULT_CACHE_SIZE = 50000;
 
@@ -166,26 +184,29 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     @Min(1)
     private long cacheSize = DEFAULT_CACHE_SIZE;
 
-    private transient Cache<EventKey, AggregateEvent> cache =
-    CacheBuilder.newBuilder().maximumSize(getCacheSize()).removalListener(new CacheRemovalListener()).build();
+    private transient Cache<EventKey, AggregateEvent> cache;
 
-    private Map<Integer, DimensionsStaticAggregator> aggregatorIDToAggregator;
+    private AggregatorInfo aggregatorInfo;
 
-    public DimensionsComputationUnifier(Map<Integer, DimensionsStaticAggregator> aggregatorIDToAggregator)
+    public DimensionsComputationUnifier()
     {
-      setAggregatorIDToAggregator(aggregatorIDToAggregator);
     }
 
-    private void setAggregatorIDToAggregator(Map<Integer, DimensionsStaticAggregator> aggregatorIDToAggregator)
+    public DimensionsComputationUnifier(AggregatorInfo aggregatorInfo)
     {
-      this.aggregatorIDToAggregator = Preconditions.checkNotNull(aggregatorIDToAggregator,
-                                                                 "aggregatorIDToAggregator");
+      setAggregatorInfo(aggregatorInfo);
+    }
+
+    private void setAggregatorInfo(AggregatorInfo aggregatorInfo)
+    {
+      this.aggregatorInfo = Preconditions.checkNotNull(aggregatorInfo,
+                                                                 "aggregatorInfo");
     }
 
     @Override
     public void process(AggregateEvent srcAgg)
     {
-      DimensionsStaticAggregator aggregator = aggregatorIDToAggregator.get(srcAgg.getAggregatorID());
+      DimensionsStaticAggregator aggregator = aggregatorInfo.getStaticAggregatorIDToAggregator().get(srcAgg.getAggregatorID());
       AggregateEvent destAgg = cache.getIfPresent(srcAgg.getEventKey());
 
       if(destAgg == null) {
@@ -193,7 +214,19 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
         return;
       }
 
-      aggregator.aggregate(destAgg, srcAgg);
+      aggregator.aggregateAggs(destAgg, srcAgg);
+    }
+
+    @Override
+    public void setup(OperatorContext context)
+    {
+      cache = CacheBuilder.newBuilder().maximumSize(getCacheSize()).removalListener(new CacheRemovalListener()).build();
+    }
+
+    @Override
+    public void endWindow()
+    {
+      cache.invalidateAll();
     }
 
     /**

@@ -43,7 +43,9 @@ public enum Type
   SHORT("short", 2, JSONType.NUMBER, Short.class,
         ImmutableSet.of(INTEGER, LONG)),
   BYTE("byte", 1, JSONType.NUMBER, Byte.class,
-       ImmutableSet.of(SHORT, INTEGER, LONG));
+       ImmutableSet.of(SHORT, INTEGER, LONG)),
+  OBJECT("object", -1, JSONType.INVALID, Object.class,
+          Collections.unmodifiableSet(new HashSet<Type>()));
 
   public static final Set<Type> NUMERIC_TYPES = ImmutableSet.of(BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE);
   public static final Set<Type> NON_NUMERIC_TYPES = ImmutableSet.of(BOOLEAN, CHAR, STRING);

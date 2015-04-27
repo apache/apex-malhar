@@ -19,5 +19,6 @@ public enum JSONType
 {
   BOOLEAN,
   NUMBER,
-  STRING;
+  STRING,
+  INVALID;
 }

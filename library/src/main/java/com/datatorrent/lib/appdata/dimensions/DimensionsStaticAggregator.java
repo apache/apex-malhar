@@ -21,4 +21,5 @@ public interface DimensionsStaticAggregator extends DimensionsAggregator
 {
   public AggregateEvent createDest(AggregateEvent first, FieldsDescriptor fd);
   public void aggregate(AggregateEvent dest, AggregateEvent src);
+  public void aggregateAggs(AggregateEvent agg1, AggregateEvent agg2);
 }

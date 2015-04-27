@@ -3,7 +3,7 @@
 <configuration>
   <property>
     <name>dt.attr.MASTER_MEMORY_MB</name>
-    <value>1024</value>
+    <value>4096</value>
   </property>
   <!-- default operator size 256MB -->
   <property>

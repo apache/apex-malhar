@@ -22,15 +22,20 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
+import com.datatorrent.lib.appbuilder.convert.pojo.PojoFieldRetrieverExpression;
+import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaPOJO;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+import com.google.common.collect.Maps;
 import java.net.URI;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 
 
@@ -125,7 +130,7 @@ public class ApplicationWithHDHT implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    AdsDimensionComputation dimensions = dag.addOperator("DimensionsComputation", new AdsDimensionComputation());
+    DimensionsComputationSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", DimensionsComputationSingleSchemaPOJO.class);
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
@@ -146,6 +151,21 @@ public class ApplicationWithHDHT implements StreamingApplication
     String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
 
     dimensions.setEventSchemaJSON(eventSchema);
+
+    PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
+    pfre.setFQClassName(AdInfo.class.getName());
+    Map<String, String> fieldToExpression = Maps.newHashMap();
+    fieldToExpression.put("publisher", "getPublisher()");
+    fieldToExpression.put("advertiser", "getAdvertiser()");
+    fieldToExpression.put("location", "getLocation()");
+    fieldToExpression.put("cost", "getCost()");
+    fieldToExpression.put("revenue", "getRevenue()");
+    fieldToExpression.put("impressions", "getImpressions()");
+    fieldToExpression.put("clicks", "getClicks()");
+    fieldToExpression.put("time", "getTime()");
+    pfre.setFieldToExpression(fieldToExpression);
+    dimensions.getConverter().setPojoFieldRetriever(pfre);
+
     store.setEventSchemaJSON(eventSchema);
     store.setDimensionalSchemaJSON(dimensionalSchema);
 
