@@ -85,7 +85,7 @@
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
   </property>
   <property>
-    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.DimensionsComputation.aggregateOutput.outputPort.attr.UNIFIER_LIMIT</name>
+    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.DimensionsComputation.outputport.aggregateOutput.attr.UNIFIER_LIMIT</name>
     <value>2</value>
   </property>
 
