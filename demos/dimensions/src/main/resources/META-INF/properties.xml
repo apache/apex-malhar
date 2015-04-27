@@ -84,6 +84,10 @@
     <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.DimensionsComputation.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
   </property>
+  <property>
+    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.DimensionsComputation.outputport.outputPort.attr.UNIFIER_LIMIT</name>
+    <value>2</value>
+  </property>
 
 
   <!-- Settings for GenericSalesDemoWithHDHT -->
