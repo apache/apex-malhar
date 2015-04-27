@@ -44,16 +44,16 @@ public class TestObjAllTypes
     {
     }
 
-    private boolean boolVal = true;
-    private byte byteVal = 5;
-    private char charVal = 'a';
-    private String stringVal = "hello";
-    private short shortVal = 10;
-    private int intVal = 11;
-    private long longVal = 15;
-    private float floatVal = 5.5f;
-    private double doubleVal = 6.3;
-    private Object objVal = Lists.newArrayList("bananas");
+    public boolean boolVal = true;
+    public byte byteVal = 5;
+    public char charVal = 'a';
+    public String stringVal = "hello";
+    public short shortVal = 10;
+    public int intVal = 11;
+    public long longVal = 15;
+    public float floatVal = 5.5f;
+    public double doubleVal = 6.3;
+    public Object objVal = Lists.newArrayList("bananas");
 
     /**
      * @return the boolVal
