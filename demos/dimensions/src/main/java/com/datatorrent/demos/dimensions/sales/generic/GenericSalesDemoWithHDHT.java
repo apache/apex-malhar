@@ -70,10 +70,6 @@ public class GenericSalesDemoWithHDHT implements StreamingApplication
     String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
     String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
 
-    logger.info("After reading schemas.");
-    logger.info("Event Schema: {}");
-    logger.info("Dimensions Schema: {}");
-
     dimensions.setEventSchemaJSON(eventSchema);
     store.setEventSchemaJSON(eventSchema);
     store.setDimensionalSchemaJSON(dimensionalSchema);
