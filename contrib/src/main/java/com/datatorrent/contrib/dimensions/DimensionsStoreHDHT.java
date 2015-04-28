@@ -191,7 +191,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       cache.put(gae.getEventKey(), gae);
     }
     else {
-      aggregator.aggregate(aggregate, gae);
+      aggregator.aggregateAggs(aggregate, gae);
     }
   }
 

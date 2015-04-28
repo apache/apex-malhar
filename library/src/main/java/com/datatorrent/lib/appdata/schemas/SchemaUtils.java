@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.io.InputStream;
@@ -56,7 +57,10 @@ public class SchemaUtils
   {
     StringWriter stringWriter = new StringWriter();
     try {
-      IOUtils.copy(SchemaUtils.class.getClassLoader().getResourceAsStream(resource),
+      InputStream is = SchemaUtils.class.getClassLoader().getResourceAsStream(resource);
+      Preconditions.checkArgument(is != null, resource + " could not be found in the resources.");
+
+      IOUtils.copy(is,
                    stringWriter);
     }
     catch(IOException ex) {

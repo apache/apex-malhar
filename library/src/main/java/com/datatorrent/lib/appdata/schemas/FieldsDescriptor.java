@@ -42,7 +42,7 @@ public class FieldsDescriptor
   private Map<String, Type> fieldToType;
   private Set<Type> compressedTypes;
   private Object2IntLinkedOpenHashMap<Type> typeToSize;
-  private transient Fields fields;
+  private Fields fields;
 
   public FieldsDescriptor()
   {
@@ -112,20 +112,30 @@ public class FieldsDescriptor
       }
 
       fields.add(field);
+    }
 
-      Object2IntLinkedOpenHashMap<String> fieldToIndex = getTypeToFieldToIndex().get(type);
+    //ensure consistent ordering of fields
+    for(Map.Entry<Type, List<String>> entry: typeToFields.entrySet()) {
+      Type type = entry.getKey();
+      List<String> tempFields = entry.getValue();
 
-      if(fieldToIndex == null) {
-        fieldToIndex = new Object2IntLinkedOpenHashMap<String>();
-        getTypeToFieldToIndex().put(type, fieldToIndex);
+      Collections.sort(tempFields);
+      Object2IntLinkedOpenHashMap<String> fieldToIndex = new Object2IntLinkedOpenHashMap<String>();
+
+      for(int index = 0;
+          index < tempFields.size();
+          index++) {
+        String field = tempFields.get(index);
+
+        if(compressedTypes.contains(type)) {
+          fieldToIndex.put(field, 0);
+        }
+        else {
+          fieldToIndex.put(field, index);
+        }
       }
 
-      if(compressedTypes.contains(type)) {
-        fieldToIndex.put(field, 0);
-      }
-      else {
-        fieldToIndex.put(field, fields.size() - 1);
-      }
+      typeToFieldToIndex.put(type, fieldToIndex);
     }
 
     //Types
@@ -174,7 +184,6 @@ public class FieldsDescriptor
 
   private void setFieldToType(Map<String, Type> fieldToType) {
     for(Map.Entry<String, Type> entry: fieldToType.entrySet()) {
-      System.out.println("Field and Type: " + entry.getKey() + " " + entry.getValue());
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }

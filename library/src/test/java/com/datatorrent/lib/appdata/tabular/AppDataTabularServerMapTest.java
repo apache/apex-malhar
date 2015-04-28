@@ -23,16 +23,12 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
 public class AppDataTabularServerMapTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(AppDataTabularServerMapTest.class);
-
   @Test
   public void simpleTest() throws Exception
   {
@@ -94,6 +90,4 @@ public class AppDataTabularServerMapTest
     //Test serialization
     TestUtils.clone(new Kryo(), tabularServer);
   }
-
-
 }
