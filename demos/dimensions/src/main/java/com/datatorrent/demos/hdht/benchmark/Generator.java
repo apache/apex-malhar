@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.demos.dimensions.benchmark;
+package com.datatorrent.demos.hdht.benchmark;
 
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
