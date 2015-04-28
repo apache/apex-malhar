@@ -123,7 +123,10 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   {
     convertInputEvent(inputEvent, aggregateEventBuffer);
 
-    for(AggregateEvent gae: aggregateEventBuffer) {
+    for(int index = 0;
+        index < aggregateEventBuffer.size();
+        index++) {
+      AggregateEvent gae = aggregateEventBuffer.get(index);
       processGenericEvent(gae);
     }
 
