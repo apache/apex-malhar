@@ -26,31 +26,23 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
-import com.google.common.cache.Cache;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 
 import java.util.List;
+import java.util.Map;
 
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
 public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 {
-  public static final long DEFAULT_CACHE_SIZE = 50000;
-
-  @Min(1)
-  private long cacheSize = DEFAULT_CACHE_SIZE;
   @Min(1)
   private int aggregationWindowCount = 1;
   private int windowCount = 0;
 
   @VisibleForTesting
-  public transient Cache<EventKey, AggregateEvent> cache =
-  CacheBuilder.newBuilder().maximumSize(cacheSize).removalListener(new CacheRemovalListener()).build();
-
+  public Map<EventKey, AggregateEvent> aggregationBuffer = Maps.newHashMap();
   private transient List<AggregateEvent> aggregateEventBuffer = Lists.newArrayList();
 
   @NotNull
@@ -77,22 +69,6 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   {
   }
 
-  /**
-   * @return the cacheSize
-   */
-  public long getCacheSize()
-  {
-    return cacheSize;
-  }
-
-  /**
-   * @param cacheSize the cacheSize to set
-   */
-  public void setCacheSize(long cacheSize)
-  {
-    this.cacheSize = cacheSize;
-  }
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -107,10 +83,17 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   @Override
   public void endWindow()
   {
-    if(windowCount == aggregationWindowCount) {
-      cache.invalidateAll();
-      windowCount = 0;
+    if(windowCount != aggregationWindowCount) {
+      //Do nothing
+      return;
     }
+
+    for(Map.Entry<EventKey, AggregateEvent> entry: aggregationBuffer.entrySet()) {
+      aggregateOutput.emit(entry.getValue());
+    }
+
+    aggregationBuffer.clear();
+    windowCount = 0;
   }
 
   @Override
@@ -150,14 +133,14 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   public void processGenericEvent(AggregateEvent gae)
   {
     DimensionsStaticAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorID());
-    AggregateEvent aggregate = cache.getIfPresent(gae.getEventKey());
+    AggregateEvent aggregate = aggregationBuffer.get(gae.getEventKey());
 
     if(aggregate == null) {
       gae = aggregator.createDest(gae,
                                   getAggregateFieldsDescriptor(gae.getSchemaID(),
                                                                gae.getDimensionDescriptorID(),
                                                                gae.getAggregatorID()));
-      cache.put(gae.getEventKey(), gae);
+      aggregationBuffer.put(gae.getEventKey(), gae);
       return;
     }
 
@@ -165,7 +148,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
     AggregateEvent newAggregate = new AggregateEvent(aggregate.getEventKey(),
                                                                    new GPOMutable(aggregate.getAggregates()));
-    cache.put(newAggregate.getEventKey(), newAggregate);
+    aggregationBuffer.put(newAggregate.getEventKey(), newAggregate);
   }
 
   /**
@@ -184,31 +167,12 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     this.aggregationWindowCount = aggregationWindowCount;
   }
 
-  class CacheRemovalListener implements RemovalListener<EventKey, AggregateEvent>
-  {
-    public CacheRemovalListener()
-    {
-    }
-
-    @Override
-    public void onRemoval(RemovalNotification<EventKey, AggregateEvent> notification)
-    {
-      aggregateOutput.emit(notification.getValue());
-    }
-  }
-
   @OperatorAnnotation(checkpointableWithinAppWindow=false)
   public static class DimensionsComputationUnifier extends BaseOperator implements Operator.Unifier<AggregateEvent>
   {
-    public static final long DEFAULT_CACHE_SIZE = 50000;
-
     public final transient DefaultOutputPort<AggregateEvent> output = new DefaultOutputPort<AggregateEvent>();
 
-    @Min(1)
-    private long cacheSize = DEFAULT_CACHE_SIZE;
-
-    private transient Cache<EventKey, AggregateEvent> cache;
-
+    private Map<EventKey, AggregateEvent> aggregationBuffer = Maps.newHashMap();
     private AggregatorInfo aggregatorInfo;
 
     public DimensionsComputationUnifier()
@@ -230,10 +194,10 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     public void process(AggregateEvent srcAgg)
     {
       DimensionsStaticAggregator aggregator = aggregatorInfo.getStaticAggregatorIDToAggregator().get(srcAgg.getAggregatorID());
-      AggregateEvent destAgg = cache.getIfPresent(srcAgg.getEventKey());
+      AggregateEvent destAgg = aggregationBuffer.get(srcAgg.getEventKey());
 
       if(destAgg == null) {
-        cache.put(srcAgg.getEventKey(), srcAgg);
+        aggregationBuffer.put(srcAgg.getEventKey(), srcAgg);
         return;
       }
 
@@ -243,41 +207,13 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     @Override
     public void setup(OperatorContext context)
     {
-      cache = CacheBuilder.newBuilder().maximumSize(getCacheSize()).removalListener(new CacheRemovalListener()).build();
     }
 
     @Override
     public void endWindow()
     {
-      cache.invalidateAll();
-    }
-
-    /**
-     * @return the cacheSize
-     */
-    public long getCacheSize()
-    {
-      return cacheSize;
-    }
-
-    /**
-     * @param cacheSize the cacheSize to set
-     */
-    public void setCacheSize(long cacheSize)
-    {
-      this.cacheSize = cacheSize;
-    }
-
-    class CacheRemovalListener implements RemovalListener<EventKey, AggregateEvent>
-    {
-      public CacheRemovalListener()
-      {
-      }
-
-      @Override
-      public void onRemoval(RemovalNotification<EventKey, AggregateEvent> notification)
-      {
-        output.emit(notification.getValue());
+      for(Map.Entry<EventKey, AggregateEvent> entry: aggregationBuffer.entrySet()) {
+        output.emit(entry.getValue());
       }
     }
   }
