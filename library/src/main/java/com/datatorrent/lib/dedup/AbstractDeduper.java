@@ -34,7 +34,6 @@ import org.apache.commons.lang.mutable.MutableLong;
 
 import com.datatorrent.lib.bucket.AbstractBucket;
 import com.datatorrent.lib.bucket.BucketManager;
-import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
@@ -97,6 +96,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
 
       if (bucket != null && bucket.containsEvent(tuple)) {
         counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
+        duplicates.emit(tuple);
         return;
       } //ignore event
 
@@ -131,6 +131,11 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
    * The output port on which deduped events are emitted.
    */
   public final transient DefaultOutputPort<OUTPUT> output = new DefaultOutputPort<OUTPUT>();
+  /**
+   * The output port on which duplicate events are emitted.
+   */
+  public final transient DefaultOutputPort<INPUT> duplicates = new DefaultOutputPort<INPUT>();
+
   //Check-pointed state
   @NotNull
   protected BucketManager<INPUT> bucketManager;
@@ -240,6 +245,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
             }
             else {
               counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
+              duplicates.emit(event);
             }
           }
         }
@@ -447,15 +453,13 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
               @SuppressWarnings("unchecked")
               BasicCounters<MutableLong> cs = (BasicCounters<MutableLong>) os.counters;
               logger.debug("operatorId:{} buckets:[in-memory:{} deleted:{} evicted:{}] events:[in-memory:{} committed-last-window:{} " +
-                  "ignored:{} duplicates:{}] low:{} high:{}", batchedOperatorStats.getOperatorId(),
+                  "duplicates:{}] low:{} high:{}", batchedOperatorStats.getOperatorId(),
                 cs.getCounter(BucketManager.CounterKeys.BUCKETS_IN_MEMORY),
                 cs.getCounter(BucketManager.CounterKeys.DELETED_BUCKETS),
                 cs.getCounter(BucketManager.CounterKeys.EVICTED_BUCKETS),
                 cs.getCounter(BucketManager.CounterKeys.EVENTS_IN_MEMORY),
                 cs.getCounter(BucketManager.CounterKeys.EVENTS_COMMITTED_LAST_WINDOW),
-                cs.getCounter(TimeBasedBucketManagerImpl.CounterKeys.IGNORED_EVENTS), cs.getCounter(CounterKeys.DUPLICATE_EVENTS),
-                cs.getCounter(TimeBasedBucketManagerImpl.CounterKeys.LOW),
-                cs.getCounter(TimeBasedBucketManagerImpl.CounterKeys.HIGH));
+                cs.getCounter(CounterKeys.DUPLICATE_EVENTS));
             }
           }
         }

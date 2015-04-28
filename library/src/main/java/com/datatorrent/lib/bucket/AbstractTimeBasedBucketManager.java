@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.bucket;
 
+import com.datatorrent.api.DefaultOutputPort;
 import java.io.IOException;
 import java.util.Calendar;
 import java.util.Timer;
@@ -61,6 +62,11 @@ public abstract class AbstractTimeBasedBucketManager<T> extends AbstractBucketMa
     bucketSpanInMillis = DEF_BUCKET_SPAN_MILLIS;
     lock = new Lock();
   }
+
+  /*
+   * The output port on which events to be ignored are emitted.
+   */
+  public final transient DefaultOutputPort<T> ignored = new DefaultOutputPort<T>();
 
   protected abstract long getTime(T event);
 
@@ -194,6 +200,7 @@ public abstract class AbstractTimeBasedBucketManager<T> extends AbstractBucketMa
     if (eventTime < expiryTime) {
       if (recordStats) {
         bucketCounters.getCounter(CounterKeys.IGNORED_EVENTS).increment();
+        ignored.emit(event);
       }
       return -1;
     }
