@@ -135,7 +135,8 @@ public class ApplicationWithHDHT implements StreamingApplication
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
     String basePath = conf.get(PROP_STORE_PATH);
-    TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
+
+    TFileImpl hdsFile = new TFileImpl.DTFileImpl();
 
     if(basePath != null) {
       basePath += System.currentTimeMillis();
