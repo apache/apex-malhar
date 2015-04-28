@@ -69,6 +69,7 @@ import kafka.javaapi.consumer.SimpleConsumer;
 import kafka.message.Message;
 import kafka.message.MessageAndOffset;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.MutablePair;
 import org.slf4j.Logger;
@@ -660,7 +661,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   {
     StatsListener.Response resp = new StatsListener.Response();
     List<KafkaConsumer.KafkaMeterStats> kstats = extractKafkaStats(stats);
-    resp.repartitionRequired = isPartitionRequired(stats.getOperatorId(), kstats);
+    resp.repartitionRequired = !CollectionUtils.isEmpty(kstats) && isPartitionRequired(stats.getOperatorId(), kstats);
     return resp;
   }
 
@@ -674,6 +675,9 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
   private List<KafkaConsumer.KafkaMeterStats> extractKafkaStats(StatsListener.BatchedOperatorStats stats)
   {
+    if (CollectionUtils.isEmpty(stats.getLastWindowedStats())) {
+      return null;
+    }
     //preprocess the stats
     List<KafkaConsumer.KafkaMeterStats> kmsList = new LinkedList<KafkaConsumer.KafkaMeterStats>();
     for (Stats.OperatorStats os : stats.getLastWindowedStats()) {
