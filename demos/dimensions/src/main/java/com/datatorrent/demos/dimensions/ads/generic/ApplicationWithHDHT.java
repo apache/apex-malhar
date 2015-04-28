@@ -151,6 +151,7 @@ public class ApplicationWithHDHT implements StreamingApplication
     String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
     String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
 
+    input.setEventSchemaJSON(eventSchema);
     dimensions.setEventSchemaJSON(eventSchema);
 
     PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
