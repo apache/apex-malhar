@@ -215,6 +215,8 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
       for(Map.Entry<EventKey, AggregateEvent> entry: aggregationBuffer.entrySet()) {
         output.emit(entry.getValue());
       }
+
+      aggregationBuffer.clear();
     }
   }
 }
