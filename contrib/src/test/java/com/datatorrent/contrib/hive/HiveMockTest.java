@@ -183,7 +183,7 @@ public class HiveMockTest extends HiveTestService
     hivePartitionColumns.add("dt");
     hiveInitializeDatabase(createStore(null));
     HiveOperator hiveOperator = new HiveOperator();
-    hiveOperator.setStore(hiveStore);
+    hiveOperator.setHivestore(hiveStore);
     hiveOperator.setTablename(tablename);
     hiveOperator.setHivePartitionColumns(hivePartitionColumns);
 
@@ -265,7 +265,7 @@ public class HiveMockTest extends HiveTestService
     hivePartitionColumns.add("dt");
     hiveInitializeMapDatabase(createStore(null));
     HiveOperator hiveOperator = new HiveOperator();
-    hiveOperator.setStore(hiveStore);
+    hiveOperator.setHivestore(hiveStore);
     hiveOperator.setTablename(tablemap);
     hiveOperator.setHivePartitionColumns(hivePartitionColumns);
 
@@ -345,7 +345,7 @@ public class HiveMockTest extends HiveTestService
     HiveOperator outputOperator = new HiveOperator();
     HiveOperator newOp;
 
-    outputOperator.setStore(hiveStore);
+    outputOperator.setHivestore(hiveStore);
     ArrayList<String> hivePartitionColumns = new ArrayList<String>();
     hivePartitionColumns.add("dt");
     FSRollingTestImpl fsRolling = new FSRollingTestImpl();
