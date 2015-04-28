@@ -73,7 +73,7 @@ public class GPOUtilsTest
     FieldsDescriptor fd = new FieldsDescriptor(fieldToType);
 
     GPOMutable gpo = new GPOMutable(fd);
-    
+
     gpo.setField(tboolean, tbooleanv);
     gpo.setField(tchar, tcharv);
     gpo.setField(tstring, tstringv);
@@ -123,7 +123,7 @@ public class GPOUtilsTest
                      + 4 //int
                      + 8; //long
 
-    logger.info("Correct total bytes {}.", totalBytes);
+    logger.debug("Correct total bytes {}.", totalBytes);
 
     fieldToType.put(tboolean, Type.BOOLEAN);
     fieldToType.put(tchar, Type.CHAR);
@@ -150,7 +150,7 @@ public class GPOUtilsTest
     gpo.setField(tlong, tlongv);
 
     byte[] gpoByte = GPOUtils.serialize(gpo);
-    logger.info("GPO num bytes: {}", gpoByte.length);
+    logger.debug("GPO num bytes: {}", gpoByte.length);
     GPOMutable dgpo = GPOUtils.deserialize(fd, gpoByte, 0);
 
     Assert.assertEquals("Values must equal", tbooleanv, dgpo.getField(tboolean));
