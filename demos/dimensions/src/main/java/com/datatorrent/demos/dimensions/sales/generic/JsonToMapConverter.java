@@ -16,7 +16,6 @@
 
 package com.datatorrent.demos.dimensions.sales.generic;
 
-import com.datatorrent.demos.dimensions.generic.*;
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;

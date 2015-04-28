@@ -16,7 +16,6 @@
 
 package com.datatorrent.demos.dimensions.sales.generic;
 
-import com.datatorrent.demos.dimensions.generic.*;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
