@@ -8,6 +8,8 @@ package com.datatorrent.demos.dimensions.ads.generic;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
+import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.google.common.collect.Maps;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
@@ -23,6 +25,9 @@ import java.util.Random;
  */
 public class InputItemGenerator implements InputOperator
 {
+  private String eventSchemaJSON;
+  private DimensionalEventSchema schema;
+
   public static final String[] PUBLISHERS = {"twitter", "facebook", "yahoo",
                                              "google", "bing", "amazon"};
   public static final String[] ADVERTISERS = {"starbucks", "safeway", "mcdonalds",
@@ -35,10 +40,6 @@ public class InputItemGenerator implements InputOperator
                                             "CT", "DE", "FL",
                                             "GA", "HI", "ID"};
 
-  public static final Map<String, Integer> ADVERTISER_TO_ID;
-  public static final Map<String, Integer> PUBLISHER_TO_ID;
-  public static final Map<String, Integer> LOCATION_TO_ID;
-
   public static final Map<Integer, String> ID_TO_ADVERTISER;
   public static final Map<Integer, String> ID_TO_PUBLISHER;
   public static final Map<Integer, String> ID_TO_LOCATION;
@@ -49,21 +50,18 @@ public class InputItemGenerator implements InputOperator
     populateMap(advertiserToId,
                 idToAdvertiser,
                 ADVERTISERS);
-    ADVERTISER_TO_ID = Collections.unmodifiableMap(advertiserToId);
     ID_TO_ADVERTISER = Collections.unmodifiableMap(idToAdvertiser);
     Map<String, Integer> publisherToId = Maps.newHashMap();
     Map<Integer, String> idToPublisher = Maps.newHashMap();
     populateMap(publisherToId,
                 idToPublisher,
                 PUBLISHERS);
-    PUBLISHER_TO_ID = Collections.unmodifiableMap(publisherToId);
     ID_TO_PUBLISHER = Collections.unmodifiableMap(idToPublisher);
     Map<String, Integer> locationToId = Maps.newHashMap();
     Map<Integer, String> idToLocation = Maps.newHashMap();
     populateMap(locationToId,
                 idToLocation,
                 LOCATIONS);
-    LOCATION_TO_ID = Collections.unmodifiableMap(locationToId);
     ID_TO_LOCATION = Collections.unmodifiableMap(idToLocation);
   }
 
@@ -125,6 +123,8 @@ public class InputItemGenerator implements InputOperator
   @Override
   public void setup(OperatorContext context)
   {
+    schema = new DimensionalEventSchema(eventSchemaJSON,
+                                        AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
   }
 
   @Override
@@ -205,4 +205,19 @@ public class InputItemGenerator implements InputOperator
     this.numTuplesPerWindow = numTuplesPerWindow;
   }
 
+  /**
+   * @return the eventSchemaJSON
+   */
+  public String getEventSchemaJSON()
+  {
+    return eventSchemaJSON;
+  }
+
+  /**
+   * @param eventSchemaJSON the eventSchemaJSON to set
+   */
+  public void setEventSchemaJSON(String eventSchemaJSON)
+  {
+    this.eventSchemaJSON = eventSchemaJSON;
+  }
 }

@@ -582,8 +582,14 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         for(String aggregatorName: query.getFieldsAggregatable().getAggregators())
         {
           if(getAggregatorInfo().isStaticAggregator(aggregatorName)) {
-            prunedKey.put(aggregatorName, key.get(aggregatorName));
-            prunedValue.put(aggregatorName, value.get(aggregatorName));
+            GPOMutable valueGPO = value.get(aggregatorName);
+
+            //If the aggregate was found
+            if(valueGPO != null) {
+              prunedKey.put(aggregatorName, key.get(aggregatorName));
+              prunedValue.put(aggregatorName, value.get(aggregatorName));
+            }
+
             continue;
           }
 
