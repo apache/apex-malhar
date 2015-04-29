@@ -92,7 +92,7 @@ public class CassandraOperatorTest
     }
   }
 
-  private static class TestOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<TestEvent>
+  private static class TestOutputOperator extends AbstractCassandraTransactionableOutputOperator<TestEvent>
   {
     private static final String INSERT_STMT = "INSERT INTO " + KEYSPACE+"." +TABLE_NAME + " (ID) VALUES (?);";
 

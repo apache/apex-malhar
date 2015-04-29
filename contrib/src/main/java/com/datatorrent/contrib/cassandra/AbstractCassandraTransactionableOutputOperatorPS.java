@@ -76,7 +76,6 @@ public abstract class AbstractCassandraTransactionableOutputOperatorPS<T> extend
    */
   protected abstract Statement setStatementParameters(PreparedStatement updateCommand, T tuple) throws DriverException;
 
-  @Override
   protected Statement getUpdateStatement(T tuple){
     return setStatementParameters(updateCommand, tuple);
   }
