@@ -17,6 +17,7 @@
 package com.datatorrent.lib.appdata.tabular;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 
 public class AppDataTabularServerPOJO extends AppDataTabularServerConv<Object, TabularPOJOConverter>
 {
@@ -30,6 +31,7 @@ public class AppDataTabularServerPOJO extends AppDataTabularServerConv<Object, T
   {
     super.setup(context);
 
-    converter.getPojoFieldRetriever().setFieldToType(schema.getFieldToType());
+    converter.getPojoFieldRetriever().setFieldToType(SchemaUtils.convertFieldToType(schema.getFieldToType()));
+    converter.getPojoFieldRetriever().setup();
   }
 }

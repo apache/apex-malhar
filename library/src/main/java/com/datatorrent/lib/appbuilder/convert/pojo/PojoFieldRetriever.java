@@ -29,7 +29,9 @@ public abstract class PojoFieldRetriever
   private String fqClassName;
 
   @NotNull
-  private Map<String, Type> fieldToType;
+  protected Map<String, Type> fieldToTypeInt;
+  @NotNull
+  private Map<String, String> fieldToType;
 
   protected transient Map<String, GetterBoolean> fieldToGetterBoolean;
   protected transient Map<String, GetterByte> fieldToGetterByte;
@@ -48,7 +50,17 @@ public abstract class PojoFieldRetriever
   {
   }
 
-  protected abstract void setup();
+  public void setup()
+  {
+    fieldToTypeInt = Maps.newHashMap();
+
+    for(Map.Entry<String, String> entry: fieldToType.entrySet()) {
+      String field = entry.getKey();
+      String typeString = entry.getValue();
+      Type type = Type.valueOf(typeString);
+      fieldToTypeInt.put(field, type);
+    }
+  }
 
   private void callSetup()
   {
@@ -58,14 +70,14 @@ public abstract class PojoFieldRetriever
     }
   }
 
-  public Map<String, Type> getFieldToType()
+  public Map<String, String> getFieldToType()
   {
     return fieldToType;
   }
 
-  public void setFieldToType(@NotNull Map<String, Type> fieldToType)
+  public void setFieldToType(@NotNull Map<String, String> fieldToType)
   {
-    for(Map.Entry<String, Type> entry: fieldToType.entrySet()) {
+    for(Map.Entry<String, String> entry: fieldToType.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }
@@ -87,7 +99,7 @@ public abstract class PojoFieldRetriever
   {
     Object result;
 
-    Type fieldType = this.fieldToType.get(field);
+    Type fieldType = this.fieldToTypeInt.get(field);
 
     Preconditions.checkArgument(fieldType != null, field + " is not a valid field.");
     callSetup();
@@ -222,7 +234,7 @@ public abstract class PojoFieldRetriever
 
   private void throwInvalidField(String field, Type type)
   {
-    Type fieldType = fieldToType.get(field);
+    Type fieldType = fieldToTypeInt.get(field);
 
     Preconditions.checkArgument(fieldType != null, "There is no field called " + field);
     Preconditions.checkArgument(fieldType == type, "The field " + field +

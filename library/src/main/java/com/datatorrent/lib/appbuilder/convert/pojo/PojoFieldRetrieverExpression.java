@@ -37,7 +37,9 @@ public class PojoFieldRetrieverExpression extends PojoFieldRetriever
   @Override
   public void setup()
   {
-    for(Map.Entry<String, Type> entry: getFieldToType().entrySet()) {
+    super.setup();
+
+    for(Map.Entry<String, Type> entry: fieldToTypeInt.entrySet()) {
       String fieldName = entry.getKey();
       Type type = entry.getValue();
 

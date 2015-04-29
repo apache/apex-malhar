@@ -16,6 +16,7 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,14 +25,18 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public class SchemaUtils
 {
+  private static final Logger logger = LoggerFactory.getLogger(SchemaUtils.class);
   public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
 
   private SchemaUtils()
@@ -171,5 +176,19 @@ public class SchemaUtils
                                        keys +
                                        "\nOne of the following key combinations was expected:\n" +
                                        fieldsList);
+  }
+
+  public static Map<String, String> convertFieldToType(Map<String, Type> fieldToType)
+  {
+    Map<String, String> fieldToTypeString = Maps.newHashMap();
+
+    for(Map.Entry<String, Type> entry: fieldToType.entrySet()) {
+      String field = entry.getKey();
+      String typeString = entry.getValue().name();
+
+      fieldToTypeString.put(field, typeString);
+    }
+
+    return fieldToTypeString;
   }
 }

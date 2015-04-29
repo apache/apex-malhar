@@ -35,7 +35,7 @@ public class TabularPOJOConverterTest
     SchemaTabular tabularSchema = new SchemaTabular(tabularSchemaJSON);
 
     PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
-    pfre.setFieldToType(tabularSchema.getFieldToType());
+    pfre.setFieldToType(SchemaUtils.convertFieldToType(tabularSchema.getFieldToType()));
 
     Map<String, String> fieldToExpression = Maps.newHashMap();
     fieldToExpression.put("boolField", "boolField");
@@ -44,6 +44,7 @@ public class TabularPOJOConverterTest
 
     pfre.setFieldToExpression(fieldToExpression);
     pfre.setFQClassName(SimplePOJO.class.getName());
+    pfre.setup();
 
     TabularPOJOConverter converter = new TabularPOJOConverter();
     converter.setPojoFieldRetriever(pfre);

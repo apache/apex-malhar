@@ -20,6 +20,7 @@ import com.datatorrent.lib.appbuilder.convert.pojo.PojoFieldRetrieverExpression;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
@@ -122,8 +123,9 @@ public class DimensionsPojoConverterTest
 
     PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
     pfre.setFQClassName(AdInfo.class.getCanonicalName());
-    pfre.setFieldToType(allFieldToType);
+    pfre.setFieldToType(SchemaUtils.convertFieldToType(allFieldToType));
     pfre.setFieldToExpression(fieldToExpression);
+    pfre.setup();
 
     DimensionsPOJOConverter pojoConverter = new DimensionsPOJOConverter();
     pojoConverter.setPojoFieldRetriever(pfre);

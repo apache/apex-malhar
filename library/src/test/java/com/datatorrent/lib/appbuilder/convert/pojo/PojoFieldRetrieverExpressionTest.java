@@ -30,18 +30,18 @@ public class PojoFieldRetrieverExpressionTest
   @Test
   public void simpleTest() throws Exception
   {
-    Map<String, Type> fieldToType = Maps.newHashMap();
+    Map<String, String> fieldToType = Maps.newHashMap();
 
-    fieldToType.put("boolVal", Type.BOOLEAN);
-    fieldToType.put("byteVal", Type.BYTE);
-    fieldToType.put("charVal", Type.CHAR);
-    fieldToType.put("stringVal", Type.STRING);
-    fieldToType.put("shortVal", Type.SHORT);
-    fieldToType.put("intVal", Type.INTEGER);
-    fieldToType.put("longVal", Type.LONG);
-    fieldToType.put("floatVal", Type.FLOAT);
-    fieldToType.put("doubleVal", Type.DOUBLE);
-    fieldToType.put("objVal", Type.OBJECT);
+    fieldToType.put("boolVal", Type.BOOLEAN.name());
+    fieldToType.put("byteVal", Type.BYTE.name());
+    fieldToType.put("charVal", Type.CHAR.name());
+    fieldToType.put("stringVal", Type.STRING.name());
+    fieldToType.put("shortVal", Type.SHORT.name());
+    fieldToType.put("intVal", Type.INTEGER.name());
+    fieldToType.put("longVal", Type.LONG.name());
+    fieldToType.put("floatVal", Type.FLOAT.name());
+    fieldToType.put("doubleVal", Type.DOUBLE.name());
+    fieldToType.put("objVal", Type.OBJECT.name());
 
     Map<String, String> fieldToExpression = Maps.newHashMap();
 
@@ -60,6 +60,8 @@ public class PojoFieldRetrieverExpressionTest
     pfre.setFieldToType(fieldToType);
     pfre.setFieldToExpression(fieldToExpression);
     pfre.setFQClassName(TestObjAllTypes.class.getName());
+
+    pfre.setup();
 
     TestObjAllTypes testObj = new TestObjAllTypes();
 

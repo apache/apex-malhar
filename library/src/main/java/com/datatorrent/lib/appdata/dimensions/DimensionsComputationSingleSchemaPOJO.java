@@ -17,6 +17,7 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 
 /**
  * @displayName Simple Pojo Dimensions Computation
@@ -35,6 +36,7 @@ public class DimensionsComputationSingleSchemaPOJO extends DimensionsComputation
   {
     super.setup(context);
 
-    converter.getPojoFieldRetriever().setFieldToType(eventSchema.getAllFieldToType());
+    converter.getPojoFieldRetriever().setFieldToType(SchemaUtils.convertFieldToType(eventSchema.getAllFieldToType()));
+    converter.getPojoFieldRetriever().setup();
   }
 }
