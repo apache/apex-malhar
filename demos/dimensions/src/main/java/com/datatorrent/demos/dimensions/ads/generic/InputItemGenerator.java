@@ -10,13 +10,11 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
-import com.google.common.collect.Maps;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
-import java.util.Map;
+import java.util.List;
 import java.util.Random;
 
 /**
@@ -28,56 +26,19 @@ public class InputItemGenerator implements InputOperator
   private String eventSchemaJSON;
   private DimensionalEventSchema schema;
 
-  public static final String[] PUBLISHERS = {"twitter", "facebook", "yahoo",
-                                             "google", "bing", "amazon"};
-  public static final String[] ADVERTISERS = {"starbucks", "safeway", "mcdonalds",
-                                              "macys", "taco bell", "walmart", "khol's",
-                                              "san diego zoo", "pandas", "jack in the box",
-                                              "tomatina", "ron swanson"};
-  public static final String[] LOCATIONS = {"N", "LREC", "SKY",
-                                            "AL", "AK", "AZ",
-                                            "AR", "CA", "CO",
-                                            "CT", "DE", "FL",
-                                            "GA", "HI", "ID"};
+  public static final String PUBLISHER = "publisher";
+  public static final String ADVERTISER = "advertiser";
+  public static final String LOCATION = "location";
 
-  public static final Map<Integer, String> ID_TO_ADVERTISER;
-  public static final Map<Integer, String> ID_TO_PUBLISHER;
-  public static final Map<Integer, String> ID_TO_LOCATION;
+  private int publisherID;
+  private int advertiserID;
+  private int locationID;
 
-  static {
-    Map<String, Integer> advertiserToId = Maps.newHashMap();
-    Map<Integer, String> idToAdvertiser = Maps.newHashMap();
-    populateMap(advertiserToId,
-                idToAdvertiser,
-                ADVERTISERS);
-    ID_TO_ADVERTISER = Collections.unmodifiableMap(idToAdvertiser);
-    Map<String, Integer> publisherToId = Maps.newHashMap();
-    Map<Integer, String> idToPublisher = Maps.newHashMap();
-    populateMap(publisherToId,
-                idToPublisher,
-                PUBLISHERS);
-    ID_TO_PUBLISHER = Collections.unmodifiableMap(idToPublisher);
-    Map<String, Integer> locationToId = Maps.newHashMap();
-    Map<Integer, String> idToLocation = Maps.newHashMap();
-    populateMap(locationToId,
-                idToLocation,
-                LOCATIONS);
-    ID_TO_LOCATION = Collections.unmodifiableMap(idToLocation);
-  }
+  private List<Object> publisherName;
+  private List<Object> advertiserName;
+  private List<Object> locationName;
 
-  private static void populateMap(Map<String, Integer> propertyToId,
-                                  Map<Integer, String> idToProperty,
-                                  String[] propertyValues)
-  {
-    for(int idCounter = 0;
-        idCounter < propertyValues.length;
-        idCounter++) {
-      propertyToId.put(propertyValues[idCounter], idCounter);
-      idToProperty.put(idCounter, propertyValues[idCounter]);
-    }
-  }
-
-  private double expectedClickThruRate = .2;//0.015;
+  private double expectedClickThruRate = 0.015;
   @Min(1)
   private int blastCount = 30000;
   @Min(1)
@@ -125,6 +86,14 @@ public class InputItemGenerator implements InputOperator
   {
     schema = new DimensionalEventSchema(eventSchemaJSON,
                                         AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+
+    publisherID = schema.getKeysToValuesList().get(PUBLISHER).size();
+    advertiserID = schema.getKeysToValuesList().get(ADVERTISER).size();
+    locationID = schema.getKeysToValuesList().get(LOCATION).size();
+
+    publisherName = schema.getKeysToValuesList().get(PUBLISHER);
+    advertiserName = schema.getKeysToValuesList().get(ADVERTISER);
+    locationName = schema.getKeysToValuesList().get(LOCATION);
   }
 
   @Override
@@ -138,12 +107,12 @@ public class InputItemGenerator implements InputOperator
     try {
       long timestamp;
       for (int i = 0; i < blastCount && windowCount < numTuplesPerWindow; ++i, windowCount++) {
-        int advertiserId = random.nextInt(ADVERTISERS.length);
+        int advertiserId = random.nextInt(advertiserID);
         //int advertiserId = random.nextInt(1) + 1;
         //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
-        int publisherId = random.nextInt(PUBLISHERS.length);
+        int publisherId = random.nextInt(publisherID);
         //int publisherId = random.nextInt(1) + 1;
-        int adUnit = random.nextInt(LOCATIONS.length);
+        int adUnit = random.nextInt(locationID);
         //int adUnit = random.nextInt(1) + 1;
 
         timestamp = System.currentTimeMillis();
@@ -174,9 +143,10 @@ public class InputItemGenerator implements InputOperator
   {
     AdInfo adInfo = new AdInfo();
 
-    adInfo.setPublisher(ID_TO_PUBLISHER.get(publisherId));
-    adInfo.setAdvertiser(ID_TO_ADVERTISER.get(advertiserId));
-    adInfo.setLocation(ID_TO_LOCATION.get(adUnit));
+    adInfo.setPublisher((String) publisherName.get(publisherId));
+    adInfo.setAdvertiser((String) advertiserName.get(advertiserId));
+    adInfo.setLocation((String) locationName.get(adUnit));
+
     if (click) {
       adInfo.setRevenue(value);
       adInfo.setClicks(1L);
