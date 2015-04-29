@@ -144,7 +144,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   protected final transient Map<KafkaPartition, MutablePair<Long, Integer>> currentWindowRecoveryState;
   protected transient Map<KafkaPartition, Long> offsetStats = new HashMap<KafkaPartition, Long>();
   private transient OperatorContext context = null;
-  private boolean idempotent = true;
   // By default the partition policy is 1:1
   public PartitionStrategy strategy = PartitionStrategy.ONE_TO_ONE;
 
@@ -185,7 +184,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
   public AbstractKafkaInputOperator()
   {
-    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
     currentWindowRecoveryState = new HashMap<KafkaPartition, MutablePair<Long, Integer>>();
   }
 
@@ -208,13 +207,13 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void setup(OperatorContext context)
   {
-    if(!(getConsumer() instanceof SimpleKafkaConsumer) || !idempotent) {
-      idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
-    }
     logger.debug("consumer {} topic {} cacheSize {}", consumer, consumer.getTopic(), consumer.getCacheSize());
     consumer.create();
     this.context = context;
     operatorId = context.getId();
+    if(consumer instanceof HighlevelKafkaConsumer && !(idempotentStorageManager instanceof IdempotentStorageManager.NoopIdempotentStorageManager)) {
+      throw new RuntimeException("Idempotency is not supported for High Level Kafka Consumer");
+    }
     idempotentStorageManager.setup(context);
   }
 
@@ -435,8 +434,11 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     // Initialize brokers from zookeepers
     getConsumer().initBrokers();
 
+    boolean isInitialParitition = true;
     // check if it's the initial partition
-    boolean isInitialParitition = partitions.iterator().next().getStats() == null;
+    if(partitions.iterator().hasNext()) {
+      isInitialParitition = partitions.iterator().next().getStats() == null;
+    }
 
     // get partition metadata for topics.
     // Whatever operator is using high-level or simple kafka consumer, the operator always create a temporary simple kafka consumer to get the metadata of the topic
@@ -943,15 +945,5 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void setStrategy(String policy)
   {
     this.strategy = PartitionStrategy.valueOf(policy.toUpperCase());
-  }
-
-  public boolean isIdempotent()
-  {
-    return idempotent;
-  }
-
-  public void setIdempotent(boolean idempotent)
-  {
-    this.idempotent = idempotent;
   }
 }
