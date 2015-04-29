@@ -104,6 +104,9 @@ public class DimensionalEventSchema
   private List<Int2ObjectMap<FieldsDescriptor>> ddIDToAggIDToOutputAggDescriptor;
   private List<IntArrayList> ddIDToAggIDs;
 
+  private List<Map<String, String>> combinationIDToFieldToAggregatorAdditionalValues;
+  private List<Fields> combinationIDToKeys;
+
   private String dimensionsString;
   private String keysString;
   private String bucketsString;
@@ -374,6 +377,9 @@ public class DimensionalEventSchema
     ddIDToDD = Lists.newArrayList();
     ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
 
+    combinationIDToKeys = Lists.newArrayList();
+    combinationIDToFieldToAggregatorAdditionalValues = Lists.newArrayList();
+
     JSONArray dimensionsArray = jo.getJSONArray(FIELD_DIMENSIONS);
     dimensionsString = dimensionsArray.toString();
     Set<Fields> dimensionsDescriptorFields = Sets.newHashSet();
@@ -412,19 +418,21 @@ public class DimensionalEventSchema
                                            dimensionDescriptorFields);
       }
 
+      Map<String, String> fieldToAggregatorAdditionalValues = Maps.newHashMap();
+      combinationIDToKeys.add(dimensionDescriptorFields);
+      combinationIDToFieldToAggregatorAdditionalValues.add(fieldToAggregatorAdditionalValues);
+
       //Loop through time to generate dimension descriptors
       for(TimeBucket timeBucket: timeBuckets) {
         DimensionsDescriptor dimensionsDescriptor =
         new DimensionsDescriptor(timeBucket,
                                  dimensionDescriptorFields);
-        logger.info("Event Schema Dimension Descriptor: {}", dimensionsDescriptor);
         ddIDToKeyDescriptor.add(dimensionsDescriptor.createFieldsDescriptor(keyDescriptor));
         ddIDToDD.add(dimensionsDescriptor);
       }
 
       if(dimension.has(FIELD_DIMENSIONS_ADDITIONAL_VALUES)) {
         JSONArray additionalValues = dimension.getJSONArray(FIELD_DIMENSIONS_ADDITIONAL_VALUES);
-        logger.info("Additional values length {}", additionalValues.length());
 
         //iterate over additional values
         for(int additionalValueIndex = 0;
@@ -442,6 +450,7 @@ public class DimensionalEventSchema
 
           String valueName = components[ADDITIONAL_VALUE_VALUE_INDEX];
           String aggregatorName = components[ADDITIONAL_VALUE_AGGREGATOR_INDEX];
+          fieldToAggregatorAdditionalValues.put(valueName, aggregatorName);
 
           if(!aggregatorInfo.isAggregator(aggregatorName)) {
             throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
@@ -760,5 +769,21 @@ public class DimensionalEventSchema
     }
 
     return fieldToType;
+  }
+
+  /**
+   * @return the combinationIDToKeys
+   */
+  public List<Fields> getCombinationIDToKeys()
+  {
+    return combinationIDToKeys;
+  }
+
+  /**
+   * @return the combinationIDToFieldToAggregatorAdditionalValues
+   */
+  public List<Map<String, String>> getCombinationIDToFieldToAggregatorAdditionalValues()
+  {
+    return combinationIDToFieldToAggregatorAdditionalValues;
   }
 }

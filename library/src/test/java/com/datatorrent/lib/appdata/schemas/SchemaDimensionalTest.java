@@ -5,7 +5,11 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
+import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -14,59 +18,28 @@ import org.junit.Test;
  */
 public class SchemaDimensionalTest
 {
+  private static final Logger logger = LoggerFactory.getLogger(SchemaDimensionalTest.class);
+
   public SchemaDimensionalTest()
   {
   }
 
   @Test
-  public void simpleTest()
+  public void additionalValueTest()
   {
-    /*
-    String json = "{\"schemaType\":\"dimensions\","
-            + "\"schemaVersion\":\"1.0\","
-            + "\"time\":"
-            + "{\"from\":\"2015-03-19 00:00:00:000\","
-            + "\"to\":\"2015-03-21 17:02:00:000\","
-            + "\"buckets\":[\"1m\",\"1h\",\"1d\"]},"
-            + "\"keys\":[{\"name\":\"publisher\",\"type\":\"string\",\"enumValues\":[\"twitter\",\"facebook\"]},"
-            + "          {\"name\":\"advertiser\",\"type\":\"string\",\"enumValues\":[\"starbucks\",\"safeway\"]},"
-            + "          {\"name\":\"location\",\"type\":\"string\",\"enumValues\":[\"N\",\"LREC\",\"SKY\"]}],"
-            + "\"values\":[{\"name\":\"impressions\",\"type\":\"integer\"},"
-            + "            {\"name\":\"clicks\",\"type\":\"integer\"},"
-            + "            {\"name\":\"cost\",\"type\":\"float\"},"
-            + "            {\"name\":\"revenue\",\"type\":\"float\"}]}";
+    String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAdditional.json");
 
-    SchemaDimensional gsd = new SchemaDimensional(json);
+    DataSerializerFactory dsf = new DataSerializerFactory(new AppDataFormatter());
+    SchemaDimensional schemaDimensional = new SchemaDimensional(new DimensionalEventSchema(eventSchemaJSON,
+                                                                                           AggregatorUtils.DEFAULT_AGGREGATOR_INFO));
 
-    Assert.assertEquals("Schema versions must match.", "1.0", gsd.getSchemaVersion());
-    Assert.assertEquals("Schema types must match.", "dimensions", gsd.getSchemaType());
+    SchemaQuery schemaQuery = new SchemaQuery();
+    schemaQuery.setId("1");
+    schemaQuery.setType(SchemaQuery.TYPE);
 
-    Assert.assertEquals("From must match.", "2015-03-19 00:00:00:000", gsd.getFrom());
-    Assert.assertEquals("To must match.", "2015-03-21 17:02:00:000", gsd.getTo());
+    SchemaResult result = new SchemaResult(schemaQuery, schemaDimensional);
+    String resultSchema = dsf.serialize(result);
 
-    Set<TimeBucket> timeBuckets = Sets.newHashSet(TimeBucket.MINUTE, TimeBucket.HOUR, TimeBucket.DAY);
-    Assert.assertEquals("Time buckets must match.", timeBuckets, gsd.getBuckets());
-
-    Map<String, Type> keyToType = Maps.newHashMap();
-    keyToType.put("publisher", Type.STRING);
-    keyToType.put("advertiser", Type.STRING);
-    keyToType.put("location", Type.STRING);
-
-    Assert.assertEquals("Keys and types must match.", keyToType, gsd.getKeyToType());
-
-    Map<String, Set<Object>> keyToValues = Maps.newHashMap();
-    keyToValues.put("publisher", Sets.newHashSet((Object) "twitter", (Object) "facebook"));
-    keyToValues.put("advertiser", Sets.newHashSet((Object) "starbucks", (Object) "safeway"));
-    keyToValues.put("location", Sets.newHashSet((Object) "N", (Object) "LREC", (Object) "SKY"));
-
-    Assert.assertEquals("Keys and values must match.", keyToValues, gsd.getKeyToValues());
-
-    Map<String, Type> valuesToType = Maps.newHashMap();
-    valuesToType.put("impressions", Type.INTEGER);
-    valuesToType.put("clicks", Type.INTEGER);
-    valuesToType.put("cost", Type.FLOAT);
-    valuesToType.put("revenue", Type.FLOAT);
-
-    Assert.assertEquals("Values to types must match.", valuesToType, gsd.getFieldToType());*/
+    logger.debug("{}", resultSchema);
   }
 }

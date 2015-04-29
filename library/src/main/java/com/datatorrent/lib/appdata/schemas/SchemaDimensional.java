@@ -153,8 +153,54 @@ public class SchemaDimensional implements Schema
       }
     }
 
-    //dimensions
-    JSONArray dimensions = new JSONArray(eventSchema.getDimensionsString());
+    JSONArray dimensions = new JSONArray();
+
+    for(int combinationID = 0;
+        combinationID < eventSchema.getCombinationIDToKeys().size();
+        combinationID++) {
+
+      Fields fields = eventSchema.getCombinationIDToKeys().get(combinationID);
+      Map<String, String> fieldToAggregatorAdditionalValues =
+      eventSchema.getCombinationIDToFieldToAggregatorAdditionalValues().get(combinationID);
+
+      JSONObject combination = new JSONObject();
+      JSONArray combinationArray = new JSONArray();
+
+      for(String field: fields.getFields()) {
+        combinationArray.put(field);
+      }
+
+      combination.put(DimensionalEventSchema.FIELD_DIMENSIONS_COMBINATIONS, combinationArray);
+
+      if(!fieldToAggregatorAdditionalValues.isEmpty()) {
+        JSONArray additionalValueArray = new JSONArray();
+
+        for(Map.Entry<String, String> entry: fieldToAggregatorAdditionalValues.entrySet()) {
+          JSONObject additionalValueObject = new JSONObject();
+
+          String valueName = entry.getKey();
+          String aggregatorName = entry.getValue();
+          String combinedName = valueName
+                                + DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR
+                                + aggregatorName;
+          Type inputValueType = inputValuesDescriptor.getType(valueName);
+
+          DimensionsStaticAggregator aggregator
+                  = eventSchema.getAggregatorInfo().getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
+          Type outputValueType = aggregator.getTypeMap().getTypeMap().get(inputValueType);
+
+          additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_NAME, combinedName);
+          additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_TYPE, outputValueType.getName());
+
+          additionalValueArray.put(additionalValueObject);
+        }
+
+        combination.put(DimensionalEventSchema.FIELD_DIMENSIONS_ADDITIONAL_VALUES, additionalValueArray);
+      }
+
+      dimensions.put(combination);
+    }
+
     schema.put(DimensionalEventSchema.FIELD_DIMENSIONS, dimensions);
   }
 
