@@ -23,10 +23,16 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Operator;
+import com.datatorrent.api.Partitioner;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
+import com.datatorrent.lib.io.IdempotentStorageManager;
+import com.datatorrent.lib.partitioner.StatelessPartitionerTest;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.io.File;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Properties;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -115,7 +121,9 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
 
     // Create KafkaSinglePortStringInputOperator
     KafkaSinglePortStringInputOperator node = dag.addOperator("Kafka message consumer", KafkaSinglePortStringInputOperator.class);
-    node.setIdempotent(idempotent);
+    if(idempotent) {
+      node.setIdempotentStorageManager(new IdempotentStorageManager.FSIdempotentStorageManager());
+    }
     consumer.setTopic(TEST_TOPIC);
 
     node.setConsumer(consumer);
@@ -250,40 +258,51 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     consumer.setTopic(TEST_TOPIC);
     consumer.setInitialOffset("earliest");
 
+    IdempotentStorageManager.FSIdempotentStorageManager storageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    storageManager.setRecoveryPath(testMeta.recoveryDir);
+    testMeta.operator.setIdempotentStorageManager(storageManager);
     testMeta.operator.setConsumer(consumer);
     testMeta.operator.setZookeeper("localhost:" + KafkaOperatorTestBase.TEST_ZOOKEEPER_PORT[0]);
     testMeta.operator.setMaxTuplesPerWindow(500);
+
+    List<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> partitions = new LinkedList<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>>();
+
+    Collection<Partitioner.Partition<AbstractKafkaInputOperator<KafkaConsumer>>> newPartitions = testMeta.operator.definePartitions(partitions, new StatelessPartitionerTest.PartitioningContextImpl(null, 0));
+    Assert.assertEquals(1, newPartitions.size());
+
+    KafkaSinglePortStringInputOperator operator = (KafkaSinglePortStringInputOperator)newPartitions.iterator().next().getPartitionedInstance();
+
     testMeta.sink = new CollectorTestSink<Object>();
     testMeta.operator.outputPort.setSink(testMeta.sink);
-
-    testMeta.operator.setup(testMeta.context);
-    testMeta.operator.activate(testMeta.context);
+    operator.outputPort.setSink(testMeta.sink);
+    operator.setup(testMeta.context);
+    operator.activate(testMeta.context);
     latch.await(4000, TimeUnit.MILLISECONDS);
-    testMeta.operator.beginWindow(1);
-    testMeta.operator.emitTuples();
-    testMeta.operator.endWindow();
-    testMeta.operator.beginWindow(2);
-    testMeta.operator.emitTuples();
-    testMeta.operator.endWindow();
+    operator.beginWindow(1);
+    operator.emitTuples();
+    operator.endWindow();
+    operator.beginWindow(2);
+    operator.emitTuples();
+    operator.endWindow();
 
     //failure and then re-deployment of operator
     testMeta.sink.collectedTuples.clear();
-    testMeta.operator.teardown();
-    testMeta.operator.setup(testMeta.context);
+    operator.teardown();
+    operator.setup(testMeta.context);
 
-    Assert.assertEquals("largest recovery window", 2, testMeta.operator.getIdempotentStorageManager().getLargestRecoveryWindow());
+    Assert.assertEquals("largest recovery window", 2, operator.getIdempotentStorageManager().getLargestRecoveryWindow());
 
-    testMeta.operator.beginWindow(1);
-    testMeta.operator.emitTuples();
-    testMeta.operator.endWindow();
-    testMeta.operator.beginWindow(2);
-    testMeta.operator.emitTuples();
-    testMeta.operator.endWindow();
+    operator.beginWindow(1);
+    operator.emitTuples();
+    operator.endWindow();
+    operator.beginWindow(2);
+    operator.emitTuples();
+    operator.endWindow();
     latch.await(3000, TimeUnit.MILLISECONDS);
     // Emiting data after all recovery windows are replayed
-    testMeta.operator.beginWindow(3);
-    testMeta.operator.emitTuples();
-    testMeta.operator.endWindow();
+    operator.beginWindow(3);
+    operator.emitTuples();
+    operator.endWindow();
 
     Assert.assertEquals("Total messages collected ", totalCount, testMeta.sink.collectedTuples.size());
     testMeta.sink.collectedTuples.clear();
