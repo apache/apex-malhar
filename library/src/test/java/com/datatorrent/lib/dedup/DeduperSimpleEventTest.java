@@ -49,7 +49,7 @@ public class DeduperSimpleEventTest
   private final static String APPLICATION_PATH_PREFIX = "target/DeduperPOJOTest";
   private final static String APP_ID = "DeduperPOJOTest";
   private final static int OPERATOR_ID = 0;
-
+  private static TimeBasedBucketManagerPOJOImpl timeManager;
   private final static Exchanger<Long> eventBucketExchanger = new Exchanger<Long>();
 
   private static class DummyDeduper extends AbstractDeduper<SimpleEvent, SimpleEvent>
@@ -112,10 +112,19 @@ public class DeduperSimpleEventTest
       event.setHhmm(calendar.getTimeInMillis() + "");
       events.add(event);
     }
+    //Add a duplicate event.
     SimpleEvent event = new SimpleEvent();
     event.setId(5);
     event.setHhmm(calendar.getTimeInMillis() + "");
 
+    events.add(event);
+
+    //Add an expired event.
+    Calendar newYearsDay = Calendar.getInstance();
+    newYearsDay.set(2013, 0, 1, 0, 0, 0);
+    event = new SimpleEvent();
+    event.setId(5);
+    event.setHhmm(newYearsDay.getTimeInMillis()+"");
     events.add(event);
 
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributes = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
@@ -124,7 +133,12 @@ public class DeduperSimpleEventTest
 
     deduper.setup(new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributes));
     CollectorTestSink<SimpleEvent> collectorTestSink = new CollectorTestSink<SimpleEvent>();
+    CollectorTestSink<SimpleEvent> collectorTestSinkDuplicates = new CollectorTestSink<SimpleEvent>();
+    CollectorTestSink<SimpleEvent> collectorTestSinkIgnored = new CollectorTestSink<SimpleEvent>();
+
     TestUtils.setSink(deduper.output, collectorTestSink);
+    TestUtils.setSink(deduper.duplicates, collectorTestSinkDuplicates);
+    TestUtils.setSink(timeManager.ignored, collectorTestSinkIgnored);
 
     logger.debug("start round 0");
     deduper.beginWindow(0);
@@ -132,7 +146,12 @@ public class DeduperSimpleEventTest
     deduper.handleIdleTime();
     deduper.endWindow();
     Assert.assertEquals("output tuples", 10, collectorTestSink.collectedTuples.size());
+    Assert.assertEquals("deduper duplicates", 1,collectorTestSinkDuplicates.collectedTuples.size());
+    Assert.assertEquals("ignored events", 1,collectorTestSinkIgnored.collectedTuples.size());
+
     collectorTestSink.clear();
+    collectorTestSinkDuplicates.clear();
+    collectorTestSinkIgnored.clear();
     logger.debug("end round 0");
 
     logger.debug("start round 1");
@@ -210,7 +229,7 @@ public class DeduperSimpleEventTest
     applicationPath = OperatorContextTestHelper.getUniqueApplicationPath(APPLICATION_PATH_PREFIX);
     ExpirableHdfsBucketStore<SimpleEvent> bucketStore = new ExpirableHdfsBucketStore<SimpleEvent>();
     deduper = new DummyDeduper();
-    TimeBasedBucketManagerPOJOImpl timeManager = new TimeBasedBucketManagerPOJOImpl();
+    timeManager = new TimeBasedBucketManagerPOJOImpl();
     timeManager.setBucketSpanInMillis(60000);
     timeManager.setMillisPreventingBucketEviction(60000);
     timeManager.setBucketStore(bucketStore);
