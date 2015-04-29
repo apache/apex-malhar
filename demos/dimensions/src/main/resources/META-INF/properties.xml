@@ -65,27 +65,23 @@
   <!-- Settings for GenericAdsDimensionsDemoWithHDHTtest -->
 
   <property>
-    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.Store.fileStore.basePathPrefix</name>
-    <value>AdsDimensionsWithHDSDemo/Store</value>
+    <name>dt.application.AdsDimensionsDemo.operator.Store.fileStore.basePathPrefix</name>
+    <value>AdsDimensionsDemo/Store</value>
   </property>
   <property>
-    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.useWebSockets</name>
-    <value>true</value>
-  </property>
-  <property>
-    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.Query.topic</name>
+    <name>dt.application.AdsDimensionsDemo.operator.Query.topic</name>
     <value>AdsQuery</value>
   </property>
   <property>
-    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.QueryResult.topic</name>
+    <name>dt.application.AdsDimensionsDemo.operator.QueryResult.topic</name>
     <value>AdsQueryResult</value>
   </property>
   <property>
-    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.DimensionsComputation.attr.PARTITIONER</name>
+    <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
   </property>
   <property>
-    <name>dt.application.GenericAdsDimensionsDemoWithHDHTtest.operator.DimensionsComputation.outputport.aggregateOutput.attr.UNIFIER_LIMIT</name>
+    <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.outputport.aggregateOutput.attr.UNIFIER_LIMIT</name>
     <value>2</value>
   </property>
 

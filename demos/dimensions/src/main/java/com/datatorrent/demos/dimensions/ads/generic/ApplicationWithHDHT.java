@@ -28,12 +28,12 @@ import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.net.URI;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.hadoop.fs.Path;
 
 import java.util.Map;
 
@@ -118,9 +118,7 @@ import java.util.Map;
 @ApplicationAnnotation(name=ApplicationWithHDHT.APP_NAME)
 public class ApplicationWithHDHT implements StreamingApplication
 {
-  private static final Logger logger = LoggerFactory.getLogger(ApplicationWithHDHT.class);
-
-  public static final String APP_NAME = "GenericAdsDimensionsDemoWithHDHTtest";
+  public static final String APP_NAME = "AdsDimensionsDemo";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
   public static final String EVENT_SCHEMA = "adsGenericEventSchema.json";
@@ -129,31 +127,20 @@ public class ApplicationWithHDHT implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
+    //Declare operators
+
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     DimensionsComputationSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", DimensionsComputationSingleSchemaPOJO.class);
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
-    String basePath = conf.get(PROP_STORE_PATH);
+    //Set operator properties
 
-    TFileImpl hdsFile = new TFileImpl.DTFileImpl();
-
-    if(basePath != null) {
-      basePath += System.currentTimeMillis();
-      hdsFile.setBasePath(basePath);
-      System.out.println("Setting basePath " + basePath);
-    }
-
-    store.setFileStore(hdsFile);
-    store.getAppDataFormatter().setContinuousFormatString("#.00");
-    dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator< MutableLong >());
-
+    //Set input properties
     String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
-    String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
-
     input.setEventSchemaJSON(eventSchema);
-    dimensions.setEventSchemaJSON(eventSchema);
 
+    //Set dimensions properties
     PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
     pfre.setFQClassName(AdInfo.class.getName());
     Map<String, String> fieldToExpression = Maps.newHashMap();
@@ -167,10 +154,23 @@ public class ApplicationWithHDHT implements StreamingApplication
     fieldToExpression.put("time", "getTime()");
     pfre.setFieldToExpression(fieldToExpression);
     dimensions.getConverter().setPojoFieldRetriever(pfre);
+    dimensions.setEventSchemaJSON(eventSchema);
 
+    //Set store properties
+    String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
+    String basePath = Preconditions.checkNotNull(conf.get(PROP_STORE_PATH),
+                                                 "a base path should be specified in the properties.xml");
+    TFileImpl hdsFile = new TFileImpl.DTFileImpl();
+    System.out.println(dag.getAttributes().get(DAG.APPLICATION_ID));
+    basePath += Path.SEPARATOR + System.currentTimeMillis();
+    hdsFile.setBasePath(basePath);
+    System.out.println("Setting basePath " + basePath);
+    store.setFileStore(hdsFile);
+    store.getAppDataFormatter().setContinuousFormatString("#.00");
     store.setEventSchemaJSON(eventSchema);
     store.setDimensionalSchemaJSON(dimensionalSchema);
 
+    //Set pubsub properties
     Operator.OutputPort<String> queryPort;
     Operator.InputPort<String> queryResultPort;
 
@@ -183,6 +183,10 @@ public class ApplicationWithHDHT implements StreamingApplication
     PubSubWebSocketAppDataResult wsOut = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
     wsOut.setUri(uri);
     queryResultPort = wsOut.input;
+
+    //Set remaining dag options
+
+    dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
     dag.addStream("InputStream", input.outputPort, dimensions.inputEvent);
     dag.addStream("DimensionalData", dimensions.aggregateOutput, store.input);
