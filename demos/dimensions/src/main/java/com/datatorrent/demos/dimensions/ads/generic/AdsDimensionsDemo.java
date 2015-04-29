@@ -115,8 +115,8 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-@ApplicationAnnotation(name=ApplicationWithHDHT.APP_NAME)
-public class ApplicationWithHDHT implements StreamingApplication
+@ApplicationAnnotation(name=AdsDimensionsDemo.APP_NAME)
+public class AdsDimensionsDemo implements StreamingApplication
 {
   public static final String APP_NAME = "AdsDimensionsDemo";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";

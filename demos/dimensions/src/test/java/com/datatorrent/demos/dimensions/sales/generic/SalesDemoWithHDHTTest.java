@@ -21,7 +21,7 @@ import com.datatorrent.lib.appdata.dimensions.DimensionsMapConverter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import org.junit.Test;
 
-import static com.datatorrent.demos.dimensions.ads.generic.ApplicationWithHDHT.EVENT_SCHEMA;
+import static com.datatorrent.demos.dimensions.ads.generic.AdsDimensionsDemo.EVENT_SCHEMA;
 
 public class SalesDemoWithHDHTTest
 {
