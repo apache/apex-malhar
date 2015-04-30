@@ -106,17 +106,17 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
                                                                 int dimensionDescriptorID,
                                                                 int aggregatorID);
 
-  public AggregatorInfo getAggregatorInfo()
-  {
-    return aggregatorInfo;
-  }
-
   /**
    * @param aggregatorInfo the aggregatorInfo to set
    */
-  public void setAggregatorInfo(AggregatorInfo aggregatorInfo)
+  public void setAggregatorInfo(@NotNull AggregatorInfo aggregatorInfo)
   {
     this.aggregatorInfo = aggregatorInfo;
+  }
+
+  public AggregatorInfo getAggregatorInfo()
+  {
+    return aggregatorInfo;
   }
 
   public void processInputEvent(INPUT_EVENT inputEvent)
@@ -182,7 +182,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     {
     }
 
-    public DimensionsComputationUnifier(AggregatorInfo aggregatorInfo)
+    public DimensionsComputationUnifier(@NotNull AggregatorInfo aggregatorInfo)
     {
       setAggregatorInfo(aggregatorInfo);
     }
@@ -190,7 +190,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     private void setAggregatorInfo(AggregatorInfo aggregatorInfo)
     {
       this.aggregatorInfo = Preconditions.checkNotNull(aggregatorInfo,
-                                                                 "aggregatorInfo");
+                                                       "aggregatorInfo");
     }
 
     @Override
