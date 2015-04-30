@@ -92,6 +92,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   private transient DataDeserializerFactory queryDeserializerFactory;
   @NotNull
   private AppDataFormatter appDataFormatter = new AppDataFormatter();
+  @NotNull
+  private AggregatorInfo aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
   private transient DataSerializerFactory resultSerializerFactory;
   private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
   private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
@@ -168,7 +170,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryDimensional.class);
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
-                                             getAggregatorInfo());
+                                             aggregatorInfo);
     dimensionalSchema = new SchemaDimensional(dimensionalSchemaJSON,
                                               eventSchema);
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
@@ -215,15 +217,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     super.teardown();
   }
 
-  public AggregatorInfo getAggregatorInfo()
-  {
-    return AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
-  }
-
   @Override
   public DimensionsStaticAggregator getAggregator(int aggregatorID)
   {
-    return getAggregatorInfo().getStaticAggregatorIDToAggregator().get(aggregatorID);
+    return aggregatorInfo.getStaticAggregatorIDToAggregator().get(aggregatorID);
   }
 
   @Override
@@ -292,6 +289,22 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     return appDataFormatter;
   }
 
+  /**
+   * @return the aggregatorInfo
+   */
+  public AggregatorInfo getAggregatorInfo()
+  {
+    return aggregatorInfo;
+  }
+
+  /**
+   * @param aggregatorInfo the aggregatorInfo to set
+   */
+  public void setAggregatorInfo(@NotNull AggregatorInfo aggregatorInfo)
+  {
+    this.aggregatorInfo = aggregatorInfo;
+  }
+
   //==========================================================================
   // Query Processing Classes - Start
   //==========================================================================
@@ -327,17 +340,17 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       Set<String> aggregatorNames = Sets.newHashSet();
 
       for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
-        if(!getAggregatorInfo().isAggregator(aggregatorName)) {
+        if(!aggregatorInfo.isAggregator(aggregatorName)) {
           logger.error(aggregatorName + " is not a valid aggregator.");
           return false;
         }
 
-        if(getAggregatorInfo().isStaticAggregator(aggregatorName)) {
+        if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
           aggregatorNames.add(aggregatorName);
           continue;
         }
 
-        aggregatorNames.addAll(getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(aggregatorName));
+        aggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
       }
 
       for(String aggregatorName: aggregatorNames) {
@@ -581,7 +594,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
         for(String aggregatorName: query.getFieldsAggregatable().getAggregators())
         {
-          if(getAggregatorInfo().isStaticAggregator(aggregatorName)) {
+          if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
             GPOMutable valueGPO = value.get(aggregatorName);
 
             //If the aggregate was found
@@ -594,7 +607,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           }
 
           List<GPOMutable> mutableValues = Lists.newArrayList();
-          List<String> childAggregators = getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(aggregatorName);
+          List<String> childAggregators = aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName);
 
           boolean gotAllStaticAggregators = true;
 
