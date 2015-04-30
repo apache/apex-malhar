@@ -30,6 +30,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -37,6 +39,8 @@ import java.util.Map;
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
 public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 {
+  private static final Logger logger = LoggerFactory.getLogger(DimensionsComputation.class);
+
   @Min(1)
   private int aggregationWindowCount = 1;
   private int windowCount = 0;
