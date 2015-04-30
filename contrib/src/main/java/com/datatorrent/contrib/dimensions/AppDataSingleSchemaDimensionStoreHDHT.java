@@ -397,8 +397,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         long startTime = -1L;
 
         if(query.isFromTo()) {
-          startTime = query.getTimeBucket().roundDown(query.getFromLong());
-          endTime = query.getTimeBucket().roundDown(query.getToLong());
+          startTime = query.getTimeBucket().roundDown(query.getFrom());
+          endTime = query.getTimeBucket().roundDown(query.getTo());
         }
         else {
           long time = System.currentTimeMillis();

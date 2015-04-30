@@ -24,6 +24,8 @@ import java.io.StringWriter;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import org.apache.commons.io.IOUtils;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -190,5 +192,35 @@ public class SchemaUtils
     }
 
     return fieldToTypeString;
+  }
+
+  public static JSONArray findFirstKeyJSONArray(JSONObject jo, String key)
+  {
+    Iterator keyIterator = jo.keys();
+
+    while(keyIterator.hasNext()) {
+      boolean found = false;
+
+      try {
+        JSONArray jsonArray = jo.getJSONArray(key);
+      }
+      catch(JSONException ex) {
+        found = true;
+      }
+
+      if(!found) {
+        //jo.getJSONObject(key)
+      }
+    }
+
+    return null;
+  }
+
+  public static JSONObject findFirstKeyJSONObject(JSONObject jo, String key)
+  {
+    Preconditions.checkNotNull(jo, "jo");
+    Preconditions.checkNotNull(key, "key");
+
+    return null;
   }
 }

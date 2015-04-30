@@ -38,15 +38,13 @@ public class AggregatorInfo
   }
 
   public AggregatorInfo(Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName,
-                        Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator,
                         Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator,
                         Map<String, Integer> staticAggregatorNameToID,
                         Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
   {
     setClassToStaticAggregatorName(classToStaticAggregatorName);
-    setStaticAggregatorIDToAggregator(staticAggregatorIDToAggregator);
-    setNameToOTFAggregators(nameToOTFAggregator);
     setStaticAggregatorNameToStaticAggregator(staticAggregatorNameToStaticAggregator);
+    setNameToOTFAggregators(nameToOTFAggregator);
     setStaticAggregatorNameToID(staticAggregatorNameToID);
 
     initialize();
@@ -54,6 +52,18 @@ public class AggregatorInfo
 
   private void initialize()
   {
+    staticAggregatorIDToAggregator = Maps.newHashMap();
+
+    for(Map.Entry<String, Integer> entry: staticAggregatorNameToID.entrySet()) {
+      String aggregatorName = entry.getKey();
+      int aggregatorID = entry.getValue();
+
+      staticAggregatorIDToAggregator.put(aggregatorID,
+                                         staticAggregatorNameToStaticAggregator.get(aggregatorName));
+    }
+
+    staticAggregatorIDToAggregator = Maps.newHashMap();
+
     otfAggregatorToStaticAggregators = Maps.newHashMap();
 
     for(Map.Entry<String, DimensionsOTFAggregator> entry: nameToOTFAggregator.entrySet()) {
@@ -103,20 +113,6 @@ public class AggregatorInfo
   public Map<Class<? extends DimensionsStaticAggregator>, String> getClassToStaticAggregatorName()
   {
     return classToStaticAggregatorName;
-  }
-
-  private void setStaticAggregatorIDToAggregator(Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator)
-  {
-    Preconditions.checkNotNull(staticAggregatorIDToAggregator, "staticAggregatorIDToAggregator");
-
-    for(Map.Entry<Integer, DimensionsStaticAggregator> entry: staticAggregatorIDToAggregator.entrySet()) {
-      Preconditions.checkNotNull(entry.getKey());
-      Preconditions.checkNotNull(entry.getValue());
-    }
-
-    this.staticAggregatorIDToAggregator = Maps.newHashMap(staticAggregatorIDToAggregator);
-    //TODO this map should be made unmodifiable
-    //this.staticAggregatorIDToAggregator = Collections.unmodifiableMap(staticAggregatorIDToAggregator);
   }
 
   public Map<Integer, DimensionsStaticAggregator> getStaticAggregatorIDToAggregator()

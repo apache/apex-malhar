@@ -23,7 +23,6 @@ import java.util.Map;
 public final class AggregatorUtils
 {
   public static final AggregatorInfo DEFAULT_AGGREGATOR_INFO = new AggregatorInfo(AggregatorStaticType.CLASS_TO_NAME,
-                                                                                  AggregatorStaticType.ORDINAL_TO_AGGREGATOR,
                                                                                   AggregatorStaticType.NAME_TO_AGGREGATOR,
                                                                                   AggregatorStaticType.NAME_TO_ORDINAL,
                                                                                   AggregatorOTFType.NAME_TO_AGGREGATOR);

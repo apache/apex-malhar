@@ -77,8 +77,8 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
     boolean hasFromTo = false;
     int latestNumBuckets = -1;
-    String from = null;
-    String to = null;
+    long from = 0;
+    long to = 0;
     TimeBucket bucket = null;
 
     boolean hasTime = data.has(DataQueryDimensional.FIELD_TIME);
@@ -96,8 +96,8 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
       hasFromTo = time.has(DataQueryDimensional.FIELD_FROM);
 
       if(hasFromTo) {
-        from = time.getString(DataQueryDimensional.FIELD_FROM);
-        to = time.getString(DataQueryDimensional.FIELD_TO);
+        from = time.getLong(DataQueryDimensional.FIELD_FROM);
+        to = time.getLong(DataQueryDimensional.FIELD_TO);
       }
       else {
         latestNumBuckets = time.getInt(DataQueryDimensional.FIELD_LATEST_NUM_BUCKETS);

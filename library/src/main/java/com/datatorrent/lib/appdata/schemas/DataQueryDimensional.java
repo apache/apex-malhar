@@ -59,8 +59,8 @@ public class DataQueryDimensional extends Query
     TIME_FIELD_DESCRIPTOR = new FieldsDescriptor(fieldToType);
   }
 
-  private String from;
-  private String to;
+  private long from;
+  private long to;
   private int latestNumBuckets = -1;
   private TimeBucket timeBucket;
   private GPOMutable keys;
@@ -109,8 +109,8 @@ public class DataQueryDimensional extends Query
 
   public DataQueryDimensional(String id,
                           String type,
-                          String from,
-                          String to,
+                          long from,
+                          long to,
                           TimeBucket timeBucket,
                           GPOMutable keys,
                           FieldsAggregatable fieldsAggregatable,
@@ -131,8 +131,8 @@ public class DataQueryDimensional extends Query
 
   public DataQueryDimensional(String id,
                           String type,
-                          String from,
-                          String to,
+                          long from,
+                          long to,
                           TimeBucket timeBucket,
                           GPOMutable keys,
                           FieldsAggregatable fieldsAggregatable,
@@ -227,38 +227,24 @@ public class DataQueryDimensional extends Query
     return incompleteResultOK;
   }
 
-  private void setFrom(String from)
+  private void setFrom(long from)
   {
-    Preconditions.checkNotNull(from);
-    SchemaUtils.checkDateEx(from);
     this.from = from;
   }
 
-  public String getFrom()
+  public long getFrom()
   {
     return from;
   }
 
-  public long getFromLong()
+  private void setTo(long to)
   {
-    return SchemaUtils.getLong(from);
-  }
-
-  private void setTo(String to)
-  {
-    Preconditions.checkNotNull(to);
-    SchemaUtils.checkDateEx(to);
     this.to = to;
   }
 
-  public String getTo()
+  public long getTo()
   {
     return to;
-  }
-
-  public long getToLong()
-  {
-    return SchemaUtils.getLong(to);
   }
 
   private void setTimeBucket(TimeBucket timeBucket)
@@ -335,8 +321,8 @@ public class DataQueryDimensional extends Query
   public int hashCode()
   {
     int hash = 3;
-    hash = 59 * hash + (this.from != null ? this.from.hashCode() : 0);
-    hash = 59 * hash + (this.to != null ? this.to.hashCode() : 0);
+    hash = 59 * hash + ((int) from);
+    hash = 59 * hash + ((int) to);
     hash = 59 * hash + this.latestNumBuckets;
     hash = 59 * hash + (this.timeBucket != null ? this.timeBucket.hashCode() : 0);
     hash = 59 * hash + (this.keys != null ? this.keys.hashCode() : 0);
@@ -358,10 +344,10 @@ public class DataQueryDimensional extends Query
       return false;
     }
     final DataQueryDimensional other = (DataQueryDimensional) query;
-    if((this.from == null) ? (other.from != null) : !this.from.equals(other.from)) {
+    if(this.from != other.from) {
       return false;
     }
-    if((this.to == null) ? (other.to != null) : !this.to.equals(other.to)) {
+    if(this.to != other.from) {
       return false;
     }
     if(this.timeBucket != other.timeBucket) {
@@ -398,10 +384,10 @@ public class DataQueryDimensional extends Query
       return false;
     }
     final DataQueryDimensional other = (DataQueryDimensional)obj;
-    if((this.from == null) ? (other.from != null) : !this.from.equals(other.from)) {
+    if(this.from != other.from) {
       return false;
     }
-    if((this.to == null) ? (other.to != null) : !this.to.equals(other.to)) {
+    if(this.to != other.to) {
       return false;
     }
     if(this.latestNumBuckets != other.latestNumBuckets) {

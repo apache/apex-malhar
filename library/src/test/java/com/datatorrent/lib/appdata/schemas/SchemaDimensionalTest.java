@@ -25,6 +25,11 @@ public class SchemaDimensionalTest
   }
 
   @Test
+  public void simpleValueTest()
+  {
+  }
+
+  @Test
   public void additionalValueTest()
   {
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAdditional.json");
