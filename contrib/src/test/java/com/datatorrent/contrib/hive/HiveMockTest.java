@@ -117,9 +117,9 @@ public class HiveMockTest extends HiveTestService
 
     String properties = sb.toString();
     LOG.debug(properties);
-    hiveStore.setDbDriver("org.apache.hive.jdbc.HiveDriver");
+    hiveStore.setDatabaseDriver("org.apache.hive.jdbc.HiveDriver");
 
-    hiveStore.setDbUrl("jdbc:hive2://");
+    hiveStore.setDatabaseUrl("jdbc:hive2://");
     hiveStore.setConnectionProperties(properties);
     return hiveStore;
   }

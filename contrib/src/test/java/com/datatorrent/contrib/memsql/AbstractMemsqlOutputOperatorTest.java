@@ -69,7 +69,7 @@ public class AbstractMemsqlOutputOperatorTest
     LOG.debug("Host name: {}", tempHost);
     LOG.debug("User name: {}", user);
     LOG.debug("Port: {}" , port);
-    memsqlStore.setDbUrl(tempHost);
+    memsqlStore.setDatabaseUrl(tempHost);
 
     sb.append("user:").append(user).append(",");
     sb.append("port:").append(port);

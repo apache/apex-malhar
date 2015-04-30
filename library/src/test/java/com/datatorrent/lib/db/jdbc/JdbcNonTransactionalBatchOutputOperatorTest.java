@@ -116,8 +116,8 @@ public class JdbcNonTransactionalBatchOutputOperatorTest
   private static TestOutputOperator createOperator(ProcessingMode processingMode)
   {
     JdbcNonTransactionalStore store = new JdbcNonTransactionalStore();
-    store.setDbDriver(JdbcNonTransactionalOutputOperatorTest.DB_DRIVER);
-    store.setDbUrl(JdbcNonTransactionalOutputOperatorTest.URL);
+    store.setDatabaseDriver(JdbcNonTransactionalOutputOperatorTest.DB_DRIVER);
+    store.setDatabaseUrl(JdbcNonTransactionalOutputOperatorTest.URL);
 
     TestOutputOperator outputOperator = new TestOutputOperator();
 

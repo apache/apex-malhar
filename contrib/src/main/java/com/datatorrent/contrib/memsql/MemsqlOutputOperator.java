@@ -13,20 +13,80 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.datatorrent.contrib.memsql;
 
-import com.datatorrent.contrib.memsql.*;
-import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.FQ_TABLE;
+import com.datatorrent.api.Context.OperatorContext;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import javax.validation.constraints.NotNull;
 
-public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Integer>
+/*
+ * A generic implementation of AbstractMemsqlOutputOperator which can take in a POJO.
+ */
+public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
 {
-  private static final String INSERT = "INSERT INTO " +
-                                        FQ_TABLE +
-                                        " (" + AbstractMemsqlOutputOperatorTest.DATA_COLUMN + ")" +
-                                        " values (?)";
+  @NotNull
+  private String tablename;
+  @NotNull
+  private ArrayList<String> dataColumns;
+  private String insertStatement;
+
+  /*
+   * An arraylist of data column names to be set in Memsql database.
+   * Gets column names.
+   */
+  public ArrayList<String> getDataColumns()
+  {
+    return dataColumns;
+  }
+
+  /*
+   * An arraylist of data column names to be set in Memsql database.
+   * Sets column names.
+   */
+  public void setDataColumns(ArrayList<String> dataColumns)
+  {
+    this.dataColumns = dataColumns;
+  }
+
+
+  /*
+   * Gets the Memsql Tablename
+   */
+  public String getTablename()
+  {
+    return tablename;
+  }
+
+  /*
+   * Sets the Memsql Tablename
+   */
+  public void setTablename(String tablename)
+  {
+    this.tablename = tablename;
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+    StringBuilder columns = new StringBuilder("");
+    StringBuilder values = new StringBuilder("");
+    for (int i = 0; i < dataColumns.size(); i++) {
+      columns.append(dataColumns.get(i));
+      values.append("?");
+      if (i < dataColumns.size() - 1) {
+        columns.append(",");
+        values.append(",");
+      }
+    }
+
+    insertStatement = "INSERT INTO "
+            + tablename
+            + " (" + getDataColumns() + ")"
+            + " values (" + values + ")";
+  }
 
   public MemsqlOutputOperator()
   {
@@ -35,12 +95,13 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Integer>
   @Override
   protected String getUpdateCommand()
   {
-    return INSERT;
+    return insertStatement;
   }
 
   @Override
-  protected void setStatementParameters(PreparedStatement statement, Integer tuple) throws SQLException
+  protected void setStatementParameters(PreparedStatement statement, Object tuple) throws SQLException
   {
-    statement.setInt(1, tuple);
+    statement.setObject(1, tuple);
   }
+
 }
