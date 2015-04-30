@@ -41,21 +41,39 @@ public class AggregatorInfo
     //for kryo
   }
 
-  public AggregatorInfo(Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName,
-                        Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator,
-                        Map<String, Integer> staticAggregatorNameToID,
-                        Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
+  public AggregatorInfo(Map<String, DimensionsAggregator> nameToAggregator,
+                        Map<String, Integer> staticAggregatorNameToID)
   {
-    setClassToStaticAggregatorName(classToStaticAggregatorName);
-    setStaticAggregatorNameToStaticAggregator(staticAggregatorNameToStaticAggregator);
-    setNameToOTFAggregators(nameToOTFAggregator);
     setStaticAggregatorNameToID(staticAggregatorNameToID);
-
-    initialize();
+    initialize(nameToAggregator);
   }
 
-  private void initialize()
+  private void initialize(Map<String, DimensionsAggregator> nameToAggregator)
   {
+    staticAggregatorNameToStaticAggregator = Maps.newHashMap();
+    nameToOTFAggregator = Maps.newHashMap();
+
+    for(Map.Entry<String, DimensionsAggregator> entry: nameToAggregator.entrySet()) {
+      String name = entry.getKey();
+      DimensionsAggregator aggregator = entry.getValue();
+
+      if(aggregator instanceof DimensionsStaticAggregator) {
+        staticAggregatorNameToStaticAggregator.put(name, DimensionsStaticAggregator.class.cast(aggregator));
+      }
+      else if(aggregator instanceof DimensionsOTFAggregator) {
+        nameToOTFAggregator.put(name, DimensionsOTFAggregator.class.cast(aggregator));
+      }
+      else {
+        throw new UnsupportedOperationException("The class " + aggregator.getClass() + " is not supported");
+      }
+    }
+
+    classToStaticAggregatorName = Maps.newHashMap();
+
+    for(Map.Entry<String, DimensionsStaticAggregator> entry: staticAggregatorNameToStaticAggregator.entrySet()) {
+      classToStaticAggregatorName.put(entry.getValue().getClass(), entry.getKey());
+    }
+
     staticAggregatorIDToAggregator = Maps.newHashMap();
 
     for(Map.Entry<String, Integer> entry: staticAggregatorNameToID.entrySet()) {
@@ -95,20 +113,6 @@ public class AggregatorInfo
   public boolean isStaticAggregator(String aggregatorName)
   {
     return classToStaticAggregatorName.values().contains(aggregatorName);
-  }
-
-  private void setClassToStaticAggregatorName(Map<Class<? extends DimensionsStaticAggregator>, String> staticAggregators)
-  {
-    Preconditions.checkNotNull(staticAggregators, "staticAggregators");
-
-    for(Map.Entry<Class<? extends DimensionsStaticAggregator>, String> entry: staticAggregators.entrySet()) {
-      Preconditions.checkNotNull(entry.getKey());
-      Preconditions.checkNotNull(entry.getValue());
-    }
-
-    this.classToStaticAggregatorName = Maps.newHashMap(staticAggregators);
-    //TODO this map should be made unmodifiable
-    //this.classToStaticAggregatorName = Collections.unmodifiableMap(this.classToStaticAggregatorName);
   }
 
   public Map<Class<? extends DimensionsStaticAggregator>, String> getClassToStaticAggregatorName()

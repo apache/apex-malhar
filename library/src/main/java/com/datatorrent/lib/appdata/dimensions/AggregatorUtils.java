@@ -22,10 +22,17 @@ import java.util.Map;
 
 public final class AggregatorUtils
 {
-  public static final AggregatorInfo DEFAULT_AGGREGATOR_INFO = new AggregatorInfo(AggregatorStaticType.CLASS_TO_NAME,
-                                                                                  AggregatorStaticType.NAME_TO_AGGREGATOR,
-                                                                                  AggregatorStaticType.NAME_TO_ORDINAL,
-                                                                                  AggregatorOTFType.NAME_TO_AGGREGATOR);
+  private static final Map<String, DimensionsAggregator> DEFAULT_NAME_TO_AGGREGATOR;
+
+  static {
+    DEFAULT_NAME_TO_AGGREGATOR = Maps.newHashMap();
+
+    DEFAULT_NAME_TO_AGGREGATOR.putAll(AggregatorStaticType.NAME_TO_AGGREGATOR);
+    DEFAULT_NAME_TO_AGGREGATOR.putAll(AggregatorOTFType.NAME_TO_AGGREGATOR);
+  }
+
+  public static final AggregatorInfo DEFAULT_AGGREGATOR_INFO = new AggregatorInfo(DEFAULT_NAME_TO_AGGREGATOR,
+                                                                                  AggregatorStaticType.NAME_TO_ORDINAL);
 
   public static final AggregatorTypeMap IDENTITY_TYPE_MAP;
   public static final AggregatorTypeMap IDENTITY_NUMBER_TYPE_MAP;

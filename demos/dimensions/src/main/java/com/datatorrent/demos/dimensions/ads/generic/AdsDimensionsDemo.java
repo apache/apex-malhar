@@ -37,8 +37,6 @@ import org.apache.hadoop.fs.Path;
 
 import java.util.Map;
 
-
-
 /**
  * An AdsDimensionsDemo run with HDHT
  *
