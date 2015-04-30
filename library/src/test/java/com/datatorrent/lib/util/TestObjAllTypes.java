@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appbuilder.convert.pojo;
+package com.datatorrent.lib.util;
 
 import com.google.common.collect.Lists;
 

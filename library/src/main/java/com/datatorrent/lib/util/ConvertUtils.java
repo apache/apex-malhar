@@ -14,9 +14,10 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appbuilder.convert.pojo;
+package com.datatorrent.lib.util;
 
 import com.google.common.base.Preconditions;
+
 import org.codehaus.commons.compiler.CompileException;
 import org.codehaus.commons.compiler.CompilerFactoryFactory;
 import org.codehaus.commons.compiler.IScriptEvaluator;
@@ -40,6 +41,57 @@ public class ConvertUtils
   private ConvertUtils()
   {
   }
+
+  public interface GetterBoolean
+  {
+    public boolean get(Object obj);
+  }
+
+  public interface GetterByte
+  {
+    public byte get(Object obj);
+  }
+
+  public interface GetterChar
+  {
+    public char get(Object obj);
+  }
+
+  public interface GetterDouble
+  {
+    public double get(Object obj);
+  }
+
+  public interface GetterFloat
+  {
+    public float get(Object obj);
+  }
+
+  public interface GetterInt
+  {
+    public int get(Object obj);
+  }
+
+  public interface GetterLong
+  {
+    public long get(Object obj);
+  }
+
+  public interface GetterObject
+  {
+    public Object get(Object obj);
+  }
+
+  public interface GetterShort
+  {
+    public short get(Object obj);
+  }
+
+  public interface GetterString
+  {
+    public String get(Object obj);
+  }
+
 
   public static String upperCaseWord(String field)
   {
@@ -85,8 +137,8 @@ public class ConvertUtils
 
   public static Object createExpressionGetter(String fqClassName,
                                               String getterString,
-                                              Class castClass,
-                                              Class getterClass)
+                                              Class<?> castClass,
+                                              Class<?> getterClass)
   {
     logger.debug("{} {} {} {}", fqClassName, getterString, castClass, getterClass);
 
@@ -218,8 +270,8 @@ public class ConvertUtils
 
   public static Object createExpressionGetter(String fqClassName,
                                               ArrayList<String> fieldList,
-                                              Class castClass,
-                                              Class getterClass)
+                                              Class<?> castClass,
+                                              Class<?> getterClass)
   {
     return createExpressionGetter(fqClassName,
                                   ConvertUtils.fieldListToGetExpression(fieldList, castClass.equals((Boolean.class))),
@@ -318,7 +370,7 @@ public class ConvertUtils
   }
 
   public static Object createExtractionGetter(String extractionString,
-                                              Class getterClass)
+                                              Class<?> getterClass)
   {
     IScriptEvaluator se = null;
 

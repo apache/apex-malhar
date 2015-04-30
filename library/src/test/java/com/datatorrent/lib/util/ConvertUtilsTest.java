@@ -14,21 +14,68 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appbuilder.convert.pojo;
+package com.datatorrent.lib.util;
 
-import com.datatorrent.lib.appdata.schemas.Type;
-import com.datatorrent.lib.util.TestUtils;
-import com.esotericsoftware.kryo.Kryo;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
 import org.junit.Assert;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Map;
+import com.datatorrent.lib.util.ConvertUtils;
+import com.datatorrent.lib.util.ConvertUtils.GetterBoolean;
+import com.datatorrent.lib.util.ConvertUtils.GetterByte;
+import com.datatorrent.lib.util.ConvertUtils.GetterChar;
+import com.datatorrent.lib.util.ConvertUtils.GetterDouble;
+import com.datatorrent.lib.util.ConvertUtils.GetterFloat;
+import com.datatorrent.lib.util.ConvertUtils.GetterInt;
+import com.datatorrent.lib.util.ConvertUtils.GetterLong;
+import com.datatorrent.lib.util.ConvertUtils.GetterObject;
+import com.datatorrent.lib.util.ConvertUtils.GetterShort;
+import com.datatorrent.lib.util.ConvertUtils.GetterString;
+import com.esotericsoftware.kryo.Kryo;
 
-public class PojoFieldRetrieverFieldListTest
+public class ConvertUtilsTest
 {
+  @Test
+  public void simpleTest() throws Exception
+  {
+    String fqcn = TestObjAllTypes.class.getName();
+    TestObjAllTypes testObj = new TestObjAllTypes();
+
+    GetterBoolean getBoolean = ConvertUtils.createExpressionGetterBoolean(fqcn, "innerObj.boolVal");
+    Assert.assertEquals(testObj.innerObj.isBoolVal(), getBoolean.get(testObj));
+
+    GetterByte getByte = ConvertUtils.createExpressionGetterByte(fqcn, "innerObj.byteVal");
+    Assert.assertEquals(testObj.innerObj.getByteVal(), getByte.get(testObj));
+
+    GetterChar getChar = ConvertUtils.createExpressionGetterChar(fqcn, "innerObj.charVal");
+    Assert.assertEquals(testObj.innerObj.getCharVal(), getChar.get(testObj));
+
+    GetterString getString = ConvertUtils.createExpressionGetterString(fqcn, "innerObj.stringVal");
+    Assert.assertEquals(testObj.innerObj.getStringVal(), getString.get(testObj));
+
+    GetterShort getShort = ConvertUtils.createExpressionGetterShort(fqcn, "innerObj.shortVal");
+    Assert.assertEquals(testObj.innerObj.getShortVal(), getShort.get(testObj));
+
+    GetterInt getInt = ConvertUtils.createExpressionGetterInt(fqcn, "innerObj.intVal");
+    Assert.assertEquals(testObj.innerObj.getIntVal(), getInt.get(testObj));
+
+    GetterLong getLong = ConvertUtils.createExpressionGetterLong(fqcn, "innerObj.longVal");
+    Assert.assertEquals(testObj.innerObj.getLongVal(), getLong.get(testObj));
+
+    GetterFloat getFloat = ConvertUtils.createExpressionGetterFloat(fqcn, "innerObj.floatVal");
+    Assert.assertEquals(testObj.innerObj.getFloatVal(), getFloat.get(testObj), 0);
+
+    GetterDouble getDouble = ConvertUtils.createExpressionGetterDouble(fqcn, "innerObj.doubleVal");
+    Assert.assertEquals(testObj.innerObj.getDoubleVal(), getDouble.get(testObj), 0);
+
+    GetterObject getObject = ConvertUtils.createExpressionGetterObject(fqcn, "innerObj.objVal");
+    Assert.assertEquals(testObj.innerObj.getObjVal(), getObject.get(testObj));
+
+    //Check serialization
+    TestUtils.clone(new Kryo(), getBoolean);
+
+  }
+
+/*
   @Test
   public void simpleTest() throws Exception
   {
@@ -90,4 +137,5 @@ public class PojoFieldRetrieverFieldListTest
     //Check serialization
     TestUtils.clone(new Kryo(), pfre);
   }
+*/
 }
