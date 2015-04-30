@@ -133,4 +133,6 @@ public class DimensionsComputationSingleSchemaPOJOTest
     Assert.assertEquals("Expected only 1 tuple", 1, sinkObj.collectedTuples.size());
     Assert.assertEquals(expectedAE, sinkObj.collectedTuples.get(0));
   }
+
+  
 }
