@@ -19,12 +19,16 @@ package com.datatorrent.lib.appdata.dimensions;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
 public class AggregatorInfo
 {
+  private static final Logger logger = LoggerFactory.getLogger(AggregatorInfo.class);
+
   private Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName;
   private Map<String, DimensionsOTFAggregator> nameToOTFAggregator;
   private Map<String, List<String>> otfAggregatorToStaticAggregators;
@@ -57,12 +61,9 @@ public class AggregatorInfo
     for(Map.Entry<String, Integer> entry: staticAggregatorNameToID.entrySet()) {
       String aggregatorName = entry.getKey();
       int aggregatorID = entry.getValue();
-
       staticAggregatorIDToAggregator.put(aggregatorID,
                                          staticAggregatorNameToStaticAggregator.get(aggregatorName));
     }
-
-    staticAggregatorIDToAggregator = Maps.newHashMap();
 
     otfAggregatorToStaticAggregators = Maps.newHashMap();
 
