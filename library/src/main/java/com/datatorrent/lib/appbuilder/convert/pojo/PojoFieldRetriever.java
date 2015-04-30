@@ -95,12 +95,12 @@ public abstract class PojoFieldRetriever
     switch(fieldType) {
       case BOOLEAN:
       {
-        result = (Boolean) getBoolean(field, pojo);
+        result = getBoolean(field, pojo);
         break;
       }
       case CHAR:
       {
-        result = (Character) getChar(field, pojo);
+        result = getChar(field, pojo);
         break;
       }
       case STRING:
@@ -110,32 +110,32 @@ public abstract class PojoFieldRetriever
       }
       case BYTE:
       {
-        result = (Byte) getByte(field, pojo);
+        result = getByte(field, pojo);
         break;
       }
       case SHORT:
       {
-        result = (Short) getShort(field, pojo);
+        result = getShort(field, pojo);
         break;
       }
       case INTEGER:
       {
-        result = (Integer) getInt(field, pojo);
+        result = getInt(field, pojo);
         break;
       }
       case LONG:
       {
-        result = (Long) getLong(field, pojo);
+        result = getLong(field, pojo);
         break;
       }
       case FLOAT:
       {
-        result = (Float) getFloat(field, pojo);
+        result = getFloat(field, pojo);
         break;
       }
       case DOUBLE:
       {
-        result = (Double) getDouble(field, pojo);
+        result = getDouble(field, pojo);
         break;
       }
       case OBJECT:
@@ -183,6 +183,13 @@ public abstract class PojoFieldRetriever
     throwInvalidField(field, Type.INTEGER);
     callSetup();
     return fieldToGetterInt.get(field).get(pojo);
+  }
+
+  public GetterInt getIntGetter(String field)
+  {
+    throwInvalidField(field, Type.INTEGER);
+    callSetup();
+    return fieldToGetterInt.get(field);
   }
 
   public long getLong(String field, Object pojo)

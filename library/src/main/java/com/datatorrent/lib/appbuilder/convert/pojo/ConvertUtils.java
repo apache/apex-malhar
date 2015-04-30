@@ -112,12 +112,6 @@ public class ConvertUtils
     }
 
     try {
-      //TODO In the future go through method stack and determine return types to avoid creating
-      //an object if a primitive is present instead.
-
-      //Corner cases return type was specified to be Boolean via generics
-      //Return type is a Boolean object
-      //Return type is a boolean primitive
       String code = "return (" + castClass.getName() +
                                       ") (((" + fqClassName +
                                       ")" + ConvertUtils.DEFAULT_POJO_NAME + ")." + getterString + ");";
@@ -137,7 +131,7 @@ public class ConvertUtils
   {
     return (GetterBoolean) createExpressionGetter(fqClassName,
                                                   getterString,
-                                                  Boolean.class,
+                                                  boolean.class,
                                                   GetterBoolean.class);
   }
 
@@ -146,7 +140,7 @@ public class ConvertUtils
   {
     return (GetterByte) createExpressionGetter(fqClassName,
                                                getterString,
-                                               Byte.class,
+                                               byte.class,
                                                GetterByte.class);
   }
 
@@ -155,7 +149,7 @@ public class ConvertUtils
   {
     return (GetterChar) createExpressionGetter(fqClassName,
                                                getterString,
-                                               Character.class,
+                                               char.class,
                                                GetterChar.class);
   }
 
@@ -164,7 +158,7 @@ public class ConvertUtils
   {
     return (GetterDouble) createExpressionGetter(fqClassName,
                                                   getterString,
-                                                  Double.class,
+                                                  double.class,
                                                   GetterDouble.class);
   }
 
@@ -173,7 +167,7 @@ public class ConvertUtils
   {
     return (GetterFloat) createExpressionGetter(fqClassName,
                                                 getterString,
-                                                Float.class,
+                                                float.class,
                                                 GetterFloat.class);
   }
 
@@ -182,7 +176,7 @@ public class ConvertUtils
   {
     return (GetterInt) createExpressionGetter(fqClassName,
                                               getterString,
-                                              Integer.class,
+                                              int.class,
                                               GetterInt.class);
   }
 
@@ -191,7 +185,7 @@ public class ConvertUtils
   {
     return (GetterLong) createExpressionGetter(fqClassName,
                                                getterString,
-                                               Long.class,
+                                               long.class,
                                                GetterLong.class);
   }
 
@@ -200,7 +194,7 @@ public class ConvertUtils
   {
     return (GetterShort) createExpressionGetter(fqClassName,
                                                 getterString,
-                                                Short.class,
+                                                short.class,
                                                 GetterShort.class);
   }
 
@@ -338,7 +332,7 @@ public class ConvertUtils
     }
 
     try {
-      return (Object) se.createFastEvaluator(extractionString,
+      return se.createFastEvaluator(extractionString,
                                             getterClass,
                                             new String[] {ConvertUtils.DEFAULT_POJO_NAME});
     }
