@@ -18,6 +18,7 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appbuilder.convert.pojo.PojoFieldRetrieverExpression;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Maps;
@@ -30,7 +31,6 @@ import java.util.Map;
 public class DimensionsComputationSingleSchemaPOJOTest
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationSingleSchemaPOJOTest.class);
-  public static final String EVENT_SCHEMA = "adsGenericEventSchema.json";
 
   @Test
   public void simpleTest() throws Exception
@@ -47,7 +47,7 @@ public class DimensionsComputationSingleSchemaPOJOTest
 
     DimensionsComputationSingleSchemaPOJO dimensions = new DimensionsComputationSingleSchemaPOJO();
 
-    String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
+    String eventSchema = SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json");
 
     dimensions.setEventSchemaJSON(eventSchema);
 
@@ -64,6 +64,10 @@ public class DimensionsComputationSingleSchemaPOJOTest
     fieldToExpression.put("time", "getTime()");
     pfre.setFieldToExpression(fieldToExpression);
     dimensions.getConverter().setPojoFieldRetriever(pfre);
+
+    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
+    @SuppressWarnings({"unchecked", "rawtypes"})
+    CollectorTestSink<Object> sinkObj = (CollectorTestSink) sink;
 
     dimensions = TestUtils.clone(new Kryo(), dimensions);
 
