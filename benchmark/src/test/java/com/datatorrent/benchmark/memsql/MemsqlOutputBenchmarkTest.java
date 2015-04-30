@@ -16,6 +16,7 @@
 
 package com.datatorrent.benchmark.memsql;
 
+import com.datatorrent.benchmark.MemsqlOutputBenchmark;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest;
