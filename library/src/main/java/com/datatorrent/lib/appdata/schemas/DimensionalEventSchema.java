@@ -17,6 +17,7 @@ package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
+import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -114,6 +115,8 @@ public class DimensionalEventSchema
   private AggregatorInfo aggregatorInfo;
 
   List<TimeBucket> timeBuckets;
+
+  private Map<String, Map<String, Type>> schemaAllValueToAggregatorToType;
 
   public DimensionalEventSchema()
   {
@@ -291,6 +294,7 @@ public class DimensionalEventSchema
 
     Map<String, Type> aggFieldToType = Maps.newHashMap();
     JSONArray valuesArray = jo.getJSONArray(FIELD_VALUES);
+    schemaAllValueToAggregatorToType = Maps.newHashMap();
 
     for(int valueIndex = 0;
         valueIndex < valuesArray.length();
@@ -305,16 +309,24 @@ public class DimensionalEventSchema
                                            " twice.");
       }
 
+      Map<String, Type> aggregatorToType = Maps.newHashMap();
+      schemaAllValueToAggregatorToType.put(name, aggregatorToType);
+
       aggFieldToType.put(name, typeT);
       Set<String> aggregatorSet = Sets.newHashSet();
 
       if(value.has(FIELD_VALUES_AGGREGATIONS)) {
         JSONArray aggregators = value.getJSONArray(FIELD_VALUES_AGGREGATIONS);
 
+        if(aggregators.length() == 0) {
+          throw new IllegalArgumentException("Empty aggregators array for: " + name);
+        }
+
         for(int aggregatorIndex = 0;
             aggregatorIndex < aggregators.length();
             aggregatorIndex++) {
           String aggregatorName = aggregators.getString(aggregatorIndex);
+          DimensionsAggregator daggregator = null;
 
           if(!aggregatorInfo.isAggregator(aggregatorName)) {
             throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
@@ -334,6 +346,8 @@ public class DimensionalEventSchema
               throw new IllegalArgumentException("An aggregator " + aggregatorName
                                                  + " cannot be specified twice for a value");
             }
+
+            daggregator = aggregatorInfo.getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
           }
           else {
             //Check for duplicate on the fly aggregators
@@ -357,8 +371,11 @@ public class DimensionalEventSchema
               allValueToAggregator.put(name, aggregatorNames);
             }
 
+            daggregator = aggregatorInfo.getNameToOTFAggregators().get(aggregatorName);
             aggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
           }
+
+          aggregatorToType.put(aggregatorName, daggregator.getTypeMap().getTypeMap().get(typeT));
         }
       }
 
@@ -785,5 +802,13 @@ public class DimensionalEventSchema
   public List<Map<String, String>> getCombinationIDToFieldToAggregatorAdditionalValues()
   {
     return combinationIDToFieldToAggregatorAdditionalValues;
+  }
+
+  /**
+   * @return the schemaAllValueToAggregatorToType
+   */
+  public Map<String, Map<String, Type>> getSchemaAllValueToAggregatorToType()
+  {
+    return schemaAllValueToAggregatorToType;
   }
 }

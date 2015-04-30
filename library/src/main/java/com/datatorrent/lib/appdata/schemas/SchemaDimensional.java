@@ -29,7 +29,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Optional
@@ -133,15 +132,14 @@ public class SchemaDimensional implements Schema
     schema.put(SchemaTabular.FIELD_VALUES, values);
 
     FieldsDescriptor inputValuesDescriptor = eventSchema.getInputValuesDescriptor();
-    Map<String, Set<String>> allValueToAggregator = eventSchema.getAllValueToAggregator();
+    Map<String, Map<String, Type>> allValueToAggregator = eventSchema.getSchemaAllValueToAggregatorToType();
 
-    for(Map.Entry<String, Set<String>> entry: allValueToAggregator.entrySet()) {
+    for(Map.Entry<String, Map<String, Type>> entry: allValueToAggregator.entrySet()) {
       String valueName = entry.getKey();
-      Type inputValueType = inputValuesDescriptor.getType(valueName);
 
-      for(String aggregatorName: entry.getValue()) {
-        DimensionsStaticAggregator aggregator = eventSchema.getAggregatorInfo().getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
-        Type outputValueType = aggregator.getTypeMap().getTypeMap().get(inputValueType);
+      for(Map.Entry<String, Type> entryAggType: entry.getValue().entrySet()) {
+        String aggregatorName = entryAggType.getKey();
+        Type outputValueType = entryAggType.getValue();
 
         JSONObject value = new JSONObject();
         String combinedName = valueName +
