@@ -18,10 +18,13 @@ package com.datatorrent.lib.appdata.dimensions;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
+import java.io.Serializable;
 
 
-public class AggregatorMin implements DimensionsStaticAggregator
+public class AggregatorMin implements DimensionsStaticAggregator, Serializable
 {
+  private static final long serialVersionUID = 20154301648L;
+
   public AggregatorMin()
   {
   }

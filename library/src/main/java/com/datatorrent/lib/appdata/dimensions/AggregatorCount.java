@@ -20,13 +20,15 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class AggregatorCount implements DimensionsStaticAggregator
+public class AggregatorCount implements DimensionsStaticAggregator, Serializable
 {
+  private static final long serialVersionUID = 20154301645L;
   public static final AggregatorTypeMap TYPE_CONVERSION_MAP;
 
   static {

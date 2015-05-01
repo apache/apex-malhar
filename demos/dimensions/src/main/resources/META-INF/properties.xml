@@ -121,7 +121,6 @@
     <value>4</value>
   </property>
 
-<!--
   <property>
       <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
       <value>256</value>
@@ -151,7 +150,7 @@
     <name>dt.attr.MASTER_MEMORY_MB</name>
     <value>256</value>
   </property>
--->
+
   <!-- Settings for all Query and QueryResult operators -->
   <property>
     <name>dt.operator.QueryResult.prop.configProperties(serializer.class)</name>

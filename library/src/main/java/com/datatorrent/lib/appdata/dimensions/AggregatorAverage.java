@@ -22,12 +22,15 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Maps;
+import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
 
-public class AggregatorAverage implements DimensionsOTFAggregator
+public class AggregatorAverage implements DimensionsOTFAggregator, Serializable
 {
+  private static final long serialVersionUID = 20154301644L;
+
   public static int SUM_INDEX = 0;
   public static int COUNT_INDEX = 1;
 

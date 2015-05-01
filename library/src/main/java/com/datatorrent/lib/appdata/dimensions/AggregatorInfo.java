@@ -19,14 +19,17 @@ package com.datatorrent.lib.appdata.dimensions;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.Map;
 
-public class AggregatorInfo
+public class AggregatorInfo implements Serializable
 {
+  private static final long serialVersionUID = 20154301642L;
+
   private static final Logger logger = LoggerFactory.getLogger(AggregatorInfo.class);
 
   private Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName;

@@ -18,12 +18,14 @@ package com.datatorrent.lib.appdata.dimensions;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
+import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class AggregatorSum implements DimensionsStaticAggregator
+public class AggregatorSum implements DimensionsStaticAggregator, Serializable
 {
+  private static final long serialVersionUID = 20154301649L;
   private static final Logger logger = LoggerFactory.getLogger(AggregatorSum.class);
 
   public AggregatorSum()
