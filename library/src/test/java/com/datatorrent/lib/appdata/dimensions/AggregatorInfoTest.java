@@ -45,7 +45,6 @@ public class AggregatorInfoTest
     Map<String, Integer> nameToID = Maps.newHashMap();
     nameToID.put("SUM", 0);
     nameToID.put("COUNT", 1);
-    nameToID.put("AVG", 2);
 
     AggregatorInfo aggInfo = new AggregatorInfo(nameToAggregator,
                                                 nameToID);
@@ -73,13 +72,13 @@ public class AggregatorInfoTest
 
     Map<String, Integer> staticAggregatorNameToID = aggInfo.getStaticAggregatorNameToID();
 
-    Assert.assertEquals(staticAggregatorNameToID.size(), 2);
-    Assert.assertEquals(staticAggregatorNameToID.get("SUM"), (Integer) 0);
-    Assert.assertEquals(staticAggregatorNameToID.get("COUNT"), (Integer) 1);
+    Assert.assertEquals(2, staticAggregatorNameToID.size());
+    Assert.assertEquals((Integer) 0, staticAggregatorNameToID.get("SUM"));
+    Assert.assertEquals((Integer) 1, staticAggregatorNameToID.get("COUNT"));
 
     Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator = aggInfo.getStaticAggregatorNameToStaticAggregator();
 
-    Assert.assertEquals(0, staticAggregatorNameToStaticAggregator.get("SUM"));
-    Assert.assertEquals(1, staticAggregatorNameToStaticAggregator.get("COUNT"));
+    Assert.assertEquals(AggregatorSum.class, staticAggregatorNameToStaticAggregator.get("SUM").getClass());
+    Assert.assertEquals(AggregatorCount.class, staticAggregatorNameToStaticAggregator.get("COUNT").getClass());
   }
 }
