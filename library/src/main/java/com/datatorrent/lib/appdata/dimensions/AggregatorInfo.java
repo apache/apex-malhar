@@ -39,7 +39,7 @@ public class AggregatorInfo implements Serializable
   private Map<String, Integer> staticAggregatorNameToID;
   private Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator;
 
-  public AggregatorInfo()
+  protected AggregatorInfo()
   {
     //for kryo
   }
@@ -128,20 +128,6 @@ public class AggregatorInfo implements Serializable
     return staticAggregatorIDToAggregator;
   }
 
-  private void setStaticAggregatorNameToStaticAggregator(Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator)
-  {
-    Preconditions.checkNotNull(staticAggregatorNameToStaticAggregator, "staticAggregatorNameToStaticAggregator");
-
-    for(Map.Entry<String, DimensionsStaticAggregator> entry: staticAggregatorNameToStaticAggregator.entrySet()) {
-      Preconditions.checkNotNull(entry.getKey());
-      Preconditions.checkNotNull(entry.getValue());
-    }
-
-    this.staticAggregatorNameToStaticAggregator = Maps.newHashMap(staticAggregatorNameToStaticAggregator);
-    //TODO this map should be made unmodifiable
-    //this.staticAggregatorNameToStaticAggregator = Collections.unmodifiableMap(staticAggregatorNameToStaticAggregator);
-  }
-
   public Map<String, DimensionsStaticAggregator> getStaticAggregatorNameToStaticAggregator()
   {
     return this.staticAggregatorNameToStaticAggregator;
@@ -164,20 +150,6 @@ public class AggregatorInfo implements Serializable
   public Map<String, Integer> getStaticAggregatorNameToID()
   {
     return staticAggregatorNameToID;
-  }
-
-  private void setNameToOTFAggregators(Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
-  {
-    Preconditions.checkNotNull(nameToOTFAggregator, "nameToOTFAggregator");
-
-    for(Map.Entry<String, DimensionsOTFAggregator> entry: nameToOTFAggregator.entrySet()) {
-      Preconditions.checkNotNull(entry.getKey());
-      Preconditions.checkNotNull(entry.getValue());
-    }
-
-    this.nameToOTFAggregator = Maps.newHashMap(nameToOTFAggregator);
-    //TODO this map should be made unmodifiable
-    //this.nameToOTFAggregator = Collections.unmodifiableMap(nameToOTFAggregator);
   }
 
   public Map<String, DimensionsOTFAggregator> getNameToOTFAggregators()
