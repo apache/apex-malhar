@@ -155,7 +155,6 @@ public class AdsDimensionsDemo implements StreamingApplication
     dimensions.setEventSchemaJSON(eventSchema);
 
     //Set store properties
-    String dimensionalSchema = SchemaUtils.jarResourceFileToString(DIMENSIONAL_SCHEMA);
     String basePath = Preconditions.checkNotNull(conf.get(PROP_STORE_PATH),
                                                  "a base path should be specified in the properties.xml");
     TFileImpl hdsFile = new TFileImpl.DTFileImpl();
@@ -166,7 +165,6 @@ public class AdsDimensionsDemo implements StreamingApplication
     store.setFileStore(hdsFile);
     store.getAppDataFormatter().setContinuousFormatString("#.00");
     store.setEventSchemaJSON(eventSchema);
-    store.setDimensionalSchemaJSON(dimensionalSchema);
 
     //Set pubsub properties
     Operator.OutputPort<String> queryPort;
