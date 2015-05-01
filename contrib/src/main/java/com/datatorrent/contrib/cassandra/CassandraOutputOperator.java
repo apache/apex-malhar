@@ -25,7 +25,7 @@ import javax.validation.constraints.NotNull;
 /**
  * <p>
  * CassandraOutputOperator class.</p>
- *
+ * A Generic implementation of AbstractCassandraTransactionableOutputOperator which takes in any POJO.
  * @since 1.0.3
  */
 public class CassandraOutputOperator extends AbstractCassandraTransactionableOutputOperator<Object>
@@ -49,6 +49,11 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
   private String tablename;
   private String keyspace;
 
+  /*
+   * The Cassandra keyspace is a namespace that defines how data is replicated on nodes.
+   * Typically, a cluster has one keyspace per application. Replication is controlled on a per-keyspace basis, so data that has different replication requirements typically resides in different keyspaces.
+   * Keyspaces are not designed to be used as a significant map layer within the data model. Keyspaces are designed to control data replication for a set of tables.
+   */
   public String getKeyspace()
   {
     return keyspace;
@@ -59,6 +64,9 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
     this.keyspace = keyspace;
   }
 
+  /*
+   * Tablename in cassandra.
+   */
   public String getTablename()
   {
     return tablename;
