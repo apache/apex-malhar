@@ -18,6 +18,8 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @displayName Simple Pojo Dimensions Computation
@@ -26,6 +28,8 @@ import com.datatorrent.lib.appdata.schemas.SchemaUtils;
  */
 public class DimensionsComputationSingleSchemaPOJO extends DimensionsComputationSingleSchemaConv<Object, DimensionsPOJOConverter>
 {
+  private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationSingleSchemaPOJO.class);
+
   public DimensionsComputationSingleSchemaPOJO()
   {
     this.converter = new DimensionsPOJOConverter();
@@ -34,6 +38,7 @@ public class DimensionsComputationSingleSchemaPOJO extends DimensionsComputation
   @Override
   public void setup(OperatorContext context)
   {
+    logger.debug("Setup called");
     super.setup(context);
 
     converter.getPojoFieldRetriever().setFieldToType(SchemaUtils.convertFieldToType(eventSchema.getAllFieldToType()));

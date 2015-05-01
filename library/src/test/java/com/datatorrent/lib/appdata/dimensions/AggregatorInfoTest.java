@@ -49,6 +49,8 @@ public class AggregatorInfoTest
     AggregatorInfo aggInfo = new AggregatorInfo(nameToAggregator,
                                                 nameToID);
 
+    aggInfo.setup();
+
     Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregator =
     aggInfo.getClassToStaticAggregatorName();
 

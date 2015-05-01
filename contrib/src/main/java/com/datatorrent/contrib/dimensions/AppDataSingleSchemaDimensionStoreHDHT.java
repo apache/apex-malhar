@@ -163,6 +163,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void setup(OperatorContext context)
   {
+    logger.debug("Aggregator Info setup called.");
+
+    aggregatorInfo.setup();
+
     //Setup for query processing
     queryProcessor =
     new QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>(

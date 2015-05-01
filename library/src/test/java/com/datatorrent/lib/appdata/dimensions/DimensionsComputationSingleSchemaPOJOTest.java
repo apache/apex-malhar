@@ -70,6 +70,7 @@ public class DimensionsComputationSingleSchemaPOJOTest
                        get(AggregatorStaticType.SUM.name());
 
     String eventSchema = SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json");
+    AggregatorUtils.DEFAULT_AGGREGATOR_INFO.setup();
     DimensionalEventSchema schema = new DimensionalEventSchema(eventSchema,
                                                                AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
 
@@ -140,6 +141,8 @@ public class DimensionsComputationSingleSchemaPOJOTest
 
     dimensionsClone.setAggregationWindowCount(2);
     dimensionsClone.aggregateOutput.setSink(sinkObj);
+
+    dimensionsClone.setup(null);
 
     dimensionsClone.beginWindow(0L);
     dimensionsClone.inputEvent.put(ai);

@@ -23,11 +23,14 @@ import com.google.common.base.Preconditions;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
 public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends DimensionsComputation<INPUT_EVENT>
 {
+  private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationSingleSchema.class);
   public static final int DEFAULT_SCHEMA_ID = 0;
 
   @NotNull
@@ -53,6 +56,7 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
   @Override
   public void setup(OperatorContext context)
   {
+    logger.debug("Setup called");
     super.setup(context);
 
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,

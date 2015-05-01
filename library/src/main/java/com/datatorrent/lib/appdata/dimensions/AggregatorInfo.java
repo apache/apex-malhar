@@ -38,6 +38,7 @@ public class AggregatorInfo implements Serializable
   private Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator;
   private Map<String, Integer> staticAggregatorNameToID;
   private Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator;
+  private Map<String, DimensionsAggregator> nameToAggregator;
 
   protected AggregatorInfo()
   {
@@ -47,11 +48,11 @@ public class AggregatorInfo implements Serializable
   public AggregatorInfo(Map<String, DimensionsAggregator> nameToAggregator,
                         Map<String, Integer> staticAggregatorNameToID)
   {
+    setNameToAggregator(nameToAggregator);
     setStaticAggregatorNameToID(staticAggregatorNameToID);
-    initialize(nameToAggregator);
   }
 
-  private void initialize(Map<String, DimensionsAggregator> nameToAggregator)
+  public void setup()
   {
     staticAggregatorNameToStaticAggregator = Maps.newHashMap();
     nameToOTFAggregator = Maps.newHashMap();
@@ -105,6 +106,11 @@ public class AggregatorInfo implements Serializable
 
     //TODO make this map unmodifiable
     //otfAggregatorToStaticAggregators = Collections.unmodifiableMap(otfAggregatorToStaticAggregators);
+  }
+
+  private void setNameToAggregator(Map<String, DimensionsAggregator> nameToAggregator)
+  {
+    this.nameToAggregator = Preconditions.checkNotNull(nameToAggregator);
   }
 
   public boolean isAggregator(String aggregatorName)
