@@ -119,7 +119,8 @@ public class DimensionsComputationSingleSchemaPOJOTest
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> sinkObj = (CollectorTestSink) sink;
 
-    dimensions = TestUtils.clone(new Kryo(), dimensions);
+    DimensionsComputationSingleSchemaPOJO dimensionsClone =
+    TestUtils.clone(new Kryo(), dimensions);
 
     dimensions.aggregateOutput.setSink(sinkObj);
 
@@ -132,7 +133,25 @@ public class DimensionsComputationSingleSchemaPOJOTest
 
     Assert.assertEquals("Expected only 1 tuple", 1, sinkObj.collectedTuples.size());
     Assert.assertEquals(expectedAE, sinkObj.collectedTuples.get(0));
-  }
 
-  
+    sinkObj.collectedTuples.clear();
+
+    //Multi Window Test
+
+    dimensionsClone.setAggregationWindowCount(2);
+    dimensionsClone.aggregateOutput.setSink(sinkObj);
+
+    dimensionsClone.beginWindow(0L);
+    dimensionsClone.inputEvent.put(ai);
+    dimensionsClone.endWindow();
+
+    Assert.assertEquals("Expected no tuples", 0, sinkObj.collectedTuples.size());
+
+    dimensionsClone.beginWindow(1L);
+    dimensionsClone.inputEvent.put(ai2);
+    dimensionsClone.endWindow();
+
+    Assert.assertEquals("Expected only 1 tuple", 1, sinkObj.collectedTuples.size());
+    Assert.assertEquals(expectedAE, sinkObj.collectedTuples.get(0));
+  }
 }
