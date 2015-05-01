@@ -3,10 +3,10 @@
          {"name":"location","type":"string","enumValues":["N","LREC","SKY","AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID"]}],
  "timeBuckets":["1m","1h","1d"],
  "values":
-  [{"name":"impressions","type":"long","aggregators":["SUM","COUNT"]},
-   {"name":"clicks","type":"long","aggregators":["SUM","COUNT"]},
-   {"name":"cost","type":"double","aggregators":["SUM","COUNT"]},
-   {"name":"revenue","type":"double","aggregators":["SUM","COUNT"]}],
+  [{"name":"impressions","type":"long","aggregators":["SUM","COUNT","AVG"]},
+   {"name":"clicks","type":"long","aggregators":["SUM","COUNT","AVG"]},
+   {"name":"cost","type":"double","aggregators":["SUM","COUNT","AVG"]},
+   {"name":"revenue","type":"double","aggregators":["SUM","COUNT","AVG"]}],
  "dimensions":
   [{"combination":[]},
    {"combination":["location"]},
