@@ -62,12 +62,15 @@ public class SchemaDimensional implements Schema
   private JSONObject schema;
   private JSONObject time;
 
+  private boolean fixedFromTo = false;
+
   public SchemaDimensional(String schemaStub,
                            DimensionalEventSchema eventSchema)
   {
     this(eventSchema);
 
     if(schemaStub != null) {
+      fixedFromTo = true;
       try {
         setSchemaStub(schemaStub);
       }
@@ -262,5 +265,13 @@ public class SchemaDimensional implements Schema
   public String getSchemaVersion()
   {
     return SCHEMA_VERSION;
+  }
+
+  /**
+   * @return the fixedFromTo
+   */
+  public boolean isFixedFromTo()
+  {
+    return fixedFromTo;
   }
 }

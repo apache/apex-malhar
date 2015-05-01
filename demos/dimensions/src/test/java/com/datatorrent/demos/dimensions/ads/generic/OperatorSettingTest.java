@@ -28,6 +28,7 @@ import static com.datatorrent.demos.dimensions.ads.generic.AdsDimensionsDemo.*;
 
 
 public class OperatorSettingTest {
+
   @Test
   public void testStore()
   {

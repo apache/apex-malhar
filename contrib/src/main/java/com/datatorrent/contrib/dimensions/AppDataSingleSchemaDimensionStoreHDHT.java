@@ -120,6 +120,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       }
 
       if(query instanceof SchemaQuery) {
+        dimensionalSchema.setTo(System.currentTimeMillis());
         try{
         String schemaResult =
           resultSerializerFactory.serialize(new SchemaResult((SchemaQuery)query,
@@ -176,6 +177,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
     super.setup(context);
+
+    if(!dimensionalSchema.isFixedFromTo()) {
+      dimensionalSchema.setFrom(System.currentTimeMillis());
+    }
   }
 
   @Override
