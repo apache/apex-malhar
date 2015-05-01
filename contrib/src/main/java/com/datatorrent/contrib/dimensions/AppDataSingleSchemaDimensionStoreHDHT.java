@@ -588,25 +588,25 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         Map<String, GPOMutable> prunedKey = Maps.newHashMap();
         Map<String, GPOMutable> prunedValue = Maps.newHashMap();
 
-        prunedKeys.add(prunedKey);
-        prunedValues.add(prunedValue);
-
         if(key.isEmpty()) {
           continue;
         }
 
         GPOMutable singleKey = key.entrySet().iterator().next().getValue();
+        boolean completeTimeBucket = true;
 
         for(String aggregatorName: query.getFieldsAggregatable().getAggregators())
         {
           if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
             GPOMutable valueGPO = value.get(aggregatorName);
 
-            //If the aggregate was found
-            if(valueGPO != null) {
-              prunedKey.put(aggregatorName, key.get(aggregatorName));
-              prunedValue.put(aggregatorName, value.get(aggregatorName));
+            if(valueGPO == null) {
+              completeTimeBucket = false;
+              break;
             }
+
+            prunedKey.put(aggregatorName, key.get(aggregatorName));
+            prunedValue.put(aggregatorName, value.get(aggregatorName));
 
             continue;
           }
@@ -639,6 +639,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           GPOMutable result = aggregator.aggregate(fd, mutableValues.toArray(new GPOMutable[mutableValues.size()]));
           prunedValue.put(aggregatorName, result);
           prunedKey.put(aggregatorName, singleKey);
+        }
+
+        if(completeTimeBucket) {
+          prunedKeys.add(prunedKey);
+          prunedValues.add(prunedValue);
         }
       }
 
