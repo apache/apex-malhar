@@ -16,9 +16,12 @@
 package com.datatorrent.contrib.memsql;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.sun.org.apache.bcel.internal.generic.Type;
 import java.sql.*;
 import java.util.ArrayList;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /*
  * A generic implementation of AbstractMemsqlOutputOperator which can take in a POJO.
@@ -30,7 +33,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   @NotNull
   private ArrayList<String> dataColumns;
   private ArrayList<String> expression;
-  private ArrayList<String> columnDataTypes;
+  //private ArrayList<String> columnDataTypes;
 
   /*
    * An ArrayList of Java expressions that will yield the field value from the POJO.
@@ -50,6 +53,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   {
     this.expression = expression;
   }
+
   private String insertStatement;
 
 
@@ -91,35 +95,6 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   @Override
   public void setup(OperatorContext context)
   {
-    super.setup(context);
-    Connection conn = store.getConnection();
-    System.out.println("Got Connection.");
-    try {
-    Statement st = conn.createStatement();
-    ResultSet rs = st.executeQuery("select * from" + tablename);
-
-    ResultSetMetaData rsMetaData = rs.getMetaData();
-
-    int numberOfColumns = 0;
-
-    numberOfColumns = rsMetaData.getColumnCount();
-
-    System.out.println("resultSet MetaData column Count=" + numberOfColumns);
-
-    for (int i = 1; i <= numberOfColumns; i++) {
-      System.out.println("column MetaData ");
-      System.out.println("column number " + i);
-
-      // get the designated column's SQL type.
-      System.out.println("sql column type is "+rsMetaData.getColumnType(i));
-      columnDataTypes.add(rsMetaData.getColumnName(i));
-      System.out.println("sql column name is " + rsMetaData.getColumnName(i));
-      }
-    }
-    catch (SQLException ex) {
-      throw new RuntimeException(ex);
-    }
-
     StringBuilder columns = new StringBuilder("");
     StringBuilder values = new StringBuilder("");
     for (int i = 0; i < dataColumns.size(); i++) {
@@ -130,11 +105,95 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
         values.append(",");
       }
     }
-
     insertStatement = "INSERT INTO "
             + tablename
-            + " (" + getDataColumns() + ")"
+            + " (" + dataColumns + ")"
             + " values (" + values + ")";
+    super.setup(context);
+    Connection conn = store.getConnection();
+    System.out.println("Got Connection.");
+    try {
+      Statement st = conn.createStatement();
+      ResultSet rs = st.executeQuery("select * from" + tablename);
+
+      ResultSetMetaData rsMetaData = rs.getMetaData();
+
+      int numberOfColumns = 0;
+
+      numberOfColumns = rsMetaData.getColumnCount();
+
+      System.out.println("resultSet MetaData column Count=" + numberOfColumns);
+
+      for (int i = 1; i <= numberOfColumns; i++) {
+        // get the designated column's SQL type.
+        //columnDataTypes.add(rsMetaData.getColumnName(i));
+        int type = rsMetaData.getColumnType(i);
+        LOG.debug("sql column name is " + type);
+
+        if(type == Types.CHAR)
+        {
+
+        }
+        else if(type == Types.VARCHAR)
+        {
+
+        }
+        else if(type == Types.BINARY)
+        {
+
+        }
+        else if(type == Types.INTEGER)
+        {
+
+        }
+        else if(type == Types.BIGINT)
+        {
+
+        }
+        else if(type == Types.DECIMAL)
+        {
+
+        }
+        else if(type == Types.FLOAT)
+        {
+
+        }
+        else if(type == Types.REAL)
+        {
+
+        }
+        else if(type == Types.DOUBLE)
+        {
+
+        }
+        else if(type == Types.DATE)
+        {
+
+        }
+        else if(type == Types.TIME)
+        {
+
+        }
+        else if(type == Types.TIMESTAMP)
+        {
+
+        }
+        else if(type == Types.ARRAY)
+        {
+
+        }
+        else if(type == Types.OTHER)
+        {
+
+        }
+
+      }
+    }
+    catch (SQLException ex) {
+      throw new RuntimeException(ex);
+    }
+
+
   }
 
   public MemsqlOutputOperator()
@@ -152,5 +211,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   {
     statement.setObject(1, tuple);
   }
+
+  private static transient final Logger LOG = LoggerFactory.getLogger(MemsqlOutputOperator.class);
 
 }
