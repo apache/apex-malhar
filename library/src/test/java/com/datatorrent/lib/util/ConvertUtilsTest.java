@@ -37,7 +37,7 @@ public class ConvertUtilsTest
   @Test
   public void simpleTest() throws Exception
   {
-    String fqcn = TestObjAllTypes.class.getName();
+    Class<?> fqcn = TestObjAllTypes.class;
     TestObjAllTypes testObj = new TestObjAllTypes();
 
     GetterBoolean getBoolean = ConvertUtils.createExpressionGetterBoolean(fqcn, "innerObj.boolVal");
@@ -94,18 +94,17 @@ public class ConvertUtilsTest
   public void testGetterOrFieldExpression()
   {
     TestPojo testObj = new TestPojo();
-    String fqcn = testObj.getClass().getName();
 
     String expr = ConvertUtils.getSingleFieldExpression(testObj.getClass(), "intVal");
-    GetterObject getObject = ConvertUtils.createExpressionGetterObject(fqcn, expr);
+    GetterObject getObject = ConvertUtils.createExpressionGetterObject(testObj.getClass(), expr);
     Assert.assertEquals(testObj.getIntVal(), getObject.get(testObj));
 
     expr = ConvertUtils.getSingleFieldExpression(testObj.getClass(), "intField");
-    getObject = ConvertUtils.createExpressionGetterObject(fqcn, expr);
+    getObject = ConvertUtils.createExpressionGetterObject(testObj.getClass(), expr);
     Assert.assertEquals(testObj.intField, getObject.get(testObj));
 
     expr = ConvertUtils.getSingleFieldExpression(testObj.getClass(), "boolVal");
-    getObject = ConvertUtils.createExpressionGetterObject(fqcn, expr);
+    getObject = ConvertUtils.createExpressionGetterObject(testObj.getClass(), expr);
     Assert.assertEquals(testObj.isBoolVal(), getObject.get(testObj));
 
   }
