@@ -77,10 +77,15 @@ public class ConvertUtilsTest
 
   public static class TestPojo
   {
-    public int field = 1;
+    public int intField = 1;
 
-    public int getValue() {
+    public int getIntVal() {
       return 2;
+    };
+
+    public boolean isBoolVal()
+    {
+      return true;
     };
 
   }
@@ -91,13 +96,17 @@ public class ConvertUtilsTest
     TestPojo testObj = new TestPojo();
     String fqcn = testObj.getClass().getName();
 
-    String expr = ConvertUtils.getSingleFieldExpression(testObj.getClass(), "value", false);
+    String expr = ConvertUtils.getSingleFieldExpression(testObj.getClass(), "intVal");
     GetterObject getObject = ConvertUtils.createExpressionGetterObject(fqcn, expr);
-    Assert.assertEquals(testObj.getValue(), getObject.get(testObj));
+    Assert.assertEquals(testObj.getIntVal(), getObject.get(testObj));
 
-    expr = ConvertUtils.getSingleFieldExpression(testObj.getClass(), "field", false);
+    expr = ConvertUtils.getSingleFieldExpression(testObj.getClass(), "intField");
     getObject = ConvertUtils.createExpressionGetterObject(fqcn, expr);
-    Assert.assertEquals(testObj.field, getObject.get(testObj));
+    Assert.assertEquals(testObj.intField, getObject.get(testObj));
+
+    expr = ConvertUtils.getSingleFieldExpression(testObj.getClass(), "boolVal");
+    getObject = ConvertUtils.createExpressionGetterObject(fqcn, expr);
+    Assert.assertEquals(testObj.isBoolVal(), getObject.get(testObj));
 
   }
 

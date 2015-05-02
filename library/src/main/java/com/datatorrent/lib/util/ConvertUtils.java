@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.List;
 
 public class ConvertUtils
@@ -97,52 +98,46 @@ public class ConvertUtils
     return field.substring(0, 1).toUpperCase() + field.substring(1);
   }
 
-  public static String getFieldGetter(String field)
-  {
-    return GET + upperCaseWord(field);
-  }
-
-  public static String getBooleanGetter(String field)
-  {
-    return IS + upperCaseWord(field);
-  }
-
-  public static String getFieldGetter(String field, boolean isBoolean)
-  {
-    if (isBoolean) {
-      return getBooleanGetter(field).concat("()");
-    } else {
-      return getFieldGetter(field).concat("()");
-    }
-  }
-
   /**
-   * Return the getter expression for the given field. If the field is a public member, the field name is used, else the
-   * getter function.
+   * Return the getter expression for the given field.
+   * <p>
+   * If the field is a public member, the field name is used else the getter function. If not matching field or getter
+   * method is found, the expression is returned unmodified.
    *
-   * @param field
+   * @param clazz
+   * @param fieldExpression
    * @return
    */
-  public static String getSingleFieldExpression(Class<?> clazz, String fieldExpression, boolean isBoolean)
+  public static String getSingleFieldExpression(Class<?> clazz, String fieldExpression)
   {
     try {
       Field f = clazz.getField(fieldExpression);
       return f.getName();
     } catch (NoSuchFieldException ex) {
-      return getFieldGetter(fieldExpression, isBoolean);
+      try {
+        Method m = clazz.getMethod(GET + upperCaseWord(fieldExpression));
+        return m.getName().concat("()");
+      } catch (NoSuchMethodException nsm) {
+        try {
+          Method m = clazz.getMethod(IS + upperCaseWord(fieldExpression));
+          return m.getName().concat("()");
+        } catch (NoSuchMethodException nsm2) {
+        }
+      }
+      return fieldExpression;
     }
   }
 
-  public static String fieldListToGetExpression(List<String> fields, boolean isBoolean)
+  public static String fieldListToGetExpression(Class<?> clazz, List<String> fields)
   {
     StringBuilder sb = new StringBuilder();
 
     for (int index = 0; index < fields.size() - 1; index++) {
       String field = fields.get(index);
-      sb.append(sb).append(getFieldGetter(field)).append(JAVA_DOT);
+      sb.append(sb).append(getSingleFieldExpression(clazz, field)).append(JAVA_DOT);
     }
 
-    sb.append(getFieldGetter(fields.get(fields.size() - 1), isBoolean));
+    sb.append(getSingleFieldExpression(clazz, fields.get(fields.size() - 1)));
 
     return sb.toString();
   }
