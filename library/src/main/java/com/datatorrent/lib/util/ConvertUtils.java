@@ -24,7 +24,7 @@ import org.codehaus.commons.compiler.IScriptEvaluator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.lang.reflect.Field;
 import java.util.List;
 
 public class ConvertUtils
@@ -32,7 +32,6 @@ public class ConvertUtils
   private static final Logger logger = LoggerFactory.getLogger(ConvertUtils.class);
 
   public static final String JAVA_DOT = ".";
-  public static final String DEFAULT_TEMP_POJO_NAME = "dt_pojo";
   public static final String DEFAULT_POJO_NAME = "pojo";
 
   public static final String GET = "get";
@@ -92,7 +91,6 @@ public class ConvertUtils
     public String get(Object obj);
   }
 
-
   public static String upperCaseWord(String field)
   {
     Preconditions.checkArgument(!field.isEmpty(), field);
@@ -111,11 +109,27 @@ public class ConvertUtils
 
   public static String getFieldGetter(String field, boolean isBoolean)
   {
-    if(isBoolean) {
-      return getBooleanGetter(field);
+    if (isBoolean) {
+      return getBooleanGetter(field).concat("()");
+    } else {
+      return getFieldGetter(field).concat("()");
     }
-    else {
-      return getFieldGetter(field);
+  }
+
+  /**
+   * Return the getter expression for the given field. If the field is a public member, the field name is used, else the
+   * getter function.
+   *
+   * @param field
+   * @return
+   */
+  public static String getSingleFieldExpression(Class<?> clazz, String fieldExpression, boolean isBoolean)
+  {
+    try {
+      Field f = clazz.getField(fieldExpression);
+      return f.getName();
+    } catch (NoSuchFieldException ex) {
+      return getFieldGetter(fieldExpression, isBoolean);
     }
   }
 
@@ -123,323 +137,111 @@ public class ConvertUtils
   {
     StringBuilder sb = new StringBuilder();
 
-    for(int index = 0;
-        index < fields.size() - 1;
-        index++) {
+    for (int index = 0; index < fields.size() - 1; index++) {
       String field = fields.get(index);
-      sb.append(sb).append(getFieldGetter(field)).append("()").append(JAVA_DOT);
+      sb.append(sb).append(getFieldGetter(field)).append(JAVA_DOT);
     }
 
-    sb.append(getFieldGetter(fields.get(fields.size() - 1), isBoolean)).append("()");
+    sb.append(getFieldGetter(fields.get(fields.size() - 1), isBoolean));
 
     return sb.toString();
   }
 
-  public static Object createExpressionGetter(String fqClassName,
-                                              String getterString,
-                                              Class<?> castClass,
-                                              Class<?> getterClass)
+  public static Object createExpressionGetter(String fqClassName, String getterExpr, Class<?> castClass, Class<?> getterClass)
   {
-    logger.debug("{} {} {} {}", fqClassName, getterString, castClass, getterClass);
+    logger.debug("{} {} {} {}", fqClassName, getterExpr, castClass, getterClass);
 
-    if(getterString.startsWith(".")) {
-      getterString = getterString.substring(1);
+    if (getterExpr.startsWith(".")) {
+      getterExpr = getterExpr.substring(1);
     }
 
-    if(getterString.isEmpty()) {
-      throw new IllegalArgumentException("The getter string: "
-                                         + getterString
-                                         + "\nis invalid.");
+    if (getterExpr.isEmpty()) {
+      throw new IllegalArgumentException("The getter string: " + getterExpr + "\nis invalid.");
     }
 
     IScriptEvaluator se = null;
 
-    try
-    {
+    try {
       se = CompilerFactoryFactory.getDefaultCompilerFactory().newScriptEvaluator();
-    }
-    catch(Exception ex)
-    {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
 
     try {
-      String code = "return (" + castClass.getName() +
-                                      ") (((" + fqClassName +
-                                      ")" + ConvertUtils.DEFAULT_POJO_NAME + ")." + getterString + ");";
+      String code = "return (" + castClass.getName() + ") (((" + fqClassName + ")" + ConvertUtils.DEFAULT_POJO_NAME + ")." + getterExpr + ");";
       logger.debug("{}", code);
 
-      return se.createFastEvaluator(code,
-                                    getterClass,
-                                    new String[] {ConvertUtils.DEFAULT_POJO_NAME});
-    }
-    catch(CompileException ex) {
+      return se.createFastEvaluator(code, getterClass, new String[] { ConvertUtils.DEFAULT_POJO_NAME });
+    } catch (CompileException ex) {
       throw new RuntimeException(ex);
     }
   }
 
-  public static GetterBoolean createExpressionGetterBoolean(String fqClassName,
-                                                            String getterString)
+  public static GetterBoolean createExpressionGetterBoolean(String fqClassName, String getterExpr)
   {
-    return (GetterBoolean) createExpressionGetter(fqClassName,
-                                                  getterString,
-                                                  boolean.class,
-                                                  GetterBoolean.class);
+    return (GetterBoolean) createExpressionGetter(fqClassName, getterExpr, boolean.class, GetterBoolean.class);
   }
 
-  public static GetterByte createExpressionGetterByte(String fqClassName,
-                                                      String getterString)
+  public static GetterByte createExpressionGetterByte(String fqClassName, String getterExpr)
   {
-    return (GetterByte) createExpressionGetter(fqClassName,
-                                               getterString,
-                                               byte.class,
-                                               GetterByte.class);
+    return (GetterByte) createExpressionGetter(fqClassName, getterExpr, byte.class, GetterByte.class);
   }
 
-  public static GetterChar createExpressionGetterChar(String fqClassName,
-                                                      String getterString)
+  public static GetterChar createExpressionGetterChar(String fqClassName, String getterExpr)
   {
-    return (GetterChar) createExpressionGetter(fqClassName,
-                                               getterString,
-                                               char.class,
-                                               GetterChar.class);
+    return (GetterChar) createExpressionGetter(fqClassName, getterExpr, char.class, GetterChar.class);
   }
 
-  public static GetterDouble createExpressionGetterDouble(String fqClassName,
-                                                          String getterString)
+  public static GetterDouble createExpressionGetterDouble(String fqClassName, String getterExpr)
   {
-    return (GetterDouble) createExpressionGetter(fqClassName,
-                                                  getterString,
-                                                  double.class,
-                                                  GetterDouble.class);
+    return (GetterDouble) createExpressionGetter(fqClassName, getterExpr, double.class, GetterDouble.class);
   }
 
-  public static GetterFloat createExpressionGetterFloat(String fqClassName,
-                                                        String getterString)
+  public static GetterFloat createExpressionGetterFloat(String fqClassName, String getterExpr)
   {
-    return (GetterFloat) createExpressionGetter(fqClassName,
-                                                getterString,
-                                                float.class,
-                                                GetterFloat.class);
+    return (GetterFloat) createExpressionGetter(fqClassName, getterExpr, float.class, GetterFloat.class);
   }
 
-  public static GetterInt createExpressionGetterInt(String fqClassName,
-                                                    String getterString)
+  public static GetterInt createExpressionGetterInt(String fqClassName, String getterExpr)
   {
-    return (GetterInt) createExpressionGetter(fqClassName,
-                                              getterString,
-                                              int.class,
-                                              GetterInt.class);
+    return (GetterInt) createExpressionGetter(fqClassName, getterExpr, int.class, GetterInt.class);
   }
 
-  public static GetterLong createExpressionGetterLong(String fqClassName,
-                                                        String getterString)
+  public static GetterLong createExpressionGetterLong(String fqClassName, String getterExpr)
   {
-    return (GetterLong) createExpressionGetter(fqClassName,
-                                               getterString,
-                                               long.class,
-                                               GetterLong.class);
+    return (GetterLong) createExpressionGetter(fqClassName, getterExpr, long.class, GetterLong.class);
   }
 
-  public static GetterShort createExpressionGetterShort(String fqClassName,
-                                                        String getterString)
+  public static GetterShort createExpressionGetterShort(String fqClassName, String getterExpr)
   {
-    return (GetterShort) createExpressionGetter(fqClassName,
-                                                getterString,
-                                                short.class,
-                                                GetterShort.class);
+    return (GetterShort) createExpressionGetter(fqClassName, getterExpr, short.class, GetterShort.class);
   }
 
-  public static GetterString createExpressionGetterString(String fqClassName,
-                                                          String getterString)
+  public static GetterString createExpressionGetterString(String fqClassName, String getterExpr)
   {
-    return (GetterString) createExpressionGetter(fqClassName,
-                                                 getterString,
-                                                 String.class,
-                                                 GetterString.class);
+    return (GetterString) createExpressionGetter(fqClassName, getterExpr, String.class, GetterString.class);
   }
 
-  public static GetterObject createExpressionGetterObject(String fqClassName,
-                                                          String getterString)
+  public static GetterObject createExpressionGetterObject(String fqClassName, String getterExpr)
   {
-    return (GetterObject) createExpressionGetter(fqClassName,
-                                                 getterString,
-                                                 Object.class,
-                                                 GetterObject.class);
+    return (GetterObject) createExpressionGetter(fqClassName, getterExpr, Object.class, GetterObject.class);
   }
 
-  public static Object createExpressionGetter(String fqClassName,
-                                              ArrayList<String> fieldList,
-                                              Class<?> castClass,
-                                              Class<?> getterClass)
-  {
-    return createExpressionGetter(fqClassName,
-                                  ConvertUtils.fieldListToGetExpression(fieldList, castClass.equals((Boolean.class))),
-                                  castClass,
-                                  getterClass);
-  }
-
-  public static GetterBoolean createExpressionGetterBoolean(String fqClassName,
-                                                            ArrayList<String> fieldList)
-  {
-    return (GetterBoolean) createExpressionGetter(fqClassName,
-                                                  fieldList,
-                                                  Boolean.class,
-                                                  GetterBoolean.class);
-  }
-
-  public static GetterByte createExpressionGetterByte(String fqClassName,
-                                                      ArrayList<String> fieldList)
-  {
-    return (GetterByte) createExpressionGetter(fqClassName,
-                                               fieldList,
-                                               Byte.class,
-                                               GetterByte.class);
-  }
-
-  public static GetterChar createExpressionGetterChar(String fqClassName,
-                                                      ArrayList<String> fieldList)
-  {
-    return (GetterChar) createExpressionGetter(fqClassName,
-                                               fieldList,
-                                               Character.class,
-                                               GetterChar.class);
-  }
-
-  public static GetterDouble createExpressionGetterDouble(String fqClassName,
-                                                          ArrayList<String> fieldList)
-  {
-    return (GetterDouble) createExpressionGetter(fqClassName,
-                                                 fieldList,
-                                                 Double.class,
-                                                 GetterDouble.class);
-  }
-
-  public static GetterFloat createExpressionGetterFloat(String fqClassName,
-                                                        ArrayList<String> fieldList)
-  {
-    return (GetterFloat) createExpressionGetter(fqClassName,
-                                                fieldList,
-                                                Float.class,
-                                                GetterFloat.class);
-  }
-
-  public static GetterInt createExpressionGetterInt(String fqClassName,
-                                                    ArrayList<String> fieldList)
-  {
-    return (GetterInt) createExpressionGetter(fqClassName,
-                                              fieldList,
-                                              Integer.class,
-                                              GetterInt.class);
-  }
-
-  public static GetterLong createExpressionGetterLong(String fqClassName,
-                                                      ArrayList<String> fieldList)
-  {
-    return (GetterLong) createExpressionGetter(fqClassName,
-                                               fieldList,
-                                               Long.class,
-                                               GetterLong.class);
-  }
-
-  public static GetterShort createExpressionGetterShort(String fqClassName,
-                                                        ArrayList<String> fieldList)
-  {
-    return (GetterShort) createExpressionGetter(fqClassName,
-                                                fieldList,
-                                                Short.class,
-                                                GetterShort.class);
-  }
-
-  public static GetterString createExpressionGetterString(String fqClassName,
-                                                          ArrayList<String> fieldList)
-  {
-    return (GetterString) createExpressionGetter(fqClassName,
-                                                 fieldList,
-                                                 String.class,
-                                                 GetterString.class);
-  }
-
-  public static GetterObject createExpressionGetterObject(String fqClassName,
-                                                          ArrayList<String> fieldList)
-  {
-    return (GetterObject) createExpressionGetter(fqClassName,
-                                                 fieldList,
-                                                 Object.class,
-                                                 GetterObject.class);
-  }
-
-  public static Object createExtractionGetter(String extractionString,
-                                              Class<?> getterClass)
+  public static Object createExtractionGetter(String extractionString, Class<?> getterClass)
   {
     IScriptEvaluator se = null;
 
-    try
-    {
+    try {
       se = CompilerFactoryFactory.getDefaultCompilerFactory().newScriptEvaluator();
-    }
-    catch(Exception ex)
-    {
+    } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
 
     try {
-      return se.createFastEvaluator(extractionString,
-                                            getterClass,
-                                            new String[] {ConvertUtils.DEFAULT_POJO_NAME});
-    }
-    catch(CompileException ex) {
+      return se.createFastEvaluator(extractionString, getterClass, new String[] { ConvertUtils.DEFAULT_POJO_NAME });
+    } catch (CompileException ex) {
       throw new RuntimeException(ex);
     }
   }
 
-  public static GetterBoolean createExtractionGetterBoolean(String extractionString)
-  {
-    return (GetterBoolean) createExtractionGetter(extractionString, GetterBoolean.class);
-  }
-
-  public static GetterByte createExtractionGetterByte(String extractionString)
-  {
-    return (GetterByte) createExtractionGetter(extractionString, GetterByte.class);
-  }
-
-  public static GetterChar createExtractionGetterChar(String extractionString)
-  {
-    return (GetterChar) createExtractionGetter(extractionString, GetterChar.class);
-  }
-
-  public static GetterDouble createExtractionGetterDouble(String extractionString)
-  {
-    return (GetterDouble) createExtractionGetter(extractionString, GetterDouble.class);
-  }
-
-  public static GetterFloat createExtractionGetterFloat(String extractionString)
-  {
-    return (GetterFloat) createExtractionGetter(extractionString, GetterFloat.class);
-  }
-
-  public static GetterInt createExtractionGetterInt(String extractionString)
-  {
-    return (GetterInt) createExtractionGetter(extractionString, GetterInt.class);
-  }
-
-  public static GetterLong createExtractionGetterLong(String extractionString)
-  {
-    return (GetterLong) createExtractionGetter(extractionString, GetterLong.class);
-  }
-
-  public static GetterShort createExtractionGetterShort(String extractionString)
-  {
-    return (GetterShort) createExtractionGetter(extractionString, GetterShort.class);
-  }
-
-  public static GetterString createExtractionGetterString(String extractionString)
-  {
-    return (GetterString) createExtractionGetter(extractionString, GetterString.class);
-  }
-
-  public static GetterObject createExtractionGetterObject(String extractionString)
-  {
-    return (GetterObject) createExtractionGetter(extractionString, GetterObject.class);
-  }
 }
