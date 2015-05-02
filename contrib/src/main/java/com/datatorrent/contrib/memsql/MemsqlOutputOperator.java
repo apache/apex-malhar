@@ -16,8 +16,7 @@
 package com.datatorrent.contrib.memsql;
 
 import com.datatorrent.api.Context.OperatorContext;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import javax.validation.constraints.NotNull;
 
@@ -30,7 +29,29 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   private String tablename;
   @NotNull
   private ArrayList<String> dataColumns;
+  private ArrayList<String> expression;
+  private ArrayList<String> columnDataTypes;
+
+  /*
+   * An ArrayList of Java expressions that will yield the field value from the POJO.
+   * Each expression corresponds to one column in the memsql table.
+   * Example:
+   */
+  public ArrayList<String> getExpression()
+  {
+    return expression;
+  }
+
+  /*
+   * Set Java Expression.
+   * @param ArrayList of Extraction Expressions
+   */
+  public void setExpression(ArrayList<String> expression)
+  {
+    this.expression = expression;
+  }
   private String insertStatement;
+
 
   /*
    * An arraylist of data column names to be set in Memsql database.
@@ -71,6 +92,34 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   public void setup(OperatorContext context)
   {
     super.setup(context);
+    Connection conn = store.getConnection();
+    System.out.println("Got Connection.");
+    try {
+    Statement st = conn.createStatement();
+    ResultSet rs = st.executeQuery("select * from" + tablename);
+
+    ResultSetMetaData rsMetaData = rs.getMetaData();
+
+    int numberOfColumns = 0;
+
+    numberOfColumns = rsMetaData.getColumnCount();
+
+    System.out.println("resultSet MetaData column Count=" + numberOfColumns);
+
+    for (int i = 1; i <= numberOfColumns; i++) {
+      System.out.println("column MetaData ");
+      System.out.println("column number " + i);
+
+      // get the designated column's SQL type.
+      System.out.println("sql column type is "+rsMetaData.getColumnType(i));
+      columnDataTypes.add(rsMetaData.getColumnName(i));
+      System.out.println("sql column name is " + rsMetaData.getColumnName(i));
+      }
+    }
+    catch (SQLException ex) {
+      throw new RuntimeException(ex);
+    }
+
     StringBuilder columns = new StringBuilder("");
     StringBuilder values = new StringBuilder("");
     for (int i = 0; i < dataColumns.size(); i++) {

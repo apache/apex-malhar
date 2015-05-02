@@ -16,9 +16,9 @@
 
 package com.datatorrent.contrib.memsql;
 
+import com.datatorrent.api.Context.OperatorContext;
 import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.FQ_TABLE;
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Integer>
 {
