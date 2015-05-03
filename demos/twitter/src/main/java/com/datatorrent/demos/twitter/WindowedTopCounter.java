@@ -49,6 +49,8 @@ public class WindowedTopCounter<T> extends BaseOperator
   private PriorityQueue<SlidingContainer<T>> topCounter;
   private int windows;
   private int topCount = 10;
+  private int slidingWindowWidth;
+  private int dagWindowWidth;
   private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
 
   /**
@@ -72,27 +74,14 @@ public class WindowedTopCounter<T> extends BaseOperator
 
   public final transient DefaultOutputPort<List<Map<String, Object>>> output = new DefaultOutputPort<List<Map<String, Object>>>();
 
-  /**
-   * Set the width of the sliding window.
-   *
-   * Sliding window is typically much larger than the dag window. e.g. One may want to measure the most frequently
-   * occurring keys over the period of 5 minutes. So if dagWindowWidth (which is by default 500ms) is set to 500ms,
-   * the slidingWindowWidth would be (60 * 5 * 1000 =) 300000.
-   *
-   * @param slidingWindowWidth - Sliding window width to be set for this operator, recommended to be multiple of DAG window.
-   * @param dagWindowWidth - DAG's native window width. It has to be the value of the native window set at the application level.
-   */
-  public void setSlidingWindowWidth(long slidingWindowWidth, int dagWindowWidth)
-  {
-    windows = (int)(slidingWindowWidth / dagWindowWidth) + 1;
-    if (slidingWindowWidth % dagWindowWidth != 0) {
-      logger.warn("slidingWindowWidth(" + slidingWindowWidth + ") is not exact multiple of dagWindowWidth(" + dagWindowWidth + ")");
-    }
-  }
-
   @Override
   public void setup(OperatorContext context)
   {
+    windows = (int)(slidingWindowWidth / dagWindowWidth) + 1;
+    if(slidingWindowWidth % dagWindowWidth != 0) {
+      logger.warn("slidingWindowWidth(" + slidingWindowWidth + ") is not exact multiple of dagWindowWidth(" + dagWindowWidth + ")");
+    }
+
     topCounter = new PriorityQueue<SlidingContainer<T>>(this.topCount, new TopSpotComparator());
   }
 
@@ -162,7 +151,7 @@ public class WindowedTopCounter<T> extends BaseOperator
 
       data.add(tableRow);
     }
-    
+
     output.emit(data);
     topCounter.clear();
   }
@@ -182,6 +171,66 @@ public class WindowedTopCounter<T> extends BaseOperator
   public void setTopCount(int count)
   {
     topCount = count;
+  }
+
+  /**
+   * @return the windows
+   */
+  public int getWindows()
+  {
+    return windows;
+  }
+
+  /**
+   * @param windows the windows to set
+   */
+  public void setWindows(int windows)
+  {
+    this.windows = windows;
+  }
+
+  /**
+   * @return the slidingWindowWidth
+   */
+  public int getSlidingWindowWidth()
+  {
+    return slidingWindowWidth;
+  }
+
+  /**
+   * Set the width of the sliding window.
+   *
+   * Sliding window is typically much larger than the dag window. e.g. One may want to measure the most frequently
+   * occurring keys over the period of 5 minutes. So if dagWindowWidth (which is by default 500ms) is set to 500ms,
+   * the slidingWindowWidth would be (60 * 5 * 1000 =) 300000.
+   *
+   * @param slidingWindowWidth - Sliding window width to be set for this operator, recommended to be multiple of DAG window.
+   */
+  public void setSlidingWindowWidth(int slidingWindowWidth)
+  {
+    this.slidingWindowWidth = slidingWindowWidth;
+  }
+
+  /**
+   * @return the dagWindowWidth
+   */
+  public int getDagWindowWidth()
+  {
+    return dagWindowWidth;
+  }
+
+  /**
+   * Set the width of the sliding window.
+   *
+   * Sliding window is typically much larger than the dag window. e.g. One may want to measure the most frequently
+   * occurring keys over the period of 5 minutes. So if dagWindowWidth (which is by default 500ms) is set to 500ms,
+   * the slidingWindowWidth would be (60 * 5 * 1000 =) 300000.
+   *
+   * @param dagWindowWidth - DAG's native window width. It has to be the value of the native window set at the application level.
+   */
+  public void setDagWindowWidth(int dagWindowWidth)
+  {
+    this.dagWindowWidth = dagWindowWidth;
   }
 
   static class TopSpotComparator implements Comparator<SlidingContainer<?>>

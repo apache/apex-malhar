@@ -189,7 +189,8 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     tabularServer.setConverter(mapConverter);
 
     topCounts.setTopCount(10);
-    topCounts.setSlidingWindowWidth(600, 1);
+    topCounts.setSlidingWindowWidth(600);
+    topCounts.setDagWindowWidth(1);
 
     dag.addStream("TwittedHashtags", twitterFeed.hashtag, uniqueCounter.data).setLocality(locality);
     // Count unique Hashtags

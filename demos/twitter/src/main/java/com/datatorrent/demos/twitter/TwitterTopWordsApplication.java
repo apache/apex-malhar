@@ -94,7 +94,8 @@ public class TwitterTopWordsApplication implements StreamingApplication
     tabularServer.setConverter(mapConverter);
 
     logger.info("Tabular schema {}", tabularSchema);
-    topCounts.setSlidingWindowWidth(120, 1);
+    topCounts.setSlidingWindowWidth(120);
+    topCounts.setDagWindowWidth(1);
 
     dag.addStream("TweetStream", twitterFeed.text, wordExtractor.input);
     dag.addStream("TwittedWords", wordExtractor.output, uniqueCounter.data);
