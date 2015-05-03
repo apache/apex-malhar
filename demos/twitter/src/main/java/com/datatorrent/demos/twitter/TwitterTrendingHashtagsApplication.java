@@ -191,10 +191,7 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     topCounts.setTopCount(10);
     topCounts.setSlidingWindowWidth(600, 1);
 
-    // Feed the statuses from feed into the input of the Hashtag extractor.
-    dag.addStream("TweetStream", twitterFeed.status, HashtagExtractor.input).setLocality(Locality.CONTAINER_LOCAL);
-    //  Start counting the Hashtags coming out of Hashtag extractor
-    dag.addStream("TwittedHashtags", HashtagExtractor.hashtags, uniqueCounter.data).setLocality(locality);
+    dag.addStream("TwittedHashtags", twitterFeed.hashtag, uniqueCounter.data).setLocality(locality);
     // Count unique Hashtags
     dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input);
     // Count top 10

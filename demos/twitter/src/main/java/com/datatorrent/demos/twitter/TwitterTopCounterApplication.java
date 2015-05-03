@@ -189,9 +189,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
     topCounts.setSlidingWindowWidth(600, 1);
 
     // Feed the statuses from feed into the input of the url extractor.
-    dag.addStream("TweetStream", twitterFeed.status, urlExtractor.input).setLocality(Locality.CONTAINER_LOCAL);
-    //  Start counting the urls coming out of URL extractor
-    dag.addStream("TwittedURLs", urlExtractor.url, uniqueCounter.data).setLocality(locality);
+    dag.addStream("TweetStream", twitterFeed.url, uniqueCounter.data).setLocality(locality);
     // Count unique urls
     dag.addStream("UniqueURLCounts", uniqueCounter.count, topCounts.input);
     dag.addStream("MapProvider", topCounts.output, tabularServer.input);
