@@ -28,9 +28,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class ConvertUtils
+public class PojoUtils
 {
-  private static final Logger logger = LoggerFactory.getLogger(ConvertUtils.class);
+  private static final Logger logger = LoggerFactory.getLogger(PojoUtils.class);
 
   public static final String JAVA_DOT = ".";
   public static final String DEFAULT_POJO_NAME = "pojo";
@@ -38,7 +38,7 @@ public class ConvertUtils
   public static final String GET = "get";
   public static final String IS = "is";
 
-  private ConvertUtils()
+  private PojoUtils()
   {
   }
 
@@ -101,7 +101,7 @@ public class ConvertUtils
   /**
    * Return the getter expression for the given field.
    * <p>
-   * If the field is a public member, the field name is used else the getter function. If not matching field or getter
+   * If the field is a public member, the field name is used else the getter function. If no matching field or getter
    * method is found, the expression is returned unmodified.
    *
    * @param clazz
@@ -142,7 +142,7 @@ public class ConvertUtils
     return sb.toString();
   }
 
-  public static Object createExpressionGetter(Class<?> pojoClass, String getterExpr, Class<?> castClass, Class<?> getterClass)
+  public static Object createGetter(Class<?> pojoClass, String getterExpr, Class<?> castClass, Class<?> getterClass)
   {
     logger.debug("{} {} {} {}", pojoClass, getterExpr, castClass, getterClass);
 
@@ -163,80 +163,63 @@ public class ConvertUtils
     }
 
     try {
-      String code = "return (" + castClass.getName() + ") (((" + pojoClass.getName() + ")" + ConvertUtils.DEFAULT_POJO_NAME + ")." + getterExpr + ");";
+      String code = "return (" + castClass.getName() + ") (((" + pojoClass.getName() + ")" + PojoUtils.DEFAULT_POJO_NAME + ")." + getterExpr + ");";
       logger.debug("{}", code);
 
-      return se.createFastEvaluator(code, getterClass, new String[] { ConvertUtils.DEFAULT_POJO_NAME });
+      return se.createFastEvaluator(code, getterClass, new String[] { PojoUtils.DEFAULT_POJO_NAME });
     } catch (CompileException ex) {
       throw new RuntimeException(ex);
     }
   }
 
-  public static GetterBoolean createExpressionGetterBoolean(Class<?> pojoClass, String getterExpr)
+  public static GetterBoolean createGetterBoolean(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterBoolean) createExpressionGetter(pojoClass, getterExpr, boolean.class, GetterBoolean.class);
+    return (GetterBoolean) createGetter(pojoClass, getterExpr, boolean.class, GetterBoolean.class);
   }
 
-  public static GetterByte createExpressionGetterByte(Class<?> pojoClass, String getterExpr)
+  public static GetterByte createGetterByte(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterByte) createExpressionGetter(pojoClass, getterExpr, byte.class, GetterByte.class);
+    return (GetterByte) createGetter(pojoClass, getterExpr, byte.class, GetterByte.class);
   }
 
-  public static GetterChar createExpressionGetterChar(Class<?> pojoClass, String getterExpr)
+  public static GetterChar createGetterChar(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterChar) createExpressionGetter(pojoClass, getterExpr, char.class, GetterChar.class);
+    return (GetterChar) createGetter(pojoClass, getterExpr, char.class, GetterChar.class);
   }
 
-  public static GetterDouble createExpressionGetterDouble(Class<?> pojoClass, String getterExpr)
+  public static GetterDouble createGetterDouble(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterDouble) createExpressionGetter(pojoClass, getterExpr, double.class, GetterDouble.class);
+    return (GetterDouble) createGetter(pojoClass, getterExpr, double.class, GetterDouble.class);
   }
 
-  public static GetterFloat createExpressionGetterFloat(Class<?> pojoClass, String getterExpr)
+  public static GetterFloat createGetterFloat(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterFloat) createExpressionGetter(pojoClass, getterExpr, float.class, GetterFloat.class);
+    return (GetterFloat) createGetter(pojoClass, getterExpr, float.class, GetterFloat.class);
   }
 
-  public static GetterInt createExpressionGetterInt(Class<?> pojoClass, String getterExpr)
+  public static GetterInt createGetterInt(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterInt) createExpressionGetter(pojoClass, getterExpr, int.class, GetterInt.class);
+    return (GetterInt) createGetter(pojoClass, getterExpr, int.class, GetterInt.class);
   }
 
   public static GetterLong createExpressionGetterLong(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterLong) createExpressionGetter(pojoClass, getterExpr, long.class, GetterLong.class);
+    return (GetterLong) createGetter(pojoClass, getterExpr, long.class, GetterLong.class);
   }
 
-  public static GetterShort createExpressionGetterShort(Class<?> pojoClass, String getterExpr)
+  public static GetterShort createGetterShort(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterShort) createExpressionGetter(pojoClass, getterExpr, short.class, GetterShort.class);
+    return (GetterShort) createGetter(pojoClass, getterExpr, short.class, GetterShort.class);
   }
 
-  public static GetterString createExpressionGetterString(Class<?> pojoClass, String getterExpr)
+  public static GetterString createGetterString(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterString) createExpressionGetter(pojoClass, getterExpr, String.class, GetterString.class);
+    return (GetterString) createGetter(pojoClass, getterExpr, String.class, GetterString.class);
   }
 
-  public static GetterObject createExpressionGetterObject(Class<?> pojoClass, String getterExpr)
+  public static GetterObject createGetterObject(Class<?> pojoClass, String getterExpr)
   {
-    return (GetterObject) createExpressionGetter(pojoClass, getterExpr, Object.class, GetterObject.class);
-  }
-
-  public static Object createExtractionGetter(String extractionString, Class<?> getterClass)
-  {
-    IScriptEvaluator se = null;
-
-    try {
-      se = CompilerFactoryFactory.getDefaultCompilerFactory().newScriptEvaluator();
-    } catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
-
-    try {
-      return se.createFastEvaluator(extractionString, getterClass, new String[] { ConvertUtils.DEFAULT_POJO_NAME });
-    } catch (CompileException ex) {
-      throw new RuntimeException(ex);
-    }
+    return (GetterObject) createGetter(pojoClass, getterExpr, Object.class, GetterObject.class);
   }
 
 }
