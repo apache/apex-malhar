@@ -16,7 +16,8 @@
 package com.datatorrent.contrib.memsql;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.sun.org.apache.bcel.internal.generic.Type;
+import com.datatorrent.lib.util.ConvertUtils;
+import com.datatorrent.lib.util.ConvertUtils.GetterBoolean;
 import java.sql.*;
 import java.util.ArrayList;
 import javax.validation.constraints.NotNull;
@@ -132,7 +133,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
 
         if(type == Types.CHAR)
         {
-
+          GetterBoolean getBoolean = ConvertUtils.createExpressionGetterBoolean(fqcn, "innerObj.boolVal");
         }
         else if(type == Types.VARCHAR)
         {
