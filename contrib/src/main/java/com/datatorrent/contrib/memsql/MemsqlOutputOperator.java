@@ -16,8 +16,16 @@
 package com.datatorrent.contrib.memsql;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.util.ConvertUtils;
-import com.datatorrent.lib.util.ConvertUtils.GetterBoolean;
+import com.datatorrent.lib.util.PojoUtils;
+import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
+import com.datatorrent.lib.util.PojoUtils.GetterChar;
+import com.datatorrent.lib.util.PojoUtils.GetterDouble;
+import com.datatorrent.lib.util.PojoUtils.GetterFloat;
+import com.datatorrent.lib.util.PojoUtils.GetterInt;
+import com.datatorrent.lib.util.PojoUtils.GetterLong;
+import com.datatorrent.lib.util.PojoUtils.GetterObject;
+import com.datatorrent.lib.util.PojoUtils.GetterShort;
+import com.datatorrent.lib.util.PojoUtils.GetterString;
 import java.sql.*;
 import java.util.ArrayList;
 import javax.validation.constraints.NotNull;
@@ -32,9 +40,14 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   @NotNull
   private String tablename;
   @NotNull
+  //Columns in memsql database set by user.
   private ArrayList<String> dataColumns;
+  //Expressions set by user to get field values from input tuple.
   private ArrayList<String> expression;
-  //private ArrayList<String> columnDataTypes;
+  private ArrayList<Integer> columnDataTypes;
+  //check for non transient
+  private boolean isFirstTuple = true;
+  private ArrayList<Object> getters;
 
   /*
    * An ArrayList of Java expressions that will yield the field value from the POJO.
@@ -112,7 +125,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
             + " values (" + values + ")";
     super.setup(context);
     Connection conn = store.getConnection();
-    System.out.println("Got Connection.");
+    LOG.debug("Got Connection.");
     try {
       Statement st = conn.createStatement();
       ResultSet rs = st.executeQuery("select * from" + tablename);
@@ -123,82 +136,97 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
 
       numberOfColumns = rsMetaData.getColumnCount();
 
-      System.out.println("resultSet MetaData column Count=" + numberOfColumns);
+      LOG.debug("resultSet MetaData column Count=" + numberOfColumns);
 
       for (int i = 1; i <= numberOfColumns; i++) {
         // get the designated column's SQL type.
-        //columnDataTypes.add(rsMetaData.getColumnName(i));
         int type = rsMetaData.getColumnType(i);
-        LOG.debug("sql column name is " + type);
-
-        if(type == Types.CHAR)
-        {
-          GetterBoolean getBoolean = ConvertUtils.createExpressionGetterBoolean(fqcn, "innerObj.boolVal");
-        }
-        else if(type == Types.VARCHAR)
-        {
-
-        }
-        else if(type == Types.BINARY)
-        {
-
-        }
-        else if(type == Types.INTEGER)
-        {
-
-        }
-        else if(type == Types.BIGINT)
-        {
-
-        }
-        else if(type == Types.DECIMAL)
-        {
-
-        }
-        else if(type == Types.FLOAT)
-        {
-
-        }
-        else if(type == Types.REAL)
-        {
-
-        }
-        else if(type == Types.DOUBLE)
-        {
-
-        }
-        else if(type == Types.DATE)
-        {
-
-        }
-        else if(type == Types.TIME)
-        {
-
-        }
-        else if(type == Types.TIMESTAMP)
-        {
-
-        }
-        else if(type == Types.ARRAY)
-        {
-
-        }
-        else if(type == Types.OTHER)
-        {
-
-        }
-
+        columnDataTypes.add(type);
+        LOG.debug("sql column type is " + type);
       }
     }
     catch (SQLException ex) {
       throw new RuntimeException(ex);
     }
 
-
   }
 
   public MemsqlOutputOperator()
   {
+  }
+
+  @Override
+  public void processTuple(Object tuple)
+  {
+    if (isFirstTuple) {
+      processFirstTuple(tuple);
+    }
+    isFirstTuple = false;
+    super.processTuple(tuple);
+  }
+
+  public void processFirstTuple(Object tuple)
+  {
+    Class<?> fqcn = tuple.getClass();
+    int size = columnDataTypes.size();
+    for (int i = 0; i < size; i++) {
+      int type = columnDataTypes.get(i);
+      String getterExpression = expression.get(i);
+      if (type == Types.CHAR) {
+        GetterChar getChar = PojoUtils.createGetterChar(fqcn, getterExpression);
+        getters.add(getChar.get(tuple));
+      }
+      else if (type == Types.VARCHAR) {
+        GetterString getVarchar = PojoUtils.createGetterString(fqcn, getterExpression);
+        getters.add(getVarchar.get(tuple));
+      }
+      else if (type == Types.BOOLEAN || type == Types.TINYINT) {
+        GetterBoolean getBoolean = PojoUtils.createGetterBoolean(fqcn, getterExpression);
+        getters.add(getBoolean.get(tuple));
+      }
+      else if (type == Types.SMALLINT) {
+        GetterShort getShort = PojoUtils.createGetterShort(fqcn, getterExpression);
+        getters.add(getShort.get(tuple));
+      }
+      else if (type == Types.INTEGER) {
+        GetterInt getInt = PojoUtils.createGetterInt(fqcn, getterExpression);
+        getters.add(getInt.get(tuple));
+      }
+      else if (type == Types.BIGINT) {
+        GetterLong getLong = PojoUtils.createExpressionGetterLong(fqcn, getterExpression);
+        getters.add(getLong.get(tuple));
+      }
+      else if (type == Types.DECIMAL) {
+        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
+        getters.add((Number)getObject.get(tuple));
+      }
+      else if (type == Types.FLOAT) {
+        GetterFloat getFloat = PojoUtils.createGetterFloat(fqcn, getterExpression);
+        getters.add(getFloat.get(tuple));
+      }
+      else if (type == Types.DOUBLE) {
+        GetterDouble getDouble = PojoUtils.createGetterDouble(fqcn, getterExpression);
+        getters.add(getDouble.get(tuple));
+      }
+      else if (type == Types.DATE) {
+        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
+        getters.add((Date)getObject.get(tuple));
+      }
+      else if (type == Types.TIME) {
+        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
+        getters.add((Time)getObject.get(tuple));
+      }
+      else if (type == Types.ARRAY) {
+        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
+        getters.add((Array)getObject.get(tuple));
+      }
+      else if (type == Types.OTHER) {
+        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
+        getters.add(getObject.get(tuple));
+      }
+
+    }
+
   }
 
   @Override
@@ -210,7 +238,10 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   @Override
   protected void setStatementParameters(PreparedStatement statement, Object tuple) throws SQLException
   {
-    statement.setObject(1, tuple);
+    int size = dataColumns.size();
+    for (int i = 0; i < size; i++) {
+      statement.setObject(i + 1, getters.get(i));
+    }
   }
 
   private static transient final Logger LOG = LoggerFactory.getLogger(MemsqlOutputOperator.class);
