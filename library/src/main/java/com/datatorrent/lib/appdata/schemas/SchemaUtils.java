@@ -196,20 +196,100 @@ public class SchemaUtils
 
   public static JSONArray findFirstKeyJSONArray(JSONObject jo, String key)
   {
+    if(jo.has(key)) {
+      try {
+        JSONArray jsonArray = jo.getJSONArray(key);
+        return jsonArray;
+      }
+      catch(JSONException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
     Iterator keyIterator = jo.keys();
 
     while(keyIterator.hasNext()) {
-      boolean found = false;
+      String childKey = (String) keyIterator.next();
+
+      JSONArray childJa = null;
 
       try {
-        JSONArray jsonArray = jo.getJSONArray(key);
+        childJa = jo.getJSONArray(childKey);
       }
       catch(JSONException ex) {
-        found = true;
+        //Do nothing
       }
 
-      if(!found) {
-        //jo.getJSONObject(key)
+      if(childJa != null) {
+        JSONArray result = findFirstKeyJSONArray(childJa, key);
+
+        if(result != null) {
+          return result;
+        }
+
+        continue;
+      }
+
+      JSONObject childJo = null;
+
+      try {
+        childJo = jo.getJSONObject(childKey);
+      }
+      catch(JSONException ex) {
+        //Do nothing
+      }
+
+      if(childJo != null) {
+        JSONArray result = findFirstKeyJSONArray(childJo, key);
+
+        if(result != null) {
+          return result;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  public static JSONArray findFirstKeyJSONArray(JSONArray ja, String key)
+  {
+    for(int index = 0;
+        index < ja.length();
+        index++) {
+      JSONArray childJa = null;
+
+      try {
+        childJa = ja.getJSONArray(index);
+      }
+      catch(JSONException ex) {
+        //Do nothing
+      }
+
+      if(childJa != null) {
+        JSONArray result = findFirstKeyJSONArray(childJa, key);
+
+        if(result != null) {
+          return result;
+        }
+
+        continue;
+      }
+
+      JSONObject childJo = null;
+
+      try {
+        childJo = ja.getJSONObject(index);
+      }
+      catch(JSONException ex) {
+        //Do nothing
+      }
+
+      if(childJo != null) {
+        JSONArray result = findFirstKeyJSONArray(childJo, key);
+
+        if(result != null) {
+          return result;
+        }
       }
     }
 
@@ -218,8 +298,102 @@ public class SchemaUtils
 
   public static JSONObject findFirstKeyJSONObject(JSONObject jo, String key)
   {
-    Preconditions.checkNotNull(jo, "jo");
-    Preconditions.checkNotNull(key, "key");
+    if(jo.has(key)) {
+      try {
+        JSONObject jsonObject = jo.getJSONObject(key);
+        return jsonObject;
+      }
+      catch(JSONException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    Iterator keyIterator = jo.keys();
+
+    while(keyIterator.hasNext()) {
+      String childKey = (String) keyIterator.next();
+
+      JSONArray childJa = null;
+
+      try {
+        childJa = jo.getJSONArray(childKey);
+      }
+      catch(JSONException ex) {
+        //Do nothing
+      }
+
+      if(childJa != null) {
+        JSONObject result = findFirstKeyJSONObject(childJa, key);
+
+        if(result != null) {
+          return result;
+        }
+
+        continue;
+      }
+
+      JSONObject childJo = null;
+
+      try {
+        childJo = jo.getJSONObject(childKey);
+      }
+      catch(JSONException ex) {
+        //Do nothing
+      }
+
+      if(childJo != null) {
+        JSONObject result = findFirstKeyJSONObject(childJo, key);
+
+        if(result != null) {
+          return result;
+        }
+      }
+    }
+
+    return null;
+  }
+
+  public static JSONObject findFirstKeyJSONObject(JSONArray ja, String key)
+  {
+    for(int index = 0;
+        index < ja.length();
+        index++) {
+      JSONArray childJa = null;
+
+      try {
+        childJa = ja.getJSONArray(index);
+      }
+      catch(JSONException ex) {
+        //Do nothing
+      }
+
+      if(childJa != null) {
+        JSONObject result = findFirstKeyJSONObject(childJa, key);
+
+        if(result != null) {
+          return result;
+        }
+
+        continue;
+      }
+
+      JSONObject childJo = null;
+
+      try {
+        childJo = ja.getJSONObject(index);
+      }
+      catch(JSONException ex) {
+        //Do nothing
+      }
+
+      if(childJo != null) {
+        JSONObject result = findFirstKeyJSONObject(childJo, key);
+
+        if(result != null) {
+          return result;
+        }
+      }
+    }
 
     return null;
   }
