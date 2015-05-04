@@ -37,8 +37,10 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  * </pre>
  *
  * Run Success : <br>
- * For successful deployment and run, user should see following output on
- * console:
+ * For successful deployment and run, user should see something like the
+ * following output on the console (since the input sequence of random numbers
+ * can vary from one run to the next, there will be some variation in the
+ * output values):
  *
  * <pre>
  * 3.1430480549199085
