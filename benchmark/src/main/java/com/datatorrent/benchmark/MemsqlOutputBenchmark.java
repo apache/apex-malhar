@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.benchmark.memsql;
+package com.datatorrent.benchmark;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;

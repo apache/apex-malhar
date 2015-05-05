@@ -27,7 +27,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Random;
+import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -38,17 +38,18 @@ public class AbstractMemsqlOutputOperatorTest
   private static transient final Logger LOG = LoggerFactory.getLogger(AbstractMemsqlOutputOperatorTest.class);
 
   public static final String HOST_PREFIX = "jdbc:mysql://";
-  public static final String HOST = "127.0.0.1";
+  public static final String HOST = "localhost";
   public static final String USER = "root";
-  public static final String PORT = "3306";
+  public static final String PORT = "3307";
   public static final String DATABASE = "bench";
   public static final String TABLE = "bench";
   public static final String FQ_TABLE = DATABASE + "." + TABLE;
   public static final String INDEX_COLUMN = "data_index";
-  public static final String DATA_COLUMN = "data";
+  public static final String DATA_COLUMN1 = "data1";
+  public static final String DATA_COLUMN2 = "data2";
   public static final int NUM_WINDOWS = 10;
   public static final int BLAST_SIZE = 10;
-  public static final int DATABASE_SIZE = NUM_WINDOWS * BLAST_SIZE;
+  public static final int DATABASE_SIZE = NUM_WINDOWS; //* BLAST_SIZE;
   public static final int BATCH_SIZE = DATABASE_SIZE / 5;
 
   public static MemsqlStore createStore(MemsqlStore memsqlStore, boolean withDatabase)
@@ -57,19 +58,19 @@ public class AbstractMemsqlOutputOperatorTest
     String user = USER;
     String port = PORT;
 
-    if(memsqlStore == null) {
+    if (memsqlStore == null) {
       memsqlStore = new MemsqlStore();
     }
 
     StringBuilder sb = new StringBuilder();
     String tempHost = HOST_PREFIX + host + ":" + PORT;
-    if(withDatabase) {
+    if (withDatabase) {
       tempHost += "/" + DATABASE;
     }
     LOG.debug("Host name: {}", tempHost);
     LOG.debug("User name: {}", user);
-    LOG.debug("Port: {}" , port);
-    memsqlStore.setDbUrl(tempHost);
+    LOG.debug("Port: {}", port);
+    memsqlStore.setDatabaseUrl(tempHost);
 
     sb.append("user:").append(user).append(",");
     sb.append("port:").append(port);
@@ -93,18 +94,18 @@ public class AbstractMemsqlOutputOperatorTest
     memsqlStore.connect();
 
     statement = memsqlStore.getConnection().createStatement();
-    statement.executeUpdate("create table " +
-                            FQ_TABLE +
-                            "(" + INDEX_COLUMN +
-                            " INTEGER AUTO_INCREMENT PRIMARY KEY, " +
-                            DATA_COLUMN +
-                            " INTEGER)");
-    String createMetaTable = "CREATE TABLE IF NOT EXISTS " + DATABASE + "." + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( " +
-                             JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, " +
-                             JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, " +
-                             JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, " +
-                             "PRIMARY KEY (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") " +
-                             ")";
+    statement.executeUpdate("create table "
+            + FQ_TABLE
+            + "(" + DATA_COLUMN1
+            + " INTEGER , "
+            + DATA_COLUMN2
+            + " VARCHAR(256))");
+    String createMetaTable = "CREATE TABLE IF NOT EXISTS " + DATABASE + "." + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
+            + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
+            + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
+            + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
+            + "PRIMARY KEY (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") "
+            + ")";
 
     statement.executeUpdate(createMetaTable);
 
@@ -115,7 +116,7 @@ public class AbstractMemsqlOutputOperatorTest
 
   public static void cleanDatabase() throws SQLException
   {
-     memsqlInitializeDatabase(createStore(null, false));
+    memsqlInitializeDatabase(createStore(null, false));
   }
 
   @Test
@@ -124,11 +125,18 @@ public class AbstractMemsqlOutputOperatorTest
     cleanDatabase();
     MemsqlStore memsqlStore = createStore(null, true);
 
-    Random random = new Random();
     MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
     outputOperator.setStore(memsqlStore);
     outputOperator.setBatchSize(BATCH_SIZE);
-
+    outputOperator.setTablename(FQ_TABLE);
+    ArrayList<String> columns = new ArrayList<String>();
+    columns.add(DATA_COLUMN1);
+    columns.add(DATA_COLUMN2);
+    outputOperator.setDataColumns(columns);
+    ArrayList<String> expressions = new ArrayList<String>();
+    expressions.add("getIntVal()");
+    expressions.add("getStringVal()");
+    outputOperator.setExpression(expressions);
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(OperatorContext.PROCESSING_MODE, ProcessingMode.AT_LEAST_ONCE);
     attributeMap.put(OperatorContext.ACTIVATION_WINDOW_ID, -1L);
@@ -137,17 +145,12 @@ public class AbstractMemsqlOutputOperatorTest
 
     outputOperator.setup(context);
 
-    for(int wid = 0, total = 0;
-        wid < NUM_WINDOWS;
-        wid++) {
+    for (int wid = 0;
+            wid < NUM_WINDOWS;
+            wid++) {
       outputOperator.beginWindow(wid);
-
-      for(int tupleCounter = 0;
-          tupleCounter < BLAST_SIZE && total < DATABASE_SIZE;
-          tupleCounter++,
-          total++) {
-        outputOperator.input.put(random.nextInt());
-      }
+      innerObj.setIntVal(wid + 1);
+      outputOperator.input.put(innerObj);
 
       outputOperator.endWindow();
     }
@@ -169,4 +172,66 @@ public class AbstractMemsqlOutputOperatorTest
                         DATABASE_SIZE,
                         databaseSize);
   }
+
+  public InnerObj innerObj = new InnerObj();
+
+  /**
+   * @return the innerObj
+   */
+  public InnerObj getInnerObj()
+  {
+    return innerObj;
+  }
+
+  /**
+   * @param innerObj the innerObj to set
+   */
+  public void setInnerObj(InnerObj innerObj)
+  {
+    this.innerObj = innerObj;
+  }
+
+  public class InnerObj
+  {
+    public InnerObj()
+    {
+    }
+
+    private int intVal = 11;
+    private String stringVal = "hello";
+
+    /**
+     * @return the intVal
+     */
+    public int getIntVal()
+    {
+      return intVal;
+    }
+
+    /**
+     * @param intVal the intVal to set
+     */
+    public void setIntVal(int intVal)
+    {
+      this.intVal = intVal;
+    }
+
+    /**
+     * @return the stringVal
+     */
+    public String getStringVal()
+    {
+      return stringVal;
+    }
+
+    /**
+     * @param stringVal the stringVal to set
+     */
+    public void setStringVal(String stringVal)
+    {
+      this.stringVal = stringVal;
+    }
+
+  }
+
 }

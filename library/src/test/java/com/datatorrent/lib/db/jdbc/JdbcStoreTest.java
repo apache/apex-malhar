@@ -34,7 +34,7 @@ public class JdbcStoreTest
   {
     JdbcStore store = new JdbcStore();
     store.setConnectionProperties("user:test,password:pwd");
-    Properties properties = store.getConnectionProps();
+    Properties properties = store.getConnectionProperties();
     Assert.assertEquals("user", properties.get("user"), "test");
     Assert.assertEquals("password", properties.get("password"), "pwd");
   }
@@ -54,6 +54,6 @@ public class JdbcStoreTest
     ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
     Input input = new Input(bais);
     JdbcStore deserializedStrore = (JdbcStore) kryo.readClassAndObject(input);
-    Assert.assertEquals("connection properties", store.getConnectionProps(), deserializedStrore.getConnectionProps());
+    Assert.assertEquals("connection properties", store.getConnectionProperties(), deserializedStrore.getConnectionProperties());
   }
 }

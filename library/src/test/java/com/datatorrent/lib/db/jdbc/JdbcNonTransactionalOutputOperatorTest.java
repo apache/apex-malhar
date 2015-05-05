@@ -134,8 +134,8 @@ public class JdbcNonTransactionalOutputOperatorTest
   public void testJdbcOutputOperator()
   {
     JdbcStore store = new JdbcStore();
-    store.setDbDriver(DB_DRIVER);
-    store.setDbUrl(URL);
+    store.setDatabaseDriver(DB_DRIVER);
+    store.setDatabaseUrl(URL);
     TestOutputOperator outputOperator = new TestOutputOperator();
 
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();

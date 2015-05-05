@@ -74,7 +74,7 @@ public class HiveInsertBenchmarkingApp implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     HiveStore store = new HiveStore();
-    store.setDbUrl(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
+    store.setDatabaseUrl(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
     store.setConnectionProperties(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
     store.setFilepath(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
 

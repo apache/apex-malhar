@@ -43,7 +43,7 @@ public class AbstractMemsqlInputOperatorTest
           counter++) {
         statement.executeUpdate("insert into " +
                                 FQ_TABLE +
-                                " (" + DATA_COLUMN + ") values (" + random.nextInt() + ")");
+                                " (" + DATA_COLUMN1 + ") values (" + random.nextInt() + ")");
       }
 
       statement.close();
