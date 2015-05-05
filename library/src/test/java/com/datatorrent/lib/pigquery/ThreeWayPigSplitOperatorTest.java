@@ -25,6 +25,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 /**
  * Functional test for {@link com.datatorrent.lib.pigquery.ThreeWayPigSplitOperator}.
  */
+@Deprecated
 public class ThreeWayPigSplitOperatorTest
 {
 	@SuppressWarnings({ "rawtypes", "unchecked" })

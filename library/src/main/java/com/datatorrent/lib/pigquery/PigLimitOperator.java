@@ -25,6 +25,7 @@ package com.datatorrent.lib.pigquery;
  * @tags limit operator, top
  * @since 0.3.4
  */
+@Deprecated
 public class PigLimitOperator
 {
   // must not be called.

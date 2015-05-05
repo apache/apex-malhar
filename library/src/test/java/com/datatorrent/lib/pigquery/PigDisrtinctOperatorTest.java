@@ -24,6 +24,7 @@ import com.datatorrent.lib.testbench.CollectorTestSink;
 /**
  * Functional test for {@link com.datatorrent.lib.streamquery.PigGroupOperator}.
  */
+@Deprecated
 public class PigDisrtinctOperatorTest
 {
 	@SuppressWarnings({ "rawtypes", "unchecked" })
