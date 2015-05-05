@@ -105,6 +105,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   {
     @Override public void process(String s)
     {
+      logger.info("Recieved {}", s);
       Data query = queryDeserializerFactory.deserialize(s);
 
       //Query was not parseable
@@ -119,6 +120,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
         if(schemaResult != null) {
           String schemaResultJSON = resultSerializerFactory.serialize(schemaResult);
+          logger.info("Emitter {}", schemaResultJSON);
           queryResult.emit(schemaResultJSON);
         }
       }
