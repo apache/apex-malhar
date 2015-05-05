@@ -216,6 +216,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     @Override
     public void setup(OperatorContext context)
     {
+      aggregatorInfo.setup();
     }
 
     @Override
