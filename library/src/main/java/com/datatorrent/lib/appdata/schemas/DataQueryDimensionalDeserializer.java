@@ -212,7 +212,8 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
                                   type,
                                   gpoIm,
                                   queryFields,
-                                  incompleteResultOK);
+                                  incompleteResultOK,
+                                  schemaKeys);
     }
     else {
       if(oneTime) {
@@ -224,7 +225,8 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
                                       bucket,
                                       gpoIm,
                                       queryFields,
-                                      incompleteResultOK);
+                                      incompleteResultOK,
+                                      schemaKeys);
         }
         else {
           return new DataQueryDimensional(id,
@@ -233,7 +235,8 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
                                       bucket,
                                       gpoIm,
                                       queryFields,
-                                      incompleteResultOK);
+                                      incompleteResultOK,
+                                      schemaKeys);
         }
       }
       else {
@@ -246,7 +249,8 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
                                       gpoIm,
                                       queryFields,
                                       countdown,
-                                      incompleteResultOK);
+                                      incompleteResultOK,
+                                      schemaKeys);
         }
         else {
           return new DataQueryDimensional(id,
@@ -256,7 +260,8 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
                                       gpoIm,
                                       queryFields,
                                       countdown,
-                                      incompleteResultOK);
+                                      incompleteResultOK,
+                                      schemaKeys);
         }
       }
     }

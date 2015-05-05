@@ -24,6 +24,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Map;
 import java.util.Set;
 
 public class DataQueryTabularDeserializer extends CustomDataDeserializer
@@ -62,12 +63,16 @@ public class DataQueryTabularDeserializer extends CustomDataDeserializer
     }
 
     ////Data
-
+    Map<String, String> schemaKeys = null;
     Set<String> fieldsSet = Sets.newHashSet();
 
     if(jo.has(DataQueryTabular.FIELD_DATA)) {
       JSONObject data = jo.getJSONObject(DataQueryTabular.FIELD_DATA);
-      
+
+      if(data.has(Query.FIELD_SCHEMA_KEYS)) {
+        schemaKeys = SchemaUtils.extractMap(data.getJSONObject(Query.FIELD_SCHEMA_KEYS));
+      }
+
       if(data.has(DataQueryTabular.FIELD_FIELDS)) {
         //// Fields
         JSONArray jArray = data.getJSONArray(DataQueryTabular.FIELD_FIELDS);
@@ -88,14 +93,16 @@ public class DataQueryTabularDeserializer extends CustomDataDeserializer
 
     if(!hasCountdown) {
       return new DataQueryTabular(id,
-                                         type,
-                                         fields);
+                                  type,
+                                  fields,
+                                  schemaKeys);
     }
     else {
       return new DataQueryTabular(id,
-                                         type,
-                                         fields,
-                                         countdown);
+                                  type,
+                                  fields,
+                                  countdown,
+                                  schemaKeys);
     }
   }
 }
