@@ -22,6 +22,8 @@ import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.SimpleDataDeserializer;
 import com.datatorrent.lib.appdata.qr.SimpleDataValidator;
 
+import java.util.Map;
+
 @DataType(type=SchemaQuery.TYPE)
 @DataDeserializerInfo(clazz=SimpleDataDeserializer.class)
 @DataValidatorInfo(clazz=SimpleDataValidator.class)
@@ -31,5 +33,16 @@ public class SchemaQuery extends Query
 
   public SchemaQuery()
   {
+  }
+
+  public SchemaQuery(String id)
+  {
+    super(id, TYPE);
+  }
+
+  public SchemaQuery(String id,
+                     Map<String, String> schemaKeys)
+  {
+    super(id, TYPE, schemaKeys);
   }
 }

@@ -23,4 +23,5 @@ public interface Schema
   public String getSchemaVersion();
   public String getSchemaJSON();
   public Map<String, String> getSchemaKeys();
+  public void setSchemaKeys(Map<String, String> schemaKeys);
 }

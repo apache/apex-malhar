@@ -117,7 +117,8 @@ public class SchemaDimensional implements Schema
     return eventSchema.getAggregatorInfo();
   }
 
-  private void setSchemaKeys(Map<String, String> schemaKeys)
+  @Override
+  public final void setSchemaKeys(Map<String, String> schemaKeys)
   {
     if(schemaKeys == null) {
       return;

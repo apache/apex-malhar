@@ -64,7 +64,7 @@ public class SchemaRegistrySingle implements SchemaRegistry
   @Override
   public void registerSchema(Schema schema)
   {
-    Preconditions.checkState(schema == null, "A schema is already set.");
+    Preconditions.checkState(this.schema == null, "A schema is already set.");
     this.schema = schema;
   }
 
@@ -74,5 +74,11 @@ public class SchemaRegistrySingle implements SchemaRegistry
     Preconditions.checkArgument(schemaKeys == null);
 
     return schema;
+  }
+
+  @Override
+  public void registerSchema(Schema schema, Map<String, String> schemaKeys)
+  {
+    throw new UnsupportedOperationException("Schema keys are not supported in SchemaRegistrySingle.");
   }
 }

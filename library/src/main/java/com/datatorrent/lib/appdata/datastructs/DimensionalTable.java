@@ -20,6 +20,8 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -29,6 +31,8 @@ import java.util.Set;
 
 public class DimensionalTable<DATA>
 {
+  private static final Logger logger = LoggerFactory.getLogger(DimensionalTable.class);
+
   private final Map<String, Integer> dimensionNameToIndex = Maps.newHashMap();
 
   private final List<DATA> dataColumn = Lists.newArrayList();
@@ -96,9 +100,10 @@ public class DimensionalTable<DATA>
     }
 
     DATA prev = dimensionKeysToData.put(keysList, data);
+    logger.debug("prev {}", prev);
 
-    Preconditions.checkArgument(prev == null,
-                             "  The given keys must be unique " + Arrays.toString(keys));
+    Preconditions.checkState(prev == null,
+                             "The given keys must be unique " + Arrays.toString(keys));
 
     for(int index = 0;
         index < keys.length;

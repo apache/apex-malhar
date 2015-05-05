@@ -60,4 +60,11 @@ public class SchemaRegistryMultiple implements SchemaRegistry
   {
     return table.getDataPoint(schemaKeys);
   }
+
+  @Override
+  public void registerSchema(Schema schema, Map<String, String> schemaKeys)
+  {
+    schema.setSchemaKeys(schemaKeys);
+    table.appendRow(schema, schemaKeys);
+  }
 }

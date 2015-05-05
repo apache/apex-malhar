@@ -84,7 +84,8 @@ public class SchemaTabular implements Schema
          null);
   }
 
-  private void setSchemaKeys(Map<String, String> schemaKeys)
+  @Override
+  public final void setSchemaKeys(Map<String, String> schemaKeys)
   {
     if(schemaKeys == null) {
       return;

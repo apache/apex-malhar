@@ -36,7 +36,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -143,7 +142,7 @@ public class DimensionalEventSchema
   private List<Map<String, FieldsDescriptor>> computeAggregatorToAggregateDescriptor(List<Map<String, Set<String>>> ddIDToValueToAggregator,
                                                                                      Map<String, Type> aggFieldToType)
   {
-    List<Map<String, FieldsDescriptor>> ddIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
+    List<Map<String, FieldsDescriptor>> tempDdIDToAggregatorToAggregateDescriptor = Lists.newArrayList();
 
     for(int ddID = 0;
         ddID < ddIDToValueToAggregator.size();
@@ -178,21 +177,15 @@ public class DimensionalEventSchema
       }
 
       aggregatorToValuesDescriptor = Collections.unmodifiableMap(aggregatorToValuesDescriptor);
-      ddIDToAggregatorToAggregateDescriptor.add(aggregatorToValuesDescriptor);
+      tempDdIDToAggregatorToAggregateDescriptor.add(aggregatorToValuesDescriptor);
     }
 
-    return ddIDToAggregatorToAggregateDescriptor;
+    return tempDdIDToAggregatorToAggregateDescriptor;
   }
 
   private void initialize(String json) throws Exception
   {
     JSONObject jo = new JSONObject(json);
-
-    Iterator keyIterator = jo.keys();
-
-    while(keyIterator.hasNext()) {
-      logger.info("The key {}", keyIterator.next());
-    }
 
     //Keys
 
@@ -205,21 +198,21 @@ public class DimensionalEventSchema
     for(int keyIndex = 0;
         keyIndex < keysArray.length();
         keyIndex++) {
-      JSONObject keyDescriptor = keysArray.getJSONObject(keyIndex);
+      JSONObject tempKeyDescriptor = keysArray.getJSONObject(keyIndex);
 
-      SchemaUtils.checkValidKeysEx(keyDescriptor, VALID_KEY_FIELDS);
+      SchemaUtils.checkValidKeysEx(tempKeyDescriptor, VALID_KEY_FIELDS);
 
-      String keyName = keyDescriptor.getString(FIELD_KEYS_NAME);
-      String typeName = keyDescriptor.getString(FIELD_KEYS_TYPE);
+      String keyName = tempKeyDescriptor.getString(FIELD_KEYS_NAME);
+      String typeName = tempKeyDescriptor.getString(FIELD_KEYS_TYPE);
       Type type = Type.getTypeEx(typeName);
 
       fieldToType.put(keyName, type);
 
-      if(keyDescriptor.has(FIELD_KEYS_ENUMVALUES)) {
+      if(tempKeyDescriptor.has(FIELD_KEYS_ENUMVALUES)) {
         Type maxType = null;
         List<Object> valuesList = Lists.newArrayList();
         getKeysToValuesList().put(keyName, valuesList);
-        JSONArray valArray = keyDescriptor.getJSONArray(FIELD_KEYS_ENUMVALUES);
+        JSONArray valArray = tempKeyDescriptor.getJSONArray(FIELD_KEYS_ENUMVALUES);
 
         //Validate the provided data types
         for(int valIndex = 0;
