@@ -13,14 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
 
-import java.util.Map;
+package com.datatorrent.lib.appdata.datastructs;
 
-public interface Schema
+public class DimensionalTableTest
 {
-  public String getSchemaType();
-  public String getSchemaVersion();
-  public String getSchemaJSON();
-  public Map<String, String> getSchemaKeys();
 }

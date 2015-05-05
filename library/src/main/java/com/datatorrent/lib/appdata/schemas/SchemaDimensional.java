@@ -15,11 +15,11 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-
 import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -27,6 +27,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -58,16 +59,19 @@ public class SchemaDimensional implements Schema
   private String schemaJSON;
 
   private DimensionalEventSchema eventSchema;
-  //private Map<String, DimensionsStaticAggregator> nameToAggregator;
   private JSONObject schema;
   private JSONObject time;
 
   private boolean fixedFromTo = false;
 
+  private Map<String, String> schemaKeys;
+
   public SchemaDimensional(String schemaStub,
-                           DimensionalEventSchema eventSchema)
+                           DimensionalEventSchema eventSchema,
+                           Map<String, String> schemaKeys)
   {
-    this(eventSchema);
+    this(eventSchema,
+         schemaKeys);
 
     if(schemaStub != null) {
       fixedFromTo = true;
@@ -80,9 +84,19 @@ public class SchemaDimensional implements Schema
     }
   }
 
-  public SchemaDimensional(DimensionalEventSchema eventSchema)
+  public SchemaDimensional(String schemaStub,
+                           DimensionalEventSchema eventSchema)
+  {
+    this(schemaStub,
+         eventSchema,
+         null);
+  }
+
+  public SchemaDimensional(DimensionalEventSchema eventSchema,
+                           Map<String, String> schemaKeys)
   {
     setEventSchema(eventSchema);
+    setSchemaKeys(schemaKeys);
 
     try {
       initialize();
@@ -92,9 +106,29 @@ public class SchemaDimensional implements Schema
     }
   }
 
+  public SchemaDimensional(DimensionalEventSchema eventSchema)
+  {
+    this(eventSchema,
+         null);
+  }
+
   public AggregatorInfo getAggregatorInfo()
   {
     return eventSchema.getAggregatorInfo();
+  }
+
+  private void setSchemaKeys(Map<String, String> schemaKeys)
+  {
+    if(schemaKeys == null) {
+      return;
+    }
+
+    for(Map.Entry<String, String> entry: schemaKeys.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+
+    this.schemaKeys = Collections.unmodifiableMap(Maps.newHashMap(schemaKeys));
   }
 
   private void setEventSchema(DimensionalEventSchema eventSchema)
@@ -107,11 +141,11 @@ public class SchemaDimensional implements Schema
     JSONObject jo = new JSONObject(schemaStub);
     SchemaUtils.checkValidKeysEx(jo, VALID_KEYS);
 
-    JSONObject time = jo.getJSONObject(SchemaWithTime.FIELD_TIME);
+    JSONObject tempTime = jo.getJSONObject(SchemaWithTime.FIELD_TIME);
     SchemaUtils.checkValidKeys(jo, VALID_TIME_KEYS);
 
-    this.from = time.getLong(SchemaWithTime.FIELD_TIME_FROM);
-    this.to = time.getLong(SchemaWithTime.FIELD_TIME_TO);
+    this.from = tempTime.getLong(SchemaWithTime.FIELD_TIME_FROM);
+    this.to = tempTime.getLong(SchemaWithTime.FIELD_TIME_TO);
   }
 
   private void initialize() throws Exception
@@ -265,6 +299,12 @@ public class SchemaDimensional implements Schema
   public String getSchemaVersion()
   {
     return SCHEMA_VERSION;
+  }
+
+  @Override
+  public Map<String, String> getSchemaKeys()
+  {
+    return schemaKeys;
   }
 
   /**

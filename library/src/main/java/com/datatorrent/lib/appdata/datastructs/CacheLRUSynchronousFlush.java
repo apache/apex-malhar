@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.qr.processor.cache;
+package com.datatorrent.lib.appdata.datastructs;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;

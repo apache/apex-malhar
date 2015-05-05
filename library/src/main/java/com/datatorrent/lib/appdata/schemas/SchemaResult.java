@@ -15,10 +15,12 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.qr.DataSerializerInfo;
 import com.datatorrent.lib.appdata.qr.DataType;
 import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.DataSerializerInfo;
 import com.google.common.base.Preconditions;
+
+import java.util.List;
 
 @DataType(type=SchemaResult.TYPE)
 @DataSerializerInfo(clazz=SchemaSerializer.class)
@@ -33,6 +35,20 @@ public class SchemaResult extends Result
   {
     super(schemaQuery);
     setGenericSchemas(genericSchemas);
+  }
+
+  public SchemaResult(SchemaQuery schemaQuery,
+                      List<Schema> genericSchemas)
+  {
+    setGenericSchemas(genericSchemas);
+  }
+
+  private void setGenericSchemas(List<Schema> genericSchemas)
+  {
+    Preconditions.checkNotNull(genericSchemas);
+    Preconditions.checkArgument(!genericSchemas.isEmpty(), "Atleast one schema must be provided.");
+
+    this.genericSchemas = genericSchemas.toArray(new Schema[0]);
   }
 
   private void setGenericSchemas(Schema... genericSchemas)

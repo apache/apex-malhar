@@ -34,6 +34,8 @@ import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import com.datatorrent.lib.appdata.schemas.DataQueryTabular;
 import com.datatorrent.lib.appdata.schemas.DataResultTabular;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
+import com.datatorrent.lib.appdata.schemas.SchemaRegistrySingle;
 import com.datatorrent.lib.appdata.schemas.SchemaResult;
 import com.datatorrent.lib.appdata.schemas.SchemaTabular;
 import com.google.common.collect.Lists;
@@ -51,12 +53,12 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
   private transient QueryProcessor<Query, Void, MutableLong, Void, Result> queryProcessor;
   private transient DataDeserializerFactory queryDeserializerFactory;
   private transient DataSerializerFactory resultSerializerFactory;
-  @NotNull
-  private AppDataFormatter appDataFormatter = new AppDataFormatter();
-
-  private String tabularSchemaJSON;
+  private transient SchemaRegistry schemaRegistry;
   protected transient SchemaTabular schema;
 
+  @NotNull
+  private AppDataFormatter appDataFormatter = new AppDataFormatter();
+  private String tabularSchemaJSON;
   private List<GPOMutable> currentData = Lists.newArrayList();
 
   @AppData.ResultPort
@@ -68,20 +70,21 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     @Override
     public void process(String queryJSON)
     {
-      logger.info("Received: {}", queryJSON);
-
       Data query = queryDeserializerFactory.deserialize(queryJSON);
 
       //Query was not parseable
       if(query == null) {
-        logger.info("Not parseable.");
+        logger.error("The query was not parseable: {}", queryJSON);
         return;
       }
 
       if(query instanceof SchemaQuery) {
-        String schemaResult = resultSerializerFactory.serialize(new SchemaResult((SchemaQuery) query,
-                                                                                  schema));
-        queryResult.emit(schemaResult);
+        SchemaResult schemaResult = schemaRegistry.getSchemaResult((SchemaQuery) query);
+
+        if(schemaResult != null) {
+          String schemaResultJSON = resultSerializerFactory.serialize(schemaResult);
+          queryResult.emit(schemaResultJSON);
+        }
       }
       else if(query instanceof DataQueryTabular) {
         queryProcessor.enqueue((DataQueryTabular) query, null, null);
@@ -113,7 +116,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
   public void setup(OperatorContext context)
   {
     schema = new SchemaTabular(tabularSchemaJSON);
-
+    schemaRegistry = new SchemaRegistrySingle(schema);
     //Setup for query processing
     queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void, Result>(
                      new TabularComputer(),
@@ -121,7 +124,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
 
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryTabular.class);
-    queryDeserializerFactory.setContext(DataQueryTabular.class, schema);
+    queryDeserializerFactory.setContext(DataQueryTabular.class, schemaRegistry);
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryProcessor.setup(context);
   }

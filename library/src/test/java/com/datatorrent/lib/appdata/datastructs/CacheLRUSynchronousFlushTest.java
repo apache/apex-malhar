@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appdata.qr.processor.cache;
+package com.datatorrent.lib.appdata.datastructs;
 
-import com.datatorrent.lib.appdata.qr.processor.cache.CacheLRUSynchronousFlush.CacheFlushListener;
+import com.datatorrent.lib.appdata.datastructs.CacheLRUSynchronousFlush;
+import com.datatorrent.lib.appdata.datastructs.NOPCacheFlushListener;
+import com.datatorrent.lib.appdata.datastructs.CacheLRUSynchronousFlush.CacheFlushListener;
 import com.google.common.collect.Lists;
 import org.junit.Assert;
 import org.junit.Test;

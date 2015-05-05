@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appdata.qr.processor.cache;
+package com.datatorrent.lib.appdata.datastructs;
 
-import com.datatorrent.lib.appdata.qr.processor.cache.CacheLRUSynchronousFlush.CacheFlushListener;
+import com.datatorrent.lib.appdata.datastructs.CacheLRUSynchronousFlush.CacheFlushListener;
 
 public class NOPCacheFlushListener<KEY, VALUE> implements CacheFlushListener<KEY, VALUE>
 {

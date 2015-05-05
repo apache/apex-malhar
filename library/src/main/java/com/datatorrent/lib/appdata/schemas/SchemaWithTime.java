@@ -23,6 +23,7 @@ import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 public class SchemaWithTime extends SchemaTabular
@@ -40,14 +41,16 @@ public class SchemaWithTime extends SchemaTabular
   private Set<TimeBucket> buckets;
   private boolean fromTo;
 
-  SchemaWithTime(InputStream inputStream)
+  SchemaWithTime(InputStream inputStream,
+                 Map<String, String> schemaKeys)
   {
-    this(SchemaUtils.inputStreamToString(inputStream));
+    this(SchemaUtils.inputStreamToString(inputStream), schemaKeys);
   }
 
-  SchemaWithTime(String schemaJSON)
+  SchemaWithTime(String schemaJSON,
+                 Map<String, String> schemaKeys)
   {
-    super(schemaJSON, false);
+    super(schemaJSON, false, schemaKeys);
 
     try {
       initialize();

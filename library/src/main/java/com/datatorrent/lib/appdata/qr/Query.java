@@ -16,17 +16,24 @@
 package com.datatorrent.lib.appdata.qr;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
 import javax.validation.constraints.NotNull;
+
+import java.util.Collections;
+import java.util.Map;
 
 public class Query extends Data
 {
   public static final String FIELD_ID = "id";
 
+  public static final String FIELD_SCHEMA_KEYS = "schemaKeys";
   public static final String FIELD_COUNTDOWN = "countdown";
 
   @NotNull
   private String id;
   private long countdown;
+
+  private Map<String, String> schemaKeys;
 
   public Query()
   {
@@ -42,10 +49,49 @@ public class Query extends Data
 
   public Query(String id,
                String type,
+               Map<String, String> schemaKeys)
+  {
+    super(type);
+    Preconditions.checkNotNull(id);
+    this.id = id;
+    setSchemaKeys(schemaKeys);
+  }
+
+  public Query(String id,
+               String type,
                long countdown)
   {
     this(id, type);
     setCountdown(countdown);
+  }
+
+  public Query(String id,
+               String type,
+               long countdown,
+               Map<String, String> schemaKeys)
+  {
+    this(id, type);
+    setCountdown(countdown);
+    setSchemaKeys(schemaKeys);
+  }
+
+  private void setSchemaKeys(Map<String, String> schemaKeys)
+  {
+    if(schemaKeys == null) {
+      return;
+    }
+
+    for(Map.Entry<String, String> entry: schemaKeys.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+
+    this.schemaKeys = Collections.unmodifiableMap(Maps.newHashMap(schemaKeys));
+  }
+
+  public Map<String, String> getSchemaKeys()
+  {
+    return schemaKeys;
   }
 
   public final void setCountdown(long countdown)

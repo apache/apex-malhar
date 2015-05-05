@@ -21,10 +21,7 @@ import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.google.common.base.Preconditions;
 
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
+import java.util.Map;
 
 @DataType(type=DataQueryTabular.TYPE)
 @DataDeserializerInfo(clazz=DataQueryTabularDeserializer.class)
@@ -35,6 +32,7 @@ public class DataQueryTabular extends Query
 
   public static final String FIELD_DATA = "data";
   public static final String FIELD_FIELDS = "fields";
+  public static final String SCHEMA_KEYS = "schemaKeys";
 
   private Fields fields;
 
@@ -43,23 +41,49 @@ public class DataQueryTabular extends Query
   }
 
   public DataQueryTabular(String id,
-                                 String type,
-                                 Fields fields)
+                          String type,
+                          Fields fields)
+  {
+    this(id,
+         type,
+         fields,
+         null);
+  }
+
+  public DataQueryTabular(String id,
+                          String type,
+                          Fields fields,
+                          Map<String, String> schemaKeys)
   {
     super(id,
-          type);
+          type,
+          schemaKeys);
 
     setFields(fields);
   }
 
   public DataQueryTabular(String id,
-                                 String type,
-                                 Fields fields,
-                                 long countdown)
+                          String type,
+                          Fields fields,
+                          long countdown)
+  {
+    this(id,
+         type,
+         fields,
+         countdown,
+         null);
+  }
+
+  public DataQueryTabular(String id,
+                          String type,
+                          Fields fields,
+                          long countdown,
+                          Map<String, String> schemaKeys)
   {
     super(id,
           type,
-          countdown);
+          countdown,
+          schemaKeys);
 
     setFields(fields);
   }

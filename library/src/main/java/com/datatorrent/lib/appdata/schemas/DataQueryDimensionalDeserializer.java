@@ -54,12 +54,11 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
   private Query deserializeHelper(String json, Object context) throws Exception
   {
-    SchemaDimensional gsd = (SchemaDimensional)context;
     JSONObject jo;
 
     jo = new JSONObject(json);
 
-      //// Message
+    //// Message
     String id = jo.getString(Query.FIELD_ID);
     String type = jo.getString(Data.FIELD_TYPE);
 
@@ -72,8 +71,17 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
     boolean incompleteResultOK = jo.getBoolean(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK);
 
-      //// Data
+    //// Data
     JSONObject data = jo.getJSONObject(DataQueryDimensional.FIELD_DATA);
+
+    ////Schema keys
+    Map<String, String> schemaKeys = null;
+
+    if(data.has(Query.FIELD_SCHEMA_KEYS)) {
+      schemaKeys = SchemaUtils.extractMap(data.getJSONObject(Query.FIELD_SCHEMA_KEYS));
+    }
+
+    SchemaDimensional gsd = (SchemaDimensional) ((SchemaRegistry) context).getSchema(schemaKeys);
 
     boolean hasFromTo = false;
     int latestNumBuckets = -1;
@@ -122,8 +130,6 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
     DimensionsDescriptor dimensionDescriptor = new DimensionsDescriptor(bucket,
                                                                         new Fields(keySet));
-    logger.info("GSD {}", gsd);
-    logger.info("Dimension Descriptor to ID {}", gsd.getGenericEventSchema().getDimensionsDescriptorToID());
     Integer ddID = gsd.getGenericEventSchema().getDimensionsDescriptorToID().get(dimensionDescriptor);
 
     if(ddID == null) {

@@ -115,11 +115,12 @@ public class SchemaUtils
   public static boolean checkValidKeys(JSONObject jo,
                                        Fields fields)
   {
-    Iterator keyIterator = jo.keys();
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = jo.keys();
     Set<String> fieldSet = fields.getFields();
 
     while(keyIterator.hasNext()) {
-      String key = (String) keyIterator.next();
+      String key = keyIterator.next();
 
       if(!fieldSet.contains(key)) {
         return false;
@@ -132,11 +133,12 @@ public class SchemaUtils
   public static void checkValidKeysEx(JSONObject jo,
                                       Fields fields)
   {
-    Iterator keyIterator = jo.keys();
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = jo.keys();
     Set<String> fieldSet = fields.getFields();
 
     while(keyIterator.hasNext()) {
-      String key = (String) keyIterator.next();
+      String key = keyIterator.next();
 
       if(!fieldSet.contains(key)) {
         throw new IllegalArgumentException("The key " + key +
@@ -167,10 +169,11 @@ public class SchemaUtils
     }
 
     Set<String> keys = Sets.newHashSet();
-    Iterator keyIterator = jo.keys();
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = jo.keys();
 
     while(keyIterator.hasNext()) {
-      String key = (String) keyIterator.next();
+      String key = keyIterator.next();
       keys.add(key);
     }
 
@@ -206,10 +209,11 @@ public class SchemaUtils
       }
     }
 
-    Iterator keyIterator = jo.keys();
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = jo.keys();
 
     while(keyIterator.hasNext()) {
-      String childKey = (String) keyIterator.next();
+      String childKey = keyIterator.next();
 
       JSONArray childJa = null;
 
@@ -308,10 +312,11 @@ public class SchemaUtils
       }
     }
 
-    Iterator keyIterator = jo.keys();
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = jo.keys();
 
     while(keyIterator.hasNext()) {
-      String childKey = (String) keyIterator.next();
+      String childKey = keyIterator.next();
 
       JSONArray childJa = null;
 
@@ -396,5 +401,28 @@ public class SchemaUtils
     }
 
     return null;
+  }
+
+  public static Map<String, String> extractMap(JSONObject jo)
+  {
+    Map<String, String> resultMap = Maps.newHashMap();
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = jo.keys();
+
+    while(keyIterator.hasNext()) {
+      String key = keyIterator.next();
+      String value;
+
+      try {
+        value = jo.getString(key);
+      }
+      catch(JSONException ex) {
+        throw new RuntimeException(ex);
+      }
+
+      resultMap.put(key, value);
+    }
+
+    return resultMap;
   }
 }

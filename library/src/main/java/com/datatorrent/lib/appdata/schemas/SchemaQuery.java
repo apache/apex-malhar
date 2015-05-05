@@ -15,10 +15,10 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.DataType;
 import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
+import com.datatorrent.lib.appdata.qr.Query;
 import com.datatorrent.lib.appdata.qr.SimpleDataDeserializer;
 import com.datatorrent.lib.appdata.qr.SimpleDataValidator;
 

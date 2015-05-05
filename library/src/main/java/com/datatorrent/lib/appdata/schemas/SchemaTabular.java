@@ -43,16 +43,30 @@ public class SchemaTabular implements Schema
   private Map<String, Type> valueToType;
   private FieldsDescriptor valuesDescriptor;
 
+  private Map<String, String> schemaKeys;
+
+  public SchemaTabular(String schemaJSON,
+                       Map<String, String> schemaKeys)
+  {
+    this(schemaJSON,
+         true,
+         schemaKeys);
+  }
+
   public SchemaTabular(String schemaJSON)
   {
-    this(schemaJSON, true);
+    this(schemaJSON,
+         true,
+         null);
   }
 
   //This would be needed for more rigorous validation of schemas
-  SchemaTabular(String schemaJSON,
-                       boolean validate)
+  public SchemaTabular(String schemaJSON,
+                       boolean validate,
+                       Map<String, String> schemaKeys)
   {
     setSchema(schemaJSON);
+    setSchemaKeys(schemaKeys);
 
     try {
       initialize(validate);
@@ -60,6 +74,28 @@ public class SchemaTabular implements Schema
     catch(Exception ex) {
       DTThrowable.rethrow(ex);
     }
+  }
+
+  public SchemaTabular(String schemaJSON,
+                       boolean validate)
+  {
+    this(schemaJSON,
+         validate,
+         null);
+  }
+
+  private void setSchemaKeys(Map<String, String> schemaKeys)
+  {
+    if(schemaKeys == null) {
+      return;
+    }
+
+    for(Map.Entry<String, String> entry: schemaKeys.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+
+    this.schemaKeys = Collections.unmodifiableMap(Maps.newHashMap(schemaKeys));
   }
 
   private void initialize(boolean validate) throws Exception
@@ -138,5 +174,11 @@ public class SchemaTabular implements Schema
   public FieldsDescriptor getValuesDescriptor()
   {
     return valuesDescriptor;
+  }
+
+  @Override
+  public Map<String, String> getSchemaKeys()
+  {
+    return schemaKeys;
   }
 }

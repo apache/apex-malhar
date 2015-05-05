@@ -35,14 +35,20 @@ public class SchemaTimeSeriesTabular extends SchemaWithTime
 
   private Map<String, Type> keyToType = Maps.newHashMap();
 
-  public SchemaTimeSeriesTabular(String schemaJSON)
+  public SchemaTimeSeriesTabular(String schemaJSON,
+                                 Map<String, String> schemaKeys)
   {
-    this(schemaJSON, true);
+    this(schemaJSON,
+         true,
+         schemaKeys);
   }
 
-  public SchemaTimeSeriesTabular(String schemaJSON, boolean validate)
+  public SchemaTimeSeriesTabular(String schemaJSON,
+                                 boolean validate,
+                                 Map<String, String> schemaKeys)
   {
-    super(schemaJSON);
+    super(schemaJSON,
+          schemaKeys);
 
     try {
       initialize(validate);

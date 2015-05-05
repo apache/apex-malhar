@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.datatorrent.lib.appdata.schemas;
 
 import java.util.Map;
 
-public interface Schema
+public interface SchemaRegistry
 {
-  public String getSchemaType();
-  public String getSchemaVersion();
-  public String getSchemaJSON();
-  public Map<String, String> getSchemaKeys();
+  public SchemaResult getSchemaResult(SchemaQuery schemaQuery);
+  public void registerSchema(Schema schema);
+  public Schema getSchema(Map<String, String> schemaKeys);
 }

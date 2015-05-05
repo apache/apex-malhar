@@ -34,7 +34,7 @@ public class DataQueryTabularValidator implements CustomDataValidator
   public boolean validate(Data query, Object context)
   {
     DataQueryTabular gdqt = (DataQueryTabular) query;
-    SchemaTabular schema = (SchemaTabular) context;
+    SchemaTabular schema = (SchemaTabular) ((SchemaRegistry) context).getSchema(gdqt.getSchemaKeys());
 
     Set<String> fields = schema.getValuesDescriptor().getFields().getFields();
 

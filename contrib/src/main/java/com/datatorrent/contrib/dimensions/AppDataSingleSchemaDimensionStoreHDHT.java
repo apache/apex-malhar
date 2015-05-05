@@ -46,6 +46,8 @@ import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaDimensional;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
+import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
+import com.datatorrent.lib.appdata.schemas.SchemaRegistrySingle;
 import com.datatorrent.lib.appdata.schemas.SchemaResult;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -83,22 +85,16 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   protected transient DimensionalEventSchema eventSchema;
   private transient SchemaDimensional dimensionalSchema;
 
-  //==========================================================================
-  // Query Processing - Start
-  //==========================================================================
-
+  //Query Processing - Start
   private transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
-  @SuppressWarnings("unchecked")
   private transient DataDeserializerFactory queryDeserializerFactory;
   @NotNull
   private AppDataFormatter appDataFormatter = new AppDataFormatter();
+  private transient SchemaRegistry schemaRegistry;
   @NotNull
   private AggregatorInfo aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
   private transient DataSerializerFactory resultSerializerFactory;
-  private static final Long QUERY_QUEUE_WINDOW_COUNT = 30L;
-  private static final int QUERY_QUEUE_WINDOW_COUNT_INT = (int) ((long) QUERY_QUEUE_WINDOW_COUNT);
-
-  private transient long windowId;
+  //Query Processing - End
 
   @AppData.ResultPort()
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
@@ -109,30 +105,25 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   {
     @Override public void process(String s)
     {
-      logger.info("Received: {}", s);
-
       Data query = queryDeserializerFactory.deserialize(s);
 
       //Query was not parseable
       if(query == null) {
-        logger.info("Not parseable.");
+        logger.info("The query is not parseable: {}", s);
         return;
       }
 
       if(query instanceof SchemaQuery) {
         dimensionalSchema.setTo(System.currentTimeMillis());
-        try{
-        String schemaResult =
-          resultSerializerFactory.serialize(new SchemaResult((SchemaQuery)query,
-                                                           dimensionalSchema));
-        queryResult.emit(schemaResult);}
-        catch(Exception e) {
-          logger.error("Exception {}", e);
+        SchemaResult schemaResult = schemaRegistry.getSchemaResult((SchemaQuery) query);
+
+        if(schemaResult != null) {
+          String schemaResultJSON = resultSerializerFactory.serialize(schemaResult);
+          queryResult.emit(schemaResultJSON);
         }
       }
       else if(query instanceof DataQueryDimensional) {
         DataQueryDimensional gdq = (DataQueryDimensional) query;
-        logger.info("GDQ: {}", gdq);
         queryProcessor.enqueue(gdq, null, null);
       }
       else {
@@ -163,21 +154,20 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void setup(OperatorContext context)
   {
-    logger.debug("Aggregator Info setup called.");
-
     aggregatorInfo.setup();
 
     //Setup for query processing
     queryProcessor =
     new QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>(
                                                   new DimensionsQueryComputer(this),
-                                                  new DimensionsQueryQueueManager(this, QUERY_QUEUE_WINDOW_COUNT_INT));
+                                                  new DimensionsQueryQueueManager(this));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryDimensional.class);
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
                                              aggregatorInfo);
     dimensionalSchema = new SchemaDimensional(dimensionalSchemaJSON,
                                               eventSchema);
+    schemaRegistry = new SchemaRegistrySingle(dimensionalSchema);
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
     super.setup(context);
@@ -190,7 +180,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void beginWindow(long windowId)
   {
-    this.windowId = windowId;
     queryProcessor.beginWindow(windowId);
     super.beginWindow(windowId);
   }
@@ -204,10 +193,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
     while(done.isFalse()) {
       Result aotr = queryProcessor.process(done);
-
-      if(done.isFalse()) {
-        logger.debug("Query: {}", this.windowId);
-      }
 
       if(aotr != null) {
         String result = resultSerializerFactory.serialize(aotr);
@@ -314,20 +299,14 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     this.aggregatorInfo = aggregatorInfo;
   }
 
-  //==========================================================================
-  // Query Processing Classes - Start
-  //==========================================================================
-
+  //Query Processing Classes - Start
   class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<DataQueryDimensional, QueryMeta>
   {
-    private AppDataSingleSchemaDimensionStoreHDHT operator;
-    private int queueWindowCount;
+    private final AppDataSingleSchemaDimensionStoreHDHT operator;
 
-    public DimensionsQueryQueueManager(AppDataSingleSchemaDimensionStoreHDHT operator,
-                                int queueWindowCount)
+    public DimensionsQueryQueueManager(AppDataSingleSchemaDimensionStoreHDHT operator)
     {
       this.operator = operator;
-      this.queueWindowCount = queueWindowCount;
     }
 
     @Override
@@ -415,8 +394,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         eventKeys.add(aggregatorToEventKeyMap);
       }
       else {
-        long endTime = -1L;
-        long startTime = -1L;
+        long endTime;
+        long startTime;
 
         if(query.isFromTo()) {
           startTime = query.getTimeBucket().roundDown(query.getFrom());
@@ -486,7 +465,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   class DimensionsQueryComputer implements QueryComputer<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>
   {
-    private AppDataSingleSchemaDimensionStoreHDHT operator;
+    private final AppDataSingleSchemaDimensionStoreHDHT operator;
 
     public DimensionsQueryComputer(AppDataSingleSchemaDimensionStoreHDHT operator)
     {
@@ -521,12 +500,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           AggregateEvent gae;
           gae = operator.cache.getIfPresent(eventKey);
 
-          // TODO
-          // There is a race condition with retrieving from the cache and doing
-          // an hds query. If an hds query finishes for a key while it is in the minuteCache, but
-          // then that key gets evicted from the minuteCache, then the value will never be retrieved.
-          // A list of evicted keys should be kept, so that corresponding queries can be refreshed.
-          // Temporary work around is to get from uncommitted
           if(gae != null) {
             logger.info("Retrieved from cache.");
 

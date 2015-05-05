@@ -47,8 +47,6 @@ public class DataQueryTabularDeserializer extends CustomDataDeserializer
   private Data deserializeHelper(String json,
                                  Object context) throws Exception
   {
-    SchemaTabular schema = (SchemaTabular) context;
-
     JSONObject jo = new JSONObject(json);
 
     //// Query id stuff
@@ -69,6 +67,7 @@ public class DataQueryTabularDeserializer extends CustomDataDeserializer
 
     if(jo.has(DataQueryTabular.FIELD_DATA)) {
       JSONObject data = jo.getJSONObject(DataQueryTabular.FIELD_DATA);
+      
       if(data.has(DataQueryTabular.FIELD_FIELDS)) {
         //// Fields
         JSONArray jArray = data.getJSONArray(DataQueryTabular.FIELD_FIELDS);
