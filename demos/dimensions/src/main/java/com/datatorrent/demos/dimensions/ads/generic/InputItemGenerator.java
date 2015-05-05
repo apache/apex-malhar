@@ -84,6 +84,8 @@ public class InputItemGenerator implements InputOperator
   @Override
   public void setup(OperatorContext context)
   {
+    AggregatorUtils.DEFAULT_AGGREGATOR_INFO.setup();
+
     schema = new DimensionalEventSchema(eventSchemaJSON,
                                         AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
 
