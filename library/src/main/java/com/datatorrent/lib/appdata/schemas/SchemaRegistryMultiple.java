@@ -58,6 +58,6 @@ public class SchemaRegistryMultiple implements SchemaRegistry
   @Override
   public Schema getSchema(Map<String, String> schemaKeys)
   {
-    return table.getData(schemaKeys);
+    return table.getDataPoint(schemaKeys);
   }
 }

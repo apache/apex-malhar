@@ -36,15 +36,31 @@ public class DimensionalTable<DATA>
 
   private final Map<List<Object>, DATA> dimensionKeysToData = Maps.newHashMap();
 
+  private DimensionalTable()
+  {
+    //For Kryo
+  }
+
   public DimensionalTable(List<String> headerNames)
   {
     setHeaderNames(headerNames);
+
+    initialize();
+  }
+
+  private void initialize()
+  {
+    for(int columnIndex = 0;
+        columnIndex < dimensionNameToIndex.size();
+        columnIndex++) {
+      dimensionColumns.add(Lists.newArrayList());
+    }
   }
 
   private void setHeaderNames(List<String> headerNames)
   {
     Preconditions.checkNotNull(headerNames);
-    Preconditions.checkArgument(headerNames.isEmpty(), "headerNames");
+    Preconditions.checkArgument(!headerNames.isEmpty(), "headerNames");
 
     for(String headerName: headerNames) {
       Preconditions.checkNotNull(headerName);
@@ -81,8 +97,8 @@ public class DimensionalTable<DATA>
 
     DATA prev = dimensionKeysToData.put(keysList, data);
 
-    Preconditions.checkState(prev == null,
-                             "The given keys must be unique " + Arrays.toString(keys));
+    Preconditions.checkArgument(prev == null,
+                             "  The given keys must be unique " + Arrays.toString(keys));
 
     for(int index = 0;
         index < keys.length;
@@ -113,7 +129,7 @@ public class DimensionalTable<DATA>
     appendRow(data, keysArray);
   }
 
-  public DATA getData(List<?> keys)
+  public DATA getDataPoint(List<?> keys)
   {
     Preconditions.checkNotNull(keys);
     Preconditions.checkArgument(keys.size() == dimensionNameToIndex.size(),
@@ -122,7 +138,7 @@ public class DimensionalTable<DATA>
     return dimensionKeysToData.get(keys);
   }
 
-  public DATA getData(Map<String, ?> keys)
+  public DATA getDataPoint(Map<String, ?> keys)
   {
     Preconditions.checkNotNull(keys);
     Preconditions.checkArgument(keys.size() == dimensionNameToIndex.size(),
@@ -144,7 +160,7 @@ public class DimensionalTable<DATA>
       keysList.set(index, value);
     }
 
-    return getData(keysList);
+    return getDataPoint(keysList);
   }
 
   public List<DATA> getDataPoints(Map<String, ?> keys)
