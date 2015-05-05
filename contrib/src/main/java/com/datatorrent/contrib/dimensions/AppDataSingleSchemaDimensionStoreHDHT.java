@@ -171,7 +171,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
                                               eventSchema);
     schemaRegistry = new SchemaRegistrySingle(dimensionalSchema);
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
-    queryDeserializerFactory.setContext(DataQueryDimensional.class, dimensionalSchema);
+    queryDeserializerFactory.setContext(DataQueryDimensional.class, schemaRegistry);
     super.setup(context);
 
     if(!dimensionalSchema.isFixedFromTo()) {
