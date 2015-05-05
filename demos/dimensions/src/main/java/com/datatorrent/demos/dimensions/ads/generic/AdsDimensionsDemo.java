@@ -116,7 +116,7 @@ import java.util.Map;
 @ApplicationAnnotation(name=AdsDimensionsDemo.APP_NAME)
 public class AdsDimensionsDemo implements StreamingApplication
 {
-  public static final String APP_NAME = "AdsDimensionsDemoTimTest";
+  public static final String APP_NAME = "AdsDimensionsDemo";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
   public static final String EVENT_SCHEMA = "adsGenericEventSchema.json";
