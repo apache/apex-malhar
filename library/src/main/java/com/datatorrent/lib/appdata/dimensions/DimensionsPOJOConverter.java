@@ -183,7 +183,7 @@ public class DimensionsPOJOConverter implements Converter<Object, AggregateEvent
         }
     }
 
-    return new AggregateEvent(new GPOMutable(key),
+    return new AggregateEvent(key,
                               aggregates,
                               context.schemaID,
                               context.dimensionDescriptorID,
