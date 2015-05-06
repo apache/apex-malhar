@@ -19,7 +19,7 @@ package com.datatorrent.contrib.memsql;
 import com.datatorrent.lib.db.jdbc.AbstractJdbcNonTransactionableBatchOutputOperator;
 
 /**
- * This is an outpout operator that connects to a memsql database.
+ * This is an output operator that connects to a memsql database.
  * @param <T> The type of tuples to be processed.
  *
  * @since 1.0.5

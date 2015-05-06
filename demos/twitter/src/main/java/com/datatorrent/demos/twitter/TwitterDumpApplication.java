@@ -104,8 +104,8 @@ public class TwitterDumpApplication implements StreamingApplication
     //ConsoleOutputOperator dbWriter = dag.addOperator("DatabaseWriter", new ConsoleOutputOperator());
 
     Status2Database dbWriter = dag.addOperator("DatabaseWriter", new Status2Database());
-    dbWriter.getStore().setDbDriver("com.mysql.jdbc.Driver");
-    dbWriter.getStore().setDbUrl("jdbc:mysql://node6.morado.com:3306/twitter");
+    dbWriter.getStore().setDatabaseDriver("com.mysql.jdbc.Driver");
+    dbWriter.getStore().setDatabaseUrl("jdbc:mysql://node6.morado.com:3306/twitter");
     dbWriter.getStore().setConnectionProperties("user:twitter");
 
     dag.addStream("Statuses", twitterStream.status, dbWriter.input).setLocality(Locality.CONTAINER_LOCAL);

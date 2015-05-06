@@ -170,8 +170,8 @@ public class JdbcOperatorTest
   public void testJdbcOutputOperator()
   {
     JdbcTransactionalStore transactionalStore = new JdbcTransactionalStore();
-    transactionalStore.setDbDriver(DB_DRIVER);
-    transactionalStore.setDbUrl(URL);
+    transactionalStore.setDatabaseDriver(DB_DRIVER);
+    transactionalStore.setDatabaseUrl(URL);
 
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
@@ -201,8 +201,8 @@ public class JdbcOperatorTest
   public void TestJdbcInputOperator()
   {
     JdbcStore store = new JdbcStore();
-    store.setDbDriver(DB_DRIVER);
-    store.setDbUrl(URL);
+    store.setDatabaseDriver(DB_DRIVER);
+    store.setDatabaseUrl(URL);
 
     com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap attributeMap = new com.datatorrent.api.Attribute.AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);

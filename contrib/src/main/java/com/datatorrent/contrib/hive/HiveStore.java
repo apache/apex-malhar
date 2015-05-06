@@ -26,7 +26,7 @@ public class HiveStore extends JdbcStore
   public HiveStore()
   {
     super();
-    this.setDbDriver(HIVE_DRIVER);
+    this.setDatabaseDriver(HIVE_DRIVER);
   }
 
   public static final String HIVE_DRIVER = "org.apache.hive.jdbc.HiveDriver";
