@@ -19,7 +19,6 @@ package com.datatorrent.lib.util;
 import org.junit.Assert;
 import org.junit.Test;
 
-import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
 import com.datatorrent.lib.util.PojoUtils.GetterByte;
 import com.datatorrent.lib.util.PojoUtils.GetterChar;

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.benchmark.memsql;
+package com.datatorrent.benchmark;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
@@ -50,8 +50,8 @@ public class MemsqlInputBenchmark implements StreamingApplication
     MemsqlInputOperator memsqlInputOperator = dag.addOperator("memsqlInputOperator",
                                                                 new MemsqlInputOperator());
 
-    DevNull<Integer> devNull = dag.addOperator("devnull",
-                                      new DevNull<Integer>());
+    DevNull<Object> devNull = dag.addOperator("devnull",
+                                      new DevNull<Object>());
 
     dag.addStream("memsqlconnector",
                   memsqlInputOperator.outputPort,

@@ -26,11 +26,12 @@ import com.datatorrent.lib.db.jdbc.JdbcNonTransactionalStore;
  */
 public class MemsqlStore extends JdbcNonTransactionalStore
 {
+  //Driver to connect to memsql database.
   public static final String MEMSQL_DRIVER = "com.mysql.jdbc.Driver";
 
   public MemsqlStore()
   {
     super();
-    this.setDbDriver(MEMSQL_DRIVER);
+    this.setDatabaseDriver(MEMSQL_DRIVER);
   }
 }

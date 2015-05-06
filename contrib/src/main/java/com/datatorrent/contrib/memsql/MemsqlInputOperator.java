@@ -17,17 +17,53 @@
 package com.datatorrent.contrib.memsql;
 
 import com.datatorrent.api.Context.OperatorContext;
-import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.*;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.validation.constraints.NotNull;
 
 public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer>
 {
-  private static final String SELECT_COUNT = "select count(*) from " + FQ_TABLE;
   private int blastSize = 1000;
   private int currentRow = 1;
   private int inputSize = 0;
+  @NotNull
+  private String tablename;
+  @NotNull
+  private String primaryKeyColumn;
+
+  /*
+   * Primary Key Column of table.
+   * Gets the primary key column of memsql table.
+   */
+  public String getPrimaryKeyColumn()
+  {
+    return primaryKeyColumn;
+  }
+
+  /*
+   * Primary Key Column of table.
+   * Sets the primary key column of memsql table.
+   */
+  public void setPrimaryKeyCol(String primaryKeyColumn)
+  {
+    this.primaryKeyColumn = primaryKeyColumn;
+  }
+
+   /*
+   * Name of the table in Memsql Database.
+   * Gets the Memsql Tablename.
+   * @return tablename
+   */
+  public String getTablename()
+  {
+    return tablename;
+  }
+
+  public void setTablename(String tablename)
+  {
+    this.tablename = tablename;
+  }
 
   public MemsqlInputOperator()
   {
@@ -40,7 +76,7 @@ public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer>
 
     try {
       Statement statement = store.getConnection().createStatement();
-      ResultSet resultSet = statement.executeQuery(SELECT_COUNT);
+      ResultSet resultSet = statement.executeQuery("select count(*) from " + tablename);
       resultSet.next();
       inputSize = resultSet.getInt(1);
       statement.close();
@@ -90,13 +126,13 @@ public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer>
 
     StringBuilder sb = new StringBuilder();
     sb.append("select * from ");
-    sb.append(FQ_TABLE);
+    sb.append(tablename);
     sb.append(" where ");
-    sb.append(INDEX_COLUMN);
+    sb.append(primaryKeyColumn);
     sb.append(" >= ");
     sb.append(currentRow);
     sb.append(" and ");
-    sb.append(INDEX_COLUMN);
+    sb.append(primaryKeyColumn);
     sb.append(" < ");
     sb.append(endRow);
 
@@ -108,5 +144,15 @@ public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer>
   public void setBlastSize(int blastSize)
   {
     this.blastSize = blastSize;
+  }
+
+  /*
+   * Records are read in batches of this size.
+   * Gets the batch size.
+   * @return batchsize
+   */
+  public int getBlastSize()
+  {
+    return blastSize;
   }
 }

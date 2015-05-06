@@ -41,38 +41,50 @@ public class JdbcStore implements Connectable
 {
   protected static final Logger logger = LoggerFactory.getLogger(JdbcStore.class);
   @NotNull
-  private String dbUrl;
+  private String databaseUrl;
   @NotNull
-  private String dbDriver;
-  private final Properties connectionProps;
-
+  private String databaseDriver;
+  private final Properties connectionProperties;
   protected transient Connection connection = null;
+
+  /*
+   * Connection URL used to connect to the specific database.
+   */
+  @NotNull
+  public String getDatabaseUrl()
+  {
+    return databaseUrl;
+  }
+
+  /*
+   * Connection URL used to connect to the specific database.
+   */
+  public void setDatabaseUrl(@NotNull String databaseUrl)
+  {
+    this.databaseUrl = databaseUrl;
+  }
+
+  /*
+   * Driver used to connect to the specific database.
+   */
+  @NotNull
+  public String getDatabaseDriver()
+  {
+    return databaseDriver;
+  }
+
+  /*
+   * Driver used to connect to the specific database.
+   */
+  public void setDatabaseDriver(@NotNull String databaseDriver)
+  {
+    this.databaseDriver = databaseDriver;
+  }
+
 
   public JdbcStore()
   {
-    connectionProps = new Properties();
-  }
-
-  @NotNull
-  public String getDbUrl()
-  {
-    return dbUrl;
-  }
-
-  public void setDbUrl(@NotNull String dbUrl)
-  {
-    this.dbUrl = dbUrl;
-  }
-
-  @NotNull
-  public String getDbDriver()
-  {
-    return dbDriver;
-  }
-
-  public void setDbDriver(@NotNull String dbDriver)
-  {
-    this.dbDriver = dbDriver;
+    connectionProperties = new Properties();
   }
 
   public Connection getConnection()
@@ -88,7 +100,7 @@ public class JdbcStore implements Connectable
    */
   public void setUserName(String userName)
   {
-    connectionProps.put("user", userName);
+    connectionProperties.put("user", userName);
   }
 
   /**
@@ -99,28 +111,32 @@ public class JdbcStore implements Connectable
    */
   public void setPassword(String password)
   {
-    connectionProps.put("password", password);
+    connectionProperties.put("password", password);
   }
 
   /**
+   * Connection Properties for JDBC Connection.
    * Sets the properties on the jdbc connection.
-   *
-   * @param connectionProperties comma separated list of properties. property key and value are separated by colon.
+   * @param connectionProps Comma separated list of properties. Property key and value are separated by colon.
    *                             eg. user:xyz,password:ijk
    */
-  public void setConnectionProperties(String connectionProperties)
+  public void setConnectionProperties(String connectionProps)
   {
-    String[] properties = Iterables.toArray(Splitter.on(CharMatcher.anyOf(":,")).omitEmptyStrings().trimResults().split(connectionProperties), String.class);
+    String[] properties = Iterables.toArray(Splitter.on(CharMatcher.anyOf(":,")).omitEmptyStrings().trimResults().split(connectionProps), String.class);
     for (int i = 0; i < properties.length; i += 2) {
       if (i + 1 < properties.length) {
-        connectionProps.put(properties[i], properties[i + 1]);
+        connectionProperties.put(properties[i], properties[i + 1]);
       }
     }
   }
 
-  public Properties getConnectionProps()
+  /**
+   * Connection Properties for JDBC Connection.
+   * Gets the properties on the jdbc connection.
+   */
+  public Properties getConnectionProperties()
   {
-    return connectionProps;
+    return connectionProperties;
   }
 
   /**
@@ -131,8 +147,8 @@ public class JdbcStore implements Connectable
   {
     try {
       // This will load the JDBC driver, each DB has its own driver
-      Class.forName(dbDriver).newInstance();
-      connection = DriverManager.getConnection(dbUrl, connectionProps);
+      Class.forName(databaseDriver).newInstance();
+      connection = DriverManager.getConnection(databaseUrl, connectionProperties);
 
       logger.debug("JDBC connection Success");
     }
