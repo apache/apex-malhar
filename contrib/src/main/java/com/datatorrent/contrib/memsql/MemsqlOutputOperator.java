@@ -47,8 +47,8 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   private ArrayList<String> expression;
   //These are extracted from table metadata
   private ArrayList<Integer> columnDataTypes;
-  private boolean isFirstTuple = true;
-  private ArrayList<Object> getters;
+  private transient boolean isFirstTuple;
+  private transient ArrayList<Object> getters;
   private String primaryKey;
 
   /*
@@ -127,6 +127,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   @Override
   public void setup(OperatorContext context)
   {
+    isFirstTuple = true;
     StringBuilder columns = new StringBuilder("");
     StringBuilder values = new StringBuilder("");
     for (int i = 0; i < dataColumns.size(); i++) {

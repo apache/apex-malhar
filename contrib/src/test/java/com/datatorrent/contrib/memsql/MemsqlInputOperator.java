@@ -16,13 +16,14 @@
 
 package com.datatorrent.contrib.memsql;
 
+import com.datatorrent.contrib.memsql.*;
 import com.datatorrent.api.Context.OperatorContext;
 import java.sql.Statement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import javax.validation.constraints.NotNull;
 
-public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Integer>
+public class MemsqlInputOperator extends AbstractMemsqlInputOperator<Object>
 {
   private int blastSize = 1000;
   private int currentRow = 1;
