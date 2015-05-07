@@ -23,6 +23,7 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -35,8 +36,8 @@ import java.util.List;
  */
 public class CassandraOperatorTest
 {
-  public static final String NODE = "127.0.0.1";
-  public static final String KEYSPACE = "test";
+  public static final String NODE = "localhost";
+  public static final String KEYSPACE = "demo";
 
   private static final String TABLE_NAME = "test_event_table";
   private static String APP_ID = "CassandraOperatorTest";
@@ -92,11 +93,11 @@ public class CassandraOperatorTest
     }
   }
 
-  private static class TestOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<TestEvent>
+  private static class TestOutputOperator extends CassandraOutputOperator
   {
-    private static final String INSERT_STMT = "INSERT INTO " + KEYSPACE+"." +TABLE_NAME + " (ID) VALUES (?);";
+    //private static final String INSERT_STMT = "INSERT INTO " + KEYSPACE+"." +TABLE_NAME + " (ID) VALUES (?);";
 
-    TestOutputOperator()
+    /*TestOutputOperator()
     {
       cleanTable();
     }
@@ -119,7 +120,7 @@ public class CassandraOperatorTest
       BoundStatement boundStatement = new BoundStatement(statement);
       Statement stmnt = boundStatement.bind(tuple.id);
       return stmnt;
-    }
+    }*/
 
     public long getNumOfEventsInStore()
     {
@@ -205,7 +206,14 @@ public class CassandraOperatorTest
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
     TestOutputOperator outputOperator = new TestOutputOperator();
-
+   // outputOperator.setKeyspace(KEYSPACE);
+    outputOperator.setTablename(TABLE_NAME);
+    ArrayList<String> columns = new ArrayList<String>();
+    columns.add("ID");
+    outputOperator.setColumns(columns);
+    ArrayList<String> expressions = new ArrayList<String>();
+    expressions.add("getID()");
+    outputOperator.setExpressions(expressions);
     outputOperator.setStore(transactionalStore);
 
     outputOperator.setup(context);
@@ -224,7 +232,7 @@ public class CassandraOperatorTest
     Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
   }
 
-  @Test
+  //@Test
   public void TestCassandraInputOperator()
   {
     CassandraStore store = new CassandraStore();
@@ -248,6 +256,50 @@ public class CassandraOperatorTest
     inputOperator.endWindow();
 
     Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
+  }
+
+   public InnerObj innerObj = new InnerObj();
+
+  /**
+   * @return the innerObj
+   */
+  public InnerObj getInnerObj()
+  {
+    return innerObj;
+  }
+
+  /**
+   * @param innerObj the innerObj to set
+   */
+  public void setInnerObj(InnerObj innerObj)
+  {
+    this.innerObj = innerObj;
+  }
+
+  public class InnerObj
+  {
+    public InnerObj()
+    {
+    }
+
+    private int ID=11;
+
+    /**
+     * @return the int ID
+     */
+    public int getID()
+    {
+      return ID;
+    }
+
+    /**
+     * @param ID the intVal to set
+     */
+    public void setID(int ID)
+    {
+      this.ID = ID;
+    }
+
   }
 }
 

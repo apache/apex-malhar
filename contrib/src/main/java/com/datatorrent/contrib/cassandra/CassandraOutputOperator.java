@@ -77,22 +77,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
 
   @NotNull
   private String tablename;
-  private String keyspace;
 
-  /*
-   * The Cassandra keyspace is a namespace that defines how data is replicated on nodes.
-   * Typically, a cluster has one keyspace per application. Replication is controlled on a per-keyspace basis, so data that has different replication requirements typically resides in different keyspaces.
-   * Keyspaces are not designed to be used as a significant map layer within the data model. Keyspaces are designed to control data replication for a set of tables.
-   */
-  public String getKeyspace()
-  {
-    return keyspace;
-  }
-
-  public void setKeyspace(String keyspace)
-  {
-    this.keyspace = keyspace;
-  }
 
   /*
    * Tablename in cassandra.
@@ -191,8 +176,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
   @Override
   protected PreparedStatement getUpdateCommand()
   {
-
-      com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + tablename);
+      com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace +"."+tablename);
 
       ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
 
@@ -222,7 +206,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
       }
     }
     String statement
-            = "INSERT INTO " + keyspace + "."
+            = "INSERT INTO " + store.keyspace + "."
             + tablename
             + " (" + queryfields.toString() + ")"
             + " VALUES (" + values.toString() + ")";
