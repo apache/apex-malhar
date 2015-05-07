@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package com.datatorrent.contrib.cassandra;
 
 import java.util.Collection;
 
 import com.datastax.driver.core.BatchStatement;
-import com.datastax.driver.core.PreparedStatement;
 import com.datastax.driver.core.Statement;
 import com.datastax.driver.core.exceptions.DriverException;
-import com.datatorrent.api.Context;
 import com.datatorrent.lib.db.AbstractBatchTransactionableStoreOutputOperator;
-import javax.annotation.Nonnull;
 
 /**
  * <p>
@@ -42,55 +40,34 @@ import javax.annotation.Nonnull;
  * This is needed for the recovery. The operator writes a tuple exactly once in the database, which is why
  * only when all the updates are executed, the transaction is committed in the end window call.
  * </p>
- *
  * @displayName Abstract Cassandra Transactionable Output
  * @category Store
  * @tags output operator, batch, transactionable
  * @param <T>type of tuple</T>
  * @since 1.0.2
  */
-public abstract class AbstractCassandraTransactionableOutputOperator<T> extends AbstractBatchTransactionableStoreOutputOperator<T, CassandraTransactionalStore>
-{
+public abstract class AbstractCassandraTransactionableOutputOperator<T> extends AbstractBatchTransactionableStoreOutputOperator<T, CassandraTransactionalStore> {
 
-  public AbstractCassandraTransactionableOutputOperator()
-  {
+  public AbstractCassandraTransactionableOutputOperator(){
     super();
-  }
-
-  private transient PreparedStatement updateCommand;
-
-  @Override
-  public void setup(Context.OperatorContext context)
-  {
-    super.setup(context);
-    updateCommand = getUpdateCommand();
   }
 
   /**
    * Sets the parameter of the insert/update statement with values from the tuple.
    *
-   * @param updateCommand
-   * @param tuple tuple
+   * @param tuple     tuple
    * @return statement The statement to execute
    * @throws DriverException
    */
-  protected abstract Statement setStatementParameters(PreparedStatement updateCommand, T tuple) throws DriverException;
-
-  /**
-   * Gets the statement which insert/update the table in the database.
-   *
-   * @return the cql statement to update a tuple in the database.
-   */
-  @Nonnull
-  protected abstract PreparedStatement getUpdateCommand();
-
+  protected abstract Statement getUpdateStatement(T tuple) throws DriverException;
 
   @Override
   public void processBatch(Collection<T> tuples)
   {
     BatchStatement batchCommand = store.getBatchCommand();
-    for (T tuple: tuples) {
-      batchCommand.add(setStatementParameters(updateCommand, tuple));
+    for(T tuple: tuples)
+    {
+      batchCommand.add(getUpdateStatement(tuple));
     }
   }
 

@@ -49,12 +49,10 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   private ArrayList<Integer> columnDataTypes;
   private transient boolean isFirstTuple;
   private transient ArrayList<Object> getters;
-  private String primaryKey;
 
   /*
    * An ArrayList of Java expressions that will yield the field value from the POJO.
    * Each expression corresponds to one column in the memsql table.
-   * Example:
    */
   public ArrayList<String> getExpression()
   {
@@ -108,22 +106,6 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
     this.tablename = tablename;
   }
 
-  /*
-   * Gets the private key of the memsql table.
-   */
-  public String getPrimaryKey()
-  {
-    return primaryKey;
-  }
-
-  /*
-   * Sets the private key in the memsql table.
-   */
-  public void setPrivateKey(String primaryKey)
-  {
-    this.primaryKey = primaryKey;
-  }
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -172,6 +154,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
 
   public MemsqlOutputOperator()
   {
+    super();
     columnDataTypes = new ArrayList<Integer>();
     getters = new ArrayList<Object>();
   }
