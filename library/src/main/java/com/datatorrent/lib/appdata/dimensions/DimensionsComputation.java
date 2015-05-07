@@ -41,7 +41,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsComputation.class);
 
-  @Min(1)
+  @Min(0)
   private int aggregationWindowCount = 1;
   private int windowCount = 0;
 
@@ -89,8 +89,10 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   @Override
   public void endWindow()
   {
-    if(windowCount != aggregationWindowCount) {
-      //Do nothing
+    if(windowCount != aggregationWindowCount ||
+       aggregationWindowCount == 0) {
+      //This is the case when its not time to dump the buffer yet,
+      //or when we are doing no buffering.
       return;
     }
 
@@ -129,6 +131,17 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   {
     convertInputEvent(inputEvent, aggregateEventBuffer);
 
+    if(aggregationWindowCount == 0) {
+      //No Buffering
+      for(int index = 0;
+          index < aggregateEventBuffer.size();
+          index++) {
+        AggregateEvent gae = aggregateEventBuffer.get(index);
+        aggregateOutput.emit(gae);
+      }
+    }
+
+    //Buffering
     for(int index = 0;
         index < aggregateEventBuffer.size();
         index++) {
@@ -181,7 +194,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   {
     public final transient DefaultOutputPort<AggregateEvent> output = new DefaultOutputPort<AggregateEvent>();
 
-    private Map<EventKey, AggregateEvent> aggregationBuffer = Maps.newHashMap();
+    private final Map<EventKey, AggregateEvent> aggregationBuffer = Maps.newHashMap();
     private AggregatorInfo aggregatorInfo;
 
     public DimensionsComputationUnifier()

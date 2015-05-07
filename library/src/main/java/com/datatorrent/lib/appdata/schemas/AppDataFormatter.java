@@ -16,10 +16,8 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import java.text.DecimalFormat;
-import javax.validation.constraints.NotNull;
 
 public class AppDataFormatter implements Serializable
 {
@@ -220,9 +218,9 @@ public class AppDataFormatter implements Serializable
     return discreteFormatString;
   }
 
-  public void setDiscreteFormatString(@NotNull String discreteFormatString)
+  public void setDiscreteFormatString(String discreteFormatString)
   {
-    this.discreteFormatString = Preconditions.checkNotNull(discreteFormatString);
+    this.discreteFormatString = discreteFormatString;
     this.byteFormatString = discreteFormatString;
     this.shortFormatString = discreteFormatString;
     this.intFormatString = discreteFormatString;
@@ -234,9 +232,9 @@ public class AppDataFormatter implements Serializable
     return continuousFormatString;
   }
 
-  public void setContinuousFormatString(@NotNull String continuousFormatString)
+  public void setContinuousFormatString(String continuousFormatString)
   {
-    this.continuousFormatString = Preconditions.checkNotNull(continuousFormatString);
+    this.continuousFormatString = continuousFormatString;
     this.floatFormatString = continuousFormatString;
     this.doubleFormatString = continuousFormatString;
   }
@@ -252,9 +250,9 @@ public class AppDataFormatter implements Serializable
   /**
    * @param decimalFormatString the decimalFormatString to set
    */
-  public void setFloatFormatString(@NotNull String decimalFormatString)
+  public void setFloatFormatString(String decimalFormatString)
   {
-    this.floatFormatString = Preconditions.checkNotNull(decimalFormatString);
+    this.floatFormatString = decimalFormatString;
   }
 
   /**
@@ -268,9 +266,9 @@ public class AppDataFormatter implements Serializable
   /**
    * @param doubleFormatString the doubleFormatString to set
    */
-  public void setDoubleFormatString(@NotNull String doubleFormatString)
+  public void setDoubleFormatString(String doubleFormatString)
   {
-    this.doubleFormatString = Preconditions.checkNotNull(doubleFormatString);
+    this.doubleFormatString = doubleFormatString;
   }
 
   /**
@@ -284,9 +282,9 @@ public class AppDataFormatter implements Serializable
   /**
    * @param intFormatString the intFormatString to set
    */
-  public void setIntFormatString(@NotNull String intFormatString)
+  public void setIntFormatString(String intFormatString)
   {
-    this.intFormatString = Preconditions.checkNotNull(intFormatString);
+    this.intFormatString = intFormatString;
   }
 
   /**
@@ -300,9 +298,9 @@ public class AppDataFormatter implements Serializable
   /**
    * @param byteFormatString the byteFormatString to set
    */
-  public void setByteFormatString(@NotNull String byteFormatString)
+  public void setByteFormatString(String byteFormatString)
   {
-    this.byteFormatString = Preconditions.checkNotNull(byteFormatString);
+    this.byteFormatString = byteFormatString;
   }
 
   /**
@@ -316,9 +314,9 @@ public class AppDataFormatter implements Serializable
   /**
    * @param shortFormatString the shortFormatString to set
    */
-  public void setShortFormatString(@NotNull String shortFormatString)
+  public void setShortFormatString(String shortFormatString)
   {
-    this.shortFormatString = Preconditions.checkNotNull(shortFormatString);
+    this.shortFormatString = shortFormatString;
   }
 
   /**
@@ -332,8 +330,8 @@ public class AppDataFormatter implements Serializable
   /**
    * @param longFormatString the longFormatString to set
    */
-  public void setLongFormatString(@NotNull String longFormatString)
+  public void setLongFormatString(String longFormatString)
   {
-    this.longFormatString = Preconditions.checkNotNull(longFormatString);
+    this.longFormatString = longFormatString;
   }
 }

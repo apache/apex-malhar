@@ -1,6 +1,17 @@
 /*
- *  Copyright (c) 2012-2015 Malhar, Inc.
- *  All Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.datatorrent.lib.appdata.schemas;
@@ -13,6 +24,7 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,13 +32,15 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Set;
 
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
 public class DimensionalEventSchemaTest
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionalEventSchemaTest.class);
+
+  @Before
+  public void initialize()
+  {
+    AggregatorUtils.DEFAULT_AGGREGATOR_INFO.setup();
+  }
 
   @Test
   public void simpleTest()
@@ -139,5 +153,46 @@ public class DimensionalEventSchemaTest
     FieldsDescriptor fd = des.getDdIDToAggIDToOutputAggDescriptor().get(0).get(AggregatorStaticType.NAME_TO_ORDINAL.get("COUNT"));
 
     Assert.assertEquals("Indexes for type compress fields should be 0", 0, (int) fd.getTypeToFieldToIndex().get(Type.LONG).get("valueName1"));
+  }
+
+  @Test
+  public void otfAggregatorDefinitionTest()
+  {
+    final String keyName1 = "keyName1";
+    final String keyName1Type = "string";
+
+    final String valueName1 = "valueName1";
+    final String valueName1Type = "double";
+
+    final String jsonSchema = "{\"keys\":\n" +
+                                "[{\"name\":\"" + keyName1 + "\",\"type\":\"" + keyName1Type + "\"}],\n" +
+                                "\"values\":\n" +
+                                "[{\"name\":\"" + valueName1 + "\",\"type\":\"" + valueName1Type + "\",\"aggregators\":[\"AVG\"]}],\n" +
+                                "\"timeBuckets\":[\"1m\"]," +
+                                "\"dimensions\":\n" +
+                                "[{\"combination\":[\"" + keyName1 + "\"]}]}";
+
+    logger.debug("test schema:\n{}", jsonSchema);
+
+    DimensionalEventSchema des = new DimensionalEventSchema(jsonSchema,
+                                                            AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+
+    Assert.assertEquals(1, des.getDdIDToDD().size());
+
+    Map<String, Type> keyFieldToType = Maps.newHashMap();
+    keyFieldToType.put(keyName1, Type.STRING);
+    FieldsDescriptor keyFD = new FieldsDescriptor(keyFieldToType);
+
+    Map<String, Type> valueFieldToTypeSum = Maps.newHashMap();
+    valueFieldToTypeSum.put(valueName1, Type.DOUBLE);
+    FieldsDescriptor valueFDSum = new FieldsDescriptor(valueFieldToTypeSum);
+
+    Map<String, Type> valueFieldToTypeCount = Maps.newHashMap();
+    valueFieldToTypeCount.put(valueName1, Type.DOUBLE);
+    FieldsDescriptor valueFDCount = new FieldsDescriptor(valueFieldToTypeCount);
+
+    Assert.assertEquals(keyFD, des.getAllKeysDescriptor());
+    Assert.assertEquals(valueFDSum, des.getDdIDToAggregatorToAggregateDescriptor().get(0).get("SUM"));
+    Assert.assertEquals(valueFDCount, des.getDdIDToAggregatorToAggregateDescriptor().get(0).get("COUNT"));
   }
 }

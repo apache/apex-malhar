@@ -366,6 +366,9 @@ public class DimensionalEventSchema
 
             daggregator = aggregatorInfo.getNameToOTFAggregators().get(aggregatorName);
             aggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+            aggregatorSet.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+
+            logger.debug("field name {} and adding aggregator names {}:", name, aggregatorNames);
           }
 
           aggregatorToType.put(aggregatorName, daggregator.getTypeMap().getTypeMap().get(typeT));
@@ -376,6 +379,9 @@ public class DimensionalEventSchema
         valueToAggregators.put(name, aggregatorSet);
       }
     }
+
+    logger.debug("allValueToAggregator {}", allValueToAggregator);
+    logger.debug("valueToAggregators {}", valueToAggregators);
 
     this.inputValuesDescriptor = new FieldsDescriptor(aggFieldToType);
 
