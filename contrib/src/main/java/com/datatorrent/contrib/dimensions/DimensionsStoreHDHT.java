@@ -191,6 +191,13 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       cache.put(gae.getEventKey(), gae);
     }
     else {
+      if(aggregate.getAggregates().getFieldDescriptor().getFields().getFields().contains("latency")) {
+        logger.info("aggID {} Aggregate latency {} input latency {}",
+                    aggregate.getAggregatorID(),
+                    aggregate.getAggregates().getField("latency"),
+                    gae.getAggregates().getField("latency"));
+      }
+
       aggregator.aggregateAggs(aggregate, gae);
     }
   }
