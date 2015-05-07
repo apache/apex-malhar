@@ -26,6 +26,7 @@ package com.datatorrent.lib.pigquery;
  * @tags sample operator
  * @since 0.3.4
  */
+@Deprecated
 public class PigSampleOperator
 {
   // Must not be used.

@@ -34,6 +34,7 @@ import com.datatorrent.api.DefaultOutputPort;
  * @tags split operator, integer
  * @since 0.3.4
  */
+@Deprecated
 public abstract class PigSplitOperator<T>  extends BaseOperator
 {
   /**

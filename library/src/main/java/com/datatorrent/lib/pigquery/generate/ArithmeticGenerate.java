@@ -31,6 +31,7 @@ import javax.validation.constraints.NotNull;
  * @tags arithmetic operation, map, string, addition, subtraction, multiplication, division, percentage 
  * @since 0.3.4
  */
+@Deprecated
 public class ArithmeticGenerate  extends BinaryGenerate
 {
 

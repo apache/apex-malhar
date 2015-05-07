@@ -73,6 +73,7 @@ import com.datatorrent.api.annotation.OperatorAnnotation;
  * @tags map, string, cross product operator
  * @since 0.3.4
  */
+@Deprecated
 @OperatorAnnotation(partitionable = false)
 public class PigCrossOperator implements Operator
 {

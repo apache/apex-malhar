@@ -26,6 +26,7 @@ import javax.validation.constraints.NotNull;
  * @tags binary, string
  * @since 0.3.4
  */
+@Deprecated
 abstract public class BinaryGenerate implements Generate
 {
   /**

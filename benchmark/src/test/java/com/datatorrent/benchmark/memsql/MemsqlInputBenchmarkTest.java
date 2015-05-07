@@ -16,6 +16,7 @@
 
 package com.datatorrent.benchmark.memsql;
 
+import com.datatorrent.benchmark.MemsqlInputBenchmark;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.LocalMode;
 import com.datatorrent.api.Context.OperatorContext;
@@ -49,13 +50,13 @@ public class MemsqlInputBenchmarkTest
     conf.addResource(inputStream);
 
     MemsqlStore memsqlStore = new MemsqlStore();
-    memsqlStore.setDbUrl(conf.get("dt.rootDbUrl"));
+    memsqlStore.setDatabaseUrl(conf.get("dt.rootDbUrl"));
     memsqlStore.setConnectionProperties(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties"));
 
     AbstractMemsqlOutputOperatorTest.memsqlInitializeDatabase(memsqlStore);
 
     MemsqlOutputOperator outputOperator = new MemsqlOutputOperator();
-    outputOperator.getStore().setDbUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
+    outputOperator.getStore().setDatabaseUrl(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.dbUrl"));
     outputOperator.getStore().setConnectionProperties(conf.get("dt.application.MemsqlInputBenchmark.operator.memsqlInputOperator.store.connectionProperties"));
     outputOperator.setBatchSize(BATCH_SIZE);
 

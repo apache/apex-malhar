@@ -175,8 +175,8 @@ public class JDBCLookupCacheBackedOperatorTest
     }
 
     // Setup the operator
-    lookupCacheBackedOperator.getStore().setDbUrl(INMEM_DB_URL);
-    lookupCacheBackedOperator.getStore().setDbDriver(INMEM_DB_DRIVER);
+    lookupCacheBackedOperator.getStore().setDatabaseUrl(INMEM_DB_URL);
+    lookupCacheBackedOperator.getStore().setDatabaseDriver(INMEM_DB_DRIVER);
 
     Calendar now = Calendar.getInstance();
     now.add(Calendar.SECOND, 5);
