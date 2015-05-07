@@ -579,5 +579,10 @@
       <version>2.4.4</version>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>com.jcraft</groupId>
+      <artifactId>jsch</artifactId>
+      <version>0.1.50</version>
+    </dependency>
   </dependencies>
 </project>
