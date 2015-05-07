@@ -53,7 +53,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsStoreHDHT.class);
 
-  public static final int CACHE_SIZE = 50000;
+  public static final int CACHE_SIZE = 100000;
   public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
 
   //HDHT Aggregation parameters

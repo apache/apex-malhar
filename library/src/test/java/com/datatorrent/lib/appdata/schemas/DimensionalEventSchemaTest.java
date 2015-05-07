@@ -195,4 +195,15 @@ public class DimensionalEventSchemaTest
     Assert.assertEquals(valueFDSum, des.getDdIDToAggregatorToAggregateDescriptor().get(0).get("SUM"));
     Assert.assertEquals(valueFDCount, des.getDdIDToAggregatorToAggregateDescriptor().get(0).get("COUNT"));
   }
+
+  @Test
+  public void getAllKeysDescriptorTest()
+  {
+    DimensionalEventSchema des = new DimensionalEventSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json"),
+                                                            AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+
+    Set<String> keys = Sets.newHashSet("publisher", "advertiser", "location");
+
+    Assert.assertEquals(keys, des.getAllKeysDescriptor().getFields().getFields());
+  }
 }

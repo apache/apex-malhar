@@ -96,7 +96,9 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   private transient DataSerializerFactory resultSerializerFactory;
   //Query Processing - End
 
-  @AppData.ResultPort()
+  private boolean updateEnumValues = false;
+
+  @AppData.ResultPort
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
 
   @InputPortFieldAnnotation(optional = true)
@@ -133,10 +135,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       }
     }
   };
-
-  //==========================================================================
-  // Query Processing - End
-  //==========================================================================
 
   public AppDataSingleSchemaDimensionStoreHDHT()
   {
@@ -299,6 +297,22 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   public void setAggregatorInfo(@NotNull AggregatorInfo aggregatorInfo)
   {
     this.aggregatorInfo = aggregatorInfo;
+  }
+
+  /**
+   * @return the updateEnumValues
+   */
+  public boolean isUpdateEnumValues()
+  {
+    return updateEnumValues;
+  }
+
+  /**
+   * @param updateEnumValues the updateEnumValues to set
+   */
+  public void setUpdateEnumValues(boolean updateEnumValues)
+  {
+    this.updateEnumValues = updateEnumValues;
   }
 
   //Query Processing Classes - Start

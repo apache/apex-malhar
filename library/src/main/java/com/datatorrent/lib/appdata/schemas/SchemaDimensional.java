@@ -47,7 +47,7 @@ public class SchemaDimensional implements Schema
 {
   private static final Logger logger = LoggerFactory.getLogger(SchemaDimensional.class);
 
-  public static final String SCHEMA_TYPE = "dimensional";
+  public static final String SCHEMA_TYPE = "dimensions";
   public static final String SCHEMA_VERSION = "1.0";
 
   public static final List<Fields> VALID_KEYS = ImmutableList.of(new Fields(Sets.newHashSet(SchemaWithTime.FIELD_TIME)));

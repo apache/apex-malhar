@@ -84,6 +84,10 @@
     <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.outputport.aggregateOutput.attr.UNIFIER_LIMIT</name>
     <value>2</value>
   </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.aggregationWindowCount</name>
+    <value>10</value>
+  </property>
 
 
   <!-- Settings for GenericSalesDemoWithHDHT -->
