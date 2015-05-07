@@ -86,7 +86,7 @@
   </property>
   <property>
     <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.aggregationWindowCount</name>
-    <value>10</value>
+    <value>2</value>
   </property>
 
 
