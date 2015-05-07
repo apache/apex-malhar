@@ -16,7 +16,6 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
@@ -235,7 +234,7 @@ public class AppDataFormatter implements Serializable
 
   public void setContinuousFormatString(String continuousFormatString)
   {
-    this.continuousFormatString = Preconditions.checkNotNull(continuousFormatString);
+    this.continuousFormatString = continuousFormatString;
     this.floatFormatString = continuousFormatString;
     this.doubleFormatString = continuousFormatString;
   }
