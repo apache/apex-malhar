@@ -73,9 +73,13 @@ import com.datatorrent.api.Operator.Unifier;
  * @displayName Count Unique Values
  * @category Algorithmic
  * @tags count
+ * @deprecated Despite its name, this operator simply counts the number of tuples and has
+ *    no checks for uniqueness. Please use {@link com.datatorrent.lib.stream.Counter}
+ *    to get a simple tuple count.
  *
  * @since 0.3.2
  */
+@Deprecated
 public class UniqueCounterValue<K> extends BaseOperator implements Unifier<Integer>
 {
   /**
