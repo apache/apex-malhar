@@ -73,10 +73,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   public DimensionsStoreHDHT()
   {
   }
-
-  //TODO make all internal getters protected
-  //timestamp prefix keys timestamp 0 if not needed but still there
-
+  
   protected abstract int getAggregatorID(String aggregatorName);
   protected abstract DimensionsStaticAggregator getAggregator(int aggregatorID);
   protected abstract FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID);

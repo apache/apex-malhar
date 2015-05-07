@@ -97,7 +97,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   //Query Processing - End
 
   private boolean updateEnumValues = false;
-  private Map<String, Comparable> seenEnumValues = Maps.newHashMap();
+  @SuppressWarnings({"rawtypes"})
+  private Map<String, Set<Comparable>> seenEnumValues;
 
   @AppData.ResultPort
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
@@ -119,6 +120,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
       if(query instanceof SchemaQuery) {
         dimensionalSchema.setTo(System.currentTimeMillis());
+
+        if(updateEnumValues) {
+          dimensionalSchema.setEnumsSetComparable(seenEnumValues);
+        }
+
         SchemaResult schemaResult = schemaRegistry.getSchemaResult((SchemaQuery) query);
 
         if(schemaResult != null) {
@@ -143,6 +149,16 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   @Override
   public void processEvent(AggregateEvent gae) {
+    for(String field: gae.getKeys().getFieldDescriptor().getFields().getFields()) {
+      if(DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
+        continue;
+      }
+
+      @SuppressWarnings("rawtypes")
+      Comparable fieldValue = (Comparable) gae.getKeys().getField(field);
+      seenEnumValues.get(field).add(fieldValue);
+    }
+
     super.processEvent(gae);
   }
 
@@ -153,6 +169,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public void setup(OperatorContext context)
   {
     aggregatorInfo.setup();
@@ -162,12 +179,16 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     new QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>(
                                                   new DimensionsQueryComputer(this),
                                                   new DimensionsQueryQueueManager(this));
+
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryDimensional.class);
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
                                              aggregatorInfo);
     dimensionalSchema = new SchemaDimensional(dimensionalSchemaJSON,
                                               eventSchema);
+
+    //seenEnumValues
+
     schemaRegistry = new SchemaRegistrySingle(dimensionalSchema);
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, schemaRegistry);
@@ -175,6 +196,17 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
     if(!dimensionalSchema.isFixedFromTo()) {
       dimensionalSchema.setFrom(System.currentTimeMillis());
+    }
+
+    //
+
+    if(seenEnumValues == null) {
+      seenEnumValues = Maps.newHashMap();
+      for(String key: eventSchema.getAllKeysDescriptor().getFieldList()) {
+        @SuppressWarnings("rawtypes")
+        Set<Comparable> enumValuesSet= Sets.newHashSet();
+        seenEnumValues.put(key, enumValuesSet);
+      }
     }
   }
 
