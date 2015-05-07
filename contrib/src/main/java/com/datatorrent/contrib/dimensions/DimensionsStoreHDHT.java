@@ -139,8 +139,6 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     FieldsDescriptor keysDescriptor = getKeyDescriptor(schemaID, dimensionDescriptorID);
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 
-    logger.debug("aggregate {}", aggregate);
-
     GPOMutable keys = GPOUtils.deserialize(keysDescriptor, DimensionsDescriptor.TIME_FIELDS, key.buffer, offset.intValue());
     GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, 0);
 
@@ -191,13 +189,6 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       cache.put(gae.getEventKey(), gae);
     }
     else {
-      if(aggregate.getAggregates().getFieldDescriptor().getFields().getFields().contains("latency")) {
-        logger.info("aggID {} Aggregate latency {} input latency {}",
-                    aggregate.getAggregatorID(),
-                    aggregate.getAggregates().getField("latency"),
-                    gae.getAggregates().getField("latency"));
-      }
-
       aggregator.aggregateAggs(aggregate, gae);
     }
   }
