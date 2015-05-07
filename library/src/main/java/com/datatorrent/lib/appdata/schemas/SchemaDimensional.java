@@ -292,6 +292,42 @@ public class SchemaDimensional implements Schema
     updatedEnums = Maps.newHashMap(enumsList);
   }
 
+  @SuppressWarnings({"rawtypes","unchecked"})
+  public void setEnumsSetComparable(Map<String, Set<Comparable>> enums)
+  {
+    Preconditions.checkNotNull(enums);
+
+    Map<String, List<Object>> enumsList = Maps.newHashMap();
+
+    //Check that all the given keys are valid
+    Preconditions.checkArgument(
+            eventSchema.getAllKeysDescriptor().getFields().getFields().containsAll(enums.keySet()),
+            "The given map doesn't contain valid keys. Valid keys are %s and the provided keys are %s",
+            eventSchema.getAllKeysDescriptor().getFields().getFields(),
+            enums.keySet());
+
+    //Todo check the type of the objects, for now just set them on the enum.
+
+    for(Map.Entry<String, Set<Comparable>> entry: enums.entrySet()) {
+      String name = entry.getKey();
+      Set<Comparable> vals = entry.getValue();
+
+      Preconditions.checkNotNull(name);
+      Preconditions.checkNotNull(vals);
+
+      for(Object value: entry.getValue()) {
+        Preconditions.checkNotNull(value);
+      }
+
+      List<Comparable> valsListComparable = Lists.newArrayList(vals);
+      Collections.sort(valsListComparable);
+      List<Object> valsList = (List) valsListComparable;
+      enumsList.put(name, valsList);
+    }
+
+    updatedEnums = Maps.newHashMap(enumsList);
+  }
+
   public void setEnumsList(Map<String, List<Object>> enums)
   {
     Preconditions.checkNotNull(enums);
@@ -310,7 +346,21 @@ public class SchemaDimensional implements Schema
       Preconditions.checkNotNull(entry.getValue());
     }
 
-    updatedEnums = Maps.newHashMap(enums);
+    Map<String, List<Object>> tempEnums = Maps.newHashMap();
+
+    for(Map.Entry<String, List<Object>> entry: enums.entrySet()) {
+      String key = entry.getKey();
+      List<?> enumValues = entry.getValue();
+      List<Object> tempEnumValues = Lists.newArrayList();
+
+      for(Object enumValue: enumValues) {
+        tempEnumValues.add(enumValue);
+      }
+
+      tempEnums.put(key, tempEnumValues);
+    }
+
+    updatedEnums = tempEnums;
   }
 
   @Override

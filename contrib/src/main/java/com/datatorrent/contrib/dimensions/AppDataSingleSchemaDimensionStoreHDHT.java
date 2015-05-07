@@ -97,6 +97,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   //Query Processing - End
 
   private boolean updateEnumValues = false;
+  private Map<String, Comparable> seenEnumValues = Maps.newHashMap();
 
   @AppData.ResultPort
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();

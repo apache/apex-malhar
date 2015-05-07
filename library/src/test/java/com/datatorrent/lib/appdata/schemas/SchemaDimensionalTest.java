@@ -219,6 +219,68 @@ public class SchemaDimensionalTest
     Assert.assertEquals(replacementEnums, newEnums);
   }
 
+  @Test
+  @SuppressWarnings("rawtypes")
+  public void enumValUpdateTestComparable() throws Exception
+  {
+    String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json");
+    SchemaDimensional dimensional = new SchemaDimensional(
+                                    new DimensionalEventSchema(eventSchemaJSON,
+                                                               AggregatorUtils.DEFAULT_AGGREGATOR_INFO));
+
+    Map<String, Set<Comparable>> replacementEnums = Maps.newHashMap();
+    @SuppressWarnings("unchecked")
+    Set<Comparable> publisherEnumList = ((Set<Comparable>) ((Set) Sets.newHashSet("b", "c", "a")));
+    @SuppressWarnings("unchecked")
+    Set<Comparable> advertiserEnumList = ((Set<Comparable>) ((Set) Sets.newHashSet("b", "c", "a")));
+    @SuppressWarnings("unchecked")
+    Set<Comparable> locationEnumList = ((Set<Comparable>) ((Set) Sets.newHashSet("b", "c", "a")));
+
+    replacementEnums.put("publisher", publisherEnumList);
+    replacementEnums.put("advertiser", advertiserEnumList);
+    replacementEnums.put("location", locationEnumList);
+
+    Map<String, List<Comparable>> expectedOutput = Maps.newHashMap();
+    @SuppressWarnings("unchecked")
+    List<Comparable> publisherEnumSortedList = (List<Comparable>) ((List) Lists.newArrayList("a", "b", "c"));
+    @SuppressWarnings("unchecked")
+    List<Comparable> advertiserEnumSortedList = (List<Comparable>) ((List) Lists.newArrayList("a", "b", "c"));
+    @SuppressWarnings("unchecked")
+    List<Comparable> locationEnumSortedList = (List<Comparable>) ((List) Lists.newArrayList("a", "b", "c"));
+
+    expectedOutput.put("publisher", publisherEnumSortedList);
+    expectedOutput.put("advertiser", advertiserEnumSortedList);
+    expectedOutput.put("location", locationEnumSortedList);
+
+    dimensional.setEnumsSetComparable(replacementEnums);
+
+    String schemaJSON = dimensional.getSchemaJSON();
+
+    JSONObject schema = new JSONObject(schemaJSON);
+    JSONArray keys = schema.getJSONArray(DimensionalEventSchema.FIELD_KEYS);
+
+    Map<String, List<Comparable>> newEnums = Maps.newHashMap();
+
+    for(int keyIndex = 0;
+        keyIndex < keys.length();
+        keyIndex++) {
+      JSONObject keyData = keys.getJSONObject(keyIndex);
+      String name = keyData.getString(DimensionalEventSchema.FIELD_KEYS_NAME);
+      JSONArray enumValues = keyData.getJSONArray(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES);
+      List<Comparable> enumList = Lists.newArrayList();
+
+      for(int enumIndex = 0;
+          enumIndex < enumValues.length();
+          enumIndex++) {
+        enumList.add((Comparable) enumValues.get(enumIndex));
+      }
+
+      newEnums.put(name, enumList);
+    }
+
+    Assert.assertEquals(expectedOutput, newEnums);
+  }
+
   private String produceSchema(String resourceName) throws Exception
   {
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString(resourceName);
