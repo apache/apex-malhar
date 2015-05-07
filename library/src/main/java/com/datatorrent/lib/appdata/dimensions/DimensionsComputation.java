@@ -136,8 +136,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
       for(int index = 0;
           index < aggregateEventBuffer.size();
           index++) {
-        AggregateEvent gae = aggregateEventBuffer.get(index);
-        aggregateOutput.emit(gae);
+        processGenericEventNoBuffering(aggregateEventBuffer.get(index));
       }
     }
 
@@ -145,11 +144,19 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     for(int index = 0;
         index < aggregateEventBuffer.size();
         index++) {
-      AggregateEvent gae = aggregateEventBuffer.get(index);
-      processGenericEvent(gae);
+      processGenericEvent(aggregateEventBuffer.get(index));
     }
 
     aggregateEventBuffer.clear();
+  }
+
+  public void processGenericEventNoBuffering(AggregateEvent gae)
+  {
+    DimensionsStaticAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorID());
+    aggregateOutput.emit(aggregator.createDest(gae,
+                         getAggregateFieldsDescriptor(gae.getSchemaID(),
+                                                      gae.getDimensionDescriptorID(),
+                                                      gae.getAggregatorID())));
   }
 
   public void processGenericEvent(AggregateEvent gae)
