@@ -170,6 +170,55 @@ public class SchemaDimensionalTest
     }
   }
 
+  @Test
+  public void enumValUpdateTest() throws Exception
+  {
+    String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json");
+    SchemaDimensional dimensional = new SchemaDimensional(
+                                    new DimensionalEventSchema(eventSchemaJSON,
+                                                               AggregatorUtils.DEFAULT_AGGREGATOR_INFO));
+
+    Map<String, List<Object>> replacementEnums = Maps.newHashMap();
+    @SuppressWarnings("unchecked")
+    List<Object> publisherEnumList = ((List<Object>) ((List) Lists.newArrayList("google", "twitter")));
+    @SuppressWarnings("unchecked")
+    List<Object> advertiserEnumList = ((List<Object>) ((List) Lists.newArrayList("google", "twitter")));
+    @SuppressWarnings("unchecked")
+    List<Object> locationEnumList = ((List<Object>) ((List) Lists.newArrayList("google", "twitter")));
+
+    replacementEnums.put("publisher", publisherEnumList);
+    replacementEnums.put("advertiser", advertiserEnumList);
+    replacementEnums.put("location", locationEnumList);
+
+    dimensional.setEnumsList(replacementEnums);
+
+    String schemaJSON = dimensional.getSchemaJSON();
+
+    JSONObject schema = new JSONObject(schemaJSON);
+    JSONArray keys = schema.getJSONArray(DimensionalEventSchema.FIELD_KEYS);
+
+    Map<String, List<Object>> newEnums = Maps.newHashMap();
+
+    for(int keyIndex = 0;
+        keyIndex < keys.length();
+        keyIndex++) {
+      JSONObject keyData = keys.getJSONObject(keyIndex);
+      String name = keyData.getString(DimensionalEventSchema.FIELD_KEYS_NAME);
+      JSONArray enumValues = keyData.getJSONArray(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES);
+      List<Object> enumList = Lists.newArrayList();
+
+      for(int enumIndex = 0;
+          enumIndex < enumValues.length();
+          enumIndex++) {
+        enumList.add(enumValues.get(enumIndex));
+      }
+
+      newEnums.put(name, enumList);
+    }
+
+    Assert.assertEquals(replacementEnums, newEnums);
+  }
+
   private String produceSchema(String resourceName) throws Exception
   {
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString(resourceName);

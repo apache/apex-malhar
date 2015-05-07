@@ -19,6 +19,7 @@ import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.codehaus.jettison.json.JSONArray;
@@ -30,6 +31,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Optional
@@ -56,15 +58,18 @@ public class SchemaDimensional implements Schema
   private Long to;
 
   private boolean changed = false;
+  private boolean changedFromTo = false;
   private String schemaJSON;
 
   private DimensionalEventSchema eventSchema;
   private JSONObject schema;
   private JSONObject time;
+  private JSONArray keys;
 
   private boolean fixedFromTo = false;
 
   private Map<String, String> schemaKeys;
+  private Map<String, List<Object>> updatedEnums;
 
   public SchemaDimensional(String schemaStub,
                            DimensionalEventSchema eventSchema,
@@ -162,7 +167,7 @@ public class SchemaDimensional implements Schema
     time.put(SchemaWithTime.FIELD_TIME_BUCKETS, bucketsArray);
 
     //keys
-    JSONArray keys = new JSONArray(eventSchema.getKeysString());
+    keys = new JSONArray(eventSchema.getKeysString());
     schema.put(DimensionalEventSchema.FIELD_KEYS, keys);
 
     //values;
@@ -244,12 +249,68 @@ public class SchemaDimensional implements Schema
   {
     this.from = from;
     changed = true;
+    changedFromTo = true;
   }
 
   public void setTo(Long to)
   {
     this.to = to;
     changed = true;
+    changedFromTo = true;
+  }
+
+  public void setEnumsSet(Map<String, Set<Object>> enums)
+  {
+    Preconditions.checkNotNull(enums);
+
+    Map<String, List<Object>> enumsList = Maps.newHashMap();
+
+    //Check that all the given keys are valid
+    Preconditions.checkArgument(
+            eventSchema.getAllKeysDescriptor().getFields().getFields().containsAll(enums.keySet()),
+            "The given map doesn't contain valid keys. Valid keys are %s and the provided keys are %s",
+            eventSchema.getAllKeysDescriptor().getFields().getFields(),
+            enums.keySet());
+
+    //Todo check the type of the objects, for now just set them on the enum.
+
+    for(Map.Entry<String, Set<Object>> entry: enums.entrySet()) {
+      String name = entry.getKey();
+      Set<Object> vals = entry.getValue();
+
+      Preconditions.checkNotNull(name);
+      Preconditions.checkNotNull(vals);
+
+      for(Object value: entry.getValue()) {
+        Preconditions.checkNotNull(value);
+      }
+
+      List<Object> valsList = Lists.newArrayList(vals);
+      enumsList.put(name, valsList);
+    }
+
+    updatedEnums = Maps.newHashMap(enumsList);
+  }
+
+  public void setEnumsList(Map<String, List<Object>> enums)
+  {
+    Preconditions.checkNotNull(enums);
+
+    //Check that all the given keys are valid
+    Preconditions.checkArgument(
+            eventSchema.getAllKeysDescriptor().getFields().getFields().containsAll(enums.keySet()),
+            "The given map doesn't contain valid keys. Valid keys are %s and the provided keys are %s",
+            eventSchema.getAllKeysDescriptor().getFields().getFields(),
+            enums.keySet());
+
+    //Todo check the type of the objects, for now just set them on the enum.
+
+    for(Map.Entry<String, List<Object>> entry: enums.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+
+    updatedEnums = Maps.newHashMap(enums);
   }
 
   @Override
@@ -260,25 +321,68 @@ public class SchemaDimensional implements Schema
     }
 
     changed = false;
-    Preconditions.checkState(!(from == null ^ to == null),
-                             "Either both from and to should be set or both should be not set.");
 
-    if(from != null) {
-      Preconditions.checkState(to > from, "to must be greater than from.");
+    if(changedFromTo) {
+      changedFromTo = false;
+      Preconditions.checkState(!(from == null ^ to == null),
+                               "Either both from and to should be set or both should be not set.");
+
+      if(from != null) {
+        Preconditions.checkState(to > from, "to must be greater than from.");
+      }
+
+      if(from == null) {
+        time.remove(SchemaWithTime.FIELD_TIME_FROM);
+        time.remove(SchemaWithTime.FIELD_TIME_TO);
+      }
+      else {
+        try {
+          time.put(SchemaWithTime.FIELD_TIME_FROM, from);
+          time.put(SchemaWithTime.FIELD_TIME_TO, to);
+        }
+        catch(JSONException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
     }
 
-    if(from == null) {
-      time.remove(SchemaWithTime.FIELD_TIME_FROM);
-      time.remove(SchemaWithTime.FIELD_TIME_TO);
-    }
-    else {
-      try {
-        time.put(SchemaWithTime.FIELD_TIME_FROM, from);
-        time.put(SchemaWithTime.FIELD_TIME_TO, to);
+    if(updatedEnums != null) {
+      for(int keyIndex = 0;
+          keyIndex < keys.length();
+          keyIndex++) {
+        JSONObject keyData;
+        String name;
+
+        try {
+          keyData = keys.getJSONObject(keyIndex);
+          name = keyData.getString(DimensionalEventSchema.FIELD_KEYS_NAME);
+        }
+        catch(JSONException ex) {
+          throw new RuntimeException(ex);
+        }
+
+        List<Object> enumVals = updatedEnums.get(name);
+
+        if(enumVals == null) {
+          keyData.remove(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES);
+          continue;
+        }
+
+        JSONArray newEnumValues = new JSONArray();
+
+        for(Object enumVal: enumVals) {
+          newEnumValues.put(enumVal);
+        }
+
+        try {
+          keyData.put(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES, newEnumValues);
+        }
+        catch(JSONException ex) {
+          throw new RuntimeException(ex);
+        }
       }
-      catch(JSONException ex) {
-        throw new RuntimeException(ex);
-      }
+
+      updatedEnums = null;
     }
 
     schemaJSON = schema.toString();
