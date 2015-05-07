@@ -18,10 +18,10 @@ package com.datatorrent.lib.dedup;
 import com.datatorrent.lib.bucket.AbstractBucket;
 
 
-public final class BucketPOJOImpl extends AbstractBucket<SimpleEvent>
+public final class BucketSimpleEventImpl extends AbstractBucket<SimpleEvent>
 {
 
-  protected BucketPOJOImpl(long bucketKey)
+  protected BucketSimpleEventImpl(long bucketKey)
   {
     super(bucketKey);
   }
