@@ -87,43 +87,7 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
     @Override
     public final void process(INPUT tuple)
     {
-      long bucketKey = bucketManager.getBucketKeyFor(tuple);
-      if (bucketKey < 0) {
-        return;
-      } //ignore event
-
-      AbstractBucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
-
-      if (bucket != null && bucket.containsEvent(tuple)) {
-        counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
-        duplicates.emit(tuple);
-        return;
-      } //ignore event
-
-      if (bucket != null && bucket.isDataOnDiskLoaded()) {
-        bucketManager.newEvent(bucketKey, tuple);
-        output.emit(convert(tuple));
-      }
-      else {
-        /**
-         * The bucket on disk is not loaded. So we load the bucket from the disk.
-         * Before that we check if there is a pending request to load the bucket and in that case we
-         * put the event in a waiting list.
-         */
-        boolean doLoadFromDisk = false;
-        List<INPUT> waitingList = waitingEvents.get(bucketKey);
-        if (waitingList == null) {
-          waitingList = Lists.newArrayList();
-          waitingEvents.put(bucketKey, waitingList);
-          doLoadFromDisk = true;
-        }
-        waitingList.add(tuple);
-
-        if (doLoadFromDisk) {
-          //Trigger the storage manager to load bucketData for this bucket key. This is a non-blocking call.
-          bucketManager.loadBucketData(bucketKey);
-        }
-      }
+      processTuple(tuple);
     }
 
   };
@@ -200,6 +164,48 @@ public abstract class AbstractDeduper<INPUT, OUTPUT> implements Operator, Bucket
   public void beginWindow(long l)
   {
     currentWindow = l;
+  }
+
+  // This method can be overriden in implementation of Deduper.
+  protected void processTuple(INPUT tuple)
+  {
+    long bucketKey = bucketManager.getBucketKeyFor(tuple);
+      if (bucketKey < 0) {
+        return;
+      } //ignore event
+
+      AbstractBucket<INPUT> bucket = bucketManager.getBucket(bucketKey);
+
+      if (bucket != null && bucket.containsEvent(tuple)) {
+        counters.getCounter(CounterKeys.DUPLICATE_EVENTS).increment();
+        duplicates.emit(tuple);
+        return;
+      } //ignore event
+
+      if (bucket != null && bucket.isDataOnDiskLoaded()) {
+        bucketManager.newEvent(bucketKey, tuple);
+        output.emit(convert(tuple));
+      }
+      else {
+        /**
+         * The bucket on disk is not loaded. So we load the bucket from the disk.
+         * Before that we check if there is a pending request to load the bucket and in that case we
+         * put the event in a waiting list.
+         */
+        boolean doLoadFromDisk = false;
+        List<INPUT> waitingList = waitingEvents.get(bucketKey);
+        if (waitingList == null) {
+          waitingList = Lists.newArrayList();
+          waitingEvents.put(bucketKey, waitingList);
+          doLoadFromDisk = true;
+        }
+        waitingList.add(tuple);
+
+        if (doLoadFromDisk) {
+          //Trigger the storage manager to load bucketData for this bucket key. This is a non-blocking call.
+          bucketManager.loadBucketData(bucketKey);
+        }
+      }
   }
 
   @Override
