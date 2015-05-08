@@ -149,6 +149,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   @Override
   public void processEvent(AggregateEvent gae) {
+    super.processEvent(gae);
+
     if(updateEnumValues) {
       for(String field: gae.getKeys().getFieldDescriptor().getFields().getFields()) {
         if(DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
@@ -160,8 +162,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         seenEnumValues.get(field).add(fieldValue);
       }
     }
-
-    super.processEvent(gae);
   }
 
   @Override
