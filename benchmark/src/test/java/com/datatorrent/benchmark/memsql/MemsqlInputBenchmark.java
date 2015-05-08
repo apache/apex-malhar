@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.benchmark;
+package com.datatorrent.benchmark.memsql;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
