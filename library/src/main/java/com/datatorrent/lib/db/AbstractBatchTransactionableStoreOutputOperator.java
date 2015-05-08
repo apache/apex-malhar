@@ -41,6 +41,7 @@ public abstract class AbstractBatchTransactionableStoreOutputOperator<T, S exten
   @Override
   public void processTuple(T tuple)
   {
+    System.out.println("in process tuple");
     tuples.add(tuple);
   }
 
@@ -54,6 +55,7 @@ public abstract class AbstractBatchTransactionableStoreOutputOperator<T, S exten
   /**
    * Processes the whole batch at the end window and writes to the store.
    *
+   * @param tuples
    */
   public abstract void processBatch(Collection<T> tuples);
 

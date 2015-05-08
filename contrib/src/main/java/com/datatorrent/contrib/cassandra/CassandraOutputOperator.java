@@ -46,7 +46,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
   private ArrayList<DataType> columnDataTypes;
   private ArrayList<String> expressions;
   private transient ArrayList<Object> getters;
-
+  private boolean isfirstTuple;
   /*
    * An ArrayList of Java expressions that will yield the field value from the POJO.
    * Each expression corresponds to one column in the Cassandra table.
@@ -91,6 +91,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
   public CassandraOutputOperator()
   {
     super();
+    isfirstTuple = true;
     columnDataTypes = new ArrayList<DataType>();
     getters = new ArrayList<Object>();
   }
@@ -99,9 +100,10 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
   @Override
   public void processTuple(Object tuple)
   {
-    if (getters.isEmpty()) {
+    if (isfirstTuple) {
       processFirstTuple(tuple);
     }
+    isfirstTuple = false;
     super.processTuple(tuple);
   }
 
@@ -109,8 +111,10 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
   {
     Class<?> fqcn = tuple.getClass();
     int size = columnDataTypes.size();
+    LOG.debug("size is {}",size);
     for (int i = 0; i < size; i++) {
       DataType type = columnDataTypes.get(i);
+      LOG.debug("type is {}",type.getClass());
       String getterExpression = expressions.get(i);
       if (type.equals(DataType.Name.ASCII) || type.equals(DataType.Name.TEXT) || type.equals(DataType.Name.VARCHAR)) {
         GetterString getVarchar = PojoUtils.createGetterString(fqcn, getterExpression);
@@ -143,6 +147,10 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
       else if (type.equals(DataType.Name.CUSTOM) || type.equals(DataType.Name.LIST) || type.equals(DataType.Name.MAP) || type.equals(DataType.Name.SET) ) {
         GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
         getters.add(getObject);
+      }
+      else
+      {
+        throw new UnsupportedOperationException("this operation is not supported"+type);
       }
 
     }

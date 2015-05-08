@@ -191,13 +191,13 @@ public class CassandraOperatorTest
 
     outputOperator.setup(context);
 
-    List<TestEvent> events = Lists.newArrayList();
+    List<InnerObj> events = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
-      events.add(new TestEvent(i));
+      events.add(new InnerObj(i));
     }
 
     outputOperator.beginWindow(0);
-    for (TestEvent event : events) {
+    for (InnerObj event : events) {
       outputOperator.input.process(event);
     }
     outputOperator.endWindow();
@@ -205,7 +205,7 @@ public class CassandraOperatorTest
     Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
   }
 
-  @Test
+  //@Test
   public void TestCassandraInputOperator()
   {
     CassandraStore store = new CassandraStore();
@@ -256,6 +256,11 @@ public class CassandraOperatorTest
     }
 
     private int ID=11;
+
+    private InnerObj(int i)
+    {
+      ID = i;
+    }
 
     /**
      * @return the int ID

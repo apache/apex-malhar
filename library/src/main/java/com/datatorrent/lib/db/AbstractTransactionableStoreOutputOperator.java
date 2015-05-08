@@ -56,6 +56,9 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
     @Override
     public void process(T t)
     {
+      System.out.println("in process");
+       System.out.println("committedWindowId is " + committedWindowId);
+       System.out.println("currentWindowId is " + currentWindowId);
       if (committedWindowId < currentWindowId) {
         processTuple(t);
       }
@@ -91,6 +94,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
       appId = context.getValue(DAG.APPLICATION_ID);
       operatorId = context.getId();
       committedWindowId = store.getCommittedWindowId(appId, operatorId);
+      System.out.println("committedWindowId is "+ committedWindowId);
     }
     catch (IOException ex) {
       throw new RuntimeException(ex);
