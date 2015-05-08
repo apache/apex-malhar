@@ -149,14 +149,16 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   @Override
   public void processEvent(AggregateEvent gae) {
-    for(String field: gae.getKeys().getFieldDescriptor().getFields().getFields()) {
-      if(DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
-        continue;
-      }
+    if(updateEnumValues) {
+      for(String field: gae.getKeys().getFieldDescriptor().getFields().getFields()) {
+        if(DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
+          continue;
+        }
 
-      @SuppressWarnings("rawtypes")
-      Comparable fieldValue = (Comparable) gae.getKeys().getField(field);
-      seenEnumValues.get(field).add(fieldValue);
+        @SuppressWarnings("rawtypes")
+        Comparable fieldValue = (Comparable)gae.getKeys().getField(field);
+        seenEnumValues.get(field).add(fieldValue);
+      }
     }
 
     super.processEvent(gae);

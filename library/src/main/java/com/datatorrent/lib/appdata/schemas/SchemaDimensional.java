@@ -413,7 +413,7 @@ public class SchemaDimensional implements Schema
 
         List<Object> enumVals = updatedEnums.get(name);
 
-        if(enumVals == null) {
+        if(enumVals == null || enumVals.isEmpty()) {
           keyData.remove(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES);
           continue;
         }
