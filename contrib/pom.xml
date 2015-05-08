@@ -15,7 +15,7 @@
   <properties>
     <!-- skip tests by default as they depend on manual setup -->
     <skip.contrib.module.tests>false</skip.contrib.module.tests>
-    <skipTests>true</skipTests>
+    <skipTests>false</skipTests>
   </properties>
   <repositories>
     <repository>

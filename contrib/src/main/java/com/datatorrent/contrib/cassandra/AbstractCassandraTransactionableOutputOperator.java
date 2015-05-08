@@ -64,7 +64,10 @@ public abstract class AbstractCassandraTransactionableOutputOperator<T> extends 
   @Override
   public void processBatch(Collection<T> tuples)
   {
+    System.out.println("in process Batch");
     BatchStatement batchCommand = store.getBatchCommand();
+          System.out.println("tuples are "+ tuples);
+
     for(T tuple: tuples)
     {
       batchCommand.add(getUpdateStatement(tuple));

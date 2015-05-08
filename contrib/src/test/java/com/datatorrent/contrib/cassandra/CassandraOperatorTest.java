@@ -28,8 +28,9 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.annotation.Nonnull;
 import java.util.List;
+import java.util.UUID;
+import org.junit.AfterClass;
 
 /**
  * Tests for {@link AbstractCassandraTransactionableOutputOperator} and {@link AbstractCassandraInputOperator}
@@ -39,7 +40,7 @@ public class CassandraOperatorTest
   public static final String NODE = "localhost";
   public static final String KEYSPACE = "demo";
 
-  private static final String TABLE_NAME = "test_event_table";
+  private static final String TABLE_NAME = "test";
   private static String APP_ID = "CassandraOperatorTest";
   private static int OPERATOR_ID = 0;
 
@@ -51,6 +52,7 @@ public class CassandraOperatorTest
     {
       this.id = id;
     }
+
   }
 
   @BeforeClass
@@ -58,18 +60,17 @@ public class CassandraOperatorTest
   {
     try {
       Cluster cluster = Cluster.builder()
-          .addContactPoint(NODE).build();
+              .addContactPoint(NODE).build();
       Session session = cluster.connect(KEYSPACE);
 
-
-      String createMetaTable = "CREATE TABLE IF NOT EXISTS " + CassandraTransactionalStore.DEFAULT_META_TABLE + " ( " +
-          CassandraTransactionalStore.DEFAULT_APP_ID_COL + " TEXT, " +
-          CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT, " +
-          CassandraTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT, " +
-          "PRIMARY KEY (" + CassandraTransactionalStore.DEFAULT_APP_ID_COL + ", " + CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL  + ") " +
-          ");";
+      String createMetaTable = "CREATE TABLE IF NOT EXISTS " + CassandraTransactionalStore.DEFAULT_META_TABLE + " ( "
+              + CassandraTransactionalStore.DEFAULT_APP_ID_COL + " TEXT, "
+              + CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT, "
+              + CassandraTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT, "
+              + "PRIMARY KEY (" + CassandraTransactionalStore.DEFAULT_APP_ID_COL + ", " + CassandraTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") "
+              + ");";
       session.execute(createMetaTable);
-      String createTable = "CREATE TABLE IF NOT EXISTS " + TABLE_NAME + " (ID INT PRIMARY KEY);";
+      String createTable = "CREATE TABLE IF NOT EXISTS " + KEYSPACE + "." + TABLE_NAME + " (id uuid PRIMARY KEY,firstname text,lastname text);";
       session.execute(createTable);
     }
     catch (Throwable e) {
@@ -78,14 +79,15 @@ public class CassandraOperatorTest
     }
   }
 
-  private static void cleanTable()
+  //@AfterClass
+  public static void cleanTable()
   {
     try {
       Cluster cluster = Cluster.builder()
-          .addContactPoint(NODE).build();
+              .addContactPoint(NODE).build();
       Session session = cluster.connect(KEYSPACE);
 
-      String cleanTable = "TRUNCATE " + TABLE_NAME + ";";
+      String cleanTable = "DROP " + TABLE_NAME + ";";
       session.execute(cleanTable);
     }
     catch (DriverException e) {
@@ -95,45 +97,18 @@ public class CassandraOperatorTest
 
   private static class TestOutputOperator extends CassandraOutputOperator
   {
-    //private static final String INSERT_STMT = "INSERT INTO " + KEYSPACE+"." +TABLE_NAME + " (ID) VALUES (?);";
-
-    /*TestOutputOperator()
-    {
-      cleanTable();
-    }
-
-    @Nonnull
-    @Override
-    protected PreparedStatement getUpdateCommand()
-    {
-      try {
-        return store.getSession().prepare(INSERT_STMT);
-      }
-      catch (DriverException e) {
-        throw new RuntimeException("preparing", e);
-      }
-    }
-
-    @Override
-    protected Statement setStatementParameters(PreparedStatement statement, TestEvent tuple) throws DriverException
-    {
-      BoundStatement boundStatement = new BoundStatement(statement);
-      Statement stmnt = boundStatement.bind(tuple.id);
-      return stmnt;
-    }*/
 
     public long getNumOfEventsInStore()
     {
 
       try {
         Cluster cluster = Cluster.builder()
-            .addContactPoint(NODE).build();
+                .addContactPoint(NODE).build();
         Session session = cluster.connect(KEYSPACE);
 
         String countQuery = "SELECT count(*) from " + TABLE_NAME + ";";
         ResultSet resultSet = session.execute(countQuery);
-        for(Row row: resultSet)
-        {
+        for (Row row: resultSet) {
           return row.getLong(0);
         }
         return 0;
@@ -142,12 +117,13 @@ public class CassandraOperatorTest
         throw new RuntimeException("fetching count", e);
       }
     }
+
   }
 
   private static class TestInputOperator extends AbstractCassandraInputOperator<TestEvent>
   {
 
-    private static final String retrieveQuery = "SELECT * FROM " +KEYSPACE +"."+TABLE_NAME + ";";
+    private static final String retrieveQuery = "SELECT * FROM " + KEYSPACE + "." + TABLE_NAME + ";";
 
     TestInputOperator()
     {
@@ -175,10 +151,10 @@ public class CassandraOperatorTest
     {
       try {
         Cluster cluster = Cluster.builder()
-            .addContactPoint(NODE).build();
+                .addContactPoint(NODE).build();
         Session session = cluster.connect(KEYSPACE);
 
-        String insert = "INSERT INTO " + TABLE_NAME +" (ID)"+ " VALUES (?);";
+        String insert = "INSERT INTO " + TABLE_NAME + " (ID)" + " VALUES (?);";
         PreparedStatement stmt = session.prepare(insert);
         BoundStatement boundStatement = new BoundStatement(stmt);
         Statement statement;
@@ -191,8 +167,8 @@ public class CassandraOperatorTest
         throw new RuntimeException(e);
       }
     }
-  }
 
+  }
 
   @Test
   public void testCassandraOutputOperator()
@@ -206,33 +182,39 @@ public class CassandraOperatorTest
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
 
     TestOutputOperator outputOperator = new TestOutputOperator();
-   // outputOperator.setKeyspace(KEYSPACE);
+
     outputOperator.setTablename(TABLE_NAME);
     ArrayList<String> columns = new ArrayList<String>();
-    columns.add("ID");
+    columns.add("id");
+    columns.add("firstname");
+    columns.add("lastname");
+    // columns.add("age");
     outputOperator.setColumns(columns);
     ArrayList<String> expressions = new ArrayList<String>();
-    expressions.add("getID()");
+    expressions.add("id");
+    expressions.add("firstname");
+    expressions.add("lastname");
+    // expressions.add("age");
     outputOperator.setExpressions(expressions);
     outputOperator.setStore(transactionalStore);
 
     outputOperator.setup(context);
 
-    List<TestEvent> events = Lists.newArrayList();
+    List<TestPojo> events = Lists.newArrayList();
     for (int i = 0; i < 10; i++) {
-      events.add(new TestEvent(i));
+      events.add(new TestPojo(UUID.randomUUID(), "abc" + i, "abclast" + i));
     }
 
     outputOperator.beginWindow(0);
-    for (TestEvent event : events) {
+    for (TestPojo event: events) {
       outputOperator.input.process(event);
     }
     outputOperator.endWindow();
-
+    System.out.println("rows in db are " + outputOperator.getNumOfEventsInStore());
     Assert.assertEquals("rows in db", 10, outputOperator.getNumOfEventsInStore());
   }
 
-  //@Test
+ // @Test
   public void TestCassandraInputOperator()
   {
     CassandraStore store = new CassandraStore();
@@ -258,48 +240,50 @@ public class CassandraOperatorTest
     Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
   }
 
-   public InnerObj innerObj = new InnerObj();
-
-  /**
-   * @return the innerObj
-   */
-  public InnerObj getInnerObj()
+  public static class TestPojo
   {
-    return innerObj;
-  }
+    public String firstname = "xyz";
+    public String lastname = "hello";
+    public UUID id;
 
-  /**
-   * @param innerObj the innerObj to set
-   */
-  public void setInnerObj(InnerObj innerObj)
-  {
-    this.innerObj = innerObj;
-  }
-
-  public class InnerObj
-  {
-    public InnerObj()
+    public UUID getId()
     {
+      return id;
     }
 
-    private int ID=11;
-
-    /**
-     * @return the int ID
-     */
-    public int getID()
+    public void setId(UUID id)
     {
-      return ID;
+      this.id = id;
     }
 
-    /**
-     * @param ID the intVal to set
-     */
-    public void setID(int ID)
+    private TestPojo(UUID id, String string, String string0)
     {
-      this.ID = ID;
+      this.id = id;
+      firstname = string;
+      lastname = string0;
+    }
+
+    public String getLastname()
+    {
+      return lastname;
+    }
+
+    public void setLastname(String lastname)
+    {
+      this.lastname = lastname;
+    }
+
+    public String getFirstname()
+    {
+      return firstname;
+    }
+
+    public void setFirstname(String firstname)
+    {
+      this.firstname = firstname;
     }
 
   }
+
 }
 
