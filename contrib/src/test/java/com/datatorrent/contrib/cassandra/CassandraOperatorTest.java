@@ -23,11 +23,11 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import javax.annotation.Nonnull;
 import java.util.List;
 
 /**
@@ -35,8 +35,8 @@ import java.util.List;
  */
 public class CassandraOperatorTest
 {
-  public static final String NODE = "127.0.0.1";
-  public static final String KEYSPACE = "test";
+  public static final String NODE = "localhost";
+  public static final String KEYSPACE = "demo";
 
   private static final String TABLE_NAME = "test_event_table";
   private static String APP_ID = "CassandraOperatorTest";
@@ -92,34 +92,8 @@ public class CassandraOperatorTest
     }
   }
 
-  private static class TestOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<TestEvent>
+  private static class TestOutputOperator extends CassandraOutputOperator
   {
-    private static final String INSERT_STMT = "INSERT INTO " + KEYSPACE+"." +TABLE_NAME + " (ID) VALUES (?);";
-
-    TestOutputOperator()
-    {
-      cleanTable();
-    }
-
-    @Nonnull
-    @Override
-    protected PreparedStatement getUpdateCommand()
-    {
-      try {
-        return store.getSession().prepare(INSERT_STMT);
-      }
-      catch (DriverException e) {
-        throw new RuntimeException("preparing", e);
-      }
-    }
-
-    @Override
-    protected Statement setStatementParameters(PreparedStatement statement, TestEvent tuple) throws DriverException
-    {
-      BoundStatement boundStatement = new BoundStatement(statement);
-      Statement stmnt = boundStatement.bind(tuple.id);
-      return stmnt;
-    }
 
     public long getNumOfEventsInStore()
     {
@@ -206,6 +180,13 @@ public class CassandraOperatorTest
 
     TestOutputOperator outputOperator = new TestOutputOperator();
 
+    outputOperator.setTablename(TABLE_NAME);
+    ArrayList<String> columns = new ArrayList<String>();
+    columns.add("ID");
+    outputOperator.setColumns(columns);
+    ArrayList<String> expressions = new ArrayList<String>();
+    expressions.add("getID()");
+    outputOperator.setExpressions(expressions);
     outputOperator.setStore(transactionalStore);
 
     outputOperator.setup(context);
@@ -248,6 +229,50 @@ public class CassandraOperatorTest
     inputOperator.endWindow();
 
     Assert.assertEquals("rows from db", 10, sink.collectedTuples.size());
+  }
+
+   public InnerObj innerObj = new InnerObj();
+
+  /**
+   * @return the innerObj
+   */
+  public InnerObj getInnerObj()
+  {
+    return innerObj;
+  }
+
+  /**
+   * @param innerObj the innerObj to set
+   */
+  public void setInnerObj(InnerObj innerObj)
+  {
+    this.innerObj = innerObj;
+  }
+
+  public class InnerObj
+  {
+    public InnerObj()
+    {
+    }
+
+    private int ID=11;
+
+    /**
+     * @return the int ID
+     */
+    public int getID()
+    {
+      return ID;
+    }
+
+    /**
+     * @param ID the intVal to set
+     */
+    public void setID(int ID)
+    {
+      this.ID = ID;
+    }
+
   }
 }
 

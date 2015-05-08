@@ -245,21 +245,37 @@ public abstract class AbstractCsvParser<T> extends BaseOperator
     String name;
     FIELD_TYPE type;
 
+    /**
+     * Gets the name of the Field.
+     * @return name
+     */
     public String getName()
     {
       return name;
     }
 
+    /**
+     * Sets the name of the Field.
+     * @param name
+     */
     public void setName(String name)
     {
       this.name = name;
     }
 
+    /**
+     * Gets the type of the Field.
+     * @return type
+     */
     public FIELD_TYPE getType()
     {
       return type;
     }
 
+    /**
+     * Sets the type of the Field.
+     * @return type
+     */
     public void setType(String type)
     {
       this.type = FIELD_TYPE.valueOf(type);
