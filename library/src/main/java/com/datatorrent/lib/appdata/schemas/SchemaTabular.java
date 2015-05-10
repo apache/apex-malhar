@@ -19,6 +19,7 @@ import com.datatorrent.common.util.DTThrowable;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 
 import java.util.Collections;
@@ -26,6 +27,9 @@ import java.util.Map;
 
 public class SchemaTabular implements Schema
 {
+  public static final String SCHEMA_TYPE = "point";
+  public static final String SCHEMA_VERSION = "1.0";
+
   public static final String FIELD_SCHEMA_TYPE = "schemaType";
   public static final String FIELD_SCHEMA_VERSION = "schemaVersion";
 
@@ -33,12 +37,11 @@ public class SchemaTabular implements Schema
   public static final String FIELD_VALUES_NAME = "name";
   public static final String FIELD_VALUES_TYPE = "type";
 
-  public static final int NUM_KEYS_FIRST_LEVEL = 3;
+  public static final int NUM_KEYS_FIRST_LEVEL = 1;
   public static final int NUM_KEYS_VALUES = 2;
 
   private String schemaJSON;
   private String schemaType;
-  private String schemaVersion;
 
   private Map<String, Type> valueToType;
   private FieldsDescriptor valuesDescriptor;
@@ -111,8 +114,6 @@ public class SchemaTabular implements Schema
                                + schema.length());
     }
 
-    schemaType = schema.getString(FIELD_SCHEMA_TYPE);
-    schemaVersion = schema.getString(FIELD_SCHEMA_VERSION);
     valueToType = Maps.newHashMap();
 
     JSONArray values = schema.getJSONArray(FIELD_VALUES);
@@ -138,12 +139,22 @@ public class SchemaTabular implements Schema
 
     valueToType = Collections.unmodifiableMap(valueToType);
     valuesDescriptor = new FieldsDescriptor(valueToType);
+
+
+    try {
+      schema.put(FIELD_SCHEMA_TYPE, SCHEMA_TYPE);
+      schema.put(FIELD_SCHEMA_VERSION, SCHEMA_VERSION);
+    }
+    catch(JSONException e) {
+      throw new RuntimeException(e);
+    }
+
+    schemaJSON = schema.toString();
   }
 
-  protected void setSchema(String schemaJSON)
+  protected final void setSchema(String schemaJSON)
   {
-    Preconditions.checkNotNull(schemaJSON);
-    this.schemaJSON = schemaJSON;
+    this.schemaJSON = Preconditions.checkNotNull(schemaJSON);
   }
 
   @Override
@@ -155,13 +166,13 @@ public class SchemaTabular implements Schema
   @Override
   public String getSchemaType()
   {
-    return schemaType;
+    return SCHEMA_TYPE;
   }
 
   @Override
   public String getSchemaVersion()
   {
-    return schemaVersion;
+    return SCHEMA_VERSION;
   }
 
   public Map<String, Type> getFieldToType()

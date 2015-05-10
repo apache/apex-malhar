@@ -24,21 +24,20 @@ import java.util.Map;
 
 public class SchemaTabularTest
 {
-  @Test
-  public void schemaTabularTest()
-  {
-    String schemaJSON = "{\n"
-                        + " \"schemaType\": \"twitterTop10\",\n"
-                        + " \"schemaVersion\": \"1.0\",\n"
-                        + " \"values\": [\n"
-                        + "   {\"name\": \"url\", \"type\":\"string\"},\n"
-                        + "   {\"name\": \"count\", \"type\":\"integer\"}\n"
-                        + " ]\n"
-                        + "}";
-    SchemaTabular schema = new SchemaTabular(schemaJSON);
+  public static final String TEST_JSON = "{\n"
+                                        + " \"values\": [\n"
+                                        + "   {\"name\": \"url\", \"type\":\"string\"},\n"
+                                        + "   {\"name\": \"count\", \"type\":\"integer\"}\n"
+                                        + " ]\n"
+                                        + "}";
 
-    Assert.assertEquals("The schemaType must match.", "twitterTop10", schema.getSchemaType());
-    Assert.assertEquals("The schemaVersion must match", "1.0", schema.getSchemaVersion());
+  @Test
+  public void schemaTabularFieldTypeTest()
+  {
+    SchemaTabular schema = new SchemaTabular(TEST_JSON);
+
+    Assert.assertEquals("The schemaType must match.", SchemaTabular.SCHEMA_TYPE, schema.getSchemaType());
+    Assert.assertEquals("The schemaVersion must match", SchemaTabular.SCHEMA_VERSION, schema.getSchemaVersion());
 
     Map<String, Type> expectedFieldToType = Maps.newHashMap();
     expectedFieldToType.put("url", Type.STRING);
