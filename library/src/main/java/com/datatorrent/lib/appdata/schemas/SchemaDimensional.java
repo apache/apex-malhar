@@ -201,7 +201,7 @@ public class SchemaDimensional implements Schema
         combinationID++) {
 
       Fields fields = eventSchema.getCombinationIDToKeys().get(combinationID);
-      Map<String, String> fieldToAggregatorAdditionalValues =
+      Map<String, Set<String>> fieldToAggregatorAdditionalValues =
       eventSchema.getCombinationIDToFieldToAggregatorAdditionalValues().get(combinationID);
 
       JSONObject combination = new JSONObject();
@@ -216,24 +216,26 @@ public class SchemaDimensional implements Schema
       if(!fieldToAggregatorAdditionalValues.isEmpty()) {
         JSONArray additionalValueArray = new JSONArray();
 
-        for(Map.Entry<String, String> entry: fieldToAggregatorAdditionalValues.entrySet()) {
+        for(Map.Entry<String, Set<String>> entry: fieldToAggregatorAdditionalValues.entrySet()) {
           JSONObject additionalValueObject = new JSONObject();
 
           String valueName = entry.getKey();
-          String aggregatorName = entry.getValue();
-          String combinedName = valueName
-                                + DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR
-                                + aggregatorName;
-          Type inputValueType = inputValuesDescriptor.getType(valueName);
+          
+          for(String aggregatorName: entry.getValue()) {
+            String combinedName = valueName
+                                  + DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR
+                                  + aggregatorName;
+            Type inputValueType = inputValuesDescriptor.getType(valueName);
 
-          DimensionsStaticAggregator aggregator
-                  = eventSchema.getAggregatorInfo().getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
-          Type outputValueType = aggregator.getTypeMap().getTypeMap().get(inputValueType);
+            DimensionsStaticAggregator aggregator
+                    = eventSchema.getAggregatorInfo().getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
+            Type outputValueType = aggregator.getTypeMap().getTypeMap().get(inputValueType);
 
-          additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_NAME, combinedName);
-          additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_TYPE, outputValueType.getName());
+            additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_NAME, combinedName);
+            additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_TYPE, outputValueType.getName());
 
-          additionalValueArray.put(additionalValueObject);
+            additionalValueArray.put(additionalValueObject);
+          }
         }
 
         combination.put(DimensionalEventSchema.FIELD_DIMENSIONS_ADDITIONAL_VALUES, additionalValueArray);

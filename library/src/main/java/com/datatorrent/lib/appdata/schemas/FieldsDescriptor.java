@@ -264,6 +264,12 @@ public class FieldsDescriptor
     return true;
   }
 
+  @Override
+  public String toString()
+  {
+    return "FieldsDescriptor{" + "fieldToType=" + fieldToType + ", compressedTypes=" + compressedTypes + '}';
+  }
+
   /**
    * @return the types
    */

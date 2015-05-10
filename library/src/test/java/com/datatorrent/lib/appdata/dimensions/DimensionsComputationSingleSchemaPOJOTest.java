@@ -28,6 +28,7 @@ import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,30 +39,17 @@ public class DimensionsComputationSingleSchemaPOJOTest
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationSingleSchemaPOJOTest.class);
 
+  @Before
+  public void setup()
+  {
+    AggregatorUtils.DEFAULT_AGGREGATOR_INFO.setup();
+  }
+
   @Test
   public void simpleTest() throws Exception
   {
-    AdInfo ai = new AdInfo();
-    ai.setPublisher("google");
-    ai.setAdvertiser("starbucks");
-    ai.setLocation("SKY");
-
-    ai.setClicks(100L);
-    ai.setImpressions(1000L);
-    ai.setRevenue(10.0);
-    ai.setCost(5.5);
-    ai.setTime(300L);
-
-    AdInfo ai2 = new AdInfo();
-    ai2.setPublisher("google");
-    ai2.setAdvertiser("starbucks");
-    ai2.setLocation("SKY");
-
-    ai2.setClicks(150L);
-    ai2.setImpressions(100L);
-    ai2.setRevenue(5.0);
-    ai2.setCost(3.50);
-    ai.setTime(300L);
+    AdInfo ai = createTestAdInfoEvent1();
+    AdInfo ai2 = createTestAdInfoEvent2();
 
     int schemaID = 0;
     int dimensionsDescriptorID = 0;
@@ -70,7 +58,6 @@ public class DimensionsComputationSingleSchemaPOJOTest
                        get(AggregatorStaticType.SUM.name());
 
     String eventSchema = SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json");
-    AggregatorUtils.DEFAULT_AGGREGATOR_INFO.setup();
     DimensionalEventSchema schema = new DimensionalEventSchema(eventSchema,
                                                                AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
 
@@ -98,9 +85,73 @@ public class DimensionsComputationSingleSchemaPOJOTest
 
     AggregateEvent expectedAE = new AggregateEvent(eventKey, valueGPO);
 
-    DimensionsComputationSingleSchemaPOJO dimensions = new DimensionsComputationSingleSchemaPOJO();
+    DimensionsComputationSingleSchemaPOJO dimensions = createDimensionsComputationOperator("adsGenericEventSimple.json");
 
-    dimensions.setEventSchemaJSON(eventSchema);
+    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
+    TestUtils.setSink(dimensions.aggregateOutput, sink);
+
+    DimensionsComputationSingleSchemaPOJO dimensionsClone =
+    TestUtils.clone(new Kryo(), dimensions);
+
+    dimensions.setup(null);
+
+    dimensions.beginWindow(0L);
+    dimensions.inputEvent.put(ai);
+    dimensions.inputEvent.put(ai2);
+    dimensions.endWindow();
+
+    Assert.assertEquals("Expected only 1 tuple", 1, sink.collectedTuples.size());
+    Assert.assertEquals(expectedAE, sink.collectedTuples.get(0));
+
+    sink.collectedTuples.clear();
+
+    //Multi Window Test
+
+    dimensionsClone.setAggregationWindowCount(2);
+    TestUtils.setSink(dimensionsClone.aggregateOutput, sink);
+
+    dimensionsClone.setup(null);
+
+    dimensionsClone.beginWindow(0L);
+    dimensionsClone.inputEvent.put(ai);
+    dimensionsClone.endWindow();
+
+    Assert.assertEquals("Expected no tuples", 0, sink.collectedTuples.size());
+
+    dimensionsClone.beginWindow(1L);
+    dimensionsClone.inputEvent.put(ai2);
+    dimensionsClone.endWindow();
+
+    Assert.assertEquals("Expected only 1 tuple", 1, sink.collectedTuples.size());
+    Assert.assertEquals(expectedAE, sink.collectedTuples.get(0));
+  }
+
+  @Test
+  public void complexOutputTest()
+  {
+    AdInfo ai = createTestAdInfoEvent1();
+
+    String eventSchema = SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json");
+    DimensionalEventSchema schema = new DimensionalEventSchema(eventSchema,
+                                                               AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+
+    DimensionsComputationSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAdditional.json");
+
+    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
+    TestUtils.setSink(dcss.aggregateOutput, sink);
+
+    dcss.setup(null);
+    dcss.beginWindow(0L);
+    dcss.inputEvent.put(ai);
+    dcss.endWindow();
+
+    Assert.assertEquals(60, sink.collectedTuples.size());
+  }
+
+  private DimensionsComputationSingleSchemaPOJO createDimensionsComputationOperator(String eventSchema)
+  {
+    DimensionsComputationSingleSchemaPOJO dimensions = new DimensionsComputationSingleSchemaPOJO();
+    dimensions.setEventSchemaJSON(SchemaUtils.jarResourceFileToString(eventSchema));
 
     PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
     pfre.setFQClassName(AdInfo.class.getName());
@@ -116,45 +167,38 @@ public class DimensionsComputationSingleSchemaPOJOTest
     pfre.setFieldToExpression(fieldToExpression);
     dimensions.getConverter().setPojoFieldRetriever(pfre);
 
-    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
-    @SuppressWarnings({"unchecked", "rawtypes"})
-    CollectorTestSink<Object> sinkObj = (CollectorTestSink) sink;
+    return dimensions;
+  }
 
-    DimensionsComputationSingleSchemaPOJO dimensionsClone =
-    TestUtils.clone(new Kryo(), dimensions);
+  private AdInfo createTestAdInfoEvent1()
+  {
+    AdInfo ai = new AdInfo();
+    ai.setPublisher("google");
+    ai.setAdvertiser("starbucks");
+    ai.setLocation("SKY");
 
-    dimensions.aggregateOutput.setSink(sinkObj);
+    ai.setClicks(100L);
+    ai.setImpressions(1000L);
+    ai.setRevenue(10.0);
+    ai.setCost(5.5);
+    ai.setTime(300L);
 
-    dimensions.setup(null);
+    return ai;
+  }
 
-    dimensions.beginWindow(0L);
-    dimensions.inputEvent.put(ai);
-    dimensions.inputEvent.put(ai2);
-    dimensions.endWindow();
+  private AdInfo createTestAdInfoEvent2()
+  {
+    AdInfo ai2 = new AdInfo();
+    ai2.setPublisher("google");
+    ai2.setAdvertiser("starbucks");
+    ai2.setLocation("SKY");
 
-    Assert.assertEquals("Expected only 1 tuple", 1, sinkObj.collectedTuples.size());
-    Assert.assertEquals(expectedAE, sinkObj.collectedTuples.get(0));
+    ai2.setClicks(150L);
+    ai2.setImpressions(100L);
+    ai2.setRevenue(5.0);
+    ai2.setCost(3.50);
+    ai2.setTime(300L);
 
-    sinkObj.collectedTuples.clear();
-
-    //Multi Window Test
-
-    dimensionsClone.setAggregationWindowCount(2);
-    dimensionsClone.aggregateOutput.setSink(sinkObj);
-
-    dimensionsClone.setup(null);
-
-    dimensionsClone.beginWindow(0L);
-    dimensionsClone.inputEvent.put(ai);
-    dimensionsClone.endWindow();
-
-    Assert.assertEquals("Expected no tuples", 0, sinkObj.collectedTuples.size());
-
-    dimensionsClone.beginWindow(1L);
-    dimensionsClone.inputEvent.put(ai2);
-    dimensionsClone.endWindow();
-
-    Assert.assertEquals("Expected only 1 tuple", 1, sinkObj.collectedTuples.size());
-    Assert.assertEquals(expectedAE, sinkObj.collectedTuples.get(0));
+    return ai2;
   }
 }

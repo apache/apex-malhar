@@ -19,8 +19,12 @@ package com.datatorrent.lib.appdata.schemas;
 import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
 import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema.DimensionsCombination;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema.Key;
+import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema.Value;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
@@ -29,6 +33,7 @@ import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -205,5 +210,70 @@ public class DimensionalEventSchemaTest
     Set<String> keys = Sets.newHashSet("publisher", "advertiser", "location");
 
     Assert.assertEquals(keys, des.getAllKeysDescriptor().getFields().getFields());
+  }
+
+  @Test
+  public void testConstructorAgreement()
+  {
+    DimensionalEventSchema expectedEventSchema = new DimensionalEventSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAdditional.json"),
+                                                                            AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+    @SuppressWarnings("unchecked")
+    List<Object> publisherEnumVals = (List<Object>) ((List) Lists.newArrayList("twitter","facebook","yahoo","google","bing","amazon"));
+    @SuppressWarnings("unchecked")
+    List<Object> advertiserEnumVals = (List<Object>) ((List) Lists.newArrayList("starbucks","safeway","mcdonalds","macys","taco bell","walmart","khol's","san diego zoo","pandas","jack in the box","tomatina","ron swanson"));
+    @SuppressWarnings("unchecked")
+    List<Object> locationEnumVals = (List<Object>) ((List) Lists.newArrayList("N","LREC","SKY","AL","AK","AZ","AR","CA","CO","CT","DE","FL","GA","HI","ID"));
+
+    List<Key> keys = Lists.newArrayList(new Key("publisher", Type.STRING, publisherEnumVals),
+                                        new Key("advertiser", Type.STRING, advertiserEnumVals),
+                                        new Key("location", Type.STRING, locationEnumVals));
+    List<TimeBucket> timeBuckets = Lists.newArrayList(TimeBucket.MINUTE, TimeBucket.HOUR, TimeBucket.DAY);
+    List<Value> values = Lists.newArrayList(new Value("impressions",
+                                                      Type.LONG,
+                                                      Sets.newHashSet("SUM", "COUNT")),
+                                            new Value("clicks",
+                                                      Type.LONG,
+                                                      Sets.newHashSet("SUM", "COUNT")),
+                                            new Value("cost",
+                                                      Type.DOUBLE,
+                                                      Sets.newHashSet("SUM", "COUNT")),
+                                            new Value("revenue",
+                                                      Type.DOUBLE,
+                                                      Sets.newHashSet("SUM", "COUNT")));
+
+    Map<String, Set<String>> valueToAggregators = Maps.newHashMap();
+    valueToAggregators.put("impressions", Sets.newHashSet("MIN", "MAX"));
+    valueToAggregators.put("clicks", Sets.newHashSet("MIN", "MAX"));
+    valueToAggregators.put("cost", Sets.newHashSet("MIN", "MAX"));
+    valueToAggregators.put("revenue", Sets.newHashSet("MIN", "MAX"));
+
+    Set<String> emptySet = Sets.newHashSet();
+    Map<String, Set<String>> emptyMap = Maps.newHashMap();
+
+    List<DimensionsCombination> dimensionsCombinations =
+    Lists.newArrayList(new DimensionsCombination(new Fields(emptySet),
+                                                 emptyMap),
+                       new DimensionsCombination(new Fields(Sets.newHashSet("location")),
+                                                 emptyMap),
+                       new DimensionsCombination(new Fields(Sets.newHashSet("advertiser")),
+                                                 valueToAggregators),
+                       new DimensionsCombination(new Fields(Sets.newHashSet("publisher")),
+                                                 valueToAggregators),
+                       new DimensionsCombination(new Fields(Sets.newHashSet("advertiser", "location")),
+                                                 emptyMap),
+                       new DimensionsCombination(new Fields(Sets.newHashSet("publisher", "location")),
+                                                 emptyMap),
+                       new DimensionsCombination(new Fields(Sets.newHashSet("publisher", "advertiser")),
+                                                 emptyMap),
+                       new DimensionsCombination(new Fields(Sets.newHashSet("publisher", "advertiser", "location")),
+                                                 emptyMap));
+
+    DimensionalEventSchema eventSchema = new DimensionalEventSchema(keys,
+                                                                    values,
+                                                                    timeBuckets,
+                                                                    dimensionsCombinations,
+                                                                    AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+
+    Assert.assertEquals(expectedEventSchema, eventSchema);
   }
 }
