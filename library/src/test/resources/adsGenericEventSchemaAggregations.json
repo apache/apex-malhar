@@ -1,0 +1,7 @@
+{"timeBuckets":["1m","1h","1d"],
+ "values":
+  [{"name":"impressions","type":"long","aggregators":["SUM","AVG"]},
+   {"name":"clicks","type":"long","aggregators":["SUM","AVG"]},
+   {"name":"cost","type":"double","aggregators":["SUM","AVG"]},
+   {"name":"revenue","type":"double","aggregators":["SUM","AVG"]}]
+}

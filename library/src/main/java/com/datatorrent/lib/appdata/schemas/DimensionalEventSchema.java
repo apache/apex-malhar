@@ -407,7 +407,15 @@ public class DimensionalEventSchema
     //Keys
 
     keysToValuesList = Maps.newHashMap();
-    JSONArray keysArray = jo.getJSONArray(FIELD_KEYS);
+    JSONArray keysArray;
+
+    if(jo.has(FIELD_KEYS)) {
+      keysArray = jo.getJSONArray(FIELD_KEYS);
+    }
+    else {
+      keysArray = new JSONArray();
+    }
+
     keysString = keysArray.toString();
 
     Map<String, Type> fieldToType = Maps.newHashMap();
@@ -613,7 +621,18 @@ public class DimensionalEventSchema
     combinationIDToKeys = Lists.newArrayList();
     combinationIDToFieldToAggregatorAdditionalValues = Lists.newArrayList();
 
-    JSONArray dimensionsArray = jo.getJSONArray(FIELD_DIMENSIONS);
+    JSONArray dimensionsArray;
+
+    if(jo.has(FIELD_DIMENSIONS)) {
+      dimensionsArray = jo.getJSONArray(FIELD_DIMENSIONS);
+    }
+    else {
+      dimensionsArray = new JSONArray();
+      JSONObject combination = new JSONObject();
+      combination.put(FIELD_DIMENSIONS_COMBINATIONS, new JSONArray());
+      dimensionsArray.put(combination);
+    }
+
     Set<Fields> dimensionsDescriptorFields = Sets.newHashSet();
 
     //loop through dimension descriptors
@@ -828,8 +847,6 @@ public class DimensionalEventSchema
     for(Map.Entry<String, Set<String>> entry: allValueToAggregator.entrySet()) {
       allValueToAggregatorUnmodifiable.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
     }
-
-    allValueToAggregator = Collections.unmodifiableMap(allValueToAggregatorUnmodifiable);
 
     //Build id maps
 

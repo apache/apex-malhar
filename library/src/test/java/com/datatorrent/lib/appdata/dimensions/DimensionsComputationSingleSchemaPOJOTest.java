@@ -131,10 +131,6 @@ public class DimensionsComputationSingleSchemaPOJOTest
   {
     AdInfo ai = createTestAdInfoEvent1();
 
-    String eventSchema = SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json");
-    DimensionalEventSchema schema = new DimensionalEventSchema(eventSchema,
-                                                               AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
-
     DimensionsComputationSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAdditional.json");
 
     CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
@@ -146,6 +142,24 @@ public class DimensionsComputationSingleSchemaPOJOTest
     dcss.endWindow();
 
     Assert.assertEquals(60, sink.collectedTuples.size());
+  }
+
+  @Test
+  public void aggregationsTest()
+  {
+    AdInfo ai = createTestAdInfoEvent1();
+
+    DimensionsComputationSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAggregations.json");
+
+    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
+    TestUtils.setSink(dcss.aggregateOutput, sink);
+
+    dcss.setup(null);
+    dcss.beginWindow(0L);
+    dcss.inputEvent.put(ai);
+    dcss.endWindow();
+
+    Assert.assertEquals(6, sink.collectedTuples.size());
   }
 
   private DimensionsComputationSingleSchemaPOJO createDimensionsComputationOperator(String eventSchema)

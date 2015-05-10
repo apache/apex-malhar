@@ -213,6 +213,29 @@ public class DimensionalEventSchemaTest
   }
 
   @Test
+  public void aggregationSchemaTest()
+  {
+    DimensionalEventSchema des = new DimensionalEventSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAggregations.json"),
+                                                            AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+
+    Set<String> keys = Sets.newHashSet();
+
+    Assert.assertEquals(keys, des.getAllKeysDescriptor().getFields().getFields());
+
+    Assert.assertEquals(3, des.getDdIDToAggIDToInputAggDescriptor().size());
+    Assert.assertEquals(3, des.getDdIDToAggIDToOutputAggDescriptor().size());
+    Assert.assertEquals(3, des.getDdIDToAggIDs().size());
+    Assert.assertEquals(3, des.getDdIDToAggregatorToAggregateDescriptor().size());
+    Assert.assertEquals(3, des.getDdIDToDD().size());
+    Assert.assertEquals(3, des.getDdIDToKeyDescriptor().size());
+    Assert.assertEquals(3, des.getDdIDToOTFAggregatorToAggregateDescriptor().size());
+    Assert.assertEquals(3, des.getDdIDToValueToAggregator().size());
+    Assert.assertEquals(3, des.getDdIDToValueToOTFAggregator().size());
+    Assert.assertEquals(1, des.getCombinationIDToFieldToAggregatorAdditionalValues().size());
+    Assert.assertEquals(1, des.getCombinationIDToKeys().size());
+  }
+
+  @Test
   public void testConstructorAgreement()
   {
     DimensionalEventSchema expectedEventSchema = new DimensionalEventSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAdditional.json"),
