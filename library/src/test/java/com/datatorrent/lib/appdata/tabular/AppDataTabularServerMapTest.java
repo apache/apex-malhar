@@ -44,8 +44,6 @@ public class AppDataTabularServerMapTest
     AppDataTabularServerMap tabularServer = new AppDataTabularServerMap();
     TabularMapConverter mapConverter = new TabularMapConverter();
     String tabularSchema = "{\n" +
-                           "  \"schemaType\": \"table\",\n" +
-                           "  \"schemaVersion\": \"1.0\",\n" +
                            "  \"values\": [{\"name\": \"word\", \"type\": \"string\"},\n" +
                            "             {\"name\": \"count\", \"type\": \"integer\"}]\n" +
                            "}";

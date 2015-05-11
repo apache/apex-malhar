@@ -50,7 +50,7 @@ public class DimensionalTableTest
     try {
       table.appendRow(10, "amazon", "microsoft", "Hungary");
     }
-    catch(IllegalArgumentException e) {
+    catch(IllegalStateException e) {
       caughtException = true;
     }
 
