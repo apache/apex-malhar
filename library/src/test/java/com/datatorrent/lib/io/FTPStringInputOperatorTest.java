@@ -15,10 +15,6 @@
  */
 package com.datatorrent.lib.io;
 
-import java.io.File;
-import java.io.IOException;
-
-import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,6 +22,7 @@ import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 import org.mockftpserver.fake.FakeFtpServer;
 import org.mockftpserver.fake.UserAccount;
+import org.mockftpserver.fake.filesystem.DirectoryEntry;
 import org.mockftpserver.fake.filesystem.FileEntry;
 import org.mockftpserver.fake.filesystem.UnixFakeFileSystem;
 
@@ -42,8 +39,6 @@ public class FTPStringInputOperatorTest
 {
   public static class TestMeta extends TestWatcher
   {
-    String baseDir;
-    String ftpDir;
     FTPStringInputOperator ftpOperator;
     FakeFtpServer fakeFtpServer;
     CollectorTestSink<Object> sink;
@@ -51,18 +46,16 @@ public class FTPStringInputOperatorTest
     @Override
     protected void starting(org.junit.runner.Description description)
     {
-      String methodName = description.getMethodName();
-      String className = description.getClassName();
-      baseDir = "target/" + className + "/" + methodName;
-      ftpDir = new File(this.baseDir + "/ftp").getAbsolutePath();
+      UnixFakeFileSystem fileSystem = new UnixFakeFileSystem();
+      DirectoryEntry homeDirectory = new DirectoryEntry("/home/test");
+      fileSystem.add(homeDirectory);
+      fileSystem.add(new FileEntry(homeDirectory.getPath() + "/1.txt", "1\n10\n"));
+      fileSystem.add(new FileEntry(homeDirectory.getPath() + "/2.txt", "2\n20\n"));
 
       fakeFtpServer = new FakeFtpServer();
       fakeFtpServer.setServerControlPort(0);
-      fakeFtpServer.addUserAccount(new UserAccount("testUser", "test", ftpDir));
+      fakeFtpServer.addUserAccount(new UserAccount("testUser", "test", homeDirectory.getPath()));
 
-      UnixFakeFileSystem fileSystem = new UnixFakeFileSystem();
-      fileSystem.add(new FileEntry(ftpDir + "/1.txt", "1\n10\n"));
-      fileSystem.add(new FileEntry(ftpDir + "/2.txt", "2\n20\n"));
 
       fakeFtpServer.setFileSystem(fileSystem);
       fakeFtpServer.start();
@@ -73,7 +66,7 @@ public class FTPStringInputOperatorTest
       ftpOperator.setUserName("testUser");
       ftpOperator.setPassword("test");
 
-      ftpOperator.setDirectory(ftpDir);
+      ftpOperator.setDirectory(homeDirectory.getPath());
       ftpOperator.setup(new OperatorContextTestHelper.TestIdOperatorContext(11, new Attribute.AttributeMap.DefaultAttributeMap()));
 
       sink = new CollectorTestSink<Object>();
@@ -83,14 +76,8 @@ public class FTPStringInputOperatorTest
     @Override
     protected void finished(Description description)
     {
-      try {
-        ftpOperator.teardown();
-        fakeFtpServer.stop();
-        FileUtils.deleteDirectory(new File(baseDir));
-      }
-      catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+      ftpOperator.teardown();
+      fakeFtpServer.stop();
     }
   }
 
