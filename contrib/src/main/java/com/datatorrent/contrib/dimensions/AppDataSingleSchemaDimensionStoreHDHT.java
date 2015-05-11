@@ -74,7 +74,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   //Query Processing - Start
   private transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
-  private transient DataDeserializerFactory queryDeserializerFactory;
+  private final transient DataDeserializerFactory queryDeserializerFactory;
   @NotNull
   private AppDataFormatter appDataFormatter = new AppDataFormatter();
   private transient SchemaRegistry schemaRegistry;
@@ -132,6 +132,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
   public AppDataSingleSchemaDimensionStoreHDHT()
   {
+    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
   }
 
   @Override
@@ -169,8 +170,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
                                                   new DimensionsQueryComputer(this),
                                                   new DimensionsQueryQueueManager(this));
 
-    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
-                                                           DataQueryDimensional.class);
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
                                              aggregatorInfo);
     dimensionalSchema = new SchemaDimensional(dimensionalSchemaJSON,
@@ -192,7 +191,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     if(seenEnumValues == null) {
       seenEnumValues = Maps.newHashMap();
       for(String key: eventSchema.getAllKeysDescriptor().getFieldList()) {
-        @SuppressWarnings("rawtypes")
         Set<Comparable> enumValuesSet= Sets.newHashSet();
         seenEnumValues.put(key, enumValuesSet);
       }
