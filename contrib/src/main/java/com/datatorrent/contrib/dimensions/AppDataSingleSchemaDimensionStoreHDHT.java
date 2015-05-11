@@ -130,6 +130,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     }
   };
 
+  @SuppressWarnings("unchecked")
   public AppDataSingleSchemaDimensionStoreHDHT()
   {
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
@@ -159,7 +160,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public void setup(OperatorContext context)
   {
     aggregatorInfo.setup();
@@ -191,6 +191,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     if(seenEnumValues == null) {
       seenEnumValues = Maps.newHashMap();
       for(String key: eventSchema.getAllKeysDescriptor().getFieldList()) {
+        @SuppressWarnings("rawtypes")
         Set<Comparable> enumValuesSet= Sets.newHashSet();
         seenEnumValues.put(key, enumValuesSet);
       }
