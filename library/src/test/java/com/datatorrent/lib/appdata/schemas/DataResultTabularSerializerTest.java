@@ -20,6 +20,8 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
@@ -33,7 +35,7 @@ public class DataResultTabularSerializerTest
   private static final Logger logger = LoggerFactory.getLogger(DataResultTabularSerializerTest.class);
 
   @Test
-  public void simpleResultSerializerTest()
+  public void simpleResultSerializerTest() throws Exception
   {
     Map<String, Type> fieldToTypeA = Maps.newHashMap();
     fieldToTypeA.put("a", Type.LONG);
@@ -72,6 +74,19 @@ public class DataResultTabularSerializerTest
     logger.debug("expected: {}", expectedJSONResult);
     logger.debug("actual  : {}", resultJSON);
 
-    Assert.assertEquals("The json doesn't match.", expectedJSONResult, resultJSON);
+    JSONObject jo = new JSONObject(expectedJSONResult);
+    JSONArray data = jo.getJSONArray("data");
+    JSONObject jo1 = data.getJSONObject(0);
+    JSONObject jo2 = data.getJSONObject(1);
+
+    JSONObject rjo = new JSONObject(resultJSON);
+    JSONArray rdata = rjo.getJSONArray("data");
+    JSONObject rjo1 = rdata.getJSONObject(0);
+    JSONObject rjo2 = rdata.getJSONObject(1);
+
+    Assert.assertEquals("The json doesn't match.", jo1.get("a"), rjo1.get("a"));
+    Assert.assertEquals("The json doesn't match.", jo1.get("b"), rjo1.get("b"));
+    Assert.assertEquals("The json doesn't match.", jo2.get("a"), rjo2.get("a"));
+    Assert.assertEquals("The json doesn't match.", jo2.get("b"), rjo2.get("b"));
   }
 }

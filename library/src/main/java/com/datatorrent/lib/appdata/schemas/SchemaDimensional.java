@@ -258,11 +258,10 @@ public class SchemaDimensional implements Schema
         JSONArray additionalValueArray = new JSONArray();
 
         for(Map.Entry<String, Set<String>> entry: fieldToAggregatorAdditionalValues.entrySet()) {
-          JSONObject additionalValueObject = new JSONObject();
-
           String valueName = entry.getKey();
 
           for(String aggregatorName: entry.getValue()) {
+            JSONObject additionalValueObject = new JSONObject();
             String combinedName = valueName
                                   + DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR
                                   + aggregatorName;
@@ -274,7 +273,6 @@ public class SchemaDimensional implements Schema
 
             additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_NAME, combinedName);
             additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_TYPE, outputValueType.getName());
-
             additionalValueArray.put(additionalValueObject);
           }
         }

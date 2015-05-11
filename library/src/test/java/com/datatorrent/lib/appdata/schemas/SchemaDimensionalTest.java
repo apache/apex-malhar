@@ -123,6 +123,10 @@ public class SchemaDimensionalTest
     additionalValueMap.put("clicks:MAX", "long");
     additionalValueMap.put("cost:MAX", "double");
     additionalValueMap.put("revenue:MAX", "double");
+    additionalValueMap.put("impressions:MIN", "long");
+    additionalValueMap.put("clicks:MIN", "long");
+    additionalValueMap.put("cost:MIN", "double");
+    additionalValueMap.put("revenue:MIN", "double");
 
     @SuppressWarnings("unchecked")
     List<Map<String, String>> additionalValuesList = Lists.newArrayList((Map<String, String>) new HashMap<String, String>(),
@@ -152,6 +156,8 @@ public class SchemaDimensionalTest
       }
 
       JSONArray additionalValues = combination.getJSONArray("additionalValues");
+
+      logger.debug("additionalValues {}", additionalValues);
 
       for(int aIndex = 0;
           aIndex < additionalValues.length();
