@@ -28,23 +28,29 @@ public class CloudSolrServerConnector extends SolrServerConnector
     solrServer = new CloudSolrServer(zookeeperHost, updateToLeader);
   }
 
-  // set this property in dt-site.xml
   public void setSolrZookeeperHost(String solrServerURL)
   {
     this.zookeeperHost = solrServerURL;
   }
 
+  /*
+   * The client endpoint of the zookeeper quorum containing the cloud state, in the form HOST:PORT
+   * Gets the zookeeper host
+   */
   public String getSolrZookeeperHost()
   {
     return zookeeperHost;
   }
 
-  // set this property in dt-site.xml
   public void setUpdateToLeader(boolean updateToLeader)
   {
     this.updateToLeader = updateToLeader;
   }
 
+  /*
+   * Sends updates only to leaders - defaults to true
+   * Gets boolean value of updateToLeader
+   */
   public boolean getUpdateToLeader()
   {
     return updateToLeader;
