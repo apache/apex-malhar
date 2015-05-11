@@ -97,7 +97,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     }
 
     for(Map.Entry<EventKey, AggregateEvent> entry: aggregationBuffer.entrySet()) {
-      aggregateOutput.emit(entry.getValue());
+      outputAggregateEvent(entry.getValue());
     }
 
     aggregationBuffer.clear();
@@ -153,7 +153,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
   public void processGenericEventNoBuffering(AggregateEvent gae)
   {
     DimensionsStaticAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorID());
-    aggregateOutput.emit(aggregator.createDest(gae,
+    outputAggregateEvent(aggregator.createDest(gae,
                          getAggregateFieldsDescriptor(gae.getSchemaID(),
                                                       gae.getDimensionDescriptorID(),
                                                       gae.getAggregatorID())));
@@ -178,6 +178,11 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     AggregateEvent newAggregate = new AggregateEvent(aggregate.getEventKey(),
                                                                    new GPOMutable(aggregate.getAggregates()));
     aggregationBuffer.put(newAggregate.getEventKey(), newAggregate);
+  }
+
+  public void outputAggregateEvent(AggregateEvent event)
+  {
+    aggregateOutput.emit(event);
   }
 
   /**

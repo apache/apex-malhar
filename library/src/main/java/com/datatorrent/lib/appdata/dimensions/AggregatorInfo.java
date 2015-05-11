@@ -32,6 +32,7 @@ public class AggregatorInfo implements Serializable
 
   private static final Logger logger = LoggerFactory.getLogger(AggregatorInfo.class);
 
+  private boolean setup = false;
   private Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName;
   private Map<String, DimensionsOTFAggregator> nameToOTFAggregator;
   private Map<String, List<String>> otfAggregatorToStaticAggregators;
@@ -54,6 +55,12 @@ public class AggregatorInfo implements Serializable
 
   public void setup()
   {
+    if(setup) {
+      return;
+    }
+
+    setup = true;
+
     staticAggregatorNameToStaticAggregator = Maps.newHashMap();
     nameToOTFAggregator = Maps.newHashMap();
 

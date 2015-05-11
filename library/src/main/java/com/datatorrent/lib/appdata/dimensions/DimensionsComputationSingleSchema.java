@@ -59,8 +59,10 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
     logger.debug("Setup called");
     super.setup(context);
 
-    eventSchema = new DimensionalEventSchema(eventSchemaJSON,
-                                             getAggregatorInfo());
+    if(eventSchema == null) {
+      eventSchema = new DimensionalEventSchema(eventSchemaJSON,
+                                              getAggregatorInfo());
+    }
   }
 
   @Override
