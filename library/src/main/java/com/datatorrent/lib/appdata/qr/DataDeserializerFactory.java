@@ -32,10 +32,10 @@ public class DataDeserializerFactory
 {
   private static final Logger logger = LoggerFactory.getLogger(DataDeserializerFactory.class);
 
-  private Map<String, Class<? extends Data>> typeToClass = Maps.newHashMap();
-  private Map<String, CustomDataDeserializer> typeToCustomQueryBuilder = Maps.newHashMap();
-  private Map<String, CustomDataValidator> typeToCustomQueryValidator = Maps.newHashMap();
-  private Map<Class<? extends Data>, Object> deserializationContext = Maps.newHashMap();
+  private final Map<String, Class<? extends Data>> typeToClass = Maps.newHashMap();
+  private final Map<String, CustomDataDeserializer> typeToCustomQueryBuilder = Maps.newHashMap();
+  private final Map<String, CustomDataValidator> typeToCustomQueryValidator = Maps.newHashMap();
+  private final Map<Class<? extends Data>, Object> deserializationContext = Maps.newHashMap();
 
   public DataDeserializerFactory(Class<? extends Data>... schemas)
   {
