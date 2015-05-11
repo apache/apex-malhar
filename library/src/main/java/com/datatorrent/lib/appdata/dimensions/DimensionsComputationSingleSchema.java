@@ -31,12 +31,13 @@ import java.util.List;
 public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends DimensionsComputation<INPUT_EVENT>
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationSingleSchema.class);
-  public static final int DEFAULT_SCHEMA_ID = 0;
+  public static final int DEFAULT_SCHEMA_ID = 1;
 
   @NotNull
   private String eventSchemaJSON;
   protected transient DimensionalEventSchema eventSchema;
   private transient DimensionsConversionContext conversionContext = new DimensionsConversionContext();
+  private int schemaID = DEFAULT_SCHEMA_ID;
 
   public DimensionsComputationSingleSchema()
   {
@@ -82,7 +83,7 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
           aggIDIndex++) {
         int aggID = aggIDList.get(aggIDIndex);
 
-        conversionContext.schemaID = DEFAULT_SCHEMA_ID;
+        conversionContext.schemaID = schemaID;
         conversionContext.dimensionDescriptorID = ddID;
         conversionContext.aggregatorID = aggID;
 
@@ -104,4 +105,20 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
 
   public abstract AggregateEvent createGenericAggregateEvent(INPUT_EVENT inputEvent,
                                                              DimensionsConversionContext conversionContext);
+
+  /**
+   * @return the schemaID
+   */
+  public int getSchemaID()
+  {
+    return schemaID;
+  }
+
+  /**
+   * @param schemaID the schemaID to set
+   */
+  public void setSchemaID(int schemaID)
+  {
+    this.schemaID = schemaID;
+  }
 }

@@ -51,7 +51,7 @@ public class DimensionsComputationSingleSchemaPOJOTest
     AdInfo ai = createTestAdInfoEvent1();
     AdInfo ai2 = createTestAdInfoEvent2();
 
-    int schemaID = 0;
+    int schemaID = DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionsDescriptorID = 0;
     int aggregatorID = AggregatorUtils.DEFAULT_AGGREGATOR_INFO.
                        getStaticAggregatorNameToID().
