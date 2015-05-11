@@ -15,16 +15,18 @@
  */
 package com.datatorrent.lib.appdata.qr;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.lang.annotation.Annotation;
 import java.util.Map;
 import java.util.Set;
+
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 
 public class DataDeserializerFactory
 {
@@ -54,7 +56,7 @@ public class DataDeserializerFactory
 
     for(Class<? extends Data> schema: schemas)
     {
-      Preconditions.checkArgument(schema != null, "Provided schema cannot be null");
+      Preconditions.checkNotNull(schema, "Provided schema cannot be null");
       Preconditions.checkArgument(!clazzes.contains(schema), "Schema %s was passed twice.", schema);
       clazzes.add(schema);
 
@@ -68,10 +70,8 @@ public class DataDeserializerFactory
       {
         if(an instanceof DataType) {
           if(schemaType != null) {
-            throw new UnsupportedOperationException("Cannot specify the " +
-                                                    DataType.class +
-                                                    " annotation twice on the class: " +
-                                                    schema);
+            throw new IllegalArgumentException("Cannot specify the " + DataType.class +
+              " annotation twice on the class: " + schema);
           }
 
           schemaType = ((DataType) an).type();
@@ -82,19 +82,16 @@ public class DataDeserializerFactory
         }
         else if(an instanceof DataDeserializerInfo) {
           if(cqd != null) {
-            throw new UnsupportedOperationException("Cannot specify the " +
-                                                    DataDeserializerInfo.class +
-                                                    " annotation twice on the class: " +
-                                                    schema);
+            throw new IllegalArgumentException("Cannot specify the " + DataDeserializerInfo.class +
+              " annotation twice on the class: " + schema);
           }
 
           cqd = ((DataDeserializerInfo) an).clazz();
         }
         else if(an instanceof DataValidatorInfo) {
           if(cqv != null) {
-            throw new UnsupportedOperationException("Cannot specify the " +
-                                                    DataValidatorInfo.class +
-                                                    " annotation twice on the class: ");
+            throw new IllegalArgumentException("Cannot specify the " + DataValidatorInfo.class +
+              " annotation twice on the class: ");
           }
 
           cqv = ((DataValidatorInfo) an).clazz();
@@ -102,30 +99,24 @@ public class DataDeserializerFactory
       }
 
       if(schemaType == null) {
-        throw new UnsupportedOperationException("No " + DataType.class +
-                                                " annotation found on class: " +
-                                                schema);
+        throw new IllegalArgumentException("No " + DataType.class + " annotation found on class: " + schema);
       }
 
       if(cqd == null) {
-        throw new UnsupportedOperationException("No " + DataDeserializerInfo.class +
-                                                " annotation found on class: " +
-                                                schema);
+        throw new IllegalArgumentException("No " + DataDeserializerInfo.class + " annotation found on class: " +
+          schema);
       }
 
       if(cqv == null) {
-        throw new UnsupportedOperationException("No " + DataValidatorInfo.class +
-                                                " annotation found on class: " +
-                                                schema);
+        throw new IllegalArgumentException("No " + DataValidatorInfo.class + " annotation found on class: " + schema);
       }
 
       Class<? extends Data> prevSchema = typeToClass.put(schemaType, schema);
       logger.debug("prevSchema {}:", prevSchema);
 
       if(prevSchema != null) {
-        throw new UnsupportedOperationException("Cannot have the " +
-                                                schemaType + " schemaType defined on multiple classes: " +
-                                                schema + ", " + prevSchema);
+        throw new IllegalArgumentException("Cannot have the " +
+          schemaType + " schemaType defined on multiple classes: " + schema + ", " + prevSchema);
       }
 
       try {
