@@ -66,8 +66,12 @@ public class DataResultTabularSerializerTest
     DataResultTabularSerializer serializer = new DataResultTabularSerializer();
 
     final String expectedJSONResult =
-    "{\"id\":\"1\",\"type\":\"dataResult\",\"data\":[{\"b\":\"hello\",\"a\":1},{\"b\":\"world\",\"a\":2}]}";
+    "{\"id\":\"1\",\"type\":\"dataResult\",\"data\":[{\"b\":\"hello\",\"a\":\"1\"},{\"b\":\"world\",\"a\":\"2\"}]}";
+    String resultJSON = serializer.serialize(result, new AppDataFormatter());
 
-    Assert.assertEquals("The json doesn't match.", expectedJSONResult, serializer.serialize(result, null));
+    logger.debug("expected: {}", expectedJSONResult);
+    logger.debug("actual  : {}", resultJSON);
+
+    Assert.assertEquals("The json doesn't match.", expectedJSONResult, resultJSON);
   }
 }

@@ -19,6 +19,9 @@ import java.util.Map;
 
 public interface Schema
 {
+  public static final int DEFAULT_SCHEMA_ID = 0;
+
+  public int getSchemaID();
   public String getSchemaType();
   public String getSchemaVersion();
   public String getSchemaJSON();

@@ -47,6 +47,7 @@ public class SchemaTabular implements Schema
   private FieldsDescriptor valuesDescriptor;
 
   private Map<String, String> schemaKeys;
+  private int schemaID = Schema.DEFAULT_SCHEMA_ID;
 
   public SchemaTabular(String schemaJSON,
                        Map<String, String> schemaKeys)
@@ -56,11 +57,28 @@ public class SchemaTabular implements Schema
          schemaKeys);
   }
 
+
+  public SchemaTabular(int schemaID,
+                       String schemaJSON,
+                       Map<String, String> schemaKeys)
+  {
+    this(schemaJSON,
+         schemaKeys);
+  }
+
   public SchemaTabular(String schemaJSON)
   {
     this(schemaJSON,
          true,
          null);
+  }
+
+  public SchemaTabular(int schemaID,
+                       String schemaJSON)
+  {
+    this(schemaJSON);
+
+    this.schemaID = schemaID;
   }
 
   //This would be needed for more rigorous validation of schemas
@@ -79,12 +97,34 @@ public class SchemaTabular implements Schema
     }
   }
 
+  public SchemaTabular(int schemaID,
+                       String schemaJSON,
+                       boolean validate,
+                       Map<String, String> schemaKeys)
+  {
+    this(schemaJSON,
+         validate,
+         schemaKeys);
+
+    this.schemaID = schemaID;
+  }
+
   public SchemaTabular(String schemaJSON,
                        boolean validate)
   {
     this(schemaJSON,
          validate,
          null);
+  }
+
+  public SchemaTabular(int schemaID,
+                       String schemaJSON,
+                       boolean validate)
+  {
+    this(schemaJSON,
+         validate);
+
+    this.schemaID = schemaID;
   }
 
   @Override
@@ -192,5 +232,14 @@ public class SchemaTabular implements Schema
   public Map<String, String> getSchemaKeys()
   {
     return schemaKeys;
+  }
+
+  /**
+   * @return the schemaID
+   */
+  @Override
+  public int getSchemaID()
+  {
+    return schemaID;
   }
 }

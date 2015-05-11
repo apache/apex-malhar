@@ -71,6 +71,8 @@ public class SchemaDimensional implements Schema
   private Map<String, String> schemaKeys;
   private Map<String, List<Object>> updatedEnums;
 
+  private int schemaID = Schema.DEFAULT_SCHEMA_ID;
+
   public SchemaDimensional(String schemaStub,
                            DimensionalEventSchema eventSchema,
                            Map<String, String> schemaKeys)
@@ -89,12 +91,34 @@ public class SchemaDimensional implements Schema
     }
   }
 
+  public SchemaDimensional(int schemaID,
+                           String schemaStub,
+                           DimensionalEventSchema eventSchema,
+                           Map<String, String> schemaKeys)
+  {
+    this(schemaStub,
+         eventSchema,
+         schemaKeys);
+
+    this.schemaID = schemaID;
+  }
+
   public SchemaDimensional(String schemaStub,
                            DimensionalEventSchema eventSchema)
   {
     this(schemaStub,
          eventSchema,
          null);
+  }
+
+  public SchemaDimensional(int schemaID,
+                           String schemaStub,
+                           DimensionalEventSchema eventSchema)
+  {
+    this(schemaStub,
+         eventSchema);
+
+    this.schemaID = schemaID;
   }
 
   public SchemaDimensional(DimensionalEventSchema eventSchema,
@@ -111,10 +135,27 @@ public class SchemaDimensional implements Schema
     }
   }
 
+  public SchemaDimensional(int schemaID,
+                           DimensionalEventSchema eventSchema,
+                           Map<String, String> schemaKeys)
+  {
+    this(eventSchema,
+         schemaKeys);
+
+    this.schemaID = schemaID;
+  }
+
   public SchemaDimensional(DimensionalEventSchema eventSchema)
   {
     this(eventSchema,
          null);
+  }
+
+  public SchemaDimensional(int schemaID,
+                           DimensionalEventSchema eventSchema)
+  {
+    this(eventSchema);
+    this.schemaID = schemaID;
   }
 
   public AggregatorInfo getAggregatorInfo()
@@ -220,7 +261,7 @@ public class SchemaDimensional implements Schema
           JSONObject additionalValueObject = new JSONObject();
 
           String valueName = entry.getKey();
-          
+
           for(String aggregatorName: entry.getValue()) {
             String combinedName = valueName
                                   + DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR
@@ -470,5 +511,14 @@ public class SchemaDimensional implements Schema
   public boolean isFixedFromTo()
   {
     return fixedFromTo;
+  }
+
+  /**
+   * @return the schemaID
+   */
+  @Override
+  public int getSchemaID()
+  {
+    return schemaID;
   }
 }
