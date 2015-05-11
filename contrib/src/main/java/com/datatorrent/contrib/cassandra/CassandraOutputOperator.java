@@ -1,5 +1,4 @@
-/*
- * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
+opyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,9 +27,7 @@ import com.datatorrent.lib.util.PojoUtils.GetterLong;
 import com.datatorrent.lib.util.PojoUtils.GetterObject;
 import com.datatorrent.lib.util.PojoUtils.GetterString;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.UUID;
+import java.util.*;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,6 +63,9 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
     this.expressions = expressions;
   }
 
+  /*
+   * An ArrayList of Columns in the Cassandra Table.
+   */
   public ArrayList<String> getColumns()
   {
     return columns;
@@ -118,7 +118,6 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
     int size = columnDataTypes.size();
     for (int i = 0; i < size; i++) {
       DataType type = columnDataTypes.get(i);
-      LOG.debug("type is {}",type);
       String getterExpression = PojoUtils.getSingleFieldExpression(fqcn, expressions.get(i));
       if (type.equals(DataType.ascii()) || type.equals(DataType.text()) || type.equals(DataType.varchar())) {
         GetterString getVarchar = PojoUtils.createGetterString(fqcn, getterExpression);
@@ -179,7 +178,6 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
             + " (" + queryfields.toString() + ") "
             + "VALUES (" + values.toString() + ");";
     LOG.debug("statement is {}", statement);
-
     return store.getSession().prepare(statement);
   }
 
@@ -190,15 +188,9 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
       processFirstTuple(tuple);
     }
     BoundStatement boundStmnt = new BoundStatement(updateCommand);
-    //BatchStatement batchStmt = new BatchStatement();
     int size = columnDataTypes.size();
-    //Object getter = new Object();
-   // Object[] getter= new Object[size];
-   // UUID id = (UUID)(((GetterObject)getters.get(0)).get(tuple));
-   // Object id = null;
     for (int i = 0; i < size; i++) {
       DataType type = columnDataTypes.get(i);
-      LOG.debug("name of type is {}",type.getName());
        switch (type.getName()) {
         case UUID:
          UUID id = (UUID)(((GetterObject)getters.get(i)).get(tuple));
@@ -237,7 +229,6 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
           boundStmnt.setFloat(i, floatValue);
           break;
         case DOUBLE:
-          LOG.debug("double value");
           Double doubleValue = ((GetterDouble)getters.get(i)).get(tuple);
           boundStmnt.setDouble(i, doubleValue);
           break;
@@ -245,17 +236,28 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
           BigDecimal decimal = (BigDecimal)((GetterObject)getters.get(i)).get(tuple);
           boundStmnt.setDecimal(i, decimal);
           break;
+        case SET:
+          Set set = (Set)((GetterObject)getters.get(i)).get(tuple);
+          boundStmnt.setSet(i, set);
+          break;
+        case MAP:
+          Map map = (Map)((GetterObject)getters.get(i)).get(tuple);
+          boundStmnt.setMap(i, map);
+          break;
+        case LIST:
+          List list = (List)((GetterObject)getters.get(i)).get(tuple);
+          boundStmnt.setList(i, list);
+          break;
+        case TIMESTAMP:
+          Date date = (Date)((GetterObject)getters.get(i)).get(tuple);
+          boundStmnt.setDate(i, date);
+          break;
       }
     }
-    //batchStmt.add(updateCommand.bind(id, getter, title1, body1));
-//batch.add(ps2.bind(uid, mid2));
-          //  boundStmnt.bind(id,getter1[0],getter1[1]);
-
 
     return boundStmnt;
   }
 
   private static transient final Logger LOG = LoggerFactory.getLogger(CassandraOutputOperator.class);
 }
-
 
