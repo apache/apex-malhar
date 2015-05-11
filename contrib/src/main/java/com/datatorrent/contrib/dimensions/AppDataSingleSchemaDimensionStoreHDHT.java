@@ -15,21 +15,32 @@
  */
 package com.datatorrent.contrib.dimensions;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+
 import com.datatorrent.api.AppData;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+
 import com.datatorrent.common.util.Slice;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
+import com.datatorrent.lib.appdata.dimensions.*;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
-import com.datatorrent.lib.appdata.dimensions.AggregatorOTFType;
-import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
-import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
@@ -38,31 +49,7 @@ import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
-import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
-import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
-import com.datatorrent.lib.appdata.schemas.Fields;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.SchemaDimensional;
-import com.datatorrent.lib.appdata.schemas.SchemaQuery;
-import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
-import com.datatorrent.lib.appdata.schemas.SchemaRegistrySingle;
-import com.datatorrent.lib.appdata.schemas.SchemaResult;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import java.io.Serializable;
-import javax.validation.constraints.NotNull;
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.apache.commons.lang3.mutable.MutableLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import com.datatorrent.lib.appdata.schemas.*;
 
 /**
  * @displayName Simple App Data Dimensions Store
@@ -109,12 +96,12 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   {
     @Override public void process(String s)
     {
-      logger.info("Recieved {}", s);
+      logger.info("Received {}", s);
       Data query = queryDeserializerFactory.deserialize(s);
 
-      //Query was not parseable
+      //Query was not parse-able
       if(query == null) {
-        logger.info("The query is not parseable: {}", s);
+        logger.info("The query cannot be parsed: {}", s);
         return;
       }
 
@@ -714,7 +701,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     }
 
     /**
-     * @return the adInofAggregateEvent
+     * @return the event keys
      */
     public List<Map<String, EventKey>> getEventKeys()
     {
@@ -722,7 +709,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     }
 
     /**
-     * @param adInofAggregateEvent the adInofAggregateEvent to set
+     * @param eventKeys event keys to set
      */
     public void setEventKeys(List<Map<String, EventKey>> eventKeys)
     {
