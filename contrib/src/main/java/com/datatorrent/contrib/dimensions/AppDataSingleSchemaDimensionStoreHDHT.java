@@ -15,8 +15,8 @@
  */
 package com.datatorrent.contrib.dimensions;
 
+import java.io.IOException;
 import java.io.Serializable;
-
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -51,7 +51,6 @@ import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
 import com.datatorrent.lib.appdata.schemas.*;
-import java.io.IOException;
 
 import static com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
 
@@ -688,7 +687,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     }
   }
 
-  static class QueryMeta
+  public static class QueryMeta
   {
     private List<Map<String, HDSQuery>> hdsQueries;
     private List<Map<String, EventKey>> eventKeys;
