@@ -76,7 +76,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   private int schemaID = DEFAULT_SCHEMA_ID;
 
   //Query Processing - Start
-  private transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
+  private final transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   private final transient DataDeserializerFactory queryDeserializerFactory;
   @NotNull
   private AppDataFormatter appDataFormatter = new AppDataFormatter();
@@ -138,6 +138,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @SuppressWarnings("unchecked")
   public AppDataSingleSchemaDimensionStoreHDHT()
   {
+    queryProcessor = QueryProcessor.newInstance(new DimensionsQueryComputer(this), new DimensionsQueryQueueManager(this));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
   }
 
@@ -168,9 +169,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   public void setup(OperatorContext context)
   {
     aggregatorInfo.setup();
-
-    //Setup for query processing
-    queryProcessor =  QueryProcessor.newInstance(new DimensionsQueryComputer(this), new DimensionsQueryQueueManager(this));
 
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
                                              aggregatorInfo);
