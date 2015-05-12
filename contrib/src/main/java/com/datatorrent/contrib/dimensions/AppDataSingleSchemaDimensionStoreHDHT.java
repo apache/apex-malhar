@@ -62,7 +62,6 @@ import static com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingle
 public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT implements Serializable
 {
   private static final long serialVersionUID = 201503231218L;
-  private static final Logger logger = LoggerFactory.getLogger(AppDataSingleSchemaDimensionStoreHDHT.class);
 
   public static final long DEFAULT_BUCKET_ID = 0;
 
@@ -729,4 +728,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       this.eventKeys = eventKeys;
     }
   }
+  
+  private static final Logger logger = LoggerFactory.getLogger(AppDataSingleSchemaDimensionStoreHDHT.class);
 }
