@@ -29,6 +29,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -76,7 +77,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   private int schemaID = DEFAULT_SCHEMA_ID;
 
   //Query Processing - Start
-  private final transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
+  private transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   private final transient DataDeserializerFactory queryDeserializerFactory;
   @NotNull
   private AppDataFormatter appDataFormatter = new AppDataFormatter();
@@ -138,7 +139,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @SuppressWarnings("unchecked")
   public AppDataSingleSchemaDimensionStoreHDHT()
   {
-    queryProcessor = QueryProcessor.newInstance(new DimensionsQueryComputer(this), new DimensionsQueryQueueManager(this));
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
   }
 
@@ -175,9 +175,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     dimensionalSchema = new SchemaDimensional(dimensionalSchemaJSON,
                                               eventSchema);
 
-    //seenEnumValues
-
     schemaRegistry = new SchemaRegistrySingle(dimensionalSchema);
+    queryProcessor = QueryProcessor.newInstance(new DimensionsQueryComputer(this, schemaRegistry),
+      new DimensionsQueryQueueManager(this, schemaRegistry));
+    
     resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, schemaRegistry);
     super.setup(context);
@@ -186,8 +187,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       dimensionalSchema.setFrom(System.currentTimeMillis());
     }
 
-    //
-
+    //seenEnumValues
     if(seenEnumValues == null) {
       seenEnumValues = Maps.newHashMap();
       for(String key: eventSchema.getAllKeysDescriptor().getFieldList()) {
@@ -345,18 +345,24 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   }
 
   //Query Processing Classes - Start
-  class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<DataQueryDimensional, QueryMeta>
+  public static class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<DataQueryDimensional, QueryMeta>
   {
-    private final AppDataSingleSchemaDimensionStoreHDHT operator;
+    private final @NotNull DimensionsStoreHDHT operator;
+    private final @NotNull SchemaRegistry schemaRegistry;
+    private final Map<Slice, HDSQuery> queries;
 
-    public DimensionsQueryQueueManager(AppDataSingleSchemaDimensionStoreHDHT operator)
+    public DimensionsQueryQueueManager(@NotNull DimensionsStoreHDHT operator,  @NotNull SchemaRegistry schemaRegistry)
     {
-      this.operator = operator;
+      this.operator = Preconditions.checkNotNull(operator);
+      this.schemaRegistry = Preconditions.checkNotNull(schemaRegistry);
+      queries = operator.getQueries();
     }
 
     @Override
     public boolean enqueue(DataQueryDimensional query, QueryMeta queryMeta, MutableLong windowExpireCount)
     {
+      SchemaDimensional schemaDimensional = (SchemaDimensional) schemaRegistry.getSchema(query.getSchemaKeys());
+      DimensionalEventSchema eventSchema = schemaDimensional.getGenericEventSchema();
       Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDd());
 
       if(ddID == null) {
@@ -373,30 +379,28 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       Set<String> aggregatorNames = Sets.newHashSet();
 
       for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
-        if(!aggregatorInfo.isAggregator(aggregatorName)) {
+        if(!eventSchema.getAggregatorInfo().isAggregator(aggregatorName)) {
           logger.error(aggregatorName + " is not a valid aggregator.");
           return false;
         }
 
-        if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+        if(eventSchema.getAggregatorInfo().isStaticAggregator(aggregatorName)) {
           aggregatorNames.add(aggregatorName);
           continue;
         }
-
-        aggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+        aggregatorNames.addAll(eventSchema.getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(aggregatorName));
       }
-
       for(String aggregatorName: aggregatorNames) {
         Integer aggregatorID = AggregatorStaticType.NAME_TO_ORDINAL.get(aggregatorName);
 
-        EventKey eventKey = new EventKey(schemaID,
+        EventKey eventKey = new EventKey(schemaDimensional.getSchemaID(),
                                          ddID,
                                          aggregatorID,
                                          gpoKey);
         aggregatorToEventKey.put(aggregatorName, eventKey);
       }
 
-      long bucketKey = getBucketForSchema(schemaID);
+      long bucketKey = operator.getBucketForSchema(schemaDimensional.getSchemaID());
 
       List<Map<String, EventKey>> eventKeys = Lists.newArrayList();
       List<Map<String, HDSQuery>> hdsQueries = Lists.newArrayList();
@@ -408,9 +412,9 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
         for(Map.Entry<String, EventKey> entry: aggregatorToEventKey.entrySet()) {
           String aggregatorName = entry.getKey();
           EventKey eventKey = entry.getValue();
-          Slice key = new Slice(getEventKeyBytesGAE(eventKey));
+          Slice key = new Slice(operator.getEventKeyBytesGAE(eventKey));
 
-          HDSQuery hdsQuery = operator.queries.get(key);
+          HDSQuery hdsQuery = queries.get(key);
 
           if(hdsQuery == null) {
             hdsQuery = new HDSQuery();
@@ -469,9 +473,9 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
             gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
 
             EventKey queryEventKey = new EventKey(eventKey);
-            Slice key = new Slice(getEventKeyBytesGAE(eventKey));
+            Slice key = new Slice(operator.getEventKeyBytesGAE(eventKey));
 
-            HDSQuery hdsQuery = operator.queries.get(key);
+            HDSQuery hdsQuery = queries.get(key);
 
             if(hdsQuery == null) {
               hdsQuery = new HDSQuery();
@@ -508,18 +512,23 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     }
   }
 
-  class DimensionsQueryComputer implements QueryComputer<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>
+  public static class DimensionsQueryComputer implements QueryComputer<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>
   {
-    private final AppDataSingleSchemaDimensionStoreHDHT operator;
+    private final DimensionsStoreHDHT operator;
+    private final SchemaRegistry schemaRegistry;
 
-    public DimensionsQueryComputer(AppDataSingleSchemaDimensionStoreHDHT operator)
+    public DimensionsQueryComputer(@NotNull DimensionsStoreHDHT operator, @NotNull SchemaRegistry schemaRegistry)
     {
-      this.operator = operator;
+      this.operator = Preconditions.checkNotNull(operator, "operator");
+      this.schemaRegistry = Preconditions.checkNotNull(schemaRegistry, "schema registry");
     }
 
     @Override
     public Result processQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext, MutableBoolean context)
     {
+      SchemaDimensional schemaDimensional = (SchemaDimensional) schemaRegistry.getSchema(query.getSchemaKeys());
+      DimensionalEventSchema eventSchema = schemaDimensional.getGenericEventSchema();
+
       logger.debug("Processing query {} with countdown {}", query.getId(), query.getCountdown());
 
       List<Map<String, GPOMutable>> keys = Lists.newArrayList();
@@ -567,7 +576,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
               logger.debug("Retrieved from uncommited");
             }
             else if(hdsQuery.result != null) {
-              gae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
+              gae = operator.getCodec().fromKeyValue(hdsQuery.key, hdsQuery.result);
 
               if(gae.getKeys() == null) {
                 logger.debug("B Keys are null and they shouldn't be");
@@ -619,7 +628,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
         for(String aggregatorName: query.getFieldsAggregatable().getAggregators())
         {
-          if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+          if(eventSchema.getAggregatorInfo().isStaticAggregator(aggregatorName)) {
             GPOMutable valueGPO = value.get(aggregatorName);
 
             if(valueGPO == null) {
@@ -634,7 +643,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           }
 
           List<GPOMutable> mutableValues = Lists.newArrayList();
-          List<String> childAggregators = aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName);
+          List<String> childAggregators = eventSchema.getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(
+            aggregatorName);
 
           boolean gotAllStaticAggregators = true;
 
@@ -654,8 +664,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           }
 
           Set<String> fields = query.getFieldsAggregatable().getAggregatorToFields().get(aggregatorName);
-          FieldsDescriptor fd =
-          dimensionalSchema.getGenericEventSchema().getInputValuesDescriptor().getSubset(new Fields(fields));
+          FieldsDescriptor fd = eventSchema.getInputValuesDescriptor().getSubset(new Fields(fields));
 
           DimensionsOTFAggregator aggregator = AggregatorOTFType.NAME_TO_AGGREGATOR.get(aggregatorName);
           GPOMutable result = aggregator.aggregate(fd, mutableValues.toArray(new GPOMutable[mutableValues.size()]));
