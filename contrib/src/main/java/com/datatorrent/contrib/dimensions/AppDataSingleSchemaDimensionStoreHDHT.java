@@ -52,6 +52,8 @@ import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
 import com.datatorrent.lib.appdata.schemas.*;
 
+import static com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
+
 /**
  * @displayName Simple App Data Dimensions Store
  * @category Store
@@ -62,7 +64,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   private static final long serialVersionUID = 201503231218L;
   private static final Logger logger = LoggerFactory.getLogger(AppDataSingleSchemaDimensionStoreHDHT.class);
 
-  public static final int SCHEMA_ID = 0;
   public static final long DEFAULT_BUCKET_ID = 0;
 
   @NotNull
@@ -72,6 +73,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @VisibleForTesting
   protected transient DimensionalEventSchema eventSchema;
   private transient SchemaDimensional dimensionalSchema;
+  private int schemaID = DEFAULT_SCHEMA_ID;
 
   //Query Processing - Start
   private transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
@@ -241,20 +243,12 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID)
   {
-    if(schemaID != 0) {
-      throw new UnsupportedOperationException("Invalid schemaID: " + schemaID);
-    }
-
     return eventSchema.getDdIDToKeyDescriptor().get(dimensionsDescriptorID);
   }
 
   @Override
   public FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID)
   {
-    if(schemaID != 0) {
-      throw new UnsupportedOperationException("Invalid schemaID: " + schemaID);
-    }
-
     return eventSchema.getDdIDToAggIDToOutputAggDescriptor().get(dimensionsDescriptorID).get(aggregatorID);
   }
 
@@ -336,6 +330,22 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     this.updateEnumValues = updateEnumValues;
   }
 
+  /**
+   * @return the schemaID
+   */
+  public int getSchemaID()
+  {
+    return schemaID;
+  }
+
+  /**
+   * @param schemaID the schemaID to set
+   */
+  public void setSchemaID(int schemaID)
+  {
+    this.schemaID = schemaID;
+  }
+
   //Query Processing Classes - Start
   class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<DataQueryDimensional, QueryMeta>
   {
@@ -381,14 +391,14 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       for(String aggregatorName: aggregatorNames) {
         Integer aggregatorID = AggregatorStaticType.NAME_TO_ORDINAL.get(aggregatorName);
 
-        EventKey eventKey = new EventKey(SCHEMA_ID,
+        EventKey eventKey = new EventKey(schemaID,
                                          ddID,
                                          aggregatorID,
                                          gpoKey);
         aggregatorToEventKey.put(aggregatorName, eventKey);
       }
 
-      long bucketKey = getBucketForSchema(SCHEMA_ID);
+      long bucketKey = getBucketForSchema(schemaID);
 
       List<Map<String, EventKey>> eventKeys = Lists.newArrayList();
       List<Map<String, HDSQuery>> hdsQueries = Lists.newArrayList();

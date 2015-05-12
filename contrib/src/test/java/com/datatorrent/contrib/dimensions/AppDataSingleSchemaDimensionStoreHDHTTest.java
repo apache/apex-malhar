@@ -21,6 +21,7 @@ import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
 import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
+import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
@@ -73,7 +74,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     DimensionalEventSchema eventSchema = store.eventSchema;
 
-    int schemaID = AppDataSingleSchemaDimensionStoreHDHT.SCHEMA_ID;
+    int schemaID = DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionDescriptorID = 0;
     int aggregatorID = eventSchema.getAggregatorInfo().getStaticAggregatorNameToID().get(AggregatorStaticType.SUM.name());
 
@@ -157,7 +158,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     DimensionalEventSchema eventSchema = store.eventSchema;
 
-    int schemaID = AppDataSingleSchemaDimensionStoreHDHT.SCHEMA_ID;
+    int schemaID = DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionDescriptorID = 0;
     int aggregatorID = eventSchema.getAggregatorInfo().getStaticAggregatorNameToID().get(AggregatorStaticType.SUM.name());
 
