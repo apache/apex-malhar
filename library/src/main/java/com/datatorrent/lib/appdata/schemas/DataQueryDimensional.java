@@ -15,17 +15,18 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import java.util.Map;
+import java.util.Set;
+
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Sets;
+
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
 import com.datatorrent.lib.appdata.qr.DataType;
 import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
 import com.datatorrent.lib.appdata.qr.Query;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Sets;
-
-import java.util.Map;
-import java.util.Set;
 
 @DataType(type=DataQueryDimensional.TYPE)
 @DataDeserializerInfo(clazz=DataQueryDimensionalDeserializer.class)
@@ -266,8 +267,7 @@ public class DataQueryDimensional extends Query
     keyFieldSet.addAll(keys.getFieldDescriptor().getFields().getFields());
 
     keyFields = new Fields(keyFieldSet);
-    dd = new DimensionsDescriptor(timeBucket,
-                                  keyFields);
+    dd = new DimensionsDescriptor(timeBucket, keyFields);
   }
 
   public Fields getKeyFields()
@@ -336,8 +336,7 @@ public class DataQueryDimensional extends Query
 
   private void setTimeBucket(TimeBucket timeBucket)
   {
-    Preconditions.checkNotNull(timeBucket);
-    this.timeBucket = timeBucket;
+    this.timeBucket = Preconditions.checkNotNull(timeBucket);
   }
 
   public TimeBucket getTimeBucket()
@@ -347,8 +346,7 @@ public class DataQueryDimensional extends Query
 
   private void setKeys(GPOMutable keys)
   {
-    Preconditions.checkNotNull(keys);
-    this.keys = keys;
+    this.keys = Preconditions.checkNotNull(keys);
   }
 
   public GPOMutable getKeys()
