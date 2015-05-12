@@ -53,7 +53,6 @@ import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
 import com.datatorrent.lib.appdata.schemas.*;
 import java.io.IOException;
 
-
 /**
  * @displayName Simple App Data Dimensions Store
  * @category Store
