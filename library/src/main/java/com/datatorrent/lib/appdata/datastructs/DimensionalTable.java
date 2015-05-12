@@ -224,4 +224,9 @@ public class DimensionalTable<DATA>
 
     return results;
   }
+
+  public List<DATA> getAllDataPoints()
+  {
+    return Lists.newArrayList(dataColumn);
+  }
 }

@@ -425,4 +425,23 @@ public class SchemaUtils
 
     return resultMap;
   }
+
+  public static JSONObject createJSONObject(Map<String, String> map)
+  {
+    JSONObject jo = new JSONObject();
+
+    for(Map.Entry<String, String> entry: map.entrySet()) {
+      String key = entry.getKey();
+      String value = entry.getValue();
+
+      try {
+        jo.put(key, value);
+      }
+      catch(JSONException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    return jo;
+  }
 }

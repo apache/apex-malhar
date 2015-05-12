@@ -49,6 +49,9 @@ public class SchemaTabular implements Schema
   private Map<String, String> schemaKeys;
   private int schemaID = Schema.DEFAULT_SCHEMA_ID;
 
+  private JSONObject schemaWhole;
+  private boolean changed = false;
+
   public SchemaTabular(String schemaJSON,
                        Map<String, String> schemaKeys)
   {
@@ -130,7 +133,10 @@ public class SchemaTabular implements Schema
   @Override
   public final void setSchemaKeys(Map<String, String> schemaKeys)
   {
+    changed = true;
+
     if(schemaKeys == null) {
+      schemaKeys = null;
       return;
     }
 
@@ -144,6 +150,13 @@ public class SchemaTabular implements Schema
 
   private void initialize(boolean validate) throws Exception
   {
+    schemaWhole = new JSONObject();
+
+    if(schemaKeys != null) {
+      schemaWhole.put(Schema.FIELD_SCHEMA_KEYS,
+                      SchemaUtils.createJSONObject(schemaKeys));
+    }
+
     JSONObject schema = new JSONObject(schemaJSON);
 
     if(validate) {
@@ -189,7 +202,8 @@ public class SchemaTabular implements Schema
       throw new RuntimeException(e);
     }
 
-    schemaJSON = schema.toString();
+    schemaWhole.put(Schema.FIELD_SCHEMA, schema);
+    schemaJSON = schemaWhole.toString();
   }
 
   protected final void setSchema(String schemaJSON)
@@ -200,6 +214,24 @@ public class SchemaTabular implements Schema
   @Override
   public String getSchemaJSON()
   {
+    if(!changed && schemaJSON != null) {
+      return schemaJSON;
+    }
+
+    if(schemaKeys == null) {
+      schemaWhole.remove(Schema.FIELD_SCHEMA_KEYS);
+    }
+    else {
+      try {
+        schemaWhole.put(Schema.FIELD_SCHEMA_KEYS,
+                        SchemaUtils.createJSONObject(schemaKeys));
+      }
+      catch(JSONException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    schemaJSON = schemaWhole.toString();
     return schemaJSON;
   }
 

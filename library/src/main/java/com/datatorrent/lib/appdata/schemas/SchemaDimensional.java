@@ -59,10 +59,11 @@ public class SchemaDimensional implements Schema
 
   private boolean changed = false;
   private boolean changedFromTo = false;
+  private boolean changedSchemaKeys = false;
   private String schemaJSON;
 
   private DimensionalEventSchema eventSchema;
-  private JSONObject schema;
+  private JSONObject schemaWhole;
   private JSONObject time;
   private JSONArray keys;
 
@@ -166,7 +167,11 @@ public class SchemaDimensional implements Schema
   @Override
   public final void setSchemaKeys(Map<String, String> schemaKeys)
   {
+    changed = true;
+    changedSchemaKeys = true;
+
     if(schemaKeys == null) {
+      schemaKeys = null;
       return;
     }
 
@@ -197,7 +202,14 @@ public class SchemaDimensional implements Schema
 
   private void initialize() throws Exception
   {
-    schema = new JSONObject();
+    schemaWhole = new JSONObject();
+
+    if(schemaKeys != null) {
+      schemaWhole.put(Schema.FIELD_SCHEMA_KEYS,
+                      SchemaUtils.createJSONObject(schemaKeys));
+    }
+
+    JSONObject schema = new JSONObject();
     schema.put(SchemaTabular.FIELD_SCHEMA_TYPE, SchemaDimensional.SCHEMA_TYPE);
     schema.put(SchemaTabular.FIELD_SCHEMA_VERSION, SchemaDimensional.SCHEMA_VERSION);
 
@@ -284,6 +296,9 @@ public class SchemaDimensional implements Schema
     }
 
     schema.put(DimensionalEventSchema.FIELD_DIMENSIONS, dimensions);
+
+    schemaWhole.put(Schema.FIELD_SCHEMA, schema);
+    this.schemaJSON = schemaWhole.toString();
   }
 
   public void setFrom(Long from)
@@ -411,7 +426,22 @@ public class SchemaDimensional implements Schema
       return schemaJSON;
     }
 
-    changed = false;
+    if(changedSchemaKeys) {
+      changedSchemaKeys = false;
+
+      if(schemaKeys == null) {
+        schemaWhole.remove(Schema.FIELD_SCHEMA_KEYS);
+      }
+      else {
+        try {
+          schemaWhole.put(Schema.FIELD_SCHEMA_KEYS,
+                          SchemaUtils.createJSONObject(schemaKeys));
+        }
+        catch(JSONException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    }
 
     if(changedFromTo) {
       changedFromTo = false;
@@ -476,7 +506,7 @@ public class SchemaDimensional implements Schema
       updatedEnums = null;
     }
 
-    schemaJSON = schema.toString();
+    schemaJSON = schemaWhole.toString();
     return schemaJSON;
   }
 

@@ -138,7 +138,7 @@ public class SchemaDimensionalTest
                                                                 (Map<String, String>) new HashMap<String, String>(),
                                                                 (Map<String, String>) new HashMap<String, String>());
 
-    JSONObject data = new JSONObject(resultSchema).getJSONArray("data").getJSONObject(0);
+    JSONObject data = new JSONObject(resultSchema).getJSONArray("data").getJSONObject(0).getJSONObject("schema");
     JSONArray dimensions = data.getJSONArray("dimensions");
 
     for(int index = 0;
@@ -200,7 +200,7 @@ public class SchemaDimensionalTest
 
     String schemaJSON = dimensional.getSchemaJSON();
 
-    JSONObject schema = new JSONObject(schemaJSON);
+    JSONObject schema = new JSONObject(schemaJSON).getJSONObject("schema");
     JSONArray keys = schema.getJSONArray(DimensionalEventSchema.FIELD_KEYS);
 
     Map<String, List<Object>> newEnums = Maps.newHashMap();
@@ -262,7 +262,7 @@ public class SchemaDimensionalTest
 
     String schemaJSON = dimensional.getSchemaJSON();
 
-    JSONObject schema = new JSONObject(schemaJSON);
+    JSONObject schema = new JSONObject(schemaJSON).getJSONObject("schema");
     JSONArray keys = schema.getJSONArray(DimensionalEventSchema.FIELD_KEYS);
 
     Map<String, List<Comparable>> newEnums = Maps.newHashMap();
@@ -300,7 +300,6 @@ public class SchemaDimensionalTest
     schemaQuery.setType(SchemaQuery.TYPE);
 
     SchemaResult result = new SchemaResult(schemaQuery, schemaDimensional);
-    String resultJSON = dsf.serialize(result);
     return dsf.serialize(result);
   }
 
@@ -312,7 +311,7 @@ public class SchemaDimensionalTest
                                   List<Set<String>> dimensionCombinationsList) throws Exception
   {
     JSONObject schemaJO = new JSONObject(resultSchema);
-    JSONObject data = schemaJO.getJSONArray("data").getJSONObject(0);
+    JSONObject data = schemaJO.getJSONArray("data").getJSONObject(0).getJSONObject("schema");
 
     JSONArray jaBuckets = SchemaUtils.findFirstKeyJSONArray(schemaJO, "buckets");
 

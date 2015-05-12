@@ -16,10 +16,13 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import com.google.common.collect.Maps;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.util.Map;
 
 public class SchemaUtilsTest
 {
@@ -93,5 +96,19 @@ public class SchemaUtilsTest
 
     Assert.assertEquals(1, joFind.length());
     Assert.assertEquals("d", joFind.get("c"));
+  }
+
+  @Test
+  public void createJSONObjectFromMapTest() throws Exception
+  {
+    Map<String, String> mapVals = Maps.newHashMap();
+    mapVals.put("a", "1");
+    mapVals.put("b", "2");
+
+    JSONObject jo = SchemaUtils.createJSONObject(mapVals);
+
+    Assert.assertEquals(2, jo.length());
+    Assert.assertEquals("1", jo.get("a"));
+    Assert.assertEquals("2", jo.get("b"));
   }
 }

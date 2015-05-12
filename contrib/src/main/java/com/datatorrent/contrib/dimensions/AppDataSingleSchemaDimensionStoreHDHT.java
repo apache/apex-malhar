@@ -177,7 +177,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
                                              aggregatorInfo);
-    dimensionalSchema = new SchemaDimensional(dimensionalSchemaJSON,
+    dimensionalSchema = new SchemaDimensional(schemaID,
+                                              dimensionalSchemaJSON,
                                               eventSchema);
 
     //seenEnumValues

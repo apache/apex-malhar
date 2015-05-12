@@ -21,6 +21,9 @@ public interface Schema
 {
   public static final int DEFAULT_SCHEMA_ID = 0;
 
+  public static final String FIELD_SCHEMA_KEYS = "schemaKeys";
+  public static final String FIELD_SCHEMA = "schema";
+
   public int getSchemaID();
   public String getSchemaType();
   public String getSchemaVersion();

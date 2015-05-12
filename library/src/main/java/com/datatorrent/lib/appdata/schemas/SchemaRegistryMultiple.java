@@ -39,7 +39,14 @@ public class SchemaRegistryMultiple implements SchemaRegistry
   public SchemaResult getSchemaResult(SchemaQuery schemaQuery)
   {
     Map<String, String> schemaKeys = schemaQuery.getSchemaKeys();
-    List<Schema> data = table.getDataPoints(schemaKeys);
+    List<Schema> data = null;
+
+    if(schemaKeys == null) {
+      data = table.getAllDataPoints();
+    }
+    else {
+      data = table.getDataPoints(schemaKeys);
+    }
 
     if(data.isEmpty()) {
       return null;
