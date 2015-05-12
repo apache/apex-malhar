@@ -15,11 +15,13 @@
  */
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator;
-import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.base.Preconditions;
+
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.Operator;
 
 public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> implements Operator
 {
@@ -104,6 +106,19 @@ public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTE
                                       queryBundle.getMetaQuery(),
                                       queryBundle.getQueueContext(),
                                       context);
+  }
+
+  /**
+   * Creates a new instance of Query Processor using query computer and queue manager. Reduces boiler-plate code.
+   */
+  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+  QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+
+  newInstance(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
+              QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
+  {
+    return new QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>(queryComputer,
+      queryQueueManager);
   }
 
   @Override

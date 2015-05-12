@@ -168,10 +168,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     aggregatorInfo.setup();
 
     //Setup for query processing
-    queryProcessor =
-    new QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>(
-                                                  new DimensionsQueryComputer(this),
-                                                  new DimensionsQueryQueueManager(this));
+    queryProcessor =  QueryProcessor.newInstance(new DimensionsQueryComputer(this), new DimensionsQueryQueueManager(this));
 
     eventSchema = new DimensionalEventSchema(eventSchemaJSON,
                                              aggregatorInfo);

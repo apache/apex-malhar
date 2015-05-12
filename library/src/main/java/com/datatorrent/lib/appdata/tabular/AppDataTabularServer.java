@@ -16,36 +16,29 @@
 
 package com.datatorrent.lib.appdata.tabular;
 
+import java.io.IOException;
+import java.util.List;
+
+import javax.validation.constraints.NotNull;
+
+import org.apache.commons.lang3.mutable.MutableLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.Lists;
+
 import com.datatorrent.api.AppData;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.qr.Data;
-import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
-import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.qr.*;
 import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
-import com.datatorrent.lib.appdata.schemas.DataQueryTabular;
-import com.datatorrent.lib.appdata.schemas.DataResultTabular;
-import com.datatorrent.lib.appdata.schemas.SchemaQuery;
-import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
-import com.datatorrent.lib.appdata.schemas.SchemaRegistrySingle;
-import com.datatorrent.lib.appdata.schemas.SchemaResult;
-import com.datatorrent.lib.appdata.schemas.SchemaTabular;
-import com.google.common.collect.Lists;
-import java.io.IOException;
-import javax.validation.constraints.NotNull;
-import org.apache.commons.lang3.mutable.MutableLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.List;
+import com.datatorrent.lib.appdata.schemas.*;
 
 public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
 {
@@ -116,15 +109,14 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
 
   public abstract GPOMutable convert(INPUT_EVENT inputEvent);
 
+  @SuppressWarnings("unchecked")
   @Override
   public void setup(OperatorContext context)
   {
     schema = new SchemaTabular(tabularSchemaJSON);
     schemaRegistry = new SchemaRegistrySingle(schema);
     //Setup for query processing
-    queryProcessor = new QueryProcessor<Query, Void, MutableLong, Void, Result>(
-                     new TabularComputer(),
-                     new AppDataWWEQueryQueueManager<Query, Void>());
+    queryProcessor = QueryProcessor.newInstance(new TabularComputer(), new AppDataWWEQueryQueueManager<Query, Void>());
 
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryTabular.class);
