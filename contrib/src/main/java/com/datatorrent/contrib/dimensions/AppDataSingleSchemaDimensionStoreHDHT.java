@@ -222,7 +222,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
       if(aotr != null) {
         String result = resultSerializerFactory.serialize(aotr);
-        logger.info("Emitting the result: {}", result);
+        logger.debug("Emitting the result: {}", result);
         queryResult.emit(result);
       }
     }
@@ -357,11 +357,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDd());
 
       if(ddID == null) {
-        logger.error("No aggregations for keys: {}", query.getKeyFields());
+        logger.debug("No aggregations for keys: {}", query.getKeyFields());
         return false;
       }
 
-      logger.info("Current time stamp {}", System.currentTimeMillis());
+      logger.debug("Current time stamp {}", System.currentTimeMillis());
 
       FieldsDescriptor dd = eventSchema.getDdIDToKeyDescriptor().get(ddID);
       GPOMutable gpoKey = query.createKeyGPO(dd);
@@ -517,7 +517,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     @Override
     public Result processQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext, MutableBoolean context)
     {
-      logger.info("Processing query {} with countdown {}", query.getId(), query.getCountdown());
+      logger.debug("Processing query {} with countdown {}", query.getId(), query.getCountdown());
 
       List<Map<String, GPOMutable>> keys = Lists.newArrayList();
       List<Map<String, GPOMutable>> values = Lists.newArrayList();
@@ -543,10 +543,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           gae = operator.cache.getIfPresent(eventKey);
 
           if(gae != null) {
-            logger.info("Retrieved from cache.");
+            logger.debug("Retrieved from cache.");
 
             if(gae.getKeys() == null) {
-              logger.info("A Keys are null and they shouldn't be");
+              logger.debug("A Keys are null and they shouldn't be");
             }
 
             aggregatorKeys.put(aggregatorName, gae.getKeys());
@@ -561,16 +561,16 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
               gae = operator.fromKeyValueGAE(keySlice, value);
               aggregatorKeys.put(aggregatorName, gae.getKeys());
               aggregatorValues.put(aggregatorName, gae.getAggregates());
-              logger.info("Retrieved from uncommited");
+              logger.debug("Retrieved from uncommited");
             }
             else if(hdsQuery.result != null) {
               gae = operator.codec.fromKeyValue(hdsQuery.key, hdsQuery.result);
 
               if(gae.getKeys() == null) {
-                logger.info("B Keys are null and they shouldn't be");
+                logger.debug("B Keys are null and they shouldn't be");
               }
 
-              logger.info("Retrieved from hds");
+              logger.debug("Retrieved from hds");
               aggregatorKeys.put(aggregatorName, gae.getKeys());
               aggregatorValues.put(aggregatorName, gae.getAggregates());
             }
