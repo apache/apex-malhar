@@ -20,6 +20,7 @@ public class QueryDeserializerFactoryTest
   @Test
   public void testMalformedQuery()
   {
+    @SuppressWarnings("unchecked")
     DataDeserializerFactory qdf = new DataDeserializerFactory(SchemaQuery.class);
 
     String malformed = "{\"}";
@@ -38,6 +39,7 @@ public class QueryDeserializerFactoryTest
   @Test
   public void testUnregisteredQueryType()
   {
+    @SuppressWarnings("unchecked")
     DataDeserializerFactory qdf = new DataDeserializerFactory(SchemaQuery.class);
 
     String unsupportedQuery = "{\"id\":\"1\",\"type\":\"Invalid type\"}";
