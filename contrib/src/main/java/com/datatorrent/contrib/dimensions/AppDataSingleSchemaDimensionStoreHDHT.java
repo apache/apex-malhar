@@ -366,11 +366,11 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDd());
 
       if(ddID == null) {
-        logger.debug("No aggregations for keys: {}", query.getKeyFields());
+        LOG.debug("No aggregations for keys: {}", query.getKeyFields());
         return false;
       }
 
-      logger.debug("Current time stamp {}", System.currentTimeMillis());
+      LOG.debug("Current time stamp {}", System.currentTimeMillis());
 
       FieldsDescriptor dd = eventSchema.getDdIDToKeyDescriptor().get(ddID);
       GPOMutable gpoKey = query.createKeyGPO(dd);
@@ -380,7 +380,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
       for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
         if(!eventSchema.getAggregatorInfo().isAggregator(aggregatorName)) {
-          logger.error(aggregatorName + " is not a valid aggregator.");
+          LOG.error(aggregatorName + " is not a valid aggregator.");
           return false;
         }
 
@@ -424,7 +424,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           }
           else {
             if(hdsQuery.result == null) {
-              logger.debug("Forcing refresh for {}", hdsQuery);
+              LOG.debug("Forcing refresh for {}", hdsQuery);
               hdsQuery.processed = false;
             }
           }
@@ -510,6 +510,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
 
       return super.enqueue(query, qm, null);
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(DimensionsQueryQueueManager.class);
   }
 
   public static class DimensionsQueryComputer implements QueryComputer<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result>
@@ -529,7 +531,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
       SchemaDimensional schemaDimensional = (SchemaDimensional) schemaRegistry.getSchema(query.getSchemaKeys());
       DimensionalEventSchema eventSchema = schemaDimensional.getGenericEventSchema();
 
-      logger.debug("Processing query {} with countdown {}", query.getId(), query.getCountdown());
+      LOG.debug("Processing query {} with countdown {}", query.getId(), query.getCountdown());
 
       List<Map<String, GPOMutable>> keys = Lists.newArrayList();
       List<Map<String, GPOMutable>> values = Lists.newArrayList();
@@ -555,10 +557,10 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
           gae = operator.cache.getIfPresent(eventKey);
 
           if(gae != null) {
-            logger.debug("Retrieved from cache.");
+            LOG.debug("Retrieved from cache.");
 
             if(gae.getKeys() == null) {
-              logger.debug("A Keys are null and they shouldn't be");
+              LOG.debug("A Keys are null and they shouldn't be");
             }
 
             aggregatorKeys.put(aggregatorName, gae.getKeys());
@@ -573,16 +575,16 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
               gae = operator.fromKeyValueGAE(keySlice, value);
               aggregatorKeys.put(aggregatorName, gae.getKeys());
               aggregatorValues.put(aggregatorName, gae.getAggregates());
-              logger.debug("Retrieved from uncommited");
+              LOG.debug("Retrieved from uncommited");
             }
             else if(hdsQuery.result != null) {
               gae = operator.getCodec().fromKeyValue(hdsQuery.key, hdsQuery.result);
 
               if(gae.getKeys() == null) {
-                logger.debug("B Keys are null and they shouldn't be");
+                LOG.debug("B Keys are null and they shouldn't be");
               }
 
-              logger.debug("Retrieved from hds");
+              LOG.debug("Retrieved from hds");
               aggregatorKeys.put(aggregatorName, gae.getKeys());
               aggregatorValues.put(aggregatorName, gae.getAggregates());
             }
@@ -689,6 +691,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
     {
       context.setValue(true);
     }
+
+    private static final Logger LOG = LoggerFactory.getLogger(DimensionsQueryComputer.class);
   }
 
   public static class QueryMeta
