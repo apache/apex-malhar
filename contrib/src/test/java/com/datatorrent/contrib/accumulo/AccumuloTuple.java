@@ -15,13 +15,122 @@
  */
 package com.datatorrent.contrib.accumulo;
 
-import java.io.Serializable;
+//import java.io.Serializable;
 
-public class AccumuloTuple implements Serializable {
+public class AccumuloTuple {
   private String row;
-  private String colFamily;
-  private String colName;
-  private String colValue;
+  private String columnFamily;
+  private String columnName;
+  private String columnValue;
+  private String columnQualifier;
+  private long timestamp;
+  private String columnVisibility;
+  private int userid;
+
+  public int getUserid()
+  {
+    return userid;
+  }
+
+  public void setUserid(int userid)
+  {
+    this.userid = userid;
+  }
+
+  public int getAge()
+  {
+    return age;
+  }
+
+  public void setAge(int age)
+  {
+    this.age = age;
+  }
+
+  public String getAddress()
+  {
+    return address;
+  }
+
+  public void setAddress(String address)
+  {
+    this.address = address;
+  }
+
+  public String getAccount_balance()
+  {
+    return account_balance;
+  }
+
+  public void setAccount_balance(String account_balance)
+  {
+    this.account_balance = account_balance;
+  }
+  private int age;
+  private String address;
+  private String account_balance;
+
+  public String getColumnVisibility()
+  {
+    return columnVisibility;
+  }
+
+  public void setColumnVisibility(String columnVisibility)
+  {
+    this.columnVisibility = columnVisibility;
+  }
+
+  public long getTimestamp()
+  {
+    return timestamp;
+  }
+
+  public void setTimestamp(long timestamp)
+  {
+    this.timestamp = timestamp;
+  }
+
+  public String getColumnFamily()
+  {
+    return columnFamily;
+  }
+
+  public void setColumnFamily(String columnFamily)
+  {
+    this.columnFamily = columnFamily;
+  }
+
+  public String getColumnName()
+  {
+    return columnName;
+  }
+
+  public void setColumnName(String columnName)
+  {
+    this.columnName = columnName;
+  }
+
+  public String getColumnValue()
+  {
+    return columnValue;
+  }
+
+  public void setColumnValue(String columnValue)
+  {
+    this.columnValue = columnValue;
+  }
+
+  public String getColumnQualifier()
+  {
+    return columnQualifier;
+  }
+
+  public void setColumnQualifier(String columnQualifier)
+  {
+    this.columnQualifier = columnQualifier;
+  }
+
+
 
   public String getRow() {
     return row;
@@ -31,28 +140,5 @@ public class AccumuloTuple implements Serializable {
     this.row = row;
   }
 
-  public String getColFamily() {
-    return colFamily;
-  }
-
-  public void setColFamily(String colFamily) {
-    this.colFamily = colFamily;
-  }
-
-  public String getColName() {
-    return colName;
-  }
-
-  public void setColName(String colName) {
-    this.colName = colName;
-  }
-
-  public String getColValue() {
-    return colValue;
-  }
-
-  public void setColValue(String colValue) {
-    this.colValue = colValue;
-  }
 
 }

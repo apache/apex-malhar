@@ -28,7 +28,6 @@ import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.client.TableNotFoundException;
-import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.client.admin.TableOperations;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
@@ -40,6 +39,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.common.util.DTThrowable;
+import org.apache.accumulo.core.client.mock.MockInstance;
 
 
 public class AccumuloTestHelper {
@@ -118,8 +118,8 @@ public class AccumuloTestHelper {
     AccumuloTuple mtuple = null;
     for (AccumuloTuple tuple : tuples) {
       if (tuple.getRow().equals(row)
-          && tuple.getColFamily().equals(colFamily)
-          && tuple.getColName().equals(colName)) {
+          && tuple.getColumnFamily().equals(colFamily)
+          && tuple.getColumnName().equals(colName)) {
         mtuple = tuple;
         break;
       }
@@ -148,7 +148,8 @@ public class AccumuloTestHelper {
   }
 
   public static void getConnector() {
-    Instance instance = new ZooKeeperInstance("instance", "127.0.0.1");
+    Instance instance = new MockInstance();
+    //Instance instance = new ZooKeeperInstance("instance", "127.0.0.1");
     try {
       con = instance.getConnector("root", "pass");
     } catch (AccumuloException e) {
@@ -179,9 +180,9 @@ public class AccumuloTestHelper {
     for (Entry<Key, Value> entry : scan) {
       AccumuloTuple tuple = new AccumuloTuple();
       tuple.setRow(entry.getKey().getRow().toString());
-      tuple.setColFamily(entry.getKey().getColumnFamily().toString());
-      tuple.setColName(entry.getKey().getColumnQualifier().toString());
-      tuple.setColValue(entry.getValue().toString());
+      tuple.setColumnFamily(entry.getKey().getColumnFamily().toString());
+      tuple.setColumnName(entry.getKey().getColumnQualifier().toString());
+      tuple.setColumnValue(entry.getValue().toString());
       return tuple;
     }
     return null;
