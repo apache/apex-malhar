@@ -23,6 +23,15 @@ import com.google.common.base.Preconditions;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.Operator;
 
+/**
+ * Use {@link #newInstance} to create an instance of query processor. It reduces the boilerplate code with respect to generics.
+ *
+ * @param <QUERY_TYPE>
+ * @param <META_QUERY>
+ * @param <QUEUE_CONTEXT>
+ * @param <COMPUTE_CONTEXT>
+ * @param <RESULT>
+ */
 public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(QueryProcessor.class);
@@ -31,14 +40,14 @@ public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTE
   private QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager;
   private QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager;
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer)
+  private QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer)
   {
     setQueryComputer(queryComputer);
     queryQueueManager = new SimpleQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>();
     queryResultCacheManager = new NOPQueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT>();
   }
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
+  private QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
                         QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
   {
     setQueryComputer(queryComputer);
@@ -46,7 +55,7 @@ public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTE
     queryResultCacheManager = new NOPQueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT>();
   }
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
+  private QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
                         QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager)
   {
     setQueryComputer(queryComputer);
@@ -54,7 +63,7 @@ public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTE
     queryQueueManager = new SimpleQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>();
   }
 
-  public QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
+  private QueryProcessor(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
                         QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager,
                         QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager)
   {
@@ -65,20 +74,17 @@ public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTE
 
   private void setQueryComputer(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer)
   {
-    Preconditions.checkNotNull(queryComputer);
-    this.queryComputer = queryComputer;
+    this.queryComputer = Preconditions.checkNotNull(queryComputer);
   }
 
   private void setQueryQueueManager(QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
   {
-    Preconditions.checkNotNull(queryQueueManager);
-    this.queryQueueManager = queryQueueManager;
+    this.queryQueueManager = Preconditions.checkNotNull(queryQueueManager);
   }
 
   private void setQueryResultCacheManager(QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager)
   {
-    Preconditions.checkNotNull(queryResultCacheManager);
-    this.queryResultCacheManager = queryResultCacheManager;
+    this.queryResultCacheManager = Preconditions.checkNotNull(queryResultCacheManager);
   }
 
   public boolean enqueue(QUERY_TYPE query, META_QUERY metaQuery, QUEUE_CONTEXT queueContext)
@@ -108,19 +114,6 @@ public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTE
                                       context);
   }
 
-  /**
-   * Creates a new instance of Query Processor using query computer and queue manager. Reduces boiler-plate code.
-   */
-  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
-  QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
-
-  newInstance(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
-              QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
-  {
-    return new QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>(queryComputer,
-      queryQueueManager);
-  }
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -147,5 +140,56 @@ public class QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTE
   {
     queryQueueManager.teardown();
     queryResultCacheManager.teardown();
+  }
+
+  /**
+   * Creates a new instance of query processor using query computer.
+   */
+  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+  QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+
+  newInstance(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer)
+  {
+    return new QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>(queryComputer);
+  }
+
+  /**
+   * Creates a new instance of query processor using query computer and queue manager.
+   */
+  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+  QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+
+  newInstance(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
+              QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
+  {
+    return new QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>(queryComputer,
+      queryQueueManager);
+  }
+
+  /**
+   * Creates a new instance of query processor using query computer and result cache manager.
+   */
+  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+  QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+
+  newInstance(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
+              QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager)
+  {
+    return new QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>(queryComputer,
+      queryResultCacheManager);
+  }
+
+  /**
+   * Creates a new instance of query processor using query computer, queue manager & result cache manager.
+   */
+  public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+  QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+
+  newInstance(QueryComputer<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT> queryComputer,
+              QueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager,
+              QueryResultCacheManager<QUERY_TYPE, META_QUERY, RESULT> queryResultCacheManager)
+  {
+    return new QueryProcessor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>(queryComputer,
+      queryQueueManager, queryResultCacheManager);
   }
 }
