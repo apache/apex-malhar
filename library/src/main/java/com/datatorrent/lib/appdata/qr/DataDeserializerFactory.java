@@ -15,18 +15,18 @@
  */
 package com.datatorrent.lib.appdata.qr;
 
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import java.io.IOException;
 import java.lang.annotation.Annotation;
-import java.util.Map;
-import java.util.Set;
-
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
+import java.util.Map;
+import java.util.Set;
 
 public class DataDeserializerFactory
 {
@@ -135,7 +135,7 @@ public class DataDeserializerFactory
     }
   }
 
-  public Data deserialize(String json)
+  public Data deserialize(String json) throws IOException
   {
     String type;
 
@@ -146,10 +146,7 @@ public class DataDeserializerFactory
     }
     catch(JSONException e)
     {
-      logger.error("Error parsing", e);
-      //Note faulty queries should not throw an exception and crash the operator
-      //An invalid value like null should be returned and checked.
-      return null;
+      throw new IOException(e);
     }
 
     CustomDataDeserializer cqb = typeToCustomQueryBuilder.get(type);

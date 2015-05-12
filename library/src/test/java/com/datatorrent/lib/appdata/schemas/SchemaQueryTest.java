@@ -27,7 +27,7 @@ import java.util.Map;
 public class SchemaQueryTest
 {
   @Test
-  public void jsonToSchemaQueryTest()
+  public void jsonToSchemaQueryTest() throws Exception
   {
     final String id = "12345";
     final String schemaQueryJSON = "{" +
@@ -47,7 +47,7 @@ public class SchemaQueryTest
   }
 
   @Test
-  public void jsonToSchemaQueryWithSchemaKeysTest()
+  public void jsonToSchemaQueryWithSchemaKeysTest() throws Exception
   {
     final Map<String, String> expectedSchemaKeys = Maps.newHashMap();
     expectedSchemaKeys.put("publisher", "google");

@@ -19,6 +19,7 @@ import com.datatorrent.lib.appdata.qr.CustomDataDeserializer;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.google.common.collect.Sets;
+import java.io.IOException;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -32,17 +33,15 @@ public class DataQueryTabularDeserializer extends CustomDataDeserializer
   private static final Logger logger = LoggerFactory.getLogger(DataQueryTabularDeserializer.class);
 
   @Override
-  public Data deserialize(String json, Object context)
+  public Data deserialize(String json, Object context) throws IOException
   {
     try {
       return deserializeHelper(json,
                                context);
     }
     catch(Exception ex) {
-      logger.error("An error happened while deserializing query:", ex);
+      throw new IOException(ex);
     }
-
-    return null;
   }
 
   private Data deserializeHelper(String json,

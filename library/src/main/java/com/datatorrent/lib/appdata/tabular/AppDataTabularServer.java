@@ -39,6 +39,7 @@ import com.datatorrent.lib.appdata.schemas.SchemaRegistrySingle;
 import com.datatorrent.lib.appdata.schemas.SchemaResult;
 import com.datatorrent.lib.appdata.schemas.SchemaTabular;
 import com.google.common.collect.Lists;
+import java.io.IOException;
 import javax.validation.constraints.NotNull;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
@@ -70,11 +71,14 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     @Override
     public void process(String queryJSON)
     {
-      Data query = queryDeserializerFactory.deserialize(queryJSON);
+      Data query = null;
 
-      //Query was not parseable
-      if(query == null) {
-        logger.error("The query was not parseable: {}", queryJSON);
+      try {
+        query = queryDeserializerFactory.deserialize(queryJSON);
+      }
+      catch(IOException ex) {
+        logger.error("Error parsing query: {}", queryJSON);
+        logger.error("{}", ex);
         return;
       }
 

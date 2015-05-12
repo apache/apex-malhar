@@ -23,6 +23,7 @@ import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.Query;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.io.IOException;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -41,14 +42,13 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
   }
 
   @Override
-  public Query deserialize(String json, Object context)
+  public Query deserialize(String json, Object context) throws IOException
   {
     try {
       return deserializeHelper(json, context);
     }
     catch(Exception e) {
-      logger.error("Exception while deserializing.", e);
-      return null;
+      throw new IOException(e);
     }
   }
 

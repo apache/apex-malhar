@@ -15,11 +15,13 @@
  */
 package com.datatorrent.lib.appdata.qr;
 
+import java.io.IOException;
+
 public abstract class CustomDataDeserializer
 {
   private Class<? extends Data> dataClazz;
 
-  public abstract Data deserialize(String json, Object context);
+  public abstract Data deserialize(String json, Object context) throws IOException;
 
   /**
    * @return the dataClazz

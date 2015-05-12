@@ -26,7 +26,7 @@ import java.util.Map;
 public class DataQueryTabularDeserializerTest
 {
   @Test
-  public void simpleDeserializerTest()
+  public void simpleDeserializerTest() throws Exception
   {
     DataQueryTabularDeserializer deserializer = new DataQueryTabularDeserializer();
 
@@ -50,7 +50,7 @@ public class DataQueryTabularDeserializerTest
 
 
   @Test
-  public void simpleDeserializerWithSchemaKeysTest()
+  public void simpleDeserializerWithSchemaKeysTest() throws Exception
   {
     final Map<String, String> expectedSchemaKeys = Maps.newHashMap();
     expectedSchemaKeys.put("publisher", "google");

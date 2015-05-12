@@ -16,6 +16,7 @@
 package com.datatorrent.contrib.dimensions;
 
 import java.io.Serializable;
+
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +51,8 @@ import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
 import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
 import com.datatorrent.lib.appdata.schemas.*;
+import java.io.IOException;
+
 
 /**
  * @displayName Simple App Data Dimensions Store
@@ -96,12 +99,14 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   {
     @Override public void process(String s)
     {
-      logger.info("Received {}", s);
-      Data query = queryDeserializerFactory.deserialize(s);
-
-      //Query was not parse-able
-      if(query == null) {
-        logger.info("The query cannot be parsed: {}", s);
+      logger.debug("Received {}", s);
+      Data query;
+      try {
+        query = queryDeserializerFactory.deserialize(s);
+      }
+      catch(IOException ex) {
+        logger.error("error parsing query: {}", s);
+        logger.error("{}", ex);
         return;
       }
 

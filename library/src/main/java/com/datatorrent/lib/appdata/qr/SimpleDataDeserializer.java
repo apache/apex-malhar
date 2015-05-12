@@ -30,7 +30,7 @@ public class SimpleDataDeserializer extends CustomDataDeserializer
   }
 
   @Override
-  public Data deserialize(String json, Object context)
+  public Data deserialize(String json, Object context) throws IOException
   {
     Data data;
 
@@ -38,9 +38,7 @@ public class SimpleDataDeserializer extends CustomDataDeserializer
       data = om.readValue(json, this.getDataClazz());
     }
     catch(IOException ex) {
-      //throw new RuntimeException(ex);
-      logger.error("{}", ex);
-      return null;
+      throw new IOException(ex);
     }
 
     return data;
