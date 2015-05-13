@@ -185,7 +185,7 @@ public class SchemaDimensional implements Schema
       Preconditions.checkNotNull(entry.getValue());
     }
 
-    this.schemaKeys = Collections.unmodifiableMap(Maps.newHashMap(schemaKeys));
+    this.schemaKeys = Maps.newHashMap(schemaKeys);
   }
 
   private void setEventSchema(DimensionalEventSchema eventSchema)
