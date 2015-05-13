@@ -45,7 +45,9 @@ public class SchemaSerializer implements CustomDataSerializer
 
     StringBuilder sb = new StringBuilder();
 
-    logger.debug("result id {} result type {}", result.getId(), result.getType());
+    logger.debug("result {}", result);
+    logger.debug("result id {}", result.getId());
+    logger.debug("result type {}", result.getType());
 
     sb.append("{\"").append(Result.FIELD_ID).
     append("\":\"").append(result.getId()).
