@@ -138,7 +138,7 @@ public interface IdempotentStorageManager extends StorageAgent, Component<Contex
     public void setup(Context.OperatorContext context)
     {
       Configuration configuration = new Configuration();
-      appPath = new Path(context.getValue(DAG.APPLICATION_PATH), recoveryPath);
+      appPath = new Path(context.getValue(DAG.APPLICATION_PATH) + Path.SEPARATOR + recoveryPath);
 
       try {
         storageAgent = new FSStorageAgent(appPath.toString(), configuration);
