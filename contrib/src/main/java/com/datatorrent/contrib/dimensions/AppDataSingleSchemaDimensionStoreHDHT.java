@@ -15,16 +15,11 @@
  */
 package com.datatorrent.contrib.dimensions;
 
-import java.io.IOException;
-import java.io.Serializable;
-
 import java.util.Map;
 import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -32,18 +27,10 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.api.AppData;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
-import com.datatorrent.lib.appdata.dimensions.*;
-import com.datatorrent.lib.appdata.qr.Data;
-import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
-import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
-import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
+import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.schemas.*;
 
 import static com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
@@ -53,10 +40,8 @@ import static com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingle
  * @category Store
  * @tags appdata, dimensions, store
  */
-public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT implements Serializable
+public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimensionStoreHDHT
 {
-  private static final long serialVersionUID = 201503231218L;
-
   public static final long DEFAULT_BUCKET_ID = 0;
 
   @NotNull
@@ -68,71 +53,9 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   private transient SchemaDimensional dimensionalSchema;
   private int schemaID = DEFAULT_SCHEMA_ID;
 
-  //Query Processing - Start
-  private transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
-  private final transient DataDeserializerFactory queryDeserializerFactory;
-  @NotNull
-  private AppDataFormatter appDataFormatter = new AppDataFormatter();
-  private transient SchemaRegistry schemaRegistry;
-  @NotNull
-  private AggregatorInfo aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
-  private transient DataSerializerFactory resultSerializerFactory;
-  //Query Processing - End
-
   private boolean updateEnumValues = false;
   @SuppressWarnings({"rawtypes"})
   private Map<String, Set<Comparable>> seenEnumValues;
-
-  @AppData.ResultPort
-  public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
-
-  @InputPortFieldAnnotation(optional = true)
-  @AppData.QueryPort
-  public transient final DefaultInputPort<String> query = new DefaultInputPort<String>()
-  {
-    @Override public void process(String s)
-    {
-      logger.debug("Received {}", s);
-      Data query;
-      try {
-        query = queryDeserializerFactory.deserialize(s);
-      }
-      catch(IOException ex) {
-        logger.error("error parsing query: {}", s);
-        logger.error("{}", ex);
-        return;
-      }
-
-      if(query instanceof SchemaQuery) {
-        dimensionalSchema.setTo(System.currentTimeMillis());
-
-        if(updateEnumValues) {
-          dimensionalSchema.setEnumsSetComparable(seenEnumValues);
-        }
-
-        SchemaResult schemaResult = schemaRegistry.getSchemaResult((SchemaQuery) query);
-
-        if(schemaResult != null) {
-          String schemaResultJSON = resultSerializerFactory.serialize(schemaResult);
-          logger.info("Emitter {}", schemaResultJSON);
-          queryResult.emit(schemaResultJSON);
-        }
-      }
-      else if(query instanceof DataQueryDimensional) {
-        DataQueryDimensional gdq = (DataQueryDimensional) query;
-        queryProcessor.enqueue(gdq, null, null);
-      }
-      else {
-        logger.error("Invalid query {}", s);
-      }
-    }
-  };
-
-  @SuppressWarnings("unchecked")
-  public AppDataSingleSchemaDimensionStoreHDHT()
-  {
-    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
-  }
 
   @Override
   public void processEvent(AggregateEvent gae) {
@@ -160,23 +83,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   @Override
   public void setup(OperatorContext context)
   {
-    aggregatorInfo.setup();
-
-    eventSchema = new DimensionalEventSchema(eventSchemaJSON,
-                                             aggregatorInfo);
-    dimensionalSchema = new SchemaDimensional(schemaID,
-                                              dimensionalSchemaJSON,
-                                              eventSchema);
-
-    schemaRegistry = new SchemaRegistrySingle(dimensionalSchema);
-
-    //setup query processor
-    queryProcessor = QueryProcessor.newInstance(new DimensionsQueryComputer(this, schemaRegistry),
-      new DimensionsQueryQueueManager(this, schemaRegistry));
-    queryProcessor.setup(context);
-
-    resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
-    queryDeserializerFactory.setContext(DataQueryDimensional.class, schemaRegistry);
     super.setup(context);
 
     if(!dimensionalSchema.isFixedFromTo()) {
@@ -195,43 +101,31 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   }
 
   @Override
-  public void beginWindow(long windowId)
+  protected SchemaRegistry getSchemaRegistry()
   {
-    queryProcessor.beginWindow(windowId);
-    super.beginWindow(windowId);
+    eventSchema = new DimensionalEventSchema(eventSchemaJSON, aggregatorInfo);
+    dimensionalSchema = new SchemaDimensional(schemaID, dimensionalSchemaJSON, eventSchema);
+
+    return new SchemaRegistrySingle(dimensionalSchema);
   }
 
+
   @Override
-  public void endWindow()
+  protected void processSchemaQuery(SchemaQuery schemaQuery)
   {
-    super.endWindow();
+    dimensionalSchema.setTo(System.currentTimeMillis());
 
-    MutableBoolean done = new MutableBoolean(false);
-
-    while(done.isFalse()) {
-      Result aotr = queryProcessor.process(done);
-
-      if(aotr != null) {
-        String result = resultSerializerFactory.serialize(aotr);
-        logger.debug("Emitting the result: {}", result);
-        queryResult.emit(result);
-      }
+    if (updateEnumValues) {
+      dimensionalSchema.setEnumsSetComparable(seenEnumValues);
     }
 
-    queryProcessor.endWindow();
-  }
+    SchemaResult schemaResult = schemaRegistry.getSchemaResult(schemaQuery);
 
-  @Override
-  public void teardown()
-  {
-    queryProcessor.teardown();
-    super.teardown();
-  }
-
-  @Override
-  public DimensionsStaticAggregator getAggregator(int aggregatorID)
-  {
-    return aggregatorInfo.getStaticAggregatorIDToAggregator().get(aggregatorID);
+    if (schemaResult != null) {
+      String schemaResultJSON = resultSerializerFactory.serialize(schemaResult);
+      logger.info("Emitter {}", schemaResultJSON);
+      queryResult.emit(schemaResultJSON);
+    }
   }
 
   @Override
@@ -271,41 +165,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends DimensionsStoreHDHT i
   public void setDimensionalSchemaJSON(String dimensionalSchemaJSON)
   {
     this.dimensionalSchemaJSON = dimensionalSchemaJSON;
-  }
-
-  @Override
-  protected int getAggregatorID(String aggregatorName)
-  {
-    return AggregatorStaticType.NAME_TO_ORDINAL.get(aggregatorName);
-  }
-
-  public void setAppDataFormatter(AppDataFormatter appDataFormatter)
-  {
-    this.appDataFormatter = appDataFormatter;
-  }
-
-  /**
-   * @return the appDataFormatter
-   */
-  public AppDataFormatter getAppDataFormatter()
-  {
-    return appDataFormatter;
-  }
-
-  /**
-   * @return the aggregatorInfo
-   */
-  public AggregatorInfo getAggregatorInfo()
-  {
-    return aggregatorInfo;
-  }
-
-  /**
-   * @param aggregatorInfo the aggregatorInfo to set
-   */
-  public void setAggregatorInfo(@NotNull AggregatorInfo aggregatorInfo)
-  {
-    this.aggregatorInfo = aggregatorInfo;
   }
 
   /**
