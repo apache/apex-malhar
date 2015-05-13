@@ -30,16 +30,15 @@ public class AggregatorInfo implements Serializable
 {
   private static final long serialVersionUID = 20154301642L;
 
-  private static final Logger logger = LoggerFactory.getLogger(AggregatorInfo.class);
+  private transient boolean setup = false;
+  private transient Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName;
+  private transient Map<String, DimensionsOTFAggregator> nameToOTFAggregator;
+  private transient Map<String, List<String>> otfAggregatorToStaticAggregators;
+  private transient Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator;
+  private transient Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator;
 
-  private boolean setup = false;
-  private Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName;
-  private Map<String, DimensionsOTFAggregator> nameToOTFAggregator;
-  private Map<String, List<String>> otfAggregatorToStaticAggregators;
-  private Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator;
-  private Map<String, Integer> staticAggregatorNameToID;
-  private Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator;
   private Map<String, DimensionsAggregator> nameToAggregator;
+  private Map<String, Integer> staticAggregatorNameToID;
 
   protected AggregatorInfo()
   {
@@ -174,4 +173,6 @@ public class AggregatorInfo implements Serializable
   {
     return otfAggregatorToStaticAggregators;
   }
+  
+  private static final Logger logger = LoggerFactory.getLogger(AggregatorInfo.class);
 }
