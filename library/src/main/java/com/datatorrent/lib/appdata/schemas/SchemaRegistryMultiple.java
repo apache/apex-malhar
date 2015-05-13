@@ -17,12 +17,14 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.datastructs.DimensionalTable;
+import java.io.Serializable;
 
 import java.util.List;
 import java.util.Map;
 
-public class SchemaRegistryMultiple implements SchemaRegistry
+public class SchemaRegistryMultiple implements SchemaRegistry, Serializable
 {
+  private static final long serialVersionUID = 201505121108L;
   private DimensionalTable<Schema> table;
 
   private SchemaRegistryMultiple()
