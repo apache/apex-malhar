@@ -152,8 +152,6 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
   public void processGenericEventNoBuffering(AggregateEvent gae)
   {
-    logger.debug("aggregatorID {}", gae.getAggregatorID());
-    logger.debug("aggregator ID To Aggregator {}", getAggregatorInfo().getStaticAggregatorIDToAggregator());
     DimensionsStaticAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorID());
     outputAggregateEvent(aggregator.createDest(gae,
                          getAggregateFieldsDescriptor(gae.getSchemaID(),
