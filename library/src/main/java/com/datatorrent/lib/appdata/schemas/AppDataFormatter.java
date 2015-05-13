@@ -21,6 +21,8 @@ import java.text.DecimalFormat;
 
 public class AppDataFormatter implements Serializable
 {
+  private static final long serialVersionUID = 201505121109L;
+
   private String floatFormatString;
   private String doubleFormatString;
 

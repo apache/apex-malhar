@@ -114,8 +114,9 @@ public class DimensionalEventSchema
 
   private Map<String, Map<String, Type>> schemaAllValueToAggregatorToType;
 
-  public DimensionalEventSchema()
+  private DimensionalEventSchema()
   {
+    //For kryo
   }
 
   public DimensionalEventSchema(List<Key> keys,

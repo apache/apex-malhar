@@ -74,6 +74,11 @@ public class SchemaDimensional implements Schema
 
   private int schemaID = Schema.DEFAULT_SCHEMA_ID;
 
+  private SchemaDimensional()
+  {
+    //For kryo
+  }
+
   public SchemaDimensional(String schemaStub,
                            DimensionalEventSchema eventSchema,
                            Map<String, String> schemaKeys)
@@ -180,7 +185,7 @@ public class SchemaDimensional implements Schema
       Preconditions.checkNotNull(entry.getValue());
     }
 
-    this.schemaKeys = Collections.unmodifiableMap(Maps.newHashMap(schemaKeys));
+    this.schemaKeys = Maps.newHashMap(schemaKeys);
   }
 
   private void setEventSchema(DimensionalEventSchema eventSchema)
