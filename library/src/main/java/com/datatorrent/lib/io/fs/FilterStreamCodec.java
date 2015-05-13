@@ -42,6 +42,7 @@ public class FilterStreamCodec
     public void finalizeContext() throws IOException
     {
       filterStream.finish();
+      //filterStream.close();
     }
   }
 
