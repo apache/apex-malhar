@@ -49,7 +49,7 @@ public class SchemaTabular implements Schema
   private Map<String, String> schemaKeys;
   private int schemaID = Schema.DEFAULT_SCHEMA_ID;
 
-  private JSONObject schemaWhole;
+  private JSONObject schema;
   private boolean changed = false;
 
   public SchemaTabular(String schemaJSON,
@@ -150,14 +150,7 @@ public class SchemaTabular implements Schema
 
   private void initialize(boolean validate) throws Exception
   {
-    schemaWhole = new JSONObject();
-
-    if(schemaKeys != null) {
-      schemaWhole.put(Schema.FIELD_SCHEMA_KEYS,
-                      SchemaUtils.createJSONObject(schemaKeys));
-    }
-
-    JSONObject schema = new JSONObject(schemaJSON);
+    schema = new JSONObject(schemaJSON);
 
     if(validate) {
       Preconditions.checkState(schema.length() == NUM_KEYS_FIRST_LEVEL,
@@ -165,6 +158,11 @@ public class SchemaTabular implements Schema
                                + NUM_KEYS_FIRST_LEVEL
                                + " keys in the first level but found "
                                + schema.length());
+    }
+
+    if(schemaKeys != null) {
+      schema.put(Schema.FIELD_SCHEMA_KEYS,
+                 SchemaUtils.createJSONObject(schemaKeys));
     }
 
     valueToType = Maps.newHashMap();
@@ -193,7 +191,6 @@ public class SchemaTabular implements Schema
     valueToType = Collections.unmodifiableMap(valueToType);
     valuesDescriptor = new FieldsDescriptor(valueToType);
 
-
     try {
       schema.put(FIELD_SCHEMA_TYPE, SCHEMA_TYPE);
       schema.put(FIELD_SCHEMA_VERSION, SCHEMA_VERSION);
@@ -202,8 +199,7 @@ public class SchemaTabular implements Schema
       throw new RuntimeException(e);
     }
 
-    schemaWhole.put(Schema.FIELD_SCHEMA, schema);
-    schemaJSON = schemaWhole.toString();
+    schemaJSON = this.schema.toString();
   }
 
   protected final void setSchema(String schemaJSON)
@@ -219,11 +215,11 @@ public class SchemaTabular implements Schema
     }
 
     if(schemaKeys == null) {
-      schemaWhole.remove(Schema.FIELD_SCHEMA_KEYS);
+      schema.remove(Schema.FIELD_SCHEMA_KEYS);
     }
     else {
       try {
-        schemaWhole.put(Schema.FIELD_SCHEMA_KEYS,
+        schema.put(Schema.FIELD_SCHEMA_KEYS,
                         SchemaUtils.createJSONObject(schemaKeys));
       }
       catch(JSONException ex) {
@@ -231,7 +227,7 @@ public class SchemaTabular implements Schema
       }
     }
 
-    schemaJSON = schemaWhole.toString();
+    schemaJSON = schema.toString();
     return schemaJSON;
   }
 

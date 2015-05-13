@@ -138,7 +138,7 @@ public class SchemaDimensionalTest
                                                                 (Map<String, String>) new HashMap<String, String>(),
                                                                 (Map<String, String>) new HashMap<String, String>());
 
-    JSONObject data = new JSONObject(resultSchema).getJSONArray("data").getJSONObject(0).getJSONObject("schema");
+    JSONObject data = new JSONObject(resultSchema).getJSONArray("data").getJSONObject(0);
     JSONArray dimensions = data.getJSONArray("dimensions");
 
     for(int index = 0;
@@ -200,7 +200,7 @@ public class SchemaDimensionalTest
 
     String schemaJSON = dimensional.getSchemaJSON();
 
-    JSONObject schema = new JSONObject(schemaJSON).getJSONObject("schema");
+    JSONObject schema = new JSONObject(schemaJSON);
     JSONArray keys = schema.getJSONArray(DimensionalEventSchema.FIELD_KEYS);
 
     Map<String, List<Object>> newEnums = Maps.newHashMap();
@@ -262,7 +262,7 @@ public class SchemaDimensionalTest
 
     String schemaJSON = dimensional.getSchemaJSON();
 
-    JSONObject schema = new JSONObject(schemaJSON).getJSONObject("schema");
+    JSONObject schema = new JSONObject(schemaJSON);
     JSONArray keys = schema.getJSONArray(DimensionalEventSchema.FIELD_KEYS);
 
     Map<String, List<Comparable>> newEnums = Maps.newHashMap();
@@ -311,7 +311,7 @@ public class SchemaDimensionalTest
                                   List<Set<String>> dimensionCombinationsList) throws Exception
   {
     JSONObject schemaJO = new JSONObject(resultSchema);
-    JSONObject data = schemaJO.getJSONArray("data").getJSONObject(0).getJSONObject("schema");
+    JSONObject data = schemaJO.getJSONArray("data").getJSONObject(0);
 
     JSONArray jaBuckets = SchemaUtils.findFirstKeyJSONArray(schemaJO, "buckets");
 

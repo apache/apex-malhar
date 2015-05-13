@@ -63,7 +63,7 @@ public class SchemaDimensional implements Schema
   private String schemaJSON;
 
   private DimensionalEventSchema eventSchema;
-  private JSONObject schemaWhole;
+  private JSONObject schema;
   private JSONObject time;
   private JSONArray keys;
 
@@ -202,14 +202,13 @@ public class SchemaDimensional implements Schema
 
   private void initialize() throws Exception
   {
-    schemaWhole = new JSONObject();
+    schema = new JSONObject();
 
     if(schemaKeys != null) {
-      schemaWhole.put(Schema.FIELD_SCHEMA_KEYS,
+      schema.put(Schema.FIELD_SCHEMA_KEYS,
                       SchemaUtils.createJSONObject(schemaKeys));
     }
 
-    JSONObject schema = new JSONObject();
     schema.put(SchemaTabular.FIELD_SCHEMA_TYPE, SchemaDimensional.SCHEMA_TYPE);
     schema.put(SchemaTabular.FIELD_SCHEMA_VERSION, SchemaDimensional.SCHEMA_VERSION);
 
@@ -297,8 +296,7 @@ public class SchemaDimensional implements Schema
 
     schema.put(DimensionalEventSchema.FIELD_DIMENSIONS, dimensions);
 
-    schemaWhole.put(Schema.FIELD_SCHEMA, schema);
-    this.schemaJSON = schemaWhole.toString();
+    this.schemaJSON = this.schema.toString();
   }
 
   public void setFrom(Long from)
@@ -430,11 +428,11 @@ public class SchemaDimensional implements Schema
       changedSchemaKeys = false;
 
       if(schemaKeys == null) {
-        schemaWhole.remove(Schema.FIELD_SCHEMA_KEYS);
+        schema.remove(Schema.FIELD_SCHEMA_KEYS);
       }
       else {
         try {
-          schemaWhole.put(Schema.FIELD_SCHEMA_KEYS,
+          schema.put(Schema.FIELD_SCHEMA_KEYS,
                           SchemaUtils.createJSONObject(schemaKeys));
         }
         catch(JSONException ex) {
@@ -506,7 +504,7 @@ public class SchemaDimensional implements Schema
       updatedEnums = null;
     }
 
-    schemaJSON = schemaWhole.toString();
+    schemaJSON = schema.toString();
     return schemaJSON;
   }
 
