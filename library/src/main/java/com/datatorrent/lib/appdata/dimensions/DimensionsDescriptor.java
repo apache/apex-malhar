@@ -63,6 +63,11 @@ public class DimensionsDescriptor
     DIMENSION_FIELD_TO_TYPE = Collections.unmodifiableMap(dimensionFieldToType);
   }
 
+  private DimensionsDescriptor()
+  {
+    //for kryo
+  }
+
   public DimensionsDescriptor(TimeBucket timeBucket,
                               Fields fields)
   {

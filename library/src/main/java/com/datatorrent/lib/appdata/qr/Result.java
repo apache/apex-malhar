@@ -52,8 +52,7 @@ public class Result
 
   private void setQuery(Query query)
   {
-    Preconditions.checkNotNull(query);
-    this.query = query;
+    this.query = Preconditions.checkNotNull(query);
   }
 
   public Query getQuery()

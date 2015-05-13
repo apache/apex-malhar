@@ -20,6 +20,8 @@ import com.datatorrent.lib.appdata.qr.Result;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 public class SchemaSerializer implements CustomDataSerializer
@@ -43,6 +45,10 @@ public class SchemaSerializer implements CustomDataSerializer
 
     StringBuilder sb = new StringBuilder();
 
+    logger.debug("result {}", result);
+    logger.debug("result id {}", result.getId());
+    logger.debug("result type {}", result.getType());
+
     sb.append("{\"").append(Result.FIELD_ID).
     append("\":\"").append(result.getId()).
     append("\",\"").append(Result.FIELD_TYPE).
@@ -65,4 +71,6 @@ public class SchemaSerializer implements CustomDataSerializer
 
     return sb.toString();
   }
+
+  private static final Logger logger = LoggerFactory.getLogger(SchemaSerializer.class);
 }

@@ -52,7 +52,6 @@ public class FieldsDescriptor
   {
     setFieldToType(fieldToType);
     compressedTypes = Sets.newHashSet();
-    compressedTypes = Collections.unmodifiableSet(compressedTypes);
     initialize();
   }
 
@@ -147,12 +146,9 @@ public class FieldsDescriptor
       types = Sets.newHashSet();
     }
 
-    types = Collections.unmodifiableSet(types);
-
     //Types list
     typesList = Lists.newArrayList();
     typesList.addAll(types);
-    typesList = Collections.unmodifiableList(typesList);
 
     //Field List
 
@@ -160,7 +156,6 @@ public class FieldsDescriptor
     getFieldList().addAll(fieldToType.keySet());
     ((ArrayList<String>)getFieldList()).trimToSize();
     Collections.sort(fieldList);
-    fieldList = Collections.unmodifiableList(fieldList);
 
     //Array Sizes
     typeToSize = new Object2IntLinkedOpenHashMap<Type>();
@@ -198,7 +193,7 @@ public class FieldsDescriptor
       Preconditions.checkNotNull(type);
     }
 
-    this.compressedTypes = Collections.unmodifiableSet(compressedTypes);
+    this.compressedTypes = Sets.newHashSet(compressedTypes);
   }
 
   public Map<String, Type> getFieldToType()
