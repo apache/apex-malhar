@@ -24,11 +24,9 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.TopicResultOperator
+public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ResultConnectionInfoProvider
 {
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataResult.class);
-
-  private boolean appendQIDToTopic = true;
 
   public PubSubWebSocketAppDataResult()
   {
@@ -42,15 +40,9 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
   }
 
   @Override
-  public boolean isAppendQIDToTopic()
+  public boolean isQueryIdAppended()
   {
-    return appendQIDToTopic;
-  }
-
-  @Override
-  public void setAppendQIDToTopic(boolean appendQIDToTopic)
-  {
-    this.appendQIDToTopic = appendQIDToTopic;
+    return true;
   }
 
   @Override
@@ -80,11 +72,7 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
       throw new RuntimeException(ex);
     }
 
-    String topic = getTopic();
-
-    if(appendQIDToTopic) {
-      topic += "." + id;
-    }
+    String topic = getTopic() + "." + id;
 
     JSONObject output = new JSONObject();
 
