@@ -77,6 +77,7 @@ public class SchemaRegistryMultiple implements SchemaRegistry, Serializable
     table.appendRow(schema, schemaKeys);
   }
 
+  @Override
   public int size()
   {
     return table.size();

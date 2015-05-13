@@ -4,21 +4,11 @@
  */
 package com.datatorrent.contrib.dimensions;
 
-import java.io.IOException;
-
-import javax.validation.constraints.NotNull;
-
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.apache.commons.lang3.mutable.MutableLong;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.datatorrent.api.AppData;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-
 import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
 import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
@@ -31,6 +21,13 @@ import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
+import com.google.common.annotations.VisibleForTesting;
+import java.io.IOException;
+import javax.validation.constraints.NotNull;
+import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableLong;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreHDHT
 {
@@ -43,7 +40,8 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   protected transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   protected final transient DataDeserializerFactory queryDeserializerFactory;
 
-  protected transient SchemaRegistry schemaRegistry;
+  @VisibleForTesting
+  public SchemaRegistry schemaRegistry;
   protected transient DataSerializerFactory resultSerializerFactory;
 
   @AppData.ResultPort

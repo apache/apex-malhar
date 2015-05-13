@@ -24,4 +24,5 @@ public interface SchemaRegistry
   public void registerSchema(Schema schema);
   public void registerSchema(Schema schema, Map<String, String> schemaKeys);
   public Schema getSchema(Map<String, String> schemaKeys);
+  public int size();
 }

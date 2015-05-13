@@ -80,4 +80,10 @@ public class SchemaRegistrySingle implements SchemaRegistry
   {
     throw new UnsupportedOperationException("Schema keys are not supported in SchemaRegistrySingle.");
   }
+
+  @Override
+  public int size()
+  {
+    return schema == null ? 0: 1;
+  }
 }
