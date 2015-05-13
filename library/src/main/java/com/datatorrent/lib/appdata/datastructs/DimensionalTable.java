@@ -229,4 +229,8 @@ public class DimensionalTable<DATA>
   {
     return Lists.newArrayList(dataColumn);
   }
+
+  public int size() {
+    return dataColumn.size();
+  }
 }

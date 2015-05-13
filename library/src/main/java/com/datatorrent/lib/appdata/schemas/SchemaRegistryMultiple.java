@@ -76,4 +76,9 @@ public class SchemaRegistryMultiple implements SchemaRegistry, Serializable
     schema.setSchemaKeys(schemaKeys);
     table.appendRow(schema, schemaKeys);
   }
+
+  public int size()
+  {
+    return table.size();
+  }
 }
