@@ -51,6 +51,29 @@ public class AggregatorInfo implements Serializable
   {
     setNameToAggregator(nameToAggregator);
     setStaticAggregatorNameToID(staticAggregatorNameToID);
+
+    validate();
+  }
+
+  private void validate()
+  {
+    for(Map.Entry<String, DimensionsAggregator> entry: nameToAggregator.entrySet()) {
+      String aggregatorName = entry.getKey();
+      DimensionsAggregator aggregator = entry.getValue();
+
+      if(aggregator instanceof DimensionsOTFAggregator &&
+         staticAggregatorNameToID.get(aggregatorName) != null) {
+        throw new IllegalArgumentException("There should not be an id entry for an aggregator of type " +
+                                           DimensionsOTFAggregator.class);
+      }
+      else if(aggregator instanceof DimensionsStaticAggregator) {
+        Preconditions.checkArgument(staticAggregatorNameToID.get(aggregatorName) != null);
+      }
+      else {
+        throw new IllegalArgumentException("Unsupported aggregator type " +
+                                           DimensionsStaticAggregator.class);
+      }
+    }
   }
 
   public void setup()
