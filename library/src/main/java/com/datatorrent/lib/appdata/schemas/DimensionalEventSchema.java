@@ -34,7 +34,6 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -183,7 +182,7 @@ public class DimensionalEventSchema
         inputValuesDescriptor.getSubset(new Fields(entry.getValue())));
       }
 
-      aggregatorToValuesDescriptor = Collections.unmodifiableMap(aggregatorToValuesDescriptor);
+      aggregatorToValuesDescriptor = aggregatorToValuesDescriptor;
       tempDdIDToAggregatorToAggregateDescriptor.add(aggregatorToValuesDescriptor);
     }
 
@@ -343,10 +342,10 @@ public class DimensionalEventSchema
     //ddIDToAggregatorToAggregateDescriptor
 
     ddIDToAggregatorToAggregateDescriptor = computeAggregatorToAggregateDescriptor(ddIDToValueToAggregator);
-    ddIDToAggregatorToAggregateDescriptor = Collections.unmodifiableList(ddIDToAggregatorToAggregateDescriptor);
+    ddIDToAggregatorToAggregateDescriptor = ddIDToAggregatorToAggregateDescriptor;
 
     ddIDToOTFAggregatorToAggregateDescriptor = computeAggregatorToAggregateDescriptor(ddIDToValueToOTFAggregator);
-    ddIDToOTFAggregatorToAggregateDescriptor = Collections.unmodifiableList(ddIDToOTFAggregatorToAggregateDescriptor);
+    ddIDToOTFAggregatorToAggregateDescriptor = ddIDToOTFAggregatorToAggregateDescriptor;
 
     //combination ID values
 
@@ -801,16 +800,6 @@ public class DimensionalEventSchema
                                            combinationFields.toString());
       }
 
-      //Map specificValueToAggregator immutable and validate that atleast one aggregator is defined
-      //for each value
-      for(Map.Entry<String, Set<String>> entry:
-          specificValueToAggregator.entrySet()) {
-        specificValueToAggregator.put(entry.getKey(),
-                                      Collections.unmodifiableSet(entry.getValue()));
-      }
-
-      specificValueToAggregator = Collections.unmodifiableMap(specificValueToAggregator);
-
       for(int timeBucketCounter = 0;
           timeBucketCounter < timeBuckets.size();
           timeBucketCounter++) {
@@ -819,20 +808,15 @@ public class DimensionalEventSchema
       }
     }
 
-    ddIDToDD = Collections.unmodifiableList(ddIDToDD);
-    ddIDToKeyDescriptor = Collections.unmodifiableList(ddIDToKeyDescriptor);
-
     //DD ID To Aggregator To Aggregate Descriptor
 
     logger.debug("Correct ddId {}", ddIDToValueToAggregator);
 
     ddIDToAggregatorToAggregateDescriptor = computeAggregatorToAggregateDescriptor(ddIDToValueToAggregator);
-    ddIDToAggregatorToAggregateDescriptor = Collections.unmodifiableList(ddIDToAggregatorToAggregateDescriptor);
 
     //DD ID To OTF Aggregator To Aggregator Descriptor
 
     ddIDToOTFAggregatorToAggregateDescriptor = computeAggregatorToAggregateDescriptor(ddIDToValueToOTFAggregator);
-    ddIDToOTFAggregatorToAggregateDescriptor = Collections.unmodifiableList(ddIDToOTFAggregatorToAggregateDescriptor);
 
     //Dimensions Descriptor To ID
 
@@ -842,13 +826,6 @@ public class DimensionalEventSchema
         index < ddIDToDD.size();
         index++) {
       dimensionsDescriptorToID.put(ddIDToDD.get(index), index);
-    }
-
-    //allValueToAggregator unmodifiable
-    Map<String, Set<String>> allValueToAggregatorUnmodifiable = Maps.newHashMap();
-
-    for(Map.Entry<String, Set<String>> entry: allValueToAggregator.entrySet()) {
-      allValueToAggregatorUnmodifiable.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
     }
 
     //Build id maps
