@@ -40,6 +40,7 @@ public class SchemaResult extends Result
   public SchemaResult(SchemaQuery schemaQuery,
                       List<Schema> genericSchemas)
   {
+    super(schemaQuery);
     setGenericSchemas(genericSchemas);
   }
 
