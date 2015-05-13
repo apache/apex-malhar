@@ -16,16 +16,15 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
-import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.google.common.collect.Lists;
-
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+
+import com.google.common.collect.Lists;
+
+import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.qr.Result;
 
 public class QueryProcessorTest
 {
@@ -34,7 +33,7 @@ public class QueryProcessorTest
   {
     final int numQueries = 3;
 
-    QueryProcessor<Query, Void, Void, Void, Result> queryProcessor = new QueryProcessor<Query, Void, Void, Void, Result>(new SimpleQueryComputer());
+    QueryProcessor<Query, Void, Void, Void, Result> queryProcessor = QueryProcessor.newInstance(new SimpleQueryComputer());
 
     queryProcessor.setup(null);
     queryProcessor.beginWindow(0);

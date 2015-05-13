@@ -16,11 +16,12 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.google.common.base.Preconditions;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
+import com.google.common.base.Preconditions;
 
 public class SchemaRegistrySingle implements SchemaRegistry
 {
@@ -71,8 +72,6 @@ public class SchemaRegistrySingle implements SchemaRegistry
   @Override
   public Schema getSchema(Map<String, String> schemaKeys)
   {
-    Preconditions.checkArgument(schemaKeys == null);
-
     return schema;
   }
 

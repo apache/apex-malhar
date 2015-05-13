@@ -15,8 +15,25 @@
  */
 package com.datatorrent.contrib.dimensions;
 
+import java.io.IOException;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
+import javax.validation.constraints.Min;
+
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.cache.*;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
+
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.annotation.OperatorAnnotation;
+
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
@@ -28,22 +45,6 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.cache.RemovalListener;
-import com.google.common.cache.RemovalNotification;
-import com.google.common.primitives.Ints;
-import com.google.common.primitives.Longs;
-import java.io.IOException;
-import javax.validation.constraints.Min;
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
 
 /**
  * TODO aggregate by windowID in waiting cache.
@@ -371,5 +372,16 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
      return fromKeyValueGAE(keySlice, val);
     }
+  }
+
+  @Override
+  public void addQuery(HDSQuery query)
+  {
+    super.addQuery(query);
+  }
+
+  public ImmutableMap<Slice, HDSQuery> getQueries()
+  {
+    return ImmutableMap.copyOf(this.queries);
   }
 }
