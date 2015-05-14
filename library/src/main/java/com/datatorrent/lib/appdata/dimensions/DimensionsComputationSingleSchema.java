@@ -57,13 +57,14 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
   @Override
   public void setup(OperatorContext context)
   {
-    logger.debug("Setup called");
     super.setup(context);
 
     if(eventSchema == null) {
       eventSchema = new DimensionalEventSchema(eventSchemaJSON,
                                               getAggregatorInfo());
     }
+
+    logger.debug("Event Schema {}", eventSchema);
   }
 
   @Override
