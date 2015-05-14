@@ -16,15 +16,16 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import java.util.Map;
-
+import com.google.common.base.Preconditions;
+import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.google.common.base.Preconditions;
+import java.util.Map;
 
-public class SchemaRegistrySingle implements SchemaRegistry
+public class SchemaRegistrySingle implements SchemaRegistry, Serializable
 {
+  private static final long serialVersionUID = 20150513928L;
   private static final Logger logger = LoggerFactory.getLogger(SchemaRegistrySingle.class);
 
   private Schema schema;

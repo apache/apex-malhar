@@ -15,23 +15,21 @@
  */
 package com.datatorrent.contrib.dimensions;
 
-import java.util.Map;
-import java.util.Set;
-
-import javax.validation.constraints.NotNull;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
+import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.appdata.schemas.*;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import java.io.Serializable;
+import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import com.datatorrent.api.Context.OperatorContext;
-
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.schemas.*;
+import java.util.Map;
+import java.util.Set;
 
 import static com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
 
@@ -40,8 +38,9 @@ import static com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingle
  * @category Store
  * @tags appdata, dimensions, store
  */
-public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimensionStoreHDHT
+public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimensionStoreHDHT implements Serializable
 {
+  private static final long serialVersionUID = 201505130939L;
   public static final long DEFAULT_BUCKET_ID = 0;
 
   @NotNull
