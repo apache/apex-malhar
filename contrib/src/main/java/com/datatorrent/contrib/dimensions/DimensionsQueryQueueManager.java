@@ -86,6 +86,7 @@ public class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<Dat
       aggregatorNames.addAll(eventSchema.getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(aggregatorName));
     }
     for(String aggregatorName: aggregatorNames) {
+      LOG.debug("querying for aggregator {}", aggregatorName);
       Integer aggregatorID = eventSchema.getAggregatorInfo().
                              getStaticAggregatorNameToID().get(aggregatorName);
       EventKey eventKey = new EventKey(schemaDimensional.getSchemaID(), ddID, aggregatorID, gpoKey);
