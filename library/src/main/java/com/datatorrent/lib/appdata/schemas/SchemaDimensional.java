@@ -70,7 +70,8 @@ public class SchemaDimensional implements Schema
   private boolean fixedFromTo = false;
 
   private Map<String, String> schemaKeys;
-  private Map<String, List<Object>> updatedEnums;
+  private Map<String, List<Object>> currentEnumVals;
+  private boolean areEnumsUpdated = false;
 
   private int schemaID = Schema.DEFAULT_SCHEMA_ID;
 
@@ -348,7 +349,7 @@ public class SchemaDimensional implements Schema
       enumsList.put(name, valsList);
     }
 
-    updatedEnums = Maps.newHashMap(enumsList);
+    currentEnumVals = Maps.newHashMap(enumsList);
   }
 
   @SuppressWarnings({"rawtypes","unchecked"})
@@ -384,7 +385,7 @@ public class SchemaDimensional implements Schema
       enumsList.put(name, valsList);
     }
 
-    updatedEnums = Maps.newHashMap(enumsList);
+    currentEnumVals = Maps.newHashMap(enumsList);
   }
 
   public void setEnumsList(Map<String, List<Object>> enums)
@@ -419,7 +420,7 @@ public class SchemaDimensional implements Schema
       tempEnums.put(key, tempEnumValues);
     }
 
-    updatedEnums = tempEnums;
+    currentEnumVals = tempEnums;
   }
 
   @Override
@@ -470,7 +471,7 @@ public class SchemaDimensional implements Schema
       }
     }
 
-    if(updatedEnums != null) {
+    if(this.areEnumsUpdated) {
       for(int keyIndex = 0;
           keyIndex < keys.length();
           keyIndex++) {
@@ -485,7 +486,7 @@ public class SchemaDimensional implements Schema
           throw new RuntimeException(ex);
         }
 
-        List<Object> enumVals = updatedEnums.get(name);
+        List<Object> enumVals = currentEnumVals.get(name);
 
         if(enumVals == null || enumVals.isEmpty()) {
           keyData.remove(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES);
@@ -506,7 +507,7 @@ public class SchemaDimensional implements Schema
         }
       }
 
-      updatedEnums = null;
+      this.areEnumsUpdated = false;
     }
 
     schemaJSON = schema.toString();
@@ -551,5 +552,13 @@ public class SchemaDimensional implements Schema
   public int getSchemaID()
   {
     return schemaID;
+  }
+
+  /**
+   * @return the currentEnumVals
+   */
+  public Map<String, List<Object>> getCurrentEnumVals()
+  {
+    return currentEnumVals;
   }
 }
