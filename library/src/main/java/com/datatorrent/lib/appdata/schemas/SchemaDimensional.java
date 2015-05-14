@@ -322,6 +322,7 @@ public class SchemaDimensional implements Schema
   public void setEnumsSet(Map<String, Set<Object>> enums)
   {
     Preconditions.checkNotNull(enums);
+    areEnumsUpdated = true;
 
     Map<String, List<Object>> enumsList = Maps.newHashMap();
 
@@ -356,6 +357,7 @@ public class SchemaDimensional implements Schema
   public void setEnumsSetComparable(Map<String, Set<Comparable>> enums)
   {
     Preconditions.checkNotNull(enums);
+    areEnumsUpdated = true;
 
     Map<String, List<Object>> enumsList = Maps.newHashMap();
 
@@ -391,6 +393,7 @@ public class SchemaDimensional implements Schema
   public void setEnumsList(Map<String, List<Object>> enums)
   {
     Preconditions.checkNotNull(enums);
+    areEnumsUpdated = true;
 
     //Check that all the given keys are valid
     Preconditions.checkArgument(
