@@ -71,8 +71,6 @@ public abstract class AbstractWEQueryQueueManager<QUERY_TYPE, META_QUERY, QUEUE_
 
   private QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> dequeueHelper()
   {
-    logger.debug("");
-
     QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> qq = null;
 
     if(currentNode == null) {
