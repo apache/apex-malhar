@@ -19,7 +19,6 @@ package com.datatorrent.contrib.dimensions;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
@@ -87,7 +86,8 @@ public class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<Dat
       aggregatorNames.addAll(eventSchema.getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(aggregatorName));
     }
     for(String aggregatorName: aggregatorNames) {
-      Integer aggregatorID = AggregatorStaticType.NAME_TO_ORDINAL.get(aggregatorName);
+      Integer aggregatorID = eventSchema.getAggregatorInfo().
+                             getStaticAggregatorNameToID().get(aggregatorName);
       EventKey eventKey = new EventKey(schemaDimensional.getSchemaID(), ddID, aggregatorID, gpoKey);
       aggregatorToEventKey.put(aggregatorName, eventKey);
     }
@@ -187,7 +187,7 @@ public class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<Dat
         eventKeys.add(aggregatorToEventKeyMap);
       }
     }
-    
+
     QueryMeta qm = new QueryMeta();
     qm.setEventKeys(eventKeys);
     qm.setHdsQueries(hdsQueries);
