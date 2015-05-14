@@ -24,7 +24,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ResultConnectionInfoProvider
+public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<String> implements AppData.ConnectionInfoProvider
 {
   private static final Logger logger = LoggerFactory.getLogger(PubSubWebSocketAppDataResult.class);
 
@@ -37,12 +37,6 @@ public class PubSubWebSocketAppDataResult extends PubSubWebSocketOutputOperator<
   {
     super.setup(context);
     logger.debug("Setting up: ");
-  }
-
-  @Override
-  public boolean isQueryIdAppended()
-  {
-    return true;
   }
 
   @Override
