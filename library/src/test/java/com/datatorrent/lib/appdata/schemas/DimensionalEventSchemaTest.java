@@ -236,6 +236,15 @@ public class DimensionalEventSchemaTest
   }
 
   @Test
+  public void simpleOTFTest()
+  {
+    DimensionalEventSchema des = new DimensionalEventSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaOTF.json"),
+                                                            AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+
+    Assert.assertEquals(4, des.getDdIDToAggIDs().get(0).size());
+  }
+
+  @Test
   public void testConstructorAgreement()
   {
     DimensionalEventSchema expectedEventSchema = new DimensionalEventSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAdditional.json"),
@@ -296,6 +305,9 @@ public class DimensionalEventSchemaTest
                                                                     timeBuckets,
                                                                     dimensionsCombinations,
                                                                     AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+
+    logger.debug("expected {}", expectedEventSchema.getDdIDToValueToOTFAggregator());
+    logger.debug("actual   {}", eventSchema.getDdIDToValueToOTFAggregator());
 
     Assert.assertEquals(expectedEventSchema, eventSchema);
   }

@@ -74,7 +74,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   public DimensionsStoreHDHT()
   {
   }
-  
+
   protected abstract int getAggregatorID(String aggregatorName);
   protected abstract DimensionsStaticAggregator getAggregator(int aggregatorID);
   protected abstract FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID);
@@ -240,7 +240,6 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
         continue;
       }
 
-      logger.debug("putting GAE");
       putGAE(entry.getValue());
     }
 
@@ -328,11 +327,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     @Override
     public void onRemoval(RemovalNotification<EventKey, AggregateEvent> notification)
     {
-      logger.debug("Entry removed");
-
       AggregateEvent gae = notification.getValue();
-
-      logger.debug("GAE is empty {}", gae.isEmpty());
 
       if(gae.isEmpty()) {
         return;

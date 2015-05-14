@@ -221,11 +221,41 @@ public class DimensionalEventSchema
 
     //schemaAllValueToAggregatorToType
     schemaAllValueToAggregatorToType = Maps.newHashMap();
+    Map<String, Set<String>> specificValueToAggregator = Maps.newHashMap();
+    Map<String, Set<String>> specificValueToOTFAggregator = Maps.newHashMap();
+    Map<String, Set<String>> allSpecificValueToAggregator = Maps.newHashMap();
 
     for(Value value: values) {
       String valueName = value.getName();
-      Type inputType = inputValuesDescriptor.getType(valueName);
       Set<String> aggregators = value.getAggregators();
+
+      Set<String> specificAggregatorSet = Sets.newHashSet();
+      Set<String> allAggregatorSet = Sets.newHashSet();
+      Set<String> otfAggregators = Sets.newHashSet();
+
+      for(String aggregatorName: aggregators) {
+        if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+          specificAggregatorSet.add(aggregatorName);
+          allAggregatorSet.add(aggregatorName);
+        }
+        else {
+          otfAggregators.add(aggregatorName);
+          List<String> aggregatorNames = aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName);
+          specificAggregatorSet.addAll(aggregatorNames);
+          allAggregatorSet.addAll(aggregatorNames);
+          allAggregatorSet.add(aggregatorName);
+        }
+      }
+
+      specificValueToOTFAggregator.put(valueName, otfAggregators);
+      specificValueToAggregator.put(valueName, specificAggregatorSet);
+      allSpecificValueToAggregator.put(valueName, allAggregatorSet);
+    }
+
+    for(Map.Entry<String, Set<String>> entry: allSpecificValueToAggregator.entrySet()) {
+      String valueName = entry.getKey();
+      Type inputType = inputValuesDescriptor.getType(valueName);
+      Set<String> aggregators = entry.getValue();
       Map<String, Type> aggregatorToType = Maps.newHashMap();
 
       for(String aggregatorName: aggregators) {
@@ -283,6 +313,7 @@ public class DimensionalEventSchema
               staticAggregatorNames.add(aggregatorName);
             }
             else {
+              staticAggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
               otfAggregatorNames.add(aggregatorName);
             }
           }
@@ -302,50 +333,60 @@ public class DimensionalEventSchema
       }
     }
 
-    for(Value value: values) {
-      String name = value.getName();
-      Set<String> aggregators = value.getAggregators();
+    for(Map<String, Set<String>> valueToAggregator: ddIDToValueToAggregator) {
 
-      for(String aggregator: aggregators) {
-        if(!aggregatorInfo.isAggregator(aggregator)) {
-          throw new RuntimeException(aggregator + " is not a valid aggregator.");
+      if(specificValueToAggregator.isEmpty()) {
+        continue;
+      }
+
+      for(Map.Entry<String, Set<String>> entry: specificValueToAggregator.entrySet()) {
+        String valueName = entry.getKey();
+        Set<String> aggName = entry.getValue();
+
+        if(aggName.isEmpty()) {
+          continue;
         }
 
-        if(aggregatorInfo.isStaticAggregator(aggregator)) {
-          for(Map<String, Set<String>> valueToAggregator: ddIDToValueToAggregator) {
-            Set<String> valueAggregators = valueToAggregator.get(name);
+        Set<String> ddAggregatorSet = valueToAggregator.get(valueName);
 
-            if(valueAggregators == null) {
-              valueAggregators = Sets.newHashSet();
-              valueToAggregator.put(name, valueAggregators);
-            }
-
-            valueAggregators.add(aggregator);
-          }
+        if(ddAggregatorSet == null) {
+          ddAggregatorSet = Sets.newHashSet();
+          valueToAggregator.put(valueName, ddAggregatorSet);
         }
-        else
-        {
-          for(Map<String, Set<String>> valueToOTFAggregator: ddIDToValueToOTFAggregator) {
-            Set<String> valueAggregators = valueToOTFAggregator.get(name);
 
-            if(valueAggregators == null) {
-              valueAggregators = Sets.newHashSet();
-              valueToOTFAggregator.put(name, valueAggregators);
-            }
+        ddAggregatorSet.addAll(aggName);
+      }
+    }
 
-            valueAggregators.add(aggregator);
-          }
+    for(Map<String, Set<String>> valueToAggregator: ddIDToValueToOTFAggregator) {
+
+      if(specificValueToOTFAggregator.isEmpty()) {
+        continue;
+      }
+
+      for(Map.Entry<String, Set<String>> entry: specificValueToOTFAggregator.entrySet()) {
+        String valueName = entry.getKey();
+        Set<String> aggName = entry.getValue();
+        
+        if(aggName.isEmpty()) {
+          continue;
         }
+
+        Set<String> ddAggregatorSet = valueToAggregator.get(valueName);
+
+        if(ddAggregatorSet == null) {
+          ddAggregatorSet = Sets.newHashSet();
+          valueToAggregator.put(valueName, ddAggregatorSet);
+        }
+
+        ddAggregatorSet.addAll(aggName);
       }
     }
 
     //ddIDToAggregatorToAggregateDescriptor
 
     ddIDToAggregatorToAggregateDescriptor = computeAggregatorToAggregateDescriptor(ddIDToValueToAggregator);
-    ddIDToAggregatorToAggregateDescriptor = ddIDToAggregatorToAggregateDescriptor;
-
     ddIDToOTFAggregatorToAggregateDescriptor = computeAggregatorToAggregateDescriptor(ddIDToValueToOTFAggregator);
-    ddIDToOTFAggregatorToAggregateDescriptor = ddIDToOTFAggregatorToAggregateDescriptor;
 
     //combination ID values
 
