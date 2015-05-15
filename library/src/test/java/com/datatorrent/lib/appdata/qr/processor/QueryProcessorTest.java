@@ -41,8 +41,7 @@ public class QueryProcessorTest
     for(int qc = 0;
         qc < numQueries;
         qc++) {
-      Query query = new Query();
-      query.setId(Integer.toString(qc));
+      Query query = new Query(Integer.toString(qc));
       queryProcessor.enqueue(query, null, null);
     }
 

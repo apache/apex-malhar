@@ -20,7 +20,6 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.AggregatorOTFType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.qr.Result;
@@ -76,8 +75,7 @@ public class DimensionsQueryComputer implements QueryComputer<DataQueryDimension
       for(String aggregatorName: aggregatorToQuery.keySet()) {
         HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
         EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
-        AggregateEvent gae;
-        gae = operator.cache.getIfPresent(eventKey);
+        AggregateEvent gae = operator.cache.getIfPresent(eventKey);
 
         if(gae != null) {
           LOG.debug("Retrieved from cache.");
@@ -89,6 +87,7 @@ public class DimensionsQueryComputer implements QueryComputer<DataQueryDimension
         }
         else {
           Slice keySlice = new Slice(operator.getEventKeyBytesGAE(eventKey));
+          //Fix this later
           byte[] value = operator.getUncommitted(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID, keySlice);
 
           if(value != null) {
@@ -178,7 +177,7 @@ public class DimensionsQueryComputer implements QueryComputer<DataQueryDimension
 
         Set<String> fields = query.getFieldsAggregatable().getAggregatorToFields().get(aggregatorName);
         FieldsDescriptor fd = eventSchema.getInputValuesDescriptor().getSubset(new Fields(fields));
-        DimensionsOTFAggregator aggregator = AggregatorOTFType.NAME_TO_AGGREGATOR.get(aggregatorName);
+        DimensionsOTFAggregator aggregator = eventSchema.getAggregatorInfo().getNameToOTFAggregators().get(aggregatorName);
         GPOMutable result = aggregator.aggregate(fd, mutableValues.toArray(new GPOMutable[mutableValues.size()]));
         prunedValue.put(aggregatorName, result);
         prunedKey.put(aggregatorName, singleKey);

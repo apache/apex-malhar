@@ -39,6 +39,11 @@ public class Query extends Data
   {
   }
 
+  public Query(String id)
+  {
+    super(id);
+  }
+
   public Query(String id,
                String type)
   {

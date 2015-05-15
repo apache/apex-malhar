@@ -33,17 +33,17 @@ public class DataResultTabularSerializer implements CustomDataSerializer
   }
 
   @Override
-  public String serialize(Result result, AppDataFormatter appDataFormatter)
+  public String serialize(Result result, ResultFormatter resultFormatter)
   {
     try {
-      return serializeHelper(result, appDataFormatter);
+      return serializeHelper(result, resultFormatter);
     }
     catch(Exception ex) {
       throw new RuntimeException(ex);
     }
   }
 
-  private String serializeHelper(Result result, AppDataFormatter appDataFormatter) throws Exception
+  private String serializeHelper(Result result, ResultFormatter resultFormatter) throws Exception
   {
     DataResultTabular gResult = (DataResultTabular) result;
 
@@ -60,7 +60,7 @@ public class DataResultTabularSerializer implements CustomDataSerializer
       logger.debug("{}", fields.getFields());
       JSONObject dataValue = GPOUtils.serializeJSONObject(value,
                                                           ((DataQueryTabular) gResult.getQuery()).getFields(),
-                                                          appDataFormatter);
+                                                          resultFormatter);
       ja.put(dataValue);
     }
 

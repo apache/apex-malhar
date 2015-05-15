@@ -17,7 +17,7 @@ import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
 import com.datatorrent.lib.appdata.qr.Result;
 import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
+import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreHDHT
 {
   @NotNull
-  protected AppDataFormatter appDataFormatter = new AppDataFormatter();
+  protected ResultFormatter appDataFormatter = new ResultFormatter();
   @NotNull
   protected AggregatorInfo aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
 
@@ -161,7 +161,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
     return aggregatorInfo.getStaticAggregatorNameToID().get(aggregatorName);
   }
 
-  public void setAppDataFormatter(AppDataFormatter appDataFormatter)
+  public void setAppDataFormatter(ResultFormatter appDataFormatter)
   {
     this.appDataFormatter = appDataFormatter;
   }
@@ -169,7 +169,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   /**
    * @return the appDataFormatter
    */
-  public AppDataFormatter getAppDataFormatter()
+  public ResultFormatter getAppDataFormatter()
   {
     return appDataFormatter;
   }

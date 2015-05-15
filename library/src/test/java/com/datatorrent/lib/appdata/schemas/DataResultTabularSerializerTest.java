@@ -69,7 +69,7 @@ public class DataResultTabularSerializerTest
 
     final String expectedJSONResult =
     "{\"id\":\"1\",\"type\":\"dataResult\",\"data\":[{\"b\":\"hello\",\"a\":\"1\"},{\"b\":\"world\",\"a\":\"2\"}]}";
-    String resultJSON = serializer.serialize(result, new AppDataFormatter());
+    String resultJSON = serializer.serialize(result, new ResultFormatter());
 
     logger.debug("expected: {}", expectedJSONResult);
     logger.debug("actual  : {}", resultJSON);

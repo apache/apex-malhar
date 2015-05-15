@@ -40,9 +40,26 @@ public class AggregatorInfo implements Serializable
   private Map<String, DimensionsAggregator> nameToAggregator;
   private Map<String, Integer> staticAggregatorNameToID;
 
+  private static final Map<String, Integer> autoGenIds(Map<String, DimensionsAggregator> nameToAggregator)
+  {
+    Map<String, Integer> staticAggregatorNameToID = Maps.newHashMap();
+
+    for(Map.Entry<String, DimensionsAggregator> entry: nameToAggregator.entrySet()) {
+      staticAggregatorNameToID.put(entry.getKey(), entry.getValue().getClass().getName().hashCode());
+    }
+
+    return staticAggregatorNameToID;
+  }
+
   protected AggregatorInfo()
   {
     //for kryo
+  }
+
+  public AggregatorInfo(Map<String, DimensionsAggregator> nameToAggregator)
+  {
+    this(nameToAggregator,
+         autoGenIds(nameToAggregator));
   }
 
   public AggregatorInfo(Map<String, DimensionsAggregator> nameToAggregator,
@@ -199,6 +216,6 @@ public class AggregatorInfo implements Serializable
   {
     return otfAggregatorToStaticAggregators;
   }
-  
+
   private static final Logger logger = LoggerFactory.getLogger(AggregatorInfo.class);
 }

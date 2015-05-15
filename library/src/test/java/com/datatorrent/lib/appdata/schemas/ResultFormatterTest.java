@@ -21,18 +21,18 @@ import com.esotericsoftware.kryo.Kryo;
 import org.junit.Assert;
 import org.junit.Test;
 
-public class AppDataFormatterTest
+public class ResultFormatterTest
 {
   @Test
   public void serializationTest() throws Exception
   {
-    TestUtils.clone(new Kryo(), new AppDataFormatter());
+    TestUtils.clone(new Kryo(), new ResultFormatter());
   }
 
   @Test
   public void continuousFormatTest()
   {
-    AppDataFormatter adf = new AppDataFormatter();
+    ResultFormatter adf = new ResultFormatter();
 
     adf.setContinuousFormatString(".00");
 
@@ -45,7 +45,7 @@ public class AppDataFormatterTest
   @Test
   public void discreteFormatTest()
   {
-    AppDataFormatter adf = new AppDataFormatter();
+    ResultFormatter adf = new ResultFormatter();
 
     adf.setDiscreteFormatString(".00");
 
@@ -60,7 +60,7 @@ public class AppDataFormatterTest
   @Test
   public void testObject()
   {
-    AppDataFormatter adf = new AppDataFormatter();
+    ResultFormatter adf = new ResultFormatter();
 
     final String testString = "Hello World";
 
@@ -70,7 +70,7 @@ public class AppDataFormatterTest
   @Test
   public void testDefaults()
   {
-    AppDataFormatter adf = new AppDataFormatter();
+    ResultFormatter adf = new ResultFormatter();
 
     final String discreteString = "1";
 

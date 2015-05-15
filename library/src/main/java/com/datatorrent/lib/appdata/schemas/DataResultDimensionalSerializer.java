@@ -39,17 +39,17 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
   }
 
   @Override
-  public String serialize(Result result, AppDataFormatter appDataFormatter)
+  public String serialize(Result result, ResultFormatter resultFormatter)
   {
     try {
-      return serializeHelper(result, appDataFormatter);
+      return serializeHelper(result, resultFormatter);
     }
     catch(Exception e) {
       throw new RuntimeException(e);
     }
   }
 
-  private String serializeHelper(Result result, AppDataFormatter appDataFormatter) throws Exception
+  private String serializeHelper(Result result, ResultFormatter resultFormatter) throws Exception
   {
     DataResultDimensional dataResult = (DataResultDimensional) result;
 
@@ -93,7 +93,7 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
           //Do nothing
         }
         else if(gpoKey.getFieldDescriptor().getFields().getFields().contains(field)) {
-          valueJO.put(field, appDataFormatter.format(gpoKey.getField(field)));
+          valueJO.put(field, resultFormatter.format(gpoKey.getField(field)));
         }
         else {
           valueJO.put(field, ALL);
@@ -107,7 +107,7 @@ public class DataResultDimensionalSerializer implements CustomDataSerializer
 
         for(String field: fields) {
           String compoundName = aggregatorToFieldToName.get(aggregatorName).get(field);
-          valueJO.put(compoundName, appDataFormatter.format(aggregateValues.getField(field)));
+          valueJO.put(compoundName, resultFormatter.format(aggregateValues.getField(field)));
         }
       }
 

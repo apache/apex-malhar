@@ -15,9 +15,9 @@
  */
 package com.datatorrent.lib.appdata.qr;
 
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
+import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 
 public interface CustomDataSerializer
 {
-  public abstract String serialize(Result result, AppDataFormatter appDataFormatter);
+  public abstract String serialize(Result result, ResultFormatter resultFormatter);
 }

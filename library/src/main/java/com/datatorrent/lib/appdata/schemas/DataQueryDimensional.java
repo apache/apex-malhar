@@ -60,6 +60,10 @@ public class DataQueryDimensional extends Query
   private DimensionsDescriptor dd;
   private FieldsAggregatable fieldsAggregatable;
 
+  public DataQueryDimensional()
+  {
+  }
+
   public DataQueryDimensional(String id,
                               String type,
                               GPOMutable keys,

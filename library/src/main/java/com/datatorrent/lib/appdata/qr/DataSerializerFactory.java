@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.appdata.qr;
 
-import com.datatorrent.lib.appdata.schemas.AppDataFormatter;
+import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.lang.annotation.Annotation;
@@ -31,19 +31,19 @@ public class DataSerializerFactory
   private Map<Class<? extends Result>, CustomDataSerializer> clazzToCustomResultBuilder = Maps.newHashMap();
   private Map<Class<? extends Result>, String> clazzToType = Maps.newHashMap();
 
-  private AppDataFormatter appDataFormatter = new AppDataFormatter();
+  private ResultFormatter appDataFormatter = new ResultFormatter();
 
-  public DataSerializerFactory(AppDataFormatter appDataFormatter)
+  public DataSerializerFactory(ResultFormatter resultFormatter)
   {
-    setAppDataFormatter(appDataFormatter);
+    setResultFormatter(resultFormatter);
   }
 
-  private void setAppDataFormatter(AppDataFormatter appDataFormatter)
+  private void setResultFormatter(ResultFormatter resultFormatter)
   {
-    this.appDataFormatter = Preconditions.checkNotNull(appDataFormatter);
+    this.appDataFormatter = Preconditions.checkNotNull(resultFormatter);
   }
 
-  public AppDataFormatter getAppDataFormatter()
+  public ResultFormatter getResultFormatter()
   {
     return appDataFormatter;
   }

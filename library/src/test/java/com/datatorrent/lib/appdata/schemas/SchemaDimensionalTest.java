@@ -291,7 +291,7 @@ public class SchemaDimensionalTest
   {
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString(resourceName);
 
-    DataSerializerFactory dsf = new DataSerializerFactory(new AppDataFormatter());
+    DataSerializerFactory dsf = new DataSerializerFactory(new ResultFormatter());
     SchemaDimensional schemaDimensional = new SchemaDimensional(new DimensionalEventSchema(eventSchemaJSON,
                                                                                            AggregatorUtils.DEFAULT_AGGREGATOR_INFO));
 

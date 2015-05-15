@@ -32,7 +32,7 @@ public class SchemaSerializer implements CustomDataSerializer
   }
 
   @Override
-  public String serialize(Result result, AppDataFormatter appDataFormatter)
+  public String serialize(Result result, ResultFormatter resultFormatter)
   {
     if(!(result instanceof SchemaResult))
     {

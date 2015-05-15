@@ -19,7 +19,7 @@ package com.datatorrent.lib.appdata.schemas;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
-public class AppDataFormatter implements Serializable
+public class ResultFormatter implements Serializable
 {
   private static final long serialVersionUID = 201505121109L;
 
@@ -41,7 +41,7 @@ public class AppDataFormatter implements Serializable
   private transient DecimalFormat intFormat;
   private transient DecimalFormat longFormat;
 
-  public AppDataFormatter()
+  public ResultFormatter()
   {
   }
 

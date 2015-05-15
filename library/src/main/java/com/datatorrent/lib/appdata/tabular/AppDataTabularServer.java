@@ -51,7 +51,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
   protected transient SchemaTabular schema;
 
   @NotNull
-  private AppDataFormatter appDataFormatter = new AppDataFormatter();
+  private ResultFormatter resultFormatter = new ResultFormatter();
   private String tabularSchemaJSON;
   private List<GPOMutable> currentData = Lists.newArrayList();
 
@@ -121,7 +121,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryTabular.class);
     queryDeserializerFactory.setContext(DataQueryTabular.class, schemaRegistry);
-    resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
+    resultSerializerFactory = new DataSerializerFactory(resultFormatter);
     queryProcessor.setup(context);
   }
 
@@ -170,17 +170,17 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
   /**
    * @return the appDataFormatter
    */
-  public AppDataFormatter getAppDataFormatter()
+  public ResultFormatter getResultFormatter()
   {
-    return appDataFormatter;
+    return resultFormatter;
   }
 
   /**
-   * @param appDataFormatter the appDataFormatter to set
+   * @param resultFormatter the appDataFormatter to set
    */
-  public void setAppDataFormatter(AppDataFormatter appDataFormatter)
+  public void setAppDataFormatter(ResultFormatter resultFormatter)
   {
-    this.appDataFormatter = appDataFormatter;
+    this.resultFormatter = resultFormatter;
   }
 
   public class TabularComputer implements QueryComputer<Query, Void, MutableLong, Void, Result>
