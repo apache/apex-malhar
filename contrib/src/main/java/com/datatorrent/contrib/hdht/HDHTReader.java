@@ -377,7 +377,7 @@ public class HDHTReader implements Operator, HDHT.Reader
   private static class BucketReader implements Closeable
   {
     BucketMeta bucketMeta;
-    final HashMap<String, HDSFileReader> readers = Maps.newHashMap();
+    final ConcurrentMap<String, HDSFileReader> readers = Maps.newConcurrentMap();
 
     @Override
     public void close() throws IOException
