@@ -198,7 +198,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
         getters.add(getInt);
       }
       else if (type == Types.BIGINT) {
-        GetterLong getLong = PojoUtils.createExpressionGetterLong(fqcn, getterExpression);
+        GetterLong getLong = PojoUtils.createGetterLong(fqcn, getterExpression);
         getters.add(getLong);
       }
       else if (type == Types.DECIMAL) {
