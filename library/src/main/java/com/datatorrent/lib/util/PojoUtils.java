@@ -225,20 +225,6 @@ public class PojoUtils
     return fieldExpression;
   }
 
-  public static String fieldListToGetExpression(Class<?> clazz, List<String> fields)
-  {
-    StringBuilder sb = new StringBuilder();
-
-    for (int index = 0; index < fields.size() - 1; index++) {
-      String field = fields.get(index);
-      sb.append(sb).append(getSingleFieldGetterExpression(clazz, field)).append(JAVA_DOT);
-    }
-
-    sb.append(getSingleFieldGetterExpression(clazz, fields.get(fields.size() - 1)));
-
-    return sb.toString();
-  }
-
   public static Object createGetter(Class<?> pojoClass, String getterExpr, Class<?> castClass, Class<?> getterClass)
   {
     logger.debug("{} {} {} {}", pojoClass, getterExpr, castClass, getterClass);
