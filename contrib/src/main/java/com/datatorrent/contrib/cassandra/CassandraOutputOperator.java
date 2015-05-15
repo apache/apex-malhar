@@ -120,7 +120,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
     int size = columnDataTypes.size();
     for (int i = 0; i < size; i++) {
       DataType type = columnDataTypes.get(i);
-      String getterExpression = PojoUtils.getSingleFieldExpression(fqcn, expressions.get(i));
+      String getterExpression = PojoUtils.getSingleFieldGetterExpression(fqcn, expressions.get(i));
       if (type.equals(DataType.ascii()) || type.equals(DataType.text()) || type.equals(DataType.varchar())) {
         GetterString getVarchar = PojoUtils.createGetterString(fqcn, getterExpression);
         getters.add(getVarchar);
@@ -138,7 +138,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
         getters.add(getInt);
       }
       else if (type.equals(DataType.bigint()) || type.equals(DataType.counter())) {
-        GetterLong getLong = PojoUtils.createExpressionGetterLong(fqcn, getterExpression);
+        GetterLong getLong = PojoUtils.createGetterLong(fqcn, getterExpression);
         getters.add(getLong);
       }
       else if (type.equals(DataType.cfloat())) {
