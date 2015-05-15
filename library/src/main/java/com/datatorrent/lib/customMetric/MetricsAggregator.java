@@ -31,8 +31,6 @@ import com.google.common.collect.Multimap;
 import com.datatorrent.api.CustomMetric;
 import com.datatorrent.api.annotation.Name;
 
-
-
 /**
  * An easy to use {@link CustomMetric.Aggregator} that can be configured to perform multiple aggregations on each
  * {@link CustomMetric} in an operator.
