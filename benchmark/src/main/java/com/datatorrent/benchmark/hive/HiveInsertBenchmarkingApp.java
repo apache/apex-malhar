@@ -64,6 +64,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  * This operator loads 187 files in 120 seconds with following configuration.
  * Tuple byte size of 32, file size 512.
  *
+ * @since 2.1.0
  */
 @ApplicationAnnotation(name = "HiveInsertBenchmarkingApp")
 public class HiveInsertBenchmarkingApp implements StreamingApplication

@@ -24,6 +24,9 @@ import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 
+/**
+ * @since 2.1.0
+ */
 public class MessageResponder extends BaseOperator
 {
 

@@ -28,6 +28,9 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
+/**
+ * @since 2.1.0
+ */
 public class PojoUtils
 {
   private static final Logger logger = LoggerFactory.getLogger(PojoUtils.class);

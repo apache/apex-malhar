@@ -36,13 +36,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-/*
+/**
  * Hive operator which can insert data in txt format in tables/partitions from a file written in hdfs location.
  * The file contains data of the same data type as the hive tables created by user and is already committed.
  * No changes will be made to the input file once its given to HiveOperator.
  * This is a fault tolerant implementation of HiveOperator which assumes that load operation
  * is an atomic operation in Hive.
  *
+ * @since 2.1.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMapping, HiveStore>

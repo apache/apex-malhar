@@ -27,16 +27,20 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
-//The application attempts to simulate 'Old Faithful Geyser" eruption.
-//This application accepts readings for the waiting time and the subsequent eruption duration
-//of the 'Old Faithful' and based on this data, tries to predict the eruption duration of the next
-//eruption given the elapsed time since the last eruption.
-//The training data is generated for an application window and consists of multiple
-//waiting times and eruption duration values.
-//For every application window, it generates only one 'elapsed time' input for which the
-//prediction would be made.
-// Model in R is in file ruptionModel.R located at 
-// demos/r/src/main/resources/com/datatorrent/demos/oldfaithful/ directory
+/**
+ * The application attempts to simulate 'Old Faithful Geyser" eruption.
+ * This application accepts readings for the waiting time and the subsequent eruption duration
+ * of the 'Old Faithful' and based on this data, tries to predict the eruption duration of the next
+ * eruption given the elapsed time since the last eruption.
+ * The training data is generated for an application window and consists of multiple
+ * waiting times and eruption duration values.
+ * For every application window, it generates only one 'elapsed time' input for which the
+ * prediction would be made.
+ * Model in R is in file ruptionModel.R located at 
+ * demos/r/src/main/resources/com/datatorrent/demos/oldfaithful/ directory
+ *
+ * @since 2.1.0
+ */
 
 @ApplicationAnnotation(name = "OldFaithfulApplication")
 public class OldFaithfulApplication implements StreamingApplication

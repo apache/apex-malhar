@@ -17,6 +17,9 @@ package com.datatorrent.demos.echoserver;
 
 import java.net.SocketAddress;
 
+/**
+ * @since 2.1.0
+ */
 public class Message
 {
   public String message;

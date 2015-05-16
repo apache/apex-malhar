@@ -25,9 +25,11 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * An implementation of AbstractDeduper which takes in a POJO.
  * @displayName: DeduperPOJOImplementation
+ *
+ * @since 2.1.0
  */
 public class DeduperPOJOImpl extends AbstractDeduper<Object, Object>
 {
