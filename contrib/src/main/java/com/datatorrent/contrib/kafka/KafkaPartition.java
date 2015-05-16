@@ -2,6 +2,9 @@ package com.datatorrent.contrib.kafka;
 
 import java.io.Serializable;
 
+/**
+ * @since 2.1.0
+ */
 public class KafkaPartition implements Serializable
 {
   protected static final String DEFAULT_CLUSTERID = "com.datatorrent.contrib.kafka.defaultcluster";

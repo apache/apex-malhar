@@ -22,6 +22,9 @@ import javax.jms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @since 2.1.0
+ */
 public class ActiveMQMultiTypeMessageListener extends ActiveMQMessageListener
 {
   @Override

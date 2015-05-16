@@ -24,9 +24,11 @@ import javax.jms.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * An implementation of AbstractJMSInputOperator which emits TextMessage,StreamMessage,BytesMessage,MapMessage
  * and ObjectMessage on their respective ports.
+ *
+ * @since 2.1.0
  */
 public class JMSObjectInputOperator extends AbstractJMSInputOperator<Object>
 {

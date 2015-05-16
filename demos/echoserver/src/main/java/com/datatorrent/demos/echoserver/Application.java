@@ -21,6 +21,9 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 
+/**
+ * @since 2.1.0
+ */
 @ApplicationAnnotation(name="EchoServer")
 public class Application implements StreamingApplication
 {

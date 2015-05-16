@@ -25,10 +25,12 @@ import org.supercsv.io.CsvMapReader;
 import org.supercsv.io.ICsvMapReader;
 import org.supercsv.prefs.CsvPreference;
 
-/*
+/**
  * An implementation of AbstractParser which emits a map.
  * The output is a map with key being the field name supplied by user and value being the value of that field
  * from input stream.
+ *
+ * @since 2.1.0
  */
 public class CsvToMapParser extends AbstractCsvParser<Map<String, Object>>
 {

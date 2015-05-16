@@ -53,6 +53,8 @@ import com.datatorrent.lib.db.AbstractStoreOutputOperator;
  * 
  * @displayName ElasticSearch Output
  * @category Store
+ *
+ * @since 2.1.0
  */
 public abstract class AbstractElasticSearchOutputOperator<T, S extends ElasticSearchConnectable> extends AbstractStoreOutputOperator<T, S>
 {

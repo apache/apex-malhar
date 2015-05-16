@@ -41,6 +41,7 @@ import org.slf4j.LoggerFactory;
  * @displayName Cassandra Output Operator
  * @category Output
  * @tags output operator
+ * @since 2.1.0
  */
 public class CassandraOutputOperator extends AbstractCassandraTransactionableOutputOperatorPS<Object>
 {

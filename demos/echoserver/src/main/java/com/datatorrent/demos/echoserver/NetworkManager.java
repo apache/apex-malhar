@@ -27,6 +27,9 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @since 2.1.0
+ */
 public class NetworkManager implements Runnable
 {
   private static final Logger logger = LoggerFactory.getLogger(NetworkManager.class);
