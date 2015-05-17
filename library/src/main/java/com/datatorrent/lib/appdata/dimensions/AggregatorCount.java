@@ -84,7 +84,6 @@ public class AggregatorCount implements DimensionsStaticAggregator, Serializable
         index < fields.size();
         index++) {
       String field = fields.get(index);
-
       fieldToType.put(field, Type.LONG);
     }
 

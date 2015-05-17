@@ -15,25 +15,8 @@
  */
 package com.datatorrent.contrib.dimensions;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ExecutionException;
-
-import javax.validation.constraints.Min;
-
-import org.apache.commons.lang3.mutable.MutableInt;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.cache.*;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.primitives.Ints;
-import com.google.common.primitives.Longs;
-
-import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
@@ -45,6 +28,18 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import com.google.common.primitives.Ints;
+import com.google.common.primitives.Longs;
+import java.io.IOException;
+import javax.validation.constraints.Min;
+import org.apache.commons.lang3.mutable.MutableInt;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.util.Map;
 
 /**
  * TODO aggregate by windowID in waiting cache.
@@ -54,22 +49,17 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionsStoreHDHT.class);
 
+  protected static final int OFFSET_FOR_AGGREGATES = Type.LONG.getByteSize();
   public static final int CACHE_SIZE = 100000;
-  public static final int DEFAULT_KEEP_ALIVE_TIME = 20;
+  public static final int DEFAULT_CACHE_WINDOW_DURATION = 120;
 
-  //HDHT Aggregation parameters
   @Min(1)
-  private int keepAliveTime = DEFAULT_KEEP_ALIVE_TIME;
+  private int cacheWindowDuration = DEFAULT_CACHE_WINDOW_DURATION;
+  private int cacheWindowCount = 0;
+  private transient long currentWindowID;
 
-  ////////////////////// Caching /////////////////////////////
-
-  //TODO this is not fault tolerant. Need to create a custom cache which has old entries removed in end window.
-  //Can't write out incomplete aggregates in the middle of a window.
-  private int cacheSize = CACHE_SIZE;
   @VisibleForTesting
-  public transient LoadingCache<EventKey, AggregateEvent> cache = null;
-
-  ////////////////////// Caching /////////////////////////////
+  protected transient Map<EventKey, AggregateEvent> cache = Maps.newHashMap();
 
   public DimensionsStoreHDHT()
   {
@@ -120,7 +110,14 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
   public byte[] getValueBytesGAE(AggregateEvent event)
   {
-    return GPOUtils.serialize(event.getAggregates());
+    byte[] valueByteArray = GPOUtils.serialize(event.getAggregates());
+    byte[] totalByteArray = new byte[valueByteArray.length + Type.LONG.getByteSize()];
+
+    MutableInt currentIndex = new MutableInt(0);
+    GPOUtils.serializeLong(event.getWindowId(), totalByteArray, currentIndex);
+    System.arraycopy(valueByteArray, 0, totalByteArray, currentIndex.getValue(), valueByteArray.length);
+
+    return totalByteArray;
   }
 
   public AggregateEvent fromKeyValueGAE(Slice key, byte[] aggregate)
@@ -138,7 +135,10 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 
     GPOMutable keys = GPOUtils.deserialize(keysDescriptor, DimensionsDescriptor.TIME_FIELDS, key.buffer, offset.intValue());
-    GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, 0);
+
+    MutableInt index = new MutableInt(0);
+    long windowID = GPOUtils.deserializeLong(aggregate, index);
+    GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, index.getValue());
 
     if(keysDescriptor.getFields().getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
       keys.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
@@ -148,7 +148,8 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
                                             aggs,
                                             schemaID,
                                             dimensionDescriptorID,
-                                            aggregatorID);
+                                            aggregatorID,
+                                            windowID);
     return gae;
   }
 
@@ -168,27 +169,49 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     keys.setFieldDescriptor(keyFieldsDescriptor);
     aggregates.setFieldDescriptor(valueFieldsDescriptor);
 
-    processGenericEvent(gae);
-  }
-
-  protected void processGenericEvent(AggregateEvent gae)
-  {
     DimensionsStaticAggregator aggregator = getAggregator(gae.getAggregatorID());
-    AggregateEvent aggregate = null;
 
-    try {
-      aggregate = cache.get(gae.getEventKey());
-    }
-    catch(ExecutionException ex) {
-      throw new RuntimeException(ex);
+    AggregateEvent aggregate = cache.get(gae.getEventKey());
+
+    if(aggregate == null) {
+      aggregate = load(gae.getEventKey());
+
+      if(aggregate != null) {
+        cache.put(aggregate.getEventKey(), aggregate);
+      }
     }
 
-    if(aggregate.isEmpty()) {
+    if(aggregate == null) {
       cache.put(gae.getEventKey(), gae);
+      gae.setWindowId(currentWindowID);
     }
-    else {
+    else if(currentWindowID > aggregate.getWindowId()) {
       aggregator.aggregateAggs(aggregate, gae);
     }
+  }
+
+  public AggregateEvent load(EventKey eventKey)
+  {
+    long bucket = getBucketForSchema(eventKey);
+    byte[] key = getEventKeyBytesGAE(eventKey);
+
+    Slice keySlice = new Slice(key, 0, key.length);
+    byte[] val = getUncommitted(bucket, keySlice);
+
+    if(val == null) {
+      try {
+        val = get(bucket, keySlice);
+      }
+      catch(IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    if(val == null) {
+      return null;
+    }
+
+    return fromKeyValueGAE(keySlice, val);
   }
 
   public abstract int getPartitionGAE(AggregateEvent inputEvent);
@@ -206,41 +229,33 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   }
 
   @Override
-  public void setup(OperatorContext context)
-  {
-    super.setup(context);
-
-    cache = CacheBuilder.newBuilder()
-         .maximumSize(getCacheSize())
-         .removalListener(new HDHTCacheRemoval())
-         .build(new HDHTCacheLoader());
-
-    //TODO reissue hdht queries for waiting cache entries.
-  }
-
-  @Override
-  public void teardown()
-  {
-    super.teardown();
-  }
-
-  @Override
   public void beginWindow(long windowId)
   {
+    this.currentWindowID = windowId;
+
+    for(Map.Entry<EventKey, AggregateEvent> entry: cache.entrySet()) {
+      AggregateEvent gae = entry.getValue();
+
+      if(currentWindowID > gae.getWindowId()) {
+        entry.getValue().setWindowId(currentWindowID);
+      }
+    }
+
     super.beginWindow(windowId);
   }
 
   @Override
   public void endWindow()
   {
-    for(Map.Entry<EventKey, AggregateEvent> entry: cache.asMap().entrySet()) {
-      AggregateEvent gae = entry.getValue();
+    cacheWindowCount++;
 
-      if(gae == null || gae.isEmpty()) {
-        continue;
-      }
-
+    for(Map.Entry<EventKey, AggregateEvent> entry: cache.entrySet()) {
       putGAE(entry.getValue());
+    }
+
+    if(cacheWindowCount == cacheWindowDuration) {
+      cache.clear();
+      cacheWindowCount = 0;
     }
 
     super.endWindow();
@@ -253,35 +268,19 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   }
 
   /**
-   * @return the keepAliveTime
+   * @return the cacheWindowDuration
    */
-  public int getKeepAliveTime()
+  public int getCacheWindowDuration()
   {
-    return keepAliveTime;
+    return cacheWindowDuration;
   }
 
   /**
-   * @param keepAliveTime the keepAliveTime to set
+   * @param cacheWindowDuration the cacheWindowDuration to set
    */
-  public void setKeepAliveTime(int keepAliveTime)
+  public void setCacheWindowDuration(int cacheWindowDuration)
   {
-    this.keepAliveTime = keepAliveTime;
-  }
-
-  /**
-   * @return the cacheSize
-   */
-  public int getCacheSize()
-  {
-    return cacheSize;
-  }
-
-  /**
-   * @param cacheSize the cacheSize to set
-   */
-  public void setCacheSize(int cacheSize)
-  {
-    this.cacheSize = cacheSize;
+    this.cacheWindowDuration = cacheWindowDuration;
   }
 
   class GenericAggregateEventCodec extends KryoSerializableStreamCodec<AggregateEvent>
@@ -315,57 +314,6 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     public int getPartition(AggregateEvent gae)
     {
       return getPartitionGAE(gae);
-    }
-  }
-
-  class HDHTCacheRemoval implements RemovalListener<EventKey, AggregateEvent>
-  {
-    public HDHTCacheRemoval()
-    {
-    }
-
-    @Override
-    public void onRemoval(RemovalNotification<EventKey, AggregateEvent> notification)
-    {
-      AggregateEvent gae = notification.getValue();
-
-      if(gae.isEmpty()) {
-        return;
-      }
-
-      putGAE(gae);
-    }
-  }
-
-  class HDHTCacheLoader extends CacheLoader<EventKey, AggregateEvent>
-  {
-    public HDHTCacheLoader()
-    {
-    }
-
-    @Override
-    public AggregateEvent load(EventKey eventKey)
-    {
-      long bucket = getBucketForSchema(eventKey);
-      byte[] key = getEventKeyBytesGAE(eventKey);
-
-      Slice keySlice = new Slice(key, 0, key.length);
-      byte[] val = getUncommitted(bucket, keySlice);
-
-      if(val == null) {
-        try {
-          val = get(bucket, keySlice);
-        }
-        catch(IOException ex) {
-          throw new RuntimeException(ex);
-        }
-      }
-
-     if(val == null) {
-       return new AggregateEvent();
-     }
-
-     return fromKeyValueGAE(keySlice, val);
     }
   }
 

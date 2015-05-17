@@ -56,7 +56,7 @@ public class AggregatorLast implements DimensionsStaticAggregator, Serializable
   }
 
   @Override
-  public void aggregateAggs(AggregateEvent agg1, AggregateEvent agg2)
+  public void aggregateAggs(AggregateEvent dest, AggregateEvent src)
   {
     //Do nothing
   }

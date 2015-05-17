@@ -75,7 +75,7 @@ public class DimensionsQueryComputer implements QueryComputer<DataQueryDimension
       for(String aggregatorName: aggregatorToQuery.keySet()) {
         HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
         EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
-        AggregateEvent gae = operator.cache.getIfPresent(eventKey);
+        AggregateEvent gae = operator.cache.get(eventKey);
 
         if(gae != null) {
           LOG.debug("Retrieved from cache.");
