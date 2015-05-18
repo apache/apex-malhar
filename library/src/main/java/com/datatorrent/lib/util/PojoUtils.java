@@ -32,7 +32,6 @@ import java.util.List;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 
-public final class PojoUtils
 /**
  * @since 2.1.0
  */
@@ -502,6 +501,7 @@ public class PojoUtils
     return code.append(fieldExpression).getStatement();
   }
 
+  @SuppressWarnings("StringEquality")
   private static <T> Object createGetter(Class<?> pojoClass, String getterExpr, String exprObjectPlaceholder, Class<?> castClass, Class<T> getterClass)
   {
     logger.debug("{} {} {} {}", pojoClass, getterExpr, castClass, getterClass);
@@ -604,6 +604,7 @@ public class PojoUtils
    * @param setterClass setter interface to implement
    * @return instance of a class that implements requested Setter interface
    */
+  @SuppressWarnings("StringEquality")
   private static <T> Object createSetter(Class<?> pojoClass, String setterExpr, String exprObjectPlaceholder, String exprValPlaceholder, Class<?> exprClass, Class<T> setterClass)
   {
     logger.debug("{} {} {} {}", pojoClass, setterExpr, exprClass, setterClass);

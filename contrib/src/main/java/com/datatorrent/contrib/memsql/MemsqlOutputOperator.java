@@ -230,6 +230,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected void setStatementParameters(PreparedStatement statement, Object tuple) throws SQLException
   {
     final int size = columnDataTypes.size();
@@ -238,28 +239,28 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
       switch (type) {
         case (Types.CHAR):
           // TODO: verify that memsql driver handles char as int
-          statement.setInt(++i, ((GetterChar) getters.get(i)).get(tuple));
+          statement.setInt(++i, ((GetterChar<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.VARCHAR):
           statement.setString(++i, ((Getter<Object, String>) getters.get(i)).get(tuple));
           break;
         case (Types.BOOLEAN):
-          statement.setBoolean(++i, ((GetterBoolean) getters.get(i)).get(tuple));
+          statement.setBoolean(++i, ((GetterBoolean<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.SMALLINT):
-          statement.setShort(++i, ((GetterShort) getters.get(i)).get(tuple));
+          statement.setShort(++i, ((GetterShort<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.INTEGER):
-          statement.setInt(++i, ((GetterInt) getters.get(i)).get(tuple));
+          statement.setInt(++i, ((GetterInt<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.BIGINT):
-          statement.setLong (++i, ((GetterLong) getters.get(i)).get(tuple));
+          statement.setLong (++i, ((GetterLong<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.FLOAT):
-          statement.setFloat(++i, ((GetterFloat) getters.get(i)).get(tuple));
+          statement.setFloat(++i, ((GetterFloat<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.DOUBLE):
-          statement.setDouble(++i, ((GetterDouble) getters.get(i)).get(tuple));
+          statement.setDouble(++i, ((GetterDouble<Object>) getters.get(i)).get(tuple));
           break;
         default:
           /*
@@ -269,7 +270,7 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
             Types.ARRAY
             Types.OTHER
            */
-          statement.setObject(++i, ((Getter)getters.get(i)).get(tuple));
+          statement.setObject(++i, ((Getter<Object, Object>)getters.get(i)).get(tuple));
           break;
       }
     }
