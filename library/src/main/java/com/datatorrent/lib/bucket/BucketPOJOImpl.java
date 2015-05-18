@@ -21,9 +21,11 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * An implementation of AbstractBucket which can take in any POJO.
  * @displayName: BucketPOJOImplementation
+ *
+ * @since 2.1.0
  */
 public class BucketPOJOImpl extends AbstractBucket<Object>
 {

@@ -15,6 +15,7 @@ import com.datatorrent.common.util.DTThrowable;
 
 /**
  * 
+ * @since 2.1.0
  */
 public class ElasticSearchPercolatorStore extends ElasticSearchConnectable
 {

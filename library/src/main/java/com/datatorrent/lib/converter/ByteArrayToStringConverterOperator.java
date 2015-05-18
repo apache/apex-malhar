@@ -20,8 +20,10 @@ import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import java.nio.charset.Charset;
 
-/*
+/**
  * This operator converts Byte Array to String. User gets the option of providing character Encoding.
+ *
+ * @since 2.1.0
  */
 public class ByteArrayToStringConverterOperator extends BaseOperator
 {

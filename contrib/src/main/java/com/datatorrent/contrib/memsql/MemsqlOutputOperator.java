@@ -32,8 +32,10 @@ import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * A generic implementation of AbstractMemsqlOutputOperator which can take in a POJO.
+ *
+ * @since 2.1.0
  */
 public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
 {

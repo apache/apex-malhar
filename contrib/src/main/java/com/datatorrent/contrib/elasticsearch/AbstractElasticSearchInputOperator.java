@@ -40,6 +40,8 @@ import com.datatorrent.lib.db.AbstractStoreInputOperator;
  * @displayName ElasticSearch input
  * @category Store
  * @tags input operator
+ *
+ * @since 2.1.0
  */
 public abstract class AbstractElasticSearchInputOperator<T, S extends ElasticSearchConnectable> extends AbstractStoreInputOperator<T, S>
 {

@@ -17,6 +17,8 @@ package com.datatorrent.lib.io.block;
 
 /**
  * Represents the metadata of a block.
+ *
+ * @since 2.1.0
  */
 public interface BlockMetadata
 {

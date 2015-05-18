@@ -45,7 +45,9 @@ import com.datatorrent.common.util.DTThrowable;
  * <b>max</b>: emits V extends Number<br>
  * <br>
  * <br>
- **/
+ *
+ * @since 2.1.0
+ */
 
 public class RMax<V extends Number> extends BaseNumberValueOperator<Number> implements Unifier<Number>
 {

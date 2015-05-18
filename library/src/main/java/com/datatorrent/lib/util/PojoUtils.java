@@ -33,6 +33,10 @@ import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.StringUtils;
 
 public final class PojoUtils
+/**
+ * @since 2.1.0
+ */
+public class PojoUtils
 {
   private static final Logger logger = LoggerFactory.getLogger(PojoUtils.class);
 

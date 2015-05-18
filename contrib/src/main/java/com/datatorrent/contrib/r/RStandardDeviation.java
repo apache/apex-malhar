@@ -45,6 +45,8 @@ import com.datatorrent.common.util.DTThrowable;
  * <b>StateFull : Yes</b>, value are aggregated over application window. <br>
  * <b>Partitions : No</b>, no. <br>
  * <br>
+ *
+ * @since 2.1.0
  */
 
 @OperatorAnnotation(partitionable = false)

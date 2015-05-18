@@ -20,6 +20,8 @@ import java.io.IOException;
 
 /**
  * An encapsulation of the filter stream that provides different methods to handle the stream.
+ *
+ * @since 2.1.0
  */
 public interface FilterStreamContext<F extends FilterOutputStream>
 {
