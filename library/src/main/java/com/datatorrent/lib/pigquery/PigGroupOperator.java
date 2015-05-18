@@ -22,11 +22,12 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import com.datatorrent.lib.pigquery.condition.PigGroupCondition;
+import com.datatorrent.lib.util.UnifierMap;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.lib.pigquery.condition.PigGroupCondition;
-import com.datatorrent.lib.util.UnifierMap;
 
 
 /**
@@ -68,6 +69,7 @@ import com.datatorrent.lib.util.UnifierMap;
  * @tags map, string, group operator, condition
  * @since 0.3.4
  */
+@Deprecated
 public class PigGroupOperator  extends BaseOperator
 {
   /**

@@ -43,4 +43,10 @@ public class JMSStringInputOperator extends AbstractJMSInputOperator<String>
       throw new IllegalArgumentException("Unhandled message type " + message.getClass().getName());
     }
   }
+
+  @Override
+  protected void emit(String payload)
+  {
+    output.emit(payload);
+  }
 }

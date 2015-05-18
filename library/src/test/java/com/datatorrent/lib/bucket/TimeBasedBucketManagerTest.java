@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ * Copyright (c) 2015 DataTorrent, Inc. ALL Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,7 +64,7 @@ public class TimeBasedBucketManagerTest
   @Test
   public void testClone() throws CloneNotSupportedException, InterruptedException
   {
-    TimeBasedBucketManagerImpl<DummyEvent> clonedManager = manager.clone();
+    AbstractTimeBasedBucketManager<DummyEvent> clonedManager = manager.clone();
     Assert.assertNotNull(clonedManager);
     Assert.assertNotNull(clonedManager.getBucketStore());
     Assert.assertTrue(clonedManager.bucketStore.equals(manager.bucketStore));

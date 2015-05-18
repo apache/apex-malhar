@@ -25,6 +25,6 @@ public class MemsqlStoreTest
   public void defaultDriverTest()
   {
     MemsqlStore memsqlStore = new MemsqlStore();
-    Assert.assertEquals("Test default driver", MemsqlStore.MEMSQL_DRIVER, memsqlStore.getDbDriver());
+    Assert.assertEquals("Test default driver", MemsqlStore.MEMSQL_DRIVER, memsqlStore.getDatabaseDriver());
   }
 }

@@ -35,7 +35,6 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.annotation.Stateless;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
-import com.datatorrent.lib.io.IdempotentStorageManager;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 
 /**
@@ -46,7 +45,6 @@ public class JMSStringInputOperatorTest
   public static class TestMeta extends TestWatcher
   {
     String baseDir;
-    String recoveryDir;
     JMSStringInputOperator operator;
     CollectorTestSink<Object> sink;
     Context.OperatorContext context;
@@ -65,15 +63,14 @@ public class JMSStringInputOperatorTest
       String methodName = description.getMethodName();
       String className = description.getClassName();
       baseDir = "target/" + className + "/" + methodName;
-      recoveryDir = baseDir + "/" + "recovery";
 
       Attribute.AttributeMap attributeMap = new Attribute.AttributeMap.DefaultAttributeMap();
       attributeMap.put(Context.OperatorContext.SPIN_MILLIS, 500);
+      attributeMap.put(Context.DAGContext.APPLICATION_PATH, baseDir);
 
       context = new OperatorContextTestHelper.TestIdOperatorContext(1, attributeMap);
       operator = new JMSStringInputOperator();
       operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
-      ((IdempotentStorageManager.FSIdempotentStorageManager) operator.getIdempotentStorageManager()).setRecoveryPath(recoveryDir);
 
       sink = new CollectorTestSink<Object>();
       operator.output.setSink(sink);
@@ -87,7 +84,7 @@ public class JMSStringInputOperatorTest
       operator.deactivate();
       operator.teardown();
       try {
-        FileUtils.deleteDirectory(new File(baseDir));
+        FileUtils.deleteDirectory(new File("target/"+ description.getClassName()));
         testBase.afterTest();
       }
       catch (IOException e) {
@@ -145,7 +142,6 @@ public class JMSStringInputOperatorTest
       }
     };
     testMeta.operator.getConnectionFactoryProperties().put(JMSTestBase.AMQ_BROKER_URL, "vm://localhost");
-    ((IdempotentStorageManager.FSIdempotentStorageManager) testMeta.operator.getIdempotentStorageManager()).setRecoveryPath(testMeta.recoveryDir);
 
     testMeta.operator.setup(testMeta.context);
     testMeta.operator.activate(testMeta.context);

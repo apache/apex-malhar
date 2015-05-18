@@ -28,6 +28,7 @@ package com.datatorrent.lib.pigquery;
  * @tags script, stream operator
  * @since 0.3.4
  */
+@Deprecated
 public class PigStreamOperator
 {
   // must not be null.   

@@ -64,8 +64,8 @@ public class CassandraLookupCacheBackedOperatorTest extends JDBCLookupCacheBacke
       }
 
       //Setup the operator
-      lookupCacheBackedOperator.getStore().setDbUrl(CASSANDRA_DB_URL + "/" + KEYSPACE_NAME);
-      lookupCacheBackedOperator.getStore().setDbDriver(CASSANDRA_DB_DRIVER);
+      lookupCacheBackedOperator.getStore().setDatabaseUrl(CASSANDRA_DB_URL + "/" + KEYSPACE_NAME);
+      lookupCacheBackedOperator.getStore().setDatabaseDriver(CASSANDRA_DB_DRIVER);
 
       Calendar now = Calendar.getInstance(TimeZone.getTimeZone("PST"));
       now.add(Calendar.SECOND, 15);

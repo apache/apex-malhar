@@ -26,6 +26,7 @@ import java.util.Map;
  * @tags map, string, unary
  * @since 0.3.4
  */
+@Deprecated
 public class GenerateName extends UnaryGenerate
 {
 

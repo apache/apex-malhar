@@ -39,7 +39,6 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.api.Attribute;
 import com.datatorrent.api.Context;
-import com.datatorrent.api.DAG;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.IdempotentStorageManager;
@@ -109,7 +108,10 @@ public class FileSplitterTest
       fileSplitter.scanner.setFiles(dataDirectory);
       fileSplitter.setIdempotentStorageManager(new IdempotentStorageManager.NoopIdempotentStorageManager());
 
-      context = new OperatorContextTestHelper.TestIdOperatorContext(0, new Attribute.AttributeMap.DefaultAttributeMap());
+      Attribute.AttributeMap.DefaultAttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
+      attributes.put(Context.DAGContext.APPLICATION_PATH, dataDirectory);
+
+      context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
       fileSplitter.setup(context);
 
       fileMetadataSink = new CollectorTestSink<FileSplitter.FileMetadata>();
@@ -186,21 +188,17 @@ public class FileSplitterTest
   @Test
   public void testIdempotency() throws InterruptedException
   {
-    Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-    attributes.put(DAG.DAGContext.APPLICATION_ID, "FileSplitterTest");
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
-
-    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    fsIdempotentStorageManager.setRecoveryPath(testMeta.dataDirectory + '/' + "recovery");
+    IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager =
+      new IdempotentStorageManager.FSIdempotentStorageManager();
     testMeta.fileSplitter.setIdempotentStorageManager(fsIdempotentStorageManager);
 
-    testMeta.fileSplitter.setup(context);
+    testMeta.fileSplitter.setup(testMeta.context);
     //will emit window 1 from data directory
     testFileMetadata();
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
-    testMeta.fileSplitter.setup(context);
+    testMeta.fileSplitter.setup(testMeta.context);
     testMeta.fileSplitter.beginWindow(1);
     Assert.assertEquals("Blocks", 12, testMeta.blockMetadataSink.collectedTuples.size());
     for (Object blockMetadata : testMeta.blockMetadataSink.collectedTuples) {
@@ -295,22 +293,17 @@ public class FileSplitterTest
   @Test
   public void testIdempotencyWithBlocksThreshold() throws InterruptedException
   {
-    Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-    attributes.put(DAG.DAGContext.APPLICATION_ID, "FileSplitterTest");
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
-
     IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
-    fsIdempotentStorageManager.setRecoveryPath(testMeta.dataDirectory + '/' + "recovery");
     testMeta.fileSplitter.setIdempotentStorageManager(fsIdempotentStorageManager);
     testMeta.fileSplitter.setBlocksThreshold(10);
     testMeta.fileSplitter.scanner.setScanIntervalMillis(500);
-    testMeta.fileSplitter.setup(context);
+    testMeta.fileSplitter.setup(testMeta.context);
 
     testBlocksThreshold();
     testMeta.fileMetadataSink.clear();
     testMeta.blockMetadataSink.clear();
 
-    testMeta.fileSplitter.setup(context);
+    testMeta.fileSplitter.setup(testMeta.context);
     for (int i = 1; i < 8; i++) {
       testMeta.fileSplitter.beginWindow(i);
     }
@@ -345,10 +338,6 @@ public class FileSplitterTest
 
   public void testRecoveryOfPartialFile() throws InterruptedException
   {
-    Attribute.AttributeMap attributes = new Attribute.AttributeMap.DefaultAttributeMap();
-    attributes.put(DAG.DAGContext.APPLICATION_ID, "FileSplitterTest");
-    OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(0, attributes);
-
     IdempotentStorageManager.FSIdempotentStorageManager fsIdempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
     fsIdempotentStorageManager.setRecoveryPath(testMeta.dataDirectory + '/' + "recovery");
     testMeta.fileSplitter.setIdempotentStorageManager(fsIdempotentStorageManager);
@@ -356,7 +345,7 @@ public class FileSplitterTest
     testMeta.fileSplitter.setBlocksThreshold(2);
     testMeta.fileSplitter.scanner.setScanIntervalMillis(500);
 
-    testMeta.fileSplitter.setup(context);
+    testMeta.fileSplitter.setup(testMeta.context);
 
     testMeta.fileSplitter.beginWindow(1);
     testMeta.exchanger.exchange(null);
@@ -371,7 +360,7 @@ public class FileSplitterTest
     testMeta.blockMetadataSink.clear();
 
     //there was a failure and the operator was re-deployed
-    testMeta.fileSplitter.setup(context);
+    testMeta.fileSplitter.setup(testMeta.context);
     testMeta.fileSplitter.beginWindow(1);
 
     Assert.assertEquals("Recovered Files", 1, testMeta.fileMetadataSink.collectedTuples.size());

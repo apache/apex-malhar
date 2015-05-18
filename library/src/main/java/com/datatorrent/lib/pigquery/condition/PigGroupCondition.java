@@ -28,6 +28,7 @@ import javax.validation.constraints.NotNull;
  * @tags group, condition, map, string
  * @since 0.3.4
  */
+@Deprecated
 public interface PigGroupCondition
 {
   public Object compute(@NotNull Map<String, Object> tuple);

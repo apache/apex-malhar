@@ -69,6 +69,7 @@ import com.datatorrent.api.Operator;
  * @tags map, string, distinct operator
  * @since 0.3.4
  */
+@Deprecated
 public class PigDistinctOperator implements Operator, Unifier<Map<String, Object>>
 {
   /**

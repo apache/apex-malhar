@@ -36,7 +36,7 @@ import com.google.common.collect.Lists;
 
 import com.datatorrent.api.DAG;
 
-import com.datatorrent.lib.bucket.Bucket;
+import com.datatorrent.lib.bucket.AbstractBucket;
 import com.datatorrent.lib.bucket.DummyEvent;
 import com.datatorrent.lib.bucket.ExpirableHdfsBucketStore;
 import com.datatorrent.lib.bucket.TimeBasedBucketManagerImpl;
@@ -61,7 +61,7 @@ public class DeduperTest
   {
 
     @Override
-    public void bucketLoaded(Bucket<DummyEvent> bucket)
+    public void bucketLoaded(AbstractBucket<DummyEvent> bucket)
     {
       try {
         super.bucketLoaded(bucket);

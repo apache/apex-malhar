@@ -28,6 +28,9 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 
+/**
+ * @since 2.1.0
+ */
 public class MessageReceiver implements InputOperator, NetworkManager.ChannelListener<DatagramChannel>
 {
   private static final Logger logger = LoggerFactory.getLogger(MessageReceiver.class);

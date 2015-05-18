@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
  * This controls how an {@link AbstractBlockReader} reads a {@link BlockMetadata}.
  *
  * @param <STREAM> type of stream
+ *
+ * @since 2.1.0
  */
 public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
 {

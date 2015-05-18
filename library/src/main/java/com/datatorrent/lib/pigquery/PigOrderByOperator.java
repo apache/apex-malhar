@@ -25,6 +25,7 @@ package com.datatorrent.lib.pigquery;
  * @tags orderby operator
  * @since 0.3.4
  */
+@Deprecated
 public class PigOrderByOperator 
 {
   // Must not be used.

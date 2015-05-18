@@ -50,8 +50,8 @@ public class MemsqlInputBenchmark implements StreamingApplication
     MemsqlInputOperator memsqlInputOperator = dag.addOperator("memsqlInputOperator",
                                                                 new MemsqlInputOperator());
 
-    DevNull<Integer> devNull = dag.addOperator("devnull",
-                                      new DevNull<Integer>());
+    DevNull<Object> devNull = dag.addOperator("devnull",
+                                      new DevNull<Object>());
 
     dag.addStream("memsqlconnector",
                   memsqlInputOperator.outputPort,

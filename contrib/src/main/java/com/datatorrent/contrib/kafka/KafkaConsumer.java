@@ -92,7 +92,7 @@ public abstract class KafkaConsumer implements Closeable
   @NotNull
   @Bind(JavaSerializer.class)
   protected SetMultimap<String, String> zookeeper;
-  
+
   protected transient SetMultimap<String, String> brokers;
 
 
@@ -118,7 +118,7 @@ public abstract class KafkaConsumer implements Closeable
     initBrokers();
     holdingBuffer = new ArrayBlockingQueue<KafkaMessage>(cacheSize);
   }
-  
+
   public void initBrokers()
   {
     if(brokers!=null){
@@ -127,10 +127,15 @@ public abstract class KafkaConsumer implements Closeable
     if(zookeeper!=null){
       brokers = HashMultimap.create();
       for (String clusterId: zookeeper.keySet()) {
-        brokers.putAll(clusterId, KafkaMetadataUtil.getBrokers(zookeeper.get(clusterId)));
+        try {
+          brokers.putAll(clusterId, KafkaMetadataUtil.getBrokers(zookeeper.get(clusterId)));
+        } catch (Exception e) {
+          // let the user know where we tried to connect to
+          throw new RuntimeException("Error resolving brokers for cluster " + clusterId + " " + zookeeper.get(clusterId), e);
+        }
       }
     }
-    
+
   }
 
   /**
@@ -302,7 +307,7 @@ public abstract class KafkaConsumer implements Closeable
       ps.brokerHost = host;
       ps.brokerId = brokerId;
     }
-    
+
     private synchronized PartitionStats putPartitionStatsIfNotPresent(KafkaPartition kp){
       PartitionStats ps = partitionStats.get(kp);
 

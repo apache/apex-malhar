@@ -53,7 +53,7 @@ import com.google.common.collect.Maps;
  *
  * @displayName HDHT Reader
  * @category Input
- * @tags hds, input operator
+ * @tags hdht, input operator
  *
  * @since 2.0.0
  */
@@ -245,6 +245,7 @@ public class HDHTReader implements Operator, HDHT.Reader
   @Override
   public synchronized byte[] get(long bucketKey, Slice key) throws IOException
   {
+    // this method is synchronized to support asynchronous reads outside operator thread
     for (int i=0; i<10; i++) {
       BucketReader bucket = getReader(bucketKey);
       BucketMeta bucketMeta = bucket.bucketMeta;
@@ -377,7 +378,7 @@ public class HDHTReader implements Operator, HDHT.Reader
   private static class BucketReader implements Closeable
   {
     BucketMeta bucketMeta;
-    final HashMap<String, HDSFileReader> readers = Maps.newHashMap();
+    final ConcurrentMap<String, HDSFileReader> readers = Maps.newConcurrentMap();
 
     @Override
     public void close() throws IOException

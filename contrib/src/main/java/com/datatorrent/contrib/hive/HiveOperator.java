@@ -36,13 +36,14 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 
-/*
+/**
  * Hive operator which can insert data in txt format in tables/partitions from a file written in hdfs location.
  * The file contains data of the same data type as the hive tables created by user and is already committed.
  * No changes will be made to the input file once its given to HiveOperator.
  * This is a fault tolerant implementation of HiveOperator which assumes that load operation
  * is an atomic operation in Hive.
  *
+ * @since 2.1.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
 public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMapping, HiveStore>
@@ -50,6 +51,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
   //This Property is user configurable.
   protected ArrayList<String> hivePartitionColumns = new ArrayList<String>();
   private transient String localString = "";
+  protected HiveStore hivestore;
 
   /**
    * The file system used to write to.
@@ -83,7 +85,6 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
    */
   protected long totalBytesWritten = 0;
 
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -112,7 +113,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
    */
   protected FileSystem getHDFSInstance() throws IOException
   {
-    FileSystem tempFS = FileSystem.newInstance(new Path(store.filepath).toUri(), new Configuration());
+    FileSystem tempFS = FileSystem.newInstance(new Path(hivestore.filepath).toUri(), new Configuration());
     if (!tempFS.getScheme().equalsIgnoreCase("hdfs")) {
       localString = " local";
     }
@@ -133,7 +134,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
     if (command != null) {
       Statement stmt;
       try {
-        stmt = store.getConnection().createStatement();
+        stmt = hivestore.getConnection().createStatement();
         stmt.execute(command);
       }
       catch (SQLException ex) {
@@ -152,7 +153,7 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
     String filename = tuple.getFilename();
     ArrayList<String> partition = tuple.getPartition();
     String command = null;
-    String filepath = store.getFilepath() + Path.SEPARATOR + filename;
+    String filepath = hivestore.getFilepath() + Path.SEPARATOR + filename;
     logger.debug("processing {} filepath", filepath);
     int numPartitions = partition.size();
     try {
@@ -237,6 +238,26 @@ public class HiveOperator extends AbstractStoreOutputOperator<FilePartitionMappi
   public void setTablename(String tablename)
   {
     this.tablename = tablename;
+  }
+
+  /**
+   * Gets the store set for hive;
+   * @return hive store
+   */
+  public HiveStore getHivestore()
+  {
+    return hivestore;
+  }
+
+  /**
+   * Set the store in hive.
+   *
+   * @param hivestore
+   */
+  public void setHivestore(HiveStore hivestore)
+  {
+    this.hivestore = hivestore;
+    super.setStore(hivestore);
   }
 
   public static enum Counters

@@ -144,7 +144,6 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   protected final transient Map<KafkaPartition, MutablePair<Long, Integer>> currentWindowRecoveryState;
   protected transient Map<KafkaPartition, Long> offsetStats = new HashMap<KafkaPartition, Long>();
   private transient OperatorContext context = null;
-  private boolean idempotent = true;
   // By default the partition policy is 1:1
   public PartitionStrategy strategy = PartitionStrategy.ONE_TO_ONE;
 
@@ -185,7 +184,7 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
 
   public AbstractKafkaInputOperator()
   {
-    idempotentStorageManager = new IdempotentStorageManager.FSIdempotentStorageManager();
+    idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
     currentWindowRecoveryState = new HashMap<KafkaPartition, MutablePair<Long, Integer>>();
   }
 
@@ -208,13 +207,13 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   @Override
   public void setup(OperatorContext context)
   {
-    if(!(getConsumer() instanceof SimpleKafkaConsumer) || !idempotent) {
-      idempotentStorageManager = new IdempotentStorageManager.NoopIdempotentStorageManager();
-    }
     logger.debug("consumer {} topic {} cacheSize {}", consumer, consumer.getTopic(), consumer.getCacheSize());
     consumer.create();
     this.context = context;
     operatorId = context.getId();
+    if(consumer instanceof HighlevelKafkaConsumer && !(idempotentStorageManager instanceof IdempotentStorageManager.NoopIdempotentStorageManager)) {
+      throw new RuntimeException("Idempotency is not supported for High Level Kafka Consumer");
+    }
     idempotentStorageManager.setup(context);
   }
 
@@ -240,61 +239,57 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     try {
       @SuppressWarnings("unchecked")
       Map<KafkaPartition, MutablePair<Long, Integer>> recoveredData = (Map<KafkaPartition, MutablePair<Long, Integer>>) idempotentStorageManager.load(operatorId, windowId);
-      if (recoveredData == null) {
-        return;
-      }
+      if (recoveredData != null) {
+        Map<String, List<PartitionMetadata>> pms = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().topic);
+        if (pms != null) {
+          SimpleKafkaConsumer cons = (SimpleKafkaConsumer) getConsumer();
+          // add all partition request in one Fretch request together
+          FetchRequestBuilder frb = new FetchRequestBuilder().clientId(cons.getClientId());
+          for (Map.Entry<KafkaPartition, MutablePair<Long, Integer>> rc : recoveredData.entrySet()) {
+            KafkaPartition kp = rc.getKey();
+            List<PartitionMetadata> pmsVal = pms.get(kp.getClusterId());
 
-      Map<String, List<PartitionMetadata>> pms = KafkaMetadataUtil.getPartitionsForTopic(getConsumer().brokers, getConsumer().topic);
-      if (pms == null) {
-       return;
-      }
+            Iterator<PartitionMetadata> pmIterator = pmsVal.iterator();
+            PartitionMetadata pm = pmIterator.next();
+            while (pm.partitionId() != kp.getPartitionId()) {
+              if (!pmIterator.hasNext())
+                break;
+              pm = pmIterator.next();
+            }
+            if (pm.partitionId() != kp.getPartitionId())
+              continue;
 
-      SimpleKafkaConsumer cons = (SimpleKafkaConsumer)getConsumer();
-      // add all partition request in one Fretch request together
-      FetchRequestBuilder frb = new FetchRequestBuilder().clientId(cons.getClientId());
-      for (Map.Entry<KafkaPartition, MutablePair<Long, Integer>> rc: recoveredData.entrySet()) {
-        KafkaPartition kp = rc.getKey();
-        List<PartitionMetadata> pmsVal = pms.get(kp.getClusterId());
+            Broker bk = pm.leader();
 
-        Iterator<PartitionMetadata> pmIterator = pmsVal.iterator();
-        PartitionMetadata pm = pmIterator.next();
-        while (pm.partitionId() != kp.getPartitionId()) {
-          if (!pmIterator.hasNext())
-            break;
-          pm = pmIterator.next();
-        }
-        if (pm.partitionId() != kp.getPartitionId())
-          continue;
+            frb.addFetch(consumer.topic, rc.getKey().getPartitionId(), rc.getValue().left, cons.getBufferSize());
+            FetchRequest req = frb.build();
 
-        Broker bk = pm.leader();
-
-        frb.addFetch(consumer.topic, rc.getKey().getPartitionId(), rc.getValue().left, cons.getBufferSize());
-        FetchRequest req = frb.build();
-
-        SimpleConsumer ksc = new SimpleConsumer(bk.host(), bk.port(), cons.getTimeout(), cons.getBufferSize(), cons.getClientId());
-        FetchResponse fetchResponse = ksc.fetch(req);
-        Integer count = 0;
-        for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kp.getPartitionId())) {
-          emitTuple(msg.message());
-          offsetStats.put(kp, msg.offset());
-          count = count + 1;
-          if (count.equals(rc.getValue().right))
-            break;
+            SimpleConsumer ksc = new SimpleConsumer(bk.host(), bk.port(), cons.getTimeout(), cons.getBufferSize(), cons.getClientId());
+            FetchResponse fetchResponse = ksc.fetch(req);
+            Integer count = 0;
+            for (MessageAndOffset msg : fetchResponse.messageSet(consumer.topic, kp.getPartitionId())) {
+              emitTuple(msg.message());
+              offsetStats.put(kp, msg.offset());
+              count = count + 1;
+              if (count.equals(rc.getValue().right))
+                break;
+            }
+          }
         }
       }
       if(windowId == idempotentStorageManager.getLargestRecoveryWindow()) {
+        // Start the consumer at the largest recovery window
+        SimpleKafkaConsumer cons = (SimpleKafkaConsumer)getConsumer();
         // Set the offset positions to the consumer
         Map<KafkaPartition, Long> currentOffsets = new HashMap<KafkaPartition, Long>(cons.getCurrentOffsets());
         // Increment the offsets
         for (Map.Entry<KafkaPartition, Long> e: offsetStats.entrySet()) {
           currentOffsets.put(e.getKey(), e.getValue() + 1);
         }
-
         cons.resetOffset(currentOffsets);
         cons.start();
       }
     }
-
     catch (IOException e) {
       throw new RuntimeException("replay", e);
     }
@@ -439,8 +434,11 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     // Initialize brokers from zookeepers
     getConsumer().initBrokers();
 
+    boolean isInitialParitition = true;
     // check if it's the initial partition
-    boolean isInitialParitition = partitions.iterator().next().getStats() == null;
+    if(partitions.iterator().hasNext()) {
+      isInitialParitition = partitions.iterator().next().getStats() == null;
+    }
 
     // get partition metadata for topics.
     // Whatever operator is using high-level or simple kafka consumer, the operator always create a temporary simple kafka consumer to get the metadata of the topic
@@ -507,10 +505,8 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
         lastRepartitionTime = System.currentTimeMillis();
         logger.info("[ONE_TO_MANY]: Initializing partition(s)");
         int size = initialPartitionCount;
-        //Set<KafkaPartition>[] kps = new Set[size];
         @SuppressWarnings("unchecked")
         Set<KafkaPartition>[] kps = (Set<KafkaPartition>[]) Array.newInstance((new HashSet<KafkaPartition>()).getClass(), size);
-        newPartitions = new ArrayList<Partitioner.Partition<AbstractKafkaInputOperator<K>>>(size);
         int i = 0;
         for (Map.Entry<String, List<PartitionMetadata>> en : kafkaPartitions.entrySet()) {
           String clusterId = en.getKey();
@@ -522,7 +518,9 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
             i++;
           }
         }
-        for (i = 0; i < kps.length; i++) {
+        size = i > size ? size : i;
+        newPartitions = new ArrayList<Partitioner.Partition<AbstractKafkaInputOperator<K>>>(size);
+        for (i = 0; i < size; i++) {
           logger.info("[ONE_TO_MANY]: Create operator partition for kafka partition(s): {} ", StringUtils.join(kps[i], ", "));
           newPartitions.add(createPartition(kps[i], initOffset, newManagers));
         }
@@ -732,7 +730,16 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
           existingIds.addAll(pio.kpids);
         }
 
-        for (Map.Entry<String, List<PartitionMetadata>> en : KafkaMetadataUtil.getPartitionsForTopic(consumer.brokers, consumer.getTopic()).entrySet()) {
+        Map<String, List<PartitionMetadata>> partitionsMeta = KafkaMetadataUtil.getPartitionsForTopic(consumer.brokers, consumer.getTopic());
+        if(partitionsMeta == null){
+          //broker(s) has temporary issue to get metadata
+          return false;
+        }
+        for (Map.Entry<String, List<PartitionMetadata>> en : partitionsMeta.entrySet()) {
+          if(en.getValue() == null){
+            //broker(s) has temporary issue to get metadata
+            continue;
+          }
           for (PartitionMetadata pm : en.getValue()) {
             KafkaPartition pa = new KafkaPartition(en.getKey(), consumer.topic, pm.partitionId());
             if(!existingIds.contains(pa)){
@@ -938,15 +945,5 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   public void setStrategy(String policy)
   {
     this.strategy = PartitionStrategy.valueOf(policy.toUpperCase());
-  }
-
-  public boolean isIdempotent()
-  {
-    return idempotent;
-  }
-
-  public void setIdempotent(boolean idempotent)
-  {
-    this.idempotent = idempotent;
   }
 }

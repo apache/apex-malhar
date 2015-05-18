@@ -16,7 +16,7 @@
 
 package com.datatorrent.contrib.memsql;
 
-import static com.datatorrent.contrib.memsql.AbstractMemsqlOutputOperatorTest.*;
+import com.datatorrent.lib.db.jdbc.JdbcTransactionalStore;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -29,6 +29,19 @@ import org.slf4j.LoggerFactory;
 public class AbstractMemsqlInputOperatorTest
 {
   private static final Logger LOG = LoggerFactory.getLogger(AbstractMemsqlInputOperatorTest.class);
+
+  public static final String HOST_PREFIX = "jdbc:mysql://";
+  public static final String HOST = "localhost";
+  public static final String USER = "root";
+  public static final String PORT = "3307";
+  public static final String DATABASE = "bench";
+  public static final String TABLE = "bench";
+  public static final String FQ_TABLE = DATABASE + "." + TABLE;
+  public static final String INDEX_COLUMN = "data_index";
+  public static final String DATA_COLUMN1 = "data1";
+  public static final int BLAST_SIZE = 10;
+  public static final int NUM_WINDOWS = 10;
+  public static final int DATABASE_SIZE = NUM_WINDOWS * BLAST_SIZE;
 
   public static void populateDatabase(MemsqlStore memsqlStore)
   {
@@ -43,7 +56,7 @@ public class AbstractMemsqlInputOperatorTest
           counter++) {
         statement.executeUpdate("insert into " +
                                 FQ_TABLE +
-                                " (" + DATA_COLUMN + ") values (" + random.nextInt() + ")");
+                                " (" + DATA_COLUMN1 + ") values (" + random.nextInt() + ")");
       }
 
       statement.close();
@@ -55,6 +68,73 @@ public class AbstractMemsqlInputOperatorTest
     memsqlStore.disconnect();
   }
 
+   public static void memsqlInitializeDatabase(MemsqlStore memsqlStore) throws SQLException
+  {
+    memsqlStore.connect();
+
+    Statement statement = memsqlStore.getConnection().createStatement();
+    statement.executeUpdate("drop database if exists " + DATABASE);
+    statement.executeUpdate("create database " + DATABASE);
+
+    memsqlStore.disconnect();
+
+    memsqlStore.connect();
+
+    statement = memsqlStore.getConnection().createStatement();
+    statement.executeUpdate("create table " +
+                            FQ_TABLE +
+                            "(" + INDEX_COLUMN +
+                            " INTEGER AUTO_INCREMENT PRIMARY KEY, " +
+                            DATA_COLUMN1 +
+                            " INTEGER)");
+    String createMetaTable = "CREATE TABLE IF NOT EXISTS " + DATABASE + "." + JdbcTransactionalStore.DEFAULT_META_TABLE + " ( "
+            + JdbcTransactionalStore.DEFAULT_APP_ID_COL + " VARCHAR(100) NOT NULL, "
+            + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + " INT NOT NULL, "
+            + JdbcTransactionalStore.DEFAULT_WINDOW_COL + " BIGINT NOT NULL, "
+            + "PRIMARY KEY (" + JdbcTransactionalStore.DEFAULT_APP_ID_COL + ", " + JdbcTransactionalStore.DEFAULT_OPERATOR_ID_COL + ") "
+            + ")";
+
+    statement.executeUpdate(createMetaTable);
+
+    statement.close();
+
+    memsqlStore.disconnect();
+  }
+
+   public static MemsqlStore createStore(MemsqlStore memsqlStore, boolean withDatabase)
+  {
+    String host = HOST;
+    String user = USER;
+    String port = PORT;
+
+    if (memsqlStore == null) {
+      memsqlStore = new MemsqlStore();
+    }
+
+    StringBuilder sb = new StringBuilder();
+    String tempHost = HOST_PREFIX + host + ":" + PORT;
+    if (withDatabase) {
+      tempHost += "/" + DATABASE;
+    }
+    LOG.debug("Host name: {}", tempHost);
+    LOG.debug("User name: {}", user);
+    LOG.debug("Port: {}", port);
+    memsqlStore.setDatabaseUrl(tempHost);
+
+    sb.append("user:").append(user).append(",");
+    sb.append("port:").append(port);
+
+    String properties = sb.toString();
+    LOG.debug(properties);
+    memsqlStore.setConnectionProperties(properties);
+    return memsqlStore;
+  }
+
+  public static void cleanDatabase() throws SQLException
+  {
+    memsqlInitializeDatabase(createStore(null, false));
+  }
+
   @Test
   public void TestMemsqlInputOperator() throws SQLException
   {
@@ -64,6 +144,8 @@ public class AbstractMemsqlInputOperatorTest
     MemsqlInputOperator inputOperator = new MemsqlInputOperator();
     createStore((MemsqlStore) inputOperator.getStore(), true);
     inputOperator.setBlastSize(BLAST_SIZE);
+    inputOperator.setTablename(FQ_TABLE);
+    inputOperator.setPrimaryKeyCol(INDEX_COLUMN);
 
     CollectorTestSink<Object> sink = new CollectorTestSink<Object>();
     inputOperator.outputPort.setSink(sink);

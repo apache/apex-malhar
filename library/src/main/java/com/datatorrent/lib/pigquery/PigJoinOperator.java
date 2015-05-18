@@ -22,11 +22,12 @@ import java.util.Map;
 
 import javax.validation.constraints.NotNull;
 
+import com.datatorrent.lib.streamquery.condition.Condition;
+
 import com.datatorrent.api.BaseOperator;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.OperatorAnnotation;
-import com.datatorrent.lib.streamquery.condition.Condition;
 
 /**
  * An implementation of BaseOperator that implements Pig Join(Inner) semantic on live stream.
@@ -85,6 +86,7 @@ import com.datatorrent.lib.streamquery.condition.Condition;
  * @tags map, string, inner join operator
  * @since 0.3.4
  */
+@Deprecated
 @OperatorAnnotation(partitionable = false)
 public class PigJoinOperator extends BaseOperator
 {

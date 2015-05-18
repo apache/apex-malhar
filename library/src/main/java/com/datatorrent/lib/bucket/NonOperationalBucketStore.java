@@ -34,7 +34,7 @@ import com.datatorrent.api.annotation.Stateless;
  * @since 1.0.1
  */
 @Stateless
-public class NonOperationalBucketStore<T extends Bucketable & Event> implements BucketStore.ExpirableBucketStore<T>
+public class NonOperationalBucketStore<T> implements BucketStore.ExpirableBucketStore<T>
 {
   public NonOperationalBucketStore()
   {
@@ -66,6 +66,7 @@ public class NonOperationalBucketStore<T extends Bucketable & Event> implements 
 
   /**
    * {@inheritDoc}
+   * @throws java.io.IOException
    */
   @Override
   public void storeBucketData(long window, long timestamp, Map<Integer, Map<Object, T>> data) throws IOException
@@ -74,6 +75,7 @@ public class NonOperationalBucketStore<T extends Bucketable & Event> implements 
 
   /**
    * {@inheritDoc}
+   * @throws java.io.IOException
    */
   @Override
   public void deleteBucket(int bucketIdx) throws IOException
@@ -82,6 +84,7 @@ public class NonOperationalBucketStore<T extends Bucketable & Event> implements 
 
   /**
    * {@inheritDoc}
+   * @throws java.lang.Exception
    */
   @Override
   @Nonnull

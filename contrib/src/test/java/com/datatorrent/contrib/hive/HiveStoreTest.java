@@ -25,6 +25,6 @@ public class HiveStoreTest
   public void defaultDriverTest()
   {
     HiveStore hiveStore = new HiveStore();
-    Assert.assertEquals("Test default driver", HiveStore.HIVE_DRIVER,hiveStore.getDbDriver());
+    Assert.assertEquals("Test default driver", HiveStore.HIVE_DRIVER,hiveStore.getDatabaseDriver());
   }
 }

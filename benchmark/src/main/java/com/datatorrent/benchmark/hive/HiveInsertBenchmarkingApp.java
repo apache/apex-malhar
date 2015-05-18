@@ -64,6 +64,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
  * This operator loads 187 files in 120 seconds with following configuration.
  * Tuple byte size of 32, file size 512.
  *
+ * @since 2.1.0
  */
 @ApplicationAnnotation(name = "HiveInsertBenchmarkingApp")
 public class HiveInsertBenchmarkingApp implements StreamingApplication
@@ -74,7 +75,7 @@ public class HiveInsertBenchmarkingApp implements StreamingApplication
   public void populateDAG(DAG dag, Configuration conf)
   {
     HiveStore store = new HiveStore();
-    store.setDbUrl(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
+    store.setDatabaseUrl(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.dbUrl"));
     store.setConnectionProperties(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.connectionProperties"));
     store.setFilepath(conf.get("dt.application.HiveInsertBenchmarkingApp.operator.HiveOperator.store.filepath"));
 
