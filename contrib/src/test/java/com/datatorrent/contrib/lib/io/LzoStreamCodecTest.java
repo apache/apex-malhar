@@ -16,7 +16,7 @@ import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 
-public class FilterStreamCodecTest
+public class LzoStreamCodecTest
 {
   public static OperatorContextTestHelper.TestIdOperatorContext testOperatorContext = new OperatorContextTestHelper.TestIdOperatorContext(0);
   @Rule
@@ -65,7 +65,7 @@ public class FilterStreamCodecTest
   public void testLZOCompression() throws Exception
   {
     FileOutputOperator writer = new FileOutputOperator("compressedData.txt.lzo");
-    writer.setFilterStreamProvider(new FilterStreamCodec.LZOFilterStreamProvider());
+    writer.setFilterStreamProvider(new LzoStreamCodec.LZOFilterStreamProvider());
 
     writer.setFilePath(testMeta.getDir());
     writer.setup(testOperatorContext);

@@ -11,7 +11,8 @@ import org.anarres.lzo.LzopOutputStream;
 
 import com.datatorrent.lib.io.fs.FilterStreamContext;
 import com.datatorrent.lib.io.fs.FilterStreamProvider;
-public class FilterStreamCodec
+
+public class LzoStreamCodec
 {
 
   public static class LZOFilterStreamContext extends FilterStreamContext.BaseFilterStreamContext<LZOpoutputStream>
@@ -21,7 +22,7 @@ public class FilterStreamCodec
       filterStream = new LZOpoutputStream(new LzopOutputStream(outputStream, LzoLibrary.getInstance().newCompressor(LzoAlgorithm.LZO1X, LzoConstraint.COMPRESSION)));
     }
   }
-  
+
   static class LZOpoutputStream extends FilterOutputStream
   {
     public LZOpoutputStream(OutputStream outputStream)
@@ -29,9 +30,10 @@ public class FilterStreamCodec
       super(outputStream);
     }
   }
+
   /**
-   * A provider for LZO filter
-   * The file has to be rewritten from beginning when there is operator failure. The operates on entries file and not on file parts.
+   * A provider for LZO filter The file has to be rewritten from beginning when there is operator failure. The operates
+   * on entries file and not on file parts.
    */
   public static class LZOFilterStreamProvider extends FilterStreamProvider.SimpleFilterReusableStreamProvider<LZOpoutputStream, OutputStream>
   {
