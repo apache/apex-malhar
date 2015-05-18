@@ -279,16 +279,12 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       if(aggregate != null) {
         cache.put(aggregate.getEventKey(), aggregate);
       }
-      else {
-        LOG.debug("Not in cache");
-      }
     }
 
     if(aggregate == null) {
       cache.put(gae.getEventKey(), gae);
     }
     else {
-      LOG.debug("Not in cache");
       aggregator.aggregateAggs(aggregate, gae);
     }
   }
