@@ -21,7 +21,6 @@ import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.schemas.*;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.Serializable;
@@ -84,7 +83,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   {
     super.setup(context);
 
-    this.buckets = Lists.newArrayList(bucketID);
+    this.buckets = Sets.newHashSet(bucketID);
 
     if(!dimensionalSchema.isFixedFromTo()) {
       dimensionalSchema.setFrom(System.currentTimeMillis());

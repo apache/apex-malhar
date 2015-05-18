@@ -88,7 +88,7 @@ public class DimensionsQueryComputer implements QueryComputer<DataQueryDimension
         else {
           Slice keySlice = new Slice(operator.getEventKeyBytesGAE(eventKey));
           //Fix this later
-          byte[] value = operator.getUncommitted(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID, keySlice);
+          byte[] value = operator.getUncommitted(operator.getBucketForSchema(schemaDimensional.getSchemaID()), keySlice);
 
           if(value != null) {
             gae = operator.fromKeyValueGAE(keySlice, value);

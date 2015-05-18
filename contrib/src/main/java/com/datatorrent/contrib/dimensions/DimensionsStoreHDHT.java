@@ -30,6 +30,7 @@ import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
 import com.google.common.primitives.Longs;
 import java.io.IOException;
@@ -38,8 +39,8 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * TODO aggregate by windowID in waiting cache.
@@ -55,6 +56,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   public static final int META_DATA_ID_STORE_FORMAT = 1;
   public static final Slice STORE_FORMAT_KEY = new Slice(GPOUtils.serializeInt(META_DATA_ID_STORE_FORMAT));
   public static final int STORE_FORMAT_VERSION = 0;
+  public static final byte[] STORE_FORMAT_VERSION_BYTES = GPOUtils.serializeInt(STORE_FORMAT_VERSION);
 
   @Min(1)
   private int cacheWindowDuration = DEFAULT_CACHE_WINDOW_DURATION;
@@ -63,7 +65,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   protected transient long currentWindowID;
 
   protected transient Map<EventKey, AggregateEvent> cache = Maps.newHashMap();
-  protected List<Long> buckets;
+  protected Set<Long> buckets = Sets.newHashSet();
 
   @VisibleForTesting
   protected transient boolean readMetaData = false;
@@ -198,6 +200,11 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     }
   }
 
+  public void putStoreFormatVersion(long bucket) throws IOException
+  {
+    put(bucket, STORE_FORMAT_KEY, STORE_FORMAT_VERSION_BYTES);
+  }
+
   @Override
   public void beginWindow(long windowId)
   {
@@ -220,12 +227,10 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       }
 
       //Write Store Format Version
-      byte[] formatVersionValueBytes = GPOUtils.serializeInt(STORE_FORMAT_VERSION);
-
       for(Long bucket: buckets) {
         try {
           LOG.debug("Writing out store format version to bucket {}", bucket);
-          put(bucket, STORE_FORMAT_KEY, formatVersionValueBytes);
+          putStoreFormatVersion(bucket);
         }
         catch(IOException ex) {
           throw new RuntimeException(ex);
