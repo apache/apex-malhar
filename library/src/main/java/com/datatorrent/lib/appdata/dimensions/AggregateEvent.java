@@ -21,13 +21,15 @@ import java.io.Serializable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AggregateEvent implements Serializable
+public class AggregateEvent implements Serializable, com.datatorrent.lib.statistics.DimensionsComputation.AggregateEvent
 {
   private static final Logger logger = LoggerFactory.getLogger(AggregateEvent.class);
   private static final long serialVersionUID = 201503231204L;
 
   private GPOMutable aggregates;
   private EventKey eventKey;
+
+  private int aggregatorIndex;
 
   private AggregateEvent()
   {
@@ -151,6 +153,17 @@ public class AggregateEvent implements Serializable
     if(srcAggs.getFieldsDouble() != null) {
       System.arraycopy(srcAggs.getFieldsDouble(), 0, destAggs.getFieldsDouble(), 0, srcAggs.getFieldsDouble().length);
     }
+  }
+
+  public void setAggregatorIndex(int aggregatorIndex)
+  {
+    this.aggregatorIndex = aggregatorIndex;
+  }
+
+  @Override
+  public int getAggregatorIndex()
+  {
+    return aggregatorIndex;
   }
 
   public static class EventKey implements Serializable
@@ -351,5 +364,50 @@ public class AggregateEvent implements Serializable
       return false;
     }
     return true;
+  }
+
+  public static class InputAggregateEvent extends AggregateEvent
+  {
+    private static final long serialVersionUID = 201505181028L;
+
+    private InputAggregateEvent()
+    {
+      //For kryo
+    }
+
+    public InputAggregateEvent(EventKey eventKey,
+                               GPOMutable aggregates)
+    {
+      super(eventKey,
+            aggregates);
+    }
+
+    public InputAggregateEvent(GPOMutable keys,
+                               GPOMutable aggregates,
+                               int bucketID,
+                               int schemaID,
+                               int dimensionDescriptorID,
+                               int aggregatorIndex)
+    {
+      super(keys,
+            aggregates,
+            bucketID,
+            schemaID,
+            dimensionDescriptorID,
+            aggregatorIndex);
+    }
+
+    public InputAggregateEvent(GPOMutable keys,
+                               GPOMutable aggregates,
+                               int schemaID,
+                               int dimensionDescriptorID,
+                               int aggregatorIndex)
+    {
+      super(keys,
+            aggregates,
+            schemaID,
+            dimensionDescriptorID,
+            aggregatorIndex);
+    }
   }
 }
