@@ -5,11 +5,14 @@
 
 package com.datatorrent.lib.appdata;
 
+import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import java.io.IOException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -45,8 +48,10 @@ public class QueryDeserializerFactoryTest
     String unsupportedQuery = "{\"id\":\"1\",\"type\":\"Invalid type\"}";
     boolean exception = false;
 
+    Data data = null;
+
     try {
-      qdf.deserialize(unsupportedQuery);
+      data = qdf.deserialize(unsupportedQuery);
     }
     catch(IOException e) {
       exception = true;
@@ -54,4 +59,6 @@ public class QueryDeserializerFactoryTest
 
     Assert.assertTrue("Resulting query should be null.", exception);
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(QueryDeserializerFactoryTest.class);
 }

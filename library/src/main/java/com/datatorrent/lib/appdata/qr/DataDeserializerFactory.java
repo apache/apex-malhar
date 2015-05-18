@@ -152,8 +152,9 @@ public class DataDeserializerFactory
     CustomDataDeserializer cqb = typeToCustomQueryBuilder.get(type);
 
     if(cqb == null) {
-      logger.error("The query type {} does not have a corresponding deserializer.", type);
-      return null;
+      throw new IOException("The query type " +
+                            type +
+                            " does not have a corresponding deserializer.");
     }
 
     CustomDataValidator cqv = typeToCustomQueryValidator.get(type);

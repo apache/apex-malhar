@@ -38,7 +38,7 @@ public class SimpleDataDeserializer extends CustomDataDeserializer
       data = om.readValue(json, this.getDataClazz());
     }
     catch(IOException ex) {
-      throw new IOException(ex);
+      throw ex;
     }
 
     return data;
