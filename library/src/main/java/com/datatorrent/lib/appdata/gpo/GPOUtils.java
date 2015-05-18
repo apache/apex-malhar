@@ -9,6 +9,7 @@ import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.mutable.MutableInt;
 import org.codehaus.jettison.json.JSONArray;
@@ -969,6 +970,19 @@ public class GPOUtils
     offset.add(Type.LONG.getByteSize());
   }
 
+  public static byte[] serializeLong(long val)
+  {
+    byte[] bytes = new byte[Type.LONG.getByteSize()];
+    serializeLong(val, bytes, new MutableInt(0));
+    return bytes;
+  }
+
+  public static long deserializeLong(byte[] buffer)
+  {
+    Preconditions.checkArgument(buffer.length == Type.LONG.getByteSize());
+    return deserializeLong(buffer, new MutableInt(0));
+  }
+
   ////Double
 
   public static double deserializeDouble(byte[] buffer,
@@ -1019,6 +1033,12 @@ public class GPOUtils
     return val;
   }
 
+  public static int deserializeInt(byte[] buffer)
+  {
+    Preconditions.checkArgument(buffer.length == Type.INTEGER.getByteSize());
+    return deserializeInt(buffer, new MutableInt(0));
+  }
+
   public static void serializeInt(int val,
                                   byte[] buffer,
                                   MutableInt offset)
@@ -1029,6 +1049,12 @@ public class GPOUtils
     buffer[3 + offset.intValue()] = (byte) (val & 0xFF);
 
     offset.add(Type.INTEGER.getByteSize());
+  }
+
+  public static byte[] serializeInt(int val) {
+    byte[] bytes = new byte[Type.INTEGER.getByteSize()];
+    serializeInt(val, bytes, new MutableInt(0));
+    return bytes;
   }
 
   ////Float

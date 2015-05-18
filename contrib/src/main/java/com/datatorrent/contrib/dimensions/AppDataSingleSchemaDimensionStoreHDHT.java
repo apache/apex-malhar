@@ -21,12 +21,11 @@ import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.schemas.*;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.Serializable;
 import javax.validation.constraints.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.Set;
@@ -51,6 +50,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   protected transient DimensionalEventSchema eventSchema;
   private transient SchemaDimensional dimensionalSchema;
   private int schemaID = DEFAULT_SCHEMA_ID;
+  private long bucketID = DEFAULT_BUCKET_ID;
 
   private boolean updateEnumValues = false;
   @SuppressWarnings({"rawtypes"})
@@ -83,6 +83,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   public void setup(OperatorContext context)
   {
     super.setup(context);
+
+    this.buckets = Lists.newArrayList(bucketID);
 
     if(!dimensionalSchema.isFixedFromTo()) {
       dimensionalSchema.setFrom(System.currentTimeMillis());
@@ -122,7 +124,6 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
 
     if (schemaResult != null) {
       String schemaResultJSON = resultSerializerFactory.serialize(schemaResult);
-      logger.info("Emitter {}", schemaResultJSON);
       queryResult.emit(schemaResultJSON);
     }
   }
@@ -142,13 +143,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   @Override
   public long getBucketForSchema(int schemaID)
   {
-    return DEFAULT_BUCKET_ID;
+    return bucketID;
   }
-
-  @Override
-  public int getPartitionGAE(AggregateEvent inputEvent)
-  {
-    return inputEvent.getEventKey().hashCode();}
 
   /**
    * @param eventSchemaJSON the eventSchemaJSON to set
@@ -198,5 +194,19 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
     this.schemaID = schemaID;
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(AppDataSingleSchemaDimensionStoreHDHT.class);
+  /**
+   * @return the bucketID
+   */
+  public long getBucketID()
+  {
+    return bucketID;
+  }
+
+  /**
+   * @param bucketID the bucketID to set
+   */
+  public void setBucketID(long bucketID)
+  {
+    this.bucketID = bucketID;
+  }
 }

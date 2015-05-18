@@ -29,11 +29,9 @@ public class AggregateEvent implements Serializable
   private GPOMutable aggregates;
   private EventKey eventKey;
 
-  private boolean empty = false;
-
-  public AggregateEvent()
+  private AggregateEvent()
   {
-    empty = true;
+    //For kryo
   }
 
   public AggregateEvent(EventKey eventKey,
@@ -115,14 +113,6 @@ public class AggregateEvent implements Serializable
   public int getBucketID()
   {
     return eventKey.getBucketID();
-  }
-
-  /**
-   * @return the empty
-   */
-  public boolean isEmpty()
-  {
-    return empty;
   }
 
   public static void copy(AggregateEvent aeDest, AggregateEvent aeSrc)

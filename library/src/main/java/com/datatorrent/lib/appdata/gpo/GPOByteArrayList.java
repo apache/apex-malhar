@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.bytes.ByteArrayList;
 import it.unimi.dsi.fastutil.bytes.ByteCollection;
 import it.unimi.dsi.fastutil.bytes.ByteIterator;
 import it.unimi.dsi.fastutil.bytes.ByteList;
-import java.nio.ByteBuffer;
 
 import java.util.Collection;
 import java.util.Iterator;
@@ -17,10 +16,6 @@ import java.util.Iterator;
 public class GPOByteArrayList extends ByteArrayList
 {
   private static final long serialVersionUID = 201503091653L;
-
-  private final ByteBuffer BB_2 = ByteBuffer.allocate(2);
-  private final ByteBuffer BB_4 = ByteBuffer.allocate(4);
-  private final ByteBuffer BB_8 = ByteBuffer.allocate(8);
 
   protected GPOByteArrayList(byte[] a, boolean dummy)
   {
