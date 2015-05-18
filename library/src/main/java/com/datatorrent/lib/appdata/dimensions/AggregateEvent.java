@@ -29,8 +29,6 @@ public class AggregateEvent implements Serializable
   private GPOMutable aggregates;
   private EventKey eventKey;
 
-  private long windowID;
-
   private AggregateEvent()
   {
     //For kryo
@@ -69,21 +67,6 @@ public class AggregateEvent implements Serializable
                                  aggregatorIndex,
                                  keys);
     setAggregates(aggregates);
-  }
-
-  public AggregateEvent(GPOMutable keys,
-                        GPOMutable aggregates,
-                        int schemaID,
-                        int dimensionDescriptorID,
-                        int aggregatorIndex,
-                        long windowID)
-  {
-    this.eventKey = new EventKey(schemaID,
-                                 dimensionDescriptorID,
-                                 aggregatorIndex,
-                                 keys);
-    setAggregates(aggregates);
-    setWindowId(windowID);
   }
 
   private void setEventKey(EventKey eventKey)
@@ -168,22 +151,6 @@ public class AggregateEvent implements Serializable
     if(srcAggs.getFieldsDouble() != null) {
       System.arraycopy(srcAggs.getFieldsDouble(), 0, destAggs.getFieldsDouble(), 0, srcAggs.getFieldsDouble().length);
     }
-  }
-
-  /**
-   * @return the windowID
-   */
-  public long getWindowId()
-  {
-    return windowID;
-  }
-
-  /**
-   * @param windowId the windowID to set
-   */
-  public final void setWindowId(long windowId)
-  {
-    this.windowID = windowId;
   }
 
   public static class EventKey implements Serializable

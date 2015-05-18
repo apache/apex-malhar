@@ -24,6 +24,7 @@ import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
 import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
@@ -32,24 +33,147 @@ import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
 import com.esotericsoftware.kryo.Kryo;
+import com.google.common.collect.Sets;
+import java.io.File;
+import java.io.IOException;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+
 
 public class AppDataSingleSchemaDimensionStoreHDHTTest
 {
   private static final Logger logger = LoggerFactory.getLogger(AppDataSingleSchemaDimensionStoreHDHTTest.class);
 
-  @Rule public TestInfo testMeta = new FSTestWatcher();
+  @Rule
+  public TestInfo testMeta = new FSTestWatcher() {
+    @Override
+    protected void starting(Description descriptor)
+    {
+      super.starting(descriptor);
+
+      try {
+        FileUtils.deleteDirectory(new File(getDir()));
+      }
+      catch(IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    @Override
+    protected void finished(Description description)
+    {
+      try {
+        FileUtils.deleteDirectory(new File(getDir()));
+      }
+      catch(IOException ex) {
+        throw new RuntimeException(ex);
+      }
+
+      super.finished(description);
+    }
+  };
+
+  @Test
+  public void storeFormatTest() throws Exception
+  {
+    String eventSchemaString = SchemaUtils.jarResourceFileToString("dimensionsTestSchema.json");
+
+    String basePath = testMeta.getDir();
+    TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
+    hdsFile.setBasePath(basePath);
+
+    AppDataSingleSchemaDimensionStoreHDHT store = new AppDataSingleSchemaDimensionStoreHDHT();
+
+    store.setEventSchemaJSON(eventSchemaString);
+    store.setFileStore(hdsFile);
+    store.setFlushIntervalCount(1);
+    store.setFlushSize(0);
+
+    long windowId = 0L;
+    store.setup(null);
+    store.beginWindow(windowId);
+    store.endWindow();
+    store.checkpointed(windowId);
+    store.committed(windowId);
+
+    windowId++;
+    store.beginWindow(windowId);
+
+    byte[] storeFormat = store.load(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID,
+                                    DimensionsStoreHDHT.STORE_FORMAT_KEY);
+    Assert.assertEquals(DimensionsStoreHDHT.STORE_FORMAT_VERSION, GPOUtils.deserializeInt(storeFormat));
+    store.endWindow();
+    store.teardown();
+  }
+
+  @Test
+  public void storeWindowIDTest()
+  {
+    String eventSchemaString = SchemaUtils.jarResourceFileToString("dimensionsTestSchema.json");
+
+    String basePath = testMeta.getDir();
+    TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
+    hdsFile.setBasePath(basePath);
+
+    AppDataSingleSchemaDimensionStoreHDHT store = new AppDataSingleSchemaDimensionStoreHDHT();
+
+    store.setEventSchemaJSON(eventSchemaString);
+    store.setFileStore(hdsFile);
+    store.setFlushIntervalCount(1);
+    store.setFlushSize(0);
+
+    long windowId = 0L;
+    store.setup(null);
+    store.beginWindow(windowId);
+    byte[] windowIDBytes = store.load(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID,
+                                      DimensionsStoreHDHT.WINDOW_ID_KEY);
+    Assert.assertEquals(null, windowIDBytes);
+    store.endWindow();
+    store.checkpointed(windowId);
+    store.committed(windowId);
+
+    for(int windowCounter = 0;
+        windowCounter < 2;
+        windowCounter++) {
+      windowId++;
+      store.beginWindow(windowId);
+      windowIDBytes = store.load(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID,
+                                 DimensionsStoreHDHT.WINDOW_ID_KEY);
+      Assert.assertEquals(windowId - 1L, GPOUtils.deserializeLong(windowIDBytes));
+      store.endWindow();
+      store.checkpointed(windowId);
+      store.committed(windowId);
+    }
+
+    store.teardown();
+  }
 
   @Test
   public void serializationTest() throws Exception
   {
+    String eventSchemaString = SchemaUtils.jarResourceFileToString("dimensionsTestSchema.json");
+    String basePath = testMeta.getDir();
+    TFileImpl hdsFile = new TFileImpl.DefaultTFileImpl();
+    hdsFile.setBasePath(basePath);
+
     AppDataSingleSchemaDimensionStoreHDHT store = new AppDataSingleSchemaDimensionStoreHDHT();
+
+    store.setEventSchemaJSON(eventSchemaString);
+    store.setFileStore(hdsFile);
+    store.setFlushIntervalCount(1);
+    store.setFlushSize(0);
+
     store.setup(null);
     TestUtils.clone(new Kryo(), store);
+    store.beginWindow(0L);
+    store.endWindow();
+    store.teardown();
   }
 
   @Test
@@ -83,7 +207,6 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                                     TimeBucket.MINUTE,
                                     impressions,
                                     cost);
-    ae.setWindowId(5L);
 
     //Key bytes
     byte[] keyBytes = store.getKeyBytesGAE(ae);
@@ -96,7 +219,10 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     Assert.assertEquals("Test aggregates", ae.getAggregates(), deserializedAE.getAggregates());
     Assert.assertEquals("event keys must be equal", ae.getEventKey(), deserializedAE.getEventKey());
-    Assert.assertEquals("Window ids must be equal", 5L, deserializedAE.getWindowId());
+
+    store.beginWindow(0L);
+    store.endWindow();
+    store.teardown();
   }
 
   @Test
@@ -184,6 +310,9 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     aeDeserialized.getKeys().setFieldDescriptor(ae.getKeys().getFieldDescriptor());
     aeDeserialized.getAggregates().setFieldDescriptor(ae.getAggregates().getFieldDescriptor());
     Assert.assertEquals("The values must be equal", ae, aeDeserialized);
+
+    store.endWindow();
+    store.teardown();
   }
 
   @Test
@@ -239,10 +368,12 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     store.checkpointed(windowId);
     store.committed(windowId);
     windowId++;
+
+    store.teardown();
   }
 
   @Test
-  public void windowIDUpdateTest()
+  public void aggregationTest()
   {
     final String publisher = "google";
     final String advertiser = "safeway";
@@ -268,6 +399,22 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     DimensionalEventSchema eventSchema = store.eventSchema;
 
+    AggregateEvent expectedDouble = createEvent(eventSchema,
+                                                publisher,
+                                                advertiser,
+                                                60000L,
+                                                TimeBucket.MINUTE,
+                                                2 * impressions,
+                                                2.0 * cost);
+
+    AggregateEvent expectedTriple = createEvent(eventSchema,
+                                                publisher,
+                                                advertiser,
+                                                60000L,
+                                                TimeBucket.MINUTE,
+                                                3 * impressions,
+                                                3.0 * cost);
+
     //Aggregate Event
     AggregateEvent ae = createEvent(eventSchema,
                                     publisher,
@@ -277,26 +424,38 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                                     impressions,
                                     cost);
 
-    long windowId = 0L;
+    long windowId = 1L;
     store.beginWindow(windowId);
     store.input.put(ae);
-    Assert.assertEquals(windowId, store.cache.get(ae.getEventKey()).getWindowId());
+    ae = createEvent(eventSchema,
+                    publisher,
+                    advertiser,
+                    60000L,
+                    TimeBucket.MINUTE,
+                    impressions,
+                    cost);
+    store.input.put(ae);
+    Assert.assertEquals(expectedDouble, store.cache.get(ae.getEventKey()));
     store.endWindow();
     store.checkpointed(windowId);
     store.committed(windowId);
     windowId++;
 
     store.beginWindow(windowId);
-    Assert.assertEquals(windowId, store.cache.get(ae.getEventKey()).getWindowId());
+    ae = createEvent(eventSchema,
+                     publisher,
+                     advertiser,
+                     60000L,
+                     TimeBucket.MINUTE,
+                     impressions,
+                     cost);
+    store.input.put(ae);
+    Assert.assertEquals(expectedTriple, store.cache.get(ae.getEventKey()));
     store.endWindow();
     store.checkpointed(windowId);
     store.committed(windowId);
-    windowId++;
 
-    store.beginWindow(windowId);
-    AggregateEvent loadedAggregateEvent = store.load(ae.getEventKey());
-    Assert.assertEquals(windowId - 1L, loadedAggregateEvent.getWindowId());
-    store.endWindow();
+    store.teardown();
   }
 
   @Test
@@ -357,24 +516,35 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     store.beginWindow(windowId);
     store.input.put(ae1);
+    Assert.assertEquals(2, store.cache.size());
     store.endWindow();
+    Assert.assertEquals(0, store.cache.size());
     store.checkpointed(windowId);
     store.committed(windowId);
+    windowId++;
 
     //Simulate failure
 
-    windowId = 1L;
-    store.setup(null);
+    store.readMetaData = false;
     store.beginWindow(windowId);
+    store.currentWindowID = windowId - 1L;
+    Assert.assertEquals(1, store.futureBuckets.size());
+    Assert.assertEquals(Sets.newHashSet(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID),
+                        store.futureBuckets.keySet());
+    Assert.assertEquals(2L,
+                        (long) store.futureBuckets.get(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID));
     Assert.assertEquals(ae1, store.load(ae1.getEventKey()));
     store.input.put(ae1);
-    Assert.assertEquals(1, store.cache.size());
+    Assert.assertEquals(0, store.cache.size());
     store.endWindow();
+    Assert.assertEquals(0, store.futureBuckets.size());
     store.checkpointed(windowId);
     store.committed(windowId);
 
     Assert.assertEquals(ae, store.load(ae.getEventKey()));
     Assert.assertEquals(ae1, store.load(ae1.getEventKey()));
+
+    store.teardown();
   }
 
   private AggregateEvent createEvent(DimensionalEventSchema eventSchema,

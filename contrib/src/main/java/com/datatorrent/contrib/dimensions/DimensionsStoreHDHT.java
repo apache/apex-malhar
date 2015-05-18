@@ -15,7 +15,6 @@
  */
 package com.datatorrent.contrib.dimensions;
 
-import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
@@ -39,6 +38,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -47,19 +47,28 @@ import java.util.Map;
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
 public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<AggregateEvent>
 {
-  private static final Logger logger = LoggerFactory.getLogger(DimensionsStoreHDHT.class);
-
-  protected static final int OFFSET_FOR_AGGREGATES = Type.LONG.getByteSize();
   public static final int CACHE_SIZE = 100000;
   public static final int DEFAULT_CACHE_WINDOW_DURATION = 120;
+
+  public static final int META_DATA_ID_WINDOW_ID = 0;
+  public static final Slice WINDOW_ID_KEY = new Slice(GPOUtils.serializeInt(META_DATA_ID_WINDOW_ID));
+  public static final int META_DATA_ID_STORE_FORMAT = 1;
+  public static final Slice STORE_FORMAT_KEY = new Slice(GPOUtils.serializeInt(META_DATA_ID_STORE_FORMAT));
+  public static final int STORE_FORMAT_VERSION = 0;
 
   @Min(1)
   private int cacheWindowDuration = DEFAULT_CACHE_WINDOW_DURATION;
   private int cacheWindowCount = 0;
-  private transient long currentWindowID;
+  @VisibleForTesting
+  protected transient long currentWindowID;
+
+  protected transient Map<EventKey, AggregateEvent> cache = Maps.newHashMap();
+  protected List<Long> buckets;
 
   @VisibleForTesting
-  protected transient Map<EventKey, AggregateEvent> cache = Maps.newHashMap();
+  protected transient boolean readMetaData = false;
+  @VisibleForTesting
+  protected transient final Map<Long, Long> futureBuckets = Maps.newHashMap();
 
   public DimensionsStoreHDHT()
   {
@@ -110,14 +119,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
   public byte[] getValueBytesGAE(AggregateEvent event)
   {
-    byte[] valueByteArray = GPOUtils.serialize(event.getAggregates());
-    byte[] totalByteArray = new byte[valueByteArray.length + Type.LONG.getByteSize()];
-
-    MutableInt currentIndex = new MutableInt(0);
-    GPOUtils.serializeLong(event.getWindowId(), totalByteArray, currentIndex);
-    System.arraycopy(valueByteArray, 0, totalByteArray, currentIndex.getValue(), valueByteArray.length);
-
-    return totalByteArray;
+    return GPOUtils.serialize(event.getAggregates());
   }
 
   public AggregateEvent fromKeyValueGAE(Slice key, byte[] aggregate)
@@ -135,10 +137,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     FieldsDescriptor aggDescriptor = getValueDescriptor(schemaID, dimensionDescriptorID, aggregatorID);
 
     GPOMutable keys = GPOUtils.deserialize(keysDescriptor, DimensionsDescriptor.TIME_FIELDS, key.buffer, offset.intValue());
-
-    MutableInt index = new MutableInt(0);
-    long windowID = GPOUtils.deserializeLong(aggregate, index);
-    GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, index.getValue());
+    GPOMutable aggs = GPOUtils.deserialize(aggDescriptor, aggregate, 0);
 
     if(keysDescriptor.getFields().getFields().contains(DimensionsDescriptor.DIMENSION_TIME)) {
       keys.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
@@ -148,9 +147,93 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
                                             aggs,
                                             schemaID,
                                             dimensionDescriptorID,
-                                            aggregatorID,
-                                            windowID);
+                                            aggregatorID);
     return gae;
+  }
+
+  public AggregateEvent load(EventKey eventKey)
+  {
+    long bucket = getBucketForSchema(eventKey);
+    byte[] key = getEventKeyBytesGAE(eventKey);
+
+    Slice keySlice = new Slice(key, 0, key.length);
+    byte[] val = load(bucket, keySlice);
+
+    if(val == null) {
+      return null;
+    }
+
+    return fromKeyValueGAE(keySlice, val);
+  }
+
+  public byte[] load(long bucketID, Slice keySlice)
+  {
+    byte[] val = getUncommitted(bucketID, keySlice);
+
+    if(val == null) {
+      try {
+        val = get(bucketID, keySlice);
+      }
+      catch(IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    return val;
+  }
+
+  public int getPartitionGAE(AggregateEvent inputEvent) {
+    return inputEvent.getBucketID();
+  }
+
+  public void putGAE(AggregateEvent gae)
+  {
+    try {
+      put(getBucketForSchema(gae.getSchemaID()),
+          new Slice(codec.getKeyBytes(gae)),
+          codec.getValueBytes(gae));
+    }
+    catch(IOException ex) {
+      throw new RuntimeException(ex);
+    }
+  }
+
+  @Override
+  public void beginWindow(long windowId)
+  {
+    currentWindowID = windowId;
+
+    super.beginWindow(windowId);
+
+    if(!readMetaData) {
+      for(Long bucket: buckets) {
+        byte[] windowIDValueBytes;
+
+        windowIDValueBytes = load(bucket, WINDOW_ID_KEY);
+
+        if(windowIDValueBytes == null) {
+          continue;
+        }
+
+        long committedWindowID = GPOUtils.deserializeLong(windowIDValueBytes, new MutableInt(0));
+        futureBuckets.put(bucket, committedWindowID);
+      }
+
+      //Write Store Format Version
+      byte[] formatVersionValueBytes = GPOUtils.serializeInt(STORE_FORMAT_VERSION);
+
+      for(Long bucket: buckets) {
+        try {
+          LOG.debug("Writing out store format version to bucket {}", bucket);
+          put(bucket, STORE_FORMAT_KEY, formatVersionValueBytes);
+        }
+        catch(IOException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+
+      readMetaData = true;
+    }
   }
 
   @Override
@@ -162,6 +245,18 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     int schemaID = gae.getSchemaID();
     int ddID = gae.getDimensionDescriptorID();
     int aggregatorID = gae.getAggregatorID();
+
+    //Skip data for buckets with greater committed window Ids
+    if(!futureBuckets.isEmpty()) {
+      long bucket = getBucketForSchema(schemaID);
+      Long committedWindowID = futureBuckets.get(bucket);
+
+      if(committedWindowID != null &&
+         currentWindowID <= committedWindowID) {
+        LOG.debug("Skipping");
+        return;
+      }
+    }
 
     FieldsDescriptor keyFieldsDescriptor = getKeyDescriptor(schemaID, ddID);
     FieldsDescriptor valueFieldsDescriptor = getValueDescriptor(schemaID, ddID, aggregatorID);
@@ -179,74 +274,41 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       if(aggregate != null) {
         cache.put(aggregate.getEventKey(), aggregate);
       }
+      else {
+        LOG.debug("Not in cache");
+      }
     }
 
     if(aggregate == null) {
       cache.put(gae.getEventKey(), gae);
-      gae.setWindowId(currentWindowID);
     }
-    else if(currentWindowID > aggregate.getWindowId()) {
+    else {
+      LOG.debug("Not in cache");
       aggregator.aggregateAggs(aggregate, gae);
     }
-  }
-
-  public AggregateEvent load(EventKey eventKey)
-  {
-    long bucket = getBucketForSchema(eventKey);
-    byte[] key = getEventKeyBytesGAE(eventKey);
-
-    Slice keySlice = new Slice(key, 0, key.length);
-    byte[] val = getUncommitted(bucket, keySlice);
-
-    if(val == null) {
-      try {
-        val = get(bucket, keySlice);
-      }
-      catch(IOException ex) {
-        throw new RuntimeException(ex);
-      }
-    }
-
-    if(val == null) {
-      return null;
-    }
-
-    return fromKeyValueGAE(keySlice, val);
-  }
-
-  public abstract int getPartitionGAE(AggregateEvent inputEvent);
-
-  public void putGAE(AggregateEvent gae)
-  {
-    try {
-      put(getBucketForSchema(gae.getSchemaID()),
-          new Slice(codec.getKeyBytes(gae)),
-          codec.getValueBytes(gae));
-    }
-    catch(IOException ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
-  @Override
-  public void beginWindow(long windowId)
-  {
-    this.currentWindowID = windowId;
-
-    for(Map.Entry<EventKey, AggregateEvent> entry: cache.entrySet()) {
-      AggregateEvent gae = entry.getValue();
-
-      if(currentWindowID > gae.getWindowId()) {
-        entry.getValue().setWindowId(currentWindowID);
-      }
-    }
-
-    super.beginWindow(windowId);
   }
 
   @Override
   public void endWindow()
   {
+    byte[] currentWindowIDBytes = GPOUtils.serializeLong(currentWindowID);
+
+    for(Long bucket: buckets) {
+      Long committedWindowID = futureBuckets.get(bucket);
+
+      if(committedWindowID == null ||
+         committedWindowID <= currentWindowID) {
+        futureBuckets.remove(bucket);
+
+        try {
+          put(bucket, WINDOW_ID_KEY, currentWindowIDBytes);
+        }
+        catch(IOException ex) {
+          throw new RuntimeException(ex);
+        }
+      }
+    }
+
     cacheWindowCount++;
 
     for(Map.Entry<EventKey, AggregateEvent> entry: cache.entrySet()) {
@@ -327,4 +389,6 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   {
     return ImmutableMap.copyOf(this.queries);
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionsStoreHDHT.class);
 }
