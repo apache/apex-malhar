@@ -199,23 +199,10 @@ public class Server extends AbstractServer
 
   public class Client extends AbstractLengthPrependerClient
   {
-    int idleCount;
 
     @Override
     public void onMessage(byte[] buffer, int offset, int size)
     {
-      try {
-        if (Command.getCommand(buffer[offset]) == Command.ECHO) {
-          write(buffer, offset, size);
-          return;
-        }
-      }
-      catch (IllegalArgumentException ex) {
-        logger.warn("Invalid Request Received: {} from {}!", Arrays.copyOfRange(buffer, offset, offset + size), key.channel(), ex);
-        return;
-      }
-
-
       if (size != Request.FIXED_SIZE) {
         logger.warn("Invalid Request Received: {} from {}", Arrays.copyOfRange(buffer, offset, offset + size), key.channel());
         return;
@@ -224,6 +211,17 @@ public class Server extends AbstractServer
       long requestTime = Server.readLong(buffer, offset + Request.TIME_OFFSET);
       if (System.currentTimeMillis() > (requestTime + acceptedTolerance)) {
         logger.warn("Expired Request Received: {} from {}", Arrays.copyOfRange(buffer, offset, offset + size), key.channel());
+        return;
+      }
+
+      try {
+        if (Command.getCommand(buffer[offset]) == Command.ECHO) {
+          write(buffer, offset, size);
+          return;
+        }
+      }
+      catch (IllegalArgumentException ex) {
+        logger.warn("Invalid Request Received: {} from {}!", Arrays.copyOfRange(buffer, offset, offset + size), key.channel(), ex);
         return;
       }
 
