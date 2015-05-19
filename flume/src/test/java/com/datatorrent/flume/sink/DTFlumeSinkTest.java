@@ -6,23 +6,22 @@ package com.datatorrent.flume.sink;
 
 import java.io.IOException;
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 
+import org.apache.flume.channel.MemoryChannel;
+import org.junit.Assert;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import org.apache.flume.channel.MemoryChannel;
-
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.flume.discovery.Discovery;
-import com.datatorrent.flume.discovery.Discovery.Service;
 import com.datatorrent.netlet.AbstractLengthPrependerClient;
 import com.datatorrent.netlet.DefaultEventLoop;
 
 /**
- *
  * @author Chetan Narsude <chetan@datatorrent.com>
  */
 public class DTFlumeSinkTest
@@ -68,15 +67,21 @@ public class DTFlumeSinkTest
     sink.setName("TeskSink");
     sink.setHostname(hostname);
     sink.setPort(0);
+    sink.setAcceptedTolerance(2000);
     sink.setChannel(new MemoryChannel());
     sink.setDiscovery(discovery);
     sink.start();
     AbstractLengthPrependerClient client = new AbstractLengthPrependerClient()
     {
+      private byte[] array;
+      private int offset = 2;
+
       @Override
       public void onMessage(byte[] buffer, int offset, int size)
       {
-        logger.debug("Client Received = {}", new Slice(buffer, offset, size));
+        Slice received = new Slice(buffer, offset, size);
+        logger.debug("Client Received = {}", received);
+        Assert.assertEquals(received, new Slice(Arrays.copyOfRange(array, this.offset, array.length), 0, Server.Request.FIXED_SIZE));
         synchronized (DTFlumeSinkTest.this) {
           DTFlumeSinkTest.this.notify();
         }
@@ -86,20 +91,18 @@ public class DTFlumeSinkTest
       public void connected()
       {
         super.connected();
-        byte[] array = new byte[12];
-        array[0] = Server.Command.ECHO.getOrdinal();
-        array[1] = 1;
-        array[2] = 2;
-        array[3] = 3;
-        array[4] = 4;
-        array[5] = 5;
-        array[6] = 6;
-        array[7] = 7;
-        array[8] = 8;
-        array[9] = 9;
-        array[10] = 10;
-        array[11] = 11;
-        write(array);
+        array = new byte[Server.Request.FIXED_SIZE + offset];
+        array[offset] = Server.Command.ECHO.getOrdinal();
+        array[offset + 1] = 1;
+        array[offset + 2] = 2;
+        array[offset + 3] = 3;
+        array[offset + 4] = 4;
+        array[offset + 5] = 5;
+        array[offset + 6] = 6;
+        array[offset + 7] = 7;
+        array[offset + 8] = 8;
+        Server.writeLong(array, offset + Server.Request.TIME_OFFSET, System.currentTimeMillis());
+        write(array, offset, Server.Request.FIXED_SIZE);
       }
 
     };
