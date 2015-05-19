@@ -43,7 +43,7 @@ public class AggregatorMin implements DimensionsStaticAggregator, Serializable
         for(int index = 0;
             index < destByte.length;
             index++) {
-          if(destByte[index] < srcByte[index]) {
+          if(destByte[index] > srcByte[index]) {
             destByte[index] = srcByte[index];
           }
         }
@@ -58,7 +58,7 @@ public class AggregatorMin implements DimensionsStaticAggregator, Serializable
         for(int index = 0;
             index < destShort.length;
             index++) {
-          if(destShort[index] < srcShort[index]) {
+          if(destShort[index] > srcShort[index]) {
             destShort[index] = srcShort[index];
           }
         }
@@ -73,7 +73,7 @@ public class AggregatorMin implements DimensionsStaticAggregator, Serializable
         for(int index = 0;
             index < destInteger.length;
             index++) {
-          if(destInteger[index] < srcInteger[index]) {
+          if(destInteger[index] > srcInteger[index]) {
             destInteger[index] = srcInteger[index];
           }
         }
@@ -88,7 +88,7 @@ public class AggregatorMin implements DimensionsStaticAggregator, Serializable
         for(int index = 0;
             index < destLong.length;
             index++) {
-          if(destLong[index] < srcLong[index]) {
+          if(destLong[index] > srcLong[index]) {
             destLong[index] = srcLong[index];
           }
         }
@@ -103,7 +103,7 @@ public class AggregatorMin implements DimensionsStaticAggregator, Serializable
         for(int index = 0;
             index < destFloat.length;
             index++) {
-          if(destFloat[index] < srcFloat[index]) {
+          if(destFloat[index] > srcFloat[index]) {
             destFloat[index] = srcFloat[index];
           }
         }
@@ -118,7 +118,7 @@ public class AggregatorMin implements DimensionsStaticAggregator, Serializable
         for(int index = 0;
             index < destDouble.length;
             index++) {
-          if(destDouble[index] < srcDouble[index]) {
+          if(destDouble[index] > srcDouble[index]) {
             destDouble[index] = srcDouble[index];
           }
         }

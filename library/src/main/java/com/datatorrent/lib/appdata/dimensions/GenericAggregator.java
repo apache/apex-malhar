@@ -36,17 +36,19 @@ public class GenericAggregator implements com.datatorrent.lib.statistics.Dimensi
   @Override
   public AggregateEvent getGroup(InputAggregateEvent src, int aggregatorIndex)
   {
-    staticAggregator.createDest(src, null)
+    return staticAggregator.createDest(src, conversionContext.aggregateDescriptor);
   }
 
   @Override
   public void aggregate(AggregateEvent dest, InputAggregateEvent src)
   {
+    staticAggregator.aggregate(dest, src);
   }
 
   @Override
   public void aggregate(AggregateEvent dest, AggregateEvent src)
   {
+    staticAggregator.aggregateAggs(dest, src);
   }
 
   @Override

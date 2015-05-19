@@ -51,6 +51,10 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
 {
   private Unifier<AGGREGATE> unifier;
 
+  @Min(1)
+  private int aggregationWindowCount = 1;
+  private int windowCount = 0;
+
   public void setUnifier(Unifier<AGGREGATE> unifier)
   {
     this.unifier = unifier;
@@ -75,8 +79,17 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
 
   protected void processInputTuple(EVENT tuple)
   {
-    for (int i = 0; i < aggregatorMaps.length; i++) {
-      aggregatorMaps[i].add(tuple, i);
+    if(aggregationWindowCount == 0) {
+      //Pass through mode
+      for(int i = 0; i < aggregatorMaps.length; i++) {
+        output.emit(aggregatorMaps[i].aggregator.getGroup(tuple, i));
+      }
+    }
+    else {
+      //caching mode
+      for(int i = 0; i < aggregatorMaps.length; i++) {
+        aggregatorMaps[i].add(tuple, i);
+      }
     }
   }
 
@@ -91,6 +104,22 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
       processInputTuple(tuple);
     }
   };
+
+  /**
+   * @return the aggregationWindowCount
+   */
+  public int getAggregationWindowCount()
+  {
+    return aggregationWindowCount;
+  }
+
+  /**
+   * @param aggregationWindowCount the aggregationWindowCount to set
+   */
+  public void setAggregationWindowCount(int aggregationWindowCount)
+  {
+    this.aggregationWindowCount = aggregationWindowCount;
+  }
 
   public static interface AggregateEvent
   {
@@ -144,17 +173,27 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   @Override
   public void beginWindow(long windowId)
   {
+    windowCount++;
   }
 
   @Override
   public void endWindow()
   {
+    if(windowCount != aggregationWindowCount ||
+       aggregationWindowCount == 0) {
+      //This is the case when its not time to dump the buffer yet,
+      //or when we are doing no buffering.
+      return;
+    }
+
     for (AggregatorMap<EVENT, AGGREGATE> dimension : aggregatorMaps) {
       for (AGGREGATE value : dimension.values()) {
         output.emit(value);
       }
       dimension.clear();
     }
+
+    windowCount = 0;
   }
 
   @Override

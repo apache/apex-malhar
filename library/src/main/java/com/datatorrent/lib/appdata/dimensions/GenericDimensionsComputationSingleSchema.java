@@ -16,10 +16,28 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
+import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.InputAggregateEvent;
+import javax.validation.constraints.NotNull;
 
-public class GenericDimensionsComputation extends com.datatorrent.lib.statistics.DimensionsComputation<InputAggregateEvent, AggregateEvent>
+public class GenericDimensionsComputationSingleSchema extends com.datatorrent.lib.statistics.DimensionsComputation<InputAggregateEvent, AggregateEvent>
 {
+  @NotNull
+  private AggregatorInfo aggregatorInfo;
+
+  private GenericDimensionsComputationSingleSchema()
+  {
+    //For Kryo
+  }
+
+  @Override
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+
+
+  }
+
   @Override
   public void setAggregators(Aggregator<InputAggregateEvent, com.datatorrent.lib.appdata.dimensions.AggregateEvent>[] aggregators)
   {
@@ -30,5 +48,21 @@ public class GenericDimensionsComputation extends com.datatorrent.lib.statistics
   public Aggregator<InputAggregateEvent, com.datatorrent.lib.appdata.dimensions.AggregateEvent>[] getAggregators()
   {
     throw new UnsupportedOperationException("This method is not supported.");
+  }
+
+  /**
+   * @return the aggregatorInfo
+   */
+  public AggregatorInfo getAggregatorInfo()
+  {
+    return aggregatorInfo;
+  }
+
+  /**
+   * @param aggregatorInfo the aggregatorInfo to set
+   */
+  public void setAggregatorInfo(@NotNull AggregatorInfo aggregatorInfo)
+  {
+    this.aggregatorInfo = aggregatorInfo;
   }
 }
