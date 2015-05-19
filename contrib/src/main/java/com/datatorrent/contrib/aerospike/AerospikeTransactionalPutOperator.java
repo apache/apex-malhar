@@ -92,7 +92,6 @@ public class AerospikeTransactionalPutOperator
     List<Bin> binList = (List<Bin>)binsGetter.get(tuple);
     if ( ! (null == binList || binList.isEmpty()) ) {
       list.addAll(binList);
-      System.out.println("getUpdatedBins:  list.size = " + binList.size());
     }
     return key;
   }

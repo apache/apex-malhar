@@ -53,7 +53,6 @@ public class AerospikeTransactionalPutOperatorTest {
     outputOperator.beginWindow(0);
     for (TestPOJO event : events) {
       outputOperator.input.process(event);
-      System.out.println("Processed event");
     }
     outputOperator.endWindow();
 
