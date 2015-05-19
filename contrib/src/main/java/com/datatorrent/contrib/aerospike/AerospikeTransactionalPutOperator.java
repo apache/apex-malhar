@@ -84,7 +84,6 @@ public class AerospikeTransactionalPutOperator
   public Key getUpdatedBins(Object tuple, List<Bin> list)
   {
     if (null == keyGetter) {    // first tuple
-      System.out.println("getUpdatedBins: first time");
       Class<?> tupleClass = tuple.getClass();
       keyGetter  = PojoUtils.createGetterObject(tupleClass, expressions.get(0));
       binsGetter = PojoUtils.createGetterObject(tupleClass, expressions.get(1));

@@ -32,8 +32,7 @@ import java.util.List;
  * Utility class encapsulating code used by several tests
  */
 public class AerospikeTestUtils {
-  //public static final String NODE = "127.0.0.1";
-  public static final String NODE = "192.168.2.171";    // revert before commit
+  public static final String NODE = "127.0.0.1";
 
   public static final String NAMESPACE = "test";
   public static final int PORT = 3000;
