@@ -31,17 +31,17 @@ import com.datatorrent.lib.io.fs.FilterStreamProvider;
 public class LzoFilterStream
 {
 
-  public static class LZOFilterStreamContext extends FilterStreamContext.BaseFilterStreamContext<LzopFilterStream>
+  public static class LzoFilterStreamContext extends FilterStreamContext.BaseFilterStreamContext<LzopFilterOutputStream>
   {
-    public LZOFilterStreamContext(OutputStream outputStream) throws IOException
+    public LzoFilterStreamContext(OutputStream outputStream) throws IOException
     {
-      filterStream = new LzopFilterStream(new LzopOutputStream(outputStream, LzoLibrary.getInstance().newCompressor(LzoAlgorithm.LZO1X, LzoConstraint.COMPRESSION)));
+      filterStream = new LzopFilterOutputStream(new LzopOutputStream(outputStream, LzoLibrary.getInstance().newCompressor(LzoAlgorithm.LZO1X, LzoConstraint.COMPRESSION)));
     }
   }
 
-  static class LzopFilterStream extends FilterOutputStream
+  static class LzopFilterOutputStream extends FilterOutputStream
   {
-    public LzopFilterStream(OutputStream outputStream)
+    public LzopFilterOutputStream(OutputStream outputStream)
     {
       super(outputStream);
     }
@@ -51,12 +51,12 @@ public class LzoFilterStream
    * A provider for LZO filter The file has to be rewritten from beginning when there is operator failure. The operates
    * on entries file and not on file parts.
    */
-  public static class LZOFilterStreamProvider extends FilterStreamProvider.SimpleFilterReusableStreamProvider<LzopFilterStream, OutputStream>
+  public static class LzoFilterStreamProvider extends FilterStreamProvider.SimpleFilterReusableStreamProvider<LzopFilterOutputStream, OutputStream>
   {
     @Override
-    protected FilterStreamContext<LzopFilterStream> createFilterStreamContext(OutputStream outputStream) throws IOException
+    protected FilterStreamContext<LzopFilterOutputStream> createFilterStreamContext(OutputStream outputStream) throws IOException
     {
-      return new LZOFilterStreamContext(outputStream);
+      return new LzoFilterStreamContext(outputStream);
     }
   }
 }
