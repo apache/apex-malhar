@@ -16,7 +16,8 @@
 package com.datatorrent.lib.bucket;
 
 import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.GetterObject;
+import com.datatorrent.lib.util.PojoUtils.Getter;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,7 +30,7 @@ import org.slf4j.LoggerFactory;
 public class BucketPOJOImpl extends AbstractBucket<Object>
 {
   private String expression;
-  private transient GetterObject getter;
+  private transient Getter<Object, Object> getter;
 
   protected BucketPOJOImpl(long bucketKey,String expression)
   {
@@ -40,10 +41,9 @@ public class BucketPOJOImpl extends AbstractBucket<Object>
   @Override
   protected Object getEventKey(Object event)
   {
-    if(getter==null){
+    if (getter == null) {
       Class<?> fqcn = event.getClass();
-      GetterObject getterObj = PojoUtils.createGetterObject(fqcn, expression);
-      getter = getterObj;
+      getter = PojoUtils.createGetter(fqcn, expression, Object.class);
     }
     return getter.get(event);
   }
