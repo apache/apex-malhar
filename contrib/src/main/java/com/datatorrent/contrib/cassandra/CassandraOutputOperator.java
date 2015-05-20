@@ -46,7 +46,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
 {
   @NotNull
   private ArrayList<String> columns;
-  private ArrayList<DataType> columnDataTypes;
+  private final ArrayList<DataType> columnDataTypes;
   @NotNull
   private ArrayList<String> expressions;
   private transient ArrayList<Object> getters;
@@ -212,24 +212,24 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
           boundStmnt.setString(i, ascii);
           break;
         case BOOLEAN:
-          final boolean bool = ((GetterBoolean)getters.get(i)).get(tuple);
+          final boolean bool = ((GetterBoolean<Object>)getters.get(i)).get(tuple);
           boundStmnt.setBool(i, bool);
           break;
         case INT:
-          final int intValue = ((GetterInt)getters.get(i)).get(tuple);
+          final int intValue = ((GetterInt<Object>)getters.get(i)).get(tuple);
           boundStmnt.setInt(i, intValue);
           break;
         case BIGINT:
         case COUNTER:
-          final long longValue = ((GetterLong)getters.get(i)).get(tuple);
+          final long longValue = ((GetterLong<Object>)getters.get(i)).get(tuple);
           boundStmnt.setLong(i, longValue);
           break;
         case FLOAT:
-          final float floatValue = ((GetterFloat)getters.get(i)).get(tuple);
+          final float floatValue = ((GetterFloat<Object>)getters.get(i)).get(tuple);
           boundStmnt.setFloat(i, floatValue);
           break;
         case DOUBLE:
-          final double doubleValue = ((GetterDouble)getters.get(i)).get(tuple);
+          final double doubleValue = ((GetterDouble<Object>)getters.get(i)).get(tuple);
           boundStmnt.setDouble(i, doubleValue);
           break;
         case DECIMAL:
@@ -237,15 +237,15 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
           boundStmnt.setDecimal(i, decimal);
           break;
         case SET:
-          Set set = ((Getter<Object, Set>)getters.get(i)).get(tuple);
+          Set<?> set = ((Getter<Object, Set<?>>)getters.get(i)).get(tuple);
           boundStmnt.setSet(i, set);
           break;
         case MAP:
-          final Map map = ((Getter<Object, Map>)getters.get(i)).get(tuple);
+          final Map<?,?> map = ((Getter<Object, Map<?,?>>)getters.get(i)).get(tuple);
           boundStmnt.setMap(i, map);
           break;
         case LIST:
-          final List list = ((Getter<Object, List>)getters.get(i)).get(tuple);
+          final List<?> list = ((Getter<Object, List<?>>)getters.get(i)).get(tuple);
           boundStmnt.setList(i, list);
           break;
         case TIMESTAMP:

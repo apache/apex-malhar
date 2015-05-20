@@ -120,14 +120,13 @@ public class PojoUtils
     return (GetterByte<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, byte.class, GetterByte.class);
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T> GetterChar createGetterChar(Class<? extends T> pojoClass, String getterExpr)
+  public static <T> GetterChar<T> createGetterChar(Class<? extends T> pojoClass, String getterExpr)
   {
     return createGetterChar(pojoClass, getterExpr, DEFAULT_EXP_OBJECT_PLACEHOLDER);
   }
 
-  @SuppressWarnings("unchecked")
-  public static <T> GetterChar createGetterChar(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
+  @SuppressWarnings({ "unchecked"})
+  public static <T> GetterChar<T> createGetterChar(Class<? extends T> pojoClass, String getterExpr, String exprObjectPlaceholder)
   {
     return (GetterChar<T>) createGetter(pojoClass, getterExpr, exprObjectPlaceholder, char.class, GetterChar.class);
   }
@@ -380,7 +379,7 @@ public class PojoUtils
   }
 
   private static class JavaStatement {
-    private StringBuilder javaStatement;
+    private final StringBuilder javaStatement;
     private final int capacity;
 
     private JavaStatement() {
