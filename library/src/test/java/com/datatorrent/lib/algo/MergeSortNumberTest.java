@@ -41,10 +41,10 @@ public class MergeSortNumberTest
   	MergeSortNumber<Integer> oper = new MergeSortNumber<Integer>();
   	CollectorTestSink sink = new CollectorTestSink();
   	oper.sort.setSink(sink);
-  	
+
   	oper.setup(null);
   	oper.beginWindow(1);
-  	
+
   	Random rand = new Random();
   	ArrayList<Integer> tuple = new ArrayList<Integer>();
   	tuple.add(rand.nextInt(50));
@@ -54,10 +54,10 @@ public class MergeSortNumberTest
   	tuple.add(rand.nextInt(50));
   	tuple.add(50 + rand.nextInt(50));
   	oper.process(tuple);
-  	
+
   	oper.endWindow();
   	oper.teardown();
-  	
+
   	assertTrue("Tuples in sink", sink.collectedTuples.size() == 1);
   	Iterator iter = sink.collectedTuples.iterator();
   	if (!iter.hasNext()) return;
@@ -65,7 +65,7 @@ public class MergeSortNumberTest
   	assertTrue("Tuple size 4", tuple.size() == 4);
   	Integer val = tuple.get(0);
   	for(int i=1; i < 4; i++) {
-  		assertTrue("Values must be sorted", val < tuple.get(i));
+  		assertTrue("Values must be sorted " + tuple, val <= tuple.get(i));
   		val = tuple.get(i);
   	}
   }
