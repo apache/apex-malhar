@@ -34,48 +34,36 @@ public enum AggregatorStaticType
 
   private static final Logger logger = LoggerFactory.getLogger(AggregatorStaticType.class);
 
-  public static final Map<Class<? extends DimensionsStaticAggregator>, Integer> CLASS_TO_ORDINAL;
-  public static final Map<Class<? extends DimensionsStaticAggregator>, String> CLASS_TO_NAME;
-  public static final Map<Integer, DimensionsStaticAggregator> ORDINAL_TO_AGGREGATOR;
   public static final Map<String, Integer> NAME_TO_ORDINAL;
-  public static final Map<String, DimensionsStaticAggregator> NAME_TO_AGGREGATOR;
+  public static final Map<String, DimensionsIncrementalAggregator> NAME_TO_AGGREGATOR;
 
-  private DimensionsStaticAggregator aggregator;
+  private DimensionsIncrementalAggregator aggregator;
 
   static {
-    Map<Class<? extends DimensionsStaticAggregator>, Integer> classToOrdinal = Maps.newHashMap();
-    Map<Class<? extends DimensionsStaticAggregator>, String> classToName = Maps.newHashMap();
-    Map<Integer, DimensionsStaticAggregator> ordinalToAggregator = Maps.newHashMap();
     Map<String, Integer> nameToOrdinal = Maps.newHashMap();
-    Map<String, DimensionsStaticAggregator> nameToAggregator = Maps.newHashMap();
+    Map<String, DimensionsIncrementalAggregator> nameToAggregator = Maps.newHashMap();
 
     for(AggregatorStaticType aggType: AggregatorStaticType.values()) {
-      classToOrdinal.put(aggType.getAggregator().getClass(), aggType.ordinal());
-      classToName.put(aggType.getAggregator().getClass(), aggType.name());
-      ordinalToAggregator.put(aggType.ordinal(), aggType.getAggregator());
       nameToOrdinal.put(aggType.name(), aggType.ordinal());
       nameToAggregator.put(aggType.name(), aggType.getAggregator());
     }
 
-    CLASS_TO_ORDINAL = Collections.unmodifiableMap(classToOrdinal);
-    CLASS_TO_NAME = Collections.unmodifiableMap(classToName);
-    ORDINAL_TO_AGGREGATOR = Collections.unmodifiableMap(ordinalToAggregator);
     NAME_TO_ORDINAL = Collections.unmodifiableMap(nameToOrdinal);
     NAME_TO_AGGREGATOR = Collections.unmodifiableMap(nameToAggregator);
   }
 
-  AggregatorStaticType(DimensionsStaticAggregator aggregator)
+  AggregatorStaticType(DimensionsIncrementalAggregator aggregator)
   {
     setAggregator(aggregator);
   }
 
-  private void setAggregator(DimensionsStaticAggregator aggregator)
+  private void setAggregator(DimensionsIncrementalAggregator aggregator)
   {
     Preconditions.checkNotNull(aggregator);
     this.aggregator = aggregator;
   }
 
-  public DimensionsStaticAggregator getAggregator()
+  public DimensionsIncrementalAggregator getAggregator()
   {
     return aggregator;
   }

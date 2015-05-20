@@ -17,6 +17,7 @@ package com.datatorrent.lib.statistics;
 
 import java.io.*;
 import java.lang.reflect.Array;
+
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -36,6 +37,7 @@ import gnu.trove.strategy.HashingStrategy;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  * <p>An implementation of an operator that computes dimensions of events. </p>
@@ -51,8 +53,8 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
 {
   private Unifier<AGGREGATE> unifier;
 
-  @Min(1)
-  private int aggregationWindowCount = 1;
+  @Min(0)
+  protected int aggregationWindowCount = 1;
   private int windowCount = 0;
 
   public void setUnifier(Unifier<AGGREGATE> unifier)
@@ -96,6 +98,7 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   /**
    * Input data port that takes an event.
    */
+  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
   {
     @Override
@@ -135,7 +138,7 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
     void aggregate(AGGREGATE dest, AGGREGATE src);
   }
 
-  private AggregatorMap<EVENT, AGGREGATE>[] aggregatorMaps;
+  protected AggregatorMap<EVENT, AGGREGATE>[] aggregatorMaps;
 
   /**
    * Set the dimensions which should each get the tuples going forward.
@@ -366,9 +369,9 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   }
 
   @DefaultSerializer(ExternalizableSerializer.class)
-  static class AggregatorMap<EVENT, AGGREGATE extends AggregateEvent> extends TCustomHashMap<EVENT, AGGREGATE>
+  protected static class AggregatorMap<EVENT, AGGREGATE extends AggregateEvent> extends TCustomHashMap<EVENT, AGGREGATE>
   {
-    transient Aggregator<EVENT, AGGREGATE> aggregator;
+    public transient Aggregator<EVENT, AGGREGATE> aggregator;
 
     @SuppressWarnings("PublicConstructorInNonPublicClass")
     public AggregatorMap()

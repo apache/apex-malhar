@@ -11,7 +11,7 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsIncrementalAggregator;
 import com.datatorrent.lib.appdata.qr.Data;
 import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
 import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
@@ -150,7 +150,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   protected abstract SchemaRegistry getSchemaRegistry();
 
   @Override
-  public DimensionsStaticAggregator getAggregator(int aggregatorID)
+  public DimensionsIncrementalAggregator getAggregator(int aggregatorID)
   {
     return aggregatorInfo.getStaticAggregatorIDToAggregator().get(aggregatorID);
   }

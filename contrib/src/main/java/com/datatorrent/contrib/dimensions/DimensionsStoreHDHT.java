@@ -21,7 +21,7 @@ import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsIncrementalAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
@@ -77,7 +77,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   }
 
   protected abstract int getAggregatorID(String aggregatorName);
-  protected abstract DimensionsStaticAggregator getAggregator(int aggregatorID);
+  protected abstract DimensionsIncrementalAggregator getAggregator(int aggregatorID);
   protected abstract FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID);
   protected abstract FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID);
   protected abstract long getBucketForSchema(int schemaID);
@@ -269,7 +269,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     keys.setFieldDescriptor(keyFieldsDescriptor);
     aggregates.setFieldDescriptor(valueFieldsDescriptor);
 
-    DimensionsStaticAggregator aggregator = getAggregator(gae.getAggregatorID());
+    DimensionsIncrementalAggregator aggregator = getAggregator(gae.getAggregatorID());
 
     AggregateEvent aggregate = cache.get(gae.getEventKey());
 

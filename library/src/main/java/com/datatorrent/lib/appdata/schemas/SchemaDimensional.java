@@ -16,7 +16,7 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsIncrementalAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -284,7 +284,7 @@ public class SchemaDimensional implements Schema
                                   + aggregatorName;
             Type inputValueType = inputValuesDescriptor.getType(valueName);
 
-            DimensionsStaticAggregator aggregator
+            DimensionsIncrementalAggregator aggregator
                     = eventSchema.getAggregatorInfo().getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
             Type outputValueType = aggregator.getTypeMap().getTypeMap().get(inputValueType);
 

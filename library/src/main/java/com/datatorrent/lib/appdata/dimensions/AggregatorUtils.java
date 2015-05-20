@@ -18,24 +18,25 @@ package com.datatorrent.lib.appdata.dimensions;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
 
+import java.util.Collections;
 import java.util.Map;
 
 public final class AggregatorUtils
 {
-  private static final Map<String, DimensionsAggregator> DEFAULT_NAME_TO_AGGREGATOR;
+  private static transient final Map<String, DimensionsIncrementalAggregator> DEFAULT_NAME_TO_INCREMENTAL_AGGREGATOR;
+  private static transient final Map<String, DimensionsOTFAggregator> DEFAULT_NAME_TO_OTF_AGGREGATOR;
 
   static {
-    DEFAULT_NAME_TO_AGGREGATOR = Maps.newHashMap();
-
-    DEFAULT_NAME_TO_AGGREGATOR.putAll(AggregatorStaticType.NAME_TO_AGGREGATOR);
-    DEFAULT_NAME_TO_AGGREGATOR.putAll(AggregatorOTFType.NAME_TO_AGGREGATOR);
+    DEFAULT_NAME_TO_INCREMENTAL_AGGREGATOR = Maps.newHashMap(AggregatorStaticType.NAME_TO_AGGREGATOR);
+    DEFAULT_NAME_TO_OTF_AGGREGATOR = Maps.newHashMap(AggregatorOTFType.NAME_TO_AGGREGATOR);
   }
 
-  public static final AggregatorInfo DEFAULT_AGGREGATOR_INFO = new AggregatorInfo(DEFAULT_NAME_TO_AGGREGATOR,
+  public static final AggregatorInfo DEFAULT_AGGREGATOR_INFO = new AggregatorInfo(DEFAULT_NAME_TO_INCREMENTAL_AGGREGATOR,
+                                                                                  DEFAULT_NAME_TO_OTF_AGGREGATOR,
                                                                                   AggregatorStaticType.NAME_TO_ORDINAL);
 
-  public static final AggregatorTypeMap IDENTITY_TYPE_MAP;
-  public static final AggregatorTypeMap IDENTITY_NUMBER_TYPE_MAP;
+  public static transient final Map<Type, Type> IDENTITY_TYPE_MAP;
+  public static transient final Map<Type, Type> IDENTITY_NUMBER_TYPE_MAP;
 
   static {
     Map<Type, Type> identityTypeMap = Maps.newHashMap();
@@ -44,7 +45,7 @@ public final class AggregatorUtils
       identityTypeMap.put(type, type);
     }
 
-    IDENTITY_TYPE_MAP = new AggregatorTypeMap(identityTypeMap);
+    IDENTITY_TYPE_MAP = Collections.unmodifiableMap(identityTypeMap);
 
     Map<Type, Type> identityNumberTypeMap = Maps.newHashMap();
 
@@ -52,7 +53,7 @@ public final class AggregatorUtils
       identityNumberTypeMap.put(type, type);
     }
 
-    IDENTITY_NUMBER_TYPE_MAP = new AggregatorTypeMap(identityNumberTypeMap);
+    IDENTITY_NUMBER_TYPE_MAP = Collections.unmodifiableMap(identityNumberTypeMap);
   }
 
   private AggregatorUtils()

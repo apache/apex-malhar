@@ -21,11 +21,9 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Maps;
 import java.io.Serializable;
 
 import java.util.List;
-import java.util.Map;
 
 public class AggregatorAverage implements DimensionsOTFAggregator, Serializable
 {
@@ -34,37 +32,24 @@ public class AggregatorAverage implements DimensionsOTFAggregator, Serializable
   public static int SUM_INDEX = 0;
   public static int COUNT_INDEX = 1;
 
-  public static final List<Class<? extends DimensionsStaticAggregator>> CHILD_AGGREGATORS =
+  public static final transient List<Class<? extends DimensionsIncrementalAggregator>> CHILD_AGGREGATORS =
   ImmutableList.of(AggregatorStaticType.SUM.getAggregator().getClass(),
                    AggregatorStaticType.COUNT.getAggregator().getClass());
-
-  public static final AggregatorTypeMap TYPE_CONVERSION_MAP;
-
-  static {
-    Map<Type, Type> typeToType = Maps.newHashMap();
-
-    typeToType.put(Type.BYTE, Type.FLOAT);
-    typeToType.put(Type.SHORT, Type.FLOAT);
-    typeToType.put(Type.INTEGER, Type.FLOAT);
-    typeToType.put(Type.LONG, Type.DOUBLE);
-    typeToType.put(Type.FLOAT, Type.FLOAT);
-    typeToType.put(Type.DOUBLE, Type.DOUBLE);
-
-    TYPE_CONVERSION_MAP = new AggregatorTypeMap(typeToType);
-  }
 
   public AggregatorAverage()
   {
   }
 
   @Override
-  public List<Class<? extends DimensionsStaticAggregator>> getChildAggregators()
+  public List<Class<? extends DimensionsIncrementalAggregator>> getChildAggregators()
   {
     return CHILD_AGGREGATORS;
   }
 
   @Override
-  public GPOMutable aggregate(FieldsDescriptor fd, GPOMutable... aggregates)
+  public GPOMutable aggregate(FieldsDescriptor inputDescriptor,
+                              FieldsDescriptor outputDescriptor,
+                              GPOMutable... aggregates)
   {
     Preconditions.checkArgument(aggregates.length == getChildAggregators().size(),
                                 "The number of arguments " + aggregates.length +
@@ -73,12 +58,12 @@ public class AggregatorAverage implements DimensionsOTFAggregator, Serializable
     GPOMutable sumAggregation = aggregates[SUM_INDEX];
     GPOMutable countAggregation = aggregates[COUNT_INDEX];
 
-    GPOMutable result = new GPOMutable(getResultDescriptor(fd));
+    GPOMutable result = new GPOMutable(outputDescriptor);
 
     long count = countAggregation.getFieldsLong()[0];
 
-    for(String field: fd.getFieldList()) {
-      Type type = fd.getType(field);
+    for(String field: inputDescriptor.getFieldList()) {
+      Type type = outputDescriptor.getType(field);
 
       switch(type) {
         case BYTE:
@@ -133,13 +118,7 @@ public class AggregatorAverage implements DimensionsOTFAggregator, Serializable
     return result;
   }
 
-  @Override
-  public AggregatorTypeMap getTypeMap()
-  {
-    return TYPE_CONVERSION_MAP;
-  }
-
-  @Override
+  /*@Override
   public FieldsDescriptor getResultDescriptor(FieldsDescriptor fd)
   {
     Map<String, Type> fieldToType = Maps.newHashMap();
@@ -152,5 +131,11 @@ public class AggregatorAverage implements DimensionsOTFAggregator, Serializable
     }
 
     return new FieldsDescriptor(fieldToType);
+  }*/
+
+  @Override
+  public Type getOutputType()
+  {
+    return Type.DOUBLE;
   }
 }

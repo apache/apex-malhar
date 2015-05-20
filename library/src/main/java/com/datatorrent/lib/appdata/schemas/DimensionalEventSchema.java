@@ -18,7 +18,7 @@ package com.datatorrent.lib.appdata.schemas;
 import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
 import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
+import com.datatorrent.lib.appdata.dimensions.DimensionsIncrementalAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -895,7 +895,7 @@ public class DimensionalEventSchema
           ddIDToAggregatorToAggregateDescriptor.get(index).entrySet()) {
         String aggregatorName = entry.getKey();
         FieldsDescriptor inputDescriptor = entry.getValue();
-        DimensionsStaticAggregator staticAggregator = aggregatorInfo.getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
+        DimensionsIncrementalAggregator staticAggregator = aggregatorInfo.getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
         int aggregatorID = aggregatorInfo.getStaticAggregatorNameToID().get(aggregatorName);
         aggIDList.add(aggregatorID);
         inputMap.put(aggregatorID, inputDescriptor);

@@ -23,7 +23,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class AggregatorSum implements DimensionsStaticAggregator, Serializable
+public class AggregatorSum implements DimensionsIncrementalAggregator, Serializable
 {
   private static final long serialVersionUID = 20154301649L;
   private static final Logger logger = LoggerFactory.getLogger(AggregatorSum.class);
@@ -118,19 +118,9 @@ public class AggregatorSum implements DimensionsStaticAggregator, Serializable
   }
 
   @Override
-  public AggregatorTypeMap getTypeMap()
+  public Type getOutputType(Type inputType)
   {
-    return AggregatorUtils.IDENTITY_NUMBER_TYPE_MAP;
-  }
-
-  @Override
-  public FieldsDescriptor getResultDescriptor(FieldsDescriptor fd)
-  {
-    if(!Type.NUMERIC_TYPES.containsAll(fd.getTypes())) {
-      throw new UnsupportedOperationException("The given field descriptor can only contain numeric types.");
-    }
-
-    return fd;
+    return AggregatorUtils.IDENTITY_NUMBER_TYPE_MAP.get(inputType);
   }
 
   @Override

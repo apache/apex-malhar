@@ -31,62 +31,95 @@ public class AggregatorInfo implements Serializable
   private static final long serialVersionUID = 20154301642L;
 
   private transient boolean setup = false;
-  private transient Map<Class<? extends DimensionsStaticAggregator>, String> classToStaticAggregatorName;
-  private transient Map<String, DimensionsOTFAggregator> nameToOTFAggregator;
+  private transient Map<Class<? extends DimensionsIncrementalAggregator>, String> classToStaticAggregatorName;
   private transient Map<String, List<String>> otfAggregatorToStaticAggregators;
-  private transient Map<String, DimensionsStaticAggregator> staticAggregatorNameToStaticAggregator;
-  private transient Map<Integer, DimensionsStaticAggregator> staticAggregatorIDToAggregator;
+  private transient Map<String, DimensionsIncrementalAggregator> staticAggregatorNameToStaticAggregator;
+  private transient Map<Integer, DimensionsIncrementalAggregator> staticAggregatorIDToAggregator;
 
-  private Map<String, DimensionsAggregator> nameToAggregator;
-  private Map<String, Integer> staticAggregatorNameToID;
+  private Map<String, DimensionsIncrementalAggregator> nameToIncrementalAggregator;
+  private Map<String, DimensionsOTFAggregator> nameToOTFAggregator;
+  private Map<String, Integer> incrementalAggregatorNameToID;
 
-  private static final Map<String, Integer> autoGenIds(Map<String, DimensionsAggregator> nameToAggregator)
+  private static final Map<String, Integer> autoGenIds(Map<String, DimensionsIncrementalAggregator> nameToAggregator)
   {
     Map<String, Integer> staticAggregatorNameToID = Maps.newHashMap();
 
-    for(Map.Entry<String, DimensionsAggregator> entry: nameToAggregator.entrySet()) {
-      staticAggregatorNameToID.put(entry.getKey(), entry.getValue().getClass().getName().hashCode());
+    for(Map.Entry<String, DimensionsIncrementalAggregator> entry: nameToAggregator.entrySet()) {
+      staticAggregatorNameToID.put(entry.getKey(), stringHash(entry.getValue().getClass().getName()));
     }
 
     return staticAggregatorNameToID;
   }
 
-  protected AggregatorInfo()
+  /**
+   * <b>Note:</b> Do not change this function it will cause corruption for users updating existing data stores.
+   * @return The hash of the given string
+   */
+  private static int stringHash(String string)
+  {
+    int hash = 5381;
+
+    for(int index = 0;
+        index < string.length();
+        index++) {
+      int character = (int) string.charAt(index);
+      hash = hash * 33 + character;
+    }
+
+    return hash;
+  }
+
+  private AggregatorInfo()
   {
     //for kryo
   }
 
-  public AggregatorInfo(Map<String, DimensionsAggregator> nameToAggregator)
+  public AggregatorInfo(Map<String, DimensionsIncrementalAggregator> nameToIncrementalAggregator,
+                        Map<String, DimensionsOTFAggregator> nameToOTFAggregator)
   {
-    this(nameToAggregator,
-         autoGenIds(nameToAggregator));
+    this(nameToIncrementalAggregator,
+         nameToOTFAggregator,
+         autoGenIds(nameToIncrementalAggregator));
   }
 
-  public AggregatorInfo(Map<String, DimensionsAggregator> nameToAggregator,
-                        Map<String, Integer> staticAggregatorNameToID)
+  public AggregatorInfo(Map<String, DimensionsIncrementalAggregator> nameToIncrementalAggregator,
+                        Map<String, DimensionsOTFAggregator> nameToOTFAggregator,
+                        Map<String, Integer> incrementalAggregatorNameToID)
   {
-    setNameToAggregator(nameToAggregator);
-    setStaticAggregatorNameToID(staticAggregatorNameToID);
+    setNameToIncrementalAggregator(nameToIncrementalAggregator);
+    setNameToOTFAggregator(nameToOTFAggregator);
+
+    setIncrementalAggregatorNameToID(incrementalAggregatorNameToID);
 
     validate();
   }
 
   private void validate()
   {
+    for(Map.Entry<String, DimensionsIncrementalAggregator> entry: nameToIncrementalAggregator.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Preconditions.checkNotNull(entry.getValue());
+    }
+
+    for(Map.Entry<String, DimensionsOTFAggregator> entry: nameToOTFAggregator.entrySet()) {
+      Preconditions.checkNotNull(entry.getKey());
+      Prec
+    }
+
     for(Map.Entry<String, DimensionsAggregator> entry: nameToAggregator.entrySet()) {
       String aggregatorName = entry.getKey();
       DimensionsAggregator aggregator = entry.getValue();
 
       if(aggregator instanceof DimensionsOTFAggregator) {
-        if(staticAggregatorNameToID.get(aggregatorName) != null) {
+        if(incrementalAggregatorNameToID.get(aggregatorName) != null) {
           throw new IllegalArgumentException("There should not be an id entry for an aggregator of type " +
                                              aggregator.getClass() +
                                              " and id " +
-                                             staticAggregatorNameToID.get(aggregatorName));
+                                             incrementalAggregatorNameToID.get(aggregatorName));
         }
       }
-      else if(aggregator instanceof DimensionsStaticAggregator) {
-        Preconditions.checkArgument(staticAggregatorNameToID.get(aggregatorName) != null);
+      else if(aggregator instanceof DimensionsIncrementalAggregator) {
+        Preconditions.checkArgument(incrementalAggregatorNameToID.get(aggregatorName) != null);
       }
       else {
         throw new IllegalArgumentException("Unsupported aggregator type " +
@@ -110,8 +143,8 @@ public class AggregatorInfo implements Serializable
       String name = entry.getKey();
       DimensionsAggregator aggregator = entry.getValue();
 
-      if(aggregator instanceof DimensionsStaticAggregator) {
-        staticAggregatorNameToStaticAggregator.put(name, DimensionsStaticAggregator.class.cast(aggregator));
+      if(aggregator instanceof DimensionsIncrementalAggregator) {
+        staticAggregatorNameToStaticAggregator.put(name, DimensionsIncrementalAggregator.class.cast(aggregator));
       }
       else if(aggregator instanceof DimensionsOTFAggregator) {
         nameToOTFAggregator.put(name, DimensionsOTFAggregator.class.cast(aggregator));
@@ -123,13 +156,13 @@ public class AggregatorInfo implements Serializable
 
     classToStaticAggregatorName = Maps.newHashMap();
 
-    for(Map.Entry<String, DimensionsStaticAggregator> entry: staticAggregatorNameToStaticAggregator.entrySet()) {
+    for(Map.Entry<String, DimensionsIncrementalAggregator> entry: staticAggregatorNameToStaticAggregator.entrySet()) {
       classToStaticAggregatorName.put(entry.getValue().getClass(), entry.getKey());
     }
 
     staticAggregatorIDToAggregator = Maps.newHashMap();
 
-    for(Map.Entry<String, Integer> entry: staticAggregatorNameToID.entrySet()) {
+    for(Map.Entry<String, Integer> entry: incrementalAggregatorNameToID.entrySet()) {
       String aggregatorName = entry.getKey();
       int aggregatorID = entry.getValue();
       staticAggregatorIDToAggregator.put(aggregatorID,
@@ -144,7 +177,7 @@ public class AggregatorInfo implements Serializable
 
       DimensionsOTFAggregator dotfAggregator = nameToOTFAggregator.get(name);
 
-      for(Class<? extends DimensionsStaticAggregator> clazz: dotfAggregator.getChildAggregators()) {
+      for(Class<? extends DimensionsIncrementalAggregator> clazz: dotfAggregator.getChildAggregators()) {
         staticAggregators.add(classToStaticAggregatorName.get(clazz));
       }
 
@@ -157,9 +190,14 @@ public class AggregatorInfo implements Serializable
     //otfAggregatorToStaticAggregators = Collections.unmodifiableMap(otfAggregatorToStaticAggregators);
   }
 
-  private void setNameToAggregator(Map<String, DimensionsAggregator> nameToAggregator)
+  private void setNameToIncrementalAggregator(Map<String, DimensionsIncrementalAggregator> nameToIncrementalAggregator)
   {
-    this.nameToAggregator = Preconditions.checkNotNull(nameToAggregator);
+    this.nameToIncrementalAggregator = Maps.newHashMap(Preconditions.checkNotNull(nameToIncrementalAggregator));
+  }
+
+  private void setNameToOTFAggregator(Map<String, DimensionsOTFAggregator> nameToAggregator)
+  {
+    this.nameToOTFAggregator = Maps.newHashMap(Preconditions.checkNotNull(nameToOTFAggregator));
   }
 
   public boolean isAggregator(String aggregatorName)
@@ -173,38 +211,38 @@ public class AggregatorInfo implements Serializable
     return classToStaticAggregatorName.values().contains(aggregatorName);
   }
 
-  public Map<Class<? extends DimensionsStaticAggregator>, String> getClassToStaticAggregatorName()
+  public Map<Class<? extends DimensionsIncrementalAggregator>, String> getClassToStaticAggregatorName()
   {
     return classToStaticAggregatorName;
   }
 
-  public Map<Integer, DimensionsStaticAggregator> getStaticAggregatorIDToAggregator()
+  public Map<Integer, DimensionsIncrementalAggregator> getStaticAggregatorIDToAggregator()
   {
     return staticAggregatorIDToAggregator;
   }
 
-  public Map<String, DimensionsStaticAggregator> getStaticAggregatorNameToStaticAggregator()
+  public Map<String, DimensionsIncrementalAggregator> getStaticAggregatorNameToStaticAggregator()
   {
     return this.staticAggregatorNameToStaticAggregator;
   }
 
-  private void setStaticAggregatorNameToID(Map<String, Integer> staticAggregatorNameToID)
+  private void setIncrementalAggregatorNameToID(Map<String, Integer> incrementalAggregatorNameToID)
   {
-    Preconditions.checkNotNull(staticAggregatorNameToID);
+    Preconditions.checkNotNull(incrementalAggregatorNameToID);
 
-    for(Map.Entry<String, Integer> entry: staticAggregatorNameToID.entrySet()) {
+    for(Map.Entry<String, Integer> entry: incrementalAggregatorNameToID.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }
 
-    this.staticAggregatorNameToID = Maps.newHashMap(staticAggregatorNameToID);
+    this.incrementalAggregatorNameToID = Maps.newHashMap(incrementalAggregatorNameToID);
     //TODO this map should be made unmodifiable
-    //this.staticAggregatorNameToID = Collections.unmodifiableMap(staticAggregatorNameToID);
+    //this.incrementalAggregatorNameToID = Collections.unmodifiableMap(incrementalAggregatorNameToID);
   }
 
   public Map<String, Integer> getStaticAggregatorNameToID()
   {
-    return staticAggregatorNameToID;
+    return incrementalAggregatorNameToID;
   }
 
   public Map<String, DimensionsOTFAggregator> getNameToOTFAggregators()

@@ -20,8 +20,7 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import java.io.Serializable;
 
-
-public class AggregatorMax implements DimensionsStaticAggregator, Serializable
+public class AggregatorMax implements DimensionsIncrementalAggregator, Serializable
 {
   private static final long serialVersionUID = 201503120332L;
 
@@ -127,19 +126,9 @@ public class AggregatorMax implements DimensionsStaticAggregator, Serializable
   }
 
   @Override
-  public AggregatorTypeMap getTypeMap()
+  public Type getOutputType(Type inputType)
   {
-    return AggregatorUtils.IDENTITY_NUMBER_TYPE_MAP;
-  }
-
-  @Override
-  public FieldsDescriptor getResultDescriptor(FieldsDescriptor fd)
-  {
-    if(!Type.NUMERIC_TYPES.containsAll(fd.getTypes())) {
-      throw new UnsupportedOperationException("The given field descriptor can only contain numeric types.");
-    }
-
-    return fd;
+    return AggregatorUtils.IDENTITY_NUMBER_TYPE_MAP.get(inputType);
   }
 
   @Override

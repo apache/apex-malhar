@@ -16,10 +16,12 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.Type;
 
-public interface DimensionsStaticAggregator extends DimensionsAggregator
+public interface DimensionsIncrementalAggregator
 {
-  public AggregateEvent createDest(AggregateEvent first, FieldsDescriptor fd);
-  public void aggregate(AggregateEvent dest, AggregateEvent src);
-  public void aggregateAggs(AggregateEvent dest, AggregateEvent src);
+  public AggregateEvent createDest(InputEvent first, FieldsDescriptor fd);
+  public void aggregate(Aggregate dest, InputEvent src);
+  public void aggregate(Aggregate dest, Aggregate src);
+  public Type getOutputType(Type inputType);
 }

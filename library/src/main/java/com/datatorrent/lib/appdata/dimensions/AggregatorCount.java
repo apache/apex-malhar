@@ -19,17 +19,15 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.io.Serializable;
 
-import java.util.List;
+import java.util.Collections;
 import java.util.Map;
-import java.util.Set;
 
-public class AggregatorCount implements DimensionsStaticAggregator, Serializable
+public class AggregatorCount implements DimensionsIncrementalAggregator, Serializable
 {
   private static final long serialVersionUID = 20154301645L;
-  public static final AggregatorTypeMap TYPE_CONVERSION_MAP;
+  public static transient final Map<Type, Type> TYPE_CONVERSION_MAP;
 
   static {
     Map<Type, Type> typeConversionMap = Maps.newHashMap();
@@ -38,7 +36,7 @@ public class AggregatorCount implements DimensionsStaticAggregator, Serializable
       typeConversionMap.put(type, Type.LONG);
     }
 
-    TYPE_CONVERSION_MAP = new AggregatorTypeMap(typeConversionMap);
+    TYPE_CONVERSION_MAP = Collections.unmodifiableMap(typeConversionMap);
   }
 
   public AggregatorCount()
@@ -46,7 +44,7 @@ public class AggregatorCount implements DimensionsStaticAggregator, Serializable
   }
 
   @Override
-  public void aggregate(AggregateEvent dest, AggregateEvent src)
+  public void aggregate(AggregateEvent dest, InputEvent src)
   {
     dest.getAggregates().getFieldsLong()[0]++;
   }
@@ -65,12 +63,12 @@ public class AggregatorCount implements DimensionsStaticAggregator, Serializable
   }
 
   @Override
-  public AggregatorTypeMap getTypeMap()
+  public Type getOutputType(Type inputType)
   {
-    return TYPE_CONVERSION_MAP;
+    return TYPE_CONVERSION_MAP.get(inputType);
   }
 
-  @Override
+/*  @Override
   public FieldsDescriptor getResultDescriptor(FieldsDescriptor fd)
   {
     Set<Type> compressedTypes = Sets.newHashSet();
@@ -90,7 +88,7 @@ public class AggregatorCount implements DimensionsStaticAggregator, Serializable
     return new FieldsDescriptor(fieldToType,
                                 compressedTypes);
   }
-
+*/
   @Override
   public AggregateEvent createDest(AggregateEvent first, FieldsDescriptor fd)
   {

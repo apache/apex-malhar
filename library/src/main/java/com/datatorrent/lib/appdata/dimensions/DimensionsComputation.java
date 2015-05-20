@@ -138,12 +138,13 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
         processGenericEventNoBuffering(aggregateEventBuffer.get(index));
       }
     }
-
-    //Buffering
-    for(int index = 0;
-        index < aggregateEventBuffer.size();
-        index++) {
-      processGenericEvent(aggregateEventBuffer.get(index));
+    else {
+      //Buffering
+      for(int index = 0;
+          index < aggregateEventBuffer.size();
+          index++) {
+        processGenericEvent(aggregateEventBuffer.get(index));
+      }
     }
 
     aggregateEventBuffer.clear();
@@ -151,7 +152,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
   public void processGenericEventNoBuffering(AggregateEvent gae)
   {
-    DimensionsStaticAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorID());
+    DimensionsIncrementalAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorID());
     outputAggregateEvent(aggregator.createDest(gae,
                          getAggregateFieldsDescriptor(gae.getSchemaID(),
                                                       gae.getDimensionDescriptorID(),
@@ -160,7 +161,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
 
   public void processGenericEvent(AggregateEvent gae)
   {
-    DimensionsStaticAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorID());
+    DimensionsIncrementalAggregator aggregator = getAggregatorInfo().getStaticAggregatorIDToAggregator().get(gae.getAggregatorID());
     AggregateEvent aggregate = aggregationBuffer.get(gae.getEventKey());
 
     if(aggregate == null) {
@@ -226,7 +227,7 @@ public abstract class DimensionsComputation<INPUT_EVENT> implements Operator
     @Override
     public void process(AggregateEvent srcAgg)
     {
-      DimensionsStaticAggregator aggregator = aggregatorInfo.getStaticAggregatorIDToAggregator().get(srcAgg.getAggregatorID());
+      DimensionsIncrementalAggregator aggregator = aggregatorInfo.getStaticAggregatorIDToAggregator().get(srcAgg.getAggregatorID());
       AggregateEvent destAgg = aggregationBuffer.get(srcAgg.getEventKey());
 
       if(destAgg == null) {

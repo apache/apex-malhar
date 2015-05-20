@@ -18,11 +18,15 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.Type;
 
 import java.util.List;
 
-public interface DimensionsOTFAggregator extends DimensionsAggregator
+public interface DimensionsOTFAggregator
 {
-  public List<Class<? extends DimensionsStaticAggregator>> getChildAggregators();
-  public GPOMutable aggregate(FieldsDescriptor fd, GPOMutable... aggregates);
+  public List<Class<? extends DimensionsIncrementalAggregator>> getChildAggregators();
+  public GPOMutable aggregate(FieldsDescriptor inputDescriptor,
+                              FieldsDescriptor outputDescriptor,
+                              GPOMutable... aggregates);
+  public Type getOutputType();
 }

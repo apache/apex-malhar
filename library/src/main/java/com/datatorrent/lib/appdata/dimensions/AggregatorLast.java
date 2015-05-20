@@ -17,13 +17,14 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.Type;
 import java.io.Serializable;
 
 /**
  * Note when aggregates are combined in a unifier it is not possible to tell which came first or last,
  * one is picked arbitrarily.
  */
-public class AggregatorLast implements DimensionsStaticAggregator, Serializable
+public class AggregatorLast implements DimensionsIncrementalAggregator, Serializable
 {
   private static final long serialVersionUID = 20154301647L;
 
@@ -32,15 +33,9 @@ public class AggregatorLast implements DimensionsStaticAggregator, Serializable
   }
 
   @Override
-  public AggregatorTypeMap getTypeMap()
+  public Type getOutputType(Type inputType)
   {
-    return AggregatorUtils.IDENTITY_TYPE_MAP;
-  }
-
-  @Override
-  public FieldsDescriptor getResultDescriptor(FieldsDescriptor fd)
-  {
-    return fd;
+    return AggregatorUtils.IDENTITY_TYPE_MAP.get(inputType);
   }
 
   @Override

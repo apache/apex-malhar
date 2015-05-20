@@ -17,26 +17,29 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.dimensions.AggregateEvent.InputAggregateEvent;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.google.common.base.Preconditions;
 
-public class GenericAggregator implements com.datatorrent.lib.statistics.DimensionsComputation.Aggregator<InputAggregateEvent, AggregateEvent>
+public class DimensionsComputationAggregator implements com.datatorrent.lib.statistics.DimensionsComputation.Aggregator<InputAggregateEvent, AggregateEvent>
 {
   private static final long serialVersionUID = 201505181155L;
 
-  private DimensionsStaticAggregator staticAggregator;
-  private DimensionsConversionContext conversionContext;
+  private final DimensionsIncrementalAggregator staticAggregator;
+  private final FieldsDescriptor aggregateDescriptor;
 
-  public GenericAggregator(DimensionsStaticAggregator staticAggregator,
-                           DimensionsConversionContext conversionContext)
+  public DimensionsComputationAggregator(DimensionsIncrementalAggregator staticAggregator,
+                                         FieldsDescriptor aggregateDescriptor)
   {
     this.staticAggregator = Preconditions.checkNotNull(staticAggregator);
-    this.conversionContext = Preconditions.checkNotNull(conversionContext);
+    this.aggregateDescriptor = Preconditions.checkNotNull(aggregateDescriptor);
   }
 
   @Override
   public AggregateEvent getGroup(InputAggregateEvent src, int aggregatorIndex)
   {
-    return staticAggregator.createDest(src, conversionContext.aggregateDescriptor);
+    AggregateEvent aggregateEvent = staticAggregator.createDest(src, aggregateDescriptor);
+    aggregateEvent.setAggregatorIndex(aggregatorIndex);
+    return aggregateEvent;
   }
 
   @Override
