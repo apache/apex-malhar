@@ -659,5 +659,11 @@
       <version>1.0</version>
       <optional>true</optional>
     </dependency>
+    <dependency>
+	  <groupId>org.anarres.lzo</groupId>
+	  <artifactId>lzo-core</artifactId>
+	  <version>1.0.4</version>
+	  <optional>true</optional>
+	</dependency>
   </dependencies>
 </project>
