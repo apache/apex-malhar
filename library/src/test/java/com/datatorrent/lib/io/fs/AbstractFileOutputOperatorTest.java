@@ -142,7 +142,7 @@ public class AbstractFileOutputOperatorTest
    */
   private static class SingleHDFSByteExactlyOnceWriter extends AbstractFileOutputOperator<byte[]>
   {
-    public SingleHDFSByteExactlyOnceWriter()
+    SingleHDFSByteExactlyOnceWriter()
     {
     }
 
@@ -202,9 +202,9 @@ public class AbstractFileOutputOperatorTest
     private final Long maxLength;
     private final AbstractFileOutputOperator<byte[]> fsWriter;
 
-    public ValidationTestApp(File testDir,
-                             Long maxLength,
-                             AbstractFileOutputOperator<byte[]> fsWriter)
+    ValidationTestApp(File testDir,
+                      Long maxLength,
+                      AbstractFileOutputOperator<byte[]> fsWriter)
     {
       this.testDir = testDir;
       this.maxLength = maxLength;
@@ -1596,14 +1596,14 @@ public class AbstractFileOutputOperatorTest
   }
   
   @Test
-  public void testPeriodicRotation() 
+  public void testPeriodicRotation()
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     File dir = new File(testMeta.getDir());
     writer.setFilePath(testMeta.getDir());
     writer.setRotationWindows(30);
     writer.setup(testOperatorContext);
-    
+
     // Check that rotation doesn't happen prematurely
     for (int i = 0; i < 30; ++i) {
       writer.beginWindow(i);
@@ -1617,7 +1617,7 @@ public class AbstractFileOutputOperatorTest
     Collection<File> files = FileUtils.listFiles(dir, null, false);
     Assert.assertEquals("Number of part files", 1, files.size());
     Assert.assertEquals("Part file names", fileNames, getFileNames(files));
-    
+
     // Check that rotation is happening consistently and for all files
     for (int i = 30; i < 120; ++i) {
       writer.beginWindow(i);
@@ -1652,7 +1652,7 @@ public class AbstractFileOutputOperatorTest
     Assert.assertEquals("Part file names", fileNames, getFileNames(files));
     writer.teardown();
   }
-  
+
   @Test
   public void testCompression() throws IOException
   {
@@ -1661,7 +1661,7 @@ public class AbstractFileOutputOperatorTest
 
     File evenFile = new File(testMeta.getDir(), EVEN_FILE);
     File oddFile = new File(testMeta.getDir(), ODD_FILE);
-    
+
     // To get around the multi member gzip issue with openjdk
     // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
     List<Long> evenOffsets = new ArrayList<Long>();
@@ -1725,8 +1725,9 @@ public class AbstractFileOutputOperatorTest
       long startOffset = 0;
       for (long offset : offsets) {
         // Skip initial case in case file is not yet created
-        if (offset == 0) continue;
-
+        if (offset == 0) {
+          continue;
+        }
         long limit = offset - startOffset;
         LimitInputStream lis = new LimitInputStream(gss, limit);
 
@@ -1858,7 +1859,7 @@ public class AbstractFileOutputOperatorTest
     }
     return filesNames;
   }
-  
+
   private static class CounterFilterStreamContext implements FilterStreamContext<CounterFilterOutputStream>
   {
 
