@@ -52,7 +52,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   private int slidingWindowWidth;
   private int dagWindowWidth;
   private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
-
+  
   /**
    * Input port on which map objects containing keys with their respective frequency as values will be accepted.
    */
@@ -152,6 +152,8 @@ public class WindowedTopCounter<T> extends BaseOperator
       data.add(tableRow);
     }
 
+    Collections.sort(data, TwitterOutputSorter.INSTANCE);
+
     logger.info("{}", data);
 
     output.emit(data);
@@ -248,6 +250,24 @@ public class WindowedTopCounter<T> extends BaseOperator
       }
 
       return 0;
+    }
+  }
+
+  private static class TwitterOutputSorter implements Comparator<Map<String, Object>>
+  {
+    public static final TwitterOutputSorter INSTANCE = new TwitterOutputSorter();
+
+    private TwitterOutputSorter()
+    {
+    }
+
+    @Override
+    public int compare(Map<String, Object> o1, Map<String, Object> o2)
+    {
+      Integer count1 = (Integer) o1.get(FIELD_COUNT);
+      Integer count2 = (Integer) o2.get(FIELD_COUNT);
+
+      return count1.compareTo(count2);
     }
   }
 }
