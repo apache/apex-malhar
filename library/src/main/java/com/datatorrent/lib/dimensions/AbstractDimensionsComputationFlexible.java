@@ -16,15 +16,36 @@
 
 package com.datatorrent.lib.dimensions;
 
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import gnu.trove.strategy.HashingStrategy;
 
-public class DimensionsComputationFlexible
+public abstract class AbstractDimensionsComputationFlexible<INPUT> extends AbstractDimensionsComputation<InputEvent, Aggregate>
 {
-  public DimensionsComputationFlexible()
+  private AggregatorRegistry aggregatorRegistry;
+
+  public AbstractDimensionsComputationFlexible()
   {
   }
-  
+
+  public abstract InputEvent convertInput(INPUT input);
+
+  /**
+   * @return the aggregatorRegistry
+   */
+  public AggregatorRegistry getAggregatorRegistry()
+  {
+    return aggregatorRegistry;
+  }
+
+  /**
+   * @param aggregatorRegistry the aggregatorRegistry to set
+   */
+  public void setAggregatorRegistry(AggregatorRegistry aggregatorRegistry)
+  {
+    this.aggregatorRegistry = aggregatorRegistry;
+  }
+
   private static class DirectHashingStrategy implements HashingStrategy<InputEvent>
   {
     private static final long serialVersionUID = 201505200426L;

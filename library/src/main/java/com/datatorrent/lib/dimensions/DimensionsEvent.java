@@ -16,8 +16,7 @@
 package com.datatorrent.lib.dimensions;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateResult;
-import com.datatorrent.lib.statistics.DimensionsComputation.AggregateEvent;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
 import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import org.slf4j.Logger;
@@ -400,7 +399,7 @@ public abstract class DimensionsEvent implements Serializable
     }
   }
 
-  public static class Aggregate extends DimensionsEvent implements AggregateEvent, AggregateResult
+  public static class Aggregate extends DimensionsEvent implements UnifiableAggregate
   {
     private static final long serialVersionUID = 201505181028L;
 
