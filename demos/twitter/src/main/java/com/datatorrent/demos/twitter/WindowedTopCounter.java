@@ -152,6 +152,8 @@ public class WindowedTopCounter<T> extends BaseOperator
       data.add(tableRow);
     }
 
+    logger.info("{}", data);
+
     output.emit(data);
     topCounter.clear();
   }
