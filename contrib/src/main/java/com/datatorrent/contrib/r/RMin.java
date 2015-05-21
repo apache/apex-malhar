@@ -45,6 +45,8 @@ import com.datatorrent.common.util.DTThrowable;
  * <b>min</b>: emits V extends Number<br>
  * <br>
  * <br>
+ *
+ * @since 2.1.0
  **/
 
 public class RMin<V extends Number> extends BaseNumberValueOperator<Number> implements Unifier<Number>

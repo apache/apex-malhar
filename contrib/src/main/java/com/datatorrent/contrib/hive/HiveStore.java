@@ -18,8 +18,10 @@ package com.datatorrent.contrib.hive;
 import com.datatorrent.lib.db.jdbc.JdbcStore;
 import javax.validation.constraints.NotNull;
 
-/*
+/**
  * Hive Store that extends Jdbc Store and provides its own driver name.
+ *
+ * @since 2.1.0
  */
 public class HiveStore extends JdbcStore
 {

@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory;
 /**
  * Concrete implementation of {@link AbstractElasticSearchOutputOperator} demonstrating the functionality for Tuples of
  * Map type.
- * 
+ *
+ * @since 2.1.0
  */
 public class ElasticSearchMapOutputOperator<T extends Map<String, Object>> extends AbstractElasticSearchOutputOperator<T, ElasticSearchConnectable>
 {

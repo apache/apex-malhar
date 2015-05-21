@@ -26,6 +26,8 @@ import org.slf4j.LoggerFactory;
  * A {@link BucketManager} that creates buckets based on time.<br/>
  *
  * @displayName: TimeBasedBucketManagerPOJOImplemenation
+ *
+ * @since 2.1.0
  */
 public class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketManager<Object> implements POJOBucketManager<Object>
 {
@@ -79,7 +81,7 @@ public class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketManag
   {
     if(getter==null){
     Class<?> fqcn = event.getClass();
-    GetterLong getterTime = PojoUtils.createExpressionGetterLong(fqcn,timeExpression);
+    GetterLong getterTime = PojoUtils.createGetterLong(fqcn, timeExpression);
     getter = getterTime;
     }
     return getter.get(event);

@@ -38,12 +38,13 @@ import com.datatorrent.api.annotation.Stateless;
 
 import com.datatorrent.common.util.DTThrowable;
 
-/*
+/**
  * An implementation of FS Writer that writes text files to hdfs which are inserted
  * into hive on committed window callback. HiveStreamCodec is used to make sure that data being sent to a particular hive partition
  * goes to a specific operator partition by passing FSRollingOutputOperator to the stream codec.
  * Also filename is determined uniquely for each tuple going to a specific hive partition.
  *
+ * @since 2.1.0
  */
 public abstract class AbstractFSRollingOutputOperator<T> extends AbstractFileOutputOperator<T> implements CheckpointListener
 {

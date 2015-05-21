@@ -18,6 +18,9 @@ package com.datatorrent.contrib.kafka;
 import java.nio.ByteBuffer;
 import kafka.message.Message;
 
+  /**
+   * @since 2.1.0
+   */
   public class KafkaSinglePortByteArrayInputOperator extends AbstractKafkaSinglePortInputOperator<byte[]>
   {
 

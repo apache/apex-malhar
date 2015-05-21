@@ -25,6 +25,8 @@ import com.google.common.collect.Maps;
 /**
  * An interface for classes that want to provide filtering functionality for data being written to a
  * file. Multiple filters can be chained together using the chain filter provider.
+ *
+ * @since 2.1.0
  */
 public interface FilterStreamProvider<F extends FilterOutputStream, S extends OutputStream>
 {
