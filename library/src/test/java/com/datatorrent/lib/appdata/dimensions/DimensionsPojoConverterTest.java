@@ -16,6 +16,10 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsPOJOConverter;
+import com.datatorrent.lib.dimensions.DimensionsConversionContext;
 import com.datatorrent.lib.appbuilder.convert.pojo.PojoFieldRetrieverExpression;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.Fields;
@@ -130,7 +134,7 @@ public class DimensionsPojoConverterTest
     DimensionsPOJOConverter pojoConverter = new DimensionsPOJOConverter();
     pojoConverter.setPojoFieldRetriever(pfre);
 
-    AggregateEvent ae = pojoConverter.convert(event, dcc);
+    DimensionsEvent ae = pojoConverter.convert(event, dcc);
 
     Assert.assertEquals("schemaIDs must equal", schemaID, ae.getEventKey().getSchemaID());
     Assert.assertEquals("dimension IDs must equal", dimensionDescriptorID, ae.getEventKey().getDimensionDescriptorID());

@@ -16,11 +16,11 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsMapConverter;
-import com.datatorrent.lib.appdata.dimensions.DimensionsConversionContext;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsMapConverter;
+import com.datatorrent.lib.dimensions.DimensionsConversionContext;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -75,7 +75,7 @@ public class DimensionsMapConverterTest
     inputMap.put("impressions", 10L);
     inputMap.put("cost", 2.0f);
 
-    AggregateEvent ae = mapConverter.convert(inputMap, context);
+    DimensionsEvent ae = mapConverter.convert(inputMap, context);
     EventKey eventKey = ae.getEventKey();
 
     GPOMutable gpoKey = eventKey.getKey();

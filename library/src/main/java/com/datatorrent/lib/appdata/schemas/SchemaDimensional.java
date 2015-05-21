@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
-import com.datatorrent.lib.appdata.dimensions.DimensionsIncrementalAggregator;
+import com.datatorrent.lib.dimensions.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.DimensionsIncrementalAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -165,7 +165,7 @@ public class SchemaDimensional implements Schema
     this.schemaID = schemaID;
   }
 
-  public AggregatorInfo getAggregatorInfo()
+  public AggregatorRegistry getAggregatorInfo()
   {
     return eventSchema.getAggregatorInfo();
   }

@@ -8,7 +8,7 @@ package com.datatorrent.demos.dimensions.ads.generic;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
@@ -84,10 +84,10 @@ public class InputItemGenerator implements InputOperator
   @Override
   public void setup(OperatorContext context)
   {
-    AggregatorUtils.DEFAULT_AGGREGATOR_INFO.setup();
+    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.setup();
 
     schema = new DimensionalEventSchema(eventSchemaJSON,
-                                        AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+                                        AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
 
     publisherID = schema.getKeysToValuesList().get(PUBLISHER).size();
     advertiserID = schema.getKeysToValuesList().get(ADVERTISER).size();

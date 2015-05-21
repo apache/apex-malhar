@@ -16,9 +16,9 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.processor.QueryBundle;
-import com.datatorrent.lib.appdata.qr.processor.WWEQueryQueueManager;
+import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.query.QueryBundle;
+import com.datatorrent.lib.appdata.query.WindowEndQueueManager;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleRemoveEmpty()
   {
-    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -48,7 +48,7 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleAddOneRemove()
   {
-    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -70,7 +70,7 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleAddRemove2()
   {
-    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -102,7 +102,7 @@ public class WEQueryQueueManagerTest
   @Test
   public void testSimpleAddAfterStarted()
   {
-    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -140,7 +140,7 @@ public class WEQueryQueueManagerTest
   {
     final int numQueries = 3;
 
-    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -187,7 +187,7 @@ public class WEQueryQueueManagerTest
   {
     final int numQueries = 3;
 
-    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);
@@ -229,7 +229,7 @@ public class WEQueryQueueManagerTest
   public void testMixedExpiration()
   {
     final int numQueries = 3;
-    WWEQueryQueueManager<Query, Void> wqqm = new WWEQueryQueueManager<Query, Void>();
+    WindowEndQueueManager<Query, Void> wqqm = new WindowEndQueueManager<Query, Void>();
 
     wqqm.setup(null);
     wqqm.beginWindow(0);

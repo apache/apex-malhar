@@ -16,7 +16,13 @@
 
 package com.datatorrent.lib.appdata.tabular;
 
+import com.datatorrent.lib.appdata.query.serde.Result;
+import com.datatorrent.lib.appdata.query.serde.Message;
+import com.datatorrent.lib.appdata.query.serde.DataSerializerFactory;
+import com.datatorrent.lib.appdata.query.serde.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.query.serde.Query;
 import java.io.IOException;
+
 import java.util.List;
 
 import javax.validation.constraints.NotNull;
@@ -34,17 +40,16 @@ import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.qr.*;
-import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
-import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
-import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
+import com.datatorrent.lib.appdata.query.AppDataWindowEndQueueManager;
+import com.datatorrent.lib.appdata.query.QueryExecutor;
+import com.datatorrent.lib.appdata.query.QueryManager;
 import com.datatorrent.lib.appdata.schemas.*;
 
 public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(AppDataTabularServer.class);
 
-  private transient QueryProcessor<Query, Void, MutableLong, Void, Result> queryProcessor;
+  private transient QueryManager<Query, Void, MutableLong, Void, Result> queryProcessor;
   private transient DataDeserializerFactory queryDeserializerFactory;
   private transient DataSerializerFactory resultSerializerFactory;
   private transient SchemaRegistry schemaRegistry;
@@ -64,7 +69,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     @Override
     public void process(String queryJSON)
     {
-      Data query = null;
+      Message query = null;
 
       try {
         query = queryDeserializerFactory.deserialize(queryJSON);
@@ -116,7 +121,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     schema = new SchemaTabular(tabularSchemaJSON);
     schemaRegistry = new SchemaRegistrySingle(schema);
     //Setup for query processing
-    queryProcessor = QueryProcessor.newInstance(new TabularComputer(), new AppDataWWEQueryQueueManager<Query, Void>());
+    queryProcessor = QueryManager.newInstance(new TabularComputer(), new AppDataWindowEndQueueManager<Query, Void>());
 
     queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
                                                            DataQueryTabular.class);
@@ -183,10 +188,10 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     this.resultFormatter = resultFormatter;
   }
 
-  public class TabularComputer implements QueryComputer<Query, Void, MutableLong, Void, Result>
+  public class TabularComputer implements QueryExecutor<Query, Void, MutableLong, Void, Result>
   {
     @Override
-    public Result processQuery(Query query, Void metaQuery, MutableLong queueContext, Void context)
+    public Result executeQuery(Query query, Void metaQuery, MutableLong queueContext, Void context)
     {
       return new DataResultTabular(query,
                                    currentData);

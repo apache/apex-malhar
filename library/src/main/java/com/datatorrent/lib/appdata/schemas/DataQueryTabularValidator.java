@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.CustomDataValidator;
-import com.datatorrent.lib.appdata.qr.Data;
+import com.datatorrent.lib.appdata.query.serde.CustomDataValidator;
+import com.datatorrent.lib.appdata.query.serde.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,7 +31,7 @@ public class DataQueryTabularValidator implements CustomDataValidator
   }
 
   @Override
-  public boolean validate(Data query, Object context)
+  public boolean validate(Message query, Object context)
   {
     DataQueryTabular gdqt = (DataQueryTabular) query;
     SchemaTabular schema = (SchemaTabular) ((SchemaRegistry) context).getSchema(gdqt.getSchemaKeys());

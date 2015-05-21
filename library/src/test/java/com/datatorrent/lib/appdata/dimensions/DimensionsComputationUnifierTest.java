@@ -16,7 +16,10 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputation.DimensionsComputationUnifier;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.AggregatorIncrementalType;
+import com.datatorrent.lib.dimensions.DimensionsComputation.DimensionsComputationUnifier;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
@@ -36,8 +39,8 @@ public class DimensionsComputationUnifierTest
     final int schemaID = 0;
     final int ddID = 0;
     final int aggregatorID =
-    AggregatorUtils.DEFAULT_AGGREGATOR_INFO.
-    getStaticAggregatorNameToID().get(AggregatorStaticType.SUM.name());
+    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.
+    getStaticAggregatorNameToID().get(AggregatorIncrementalType.SUM.name());
 
     Map<String, Type> fieldToTypeKey = Maps.newHashMap();
     fieldToTypeKey.put("publisher", Type.STRING);
@@ -59,30 +62,30 @@ public class DimensionsComputationUnifierTest
     GPOMutable expectedVal = new GPOMutable(fdAgg);
     expectedVal.setField("count", 11L);
 
-    DimensionsComputationUnifier unifier = new DimensionsComputationUnifier(AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+    DimensionsComputationUnifier unifier = new DimensionsComputationUnifier(AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
 
-    AggregateEvent aeA = new AggregateEvent(key,
+    DimensionsEvent aeA = new DimensionsEvent(key,
                                             value,
                                             bucketID,
                                             schemaID,
                                             ddID,
                                             aggregatorID);
 
-    AggregateEvent aeB = new AggregateEvent(key,
+    DimensionsEvent aeB = new DimensionsEvent(key,
                                             value1,
                                             bucketID,
                                             schemaID,
                                             ddID,
                                             aggregatorID);
 
-    AggregateEvent expected = new AggregateEvent(key,
+    DimensionsEvent expected = new DimensionsEvent(key,
                                                  expectedVal,
                                                  bucketID,
                                                  schemaID,
                                                  ddID,
                                                  aggregatorID);
 
-    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
+    CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
     @SuppressWarnings({"unchecked", "rawtypes"})
     CollectorTestSink<Object> tempSink = (CollectorTestSink) sink;
 
@@ -95,6 +98,6 @@ public class DimensionsComputationUnifierTest
     unifier.endWindow();
 
     Assert.assertEquals("The number of collected tuple is 1.", 1, sink.collectedTuples.size());
-    Assert.assertEquals("The aggregate events should equal", expected, (AggregateEvent) sink.collectedTuples.get(0));
+    Assert.assertEquals("The aggregate events should equal", expected, (DimensionsEvent) sink.collectedTuples.get(0));
   }
 }

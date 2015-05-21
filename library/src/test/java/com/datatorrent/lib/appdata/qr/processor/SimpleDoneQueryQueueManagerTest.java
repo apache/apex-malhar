@@ -16,9 +16,9 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.processor.QueryBundle;
-import com.datatorrent.lib.appdata.qr.processor.SimpleDoneQueryQueueManager;
+import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.query.QueryBundle;
+import com.datatorrent.lib.appdata.query.SimpleDoneQueueManager;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 import org.junit.Assert;
 import org.junit.Test;
@@ -28,7 +28,7 @@ public class SimpleDoneQueryQueueManagerTest
   @Test
   public void firstDoneTest()
   {
-    SimpleDoneQueryQueueManager<Query, Void> sdqqm = new SimpleDoneQueryQueueManager<Query, Void>();
+    SimpleDoneQueueManager<Query, Void> sdqqm = new SimpleDoneQueueManager<Query, Void>();
 
     sdqqm.setup(null);
     sdqqm.beginWindow(0);
@@ -54,7 +54,7 @@ public class SimpleDoneQueryQueueManagerTest
   @Test
   public void simpleEnqueueDequeue()
   {
-    SimpleDoneQueryQueueManager<Query, Void> sdqqm = new SimpleDoneQueryQueueManager<Query, Void>();
+    SimpleDoneQueueManager<Query, Void> sdqqm = new SimpleDoneQueueManager<Query, Void>();
 
     sdqqm.setup(null);
     sdqqm.beginWindow(0);
@@ -83,7 +83,7 @@ public class SimpleDoneQueryQueueManagerTest
   @Test
   public void simpleExpire1()
   {
-    SimpleDoneQueryQueueManager<Query, Void> sdqqm = new SimpleDoneQueryQueueManager<Query, Void>();
+    SimpleDoneQueueManager<Query, Void> sdqqm = new SimpleDoneQueueManager<Query, Void>();
 
     sdqqm.setup(null);
     sdqqm.beginWindow(0);

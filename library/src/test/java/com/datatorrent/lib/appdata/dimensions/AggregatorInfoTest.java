@@ -16,6 +16,13 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
+import com.datatorrent.lib.dimensions.OTFAggregator;
+import com.datatorrent.lib.dimensions.AggregatorSum;
+import com.datatorrent.lib.dimensions.AggregatorAverage;
+import com.datatorrent.lib.dimensions.DimensionsIncrementalAggregator;
+import com.datatorrent.lib.dimensions.AggregatorCount;
+import com.datatorrent.lib.dimensions.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.AggregatorUtils;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
@@ -31,7 +38,7 @@ public class AggregatorInfoTest
   @Test
   public void serializationTest() throws Exception
   {
-    TestUtils.clone(new Kryo(), AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+    TestUtils.clone(new Kryo(), AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
   }
 
   @Test
@@ -46,19 +53,19 @@ public class AggregatorInfoTest
     nameToID.put("SUM", 0);
     nameToID.put("COUNT", 1);
 
-    AggregatorInfo aggInfo = new AggregatorInfo(nameToAggregator,
+    AggregatorRegistry aggInfo = AggregatorRegistryInfo(nameToAggregator,
                                                 nameToID);
 
     aggInfo.setup();
 
     Map<Class<? extends DimensionsIncrementalAggregator>, String> classToStaticAggregator =
-    aggInfo.getClassToStaticAggregatorName();
+    aggInfo.getClassToIncrementalAggregatorName();
 
     Assert.assertEquals("Incorrect number of elements.", 2, classToStaticAggregator.size());
     Assert.assertEquals(classToStaticAggregator.get(AggregatorSum.class), "SUM");
     Assert.assertEquals(classToStaticAggregator.get(AggregatorCount.class), "COUNT");
 
-    Map<String, DimensionsOTFAggregator> nameToOTFAggregator = aggInfo.getNameToOTFAggregators();
+    Map<String, DimensionsOTFAggregatorFAggregator = aggInfo.getNameToOTFAggregators();
 
     Assert.assertEquals(AggregatorAverage.class, nameToOTFAggregator.get("AVG").getClass());
 
@@ -67,7 +74,7 @@ public class AggregatorInfoTest
     Assert.assertEquals("Only 1 OTF aggregator", 1, otfAggregatorToStaticAggregators.size());
     Assert.assertEquals(otfAggregatorToStaticAggregators.get("AVG"), Lists.newArrayList("SUM","COUNT"));
 
-    Map<Integer, DimensionsIncrementalAggregator> staticAggregatorIDToAggregator = aggInfo.getStaticAggregatorIDToAggregator();
+    Map<Integer, DimensionsIncrementalAggregator> staticAggregatorIDToAggregator = aggInfo.getIncrementalAggregatorIDToAggregator();
 
     Assert.assertEquals("Incorrect ID To Aggregator Mapping", AggregatorSum.class, staticAggregatorIDToAggregator.get(0).getClass());
     Assert.assertEquals("Incorrect ID To Aggregator Mapping", AggregatorCount.class, staticAggregatorIDToAggregator.get(1).getClass());

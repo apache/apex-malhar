@@ -16,7 +16,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.query.serde.DataDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.google.common.collect.Maps;
 import org.junit.Assert;

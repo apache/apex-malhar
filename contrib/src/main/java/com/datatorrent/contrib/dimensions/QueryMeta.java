@@ -17,7 +17,7 @@
 package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 
 import java.util.List;
 import java.util.Map;

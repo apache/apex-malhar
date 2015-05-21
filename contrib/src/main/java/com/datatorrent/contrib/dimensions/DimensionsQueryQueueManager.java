@@ -18,10 +18,10 @@ package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.qr.processor.AppDataWWEQueryQueueManager;
+import com.datatorrent.lib.appdata.query.AppDataWindowEndQueueManager;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -41,7 +41,7 @@ import java.util.Map;
 import java.util.Set;
 
 //Query Processing Classes - Start
-public class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<DataQueryDimensional, QueryMeta> {
+public class DimensionsQueryQueueManager extends AppDataWindowEndQueueManager<DataQueryDimensional, QueryMeta> {
   @NotNull
   private final DimensionsStoreHDHT operator;
   @NotNull
@@ -60,7 +60,7 @@ public class DimensionsQueryQueueManager extends AppDataWWEQueryQueueManager<Dat
   {
     SchemaDimensional schemaDimensional = (SchemaDimensional)schemaRegistry.getSchema(query.getSchemaKeys());
     DimensionalEventSchema eventSchema = schemaDimensional.getGenericEventSchema();
-    Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDd());
+    Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDimensionsDescriptor());
 
     if(ddID == null) {
       LOG.debug("No aggregations for keys: {}", query.getKeyFields());

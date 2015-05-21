@@ -5,8 +5,8 @@
 
 package com.datatorrent.lib.appdata;
 
-import com.datatorrent.lib.appdata.qr.Data;
-import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.query.serde.Message;
+import com.datatorrent.lib.appdata.query.serde.DataDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import java.io.IOException;
 import org.junit.Assert;
@@ -48,7 +48,7 @@ public class QueryDeserializerFactoryTest
     String unsupportedQuery = "{\"id\":\"1\",\"type\":\"Invalid type\"}";
     boolean exception = false;
 
-    Data data = null;
+    Message data = null;
 
     try {
       data = qdf.deserialize(unsupportedQuery);

@@ -17,8 +17,8 @@ package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.qr.CustomDataSerializer;
-import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.query.serde.CustomDataSerializer;
+import com.datatorrent.lib.appdata.query.serde.Result;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;

@@ -23,7 +23,7 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.lib.appbuilder.convert.pojo.PojoFieldRetrieverExpression;
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaPOJO;
+import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchemaPOJO;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;

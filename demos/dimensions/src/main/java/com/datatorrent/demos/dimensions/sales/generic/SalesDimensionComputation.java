@@ -5,10 +5,10 @@
 
 package com.datatorrent.demos.dimensions.sales.generic;
 
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensions.DimensionsConversionContext;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchema;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsConversionContext;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class SalesDimensionComputation extends DimensionsComputationSingleSchema
   }
 
   @Override
-  public AggregateEvent createGenericAggregateEvent(Map<String, Object> ga,
+  public DimensionsEvent createGenericAggregateEvent(Map<String, Object> ga,
                                                     DimensionsConversionContext context)
   {
     GPOMutable keyGPO = new GPOMutable(context.keyFieldsDescriptor);
@@ -66,7 +66,7 @@ public class SalesDimensionComputation extends DimensionsComputationSingleSchema
     aggGPO.setField(JsonSalesGenerator.AGG_DISCOUNT, ga.get(JsonSalesGenerator.AGG_DISCOUNT));
     aggGPO.setField(JsonSalesGenerator.AGG_TAX, ga.get(JsonSalesGenerator.AGG_TAX));
 
-    AggregateEvent gae = new AggregateEvent(new GPOMutable(keyGPO),
+    DimensionsEvent gae = new DimensionsEvent(new GPOMutable(keyGPO),
                                                           aggGPO,
                                                           DEFAULT_SCHEMA_ID,
                                                           context.dimensionDescriptorID,

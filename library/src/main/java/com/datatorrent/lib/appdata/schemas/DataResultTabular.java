@@ -16,10 +16,10 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.qr.DataSerializerInfo;
-import com.datatorrent.lib.appdata.qr.DataType;
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.query.serde.DataSerializerInfo;
+import com.datatorrent.lib.appdata.query.serde.DataType;
+import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.query.serde.Result;
 import com.google.common.base.Preconditions;
 
 import java.util.List;

@@ -16,6 +16,8 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
+import com.datatorrent.lib.dimensions.DimensionsSchema;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;

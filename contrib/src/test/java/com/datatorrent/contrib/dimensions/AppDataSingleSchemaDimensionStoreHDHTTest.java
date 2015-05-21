@@ -18,11 +18,11 @@ package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
+import com.datatorrent.lib.dimensions.AggregatorIncrementalType;
+import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchema;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
@@ -200,7 +200,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     //Aggregate Event
     DimensionalEventSchema eventSchema = store.eventSchema;
-    AggregateEvent ae = createEvent(eventSchema,
+    DimensionsEvent ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -213,7 +213,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     //Value bytes
     byte[] valueBytes = store.getValueBytesGAE(ae);
 
-    AggregateEvent deserializedAE = store.fromKeyValueGAE(new Slice(keyBytes), valueBytes);
+    DimensionsEvent deserializedAE = store.fromKeyValueGAE(new Slice(keyBytes), valueBytes);
     deserializedAE.getEventKey().getKey().setFieldDescriptor(ae.getEventKey().getKey().getFieldDescriptor());
     deserializedAE.getAggregates().setFieldDescriptor(ae.getAggregates().getFieldDescriptor());
 
@@ -266,7 +266,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     DimensionalEventSchema eventSchema = store.eventSchema;
 
     //Aggregate Event
-    AggregateEvent ae = createEvent(eventSchema,
+    DimensionsEvent ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -305,7 +305,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
       valueBytes = store.get(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID, new Slice(keyBytes));
     }
 
-    AggregateEvent aeDeserialized = store.fromKeyValueGAE(new Slice(keyBytes), valueBytes);
+    DimensionsEvent aeDeserialized = store.fromKeyValueGAE(new Slice(keyBytes), valueBytes);
 
     aeDeserialized.getKeys().setFieldDescriptor(ae.getKeys().getFieldDescriptor());
     aeDeserialized.getAggregates().setFieldDescriptor(ae.getAggregates().getFieldDescriptor());
@@ -343,7 +343,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     DimensionalEventSchema eventSchema = store.eventSchema;
 
     //Aggregate Event
-    AggregateEvent ae = createEvent(eventSchema,
+    DimensionsEvent ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -399,7 +399,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     DimensionalEventSchema eventSchema = store.eventSchema;
 
-    AggregateEvent expectedDouble = createEvent(eventSchema,
+    DimensionsEvent expectedDouble = createEvent(eventSchema,
                                                 publisher,
                                                 advertiser,
                                                 60000L,
@@ -407,7 +407,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                                                 2 * impressions,
                                                 2.0 * cost);
 
-    AggregateEvent expectedTriple = createEvent(eventSchema,
+    DimensionsEvent expectedTriple = createEvent(eventSchema,
                                                 publisher,
                                                 advertiser,
                                                 60000L,
@@ -416,7 +416,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                                                 3.0 * cost);
 
     //Aggregate Event
-    AggregateEvent ae = createEvent(eventSchema,
+    DimensionsEvent ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -490,7 +490,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     DimensionalEventSchema eventSchema = store.eventSchema;
 
     //Aggregate Event
-    AggregateEvent ae = createEvent(eventSchema,
+    DimensionsEvent ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -498,7 +498,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                                     impressions,
                                     cost);
 
-    AggregateEvent ae1 = createEvent(eventSchema,
+    DimensionsEvent ae1 = createEvent(eventSchema,
                                      publisher1,
                                      advertiser1,
                                      60000L,
@@ -547,7 +547,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     store.teardown();
   }
 
-  private AggregateEvent createEvent(DimensionalEventSchema eventSchema,
+  private DimensionsEvent createEvent(DimensionalEventSchema eventSchema,
                                      String publisher,
                                      String advertiser,
                                      long timestamp,
@@ -557,7 +557,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
   {
     int schemaID = DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionDescriptorID = 0;
-    int aggregatorID = eventSchema.getAggregatorInfo().getStaticAggregatorNameToID().get(AggregatorStaticType.SUM.name());
+    int aggregatorID = eventSchema.getAggregatorInfo().getStaticAggregatorNameToID().get(AggregatorIncrementalType.SUM.name());
 
     FieldsDescriptor fdKey = eventSchema.getDdIDToKeyDescriptor().get(dimensionDescriptorID);
     FieldsDescriptor fdValue = eventSchema.getDdIDToAggIDToOutputAggDescriptor().get(dimensionDescriptorID).get(aggregatorID);
@@ -581,7 +581,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     value.setField("cost", cost);
 
     //Aggregate Event
-    return new AggregateEvent(eventKey,
+    return new DimensionsEvent(eventKey,
                               value);
   }
 }

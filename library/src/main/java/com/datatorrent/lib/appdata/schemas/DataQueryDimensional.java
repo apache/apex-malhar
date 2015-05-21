@@ -21,16 +21,16 @@ import java.util.Set;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.DataType;
-import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
-import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.query.serde.DataDeserializerInfo;
+import com.datatorrent.lib.appdata.query.serde.DataType;
+import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
+import com.datatorrent.lib.appdata.query.serde.Query;
 
 @DataType(type=DataQueryDimensional.TYPE)
 @DataDeserializerInfo(clazz=DataQueryDimensionalDeserializer.class)
-@DataValidatorInfo(clazz=DataQueryDimensionalValidator.class)
+@MessageValidatorInfo(clazz=DataQueryDimensionalValidator.class)
 public class DataQueryDimensional extends Query
 {
   public static final String TYPE = "dataQuery";
@@ -57,7 +57,7 @@ public class DataQueryDimensional extends Query
   private boolean hasTime = false;
   private boolean fromTo = false;
   private Fields keyFields;
-  private DimensionsDescriptor dd;
+  private DimensionsDescriptor dimensionsDescriptor;
   private FieldsAggregatable fieldsAggregatable;
 
   public DataQueryDimensional()
@@ -271,7 +271,7 @@ public class DataQueryDimensional extends Query
     keyFieldSet.addAll(keys.getFieldDescriptor().getFields().getFields());
 
     keyFields = new Fields(keyFieldSet);
-    dd = new DimensionsDescriptor(timeBucket, keyFields);
+    dimensionsDescriptor = new DimensionsDescriptor(timeBucket, keyFields);
   }
 
   public Fields getKeyFields()
@@ -285,15 +285,15 @@ public class DataQueryDimensional extends Query
 
     for(String field: gpo.getFieldDescriptor().getFields().getFields()) {
       if(hasTime) {
-        if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
+        if(field.equals(dimensionsDescriptor.DIMENSION_TIME)) {
           continue;
         }
-        else if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+        else if(field.equals(dimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
           gpo.setField(field, this.timeBucket.ordinal());
         }
       }
 
-      if(DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
+      if(dimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
         continue;
       }
 
@@ -375,11 +375,11 @@ public class DataQueryDimensional extends Query
   }
 
   /**
-   * @return the dd
+   * @return the dimensionsDescriptor
    */
-  public DimensionsDescriptor getDd()
+  public DimensionsDescriptor getDimensionsDescriptor()
   {
-    return dd;
+    return dimensionsDescriptor;
   }
 
   /**
@@ -418,7 +418,7 @@ public class DataQueryDimensional extends Query
     hash = 59 * hash + (this.incompleteResultOK ? 1 : 0);
     hash = 59 * hash + (this.hasTime ? 1 : 0);
     hash = 59 * hash + (this.fromTo ? 1 : 0);
-    hash = 59 * hash + (this.dd != null ? this.dd.hashCode() : 0);
+    hash = 59 * hash + (this.dimensionsDescriptor != null ? this.dimensionsDescriptor.hashCode() : 0);
     hash = 59 * hash + (this.fieldsAggregatable != null ? this.fieldsAggregatable.hashCode() : 0);
     return hash;
   }
@@ -454,7 +454,7 @@ public class DataQueryDimensional extends Query
     if(this.fromTo != other.fromTo) {
       return false;
     }
-    if(this.dd != other.dd && (this.dd == null || !this.dd.equals(other.dd))) {
+    if(this.dimensionsDescriptor != other.dimensionsDescriptor && (this.dimensionsDescriptor == null || !this.dimensionsDescriptor.equals(other.dimensionsDescriptor))) {
       return false;
     }
     if(this.fieldsAggregatable != other.fieldsAggregatable && (this.fieldsAggregatable == null || !this.fieldsAggregatable.equals(other.fieldsAggregatable))) {
@@ -497,7 +497,7 @@ public class DataQueryDimensional extends Query
     if(this.fromTo != other.fromTo) {
       return false;
     }
-    if(this.dd != other.dd && (this.dd == null || !this.dd.equals(other.dd))) {
+    if(this.dimensionsDescriptor != other.dimensionsDescriptor && (this.dimensionsDescriptor == null || !this.dimensionsDescriptor.equals(other.dimensionsDescriptor))) {
       return false;
     }
     if(this.fieldsAggregatable != other.fieldsAggregatable && (this.fieldsAggregatable == null || !this.fieldsAggregatable.equals(other.fieldsAggregatable))) {

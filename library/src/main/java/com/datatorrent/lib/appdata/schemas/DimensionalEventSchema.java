@@ -15,10 +15,10 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
+import com.datatorrent.lib.dimensions.AggregatorRegistry;
 import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensions.DimensionsIncrementalAggregator;
+import com.datatorrent.lib.appdata.ns.DimensionsDescriptor;
+import com.datatorrent.lib.appdata.dimensinsionsIncrementalAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -107,7 +107,7 @@ public class DimensionalEventSchema
   private String keysString;
   private String bucketsString;
 
-  private AggregatorInfo aggregatorInfo;
+  privAggregatorRegistryInfo aggregatorInfo;
 
   List<TimeBucket> timeBuckets;
 
@@ -122,7 +122,7 @@ public class DimensionalEventSchema
                                 List<Value> values,
                                 List<TimeBucket> timeBuckets,
                                 List<DimensionsCombination> dimensionsCombinations,
-                                AggregatorInfo aggregatorInfo)
+                        AggregatorRegistryatorInfo aggregatorInfo)
   {
     setAggregatorInfo(aggregatorInfo);
 
@@ -133,7 +133,7 @@ public class DimensionalEventSchema
   }
 
   public DimensionalEventSchema(String json,
-                                AggregatorInfo aggregatorInfo)
+                    AggregatorRegistrygregatorInfo aggregatorInfo)
   {
     setAggregatorInfo(aggregatorInfo);
 
@@ -145,7 +145,7 @@ public class DimensionalEventSchema
     }
   }
 
-  private void setAggregatorInfo(AggregatorInfo aggregatorInfo)
+  private void seAggregatorRegistryo(AggregatorInfo aggregatorInfo)
   {
     this.aggregatorInfo = Preconditions.checkNotNull(aggregatorInfo);
   }
@@ -987,9 +987,7 @@ public class DimensionalEventSchema
   }
 
   /**
-   * @return the aggregatorInfo
-   */
-  public AggregatorInfo getAggregatorInfo()
+   * @return the aggregatorAggregatorRegistryublic AggregatorInfo getAggregatorInfo()
   {
     return aggregatorInfo;
   }

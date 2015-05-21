@@ -18,12 +18,12 @@ package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.DimensionsOTFAggregator;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
+import com.datatorrent.lib.dimensions.OTFAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.processor.QueryComputer;
+import com.datatorrent.lib.appdata.query.serde.Result;
+import com.datatorrent.lib.appdata.query.QueryExecutor;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
@@ -44,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DimensionsQueryComputer implements QueryComputer<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> {
+public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> {
   private final DimensionsStoreHDHT operator;
   private final SchemaRegistry schemaRegistry;
 
@@ -55,7 +55,7 @@ public class DimensionsQueryComputer implements QueryComputer<DataQueryDimension
   }
 
   @Override
-  public Result processQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext, MutableBoolean context)
+  public Result executeQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext, MutableBoolean context)
   {
     SchemaDimensional schemaDimensional = (SchemaDimensional)schemaRegistry.getSchema(query.getSchemaKeys());
     DimensionalEventSchema eventSchema = schemaDimensional.getGenericEventSchema();
@@ -75,7 +75,7 @@ public class DimensionsQueryComputer implements QueryComputer<DataQueryDimension
       for(String aggregatorName: aggregatorToQuery.keySet()) {
         HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
         EventKey eventKey = aggregatorToEventKey.get(aggregatorName);
-        AggregateEvent gae = operator.cache.get(eventKey);
+        DimensionsEvent gae = operator.cache.get(eventKey);
 
         if(gae != null) {
           LOG.debug("Retrieved from cache.");
@@ -177,7 +177,7 @@ public class DimensionsQueryComputer implements QueryComputer<DataQueryDimension
 
         Set<String> fields = query.getFieldsAggregatable().getAggregatorToFields().get(aggregatorName);
         FieldsDescriptor fd = eventSchema.getInputValuesDescriptor().getSubset(new Fields(fields));
-        DimensionsOTFAggregator aggregator = eventSchema.getAggregatorInfo().getNameToOTFAggregators().get(aggregatorName);
+        DimensionsOTFAggregatorr = eventSchema.getAggregatorInfo().getNameToOTFAggregators().get(aggregatorName);
         GPOMutable result = aggregator.aggregate(fd, mutableValues.toArray(new GPOMutable[mutableValues.size()]));
         prunedValue.put(aggregatorName, result);
         prunedKey.put(aggregatorName, singleKey);

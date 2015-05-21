@@ -9,14 +9,14 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
-import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
-import com.datatorrent.lib.appdata.dimensions.DimensionsIncrementalAggregator;
-import com.datatorrent.lib.appdata.qr.Data;
-import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
-import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
-import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
+import com.datatorrent.lib.dimensions.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.DimensionsIncrementalAggregator;
+import com.datatorrent.lib.appdata.query.serde.Message;
+import com.datatorrent.lib.appdata.query.serde.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.query.serde.DataSerializerFactory;
+import com.datatorrent.lib.appdata.query.serde.Result;
+import com.datatorrent.lib.appdata.query.QueryManager;
 import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
@@ -34,10 +34,10 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   @NotNull
   protected ResultFormatter appDataFormatter = new ResultFormatter();
   @NotNull
-  protected AggregatorInfo aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
+  protected AggregatorRegistry aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY;
 
   //Query Processing - Start
-  protected transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
+  protected transient QueryManager<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
   protected final transient DataDeserializerFactory queryDeserializerFactory;
 
   @VisibleForTesting
@@ -55,7 +55,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
     public void process(String s)
     {
       LOG.debug("Received {}", s);
-      Data query;
+      Message query;
       try {
         query = queryDeserializerFactory.deserialize(s);
       }
@@ -90,7 +90,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
     schemaRegistry = getSchemaRegistry();
 
     //setup query processor
-    queryProcessor = QueryProcessor.newInstance(new DimensionsQueryComputer(this, schemaRegistry),
+    queryProcessor = QueryManager.newInstance(new DimensionsQueryComputer(this, schemaRegistry),
       new DimensionsQueryQueueManager(this, schemaRegistry));
     queryProcessor.setup(context);
 
@@ -152,7 +152,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   @Override
   public DimensionsIncrementalAggregator getAggregator(int aggregatorID)
   {
-    return aggregatorInfo.getStaticAggregatorIDToAggregator().get(aggregatorID);
+    return aggregatorInfo.getIncrementalAggregatorIDToAggregator().get(aggregatorID);
   }
 
   @Override
@@ -177,7 +177,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   /**
    * @return the aggregatorInfo
    */
-  public AggregatorInfo getAggregatorInfo()
+  public AggregatorRegistry getAggregatorInfo()
   {
     return aggregatorInfo;
   }
@@ -185,7 +185,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   /**
    * @param aggregatorInfo the aggregatorInfo to set
    */
-  public void setAggregatorInfo(@NotNull AggregatorInfo aggregatorInfo)
+  public void setAggregatorInfo(@NotNull AggregatorRegistry aggregatorInfo)
   {
     this.aggregatorInfo = aggregatorInfo;
   }

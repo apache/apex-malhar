@@ -15,12 +15,12 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.qr.CustomDataDeserializer;
-import com.datatorrent.lib.appdata.qr.Data;
-import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.query.serde.CustomDataDeserializer;
+import com.datatorrent.lib.appdata.query.serde.Message;
+import com.datatorrent.lib.appdata.query.serde.Query;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.IOException;
@@ -60,7 +60,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
     //// Message
     String id = jo.getString(Query.FIELD_ID);
-    String type = jo.getString(Data.FIELD_TYPE);
+    String type = jo.getString(Message.FIELD_TYPE);
 
     boolean oneTime = !jo.has(DataQueryTabular.FIELD_COUNTDOWN);
     long countdown = 1;
@@ -71,7 +71,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
     boolean incompleteResultOK = jo.getBoolean(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK);
 
-    //// Data
+    //// Message
     JSONObject data = jo.getJSONObject(DataQueryDimensional.FIELD_DATA);
 
     ////Schema keys

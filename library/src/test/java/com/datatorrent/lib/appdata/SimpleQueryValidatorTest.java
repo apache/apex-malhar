@@ -5,12 +5,12 @@
 
 package com.datatorrent.lib.appdata;
 
-import com.datatorrent.lib.appdata.qr.DataType;
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
-import com.datatorrent.lib.appdata.qr.SimpleDataDeserializer;
-import com.datatorrent.lib.appdata.qr.SimpleDataValidator;
+import com.datatorrent.lib.appdata.query.serde.DataType;
+import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.query.serde.DataDeserializerInfo;
+import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
+import com.datatorrent.lib.appdata.query.serde.SimpleDataDeserializer;
+import com.datatorrent.lib.appdata.query.serde.SimpleDataValidator;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -31,7 +31,7 @@ public class SimpleQueryValidatorTest
 
   @DataType(type = TestQuery.TYPE)
   @DataDeserializerInfo(clazz = SimpleDataDeserializer.class)
-  @DataValidatorInfo(clazz = SimpleDataValidator.class)
+  @MessageValidatorInfo(clazz = SimpleDataValidator.class)
   public static class TestQuery extends Query
   {
     public static final String TYPE = "testQuery";

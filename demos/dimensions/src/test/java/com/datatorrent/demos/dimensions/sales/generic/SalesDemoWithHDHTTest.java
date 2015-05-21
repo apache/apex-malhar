@@ -16,8 +16,8 @@
 
 package com.datatorrent.demos.dimensions.sales.generic;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaMap;
-import com.datatorrent.lib.appdata.dimensions.DimensionsMapConverter;
+import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchemaMap;
+import com.datatorrent.lib.dimensions.DimensionsMapConverter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import org.junit.Test;
 

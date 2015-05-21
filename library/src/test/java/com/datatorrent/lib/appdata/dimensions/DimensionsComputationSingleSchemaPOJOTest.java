@@ -16,8 +16,14 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
+import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchema;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchemaPOJO;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.AggregatorIncrementalType;
 import com.datatorrent.lib.appbuilder.convert.pojo.PojoFieldRetrieverExpression;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -42,7 +48,7 @@ public class DimensionsComputationSingleSchemaPOJOTest
   @Before
   public void setup()
   {
-    AggregatorUtils.DEFAULT_AGGREGATOR_INFO.setup();
+    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.setup();
   }
 
   @Test
@@ -53,13 +59,13 @@ public class DimensionsComputationSingleSchemaPOJOTest
 
     int schemaID = DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionsDescriptorID = 0;
-    int aggregatorID = AggregatorUtils.DEFAULT_AGGREGATOR_INFO.
+    int aggregatorID = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.
                        getStaticAggregatorNameToID().
-                       get(AggregatorStaticType.SUM.name());
+                       get(AggregatorIncrementalType.SUM.name());
 
     String eventSchema = SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json");
     DimensionalEventSchema schema = new DimensionalEventSchema(eventSchema,
-                                                               AggregatorUtils.DEFAULT_AGGREGATOR_INFO);
+                                                               AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
 
     FieldsDescriptor keyFD = schema.getDdIDToKeyDescriptor().get(0);
     FieldsDescriptor valueFD = schema.getDdIDToAggIDToInputAggDescriptor().get(0).get(aggregatorID);
@@ -83,11 +89,11 @@ public class DimensionsComputationSingleSchemaPOJOTest
     valueGPO.setField("revenue", ai.getRevenue() + ai2.getRevenue());
     valueGPO.setField("cost", ai.getCost() + ai2.getCost());
 
-    AggregateEvent expectedAE = new AggregateEvent(eventKey, valueGPO);
+    DimensionsEvent expectedAE = new DimensionsEvent(eventKey, valueGPO);
 
     DimensionsComputationSingleSchemaPOJO dimensions = createDimensionsComputationOperator("adsGenericEventSimple.json");
 
-    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
+    CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
     TestUtils.setSink(dimensions.aggregateOutput, sink);
 
     DimensionsComputationSingleSchemaPOJO dimensionsClone =
@@ -133,7 +139,7 @@ public class DimensionsComputationSingleSchemaPOJOTest
 
     DimensionsComputationSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAdditional.json");
 
-    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
+    CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
     TestUtils.setSink(dcss.aggregateOutput, sink);
 
     dcss.setup(null);
@@ -151,7 +157,7 @@ public class DimensionsComputationSingleSchemaPOJOTest
 
     DimensionsComputationSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAggregations.json");
 
-    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
+    CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
     TestUtils.setSink(dcss.aggregateOutput, sink);
 
     dcss.setup(null);

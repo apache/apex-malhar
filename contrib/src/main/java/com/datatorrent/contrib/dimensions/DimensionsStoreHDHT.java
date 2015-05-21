@@ -18,10 +18,10 @@ package com.datatorrent.contrib.dimensions;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.AbstractSinglePortHDHTWriter;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensions.DimensionsIncrementalAggregator;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsIncrementalAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOByteArrayList;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
@@ -46,7 +46,7 @@ import java.util.Set;
  * TODO aggregate by windowID in waiting cache.
  */
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
-public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<AggregateEvent>
+public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<DimensionsEvent>
 {
   public static final int CACHE_SIZE = 100000;
   public static final int DEFAULT_CACHE_WINDOW_DURATION = 120;
@@ -64,7 +64,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   @VisibleForTesting
   protected transient long currentWindowID;
 
-  protected transient Map<EventKey, AggregateEvent> cache = Maps.newHashMap();
+  protected transient Map<EventKey, DimensionsEvent> cache = Maps.newHashMap();
   protected Set<Long> buckets = Sets.newHashSet();
 
   @VisibleForTesting
@@ -87,7 +87,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     return getBucketForSchema(eventKey.getSchemaID());
   }
 
-  protected byte[] getKeyBytesGAE(AggregateEvent gae)
+  protected byte[] getKeyBytesGAE(DimensionsEvent gae)
   {
     return getEventKeyBytesGAE(gae.getEventKey());
   }
@@ -119,12 +119,12 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     return bal.toByteArray();
   }
 
-  public byte[] getValueBytesGAE(AggregateEvent event)
+  public byte[] getValueBytesGAE(DimensionsEvent event)
   {
     return GPOUtils.serialize(event.getAggregates());
   }
 
-  public AggregateEvent fromKeyValueGAE(Slice key, byte[] aggregate)
+  public DimensionsEvent fromKeyValueGAE(Slice key, byte[] aggregate)
   {
     MutableInt offset = new MutableInt(0);
     long timestamp = GPOUtils.deserializeLong(key.buffer, offset);
@@ -145,7 +145,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
       keys.setField(DimensionsDescriptor.DIMENSION_TIME, timestamp);
     }
 
-    AggregateEvent gae = new AggregateEvent(keys,
+    DimensionsEvent gae = new DimensionsEvent(keys,
                                             aggs,
                                             schemaID,
                                             dimensionDescriptorID,
@@ -153,7 +153,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     return gae;
   }
 
-  public AggregateEvent load(EventKey eventKey)
+  public DimensionsEvent load(EventKey eventKey)
   {
     long bucket = getBucketForSchema(eventKey);
     byte[] key = getEventKeyBytesGAE(eventKey);
@@ -184,11 +184,11 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     return val;
   }
 
-  public int getPartitionGAE(AggregateEvent inputEvent) {
+  public int getPartitionGAE(DimensionsEvent inputEvent) {
     return inputEvent.getBucketID();
   }
 
-  public void putGAE(AggregateEvent gae)
+  public void putGAE(DimensionsEvent gae)
   {
     try {
       put(getBucketForSchema(gae.getSchemaID()),
@@ -242,7 +242,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   }
 
   @Override
-  protected void processEvent(AggregateEvent gae)
+  protected void processEvent(DimensionsEvent gae)
   {
     GPOMutable keys = gae.getKeys();
     GPOMutable aggregates = gae.getAggregates();
@@ -271,7 +271,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
     DimensionsIncrementalAggregator aggregator = getAggregator(gae.getAggregatorID());
 
-    AggregateEvent aggregate = cache.get(gae.getEventKey());
+    DimensionsEvent aggregate = cache.get(gae.getEventKey());
 
     if(aggregate == null) {
       aggregate = load(gae.getEventKey());
@@ -312,7 +312,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
 
     cacheWindowCount++;
 
-    for(Map.Entry<EventKey, AggregateEvent> entry: cache.entrySet()) {
+    for(Map.Entry<EventKey, DimensionsEvent> entry: cache.entrySet()) {
       putGAE(entry.getValue());
     }
 
@@ -325,7 +325,7 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
   }
 
   @Override
-  public HDHTCodec<AggregateEvent> getCodec()
+  public HDHTCodec<DimensionsEvent> getCodec()
   {
     return new GenericAggregateEventCodec();
   }
@@ -346,8 +346,8 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     this.cacheWindowDuration = cacheWindowDuration;
   }
 
-  class GenericAggregateEventCodec extends KryoSerializableStreamCodec<AggregateEvent>
-          implements HDHTCodec<AggregateEvent>
+  class GenericAggregateEventCodec extends KryoSerializableStreamCodec<DimensionsEvent>
+          implements HDHTCodec<DimensionsEvent>
   {
     private static final long serialVersionUID = 201503170256L;
 
@@ -356,25 +356,25 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     }
 
     @Override
-    public byte[] getKeyBytes(AggregateEvent gae)
+    public byte[] getKeyBytes(DimensionsEvent gae)
     {
       return getKeyBytesGAE(gae);
     }
 
     @Override
-    public byte[] getValueBytes(AggregateEvent gae)
+    public byte[] getValueBytes(DimensionsEvent gae)
     {
       return getValueBytesGAE(gae);
     }
 
     @Override
-    public AggregateEvent fromKeyValue(Slice key, byte[] value)
+    public DimensionsEvent fromKeyValue(Slice key, byte[] value)
     {
       return fromKeyValueGAE(key, value);
     }
 
     @Override
-    public int getPartition(AggregateEvent gae)
+    public int getPartition(DimensionsEvent gae)
     {
       return getPartitionGAE(gae);
     }
