@@ -52,7 +52,7 @@ public class WindowedTopCounter<T> extends BaseOperator
   private int slidingWindowWidth;
   private int dagWindowWidth;
   private HashMap<T, SlidingContainer<T>> objects = new HashMap<T, SlidingContainer<T>>();
-  
+
   /**
    * Input port on which map objects containing keys with their respective frequency as values will be accepted.
    */
@@ -153,8 +153,6 @@ public class WindowedTopCounter<T> extends BaseOperator
     }
 
     Collections.sort(data, TwitterOutputSorter.INSTANCE);
-
-    logger.info("{}", data);
 
     output.emit(data);
     topCounter.clear();
