@@ -29,7 +29,7 @@ import gnu.trove.strategy.HashingStrategy;
 public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> implements Operator
 {
   @Bind(JavaSerializer.class)
-  private AggregateMap<AGGREGATOR_INPUT, AGGREGATE>[] maps;
+  protected AggregateMap<AGGREGATOR_INPUT, AGGREGATE>[] maps;
 
   private Unifier<AGGREGATE> unifier;
 

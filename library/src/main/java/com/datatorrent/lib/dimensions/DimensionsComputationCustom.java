@@ -17,7 +17,9 @@
 package com.datatorrent.lib.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateMap;
 import gnu.trove.strategy.HashingStrategy;
 import javax.validation.constraints.NotNull;
 
@@ -39,13 +41,49 @@ public class DimensionsComputationCustom<EVENT, AGGREGATE extends UnifiableAggre
   @Override
   public void setup(OperatorContext context)
   {
+    int size = 0;
+
+    for(Map.Entry<String, List<Aggregator<EVENT,AGGREGATE>>> entry: aggregators.entrySet()) {
+      size += entry.getValue().size();
+    }
+
+    this.maps = new AggregateMap[size];
+
+    int aggregateIndex = 0;
+
     for(Map.Entry<String, DimensionsCombination<EVENT>> entry: dimensionsCombinations.entrySet()) {
       String dimensionName = entry.getKey();
       DimensionsCombination<EVENT> combination = entry.getValue();
       List<Aggregator<EVENT, AGGREGATE>> tempAggregators = aggregators.get(dimensionName);
 
+      for(Aggregator<EVENT, AGGREGATE> aggregator: tempAggregators) {
+        maps[aggregateIndex] = new AggregateMap(aggregator,
+                                                combination,
+                                                10000,
+                                                aggregateIndex);
+        aggregateIndex++;
+      }
     }
   }
+
+  protected void processInputTuple(EVENT tuple)
+  {
+    for (int i = 0; i < this.maps.length; i++) {
+      maps[i].add(tuple);
+    }
+  }
+
+  /**
+   * Input data port that takes an event.
+   */
+  public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
+  {
+    @Override
+    public void process(EVENT tuple)
+    {
+      processInputTuple(tuple);
+    }
+  };
 
   /**
    * @return the dimensionsCombinations

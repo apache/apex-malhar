@@ -15,8 +15,9 @@
  */
 package com.datatorrent.lib.dimensions;
 
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateResult;
+import com.datatorrent.lib.statistics.DimensionsComputation.AggregateEvent;
 import com.google.common.base.Preconditions;
 import java.io.Serializable;
 import org.slf4j.Logger;
@@ -399,11 +400,11 @@ public abstract class DimensionsEvent implements Serializable
     }
   }
 
-  public static class Aggregate extends DimensionsEvent implements UnifiableAggregate
+  public static class Aggregate extends DimensionsEvent implements AggregateEvent, AggregateResult
   {
     private static final long serialVersionUID = 201505181028L;
 
-    private int aggregateIndex;
+    private int aggregatorIndex;
 
     private Aggregate()
     {
@@ -445,16 +446,18 @@ public abstract class DimensionsEvent implements Serializable
             aggregatorIndex);
     }
 
-    @Override
-    public int getAggregateIndex()
+    /**
+     * @param aggregatorIndex the aggregatorIndex to set
+     */
+    public void setAggregatorIndex(int aggregatorIndex)
     {
-      return aggregateIndex;
+      this.aggregatorIndex = aggregatorIndex;
     }
 
     @Override
-    public void setAggregateIndex(int aggregateIndex)
+    public int getAggregatorIndex()
     {
-      this.aggregateIndex = aggregateIndex;
+      return aggregatorIndex;
     }
   }
 }
