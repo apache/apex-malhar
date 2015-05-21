@@ -22,12 +22,11 @@ import java.io.FileInputStream;
 import java.io.InputStreamReader;
 
 import org.anarres.lzo.LzopInputStream;
+import org.apache.commons.io.FileUtils;
 import org.junit.Assert;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.Description;
-
-import org.apache.commons.io.FileUtils;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperator;
@@ -82,7 +81,7 @@ public class LzoFilterStreamTest
   public void testLZOCompression() throws Exception
   {
     FileOutputOperator writer = new FileOutputOperator("compressedData.txt.lzo");
-    writer.setFilterStreamProvider(new LzoFilterStream.LzoFilterStreamProvider());
+    writer.setFilterStreamProvider(new LzoFilterStream.LZOFilterStreamProvider());
 
     writer.setFilePath(testMeta.getDir());
     writer.setup(testOperatorContext);
