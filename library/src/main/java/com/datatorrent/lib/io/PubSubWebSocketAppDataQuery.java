@@ -16,7 +16,7 @@
 package com.datatorrent.lib.io;
 
 import com.datatorrent.api.AppData;
-import com.datatorrent.api.AppData.QueryIdAppended;
+import com.datatorrent.api.AppData.AppendQueryIdToTopic;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.util.PubSubMessage;
 import org.codehaus.jettison.json.JSONArray;
@@ -25,7 +25,7 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@QueryIdAppended
+@AppendQueryIdToTopic
 public class PubSubWebSocketAppDataQuery extends PubSubWebSocketInputOperator<String> implements AppData.ConnectionInfoProvider
 {
   /**
