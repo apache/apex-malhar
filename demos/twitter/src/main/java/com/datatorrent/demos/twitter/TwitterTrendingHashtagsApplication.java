@@ -168,9 +168,6 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     TwitterSampleInput twitterFeed = new TwitterSampleInput();
     twitterFeed = dag.addOperator("TweetSampler", twitterFeed);
 
-    //  Setup the operator to get the Hashtags extracted from the twitter statuses
-    TwitterStatusHashtagExtractor HashtagExtractor = dag.addOperator("HashtagExtractor", TwitterStatusHashtagExtractor.class);
-
     // Setup a node to count the unique Hashtags within a window.
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueHashtagCounter", new UniqueCounter<String>());
 
