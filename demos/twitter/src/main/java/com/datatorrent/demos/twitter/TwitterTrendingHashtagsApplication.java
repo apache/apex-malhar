@@ -195,6 +195,7 @@ public class TwitterTrendingHashtagsApplication implements StreamingApplication
     dag.addStream("TwittedHashtags", twitterFeed.hashtag, uniqueCounter.data).setLocality(locality);
     // Count unique Hashtags
     dag.addStream("UniqueHashtagCounts", uniqueCounter.count, topCounts.input);
+    dag.addStream("MapProvider", topCounts.output, tabularServer.input);
     // Count top 10
     dag.addStream("TopURLQuery", queryPort, tabularServer.query);
     dag.addStream("TopURLResult", tabularServer.queryResult, queryResultPort);
