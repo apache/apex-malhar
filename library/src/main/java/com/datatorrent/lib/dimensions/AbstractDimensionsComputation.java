@@ -17,17 +17,40 @@
 package com.datatorrent.lib.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
 import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
 import com.esotericsoftware.kryo.serializers.JavaSerializer;
 import com.google.common.base.Preconditions;
 import gnu.trove.map.hash.TCustomHashMap;
 import gnu.trove.strategy.HashingStrategy;
 
-public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE> implements Operator
+public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> implements Operator
 {
   @Bind(JavaSerializer.class)
-  private TCustomHashMap<AGGREGATOR_INPUT, AGGREGATE>[] maps;
+  private AggregateMap<AGGREGATOR_INPUT, AGGREGATE>[] maps;
+
+  private Unifier<AGGREGATE> unifier;
+
+  public void setUnifier(Unifier<AGGREGATE> unifier)
+  {
+    this.unifier = unifier;
+  }
+
+  public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>()
+  {
+    @Override
+    public Unifier<AGGREGATE> getUnifier()
+    {
+      if (unifier == null) {
+        return super.getUnifier();
+      }
+      else {
+        return unifier;
+      }
+    }
+  };
 
   public AbstractDimensionsComputation()
   {
@@ -36,18 +59,6 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE>
   @Override
   public void setup(OperatorContext context)
   {
-  }
-
-  protected void processAggregatorInput(AGGREGATOR_INPUT aggregatorInput)
-  {
-    for(int aggregateIndex = 0;
-        aggregateIndex < maps.length;
-        aggregateIndex++) {
-      TCustomHashMap<AGGREGATOR_INPUT, AGGREGATE> map = maps[aggregateIndex];
-      AGGREGATE aggregate = map.get(aggregatorInput);
-
-      //if(aggregate)
-    }
   }
 
   protected static class AggregateMap<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> extends TCustomHashMap<AGGREGATOR_INPUT, AGGREGATE>
@@ -80,10 +91,12 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE>
 
       if(aggregate == null) {
         aggregate = aggregator.createDest(aggregatorInput);
+        aggregate.setAggregateIndex(aggregateIndex);
         put(aggregatorInput, aggregate);
       }
-
-      
+      else {
+        aggregator.aggregate(aggregate, aggregatorInput);
+      }
     }
 
     @Override
@@ -119,6 +132,13 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE>
   @Override
   public void endWindow()
   {
+    for(AggregateMap<AGGREGATOR_INPUT, AGGREGATE> dimension: maps) {
+      for(AGGREGATE value: dimension.values()) {
+        output.emit(value);
+      }
+
+      dimension.clear();
+    }
   }
 
   @Override

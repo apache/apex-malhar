@@ -17,7 +17,6 @@ package com.datatorrent.lib.statistics;
 
 import java.io.*;
 import java.lang.reflect.Array;
-
 import java.util.*;
 import java.util.Map.Entry;
 
@@ -37,7 +36,6 @@ import gnu.trove.strategy.HashingStrategy;
 
 import com.datatorrent.api.*;
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 
 /**
  * <p>An implementation of an operator that computes dimensions of events. </p>
@@ -52,10 +50,6 @@ import com.datatorrent.api.annotation.InputPortFieldAnnotation;
 public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputation.AggregateEvent> implements Operator
 {
   private Unifier<AGGREGATE> unifier;
-
-  @Min(0)
-  protected int aggregationWindowCount = 1;
-  private int windowCount = 0;
 
   public void setUnifier(Unifier<AGGREGATE> unifier)
   {
@@ -81,24 +75,14 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
 
   protected void processInputTuple(EVENT tuple)
   {
-    if(aggregationWindowCount == 0) {
-      //Pass through mode
-      for(int i = 0; i < aggregatorMaps.length; i++) {
-        output.emit(aggregatorMaps[i].aggregator.getGroup(tuple, i));
-      }
-    }
-    else {
-      //caching mode
-      for(int i = 0; i < aggregatorMaps.length; i++) {
-        aggregatorMaps[i].add(tuple, i);
-      }
+    for (int i = 0; i < aggregatorMaps.length; i++) {
+      aggregatorMaps[i].add(tuple, i);
     }
   }
 
   /**
    * Input data port that takes an event.
    */
-  @InputPortFieldAnnotation(optional = true)
   public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
   {
     @Override
@@ -107,22 +91,6 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
       processInputTuple(tuple);
     }
   };
-
-  /**
-   * @return the aggregationWindowCount
-   */
-  public int getAggregationWindowCount()
-  {
-    return aggregationWindowCount;
-  }
-
-  /**
-   * @param aggregationWindowCount the aggregationWindowCount to set
-   */
-  public void setAggregationWindowCount(int aggregationWindowCount)
-  {
-    this.aggregationWindowCount = aggregationWindowCount;
-  }
 
   public static interface AggregateEvent
   {
@@ -138,7 +106,7 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
     void aggregate(AGGREGATE dest, AGGREGATE src);
   }
 
-  protected AggregatorMap<EVENT, AGGREGATE>[] aggregatorMaps;
+  private AggregatorMap<EVENT, AGGREGATE>[] aggregatorMaps;
 
   /**
    * Set the dimensions which should each get the tuples going forward.
@@ -176,27 +144,17 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   @Override
   public void beginWindow(long windowId)
   {
-    windowCount++;
   }
 
   @Override
   public void endWindow()
   {
-    if(windowCount != aggregationWindowCount ||
-       aggregationWindowCount == 0) {
-      //This is the case when its not time to dump the buffer yet,
-      //or when we are doing no buffering.
-      return;
-    }
-
     for (AggregatorMap<EVENT, AGGREGATE> dimension : aggregatorMaps) {
       for (AGGREGATE value : dimension.values()) {
         output.emit(value);
       }
       dimension.clear();
     }
-
-    windowCount = 0;
   }
 
   @Override
@@ -369,9 +327,9 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   }
 
   @DefaultSerializer(ExternalizableSerializer.class)
-  protected static class AggregatorMap<EVENT, AGGREGATE extends AggregateEvent> extends TCustomHashMap<EVENT, AGGREGATE>
+  static class AggregatorMap<EVENT, AGGREGATE extends AggregateEvent> extends TCustomHashMap<EVENT, AGGREGATE>
   {
-    public transient Aggregator<EVENT, AGGREGATE> aggregator;
+    transient Aggregator<EVENT, AGGREGATE> aggregator;
 
     @SuppressWarnings("PublicConstructorInNonPublicClass")
     public AggregatorMap()
