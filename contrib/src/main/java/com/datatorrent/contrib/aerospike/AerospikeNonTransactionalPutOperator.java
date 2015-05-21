@@ -26,7 +26,7 @@ import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 
 import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.GetterObject;
+import com.datatorrent.lib.util.PojoUtils.Getter;
 
 /**
  * <p>
@@ -47,8 +47,8 @@ public class AerospikeNonTransactionalPutOperator extends AbstractAerospikeNonTr
   @NotNull
   private ArrayList<String> expressions;
 
-  private GetterObject keyGetter;
-  private GetterObject binsGetter;
+  private Getter<Object, Key> keyGetter;
+  private Getter<Object, List> binsGetter;
 
   // required by App Builder
   public AerospikeNonTransactionalPutOperator()
@@ -83,11 +83,11 @@ public class AerospikeNonTransactionalPutOperator extends AbstractAerospikeNonTr
   {
     if (null == keyGetter) {    // first tuple
       Class<?> tupleClass = tuple.getClass();
-      keyGetter  = PojoUtils.createGetterObject(tupleClass, expressions.get(0));
-      binsGetter = PojoUtils.createGetterObject(tupleClass, expressions.get(1));
+      keyGetter  = PojoUtils.createGetter(tupleClass, expressions.get(0), Key.class);
+      binsGetter = PojoUtils.createGetter(tupleClass, expressions.get(1), List.class);
     }
-    Key key = (Key)keyGetter.get(tuple);
-    List<Bin> binList = (List<Bin>)binsGetter.get(tuple);
+    Key key = keyGetter.get(tuple);
+    List<Bin> binList = binsGetter.get(tuple);
     if ( ! (null == binList || binList.isEmpty()) ) {
       list.addAll(binList);
     }
