@@ -35,8 +35,8 @@ InputOperator {
     AccumuloTuple tuple = new AccumuloTuple();
     tuple.setRow("row" + rowCount);
     tuple.setColumnFamily("colfam0");
-    tuple.setColumnName("col" + "-" + 0);
-    tuple.setColumnValue("val" + "-" + rowCount + "-" + 0);
+   // tuple.setColumnName("col" + "-" + 0);
+   // tuple.setColumnValue("val" + "-" + rowCount + "-" + 0);
     ++rowCount;
     if(rowCount==99999)
       rowCount=0;

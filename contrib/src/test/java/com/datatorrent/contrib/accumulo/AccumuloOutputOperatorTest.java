@@ -43,15 +43,12 @@ public class AccumuloOutputOperatorTest {
     atleastOper.getStore().setUserName("root");
     atleastOper.getStore().setPassword("root");
     ArrayList<String> expressions = new ArrayList<String>();
-    expressions.add("userid");
-    expressions.add("age");
-    expressions.add("address");
-    expressions.add("account_balance");
-   // expressions.add("columnName");
-   // expressions.add("columnValue");
-   // expressions.add("columnQualifier");
-   // expressions.add("timestamp");
-   // expressions.add("columnVisibility");
+    expressions.add("row");
+    expressions.add("columnValue");
+    expressions.add("columnQualifier");
+    expressions.add("timestamp");
+    expressions.add("columnVisibility");
+    expressions.add("columnFamily");
 
     atleastOper.setExpressions(expressions);
 
@@ -81,23 +78,24 @@ public class AccumuloOutputOperatorTest {
     });
     atleastOper.beginWindow(0);
     AccumuloTuple a=new AccumuloTuple();
-    a.setRow("john");
-    a.setColumnFamily("colfam0");
-    a.setColumnName("street");
-    a.setColumnValue("patrick");
-    a.setColumnQualifier(null);
+    a.setRow("E001");
+    a.setColumnFamily("name");
+    a.setColumnQualifier("bob");
+    a.setColumnValue("0");
+    a.setColumnVisibility("public");
+    a.setTimestamp(System.currentTimeMillis());
     atleastOper.input.process(a);
     atleastOper.endWindow();
     AccumuloTuple tuple;
 
     tuple = AccumuloTestHelper
-        .getAccumuloTuple("john", "colfam0", "street");
+        .getAccumuloTuple("E001", "name", "bob");
 
     Assert.assertNotNull("Tuple", tuple);
-    Assert.assertEquals("Tuple row", tuple.getRow(), "john");
-  //  Assert.assertEquals("Tuple column family", tuple.getColFamily(),"colfam0");
-  //  Assert.assertEquals("Tuple column name", tuple.getColName(),"street");
-  //  Assert.assertEquals("Tuple column value", tuple.getColValue(), "patrick");
+    Assert.assertEquals("Tuple row", "E001", tuple.getRow());
+    Assert.assertEquals("Tuple column family","name", tuple.getColumnFamily());
+    Assert.assertEquals("Tuple column qualifier", tuple.getColumnQualifier(),"bob");
+    Assert.assertEquals("Tuple column value", "0", tuple.getColumnValue());
 
   }
 

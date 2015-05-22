@@ -15,60 +15,19 @@
  */
 package com.datatorrent.contrib.accumulo;
 
-//import java.io.Serializable;
-
 public class AccumuloTuple {
   private String row;
   private String columnFamily;
-  private String columnName;
-  private String columnValue;
   private String columnQualifier;
   private long timestamp;
   private String columnVisibility;
-  private int userid;
+  private String columnValue;
 
-  public int getUserid()
+  public String getColumnValue()
   {
-    return userid;
+    return columnValue;
   }
 
-  public void setUserid(int userid)
-  {
-    this.userid = userid;
-  }
-
-  public int getAge()
-  {
-    return age;
-  }
-
-  public void setAge(int age)
-  {
-    this.age = age;
-  }
-
-  public String getAddress()
-  {
-    return address;
-  }
-
-  public void setAddress(String address)
-  {
-    this.address = address;
-  }
-
-  public String getAccount_balance()
-  {
-    return account_balance;
-  }
-
-  public void setAccount_balance(String account_balance)
-  {
-    this.account_balance = account_balance;
-  }
-  private int age;
-  private String address;
-  private String account_balance;
 
   public String getColumnVisibility()
   {
@@ -100,26 +59,6 @@ public class AccumuloTuple {
     this.columnFamily = columnFamily;
   }
 
-  public String getColumnName()
-  {
-    return columnName;
-  }
-
-  public void setColumnName(String columnName)
-  {
-    this.columnName = columnName;
-  }
-
-  public String getColumnValue()
-  {
-    return columnValue;
-  }
-
-  public void setColumnValue(String columnValue)
-  {
-    this.columnValue = columnValue;
-  }
-
   public String getColumnQualifier()
   {
     return columnQualifier;
@@ -130,14 +69,17 @@ public class AccumuloTuple {
     this.columnQualifier = columnQualifier;
   }
 
-
-
   public String getRow() {
     return row;
   }
 
   public void setRow(String row) {
     this.row = row;
+  }
+
+  public void setColumnValue(String columnValue)
+  {
+    this.columnValue = columnValue;
   }
 
 

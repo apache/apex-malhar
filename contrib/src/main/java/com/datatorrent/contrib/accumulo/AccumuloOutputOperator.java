@@ -16,21 +16,23 @@
 package com.datatorrent.contrib.accumulo;
 
 import com.datatorrent.lib.util.PojoUtils;
+import com.datatorrent.lib.util.PojoUtils.GetterLong;
 import com.datatorrent.lib.util.PojoUtils.GetterObject;
 import java.util.ArrayList;
 import javax.validation.constraints.NotNull;
 import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.security.ColumnVisibility;
 
 public class AccumuloOutputOperator extends AbstractAccumuloOutputOperator<Object>
 {
   @NotNull
   private ArrayList<String> expressions;
   private transient ArrayList<Object> getters;
+
   @NotNull
- // private transient ArrayListfields;
   /*
-   * An ArrayList of Java expressions that will yield the field value from the POJO.
-   * Each expression corresponds to one column in the Cassandra table.
+   * An ArrayList of Java expressions that will yield the value of Accumulo column key from the POJO.
+   * Each expression corresponds to a part in column key of accumulo key value store.
    */
   public ArrayList<String> getExpressions()
   {
@@ -54,6 +56,7 @@ public class AccumuloOutputOperator extends AbstractAccumuloOutputOperator<Objec
     int size = expressions.size();
     for (int i = 0; i < size; i++) {
       String getterExpression = PojoUtils.getSingleFieldExpression(fqcn, expressions.get(i));
+
       GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
       getters.add(getObject);
     }
@@ -69,27 +72,39 @@ public class AccumuloOutputOperator extends AbstractAccumuloOutputOperator<Objec
     int size = expressions.size();
     byte[] row = (byte[])(((GetterObject)getters.get(0)).get(t));
     Mutation mutation = new Mutation(row);
-    for(int i=0;i<size;i++)
-    {
-      if(expressions.get(i).equalsIgnoreCase("row"))
-      {
+    byte[] columnFamily = null;
+    byte[] columnQualifier = null;
+    ColumnVisibility columnVisibility = null;
+    byte[] columnValue = null;
+    Long timestamp = null;
+    byte[] value = null;
+    for (int i = 1; i < size; i++) {
+      if (expressions.get(i).equalsIgnoreCase("columnFamily")) {
+        columnFamily = (byte[])(((GetterObject)getters.get(i)).get(t));
+      }
+      if (expressions.get(i).equalsIgnoreCase("columnQualifier")) {
+        columnQualifier = (byte[])(((GetterObject)getters.get(i)).get(t));
+      }
+      if (expressions.get(i).equalsIgnoreCase("columnVisibility")) {
+        byte[] columnVis = (byte[])(((GetterObject)getters.get(i)).get(t));
+        columnVisibility = new ColumnVisibility(columnVis);
+      }
+      if (expressions.get(i).equalsIgnoreCase("columnValue")) {
+        columnValue = (byte[])(((GetterObject)getters.get(i)).get(t));
+      }
+      if (expressions.get(i).equalsIgnoreCase("timestamp")) {
+        timestamp = (((GetterLong)getters.get(i)).get(t));
+      }
 
+      if (expressions.get(i).equalsIgnoreCase("timestamp")) {
+        timestamp = (((GetterLong)getters.get(i)).get(t));
       }
 
     }
-    Text rowID = new Text("row1");
-Text colFam = new Text("myColFam");
-Text colQual = new Text("myColQual");
-ColumnVisibility colVis = new ColumnVisibility("public");
-long timestamp = System.currentTimeMillis();
 
-Value value = new Value("myValue".getBytes());
+    mutation.put(columnFamily, columnQualifier, columnVisibility, timestamp, columnValue);
 
-Mutation mutation = new Mutation(rowID);
-mutation.put(colFam, colQual, colVis, timestamp, value);
-
-       mutation.put(t.getColFamily().getBytes(),t.getColName().getBytes(),t.getColValue().getBytes());
-    return null;
+    return mutation;
   }
 
 }

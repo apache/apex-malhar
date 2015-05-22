@@ -114,12 +114,14 @@ public class AccumuloTestHelper {
   }
 
   public static AccumuloTuple findTuple(List<AccumuloTuple> tuples,
-      String row, String colFamily, String colName) {
+      String row, String colFamily,String colQualifier,Long timestamp,String colVisibility) {
     AccumuloTuple mtuple = null;
     for (AccumuloTuple tuple : tuples) {
       if (tuple.getRow().equals(row)
           && tuple.getColumnFamily().equals(colFamily)
-          && tuple.getColumnName().equals(colName)) {
+          && tuple.getColumnQualifier().equals(colQualifier)
+          && tuple.getColumnVisibility().equals(colVisibility)
+          && tuple.getTimestamp()==(timestamp)) {
         mtuple = tuple;
         break;
       }
@@ -181,7 +183,7 @@ public class AccumuloTestHelper {
       AccumuloTuple tuple = new AccumuloTuple();
       tuple.setRow(entry.getKey().getRow().toString());
       tuple.setColumnFamily(entry.getKey().getColumnFamily().toString());
-      tuple.setColumnName(entry.getKey().getColumnQualifier().toString());
+      tuple.setColumnQualifier(entry.getKey().getColumnQualifier().toString());
       tuple.setColumnValue(entry.getValue().toString());
       return tuple;
     }
