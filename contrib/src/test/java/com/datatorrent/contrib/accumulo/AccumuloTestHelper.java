@@ -43,7 +43,7 @@ import org.apache.accumulo.core.client.mock.MockInstance;
 
 
 public class AccumuloTestHelper {
-  static Connector con;
+  public static Connector con;
   public static final byte[] colfam0_bytes = "colfam0".getBytes();
   public static final byte[] col0_bytes = "col-0".getBytes();
   private static final Logger logger = LoggerFactory.getLogger(AccumuloTestHelper.class);
@@ -150,10 +150,12 @@ public class AccumuloTestHelper {
   }
 
   public static void getConnector() {
-    Instance instance = new MockInstance();
+    MockInstance instance = new MockInstance();
     //Instance instance = new ZooKeeperInstance("instance", "127.0.0.1");
     try {
-      con = instance.getConnector("root", "pass");
+       logger.debug("connecting..");
+       con=instance.getConnector("root","".getBytes());
+       logger.debug("connection done..");
     } catch (AccumuloException e) {
       logger.error("error in test helper");
       DTThrowable.rethrow(e);

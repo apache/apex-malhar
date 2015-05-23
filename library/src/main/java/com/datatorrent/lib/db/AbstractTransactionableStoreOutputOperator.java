@@ -22,6 +22,8 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This is the base implementation of an output operator,
@@ -101,6 +103,7 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
   public void beginWindow(long windowId)
   {
     currentWindowId = windowId;
+    super.beginWindow(windowId);
   }
 
   @Override
@@ -123,5 +126,6 @@ public abstract class AbstractTransactionableStoreOutputOperator<T, S extends Tr
    * @param tuple
    */
   public abstract void processTuple(T tuple);
+    private static final transient Logger logger = LoggerFactory.getLogger(AbstractTransactionableStoreOutputOperator.class);
 
 }

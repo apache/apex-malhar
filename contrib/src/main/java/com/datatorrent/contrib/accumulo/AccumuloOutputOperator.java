@@ -18,16 +18,33 @@ package com.datatorrent.contrib.accumulo;
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
 import com.datatorrent.lib.util.PojoUtils.GetterObject;
+import com.datatorrent.lib.util.PojoUtils.GetterString;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.validation.constraints.NotNull;
 import org.apache.accumulo.core.data.Mutation;
+import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.ColumnVisibility;
+import org.apache.hadoop.io.Text;
 
 public class AccumuloOutputOperator extends AbstractAccumuloOutputOperator<Object>
 {
   @NotNull
   private ArrayList<String> expressions;
   private transient ArrayList<Object> getters;
+  private transient ArrayList<String> dataTypes;
+
+  public ArrayList<String> getDataTypes()
+  {
+    return dataTypes;
+  }
+
+  public void setDataTypes(ArrayList<String> dataTypes)
+  {
+    this.dataTypes = dataTypes;
+  }
 
   @NotNull
   /*
@@ -48,17 +65,27 @@ public class AccumuloOutputOperator extends AbstractAccumuloOutputOperator<Objec
   {
     super();
     getters = new ArrayList<Object>();
+    dataTypes = new ArrayList<String>();
   }
 
   public void processFirstTuple(Object tuple)
   {
     Class<?> fqcn = tuple.getClass();
     int size = expressions.size();
+    Object getter;
     for (int i = 0; i < size; i++) {
       String getterExpression = PojoUtils.getSingleFieldExpression(fqcn, expressions.get(i));
-
-      GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
-      getters.add(getObject);
+      String type = dataTypes.get(i);
+      if (type.equalsIgnoreCase("String")) {
+        getter = PojoUtils.createGetterString(fqcn, getterExpression);
+      }
+      if (type.equalsIgnoreCase("Long")) {
+        getter = PojoUtils.createExpressionGetterLong(fqcn, getterExpression);
+      }
+      else {
+        getter = PojoUtils.createGetterObject(fqcn, getterExpression);
+      }
+      getters.add(getter);
     }
 
   }
@@ -70,39 +97,36 @@ public class AccumuloOutputOperator extends AbstractAccumuloOutputOperator<Objec
       processFirstTuple(t);
     }
     int size = expressions.size();
-    byte[] row = (byte[])(((GetterObject)getters.get(0)).get(t));
+    Text row = new Text(((GetterString)getters.get(0)).get(t));
     Mutation mutation = new Mutation(row);
-    byte[] columnFamily = null;
-    byte[] columnQualifier = null;
+    Text columnFamily = null;
+    Text columnQualifier = null;
     ColumnVisibility columnVisibility = null;
-    byte[] columnValue = null;
+    //Text columnValue = null;
     Long timestamp = null;
-    byte[] value = null;
+    Value value = null;
     for (int i = 1; i < size; i++) {
       if (expressions.get(i).equalsIgnoreCase("columnFamily")) {
-        columnFamily = (byte[])(((GetterObject)getters.get(i)).get(t));
+        columnFamily = new Text(((GetterString)getters.get(i)).get(t));
       }
       if (expressions.get(i).equalsIgnoreCase("columnQualifier")) {
-        columnQualifier = (byte[])(((GetterObject)getters.get(i)).get(t));
+        columnQualifier = new Text(((GetterString)getters.get(i)).get(t));
       }
       if (expressions.get(i).equalsIgnoreCase("columnVisibility")) {
-        byte[] columnVis = (byte[])(((GetterObject)getters.get(i)).get(t));
+        String columnVis = (((GetterString)getters.get(i)).get(t));
         columnVisibility = new ColumnVisibility(columnVis);
       }
       if (expressions.get(i).equalsIgnoreCase("columnValue")) {
-        columnValue = (byte[])(((GetterObject)getters.get(i)).get(t));
+         String colValue = (((GetterString)getters.get(i)).get(t));
+         value = new Value(colValue.getBytes());
       }
-      if (expressions.get(i).equalsIgnoreCase("timestamp")) {
-        timestamp = (((GetterLong)getters.get(i)).get(t));
-      }
-
       if (expressions.get(i).equalsIgnoreCase("timestamp")) {
         timestamp = (((GetterLong)getters.get(i)).get(t));
       }
 
     }
 
-    mutation.put(columnFamily, columnQualifier, columnVisibility, timestamp, columnValue);
+    mutation.put(columnFamily, columnQualifier, columnVisibility, timestamp, value);
 
     return mutation;
   }
