@@ -44,10 +44,10 @@ public class AccumuloOutputOperatorTest {
 
     //MockInstance instance = new MockInstance();
     Connector con = null;
-    Instance instance = new ZooKeeperInstance("accumulo", "localhost");
+    Instance instance = new ZooKeeperInstance("accumulo", "node28.morado.com");
     try {
        logger.debug("connecting..");
-       con=instance.getConnector("root","root");
+       con=instance.getConnector("root","");
        con.tableOperations().create("tabs");
 
        logger.debug("connection done..");
@@ -62,18 +62,17 @@ public class AccumuloOutputOperatorTest {
     AccumuloOutputOperator atleastOper = new AccumuloOutputOperator();
 
     atleastOper.getStore().setTableName("tabs");
-    atleastOper.getStore().setZookeeperHost("localhsot");
+    atleastOper.getStore().setZookeeperHost("node28.morado.com");
     atleastOper.getStore().setInstanceName("accumulo");
     atleastOper.getStore().setUserName("root");
     atleastOper.getStore().setPassword("root");
     ArrayList<String> expressions = new ArrayList<String>();
-    expressions.add("row");
-    expressions.add("columnValue");
-    expressions.add("columnQualifier");
-    expressions.add("timestamp");
-    expressions.add("columnVisibility");
-    expressions.add("columnFamily");
-
+    expressions.add("getRow()");
+    expressions.add("getColumnFamily()");
+    expressions.add("getColumnQualifier()");
+    expressions.add("getColumnVisibility()");
+    expressions.add("getColumnValue()");
+    expressions.add("getTimestamp()");    
     atleastOper.setExpressions(expressions);
     ArrayList<String> dataTypes = new ArrayList<String>();
     dataTypes.add("string");
@@ -83,12 +82,10 @@ public class AccumuloOutputOperatorTest {
     dataTypes.add("string");
     dataTypes.add("long");
 
-    atleastOper.setDataTypes(dataTypes);
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
-    atleastOper.setup(context);
-    /*atleastOper.setup(new OperatorContext() {
+    atleastOper.setup(new OperatorContext() {
 
       @Override
       public <T> T getValue(Attribute<T> key) {
@@ -111,7 +108,7 @@ public class AccumuloOutputOperatorTest {
         // TODO Auto-generated method stub
 
       }
-    });*/
+    });
     atleastOper.beginWindow(0);
     AccumuloTuple a=new AccumuloTuple();
     a.setRow("E001");
@@ -135,16 +132,5 @@ public class AccumuloOutputOperatorTest {
 
   }
 
-
- /* public static class TestAccumuloOutputOperator extends AbstractAccumuloOutputOperator<AccumuloTuple> {
-
-    @Override
-    public Mutation operationMutation(AccumuloTuple t) {
-      Mutation mutation = new Mutation(t.getRow().getBytes());
-      mutation.put(t.getColFamily().getBytes(),t.getColName().getBytes(),t.getColValue().getBytes());
-      return mutation;
-    }
-
-  }*/
-
 }
+

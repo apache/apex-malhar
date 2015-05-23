@@ -17,34 +17,29 @@ package com.datatorrent.contrib.accumulo;
 
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.GetterObject;
-import com.datatorrent.lib.util.PojoUtils.GetterString;
+import com.datatorrent.lib.util.PojoUtils.Getter;
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.validation.constraints.NotNull;
 import org.apache.accumulo.core.data.Mutation;
 import org.apache.accumulo.core.data.Value;
 import org.apache.accumulo.core.security.ColumnVisibility;
 import org.apache.hadoop.io.Text;
 
+/*
+ * An implementation of AbstractAccumuloOutputOperator which gets data types of key columns and value column
+ * from user and creates a mutation to be stored in Accumulo table accordingly.
+ */
 public class AccumuloOutputOperator extends AbstractAccumuloOutputOperator<Object>
 {
   @NotNull
   private ArrayList<String> expressions;
-  private transient ArrayList<Object> getters;
-  private transient ArrayList<String> dataTypes;
-
-  public ArrayList<String> getDataTypes()
-  {
-    return dataTypes;
-  }
-
-  public void setDataTypes(ArrayList<String> dataTypes)
-  {
-    this.dataTypes = dataTypes;
-  }
+  private transient Getter<Object,String> rowGetter;
+  private transient Getter<Object,String> colFamilyGetter;
+  private transient Getter<Object,String> columnQualifierGetter;
+  private transient Getter<Object,String> columnValueGetter;
+  private transient Getter<Object,Long> timestampGetter;
+  private transient Getter<Object,String> columnVisibilityGetter;
 
   @NotNull
   /*
@@ -61,70 +56,28 @@ public class AccumuloOutputOperator extends AbstractAccumuloOutputOperator<Objec
     this.expressions = expressions;
   }
 
-  public AccumuloOutputOperator()
-  {
-    super();
-    getters = new ArrayList<Object>();
-    dataTypes = new ArrayList<String>();
-  }
-
-  public void processFirstTuple(Object tuple)
-  {
-    Class<?> fqcn = tuple.getClass();
-    int size = expressions.size();
-    Object getter;
-    for (int i = 0; i < size; i++) {
-      String getterExpression = PojoUtils.getSingleFieldExpression(fqcn, expressions.get(i));
-      String type = dataTypes.get(i);
-      if (type.equalsIgnoreCase("String")) {
-        getter = PojoUtils.createGetterString(fqcn, getterExpression);
-      }
-      if (type.equalsIgnoreCase("Long")) {
-        getter = PojoUtils.createExpressionGetterLong(fqcn, getterExpression);
-      }
-      else {
-        getter = PojoUtils.createGetterObject(fqcn, getterExpression);
-      }
-      getters.add(getter);
-    }
-
-  }
 
   @Override
+  @SuppressWarnings("unchecked")
   public Mutation operationMutation(Object t)
   {
-    if (getters.isEmpty()) {
-      processFirstTuple(t);
+    if (null == rowGetter) {
+      Class<?> fqcn = t.getClass();
+      rowGetter = PojoUtils.createGetter(fqcn, expressions.get(0),String.class);
+      colFamilyGetter = PojoUtils.createGetter(fqcn, expressions.get(1),String.class);
+      columnQualifierGetter = PojoUtils.createGetter(fqcn, expressions.get(2),String.class);
+      columnVisibilityGetter = PojoUtils.createGetter(fqcn, expressions.get(3), String.class);
+      columnValueGetter = PojoUtils.createGetter(fqcn, expressions.get(4), String.class);
+      timestampGetter = PojoUtils.createGetter(fqcn, expressions.get(5), Long.class);
     }
-    int size = expressions.size();
-    Text row = new Text(((GetterString)getters.get(0)).get(t));
-    Mutation mutation = new Mutation(row);
-    Text columnFamily = null;
-    Text columnQualifier = null;
-    ColumnVisibility columnVisibility = null;
-    //Text columnValue = null;
-    Long timestamp = null;
-    Value value = null;
-    for (int i = 1; i < size; i++) {
-      if (expressions.get(i).equalsIgnoreCase("columnFamily")) {
-        columnFamily = new Text(((GetterString)getters.get(i)).get(t));
-      }
-      if (expressions.get(i).equalsIgnoreCase("columnQualifier")) {
-        columnQualifier = new Text(((GetterString)getters.get(i)).get(t));
-      }
-      if (expressions.get(i).equalsIgnoreCase("columnVisibility")) {
-        String columnVis = (((GetterString)getters.get(i)).get(t));
-        columnVisibility = new ColumnVisibility(columnVis);
-      }
-      if (expressions.get(i).equalsIgnoreCase("columnValue")) {
-         String colValue = (((GetterString)getters.get(i)).get(t));
-         value = new Value(colValue.getBytes());
-      }
-      if (expressions.get(i).equalsIgnoreCase("timestamp")) {
-        timestamp = (((GetterLong)getters.get(i)).get(t));
-      }
 
-    }
+    Text row = new Text(rowGetter.get(t));
+    Mutation mutation = new Mutation(row);
+    Text columnFamily = new Text(colFamilyGetter.get(t));
+    Text columnQualifier = new Text(columnQualifierGetter.get(t));
+    ColumnVisibility columnVisibility = new ColumnVisibility(columnVisibilityGetter.get(t));
+    Value value = new Value(columnValueGetter.get(t).getBytes());
+    Long timestamp = timestampGetter.get(t);
 
     mutation.put(columnFamily, columnQualifier, columnVisibility, timestamp, value);
 
@@ -132,3 +85,4 @@ public class AccumuloOutputOperator extends AbstractAccumuloOutputOperator<Objec
   }
 
 }
+

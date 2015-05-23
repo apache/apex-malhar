@@ -72,7 +72,6 @@ import org.slf4j.LoggerFactory;
  * <b>Benchmarks</b>:
  * <br>
  * </p>
- * @param <T>
  * @displayName MongoDB Output
  * @category Database
  * @tags output operator

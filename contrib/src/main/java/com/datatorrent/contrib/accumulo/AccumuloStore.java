@@ -32,10 +32,9 @@ import org.slf4j.LoggerFactory;
 
 import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
-import org.apache.accumulo.core.client.mock.MockInstance;
 
 /**
- * A {@link Connectable} for accumulo that implements Connectable interface.
+ * A {@link Connectable} for accumulo that implements Connectable interface. 
  * <p>
  * @displayName Accumulo Store
  * @category Store
@@ -66,7 +65,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for Connector
-   *
+   * 
    * @return Connector
    */
   public Connector getConnector() {
@@ -75,7 +74,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for TableName
-   *
+   * 
    * @return TableName
    */
   public String getTableName() {
@@ -84,7 +83,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for TableName
-   *
+   * 
    * @param tableName
    */
   public void setTableName(String tableName) {
@@ -93,7 +92,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for zookeeper host address
-   *
+   * 
    * @return ZookeeperHost
    */
   public String getZookeeperHost() {
@@ -102,7 +101,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for zookeeper host address
-   *
+   * 
    * @param zookeeperHost
    */
   public void setZookeeperHost(String zookeeperHost) {
@@ -111,7 +110,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for instanceName
-   *
+   * 
    * @return instanceName
    */
   public String getInstanceName() {
@@ -120,7 +119,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for instanceName
-   *
+   * 
    * @param instanceName
    */
   public void setInstanceName(String instanceName) {
@@ -129,7 +128,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for userName
-   *
+   * 
    * @param userName
    */
   public void setUserName(String userName) {
@@ -138,7 +137,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * setter for password
-   *
+   * 
    * @param password
    */
   public void setPassword(String password) {
@@ -146,7 +145,7 @@ public class AccumuloStore implements Connectable {
   }
   /**
    * setter for memory limit
-   *
+   * 
    * @param memoryLimit
    */
   public void setMemoryLimit(long memoryLimit) {
@@ -154,7 +153,7 @@ public class AccumuloStore implements Connectable {
   }
   /**
    * setter for number of writer threads
-   *
+   * 
    * @param numThreads
    */
   public void setNumThreads(int numThreads) {
@@ -163,7 +162,7 @@ public class AccumuloStore implements Connectable {
 
   /**
    * getter for BatchWriter
-   *
+   * 
    * @return BatchWriter
    */
   public BatchWriter getBatchwriter() {
@@ -172,8 +171,8 @@ public class AccumuloStore implements Connectable {
 
   @Override
   public void connect() throws IOException {
-    Instance instance = new MockInstance();
-   // instance = new ZooKeeperInstance(instanceName, zookeeperHost);
+    Instance instance = null;
+    instance = new ZooKeeperInstance(instanceName, zookeeperHost);
     try {
       PasswordToken t = new PasswordToken(password.getBytes());
       connector = instance.getConnector(userName, t);

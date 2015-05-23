@@ -75,7 +75,6 @@ public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregat
   @Override
   public void processTuple(T tuple)
   {
-    logger.debug("in process tuple");
     tuples.add(tuple);
   }
 
@@ -95,12 +94,12 @@ public abstract class AbstractAccumuloOutputOperator<T> extends AbstractAggregat
     tuples.clear();
   }
   /**
-   *
+   * 
    * @param t
    * @return Mutation
    */
   public abstract Mutation operationMutation(T t);
-
+  
   @Override
   public void setup(OperatorContext context)
   {
