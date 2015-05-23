@@ -26,11 +26,9 @@ import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DAG;
 import com.datatorrent.common.util.DTThrowable;
-import static com.datatorrent.contrib.accumulo.AccumuloTestHelper.con;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import java.util.ArrayList;
 import org.apache.accumulo.core.client.*;
-import org.apache.accumulo.core.client.mock.MockInstance;
 
 public class AccumuloOutputOperatorTest {
   private static String APP_ID = "AccumuloOutputOperatorTest";
@@ -72,7 +70,7 @@ public class AccumuloOutputOperatorTest {
     expressions.add("getColumnQualifier()");
     expressions.add("getColumnVisibility()");
     expressions.add("getColumnValue()");
-    expressions.add("getTimestamp()");    
+    expressions.add("getTimestamp()");
     atleastOper.setExpressions(expressions);
     ArrayList<String> dataTypes = new ArrayList<String>();
     dataTypes.add("string");

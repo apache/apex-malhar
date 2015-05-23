@@ -28,6 +28,7 @@ import org.apache.accumulo.core.client.Instance;
 import org.apache.accumulo.core.client.MutationsRejectedException;
 import org.apache.accumulo.core.client.Scanner;
 import org.apache.accumulo.core.client.TableNotFoundException;
+import org.apache.accumulo.core.client.ZooKeeperInstance;
 import org.apache.accumulo.core.client.admin.TableOperations;
 import org.apache.accumulo.core.data.Key;
 import org.apache.accumulo.core.data.Mutation;
@@ -43,7 +44,7 @@ import org.apache.accumulo.core.client.mock.MockInstance;
 
 
 public class AccumuloTestHelper {
-  public static Connector con;
+  static Connector con;
   public static final byte[] colfam0_bytes = "colfam0".getBytes();
   public static final byte[] col0_bytes = "col-0".getBytes();
   private static final Logger logger = LoggerFactory.getLogger(AccumuloTestHelper.class);
@@ -150,8 +151,8 @@ public class AccumuloTestHelper {
   }
 
   public static void getConnector() {
-    MockInstance instance = new MockInstance();
-    //Instance instance = new ZooKeeperInstance("instance", "127.0.0.1");
+    //MockInstance instance = new MockInstance();
+    Instance instance = new ZooKeeperInstance("instance", "127.0.0.1");
     try {
        logger.debug("connecting..");
        con=instance.getConnector("root","".getBytes());
