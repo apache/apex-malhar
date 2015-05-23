@@ -22,10 +22,12 @@ import com.esotericsoftware.kryo.io.Output;
 
 import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 
-/*
+/**
  * Stream codec for uniform distribution of tuples on upstream operator.
  * This is used to make sure that data being sent to a particular hive partition
  * goes to a specific operator partition by passing FSRollingOutputOperator to the stream codec.
+ *
+ * @since 2.1.0
  */
 public class HiveStreamCodec<T> extends KryoSerializableStreamCodec<T> implements Externalizable
 {

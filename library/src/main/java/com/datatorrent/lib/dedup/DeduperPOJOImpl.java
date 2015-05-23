@@ -19,28 +19,30 @@ import com.datatorrent.lib.bucket.BucketManager;
 import com.datatorrent.lib.bucket.POJOBucketManager;
 import com.datatorrent.lib.bucket.TimeBasedBucketManagerPOJOImpl;
 import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.GetterObject;
+import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.google.common.base.Preconditions;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/*
+/**
  * An implementation of AbstractDeduper which takes in a POJO.
  * @displayName: DeduperPOJOImplementation
+ *
+ * @since 2.1.0
  */
 public class DeduperPOJOImpl extends AbstractDeduper<Object, Object>
 {
-  private transient GetterObject getter;
+  private transient Getter<Object, Object> getter;
 
   @Override
   public void processTuple(Object event)
   {
-     if(getter==null){
-     Class<?> fqcn = event.getClass();
-     GetterObject getterObj = PojoUtils.createGetterObject(fqcn, ((TimeBasedBucketManagerPOJOImpl)bucketManager).getKeyExpression());
-     getter = getterObj;
-     }
+    if (getter==null) {
+      Class<?> fqcn = event.getClass();
+      getter = PojoUtils.createGetter(fqcn, ((TimeBasedBucketManagerPOJOImpl) bucketManager).getKeyExpression(), Object.class);
+    }
+
     super.processTuple(event);
   }
 

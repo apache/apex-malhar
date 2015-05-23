@@ -29,6 +29,8 @@ import org.slf4j.LoggerFactory;
  * This controls how an {@link AbstractBlockReader} reads a {@link BlockMetadata}.
  *
  * @param <STREAM> type of stream
+ *
+ * @since 2.1.0
  */
 public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
 {
@@ -330,7 +332,7 @@ public interface ReaderContext<STREAM extends InputStream & PositionedReadable>
         bytesToRead = (int) (blockMetadata.getLength() - offset);
       }
       byte[] record = new byte[bytesToRead];
-      stream.read(offset, record, 0, bytesToRead);
+      stream.readFully(offset, record, 0, bytesToRead);
       entity.usedBytes = bytesToRead;
       entity.record = record;
 

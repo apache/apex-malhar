@@ -21,6 +21,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
+import javax.annotation.Nonnull;
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
 import javax.validation.ConstraintViolationException;
@@ -141,7 +142,7 @@ public class AbstractFileOutputOperatorTest
    */
   private static class SingleHDFSByteExactlyOnceWriter extends AbstractFileOutputOperator<byte[]>
   {
-    public SingleHDFSByteExactlyOnceWriter()
+    SingleHDFSByteExactlyOnceWriter()
     {
     }
 
@@ -201,9 +202,9 @@ public class AbstractFileOutputOperatorTest
     private final Long maxLength;
     private final AbstractFileOutputOperator<byte[]> fsWriter;
 
-    public ValidationTestApp(File testDir,
-                             Long maxLength,
-                             AbstractFileOutputOperator<byte[]> fsWriter)
+    ValidationTestApp(File testDir,
+                      Long maxLength,
+                      AbstractFileOutputOperator<byte[]> fsWriter)
     {
       this.testDir = testDir;
       this.maxLength = maxLength;
@@ -1595,14 +1596,14 @@ public class AbstractFileOutputOperatorTest
   }
   
   @Test
-  public void testPeriodicRotation() 
+  public void testPeriodicRotation()
   {
     EvenOddHDFSExactlyOnceWriter writer = new EvenOddHDFSExactlyOnceWriter();
     File dir = new File(testMeta.getDir());
     writer.setFilePath(testMeta.getDir());
     writer.setRotationWindows(30);
     writer.setup(testOperatorContext);
-    
+
     // Check that rotation doesn't happen prematurely
     for (int i = 0; i < 30; ++i) {
       writer.beginWindow(i);
@@ -1616,7 +1617,7 @@ public class AbstractFileOutputOperatorTest
     Collection<File> files = FileUtils.listFiles(dir, null, false);
     Assert.assertEquals("Number of part files", 1, files.size());
     Assert.assertEquals("Part file names", fileNames, getFileNames(files));
-    
+
     // Check that rotation is happening consistently and for all files
     for (int i = 30; i < 120; ++i) {
       writer.beginWindow(i);
@@ -1651,7 +1652,7 @@ public class AbstractFileOutputOperatorTest
     Assert.assertEquals("Part file names", fileNames, getFileNames(files));
     writer.teardown();
   }
-  
+
   @Test
   public void testCompression() throws IOException
   {
@@ -1660,13 +1661,12 @@ public class AbstractFileOutputOperatorTest
 
     File evenFile = new File(testMeta.getDir(), EVEN_FILE);
     File oddFile = new File(testMeta.getDir(), ODD_FILE);
-    
-    // To get around the multi member gzip issue
+
+    // To get around the multi member gzip issue with openjdk
     // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
     List<Long> evenOffsets = new ArrayList<Long>();
     List<Long> oddOffsets = new ArrayList<Long>();
-
-    File dir = new File(testMeta.getDir());
+    
     writer.setFilePath(testMeta.getDir());
     writer.setup(testOperatorContext);
 
@@ -1681,14 +1681,14 @@ public class AbstractFileOutputOperatorTest
     }
 
     writer.teardown();
-    
-    checkCompressedFile(evenFile, evenOffsets, 0, null, null);
-    checkCompressedFile(oddFile, oddOffsets, 1, null, null);
+
+    checkCompressedFile(evenFile, evenOffsets, 0, 5, 1000, null, null);
+    checkCompressedFile(oddFile, oddOffsets, 1, 5, 1000, null, null);
   }
 
-  private void checkCompressedFile(File file, List<Long> offsets, int start, SecretKey secretKey, byte[] iv) throws IOException
+  private void checkCompressedFile(File file, List<Long> offsets, int startVal, int totalWindows, int totalRecords, SecretKey secretKey, byte[] iv) throws IOException
   {
-    FileInputStream fis = null;
+    FileInputStream fis;
     InputStream gss = null;
     GZIPInputStream gis = null;
     BufferedReader br = null;
@@ -1703,45 +1703,49 @@ public class AbstractFileOutputOperatorTest
         throw new RuntimeException(e);
       }
     }
-
+    
     int numWindows = 0;
-    long startOffset = 0;
-    for (long offset : offsets) {
-      // Skip initial case in case file is not yet created
-      if (offset == 0) continue;
-      try {
-        fis = new FileInputStream(file);
-        fis.skip(startOffset);
-        long limit = offset - startOffset;
-        LimitInputStream lis = new LimitInputStream(fis, limit);
-        gss = lis;
-        if (secretKey != null) {
-          try {
+    try {
+      fis = new FileInputStream(file);
+      //fis.skip(startOffset);
+      gss = fis;
+      if (secretKey != null) {
+        try {
             /*
             Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
             IvParameterSpec ivps = new IvParameterSpec(iv);
             cipher.init(Cipher.DECRYPT_MODE, secretKey, ivps);
             */
-            CipherInputStream cis = new CipherInputStream(lis, cipher);
-            gss = cis;
-          } catch (Exception e) {
-            throw new RuntimeException(e);
-          }
+          gss = new CipherInputStream(fis, cipher);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
         }
+      }
+      
+      long startOffset = 0;
+      for (long offset : offsets) {
+        // Skip initial case in case file is not yet created
+        if (offset == 0) {
+          continue;
+        }
+        long limit = offset - startOffset;
+        LimitInputStream lis = new LimitInputStream(gss, limit);
+
         //gis = new GZIPInputStream(fis);
-        gis = new GZIPInputStream(gss);
+        gis = new GZIPInputStream(lis);
         br = new BufferedReader(new InputStreamReader(gis));
         //br = new BufferedReader(new InputStreamReader(gss));
-        String eline = "" + (start + numWindows * 2);
+        String eline = "" + (startVal + numWindows * 2);
         int count = 0;
         String line;
         while ((line = br.readLine()) != null) {
           Assert.assertEquals("File line", eline, line);
           ++count;
           //System.out.println("line " + line + " " + count);
-          if ((count % 1000) == 0) {
+          if ((count % totalRecords) == 0) {
             ++numWindows;
-            eline = "" + (start + numWindows * 2);
+            //System.out.println("numWindows " + numWindows);
+            eline = "" + (startVal + numWindows * 2);
           }
         }
         /*
@@ -1751,21 +1755,23 @@ public class AbstractFileOutputOperatorTest
         }
         */
         startOffset = offset;
-      } finally {
-        if (br != null) {
-          br.close();
-        } else {
-          if (gis != null) {
-            gis.close();
-          } else if (gss != null) {
-            gss.close();
-          }
+      }
+    } catch (Exception e) {
+      e.printStackTrace();
+    } finally {
+      if (br != null) {
+        br.close();
+      } else {
+        if (gis != null) {
+          gis.close();
+        } else if (gss != null) {
+          gss.close();
         }
       }
     }
-    Assert.assertEquals("Total", 5, numWindows);
+    Assert.assertEquals("Total", totalWindows, numWindows);
   }
-  
+
   @Test
   public void testChainFilters() throws NoSuchAlgorithmException, IOException
   {
@@ -1778,6 +1784,25 @@ public class AbstractFileOutputOperatorTest
     FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream> chainStreamProvider
             = new FilterStreamProvider.FilterChainStreamProvider<FilterOutputStream, OutputStream>();
     chainStreamProvider.addStreamProvider(new FilterStreamCodec.GZipFilterStreamProvider());
+
+    // The filter is to keep track of the offsets to handle multi member gzip issue with openjdk
+    // http://bugs.java.com/bugdatabase/view_bug.do?bug_id=4691425
+    final CounterFilterStreamContext evenCounterContext = new CounterFilterStreamContext();
+    final CounterFilterStreamContext oddCounterContext = new CounterFilterStreamContext();
+    chainStreamProvider.addStreamProvider(new FilterStreamProvider.SimpleFilterReusableStreamProvider<CounterFilterOutputStream, OutputStream>()
+    {
+      @Override
+      protected FilterStreamContext<CounterFilterOutputStream> createFilterStreamContext(OutputStream outputStream) throws IOException
+      {
+        if (evenCounterContext.isDoInit()) {
+          evenCounterContext.init(outputStream);
+          return evenCounterContext;
+        } else {
+          oddCounterContext.init(outputStream);
+          return oddCounterContext;
+        }
+      }
+    });
     chainStreamProvider.addStreamProvider(new FilterStreamProvider.SimpleFilterReusableStreamProvider<CipherOutputStream, OutputStream>()
     {
       @Override
@@ -1800,7 +1825,6 @@ public class AbstractFileOutputOperatorTest
     List<Long> evenOffsets = new ArrayList<Long>();
     List<Long> oddOffsets = new ArrayList<Long>();
 
-    File dir = new File(testMeta.getDir());
     writer.setFilePath(testMeta.getDir());
     writer.setup(testOperatorContext);
 
@@ -1810,17 +1834,21 @@ public class AbstractFileOutputOperatorTest
         writer.input.put(i);
       }
       writer.endWindow();
+      evenOffsets.add(evenCounterContext.getCounter());
+      oddOffsets.add(oddCounterContext.getCounter());
       //evenOffsets.add(evenFile.length());
       //oddOffsets.add(oddFile.length());
     }
 
     writer.teardown();
 
+    /*
     evenOffsets.add(evenFile.length());
     oddOffsets.add(oddFile.length());
+    */
 
-    checkCompressedFile(evenFile, evenOffsets, 0, secretKey, iv);
-    checkCompressedFile(oddFile, oddOffsets, 1, secretKey, iv);
+    checkCompressedFile(evenFile, evenOffsets, 0, 5, 1000, secretKey, iv);
+    checkCompressedFile(oddFile, oddOffsets, 1, 5, 1000, secretKey, iv);
   }
 
   private Set<String> getFileNames(Collection<File> files)
@@ -1830,6 +1858,91 @@ public class AbstractFileOutputOperatorTest
       filesNames.add(file.getName());
     }
     return filesNames;
+  }
+
+  private static class CounterFilterStreamContext implements FilterStreamContext<CounterFilterOutputStream>
+  {
+
+    private CounterFilterOutputStream counterStream;
+    
+    public void init(OutputStream outputStream) {
+      counterStream = new CounterFilterOutputStream(outputStream);
+    }
+    
+    public boolean isDoInit() 
+    {
+      return (counterStream == null);
+    }
+
+    @Override
+    public CounterFilterOutputStream getFilterStream()
+    {
+      return counterStream;
+    }
+
+    @Override
+    public void finalizeContext() throws IOException
+    {
+
+    }
+    
+    public long getCounter() {
+      if (isDoInit()) {
+        return 0;
+      } else {
+        return counterStream.getCounter();
+      }
+      
+    }
+  }
+  
+  private static class CounterFilterOutputStream extends FilterOutputStream
+  {
+    long counter;
+    int refCount;
+    
+    public CounterFilterOutputStream(OutputStream out)
+    {
+      super(out);
+    }
+    
+    @Override
+    public void write(int b) throws IOException
+    {
+      ++refCount;
+      super.write(b);
+      --refCount;
+      if (refCount == 0) {
+        counter += 1;
+      }
+    }
+
+    @Override
+    public void write(@Nonnull byte[] b) throws IOException
+    {
+      ++refCount;
+      super.write(b);
+      --refCount;
+      if (refCount == 0) {
+        counter += b.length;
+      }
+    }
+
+    @Override
+    public void write(@Nonnull byte[] b, int off, int len) throws IOException
+    {
+      ++refCount;
+      super.write(b, off, len);
+      --refCount;
+      if (refCount == 0) {
+        counter += len;
+      }
+    }
+
+    public long getCounter()
+    {
+      return counter;
+    }
   }
   
 }

@@ -37,6 +37,8 @@ import com.datatorrent.lib.counters.BasicCounters;
  * Subclasses must implement the getEventKey method which gets the keys on which deduplication is done.
  *
  * @param <T>
+ *
+ * @since 2.1.0
  */
 public abstract class AbstractTimeBasedBucketManager<T> extends AbstractBucketManager<T>
 {

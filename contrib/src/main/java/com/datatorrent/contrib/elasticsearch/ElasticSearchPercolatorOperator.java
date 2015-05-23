@@ -18,6 +18,7 @@ import com.datatorrent.common.util.DTThrowable;
 /**
  * Percolate operator for ElasticSearch
  * 
+ * @since 2.1.0
  */
 public class ElasticSearchPercolatorOperator extends BaseOperator
 {

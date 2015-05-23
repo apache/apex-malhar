@@ -25,6 +25,8 @@ import javax.crypto.CipherOutputStream;
 
 /**
  * Filters for compression and encryption.
+ *
+ * @since 2.1.0
  */
 public class FilterStreamCodec
 {
@@ -42,6 +44,7 @@ public class FilterStreamCodec
     public void finalizeContext() throws IOException
     {
       filterStream.finish();
+      //filterStream.close();
     }
   }
 

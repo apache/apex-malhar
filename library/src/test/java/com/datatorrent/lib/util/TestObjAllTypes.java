@@ -50,10 +50,32 @@ public class TestObjAllTypes
     public String stringVal = "hello";
     public short shortVal = 10;
     public int intVal = 11;
-    public long longVal = 15;
+    public long longVal = 15L;
     public float floatVal = 5.5f;
     public double doubleVal = 6.3;
     public Object objVal = Lists.newArrayList("bananas");
+
+    protected boolean protectedBoolVal = boolVal;
+    protected byte protectedByteVal = byteVal;
+    protected char protectedCharVal = charVal;
+    protected String protectedStringVal = stringVal;
+    protected short protectedShortVal = shortVal;
+    protected int protectedIntVal = intVal;
+    protected long protectedLongVal = longVal;
+    protected float protectedFloatVal = floatVal;
+    protected double protectedDoubleVal = doubleVal;
+    protected Object protectedObjVal = objVal;
+
+    private boolean privateBoolVal = boolVal;
+    private byte privateByteVal = byteVal;
+    private char privateCharVal = charVal;
+    private String privateStringVal = stringVal;
+    private short privateShortVal = shortVal;
+    private int privateIntVal = intVal;
+    private long privateLongVal = longVal;
+    private float privateFloatVal = floatVal;
+    private double privateDoubleVal = doubleVal;
+    private Object privateObjVal = objVal;
 
     /**
      * @return the boolVal
@@ -214,5 +236,156 @@ public class TestObjAllTypes
     {
       this.objVal = objVal;
     }
+
+    public void setProtectedBoolVal(boolean protectedBoolVal)
+    {
+      this.protectedBoolVal = protectedBoolVal;
+    }
+
+    public void setProtectedByteVal(byte protectedByteVal)
+    {
+      this.protectedByteVal = protectedByteVal;
+    }
+
+    public void setProtectedCharVal(char protectedCharVal)
+    {
+      this.protectedCharVal = protectedCharVal;
+    }
+
+    public void setProtectedStringVal(String protectedStringVal)
+    {
+      this.protectedStringVal = protectedStringVal;
+    }
+
+    public void setProtectedShortVal(short protectedShortVal)
+    {
+      this.protectedShortVal = protectedShortVal;
+    }
+
+    public void setProtectedIntVal(int protectedIntVal)
+    {
+      this.protectedIntVal = protectedIntVal;
+    }
+
+    public void setProtectedLongVal(long protectedLongVal)
+    {
+      this.protectedLongVal = protectedLongVal;
+    }
+
+    public void setProtectedFloatVal(float protectedFloatVal)
+    {
+      this.protectedFloatVal = protectedFloatVal;
+    }
+
+    public void setProtectedDoubleVal(double protectedDoubleVal)
+    {
+      this.protectedDoubleVal = protectedDoubleVal;
+    }
+
+    public void setProtectedObjVal(Object protectedObjVal)
+    {
+      this.protectedObjVal = protectedObjVal;
+    }
+
+    public boolean isPrivateBoolVal()
+    {
+      return privateBoolVal;
+    }
+
+    public void setPrivateBoolVal(boolean privateBoolVal)
+    {
+      this.privateBoolVal = privateBoolVal;
+    }
+
+    public byte getPrivateByteVal()
+    {
+      return privateByteVal;
+    }
+
+    public void setPrivateByteVal(byte privateByteVal)
+    {
+      this.privateByteVal = privateByteVal;
+    }
+
+    public char getPrivateCharVal()
+    {
+      return privateCharVal;
+    }
+
+    public void setPrivateCharVal(char privateCharVal)
+    {
+      this.privateCharVal = privateCharVal;
+    }
+
+    public String getPrivateStringVal()
+    {
+      return privateStringVal;
+    }
+
+    public void setPrivateStringVal(String privateStringVal)
+    {
+      this.privateStringVal = privateStringVal;
+    }
+
+    public short getPrivateShortVal()
+    {
+      return privateShortVal;
+    }
+
+    public void setPrivateShortVal(short privateShortVal)
+    {
+      this.privateShortVal = privateShortVal;
+    }
+
+    public int getPrivateIntVal()
+    {
+      return privateIntVal;
+    }
+
+    public void setPrivateIntVal(int privateIntVal)
+    {
+      this.privateIntVal = privateIntVal;
+    }
+
+    public long getPrivateLongVal()
+    {
+      return privateLongVal;
+    }
+
+    public void setPrivateLongVal(long privateLongVal)
+    {
+      this.privateLongVal = privateLongVal;
+    }
+
+    public float getPrivateFloatVal()
+    {
+      return privateFloatVal;
+    }
+
+    public void setPrivateFloatVal(float privateFloatVal)
+    {
+      this.privateFloatVal = privateFloatVal;
+    }
+
+    public double getPrivateDoubleVal()
+    {
+      return privateDoubleVal;
+    }
+
+    public void setPrivateDoubleVal(double privateDoubleVal)
+    {
+      this.privateDoubleVal = privateDoubleVal;
+    }
+
+    public Object getPrivateObjVal()
+    {
+      return privateObjVal;
+    }
+
+    public void setPrivateObjVal(Object privateObjVal)
+    {
+      this.privateObjVal = privateObjVal;
+    }
+
   }
 }

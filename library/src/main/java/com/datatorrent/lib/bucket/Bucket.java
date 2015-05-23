@@ -15,6 +15,9 @@
  */
 package com.datatorrent.lib.bucket;
 
+/**
+ * @since 2.1.0
+ */
 public class Bucket<T extends Bucketable> extends AbstractBucket<T>
 {
 

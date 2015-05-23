@@ -46,6 +46,7 @@ import com.datatorrent.benchmark.RandomMapOutput;
  * the contents of HDFS file to hive tables.
  * <p>
  *
+ * @since 2.1.0
  */
 @ApplicationAnnotation(name = "HiveMapInsertBenchmarkingApp")
 public class HiveMapInsertBenchmarkingApp implements StreamingApplication

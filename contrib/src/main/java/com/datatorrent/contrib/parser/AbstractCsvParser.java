@@ -37,7 +37,7 @@ import org.supercsv.cellprocessor.*;
 import org.supercsv.cellprocessor.ift.CellProcessor;
 import org.supercsv.io.*;
 
-/*
+/**
  *  This is a base implementation of Delimited data parser which can be extended to output
  *  field values in desired data structure.
  *  Assumption is that each field in the delimited data should map to a simple java type.
@@ -49,6 +49,8 @@ import org.supercsv.io.*;
  *        - End of line character - default should be ‘\r\n’
  *
  * @param <T> This is the output tuple type.
+ *
+ * @since 2.1.0
  */
 public abstract class AbstractCsvParser<T> extends BaseOperator
 {

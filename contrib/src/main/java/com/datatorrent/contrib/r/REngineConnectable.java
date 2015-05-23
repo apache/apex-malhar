@@ -28,7 +28,7 @@ import com.datatorrent.lib.db.Connectable;
 import com.datatorrent.common.util.DTThrowable;
 
 /**
- * 
+ * @since 2.1.0 
  */
 public class REngineConnectable implements Connectable
 {

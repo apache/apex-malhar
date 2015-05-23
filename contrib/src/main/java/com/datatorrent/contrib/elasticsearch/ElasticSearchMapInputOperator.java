@@ -25,7 +25,8 @@ import org.elasticsearch.search.SearchHit;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * 
+ *
+ * @since 2.1.0
  */
 public abstract class ElasticSearchMapInputOperator<T extends Map<String, Object>> extends AbstractElasticSearchInputOperator<T, ElasticSearchConnectable>
 {

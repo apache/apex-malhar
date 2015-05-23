@@ -29,7 +29,7 @@ import com.datatorrent.common.util.DTThrowable;
 import com.datatorrent.lib.db.Connectable;
 
 /**
- * A {@link Connectable} that uses cassandra to connect to stores and implements Connectable interface. 
+ * A {@link Connectable} that uses cassandra to connect to stores and implements Connectable interface.
  * <p>
  * @displayName Cassandra Store
  * @category Store
@@ -45,7 +45,19 @@ public class CassandraStore implements Connectable
   private String node;
   protected transient Cluster cluster = null;
   protected transient Session session = null;
-  protected String keyspace=null;
+
+  @NotNull
+  protected String keyspace;
+
+  /*
+   * The Cassandra keyspace is a namespace that defines how data is replicated on nodes.
+   * Typically, a cluster has one keyspace per application. Replication is controlled on a per-keyspace basis, so data that has different replication requirements typically resides in different keyspaces.
+   * Keyspaces are not designed to be used as a significant map layer within the data model. Keyspaces are designed to control data replication for a set of tables.
+   */
+  public String getKeyspace()
+  {
+    return keyspace;
+  }
 
   /**
    * Sets the keyspace.
