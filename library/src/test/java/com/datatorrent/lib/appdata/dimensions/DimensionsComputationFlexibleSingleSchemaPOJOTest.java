@@ -17,7 +17,7 @@
 package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
@@ -64,7 +64,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
                        get(AggregatorIncrementalType.SUM.name());
 
     String eventSchema = SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json");
-    DimensionalEventSchema schema = new DimensionalEventSchema(eventSchema,
+    DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(eventSchema,
                                                                AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
 
     FieldsDescriptor keyFD = schema.getDdIDToKeyDescriptor().get(0);

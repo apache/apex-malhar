@@ -83,12 +83,12 @@ public class SchemaRegistryMultipleTest
     String adsJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json");
     String salesJSON = SchemaUtils.jarResourceFileToString("salesGenericEventSchema.json");
 
-    SchemaDimensional schemaAds = new SchemaDimensional(new DimensionalEventSchema(adsJSON,
+    DimensionalSchema schemaAds = new DimensionalSchema(new DimensionalConfigurationSchema(adsJSON,
                                                                                    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
     final Map<String, String> schemaAdsKeys = Maps.newHashMap();
     schemaAdsKeys.put("type", "ads");
 
-    SchemaDimensional schemaSales = new SchemaDimensional(new DimensionalEventSchema(salesJSON,
+    DimensionalSchema schemaSales = new DimensionalSchema(new DimensionalConfigurationSchema(salesJSON,
                                                                                      AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
     final Map<String, String> schemaSalesKeys = Maps.newHashMap();
     schemaSalesKeys.put("type", "sales");

@@ -19,10 +19,9 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
-import java.io.Serializable;
 
 
-public class AggregatorSum implements IncrementalAggregator, Serializable
+public class AggregatorSum implements IncrementalAggregator
 {
   private static final long serialVersionUID = 20154301649L;
 

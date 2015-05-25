@@ -43,9 +43,9 @@ import java.util.Set;
  *   }
  *}
  */
-public class SchemaDimensional implements Schema
+public class DimensionalSchema implements Schema
 {
-  private static final Logger logger = LoggerFactory.getLogger(SchemaDimensional.class);
+  private static final Logger logger = LoggerFactory.getLogger(DimensionalSchema.class);
 
   public static final String SCHEMA_TYPE = "dimensions";
   public static final String SCHEMA_VERSION = "1.0";
@@ -62,7 +62,7 @@ public class SchemaDimensional implements Schema
   private boolean changedSchemaKeys = false;
   private String schemaJSON;
 
-  private DimensionalEventSchema eventSchema;
+  private DimensionalConfigurationSchema eventSchema;
   private JSONObject schema;
   private JSONObject time;
   private JSONArray keys;
@@ -75,13 +75,13 @@ public class SchemaDimensional implements Schema
 
   private int schemaID = Schema.DEFAULT_SCHEMA_ID;
 
-  private SchemaDimensional()
+  private DimensionalSchema()
   {
     //For kryo
   }
 
-  public SchemaDimensional(String schemaStub,
-                           DimensionalEventSchema eventSchema,
+  public DimensionalSchema(String schemaStub,
+                           DimensionalConfigurationSchema eventSchema,
                            Map<String, String> schemaKeys)
   {
     this(eventSchema,
@@ -98,9 +98,9 @@ public class SchemaDimensional implements Schema
     }
   }
 
-  public SchemaDimensional(int schemaID,
+  public DimensionalSchema(int schemaID,
                            String schemaStub,
-                           DimensionalEventSchema eventSchema,
+                           DimensionalConfigurationSchema eventSchema,
                            Map<String, String> schemaKeys)
   {
     this(schemaStub,
@@ -110,17 +110,17 @@ public class SchemaDimensional implements Schema
     this.schemaID = schemaID;
   }
 
-  public SchemaDimensional(String schemaStub,
-                           DimensionalEventSchema eventSchema)
+  public DimensionalSchema(String schemaStub,
+                           DimensionalConfigurationSchema eventSchema)
   {
     this(schemaStub,
          eventSchema,
          null);
   }
 
-  public SchemaDimensional(int schemaID,
+  public DimensionalSchema(int schemaID,
                            String schemaStub,
-                           DimensionalEventSchema eventSchema)
+                           DimensionalConfigurationSchema eventSchema)
   {
     this(schemaStub,
          eventSchema);
@@ -128,7 +128,7 @@ public class SchemaDimensional implements Schema
     this.schemaID = schemaID;
   }
 
-  public SchemaDimensional(DimensionalEventSchema eventSchema,
+  public DimensionalSchema(DimensionalConfigurationSchema eventSchema,
                            Map<String, String> schemaKeys)
   {
     setEventSchema(eventSchema);
@@ -142,8 +142,8 @@ public class SchemaDimensional implements Schema
     }
   }
 
-  public SchemaDimensional(int schemaID,
-                           DimensionalEventSchema eventSchema,
+  public DimensionalSchema(int schemaID,
+                           DimensionalConfigurationSchema eventSchema,
                            Map<String, String> schemaKeys)
   {
     this(eventSchema,
@@ -152,14 +152,14 @@ public class SchemaDimensional implements Schema
     this.schemaID = schemaID;
   }
 
-  public SchemaDimensional(DimensionalEventSchema eventSchema)
+  public DimensionalSchema(DimensionalConfigurationSchema eventSchema)
   {
     this(eventSchema,
          null);
   }
 
-  public SchemaDimensional(int schemaID,
-                           DimensionalEventSchema eventSchema)
+  public DimensionalSchema(int schemaID,
+                           DimensionalConfigurationSchema eventSchema)
   {
     this(eventSchema);
     this.schemaID = schemaID;
@@ -189,7 +189,7 @@ public class SchemaDimensional implements Schema
     this.schemaKeys = Maps.newHashMap(schemaKeys);
   }
 
-  private void setEventSchema(DimensionalEventSchema eventSchema)
+  private void setEventSchema(DimensionalConfigurationSchema eventSchema)
   {
     this.eventSchema = Preconditions.checkNotNull(eventSchema, "eventSchema");
   }
@@ -215,8 +215,8 @@ public class SchemaDimensional implements Schema
                       SchemaUtils.createJSONObject(schemaKeys));
     }
 
-    schema.put(SchemaTabular.FIELD_SCHEMA_TYPE, SchemaDimensional.SCHEMA_TYPE);
-    schema.put(SchemaTabular.FIELD_SCHEMA_VERSION, SchemaDimensional.SCHEMA_VERSION);
+    schema.put(SchemaTabular.FIELD_SCHEMA_TYPE, DimensionalSchema.SCHEMA_TYPE);
+    schema.put(SchemaTabular.FIELD_SCHEMA_VERSION, DimensionalSchema.SCHEMA_VERSION);
 
     //time
     time = new JSONObject();
@@ -226,7 +226,7 @@ public class SchemaDimensional implements Schema
 
     //keys
     keys = new JSONArray(eventSchema.getKeysString());
-    schema.put(DimensionalEventSchema.FIELD_KEYS, keys);
+    schema.put(DimensionalConfigurationSchema.FIELD_KEYS, keys);
 
     //values;
     JSONArray values = new JSONArray();
@@ -244,7 +244,7 @@ public class SchemaDimensional implements Schema
 
         JSONObject value = new JSONObject();
         String combinedName = valueName +
-                              DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR +
+                              DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR +
                               aggregatorName;
         value.put(SchemaTabular.FIELD_VALUES_NAME, combinedName);
         value.put(SchemaTabular.FIELD_VALUES_TYPE, outputValueType.getName());
@@ -269,7 +269,7 @@ public class SchemaDimensional implements Schema
         combinationArray.put(field);
       }
 
-      combination.put(DimensionalEventSchema.FIELD_DIMENSIONS_COMBINATIONS, combinationArray);
+      combination.put(DimensionalConfigurationSchema.FIELD_DIMENSIONS_COMBINATIONS, combinationArray);
 
       if(!fieldToAggregatorAdditionalValues.isEmpty()) {
         JSONArray additionalValueArray = new JSONArray();
@@ -280,7 +280,7 @@ public class SchemaDimensional implements Schema
           for(String aggregatorName: entry.getValue()) {
             JSONObject additionalValueObject = new JSONObject();
             String combinedName = valueName
-                                  + DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR
+                                  + DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR
                                   + aggregatorName;
             Type inputValueType = inputValuesDescriptor.getType(valueName);
 
@@ -288,19 +288,19 @@ public class SchemaDimensional implements Schema
                     = eventSchema.getAggregatorRegistry().getNameToIncrementalAggregator().get(aggregatorName);
             Type outputValueType = aggregator.getOutputType(inputValueType);
 
-            additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_NAME, combinedName);
-            additionalValueObject.put(DimensionalEventSchema.FIELD_VALUES_TYPE, outputValueType.getName());
+            additionalValueObject.put(DimensionalConfigurationSchema.FIELD_VALUES_NAME, combinedName);
+            additionalValueObject.put(DimensionalConfigurationSchema.FIELD_VALUES_TYPE, outputValueType.getName());
             additionalValueArray.put(additionalValueObject);
           }
         }
 
-        combination.put(DimensionalEventSchema.FIELD_DIMENSIONS_ADDITIONAL_VALUES, additionalValueArray);
+        combination.put(DimensionalConfigurationSchema.FIELD_DIMENSIONS_ADDITIONAL_VALUES, additionalValueArray);
       }
 
       dimensions.put(combination);
     }
 
-    schema.put(DimensionalEventSchema.FIELD_DIMENSIONS, dimensions);
+    schema.put(DimensionalConfigurationSchema.FIELD_DIMENSIONS, dimensions);
 
     this.schemaJSON = this.schema.toString();
   }
@@ -483,7 +483,7 @@ public class SchemaDimensional implements Schema
 
         try {
           keyData = keys.getJSONObject(keyIndex);
-          name = keyData.getString(DimensionalEventSchema.FIELD_KEYS_NAME);
+          name = keyData.getString(DimensionalConfigurationSchema.FIELD_KEYS_NAME);
         }
         catch(JSONException ex) {
           throw new RuntimeException(ex);
@@ -492,7 +492,7 @@ public class SchemaDimensional implements Schema
         List<Object> enumVals = currentEnumVals.get(name);
 
         if(enumVals == null || enumVals.isEmpty()) {
-          keyData.remove(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES);
+          keyData.remove(DimensionalConfigurationSchema.FIELD_KEYS_ENUMVALUES);
           continue;
         }
 
@@ -503,7 +503,7 @@ public class SchemaDimensional implements Schema
         }
 
         try {
-          keyData.put(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES, newEnumValues);
+          keyData.put(DimensionalConfigurationSchema.FIELD_KEYS_ENUMVALUES, newEnumValues);
         }
         catch(JSONException ex) {
           throw new RuntimeException(ex);
@@ -517,7 +517,7 @@ public class SchemaDimensional implements Schema
     return schemaJSON;
   }
 
-  public DimensionalEventSchema getGenericEventSchema()
+  public DimensionalConfigurationSchema getGenericEventSchema()
   {
     return eventSchema;
   }

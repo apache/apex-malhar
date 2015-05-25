@@ -23,9 +23,9 @@ import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.query.AppDataWindowEndQueueManager;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.SchemaDimensional;
+import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
@@ -58,8 +58,8 @@ public class DimensionsQueryQueueManager extends AppDataWindowEndQueueManager<Da
   @Override
   public boolean enqueue(DataQueryDimensional query, QueryMeta queryMeta, MutableLong windowExpireCount)
   {
-    SchemaDimensional schemaDimensional = (SchemaDimensional)schemaRegistry.getSchema(query.getSchemaKeys());
-    DimensionalEventSchema eventSchema = schemaDimensional.getGenericEventSchema();
+    DimensionalSchema schemaDimensional = (DimensionalSchema)schemaRegistry.getSchema(query.getSchemaKeys());
+    DimensionalConfigurationSchema eventSchema = schemaDimensional.getGenericEventSchema();
     Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDimensionsDescriptor());
 
     if(ddID == null) {

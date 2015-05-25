@@ -34,7 +34,7 @@ public class SchemaRegistrySingleTest
   {
     final String id = "1";
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json");
-    SchemaDimensional schemaDimensional = new SchemaDimensional(new DimensionalEventSchema(eventSchemaJSON,
+    DimensionalSchema schemaDimensional = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
                                                                                            AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
     SchemaRegistrySingle schemaRegistrySingle = new SchemaRegistrySingle();
     schemaRegistrySingle.registerSchema(schemaDimensional);

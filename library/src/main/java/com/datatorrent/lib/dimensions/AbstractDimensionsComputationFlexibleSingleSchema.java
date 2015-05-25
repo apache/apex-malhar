@@ -17,7 +17,7 @@
 package com.datatorrent.lib.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -33,7 +33,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<INPUT> e
 
   @NotNull
   private String eventSchemaJSON;
-  protected DimensionalEventSchema eventSchema;
+  protected DimensionalConfigurationSchema eventSchema;
 
   private transient final DimensionsConversionContext conversionContext = new DimensionsConversionContext();
   private int schemaID = DEFAULT_SCHEMA_ID;
@@ -47,7 +47,7 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<INPUT> e
   {
     super.setup(context);
 
-    eventSchema = new DimensionalEventSchema(eventSchemaJSON,
+    eventSchema = new DimensionalConfigurationSchema(eventSchemaJSON,
                                              aggregatorRegistry);
   }
 

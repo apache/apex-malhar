@@ -9,7 +9,7 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
 import com.datatorrent.lib.dimensions.AggregatorUtils;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ import java.util.Random;
 public class InputItemGenerator implements InputOperator
 {
   private String eventSchemaJSON;
-  private DimensionalEventSchema schema;
+  private DimensionalConfigurationSchema schema;
 
   public static final String PUBLISHER = "publisher";
   public static final String ADVERTISER = "advertiser";
@@ -86,7 +86,7 @@ public class InputItemGenerator implements InputOperator
   {
     AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.setup();
 
-    schema = new DimensionalEventSchema(eventSchemaJSON,
+    schema = new DimensionalConfigurationSchema(eventSchemaJSON,
                                         AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
 
     publisherID = schema.getKeysToValuesList().get(PUBLISHER).size();

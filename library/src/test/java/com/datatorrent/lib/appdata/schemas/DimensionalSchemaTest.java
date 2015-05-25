@@ -35,11 +35,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class SchemaDimensionalTest
+public class DimensionalSchemaTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(SchemaDimensionalTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(DimensionalSchemaTest.class);
 
-  public SchemaDimensionalTest()
+  public DimensionalSchemaTest()
   {
   }
 
@@ -180,8 +180,8 @@ public class SchemaDimensionalTest
   public void enumValUpdateTest() throws Exception
   {
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json");
-    SchemaDimensional dimensional = new SchemaDimensional(
-                                    new DimensionalEventSchema(eventSchemaJSON,
+    DimensionalSchema dimensional = new DimensionalSchema(
+                                    new DimensionalConfigurationSchema(eventSchemaJSON,
                                                                AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
 
     Map<String, List<Object>> replacementEnums = Maps.newHashMap();
@@ -201,7 +201,7 @@ public class SchemaDimensionalTest
     String schemaJSON = dimensional.getSchemaJSON();
 
     JSONObject schema = new JSONObject(schemaJSON);
-    JSONArray keys = schema.getJSONArray(DimensionalEventSchema.FIELD_KEYS);
+    JSONArray keys = schema.getJSONArray(DimensionalConfigurationSchema.FIELD_KEYS);
 
     Map<String, List<Object>> newEnums = Maps.newHashMap();
 
@@ -209,8 +209,8 @@ public class SchemaDimensionalTest
         keyIndex < keys.length();
         keyIndex++) {
       JSONObject keyData = keys.getJSONObject(keyIndex);
-      String name = keyData.getString(DimensionalEventSchema.FIELD_KEYS_NAME);
-      JSONArray enumValues = keyData.getJSONArray(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES);
+      String name = keyData.getString(DimensionalConfigurationSchema.FIELD_KEYS_NAME);
+      JSONArray enumValues = keyData.getJSONArray(DimensionalConfigurationSchema.FIELD_KEYS_ENUMVALUES);
       List<Object> enumList = Lists.newArrayList();
 
       for(int enumIndex = 0;
@@ -230,8 +230,8 @@ public class SchemaDimensionalTest
   public void enumValUpdateTestComparable() throws Exception
   {
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json");
-    SchemaDimensional dimensional = new SchemaDimensional(
-                                    new DimensionalEventSchema(eventSchemaJSON,
+    DimensionalSchema dimensional = new DimensionalSchema(
+                                    new DimensionalConfigurationSchema(eventSchemaJSON,
                                                                AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
 
     Map<String, Set<Comparable>> replacementEnums = Maps.newHashMap();
@@ -263,7 +263,7 @@ public class SchemaDimensionalTest
     String schemaJSON = dimensional.getSchemaJSON();
 
     JSONObject schema = new JSONObject(schemaJSON);
-    JSONArray keys = schema.getJSONArray(DimensionalEventSchema.FIELD_KEYS);
+    JSONArray keys = schema.getJSONArray(DimensionalConfigurationSchema.FIELD_KEYS);
 
     Map<String, List<Comparable>> newEnums = Maps.newHashMap();
 
@@ -271,8 +271,8 @@ public class SchemaDimensionalTest
         keyIndex < keys.length();
         keyIndex++) {
       JSONObject keyData = keys.getJSONObject(keyIndex);
-      String name = keyData.getString(DimensionalEventSchema.FIELD_KEYS_NAME);
-      JSONArray enumValues = keyData.getJSONArray(DimensionalEventSchema.FIELD_KEYS_ENUMVALUES);
+      String name = keyData.getString(DimensionalConfigurationSchema.FIELD_KEYS_NAME);
+      JSONArray enumValues = keyData.getJSONArray(DimensionalConfigurationSchema.FIELD_KEYS_ENUMVALUES);
       List<Comparable> enumList = Lists.newArrayList();
 
       for(int enumIndex = 0;
@@ -292,7 +292,7 @@ public class SchemaDimensionalTest
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString(resourceName);
 
     MessageSerializerFactory dsf = new MessageSerializerFactory(new ResultFormatter());
-    SchemaDimensional schemaDimensional = new SchemaDimensional(new DimensionalEventSchema(eventSchemaJSON,
+    DimensionalSchema schemaDimensional = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
                                                                                            AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
 
     SchemaQuery schemaQuery = new SchemaQuery();

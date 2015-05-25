@@ -23,10 +23,10 @@ import com.datatorrent.lib.appdata.query.QueryExecutor;
 import com.datatorrent.lib.appdata.query.serde.Result;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.datatorrent.lib.appdata.schemas.SchemaDimensional;
+import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
 import com.datatorrent.lib.dimensions.AggregatorUtils;
 import com.datatorrent.lib.dimensions.DimensionsEvent;
@@ -58,8 +58,8 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
   @Override
   public Result executeQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext, MutableBoolean context)
   {
-    SchemaDimensional schemaDimensional = (SchemaDimensional)schemaRegistry.getSchema(query.getSchemaKeys());
-    DimensionalEventSchema eventSchema = schemaDimensional.getGenericEventSchema();
+    DimensionalSchema schemaDimensional = (DimensionalSchema)schemaRegistry.getSchema(query.getSchemaKeys());
+    DimensionalConfigurationSchema eventSchema = schemaDimensional.getGenericEventSchema();
     LOG.debug("Processing query {} with countdown {}", query.getId(), query.getCountdown());
     List<Map<String, GPOMutable>> keys = Lists.newArrayList();
     List<Map<String, GPOMutable>> values = Lists.newArrayList();

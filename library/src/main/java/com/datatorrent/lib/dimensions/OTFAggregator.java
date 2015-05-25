@@ -19,11 +19,14 @@ package com.datatorrent.lib.dimensions;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
+import java.io.Serializable;
 
 import java.util.List;
 
-public interface OTFAggregator
+public interface OTFAggregator extends Serializable
 {
+  public static final long serialVersionUID = 201505251039L;
+
   public List<Class<? extends IncrementalAggregator>> getChildAggregators();
   public GPOMutable aggregate(FieldsDescriptor inputDescriptor,
                               FieldsDescriptor outputDescriptor,

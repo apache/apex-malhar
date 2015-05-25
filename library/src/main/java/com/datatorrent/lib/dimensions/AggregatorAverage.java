@@ -21,11 +21,10 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
-import java.io.Serializable;
 
 import java.util.List;
 
-public class AggregatorAverage implements OTFAggregator, Serializable
+public class AggregatorAverage implements OTFAggregator
 {
   private static final long serialVersionUID = 20154301644L;
 

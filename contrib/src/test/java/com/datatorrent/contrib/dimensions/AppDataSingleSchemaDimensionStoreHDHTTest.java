@@ -20,7 +20,7 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
@@ -197,7 +197,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     store.setup(null);
 
     //Aggregate Event
-    DimensionalEventSchema eventSchema = store.eventSchema;
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
     Aggregate ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
@@ -261,7 +261,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     //STARTING WINDOW 0
     store.beginWindow(windowId);
 
-    DimensionalEventSchema eventSchema = store.eventSchema;
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
 
     //Aggregate Event
     Aggregate ae = createEvent(eventSchema,
@@ -338,7 +338,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     store.setup(null);
 
-    DimensionalEventSchema eventSchema = store.eventSchema;
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
 
     //Aggregate Event
     Aggregate ae = createEvent(eventSchema,
@@ -395,7 +395,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     store.setup(null);
 
-    DimensionalEventSchema eventSchema = store.eventSchema;
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
 
     Aggregate expectedDouble = createEvent(eventSchema,
                                                 publisher,
@@ -485,7 +485,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     store.setup(null);
 
-    DimensionalEventSchema eventSchema = store.eventSchema;
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
 
     //Aggregate Event
     Aggregate ae = createEvent(eventSchema,
@@ -545,7 +545,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     store.teardown();
   }
 
-  private Aggregate createEvent(DimensionalEventSchema eventSchema,
+  private Aggregate createEvent(DimensionalConfigurationSchema eventSchema,
                                      String publisher,
                                      String advertiser,
                                      long timestamp,

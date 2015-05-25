@@ -55,9 +55,9 @@ import java.util.Set;
  *    {"combination":["keyName1"],"additionalValues":["valueName1:MAX"]}]
  * }
  */
-public class DimensionalEventSchema
+public class DimensionalConfigurationSchema
 {
-  private static final Logger logger = LoggerFactory.getLogger(DimensionalEventSchema.class);
+  private static final Logger logger = LoggerFactory.getLogger(DimensionalConfigurationSchema.class);
 
   public static final String ADDITIONAL_VALUE_SEPERATOR = ":";
   public static final int ADDITIONAL_VALUE_NUM_COMPONENTS = 2;
@@ -114,12 +114,12 @@ public class DimensionalEventSchema
 
   private Map<String, Map<String, Type>> schemaAllValueToAggregatorToType;
 
-  private DimensionalEventSchema()
+  private DimensionalConfigurationSchema()
   {
     //For kryo
   }
 
-  public DimensionalEventSchema(List<Key> keys,
+  public DimensionalConfigurationSchema(List<Key> keys,
                                 List<Value> values,
                                 List<TimeBucket> timeBuckets,
                                 List<DimensionsCombination> dimensionsCombinations,
@@ -133,7 +133,7 @@ public class DimensionalEventSchema
                dimensionsCombinations);
   }
 
-  public DimensionalEventSchema(String json,
+  public DimensionalConfigurationSchema(String json,
                                 AggregatorRegistry aggregatorRegistry)
   {
     setAggregatorRegistry(aggregatorRegistry);
@@ -1097,7 +1097,7 @@ public class DimensionalEventSchema
     if(getClass() != obj.getClass()) {
       return false;
     }
-    final DimensionalEventSchema other = (DimensionalEventSchema)obj;
+    final DimensionalConfigurationSchema other = (DimensionalConfigurationSchema)obj;
     if(this.keyDescriptor != other.keyDescriptor && (this.keyDescriptor == null || !this.keyDescriptor.equals(other.keyDescriptor))) {
       return false;
     }

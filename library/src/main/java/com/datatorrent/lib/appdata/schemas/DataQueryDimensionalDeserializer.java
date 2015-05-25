@@ -81,7 +81,7 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
       schemaKeys = SchemaUtils.extractMap(data.getJSONObject(Query.FIELD_SCHEMA_KEYS));
     }
 
-    SchemaDimensional gsd = (SchemaDimensional) ((SchemaRegistry) context).getSchema(schemaKeys);
+    DimensionalSchema gsd = (DimensionalSchema) ((SchemaRegistry) context).getSchema(schemaKeys);
 
     boolean hasFromTo = false;
     int latestNumBuckets = -1;
@@ -159,7 +159,7 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
           nonAggregatedFields.add(field);
         }
 
-        String[] components = field.split(DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR);
+        String[] components = field.split(DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
 
         if(components.length == 1) {
           Set<String> aggregators = valueToAggregator.get(field);
@@ -172,8 +172,8 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
           }
         }
         else if(components.length == 2) {
-          String value = components[DimensionalEventSchema.ADDITIONAL_VALUE_VALUE_INDEX];
-          String aggregator = components[DimensionalEventSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
+          String value = components[DimensionalConfigurationSchema.ADDITIONAL_VALUE_VALUE_INDEX];
+          String aggregator = components[DimensionalConfigurationSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
           if(!gsd.getGenericEventSchema().getAggregatorRegistry().isAggregator(aggregator)) {
             logger.error("{} is not a valid aggregator", aggregator);
@@ -190,7 +190,7 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
           aggregators.add(aggregator);
         }
         else {
-          logger.error("A field selector can have at most one {}.", DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR);
+          logger.error("A field selector can have at most one {}.", DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
         }
       }
     }

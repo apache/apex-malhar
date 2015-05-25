@@ -46,8 +46,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   private String dimensionalSchemaJSON;
 
   @VisibleForTesting
-  protected transient DimensionalEventSchema eventSchema;
-  private transient SchemaDimensional dimensionalSchema;
+  protected transient DimensionalConfigurationSchema eventSchema;
+  private transient DimensionalSchema dimensionalSchema;
   private int schemaID = DEFAULT_SCHEMA_ID;
   private long bucketID = DEFAULT_BUCKET_ID;
 
@@ -104,8 +104,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   @Override
   protected SchemaRegistry getSchemaRegistry()
   {
-    eventSchema = new DimensionalEventSchema(eventSchemaJSON, aggregatorInfo);
-    dimensionalSchema = new SchemaDimensional(schemaID, dimensionalSchemaJSON, eventSchema);
+    eventSchema = new DimensionalConfigurationSchema(eventSchemaJSON, aggregatorInfo);
+    dimensionalSchema = new DimensionalSchema(schemaID, dimensionalSchemaJSON, eventSchema);
 
     return new SchemaRegistrySingle(dimensionalSchema);
   }

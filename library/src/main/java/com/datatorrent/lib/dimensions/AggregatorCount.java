@@ -21,12 +21,11 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import com.google.common.collect.Maps;
-import java.io.Serializable;
 
 import java.util.Collections;
 import java.util.Map;
 
-public class AggregatorCount implements IncrementalAggregator, Serializable
+public class AggregatorCount implements IncrementalAggregator
 {
   private static final long serialVersionUID = 20154301645L;
   public static transient final Map<Type, Type> TYPE_CONVERSION_MAP;

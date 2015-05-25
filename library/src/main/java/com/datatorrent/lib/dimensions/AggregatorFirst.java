@@ -19,13 +19,12 @@ package com.datatorrent.lib.dimensions;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
-import java.io.Serializable;
 
 /**
  * Note when aggregates are combined in a unifier it is not possible to tell which came first or last,
  * one is picked arbitrarily.
  */
-public class AggregatorFirst implements IncrementalAggregator, Serializable
+public class AggregatorFirst implements IncrementalAggregator
 {
   private static final long serialVersionUID = 20154301646L;
 
