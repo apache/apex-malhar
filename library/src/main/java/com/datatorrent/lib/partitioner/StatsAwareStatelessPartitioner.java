@@ -16,6 +16,8 @@
 
 package com.datatorrent.lib.partitioner;
 
+import java.io.IOException;
+import java.io.ObjectInputStream;
 import java.io.Serializable;
 import java.util.*;
 
@@ -25,7 +27,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-
 import com.datatorrent.api.DefaultPartition;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.Partitioner;
@@ -57,6 +58,12 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
   private transient HashMap<Integer, BatchedOperatorStats> partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
   @Min(1)
   private int initialPartitionCount = 1;
+
+  private void readObject(ObjectInputStream in) throws IOException, ClassNotFoundException
+  {
+    in.defaultReadObject();
+    this.partitionedInstanceStatus = new HashMap<Integer, BatchedOperatorStats>();
+  }
 
   /**
    * This creates a partitioner which begins with only one partition.
@@ -142,7 +149,6 @@ public abstract class StatsAwareStatelessPartitioner<T extends Operator> impleme
       if (System.currentTimeMillis() < partitionNextMillis) {
         return partitions;
       }
-      BatchedOperatorStats stats;
       List<Partition<T>> newPartitions = new ArrayList<Partition<T>>();
       HashMap<Integer, Partition<T>> lowLoadPartitions = new HashMap<Integer, Partition<T>>();
       for (Partition<T> p : partitions) {
