@@ -36,7 +36,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,7 +44,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> {
+public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimensional, QueryMeta, MutableLong, Result> {
   private final DimensionsStoreHDHT operator;
   private final SchemaRegistry schemaRegistry;
 
@@ -56,7 +55,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
   }
 
   @Override
-  public Result executeQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext, MutableBoolean context)
+  public Result executeQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext)
   {
     DimensionalSchema schemaDimensional = (DimensionalSchema)schemaRegistry.getSchema(query.getSchemaKeys());
     DimensionalConfigurationSchema eventSchema = schemaDimensional.getGenericEventSchema();
@@ -204,12 +203,6 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
     }
 
     return new DataResultDimensional(query, prunedKeys, prunedResults, queueContext.longValue());
-  }
-
-  @Override
-  public void queueDepleted(MutableBoolean context)
-  {
-    context.setValue(true);
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(DimensionsQueryExecutor.class);

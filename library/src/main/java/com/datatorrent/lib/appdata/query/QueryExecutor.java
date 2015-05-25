@@ -15,11 +15,9 @@
  */
 package com.datatorrent.lib.appdata.query;
 
-public interface QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, COMPUTE_CONTEXT, RESULT>
+public interface QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
 {
   public RESULT executeQuery(QUERY_TYPE query,
                              META_QUERY metaQuery,
-                             QUEUE_CONTEXT queueContext,
-                             COMPUTE_CONTEXT context);
-  public void queueDepleted(COMPUTE_CONTEXT context);
+                             QUEUE_CONTEXT queueContext);
 }

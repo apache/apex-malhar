@@ -24,7 +24,6 @@ import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -37,7 +36,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   protected AggregatorRegistry aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY;
 
   //Query Processing - Start
-  protected transient QueryManager<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
+  protected transient QueryManager<DataQueryDimensional, QueryMeta, MutableLong, Result> queryProcessor;
   protected final transient MessageDeserializerFactory queryDeserializerFactory;
 
   @VisibleForTesting
@@ -115,17 +114,12 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   public void endWindow()
   {
     super.endWindow();
+    Result aotr;
 
-    MutableBoolean done = new MutableBoolean(false);
-
-    while (done.isFalse()) {
-      Result aotr = queryProcessor.process(done);
-
-      if (aotr != null) {
-        String result = resultSerializerFactory.serialize(aotr);
-        LOG.debug("Emitting the result: {}", result);
-        queryResult.emit(result);
-      }
+    while ((aotr = queryProcessor.process()) != null) {
+      String result = resultSerializerFactory.serialize(aotr);
+      LOG.debug("Emitting the result: {}", result);
+      queryResult.emit(result);
     }
     queryProcessor.endWindow();
   }

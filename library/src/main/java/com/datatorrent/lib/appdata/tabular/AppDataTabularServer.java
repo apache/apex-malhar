@@ -49,7 +49,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
 {
   private static final Logger logger = LoggerFactory.getLogger(AppDataTabularServer.class);
 
-  private transient QueryManager<Query, Void, MutableLong, Void, Result> queryProcessor;
+  private transient QueryManager<Query, Void, MutableLong, Result> queryProcessor;
   private transient MessageDeserializerFactory queryDeserializerFactory;
   private transient MessageSerializerFactory resultSerializerFactory;
   private transient SchemaRegistry schemaRegistry;
@@ -142,7 +142,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     {
       Result result = null;
 
-      while((result = queryProcessor.process(null)) != null) {
+      while((result = queryProcessor.process()) != null) {
         queryResult.emit(resultSerializerFactory.serialize(result));
       }
     }
@@ -188,18 +188,13 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     this.resultFormatter = resultFormatter;
   }
 
-  public class TabularComputer implements QueryExecutor<Query, Void, MutableLong, Void, Result>
+  public class TabularComputer implements QueryExecutor<Query, Void, MutableLong, Result>
   {
     @Override
-    public Result executeQuery(Query query, Void metaQuery, MutableLong queueContext, Void context)
+    public Result executeQuery(Query query, Void metaQuery, MutableLong queueContext)
     {
       return new DataResultTabular(query,
                                    currentData);
-    }
-
-    @Override
-    public void queueDepleted(Void context)
-    {
     }
   }
 }
