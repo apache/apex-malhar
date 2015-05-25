@@ -62,18 +62,32 @@ public final class AggregatorUtils
     //Don't instantiate this class.
   }
 
-  public static FieldsDescriptor getOutputFieldsDescriptor(FieldsDescriptor fieldsDescriptor,
+  public static FieldsDescriptor getOutputFieldsDescriptor(FieldsDescriptor inputFieldsDescriptor,
                                                            IncrementalAggregator incrementalAggregator)
   {
     Map<String, Type> fieldToType = Maps.newHashMap();
 
     for(Map.Entry<String, Type> entry:
-        fieldsDescriptor.getFieldToType().entrySet()) {
+        inputFieldsDescriptor.getFieldToType().entrySet()) {
       String fieldName = entry.getKey();
       Type fieldType = entry.getValue();
-
       Type outputType = incrementalAggregator.getOutputType(fieldType);
-      fieldToType.put(fieldName, fieldType);
+      fieldToType.put(fieldName, outputType);
+    }
+
+    return new FieldsDescriptor(fieldToType);
+  }
+
+  public static FieldsDescriptor getOutputFieldsDescriptor(FieldsDescriptor inputFieldsDescriptor,
+                                                           OTFAggregator otfAggregator)
+  {
+    Map<String, Type> fieldToType = Maps.newHashMap();
+
+    for(Map.Entry<String, Type> entry:
+        inputFieldsDescriptor.getFieldToType().entrySet()) {
+      String fieldName = entry.getKey();
+      Type outputType = otfAggregator.getOutputType();
+      fieldToType.put(fieldName, outputType);
     }
 
     return new FieldsDescriptor(fieldToType);

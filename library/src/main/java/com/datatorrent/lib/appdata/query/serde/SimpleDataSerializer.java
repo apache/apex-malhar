@@ -19,7 +19,7 @@ import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 
-public class SimpleDataSerializer implements CustomDataSerializer
+public class SimpleDataSerializer implements CustomMessageSerializer
 {
   private ObjectMapper om = new ObjectMapper();
 

@@ -68,22 +68,22 @@ public class AggregatorAverage implements OTFAggregator, Serializable
       switch(type) {
         case BYTE:
         {
-          float val = ((float) sumAggregation.getFieldByte(field)) /
-                      ((float) count);
+          double val = ((double) sumAggregation.getFieldByte(field)) /
+                       ((double) count);
           result.setField(field, val);
           break;
         }
         case SHORT:
         {
-          float val = ((float) sumAggregation.getFieldShort(field)) /
-                      ((float) count);
+          double val = ((double) sumAggregation.getFieldShort(field)) /
+                       ((double) count);
           result.setField(field, val);
           break;
         }
         case INTEGER:
         {
-          float val = ((float) sumAggregation.getFieldInt(field)) /
-                      ((float) count);
+          double val = ((double) sumAggregation.getFieldInt(field)) /
+                       ((double) count);
           result.setField(field, val);
           break;
         }
@@ -96,8 +96,8 @@ public class AggregatorAverage implements OTFAggregator, Serializable
         }
         case FLOAT:
         {
-          float val = sumAggregation.getFieldFloat(field) /
-                      ((float) count);
+          double val = sumAggregation.getFieldFloat(field) /
+                       ((double) count);
           result.setField(field, val);
           break;
         }

@@ -24,6 +24,7 @@ public class DimensionsConversionContext
   public int schemaID;
   public int dimensionDescriptorID;
   public int aggregatorID;
+  public int aggregateIndex;
   public DimensionsDescriptor dd;
   public FieldsDescriptor keyFieldsDescriptor;
   public FieldsDescriptor aggregateDescriptor;

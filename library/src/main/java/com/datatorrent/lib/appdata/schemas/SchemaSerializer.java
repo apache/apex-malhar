@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.query.serde.CustomDataSerializer;
+import com.datatorrent.lib.appdata.query.serde.CustomMessageSerializer;
 import com.datatorrent.lib.appdata.query.serde.Result;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -24,7 +24,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 
-public class SchemaSerializer implements CustomDataSerializer
+public class SchemaSerializer implements CustomMessageSerializer
 {
   public SchemaSerializer()
   {

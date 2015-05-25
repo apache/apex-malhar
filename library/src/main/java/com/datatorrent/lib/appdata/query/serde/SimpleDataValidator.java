@@ -19,7 +19,7 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
-public class SimpleDataValidator implements CustomDataValidator
+public class SimpleDataValidator implements CustomMessageValidator
 {
   private Validator validator;
 

@@ -15,8 +15,8 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.query.serde.DataDeserializerInfo;
-import com.datatorrent.lib.appdata.query.serde.DataType;
+import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
+import com.datatorrent.lib.appdata.query.serde.MessageType;
 import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
 import com.datatorrent.lib.appdata.query.serde.Query;
 import com.datatorrent.lib.appdata.query.serde.SimpleDataDeserializer;
@@ -24,8 +24,8 @@ import com.datatorrent.lib.appdata.query.serde.SimpleDataValidator;
 
 import java.util.Map;
 
-@DataType(type=SchemaQuery.TYPE)
-@DataDeserializerInfo(clazz=SimpleDataDeserializer.class)
+@MessageType(type=SchemaQuery.TYPE)
+@MessageDeserializerInfo(clazz=SimpleDataDeserializer.class)
 @MessageValidatorInfo(clazz=SimpleDataValidator.class)
 public class SchemaQuery extends Query
 {

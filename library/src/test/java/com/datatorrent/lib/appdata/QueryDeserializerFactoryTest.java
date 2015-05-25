@@ -6,7 +6,7 @@
 package com.datatorrent.lib.appdata;
 
 import com.datatorrent.lib.appdata.query.serde.Message;
-import com.datatorrent.lib.appdata.query.serde.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import java.io.IOException;
 import org.junit.Assert;
@@ -24,7 +24,7 @@ public class QueryDeserializerFactoryTest
   public void testMalformedQuery()
   {
     @SuppressWarnings("unchecked")
-    DataDeserializerFactory qdf = new DataDeserializerFactory(SchemaQuery.class);
+    MessageDeserializerFactory qdf = new MessageDeserializerFactory(SchemaQuery.class);
 
     String malformed = "{\"}";
     boolean exception = false;
@@ -43,7 +43,7 @@ public class QueryDeserializerFactoryTest
   public void testUnregisteredQueryType()
   {
     @SuppressWarnings("unchecked")
-    DataDeserializerFactory qdf = new DataDeserializerFactory(SchemaQuery.class);
+    MessageDeserializerFactory qdf = new MessageDeserializerFactory(SchemaQuery.class);
 
     String unsupportedQuery = "{\"id\":\"1\",\"type\":\"Invalid type\"}";
     boolean exception = false;

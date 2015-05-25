@@ -24,72 +24,72 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class DataSerializerFactory
+public class MessageSerializerFactory
 {
-  private static final Logger logger = LoggerFactory.getLogger(DataSerializerFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(MessageSerializerFactory.class);
 
-  private Map<Class<? extends Result>, CustomDataSerializer> clazzToCustomResultBuilder = Maps.newHashMap();
+  private Map<Class<? extends Result>, CustomMessageSerializer> clazzToCustomResultBuilder = Maps.newHashMap();
   private Map<Class<? extends Result>, String> clazzToType = Maps.newHashMap();
 
-  private ResultFormatter appDataFormatter = new ResultFormatter();
+  private ResultFormatter resultFormatter = new ResultFormatter();
 
-  public DataSerializerFactory(ResultFormatter resultFormatter)
+  public MessageSerializerFactory(ResultFormatter resultFormatter)
   {
     setResultFormatter(resultFormatter);
   }
 
   private void setResultFormatter(ResultFormatter resultFormatter)
   {
-    this.appDataFormatter = Preconditions.checkNotNull(resultFormatter);
+    this.resultFormatter = Preconditions.checkNotNull(resultFormatter);
   }
 
   public ResultFormatter getResultFormatter()
   {
-    return appDataFormatter;
+    return resultFormatter;
   }
 
   public String serialize(Result result)
   {
-    CustomDataSerializer mcrs = clazzToCustomResultBuilder.get(result.getClass());
+    CustomMessageSerializer mcrs = clazzToCustomResultBuilder.get(result.getClass());
     Class<? extends Result> schema = result.getClass();
 
     if(mcrs == null) {
       Annotation[] ans = schema.getAnnotations();
 
-      Class<? extends CustomDataSerializer> crs = null;
+      Class<? extends CustomMessageSerializer> crs = null;
       String type = null;
 
       for(Annotation an: ans) {
-        if(an instanceof DataSerializerInfo) {
+        if(an instanceof MessageSerializerInfo) {
           if(crs != null) {
             throw new UnsupportedOperationException("Cannot specify the "
-                    + DataSerializerInfo.class
+                    + MessageSerializerInfo.class
                     + " annotation twice on the class: "
                     + schema);
           }
 
-          crs = ((DataSerializerInfo)an).clazz();
+          crs = ((MessageSerializerInfo)an).clazz();
         }
-        else if(an instanceof DataType) {
+        else if(an instanceof MessageType) {
           if(type != null) {
             throw new UnsupportedOperationException("Cannot specify the " +
-                                                    DataType.class +
+                                                    MessageType.class +
                                                     " annotation twice on the class: " +
                                                     schema);
           }
 
-          type = ((DataType) an).type();
+          type = ((MessageType) an).type();
         }
       }
 
       if(crs == null) {
-        throw new UnsupportedOperationException("No " + DataSerializerInfo.class
+        throw new UnsupportedOperationException("No " + MessageSerializerInfo.class
                 + " annotation found on class: "
                 + schema);
       }
 
       if(type == null) {
-        throw new UnsupportedOperationException("No " + DataType.class +
+        throw new UnsupportedOperationException("No " + MessageType.class +
                                                 " annotation found on class " + schema);
       }
 
@@ -109,6 +109,6 @@ public class DataSerializerFactory
 
     result.setType(clazzToType.get(schema));
 
-    return mcrs.serialize(result, appDataFormatter);
+    return mcrs.serialize(result, resultFormatter);
   }
 }

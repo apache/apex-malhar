@@ -26,7 +26,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
-public class AggregateEventTest
+public class DimensionsEventTest
 {
   @Test
   public void eventKeyEqualsHashCodeTest()

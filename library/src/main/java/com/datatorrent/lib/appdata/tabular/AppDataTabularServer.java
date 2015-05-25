@@ -18,8 +18,8 @@ package com.datatorrent.lib.appdata.tabular;
 
 import com.datatorrent.lib.appdata.query.serde.Result;
 import com.datatorrent.lib.appdata.query.serde.Message;
-import com.datatorrent.lib.appdata.query.serde.DataSerializerFactory;
-import com.datatorrent.lib.appdata.query.serde.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.query.serde.MessageSerializerFactory;
+import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
 import com.datatorrent.lib.appdata.query.serde.Query;
 import java.io.IOException;
 
@@ -50,8 +50,8 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
   private static final Logger logger = LoggerFactory.getLogger(AppDataTabularServer.class);
 
   private transient QueryManager<Query, Void, MutableLong, Void, Result> queryProcessor;
-  private transient DataDeserializerFactory queryDeserializerFactory;
-  private transient DataSerializerFactory resultSerializerFactory;
+  private transient MessageDeserializerFactory queryDeserializerFactory;
+  private transient MessageSerializerFactory resultSerializerFactory;
   private transient SchemaRegistry schemaRegistry;
   protected transient SchemaTabular schema;
 
@@ -123,10 +123,10 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     //Setup for query processing
     queryProcessor = QueryManager.newInstance(new TabularComputer(), new AppDataWindowEndQueueManager<Query, Void>());
 
-    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class,
+    queryDeserializerFactory = new MessageDeserializerFactory(SchemaQuery.class,
                                                            DataQueryTabular.class);
     queryDeserializerFactory.setContext(DataQueryTabular.class, schemaRegistry);
-    resultSerializerFactory = new DataSerializerFactory(resultFormatter);
+    resultSerializerFactory = new MessageSerializerFactory(resultFormatter);
     queryProcessor.setup(context);
   }
 
@@ -173,7 +173,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
   }
 
   /**
-   * @return the appDataFormatter
+   * @return the resultFormatter
    */
   public ResultFormatter getResultFormatter()
   {
@@ -181,9 +181,9 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
   }
 
   /**
-   * @param resultFormatter the appDataFormatter to set
+   * @param resultFormatter the resultFormatter to set
    */
-  public void setAppDataFormatter(ResultFormatter resultFormatter)
+  public void setResultFormatter(ResultFormatter resultFormatter)
   {
     this.resultFormatter = resultFormatter;
   }

@@ -16,9 +16,10 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.dimensions.AggregatorRegistry;
-import com.datatorrent.lib.appdata.dimensions.DimensionsAggregator;
-import com.datatorrent.lib.appdata.ns.DimensionsDescriptor;
-import com.datatorrent.lib.appdata.dimensinsionsIncrementalAggregator;
+import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.IncrementalAggregator;
+import com.datatorrent.lib.dimensions.OTFAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -107,7 +108,7 @@ public class DimensionalEventSchema
   private String keysString;
   private String bucketsString;
 
-  privAggregatorRegistryInfo aggregatorInfo;
+  private AggregatorRegistry aggregatorRegistry;
 
   List<TimeBucket> timeBuckets;
 
@@ -122,9 +123,9 @@ public class DimensionalEventSchema
                                 List<Value> values,
                                 List<TimeBucket> timeBuckets,
                                 List<DimensionsCombination> dimensionsCombinations,
-                        AggregatorRegistryatorInfo aggregatorInfo)
+                                AggregatorRegistry aggregatorRegistry)
   {
-    setAggregatorInfo(aggregatorInfo);
+    setAggregatorRegistry(aggregatorRegistry);
 
     initialize(keys,
                values,
@@ -133,9 +134,9 @@ public class DimensionalEventSchema
   }
 
   public DimensionalEventSchema(String json,
-                    AggregatorRegistrygregatorInfo aggregatorInfo)
+                                AggregatorRegistry aggregatorRegistry)
   {
-    setAggregatorInfo(aggregatorInfo);
+    setAggregatorRegistry(aggregatorRegistry);
 
     try {
       initialize(json);
@@ -145,9 +146,14 @@ public class DimensionalEventSchema
     }
   }
 
-  private void seAggregatorRegistryo(AggregatorInfo aggregatorInfo)
+  private void setAggregatorRegistry(AggregatorRegistry aggregatorRegistry)
   {
-    this.aggregatorInfo = Preconditions.checkNotNull(aggregatorInfo);
+    this.aggregatorRegistry = Preconditions.checkNotNull(aggregatorRegistry);
+  }
+
+  public AggregatorRegistry getAggregatorRegistry()
+  {
+    return aggregatorRegistry;
   }
 
   private List<Map<String, FieldsDescriptor>> computeAggregatorToAggregateDescriptor(List<Map<String, Set<String>>> ddIDToValueToAggregator)
@@ -182,7 +188,6 @@ public class DimensionalEventSchema
         inputValuesDescriptor.getSubset(new Fields(entry.getValue())));
       }
 
-      aggregatorToValuesDescriptor = aggregatorToValuesDescriptor;
       tempDdIDToAggregatorToAggregateDescriptor.add(aggregatorToValuesDescriptor);
     }
 
@@ -234,13 +239,13 @@ public class DimensionalEventSchema
       Set<String> otfAggregators = Sets.newHashSet();
 
       for(String aggregatorName: aggregators) {
-        if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+        if(aggregatorRegistry.isStaticAggregator(aggregatorName)) {
           specificAggregatorSet.add(aggregatorName);
           allAggregatorSet.add(aggregatorName);
         }
         else {
           otfAggregators.add(aggregatorName);
-          List<String> aggregatorNames = aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName);
+          List<String> aggregatorNames = aggregatorRegistry.getOTFAggregatorToStaticAggregators().get(aggregatorName);
           specificAggregatorSet.addAll(aggregatorNames);
           allAggregatorSet.addAll(aggregatorNames);
           allAggregatorSet.add(aggregatorName);
@@ -259,17 +264,17 @@ public class DimensionalEventSchema
       Map<String, Type> aggregatorToType = Maps.newHashMap();
 
       for(String aggregatorName: aggregators) {
-        DimensionsAggregator da;
 
-        if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
-          da = aggregatorInfo.getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
+        if(aggregatorRegistry.isStaticAggregator(aggregatorName)) {
+          IncrementalAggregator aggregator = aggregatorRegistry.getNameToIncrementalAggregator().get(aggregatorName);
+
+          aggregatorToType.put(aggregatorName, aggregator.getOutputType(inputType));
         }
         else {
-          da = aggregatorInfo.getNameToOTFAggregators().get(aggregatorName);
-        }
+          OTFAggregator otfAggregator = aggregatorRegistry.getNameToOTFAggregators().get(aggregatorName);
 
-        Type outputType = da.getTypeMap().getTypeMap().get(inputType);
-        aggregatorToType.put(aggregatorName, outputType);
+          aggregatorToType.put(aggregatorName, otfAggregator.getOutputType());
+        }
       }
 
       schemaAllValueToAggregatorToType.put(valueName, aggregatorToType);
@@ -303,17 +308,17 @@ public class DimensionalEventSchema
           Set<String> aggregatorNames = entry.getValue();
 
           for(String aggregatorName: aggregatorNames) {
-            if(!aggregatorInfo.isAggregator(aggregatorName)) {
+            if(!aggregatorRegistry.isAggregator(aggregatorName)) {
               throw new UnsupportedOperationException("The aggregator "
                                                       + aggregatorName
                                                       + " is not valid.");
             }
 
-            if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+            if(aggregatorRegistry.isStaticAggregator(aggregatorName)) {
               staticAggregatorNames.add(aggregatorName);
             }
             else {
-              staticAggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+              staticAggregatorNames.addAll(aggregatorRegistry.getOTFAggregatorToStaticAggregators().get(aggregatorName));
               otfAggregatorNames.add(aggregatorName);
             }
           }
@@ -367,7 +372,7 @@ public class DimensionalEventSchema
       for(Map.Entry<String, Set<String>> entry: specificValueToOTFAggregator.entrySet()) {
         String valueName = entry.getKey();
         Set<String> aggName = entry.getValue();
-        
+
         if(aggName.isEmpty()) {
           continue;
         }
@@ -585,13 +590,12 @@ public class DimensionalEventSchema
             aggregatorIndex < aggregators.length();
             aggregatorIndex++) {
           String aggregatorName = aggregators.getString(aggregatorIndex);
-          DimensionsAggregator daggregator = null;
 
-          if(!aggregatorInfo.isAggregator(aggregatorName)) {
+          if(!aggregatorRegistry.isAggregator(aggregatorName)) {
             throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
           }
 
-          if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+          if(aggregatorRegistry.isStaticAggregator(aggregatorName)) {
             Set<String> aggregatorNames = allValueToAggregator.get(name);
 
             if(aggregatorNames == null) {
@@ -606,7 +610,8 @@ public class DimensionalEventSchema
                                                  + " cannot be specified twice for a value");
             }
 
-            daggregator = aggregatorInfo.getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
+            IncrementalAggregator aggregator = aggregatorRegistry.getNameToIncrementalAggregator().get(aggregatorName);
+            aggregatorToType.put(aggregatorName, aggregator.getOutputType(typeT));
           }
           else {
             //Check for duplicate on the fly aggregators
@@ -630,14 +635,13 @@ public class DimensionalEventSchema
               allValueToAggregator.put(name, aggregatorNames);
             }
 
-            daggregator = aggregatorInfo.getNameToOTFAggregators().get(aggregatorName);
-            aggregatorNames.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
-            aggregatorSet.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+            OTFAggregator aggregator = aggregatorRegistry.getNameToOTFAggregators().get(aggregatorName);
+            aggregatorNames.addAll(aggregatorRegistry.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+            aggregatorSet.addAll(aggregatorRegistry.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+            aggregatorToType.put(aggregatorName, aggregator.getOutputType());
 
             logger.debug("field name {} and adding aggregator names {}:", name, aggregatorNames);
           }
-
-          aggregatorToType.put(aggregatorName, daggregator.getTypeMap().getTypeMap().get(typeT));
         }
       }
 
@@ -754,11 +758,11 @@ public class DimensionalEventSchema
             aggregators.add(aggregatorName);
           }
 
-          if(!aggregatorInfo.isAggregator(aggregatorName)) {
+          if(!aggregatorRegistry.isAggregator(aggregatorName)) {
             throw new IllegalArgumentException(aggregatorName + " is not a valid aggregator.");
           }
 
-          if(aggregatorInfo.isStaticAggregator(aggregatorName)) {
+          if(aggregatorRegistry.isStaticAggregator(aggregatorName)) {
             Set<String> aggregatorNames = allValueToAggregator.get(valueName);
 
             if(aggregatorNames == null) {
@@ -828,7 +832,7 @@ public class DimensionalEventSchema
                                                  + " defined in the " + FIELD_VALUES + " section.");
             }
 
-            aggregators.addAll(aggregatorInfo.getOTFAggregatorToStaticAggregators().get(aggregatorName));
+            aggregators.addAll(aggregatorRegistry.getOTFAggregatorToStaticAggregators().get(aggregatorName));
           }
         }
       }
@@ -895,12 +899,13 @@ public class DimensionalEventSchema
           ddIDToAggregatorToAggregateDescriptor.get(index).entrySet()) {
         String aggregatorName = entry.getKey();
         FieldsDescriptor inputDescriptor = entry.getValue();
-        DimensionsIncrementalAggregator staticAggregator = aggregatorInfo.getStaticAggregatorNameToStaticAggregator().get(aggregatorName);
-        int aggregatorID = aggregatorInfo.getStaticAggregatorNameToID().get(aggregatorName);
+        IncrementalAggregator incrementalAggregator = aggregatorRegistry.getNameToIncrementalAggregator().get(aggregatorName);
+        int aggregatorID = aggregatorRegistry.getIncrementalAggregatorNameToID().get(aggregatorName);
         aggIDList.add(aggregatorID);
         inputMap.put(aggregatorID, inputDescriptor);
         outputMap.put(aggregatorID,
-                      staticAggregator.getResultDescriptor(inputDescriptor));
+                      AggregatorUtils.getOutputFieldsDescriptor(inputDescriptor,
+                                                                incrementalAggregator));
       }
     }
   }
@@ -1074,7 +1079,7 @@ public class DimensionalEventSchema
     hash = 97 * hash + (this.combinationIDToKeys != null ? this.combinationIDToKeys.hashCode() : 0);
     hash = 97 * hash + (this.keysString != null ? this.keysString.hashCode() : 0);
     hash = 97 * hash + (this.bucketsString != null ? this.bucketsString.hashCode() : 0);
-    hash = 97 * hash + (this.aggregatorInfo != null ? this.aggregatorInfo.hashCode() : 0);
+    hash = 97 * hash + (this.aggregatorRegistry != null ? this.aggregatorRegistry.hashCode() : 0);
     hash = 97 * hash + (this.timeBuckets != null ? this.timeBuckets.hashCode() : 0);
     hash = 97 * hash + (this.schemaAllValueToAggregatorToType != null ? this.schemaAllValueToAggregatorToType.hashCode() : 0);
     return hash;
@@ -1178,7 +1183,7 @@ public class DimensionalEventSchema
     }
     counter++;
     logger.debug("here {}", counter);
-    if(this.aggregatorInfo != other.aggregatorInfo && (this.aggregatorInfo == null || !this.aggregatorInfo.equals(other.aggregatorInfo))) {
+    if(this.aggregatorRegistry != other.aggregatorRegistry && (this.aggregatorRegistry == null || !this.aggregatorRegistry.equals(other.aggregatorRegistry))) {
       return false;
     }
     counter++;

@@ -19,8 +19,6 @@ import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * Not an operator
- * @author tfarkas
  * @param <QUERY_TYPE>
  * @param <META_QUERY>
  * @param <QUEUE_CONTEXT>

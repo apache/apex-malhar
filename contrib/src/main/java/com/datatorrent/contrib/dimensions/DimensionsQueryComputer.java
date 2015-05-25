@@ -18,12 +18,9 @@ package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
-import com.datatorrent.lib.dimensions.DimensionsEvent;
-import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
-import com.datatorrent.lib.dimensions.OTFAggregator;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.query.serde.Result;
 import com.datatorrent.lib.appdata.query.QueryExecutor;
+import com.datatorrent.lib.appdata.query.serde.Result;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
@@ -31,6 +28,10 @@ import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaDimensional;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
+import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
+import com.datatorrent.lib.dimensions.OTFAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -144,7 +145,7 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
       boolean completeTimeBucket = true;
 
       for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
-        if(eventSchema.getAggregatorInfo().isStaticAggregator(aggregatorName)) {
+        if(eventSchema.getAggregatorRegistry().isStaticAggregator(aggregatorName)) {
           GPOMutable valueGPO = value.get(aggregatorName);
 
           if(valueGPO == null) {
@@ -157,7 +158,7 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
           continue;
         }
         List<GPOMutable> mutableValues = Lists.newArrayList();
-        List<String> childAggregators = eventSchema.getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(aggregatorName);
+        List<String> childAggregators = eventSchema.getAggregatorRegistry().getOTFAggregatorToStaticAggregators().get(aggregatorName);
         boolean gotAllStaticAggregators = true;
 
         for(String childAggregator: childAggregators) {
@@ -177,8 +178,12 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
 
         Set<String> fields = query.getFieldsAggregatable().getAggregatorToFields().get(aggregatorName);
         FieldsDescriptor fd = eventSchema.getInputValuesDescriptor().getSubset(new Fields(fields));
-        DimensionsOTFAggregatorr = eventSchema.getAggregatorInfo().getNameToOTFAggregators().get(aggregatorName);
-        GPOMutable result = aggregator.aggregate(fd, mutableValues.toArray(new GPOMutable[mutableValues.size()]));
+        OTFAggregator aggregator = eventSchema.getAggregatorRegistry().getNameToOTFAggregators().get(aggregatorName);
+        FieldsDescriptor outputFd = AggregatorUtils.getOutputFieldsDescriptor(fd,
+                                                                              aggregator);
+        GPOMutable result = aggregator.aggregate(fd,
+                                                 outputFd,
+                                                 mutableValues.toArray(new GPOMutable[mutableValues.size()]));
         prunedValue.put(aggregatorName, result);
         prunedKey.put(aggregatorName, singleKey);
       }

@@ -19,39 +19,27 @@ package com.datatorrent.lib.dimensions;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
-import com.google.common.base.Preconditions;
+import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import javax.validation.constraints.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
-public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends DimensionsComputation<INPUT_EVENT>
+public abstract class AbstractDimensionsComputationFlexibleSingleSchema<INPUT> extends
+                      AbstractDimensionsComputationFlexible<INPUT>
 {
-  private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationSingleSchema.class);
   public static final int DEFAULT_SCHEMA_ID = 1;
 
   @NotNull
   private String eventSchemaJSON;
   protected DimensionalEventSchema eventSchema;
-  private transient DimensionsConversionContext conversionContext = new DimensionsConversionContext();
+
+  private transient final DimensionsConversionContext conversionContext = new DimensionsConversionContext();
   private int schemaID = DEFAULT_SCHEMA_ID;
 
-  public DimensionsComputationSingleSchema()
+  public AbstractDimensionsComputationFlexibleSingleSchema()
   {
-    this.aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY;
-  }
-
-  public void setEventSchemaJSON(String eventSchemaJSON)
-  {
-    this.eventSchemaJSON = Preconditions.checkNotNull(eventSchemaJSON, "eventSchemaJSON");
-  }
-
-  public String getEventSchemaJSON()
-  {
-    return eventSchemaJSON;
   }
 
   @Override
@@ -59,16 +47,12 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
   {
     super.setup(context);
 
-    if(eventSchema == null) {
-      eventSchema = new DimensionalEventSchema(eventSchemaJSON,
-                                              getAggregatorInfo());
-    }
-
-    logger.debug("Event Schema {}", eventSchema);
+    eventSchema = new DimensionalEventSchema(eventSchemaJSON,
+                                             aggregatorRegistry);
   }
 
   @Override
-  public void convertInputEvent(INPUT_EVENT inputEvent, List<DimensionsEvent> aggregateEventBuffer)
+  public void processInputEvent(INPUT input)
   {
     List<FieldsDescriptor> keyFieldsDescriptors = eventSchema.getDdIDToKeyDescriptor();
 
@@ -78,6 +62,7 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
       FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(ddID);
       Int2ObjectMap<FieldsDescriptor> map = eventSchema.getDdIDToAggIDToInputAggDescriptor().get(ddID);
       IntArrayList aggIDList = eventSchema.getDdIDToAggIDs().get(ddID);
+      DimensionsDescriptor dd = eventSchema.getDdIDToDD().get(ddID);
 
       for(int aggIDIndex = 0;
           aggIDIndex < aggIDList.size();
@@ -87,25 +72,24 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
         conversionContext.schemaID = schemaID;
         conversionContext.dimensionDescriptorID = ddID;
         conversionContext.aggregatorID = aggID;
+        conversionContext.ddID = ddID;
 
-        conversionContext.dd = eventSchema.getDdIDToDD().get(ddID);
+        conversionContext.dd = dd;
         conversionContext.keyFieldsDescriptor = keyFieldsDescriptor;
         conversionContext.aggregateDescriptor = map.get(aggID);
 
-        aggregateEventBuffer.add(createGenericAggregateEvent(inputEvent,
-                                                             conversionContext));
+        InputEvent inputE = convertInput(input,
+                                         conversionContext);
+
+        int aggregateIndex = this.aggregatorIdToAggregateIndex.get(conversionContext.aggregatorID);
+        this.maps[aggregateIndex].aggregate(inputE);
       }
     }
   }
 
   @Override
-  public FieldsDescriptor getAggregateFieldsDescriptor(int schemaID, int dimensionDescriptorID, int aggregatorID)
-  {
-    return eventSchema.getDdIDToAggIDToOutputAggDescriptor().get(dimensionDescriptorID).get(aggregatorID);
-  }
-
-  public abstractDimensionsEventt createGenericAggregateEvent(INPUT_EVENT inputEvent,
-                                                             DimensionsConversionContext conversionContext);
+  public abstract InputEvent convertInput(INPUT input,
+                                          DimensionsConversionContext conversionContext);
 
   /**
    * @return the schemaID
@@ -121,5 +105,21 @@ public abstract class DimensionsComputationSingleSchema<INPUT_EVENT> extends Dim
   public void setSchemaID(int schemaID)
   {
     this.schemaID = schemaID;
+  }
+
+  /**
+   * @return the eventSchemaJSON
+   */
+  public String getEventSchemaJSON()
+  {
+    return eventSchemaJSON;
+  }
+
+  /**
+   * @param eventSchemaJSON the eventSchemaJSON to set
+   */
+  public void setEventSchemaJSON(String eventSchemaJSON)
+  {
+    this.eventSchemaJSON = eventSchemaJSON;
   }
 }

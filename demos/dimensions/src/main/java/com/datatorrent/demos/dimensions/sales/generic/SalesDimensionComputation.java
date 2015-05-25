@@ -5,11 +5,10 @@
 
 package com.datatorrent.demos.dimensions.sales.generic;
 
-import com.datatorrent.lib.dimensions.DimensionsEvent;
-import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchema;
-import com.datatorrent.lib.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.dimensions.DimensionsConversionContext;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
 import java.util.List;
 import java.util.Map;
@@ -18,15 +17,14 @@ import java.util.Map;
  *
  * @author Timothy Farkas: tim@datatorrent.com
  */
-public class SalesDimensionComputation extends DimensionsComputationSingleSchema<Map<String,Object>>
+public class SalesDimensionComputation extends AbstractDimensionsComputationFlexibleSingleSchema<Map<String,Object>>
 {
   public SalesDimensionComputation()
   {
   }
 
   @Override
-  public DimensionsEvent createGenericAggregateEvent(Map<String, Object> ga,
-                                                    DimensionsConversionContext context)
+  public InputEvent convertInput(Map<String, Object> ga, DimensionsConversionContext context)
   {
     GPOMutable keyGPO = new GPOMutable(context.keyFieldsDescriptor);
 
@@ -66,11 +64,10 @@ public class SalesDimensionComputation extends DimensionsComputationSingleSchema
     aggGPO.setField(JsonSalesGenerator.AGG_DISCOUNT, ga.get(JsonSalesGenerator.AGG_DISCOUNT));
     aggGPO.setField(JsonSalesGenerator.AGG_TAX, ga.get(JsonSalesGenerator.AGG_TAX));
 
-    DimensionsEvent gae = new DimensionsEvent(new GPOMutable(keyGPO),
-                                                          aggGPO,
-                                                          DEFAULT_SCHEMA_ID,
-                                                          context.dimensionDescriptorID,
-                                                          context.aggregatorID);
-    return gae;
+    return new InputEvent(new GPOMutable(keyGPO),
+                          aggGPO,
+                          DEFAULT_SCHEMA_ID,
+                          context.dimensionDescriptorID,
+                          context.aggregatorID);
   }
 }

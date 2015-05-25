@@ -26,5 +26,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface MessageValidatorInfo
 {
-  Class<? extends CustomDataValidator> clazz();
+  Class<? extends CustomMessageValidator> clazz();
 }

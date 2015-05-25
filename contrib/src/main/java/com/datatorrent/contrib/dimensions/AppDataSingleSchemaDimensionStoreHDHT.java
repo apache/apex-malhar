@@ -16,10 +16,10 @@
 package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.dimensions.DimensionsEvent;
-import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.schemas.*;
 
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -29,7 +29,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Set;
 
-import static com.datatorrent.lib.dimensions.DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
+import static com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema.DEFAULT_SCHEMA_ID;
 
 /**
  * @displayName Simple App Data Dimensions Store
@@ -56,7 +56,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   private Map<String, Set<Comparable>> seenEnumValues;
 
   @Override
-  public void processEvent(DimensionsEvent gae) {
+  public void processEvent(Aggregate gae) {
     super.processEvent(gae);
 
     if(updateEnumValues) {
@@ -73,7 +73,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   }
 
   @Override
-  protected long getBucketKey(DimensionsEvent event)
+  protected long getBucketKey(Aggregate event)
   {
     return AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID;
   }

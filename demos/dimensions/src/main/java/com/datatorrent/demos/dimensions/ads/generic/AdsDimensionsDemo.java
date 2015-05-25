@@ -22,10 +22,9 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
-import com.datatorrent.lib.appbuilder.convert.pojo.PojoFieldRetrieverExpression;
-import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchemaPOJO;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
+import com.datatorrent.lib.dimensions.DimensionsComputationFlexibleSingleSchemaPOJO;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import com.google.common.base.Preconditions;
@@ -128,7 +127,7 @@ public class AdsDimensionsDemo implements StreamingApplication
     //Declare operators
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    DimensionsComputationSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", DimensionsComputationSingleSchemaPOJO.class);
+    DimensionsComputationFlexibleSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", DimensionsComputationFlexibleSingleSchemaPOJO.class);
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
@@ -138,20 +137,20 @@ public class AdsDimensionsDemo implements StreamingApplication
     String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
     input.setEventSchemaJSON(eventSchema);
 
-    //Set dimensions properties
-    PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
-    pfre.setFQClassName(AdInfo.class.getName());
-    Map<String, String> fieldToExpression = Maps.newHashMap();
-    fieldToExpression.put("publisher", "getPublisher()");
-    fieldToExpression.put("advertiser", "getAdvertiser()");
-    fieldToExpression.put("location", "getLocation()");
-    fieldToExpression.put("cost", "getCost()");
-    fieldToExpression.put("revenue", "getRevenue()");
-    fieldToExpression.put("impressions", "getImpressions()");
-    fieldToExpression.put("clicks", "getClicks()");
-    fieldToExpression.put("time", "getTime()");
-    pfre.setFieldToExpression(fieldToExpression);
-    dimensions.getConverter().setPojoFieldRetriever(pfre);
+    Map<String, String> keyToExpression = Maps.newHashMap();
+    keyToExpression.put("publisher", "getPublisher()");
+    keyToExpression.put("advertiser", "getAdvertiser()");
+    keyToExpression.put("location", "getLocation()");
+
+    Map<String, String> aggregateToExpression = Maps.newHashMap();
+    aggregateToExpression.put("cost", "getCost()");
+    aggregateToExpression.put("revenue", "getRevenue()");
+    aggregateToExpression.put("impressions", "getImpressions()");
+    aggregateToExpression.put("clicks", "getClicks()");
+    aggregateToExpression.put("time", "getTime()");
+
+    dimensions.setKeyToExpression(keyToExpression);
+    dimensions.setAggregateToExpression(aggregateToExpression);
     dimensions.setEventSchemaJSON(eventSchema);
 
     //Set store properties
@@ -185,7 +184,7 @@ public class AdsDimensionsDemo implements StreamingApplication
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
     dag.addStream("InputStream", input.outputPort, dimensions.inputEvent);
-    dag.addStream("DimensionalData", dimensions.aggregateOutput, store.input);
+    dag.addStream("DimensionalData", dimensions.output, store.input);
     dag.addStream("Query", queryPort, store.query);
     dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }

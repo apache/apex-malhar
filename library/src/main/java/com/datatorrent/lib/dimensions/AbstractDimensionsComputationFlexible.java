@@ -16,19 +16,117 @@
 
 package com.datatorrent.lib.dimensions;
 
+import com.datatorrent.api.Context.OperatorContext;
+import com.datatorrent.api.DefaultInputPort;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate.AggregateHashingStrategy;
+import com.datatorrent.lib.dimensions.DimensionsEvent.DimensionsEventDimensionsCombination;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
-import gnu.trove.strategy.HashingStrategy;
+import com.google.common.collect.Lists;
+import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 public abstract class AbstractDimensionsComputationFlexible<INPUT> extends AbstractDimensionsComputation<InputEvent, Aggregate>
 {
-  private AggregatorRegistry aggregatorRegistry;
+  protected AggregatorRegistry aggregatorRegistry = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY;
+  protected Int2IntOpenHashMap aggregatorIdToAggregateIndex;
+
+  public transient final DefaultInputPort<INPUT> inputEvent = new DefaultInputPort<INPUT>() {
+    @Override
+    public void process(INPUT tuple)
+    {
+      processInputEvent(tuple);
+    }
+  };
 
   public AbstractDimensionsComputationFlexible()
   {
+    unifierHashingStrategy = new AggregateHashingStrategy();
   }
 
-  public abstract InputEvent convertInput(INPUT input);
+  public abstract void processInputEvent(INPUT tuple);
+
+  public abstract InputEvent convertInput(INPUT input,
+                                          DimensionsConversionContext conversionContext);
+
+  @Override
+  @SuppressWarnings({"rawtypes","unchecked"})
+  public void setup(OperatorContext context)
+  {
+    super.setup(context);
+
+    aggregatorRegistry.setup();
+
+    if(maps == null) {
+      Map<Integer, IncrementalAggregator> idToAggregator =
+      aggregatorRegistry.getIncrementalAggregatorIDToAggregator();
+
+      List<Integer> ids = Lists.newArrayList(idToAggregator.keySet());
+      maps = new AggregateMap[ids.size()];
+      aggregatorIdToAggregateIndex = new Int2IntOpenHashMap();
+      Collections.sort(ids);
+
+      for(int aggregateIndex = 0;
+          aggregateIndex < ids.size();
+          aggregateIndex++) {
+        int aggregatorId = ids.get(aggregateIndex);
+
+        IncrementalAggregator aggregator = idToAggregator.get(aggregatorId);
+        AggregateMap<InputEvent, Aggregate> aggregateMap
+                = new AggregateMap<InputEvent, Aggregate>(aggregator,
+                                                          DimensionsEventDimensionsCombination.INSTANCE,
+                                                          aggregateIndex);
+        maps[aggregateIndex] = aggregateMap;
+
+        aggregatorIdToAggregateIndex.put(aggregatorId, aggregateIndex);
+      }
+    }
+  }
+
+  @Override
+  public void configureDimensionsComputationUnifier()
+  {
+    computeAggregatorIdToAggregateIndex();
+
+    @SuppressWarnings({"unchecked","rawtypes"})
+    Aggregator<InputEvent, Aggregate>[] aggregators = new Aggregator[aggregatorIdToAggregateIndex.size()];
+
+    for(Entry<Integer, Integer> entry: aggregatorIdToAggregateIndex.entrySet()) {
+      Integer aggregatorId = entry.getKey();
+      Integer aggregatorIndex = entry.getValue();
+
+      Aggregator<InputEvent, Aggregate> aggregator =
+      aggregatorRegistry.getIncrementalAggregatorIDToAggregator().get(aggregatorId);
+
+      aggregators[aggregatorIndex] = aggregator;
+    }
+
+    unifier.setAggregators(aggregators);
+    unifier.setHashingStrategy(unifierHashingStrategy);
+  }
+
+  private void computeAggregatorIdToAggregateIndex()
+  {
+    aggregatorRegistry.setup();
+
+    Map<Integer, IncrementalAggregator> idToAggregator
+            = aggregatorRegistry.getIncrementalAggregatorIDToAggregator();
+
+    List<Integer> ids = Lists.newArrayList(idToAggregator.keySet());
+    Collections.sort(ids);
+
+    for(int aggregateIndex = 0;
+        aggregateIndex < ids.size();
+        aggregateIndex++) {
+      int aggregatorId = ids.get(aggregateIndex);
+      aggregatorIdToAggregateIndex.put(aggregatorId, aggregateIndex);
+    }
+  }
 
   /**
    * @return the aggregatorRegistry
@@ -46,20 +144,23 @@ public abstract class AbstractDimensionsComputationFlexible<INPUT> extends Abstr
     this.aggregatorRegistry = aggregatorRegistry;
   }
 
-  private static class DirectHashingStrategy implements HashingStrategy<InputEvent>
+  public void setUnifierHashingStrategy(DTHashingStrategy<Aggregate> unifierHashingStrategy)
   {
-    private static final long serialVersionUID = 201505200426L;
+    this.unifierHashingStrategy = unifierHashingStrategy;
+  }
 
-    @Override
-    public int computeHashCode(InputEvent inputEvent)
-    {
-      return inputEvent.getEventKey().hashCode();
-    }
+  public class DimensionsConversionContext
+  {
+    public int schemaID;
+    public int dimensionDescriptorID;
+    public int aggregatorID;
+    public int ddID;
+    public DimensionsDescriptor dd;
+    public FieldsDescriptor keyFieldsDescriptor;
+    public FieldsDescriptor aggregateDescriptor;
 
-    @Override
-    public boolean equals(InputEvent inputEventA, InputEvent inputEventB)
+    public DimensionsConversionContext()
     {
-      return inputEventA.getEventKey().equals(inputEventB.getEventKey());
     }
   }
 }

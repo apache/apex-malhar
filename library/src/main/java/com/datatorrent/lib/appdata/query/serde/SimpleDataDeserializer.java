@@ -20,7 +20,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleDataDeserializer extends CustomDataDeserializer
+public class SimpleDataDeserializer extends CustomMessageDeserializer
 {
   private static final Logger logger = LoggerFactory.getLogger(SimpleDataDeserializer.class);
   private ObjectMapper om = new ObjectMapper();

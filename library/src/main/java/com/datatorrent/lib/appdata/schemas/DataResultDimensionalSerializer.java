@@ -17,7 +17,7 @@ package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.query.serde.CustomDataSerializer;
+import com.datatorrent.lib.appdata.query.serde.CustomMessageSerializer;
 import com.datatorrent.lib.appdata.query.serde.Result;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
@@ -28,7 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DataResultDimensionalSerializer implements CustomDataSerializer
+public class DataResultDimensionalSerializer implements CustomMessageSerializer
 {
   public static final String ALL = "ALL";
 

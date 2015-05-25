@@ -18,7 +18,7 @@ package com.datatorrent.lib.appdata.schemas;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.query.serde.CustomDataDeserializer;
+import com.datatorrent.lib.appdata.query.serde.CustomMessageDeserializer;
 import com.datatorrent.lib.appdata.query.serde.Message;
 import com.datatorrent.lib.appdata.query.serde.Query;
 import com.google.common.collect.Maps;
@@ -33,7 +33,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
+public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
 {
   private static final Logger logger = LoggerFactory.getLogger(DataQueryDimensionalDeserializer.class);
 
@@ -117,11 +117,12 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
     //// Keys
     JSONObject keys = data.getJSONObject(DataQueryDimensional.FIELD_KEYS);
 
-    Iterator keyIterator = keys.keys();
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = (Iterator<String>) keys.keys();
     Set<String> keySet = Sets.newHashSet();
 
     while(keyIterator.hasNext()) {
-      String key = (String)keyIterator.next();
+      String key = keyIterator.next();
       if(!keySet.add(key)) {
         logger.error("Duplicate key: {}", key);
         return null;
@@ -174,7 +175,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
           String value = components[DimensionalEventSchema.ADDITIONAL_VALUE_VALUE_INDEX];
           String aggregator = components[DimensionalEventSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
-          if(!gsd.getGenericEventSchema().getAggregatorInfo().isAggregator(aggregator)) {
+          if(!gsd.getGenericEventSchema().getAggregatorRegistry().isAggregator(aggregator)) {
             logger.error("{} is not a valid aggregator", aggregator);
             return null;
           }

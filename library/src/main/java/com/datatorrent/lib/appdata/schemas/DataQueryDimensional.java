@@ -23,13 +23,13 @@ import com.google.common.collect.Sets;
 
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.query.serde.DataDeserializerInfo;
-import com.datatorrent.lib.appdata.query.serde.DataType;
+import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
+import com.datatorrent.lib.appdata.query.serde.MessageType;
 import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
 import com.datatorrent.lib.appdata.query.serde.Query;
 
-@DataType(type=DataQueryDimensional.TYPE)
-@DataDeserializerInfo(clazz=DataQueryDimensionalDeserializer.class)
+@MessageType(type=DataQueryDimensional.TYPE)
+@MessageDeserializerInfo(clazz=DataQueryDimensionalDeserializer.class)
 @MessageValidatorInfo(clazz=DataQueryDimensionalValidator.class)
 public class DataQueryDimensional extends Query
 {
@@ -285,15 +285,15 @@ public class DataQueryDimensional extends Query
 
     for(String field: gpo.getFieldDescriptor().getFields().getFields()) {
       if(hasTime) {
-        if(field.equals(dimensionsDescriptor.DIMENSION_TIME)) {
+        if(field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
           continue;
         }
-        else if(field.equals(dimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
+        else if(field.equals(DimensionsDescriptor.DIMENSION_TIME_BUCKET)) {
           gpo.setField(field, this.timeBucket.ordinal());
         }
       }
 
-      if(dimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
+      if(DimensionsDescriptor.RESERVED_DIMENSION_NAMES.contains(field)) {
         continue;
       }
 

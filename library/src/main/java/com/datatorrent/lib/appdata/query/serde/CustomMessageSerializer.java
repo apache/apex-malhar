@@ -15,16 +15,9 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 
-@Documented
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-public @interface DataType
+public interface CustomMessageSerializer
 {
-  String type();
+  public abstract String serialize(Result result, ResultFormatter resultFormatter);
 }

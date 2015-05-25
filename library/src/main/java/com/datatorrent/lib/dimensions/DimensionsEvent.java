@@ -16,19 +16,20 @@
 package com.datatorrent.lib.dimensions;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DTHashingStrategy;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DimensionsCombination;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
 import com.google.common.base.Preconditions;
 import java.io.Serializable;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
-public abstract class DimensionsEvent implements Serializable
+public abstract class DimensionsEvent implements Serializable, UnifiableAggregate
 {
-  private static final Logger logger = LoggerFactory.getLogger(DimensionsEvent.class);
   private static final long serialVersionUID = 201503231204L;
 
   private GPOMutable aggregates;
   private EventKey eventKey;
+  private int aggregateIndex;
+
 
   private DimensionsEvent()
   {
@@ -114,6 +115,18 @@ public abstract class DimensionsEvent implements Serializable
   public int getBucketID()
   {
     return eventKey.getBucketID();
+  }
+
+  @Override
+  public void setAggregateIndex(int aggregatorIndex)
+  {
+    this.aggregateIndex = aggregatorIndex;
+  }
+
+  @Override
+  public int getAggregateIndex()
+  {
+    return aggregateIndex;
   }
 
   public static void copy(DimensionsEvent aeDest, DimensionsEvent aeSrc)
@@ -364,7 +377,7 @@ public abstract class DimensionsEvent implements Serializable
     }
 
     public InputEvent(EventKey eventKey,
-                               GPOMutable aggregates)
+                      GPOMutable aggregates)
     {
       super(eventKey,
             aggregates);
@@ -399,11 +412,9 @@ public abstract class DimensionsEvent implements Serializable
     }
   }
 
-  public static class Aggregate extends DimensionsEvent implements UnifiableAggregate
+  public static class Aggregate extends DimensionsEvent
   {
     private static final long serialVersionUID = 201505181028L;
-
-    private int aggregatorIndex;
 
     private Aggregate()
     {
@@ -445,18 +456,57 @@ public abstract class DimensionsEvent implements Serializable
             aggregatorIndex);
     }
 
-    /**
-     * @param aggregatorIndex the aggregatorIndex to set
-     */
-    public void setAggregatorIndex(int aggregatorIndex)
+    public static class AggregateHashingStrategy implements DTHashingStrategy<Aggregate>
     {
-      this.aggregatorIndex = aggregatorIndex;
+      public static final AggregateHashingStrategy INSTANCE = new AggregateHashingStrategy();
+
+      private static final long serialVersionUID = 201505200426L;
+
+      public AggregateHashingStrategy()
+      {
+      }
+
+      @Override
+      public boolean equals(Aggregate inputEventA, Aggregate inputEventB)
+      {
+        return inputEventA.getEventKey().equals(inputEventB.getEventKey());
+      }
+
+      @Override
+      public int computeHashCode(Aggregate inputEvent)
+      {
+        return inputEvent.getEventKey().hashCode();
+      }
+    }
+  }
+
+  public static class DimensionsEventDimensionsCombination implements DimensionsCombination<InputEvent, Aggregate>
+  {
+    private static final long serialVersionUID = 201505230842L;
+
+    public static final DimensionsEventDimensionsCombination INSTANCE = new DimensionsEventDimensionsCombination();
+
+    private DimensionsEventDimensionsCombination()
+    {
+      //For kryo
     }
 
     @Override
-    public int getAggregatorIndex()
+    public void setKeys(InputEvent aggregatorInput, Aggregate aggregate)
     {
-      return aggregatorIndex;
+      //NOOP
+    }
+
+    @Override
+    public boolean equals(InputEvent t, InputEvent t1)
+    {
+      return t.getEventKey().equals(t1.getEventKey());
+    }
+
+    @Override
+    public int computeHashCode(InputEvent o)
+    {
+      return o.getEventKey().hashCode();
     }
   }
 }

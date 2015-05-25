@@ -16,19 +16,19 @@
 
 package com.datatorrent.lib.appdata.dimensions;
 
-import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchema;
-import com.datatorrent.lib.dimensions.DimensionsEvent;
-import com.datatorrent.lib.dimensions.DimensionsComputationSingleSchemaPOJO;
-import com.datatorrent.lib.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.dimensions.AggregatorUtils;
-import com.datatorrent.lib.dimensions.AggregatorIncrementalType;
-import com.datatorrent.lib.appbuilder.convert.pojo.PojoFieldRetrieverExpression;
-import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema;
+import com.datatorrent.lib.dimensions.AggregatorIncrementalType;
+import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.DimensionsComputationFlexibleSingleSchemaPOJO;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
@@ -41,9 +41,9 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class DimensionsComputationSingleSchemaPOJOTest
+public class DimensionsComputationFlexibleSingleSchemaPOJOTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationSingleSchemaPOJOTest.class);
+  private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationFlexibleSingleSchemaPOJOTest.class);
 
   @Before
   public void setup()
@@ -57,10 +57,10 @@ public class DimensionsComputationSingleSchemaPOJOTest
     AdInfo ai = createTestAdInfoEvent1();
     AdInfo ai2 = createTestAdInfoEvent2();
 
-    int schemaID = DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
+    int schemaID = AbstractDimensionsComputationFlexibleSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionsDescriptorID = 0;
     int aggregatorID = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.
-                       getStaticAggregatorNameToID().
+                       getIncrementalAggregatorNameToID().
                        get(AggregatorIncrementalType.SUM.name());
 
     String eventSchema = SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json");
@@ -89,14 +89,14 @@ public class DimensionsComputationSingleSchemaPOJOTest
     valueGPO.setField("revenue", ai.getRevenue() + ai2.getRevenue());
     valueGPO.setField("cost", ai.getCost() + ai2.getCost());
 
-    DimensionsEvent expectedAE = new DimensionsEvent(eventKey, valueGPO);
+    Aggregate expectedAE = new Aggregate(eventKey, valueGPO);
 
-    DimensionsComputationSingleSchemaPOJO dimensions = createDimensionsComputationOperator("adsGenericEventSimple.json");
+    DimensionsComputationFlexibleSingleSchemaPOJO dimensions = createDimensionsComputationOperator("adsGenericEventSimple.json");
 
     CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
-    TestUtils.setSink(dimensions.aggregateOutput, sink);
+    TestUtils.setSink(dimensions.output, sink);
 
-    DimensionsComputationSingleSchemaPOJO dimensionsClone =
+    DimensionsComputationFlexibleSingleSchemaPOJO dimensionsClone =
     TestUtils.clone(new Kryo(), dimensions);
 
     dimensions.setup(null);
@@ -108,28 +108,6 @@ public class DimensionsComputationSingleSchemaPOJOTest
 
     Assert.assertEquals("Expected only 1 tuple", 1, sink.collectedTuples.size());
     Assert.assertEquals(expectedAE, sink.collectedTuples.get(0));
-
-    sink.collectedTuples.clear();
-
-    //Multi Window Test
-
-    dimensionsClone.setAggregationWindowCount(2);
-    TestUtils.setSink(dimensionsClone.aggregateOutput, sink);
-
-    dimensionsClone.setup(null);
-
-    dimensionsClone.beginWindow(0L);
-    dimensionsClone.inputEvent.put(ai);
-    dimensionsClone.endWindow();
-
-    Assert.assertEquals("Expected no tuples", 0, sink.collectedTuples.size());
-
-    dimensionsClone.beginWindow(1L);
-    dimensionsClone.inputEvent.put(ai2);
-    dimensionsClone.endWindow();
-
-    Assert.assertEquals("Expected only 1 tuple", 1, sink.collectedTuples.size());
-    Assert.assertEquals(expectedAE, sink.collectedTuples.get(0));
   }
 
   @Test
@@ -137,10 +115,10 @@ public class DimensionsComputationSingleSchemaPOJOTest
   {
     AdInfo ai = createTestAdInfoEvent1();
 
-    DimensionsComputationSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAdditional.json");
+    DimensionsComputationFlexibleSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAdditional.json");
 
     CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
-    TestUtils.setSink(dcss.aggregateOutput, sink);
+    TestUtils.setSink(dcss.output, sink);
 
     dcss.setup(null);
     dcss.beginWindow(0L);
@@ -155,10 +133,10 @@ public class DimensionsComputationSingleSchemaPOJOTest
   {
     AdInfo ai = createTestAdInfoEvent1();
 
-    DimensionsComputationSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAggregations.json");
+    DimensionsComputationFlexibleSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAggregations.json");
 
     CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
-    TestUtils.setSink(dcss.aggregateOutput, sink);
+    TestUtils.setSink(dcss.output, sink);
 
     dcss.setup(null);
     dcss.beginWindow(0L);
@@ -168,24 +146,26 @@ public class DimensionsComputationSingleSchemaPOJOTest
     Assert.assertEquals(6, sink.collectedTuples.size());
   }
 
-  private DimensionsComputationSingleSchemaPOJO createDimensionsComputationOperator(String eventSchema)
+  private DimensionsComputationFlexibleSingleSchemaPOJO createDimensionsComputationOperator(String eventSchema)
   {
-    DimensionsComputationSingleSchemaPOJO dimensions = new DimensionsComputationSingleSchemaPOJO();
+    DimensionsComputationFlexibleSingleSchemaPOJO dimensions = new DimensionsComputationFlexibleSingleSchemaPOJO();
     dimensions.setEventSchemaJSON(SchemaUtils.jarResourceFileToString(eventSchema));
 
-    PojoFieldRetrieverExpression pfre = new PojoFieldRetrieverExpression();
-    pfre.setFQClassName(AdInfo.class.getName());
-    Map<String, String> fieldToExpression = Maps.newHashMap();
-    fieldToExpression.put("publisher", "getPublisher()");
-    fieldToExpression.put("advertiser", "getAdvertiser()");
-    fieldToExpression.put("location", "getLocation()");
-    fieldToExpression.put("cost", "getCost()");
-    fieldToExpression.put("revenue", "getRevenue()");
-    fieldToExpression.put("impressions", "getImpressions()");
-    fieldToExpression.put("clicks", "getClicks()");
-    fieldToExpression.put("time", "getTime()");
-    pfre.setFieldToExpression(fieldToExpression);
-    dimensions.getConverter().setPojoFieldRetriever(pfre);
+    Map<String, String> fieldToExpressionKey = Maps.newHashMap();
+    fieldToExpressionKey.put("publisher", "getPublisher()");
+    fieldToExpressionKey.put("advertiser", "getAdvertiser()");
+    fieldToExpressionKey.put("location", "getLocation()");
+    fieldToExpressionKey.put("time", "getTime()");
+
+    dimensions.setKeyToExpression(fieldToExpressionKey);
+
+    Map<String, String> fieldToExpressionAggregate = Maps.newHashMap();
+    fieldToExpressionAggregate.put("cost", "getCost()");
+    fieldToExpressionAggregate.put("revenue", "getRevenue()");
+    fieldToExpressionAggregate.put("impressions", "getImpressions()");
+    fieldToExpressionAggregate.put("clicks", "getClicks()");
+
+    dimensions.setAggregateToExpression(fieldToExpressionAggregate);
 
     return dimensions;
   }

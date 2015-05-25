@@ -15,16 +15,16 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.query.serde.DataDeserializerInfo;
-import com.datatorrent.lib.appdata.query.serde.DataType;
+import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
+import com.datatorrent.lib.appdata.query.serde.MessageType;
 import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
 import com.datatorrent.lib.appdata.query.serde.Query;
 import com.google.common.base.Preconditions;
 
 import java.util.Map;
 
-@DataType(type=DataQueryTabular.TYPE)
-@DataDeserializerInfo(clazz=DataQueryTabularDeserializer.class)
+@MessageType(type=DataQueryTabular.TYPE)
+@MessageDeserializerInfo(clazz=DataQueryTabularDeserializer.class)
 @MessageValidatorInfo(clazz=DataQueryTabularValidator.class)
 public class DataQueryTabular extends Query
 {

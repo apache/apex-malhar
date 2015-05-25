@@ -433,5 +433,4 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   }
 
   private static final Logger logger = LoggerFactory.getLogger(DimensionsComputation.class);
-
 }

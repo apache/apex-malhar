@@ -13,29 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
 
-import java.io.IOException;
+package com.datatorrent.lib.dimensions;
 
-public abstract class CustomDataDeserializer
+import com.datatorrent.api.Operator.Unifier;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DTHashingStrategy;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
+
+public interface DimensionsComputationUnifier<AGGREGATE_INPUT, AGGREGATE extends UnifiableAggregate> extends Unifier<AGGREGATE>
 {
-  private Class<? extends Message> dataClazz;
-
-  public abstract Message deserialize(String json, Object context) throws IOException;
-
-  /**
-   * @return the dataClazz
-   */
-  public Class<? extends Message> getDataClazz()
-  {
-    return dataClazz;
-  }
-
-  /**
-   * @param dataClazz the dataClazz to set
-   */
-  public void setDataClazz(Class<? extends Message> dataClazz)
-  {
-    this.dataClazz = dataClazz;
-  }
+  public void setAggregators(Aggregator<AGGREGATE_INPUT, AGGREGATE>[] aggregators);
+  public void setHashingStrategy(DTHashingStrategy<AGGREGATE> dimensionsCombination);
 }

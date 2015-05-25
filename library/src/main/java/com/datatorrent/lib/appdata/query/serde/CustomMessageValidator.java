@@ -13,21 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package com.datatorrent.lib.appdata.query.serde;
 
-package com.datatorrent.lib.dimensions;
-
-
-import java.util.Map;
-
-/**
- * @displayName Simple Map Dimensions Computation
- * @category Statistics
- * @tags event, dimension, aggregation, computation, map
- */
-public class DimensionsComputationSingleSchemaMap extends DimensionsComputationSingleSchemaConv<Map<String, Object>, DimensionsMapConverter>
+public interface CustomMessageValidator
 {
-  public DimensionsComputationSingleSchemaMap()
-  {
-    this.converter = new DimensionsMapConverter();
-  }
+  public boolean validate(Message query, Object context);
 }

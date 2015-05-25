@@ -160,7 +160,7 @@ public class AggregatorRegistry implements Serializable
     this.nameToIncrementalAggregator = Maps.newHashMap(Preconditions.checkNotNull(nameToIncrementalAggregator));
   }
 
-  private void setNameToOTFAggregator(Map<String, OTFAggregator> nameToAggregator)
+  private void setNameToOTFAggregator(Map<String, OTFAggregator> nameToOTFAggregator)
   {
     this.nameToOTFAggregator = Maps.newHashMap(Preconditions.checkNotNull(nameToOTFAggregator));
   }
@@ -200,7 +200,7 @@ public class AggregatorRegistry implements Serializable
     //this.incrementalAggregatorNameToID = Collections.unmodifiableMap(incrementalAggregatorNameToID);
   }
 
-  public Map<String, Integer> getStaticAggregatorNameToID()
+  public Map<String, Integer> getIncrementalAggregatorNameToID()
   {
     return incrementalAggregatorNameToID;
   }

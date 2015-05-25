@@ -28,16 +28,16 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Set;
 
-public class DataDeserializerFactory
+public class MessageDeserializerFactory
 {
-  private static final Logger logger = LoggerFactory.getLogger(DataDeserializerFactory.class);
+  private static final Logger logger = LoggerFactory.getLogger(MessageDeserializerFactory.class);
 
   private final Map<String, Class<? extends Message>> typeToClass = Maps.newHashMap();
-  private final Map<String, CustomDataDeserializer> typeToCustomQueryBuilder = Maps.newHashMap();
-  private final Map<String, CustomDataValidator> typeToCustomQueryValidator = Maps.newHashMap();
+  private final Map<String, CustomMessageDeserializer> typeToCustomQueryBuilder = Maps.newHashMap();
+  private final Map<String, CustomMessageValidator> typeToCustomQueryValidator = Maps.newHashMap();
   private final Map<Class<? extends Message>, Object> deserializationContext = Maps.newHashMap();
 
-  public DataDeserializerFactory(Class<? extends Message>... schemas)
+  public MessageDeserializerFactory(Class<? extends Message>... schemas)
   {
     setClasses(schemas);
   }
@@ -63,30 +63,30 @@ public class DataDeserializerFactory
       Annotation[] ans = schema.getAnnotations();
 
       String schemaType = null;
-      Class<? extends CustomDataDeserializer> cqd = null;
-      Class<? extends CustomDataValidator> cqv = null;
+      Class<? extends CustomMessageDeserializer> cqd = null;
+      Class<? extends CustomMessageValidator> cqv = null;
 
       for(Annotation an: ans)
       {
-        if(an instanceof DataType) {
+        if(an instanceof MessageType) {
           if(schemaType != null) {
-            throw new IllegalArgumentException("Cannot specify the " + DataType.class +
+            throw new IllegalArgumentException("Cannot specify the " + MessageType.class +
               " annotation twice on the class: " + schema);
           }
 
-          schemaType = ((DataType) an).type();
+          schemaType = ((MessageType) an).type();
 
           logger.debug("Detected schemaType for {} is {}",
                        schema,
                        schemaType);
         }
-        else if(an instanceof DataDeserializerInfo) {
+        else if(an instanceof MessageDeserializerInfo) {
           if(cqd != null) {
-            throw new IllegalArgumentException("Cannot specify the " + DataDeserializerInfo.class +
+            throw new IllegalArgumentException("Cannot specify the " + MessageDeserializerInfo.class +
               " annotation twice on the class: " + schema);
           }
 
-          cqd = ((DataDeserializerInfo) an).clazz();
+          cqd = ((MessageDeserializerInfo) an).clazz();
         }
         else if(an instanceof MessageValidatorInfo) {
           if(cqv != null) {
@@ -99,11 +99,11 @@ public class DataDeserializerFactory
       }
 
       if(schemaType == null) {
-        throw new IllegalArgumentException("No " + DataType.class + " annotation found on class: " + schema);
+        throw new IllegalArgumentException("No " + MessageType.class + " annotation found on class: " + schema);
       }
 
       if(cqd == null) {
-        throw new IllegalArgumentException("No " + DataDeserializerInfo.class + " annotation found on class: " +
+        throw new IllegalArgumentException("No " + MessageDeserializerInfo.class + " annotation found on class: " +
           schema);
       }
 
@@ -120,8 +120,8 @@ public class DataDeserializerFactory
       }
 
       try {
-        CustomDataDeserializer cqdI = cqd.newInstance();
-        CustomDataValidator cqvI = cqv.newInstance();
+        CustomMessageDeserializer cqdI = cqd.newInstance();
+        CustomMessageValidator cqvI = cqv.newInstance();
         cqdI.setDataClazz(schema);
         typeToCustomQueryBuilder.put(schemaType, cqdI);
         typeToCustomQueryValidator.put(schemaType, cqvI);
@@ -149,7 +149,7 @@ public class DataDeserializerFactory
       throw new IOException(e);
     }
 
-    CustomDataDeserializer cqb = typeToCustomQueryBuilder.get(type);
+    CustomMessageDeserializer cqb = typeToCustomQueryBuilder.get(type);
 
     if(cqb == null) {
       throw new IOException("The query type " +
@@ -157,7 +157,7 @@ public class DataDeserializerFactory
                             " does not have a corresponding deserializer.");
     }
 
-    CustomDataValidator cqv = typeToCustomQueryValidator.get(type);
+    CustomMessageValidator cqv = typeToCustomQueryValidator.get(type);
     Object context = deserializationContext.get(typeToClass.get(type));
     Message data = cqb.deserialize(json, context);
 

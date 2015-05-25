@@ -74,21 +74,20 @@ public class DimensionsQueryQueueManager extends AppDataWindowEndQueueManager<Da
     Set<String> aggregatorNames = Sets.newHashSet();
 
     for(String aggregatorName: query.getFieldsAggregatable().getAggregators()) {
-      if(!eventSchema.getAggregatorInfo().isAggregator(aggregatorName)) {
+      if(!eventSchema.getAggregatorRegistry().isAggregator(aggregatorName)) {
         LOG.error(aggregatorName + " is not a valid aggregator.");
         return false;
       }
-      if(eventSchema.getAggregatorInfo().isStaticAggregator(aggregatorName)) {
+      if(eventSchema.getAggregatorRegistry().isStaticAggregator(aggregatorName)) {
         aggregatorNames.add(aggregatorName);
         continue;
       }
 
-      aggregatorNames.addAll(eventSchema.getAggregatorInfo().getOTFAggregatorToStaticAggregators().get(aggregatorName));
+      aggregatorNames.addAll(eventSchema.getAggregatorRegistry().getOTFAggregatorToStaticAggregators().get(aggregatorName));
     }
     for(String aggregatorName: aggregatorNames) {
       LOG.debug("querying for aggregator {}", aggregatorName);
-      Integer aggregatorID = eventSchema.getAggregatorInfo().
-                             getStaticAggregatorNameToID().get(aggregatorName);
+      Integer aggregatorID = eventSchema.getAggregatorRegistry().getIncrementalAggregatorNameToID().get(aggregatorName);
       EventKey eventKey = new EventKey(schemaDimensional.getSchemaID(), ddID, aggregatorID, gpoKey);
       aggregatorToEventKey.put(aggregatorName, eventKey);
     }

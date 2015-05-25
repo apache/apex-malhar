@@ -17,9 +17,12 @@
 package com.datatorrent.lib.dimensions;
 
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateResult;
+import java.io.Serializable;
 
-public interface Aggregator<EVENT, AGGREGATE extends AggregateResult>
+public interface Aggregator<EVENT, AGGREGATE extends AggregateResult> extends Serializable
 {
+  public static final long serialVersionUID = 201505240659L;
+
   public void aggregate(AGGREGATE dest, EVENT src);
   public void aggregate(AGGREGATE dest, AGGREGATE src);
   public AGGREGATE createDest(EVENT first);

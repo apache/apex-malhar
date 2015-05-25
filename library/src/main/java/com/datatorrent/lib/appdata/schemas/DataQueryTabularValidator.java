@@ -15,14 +15,14 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.query.serde.CustomDataValidator;
+import com.datatorrent.lib.appdata.query.serde.CustomMessageValidator;
 import com.datatorrent.lib.appdata.query.serde.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
-public class DataQueryTabularValidator implements CustomDataValidator
+public class DataQueryTabularValidator implements CustomMessageValidator
 {
   private static final Logger logger = LoggerFactory.getLogger(DataQueryTabularValidator.class);
 

@@ -18,11 +18,15 @@ package com.datatorrent.lib.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateMap;
-import gnu.trove.strategy.HashingStrategy;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
+import com.google.common.base.Preconditions;
+import com.google.common.collect.Lists;
 import javax.validation.constraints.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,54 +34,15 @@ import java.util.Map;
 public class DimensionsComputationCustom<EVENT, AGGREGATE extends UnifiableAggregate> extends AbstractDimensionsComputation<EVENT, AGGREGATE>
 {
   @NotNull
-  private LinkedHashMap<String, DimensionsCombination<EVENT>> dimensionsCombinations;
+  private LinkedHashMap<String, DimensionsCombination<EVENT, AGGREGATE>> dimensionsCombinations;
   @NotNull
   private LinkedHashMap<String, List<Aggregator<EVENT, AGGREGATE>>> aggregators;
-
-  public DimensionsComputationCustom()
-  {
-  }
-
-  @Override
-  public void setup(OperatorContext context)
-  {
-    int size = 0;
-
-    for(Map.Entry<String, List<Aggregator<EVENT,AGGREGATE>>> entry: aggregators.entrySet()) {
-      size += entry.getValue().size();
-    }
-
-    this.maps = new AggregateMap[size];
-
-    int aggregateIndex = 0;
-
-    for(Map.Entry<String, DimensionsCombination<EVENT>> entry: dimensionsCombinations.entrySet()) {
-      String dimensionName = entry.getKey();
-      DimensionsCombination<EVENT> combination = entry.getValue();
-      List<Aggregator<EVENT, AGGREGATE>> tempAggregators = aggregators.get(dimensionName);
-
-      for(Aggregator<EVENT, AGGREGATE> aggregator: tempAggregators) {
-        maps[aggregateIndex] = new AggregateMap(aggregator,
-                                                combination,
-                                                10000,
-                                                aggregateIndex);
-        aggregateIndex++;
-      }
-    }
-  }
-
-  protected void processInputTuple(EVENT tuple)
-  {
-    for (int i = 0; i < this.maps.length; i++) {
-      maps[i].add(tuple);
-    }
-  }
 
   /**
    * Input data port that takes an event.
    */
-  public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>()
-  {
+  public final transient DefaultInputPort<EVENT> data = new DefaultInputPort<EVENT>(){
+
     @Override
     public void process(EVENT tuple)
     {
@@ -85,10 +50,49 @@ public class DimensionsComputationCustom<EVENT, AGGREGATE extends UnifiableAggre
     }
   };
 
+  public DimensionsComputationCustom()
+  {
+    unifierHashingStrategy = new DirectDimensionsCombination<AGGREGATE, AGGREGATE>();
+  }
+
+  @Override
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public void setup(OperatorContext context)
+  {
+    int size = computeNumAggregators();
+
+    if(this.maps == null) {
+      maps = new AggregateMap[size];
+      int aggregateIndex = 0;
+      List<String> combinationNames = Lists.newArrayList();
+      combinationNames.addAll(dimensionsCombinations.keySet());
+      Collections.sort(combinationNames);
+
+      for(String combinationName: combinationNames) {
+        DimensionsCombination<EVENT, AGGREGATE> combination = dimensionsCombinations.get(combinationName);
+        List<Aggregator<EVENT, AGGREGATE>> tempAggregators = aggregators.get(combinationName);
+
+        for(Aggregator<EVENT, AGGREGATE> aggregator: tempAggregators) {
+          maps[aggregateIndex] = new AggregateMap<EVENT, AGGREGATE>(aggregator,
+                                                                    combination,
+                                                                    aggregateIndex);
+          aggregateIndex++;
+        }
+      }
+    }
+  }
+
+  protected void processInputTuple(EVENT tuple)
+  {
+    for (int i = 0; i < this.maps.length; i++) {
+      maps[i].aggregate(tuple);
+    }
+  }
+
   /**
    * @return the dimensionsCombinations
    */
-  public LinkedHashMap<String, DimensionsCombination<EVENT>> getDimensionsCombinations()
+  public LinkedHashMap<String, DimensionsCombination<EVENT, AGGREGATE>> getDimensionsCombinations()
   {
     return dimensionsCombinations;
   }
@@ -96,7 +100,7 @@ public class DimensionsComputationCustom<EVENT, AGGREGATE extends UnifiableAggre
   /**
    * @param dimensionsCombinations the dimensionsCombinations to set
    */
-  public void setDimensionsCombinations(LinkedHashMap<String, DimensionsCombination<EVENT>> dimensionsCombinations)
+  public void setDimensionsCombinations(LinkedHashMap<String, DimensionsCombination<EVENT, AGGREGATE>> dimensionsCombinations)
   {
     this.dimensionsCombinations = dimensionsCombinations;
   }
@@ -117,5 +121,50 @@ public class DimensionsComputationCustom<EVENT, AGGREGATE extends UnifiableAggre
     this.aggregators = aggregators;
   }
 
-  public static interface DimensionsCombination<AGGREGATOR_INPUT> extends HashingStrategy<AGGREGATOR_INPUT> {}
+  @Override
+  public void configureDimensionsComputationUnifier()
+  {
+    int numAggregators = computeNumAggregators();
+    @SuppressWarnings({"unchecked","rawtypes"})
+    Aggregator<EVENT, AGGREGATE>[] aggregatorsArray = new Aggregator[numAggregators];
+
+    int aggregateIndex = 0;
+    List<String> combinationNames = Lists.newArrayList();
+    combinationNames.addAll(dimensionsCombinations.keySet());
+    Collections.sort(combinationNames);
+
+    for(String combinationName: combinationNames) {
+      DimensionsCombination<EVENT, AGGREGATE> combination = dimensionsCombinations.get(combinationName);
+      List<Aggregator<EVENT, AGGREGATE>> tempAggregators = aggregators.get(combinationName);
+
+      for(Aggregator<EVENT, AGGREGATE> aggregator: tempAggregators) {
+        maps[aggregateIndex] = new AggregateMap<EVENT, AGGREGATE>(aggregator,
+                                                                  combination,
+                                                                  aggregateIndex);
+        aggregatorsArray[aggregateIndex] = aggregator;
+        aggregateIndex++;
+      }
+    }
+
+    unifier.setAggregators(aggregatorsArray);
+    unifier.setHashingStrategy(unifierHashingStrategy);
+  }
+
+  public void setUnifierHashingStrategy(@NotNull DTHashingStrategy<AGGREGATE> dimensionsCombination)
+  {
+    this.unifierHashingStrategy = Preconditions.checkNotNull(dimensionsCombination);
+  }
+
+  private int computeNumAggregators()
+  {
+    int size = 0;
+
+    for(Map.Entry<String, List<Aggregator<EVENT, AGGREGATE>>> entry: aggregators.entrySet()) {
+      size += entry.getValue().size();
+    }
+
+    return size;
+  }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionsComputationCustom.class);
 }

@@ -15,7 +15,7 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.query.serde.CustomDataDeserializer;
+import com.datatorrent.lib.appdata.query.serde.CustomMessageDeserializer;
 import com.datatorrent.lib.appdata.query.serde.Message;
 import com.datatorrent.lib.appdata.query.serde.Query;
 import com.google.common.collect.Sets;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Set;
 
-public class DataQueryTabularDeserializer extends CustomDataDeserializer
+public class DataQueryTabularDeserializer extends CustomMessageDeserializer
 {
   private static final Logger logger = LoggerFactory.getLogger(DataQueryTabularDeserializer.class);
 

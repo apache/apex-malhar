@@ -9,18 +9,18 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.dimensions.AggregatorRegistry;
-import com.datatorrent.lib.dimensions.AggregatorUtils;
-import com.datatorrent.lib.dimensions.DimensionsIncrementalAggregator;
-import com.datatorrent.lib.appdata.query.serde.Message;
-import com.datatorrent.lib.appdata.query.serde.DataDeserializerFactory;
-import com.datatorrent.lib.appdata.query.serde.DataSerializerFactory;
-import com.datatorrent.lib.appdata.query.serde.Result;
 import com.datatorrent.lib.appdata.query.QueryManager;
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
+import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
+import com.datatorrent.lib.appdata.query.serde.MessageSerializerFactory;
+import com.datatorrent.lib.appdata.query.serde.Message;
+import com.datatorrent.lib.appdata.query.serde.Result;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
+import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
+import com.datatorrent.lib.dimensions.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.IncrementalAggregator;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import javax.validation.constraints.NotNull;
@@ -32,17 +32,17 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreHDHT
 {
   @NotNull
-  protected ResultFormatter appDataFormatter = new ResultFormatter();
+  protected ResultFormatter resultFormatter = new ResultFormatter();
   @NotNull
   protected AggregatorRegistry aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY;
 
   //Query Processing - Start
   protected transient QueryManager<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
-  protected final transient DataDeserializerFactory queryDeserializerFactory;
+  protected final transient MessageDeserializerFactory queryDeserializerFactory;
 
   @VisibleForTesting
   public SchemaRegistry schemaRegistry;
-  protected transient DataSerializerFactory resultSerializerFactory;
+  protected transient MessageSerializerFactory resultSerializerFactory;
 
   @AppData.ResultPort
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
@@ -79,7 +79,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   @SuppressWarnings("unchecked")
   public AbstractAppDataDimensionStoreHDHT()
   {
-    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
+    queryDeserializerFactory = new MessageDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
   }
 
   @Override
@@ -94,7 +94,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
       new DimensionsQueryQueueManager(this, schemaRegistry));
     queryProcessor.setup(context);
 
-    resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
+    resultSerializerFactory = new MessageSerializerFactory(resultFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, schemaRegistry);
     super.setup(context);
   }
@@ -150,7 +150,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   protected abstract SchemaRegistry getSchemaRegistry();
 
   @Override
-  public DimensionsIncrementalAggregator getAggregator(int aggregatorID)
+  public IncrementalAggregator getAggregator(int aggregatorID)
   {
     return aggregatorInfo.getIncrementalAggregatorIDToAggregator().get(aggregatorID);
   }
@@ -158,20 +158,20 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   @Override
   protected int getAggregatorID(String aggregatorName)
   {
-    return aggregatorInfo.getStaticAggregatorNameToID().get(aggregatorName);
+    return aggregatorInfo.getIncrementalAggregatorNameToID().get(aggregatorName);
   }
 
-  public void setAppDataFormatter(ResultFormatter appDataFormatter)
+  public void setAppDataFormatter(ResultFormatter resultFormatter)
   {
-    this.appDataFormatter = appDataFormatter;
+    this.resultFormatter = resultFormatter;
   }
 
   /**
-   * @return the appDataFormatter
+   * @return the resultFormatter
    */
   public ResultFormatter getAppDataFormatter()
   {
-    return appDataFormatter;
+    return resultFormatter;
   }
 
   /**

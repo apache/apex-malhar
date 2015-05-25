@@ -15,9 +15,27 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
+import java.io.IOException;
 
-public interface CustomDataSerializer
+public abstract class CustomMessageDeserializer
 {
-  public abstract String serialize(Result result, ResultFormatter resultFormatter);
+  private Class<? extends Message> dataClazz;
+
+  public abstract Message deserialize(String json, Object context) throws IOException;
+
+  /**
+   * @return the dataClazz
+   */
+  public Class<? extends Message> getDataClazz()
+  {
+    return dataClazz;
+  }
+
+  /**
+   * @param dataClazz the dataClazz to set
+   */
+  public void setDataClazz(Class<? extends Message> dataClazz)
+  {
+    this.dataClazz = dataClazz;
+  }
 }

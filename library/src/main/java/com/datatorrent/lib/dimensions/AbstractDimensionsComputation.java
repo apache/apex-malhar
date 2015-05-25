@@ -20,35 +20,36 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.Operator;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
-import com.esotericsoftware.kryo.serializers.FieldSerializer.Bind;
-import com.esotericsoftware.kryo.serializers.JavaSerializer;
+import com.esotericsoftware.kryo.DefaultSerializer;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import gnu.trove.map.hash.TCustomHashMap;
 import gnu.trove.strategy.HashingStrategy;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> implements Operator
 {
-  @Bind(JavaSerializer.class)
-  protected AggregateMap<AGGREGATOR_INPUT, AGGREGATE>[] maps;
+  @VisibleForTesting
+  public AggregateMap<AGGREGATOR_INPUT, AGGREGATE>[] maps;
+  protected DimensionsComputationUnifier<AGGREGATOR_INPUT, AGGREGATE> unifier;
+  protected DTHashingStrategy<AGGREGATE> unifierHashingStrategy;
 
-  private Unifier<AGGREGATE> unifier;
-
-  public void setUnifier(Unifier<AGGREGATE> unifier)
-  {
-    this.unifier = unifier;
-  }
-
-  public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>()
-  {
+  public final transient DefaultOutputPort<AGGREGATE> output = new DefaultOutputPort<AGGREGATE>() {
     @Override
     public Unifier<AGGREGATE> getUnifier()
     {
-      if (unifier == null) {
-        return super.getUnifier();
-      }
-      else {
-        return unifier;
-      }
+      configureDimensionsComputationUnifier();
+      return unifier;
     }
   };
 
@@ -56,42 +57,189 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
   {
   }
 
+  public void setUnifier(DimensionsComputationUnifier<AGGREGATOR_INPUT, AGGREGATE> unifier)
+  {
+    this.unifier = unifier;
+  }
+
+  public abstract void configureDimensionsComputationUnifier();
+
   @Override
+  @SuppressWarnings("unchecked")
   public void setup(OperatorContext context)
   {
   }
 
-  protected static class AggregateMap<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> extends TCustomHashMap<AGGREGATOR_INPUT, AGGREGATE>
+  @Override
+  public void beginWindow(long windowId)
+  {
+  }
+
+  @Override
+  public void endWindow()
+  {
+    for(AggregateMap<AGGREGATOR_INPUT, AGGREGATE> map: maps) {
+      for(AGGREGATE value: map.values()) {
+        output.emit(value);
+      }
+
+      map.clear();
+    }
+  }
+
+  @Override
+  public void teardown()
+  {
+  }
+
+  public static class ExternalizableSerializer<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> extends Serializer<AggregateMap<AGGREGATOR_INPUT, AGGREGATE>>
+  {
+    @Override
+    public void write(Kryo kryo, Output output, AggregateMap<AGGREGATOR_INPUT, AGGREGATE> object)
+    {
+      try {
+        ObjectOutputStream stream = new ObjectOutputStream(output);
+
+        object.writeExternal(stream);
+        writeObject(object.aggregator, stream);
+        writeObject(object.hashingStrategy, stream);
+
+        stream.flush();
+      }
+      catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    private void writeObject(Object object, ObjectOutputStream stream)
+    {
+      ByteArrayOutputStream byteOutputStream = new ByteArrayOutputStream();
+      ObjectOutputStream fieldStream;
+
+      try {
+        fieldStream = new ObjectOutputStream(byteOutputStream);
+        fieldStream.writeObject(object);
+        fieldStream.flush();
+        fieldStream.close();
+        byte[] fieldBytes = byteOutputStream.toByteArray();
+        stream.writeInt(fieldBytes.length);
+        stream.write(fieldBytes);
+      }
+      catch(IOException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    @Override
+    public AggregateMap<AGGREGATOR_INPUT, AGGREGATE> read(Kryo kryo, Input input, Class<AggregateMap<AGGREGATOR_INPUT, AGGREGATE>> type)
+    {
+      AggregateMap<AGGREGATOR_INPUT, AGGREGATE> object = kryo.newInstance(type);
+
+      try {
+        kryo.reference(object);
+
+        ObjectInputStream objectInputStream = new ObjectInputStream(input);
+        object.readExternal(objectInputStream);
+
+        object.aggregator = readObject(objectInputStream);
+        object.hashingStrategy = readObject(objectInputStream);
+      }
+      catch (IOException ex) {
+        throw new RuntimeException(ex);
+      }
+      catch(ClassNotFoundException ex) {
+        throw new RuntimeException(ex);
+      }
+
+      return object;
+    }
+
+    private static <T> T readObject(ObjectInputStream ois)
+    {
+      try {
+        int objectBytesSize = ois.readInt();
+        byte[] objectBytes = new byte[objectBytesSize];
+        ois.readFully(objectBytes);
+
+        ObjectInputStream objectInputStream = new ObjectInputStream(new ByteBufferInputStream(objectBytes));
+        @SuppressWarnings("unchecked")
+        T tempObject = (T)objectInputStream.readObject();
+        return tempObject;
+      }
+      catch(IOException ex) {
+        throw new RuntimeException(ex);
+      }
+      catch(ClassNotFoundException ex) {
+        throw new RuntimeException(ex);
+      }
+    }
+
+    private static class ByteBufferInputStream extends InputStream
+    {
+      private int index = 0;
+      private byte[] bytes;
+
+      public ByteBufferInputStream(byte[] bytes)
+      {
+        this.bytes = bytes;
+      }
+
+      @Override
+      public int read() throws IOException
+      {
+        if(index == bytes.length) {
+          return -1;
+        }
+
+        return bytes[index++];
+      }
+    }
+  }
+
+  @DefaultSerializer(ExternalizableSerializer.class)
+  public static class AggregateMap<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> extends TCustomHashMap<AGGREGATOR_INPUT, AGGREGATE>
   {
     private static final long serialVersionUID = 201505200427L;
-    private Aggregator<AGGREGATOR_INPUT, AGGREGATE> aggregator;
+    private transient Aggregator<AGGREGATOR_INPUT, AGGREGATE> aggregator;
     private int aggregateIndex;
+    private DimensionsCombination<AGGREGATOR_INPUT, AGGREGATE> hashingStrategy;
 
     public AggregateMap()
     {
-      //For Serialization
+      /* Needed for Serialization */
       super();
-      aggregator = null;
+      LOG.debug("No arg constructor");
     }
 
     public AggregateMap(Aggregator<AGGREGATOR_INPUT, AGGREGATE> aggregator,
-                        HashingStrategy<AGGREGATOR_INPUT> hashingStrategy,
-                        int initialCapacity,
+                        DimensionsCombination<AGGREGATOR_INPUT, AGGREGATE> hashingStrategy,
                         int aggregateIndex)
     {
-      super(hashingStrategy, initialCapacity);
+      super(hashingStrategy);
 
+      this.hashingStrategy = hashingStrategy;
       this.aggregator = Preconditions.checkNotNull(aggregator);
       this.aggregateIndex = aggregateIndex;
     }
 
-    public void add(AGGREGATOR_INPUT aggregatorInput)
+    public void setAggregator(Aggregator<AGGREGATOR_INPUT, AGGREGATE> aggregator)
+    {
+      this.aggregator = aggregator;
+    }
+
+    public Aggregator<AGGREGATOR_INPUT, AGGREGATE> getAggregator()
+    {
+      return aggregator;
+    }
+
+    public void aggregate(AGGREGATOR_INPUT aggregatorInput)
     {
       AGGREGATE aggregate = get(aggregatorInput);
 
       if(aggregate == null) {
         aggregate = aggregator.createDest(aggregatorInput);
         aggregate.setAggregateIndex(aggregateIndex);
+        hashingStrategy.setKeys(aggregatorInput, aggregate);
         put(aggregatorInput, aggregate);
       }
       else {
@@ -124,26 +272,38 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
     }
   }
 
-  @Override
-  public void beginWindow(long windowId)
+  public static interface DTHashingStrategy<AGGREGATOR_INPUT> extends HashingStrategy<AGGREGATOR_INPUT> {}
+
+  public static interface DimensionsCombination<AGGREGATOR_INPUT, AGGREGATE> extends DTHashingStrategy<AGGREGATOR_INPUT>
   {
+    public void setKeys(AGGREGATOR_INPUT aggregatorInput, AGGREGATE aggregate);
   }
 
-  @Override
-  public void endWindow()
+  public static class DirectDimensionsCombination<AGGREGATOR_INPUT, AGGREGATE> implements DimensionsCombination<AGGREGATOR_INPUT, AGGREGATE>
   {
-    for(AggregateMap<AGGREGATOR_INPUT, AGGREGATE> dimension: maps) {
-      for(AGGREGATE value: dimension.values()) {
-        output.emit(value);
-      }
+    private static final long serialVersionUID = 201505230252L;
 
-      dimension.clear();
+    public DirectDimensionsCombination()
+    {
     }
-  }
 
-  @Override
-  public void teardown()
-  {
+    @Override
+    public int computeHashCode(AGGREGATOR_INPUT o)
+    {
+      return o.hashCode();
+    }
+
+    @Override
+    public boolean equals(AGGREGATOR_INPUT a, AGGREGATOR_INPUT b)
+    {
+      return a.equals(b);
+    }
+
+    @Override
+    public void setKeys(AGGREGATOR_INPUT aggregatorInput, AGGREGATE aggregate)
+    {
+      //NOOP
+    }
   }
 
   public interface AggregateResult {}
@@ -153,4 +313,6 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
     public int getAggregateIndex();
     public void setAggregateIndex(int aggregateIndex);
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractDimensionsComputation.class);
 }
