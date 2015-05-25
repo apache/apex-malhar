@@ -26,7 +26,7 @@ import com.datatorrent.lib.codec.KryoSerializableStreamCodec;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
-import com.datatorrent.lib.dimensions.IncrementalAggregator;
+import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;

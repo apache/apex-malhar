@@ -16,6 +16,7 @@
 
 package com.datatorrent.lib.dimensions;
 
+import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateMap;

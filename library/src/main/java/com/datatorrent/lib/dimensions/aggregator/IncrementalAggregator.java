@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.dimensions;
+package com.datatorrent.lib.dimensions.aggregator;
 
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateResult;
-import java.io.Serializable;
+import com.datatorrent.lib.dimensions.aggregator.Aggregator;
+import com.datatorrent.lib.appdata.schemas.Type;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
+import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
-public interface Aggregator<EVENT, AGGREGATE extends AggregateResult> extends Serializable
+public interface IncrementalAggregator extends Aggregator<InputEvent, Aggregate>
 {
-  public static final long serialVersionUID = 201505240659L;
-
-  public void aggregate(AGGREGATE dest, EVENT src);
-  public void aggregate(AGGREGATE dest, AGGREGATE src);
-  public AGGREGATE createDest(EVENT first);
+  public Type getOutputType(Type inputType);
 }

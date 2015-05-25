@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.appdata.dimensions;
+package com.datatorrent.lib.appdata.dimensions.aggregator;
 
-import com.datatorrent.lib.dimensions.AggregatorAverage;
-import com.datatorrent.lib.dimensions.AggregatorCount;
-import com.datatorrent.lib.dimensions.AggregatorRegistry;
-import com.datatorrent.lib.dimensions.AggregatorSum;
-import com.datatorrent.lib.dimensions.AggregatorUtils;
-import com.datatorrent.lib.dimensions.IncrementalAggregator;
-import com.datatorrent.lib.dimensions.OTFAggregator;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorAverage;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorCount;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorSum;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
+import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;

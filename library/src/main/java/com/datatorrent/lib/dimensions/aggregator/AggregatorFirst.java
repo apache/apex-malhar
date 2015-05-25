@@ -14,13 +14,45 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.dimensions;
+package com.datatorrent.lib.dimensions.aggregator;
 
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
-public interface IncrementalAggregator extends Aggregator<InputEvent, Aggregate>
+/**
+ * Note when aggregates are combined in a unifier it is not possible to tell which came first or last,
+ * one is picked arbitrarily.
+ */
+public class AggregatorFirst implements IncrementalAggregator
 {
-  public Type getOutputType(Type inputType);
+  private static final long serialVersionUID = 20154301646L;
+
+  public AggregatorFirst()
+  {
+  }
+
+  @Override
+  public Aggregate createDest(InputEvent first)
+  {
+    return new Aggregate(first.getEventKey(), first.getAggregates());
+  }
+
+  @Override
+  public void aggregate(Aggregate dest, InputEvent src)
+  {
+    //Do nothing
+  }
+
+  @Override
+  public void aggregate(Aggregate dest, Aggregate src)
+  {
+    //Do nothing
+  }
+
+  @Override
+  public Type getOutputType(Type inputType)
+  {
+    return AggregatorUtils.IDENTITY_TYPE_MAP.get(inputType);
+  }
 }

@@ -13,18 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.dimensions;
+package com.datatorrent.lib.dimensions.aggregator;
 
-import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
-import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
+import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
-public class AggregatorMin implements IncrementalAggregator
+public class AggregatorMax implements IncrementalAggregator
 {
-  private static final long serialVersionUID = 20154301648L;
+  private static final long serialVersionUID = 201503120332L;
 
-  public AggregatorMin()
+  public AggregatorMax()
   {
   }
 
@@ -35,13 +36,13 @@ public class AggregatorMin implements IncrementalAggregator
   }
 
   @Override
-  public void aggregate(Aggregate dest, InputEvent src)
+  public void aggregate(Aggregate dest, Aggregate src)
   {
     aggregateHelper(dest, src);
   }
 
   @Override
-  public void aggregate(Aggregate dest, Aggregate src)
+  public void aggregate(Aggregate dest, InputEvent src)
   {
     aggregateHelper(dest, src);
   }
@@ -52,7 +53,7 @@ public class AggregatorMin implements IncrementalAggregator
     return AggregatorUtils.IDENTITY_NUMBER_TYPE_MAP.get(inputType);
   }
 
-  public void aggregateHelper(DimensionsEvent dest, DimensionsEvent src)
+  private void aggregateHelper(DimensionsEvent dest, DimensionsEvent src)
   {
     GPOMutable destAggs = dest.getAggregates();
     GPOMutable srcAggs = src.getAggregates();
@@ -65,7 +66,7 @@ public class AggregatorMin implements IncrementalAggregator
         for(int index = 0;
             index < destByte.length;
             index++) {
-          if(destByte[index] > srcByte[index]) {
+          if(destByte[index] < srcByte[index]) {
             destByte[index] = srcByte[index];
           }
         }
@@ -80,7 +81,7 @@ public class AggregatorMin implements IncrementalAggregator
         for(int index = 0;
             index < destShort.length;
             index++) {
-          if(destShort[index] > srcShort[index]) {
+          if(destShort[index] < srcShort[index]) {
             destShort[index] = srcShort[index];
           }
         }
@@ -95,7 +96,7 @@ public class AggregatorMin implements IncrementalAggregator
         for(int index = 0;
             index < destInteger.length;
             index++) {
-          if(destInteger[index] > srcInteger[index]) {
+          if(destInteger[index] < srcInteger[index]) {
             destInteger[index] = srcInteger[index];
           }
         }
@@ -110,7 +111,7 @@ public class AggregatorMin implements IncrementalAggregator
         for(int index = 0;
             index < destLong.length;
             index++) {
-          if(destLong[index] > srcLong[index]) {
+          if(destLong[index] < srcLong[index]) {
             destLong[index] = srcLong[index];
           }
         }
@@ -125,7 +126,7 @@ public class AggregatorMin implements IncrementalAggregator
         for(int index = 0;
             index < destFloat.length;
             index++) {
-          if(destFloat[index] > srcFloat[index]) {
+          if(destFloat[index] < srcFloat[index]) {
             destFloat[index] = srcFloat[index];
           }
         }
@@ -140,7 +141,7 @@ public class AggregatorMin implements IncrementalAggregator
         for(int index = 0;
             index < destDouble.length;
             index++) {
-          if(destDouble[index] > srcDouble[index]) {
+          if(destDouble[index] < srcDouble[index]) {
             destDouble[index] = srcDouble[index];
           }
         }

@@ -16,8 +16,8 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.dimensions.AggregatorIncrementalType;
-import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorIncrementalType;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.DimensionsCombination;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.Key;

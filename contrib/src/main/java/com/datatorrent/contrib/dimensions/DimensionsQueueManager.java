@@ -41,14 +41,14 @@ import java.util.Map;
 import java.util.Set;
 
 //Query Processing Classes - Start
-public class DimensionsQueryQueueManager extends AppDataWindowEndQueueManager<DataQueryDimensional, QueryMeta> {
+public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQueryDimensional, QueryMeta> {
   @NotNull
   private final DimensionsStoreHDHT operator;
   @NotNull
   private final SchemaRegistry schemaRegistry;
   private final Map<Slice, HDSQuery> queries;
 
-  public DimensionsQueryQueueManager(@NotNull DimensionsStoreHDHT operator, @NotNull SchemaRegistry schemaRegistry)
+  public DimensionsQueueManager(@NotNull DimensionsStoreHDHT operator, @NotNull SchemaRegistry schemaRegistry)
   {
     this.operator = Preconditions.checkNotNull(operator);
     this.schemaRegistry = Preconditions.checkNotNull(schemaRegistry);
@@ -194,5 +194,5 @@ public class DimensionsQueryQueueManager extends AppDataWindowEndQueueManager<Da
     return super.enqueue(query, qm, null);
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(DimensionsQueryQueueManager.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionsQueueManager.class);
 }

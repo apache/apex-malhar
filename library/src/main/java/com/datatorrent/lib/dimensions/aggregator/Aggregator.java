@@ -14,15 +14,16 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.dimensions;
+package com.datatorrent.lib.dimensions.aggregator;
 
-import com.datatorrent.lib.dimensions.aggregator.Aggregator;
-import com.datatorrent.api.Operator.Unifier;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DTHashingStrategy;
-import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateResult;
+import java.io.Serializable;
 
-public interface DimensionsComputationUnifier<AGGREGATE_INPUT, AGGREGATE extends UnifiableAggregate> extends Unifier<AGGREGATE>
+public interface Aggregator<EVENT, AGGREGATE extends AggregateResult> extends Serializable
 {
-  public void setAggregators(Aggregator<AGGREGATE_INPUT, AGGREGATE>[] aggregators);
-  public void setHashingStrategy(DTHashingStrategy<AGGREGATE> dimensionsCombination);
+  public static final long serialVersionUID = 201505240659L;
+
+  public void aggregate(AGGREGATE dest, EVENT src);
+  public void aggregate(AGGREGATE dest, AGGREGATE src);
+  public AGGREGATE createDest(EVENT first);
 }

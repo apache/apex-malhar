@@ -15,11 +15,11 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.dimensions.AggregatorRegistry;
-import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
-import com.datatorrent.lib.dimensions.IncrementalAggregator;
-import com.datatorrent.lib.dimensions.OTFAggregator;
+import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
+import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;

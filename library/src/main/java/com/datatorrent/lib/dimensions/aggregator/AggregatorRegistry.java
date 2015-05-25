@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.datatorrent.lib.dimensions;
+package com.datatorrent.lib.dimensions.aggregator;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;

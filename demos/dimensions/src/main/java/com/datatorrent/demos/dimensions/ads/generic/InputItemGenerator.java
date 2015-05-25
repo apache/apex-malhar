@@ -8,7 +8,7 @@ package com.datatorrent.demos.dimensions.ads.generic;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;

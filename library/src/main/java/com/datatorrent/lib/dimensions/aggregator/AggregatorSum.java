@@ -13,25 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.dimensions;
+package com.datatorrent.lib.dimensions.aggregator;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.datatorrent.lib.dimensions.DimensionsEvent;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 
-public class AggregatorMax implements IncrementalAggregator
+
+public class AggregatorSum implements IncrementalAggregator
 {
-  private static final long serialVersionUID = 201503120332L;
+  private static final long serialVersionUID = 20154301649L;
 
-  public AggregatorMax()
+  public AggregatorSum()
   {
-  }
-
-  @Override
-  public Aggregate createDest(InputEvent first)
-  {
-    return new Aggregate(first.getEventKey(), first.getAggregates());
   }
 
   @Override
@@ -52,6 +48,12 @@ public class AggregatorMax implements IncrementalAggregator
     return AggregatorUtils.IDENTITY_NUMBER_TYPE_MAP.get(inputType);
   }
 
+  @Override
+  public Aggregate createDest(InputEvent inputEvent)
+  {
+    return new Aggregate(inputEvent.getEventKey(), inputEvent.getAggregates());
+  }
+
   private void aggregateHelper(DimensionsEvent dest, DimensionsEvent src)
   {
     GPOMutable destAggs = dest.getAggregates();
@@ -65,9 +67,7 @@ public class AggregatorMax implements IncrementalAggregator
         for(int index = 0;
             index < destByte.length;
             index++) {
-          if(destByte[index] < srcByte[index]) {
-            destByte[index] = srcByte[index];
-          }
+          destByte[index] += srcByte[index];
         }
       }
     }
@@ -80,9 +80,7 @@ public class AggregatorMax implements IncrementalAggregator
         for(int index = 0;
             index < destShort.length;
             index++) {
-          if(destShort[index] < srcShort[index]) {
-            destShort[index] = srcShort[index];
-          }
+          destShort[index] += srcShort[index];
         }
       }
     }
@@ -95,9 +93,7 @@ public class AggregatorMax implements IncrementalAggregator
         for(int index = 0;
             index < destInteger.length;
             index++) {
-          if(destInteger[index] < srcInteger[index]) {
-            destInteger[index] = srcInteger[index];
-          }
+          destInteger[index] += srcInteger[index];
         }
       }
     }
@@ -110,9 +106,7 @@ public class AggregatorMax implements IncrementalAggregator
         for(int index = 0;
             index < destLong.length;
             index++) {
-          if(destLong[index] < srcLong[index]) {
-            destLong[index] = srcLong[index];
-          }
+          destLong[index] += srcLong[index];
         }
       }
     }
@@ -125,9 +119,7 @@ public class AggregatorMax implements IncrementalAggregator
         for(int index = 0;
             index < destFloat.length;
             index++) {
-          if(destFloat[index] < srcFloat[index]) {
-            destFloat[index] = srcFloat[index];
-          }
+          destFloat[index] += srcFloat[index];
         }
       }
     }
@@ -140,9 +132,7 @@ public class AggregatorMax implements IncrementalAggregator
         for(int index = 0;
             index < destDouble.length;
             index++) {
-          if(destDouble[index] < srcDouble[index]) {
-            destDouble[index] = srcDouble[index];
-          }
+          destDouble[index] += srcDouble[index];
         }
       }
     }

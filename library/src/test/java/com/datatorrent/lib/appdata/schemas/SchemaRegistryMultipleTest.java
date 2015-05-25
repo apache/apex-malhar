@@ -16,7 +16,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;

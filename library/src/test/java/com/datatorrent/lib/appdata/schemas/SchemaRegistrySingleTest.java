@@ -16,7 +16,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;

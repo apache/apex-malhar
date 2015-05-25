@@ -18,9 +18,9 @@ import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
-import com.datatorrent.lib.dimensions.AggregatorRegistry;
-import com.datatorrent.lib.dimensions.AggregatorUtils;
-import com.datatorrent.lib.dimensions.IncrementalAggregator;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import javax.validation.constraints.NotNull;
@@ -90,8 +90,8 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
     schemaRegistry = getSchemaRegistry();
 
     //setup query processor
-    queryProcessor = QueryManager.newInstance(new DimensionsQueryComputer(this, schemaRegistry),
-      new DimensionsQueryQueueManager(this, schemaRegistry));
+    queryProcessor = QueryManager.newInstance(new DimensionsQueryExecutor(this, schemaRegistry),
+      new DimensionsQueueManager(this, schemaRegistry));
     queryProcessor.setup(context);
 
     resultSerializerFactory = new MessageSerializerFactory(resultFormatter);

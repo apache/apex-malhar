@@ -28,10 +28,10 @@ import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
-import com.datatorrent.lib.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.dimensions.DimensionsEvent;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
-import com.datatorrent.lib.dimensions.OTFAggregator;
+import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -45,11 +45,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> {
+public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> {
   private final DimensionsStoreHDHT operator;
   private final SchemaRegistry schemaRegistry;
 
-  public DimensionsQueryComputer(@NotNull DimensionsStoreHDHT operator, @NotNull SchemaRegistry schemaRegistry)
+  public DimensionsQueryExecutor(@NotNull DimensionsStoreHDHT operator, @NotNull SchemaRegistry schemaRegistry)
   {
     this.operator = Preconditions.checkNotNull(operator, "operator");
     this.schemaRegistry = Preconditions.checkNotNull(schemaRegistry, "schema registry");
@@ -62,7 +62,7 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
     DimensionalConfigurationSchema eventSchema = schemaDimensional.getGenericEventSchema();
     LOG.debug("Processing query {} with countdown {}", query.getId(), query.getCountdown());
     List<Map<String, GPOMutable>> keys = Lists.newArrayList();
-    List<Map<String, GPOMutable>> values = Lists.newArrayList();
+    List<Map<String, GPOMutable>> results = Lists.newArrayList();
     List<Map<String, HDSQuery>> queries = qm.getHdsQueries();
     List<Map<String, EventKey>> eventKeys = qm.getEventKeys();
     boolean allSatisfied = true;
@@ -71,7 +71,7 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
       Map<String, HDSQuery> aggregatorToQuery = queries.get(index);
       Map<String, EventKey> aggregatorToEventKey = eventKeys.get(index);
       Map<String, GPOMutable> aggregatorKeys = Maps.newHashMap();
-      Map<String, GPOMutable> aggregatorValues = Maps.newHashMap();
+      Map<String, GPOMutable> aggregatorResults = Maps.newHashMap();
 
       for(String aggregatorName: aggregatorToQuery.keySet()) {
         HDSQuery hdsQuery = aggregatorToQuery.get(aggregatorName);
@@ -84,7 +84,7 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
             LOG.debug("A Keys are null and they shouldn't be");
           }
           aggregatorKeys.put(aggregatorName, gae.getKeys());
-          aggregatorValues.put(aggregatorName, gae.getAggregates());
+          aggregatorResults.put(aggregatorName, gae.getAggregates());
         }
         else {
           Slice keySlice = new Slice(operator.getEventKeyBytesGAE(eventKey));
@@ -94,7 +94,7 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
           if(value != null) {
             gae = operator.fromKeyValueGAE(keySlice, value);
             aggregatorKeys.put(aggregatorName, gae.getKeys());
-            aggregatorValues.put(aggregatorName, gae.getAggregates());
+            aggregatorResults.put(aggregatorName, gae.getAggregates());
             LOG.debug("Retrieved from uncommited");
           }
           else if(hdsQuery.result != null) {
@@ -106,7 +106,7 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
 
             LOG.debug("Retrieved from hds");
             aggregatorKeys.put(aggregatorName, gae.getKeys());
-            aggregatorValues.put(aggregatorName, gae.getAggregates());
+            aggregatorResults.put(aggregatorName, gae.getAggregates());
           }
           else {
             allSatisfied = false;
@@ -118,9 +118,9 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
         }
       }
 
-      if(!aggregatorValues.isEmpty()) {
+      if(!aggregatorResults.isEmpty()) {
         keys.add(aggregatorKeys);
-        values.add(aggregatorValues);
+        results.add(aggregatorResults);
       }
     }
 
@@ -128,12 +128,21 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
       return null;
     }
 
+    return pruneResults(keys, results, query, eventSchema, queueContext);
+  }
+
+  private Result pruneResults(List<Map<String, GPOMutable>> keys,
+                              List<Map<String, GPOMutable>> results,
+                              DataQueryDimensional query,
+                              DimensionalConfigurationSchema eventSchema,
+                              MutableLong queueContext)
+  {
     List<Map<String, GPOMutable>> prunedKeys = Lists.newArrayList();
-    List<Map<String, GPOMutable>> prunedValues = Lists.newArrayList();
+    List<Map<String, GPOMutable>> prunedResults = Lists.newArrayList();
 
     for(int index = 0; index < keys.size(); index++) {
       Map<String, GPOMutable> key = keys.get(index);
-      Map<String, GPOMutable> value = values.get(index);
+      Map<String, GPOMutable> value = results.get(index);
       Map<String, GPOMutable> prunedKey = Maps.newHashMap();
       Map<String, GPOMutable> prunedValue = Maps.newHashMap();
 
@@ -157,7 +166,7 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
           prunedValue.put(aggregatorName, value.get(aggregatorName));
           continue;
         }
-        List<GPOMutable> mutableValues = Lists.newArrayList();
+        List<GPOMutable> mutableResults = Lists.newArrayList();
         List<String> childAggregators = eventSchema.getAggregatorRegistry().getOTFAggregatorToStaticAggregators().get(aggregatorName);
         boolean gotAllStaticAggregators = true;
 
@@ -169,7 +178,7 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
             break;
           }
 
-          mutableValues.add(valueGPO);
+          mutableResults.add(valueGPO);
         }
 
         if(!gotAllStaticAggregators) {
@@ -183,18 +192,18 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
                                                                               aggregator);
         GPOMutable result = aggregator.aggregate(fd,
                                                  outputFd,
-                                                 mutableValues.toArray(new GPOMutable[mutableValues.size()]));
+                                                 mutableResults.toArray(new GPOMutable[mutableResults.size()]));
         prunedValue.put(aggregatorName, result);
         prunedKey.put(aggregatorName, singleKey);
       }
 
       if(completeTimeBucket) {
         prunedKeys.add(prunedKey);
-        prunedValues.add(prunedValue);
+        prunedResults.add(prunedValue);
       }
     }
 
-    return new DataResultDimensional(query, prunedKeys, prunedValues, queueContext.longValue());
+    return new DataResultDimensional(query, prunedKeys, prunedResults, queueContext.longValue());
   }
 
   @Override
@@ -203,5 +212,5 @@ public class DimensionsQueryComputer implements QueryExecutor<DataQueryDimension
     context.setValue(true);
   }
 
-  private static final Logger LOG = LoggerFactory.getLogger(DimensionsQueryComputer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionsQueryExecutor.class);
 }
