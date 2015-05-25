@@ -42,9 +42,6 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * TODO aggregate by windowID in waiting cache.
- */
 @OperatorAnnotation(checkpointableWithinAppWindow=false)
 public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<Aggregate>
 {
