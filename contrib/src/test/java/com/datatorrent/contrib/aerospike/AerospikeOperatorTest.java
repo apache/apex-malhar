@@ -20,10 +20,7 @@ import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
 import com.aerospike.client.Record;
-import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
-import com.datatorrent.api.Attribute.AttributeMap;
-import com.datatorrent.api.DAG;
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import org.junit.Assert;
@@ -35,13 +32,11 @@ import java.util.List;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.NAMESPACE;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.NODE;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.NUM_TUPLES;
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.OPERATOR_ID;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.PORT;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.SET_NAME;
 
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.cleanTable;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.cleanMetaTable;
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getEvents;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getNumOfEventsInStore;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getOperatorContext;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getTransactionalStore;
@@ -89,7 +84,7 @@ public class AerospikeOperatorTest {
     @Override
     public TestEvent getTuple(Record record) {
 
-      return new TestEvent((Integer) record.getValue("ID"));
+      return new TestEvent(record.getInt("ID"));
     }
 
     @Override
@@ -104,8 +99,9 @@ public class AerospikeOperatorTest {
 
     public void insertEventsInTable(int numEvents) {
 
+      AerospikeClient client = null;
       try {
-        AerospikeClient client = new AerospikeClient(NODE, PORT);
+        client = new AerospikeClient(NODE, PORT);
         Key key;
         Bin bin;
         for (int i = 0; i < numEvents; i++) {
@@ -115,7 +111,10 @@ public class AerospikeOperatorTest {
         }
       }
       catch (AerospikeException e) {
-        throw new RuntimeException(e);
+        throw e;
+      }
+      finally {
+        if (null != client) client.close();
       }
     }
 

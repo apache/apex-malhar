@@ -47,8 +47,8 @@ public class AerospikeNonTransactionalPutOperator extends AbstractAerospikeNonTr
   @NotNull
   private ArrayList<String> expressions;
 
-  private Getter<Object, Key> keyGetter;
-  private Getter<Object, List> binsGetter;
+  private transient Getter<Object, Key> keyGetter;
+  private transient Getter<Object, List> binsGetter;
 
   // required by App Builder
   public AerospikeNonTransactionalPutOperator()
@@ -74,12 +74,8 @@ public class AerospikeNonTransactionalPutOperator extends AbstractAerospikeNonTr
     this.expressions = e;
   }
 
-  /*
-   * Not a property, so don't show in App Builder
-   * @omitFromUI
-   */
   @Override
-  public Key getUpdatedBins(Object tuple, List<Bin> list)
+  protected Key getUpdatedBins(Object tuple, List<Bin> list)
   {
     if (null == keyGetter) {    // first tuple
       Class<?> tupleClass = tuple.getClass();

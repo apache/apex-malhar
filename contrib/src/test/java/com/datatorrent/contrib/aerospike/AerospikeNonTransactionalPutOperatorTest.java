@@ -21,14 +21,13 @@ import java.util.List;
 
 import com.datatorrent.contrib.aerospike.AerospikeTestUtils.TestPOJO;
 
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.NUM_TUPLES;
-
+import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.checkEvents;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.cleanTable;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getEvents;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getExpressions;
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getNumOfEventsInStore;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getOperatorContext;
 import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getStore;
+
 
 /**
  * Tests {@link AerospikeNonTransactionalPutOperator}
@@ -55,7 +54,8 @@ public class AerospikeNonTransactionalPutOperatorTest {
     }
     outputOperator.endWindow();
 
-    Assert.assertEquals("rows in db", NUM_TUPLES, getNumOfEventsInStore());
+    // check records
+    Assert.assertTrue("key and value check", checkEvents());
   }
 
 }

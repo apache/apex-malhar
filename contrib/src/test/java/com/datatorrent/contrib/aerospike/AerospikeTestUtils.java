@@ -15,10 +15,14 @@
  */
 package com.datatorrent.contrib.aerospike;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.aerospike.client.AerospikeClient;
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
+import com.aerospike.client.Record;
 import com.aerospike.client.query.RecordSet;
 import com.aerospike.client.query.Statement;
 import com.datatorrent.api.Attribute.AttributeMap;
@@ -32,6 +36,8 @@ import java.util.List;
  * Utility class encapsulating code used by several tests
  */
 public class AerospikeTestUtils {
+  private static final Logger LOG = LoggerFactory.getLogger(AerospikeTestUtils.class);
+
   public static final String NODE = "127.0.0.1";
 
   public static final String NAMESPACE = "test";
@@ -43,9 +49,9 @@ public class AerospikeTestUtils {
 
   // removes all records from set SET_NAME in namespace NAMESPACE
   static void cleanTable() {
-
+    AerospikeClient client = null;
     try {
-      AerospikeClient client = new AerospikeClient(NODE, PORT);
+      client = new AerospikeClient(NODE, PORT);
 
       Statement stmnt = new Statement();
       stmnt.setNamespace(NAMESPACE);
@@ -57,7 +63,11 @@ public class AerospikeTestUtils {
       }
     }
     catch (AerospikeException e) {
-      throw new RuntimeException(e);
+      LOG.error("cleanTable failed: {}", e);
+      throw e;
+    }
+    finally {
+      if (null != client) client.close();
     }
   }
 
@@ -65,9 +75,9 @@ public class AerospikeTestUtils {
   // committed window ids) in namespace NAMESPACE
   //
   static void cleanMetaTable() {
-
+    AerospikeClient client = null;
     try {
-      AerospikeClient client = new AerospikeClient(NODE, PORT);
+      client = new AerospikeClient(NODE, PORT);
 
       Statement stmnt = new Statement();
       stmnt.setNamespace(NAMESPACE);
@@ -79,15 +89,20 @@ public class AerospikeTestUtils {
       }
     }
     catch (AerospikeException e) {
-      throw new RuntimeException(e);
+      LOG.error("cleanMetaTable failed: {}", e);
+      throw e;
+    }
+    finally {
+      if (null != client) client.close();
     }
   }
 
   // returns the number of records in set SET_NAME in namespace NAMESPACE
   static long getNumOfEventsInStore() {
+    AerospikeClient client = null;
     try {
       long count = 0;
-      AerospikeClient client = new AerospikeClient(NODE, PORT);
+      client = new AerospikeClient(NODE, PORT);
       Statement stmnt = new Statement();
       stmnt.setNamespace(NAMESPACE);
       stmnt.setSetName(SET_NAME);
@@ -99,7 +114,11 @@ public class AerospikeTestUtils {
       return count;
     }
     catch (AerospikeException e) {
-      throw new RuntimeException("fetching count", e);
+      LOG.error("getNumOfEventsInStore failed: {}", e);
+      throw e;
+    }
+    finally {
+      if (null != client) client.close();
     }
   }
 
@@ -145,13 +164,41 @@ public class AerospikeTestUtils {
     return result;
   }
 
+  static boolean checkEvents()
+  {
+    long count = 0;
+    AerospikeClient client = null;
+    try {
+        client = new AerospikeClient(NODE, PORT);
+        Statement stmnt = new Statement();
+        stmnt.setNamespace(NAMESPACE);
+        stmnt.setSetName(SET_NAME);
+
+        RecordSet rs = client.query(null, stmnt);
+        while ( rs.next() ) {
+          Record record = rs.getRecord();
+          Key key = rs.getKey();
+          if (! TestPOJO.check(key, record)) return false;
+          count++;
+        }
+    }
+    catch (AerospikeException e) {
+      throw new RuntimeException("Error fetching records: ", e);
+    }
+    finally {
+      if (null != client) client.close();
+    }
+
+    return NUM_TUPLES == count;
+  }
+
   // needs to be public for PojoUtils to work
   public static class TestPOJO {
+    public static final String ID = "ID", VAL = "VALUE";
+    final int id, value;
 
-    int id;
-
-    TestPOJO(int id) {
-      this.id = id;
+    TestPOJO(int i) {
+      id = i; value = id * id;
     }
 
     public Key getKey() {
@@ -166,8 +213,17 @@ public class AerospikeTestUtils {
 
     public List<Bin> getBins() {
       List<Bin> list = new ArrayList<Bin>();
-      list.add(new Bin("ID",id));
+      list.add(new Bin(ID, id));
+      list.add(new Bin(VAL, value));
       return list;
+    }
+
+    // check record key and values
+    public static boolean check(Key key, Record record) {
+      final int binId = record.getInt(ID), binVal = record.getInt(VAL);
+      final Key rKey = new Key(NAMESPACE, SET_NAME, String.valueOf(binId));
+      LOG.debug("Checking id = {}", binId);
+      return binVal == binId * binId && rKey.equals(key);
     }
   }
 
