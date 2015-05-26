@@ -5,6 +5,7 @@
 
 package com.datatorrent.demos.dimensions.ads.generic;
 
+import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
