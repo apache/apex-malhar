@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.dimensions;
 
+import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
@@ -157,7 +158,7 @@ public class DimensionsDescriptor
     return new FieldsDescriptor(fieldToType);
   }
 
-  public static boolean validateDimensions(DimensionsSchema schema,
+  public static boolean validateDimensions(DimensionalSchema schema,
                                            String aggregationString)
   {
     if(aggregationString.isEmpty()) {
@@ -178,7 +179,7 @@ public class DimensionsDescriptor
 
       String fieldName = fieldAndValue[0];
 
-      if(!schema.getKeyFieldDescriptor().getFields().getFields().contains(fieldName)) {
+      if(!schema.getGenericEventSchema().getAllKeysDescriptor().getFields().getFields().contains(fieldName)) {
         logger.error("{} is not a valid field.", fieldName);
         return false;
       }

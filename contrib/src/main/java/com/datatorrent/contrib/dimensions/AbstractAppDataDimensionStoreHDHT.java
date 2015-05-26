@@ -33,7 +33,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   @NotNull
   protected ResultFormatter resultFormatter = new ResultFormatter();
   @NotNull
-  protected AggregatorRegistry aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY;
+  protected AggregatorRegistry aggregatorInfo = AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY;
 
   //Query Processing - Start
   protected transient QueryManager<DataQueryDimensional, QueryMeta, MutableLong, Result> queryProcessor;

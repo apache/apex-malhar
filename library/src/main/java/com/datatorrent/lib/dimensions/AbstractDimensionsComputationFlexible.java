@@ -38,7 +38,7 @@ import java.util.Map.Entry;
 
 public abstract class AbstractDimensionsComputationFlexible<INPUT> extends AbstractDimensionsComputation<InputEvent, Aggregate>
 {
-  protected AggregatorRegistry aggregatorRegistry = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY;
+  protected AggregatorRegistry aggregatorRegistry = AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY;
   protected Int2IntOpenHashMap aggregatorIdToAggregateIndex;
 
   public transient final DefaultInputPort<INPUT> inputEvent = new DefaultInputPort<INPUT>() {

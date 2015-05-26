@@ -3,14 +3,14 @@
  *  All Rights Reserved.
  */
 
-package com.datatorrent.demos.dimensions.ads.generic;
+package com.datatorrent.demos.dimensions.ads;
 
 import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import javax.validation.constraints.Min;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +30,11 @@ public class InputItemGenerator implements InputOperator
   public static final String PUBLISHER = "publisher";
   public static final String ADVERTISER = "advertiser";
   public static final String LOCATION = "location";
+
+  public static final String IMPRESSIONS = "impressions";
+  public static final String CLICKS = "clicks";
+  public static final String COST = "cost";
+  public static final String REVENUE = "revenue";
 
   private int publisherID;
   private int advertiserID;
@@ -85,10 +90,10 @@ public class InputItemGenerator implements InputOperator
   @Override
   public void setup(OperatorContext context)
   {
-    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.setup();
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
 
     schema = new DimensionalConfigurationSchema(eventSchemaJSON,
-                                        AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                        AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     publisherID = schema.getKeysToValuesList().get(PUBLISHER).size();
     advertiserID = schema.getKeysToValuesList().get(ADVERTISER).size();

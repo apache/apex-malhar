@@ -38,7 +38,7 @@ public class AggregatorRegistryTest
   @Test
   public void serializationTest() throws Exception
   {
-    TestUtils.clone(new Kryo(), AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+    TestUtils.clone(new Kryo(), AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
   }
 
   @Test

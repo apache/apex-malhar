@@ -15,6 +15,7 @@
  */
 package com.datatorrent.demos.dimensions.ads.generic;
 
+import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.Operator;
@@ -115,7 +116,7 @@ import java.util.Map;
 @ApplicationAnnotation(name=AdsDimensionsDemo.APP_NAME)
 public class AdsDimensionsDemo implements StreamingApplication
 {
-  public static final String APP_NAME = "AdsDimensionsDemo";
+  public static final String APP_NAME = "AdsDimensionsDemoGeneric";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
   public static final String EVENT_SCHEMA = "adsGenericEventSchema.json";

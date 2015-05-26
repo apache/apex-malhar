@@ -210,6 +210,8 @@ public class AdInfo implements Serializable
       if (adUnit) {
         aggregate.location = aggregatorInput.location;
       }
+
+      aggregate.dimensionsDescriptorID = this.dimensionsDescriptorID;
     }
   }
 
@@ -255,15 +257,17 @@ public class AdInfo implements Serializable
     boolean publisherId;
     boolean advertiserId;
     boolean adUnit;
+    int dimensionsDescriptorID;
 
-    public void init(String dimension)
+    public void init(String dimension, int dimensionsDescriptorID)
     {
       String[] attributes = dimension.split(":");
       for (String attribute : attributes) {
         String[] keyval = attribute.split("=", 2);
         String key = keyval[0];
         if (key.equals("time")) {
-          timeBucket = TimeBucket.getBucket(keyval[1]);
+          time = TimeUnit.valueOf(keyval[1]);
+          timeBucket = TimeBucket.TIME_UNIT_TO_TIME_BUCKET.get(time);
           timeBucketInt = timeBucket.ordinal();
           time = timeBucket.getTimeUnit();
         }
@@ -440,7 +444,8 @@ public class AdInfo implements Serializable
   {
     private static final long serialVersionUID = 1L;
     int aggregatorIndex;
-    int timeBucket;
+    public int timeBucket;
+    private int dimensionsDescriptorID;
 
     public AdInfoAggregateEvent()
     {
@@ -468,6 +473,22 @@ public class AdInfo implements Serializable
     public void setAggregateIndex(int aggregateIndex)
     {
       this.aggregatorIndex = aggregateIndex;
+    }
+
+    /**
+     * @return the dimensionsDescriptorID
+     */
+    public int getDimensionsDescriptorID()
+    {
+      return dimensionsDescriptorID;
+    }
+
+    /**
+     * @param dimensionsDescriptorID the dimensionsDescriptorID to set
+     */
+    public void setDimensionsDescriptorID(int dimensionsDescriptorID)
+    {
+      this.dimensionsDescriptorID = dimensionsDescriptorID;
     }
   }
 }

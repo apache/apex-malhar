@@ -21,6 +21,7 @@ import com.datatorrent.api.InputOperator;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.google.common.collect.Maps;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
@@ -160,7 +161,7 @@ public class JsonSalesGenerator implements InputOperator
   public void setup(Context.OperatorContext context)
   {
     schema = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
-                                                              AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
+                                                              AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
 
     maxProductId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_PRODUCT).size() - 1;
     maxCustomerId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_CUSTOMER).size() - 1;

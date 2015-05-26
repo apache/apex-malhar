@@ -14,41 +14,52 @@
  * limitations under the License.
  */
 
-package com.datatorrent.demos.dimensions.ads.benchmark;
+package com.datatorrent.demos.dimensions.ads.custom;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
-import com.datatorrent.api.DAG.Locality;
+import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
-import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
+import com.datatorrent.contrib.hdht.tfile.TFileImpl;
 import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoSumAggregator;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdsDimensionsCombination;
 import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.counters.BasicCounters;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DimensionsCombination;
 import com.datatorrent.lib.dimensions.DimensionsComputationCustom;
 import com.datatorrent.lib.dimensions.DimensionsComputationUnifierImpl;
 import com.datatorrent.lib.dimensions.aggregator.Aggregator;
-import com.datatorrent.lib.stream.DevNull;
+import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
+import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
+import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.net.URI;
+import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
+import org.apache.hadoop.fs.Path;
 
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-@ApplicationAnnotation(name="AdsDimensionsCustomBenchmark")
-public class AdsDimensionsCustomBenchmark implements StreamingApplication
+import static com.datatorrent.demos.dimensions.ads.generic.AdsDimensionsDemo.EVENT_SCHEMA;
+import static com.datatorrent.demos.dimensions.ads.generic.AdsDimensionsDemo.PROP_STORE_PATH;
+
+public class AdsDimensionsDemoPerformant implements StreamingApplication
 {
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
+    //Declare operators
+
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent>());
-    dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 60);
-    DevNull<Object> devNull = dag.addOperator("DevNull", new DevNull<Object>());
+    AdsConverter adsConverter = dag.addOperator("AdsConverter", new AdsConverter());
+    AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
     input.setEventSchemaJSON(SchemaUtils.jarResourceFileToString("adsBenchmarkSchema.json"));
 
@@ -63,6 +74,13 @@ public class AdsDimensionsCustomBenchmark implements StreamingApplication
       "time=" + TimeUnit.MINUTES + ":publisher:advertiser:location"
     };
 
+    //Set operator properties
+
+    //Set input properties
+    String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
+    input.setEventSchemaJSON(eventSchema);
+
+    //Set Dimensions properties
     LinkedHashMap<String, DimensionsCombination<AdInfo, AdInfo.AdInfoAggregateEvent>> dimensionsCombinations =
     Maps.newLinkedHashMap();
 
@@ -88,7 +106,40 @@ public class AdsDimensionsCustomBenchmark implements StreamingApplication
     dimensions.setDimensionsCombinations(dimensionsCombinations);
     dimensions.setAggregators(dimensionsAggregators);
 
-    dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
-    dag.addStream("DimensionalData", dimensions.output, devNull.data);
+    //Set store properties
+    String basePath = Preconditions.checkNotNull(conf.get(PROP_STORE_PATH),
+                                                 "a base path should be specified in the properties.xml");
+    TFileImpl hdsFile = new TFileImpl.DTFileImpl();
+    System.out.println(dag.getAttributes().get(DAG.APPLICATION_ID));
+    basePath += Path.SEPARATOR + System.currentTimeMillis();
+    hdsFile.setBasePath(basePath);
+    System.out.println("Setting basePath " + basePath);
+    store.setFileStore(hdsFile);
+    store.getAppDataFormatter().setContinuousFormatString("#.00");
+    store.setEventSchemaJSON(eventSchema);
+
+    //Set pubsub properties
+    Operator.OutputPort<String> queryPort;
+    Operator.InputPort<String> queryResultPort;
+
+    String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
+    URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
+    //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
+    PubSubWebSocketAppDataQuery wsIn = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
+    wsIn.setUri(uri);
+    queryPort = wsIn.outputPort;
+    PubSubWebSocketAppDataResult wsOut = dag.addOperator("QueryResult", new PubSubWebSocketAppDataResult());
+    wsOut.setUri(uri);
+    queryResultPort = wsOut.input;
+
+    //Set remaining dag options
+
+    dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
+
+    dag.addStream("InputStream", input.outputPort, dimensions.data);
+    dag.addStream("DimensionalData", dimensions.output, adsConverter.inputPort);
+    dag.addStream("Converter", adsConverter.outputPort, store.input);
+    dag.addStream("Query", queryPort, store.query);
+    dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }
 }

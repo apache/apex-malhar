@@ -18,6 +18,7 @@ package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.appdata.query.serde.MessageSerializerFactory;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -46,7 +47,7 @@ public class DimensionalSchemaTest
   @Before
   public void initialize()
   {
-    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.setup();
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
   }
 
   @Test
@@ -182,7 +183,7 @@ public class DimensionalSchemaTest
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json");
     DimensionalSchema dimensional = new DimensionalSchema(
                                     new DimensionalConfigurationSchema(eventSchemaJSON,
-                                                               AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
+                                                               AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
 
     Map<String, List<Object>> replacementEnums = Maps.newHashMap();
     @SuppressWarnings("unchecked")
@@ -232,7 +233,7 @@ public class DimensionalSchemaTest
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json");
     DimensionalSchema dimensional = new DimensionalSchema(
                                     new DimensionalConfigurationSchema(eventSchemaJSON,
-                                                               AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
+                                                               AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
 
     Map<String, Set<Comparable>> replacementEnums = Maps.newHashMap();
     @SuppressWarnings("unchecked")
@@ -293,7 +294,7 @@ public class DimensionalSchemaTest
 
     MessageSerializerFactory dsf = new MessageSerializerFactory(new ResultFormatter());
     DimensionalSchema schemaDimensional = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
-                                                                                           AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
+                                                                                           AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
 
     SchemaQuery schemaQuery = new SchemaQuery();
     schemaQuery.setId("1");

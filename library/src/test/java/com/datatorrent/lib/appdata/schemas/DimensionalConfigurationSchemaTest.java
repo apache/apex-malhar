@@ -24,6 +24,7 @@ import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.Key;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.Value;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -44,7 +45,7 @@ public class DimensionalConfigurationSchemaTest
   @Before
   public void initialize()
   {
-    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.setup();
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
   }
 
   @Test
@@ -76,7 +77,7 @@ public class DimensionalConfigurationSchemaTest
     "}";
 
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(jsonSchema,
-                                                            AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     FieldsDescriptor allKeysDescriptor = des.getAllKeysDescriptor();
 
@@ -153,7 +154,7 @@ public class DimensionalConfigurationSchemaTest
     "}";
 
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(jsonSchema,
-                                                            AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     FieldsDescriptor fd = des.getDdIDToAggIDToOutputAggDescriptor().get(0).get(AggregatorIncrementalType.NAME_TO_ORDINAL.get("COUNT"));
 
@@ -180,7 +181,7 @@ public class DimensionalConfigurationSchemaTest
     logger.debug("test schema:\n{}", jsonSchema);
 
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(jsonSchema,
-                                                            AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Assert.assertEquals(1, des.getDdIDToDD().size());
 
@@ -205,7 +206,7 @@ public class DimensionalConfigurationSchemaTest
   public void getAllKeysDescriptorTest()
   {
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json"),
-                                                            AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Set<String> keys = Sets.newHashSet("publisher", "advertiser", "location");
 
@@ -216,7 +217,7 @@ public class DimensionalConfigurationSchemaTest
   public void aggregationSchemaTest()
   {
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAggregations.json"),
-                                                            AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Set<String> keys = Sets.newHashSet();
 
@@ -239,7 +240,7 @@ public class DimensionalConfigurationSchemaTest
   public void simpleOTFTest()
   {
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaOTF.json"),
-                                                            AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     Assert.assertEquals(4, des.getDdIDToAggIDs().get(0).size());
   }
@@ -248,7 +249,7 @@ public class DimensionalConfigurationSchemaTest
   public void testConstructorAgreement()
   {
     DimensionalConfigurationSchema expectedEventSchema = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaAdditional.json"),
-                                                                            AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
     @SuppressWarnings("unchecked")
     List<Object> publisherEnumVals = (List<Object>) ((List) Lists.newArrayList("twitter","facebook","yahoo","google","bing","amazon"));
     @SuppressWarnings("unchecked")
@@ -304,7 +305,7 @@ public class DimensionalConfigurationSchemaTest
                                                                     values,
                                                                     timeBuckets,
                                                                     dimensionsCombinations,
-                                                                    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                                                    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     logger.debug("expected {}", expectedEventSchema.getDdIDToValueToOTFAggregator());
     logger.debug("actual   {}", eventSchema.getDdIDToValueToOTFAggregator());

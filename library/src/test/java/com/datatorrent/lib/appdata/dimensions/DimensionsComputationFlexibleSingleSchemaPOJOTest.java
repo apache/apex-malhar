@@ -29,6 +29,7 @@ import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
@@ -48,7 +49,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
   @Before
   public void setup()
   {
-    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.setup();
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
   }
 
   @Test
@@ -59,13 +60,13 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
 
     int schemaID = AbstractDimensionsComputationFlexibleSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionsDescriptorID = 0;
-    int aggregatorID = AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.
+    int aggregatorID = AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.
                        getIncrementalAggregatorNameToID().
                        get(AggregatorIncrementalType.SUM.name());
 
     String eventSchema = SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json");
     DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(eventSchema,
-                                                               AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY);
+                                                               AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     FieldsDescriptor keyFD = schema.getDdIDToKeyDescriptor().get(0);
     FieldsDescriptor valueFD = schema.getDdIDToAggIDToInputAggDescriptor().get(0).get(aggregatorID);

@@ -16,6 +16,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -44,7 +45,7 @@ public class SchemaRegistryMultipleTest
   @Before
   public void initialize()
   {
-    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.setup();
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
   }
 
   @Test
@@ -84,12 +85,12 @@ public class SchemaRegistryMultipleTest
     String salesJSON = SchemaUtils.jarResourceFileToString("salesGenericEventSchema.json");
 
     DimensionalSchema schemaAds = new DimensionalSchema(new DimensionalConfigurationSchema(adsJSON,
-                                                                                   AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
+                                                                                   AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
     final Map<String, String> schemaAdsKeys = Maps.newHashMap();
     schemaAdsKeys.put("type", "ads");
 
     DimensionalSchema schemaSales = new DimensionalSchema(new DimensionalConfigurationSchema(salesJSON,
-                                                                                     AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY));
+                                                                                     AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
     final Map<String, String> schemaSalesKeys = Maps.newHashMap();
     schemaSalesKeys.put("type", "sales");
 

@@ -23,12 +23,14 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoAggregator;
-import com.datatorrent.demos.dimensions.ads.generic.InputItemGenerator;
+import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 import com.datatorrent.lib.stream.DevNull;
 import org.apache.hadoop.conf.Configuration;
+
+import java.util.concurrent.TimeUnit;
 
 
 @ApplicationAnnotation(name="AdsDimensionsStatsBenchmark")
@@ -45,21 +47,21 @@ public class AdsDimensionsStatsBenchmark implements StreamingApplication
     input.setEventSchemaJSON(SchemaUtils.jarResourceFileToString("adsBenchmarkSchema.json"));
 
     String[] dimensionSpecs = new String[] {
-      "time=" + "1m",
-      "time=" + "1m" + ":location",
-      "time=" + "1m" + ":advertiser",
-      "time=" + "1m" + ":publisher",
-      "time=" + "1m" + ":advertiser:location",
-      "time=" + "1m" + ":publisher:location",
-      "time=" + "1m" + ":publisher:advertiser",
-      "time=" + "1m" + ":publisher:advertiser:location"
+      "time=" + TimeUnit.MINUTES,
+      "time=" + TimeUnit.MINUTES + ":location",
+      "time=" + TimeUnit.MINUTES + ":advertiser",
+      "time=" + TimeUnit.MINUTES + ":publisher",
+      "time=" + TimeUnit.MINUTES + ":advertiser:location",
+      "time=" + TimeUnit.MINUTES + ":publisher:location",
+      "time=" + TimeUnit.MINUTES + ":publisher:advertiser",
+      "time=" + TimeUnit.MINUTES + ":publisher:advertiser:location"
     };
 
     AdInfoAggregator[] aggregators = new AdInfoAggregator[dimensionSpecs.length];
-    for(int i = dimensionSpecs.length; i-- > 0;) {
+    for(int index = 0; index < dimensionSpecs.length; index++) {
       AdInfoAggregator aggregator = new AdInfoAggregator();
-      aggregator.init(dimensionSpecs[i]);
-      aggregators[i] = aggregator;
+      aggregator.init(dimensionSpecs[index], index);
+      aggregators[index] = aggregator;
     }
 
     dimensions.setAggregators(aggregators);

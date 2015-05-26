@@ -20,7 +20,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.demos.dimensions.ads.generic.InputItemGenerator;
+import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.dimensions.DimensionsComputationFlexibleSingleSchemaPOJO;
 import com.datatorrent.lib.dimensions.DimensionsComputationUnifierImpl;

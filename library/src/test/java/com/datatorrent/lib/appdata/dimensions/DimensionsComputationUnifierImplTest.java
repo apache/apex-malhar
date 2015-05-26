@@ -27,6 +27,7 @@ import com.datatorrent.lib.dimensions.DimensionsComputationUnifierImpl;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate.AggregateHashingStrategy;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.datatorrent.lib.statistics.DimensionsComputation.AggregateEvent;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
@@ -46,7 +47,7 @@ public class DimensionsComputationUnifierImplTest
     final int schemaID = 0;
     final int ddID = 0;
     final int aggregatorID =
-    AggregatorUtils.DEFAULT_AGGREGATOR_REGISTRY.getIncrementalAggregatorNameToID().get(AggregatorIncrementalType.SUM.name());
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.getIncrementalAggregatorNameToID().get(AggregatorIncrementalType.SUM.name());
 
     Map<String, Type> fieldToTypeKey = Maps.newHashMap();
     fieldToTypeKey.put("publisher", Type.STRING);

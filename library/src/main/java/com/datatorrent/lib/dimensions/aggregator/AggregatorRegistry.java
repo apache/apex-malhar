@@ -30,6 +30,15 @@ public class AggregatorRegistry implements Serializable
 {
   private static final long serialVersionUID = 20154301642L;
 
+  private static final transient Map<String, IncrementalAggregator> DEFAULT_NAME_TO_INCREMENTAL_AGGREGATOR;
+  private static final transient Map<String, OTFAggregator> DEFAULT_NAME_TO_OTF_AGGREGATOR;
+
+  static {
+    DEFAULT_NAME_TO_INCREMENTAL_AGGREGATOR = Maps.newHashMap(AggregatorIncrementalType.NAME_TO_AGGREGATOR);
+    DEFAULT_NAME_TO_OTF_AGGREGATOR = Maps.newHashMap(AggregatorOTFType.NAME_TO_AGGREGATOR);
+  }
+  public static final AggregatorRegistry DEFAULT_AGGREGATOR_REGISTRY = new AggregatorRegistry(DEFAULT_NAME_TO_INCREMENTAL_AGGREGATOR, DEFAULT_NAME_TO_OTF_AGGREGATOR, AggregatorIncrementalType.NAME_TO_ORDINAL);
+
   private transient boolean setup = false;
   private transient Map<Class<? extends IncrementalAggregator>, String> classToIncrementalAggregatorName;
   private transient Map<String, List<String>> otfAggregatorToIncrementalAggregators;

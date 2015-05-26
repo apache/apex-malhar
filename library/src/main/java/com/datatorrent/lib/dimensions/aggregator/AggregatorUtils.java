@@ -24,17 +24,6 @@ import java.util.Map;
 
 public final class AggregatorUtils
 {
-  private static transient final Map<String, IncrementalAggregator> DEFAULT_NAME_TO_INCREMENTAL_AGGREGATOR;
-  private static transient final Map<String, OTFAggregator> DEFAULT_NAME_TO_OTF_AGGREGATOR;
-
-  static {
-    DEFAULT_NAME_TO_INCREMENTAL_AGGREGATOR = Maps.newHashMap(AggregatorIncrementalType.NAME_TO_AGGREGATOR);
-    DEFAULT_NAME_TO_OTF_AGGREGATOR = Maps.newHashMap(AggregatorOTFType.NAME_TO_AGGREGATOR);
-  }
-
-  public static final AggregatorRegistry DEFAULT_AGGREGATOR_REGISTRY = new AggregatorRegistry(DEFAULT_NAME_TO_INCREMENTAL_AGGREGATOR,
-                                                                                              DEFAULT_NAME_TO_OTF_AGGREGATOR,
-                                                                                              AggregatorIncrementalType.NAME_TO_ORDINAL);
 
   public static transient final Map<Type, Type> IDENTITY_TYPE_MAP;
   public static transient final Map<Type, Type> IDENTITY_NUMBER_TYPE_MAP;
