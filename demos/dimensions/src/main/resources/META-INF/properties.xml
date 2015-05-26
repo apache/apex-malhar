@@ -7,7 +7,7 @@
     <value>2000000</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.port.outputPort.attr.PARTITION_PARALLEL</name>
+    <name>dt.application.AdsDimensionsCustomBenchmark.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
     <value>true</value>
   </property>
   <property>
@@ -21,7 +21,7 @@
     <value>2000000</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.port.outputPort.attr.PARTITION_PARALLEL</name>
+    <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.DimensionsComputation.port.inputEvent.attr.PARTITION_PARALLEL</name>
     <value>true</value>
   </property>
   <property>
@@ -35,7 +35,7 @@
     <value>2000000</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.port.outputPort.attr.PARTITION_PARALLEL</name>
+    <name>dt.application.AdsDimensionsStatsBenchmark.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
     <value>true</value>
   </property>
   <property>
