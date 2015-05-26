@@ -97,6 +97,8 @@ public abstract class AbstractDimensionsComputationFlexible<INPUT> extends Abstr
   @VisibleForTesting
   public Aggregator<InputEvent, Aggregate>[] configureDimensionsComputationUnifier()
   {
+    aggregatorIdToAggregateIndex = new Int2IntOpenHashMap();
+
     computeAggregatorIdToAggregateIndex();
 
     @SuppressWarnings({"unchecked","rawtypes"})
