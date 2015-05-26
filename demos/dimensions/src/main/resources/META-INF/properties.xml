@@ -22,6 +22,10 @@
     <value>dt.application.AdsDimensionsCustomBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
     <name>16384</name>
   </property>
+   <property>
+     <name>dt.application.AdsDimensionsFlexibleBenchmark.port.*.attr.QUEUE_CAPACITY</name>
+     <value>32000</value>
+  </property>
 
   <!-- Settings for AdsDimensionsFlexibleBenchmark -->
   <property>
@@ -43,6 +47,10 @@
   <property>
     <value>dt.application.AdsDimensionsFlexibleBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
     <name>16384</name>
+  </property>
+   <property>
+     <name>dt.application.AdsDimensionsFlexibleBenchmark.port.*.attr.QUEUE_CAPACITY</name>
+     <value>32000</value>
   </property>
 
   <!-- Settings for AdsDimensionsStatsBenchmark -->
@@ -66,6 +74,12 @@
     <value>dt.application.AdsDimensionsStatsBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
     <name>16384</name>
   </property>
+   <property>
+     <name>dt.application.AdsDimensionsStatsBenchmark.port.*.attr.QUEUE_CAPACITY</name>
+     <value>32000</value>
+  </property>
+
+    CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
 
   <!-- Settings for AdsDimensionsDemo -->
 
@@ -160,7 +174,7 @@
   </property>
   <property>
     <name>dt.attr.CONTAINER_JVM_OPTIONS</name>
-    <value>-server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps -Dlog4j.configuration=debug_log4j.properties</value>
+    <value>-Xmx6g -server -Dlog4j.debug=true -Xloggc:&lt;LOG_DIR&gt;/gc.log -verbose:gc -XX:+PrintGCDateStamps -Dlog4j.configuration=debug_log4j.properties</value>
   </property>
   <property>
     <name>dt.attr.APPLICATION_DATA_LINK</name>
