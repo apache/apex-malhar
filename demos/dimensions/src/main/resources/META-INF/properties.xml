@@ -30,7 +30,7 @@
   <!-- Settings for AdsDimensionsFlexibleBenchmark -->
   <property>
     <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.numTuplesPerWindow</name>
-    <value>10000</value>
+    <value>40000</value>
   </property>
   <property>
     <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.DimensionsComputation.port.inputEvent.attr.PARTITION_PARALLEL</name>
