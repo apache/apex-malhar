@@ -82,23 +82,23 @@
   <!-- Settings for AdsDimensionsDemo -->
 
   <property>
-    <name>dt.application.AdsDimensionsDemo.operator.Store.fileStore.basePathPrefix</name>
+    <name>dt.application.AdsDimensionsDemoGeneric.operator.Store.fileStore.basePathPrefix</name>
     <value>AdsDimensionsDemo/Store</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemo.operator.Query.topic</name>
+    <name>dt.application.AdsDimensionsDemoGeneric.operator.Query.topic</name>
     <value>AdsQuery</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemo.operator.QueryResult.topic</name>
+    <name>dt.application.AdsDimensionsDemoGeneric.operator.QueryResult.topic</name>
     <value>AdsQueryResult</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.attr.PARTITIONER</name>
+    <name>dt.application.AdsDimensionsDemoGeneric.operator.DimensionsComputation.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.outputport.aggregateOutput.attr.UNIFIER_LIMIT</name>
+    <name>dt.application.AdsDimensionsDemoGeneric.operator.DimensionsComputation.outputport.aggregateOutput.attr.UNIFIER_LIMIT</name>
     <value>2</value>
   </property>
 
