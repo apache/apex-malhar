@@ -152,8 +152,11 @@ public class InputItemGenerator implements InputOperator
     AdInfo adInfo = new AdInfo();
 
     adInfo.setPublisher((String) publisherName.get(publisherId));
+    adInfo.publisherID = publisherId;
     adInfo.setAdvertiser((String) advertiserName.get(advertiserId));
+    adInfo.advertiserID = advertiserId;
     adInfo.setLocation((String) locationName.get(adUnit));
+    adInfo.locationID = adUnit;
 
     if (click) {
       adInfo.setRevenue(value);

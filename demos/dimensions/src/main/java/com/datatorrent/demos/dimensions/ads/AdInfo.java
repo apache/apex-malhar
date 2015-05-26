@@ -30,8 +30,11 @@ public class AdInfo implements Serializable
   private static final long serialVersionUID = 201505250652L;
 
   public String publisher;
+  public int publisherID;
   public String advertiser;
+  public int advertiserID;
   public String location;
+  public int locationID;
   public double cost = 0.0;
   public double revenue = 0.0;
   public long impressions = 0;
@@ -201,14 +204,17 @@ public class AdInfo implements Serializable
 
       if (publisherId) {
         aggregate.publisher = aggregatorInput.publisher;
+        aggregate.publisherID = aggregatorInput.publisherID;
       }
 
       if (advertiserId) {
         aggregate.advertiser = aggregatorInput.advertiser;
+        aggregate.advertiserID = aggregatorInput.advertiserID;
       }
 
       if (adUnit) {
         aggregate.location = aggregatorInput.location;
+        aggregate.locationID = aggregatorInput.locationID;
       }
 
       aggregate.dimensionsDescriptorID = this.dimensionsDescriptorID;
@@ -346,14 +352,26 @@ public class AdInfo implements Serializable
 
       if (publisherId) {
         event.publisher = src.publisher;
+        event.publisherID = src.publisherID;
+      }
+      else {
+        event.publisherID = -1;
       }
 
       if (advertiserId) {
         event.advertiser = src.advertiser;
+        event.advertiserID = src.advertiserID;
+      }
+      else {
+        event.advertiserID = -1;
       }
 
       if (adUnit) {
         event.location = src.location;
+        event.locationID = src.locationID;
+      }
+      else {
+        event.locationID = -1;
       }
 
       return event;
@@ -383,15 +401,15 @@ public class AdInfo implements Serializable
       int hash = 5;
 
       if (publisherId) {
-        hash = 71 * hash + event.publisher.hashCode();
+        hash = 71 * hash + event.publisherID;
       }
 
       if (advertiserId) {
-        hash = 71 * hash + event.advertiser.hashCode();
+        hash = 71 * hash + event.advertiserID;
       }
 
       if (adUnit) {
-        hash = 71 * hash + event.location.hashCode();
+        hash = 71 * hash + event.locationID;
       }
 
       if (time != null) {
@@ -421,15 +439,15 @@ public class AdInfo implements Serializable
         return false;
       }
 
-      if (publisherId && !event1.publisher.equals(event2.publisher)) {
+      if (publisherId && event1.publisherID != event2.publisherID) {
         return false;
       }
 
-      if (advertiserId && !event1.advertiser.equals(event2.advertiser)) {
+      if (advertiserId && event1.advertiserID != event2.advertiserID) {
         return false;
       }
 
-      if (adUnit && !event1.location.equals(event2.location)) {
+      if (adUnit && event1.locationID != event2.locationID) {
         return false;
       }
 
