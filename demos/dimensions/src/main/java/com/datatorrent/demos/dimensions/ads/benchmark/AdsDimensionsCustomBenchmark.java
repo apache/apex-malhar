@@ -22,6 +22,7 @@ import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.demos.dimensions.ads.AdInfo;
+import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoHashingStrategy;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdInfoSumAggregator;
 import com.datatorrent.demos.dimensions.ads.AdInfo.AdsDimensionsCombination;
 import com.datatorrent.demos.dimensions.ads.InputItemGenerator;
@@ -84,6 +85,7 @@ public class AdsDimensionsCustomBenchmark implements StreamingApplication
     }
 
     DimensionsComputationUnifierImpl<AdInfo, AdInfo.AdInfoAggregateEvent> unifier = new DimensionsComputationUnifierImpl<AdInfo, AdInfo.AdInfoAggregateEvent>();
+    unifier.setHashingStrategy(new AdInfoHashingStrategy());
     dimensions.setUnifier(unifier);
     dimensions.setDimensionsCombinations(dimensionsCombinations);
     dimensions.setAggregators(dimensionsAggregators);

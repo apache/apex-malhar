@@ -21,7 +21,6 @@ import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateMap;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
@@ -144,14 +143,13 @@ public class DimensionsComputationCustom<EVENT, AGGREGATE extends UnifiableAggre
     }
 
     unifier.setAggregators(aggregatorsArray);
-    unifier.setHashingStrategy(unifierHashingStrategy);
+
+    if(this.unifierHashingStrategy != null &&
+       unifier.getHashingStrategy() == null) {
+      unifier.setHashingStrategy(this.unifierHashingStrategy);
+    }
 
     return aggregatorsArray;
-  }
-
-  public void setUnifierHashingStrategy(@NotNull DTHashingStrategy<AGGREGATE> dimensionsCombination)
-  {
-    this.unifierHashingStrategy = Preconditions.checkNotNull(dimensionsCombination);
   }
 
   private int computeNumAggregators()

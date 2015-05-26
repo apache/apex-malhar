@@ -25,4 +25,5 @@ public interface DimensionsComputationUnifier<AGGREGATE_INPUT, AGGREGATE extends
 {
   public void setAggregators(Aggregator<AGGREGATE_INPUT, AGGREGATE>[] aggregators);
   public void setHashingStrategy(DTHashingStrategy<AGGREGATE> dimensionsCombination);
+  public DTHashingStrategy<AGGREGATE> getHashingStrategy();
 }

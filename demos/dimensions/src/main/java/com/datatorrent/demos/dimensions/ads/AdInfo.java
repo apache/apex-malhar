@@ -18,6 +18,7 @@ package com.datatorrent.demos.dimensions.ads;
 
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DTHashingStrategy;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
@@ -458,6 +459,36 @@ public class AdInfo implements Serializable
     private static final long serialVersionUID = 201402211829L;
   }
 
+  public static class AdInfoHashingStrategy implements DTHashingStrategy<AdInfoAggregateEvent>
+  {
+    public AdInfoHashingStrategy()
+    {
+    }
+
+    @Override
+    public int computeHashCode(AdInfoAggregateEvent t)
+    {
+      int hash = 5;
+      hash = 71 * hash + t.publisherID;
+      hash = 71 * hash + t.advertiserID;
+      hash = 71 * hash + t.locationID;
+      hash = 71 * hash + (int)t.time;
+      hash = 71 * hash + t.timeBucket;
+
+      return hash;
+    }
+
+    @Override
+    public boolean equals(AdInfoAggregateEvent t, AdInfoAggregateEvent t1)
+    {
+      return t.publisherID == t1.publisherID &&
+             t.advertiserID == t1.advertiserID &&
+             t.locationID == t1.locationID &&
+             t.time == t1.time &&
+             t.timeBucket == t1.timeBucket;
+    }
+  }
+
   public static class AdInfoAggregateEvent extends AdInfo implements DimensionsComputation.AggregateEvent, UnifiableAggregate
   {
     private static final long serialVersionUID = 1L;
@@ -508,5 +539,37 @@ public class AdInfo implements Serializable
     {
       this.dimensionsDescriptorID = dimensionsDescriptorID;
     }
+
+
+    @Override
+    public int hashCode()
+    {
+      int hash = 5;
+      hash = 71 * hash + this.publisherID;
+      hash = 71 * hash + this.advertiserID;
+      hash = 71 * hash + this.locationID;
+      hash = 71 * hash + (int)this.time;
+      hash = 71 * hash + this.timeBucket;
+
+      return hash;
+    }
+
+    @Override
+    public boolean equals(Object o)
+    {
+      if(o == null || !(o instanceof AdInfoAggregateEvent)) {
+        return false;
+      }
+
+      AdInfoAggregateEvent aae = (AdInfoAggregateEvent) o;
+
+      return this.publisherID == aae.publisherID &&
+             this.advertiserID == aae.advertiserID &&
+             this.locationID == aae.locationID &&
+             this.time == aae.time &&
+             this.timeBucket == aae.timeBucket;
+    }
+
+
   }
 }

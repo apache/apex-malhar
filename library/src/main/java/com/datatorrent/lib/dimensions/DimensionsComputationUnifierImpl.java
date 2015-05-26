@@ -54,6 +54,12 @@ public class DimensionsComputationUnifierImpl<AGGREGATE_INPUT, AGGREGATE extends
   }
 
   @Override
+  public DTHashingStrategy<AGGREGATE> getHashingStrategy()
+  {
+    return hashingStrategy;
+  }
+
+  @Override
   public void setup(OperatorContext context)
   {
     aggregateMap = new TCustomHashMap<AGGREGATE, AGGREGATE>(hashingStrategy);

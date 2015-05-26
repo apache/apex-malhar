@@ -25,7 +25,6 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.DimensionsEventDimensionsC
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
@@ -115,7 +114,11 @@ public abstract class AbstractDimensionsComputationFlexible<INPUT> extends Abstr
     }
 
     unifier.setAggregators(aggregators);
-    unifier.setHashingStrategy(unifierHashingStrategy);
+
+    if(this.unifierHashingStrategy != null &&
+       unifier.getHashingStrategy() == null) {
+      unifier.setHashingStrategy(this.unifierHashingStrategy);
+    }
 
     return aggregators;
   }
@@ -152,11 +155,6 @@ public abstract class AbstractDimensionsComputationFlexible<INPUT> extends Abstr
   public void setAggregatorRegistry(AggregatorRegistry aggregatorRegistry)
   {
     this.aggregatorRegistry = aggregatorRegistry;
-  }
-
-  public void setUnifierHashingStrategy(DTHashingStrategy<Aggregate> unifierHashingStrategy)
-  {
-    this.unifierHashingStrategy = unifierHashingStrategy;
   }
 
   public class DimensionsConversionContext
