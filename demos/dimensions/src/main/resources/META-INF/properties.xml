@@ -16,11 +16,11 @@
   </property>
   <property>
     <value>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.attr.MEMORY_MB</value>
-    <name>8192</name>
+    <name>16384</name>
   </property>
   <property>
     <value>dt.application.AdsDimensionsCustomBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
-    <name>8192</name>
+    <name>16384</name>
   </property>
 
   <!-- Settings for AdsDimensionsFlexibleBenchmark -->
@@ -38,11 +38,11 @@
   </property>
   <property>
     <value>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.attr.MEMORY_MB</value>
-    <name>8192</name>
+    <name>16384</name>
   </property>
   <property>
     <value>dt.application.AdsDimensionsFlexibleBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
-    <name>8192</name>
+    <name>16384</name>
   </property>
 
   <!-- Settings for AdsDimensionsStatsBenchmark -->
@@ -60,11 +60,11 @@
   </property>
   <property>
     <value>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.attr.MEMORY_MB</value>
-    <name>8192</name>
+    <name>16384</name>
   </property>
   <property>
     <value>dt.application.AdsDimensionsStatsBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
-    <name>8192</name>
+    <name>16384</name>
   </property>
 
   <!-- Settings for AdsDimensionsDemo -->
