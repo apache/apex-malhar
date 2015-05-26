@@ -23,9 +23,9 @@ import com.datatorrent.lib.util.PojoUtils.GetterDouble;
 import com.datatorrent.lib.util.PojoUtils.GetterFloat;
 import com.datatorrent.lib.util.PojoUtils.GetterInt;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.GetterObject;
+import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.GetterShort;
-import com.datatorrent.lib.util.PojoUtils.GetterString;
+
 import java.sql.*;
 import java.util.ArrayList;
 import javax.validation.constraints.NotNull;
@@ -174,64 +174,50 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
 
   public void processFirstTuple(Object tuple)
   {
-    Class<?> fqcn = tuple.getClass();
-    int size = columnDataTypes.size();
+    final Class<?> fqcn = tuple.getClass();
+    final int size = columnDataTypes.size();
     for (int i = 0; i < size; i++) {
-      int type = columnDataTypes.get(i);
-      String getterExpression = expression.get(i);
-      if (type == Types.CHAR) {
-        GetterChar getChar = PojoUtils.createGetterChar(fqcn, getterExpression);
-        getters.add(getChar);
+      final int type = columnDataTypes.get(i);
+      final String getterExpression = expression.get(i);
+      final Object getter;
+      switch (type) {
+        case Types.CHAR:
+          getter = PojoUtils.createGetterChar(fqcn, getterExpression);
+          break;
+        case Types.VARCHAR:
+          getter = PojoUtils.createGetter(fqcn, getterExpression, String.class);
+          break;
+        case Types.BOOLEAN:
+        case Types.TINYINT:
+          getter = PojoUtils.createGetterBoolean(fqcn, getterExpression);
+          break;
+        case Types.SMALLINT:
+          getter = PojoUtils.createGetterShort(fqcn, getterExpression);
+          break;
+        case Types.INTEGER:
+          getter = PojoUtils.createGetterInt(fqcn, getterExpression);
+          break;
+        case Types.BIGINT:
+          getter = PojoUtils.createGetterLong(fqcn, getterExpression);
+          break;
+        case Types.FLOAT:
+          getter = PojoUtils.createGetterFloat(fqcn, getterExpression);
+          break;
+        case Types.DOUBLE:
+          getter = PojoUtils.createGetterDouble(fqcn, getterExpression);
+          break;
+        default:
+          /*
+            Types.DECIMAL
+            Types.DATE
+            Types.TIME
+            Types.ARRAY
+            Types.OTHER
+           */
+          getter = PojoUtils.createGetter(fqcn, getterExpression, Object.class);
+          break;
       }
-      else if (type == Types.VARCHAR) {
-        GetterString getVarchar = PojoUtils.createGetterString(fqcn, getterExpression);
-        getters.add(getVarchar);
-      }
-      else if (type == Types.BOOLEAN || type == Types.TINYINT) {
-        GetterBoolean getBoolean = PojoUtils.createGetterBoolean(fqcn, getterExpression);
-        getters.add(getBoolean);
-      }
-      else if (type == Types.SMALLINT) {
-        GetterShort getShort = PojoUtils.createGetterShort(fqcn, getterExpression);
-        getters.add(getShort);
-      }
-      else if (type == Types.INTEGER) {
-        GetterInt getInt = PojoUtils.createGetterInt(fqcn, getterExpression);
-        getters.add(getInt);
-      }
-      else if (type == Types.BIGINT) {
-        GetterLong getLong = PojoUtils.createExpressionGetterLong(fqcn, getterExpression);
-        getters.add(getLong);
-      }
-      else if (type == Types.DECIMAL) {
-        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
-        getters.add(getObject);
-      }
-      else if (type == Types.FLOAT) {
-        GetterFloat getFloat = PojoUtils.createGetterFloat(fqcn, getterExpression);
-        getters.add(getFloat);
-      }
-      else if (type == Types.DOUBLE) {
-        GetterDouble getDouble = PojoUtils.createGetterDouble(fqcn, getterExpression);
-        getters.add(getDouble);
-      }
-      else if (type == Types.DATE) {
-        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
-        getters.add(getObject);
-      }
-      else if (type == Types.TIME) {
-        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
-        getters.add(getObject);
-      }
-      else if (type == Types.ARRAY) {
-        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
-        getters.add(getObject);
-      }
-      else if (type == Types.OTHER) {
-        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
-        getters.add(getObject);
-      }
-
+      getters.add(getter);
     }
 
   }
@@ -244,57 +230,49 @@ public class MemsqlOutputOperator extends AbstractMemsqlOutputOperator<Object>
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   protected void setStatementParameters(PreparedStatement statement, Object tuple) throws SQLException
   {
-    int size = columnDataTypes.size();
-    Object getter;
-    for (int i = 0; i < size; i++) {
-      int type = columnDataTypes.get(i);
+    final int size = columnDataTypes.size();
+    for (int i = 0; i < size; ) {
+      final int type = columnDataTypes.get(i);
       switch (type) {
         case (Types.CHAR):
-          getter = ((GetterChar)getters.get(i)).get(tuple);
+          // TODO: verify that memsql driver handles char as int
+          statement.setInt(++i, ((GetterChar<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.VARCHAR):
-          getter = ((GetterString)getters.get(i)).get(tuple);
+          statement.setString(++i, ((Getter<Object, String>) getters.get(i)).get(tuple));
           break;
         case (Types.BOOLEAN):
-          getter = ((GetterBoolean)getters.get(i)).get(tuple);
+          statement.setBoolean(++i, ((GetterBoolean<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.SMALLINT):
-          getter = ((GetterShort)getters.get(i)).get(tuple);
+          statement.setShort(++i, ((GetterShort<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.INTEGER):
-          getter = ((GetterInt)getters.get(i)).get(tuple);
+          statement.setInt(++i, ((GetterInt<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.BIGINT):
-          getter = ((GetterLong)getters.get(i)).get(tuple);
-          break;
-        case (Types.DECIMAL):
-          getter = (Number)((GetterObject)getters.get(i)).get(tuple);
+          statement.setLong (++i, ((GetterLong<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.FLOAT):
-          getter = ((GetterFloat)getters.get(i)).get(tuple);
+          statement.setFloat(++i, ((GetterFloat<Object>) getters.get(i)).get(tuple));
           break;
         case (Types.DOUBLE):
-          getter = ((GetterDouble)getters.get(i)).get(tuple);
-          break;
-        case (Types.DATE):
-          getter = (Date)((GetterObject)getters.get(i)).get(tuple);
-          break;
-        case (Types.TIME):
-          getter = (Timestamp)((GetterObject)getters.get(i)).get(tuple);
-          break;
-        case (Types.ARRAY):
-          getter = (Array)((GetterObject)getters.get(i)).get(tuple);
-          break;
-        case (Types.OTHER):
-          getter = ((GetterObject)getters.get(i)).get(tuple);
+          statement.setDouble(++i, ((GetterDouble<Object>) getters.get(i)).get(tuple));
           break;
         default:
-          getter = ((GetterObject)getters.get(i)).get(tuple);
+          /*
+            Types.DECIMAL
+            Types.DATE
+            Types.TIME
+            Types.ARRAY
+            Types.OTHER
+           */
+          statement.setObject(++i, ((Getter<Object, Object>)getters.get(i)).get(tuple));
           break;
       }
-      statement.setObject(i + 1, getter);
     }
   }
 

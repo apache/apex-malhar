@@ -81,7 +81,7 @@ public class TimeBasedBucketManagerPOJOImpl extends AbstractTimeBasedBucketManag
   {
     if(getter==null){
     Class<?> fqcn = event.getClass();
-    GetterLong getterTime = PojoUtils.createExpressionGetterLong(fqcn,timeExpression);
+    GetterLong getterTime = PojoUtils.createGetterLong(fqcn, timeExpression);
     getter = getterTime;
     }
     return getter.get(event);
