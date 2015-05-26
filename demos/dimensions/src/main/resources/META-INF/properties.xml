@@ -24,7 +24,7 @@
   </property>
    <property>
      <name>dt.application.AdsDimensionsCustomBenchmark.port.*.attr.QUEUE_CAPACITY</name>
-     <value>32000</value>
+     <value>64000</value>
   </property>
 
   <!-- Settings for AdsDimensionsFlexibleBenchmark -->
@@ -50,7 +50,7 @@
   </property>
    <property>
      <name>dt.application.AdsDimensionsFlexibleBenchmark.port.*.attr.QUEUE_CAPACITY</name>
-     <value>32000</value>
+     <value>64000</value>
   </property>
 
   <!-- Settings for AdsDimensionsStatsBenchmark -->
@@ -76,7 +76,7 @@
   </property>
    <property>
      <name>dt.application.AdsDimensionsStatsBenchmark.port.*.attr.QUEUE_CAPACITY</name>
-     <value>32000</value>
+     <value>64000</value>
   </property>
 
   <!-- Settings for AdsDimensionsDemo -->
