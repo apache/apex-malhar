@@ -4,7 +4,7 @@
   <!-- Settings for AdsDimensionsCustomBenchmark -->
   <property>
     <name>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.numTuplesPerWindow</name>
-    <value>2000000</value>
+    <value>2000000000</value>
   </property>
   <property>
     <name>dt.application.AdsDimensionsCustomBenchmark.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
@@ -56,7 +56,7 @@
   <!-- Settings for AdsDimensionsStatsBenchmark -->
   <property>
     <name>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.numTuplesPerWindow</name>
-    <value>2000000</value>
+    <value>2000000000</value>
   </property>
   <property>
     <name>dt.application.AdsDimensionsStatsBenchmark.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
