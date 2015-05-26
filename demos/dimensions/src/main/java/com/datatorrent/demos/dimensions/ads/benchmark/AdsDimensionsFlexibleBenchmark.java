@@ -16,6 +16,7 @@
 
 package com.datatorrent.demos.dimensions.ads.benchmark;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.StreamingApplication;
@@ -40,6 +41,7 @@ public class AdsDimensionsFlexibleBenchmark implements StreamingApplication
   {
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
     DimensionsComputationFlexibleSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", DimensionsComputationFlexibleSingleSchemaPOJO.class);
+    dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 10);
     DevNull<Object> devNull = dag.addOperator("DevNull", new DevNull<Object>());
 
     //Set input properties
