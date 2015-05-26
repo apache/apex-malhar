@@ -16,7 +16,25 @@
 
 package com.datatorrent.demos.dimensions.ads.generic;
 
-public class AdsDimensionsDemoTest
-{
+import com.datatorrent.api.LocalMode;
+import com.datatorrent.demos.dimensions.ads.benchmark.AdsDimensionsCustomBenchmark;
+import org.apache.hadoop.conf.Configuration;
+import org.junit.Test;
 
+public class AdsDimensionsCustomBenchmarkTest
+{
+  @Test
+  public void simpleTest()
+  {
+    LocalMode lma = LocalMode.newInstance();
+
+    try {
+      lma.prepareDAG(new AdsDimensionsCustomBenchmark(), new Configuration());
+      LocalMode.Controller lc = lma.getController();
+      lc.run(1);
+    }
+    catch(Exception ex) {
+      throw new RuntimeException(ex);
+    }
+  }
 }

@@ -30,7 +30,6 @@ import com.datatorrent.lib.statistics.DimensionsComputationUnifierImpl;
 import com.datatorrent.lib.stream.DevNull;
 import org.apache.hadoop.conf.Configuration;
 
-import java.util.concurrent.TimeUnit;
 
 @ApplicationAnnotation(name="AdsDimensionsStatsBenchmark")
 public class AdsDimensionsStatsBenchmark implements StreamingApplication
@@ -46,14 +45,14 @@ public class AdsDimensionsStatsBenchmark implements StreamingApplication
     input.setEventSchemaJSON(SchemaUtils.jarResourceFileToString("adsBenchmarkSchema.json"));
 
     String[] dimensionSpecs = new String[] {
-      "time=" + TimeUnit.MINUTES,
-      "time=" + TimeUnit.MINUTES + ":location",
-      "time=" + TimeUnit.MINUTES + ":advertiser",
-      "time=" + TimeUnit.MINUTES + ":publisher",
-      "time=" + TimeUnit.MINUTES + ":advertiser:location",
-      "time=" + TimeUnit.MINUTES + ":publisher:location",
-      "time=" + TimeUnit.MINUTES + ":publisher:advertiser",
-      "time=" + TimeUnit.MINUTES + ":publisher:advertiser:location"
+      "time=" + "1m",
+      "time=" + "1m" + ":location",
+      "time=" + "1m" + ":advertiser",
+      "time=" + "1m" + ":publisher",
+      "time=" + "1m" + ":advertiser:location",
+      "time=" + "1m" + ":publisher:location",
+      "time=" + "1m" + ":publisher:advertiser",
+      "time=" + "1m" + ":publisher:advertiser:location"
     };
 
     AdInfoAggregator[] aggregators = new AdInfoAggregator[dimensionSpecs.length];
