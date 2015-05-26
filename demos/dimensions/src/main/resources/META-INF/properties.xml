@@ -74,10 +74,12 @@
     <value>dt.application.AdsDimensionsStatsBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
     <name>16384</name>
   </property>
+  <!--
    <property>
      <name>dt.application.AdsDimensionsStatsBenchmark.port.*.attr.QUEUE_CAPACITY</name>
      <value>32000</value>
   </property>
+  -->
 
     CollectorTestSink<AggregateEvent> sink = new CollectorTestSink<AggregateEvent>();
 
