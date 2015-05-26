@@ -60,7 +60,6 @@ public class AdsDimensionsFlexibleBenchmark implements StreamingApplication
     aggregateToExpression.put("impressions", "getImpressions()");
     aggregateToExpression.put("clicks", "getClicks()");
 
-
     DimensionsComputationUnifierImpl<InputEvent, Aggregate> unifier = new DimensionsComputationUnifierImpl<InputEvent, Aggregate>();
     dimensions.setUnifier(unifier);
     dimensions.setKeyToExpression(keyToExpression);

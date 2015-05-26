@@ -90,6 +90,37 @@
     <value>2</value>
   </property>
 
+  <!-- Settings for AdsDimensionsDemoPerformant -->
+
+  <property>
+    <name>dt.application.AdsDimensionsDemoPerformant.operator.Store.fileStore.basePathPrefix</name>
+    <value>AdsDimensionsDemoPerformant/Store</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoPerformant.operator.Query.topic</name>
+    <value>AdsQuery</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoPerformant.operator.QueryResult.topic</name>
+    <value>AdsQueryResult</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoPerformant.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoPerformant.operator.InputGenerator.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsDemoPerformant.operator.InputGenerator.attr.MEMORY_MB</value>
+    <name>16384</name>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsDemoPerformant.operator.DimensionsComputation.attr.MEMORY_MB</value>
+    <name>16384</name>
+  </property>
+
 
   <!-- Settings for SalesDemo -->
 
