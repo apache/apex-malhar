@@ -186,4 +186,20 @@ public class AdsConverter implements Operator
   {
     this.schemaID = schemaID;
   }
+
+  /**
+   * @return the eventSchemaJSON
+   */
+  public String getEventSchemaJSON()
+  {
+    return eventSchemaJSON;
+  }
+
+  /**
+   * @param eventSchemaJSON the eventSchemaJSON to set
+   */
+  public void setEventSchemaJSON(String eventSchemaJSON)
+  {
+    this.eventSchemaJSON = eventSchemaJSON;
+  }
 }

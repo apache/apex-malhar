@@ -106,6 +106,10 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     dimensions.setDimensionsCombinations(dimensionsCombinations);
     dimensions.setAggregators(dimensionsAggregators);
 
+    //Configuring the converter
+    adsConverter.setEventSchemaJSON(eventSchema);
+    adsConverter.setDimensionSpecs(dimensionSpecs);
+
     //Set store properties
     String basePath = Preconditions.checkNotNull(conf.get(PROP_STORE_PATH),
                                                  "a base path should be specified in the properties.xml");
