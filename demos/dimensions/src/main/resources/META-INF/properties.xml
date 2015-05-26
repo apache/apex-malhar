@@ -1,68 +1,49 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <configuration>
 
-  <!-- GenericDimensionsApplication Demo Settings -->
-
+  <!-- Settings for AdsDimensionsCustomBenchmark -->
   <property>
-    <name>dt.application.GenericDimensionsApplication.operator.*.attr.MEMORY_MB</name>
-    <value>4096</value>
+    <name>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.numTuplesPerWindow</name>
+    <value>2000000</value>
   </property>
   <property>
-    <name>dt.application.GenericDimensionsApplication.port.*.attr.QUEUE_CAPACITY</name>
-    <value>32000</value>
-  </property>
-  <property>
-    <name>dt.application.GenericDimensionsApplication.operator.Input.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:2</value>
-  </property>
-  <property>
-    <name>dt.application.GenericDimensionsApplication.operator.Input.maxTuplesPerWindow</name>
-    <value>40000</value>
-  </property>
-  <property>
-    <name>dt.application.GenericDimensionsApplication.operator.Compute.attr.APPLICATION_WINDOW_COUNT</name>
-    <value>4</value>
-  </property>
-  <property>
-    <name>dt.application.GenericDimensionsApplication.operator.Store.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
-  </property>
-  <property>
-    <name>dt.application.GenericDimensionsApplication.operator.Store.fileStore.basePath</name>
-    <value>GenericDimensionsStore</value>
-  </property>
-  <property>
-    <name>dt.application.GenericDimensionsApplication.operator.Store.prop.maxCacheSize</name>
-    <value>20</value>
-  </property>
-  <property>
-    <name>dt.application.GenericDimensionsApplication.operator.Query.topic</name>
-    <value>GenericDimensionsQuery</value>
-  </property>
-  <property>
-    <name>dt.application.GenericDimensionsApplication.operator.QueryResult.topic</name>
-    <value>GenericDimensionsQueryResult</value>
-  </property>
-
-  <!-- Settings for AdsDimensionsDemoWithHDHTtest -->
-  <property>
-    <name>dt.application.AdsDimensionsDemoWithHDHTtest.operator.Store.fileStore.basePathPrefix</name>
-    <value>AdsDimensionsWithHDSDemo/Store</value>
-  </property>
-  <property>
-    <name>dt.application.AdsDimensionsDemoWithHDHTtest.useWebSockets</name>
+    <name>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.port.outputPort.attr.PARTITION_PARALLEL</name>
     <value>true</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoWithHDHTtest.operator.Query.topic</name>
-    <value>AdsQuery</value>
-  </property>
-  <property>
-    <name>dt.application.AdsDimensionsDemoWithHDHTtest.operator.QueryResult.topic</name>
-    <value>AdsQueryResult</value>
+    <name>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
   </property>
 
-  <!-- Settings for GenericAdsDimensionsDemoWithHDHTtest -->
+  <!-- Settings for AdsDimensionsFlexibleBenchmark -->
+  <property>
+    <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.numTuplesPerWindow</name>
+    <value>2000000</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.port.outputPort.attr.PARTITION_PARALLEL</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+  </property>
+
+  <!-- Settings for AdsDimensionsStatsBenchmark -->
+  <property>
+    <name>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.numTuplesPerWindow</name>
+    <value>2000000</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.port.outputPort.attr.PARTITION_PARALLEL</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+  </property>
+
+  <!-- Settings for AdsDimensionsDemo -->
 
   <property>
     <name>dt.application.AdsDimensionsDemo.operator.Store.fileStore.basePathPrefix</name>
@@ -78,105 +59,43 @@
   </property>
   <property>
     <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
     <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.outputport.aggregateOutput.attr.UNIFIER_LIMIT</name>
     <value>2</value>
   </property>
-  <property>
-    <name>dt.application.AdsDimensionsDemo.operator.DimensionsComputation.aggregationWindowCount</name>
-    <value>2</value>
-  </property>
 
 
-  <!-- Settings for GenericSalesDemoWithHDHT -->
+  <!-- Settings for SalesDemo -->
 
   <property>
-    <name>dt.application.GenericSalesDemoWithHDHT.operator.Store.fileStore.basePathPrefix</name>
-    <value>GenericSalesDemoWithHDHT/Store</value>
+    <name>dt.application.SalesDemo.operator.Store.fileStore.basePathPrefix</name>
+    <value>SalesDemo/Store</value>
   </property>
   <property>
-    <name>dt.application.GenericSalesDemoWithHDHT.useWebSockets</name>
+    <name>dt.application.SalesDemo.useWebSockets</name>
     <value>true</value>
   </property>
   <property>
-    <name>dt.application.GenericSalesDemoWithHDHT.operator.Query.topic</name>
+    <name>dt.application.SalesDemo.operator.Query.topic</name>
     <value>SalesQuery</value>
   </property>
   <property>
-    <name>dt.application.GenericSalesDemoWithHDHT.operator.QueryResult.topic</name>
+    <name>dt.application.SalesDemo.operator.QueryResult.topic</name>
     <value>SalesQueryResult</value>
   </property>
   <property>
-    <name>dt.application.GenericSalesDemoWithHDHT.operator.DimensionsComputation.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:4</value>
+    <name>dt.application.SalesDemo.operator.DimensionsComputation.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
   </property>
   <property>
-    <name>dt.application.GenericSalesDemoWithHDHT.operator.InputGenerator.maxTuplesPerWindow</name>
+    <name>dt.application.SalesDemo.operator.InputGenerator.maxTuplesPerWindow</name>
     <value>13000</value>
   </property>
   <property>
-    <name>dt.application.GenericSalesDemoWithHDHT.operator.InputGenerator.tuplesPerWindowDeviation</name>
+    <name>dt.application.SalesDemo.operator.InputGenerator.tuplesPerWindowDeviation</name>
     <value>7000</value>
-  </property>
-  <property>
-    <name>dt.application.GenericSalesDemoWithHDHT.operator.DimensionsComputation.aggregationWindowCount</name>
-    <value>4</value>
-  </property>
-
-<!--
-  <property>
-      <name>dt.operator.InputGenerator.attr.MEMORY_MB</name>
-      <value>256</value>
-  </property>
-
-  <property>
-      <name>dt.operator.DimensionsComputation.attr.MEMORY_MB</name>
-      <value>256</value>
-  </property>
-
-  <property>
-      <name>dt.operator.Store.attr.MEMORY_MB</name>
-      <value>512</value>
-  </property>
-
-  <property>
-      <name>dt.operator.Query.attr.MEMORY_MB</name>
-      <value>256</value>
-  </property>
-
-  <property>
-      <name>dt.operator.QueryResult.attr.MEMORY_MB</name>
-      <value>256</value>
-  </property>
-
-  <property>
-    <name>dt.attr.MASTER_MEMORY_MB</name>
-    <value>256</value>
-  </property>-->
-
-  <!-- Settings for all Query and QueryResult operators -->
-  <property>
-    <name>dt.operator.QueryResult.prop.configProperties(serializer.class)</name>
-    <value>com.datatorrent.contrib.kafka.KafkaJsonEncoder</value>
-  </property>
-
-  <!-- Ensure that Kafka connect address is set locally - deployment specific configuration -->
-  <!--<property>-->
-    <!--<name>dt.operator.Query.zookeeper</name>-->
-    <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
-  <!--</property>-->
-  <!--<property>-->
-    <!--<name>dt.operator.QueryResult.prop.configProperties(metadata.broker.list)</name>-->
-    <!--&lt;!&ndash; <value>hostname:port</value> &ndash;&gt;-->
-  <!--</property>-->
-
-  <!-- Settings for GenericSalesDemoWithHDHTNew -->
-
-  <property>
-    <name>dt.application.GenericSalesDemoWithHDHTNew.operator.Store.fileStore.basePathPrefix</name>
-    <value>GenericSalesDemoWithHDHTNew/Store</value>
   </property>
 
   <!-- Settings for all the apps -->

@@ -35,7 +35,7 @@ public class GenericSalesDemoWithHDHT implements StreamingApplication
 {
   private static final Logger logger = LoggerFactory.getLogger(GenericSalesDemoWithHDHT.class);
 
-  public static final String APP_NAME = "GenericSalesDemoWithHDHTNew";
+  public static final String APP_NAME = "SalesDemo";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
