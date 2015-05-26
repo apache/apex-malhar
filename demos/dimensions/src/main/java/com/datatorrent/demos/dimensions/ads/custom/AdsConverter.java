@@ -97,6 +97,8 @@ public class AdsConverter implements Operator
   @Override
   public void setup(OperatorContext context)
   {
+    aggregatorRegistry.setup();
+
     DimensionalConfigurationSchema dimensionsConfigurationSchema =
     new DimensionalConfigurationSchema(eventSchemaJSON,
                                        aggregatorRegistry);
