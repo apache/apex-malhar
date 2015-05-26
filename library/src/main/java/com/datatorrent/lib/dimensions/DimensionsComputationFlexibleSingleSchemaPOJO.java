@@ -23,6 +23,7 @@ import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import com.datatorrent.lib.util.PojoUtils;
+import com.datatorrent.lib.util.PojoUtils.Getter;
 import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
 import com.datatorrent.lib.util.PojoUtils.GetterByte;
 import com.datatorrent.lib.util.PojoUtils.GetterChar;
@@ -30,9 +31,7 @@ import com.datatorrent.lib.util.PojoUtils.GetterDouble;
 import com.datatorrent.lib.util.PojoUtils.GetterFloat;
 import com.datatorrent.lib.util.PojoUtils.GetterInt;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.GetterObject;
 import com.datatorrent.lib.util.PojoUtils.GetterShort;
-import com.datatorrent.lib.util.PojoUtils.GetterString;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -88,7 +87,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
   {
     {
       boolean[] tempBools = mutable.getFieldsBoolean();
-      GetterBoolean[] tempGetterBools = getters.gettersBoolean;
+      GetterBoolean<Object>[] tempGetterBools = getters.gettersBoolean;
 
       if(tempBools != null) {
         for(int index = 0;
@@ -101,7 +100,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
     {
       byte[] tempBytes = mutable.getFieldsByte();
-      GetterByte[] tempGetterByte = getters.gettersByte;
+      GetterByte<Object>[] tempGetterByte = getters.gettersByte;
 
       if(tempBytes != null) {
         for(int index = 0;
@@ -114,7 +113,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
     {
       char[] tempChar = mutable.getFieldsCharacter();
-      GetterChar[] tempGetterChar = getters.gettersChar;
+      GetterChar<Object>[] tempGetterChar = getters.gettersChar;
 
       if(tempChar != null) {
         for(int index = 0;
@@ -127,7 +126,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
     {
       double[] tempDouble = mutable.getFieldsDouble();
-      GetterDouble[] tempGetterDouble = getters.gettersDouble;
+      GetterDouble<Object>[] tempGetterDouble = getters.gettersDouble;
 
       if(tempDouble != null) {
         for(int index = 0;
@@ -140,7 +139,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
     {
       float[] tempFloat = mutable.getFieldsFloat();
-      GetterFloat[] tempGetterFloat = getters.gettersFloat;
+      GetterFloat<Object>[] tempGetterFloat = getters.gettersFloat;
 
       if(tempFloat != null) {
         for(int index = 0;
@@ -153,7 +152,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
     {
       int[] tempInt = mutable.getFieldsInteger();
-      GetterInt[] tempGetterInt = getters.gettersInteger;
+      GetterInt<Object>[] tempGetterInt = getters.gettersInteger;
 
       if(tempInt != null) {
         for(int index = 0;
@@ -166,7 +165,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
     {
       long[] tempLong = mutable.getFieldsLong();
-      GetterLong[] tempGetterLong = getters.gettersLong;
+      GetterLong<Object>[] tempGetterLong = getters.gettersLong;
 
       if(tempLong != null) {
         for(int index = 0;
@@ -179,7 +178,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
     {
       short[] tempShort = mutable.getFieldsShort();
-      GetterShort[] tempGetterShort = getters.gettersShort;
+      GetterShort<Object>[] tempGetterShort = getters.gettersShort;
 
       if(tempShort != null) {
         for(int index = 0;
@@ -192,7 +191,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
     {
       String[] tempString = mutable.getFieldsString();
-      GetterString[] tempGetterString = getters.gettersString;
+      Getter<Object, String>[] tempGetterString = getters.gettersString;
 
       if(tempString != null) {
         for(int index = 0;
@@ -273,6 +272,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
     }
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private GPOGetters buildGPOGetters(Class<?> clazz,
                                      FieldsDescriptor fieldsDescriptor,
                                      DimensionsDescriptor dd,
@@ -302,15 +302,14 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
           break;
         }
         case STRING: {
-          gpoGetters.gettersString = new GetterString[fields.size()];
+          gpoGetters.gettersString = new Getter[fields.size()];
 
           for(int getterIndex = 0;
               getterIndex < fields.size();
               getterIndex++) {
             String field = fields.get(getterIndex);
-            LOG.debug("{}", field);
             gpoGetters.gettersString[getterIndex]
-                    = PojoUtils.createGetterString(clazz, valueToExpression.get(field));
+                    = PojoUtils.createGetter(clazz, valueToExpression.get(field), String.class);
           }
 
           break;
@@ -335,9 +334,6 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
               getterIndex < fields.size();
               getterIndex++) {
             String field = fields.get(getterIndex);
-
-            LOG.debug("creating getter for field {}", field);
-
             gpoGetters.gettersDouble[getterIndex]
                     = PojoUtils.createGetterDouble(clazz, valueToExpression.get(field));
           }
@@ -364,9 +360,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
               getterIndex < fields.size();
               getterIndex++) {
             String field = fields.get(getterIndex);
-
-            LOG.debug("creating getter for field {}", field);
-            GetterLong tempGetterLong = PojoUtils.createExpressionGetterLong(clazz, valueToExpression.get(field));
+            GetterLong tempGetterLong = PojoUtils.createGetterLong(clazz, valueToExpression.get(field));
 
             if(isKey && field.equals(DimensionsDescriptor.DIMENSION_TIME)) {
               gpoGetters.gettersLong[getterIndex] = new GetTime(tempGetterLong, dd.getTimeBucket());
@@ -426,14 +420,14 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
           break;
         }
         case OBJECT: {
-          gpoGetters.gettersObject = new GetterObject[fields.size()];
+          gpoGetters.gettersObject = new Getter[fields.size()];
 
           for(int getterIndex = 0;
               getterIndex < fields.size();
               getterIndex++) {
             String field = fields.get(getterIndex);
             gpoGetters.gettersObject[getterIndex]
-                    = PojoUtils.createGetterObject(clazz, valueToExpression.get(field));
+                    = PojoUtils.createGetter(clazz, valueToExpression.get(field), Object.class);
           }
 
           break;
@@ -447,7 +441,7 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
     return gpoGetters;
   }
 
-  public static class GetTimeBucket implements PojoUtils.GetterInt
+  public static class GetTimeBucket implements PojoUtils.GetterInt<Object>
   {
     private final int timeBucket;
 
@@ -463,12 +457,12 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
     }
   }
 
-  public static class GetTime implements PojoUtils.GetterLong
+  public static class GetTime implements PojoUtils.GetterLong<Object>
   {
-    private final GetterLong timeGetter;
+    private final GetterLong<Object> timeGetter;
     private final TimeBucket timeBucket;
 
-    public GetTime(GetterLong timeGetter, TimeBucket timeBucket)
+    public GetTime(GetterLong<Object> timeGetter, TimeBucket timeBucket)
     {
       this.timeGetter = Preconditions.checkNotNull(timeGetter);
       this.timeBucket = Preconditions.checkNotNull(timeBucket);
@@ -484,16 +478,16 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
   public static class GPOGetters
   {
-    public GetterBoolean[] gettersBoolean;
-    public GetterChar[] gettersChar;
-    public GetterByte[] gettersByte;
-    public GetterShort[] gettersShort;
-    public GetterInt[] gettersInteger;
-    public GetterLong[] gettersLong;
-    public GetterFloat[] gettersFloat;
-    public GetterDouble[] gettersDouble;
-    public GetterString[] gettersString;
-    public GetterObject[] gettersObject;
+    public GetterBoolean<Object>[] gettersBoolean;
+    public GetterChar<Object>[] gettersChar;
+    public GetterByte<Object>[] gettersByte;
+    public GetterShort<Object>[] gettersShort;
+    public GetterInt<Object>[] gettersInteger;
+    public GetterLong<Object>[] gettersLong;
+    public GetterFloat<Object>[] gettersFloat;
+    public GetterDouble<Object>[] gettersDouble;
+    public Getter<Object, String>[] gettersString;
+    public Getter<Object, Object>[] gettersObject;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(DimensionsComputationFlexibleSingleSchemaPOJO.class);
