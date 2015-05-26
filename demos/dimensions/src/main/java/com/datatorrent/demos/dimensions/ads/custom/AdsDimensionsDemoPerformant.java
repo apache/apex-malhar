@@ -48,12 +48,12 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.datatorrent.demos.dimensions.ads.generic.AdsDimensionsDemo.EVENT_SCHEMA;
-import static com.datatorrent.demos.dimensions.ads.generic.AdsDimensionsDemo.PROP_STORE_PATH;
 
 @ApplicationAnnotation(name=AdsDimensionsDemoPerformant.APP_NAME)
 public class AdsDimensionsDemoPerformant implements StreamingApplication
 {
   public static final String APP_NAME = "AdsDimensionsDemoPerformant";
+  public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
