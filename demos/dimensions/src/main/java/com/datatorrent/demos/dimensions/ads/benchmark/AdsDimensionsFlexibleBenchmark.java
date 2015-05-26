@@ -23,6 +23,9 @@ import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.demos.dimensions.ads.generic.InputItemGenerator;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.dimensions.DimensionsComputationFlexibleSingleSchemaPOJO;
+import com.datatorrent.lib.dimensions.DimensionsComputationUnifierImpl;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
+import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import com.datatorrent.lib.stream.DevNull;
 import com.google.common.collect.Maps;
 import org.apache.hadoop.conf.Configuration;
@@ -55,6 +58,9 @@ public class AdsDimensionsFlexibleBenchmark implements StreamingApplication
     aggregateToExpression.put("impressions", "getImpressions()");
     aggregateToExpression.put("clicks", "getClicks()");
 
+
+    DimensionsComputationUnifierImpl<InputEvent, Aggregate> unifier = new DimensionsComputationUnifierImpl<InputEvent, Aggregate>();
+    dimensions.setUnifier(unifier);
     dimensions.setKeyToExpression(keyToExpression);
     dimensions.setAggregateToExpression(aggregateToExpression);
     dimensions.setEventSchemaJSON(eventSchema);
