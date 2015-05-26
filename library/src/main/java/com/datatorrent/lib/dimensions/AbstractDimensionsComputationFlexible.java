@@ -16,10 +16,6 @@
 
 package com.datatorrent.lib.dimensions;
 
-import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
-import com.datatorrent.lib.dimensions.aggregator.Aggregator;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
@@ -27,6 +23,11 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate.AggregateHashingStrategy;
 import com.datatorrent.lib.dimensions.DimensionsEvent.DimensionsEventDimensionsCombination;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
+import com.datatorrent.lib.dimensions.aggregator.Aggregator;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 
@@ -93,7 +94,8 @@ public abstract class AbstractDimensionsComputationFlexible<INPUT> extends Abstr
   }
 
   @Override
-  public void configureDimensionsComputationUnifier()
+  @VisibleForTesting
+  public Aggregator<InputEvent, Aggregate>[] configureDimensionsComputationUnifier()
   {
     computeAggregatorIdToAggregateIndex();
 
@@ -112,6 +114,8 @@ public abstract class AbstractDimensionsComputationFlexible<INPUT> extends Abstr
 
     unifier.setAggregators(aggregators);
     unifier.setHashingStrategy(unifierHashingStrategy);
+
+    return aggregators;
   }
 
   private void computeAggregatorIdToAggregateIndex()

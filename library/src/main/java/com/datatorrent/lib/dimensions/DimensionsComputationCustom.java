@@ -123,7 +123,7 @@ public class DimensionsComputationCustom<EVENT, AGGREGATE extends UnifiableAggre
   }
 
   @Override
-  public void configureDimensionsComputationUnifier()
+  public Aggregator<EVENT, AGGREGATE>[] configureDimensionsComputationUnifier()
   {
     int numAggregators = computeNumAggregators();
     @SuppressWarnings({"unchecked","rawtypes"})
@@ -135,13 +135,9 @@ public class DimensionsComputationCustom<EVENT, AGGREGATE extends UnifiableAggre
     Collections.sort(combinationNames);
 
     for(String combinationName: combinationNames) {
-      DimensionsCombination<EVENT, AGGREGATE> combination = dimensionsCombinations.get(combinationName);
       List<Aggregator<EVENT, AGGREGATE>> tempAggregators = aggregators.get(combinationName);
 
       for(Aggregator<EVENT, AGGREGATE> aggregator: tempAggregators) {
-        maps[aggregateIndex] = new AggregateMap<EVENT, AGGREGATE>(aggregator,
-                                                                  combination,
-                                                                  aggregateIndex);
         aggregatorsArray[aggregateIndex] = aggregator;
         aggregateIndex++;
       }
@@ -149,6 +145,8 @@ public class DimensionsComputationCustom<EVENT, AGGREGATE extends UnifiableAggre
 
     unifier.setAggregators(aggregatorsArray);
     unifier.setHashingStrategy(unifierHashingStrategy);
+
+    return aggregatorsArray;
   }
 
   public void setUnifierHashingStrategy(@NotNull DTHashingStrategy<AGGREGATE> dimensionsCombination)

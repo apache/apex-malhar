@@ -18,8 +18,9 @@ package com.datatorrent.lib.appdata.dimensions;
 
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.DimensionsCombination;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAggregate;
-import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.datatorrent.lib.dimensions.DimensionsComputationCustom;
+import com.datatorrent.lib.dimensions.DimensionsComputationUnifierImpl;
+import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
 import com.esotericsoftware.kryo.Kryo;
@@ -38,6 +39,21 @@ import java.util.Set;
 
 public class DimensionsComputationCustomTest
 {
+  @Test
+  public void testConfiguringUnifier()
+  {
+    DimensionsComputationCustom<AdInfo, AdInfoResult> dimensions = createDimensionsComputationComplex();
+    dimensions.setUnifier(new DimensionsComputationUnifierImpl<AdInfo, AdInfoResult>());
+    Aggregator<AdInfo, AdInfoResult>[] aggregators = dimensions.configureDimensionsComputationUnifier();
+
+    Assert.assertEquals(AdInfoMaxAggregator.class, aggregators[0].getClass());
+    Assert.assertEquals(AdInfoSumAggregator.class, aggregators[1].getClass());
+    Assert.assertEquals(AdInfoMaxAggregator.class, aggregators[2].getClass());
+    Assert.assertEquals(AdInfoMinAggregator.class, aggregators[3].getClass());
+    Assert.assertEquals(AdInfoCountAggregator.class, aggregators[4].getClass());
+    Assert.assertEquals(5, aggregators.length);
+  }
+
   @Test
   public void serializationTest() throws Exception
   {

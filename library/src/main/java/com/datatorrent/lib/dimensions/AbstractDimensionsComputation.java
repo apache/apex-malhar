@@ -63,7 +63,7 @@ public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE 
     this.unifier = unifier;
   }
 
-  public abstract void configureDimensionsComputationUnifier();
+  public abstract Aggregator<AGGREGATOR_INPUT, AGGREGATE>[] configureDimensionsComputationUnifier();
 
   @Override
   @SuppressWarnings("unchecked")
