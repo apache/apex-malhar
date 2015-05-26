@@ -14,11 +14,19 @@
     <name>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
   </property>
+  <property>
+    <value>dt.application.AdsDimensionsCustomBenchmark.operator.InputGenerator.attr.MEMORY_MB</value>
+    <name>8192</name>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsCustomBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
+    <name>8192</name>
+  </property>
 
   <!-- Settings for AdsDimensionsFlexibleBenchmark -->
   <property>
     <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.numTuplesPerWindow</name>
-    <value>2000000</value>
+    <value>10000</value>
   </property>
   <property>
     <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.DimensionsComputation.port.inputEvent.attr.PARTITION_PARALLEL</name>
@@ -27,6 +35,14 @@
   <property>
     <name>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsFlexibleBenchmark.operator.InputGenerator.attr.MEMORY_MB</value>
+    <name>8192</name>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsFlexibleBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
+    <name>8192</name>
   </property>
 
   <!-- Settings for AdsDimensionsStatsBenchmark -->
@@ -41,6 +57,14 @@
   <property>
     <name>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.attr.PARTITIONER</name>
     <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsStatsBenchmark.operator.InputGenerator.attr.MEMORY_MB</value>
+    <name>8192</name>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsStatsBenchmark.operator.DimensionsComputation.attr.MEMORY_MB</value>
+    <name>8192</name>
   </property>
 
   <!-- Settings for AdsDimensionsDemo -->
