@@ -75,8 +75,6 @@ public class DimensionsDescriptorTest
 
     Set<String> fields = Sets.newHashSet();
     fields.add(KEY_1_NAME);
-    fields.add(DimensionsDescriptor.DIMENSION_TIME);
-    fields.add(DimensionsDescriptor.DIMENSION_TIME_BUCKET);
 
     Assert.assertEquals("The fields should match.", fields, ad.getFields().getFields());
     Assert.assertEquals("The timeunit should be DAYS.", TimeUnit.DAYS, ad.getTimeBucket().getTimeUnit());

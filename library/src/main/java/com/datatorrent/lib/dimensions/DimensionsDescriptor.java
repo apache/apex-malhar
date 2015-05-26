@@ -96,17 +96,23 @@ public class DimensionsDescriptor
     for(String field: fieldArray) {
       String[] fieldAndValue = field.split(DELIMETER_EQUALS);
       String fieldName = fieldAndValue[0];
-      fieldSet.add(fieldName);
+
+      if(fieldName.equals(DIMENSION_TIME_BUCKET)) {
+        throw new IllegalArgumentException(DIMENSION_TIME_BUCKET + " is an invalid time.");
+      }
+
+      if(!fieldName.equals(DIMENSION_TIME)) {
+        fieldSet.add(fieldName);
+      }
 
       if(fieldName.equals(DIMENSION_TIME)) {
         if(timeBucket != null) {
-          throw new IllegalArgumentException("Cannot specify time in a dimensions " +
-                                             "descriptor when a timebucket is also " +
-                                             "specified.");
+          throw new IllegalArgumentException("Cannot specify time in a dimensions "
+                                             + "descriptor when a timebucket is also "
+                                             + "specified.");
         }
 
         if(fieldAndValue.length == 2) {
-          fieldSet.add(DIMENSION_TIME_BUCKET);
           timeBucket = TimeBucket.TIME_UNIT_TO_TIME_BUCKET.get(TimeUnit.valueOf(fieldAndValue[1]));
         }
       }

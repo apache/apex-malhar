@@ -32,6 +32,8 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import it.unimi.dsi.fastutil.ints.Int2IntOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2IntOpenHashMap;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -99,7 +101,7 @@ public class AdsConverter implements Operator
   {
     aggregatorRegistry.setup();
 
-    DimensionalConfigurationSchema dimensionsConfigurationSchema =
+    dimensionsConfigurationSchema =
     new DimensionalConfigurationSchema(eventSchemaJSON,
                                        aggregatorRegistry);
 
@@ -108,7 +110,8 @@ public class AdsConverter implements Operator
     for(int ddID = 0;
         ddID < dimensionsDescriptorList.size();
         ddID++) {
-      DimensionsDescriptor dimensionsDescriptor = dimensionsDescriptorList.get(0);
+      DimensionsDescriptor dimensionsDescriptor = dimensionsDescriptorList.get(ddID);
+      LOG.debug("{}", dimensionsDescriptor);
       dimensionsDescriptorToID.put(dimensionsDescriptor, ddID);
     }
 
@@ -120,6 +123,7 @@ public class AdsConverter implements Operator
         index < dimensionSpecs.length;
         index++) {
       DimensionsDescriptor dimensionsDescriptor = new DimensionsDescriptor(dimensionSpecs[index]);
+      LOG.debug("{}", dimensionsDescriptor);
       int newID = dimensionsDescriptorToID.get(dimensionsDescriptor);
       int oldID = index;
       prevDdIDToThisDdID.put(newID, oldID);
@@ -204,4 +208,6 @@ public class AdsConverter implements Operator
   {
     this.eventSchemaJSON = eventSchemaJSON;
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(AdsConverter.class);
 }

@@ -47,11 +47,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static com.datatorrent.demos.dimensions.ads.generic.AdsDimensionsDemo.EVENT_SCHEMA;
 
 @ApplicationAnnotation(name=AdsDimensionsDemoPerformant.APP_NAME)
 public class AdsDimensionsDemoPerformant implements StreamingApplication
 {
+  public static final String EVENT_SCHEMA = "adsBenchmarkSchema.json";
   public static final String APP_NAME = "AdsDimensionsDemoPerformant";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
@@ -65,7 +65,8 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     AdsConverter adsConverter = dag.addOperator("AdsConverter", new AdsConverter());
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
-    input.setEventSchemaJSON(SchemaUtils.jarResourceFileToString("adsBenchmarkSchema.json"));
+    String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
+    input.setEventSchemaJSON(eventSchema);
 
     String[] dimensionSpecs = new String[] {
       "time=" + TimeUnit.MINUTES,
@@ -81,7 +82,6 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     //Set operator properties
 
     //Set input properties
-    String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
     input.setEventSchemaJSON(eventSchema);
 
     //Set Dimensions properties
