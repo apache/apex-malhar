@@ -60,6 +60,10 @@ public class AdsConverter implements Operator
 
       GPOMutable key = new GPOMutable(keyDescriptor);
 
+      if(keyDescriptor.getFieldList().contains(InputItemGenerator.PUBLISHER)) {
+        LOG.info("has publisher");
+      }
+
       for(String field: keyDescriptor.getFieldList()) {
         if(field.equals(InputItemGenerator.PUBLISHER)) {
           if(tuple.publisher.equals("twitter")) {
