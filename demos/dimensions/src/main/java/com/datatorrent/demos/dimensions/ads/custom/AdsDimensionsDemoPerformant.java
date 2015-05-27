@@ -18,6 +18,7 @@ package com.datatorrent.demos.dimensions.ads.custom;
 
 import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
+import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
@@ -147,7 +148,7 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
 
     dag.setAttribute(store, Context.OperatorContext.COUNTERS_AGGREGATOR, new BasicCounters.LongAggregator<MutableLong>());
 
-    dag.addStream("InputStream", input.outputPort, dimensions.data);
+    dag.addStream("InputStream", input.outputPort, dimensions.data).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("DimensionalData", dimensions.output, adsConverter.inputPort);
     dag.addStream("Converter", adsConverter.outputPort, store.input);
     dag.addStream("Query", queryPort, store.query);
