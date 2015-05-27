@@ -63,7 +63,7 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     //Declare operators
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions =
+    DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = new TestDimensions();
     dag.addOperator("DimensionsComputation", dimensions);
     AdsConverter adsConverter = dag.addOperator("AdsConverter", new AdsConverter());
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
