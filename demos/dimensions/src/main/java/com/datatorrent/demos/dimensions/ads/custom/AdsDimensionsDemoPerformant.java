@@ -80,7 +80,7 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
         }
       }
     };
-    dag.addOperator("DimensionsComputation", new DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent>());
+    dag.addOperator("DimensionsComputation", dimensions);
     AdsConverter adsConverter = dag.addOperator("AdsConverter", new AdsConverter());
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
