@@ -117,6 +117,10 @@
   <!-- Settings for AdsDimensionsDemoPerformant -->
 
   <property>
+    <name>dt.application.AdsDimensionsDemoPerformant.operator.InputGenerator.numTuplesPerWindow</name>
+    <value>2000000000</value>
+  </property>
+  <property>
     <name>dt.application.AdsDimensionsDemoPerformant.operator.Store.fileStore.basePathPrefix</name>
     <value>AdsDimensionsDemoPerformant/Store</value>
   </property>
@@ -143,6 +147,10 @@
   <property>
     <value>dt.application.AdsDimensionsDemoPerformant.operator.DimensionsComputation.attr.MEMORY_MB</value>
     <name>16384</name>
+  </property>
+   <property>
+     <name>dt.application.AdsDimensionsCustomBenchmark.port.*.attr.QUEUE_CAPACITY</name>
+     <value>32000</value>
   </property>
 
 
