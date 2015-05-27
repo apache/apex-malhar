@@ -38,6 +38,7 @@ import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import java.net.URI;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
@@ -47,6 +48,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -166,14 +168,14 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
       LOG.info("endwindow called");
 
       for(AggregateMap<AdInfo, AdInfo.AdInfoAggregateEvent> map: maps) {
-        for(AdInfo.AdInfoAggregateEvent value: map.values()) {
-          if(value.publisher != null && value.publisher.equals("twitter")) {
-            LOG.debug("end window found twitter");
-          }
 
+        Set<String> publishers = Sets.newHashSet();
+        for(AdInfo.AdInfoAggregateEvent value: map.values()) {
+          publishers.add(value.publisher);
           output.emit(value);
         }
 
+        LOG.info("{}", publishers);
         map.clear();
       }
     }
