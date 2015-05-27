@@ -20,17 +20,17 @@ import java.net.URI;
 import org.apache.commons.lang.StringUtils;
 import org.apache.hadoop.conf.Configuration;
 
-import com.datatorrent.lib.algo.UniqueCounter;
-import com.datatorrent.lib.io.ConsoleOutputOperator;
-import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
-
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
-
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator.InputPort;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+
+import com.datatorrent.contrib.twitter.TwitterSampleInput;
+import com.datatorrent.lib.algo.UniqueCounter;
+import com.datatorrent.lib.io.ConsoleOutputOperator;
+import com.datatorrent.lib.io.PubSubWebSocketOutputOperator;
 
 
 /**
@@ -153,11 +153,14 @@ public class TwitterTopCounterApplication implements StreamingApplication
 
     // Setup a node to count the unique urls within a window.
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueURLCounter", new UniqueCounter<String>());
-
     // Get the aggregated url counts and count them over last 5 mins.
+    dag.setAttribute(uniqueCounter, Context.OperatorContext.APPLICATION_WINDOW_COUNT, 600);
+    dag.setAttribute(uniqueCounter, Context.OperatorContext.SLIDING_WINDOW_COUNT, 1);
+
+
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
     topCounts.setTopCount(10);
-    topCounts.setSlidingWindowWidth(600, 1);
+    topCounts.setSlidingWindowWidth(1, 1);
 
     // Feed the statuses from feed into the input of the url extractor.
     dag.addStream("TweetStream", twitterFeed.status, urlExtractor.input).setLocality(Locality.CONTAINER_LOCAL);
