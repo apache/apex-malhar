@@ -55,7 +55,7 @@ public class AdsConverter implements Operator
     @Override
     public void process(AdInfoAggregateEvent tuple)
     {
-      if(tuple.publisher.equals("twitter")) {
+      if(tuple.publisher != null && tuple.publisher.equals("twitter")) {
         LOG.info("found twitter {}", tuple.getDimensionsDescriptorID());
       }
 
