@@ -166,7 +166,7 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
       for(AggregateMap<AdInfo, AdInfo.AdInfoAggregateEvent> map: maps) {
         for(AdInfo.AdInfoAggregateEvent value: map.values()) {
           if(value.publisher != null && value.publisher.equals("twitter")) {
-            LOG.debug("found twitter");
+            LOG.debug("end window found twitter");
           }
 
           output.emit(value);
