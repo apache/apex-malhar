@@ -55,15 +55,6 @@ public class AdsConverter implements Operator
     @Override
     public void process(AdInfoAggregateEvent tuple)
     {
-      if(tuple.publisher != null && tuple.publisher.equals("twitter")) {
-        LOG.info("found twitter {}", tuple.getDimensionsDescriptorID());
-      }
-
-      if(tuple.publisher != null && tuple.publisher.contains("witt")) {
-        LOG.info("found twitter {}", tuple.publisher.equals("twitter"));
-      }
-
-
       int ddID = prevDdIDToThisDdID.get(tuple.getDimensionsDescriptorID());
       FieldsDescriptor keyDescriptor = dimensionsConfigurationSchema.getDdIDToKeyDescriptor().get(ddID);
 
@@ -71,9 +62,6 @@ public class AdsConverter implements Operator
 
       for(String field: keyDescriptor.getFieldList()) {
         if(field.equals(InputItemGenerator.PUBLISHER)) {
-          if(tuple.publisher.equals("twitter")) {
-            LOG.info("found twitter");
-          }
           key.setField(InputItemGenerator.PUBLISHER, tuple.publisher);
         }
         else if(field.equals(InputItemGenerator.ADVERTISER)) {

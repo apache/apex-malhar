@@ -38,7 +38,6 @@ import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.net.URI;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
@@ -48,7 +47,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 
@@ -65,7 +63,7 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     //Declare operators
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = new TestDimensions();
+    DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = new DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent>();
     dag.addOperator("DimensionsComputation", dimensions);
     AdsConverter adsConverter = dag.addOperator("AdsConverter", new AdsConverter());
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
@@ -154,36 +152,6 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     dag.addStream("Converter", adsConverter.outputPort, store.input);
     dag.addStream("Query", queryPort, store.query);
     dag.addStream("QueryResult", store.queryResult, queryResultPort);
-  }
-
-  public static class TestDimensions extends DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent>
-  {
-    public TestDimensions()
-    {
-    }
-
-    @Override
-    public void endWindow()
-    {
-      LOG.info("endwindow called");
-
-      for(AggregateMap<AdInfo, AdInfo.AdInfoAggregateEvent> map: maps) {
-
-        Set<String> publishers = Sets.newHashSet();
-        for(AdInfo.AdInfoAggregateEvent value: map.values()) {
-
-          if(value.publisher != null && value.publisher.contains("witt")) {
-            LOG.info("found twitter {}", value.publisher.equals("twitter"));
-          }
-
-          publishers.add(value.publisher);
-          output.emit(value);
-        }
-
-        LOG.info("{}", publishers);
-        map.clear();
-      }
-    }
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionsDemoPerformant.class);

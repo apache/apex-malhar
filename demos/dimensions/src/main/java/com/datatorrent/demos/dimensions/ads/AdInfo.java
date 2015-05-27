@@ -209,15 +209,24 @@ public class AdInfo implements Serializable
         aggregate.publisher = aggregatorInput.publisher;
         aggregate.publisherID = aggregatorInput.publisherID;
       }
+      else {
+        aggregate.publisherID = -1;
+      }
 
       if (advertiserId) {
         aggregate.advertiser = aggregatorInput.advertiser;
         aggregate.advertiserID = aggregatorInput.advertiserID;
       }
+      else {
+        aggregate.advertiserID = -1;
+      }
 
       if (adUnit) {
         aggregate.location = aggregatorInput.location;
         aggregate.locationID = aggregatorInput.locationID;
+      }
+      else {
+        aggregate.locationID = -1;
       }
 
       aggregate.dimensionsDescriptorID = this.dimensionsDescriptorID;
