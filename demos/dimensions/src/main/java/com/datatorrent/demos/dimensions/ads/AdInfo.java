@@ -210,7 +210,7 @@ public class AdInfo implements Serializable
         aggregate.publisherID = aggregatorInput.publisherID;
 
         if(aggregate.publisher.equals("twitter")) {
-          LOG.info("found twitter");
+          LOG.info("found twitter {}", aggregate.publisherID);
         }
       }
 
