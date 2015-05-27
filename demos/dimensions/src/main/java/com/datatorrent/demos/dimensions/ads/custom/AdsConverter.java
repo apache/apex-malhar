@@ -62,6 +62,9 @@ public class AdsConverter implements Operator
 
       for(String field: keyDescriptor.getFieldList()) {
         if(field.equals(InputItemGenerator.PUBLISHER)) {
+          if(tuple.publisher.equals("twitter")) {
+            LOG.info("found twitter");
+          }
           key.setField(InputItemGenerator.PUBLISHER, tuple.publisher);
         }
         else if(field.equals(InputItemGenerator.ADVERTISER)) {
