@@ -98,10 +98,6 @@
     <value>AdsQueryResult</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoGeneric.operator.DimensionsComputation.attr.PARTITIONER</name>
-    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
-  </property>
-  <property>
     <name>dt.application.AdsDimensionsDemoGeneric.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
     <value>true</value>
   </property>
