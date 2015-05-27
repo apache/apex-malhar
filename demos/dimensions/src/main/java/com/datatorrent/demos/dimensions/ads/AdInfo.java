@@ -229,7 +229,7 @@ public class AdInfo implements Serializable
     @Override
     public void aggregate(AdInfoAggregateEvent dest, AdInfo src)
     {
-      if(dest.publisher.equals("twitter")) {
+      if(dest.publisher != null && dest.publisher.equals("twitter")) {
         LOG.info("Aggregating to twitter");
       }
 
