@@ -355,11 +355,6 @@
       </exclusions>
     </dependency>
     <dependency>
-      <groupId>com.aerospike</groupId>
-      <artifactId>aerospike-client</artifactId>
-      <version>3.0.35</version>
-    </dependency>
-    <dependency>
       <groupId>${project.groupId}</groupId>
       <artifactId>malhar-contrib</artifactId>
       <version>${datatorrent.version}</version>
