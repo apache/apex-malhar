@@ -149,7 +149,7 @@
     <name>16384</name>
   </property>
    <property>
-     <name>dt.application.AdsDimensionsCustomBenchmark.port.*.attr.QUEUE_CAPACITY</name>
+     <name>dt.application.AdsDimensionsDemoPerformant.port.*.attr.QUEUE_CAPACITY</name>
      <value>32000</value>
   </property>
 
