@@ -146,13 +146,13 @@ public class AdsDimensionsDemo implements StreamingApplication
     keyToExpression.put("publisher", "getPublisher()");
     keyToExpression.put("advertiser", "getAdvertiser()");
     keyToExpression.put("location", "getLocation()");
+    keyToExpression.put("time", "getTime()");
 
     Map<String, String> aggregateToExpression = Maps.newHashMap();
     aggregateToExpression.put("cost", "getCost()");
     aggregateToExpression.put("revenue", "getRevenue()");
     aggregateToExpression.put("impressions", "getImpressions()");
     aggregateToExpression.put("clicks", "getClicks()");
-    aggregateToExpression.put("time", "getTime()");
 
     dimensions.setKeyToExpression(keyToExpression);
     dimensions.setAggregateToExpression(aggregateToExpression);
