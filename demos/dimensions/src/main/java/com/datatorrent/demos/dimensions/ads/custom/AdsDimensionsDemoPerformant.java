@@ -63,23 +63,7 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     //Declare operators
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = new DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent>() {
-      @Override
-      public void endWindow()
-      {
-        for(AggregateMap<AdInfo, AdInfo.AdInfoAggregateEvent> map: maps) {
-          for(AdInfo.AdInfoAggregateEvent value: map.values()) {
-            if(value.publisher != null && value.publisher.equals("twitter")) {
-              LOG.debug("found twitter");
-            }
-
-            output.emit(value);
-          }
-
-          map.clear();
-        }
-      }
-    };
+    DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions =
     dag.addOperator("DimensionsComputation", dimensions);
     AdsConverter adsConverter = dag.addOperator("AdsConverter", new AdsConverter());
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
@@ -168,6 +152,29 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     dag.addStream("Converter", adsConverter.outputPort, store.input);
     dag.addStream("Query", queryPort, store.query);
     dag.addStream("QueryResult", store.queryResult, queryResultPort);
+  }
+
+  public static class TestDimensions extends DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent>
+  {
+    public TestDimensions()
+    {
+    }
+
+    @Override
+    public void endWindow()
+    {
+      for(AggregateMap<AdInfo, AdInfo.AdInfoAggregateEvent> map: maps) {
+        for(AdInfo.AdInfoAggregateEvent value: map.values()) {
+          if(value.publisher != null && value.publisher.equals("twitter")) {
+            LOG.debug("found twitter");
+          }
+
+          output.emit(value);
+        }
+
+        map.clear();
+      }
+    }
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionsDemoPerformant.class);
