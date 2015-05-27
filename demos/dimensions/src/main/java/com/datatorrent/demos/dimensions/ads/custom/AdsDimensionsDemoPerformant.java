@@ -42,6 +42,8 @@ import java.net.URI;
 import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -61,7 +63,24 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     //Declare operators
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
-    DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = dag.addOperator("DimensionsComputation", new DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent>());
+    DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent> dimensions = new DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent>() {
+      @Override
+      public void endWindow()
+      {
+        for(AggregateMap<AdInfo, AdInfo.AdInfoAggregateEvent> map: maps) {
+          for(AdInfo.AdInfoAggregateEvent value: map.values()) {
+            if(value.publisher != null && value.publisher.equals("twitter")) {
+              LOG.debug("found twitter");
+            }
+
+            output.emit(value);
+          }
+
+          map.clear();
+        }
+      }
+    };
+    dag.addOperator("DimensionsComputation", new DimensionsComputationCustom<AdInfo, AdInfo.AdInfoAggregateEvent>());
     AdsConverter adsConverter = dag.addOperator("AdsConverter", new AdsConverter());
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
 
@@ -150,4 +169,6 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     dag.addStream("Query", queryPort, store.query);
     dag.addStream("QueryResult", store.queryResult, queryResultPort);
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(AdsDimensionsDemoPerformant.class);
 }
