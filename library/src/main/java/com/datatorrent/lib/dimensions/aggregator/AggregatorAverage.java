@@ -62,7 +62,7 @@ public class AggregatorAverage implements OTFAggregator
     long count = countAggregation.getFieldsLong()[0];
 
     for(String field: inputDescriptor.getFieldList()) {
-      Type type = outputDescriptor.getType(field);
+      Type type = inputDescriptor.getType(field);
 
       switch(type) {
         case BYTE:
