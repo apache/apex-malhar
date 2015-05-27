@@ -171,6 +171,11 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
 
         Set<String> publishers = Sets.newHashSet();
         for(AdInfo.AdInfoAggregateEvent value: map.values()) {
+
+          if(value.publisher != null && value.publisher.contains("witt")) {
+            LOG.info("found twitter {}", value.publisher.equals("twitter"));
+          }
+
           publishers.add(value.publisher);
           output.emit(value);
         }
