@@ -59,6 +59,11 @@ public class AdsConverter implements Operator
         LOG.info("found twitter {}", tuple.getDimensionsDescriptorID());
       }
 
+      if(tuple.publisher != null && tuple.publisher.contains("witt")) {
+        LOG.info("found twitter {}", tuple.publisher.equals("twitter"));
+      }
+
+
       int ddID = prevDdIDToThisDdID.get(tuple.getDimensionsDescriptorID());
       FieldsDescriptor keyDescriptor = dimensionsConfigurationSchema.getDdIDToKeyDescriptor().get(ddID);
 
