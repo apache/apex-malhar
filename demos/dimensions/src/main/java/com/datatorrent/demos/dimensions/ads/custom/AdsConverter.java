@@ -56,20 +56,12 @@ public class AdsConverter implements Operator
     public void process(AdInfoAggregateEvent tuple)
     {
       int ddID = prevDdIDToThisDdID.get(tuple.getDimensionsDescriptorID());
-      LOG.info("{}", ddID);
       FieldsDescriptor keyDescriptor = dimensionsConfigurationSchema.getDdIDToKeyDescriptor().get(ddID);
 
       GPOMutable key = new GPOMutable(keyDescriptor);
 
-      if(keyDescriptor.getFieldList().contains(InputItemGenerator.PUBLISHER)) {
-        LOG.info("has publisher");
-      }
-
       for(String field: keyDescriptor.getFieldList()) {
         if(field.equals(InputItemGenerator.PUBLISHER)) {
-          if(tuple.publisher.equals("twitter")) {
-            LOG.info("found twitter");
-          }
           key.setField(InputItemGenerator.PUBLISHER, tuple.publisher);
         }
         else if(field.equals(InputItemGenerator.ADVERTISER)) {
