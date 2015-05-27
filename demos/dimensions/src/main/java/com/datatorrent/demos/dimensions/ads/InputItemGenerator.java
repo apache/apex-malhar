@@ -116,12 +116,9 @@ public class InputItemGenerator implements InputOperator
       long timestamp;
       for (int i = 0; i < blastCount && windowCount < numTuplesPerWindow; ++i, windowCount++) {
         int advertiserId = random.nextInt(advertiserID);
-        //int advertiserId = random.nextInt(1) + 1;
         //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
         int publisherId = random.nextInt(publisherID);
-        //int publisherId = random.nextInt(1) + 1;
         int adUnit = random.nextInt(locationID);
-        //int adUnit = random.nextInt(1) + 1;
 
         timestamp = System.currentTimeMillis();
 
@@ -153,6 +150,10 @@ public class InputItemGenerator implements InputOperator
 
     adInfo.setPublisher((String) publisherName.get(publisherId));
     adInfo.publisherID = publisherId;
+
+    if(publisherID == 0) {
+      logger.info("publisher {}", (String) publisherName.get(publisherId));
+    }
     adInfo.setAdvertiser((String) advertiserName.get(advertiserId));
     adInfo.advertiserID = advertiserId;
     adInfo.setLocation((String) locationName.get(adUnit));
