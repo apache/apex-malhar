@@ -84,7 +84,6 @@ public class InputItemGenerator implements InputOperator
   @Override
   public void endWindow()
   {
-    logger.info("Current time stamp {}", System.currentTimeMillis());
   }
 
   @Override
@@ -151,7 +150,7 @@ public class InputItemGenerator implements InputOperator
     adInfo.setPublisher((String) publisherName.get(publisherId));
     adInfo.publisherID = publisherId;
 
-    if(publisherID == 0) {
+    if(publisherId == 0) {
       logger.info("publisher {}", (String) publisherName.get(publisherId));
     }
     adInfo.setAdvertiser((String) advertiserName.get(advertiserId));
