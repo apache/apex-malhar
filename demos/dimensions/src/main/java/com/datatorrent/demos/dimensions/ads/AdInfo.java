@@ -23,6 +23,8 @@ import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.UnifiableAgg
 import com.datatorrent.lib.statistics.DimensionsComputation;
 import com.datatorrent.lib.statistics.DimensionsComputation.Aggregator;
 import java.io.Serializable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -206,6 +208,10 @@ public class AdInfo implements Serializable
       if (publisherId) {
         aggregate.publisher = aggregatorInput.publisher;
         aggregate.publisherID = aggregatorInput.publisherID;
+
+        if(aggregate.publisher.equals("twitter")) {
+          LOG.info("found twitter");
+        }
       }
 
       if (advertiserId) {
@@ -570,7 +576,7 @@ public class AdInfo implements Serializable
              this.time == aae.time &&
              this.timeBucket == aae.timeBucket;
     }
-
-
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(AdInfoAggregateEvent.class);
 }
