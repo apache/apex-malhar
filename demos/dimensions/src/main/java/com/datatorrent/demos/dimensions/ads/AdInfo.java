@@ -230,7 +230,7 @@ public class AdInfo implements Serializable
     public void aggregate(AdInfoAggregateEvent dest, AdInfo src)
     {
       if(dest.publisher != null && dest.publisher.equals("twitter")) {
-        LOG.info("Aggregating to twitter");
+        LOG.info("Aggregating to twitter {} {}", dest.publisherID);
       }
 
       dest.clicks += src.clicks;
