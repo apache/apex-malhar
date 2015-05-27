@@ -163,6 +163,8 @@ public class AdsDimensionsDemoPerformant implements StreamingApplication
     @Override
     public void endWindow()
     {
+      LOG.info("endwindow called");
+
       for(AggregateMap<AdInfo, AdInfo.AdInfoAggregateEvent> map: maps) {
         for(AdInfo.AdInfoAggregateEvent value: map.values()) {
           if(value.publisher != null && value.publisher.equals("twitter")) {
