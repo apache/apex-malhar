@@ -55,6 +55,10 @@ public class AdsConverter implements Operator
     @Override
     public void process(AdInfoAggregateEvent tuple)
     {
+      if(tuple.publisher.equals("twitter")) {
+        LOG.info("found twitter {}", tuple.getDimensionsDescriptorID());
+      }
+
       int ddID = prevDdIDToThisDdID.get(tuple.getDimensionsDescriptorID());
       FieldsDescriptor keyDescriptor = dimensionsConfigurationSchema.getDdIDToKeyDescriptor().get(ddID);
 
