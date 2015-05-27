@@ -56,6 +56,7 @@ public class AdsConverter implements Operator
     public void process(AdInfoAggregateEvent tuple)
     {
       int ddID = prevDdIDToThisDdID.get(tuple.getDimensionsDescriptorID());
+      LOG.info("{}", ddID);
       FieldsDescriptor keyDescriptor = dimensionsConfigurationSchema.getDdIDToKeyDescriptor().get(ddID);
 
       GPOMutable key = new GPOMutable(keyDescriptor);
