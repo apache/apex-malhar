@@ -98,7 +98,7 @@
     <value>AdsQueryResult</value>
   </property>
   <property>
-    <name>dt.application.AdsDimensionsDemoGeneric.operator.DimensionsComputation.port.data.attr.PARTITION_PARALLEL</name>
+    <name>dt.application.AdsDimensionsDemoGeneric.operator.DimensionsComputation.port.inputEvent.attr.PARTITION_PARALLEL</name>
     <value>true</value>
   </property>
   <property>
