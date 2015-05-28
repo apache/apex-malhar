@@ -84,9 +84,16 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<INPUT> e
                                          conversionContext);
 
         int aggregateIndex = this.aggregatorIdToAggregateIndex.get(conversionContext.aggregatorID);
-        this.maps[aggregateIndex].aggregate(inputE);
+        processConvertedInput(aggregateIndex,
+                              inputE);
       }
     }
+  }
+
+  public void processConvertedInput(int aggregateIndex,
+                                    InputEvent inputE)
+  {
+    this.maps[aggregateIndex].aggregate(inputE);
   }
 
   @Override
