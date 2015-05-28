@@ -15,14 +15,14 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.CustomDataValidator;
-import com.datatorrent.lib.appdata.qr.Data;
+import com.datatorrent.lib.appdata.query.serde.CustomMessageValidator;
+import com.datatorrent.lib.appdata.query.serde.Message;
 
 
-public class DataQueryDimensionalValidator implements CustomDataValidator
+public class DataQueryDimensionalValidator implements CustomMessageValidator
 {
   @Override
-  public boolean validate(Data query, Object context)
+  public boolean validate(Message query, Object context)
   {
     return true;
   }

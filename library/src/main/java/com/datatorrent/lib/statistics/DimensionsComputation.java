@@ -45,8 +45,11 @@ import com.datatorrent.api.Context.OperatorContext;
  * @tags event, dimension, aggregation, computation
  *
  * @param <EVENT> - Type of the tuple whose attributes are used to define dimensions.
+ * @deprecated Use {@link com.datatorrent.lib.dimensions.DimensionsComputationCustom} or a subclass of
+ * {@link com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexible} instead.
  * @since 1.0.2
  */
+@Deprecated
 public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputation.AggregateEvent> implements Operator
 {
   private Unifier<AGGREGATE> unifier;
@@ -139,6 +142,11 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
       aggregators[i] = aggregatorMaps[i].aggregator;
     }
     return aggregators;
+  }
+
+  public AggregatorMap<EVENT, AGGREGATE>[] getAggregatorMaps()
+  {
+    return aggregatorMaps;
   }
 
   @Override
@@ -327,7 +335,7 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   }
 
   @DefaultSerializer(ExternalizableSerializer.class)
-  static class AggregatorMap<EVENT, AGGREGATE extends AggregateEvent> extends TCustomHashMap<EVENT, AGGREGATE>
+  public static class AggregatorMap<EVENT, AGGREGATE extends AggregateEvent> extends TCustomHashMap<EVENT, AGGREGATE>
   {
     transient Aggregator<EVENT, AGGREGATE> aggregator;
 
@@ -428,5 +436,4 @@ public class DimensionsComputation<EVENT, AGGREGATE extends DimensionsComputatio
   }
 
   private static final Logger logger = LoggerFactory.getLogger(DimensionsComputation.class);
-
 }

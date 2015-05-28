@@ -16,7 +16,8 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -26,7 +27,7 @@ public class SchemaRegistrySingleTest
   @Before
   public void initialize()
   {
-    AggregatorUtils.DEFAULT_AGGREGATOR_INFO.setup();
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
   }
 
   @Test
@@ -34,8 +35,8 @@ public class SchemaRegistrySingleTest
   {
     final String id = "1";
     String eventSchemaJSON = SchemaUtils.jarResourceFileToString("adsGenericEventSchema.json");
-    SchemaDimensional schemaDimensional = new SchemaDimensional(new DimensionalEventSchema(eventSchemaJSON,
-                                                                                           AggregatorUtils.DEFAULT_AGGREGATOR_INFO));
+    DimensionalSchema schemaDimensional = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
+                                                                                           AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
     SchemaRegistrySingle schemaRegistrySingle = new SchemaRegistrySingle();
     schemaRegistrySingle.registerSchema(schemaDimensional);
 

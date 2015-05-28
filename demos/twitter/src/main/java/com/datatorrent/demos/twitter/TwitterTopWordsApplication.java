@@ -25,7 +25,6 @@ import com.datatorrent.contrib.twitter.TwitterSampleInput;
 import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.tabular.AppDataTabularServerMap;
-import com.datatorrent.lib.appdata.tabular.TabularMapConverter;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import com.google.common.collect.Maps;
@@ -84,14 +83,12 @@ public class TwitterTopWordsApplication implements StreamingApplication
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
     AppDataTabularServerMap tabularServer = dag.addOperator("Tabular Server", new AppDataTabularServerMap());
 
-    TabularMapConverter mapConverter = new TabularMapConverter();
     Map<String, String> conversionMap = Maps.newHashMap();
     conversionMap.put("word", WindowedTopCounter.FIELD_TYPE);
-    mapConverter.setTableFieldToMapField(conversionMap);
     String tabularSchema = SchemaUtils.jarResourceFileToString(TABULAR_SCHEMA);
 
     tabularServer.setTabularSchemaJSON(tabularSchema);
-    tabularServer.setConverter(mapConverter);
+    tabularServer.setTableFieldToMapField(conversionMap);
 
     logger.info("Tabular schema {}", tabularSchema);
     topCounts.setSlidingWindowWidth(120);

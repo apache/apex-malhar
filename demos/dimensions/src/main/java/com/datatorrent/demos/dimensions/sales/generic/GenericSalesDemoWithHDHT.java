@@ -13,9 +13,9 @@ import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import com.datatorrent.contrib.dimensions.AppDataSingleSchemaDimensionStoreHDHT;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchemaMap;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.counters.BasicCounters;
+import com.datatorrent.lib.dimensions.DimensionsComputationFlexibleSingleSchemaPOJO;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataResult;
 import java.net.URI;
@@ -23,6 +23,7 @@ import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 
 
 /**
@@ -34,7 +35,7 @@ public class GenericSalesDemoWithHDHT implements StreamingApplication
 {
   private static final Logger logger = LoggerFactory.getLogger(GenericSalesDemoWithHDHT.class);
 
-  public static final String APP_NAME = "GenericSalesDemoWithHDHTNew";
+  public static final String APP_NAME = "SalesDemo";
   public static final String PROP_USE_WEBSOCKETS = "dt.application." + APP_NAME + ".useWebSockets";
   public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
 
@@ -50,8 +51,8 @@ public class GenericSalesDemoWithHDHT implements StreamingApplication
   {
     JsonSalesGenerator input = dag.addOperator("InputGenerator", JsonSalesGenerator.class);
     JsonToMapConverter converter = dag.addOperator("Converter", JsonToMapConverter.class);
-    DimensionsComputationSingleSchemaMap dimensions =
-    dag.addOperator("DimensionsComputation", DimensionsComputationSingleSchemaMap.class);
+    DimensionsComputationFlexibleSingleSchemaPOJO dimensions =
+    dag.addOperator("DimensionsComputation", DimensionsComputationFlexibleSingleSchemaPOJO.class);
 
     dag.getMeta(dimensions).getAttributes().put(Context.OperatorContext.APPLICATION_WINDOW_COUNT, 4);
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
@@ -80,7 +81,6 @@ public class GenericSalesDemoWithHDHT implements StreamingApplication
 
     String gatewayAddress = dag.getValue(DAG.GATEWAY_CONNECT_ADDRESS);
     URI uri = URI.create("ws://" + gatewayAddress + "/pubsub");
-    //LOG.info("WebSocket with gateway at: {}", gatewayAddress);
     PubSubWebSocketAppDataQuery wsIn = dag.addOperator("Query", new PubSubWebSocketAppDataQuery());
     wsIn.setUri(uri);
     queryPort = wsIn.outputPort;
@@ -90,7 +90,7 @@ public class GenericSalesDemoWithHDHT implements StreamingApplication
 
     dag.addStream("InputStream", input.jsonBytes, converter.input);
     dag.addStream("ConvertStream", converter.outputMap, dimensions.inputEvent);
-    dag.addStream("DimensionalData", dimensions.aggregateOutput, store.input);
+    dag.addStream("DimensionalData", dimensions.output, store.input);
 
     dag.addStream("Query", queryPort, store.query).setLocality(Locality.CONTAINER_LOCAL);
     dag.addStream("QueryResult", store.queryResult, queryResultPort).setLocality(Locality.CONTAINER_LOCAL);

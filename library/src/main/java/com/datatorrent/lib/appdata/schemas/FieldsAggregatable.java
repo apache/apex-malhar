@@ -123,7 +123,7 @@ public class FieldsAggregatable
       String value = entry.getKey();
       for(String aggregator: entry.getValue()) {
         sb.append(value);
-        sb.append(DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR);
+        sb.append(DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
         sb.append(aggregator);
         fieldNames.add(sb.toString());
 
@@ -190,7 +190,7 @@ public class FieldsAggregatable
 
       for(String field: fields) {
         fieldToName.put(field, field +
-                               DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR +
+                               DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR +
                                aggregatorName);
       }
     }

@@ -9,22 +9,21 @@ import com.datatorrent.api.Context;
 import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.annotation.InputPortFieldAnnotation;
-import com.datatorrent.lib.appdata.dimensions.AggregatorInfo;
-import com.datatorrent.lib.appdata.dimensions.AggregatorUtils;
-import com.datatorrent.lib.appdata.dimensions.DimensionsStaticAggregator;
-import com.datatorrent.lib.appdata.qr.Data;
-import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
-import com.datatorrent.lib.appdata.qr.DataSerializerFactory;
-import com.datatorrent.lib.appdata.qr.Result;
-import com.datatorrent.lib.appdata.qr.processor.QueryProcessor;
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
+import com.datatorrent.lib.appdata.query.QueryManager;
+import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
+import com.datatorrent.lib.appdata.query.serde.MessageSerializerFactory;
+import com.datatorrent.lib.appdata.query.serde.Message;
+import com.datatorrent.lib.appdata.query.serde.Result;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
+import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
+import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import javax.validation.constraints.NotNull;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.apache.commons.lang3.mutable.MutableLong;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,17 +31,17 @@ import org.slf4j.LoggerFactory;
 public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreHDHT
 {
   @NotNull
-  protected ResultFormatter appDataFormatter = new ResultFormatter();
+  protected ResultFormatter resultFormatter = new ResultFormatter();
   @NotNull
-  protected AggregatorInfo aggregatorInfo = AggregatorUtils.DEFAULT_AGGREGATOR_INFO;
+  protected AggregatorRegistry aggregatorInfo = AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY;
 
   //Query Processing - Start
-  protected transient QueryProcessor<DataQueryDimensional, QueryMeta, MutableLong, MutableBoolean, Result> queryProcessor;
-  protected final transient DataDeserializerFactory queryDeserializerFactory;
+  protected transient QueryManager<DataQueryDimensional, QueryMeta, MutableLong, Result> queryProcessor;
+  protected final transient MessageDeserializerFactory queryDeserializerFactory;
 
   @VisibleForTesting
   public SchemaRegistry schemaRegistry;
-  protected transient DataSerializerFactory resultSerializerFactory;
+  protected transient MessageSerializerFactory resultSerializerFactory;
 
   @AppData.ResultPort
   public final transient DefaultOutputPort<String> queryResult = new DefaultOutputPort<String>();
@@ -55,7 +54,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
     public void process(String s)
     {
       LOG.debug("Received {}", s);
-      Data query;
+      Message query;
       try {
         query = queryDeserializerFactory.deserialize(s);
       }
@@ -79,7 +78,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   @SuppressWarnings("unchecked")
   public AbstractAppDataDimensionStoreHDHT()
   {
-    queryDeserializerFactory = new DataDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
+    queryDeserializerFactory = new MessageDeserializerFactory(SchemaQuery.class, DataQueryDimensional.class);
   }
 
   @Override
@@ -90,11 +89,11 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
     schemaRegistry = getSchemaRegistry();
 
     //setup query processor
-    queryProcessor = QueryProcessor.newInstance(new DimensionsQueryComputer(this, schemaRegistry),
-      new DimensionsQueryQueueManager(this, schemaRegistry));
+    queryProcessor = QueryManager.newInstance(new DimensionsQueryExecutor(this, schemaRegistry),
+      new DimensionsQueueManager(this, schemaRegistry));
     queryProcessor.setup(context);
 
-    resultSerializerFactory = new DataSerializerFactory(appDataFormatter);
+    resultSerializerFactory = new MessageSerializerFactory(resultFormatter);
     queryDeserializerFactory.setContext(DataQueryDimensional.class, schemaRegistry);
     super.setup(context);
   }
@@ -115,17 +114,12 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   public void endWindow()
   {
     super.endWindow();
+    Result aotr;
 
-    MutableBoolean done = new MutableBoolean(false);
-
-    while (done.isFalse()) {
-      Result aotr = queryProcessor.process(done);
-
-      if (aotr != null) {
-        String result = resultSerializerFactory.serialize(aotr);
-        LOG.debug("Emitting the result: {}", result);
-        queryResult.emit(result);
-      }
+    while ((aotr = queryProcessor.process()) != null) {
+      String result = resultSerializerFactory.serialize(aotr);
+      LOG.debug("Emitting the result: {}", result);
+      queryResult.emit(result);
     }
     queryProcessor.endWindow();
   }
@@ -150,34 +144,34 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   protected abstract SchemaRegistry getSchemaRegistry();
 
   @Override
-  public DimensionsStaticAggregator getAggregator(int aggregatorID)
+  public IncrementalAggregator getAggregator(int aggregatorID)
   {
-    return aggregatorInfo.getStaticAggregatorIDToAggregator().get(aggregatorID);
+    return aggregatorInfo.getIncrementalAggregatorIDToAggregator().get(aggregatorID);
   }
 
   @Override
   protected int getAggregatorID(String aggregatorName)
   {
-    return aggregatorInfo.getStaticAggregatorNameToID().get(aggregatorName);
+    return aggregatorInfo.getIncrementalAggregatorNameToID().get(aggregatorName);
   }
 
-  public void setAppDataFormatter(ResultFormatter appDataFormatter)
+  public void setAppDataFormatter(ResultFormatter resultFormatter)
   {
-    this.appDataFormatter = appDataFormatter;
+    this.resultFormatter = resultFormatter;
   }
 
   /**
-   * @return the appDataFormatter
+   * @return the resultFormatter
    */
   public ResultFormatter getAppDataFormatter()
   {
-    return appDataFormatter;
+    return resultFormatter;
   }
 
   /**
    * @return the aggregatorInfo
    */
-  public AggregatorInfo getAggregatorInfo()
+  public AggregatorRegistry getAggregatorInfo()
   {
     return aggregatorInfo;
   }
@@ -185,7 +179,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   /**
    * @param aggregatorInfo the aggregatorInfo to set
    */
-  public void setAggregatorInfo(@NotNull AggregatorInfo aggregatorInfo)
+  public void setAggregatorInfo(@NotNull AggregatorRegistry aggregatorInfo)
   {
     this.aggregatorInfo = aggregatorInfo;
   }

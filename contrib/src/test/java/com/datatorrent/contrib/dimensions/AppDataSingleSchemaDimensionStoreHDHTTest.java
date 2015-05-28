@@ -18,17 +18,17 @@ package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.tfile.TFileImpl;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent.EventKey;
-import com.datatorrent.lib.appdata.dimensions.AggregatorStaticType;
-import com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.schemas.DimensionalEventSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
+import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorIncrementalType;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
+import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.io.fs.AbstractFileOutputOperatorTest.FSTestWatcher;
 import com.datatorrent.lib.util.TestUtils;
 import com.datatorrent.lib.util.TestUtils.TestInfo;
@@ -43,8 +43,6 @@ import org.junit.Test;
 import org.junit.runner.Description;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-
 
 public class AppDataSingleSchemaDimensionStoreHDHTTest
 {
@@ -199,8 +197,8 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     store.setup(null);
 
     //Aggregate Event
-    DimensionalEventSchema eventSchema = store.eventSchema;
-    AggregateEvent ae = createEvent(eventSchema,
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
+    Aggregate ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -213,7 +211,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     //Value bytes
     byte[] valueBytes = store.getValueBytesGAE(ae);
 
-    AggregateEvent deserializedAE = store.fromKeyValueGAE(new Slice(keyBytes), valueBytes);
+    Aggregate deserializedAE = store.fromKeyValueGAE(new Slice(keyBytes), valueBytes);
     deserializedAE.getEventKey().getKey().setFieldDescriptor(ae.getEventKey().getKey().getFieldDescriptor());
     deserializedAE.getAggregates().setFieldDescriptor(ae.getAggregates().getFieldDescriptor());
 
@@ -263,10 +261,10 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     //STARTING WINDOW 0
     store.beginWindow(windowId);
 
-    DimensionalEventSchema eventSchema = store.eventSchema;
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
 
     //Aggregate Event
-    AggregateEvent ae = createEvent(eventSchema,
+    Aggregate ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -305,7 +303,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
       valueBytes = store.get(AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID, new Slice(keyBytes));
     }
 
-    AggregateEvent aeDeserialized = store.fromKeyValueGAE(new Slice(keyBytes), valueBytes);
+    Aggregate aeDeserialized = store.fromKeyValueGAE(new Slice(keyBytes), valueBytes);
 
     aeDeserialized.getKeys().setFieldDescriptor(ae.getKeys().getFieldDescriptor());
     aeDeserialized.getAggregates().setFieldDescriptor(ae.getAggregates().getFieldDescriptor());
@@ -340,10 +338,10 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     store.setup(null);
 
-    DimensionalEventSchema eventSchema = store.eventSchema;
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
 
     //Aggregate Event
-    AggregateEvent ae = createEvent(eventSchema,
+    Aggregate ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -397,9 +395,9 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     store.setup(null);
 
-    DimensionalEventSchema eventSchema = store.eventSchema;
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
 
-    AggregateEvent expectedDouble = createEvent(eventSchema,
+    Aggregate expectedDouble = createEvent(eventSchema,
                                                 publisher,
                                                 advertiser,
                                                 60000L,
@@ -407,7 +405,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                                                 2 * impressions,
                                                 2.0 * cost);
 
-    AggregateEvent expectedTriple = createEvent(eventSchema,
+    Aggregate expectedTriple = createEvent(eventSchema,
                                                 publisher,
                                                 advertiser,
                                                 60000L,
@@ -416,7 +414,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                                                 3.0 * cost);
 
     //Aggregate Event
-    AggregateEvent ae = createEvent(eventSchema,
+    Aggregate ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -487,10 +485,10 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
 
     store.setup(null);
 
-    DimensionalEventSchema eventSchema = store.eventSchema;
+    DimensionalConfigurationSchema eventSchema = store.eventSchema;
 
     //Aggregate Event
-    AggregateEvent ae = createEvent(eventSchema,
+    Aggregate ae = createEvent(eventSchema,
                                     publisher,
                                     advertiser,
                                     60000L,
@@ -498,7 +496,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                                     impressions,
                                     cost);
 
-    AggregateEvent ae1 = createEvent(eventSchema,
+    Aggregate ae1 = createEvent(eventSchema,
                                      publisher1,
                                      advertiser1,
                                      60000L,
@@ -547,7 +545,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     store.teardown();
   }
 
-  private AggregateEvent createEvent(DimensionalEventSchema eventSchema,
+  private Aggregate createEvent(DimensionalConfigurationSchema eventSchema,
                                      String publisher,
                                      String advertiser,
                                      long timestamp,
@@ -555,9 +553,9 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
                                      long impressions,
                                      double cost)
   {
-    int schemaID = DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
+    int schemaID = AbstractDimensionsComputationFlexibleSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionDescriptorID = 0;
-    int aggregatorID = eventSchema.getAggregatorInfo().getStaticAggregatorNameToID().get(AggregatorStaticType.SUM.name());
+    int aggregatorID = eventSchema.getAggregatorRegistry().getIncrementalAggregatorNameToID().get(AggregatorIncrementalType.SUM.name());
 
     FieldsDescriptor fdKey = eventSchema.getDdIDToKeyDescriptor().get(dimensionDescriptorID);
     FieldsDescriptor fdValue = eventSchema.getDdIDToAggIDToOutputAggDescriptor().get(dimensionDescriptorID).get(aggregatorID);
@@ -581,7 +579,7 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     value.setField("cost", cost);
 
     //Aggregate Event
-    return new AggregateEvent(eventKey,
+    return new Aggregate(eventKey,
                               value);
   }
 }

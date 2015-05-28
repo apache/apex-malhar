@@ -16,16 +16,16 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.qr.DataSerializerInfo;
-import com.datatorrent.lib.appdata.qr.DataType;
-import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.query.serde.MessageSerializerInfo;
+import com.datatorrent.lib.appdata.query.serde.MessageType;
+import com.datatorrent.lib.appdata.query.serde.Result;
 import com.google.common.base.Preconditions;
 
 import java.util.List;
 import java.util.Map;
 
-@DataType(type=DataQueryDimensional.TYPE)
-@DataSerializerInfo(clazz=DataResultDimensionalSerializer.class)
+@MessageType(type=DataQueryDimensional.TYPE)
+@MessageSerializerInfo(clazz=DataResultDimensionalSerializer.class)
 public class DataResultDimensional extends Result
 {
   public static final String TYPE = "dataResult";

@@ -15,12 +15,12 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.qr.CustomDataDeserializer;
-import com.datatorrent.lib.appdata.qr.Data;
-import com.datatorrent.lib.appdata.qr.Query;
+import com.datatorrent.lib.appdata.query.serde.CustomMessageDeserializer;
+import com.datatorrent.lib.appdata.query.serde.Message;
+import com.datatorrent.lib.appdata.query.serde.Query;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
+public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
 {
   private static final Logger logger = LoggerFactory.getLogger(DataQueryDimensionalDeserializer.class);
 
@@ -60,7 +60,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
     //// Message
     String id = jo.getString(Query.FIELD_ID);
-    String type = jo.getString(Data.FIELD_TYPE);
+    String type = jo.getString(Message.FIELD_TYPE);
 
     boolean oneTime = !jo.has(DataQueryTabular.FIELD_COUNTDOWN);
     long countdown = 1;
@@ -71,7 +71,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
 
     boolean incompleteResultOK = jo.getBoolean(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK);
 
-    //// Data
+    //// Message
     JSONObject data = jo.getJSONObject(DataQueryDimensional.FIELD_DATA);
 
     ////Schema keys
@@ -81,7 +81,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
       schemaKeys = SchemaUtils.extractMap(data.getJSONObject(Query.FIELD_SCHEMA_KEYS));
     }
 
-    SchemaDimensional gsd = (SchemaDimensional) ((SchemaRegistry) context).getSchema(schemaKeys);
+    DimensionalSchema gsd = (DimensionalSchema) ((SchemaRegistry) context).getSchema(schemaKeys);
 
     boolean hasFromTo = false;
     int latestNumBuckets = -1;
@@ -117,11 +117,12 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
     //// Keys
     JSONObject keys = data.getJSONObject(DataQueryDimensional.FIELD_KEYS);
 
-    Iterator keyIterator = keys.keys();
+    @SuppressWarnings("unchecked")
+    Iterator<String> keyIterator = (Iterator<String>) keys.keys();
     Set<String> keySet = Sets.newHashSet();
 
     while(keyIterator.hasNext()) {
-      String key = (String)keyIterator.next();
+      String key = keyIterator.next();
       if(!keySet.add(key)) {
         logger.error("Duplicate key: {}", key);
         return null;
@@ -158,7 +159,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
           nonAggregatedFields.add(field);
         }
 
-        String[] components = field.split(DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR);
+        String[] components = field.split(DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
 
         if(components.length == 1) {
           Set<String> aggregators = valueToAggregator.get(field);
@@ -171,10 +172,10 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
           }
         }
         else if(components.length == 2) {
-          String value = components[DimensionalEventSchema.ADDITIONAL_VALUE_VALUE_INDEX];
-          String aggregator = components[DimensionalEventSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
+          String value = components[DimensionalConfigurationSchema.ADDITIONAL_VALUE_VALUE_INDEX];
+          String aggregator = components[DimensionalConfigurationSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
-          if(!gsd.getGenericEventSchema().getAggregatorInfo().isAggregator(aggregator)) {
+          if(!gsd.getGenericEventSchema().getAggregatorRegistry().isAggregator(aggregator)) {
             logger.error("{} is not a valid aggregator", aggregator);
             return null;
           }
@@ -189,7 +190,7 @@ public class DataQueryDimensionalDeserializer extends CustomDataDeserializer
           aggregators.add(aggregator);
         }
         else {
-          logger.error("A field selector can have at most one {}.", DimensionalEventSchema.ADDITIONAL_VALUE_SEPERATOR);
+          logger.error("A field selector can have at most one {}.", DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
         }
       }
     }

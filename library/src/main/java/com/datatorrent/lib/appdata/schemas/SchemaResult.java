@@ -15,15 +15,15 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.DataSerializerInfo;
-import com.datatorrent.lib.appdata.qr.DataType;
-import com.datatorrent.lib.appdata.qr.Result;
+import com.datatorrent.lib.appdata.query.serde.MessageSerializerInfo;
+import com.datatorrent.lib.appdata.query.serde.MessageType;
+import com.datatorrent.lib.appdata.query.serde.Result;
 import com.google.common.base.Preconditions;
 
 import java.util.List;
 
-@DataType(type=SchemaResult.TYPE)
-@DataSerializerInfo(clazz=SchemaSerializer.class)
+@MessageType(type=SchemaResult.TYPE)
+@MessageSerializerInfo(clazz=SchemaSerializer.class)
 public class SchemaResult extends Result
 {
   public static final String TYPE = "schemaResult";

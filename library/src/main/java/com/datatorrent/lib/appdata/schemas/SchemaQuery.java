@@ -15,18 +15,18 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.DataDeserializerInfo;
-import com.datatorrent.lib.appdata.qr.DataType;
-import com.datatorrent.lib.appdata.qr.DataValidatorInfo;
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.SimpleDataDeserializer;
-import com.datatorrent.lib.appdata.qr.SimpleDataValidator;
+import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
+import com.datatorrent.lib.appdata.query.serde.MessageType;
+import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
+import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.query.serde.SimpleDataDeserializer;
+import com.datatorrent.lib.appdata.query.serde.SimpleDataValidator;
 
 import java.util.Map;
 
-@DataType(type=SchemaQuery.TYPE)
-@DataDeserializerInfo(clazz=SimpleDataDeserializer.class)
-@DataValidatorInfo(clazz=SimpleDataValidator.class)
+@MessageType(type=SchemaQuery.TYPE)
+@MessageDeserializerInfo(clazz=SimpleDataDeserializer.class)
+@MessageValidatorInfo(clazz=SimpleDataValidator.class)
 public class SchemaQuery extends Query
 {
   public static final String TYPE = "schemaQuery";

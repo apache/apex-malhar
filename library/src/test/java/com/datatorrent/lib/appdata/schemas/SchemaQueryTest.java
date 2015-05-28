@@ -16,7 +16,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.qr.DataDeserializerFactory;
+import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
@@ -38,7 +38,7 @@ public class SchemaQueryTest
 
 
     @SuppressWarnings("unchecked")
-    DataDeserializerFactory qb = new DataDeserializerFactory(SchemaQuery.class);
+    MessageDeserializerFactory qb = new MessageDeserializerFactory(SchemaQuery.class);
 
     SchemaQuery schemaQuery = (SchemaQuery) qb.deserialize(schemaQueryJSON);
 
@@ -63,7 +63,7 @@ public class SchemaQueryTest
                                    "}";
 
     @SuppressWarnings("unchecked")
-    DataDeserializerFactory qb = new DataDeserializerFactory(SchemaQuery.class);
+    MessageDeserializerFactory qb = new MessageDeserializerFactory(SchemaQuery.class);
 
     SchemaQuery schemaQuery = (SchemaQuery) qb.deserialize(schemaQueryJSON);
 

@@ -16,10 +16,10 @@
 package com.datatorrent.contrib.dimensions;
 
 import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.dimensions.AggregateEvent;
-import com.datatorrent.lib.appdata.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.schemas.*;
 
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
+import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -29,7 +29,7 @@ import javax.validation.constraints.NotNull;
 import java.util.Map;
 import java.util.Set;
 
-import static com.datatorrent.lib.appdata.dimensions.DimensionsComputationSingleSchema.DEFAULT_SCHEMA_ID;
+import static com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema.DEFAULT_SCHEMA_ID;
 
 /**
  * @displayName Simple App Data Dimensions Store
@@ -46,8 +46,8 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   private String dimensionalSchemaJSON;
 
   @VisibleForTesting
-  protected transient DimensionalEventSchema eventSchema;
-  private transient SchemaDimensional dimensionalSchema;
+  protected transient DimensionalConfigurationSchema eventSchema;
+  private transient DimensionalSchema dimensionalSchema;
   private int schemaID = DEFAULT_SCHEMA_ID;
   private long bucketID = DEFAULT_BUCKET_ID;
 
@@ -56,7 +56,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   private Map<String, Set<Comparable>> seenEnumValues;
 
   @Override
-  public void processEvent(AggregateEvent gae) {
+  public void processEvent(Aggregate gae) {
     super.processEvent(gae);
 
     if(updateEnumValues) {
@@ -73,7 +73,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   }
 
   @Override
-  protected long getBucketKey(AggregateEvent event)
+  protected long getBucketKey(Aggregate event)
   {
     return AppDataSingleSchemaDimensionStoreHDHT.DEFAULT_BUCKET_ID;
   }
@@ -89,7 +89,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
       dimensionalSchema.setFrom(System.currentTimeMillis());
     }
 
-    //seenEnumValues
+    if(updateEnumValues) {
     if(seenEnumValues == null) {
       seenEnumValues = Maps.newHashMap();
       for(String key: eventSchema.getAllKeysDescriptor().getFieldList()) {
@@ -98,13 +98,14 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
         seenEnumValues.put(key, enumValuesSet);
       }
     }
+    }
   }
 
   @Override
   protected SchemaRegistry getSchemaRegistry()
   {
-    eventSchema = new DimensionalEventSchema(eventSchemaJSON, aggregatorInfo);
-    dimensionalSchema = new SchemaDimensional(schemaID, dimensionalSchemaJSON, eventSchema);
+    eventSchema = new DimensionalConfigurationSchema(eventSchemaJSON, aggregatorInfo);
+    dimensionalSchema = new DimensionalSchema(schemaID, dimensionalSchemaJSON, eventSchema);
 
     return new SchemaRegistrySingle(dimensionalSchema);
   }

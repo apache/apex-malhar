@@ -16,9 +16,9 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.qr.Query;
-import com.datatorrent.lib.appdata.qr.processor.QueryBundle;
-import com.datatorrent.lib.appdata.qr.processor.SimpleQueryQueueManager;
+import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.query.QueryBundle;
+import com.datatorrent.lib.appdata.query.SimpleQueueManager;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -27,7 +27,7 @@ public class SimpleQueryQueueManagerTest
   @Test
   public void simpleTest()
   {
-    SimpleQueryQueueManager<Query, Void, Void> sqqm = new SimpleQueryQueueManager<Query, Void, Void>();
+    SimpleQueueManager<Query, Void, Void> sqqm = new SimpleQueueManager<Query, Void, Void>();
 
     sqqm.setup(null);
     sqqm.beginWindow(0);

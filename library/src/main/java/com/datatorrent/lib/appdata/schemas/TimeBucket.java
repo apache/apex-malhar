@@ -24,6 +24,7 @@ import java.util.concurrent.TimeUnit;
 
 public enum TimeBucket
 {
+  //DO NOT change order of enums. Ordinal is used as id for storage.
   ALL("all", null),
   SECOND("1s", TimeUnit.SECONDS),
   MINUTE("1m", TimeUnit.MINUTES),
@@ -83,7 +84,7 @@ public enum TimeBucket
     if(timeUnit == null) {
       return 0;
     }
-    
+
     long millis = timeUnit.toMillis(1L);
     return (timestamp / millis) * millis;
   }

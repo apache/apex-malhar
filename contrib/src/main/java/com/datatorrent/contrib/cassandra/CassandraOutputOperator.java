@@ -25,8 +25,7 @@ import com.datatorrent.lib.util.PojoUtils.GetterDouble;
 import com.datatorrent.lib.util.PojoUtils.GetterFloat;
 import com.datatorrent.lib.util.PojoUtils.GetterInt;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.GetterObject;
-import com.datatorrent.lib.util.PojoUtils.GetterString;
+import com.datatorrent.lib.util.PojoUtils.Getter;
 import java.math.BigDecimal;
 import java.util.*;
 import javax.validation.constraints.NotNull;
@@ -47,7 +46,7 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
 {
   @NotNull
   private ArrayList<String> columns;
-  private ArrayList<DataType> columnDataTypes;
+  private final ArrayList<DataType> columnDataTypes;
   @NotNull
   private ArrayList<String> expressions;
   private transient ArrayList<Object> getters;
@@ -107,56 +106,63 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
   {
     com.datastax.driver.core.ResultSet rs = store.getSession().execute("select * from " + store.keyspace + "." + tablename);
 
-    ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
+    final ColumnDefinitions rsMetaData = rs.getColumnDefinitions();
 
-    int numberOfColumns = 0;
+    final int numberOfColumns = rsMetaData.size();
+    final Class<?> fqcn = tuple.getClass();
 
-    numberOfColumns = rsMetaData.size();
     for (int i = 0; i < numberOfColumns; i++) {
       // get the designated column's data type.
-      DataType type = rsMetaData.getType(i);
+      final DataType type = rsMetaData.getType(i);
       columnDataTypes.add(type);
+      final Object getter;
+      final String getterExpr = expressions.get(i);
+      switch (type.getName()) {
+        case ASCII:
+        case TEXT:
+        case VARCHAR:
+          getter = PojoUtils.createGetter(fqcn, getterExpr, String.class);
+          break;
+        case BOOLEAN:
+          getter = PojoUtils.createGetterBoolean(fqcn, getterExpr);
+          break;
+        case INT:
+          getter = PojoUtils.createGetterInt(fqcn, getterExpr);
+          break;
+        case BIGINT:
+        case COUNTER:
+          getter = PojoUtils.createGetterLong(fqcn, getterExpr);
+          break;
+        case FLOAT:
+          getter = PojoUtils.createGetterFloat(fqcn, getterExpr);
+          break;
+        case DOUBLE:
+          getter = PojoUtils.createGetterDouble(fqcn, getterExpr);
+          break;
+        case DECIMAL:
+          getter = PojoUtils.createGetter(fqcn, getterExpr, BigDecimal.class);
+          break;
+        case SET:
+          getter = PojoUtils.createGetter(fqcn, getterExpr, Set.class);
+          break;
+        case MAP:
+          getter = PojoUtils.createGetter(fqcn, getterExpr, Map.class);
+          break;
+        case LIST:
+          getter = PojoUtils.createGetter(fqcn, getterExpr, List.class);
+          break;
+        case TIMESTAMP:
+          getter = PojoUtils.createGetter(fqcn, getterExpr, Date.class);
+          break;
+        case UUID:
+          getter = PojoUtils.createGetter(fqcn, getterExpr, UUID.class);
+          break;
+        default:
+          getter = PojoUtils.createGetter(fqcn, getterExpr, Object.class);
+          break;
+      }
+      getters.add(getter);
     }
-    Class<?> fqcn = tuple.getClass();
-    int size = columnDataTypes.size();
-    for (int i = 0; i < size; i++) {
-      DataType type = columnDataTypes.get(i);
-      String getterExpression = PojoUtils.getSingleFieldExpression(fqcn, expressions.get(i));
-      if (type.equals(DataType.ascii()) || type.equals(DataType.text()) || type.equals(DataType.varchar())) {
-        GetterString getVarchar = PojoUtils.createGetterString(fqcn, getterExpression);
-        getters.add(getVarchar);
-      }
-      else if (type.equals(DataType.uuid())) {
-        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
-        getters.add(getObject);
-      }
-      else if (type.equals(DataType.cboolean())) {
-        GetterBoolean getBoolean = PojoUtils.createGetterBoolean(fqcn, getterExpression);
-        getters.add(getBoolean);
-      }
-      else if (type.equals(DataType.cint())) {
-        GetterInt getInt = PojoUtils.createGetterInt(fqcn, getterExpression);
-        getters.add(getInt);
-      }
-      else if (type.equals(DataType.bigint()) || type.equals(DataType.counter())) {
-        GetterLong getLong = PojoUtils.createExpressionGetterLong(fqcn, getterExpression);
-        getters.add(getLong);
-      }
-      else if (type.equals(DataType.cfloat())) {
-        GetterFloat getFloat = PojoUtils.createGetterFloat(fqcn, getterExpression);
-        getters.add(getFloat);
-      }
-      else if (type.equals(DataType.cdouble())) {
-        GetterDouble getDouble = PojoUtils.createGetterDouble(fqcn, getterExpression);
-        getters.add(getDouble);
-      }
-      else {
-        GetterObject getObject = PojoUtils.createGetterObject(fqcn, getterExpression);
-        getters.add(getObject);
-      }
-
-    }
-
   }
 
   @Override
@@ -190,74 +196,66 @@ public class CassandraOutputOperator extends AbstractCassandraTransactionableOut
     if (getters.isEmpty()) {
       processFirstTuple(tuple);
     }
-    BoundStatement boundStmnt = new BoundStatement(updateCommand);
-    int size = columnDataTypes.size();
+    final BoundStatement boundStmnt = new BoundStatement(updateCommand);
+    final int size = columnDataTypes.size();
     for (int i = 0; i < size; i++) {
-      DataType type = columnDataTypes.get(i);
+      final DataType type = columnDataTypes.get(i);
       switch (type.getName()) {
         case UUID:
-          UUID id = (UUID)(((GetterObject)getters.get(i)).get(tuple));
+          final UUID id = ((Getter<Object, UUID>)getters.get(i)).get(tuple);
           boundStmnt.setUUID(i, id);
           break;
         case ASCII:
-          String ascii = ((GetterString)getters.get(i)).get(tuple);
+        case VARCHAR:
+        case TEXT:
+          final String ascii = ((Getter<Object, String>)getters.get(i)).get(tuple);
           boundStmnt.setString(i, ascii);
           break;
-        case VARCHAR:
-          String varchar = ((GetterString)getters.get(i)).get(tuple);
-          boundStmnt.setString(i, varchar);
-          break;
-        case TEXT:
-          String text = ((GetterString)getters.get(i)).get(tuple);
-          boundStmnt.setString(i, text);
-          break;
         case BOOLEAN:
-          Boolean bool = ((GetterBoolean)getters.get(i)).get(tuple);
+          final boolean bool = ((GetterBoolean<Object>)getters.get(i)).get(tuple);
           boundStmnt.setBool(i, bool);
           break;
         case INT:
-          Integer intValue = ((GetterInt)getters.get(i)).get(tuple);
+          final int intValue = ((GetterInt<Object>)getters.get(i)).get(tuple);
           boundStmnt.setInt(i, intValue);
           break;
         case BIGINT:
-          Long longValue = ((GetterLong)getters.get(i)).get(tuple);
+        case COUNTER:
+          final long longValue = ((GetterLong<Object>)getters.get(i)).get(tuple);
           boundStmnt.setLong(i, longValue);
           break;
-        case COUNTER:
-          Long counter = ((GetterLong)getters.get(i)).get(tuple);
-          boundStmnt.setLong(i, counter);
-          break;
         case FLOAT:
-          Float floatValue = ((GetterFloat)getters.get(i)).get(tuple);
+          final float floatValue = ((GetterFloat<Object>)getters.get(i)).get(tuple);
           boundStmnt.setFloat(i, floatValue);
           break;
         case DOUBLE:
-          Double doubleValue = ((GetterDouble)getters.get(i)).get(tuple);
+          final double doubleValue = ((GetterDouble<Object>)getters.get(i)).get(tuple);
           boundStmnt.setDouble(i, doubleValue);
           break;
         case DECIMAL:
-          BigDecimal decimal = (BigDecimal)((GetterObject)getters.get(i)).get(tuple);
+          final BigDecimal decimal = ((Getter<Object, BigDecimal>)getters.get(i)).get(tuple);
           boundStmnt.setDecimal(i, decimal);
           break;
         case SET:
-          @SuppressWarnings({"unchecked", "rawtypes"}) Set set = (Set)((GetterObject)getters.get(i)).get(tuple);
+          Set<?> set = ((Getter<Object, Set<?>>)getters.get(i)).get(tuple);
           boundStmnt.setSet(i, set);
           break;
         case MAP:
-          @SuppressWarnings({"unchecked", "rawtypes"}) Map map = (Map)((GetterObject)getters.get(i)).get(tuple);
+          final Map<?,?> map = ((Getter<Object, Map<?,?>>)getters.get(i)).get(tuple);
           boundStmnt.setMap(i, map);
           break;
         case LIST:
-          @SuppressWarnings({"unchecked", "rawtypes"}) List list = (List)((GetterObject)getters.get(i)).get(tuple);
+          final List<?> list = ((Getter<Object, List<?>>)getters.get(i)).get(tuple);
           boundStmnt.setList(i, list);
           break;
         case TIMESTAMP:
-          Date date = (Date)((GetterObject)getters.get(i)).get(tuple);
+          final Date date = ((Getter<Object, Date>)getters.get(i)).get(tuple);
           boundStmnt.setDate(i, date);
           break;
+        default:
+          throw new RuntimeException("unsupported data type " + type.getName());
       }
     }
-
     return boundStmnt;
   }
 
