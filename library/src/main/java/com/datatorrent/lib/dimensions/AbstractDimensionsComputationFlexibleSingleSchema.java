@@ -47,8 +47,10 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<INPUT> e
   {
     super.setup(context);
 
-    eventSchema = new DimensionalConfigurationSchema(eventSchemaJSON,
-                                             aggregatorRegistry);
+    if(eventSchema == null) {
+      eventSchema = new DimensionalConfigurationSchema(eventSchemaJSON,
+                                                       aggregatorRegistry);
+    }
   }
 
   @Override

@@ -142,6 +142,7 @@ public class DimensionalConfigurationSchema
       initialize(json);
     }
     catch(Exception e) {
+      logger.error("{}", e);
       throw new IllegalArgumentException(e);
     }
   }
