@@ -16,22 +16,58 @@
 
 package com.datatorrent.lib.appdata.tabular;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.appdata.gpo.GPOGetters;
+import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.appdata.gpo.GPOUtils;
+import com.google.common.base.Preconditions;
+import javax.validation.constraints.NotNull;
 
-public class AppDataTabularServerPOJO extends AppDataTabularServerConv<Object, TabularPOJOConverter>
+import java.util.Map;
+
+
+public class AppDataTabularServerPOJO extends AbstractAppDataTabularServer<Object>
 {
+  private boolean firstTuple = true;
+
+  @NotNull
+  private Map<String, String> fieldToGetter;
+  private GPOGetters getters;
+
   public AppDataTabularServerPOJO()
   {
-    this.converter = new TabularPOJOConverter();
   }
 
   @Override
-  public void setup(OperatorContext context)
+  public GPOMutable convert(Object inputEvent)
   {
-    super.setup(context);
+    firstTuple(inputEvent);
 
-    converter.getPojoFieldRetriever().setFieldToType(SchemaUtils.convertFieldToType(schema.getFieldToType()));
-    converter.getPojoFieldRetriever().setup();
+    GPOMutable convertedResult = new GPOMutable(schema.getValuesDescriptor());
+
+    GPOUtils.copyPOJOToGPO(convertedResult, getters, inputEvent);
+    return convertedResult;
+  }
+
+  private void firstTuple(Object inputEvent)
+  {
+    if(!firstTuple) {
+      return;
+    }
+
+    Class<?> clazz = inputEvent.getClass();
+
+    getters = GPOUtils.buildGPOGetters(fieldToGetter,
+                                       schema.getValuesDescriptor(),
+                                       clazz);
+  }
+
+  public void setFieldToGetter(@NotNull Map<String, String> fieldToGetter)
+  {
+    this.fieldToGetter = Preconditions.checkNotNull(fieldToGetter);
+  }
+
+  public Map<String, String> getFieldToGetter()
+  {
+    return fieldToGetter;
   }
 }

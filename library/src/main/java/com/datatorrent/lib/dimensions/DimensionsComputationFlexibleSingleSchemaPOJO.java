@@ -16,22 +16,17 @@
 
 package com.datatorrent.lib.dimensions;
 
+import com.datatorrent.lib.appdata.gpo.GPOGetters;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.appdata.gpo.GPOUtils;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;
 import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
-import com.datatorrent.lib.util.PojoUtils.GetterByte;
-import com.datatorrent.lib.util.PojoUtils.GetterChar;
-import com.datatorrent.lib.util.PojoUtils.GetterDouble;
-import com.datatorrent.lib.util.PojoUtils.GetterFloat;
 import com.datatorrent.lib.util.PojoUtils.GetterInt;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
-import com.datatorrent.lib.util.PojoUtils.GetterShort;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -69,138 +64,18 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
     GPOMutable key = new GPOMutable(conversionContext.keyFieldsDescriptor);
     GPOGetters keyGetters =
     ddIDToKeyGetters.get(conversionContext.ddID);
-    copyPOJOToGPO(key, keyGetters, input);
+    GPOUtils.copyPOJOToGPO(key, keyGetters, input);
 
     GPOMutable aggregates = new GPOMutable(conversionContext.aggregateDescriptor);
     GPOGetters aggregateGetters =
     ddIDToAggIDToGetters.get(conversionContext.ddID).get(conversionContext.aggregatorID);
-    copyPOJOToGPO(aggregates, aggregateGetters, input);
+    GPOUtils.copyPOJOToGPO(aggregates, aggregateGetters, input);
 
     return new InputEvent(new EventKey(conversionContext.schemaID,
                                        conversionContext.dimensionDescriptorID,
                                        conversionContext.aggregatorID,
                                        key),
                           aggregates);
-  }
-
-  private void copyPOJOToGPO(GPOMutable mutable, GPOGetters getters, Object object)
-  {
-    {
-      boolean[] tempBools = mutable.getFieldsBoolean();
-      GetterBoolean<Object>[] tempGetterBools = getters.gettersBoolean;
-
-      if(tempBools != null) {
-        for(int index = 0;
-            index < tempBools.length;
-            index++) {
-          tempBools[index] = tempGetterBools[index].get(object);
-        }
-      }
-    }
-
-    {
-      byte[] tempBytes = mutable.getFieldsByte();
-      GetterByte<Object>[] tempGetterByte = getters.gettersByte;
-
-      if(tempBytes != null) {
-        for(int index = 0;
-            index < tempBytes.length;
-            index++) {
-          tempBytes[index] = tempGetterByte[index].get(object);
-        }
-      }
-    }
-
-    {
-      char[] tempChar = mutable.getFieldsCharacter();
-      GetterChar<Object>[] tempGetterChar = getters.gettersChar;
-
-      if(tempChar != null) {
-        for(int index = 0;
-            index < tempChar.length;
-            index++) {
-          tempChar[index] = tempGetterChar[index].get(object);
-        }
-      }
-    }
-
-    {
-      double[] tempDouble = mutable.getFieldsDouble();
-      GetterDouble<Object>[] tempGetterDouble = getters.gettersDouble;
-
-      if(tempDouble != null) {
-        for(int index = 0;
-            index < tempDouble.length;
-            index++) {
-          tempDouble[index] = tempGetterDouble[index].get(object);
-        }
-      }
-    }
-
-    {
-      float[] tempFloat = mutable.getFieldsFloat();
-      GetterFloat<Object>[] tempGetterFloat = getters.gettersFloat;
-
-      if(tempFloat != null) {
-        for(int index = 0;
-            index < tempFloat.length;
-            index++) {
-          tempFloat[index] = tempGetterFloat[index].get(object);
-        }
-      }
-    }
-
-    {
-      int[] tempInt = mutable.getFieldsInteger();
-      GetterInt<Object>[] tempGetterInt = getters.gettersInteger;
-
-      if(tempInt != null) {
-        for(int index = 0;
-            index < tempInt.length;
-            index++) {
-          tempInt[index] = tempGetterInt[index].get(object);
-        }
-      }
-    }
-
-    {
-      long[] tempLong = mutable.getFieldsLong();
-      GetterLong<Object>[] tempGetterLong = getters.gettersLong;
-
-      if(tempLong != null) {
-        for(int index = 0;
-            index < tempLong.length;
-            index++) {
-          tempLong[index] = tempGetterLong[index].get(object);
-        }
-      }
-    }
-
-    {
-      short[] tempShort = mutable.getFieldsShort();
-      GetterShort<Object>[] tempGetterShort = getters.gettersShort;
-
-      if(tempShort != null) {
-        for(int index = 0;
-            index < tempShort.length;
-            index++) {
-          tempShort[index] = tempGetterShort[index].get(object);
-        }
-      }
-    }
-
-    {
-      String[] tempString = mutable.getFieldsString();
-      Getter<Object, String>[] tempGetterString = getters.gettersString;
-
-      if(tempString != null) {
-        for(int index = 0;
-            index < tempString.length;
-            index++) {
-          tempString[index] = tempGetterString[index].get(object);
-        }
-      }
-    }
   }
 
   /**
@@ -289,68 +164,37 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
 
       switch(inputType) {
         case BOOLEAN: {
-          gpoGetters.gettersBoolean = new GetterBoolean[fields.size()];
-
-          for(int getterIndex = 0;
-              getterIndex < fields.size();
-              getterIndex++) {
-            String field = fields.get(getterIndex);
-            gpoGetters.gettersBoolean[getterIndex]
-                    = PojoUtils.createGetterBoolean(clazz, valueToExpression.get(field));
-          }
+          gpoGetters.gettersBoolean = GPOUtils.createGetterBoolean(fields,
+                                                                   valueToExpression,
+                                                                   clazz);
 
           break;
         }
         case STRING: {
-          gpoGetters.gettersString = new Getter[fields.size()];
-
-          for(int getterIndex = 0;
-              getterIndex < fields.size();
-              getterIndex++) {
-            String field = fields.get(getterIndex);
-            gpoGetters.gettersString[getterIndex]
-                    = PojoUtils.createGetter(clazz, valueToExpression.get(field), String.class);
-          }
+          gpoGetters.gettersString = GPOUtils.createGetterString(fields,
+                                                                 valueToExpression,
+                                                                 clazz);
 
           break;
         }
         case CHAR: {
-          gpoGetters.gettersChar = new GetterChar[fields.size()];
-
-          for(int getterIndex = 0;
-              getterIndex < fields.size();
-              getterIndex++) {
-            String field = fields.get(getterIndex);
-            gpoGetters.gettersChar[getterIndex]
-                    = PojoUtils.createGetterChar(clazz, valueToExpression.get(field));
-          }
+          gpoGetters.gettersChar = GPOUtils.createGetterChar(fields,
+                                                             valueToExpression,
+                                                             clazz);
 
           break;
         }
         case DOUBLE: {
-          gpoGetters.gettersDouble = new GetterDouble[fields.size()];
-
-          for(int getterIndex = 0;
-              getterIndex < fields.size();
-              getterIndex++) {
-            String field = fields.get(getterIndex);
-            gpoGetters.gettersDouble[getterIndex]
-                    = PojoUtils.createGetterDouble(clazz, valueToExpression.get(field));
-          }
+          gpoGetters.gettersDouble = GPOUtils.createGetterDouble(fields,
+                                                                 valueToExpression,
+                                                                 clazz);
 
           break;
         }
         case FLOAT: {
-          gpoGetters.gettersFloat = new GetterFloat[fields.size()];
-
-          for(int getterIndex = 0;
-              getterIndex < fields.size();
-              getterIndex++) {
-            String field = fields.get(getterIndex);
-            gpoGetters.gettersFloat[getterIndex]
-                    = PojoUtils.createGetterFloat(clazz, valueToExpression.get(field));
-          }
-
+          gpoGetters.gettersFloat = GPOUtils.createGetterFloat(fields,
+                                                               valueToExpression,
+                                                               clazz);
           break;
         }
         case LONG: {
@@ -394,41 +238,23 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
           break;
         }
         case SHORT: {
-          gpoGetters.gettersShort = new GetterShort[fields.size()];
-
-          for(int getterIndex = 0;
-              getterIndex < fields.size();
-              getterIndex++) {
-            String field = fields.get(getterIndex);
-            gpoGetters.gettersShort[getterIndex]
-                    = PojoUtils.createGetterShort(clazz, valueToExpression.get(field));
-          }
+          gpoGetters.gettersShort = GPOUtils.createGetterShort(fields,
+                                                               valueToExpression,
+                                                               clazz);
 
           break;
         }
         case BYTE: {
-          gpoGetters.gettersByte = new GetterByte[fields.size()];
-
-          for(int getterIndex = 0;
-              getterIndex < fields.size();
-              getterIndex++) {
-            String field = fields.get(getterIndex);
-            gpoGetters.gettersByte[getterIndex]
-                    = PojoUtils.createGetterByte(clazz, valueToExpression.get(field));
-          }
+          gpoGetters.gettersByte = GPOUtils.createGetterByte(fields,
+                                                             valueToExpression,
+                                                             clazz);
 
           break;
         }
         case OBJECT: {
-          gpoGetters.gettersObject = new Getter[fields.size()];
-
-          for(int getterIndex = 0;
-              getterIndex < fields.size();
-              getterIndex++) {
-            String field = fields.get(getterIndex);
-            gpoGetters.gettersObject[getterIndex]
-                    = PojoUtils.createGetter(clazz, valueToExpression.get(field), Object.class);
-          }
+          gpoGetters.gettersObject = GPOUtils.createGetterObject(fields,
+                                                                 valueToExpression,
+                                                                 clazz);
 
           break;
         }
@@ -474,20 +300,6 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
       long time = timeGetter.get(obj);
       return timeBucket.roundDown(time);
     }
-  }
-
-  public static class GPOGetters
-  {
-    public GetterBoolean<Object>[] gettersBoolean;
-    public GetterChar<Object>[] gettersChar;
-    public GetterByte<Object>[] gettersByte;
-    public GetterShort<Object>[] gettersShort;
-    public GetterInt<Object>[] gettersInteger;
-    public GetterLong<Object>[] gettersLong;
-    public GetterFloat<Object>[] gettersFloat;
-    public GetterDouble<Object>[] gettersDouble;
-    public Getter<Object, String>[] gettersString;
-    public Getter<Object, Object>[] gettersObject;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(DimensionsComputationFlexibleSingleSchemaPOJO.class);

@@ -5,10 +5,20 @@
 
 package com.datatorrent.lib.appdata.gpo;
 
-import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.datatorrent.lib.appdata.schemas.Type;
+import com.datatorrent.lib.util.PojoUtils;
+import com.datatorrent.lib.util.PojoUtils.Getter;
+import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
+import com.datatorrent.lib.util.PojoUtils.GetterByte;
+import com.datatorrent.lib.util.PojoUtils.GetterChar;
+import com.datatorrent.lib.util.PojoUtils.GetterDouble;
+import com.datatorrent.lib.util.PojoUtils.GetterFloat;
+import com.datatorrent.lib.util.PojoUtils.GetterInt;
+import com.datatorrent.lib.util.PojoUtils.GetterLong;
+import com.datatorrent.lib.util.PojoUtils.GetterShort;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -1167,5 +1177,380 @@ public class GPOUtils
     buffer[1 + offset.intValue()] = (byte) (val & 0xFF);
 
     offset.add(Type.CHAR.getByteSize());
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static GetterBoolean<Object>[] createGetterBoolean(List<String> fields,
+                                                            Map<String, String> valueToExpression,
+                                                            Class<?> clazz)
+  {
+    GetterBoolean<Object>[] gettersBoolean = new GetterBoolean[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersBoolean[getterIndex] = PojoUtils.createGetterBoolean(clazz, valueToExpression.get(field));
+    }
+
+    return gettersBoolean;
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static Getter<Object, String>[] createGetterString(List<String> fields,
+                                                            Map<String, String> valueToExpression,
+                                                            Class<?> clazz)
+  {
+    Getter<Object, String>[] gettersString = new Getter[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersString[getterIndex] = PojoUtils.createGetter(clazz, valueToExpression.get(field), String.class);
+    }
+
+    return gettersString;
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static GetterChar<Object>[] createGetterChar(List<String> fields,
+                                                      Map<String, String> valueToExpression,
+                                                      Class<?> clazz)
+  {
+    GetterChar<Object>[] gettersChar = new GetterChar[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersChar[getterIndex] = PojoUtils.createGetterChar(clazz, valueToExpression.get(field));
+    }
+
+    return gettersChar;
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static GetterByte<Object>[] createGetterByte(List<String> fields,
+                                                      Map<String, String> valueToExpression,
+                                                      Class<?> clazz)
+  {
+    GetterByte<Object>[] gettersByte = new GetterByte[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersByte[getterIndex] = PojoUtils.createGetterByte(clazz, valueToExpression.get(field));
+    }
+
+    return gettersByte;
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static GetterShort<Object>[] createGetterShort(List<String> fields,
+                                                        Map<String, String> valueToExpression,
+                                                        Class<?> clazz)
+  {
+    GetterShort<Object>[] gettersShort = new GetterShort[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersShort[getterIndex] = PojoUtils.createGetterShort(clazz, valueToExpression.get(field));
+    }
+
+    return gettersShort;
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static GetterInt<Object>[] createGetterInt(List<String> fields,
+                                                    Map<String, String> valueToExpression,
+                                                    Class<?> clazz)
+  {
+    GetterInt<Object>[] gettersInt = new GetterInt[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersInt[getterIndex] = PojoUtils.createGetterInt(clazz, valueToExpression.get(field));
+    }
+
+    return gettersInt;
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static GetterLong<Object>[] createGetterLong(List<String> fields,
+                                                      Map<String, String> valueToExpression,
+                                                      Class<?> clazz)
+  {
+    GetterLong<Object>[] gettersLong = new GetterLong[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersLong[getterIndex] = PojoUtils.createGetterLong(clazz, valueToExpression.get(field));
+    }
+
+    return gettersLong;
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static GetterFloat<Object>[] createGetterFloat(List<String> fields,
+                                                        Map<String, String> valueToExpression,
+                                                        Class<?> clazz)
+  {
+    GetterFloat<Object>[] gettersFloat = new GetterFloat[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersFloat[getterIndex] = PojoUtils.createGetterFloat(clazz, valueToExpression.get(field));
+    }
+
+    return gettersFloat;
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static GetterDouble<Object>[] createGetterDouble(List<String> fields,
+                                                          Map<String, String> valueToExpression,
+                                                          Class<?> clazz)
+  {
+    GetterDouble<Object>[] gettersDouble = new GetterDouble[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersDouble[getterIndex] = PojoUtils.createGetterDouble(clazz, valueToExpression.get(field));
+    }
+
+    return gettersDouble;
+  }
+
+  @SuppressWarnings({"unchecked","rawtypes"})
+  public static Getter<Object, Object>[] createGetterObject(List<String> fields,
+                                                            Map<String, String> valueToExpression,
+                                                            Class<?> clazz)
+  {
+    Getter<Object, Object>[] gettersObject = new Getter[fields.size()];
+
+    for(int getterIndex = 0;
+        getterIndex < fields.size();
+        getterIndex++) {
+      String field = fields.get(getterIndex);
+      gettersObject[getterIndex] = PojoUtils.createGetter(clazz, valueToExpression.get(field), Object.class);
+    }
+
+    return gettersObject;
+  }
+
+  public static GPOGetters buildGPOGetters(Map<String, String> fieldToGetter,
+                                           FieldsDescriptor fieldsDescriptor,
+                                           Class<?> clazz)
+  {
+    GPOGetters gpoGetters = new GPOGetters();
+    Map<Type, List<String>> typeToFields = fieldsDescriptor.getTypeToFields();
+
+    for(Map.Entry<Type, List<String>> entry: typeToFields.entrySet()) {
+      Type inputType = entry.getKey();
+      List<String> fields = entry.getValue();
+
+      switch(inputType) {
+        case BOOLEAN: {
+          gpoGetters.gettersBoolean = createGetterBoolean(fields,
+                                                          fieldToGetter,
+                                                          clazz);
+          break;
+        }
+        case STRING: {
+          gpoGetters.gettersString = createGetterString(fields,
+                                                        fieldToGetter,
+                                                        clazz);
+          break;
+        }
+        case CHAR: {
+          gpoGetters.gettersChar = createGetterChar(fields,
+                                                    fieldToGetter,
+                                                    clazz);
+          break;
+        }
+        case DOUBLE: {
+          gpoGetters.gettersDouble = createGetterDouble(fields,
+                                                        fieldToGetter,
+                                                        clazz);
+          break;
+        }
+        case FLOAT: {
+          gpoGetters.gettersFloat = createGetterFloat(fields,
+                                                      fieldToGetter,
+                                                      clazz);
+          break;
+        }
+        case LONG: {
+          gpoGetters.gettersLong = createGetterLong(fields,
+                                                    fieldToGetter,
+                                                    clazz);
+          break;
+        }
+        case INTEGER: {
+          gpoGetters.gettersInteger = createGetterInt(fields,
+                                                      fieldToGetter,
+                                                      clazz);
+
+          break;
+        }
+        case SHORT: {
+          gpoGetters.gettersShort = createGetterShort(fields,
+                                                      fieldToGetter,
+                                                      clazz);
+
+          break;
+        }
+        case BYTE: {
+          gpoGetters.gettersByte = createGetterByte(fields,
+                                                    fieldToGetter,
+                                                    clazz);
+
+          break;
+        }
+        case OBJECT: {
+          gpoGetters.gettersObject = createGetterObject(fields,
+                                                        fieldToGetter,
+                                                        clazz);
+
+          break;
+        }
+        default: {
+          throw new IllegalArgumentException("The type " + inputType + " is not supported.");
+        }
+      }
+    }
+
+    return gpoGetters;
+  }
+
+  public static void copyPOJOToGPO(GPOMutable mutable, GPOGetters getters, Object object)
+  {
+    {
+      boolean[] tempBools = mutable.getFieldsBoolean();
+      GetterBoolean<Object>[] tempGetterBools = getters.gettersBoolean;
+
+      if(tempBools != null) {
+        for(int index = 0;
+            index < tempBools.length;
+            index++) {
+          tempBools[index] = tempGetterBools[index].get(object);
+        }
+      }
+    }
+
+    {
+      byte[] tempBytes = mutable.getFieldsByte();
+      GetterByte<Object>[] tempGetterByte = getters.gettersByte;
+
+      if(tempBytes != null) {
+        for(int index = 0;
+            index < tempBytes.length;
+            index++) {
+          tempBytes[index] = tempGetterByte[index].get(object);
+        }
+      }
+    }
+
+    {
+      char[] tempChar = mutable.getFieldsCharacter();
+      GetterChar<Object>[] tempGetterChar = getters.gettersChar;
+
+      if(tempChar != null) {
+        for(int index = 0;
+            index < tempChar.length;
+            index++) {
+          tempChar[index] = tempGetterChar[index].get(object);
+        }
+      }
+    }
+
+    {
+      double[] tempDouble = mutable.getFieldsDouble();
+      GetterDouble<Object>[] tempGetterDouble = getters.gettersDouble;
+
+      if(tempDouble != null) {
+        for(int index = 0;
+            index < tempDouble.length;
+            index++) {
+          tempDouble[index] = tempGetterDouble[index].get(object);
+        }
+      }
+    }
+
+    {
+      float[] tempFloat = mutable.getFieldsFloat();
+      GetterFloat<Object>[] tempGetterFloat = getters.gettersFloat;
+
+      if(tempFloat != null) {
+        for(int index = 0;
+            index < tempFloat.length;
+            index++) {
+          tempFloat[index] = tempGetterFloat[index].get(object);
+        }
+      }
+    }
+
+    {
+      int[] tempInt = mutable.getFieldsInteger();
+      GetterInt<Object>[] tempGetterInt = getters.gettersInteger;
+
+      if(tempInt != null) {
+        for(int index = 0;
+            index < tempInt.length;
+            index++) {
+          tempInt[index] = tempGetterInt[index].get(object);
+        }
+      }
+    }
+
+    {
+      long[] tempLong = mutable.getFieldsLong();
+      GetterLong<Object>[] tempGetterLong = getters.gettersLong;
+
+      if(tempLong != null) {
+        for(int index = 0;
+            index < tempLong.length;
+            index++) {
+          tempLong[index] = tempGetterLong[index].get(object);
+        }
+      }
+    }
+
+    {
+      short[] tempShort = mutable.getFieldsShort();
+      GetterShort<Object>[] tempGetterShort = getters.gettersShort;
+
+      if(tempShort != null) {
+        for(int index = 0;
+            index < tempShort.length;
+            index++) {
+          tempShort[index] = tempGetterShort[index].get(object);
+        }
+      }
+    }
+
+    {
+      String[] tempString = mutable.getFieldsString();
+      Getter<Object, String>[] tempGetterString = getters.gettersString;
+
+      if(tempString != null) {
+        for(int index = 0;
+            index < tempString.length;
+            index++) {
+          tempString[index] = tempGetterString[index].get(object);
+        }
+      }
+    }
   }
 }

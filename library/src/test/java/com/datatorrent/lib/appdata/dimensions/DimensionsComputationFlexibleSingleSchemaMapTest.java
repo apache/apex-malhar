@@ -22,12 +22,12 @@ import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputationFlexibleSingleSchema;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorIncrementalType;
-import com.datatorrent.lib.dimensions.DimensionsComputationFlexibleSingleSchemaPOJO;
+import com.datatorrent.lib.dimensions.DimensionsComputationFlexibleSingleSchemaMap;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.DimensionsEvent;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
+import com.datatorrent.lib.dimensions.aggregator.AggregatorIncrementalType;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.datatorrent.lib.testbench.CollectorTestSink;
 import com.datatorrent.lib.util.TestUtils;
@@ -41,10 +41,8 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
-public class DimensionsComputationFlexibleSingleSchemaPOJOTest
+public class DimensionsComputationFlexibleSingleSchemaMapTest
 {
-  private static final Logger logger = LoggerFactory.getLogger(DimensionsComputationFlexibleSingleSchemaPOJOTest.class);
-
   @Before
   public void setup()
   {
@@ -54,8 +52,8 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
   @Test
   public void simpleTest() throws Exception
   {
-    AdInfo ai = createTestAdInfoEvent1();
-    AdInfo ai2 = createTestAdInfoEvent2();
+    Map<String, Object> ai1 = createAdInfoEvent1();
+    Map<String, Object> ai2 = createAdInfoEvent2();
 
     int schemaID = AbstractDimensionsComputationFlexibleSingleSchema.DEFAULT_SCHEMA_ID;
     int dimensionsDescriptorID = 0;
@@ -84,121 +82,78 @@ public class DimensionsComputationFlexibleSingleSchemaPOJOTest
                                      keyGPO);
 
     GPOMutable valueGPO = new GPOMutable(valueFD);
-    valueGPO.setField("clicks", ai.getClicks() + ai2.getClicks());
-    valueGPO.setField("impressions", ai.getImpressions() + ai2.getImpressions());
-    valueGPO.setField("revenue", ai.getRevenue() + ai2.getRevenue());
-    valueGPO.setField("cost", ai.getCost() + ai2.getCost());
+    valueGPO.setField("clicks", ((Long) ai1.get("clicks")) + ((Long) ai2.get("clicks")));
+    valueGPO.setField("impressions", ((Long) ai1.get("impressions")) + ((Long) ai2.get("impressions")));
+    valueGPO.setField("revenue", ((Double) ai1.get("revenue")) + ((Double) ai2.get("revenue")));
+    valueGPO.setField("cost", ((Double) ai1.get("cost")) + ((Double) ai2.get("cost")));
 
     Aggregate expectedAE = new Aggregate(eventKey, valueGPO);
 
-    DimensionsComputationFlexibleSingleSchemaPOJO dimensions = createDimensionsComputationOperator("adsGenericEventSimple.json");
+    DimensionsComputationFlexibleSingleSchemaMap dimensions = new DimensionsComputationFlexibleSingleSchemaMap();
+    dimensions.setEventSchemaJSON(SchemaUtils.jarResourceFileToString("adsGenericEventSimple.json"));
 
     CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
     TestUtils.setSink(dimensions.output, sink);
 
-    DimensionsComputationFlexibleSingleSchemaPOJO dimensionsClone =
+    DimensionsComputationFlexibleSingleSchemaMap dimensionsClone =
     TestUtils.clone(new Kryo(), dimensions);
 
     dimensions.setup(null);
 
     dimensions.beginWindow(0L);
-    dimensions.inputEvent.put(ai);
+    dimensions.inputEvent.put(ai1);
     dimensions.inputEvent.put(ai2);
     dimensions.endWindow();
+
+    LOG.debug("Expected aggregates: {}", expectedAE.getAggregates());
+    LOG.debug("Actual aggregates  : {}", sink.collectedTuples.get(0).getAggregates());
+    LOG.debug("Expected keys: {}", expectedAE.getKeys());
+    LOG.debug("Actual keys  : {}", keyGPO);
+    LOG.debug("expected: {} {} {}", schemaID, dimensionsDescriptorID, aggregatorID);
+    LOG.debug("actual  : {} {} {}", sink.collectedTuples.get(0).getEventKey().getSchemaID(),
+                                    sink.collectedTuples.get(0).getEventKey().getDimensionDescriptorID(),
+                                    sink.collectedTuples.get(0).getEventKey().getAggregatorID());
+
+    LOG.debug("{}", expectedAE.getAggregates().equals(sink.collectedTuples.get(0).getAggregates()));
+    LOG.debug("{}", expectedAE.getEventKey().equals(sink.collectedTuples.get(0).getEventKey()));
 
     Assert.assertEquals("Expected only 1 tuple", 1, sink.collectedTuples.size());
     Assert.assertEquals(expectedAE, sink.collectedTuples.get(0));
   }
 
-  @Test
-  public void complexOutputTest()
+  private Map<String, Object> createAdInfoEvent1()
   {
-    AdInfo ai = createTestAdInfoEvent1();
+    Map<String, Object> ai = Maps.newHashMap();
 
-    DimensionsComputationFlexibleSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAdditional.json");
+    ai.put("publisher", "google");
+    ai.put("advertiser", "starbucks");
+    ai.put("location", "SKY");
 
-    CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
-    TestUtils.setSink(dcss.output, sink);
-
-    dcss.setup(null);
-    dcss.beginWindow(0L);
-    dcss.inputEvent.put(ai);
-    dcss.endWindow();
-
-    Assert.assertEquals(60, sink.collectedTuples.size());
-  }
-
-  @Test
-  public void aggregationsTest()
-  {
-    AdInfo ai = createTestAdInfoEvent1();
-
-    DimensionsComputationFlexibleSingleSchemaPOJO dcss = createDimensionsComputationOperator("adsGenericEventSchemaAggregations.json");
-
-    CollectorTestSink<DimensionsEvent> sink = new CollectorTestSink<DimensionsEvent>();
-    TestUtils.setSink(dcss.output, sink);
-
-    dcss.setup(null);
-    dcss.beginWindow(0L);
-    dcss.inputEvent.put(ai);
-    dcss.endWindow();
-
-    Assert.assertEquals(6, sink.collectedTuples.size());
-  }
-
-  public static DimensionsComputationFlexibleSingleSchemaPOJO createDimensionsComputationOperator(String eventSchema)
-  {
-    DimensionsComputationFlexibleSingleSchemaPOJO dimensions = new DimensionsComputationFlexibleSingleSchemaPOJO();
-    dimensions.setEventSchemaJSON(SchemaUtils.jarResourceFileToString(eventSchema));
-
-    Map<String, String> fieldToExpressionKey = Maps.newHashMap();
-    fieldToExpressionKey.put("publisher", "getPublisher()");
-    fieldToExpressionKey.put("advertiser", "getAdvertiser()");
-    fieldToExpressionKey.put("location", "getLocation()");
-    fieldToExpressionKey.put("time", "getTime()");
-
-    dimensions.setKeyToExpression(fieldToExpressionKey);
-
-    Map<String, String> fieldToExpressionAggregate = Maps.newHashMap();
-    fieldToExpressionAggregate.put("cost", "getCost()");
-    fieldToExpressionAggregate.put("revenue", "getRevenue()");
-    fieldToExpressionAggregate.put("impressions", "getImpressions()");
-    fieldToExpressionAggregate.put("clicks", "getClicks()");
-
-    dimensions.setAggregateToExpression(fieldToExpressionAggregate);
-
-    return dimensions;
-  }
-
-  private AdInfo createTestAdInfoEvent1()
-  {
-    AdInfo ai = new AdInfo();
-    ai.setPublisher("google");
-    ai.setAdvertiser("starbucks");
-    ai.setLocation("SKY");
-
-    ai.setClicks(100L);
-    ai.setImpressions(1000L);
-    ai.setRevenue(10.0);
-    ai.setCost(5.5);
-    ai.setTime(300L);
+    ai.put("clicks", 100L);
+    ai.put("impressions", 1000L);
+    ai.put("revenue", 10.0);
+    ai.put("cost", 5.5);
+    ai.put("time", 300L);
 
     return ai;
   }
 
-  private AdInfo createTestAdInfoEvent2()
+  private Map<String, Object> createAdInfoEvent2()
   {
-    AdInfo ai2 = new AdInfo();
-    ai2.setPublisher("google");
-    ai2.setAdvertiser("starbucks");
-    ai2.setLocation("SKY");
+    Map<String, Object> ai = Maps.newHashMap();
 
-    ai2.setClicks(150L);
-    ai2.setImpressions(100L);
-    ai2.setRevenue(5.0);
-    ai2.setCost(3.50);
-    ai2.setTime(300L);
+    ai.put("publisher", "google");
+    ai.put("advertiser", "starbucks");
+    ai.put("location", "SKY");
 
-    return ai2;
+    ai.put("clicks", 150L);
+    ai.put("impressions", 100L);
+    ai.put("revenue", 5.0);
+    ai.put("cost", 3.50);
+    ai.put("time", 300L);
+
+    return ai;
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionsComputationFlexibleSingleSchemaMapTest.class);
 }

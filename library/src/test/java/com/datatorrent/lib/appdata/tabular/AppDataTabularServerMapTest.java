@@ -29,27 +29,25 @@ import java.util.Map;
 
 public class AppDataTabularServerMapTest
 {
+  public static final String SIMPLE_RESULT = "{\"id\":\"1\",\"type\":\"dataQuery\",\"data\":[{\"count\":\"2\",\"word\":\"a\"},{\"count\":\"3\",\"word\":\"b\"}]}";
+  public static final String SIMPLE_QUERY = "{\"id\": \"1\",\n"
+                                            + "\"type\": \"dataQuery\",\n"
+                                            + "\"data\": {\n"
+                                            + "\"fields\": [ \"word\", \"count\" ]\n"
+                                            + "},\n"
+                                            + "\"countdown\":10\n"
+                                            + "}";
+  public static final String SIMPLE_SCHEMA = "{\n"
+                                             + "  \"values\": [{\"name\": \"word\", \"type\": \"string\"},\n"
+                                             + "             {\"name\": \"count\", \"type\": \"integer\"}]\n"
+                                             + "}";
+
   @Test
   public void simpleTest() throws Exception
   {
-    final String result = "{\"id\":\"1\",\"type\":\"dataQuery\",\"data\":[{\"count\":\"2\",\"word\":\"a\"},{\"count\":\"3\",\"word\":\"b\"}]}";
-    final String query = "{\"id\": \"1\",\n" +
-                         "\"type\": \"dataQuery\",\n" +
-                         "\"data\": {\n" +
-                         "\"fields\": [ \"word\", \"count\" ]\n" +
-                         "},\n" +
-                         "\"countdown\":10\n" +
-                         "}";
-
     AppDataTabularServerMap tabularServer = new AppDataTabularServerMap();
-    TabularMapConverter mapConverter = new TabularMapConverter();
-    String tabularSchema = "{\n" +
-                           "  \"values\": [{\"name\": \"word\", \"type\": \"string\"},\n" +
-                           "             {\"name\": \"count\", \"type\": \"integer\"}]\n" +
-                           "}";
 
-    tabularServer.setTabularSchemaJSON(tabularSchema);
-    tabularServer.setConverter(mapConverter);
+    tabularServer.setTabularSchemaJSON(SIMPLE_SCHEMA);
 
     //// Input Data
 
@@ -79,11 +77,11 @@ public class AppDataTabularServerMapTest
     tabularServer.endWindow();
 
     tabularServer.beginWindow(1L);
-    tabularServer.query.put(query);
+    tabularServer.query.put(SIMPLE_QUERY);
     tabularServer.endWindow();
 
     Assert.assertEquals("Should get only 1 result back", 1, tempResultSink.collectedTuples.size());
-    Assert.assertEquals("The result was incorrect.", result, tempResultSink.collectedTuples.get(0));
+    Assert.assertEquals("The result was incorrect.", SIMPLE_RESULT, tempResultSink.collectedTuples.get(0));
 
     //Test serialization
     TestUtils.clone(new Kryo(), tabularServer);

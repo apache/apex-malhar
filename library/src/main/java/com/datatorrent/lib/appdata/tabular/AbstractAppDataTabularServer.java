@@ -45,9 +45,9 @@ import com.datatorrent.lib.appdata.query.QueryExecutor;
 import com.datatorrent.lib.appdata.query.QueryManager;
 import com.datatorrent.lib.appdata.schemas.*;
 
-public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
+public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Operator
 {
-  private static final Logger logger = LoggerFactory.getLogger(AppDataTabularServer.class);
+  private static final Logger logger = LoggerFactory.getLogger(AbstractAppDataTabularServer.class);
 
   private transient QueryManager<Query, Void, MutableLong, Result> queryProcessor;
   private transient MessageDeserializerFactory queryDeserializerFactory;
@@ -108,7 +108,7 @@ public abstract class AppDataTabularServer<INPUT_EVENT> implements Operator
     }
   };
 
-  public AppDataTabularServer()
+  public AbstractAppDataTabularServer()
   {
   }
 
