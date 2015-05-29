@@ -121,14 +121,16 @@ import java.util.Map;
 public class AdsDimensionsDemo implements StreamingApplication
 {
   public static final String APP_NAME = "AdsDimensionsDemoGeneric";
-  public static final String PROP_STORE_PATH = "dt.application." + APP_NAME + ".operator.Store.fileStore.basePathPrefix";
-
   public static final String EVENT_SCHEMA = "adsGenericEventSchema.json";
-  public static final String DIMENSIONAL_SCHEMA = "adsGenericDataSchema.json";
+
+  public String appName = APP_NAME;
+  public String eventSchemaLocation = EVENT_SCHEMA;
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
+    String propStorePath = "dt.application." + appName + ".operator.Store.fileStore.basePathPrefix";
+
     //Declare operators
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
@@ -139,7 +141,7 @@ public class AdsDimensionsDemo implements StreamingApplication
     //Set operator properties
 
     //Set input properties
-    String eventSchema = SchemaUtils.jarResourceFileToString(EVENT_SCHEMA);
+    String eventSchema = SchemaUtils.jarResourceFileToString(eventSchemaLocation);
     input.setEventSchemaJSON(eventSchema);
 
     Map<String, String> keyToExpression = Maps.newHashMap();
@@ -159,7 +161,7 @@ public class AdsDimensionsDemo implements StreamingApplication
     dimensions.setEventSchemaJSON(eventSchema);
 
     //Set store properties
-    String basePath = Preconditions.checkNotNull(conf.get(PROP_STORE_PATH),
+    String basePath = Preconditions.checkNotNull(conf.get(propStorePath),
                                                  "a base path should be specified in the properties.xml");
     TFileImpl hdsFile = new TFileImpl.DTFileImpl();
     System.out.println(dag.getAttributes().get(DAG.APPLICATION_ID));

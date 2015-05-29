@@ -16,7 +16,6 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.appdata.query.serde.MessageSerializerFactory;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.google.common.collect.Lists;
@@ -48,6 +47,17 @@ public class DimensionalSchemaTest
   public void initialize()
   {
     AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
+  }
+
+  @Test
+  public void noEnumsTest()
+  {
+    //Test if creating schema with no enums works
+    DimensionalConfigurationSchema des =
+    new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaNoEnums.json"),
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+
+
   }
 
   @Test

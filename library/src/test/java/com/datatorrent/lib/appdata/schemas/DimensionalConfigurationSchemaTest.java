@@ -17,7 +17,6 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.dimensions.aggregator.AggregatorIncrementalType;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.DimensionsCombination;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema.Key;
@@ -46,6 +45,18 @@ public class DimensionalConfigurationSchemaTest
   public void initialize()
   {
     AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
+  }
+
+  @Test
+  public void noEnumTest()
+  {
+    //Test if loading of no enums works
+    DimensionalConfigurationSchema des =
+    new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaNoEnums.json"),
+    AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
+
+    DimensionalSchema dimensionalSchema = new DimensionalSchema(des);
+    dimensionalSchema.getSchemaJSON();
   }
 
   @Test

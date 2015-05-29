@@ -114,6 +114,41 @@
     <name>16384</name>
   </property>
 
+  <!-- Settings for AdsDimensionsDemoGeneric -->
+
+  <property>
+    <name>dt.application.AdsDimensionsDemoGenericManualEntry.operator.InputGenerator.numTuplesPerWindow</name>
+    <value>3000</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoGenericManualEntry.operator.Store.fileStore.basePathPrefix</name>
+    <value>AdsDimensionsDemoGenericManualEntry/Store</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoGenericManualEntry.operator.Query.topic</name>
+    <value>AdsQueryGenericManualEntry</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoGenericManualEntry.operator.QueryResult.topic</name>
+    <value>AdsQueryGenericResultManualEntry</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoGenericManualEntry.operator.DimensionsComputation.port.inputEvent.attr.PARTITION_PARALLEL</name>
+    <value>true</value>
+  </property>
+  <property>
+    <name>dt.application.AdsDimensionsDemoGenericManualEntry.operator.InputGenerator.attr.PARTITIONER</name>
+    <value>com.datatorrent.lib.partitioner.StatelessPartitioner:8</value>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsDemoGenericManualEntry.operator.InputGenerator.attr.MEMORY_MB</value>
+    <name>16384</name>
+  </property>
+  <property>
+    <value>dt.application.AdsDimensionsDemoGenericManualEntry.operator.DimensionsComputation.attr.MEMORY_MB</value>
+    <name>16384</name>
+  </property>
+
   <!-- Settings for AdsDimensionsDemoPerformant -->
 
   <property>
