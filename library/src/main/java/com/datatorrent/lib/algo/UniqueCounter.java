@@ -79,7 +79,9 @@ public class UniqueCounter<K> extends BaseUniqueKeyCounter<K>
     @Override
     public Unifier<HashMap<K, Integer>> getUnifier()
     {
-      return new UnifierHashMapSumKeys<K, Integer>();
+      UnifierHashMapSumKeys unifierHashMapSumKeys =  new UnifierHashMapSumKeys<K, Integer>();
+      unifierHashMapSumKeys.setType(Integer.class);
+      return unifierHashMapSumKeys;
     }
   };
 

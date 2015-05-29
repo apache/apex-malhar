@@ -46,10 +46,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 
-import com.datatorrent.api.Component;
-import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.api.InputOperator;
+import com.datatorrent.api.*;
 import com.datatorrent.api.annotation.OperatorAnnotation;
 
 import com.datatorrent.common.util.DTThrowable;
@@ -70,7 +67,7 @@ import com.datatorrent.lib.io.block.BlockMetadata.FileBlockMetadata;
  * @since 2.0.0
  */
 @OperatorAnnotation(checkpointableWithinAppWindow = false)
-public class FileSplitter implements InputOperator
+public class FileSplitter implements InputOperator, Operator.CheckpointListener
 {
   protected Long blockSize;
   private int sequenceNo;
@@ -379,6 +376,22 @@ public class FileSplitter implements InputOperator
   public IdempotentStorageManager getIdempotentStorageManager()
   {
     return this.idempotentStorageManager;
+  }
+
+  @Override
+  public void checkpointed(long l)
+  {
+  }
+
+  @Override
+  public void committed(long l)
+  {
+    try {
+      idempotentStorageManager.deleteUpTo(operatorId, l);
+    }
+    catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**

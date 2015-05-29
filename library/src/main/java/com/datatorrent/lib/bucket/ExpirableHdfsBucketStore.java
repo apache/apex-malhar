@@ -75,7 +75,6 @@ public class ExpirableHdfsBucketStore<T> extends HdfsBucketStore<T> implements B
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public ExpirableHdfsBucketStore<T> clone() throws CloneNotSupportedException
   {
     return (ExpirableHdfsBucketStore<T>)super.clone();
