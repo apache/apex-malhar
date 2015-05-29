@@ -20,7 +20,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
 import org.apache.hadoop.conf.Configuration;
 
-@ApplicationAnnotation(name=AdsDimensionsDemo.APP_NAME)
+@ApplicationAnnotation(name=AdsDimensionsDemoManualEntry.APP_NAME)
 public class AdsDimensionsDemoManualEntry extends AdsDimensionsDemo
 {
   public static final String APP_NAME = "AdsDimensionsDemoManualEntry";
