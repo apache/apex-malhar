@@ -15,34 +15,30 @@
  */
 package com.datatorrent.contrib.aerospike;
 
-import org.junit.Assert;
-import org.junit.Test;
 import java.util.List;
 
-import com.datatorrent.contrib.aerospike.AerospikeTestUtils.TestPOJO;
+import org.junit.Assert;
+import org.junit.Test;
 
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.checkEvents;
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.cleanTable;
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getEvents;
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getExpressions;
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getOperatorContext;
-import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.getStore;
+import com.datatorrent.contrib.aerospike.AerospikeTestUtils.*;
 
+import static com.datatorrent.contrib.aerospike.AerospikeTestUtils.*;
 
 /**
- * Tests {@link AerospikeNonTransactionalPutOperator}
+ * Tests {@link AerospikePOJOTransactionalPutOperator}
  */
-public class AerospikeNonTransactionalPutOperatorTest {
+public class AerospikePOJOTransactionalPutOperatorTest
+{
 
-  private static final String APP_ID = "AerospikeNonTransactionalPutOperatorTest";
+  private static final String APP_ID = "AerospikeTransactionalPutOperatorTest";
 
   @Test
-  public void TestAerospikeNonTransactionalPutOperator() {
+  public void TestAerospikeTransactionalPutOperator() {
 
-    cleanTable();
+    cleanTable(); cleanMetaTable();
 
-    AerospikeNonTransactionalPutOperator outputOperator = new AerospikeNonTransactionalPutOperator();
-    outputOperator.setStore(getStore());
+    AerospikePOJOTransactionalPutOperator outputOperator = new AerospikePOJOTransactionalPutOperator();
+    outputOperator.setStore(getTransactionalStore());
     outputOperator.setExpressions(getExpressions());
     outputOperator.setup(getOperatorContext(APP_ID));
 

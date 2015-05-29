@@ -18,12 +18,14 @@ package com.datatorrent.contrib.aerospike;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.validation.constraints.NotNull;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.util.PojoUtils;
 import com.datatorrent.lib.util.PojoUtils.Getter;
@@ -35,13 +37,13 @@ import com.datatorrent.lib.util.PojoUtils.Getter;
  * </p>
  * @displayName Aerospike Non-Transactional Put
  * @category Database
- * @tags output operator, put, non-transactional
+ * @tags output operator, put, non-transactional, POJO
  * @since 2.1.0
  */
-public class AerospikeNonTransactionalPutOperator extends AbstractAerospikeNonTransactionalPutOperator<Object>
+public class AerospikePOJONonTransactionalPutOperator extends AbstractAerospikeNonTransactionalPutOperator<Object>
 {
   private static transient final Logger LOG
-    = LoggerFactory.getLogger(AerospikeNonTransactionalPutOperator.class);
+    = LoggerFactory.getLogger(AerospikePOJONonTransactionalPutOperator.class);
 
   // Two element list; first retrieves the record key and second the list of bins in this tuple
   @NotNull
@@ -51,7 +53,7 @@ public class AerospikeNonTransactionalPutOperator extends AbstractAerospikeNonTr
   private transient Getter<Object, List> binsGetter;
 
   // required by App Builder
-  public AerospikeNonTransactionalPutOperator()
+  public AerospikePOJONonTransactionalPutOperator()
   {
   }
 
