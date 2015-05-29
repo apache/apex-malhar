@@ -40,9 +40,9 @@ public class InputItemGenerator implements InputOperator
   private int advertiserID;
   private int locationID;
 
-  private List<Object> publisherName;
-  private List<Object> advertiserName;
-  private List<Object> locationName;
+  public List<Object> publisherName;
+  public List<Object> advertiserName;
+  public List<Object> locationName;
 
   private double expectedClickThruRate = 0.015;
   @Min(1)
@@ -95,11 +95,18 @@ public class InputItemGenerator implements InputOperator
                                         AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     publisherID = schema.getKeysToValuesList().get(PUBLISHER).size();
-    advertiserID = schema.getKeysToValuesList().get(ADVERTISER).size();
+    if(advertiserName != null) {
+      advertiserID = schema.getKeysToValuesList().get(ADVERTISER).size();
+    }
+    else {
+      advertiserID = advertiserName.size();
+    }
     locationID = schema.getKeysToValuesList().get(LOCATION).size();
 
     publisherName = schema.getKeysToValuesList().get(PUBLISHER);
-    advertiserName = schema.getKeysToValuesList().get(ADVERTISER);
+    if(advertiserName != null) {
+      advertiserName = schema.getKeysToValuesList().get(ADVERTISER);
+    }
     locationName = schema.getKeysToValuesList().get(LOCATION);
   }
 

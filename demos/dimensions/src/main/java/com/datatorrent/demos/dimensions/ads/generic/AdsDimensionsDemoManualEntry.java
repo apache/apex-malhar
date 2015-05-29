@@ -18,7 +18,10 @@ package com.datatorrent.demos.dimensions.ads.generic;
 
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
+import com.google.common.collect.Lists;
 import org.apache.hadoop.conf.Configuration;
+
+import java.util.List;
 
 @ApplicationAnnotation(name=AdsDimensionsDemoManualEntry.APP_NAME)
 public class AdsDimensionsDemoManualEntry extends AdsDimensionsDemo
@@ -31,6 +34,7 @@ public class AdsDimensionsDemoManualEntry extends AdsDimensionsDemo
   {
     this.appName = APP_NAME;
     this.eventSchemaLocation = EVENT_SCHEMA_LOCATION;
+    this.advertisers = (List) Lists.newArrayList("starbucks","safeway","mcdonalds","macys","taco bell","walmart","khol's","san diego zoo","pandas","jack in the box","tomatina","ron swanson");
     super.populateDAG(dag, conf);
   }
 }

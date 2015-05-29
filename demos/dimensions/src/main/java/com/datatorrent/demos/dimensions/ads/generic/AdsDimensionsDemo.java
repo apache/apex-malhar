@@ -39,6 +39,7 @@ import org.apache.commons.lang.mutable.MutableLong;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -125,6 +126,7 @@ public class AdsDimensionsDemo implements StreamingApplication
 
   public String appName = APP_NAME;
   public String eventSchemaLocation = EVENT_SCHEMA;
+  public List<Object> advertisers;
 
   @Override
   public void populateDAG(DAG dag, Configuration conf)
@@ -134,6 +136,7 @@ public class AdsDimensionsDemo implements StreamingApplication
     //Declare operators
 
     InputItemGenerator input = dag.addOperator("InputGenerator", InputItemGenerator.class);
+    input.advertiserName = advertisers;
     DimensionsComputationFlexibleSingleSchemaPOJO dimensions = dag.addOperator("DimensionsComputation", DimensionsComputationFlexibleSingleSchemaPOJO.class);
     dimensions.setUnifier(new DimensionsComputationUnifierImpl<InputEvent, Aggregate>());
     AppDataSingleSchemaDimensionStoreHDHT store = dag.addOperator("Store", AppDataSingleSchemaDimensionStoreHDHT.class);
