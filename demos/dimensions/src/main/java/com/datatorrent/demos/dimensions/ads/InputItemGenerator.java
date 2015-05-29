@@ -95,7 +95,7 @@ public class InputItemGenerator implements InputOperator
                                         AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
     publisherID = schema.getKeysToValuesList().get(PUBLISHER).size();
-    if(advertiserName != null) {
+    if(advertiserName == null) {
       advertiserID = schema.getKeysToValuesList().get(ADVERTISER).size();
     }
     else {
@@ -104,7 +104,7 @@ public class InputItemGenerator implements InputOperator
     locationID = schema.getKeysToValuesList().get(LOCATION).size();
 
     publisherName = schema.getKeysToValuesList().get(PUBLISHER);
-    if(advertiserName != null) {
+    if(advertiserName == null) {
       advertiserName = schema.getKeysToValuesList().get(ADVERTISER);
     }
     locationName = schema.getKeysToValuesList().get(LOCATION);
