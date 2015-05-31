@@ -17,15 +17,33 @@ package com.datatorrent.lib.appdata.query;
 
 import com.google.common.base.Preconditions;
 
+/**
+ * This is a doubly linked list to be used for queueing queries.
+ * @param <T> The type of the data used for queueing
+ */
 public class QueueList<T>
 {
+  /**
+   * The head of the queue.
+   */
   private QueueListNode<T> head;
+  /**
+   * The tail of the queue.
+   */
   private QueueListNode<T> tail;
 
+  /**
+   * Create a queue list.
+   */
   public QueueList()
   {
+    //Do nothing
   }
 
+  /**
+   * Enqueues the given node to the list.
+   * @param node The node to enqueue in the list.
+   */
   public void enqueue(QueueListNode<T> node)
   {
     Preconditions.checkNotNull(node);
@@ -38,19 +56,25 @@ public class QueueList<T>
       return;
     }
 
-      //Handle the case when adding to the end of list and
-    //removing a node in parallel
     tail.setNext(node);
     node.setPrev(tail);
     node.setNext(null);
     tail = node;
   }
 
+  /**
+   * Returns the head of the QueueList.
+   * @return The head node of the queue list.
+   */
   public QueueListNode<T> getHead()
   {
     return head;
   }
 
+  /**
+   * Removes the given node from the QueueList.
+   * @param node The node to remove from this QueueList.
+   */
   public void removeNode(QueueListNode<T> node)
   {
       //Handle the case when adding to the end of list and
@@ -77,33 +101,53 @@ public class QueueList<T>
     }
   }
 
+  /**
+   * This class represents a node in the QueueList, and holds a data payload provided by the user of type T.
+   * @param <T> The type of the data payload of the node.
+   */
   public static class QueueListNode<T>
   {
     private QueueListNode<T> prev;
     private QueueListNode<T> next;
     private T payload;
 
+    /**
+     * Creates a new queue list node with node data payload.
+     */
     public QueueListNode()
     {
     }
 
+    /**
+     * Creates a new queue list node with the given data payload.
+     * @param payload The data payload for this node.
+     */
     public QueueListNode(T payload)
     {
       this.payload = payload;
     }
 
+    /**
+     * Gets the previous node that this node points to.
+     * @return The previous node that this node points to.
+     */
     public QueueListNode<T> getPrev()
     {
       return prev;
     }
 
+    /**
+     * Sets the previous node that this node points to.
+     * @param prev The previous node that this node will point to.
+     */
     public void setPrev(QueueListNode<T> prev)
     {
       this.prev = prev;
     }
 
     /**
-     * @return the next
+     * Gets the next element this node points to.
+     * @return The next element this node points to.
      */
     public QueueListNode<T> getNext()
     {
@@ -111,7 +155,8 @@ public class QueueList<T>
     }
 
     /**
-     * @param next the next to set
+     * Sets the next element this node points to.
+     * @param next The next element this node points to.
      */
     public void setNext(QueueListNode<T> next)
     {
@@ -119,7 +164,8 @@ public class QueueList<T>
     }
 
     /**
-     * @return the payload
+     * Gets the data payload for the node.
+     * @return The data payload for the node.
      */
     public T getPayload()
     {
@@ -127,7 +173,8 @@ public class QueueList<T>
     }
 
     /**
-     * @param payload the payload to set
+     * Sets the data payload for the node.
+     * @param payload The data payload for the node.
      */
     public void setPayload(T payload)
     {
@@ -137,10 +184,8 @@ public class QueueList<T>
     @Override
     public String toString()
     {
-      return "WELinkedListNode{" + "payload=" + payload + '}';
+      return "QueueListNode{" + "payload=" + payload + '}';
     }
-
   }
-
 }
 

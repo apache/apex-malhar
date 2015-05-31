@@ -16,11 +16,11 @@
 
 package com.datatorrent.lib.appdata.tabular;
 
-import com.datatorrent.lib.appdata.query.serde.Result;
-import com.datatorrent.lib.appdata.query.serde.Message;
+import com.datatorrent.lib.appdata.schemas.Result;
+import com.datatorrent.lib.appdata.schemas.Message;
 import com.datatorrent.lib.appdata.query.serde.MessageSerializerFactory;
 import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
-import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.schemas.Query;
 import java.io.IOException;
 
 import java.util.List;
@@ -45,19 +45,42 @@ import com.datatorrent.lib.appdata.query.QueryExecutor;
 import com.datatorrent.lib.appdata.query.QueryManager;
 import com.datatorrent.lib.appdata.schemas.*;
 
+/**
+ * This is an abstract operator for the {@link TabularSchema}. This operator is designed to accept input data
+ * in the form of a list of objects. The last list of data sent to the operator is what the operator will serve.
+ * Additionally the list of input objects then need to be converted into {@link GPOMutable} objects
+ * via an implementation of the {@link #convert} convert method.
+ * @param <INPUT_EVENT> The type of the input events that the operator accepts.
+ */
 public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Operator
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractAppDataTabularServer.class);
-
+  /**
+   * The {@link QueryManager} for the operator.
+   */
   private transient QueryManager<Query, Void, MutableLong, Result> queryProcessor;
+  /**
+   * The {@link MessageDeserializerFactory} for the operator.
+   */
   private transient MessageDeserializerFactory queryDeserializerFactory;
+  /**
+   * The {@link MessageSerializerFactory} for the operator.
+   */
   private transient MessageSerializerFactory resultSerializerFactory;
+  /**
+   * The {@link SchemaRegistry} for the operator.
+   */
   private transient SchemaRegistry schemaRegistry;
-  protected transient SchemaTabular schema;
+  /**
+   * The schema for the operator.
+   */
+  protected transient TabularSchema schema;
 
   @NotNull
   private ResultFormatter resultFormatter = new ResultFormatter();
   private String tabularSchemaJSON;
+  /**
+   * The current data to be served by the operator.
+   */
   private List<GPOMutable> currentData = Lists.newArrayList();
 
   @AppData.ResultPort
@@ -75,8 +98,8 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
         query = queryDeserializerFactory.deserialize(queryJSON);
       }
       catch(IOException ex) {
-        logger.error("Error parsing query: {}", queryJSON);
-        logger.error("{}", ex);
+        LOG.error("Error parsing query: {}", queryJSON);
+        LOG.error("{}", ex);
         return;
       }
 
@@ -108,17 +131,26 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
     }
   };
 
+  /**
+   * Create operator.
+   */
   public AbstractAppDataTabularServer()
   {
+    //Do nothing
   }
 
+  /**
+   * This method converts input data to GPOMutable objects to serve.
+   * @param inputEvent The input object to convert to a {@link GPOMutable{.
+   * @return The converted input event.
+   */
   public abstract GPOMutable convert(INPUT_EVENT inputEvent);
 
   @SuppressWarnings("unchecked")
   @Override
   public void setup(OperatorContext context)
   {
-    schema = new SchemaTabular(tabularSchemaJSON);
+    schema = new TabularSchema(tabularSchemaJSON);
     schemaRegistry = new SchemaRegistrySingle(schema);
     //Setup for query processing
     queryProcessor = QueryManager.newInstance(new TabularComputer(), new AppDataWindowEndQueueManager<Query, Void>());
@@ -157,7 +189,8 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
   }
 
   /**
-   * @return the tabularSchemaJSON
+   * Gets the JSON for the schema.
+   * @return the JSON for the schema.
    */
   public String getTabularSchemaJSON()
   {
@@ -165,7 +198,8 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
   }
 
   /**
-   * @param tabularSchemaJSON the tabularSchemaJSON to set
+   * Sets the JSON for the schema.
+   * @param tabularSchemaJSON The JSON for the schema.
    */
   public void setTabularSchemaJSON(String tabularSchemaJSON)
   {
@@ -173,7 +207,8 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
   }
 
   /**
-   * @return the resultFormatter
+   * Gets the {@link ResultFormatter} for the data.
+   * @return The {@link ResultFormatter} for the data.
    */
   public ResultFormatter getResultFormatter()
   {
@@ -181,13 +216,17 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
   }
 
   /**
-   * @param resultFormatter the resultFormatter to set
+   * Sets the {@link ResultFormatter} for the data.
+   * @param resultFormatter The {@link ResultFormatter} for the data.
    */
   public void setResultFormatter(ResultFormatter resultFormatter)
   {
     this.resultFormatter = resultFormatter;
   }
 
+  /**
+   * The {@link QueryExecutor} which returns the results for queries.
+   */
   public class TabularComputer implements QueryExecutor<Query, Void, MutableLong, Result>
   {
     @Override
@@ -197,4 +236,6 @@ public abstract class AbstractAppDataTabularServer<INPUT_EVENT> implements Opera
                                    currentData);
     }
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractAppDataTabularServer.class);
 }

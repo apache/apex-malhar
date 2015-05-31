@@ -20,7 +20,7 @@ import com.datatorrent.common.util.Slice;
 import com.datatorrent.contrib.hdht.HDHTReader.HDSQuery;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.query.QueryExecutor;
-import com.datatorrent.lib.appdata.query.serde.Result;
+import com.datatorrent.lib.appdata.schemas.Result;
 import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;

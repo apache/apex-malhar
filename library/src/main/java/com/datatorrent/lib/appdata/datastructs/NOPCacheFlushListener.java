@@ -18,6 +18,11 @@ package com.datatorrent.lib.appdata.datastructs;
 
 import com.datatorrent.lib.appdata.datastructs.CacheLRUSynchronousFlush.CacheFlushListener;
 
+/**
+ * This is a listener which is called by {@link CacheLRUSynchronousFlush} when the cache is flushed.
+ * @param <KEY> The type of keys in the cache.
+ * @param <VALUE> The type of values in the cache.
+ */
 public class NOPCacheFlushListener<KEY, VALUE> implements CacheFlushListener<KEY, VALUE>
 {
   @Override

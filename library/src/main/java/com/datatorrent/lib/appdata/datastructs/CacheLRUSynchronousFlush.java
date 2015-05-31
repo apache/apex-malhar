@@ -26,6 +26,11 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This is an LRU cache.
+ * @param <KEY> The type of keys in the cache.
+ * @param <VALUE> The type of values in the cache.
+ */
 public class CacheLRUSynchronousFlush<KEY, VALUE>
 {
   public static final int DEFAULT_FLUSHED_SIZE  = 50000;
@@ -178,8 +183,18 @@ public class CacheLRUSynchronousFlush<KEY, VALUE>
     flushChanges();
   }
 
+  /**
+   * An interface for a listener whose callback is called when the cache is flushed.
+   * @param <KEY> The type of keys in the cache.
+   * @param <VALUE> The type of values in the cache.
+   */
   public interface CacheFlushListener<KEY, VALUE>
   {
+    /**
+     * The method that is called when a key-value pair is flushed from the cache.
+     * @param key The value of the key for the pair that is flushed from the cache.
+     * @param value The value of the value for the pair that is flushed from the cache.
+     */
     public void flush(KEY key, VALUE value);
   }
 }

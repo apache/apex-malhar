@@ -29,22 +29,96 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This is a {@link DimensionalTable}. A {@link DimensionalTable} is similar to a Map but is a hybrid
+ * between a conventional table and a map. Data in a {@link DimensionalTable} is organized into rows
+ * and each row is broken into two parts, the key and the data payload. Each key is composed of a predefined list
+ * of fields. A Diagram is below:
+ * <br/>
+ * <br/>
+ * <table border="1">
+ *  <tr>
+ *    <td></td>
+ *    <td>Key</td>
+ *    <td>Value</td>
+ *  </tr>
+ *  <tr>
+ *    <td></td>
+ *    <td>
+ *    <table border="1">
+ *      <tr>
+ *        <td>Header 1</td>
+ *        <td>Header 2</td>
+ *        <td>Header 3</td>
+ *        <td>...</td>
+ *      </tr>
+ *    </table>
+ *    </td>
+ *    <td></td>
+ *  </tr>
+ * <tr>
+ *  <td>
+ *    Row 1
+ *  </td>
+ *  <td>
+ *    <table border="1">
+ *      <tr>
+ *        <td>field 1&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+ *        <td>field 2&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+ *        <td>field 3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+ *        <td>...</td>
+ *      </tr>
+ *    </table>
+ *  </td>
+ *  <td>Data payload</td>
+ * </tr>
+ * </table>
+ * <br/>
+ * <br/>
+ * The purpose of this table is to provide a <b>select-like</b> feature for obtaining data payloads.
+ * Selecting works as follows. If a user specifies one or more key components in a search query, but not
+ * all the key components, then all the data payloads with a matching subset of key components are returned. If
+ * all the key components are specified in a search query, then only a single data payload is returned if there
+ * is a matching key, otherwise nothing is returned.
+ *
+ * @param <DATA> The type of the data payload.
+ */
 public class DimensionalTable<DATA>
 {
   private static final Logger logger = LoggerFactory.getLogger(DimensionalTable.class);
 
+  /**
+   * This is a map from the header name to its column index.
+   */
   private final Map<String, Integer> dimensionNameToIndex = Maps.newHashMap();
 
+  /**
+   * This is a column which holds the data payload.
+   */
   private final List<DATA> dataColumn = Lists.newArrayList();
+
+  /**
+   * These are the columns which hold each component of the key.
+   */
   private final List<List<Object>> dimensionColumns = Lists.newArrayList();
 
+  /**
+   * A map from a key row to its data payload.
+   */
   private final Map<List<Object>, DATA> dimensionKeysToData = Maps.newHashMap();
 
+  /**
+   * Constructor for Kryo
+   */
   private DimensionalTable()
   {
     //For Kryo
   }
 
+  /**
+   * Creates a dimensional table with the given header names for key columns.
+   * @param headerNames The header names for key columns.
+   */
   public DimensionalTable(List<String> headerNames)
   {
     setHeaderNames(headerNames);
@@ -52,6 +126,9 @@ public class DimensionalTable<DATA>
     initialize();
   }
 
+  /**
+   * Initializing the key element columns.
+   */
   private void initialize()
   {
     for(int columnIndex = 0;
@@ -61,6 +138,10 @@ public class DimensionalTable<DATA>
     }
   }
 
+  /**
+   * Helper method to set and validate the header names for the table.
+   * @param headerNames The head names for the key components of the table.
+   */
   private void setHeaderNames(List<String> headerNames)
   {
     Preconditions.checkNotNull(headerNames);
@@ -83,6 +164,13 @@ public class DimensionalTable<DATA>
     }
   }
 
+  /**
+   * Appends a row to the table. If the key combination for the row is not unique
+   * then an {@link IllegalStateException} is thrown.
+   * @param data The data payload for the row.
+   * @param keys The values for the components of the keys. The key components
+   * must be specified in the same order as their header names.
+   */
   public void appendRow(DATA data, Object... keys)
   {
     Preconditions.checkNotNull(data);
@@ -103,7 +191,7 @@ public class DimensionalTable<DATA>
     logger.debug("prev {}", prev);
 
     Preconditions.checkState(prev == null,
-                             "The given keys must be unique " + Arrays.toString(keys));
+                            "The given keys must be unique " + Arrays.toString(keys));
 
     for(int index = 0;
         index < keys.length;
@@ -113,6 +201,12 @@ public class DimensionalTable<DATA>
     }
   }
 
+  /**
+   * Appends a row to the table.
+   * @param data The data payload for the row.
+   * @param keys The values for the key components of the row. The key of the provided map corresponds to the
+   * header name of a key component, and the value of the provided map corresponds to the value of a key component.
+   */
   public void appendRow(DATA data, Map<String, ?> keys)
   {
     Preconditions.checkNotNull(data);
@@ -134,6 +228,14 @@ public class DimensionalTable<DATA>
     appendRow(data, keysArray);
   }
 
+  /**
+   * This method returns a data payload corresponding to the provided key, or null if there is no data payload
+   * corresponding to the provided key.
+   * @param keys A list containing the values of all the components of the key. The values of the key
+   * components must be provided in the same order as their header names.
+   * @return The data payload corresponding to the given key.
+   */
+  @SuppressWarnings("element-type-mismatch")
   public DATA getDataPoint(List<?> keys)
   {
     Preconditions.checkNotNull(keys);
@@ -143,6 +245,13 @@ public class DimensionalTable<DATA>
     return dimensionKeysToData.get(keys);
   }
 
+  /**
+   * This method returns a data payload corresponding to the provided key, or null if there is no data payload
+   * corresponding to the provided key.
+   * @param keys The values for the key components of the row. The key of the provided map corresponds to the
+   * header name of a key component, and the value of the provided map corresponds to the value of a key component.
+   * @return The data payload corresponding to the given key.
+   */
   public DATA getDataPoint(Map<String, ?> keys)
   {
     Preconditions.checkNotNull(keys);
@@ -168,6 +277,12 @@ public class DimensionalTable<DATA>
     return getDataPoint(keysList);
   }
 
+  /**
+   * This method returns all the data payloads which correspond with the given subset of key components.
+   * @param keys The values for the key components of the row. The key of the provided map corresponds to the
+   * header name of a key component, and the value of the provided map corresponds to the value of a key component.
+   * @return The data payloads corresponding to the given subset of key components.
+   */
   public List<DATA> getDataPoints(Map<String, ?> keys)
   {
     Preconditions.checkNotNull(keys);
@@ -225,11 +340,19 @@ public class DimensionalTable<DATA>
     return results;
   }
 
+  /**
+   * Returns all the data payloads in the table.
+   * @return The data payload column of the table.
+   */
   public List<DATA> getAllDataPoints()
   {
     return Lists.newArrayList(dataColumn);
   }
 
+  /**
+   * Returns the number of rows in the table.
+   * @return The number of rows in the table.
+   */
   public int size() {
     return dataColumn.size();
   }

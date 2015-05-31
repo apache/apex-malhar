@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
+import com.datatorrent.lib.appdata.schemas.Result;
 import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
@@ -24,12 +25,39 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+/**
+ * This class simplifies serializing Messages. This is done by placing an annotation on the Message
+ * class which specifies the serializer for the class. Also another annotation is placed on the Message
+ * class to specify its type. An example is below:
+ * <br/>
+ * <br/>
+ * <pre>
+ * <code>
+ *  {@literal @}MessageType(type=DataQueryDimensional.TYPE)
+ *  {@literal @}MessageSerializerInfo(clazz=DataResultDimensionalSerializer.class)
+ *  public class MyResultClass
+ *  {
+ *    ...
+ *  }
+ * </code>
+ * </pre>
+ * Then this class can be deserialized by doing the following:
+ * <br/>
+ * <br/>
+ * <pre>
+ * <code>
+ *  {@literal @}MyResultClass result;
+ *  {@literal @}MessageSerializerFactory serializerFactory = new MessageSerializerFactory(new ResultFormatter());
+ *  ...
+ *  String json = serializerFactory.serialize(result);
+ * }
+ * </code>
+ * </pre>
+ */
 public class MessageSerializerFactory
 {
-  private static final Logger logger = LoggerFactory.getLogger(MessageSerializerFactory.class);
-
-  private Map<Class<? extends Result>, CustomMessageSerializer> clazzToCustomResultBuilder = Maps.newHashMap();
-  private Map<Class<? extends Result>, String> clazzToType = Maps.newHashMap();
+  private final Map<Class<? extends Result>, CustomMessageSerializer> clazzToCustomResultBuilder = Maps.newHashMap();
+  private final Map<Class<? extends Result>, String> clazzToType = Maps.newHashMap();
 
   private ResultFormatter resultFormatter = new ResultFormatter();
 
@@ -111,4 +139,6 @@ public class MessageSerializerFactory
 
     return mcrs.serialize(result, resultFormatter);
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(MessageSerializerFactory.class);
 }

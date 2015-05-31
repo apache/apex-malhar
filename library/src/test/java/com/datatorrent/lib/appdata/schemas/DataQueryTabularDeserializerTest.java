@@ -16,6 +16,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.query.serde.DataQueryTabularDeserializer;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import org.junit.Assert;
@@ -38,7 +39,7 @@ public class DataQueryTabularDeserializerTest
                        + "   }\n"
                        + "}";
 
-    DataQueryTabular gQuery = (DataQueryTabular) deserializer.deserialize(queryJSON, null);
+    DataQueryTabular gQuery = (DataQueryTabular) deserializer.deserialize(queryJSON, DataQueryTabular.class, null);
 
     Assert.assertEquals("The id must equal.", "1", gQuery.getId());
     Assert.assertEquals("The type must equal.", DataQueryTabular.TYPE, gQuery.getType());
@@ -69,7 +70,7 @@ public class DataQueryTabularDeserializerTest
                        + "   }\n"
                        + "}";
 
-    DataQueryTabular gQuery = (DataQueryTabular) deserializer.deserialize(queryJSON, null);
+    DataQueryTabular gQuery = (DataQueryTabular) deserializer.deserialize(queryJSON, DataQueryTabular.class, null);
 
     Assert.assertEquals("The id must equal.", "1", gQuery.getId());
     Assert.assertEquals("The type must equal.", DataQueryTabular.TYPE, gQuery.getType());

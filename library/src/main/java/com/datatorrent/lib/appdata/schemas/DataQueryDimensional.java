@@ -15,6 +15,9 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.query.serde.DataQueryDimensionalValidator;
+import com.datatorrent.lib.appdata.query.serde.DataQueryDimensionalDeserializer;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -26,43 +29,93 @@ import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
 import com.datatorrent.lib.appdata.query.serde.MessageType;
 import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
-import com.datatorrent.lib.appdata.query.serde.Query;
 
+/**
+ * This class represents a data query for the {@link DimensionalSchema}.
+ */
 @MessageType(type=DataQueryDimensional.TYPE)
 @MessageDeserializerInfo(clazz=DataQueryDimensionalDeserializer.class)
 @MessageValidatorInfo(clazz=DataQueryDimensionalValidator.class)
 public class DataQueryDimensional extends Query
 {
+  /**
+   * The Message type for this query.
+   */
   public static final String TYPE = "dataQuery";
 
+  /**
+   * JSON key for time.
+   */
   public static final String FIELD_TIME = "time";
+  /**
+   * JSON key for from.
+   */
   public static final String FIELD_FROM = "from";
+  /**
+   * JSON key for to.
+   */
   public static final String FIELD_TO = "to";
+  /**
+   * JSON key for latestNumBuckets.
+   */
   public static final String FIELD_LATEST_NUM_BUCKETS = "latestNumBuckets";
+  /**
+   * JSON key for bucket.
+   */
   public static final String FIELD_BUCKET = "bucket";
-
+  /**
+   * JSON key for fields.
+   */
   public static final String FIELD_FIELDS = DataQueryTabular.FIELD_FIELDS;
+  /**
+   * JSON key for data.
+   */
   public static final String FIELD_DATA = DataQueryTabular.FIELD_DATA;
-
+  /**
+   * JSON key for keys.
+   */
   public static final String FIELD_KEYS = "keys";
+  /**
+   * JSON key for incompleteResultOK.
+   */
   public static final String FIELD_INCOMPLETE_RESULT_OK = "incompleteResultOK";
 
+  /**
+   * The from timestamp.
+   */
   private long from;
+  /**
+   * The to timestamp.
+   */
   private long to;
+  /**
+   * The latestNumber of buckets to retrieve.
+   */
   private int latestNumBuckets = -1;
+  /**
+   * The timeBucket to retrieve data from.
+   */
   private TimeBucket timeBucket;
+  /**
+   * The dimensional keys.
+   */
   private GPOMutable keys;
-  //Value fields selected in query.
+  /**
+   * Whether incomplete results are OK or not.
+   */
   private boolean incompleteResultOK = true;
+  /**
+   * Whether the query has a time component or not.
+   */
   private boolean hasTime = false;
+  /**
+   * Whether the query has a from and to time or not.
+   */
   private boolean fromTo = false;
+
   private Fields keyFields;
   private DimensionsDescriptor dimensionsDescriptor;
   private FieldsAggregatable fieldsAggregatable;
-
-  public DataQueryDimensional()
-  {
-  }
 
   public DataQueryDimensional(String id,
                               String type,

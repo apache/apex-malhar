@@ -24,33 +24,78 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This enum is used to represent data types throughout AppData Framework.
+ */
 public enum Type
 {
+  /**
+   * Boolean data type.
+   */
   BOOLEAN("boolean", 1, JSONType.BOOLEAN, Boolean.class,
           Collections.unmodifiableSet(new HashSet<Type>())),
+  /**
+   * String data type.
+   */
   STRING("string", -1, JSONType.STRING, String.class,
          Collections.unmodifiableSet(new HashSet<Type>())),
+  /**
+   * Char data type.
+   */
   CHAR("char", 2, JSONType.STRING, Character.class,
        ImmutableSet.of(STRING)),
+  /**
+   * Double data type.
+   */
   DOUBLE("double", 8, JSONType.NUMBER, Double.class,
          Collections.unmodifiableSet(new HashSet<Type>())),
+  /**
+   * Float data type.
+   */
   FLOAT("float", 4, JSONType.NUMBER, Float.class,
         ImmutableSet.of(DOUBLE)),
+  /**
+   * Long data type.
+   */
   LONG("long", 8, JSONType.NUMBER, Long.class,
        Collections.unmodifiableSet(new HashSet<Type>())),
+  /**
+   * Integer data type.
+   */
   INTEGER("integer", 4, JSONType.NUMBER, Integer.class,
           ImmutableSet.of(LONG)),
+  /**
+   * Short data type.
+   */
   SHORT("short", 2, JSONType.NUMBER, Short.class,
         ImmutableSet.of(INTEGER, LONG)),
+  /**
+   * Byte data type.
+   */
   BYTE("byte", 1, JSONType.NUMBER, Byte.class,
        ImmutableSet.of(SHORT, INTEGER, LONG)),
+  /**
+   * Object data type.
+   */
   OBJECT("object", -1, JSONType.INVALID, Object.class,
           Collections.unmodifiableSet(new HashSet<Type>()));
 
+  /**
+   * A set containing all the numeric types.
+   */
   public static final Set<Type> NUMERIC_TYPES = ImmutableSet.of(BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE);
+  /**
+   * A set containing all the non numeric types.
+   */
   public static final Set<Type> NON_NUMERIC_TYPES = ImmutableSet.of(BOOLEAN, CHAR, STRING);
+  /**
+   * A map from the names to the types.
+   */
   public static final Map<String, Type> NAME_TO_TYPE;
-  public static final Map<Class, Type> CLASS_TO_TYPE;
+  /**
+   * A map from a class representing the type to the type itself.
+   */
+  public static final Map<Class<?>, Type> CLASS_TO_TYPE;
 
   static {
     Map<String, Type> nameToType = Maps.newHashMap();
@@ -61,7 +106,7 @@ public enum Type
 
     NAME_TO_TYPE = Collections.unmodifiableMap(nameToType);
 
-    Map<Class, Type> clazzToType = Maps.newHashMap();
+    Map<Class<?>, Type> clazzToType = Maps.newHashMap();
 
     for(Type type: Type.values()) {
       clazzToType.put(type.getClazz(), type);
@@ -70,16 +115,42 @@ public enum Type
     CLASS_TO_TYPE = Collections.unmodifiableMap(clazzToType);
   }
 
+  /**
+   * The name of the type.
+   */
   private final String name;
+  /**
+   * The type of the corresponding JSON element.
+   */
   private final JSONType jsonType;
-  private final Class clazz;
+  /**
+   * Class of the corresponding Java type.
+   */
+  private final Class<?> clazz;
+  /**
+   * In the case of numeric types, there may be a "higher" type. For example
+   * ints can be promoted to longs. This set holds all of the types that this
+   * type could be promoted to. If this type cannot be promoted then this will be empty.
+   */
   private final Set<Type> higherTypes;
+  /**
+   * The number of bytes required to store a value of this type. If a value of
+   * this type can be of variable length then this would be -1.
+   */
   private final int byteSize;
 
+  /**
+   * Creates a type enum.
+   * @param name The name of the type.
+   * @param byteSize The number of bytes a value of this type would occupy. -1 if variable length.
+   * @param jsonType The type of corresponding json values.
+   * @param clazz The Class of the corresponding Java type.
+   * @param higherTypes The set of types to which this type can be promoted.
+   */
   Type(String name,
        int byteSize,
        JSONType jsonType,
-       Class clazz,
+       Class<?> clazz,
        Set<Type> higherTypes)
   {
     this.name = name;
@@ -89,41 +160,78 @@ public enum Type
     this.higherTypes = higherTypes;
   }
 
+  /**
+   * Gets the name of the type.
+   * @return The name of the type.
+   */
   public String getName()
   {
     return name;
   }
 
+  /**
+   * Gets the byte size of the value.
+   * @return The byte size of the value.
+   */
   public int getByteSize()
   {
     return byteSize;
   }
 
+  /**
+   * Gets the corresponding JSONType of this type.
+   * @return The corresponding JSONType of this type.
+   */
   public JSONType getJSONType()
   {
     return jsonType;
   }
 
-  public Class getClazz()
+  /**
+   * Gets the Java class corresponding to this type.
+   * @return The Java class corresponding to this type.
+   */
+  public Class<?> getClazz()
   {
     return clazz;
   }
 
+  /**
+   * Gets the set of types to which this type can be promoted.
+   * @return The set of types to which this type can be promoted.
+   */
   public Set<Type> getHigherTypes()
   {
     return higherTypes;
   }
 
+  /**
+   * Determines if the given type is a higher type of this type.
+   * @param type The type which may or not be a parent of this type.
+   * @return True if the given type is a higher type of this type. False otherwise.
+   */
   public boolean isChildOf(Type type)
   {
     return higherTypes.contains(type);
   }
 
+  /**
+   * Determines if one of the given types is a child of the other.
+   * @param a This type will be checked to see if it is a child of b.
+   * @param b This type will be checked to see if it is a child of a.
+   * @return True if one of the given types is a child of the other. False otherwise.
+   */
   public static boolean areRelated(Type a, Type b)
   {
     return a == b || a.isChildOf(b) || b.isChildOf(a);
   }
 
+  /**
+   * Gets the type corresponding to the given name.
+   * @param name The name of the type.
+   * @return The type corresponding to the name or null if there is no type
+   * corresponding to the given name.
+   */
   public static Type getType(String name)
   {
     return NAME_TO_TYPE.get(name);
@@ -139,6 +247,13 @@ public enum Type
     return type;
   }
 
+  /**
+   * Promotes the given object from the "from" type to the "to" type.
+   * @param from The current type of the given object.
+   * @param to The desired type for the given object.
+   * @param o The object whose type must be converted.
+   * @return The result of promoting the given object o to the "to" type.
+   */
   public static Object promote(Type from, Type to, Object o)
   {
     if(from == to) {

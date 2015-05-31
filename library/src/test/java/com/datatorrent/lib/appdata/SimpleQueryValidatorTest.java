@@ -6,7 +6,7 @@
 package com.datatorrent.lib.appdata;
 
 import com.datatorrent.lib.appdata.query.serde.MessageType;
-import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
 import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
 import com.datatorrent.lib.appdata.query.serde.SimpleDataDeserializer;
@@ -23,7 +23,7 @@ public class SimpleQueryValidatorTest
   @Test
   public void testValidatingQuery()
   {
-    TestQuery testQuery = new TestQuery();
+    TestQuery testQuery = new TestQuery("1");
     SimpleDataValidator sqv = new SimpleDataValidator();
 
     Assert.assertFalse("The query object is not valid.", sqv.validate(testQuery, null));
@@ -36,8 +36,9 @@ public class SimpleQueryValidatorTest
   {
     public static final String TYPE = "testQuery";
 
-    public TestQuery()
+    public TestQuery(String id)
     {
+      super(id);
     }
   }
 }

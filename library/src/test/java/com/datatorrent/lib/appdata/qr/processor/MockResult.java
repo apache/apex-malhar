@@ -13,17 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
 
-import com.datatorrent.lib.appdata.query.serde.CustomMessageValidator;
-import com.datatorrent.lib.appdata.query.serde.Message;
+package com.datatorrent.lib.appdata.qr.processor;
 
+import com.datatorrent.lib.appdata.schemas.Query;
+import com.datatorrent.lib.appdata.schemas.Result;
 
-public class DataQueryDimensionalValidator implements CustomMessageValidator
+public class MockResult extends Result
 {
-  @Override
-  public boolean validate(Message query, Object context)
+  public MockResult(Query query)
   {
-    return true;
+    super(query);
+  }
+
+  public MockResult(Query query,
+                    long countdown)
+  {
+    super(query,
+          countdown);
   }
 }

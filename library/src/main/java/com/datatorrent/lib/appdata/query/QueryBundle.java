@@ -15,6 +15,13 @@
  */
 package com.datatorrent.lib.appdata.query;
 
+/**
+ * This is a container object to be used by Queue Managers. It is a container for a query, the query's meta data,
+ * and the query's queueing context.
+ * @param <QUERY_TYPE> The type of the query.
+ * @param <META_QUERY> The type of any meta data to be included with the query.
+ * @param <QUEUE_CONTEXT> The context associated with the query when it was enqueued.
+ */
 public class QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {
   protected QUERY_TYPE query;

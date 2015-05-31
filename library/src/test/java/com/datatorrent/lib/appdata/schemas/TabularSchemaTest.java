@@ -22,7 +22,7 @@ import org.junit.Test;
 
 import java.util.Map;
 
-public class SchemaTabularTest
+public class TabularSchemaTest
 {
   public static final String TEST_JSON = "{\n"
                                         + " \"values\": [\n"
@@ -34,10 +34,10 @@ public class SchemaTabularTest
   @Test
   public void schemaTabularFieldTypeTest()
   {
-    SchemaTabular schema = new SchemaTabular(TEST_JSON);
+    TabularSchema schema = new TabularSchema(TEST_JSON);
 
-    Assert.assertEquals("The schemaType must match.", SchemaTabular.SCHEMA_TYPE, schema.getSchemaType());
-    Assert.assertEquals("The schemaVersion must match", SchemaTabular.SCHEMA_VERSION, schema.getSchemaVersion());
+    Assert.assertEquals("The schemaType must match.", TabularSchema.SCHEMA_TYPE, schema.getSchemaType());
+    Assert.assertEquals("The schemaVersion must match", TabularSchema.SCHEMA_VERSION, schema.getSchemaVersion());
 
     Map<String, Type> expectedFieldToType = Maps.newHashMap();
     expectedFieldToType.put("url", Type.STRING);

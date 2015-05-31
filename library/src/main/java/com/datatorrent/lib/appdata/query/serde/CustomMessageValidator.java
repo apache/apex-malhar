@@ -15,7 +15,19 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
+import com.datatorrent.lib.appdata.schemas.Message;
+
+/**
+ * This interface defines a validator which validates the state of deserialized messages. Classes
+ * implementing this interface should have a public no-arg constructor.
+ */
 public interface CustomMessageValidator
 {
+  /**
+   * Validates the state of the given deserialized message.
+   * @param query The deserialized message.
+   * @param context Any contextual information required to properly validate the given message.
+   * @return True if the state of the deserialized message is valid.
+   */
   public boolean validate(Message query, Object context);
 }

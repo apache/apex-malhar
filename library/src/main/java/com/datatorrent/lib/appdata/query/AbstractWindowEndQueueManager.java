@@ -21,17 +21,44 @@ import com.google.common.base.Preconditions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This is an abstract implementation of a QueueManager which works in the following way.
+ * <br/>
+ * <br/>
+ * <ul>
+ *  <li>All the queries are kept in a linked list.</li>
+ *  <li>A pointer points to the next query to pop from the queue.</li>
+ *  <li>If all the queries are popped within an application window, then no more queries can be popped from the queue</li>
+ *  <li>When {@link #endWindow} is called</li>
+ * </ul>
+ * @param <QUERY_TYPE> The type of the query.
+ * @param <META_QUERY> The type of any metadata associated with the query.
+ * @param <QUEUE_CONTEXT> The type of the context used to manage the queueing of the query.
+ */
 public abstract class AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> implements QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {
-  private static final Logger logger = LoggerFactory.getLogger(AbstractWindowEndQueueManager.class);
-
+  /**
+   * The {@link QueueList} which is backing this {@link QueueManager}.
+   */
   protected QueueList<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queryQueue =
   new QueueList<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>>();
+  /**
+   * A pointer to the current node in the {@link QueueList}.
+   */
   private QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> currentNode;
+  /**
+   * Oh s**t forgot what this does.
+   */
   private boolean readCurrent = false;
 
+  /**
+   * A lock which is used to make queueing and dequeueing from this {@link QueueManager} thread safe.
+   */
   private final Object lock = new Object();
 
+  /**
+   * Creates a new QueueManager.
+   */
   public AbstractWindowEndQueueManager()
   {
   }
@@ -46,6 +73,13 @@ public abstract class AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, QUEU
     }
   }
 
+  /**
+   * This is a helper method which enqueues the query.
+   * @param query The query to enqueue.
+   * @param metaQuery Any meta data associated with the query.
+   * @param context The context used to manage queuing the query.
+   * @return True if the query was successfully enqueued. False otherwise.
+   */
   private boolean enqueueHelper(QUERY_TYPE query, META_QUERY metaQuery, QUEUE_CONTEXT context)
   {
     QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueable =
@@ -69,6 +103,10 @@ public abstract class AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, QUEU
     }
   }
 
+  /**
+   * This is a helper method for dequeueing queries.
+   * @return {@link QueryBundle} containing the dequeued query and its associated metadata.
+   */
   private QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> dequeueHelper()
   {
     QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> qq = null;
@@ -123,9 +161,30 @@ public abstract class AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, QUEU
     return qq;
   }
 
+  /**
+   *
+   * @param queryBundle
+   * @return
+   */
   public abstract boolean addingFilter(QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryBundle);
+
+  /**
+   * This callback is called when a new query is enqueued.
+   * @param queryQueueable The node that was added to the {@link QueueList} of the queue.
+   */
   public abstract void addedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queryQueueable);
+
+  /**
+   * This callback is called with the given node is removed from the queue.
+   * @param queryQueueable The node that was removed from the {@link QueueList}.
+   */
   public abstract void removedNode(QueueListNode<QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>> queryQueueable);
+
+  /**
+   * This is called to determine if the given query should be removed from the queue.
+   * @param queryQueueable The {@link QueryBundle} whose removal from the queue needs to be determined.
+   * @return True if the given query should be remove. False otherwise.
+   */
   public abstract boolean removeBundle(QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueable);
 
   @Override
@@ -149,4 +208,6 @@ public abstract class AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, QUEU
   public void teardown()
   {
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractWindowEndQueueManager.class);
 }

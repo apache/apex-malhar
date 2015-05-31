@@ -13,73 +13,100 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package com.datatorrent.lib.appdata.schemas;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import javax.validation.constraints.NotNull;
 
 import java.util.Collections;
 import java.util.Map;
 
-public class Query extends Message
+public abstract class Query extends QRBase
 {
-  public static final String FIELD_ID = "id";
-
+  /**
+   * The String that is used as a key in JSON requests to represent the shemaKeys.
+   */
   public static final String FIELD_SCHEMA_KEYS = "schemaKeys";
-  public static final String FIELD_COUNTDOWN = "countdown";
 
-  @NotNull
-  private String id;
-  private long countdown;
-
+  /**
+   * The schemaKeys.
+   */
   private Map<String, String> schemaKeys;
 
+  /**
+   * No-arg constructor is required by some deserializers.
+   */
   public Query()
   {
+    //Do nothing
   }
 
+  /**
+   * Creates a query with the given id.
+   * @param id The query id.
+   */
   public Query(String id)
   {
     super(id);
-    this.id = Preconditions.checkNotNull(id);
   }
 
+  /**
+   * Creates a query with the given id and type.
+   * @param id The query id.
+   * @param type The type of the query.
+   */
   public Query(String id,
                String type)
   {
-    super(type);
-    this.id = Preconditions.checkNotNull(id);
+    super(id, type);
   }
-
+  /**
+   * Creates a query with the given id, type, and schemaKeys.
+   * @param id The query id.
+   * @param type The type of the query.
+   * @param schemaKeys The schemaKeys for the query.
+   */
   public Query(String id,
                String type,
                Map<String, String> schemaKeys)
   {
-    super(type);
-    Preconditions.checkNotNull(id);
-    this.id = id;
+    super(id, type);
     setSchemaKeys(schemaKeys);
   }
 
+  /**
+   * Creates a query with the given id, type, and countdown.
+   * @param id The query id.
+   * @param type The type of the query.
+   * @param countdown The countdown for the query.
+   */
   public Query(String id,
                String type,
                long countdown)
   {
-    this(id, type);
-    setCountdown(countdown);
+    super(id, type, countdown);
   }
 
+  /**
+   * Creates a query with the given id, type, countdown, and schemaKeys.
+   * @param id The query id.
+   * @param type The type of the query.
+   * @param countdown The countdown for the query.
+   * @param schemaKeys The schemaKeys for the query.
+   */
   public Query(String id,
                String type,
                long countdown,
                Map<String, String> schemaKeys)
   {
-    this(id, type);
-    setCountdown(countdown);
+    super(id, type, countdown);
     setSchemaKeys(schemaKeys);
   }
 
+  /**
+   * Helper method to set schema keys and validate the schema keys.
+   * @param schemaKeys The schemaKeys to sett and validate.
+   */
   private void setSchemaKeys(Map<String, String> schemaKeys)
   {
     if(schemaKeys == null) {
@@ -94,51 +121,12 @@ public class Query extends Message
     this.schemaKeys = Collections.unmodifiableMap(Maps.newHashMap(schemaKeys));
   }
 
+  /**
+   * Gets the schemaKeys for the query.
+   * @return The schemaKeys for the query.
+   */
   public Map<String, String> getSchemaKeys()
   {
     return schemaKeys;
-  }
-
-  public final void setCountdown(long countdown)
-  {
-    Preconditions.checkArgument(countdown > 0L);
-    this.countdown = countdown;
-  }
-
-  public long getCountdown()
-  {
-    return countdown;
-  }
-
-  public boolean isOneTime()
-  {
-    return countdown <= 0L;
-  }
-
-  /**
-   * @return the id
-   */
-  public String getId()
-  {
-    return id;
-  }
-
-  /**
-   * @param id the id to set
-   */
-  public void setId(String id)
-  {
-    this.id = id;
-  }
-
-  public boolean queueEquals(Query query)
-  {
-    return false;
-  }
-
-  @Override
-  public String toString()
-  {
-    return "Query{" + "id=" + id + ", type=" + getType() + '}';
   }
 }

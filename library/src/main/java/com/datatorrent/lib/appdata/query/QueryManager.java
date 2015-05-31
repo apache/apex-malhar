@@ -15,58 +15,86 @@
  */
 package com.datatorrent.lib.appdata.query;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
+import com.datatorrent.api.Component;
+import com.datatorrent.api.Context.OperatorContext;
 import com.google.common.base.Preconditions;
 
-import com.datatorrent.api.Context.OperatorContext;
-import com.datatorrent.api.Operator;
-
 /**
- * Use {@link #newInstance} to create an instance of query processor. It reduces the boilerplate code with respect to generics.
+ * The QueryManager is a simple container for a {@link QueryExecutor} and a {@link QueueManager}.
+ * It encapsulates the functionality of enqueueing a query and returning a result.
+ * <br/>
+ * <br/>
+ * <b>Note:</b> Use {@link #newInstance} to create an instance of query processor.
+ * It reduces the boilerplate code with respect to generics.
  *
  * @param <QUERY_TYPE>
  * @param <META_QUERY>
  * @param <QUEUE_CONTEXT>
- * @param <COMPUTE_CONTEXT>
  * @param <RESULT>
  */
-public class QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> implements Operator
+public class QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> implements Component<OperatorContext>
 {
-  private static final Logger logger = LoggerFactory.getLogger(QueryManager.class);
-
-  private QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryComputer;
+  /**
+   * The {@link QueryExecutor} used to execute queries.
+   */
+  private QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryExecutor;
+  /**
+   * The {@link QueueManager} used to queue queries.
+   */
   private QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager;
 
+  /**
+   *
+   * @param queryComputer
+   */
   private QueryManager(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryComputer)
   {
-    setQueryComputer(queryComputer);
+    setQueryExecutor(queryComputer);
     queryQueueManager = new SimpleQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>();
   }
 
   private QueryManager(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryComputer,
                         QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
   {
-    setQueryComputer(queryComputer);
+    setQueryExecutor(queryComputer);
     setQueryQueueManager(queryQueueManager);
   }
 
-  private void setQueryComputer(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryComputer)
+  /**
+   * A helper method to set a {@link QueryExecutor}.
+   * @param queryExecutor The {@link QueryExecutor} to set on the {@link QueryManager}.
+   */
+  private void setQueryExecutor(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryExecutor)
   {
-    this.queryComputer = Preconditions.checkNotNull(queryComputer);
+    this.queryExecutor = Preconditions.checkNotNull(queryExecutor);
   }
 
+  /**
+   * A helper method to set a {@link QueueManager}.
+   * @param queryQueueManager The {@link QueueManager} to set on the {@link QueryManager}.
+   */
   private void setQueryQueueManager(QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
   {
     this.queryQueueManager = Preconditions.checkNotNull(queryQueueManager);
   }
 
+  /**
+   * This method enqueues the given query with the corresponding meta data.
+   * @param query The query to enqueue .
+   * @param metaQuery Any additional query meta data required to execute the query.
+   * @param queueContext The queue context information required to queue the query.
+   * @return True if the query was successfully enqueued and false otherwise.
+   */
   public boolean enqueue(QUERY_TYPE query, META_QUERY metaQuery, QUEUE_CONTEXT queueContext)
   {
     return queryQueueManager.enqueue(query, metaQuery, queueContext);
   }
 
+  /**
+   * This method returns a result for the next query in the queue for which there is a result. If
+   * there are no more queries with results in the queue, then this method will return null.
+   * @return The result for the next query in the queue for which there is a result.
+   */
   public RESULT process()
   {
     RESULT result = null;
@@ -78,7 +106,7 @@ public class QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> impleme
         return null;
       }
 
-      result = queryComputer.executeQuery(queryBundle.getQuery(),
+      result = queryExecutor.executeQuery(queryBundle.getQuery(),
                                           queryBundle.getMetaQuery(),
                                           queryBundle.getQueueContext());
     }
@@ -87,24 +115,40 @@ public class QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> impleme
     return result;
   }
 
+  /**
+   * This method should be called from the {@link com.datatorrent.api.Operator#setup} method so that the
+   * QueryManager can correctly initialize its internal state.
+   * @param context The operator context.
+   */
   @Override
   public void setup(OperatorContext context)
   {
     queryQueueManager.setup(context);
   }
 
-  @Override
+  /**
+   * This method should be called from the {@link com.datatorrent.api.Operator#beginWindow} method so that the
+   * QueryManager can correctly initialize/reset its internal state at the beginning of each window.
+   * @param windowId The windowId of the current window.
+   */
   public void beginWindow(long windowId)
   {
     queryQueueManager.beginWindow(windowId);
   }
 
-  @Override
+  /**
+   * This method should be called from the {@link com.datatorrent.api.Operator#endWindow} method so that the
+   * QueryManager can correctly initialize/reset its internal state at the end of each window.
+   */
   public void endWindow()
   {
     queryQueueManager.endWindow();
   }
 
+  /**
+   * This method should be called from the {@link com.datatorrent.api.Operator#teardown} method so that the
+   * QueryManager can correctly initialize its internal state.
+   */
   @Override
   public void teardown()
   {
@@ -112,24 +156,37 @@ public class QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> impleme
   }
 
   /**
-   * Creates a new instance of query processor using query computer.
+   * Creates a new instance of a QueryManager.
+   * @param <QUERY_TYPE> The type of the query.
+   * @param <META_QUERY> The type of any meta data associated with the query.
+   * @param <QUEUE_CONTEXT> The type of any additional meta data required to manage queueing the query.
+   * @param <RESULT> The type of any query results.
+   * @param queryExecutor The {@link QueryExecutor} the queryExecutor used to execute queries.
+   * @return A new instance of QueryManager.
    */
   public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
   QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
-  newInstance(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryComputer)
+  newInstance(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryExecutor)
   {
-    return new QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>(queryComputer);
+    return new QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>(queryExecutor);
   }
 
   /**
-   * Creates a new instance of query processor using query computer and queue manager.
+   * Creates a new instance of a QueryManager.
+   * @param <QUERY_TYPE> The type of the query.
+   * @param <META_QUERY> The type of any meta data associated with the query.
+   * @param <QUEUE_CONTEXT> The type of any additional meta data required to manage queueing the query.
+   * @param <RESULT> The type of any query results.
+   * @param queryExecutor The {@link QueryExecutor} used to execute queries.
+   * @param queryQueueManager The {@link QueueManager} used to queue queries.
+   * @return A new instance of QueryManager.
    */
   public static <QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
   QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>
-  newInstance(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryComputer,
+  newInstance(QueryExecutor<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT> queryExecutor,
               QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> queryQueueManager)
   {
-    return new QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>(queryComputer,
+    return new QueryManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT, RESULT>(queryExecutor,
       queryQueueManager);
   }
 }

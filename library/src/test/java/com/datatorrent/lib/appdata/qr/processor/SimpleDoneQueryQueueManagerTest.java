@@ -16,7 +16,7 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.query.QueryBundle;
 import com.datatorrent.lib.appdata.query.SimpleDoneQueueManager;
 import org.apache.commons.lang3.mutable.MutableBoolean;
@@ -33,7 +33,7 @@ public class SimpleDoneQueryQueueManagerTest
     sdqqm.setup(null);
     sdqqm.beginWindow(0);
 
-    Query query = new Query();
+    Query query = new MockQuery("1");
     sdqqm.enqueue(query, null, new MutableBoolean(true));
 
     QueryBundle<Query, Void, MutableBoolean> qb = sdqqm.dequeue();
@@ -59,7 +59,7 @@ public class SimpleDoneQueryQueueManagerTest
     sdqqm.setup(null);
     sdqqm.beginWindow(0);
 
-    Query query = new Query();
+    Query query = new MockQuery("1");
     sdqqm.enqueue(query, null, new MutableBoolean(false));
 
     QueryBundle<Query, Void, MutableBoolean> qb = sdqqm.dequeue();
@@ -88,7 +88,7 @@ public class SimpleDoneQueryQueueManagerTest
     sdqqm.setup(null);
     sdqqm.beginWindow(0);
 
-    Query query = new Query();
+    Query query = new MockQuery("1");
     sdqqm.enqueue(query, null, new MutableBoolean(false));
 
     QueryBundle<Query, Void, MutableBoolean> qb = sdqqm.dequeue();

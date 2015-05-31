@@ -13,6 +13,10 @@ import it.unimi.dsi.fastutil.bytes.ByteList;
 import java.util.Collection;
 import java.util.Iterator;
 
+/**
+ * This is a helper class which stores primitive bytes in an array list. This is useful
+ * for serialization and deserialization.
+ */
 public class GPOByteArrayList extends ByteArrayList
 {
   private static final long serialVersionUID = 201503091653L;

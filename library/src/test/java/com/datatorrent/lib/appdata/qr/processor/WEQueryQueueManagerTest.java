@@ -16,7 +16,7 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.query.QueryBundle;
 import com.datatorrent.lib.appdata.query.WindowEndQueueManager;
 import org.apache.commons.lang3.mutable.MutableLong;
@@ -53,7 +53,7 @@ public class WEQueryQueueManagerTest
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
-    Query query = new Query();
+    Query query = new MockQuery("1");
     wqqm.enqueue(query, null, new MutableLong(1L));
 
     Query queryD = wqqm.dequeue().getQuery();
@@ -75,14 +75,14 @@ public class WEQueryQueueManagerTest
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
-    Query query = new Query();
+    Query query = new MockQuery("1");
     wqqm.enqueue(query, null, new MutableLong(1L));
 
     Query queryD = wqqm.dequeue().getQuery();
     QueryBundle<Query, Void, MutableLong> qb = wqqm.dequeue();
     Query queryD1 = qb == null ? null : qb.getQuery();
 
-    Query query1 = new Query();
+    Query query1 = new MockQuery("2");
     wqqm.enqueue(query1, null, new MutableLong(1L));
 
     Query query1D = wqqm.dequeue().getQuery();
@@ -107,18 +107,15 @@ public class WEQueryQueueManagerTest
     wqqm.setup(null);
     wqqm.beginWindow(0);
 
-    Query query = new Query();
-    query.setId("0");
+    Query query = new MockQuery("0");
     wqqm.enqueue(query, null, new MutableLong(1L));
 
-    Query query1 = new Query();
-    query1.setId("1");
+    Query query1 = new MockQuery("1");
     wqqm.enqueue(query1, null, new MutableLong(1L));
 
     Query queryD = wqqm.dequeue().getQuery();
 
-    Query query2 = new Query();
-    query2.setId("2");
+    Query query2 = new MockQuery("2");
     wqqm.enqueue(query2, null, new MutableLong(1L));
 
     Query query1D = wqqm.dequeue().getQuery();
@@ -148,8 +145,7 @@ public class WEQueryQueueManagerTest
     for(int qc = 0;
         qc < numQueries;
         qc++) {
-      Query query = new Query();
-      query.setId(Integer.toString(qc));
+      Query query = new MockQuery(Integer.toString(qc));
       wqqm.enqueue(query, null, new MutableLong(3L));
     }
 
@@ -195,8 +191,7 @@ public class WEQueryQueueManagerTest
     for(int qc = 0;
         qc < numQueries;
         qc++) {
-      Query query = new Query();
-      query.setId(Integer.toString(qc));
+      Query query = new MockQuery(Integer.toString(qc));
       wqqm.enqueue(query, null, new MutableLong(2L));
     }
 
@@ -238,16 +233,14 @@ public class WEQueryQueueManagerTest
       for(int qc = 0;
           qc < numQueries;
           qc++) {
-        Query query = new Query();
-        query.setId(Integer.toString(qc));
+        Query query = new MockQuery(Integer.toString(qc));
         wqqm.enqueue(query, null, new MutableLong(2L));
       }
 
       for(int qc = 0;
           qc < numQueries;
           qc++) {
-        Query query = new Query();
-        query.setId(Integer.toString(qc + numQueries));
+        Query query = new MockQuery(Integer.toString(qc + numQueries));
         wqqm.enqueue(query, null, new MutableLong(3L));
       }
     }

@@ -15,11 +15,10 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.query.serde.DataResultTabularSerializer;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.query.serde.MessageSerializerInfo;
 import com.datatorrent.lib.appdata.query.serde.MessageType;
-import com.datatorrent.lib.appdata.query.serde.Query;
-import com.datatorrent.lib.appdata.query.serde.Result;
 import com.google.common.base.Preconditions;
 
 import java.util.List;
@@ -31,10 +30,6 @@ public class DataResultTabular extends Result
   public static final String TYPE = "dataResult";
 
   private List<GPOMutable> values;
-
-  public DataResultTabular()
-  {
-  }
 
   public DataResultTabular(Query query,
                                   List<GPOMutable> values)

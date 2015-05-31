@@ -5,7 +5,7 @@
 
 package com.datatorrent.lib.appdata;
 
-import com.datatorrent.lib.appdata.query.serde.Message;
+import com.datatorrent.lib.appdata.schemas.Message;
 import com.datatorrent.lib.appdata.query.serde.MessageDeserializerFactory;
 import com.datatorrent.lib.appdata.schemas.SchemaQuery;
 import java.io.IOException;

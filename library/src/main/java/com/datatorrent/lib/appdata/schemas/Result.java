@@ -13,86 +13,71 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.query.serde;
+package com.datatorrent.lib.appdata.schemas;
 
 import com.google.common.base.Preconditions;
 
-public class Result
+/**
+ * This class holds some boilerplate for setting and getting queries from result objects. All
+ * query result objects should extend this class.
+ */
+public abstract class Result extends QRBase
 {
-  public static final String FIELD_ID = "id";
-  public static final String FIELD_TYPE = "type";
+  /**
+   * The JSON key under which data will be stored.
+   */
   public static final String FIELD_DATA = "data";
-  public static final String FIELD_COUNTDOWN = "countdown";
 
-  private String type;
+  /**
+   * The query which the result is a response to.
+   */
   private Query query;
 
-  private long countdown;
-  private boolean oneTime;
-
-  public Result()
-  {
-  }
-
+  /**
+   * Creates a result which is a response to the given query.
+   * @param query The query that this result is a response to.
+   */
   public Result(Query query)
   {
+    super(query.getId());
     setQuery(query);
-
-    this.oneTime = true;
   }
 
+  /**
+   * Creates a result which is a response to the given query,
+   * and has the given countdown.
+   * @param query The query that this result is a response to.
+   * @param countdown The countdown for this result.
+   */
   public Result(Query query,
                 long countdown)
   {
+    super(query.getId());
     setQuery(query);
     setCountdown(countdown);
-
-    this.oneTime = false;
   }
 
+  /**
+   * Helper method which sets the query.
+   * @param query The query to set.
+   */
   private void setQuery(Query query)
   {
     this.query = Preconditions.checkNotNull(query);
   }
 
+  /**
+   * Gets the query associated with this result.
+   * @return The query associated with this result.
+   */
   public Query getQuery()
   {
     return query;
   }
 
+  @Override
   public String getId()
   {
     return query.getId();
-  }
-
-  /**
-   * @return the type
-   */
-  public String getType()
-  {
-    return type;
-  }
-
-  /**
-   * @param type the type to set
-   */
-  public void setType(String type)
-  {
-    this.type = type;
-  }
-
-  private void setCountdown(long countdown)
-  {
-    this.countdown = countdown;
-  }
-
-  public long getCountdown()
-  {
-    return countdown;
-  }
-
-  public boolean isOneTime()
-  {
-    return oneTime;
   }
 }

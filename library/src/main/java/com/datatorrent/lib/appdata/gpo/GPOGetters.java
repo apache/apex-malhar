@@ -26,16 +26,49 @@ import com.datatorrent.lib.util.PojoUtils.GetterInt;
 import com.datatorrent.lib.util.PojoUtils.GetterLong;
 import com.datatorrent.lib.util.PojoUtils.GetterShort;
 
+/**
+ * This is a helper class which is intended to be used for operators
+ * which need to take POJOs as input and convert them into GPOMutable objects.
+ */
 public class GPOGetters {
+  /**
+   * Array of boolean getters.
+   */
   public GetterBoolean<Object>[] gettersBoolean;
+  /**
+   * Array of char getters.
+   */
   public GetterChar<Object>[] gettersChar;
+  /**
+   * Array of byte getters.
+   */
   public GetterByte<Object>[] gettersByte;
+  /**
+   * Array of short getters.
+   */
   public GetterShort<Object>[] gettersShort;
+  /**
+   * Array of int getters.
+   */
   public GetterInt<Object>[] gettersInteger;
+  /**
+   * Array of long getters.
+   */
   public GetterLong<Object>[] gettersLong;
+  /**
+   * Array of float getters.
+   */
   public GetterFloat<Object>[] gettersFloat;
+  /**
+   * Array of double getters.
+   */
   public GetterDouble<Object>[] gettersDouble;
+  /**
+   * Array of string getters.
+   */
   public Getter<Object, String>[] gettersString;
+  /**
+   * Array of object getters.
+   */
   public Getter<Object, Object>[] gettersObject;
-
 }

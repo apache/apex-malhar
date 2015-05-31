@@ -17,17 +17,48 @@ package com.datatorrent.lib.appdata.schemas;
 
 import java.util.Map;
 
+/**
+ * This interface represents schemas such as: {@link DimensionalSchema} and {@link TabularSchema}.
+ */
 public interface Schema
 {
+  /**
+   * Default schema ID.
+   */
   public static final int DEFAULT_SCHEMA_ID = 0;
 
   public static final String FIELD_SCHEMA_KEYS = "schemaKeys";
   public static final String FIELD_SCHEMA = "schema";
 
+  /**
+   * The id of the schema. This is relevant for operators which support serving multiple schemas,
+   * in which each schema will need a unique id.
+   * @return The id of the schema.
+   */
   public int getSchemaID();
+  /**
+   * Gets the type of the schema (e.x. point, dimensions).
+   * @return The type of the schema.
+   */
   public String getSchemaType();
+  /**
+   * Gets the version of the schema.
+   * @return The version of the schema.
+   */
   public String getSchemaVersion();
+  /**
+   * Gets the AppData json to serve in response to a schema query.
+   * @return The AppData json to serve in response to a schema query.
+   */
   public String getSchemaJSON();
+  /**
+   * Gets the schema keys which are used to send queries targeted to this schema.
+   * @return The schema keys which are used to send queries targeted to this schema.
+   */
   public Map<String, String> getSchemaKeys();
+  /**
+   * Sets the schema keys for this schema.
+   * @param schemaKeys The schema keys for this schema.
+   */
   public void setSchemaKeys(Map<String, String> schemaKeys);
 }

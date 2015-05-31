@@ -49,10 +49,13 @@ public class DimensionalSchema implements Schema
 
   public static final String SCHEMA_TYPE = "dimensions";
   public static final String SCHEMA_VERSION = "1.0";
+  public static final String FIELD_TIME_FROM = "from";
+  public static final String FIELD_TIME = "time";
+  public static final String FIELD_TIME_TO = "to";
+  public static final String FIELD_TIME_BUCKETS = "buckets";
 
-  public static final List<Fields> VALID_KEYS = ImmutableList.of(new Fields(Sets.newHashSet(SchemaWithTime.FIELD_TIME)));
-  public static final List<Fields> VALID_TIME_KEYS = ImmutableList.of(new Fields(Sets.newHashSet(SchemaWithTime.FIELD_TIME_FROM,
-                                                                                                 SchemaWithTime.FIELD_TIME_TO)));
+  public static final List<Fields> VALID_KEYS = ImmutableList.of(new Fields(Sets.newHashSet(FIELD_TIME)));
+  public static final List<Fields> VALID_TIME_KEYS = ImmutableList.of(new Fields(Sets.newHashSet(FIELD_TIME_FROM, FIELD_TIME_TO)));
 
   private Long from;
   private Long to;
@@ -199,11 +202,11 @@ public class DimensionalSchema implements Schema
     JSONObject jo = new JSONObject(schemaStub);
     SchemaUtils.checkValidKeysEx(jo, VALID_KEYS);
 
-    JSONObject tempTime = jo.getJSONObject(SchemaWithTime.FIELD_TIME);
+    JSONObject tempTime = jo.getJSONObject(FIELD_TIME);
     SchemaUtils.checkValidKeys(jo, VALID_TIME_KEYS);
 
-    this.from = tempTime.getLong(SchemaWithTime.FIELD_TIME_FROM);
-    this.to = tempTime.getLong(SchemaWithTime.FIELD_TIME_TO);
+    this.from = tempTime.getLong(FIELD_TIME_FROM);
+    this.to = tempTime.getLong(FIELD_TIME_TO);
   }
 
   private void initialize() throws Exception
@@ -215,14 +218,14 @@ public class DimensionalSchema implements Schema
                       SchemaUtils.createJSONObject(schemaKeys));
     }
 
-    schema.put(SchemaTabular.FIELD_SCHEMA_TYPE, DimensionalSchema.SCHEMA_TYPE);
-    schema.put(SchemaTabular.FIELD_SCHEMA_VERSION, DimensionalSchema.SCHEMA_VERSION);
+    schema.put(TabularSchema.FIELD_SCHEMA_TYPE, DimensionalSchema.SCHEMA_TYPE);
+    schema.put(TabularSchema.FIELD_SCHEMA_VERSION, DimensionalSchema.SCHEMA_VERSION);
 
     //time
     time = new JSONObject();
-    schema.put(SchemaWithTime.FIELD_TIME, time);
+    schema.put(FIELD_TIME, time);
     JSONArray bucketsArray = new JSONArray(eventSchema.getBucketsString());
-    time.put(SchemaWithTime.FIELD_TIME_BUCKETS, bucketsArray);
+    time.put(FIELD_TIME_BUCKETS, bucketsArray);
 
     //keys
     keys = new JSONArray(eventSchema.getKeysString());
@@ -230,7 +233,7 @@ public class DimensionalSchema implements Schema
 
     //values;
     JSONArray values = new JSONArray();
-    schema.put(SchemaTabular.FIELD_VALUES, values);
+    schema.put(TabularSchema.FIELD_VALUES, values);
 
     FieldsDescriptor inputValuesDescriptor = eventSchema.getInputValuesDescriptor();
     Map<String, Map<String, Type>> allValueToAggregator = eventSchema.getSchemaAllValueToAggregatorToType();
@@ -246,8 +249,8 @@ public class DimensionalSchema implements Schema
         String combinedName = valueName +
                               DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR +
                               aggregatorName;
-        value.put(SchemaTabular.FIELD_VALUES_NAME, combinedName);
-        value.put(SchemaTabular.FIELD_VALUES_TYPE, outputValueType.getName());
+        value.put(TabularSchema.FIELD_VALUES_NAME, combinedName);
+        value.put(TabularSchema.FIELD_VALUES_TYPE, outputValueType.getName());
         values.put(value);
       }
     }
@@ -460,13 +463,13 @@ public class DimensionalSchema implements Schema
       }
 
       if(from == null) {
-        time.remove(SchemaWithTime.FIELD_TIME_FROM);
-        time.remove(SchemaWithTime.FIELD_TIME_TO);
+        time.remove(FIELD_TIME_FROM);
+        time.remove(FIELD_TIME_TO);
       }
       else {
         try {
-          time.put(SchemaWithTime.FIELD_TIME_FROM, from);
-          time.put(SchemaWithTime.FIELD_TIME_TO, to);
+          time.put(FIELD_TIME_FROM, from);
+          time.put(FIELD_TIME_TO, to);
         }
         catch(JSONException ex) {
           throw new RuntimeException(ex);

@@ -15,10 +15,11 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.query.serde.DataQueryTabularDeserializer;
+import com.datatorrent.lib.appdata.query.serde.DataQueryTabularValidator;
 import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
 import com.datatorrent.lib.appdata.query.serde.MessageType;
 import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
-import com.datatorrent.lib.appdata.query.serde.Query;
 import com.google.common.base.Preconditions;
 
 import java.util.Map;
@@ -35,10 +36,6 @@ public class DataQueryTabular extends Query
   public static final String SCHEMA_KEYS = "schemaKeys";
 
   private Fields fields;
-
-  public DataQueryTabular()
-  {
-  }
 
   public DataQueryTabular(String id,
                           String type,

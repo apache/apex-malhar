@@ -17,7 +17,6 @@ package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.query.serde.MessageSerializerInfo;
 import com.datatorrent.lib.appdata.query.serde.MessageType;
-import com.datatorrent.lib.appdata.query.serde.Result;
 import com.google.common.base.Preconditions;
 
 import java.util.List;

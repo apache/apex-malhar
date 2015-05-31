@@ -15,27 +15,24 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
+import com.datatorrent.lib.appdata.schemas.Message;
 import java.io.IOException;
 
-public abstract class CustomMessageDeserializer
+/**
+ * This is an interface for a message deserializer. Classes implementing this interface should have a public
+ * no-arg constructor.
+ */
+public interface CustomMessageDeserializer
 {
-  private Class<? extends Message> dataClazz;
-
-  public abstract Message deserialize(String json, Object context) throws IOException;
-
   /**
-   * @return the dataClazz
+   * This method is called to convert a json string into a Message object.
+   * @param json The JSON to deserialize.
+   * @param message The Class object of the type of message to deserialize to.
+   * @param context Any additional contextual information required to deserialize the message.
+   * @return The deserialized message.
+   * @throws IOException
    */
-  public Class<? extends Message> getDataClazz()
-  {
-    return dataClazz;
-  }
-
-  /**
-   * @param dataClazz the dataClazz to set
-   */
-  public void setDataClazz(Class<? extends Message> dataClazz)
-  {
-    this.dataClazz = dataClazz;
-  }
+  public abstract Message deserialize(String json,
+                                      Class<? extends Message> message,
+                                      Object context) throws IOException;
 }

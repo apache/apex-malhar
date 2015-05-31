@@ -306,9 +306,7 @@ public class DimensionalSchemaTest
     DimensionalSchema schemaDimensional = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
                                                                                            AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
 
-    SchemaQuery schemaQuery = new SchemaQuery();
-    schemaQuery.setId("1");
-    schemaQuery.setType(SchemaQuery.TYPE);
+    SchemaQuery schemaQuery = new SchemaQuery("1");
 
     SchemaResult result = new SchemaResult(schemaQuery, schemaDimensional);
     return dsf.serialize(result);

@@ -15,11 +15,18 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Arrays;
 
+/**
+ * {@link GPOMutable} is an object which stores primitive fields.
+ * Each field has a primitive value stored in a primitive array and a name.
+ * Fields of a particular primitive type are stored in the same array. The order of fields
+ * in the array is the same as the lexicographic ordering of the field names.
+ */
 public class GPOMutable implements Serializable
 {
   private static final Logger logger = LoggerFactory.getLogger(GPOMutable.class);
   private static final long serialVersionUID = 201503231207L;
 
+  //Primitive arrays holding primitive values
   private boolean[] fieldsBoolean;
   private char[] fieldsCharacter;
 
@@ -35,16 +42,25 @@ public class GPOMutable implements Serializable
 
   private transient FieldsDescriptor fieldDescriptor;
 
-  public GPOMutable()
+  /**
+   * Constructor for kryo serialization
+   */
+  private GPOMutable()
   {
     //For kryo
   }
 
+  /**
+   * A copy constructor.
+   * @param gpo The {@link GPOMutable} object to copy.
+   */
   public GPOMutable(GPOMutable gpo)
   {
     this(gpo.getFieldDescriptor());
 
     initialize();
+
+    //copying primitive values.
 
     {
       boolean[] oldFieldsBoolean = gpo.getFieldsBoolean();
@@ -110,6 +126,11 @@ public class GPOMutable implements Serializable
     }
   }
 
+  /**
+   * This constructor copys the specified {@link Fields} from the specified {@link GPOMutable} object.
+   * @param gpo The {@link GPOMutable} object to copy fields from.
+   * @param subsetFields The fields to copy from the given GPOMutable object.
+   */
   public GPOMutable(GPOMutable gpo,
                     Fields subsetFields)
   {
@@ -122,6 +143,12 @@ public class GPOMutable implements Serializable
     }
   }
 
+  /**
+   * This creates a GPOMutable object based off the given {@link FieldsDescriptor}.
+   * The values of the fields are initialized to their default primitive values.
+   * @param fieldDescriptor The {@link FieldsDescriptor} object describing the fields
+   * in this {@link GPOMutable} object.
+   */
   public GPOMutable(FieldsDescriptor fieldDescriptor)
   {
     setFieldDescriptor(fieldDescriptor);
@@ -129,6 +156,9 @@ public class GPOMutable implements Serializable
     initialize();
   }
 
+  /**
+   * Helper function to initialize the prinitive arrays in the {@link GPOMutable} object.
+   */
   private void initialize()
   {
     for(Type type: fieldDescriptor.getTypeToFields().keySet()) {
@@ -176,61 +206,110 @@ public class GPOMutable implements Serializable
     }
   }
 
+  /**
+   * Gets the primitive array holding boolean fields.
+   * @return The primitive array holding boolean fields.
+   */
   public boolean[] getFieldsBoolean()
   {
     return fieldsBoolean;
   }
 
+  /**
+   * Gets the primitive array holding char fields.
+   * @return The primitive array holding char fields.
+   */
   public char[] getFieldsCharacter()
   {
     return fieldsCharacter;
   }
 
+  /**
+   * Gets the primitive array holding byte fields.
+   * @return The primitive array holding byte fields.
+   */
   public byte[] getFieldsByte()
   {
     return fieldsByte;
   }
 
+  /**
+   * Gets the primitive array holding short fields.
+   * @return The primitive array holding short fields.
+   */
   public short[] getFieldsShort()
   {
     return fieldsShort;
   }
 
+  /**
+   * Gets the primitive array holding integer fields.
+   * @return The primitive array holding integer fields.
+   */
   public int[] getFieldsInteger()
   {
     return fieldsInteger;
   }
 
+  /**
+   * Gets the primitive array holding long fields.
+   * @return The primitive array holding long fields.
+   */
   public long[] getFieldsLong()
   {
     return fieldsLong;
   }
 
+  /**
+   * Gets the primitive array holding float fields.
+   * @return The primitive array holding float fields.
+   */
   public float[] getFieldsFloat()
   {
     return fieldsFloat;
   }
 
+  /**
+   * Gets the primitive array holding double fields.
+   * @return The primitive array holding double fields.
+   */
   public double[] getFieldsDouble()
   {
     return fieldsDouble;
   }
 
+  /**
+   * Gets the primitive array holding string fields.
+   * @return The primitive array holding string fields.
+   */
   public String[] getFieldsString()
   {
     return fieldsString;
   }
 
+  /**
+   * Sets the {@link FieldsDescriptor} on this {@link GPOMutable}.
+   * @param fieldDescriptor The {@link FieldsDescriptor} to set on this {@link GPOMutable}.
+   */
   public final void setFieldDescriptor(FieldsDescriptor fieldDescriptor)
   {
     this.fieldDescriptor = Preconditions.checkNotNull(fieldDescriptor);
   }
 
+  /**
+   * Gets the {@link FieldsDescriptor} on this {@link GPOMutable}.
+   * @return The {@link FieldsDescriptor} for this {@link GPOMutable}.
+   */
   public final FieldsDescriptor getFieldDescriptor()
   {
     return fieldDescriptor;
   }
 
+  /**
+   * Sets the specified field to the given value.
+   * @param field The name of the field to set.
+   * @param val The value to set the field to.
+   */
   public final void setField(String field, Object val)
   {
     Type type = fieldDescriptor.getType(field);
@@ -283,6 +362,11 @@ public class GPOMutable implements Serializable
     }
   }
 
+  /**
+   * Gets the value of the specified field.
+   * @param field The field whose value needs to be retrieved.
+   * @return The value of the specified field.
+   */
   public Object getField(String field)
   {
     Type type = fieldDescriptor.getType(field);
@@ -326,6 +410,11 @@ public class GPOMutable implements Serializable
     }
   }
 
+  /**
+   * 
+   * @param field
+   * @param val
+   */
   public void setField(String field, boolean val)
   {
     throwInvalidField(field, Type.BOOLEAN);

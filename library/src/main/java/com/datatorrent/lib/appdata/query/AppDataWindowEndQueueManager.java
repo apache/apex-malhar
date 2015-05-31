@@ -15,21 +15,31 @@
  */
 package com.datatorrent.lib.appdata.query;
 
-import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.mutable.MutableLong;
 
 import java.util.Map;
 
+/**
+ * This {@link QueueManager} behaves like {@link WindowEndQueueManager} except that if another query is added to the queue with
+ * the same query id as an existing query in the queue, the existing query is replaced with the new query.
+ * @param <QUERY> The type of queries kept in the queue.
+ * @param <META_QUERY> The type of query meta data kept in the queue.
+ */
 public class AppDataWindowEndQueueManager<QUERY extends Query, META_QUERY> extends WindowEndQueueManager<QUERY, META_QUERY>
 {
-  private Map<String, QueueListNode<QueryBundle<QUERY, META_QUERY, MutableLong>>> queryIDToNode = Maps.newHashMap();
+  /**
+   * A map from query IDs to queue nodes.
+   */
+  private final Map<String, QueueListNode<QueryBundle<QUERY, META_QUERY, MutableLong>>> queryIDToNode = Maps.newHashMap();
 
   public AppDataWindowEndQueueManager()
   {
   }
 
+  @Override
   public boolean enqueue(QUERY query, META_QUERY metaQuery, MutableLong context)
   {
     if(context != null) {
@@ -66,16 +76,7 @@ public class AppDataWindowEndQueueManager<QUERY extends Query, META_QUERY> exten
       return true;
     }
 
-    /*if(queryNode.getPayload().getQuery().queueEquals(queryBundle.getQuery())) {
-      //Old query equals new query we want to to keep existing asynchronous queries active.
-      //TODO need to generate
-      queryNode.getPayload().getQueueContext().setValue(queryBundle.getQueueContext().getValue());
-    }
-    else {*/
-      //Otherwise replace existing query.
-
-      queryNode.setPayload(queryBundle);
-    //}
+    queryNode.setPayload(queryBundle);
 
     return false;
   }

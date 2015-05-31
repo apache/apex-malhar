@@ -16,7 +16,6 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.appdata.query.serde.CustomMessageSerializer;
-import com.datatorrent.lib.appdata.query.serde.Result;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -32,27 +31,27 @@ public class SchemaSerializer implements CustomMessageSerializer
   }
 
   @Override
-  public String serialize(Result result, ResultFormatter resultFormatter)
+  public String serialize(Message message, ResultFormatter resultFormatter)
   {
-    if(!(result instanceof SchemaResult))
+    if(!(message instanceof SchemaResult))
     {
       throw new IllegalArgumentException("Must receive a "
                                          + SchemaResult.class
                                          + " object.");
     }
 
-    SchemaResult genericSchemaResult = (SchemaResult) result;
+    SchemaResult genericSchemaResult = (SchemaResult) message;
 
     StringBuilder sb = new StringBuilder();
 
-    logger.debug("result {}", result);
-    logger.debug("result id {}", result.getId());
-    logger.debug("result type {}", result.getType());
+    logger.debug("result {}", genericSchemaResult);
+    logger.debug("result id {}", genericSchemaResult.getId());
+    logger.debug("result type {}", genericSchemaResult.getType());
 
     sb.append("{\"").append(Result.FIELD_ID).
-    append("\":\"").append(result.getId()).
+    append("\":\"").append(genericSchemaResult.getId()).
     append("\",\"").append(Result.FIELD_TYPE).
-    append("\":\"").append(result.getType()).
+    append("\":\"").append(genericSchemaResult.getType()).
     append("\",\"").append(Result.FIELD_DATA).
     append("\":");
 

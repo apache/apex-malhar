@@ -33,93 +33,107 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class holds utility methods for serializing and deserializing {@link GPOMutable} objects to/from bytes and JSON.
+ * There are also utility methods for converting POJOs into GPOMutable objects.
+ */
 public class GPOUtils
 {
-  private static final Logger logger = LoggerFactory.getLogger(GPOUtils.class);
+  /**
+   * This class should not be instantiated
+   */
+  private GPOUtils()
+  {
+    //Do nothing
+  }
 
-  public static Map<String, Type> buildTypeMap(JSONObject jo) throws Exception
+  /**
+   * This utility method converts a field to type map specified in JSON into
+   * a java map from field to type. An example of a JSON field to type map
+   * is the following:
+   * <br/>
+   * <br/>
+   * <pre>
+   * {@code
+   * {
+   *  "fieldName1":"integer",
+   *  "fieldName2":"string",
+   *  "fieldName3":"byte",
+   *  ...
+   * }
+   * }
+   * </pre>
+   * @param jo The {@link JSONObject} containing the JSON to convert.
+   * @return A java Map from field name to the corresponding field type.
+   * @throws JSONException
+   */
+  @SuppressWarnings("unchecked")
+  public static Map<String, Type> buildTypeMap(JSONObject jo) throws JSONException
   {
     Map<String, Type> fieldToType = Maps.newHashMap();
-    for(Iterator keys = jo.keys();
+    for(Iterator<String> keys = (Iterator<String>) jo.keys();
         keys.hasNext();) {
-      String key = (String)keys.next();
+      String key = keys.next();
       String val = jo.getString(key);
-      Type type = Type.getType(val);
-
-      if(type == null) {
-        throw new IllegalArgumentException("The given type "
-                                           + val
-                                           + " is not a valid type.");
-      }
-
+      Type type = Type.getTypeEx(val);
       fieldToType.put(key, type);
     }
 
     return fieldToType;
   }
 
-  public static boolean typeMapValidator(Map<String, String> typeMap)
-  {
-    for(Map.Entry<String, String> entry: typeMap.entrySet()) {
-      String key = entry.getKey();
-      String val = entry.getValue();
-
-      if(key == null) {
-        logger.error("Null key is not valid.");
-        return false;
-      }
-
-      if(val == null) {
-        logger.error("Null val is not valid.");
-        return false;
-      }
-    }
-
-    return true;
-  }
-
-  public static Map<String, Type> buildTypeMap(Map<String, String> stringTypeMap)
-  {
-    Map<String, Type> typeMap = Maps.newHashMap();
-
-    for(Map.Entry<String, String> entry: stringTypeMap.entrySet()) {
-      String key = entry.getKey();
-      String value = entry.getValue();
-
-      if(key == null) {
-        throw new IllegalArgumentException("A key cannot be null in the type map.");
-      }
-
-      if(value == null) {
-        throw new IllegalArgumentException("A value cannot be null in the type map.");
-      }
-
-      Type type = Type.getType(value);
-
-      if(type == null) {
-        throw new IllegalArgumentException(value + " is not a valid type name.");
-      }
-
-      typeMap.put(key, type);
-    }
-
-    return typeMap;
-  }
-
+  /**
+   * Converts the provided JSON into a GPOMutable object with the provided {@link FieldsDescriptor}
+   * @param fieldsDescriptor The {@link FieldsDescriptor} to initialize the {@link GPOMutable} object with.
+   * @param dpou The JSONObject to deserialize from.
+   * @return The deserialized GPOMutable object.
+   */
   public static GPOMutable deserialize(FieldsDescriptor fieldsDescriptor,
                                        JSONObject dpou)
   {
     GPOMutable gpo = new GPOMutable(fieldsDescriptor);
-    Iterator itr = dpou.keys();
+    @SuppressWarnings("unchecked")
+    Iterator<String> itr = (Iterator<String>) dpou.keys();
 
     while(itr.hasNext()) {
-      String field = (String) itr.next();
+      String field = itr.next();
       setFieldFromJSON(gpo, field, dpou);
     }
 
     return gpo;
   }
 
+  /**
+   * This is a helper method for deserialization of a GPOMutable from JSON. It allows you to select a field from
+   * a JSONObject in a json array and set it on the provided GPOMutable object. The format of the JSONArray should
+   * be the following:
+   * <br/>
+   * <br/>
+   * <pre>
+   * {@code
+   * [
+   *  {
+   *    "fieldName1":"val1",
+   *    "fieldName2":"val2",
+   *    ...
+   *  },
+   *  {
+   *    "fieldName1":"valx",
+   *    ...
+   *  }
+   *  ...
+   * ]
+   * }
+   * </pre>
+   * <br/>
+   * <br/>
+   * @param gpo The {@link GPOMutable} to set fields on.
+   * @param type The type of the field that will be set.
+   * @param field The name of the field that will be set.
+   * The name of the field must be the same in both the {@link GPOMutable}'s {@link FieldsDescriptor} object and in the JSONObject.
+   * @param jo The JSONOArray holding JSONObjects to deserialize from.
+   * @param index The index of the JSONArray
+   */
   public static void setFieldFromJSON(GPOMutable gpo, Type type, String field, JSONArray jo, int index)
   {
     switch(type) {
@@ -308,6 +322,23 @@ public class GPOUtils
     }
   }
 
+  /**
+   * This is a utility method to deserialize data from the given JSONObject into a {@link GPOMutable} object.
+   * The format of the JSON to deserialize from should look like this.
+   * <pre>
+   *  {@code
+   *  {
+   *    "fieldName1":"val1",
+   *    "fieldName2":"val2",
+   *    ...
+   *  }
+   *  }
+   * </pre>
+   * @param gpo The {@link GPOMutable} object to deserialize into.
+   * @param field The name of the field to take from the JSON and place into the {@link GPOMutable} object.
+   * The name of the field must be the same in the {@link FieldsDescriptor} and the {@link GPOMutable} object.
+   * @param jo The JSONObject to deserialize from.
+   */
   public static void setFieldFromJSON(GPOMutable gpo, String field, JSONObject jo)
   {
     Type type = gpo.getFieldDescriptor().getType(field);
@@ -485,6 +516,15 @@ public class GPOUtils
     }
   }
 
+  /**
+   * This utility method serializes the given fields from the given {@link GPOMutable} object into JSON using the
+   * given resultFormatter.
+   * @param gpo The {@link GPOMutable} to serialize.
+   * @param fields The fields from the given {@link GPOMutable} object to serialize.
+   * @param resultFormatter The result formatter to use when formatting the output data during serialization.
+   * @return The serialized {@link GPOMutable} object.
+   * @throws JSONException
+   */
   public static JSONObject serializeJSONObject(GPOMutable gpo, Fields fields, ResultFormatter resultFormatter) throws JSONException
   {
     JSONObject jo = new JSONObject();
@@ -528,11 +568,23 @@ public class GPOUtils
     return jo;
   }
 
+  /**
+   * Serializes the given {@link GPOMutable} object with the given resultFormatter.
+   * @param gpo The {@link GPOMutable} to serialize.
+   * @param resultFormatter The result formatter to use when serializing data.
+   * @return The serialized {@link GPOMutable} object.
+   * @throws JSONException
+   */
   public static JSONObject serializeJSONObject(GPOMutable gpo, ResultFormatter resultFormatter) throws JSONException
   {
     return serializeJSONObject(gpo, gpo.getFieldDescriptor().getFields(), resultFormatter);
   }
 
+  /**
+   * Computes the number of bytes required to serialize the given {@link GPOMutable} object.
+   * @param gpo The {@link GPOMutable} object to compute a serialized size for.
+   * @return The serialized size for the given {@link GPOMutable} object.
+   */
   public static int serializedLength(GPOMutable gpo)
   {
     int arrayLength = 0;
@@ -563,6 +615,11 @@ public class GPOUtils
     return arrayLength;
   }
 
+  /**
+   * Serializes the given {@link GPOMutable} object to an array of bytes.
+   * @param gpo The {@link GPOMutable} object to serialize.
+   * @return The serialize {@link GPOMutable} object.
+   */
   public static byte[] serialize(GPOMutable gpo)
   {
     int slength = serializedLength(gpo);
@@ -671,6 +728,12 @@ public class GPOUtils
     return sbytes;
   }
 
+  /**
+   * Serializes the given {@link GPOMutable} object while excluding the provided fields from the serialization.
+   * @param gpo The {@link GPOMutable} to serialize.
+   * @param excludedFields The fields from the {@link GPOMutable} object to exclude.
+   * @return A byte array containing the serialized {@link GPOMutable}.
+   */
   public static byte[] serialize(GPOMutable gpo, Fields excludedFields)
   {
     int slength = serializedLength(gpo);
@@ -750,6 +813,15 @@ public class GPOUtils
     return sbytes;
   }
 
+  /**
+   * Deserializes a {@link GPOMutable} object from the given byte array at the given offset with the given
+   * {@link FieldsDescriptor} object.
+   * @param fd The {@link FieldsDescriptor} object which describes the schema of the {@link GPOMutable} object
+   * to deserialize.
+   * @param serializedGPO A byte array containing the serialized {@link GPOMutable} object.
+   * @param offset An offset in the byte array to start deserializing from.
+   * @return The deserialized GPOMutable.
+   */
   public static GPOMutable deserialize(FieldsDescriptor fd,
                                        byte[] serializedGPO,
                                        int offset)
@@ -841,6 +913,15 @@ public class GPOUtils
     return gpo;
   }
 
+  /**
+   * Deserializes a {@link GPOMutable} object from the given byte array at the given offset, which was
+   * serialized with the given {@link FieldsDescriptor} with the given fields excluded.
+   * @param fieldsDescriptor The {@link FieldsDescriptor} object corresponding to the {@link GPOMutable}.
+   * @param excludedFields The fields to exclude from serializing the {@link GPOMutable}.
+   * @param serializedGPO The array containing the serialized {@link GPOMutable}.
+   * @param offset The offset in the provided array to start deserializing from.
+   * @return The deserialized {@link GPOMutable}.
+   */
   public static GPOMutable deserialize(FieldsDescriptor fieldsDescriptor,
                                        Fields excludedFields,
                                        byte[] serializedGPO,
@@ -913,8 +994,13 @@ public class GPOUtils
     return gpo;
   }
 
-  ////String
-
+  /**
+   * This method deserializes a string from the given byte array from the given offset,
+   * and increments the offset appropriately.
+   * @param buffer The byte buffer to deserialize from.
+   * @param offset The offset to deserialize from.
+   * @return The deserialized string.
+   */
   public static String deserializeString(byte[] buffer,
                                          MutableInt offset)
   {
@@ -926,6 +1012,13 @@ public class GPOUtils
     return val;
   }
 
+  /**
+   * This method serializes the given string to the given byte buffer to the given offset,
+   * the method also increments the offset appropriately.
+   * @param val The value to serialize.
+   * @param buffer The byte buffer to serialize to.
+   * @param offset The offset in the buffer to serialize to and also to increment appropriately.
+   */
   public static void serializeString(String val,
                                      byte[] buffer,
                                      MutableInt offset)
@@ -946,8 +1039,13 @@ public class GPOUtils
     offset.add(length);
   }
 
-  ////Long
-
+  /**
+   * This method deserializes a long from the given byte array from the given offset,
+   * and increments the offset appropriately.
+   * @param buffer The byte buffer to deserialize from.
+   * @param offset The offset to deserialize from.
+   * @return The deserialized long.
+   */
   public static long deserializeLong(byte[] buffer,
                                      MutableInt offset)
   {
@@ -964,6 +1062,13 @@ public class GPOUtils
     return val;
   }
 
+  /**
+   * This method serializes the given long to the given byte buffer to the given offset,
+   * the method also increments the offset appropriately.
+   * @param val The value to serialize.
+   * @param buffer The byte buffer to serialize to.
+   * @param offset The offset in the buffer to serialize to and also to increment appropriately.
+   */
   public static void serializeLong(long val,
                                    byte[] buffer,
                                    MutableInt offset)
@@ -980,6 +1085,11 @@ public class GPOUtils
     offset.add(Type.LONG.getByteSize());
   }
 
+  /**
+   * Serializes the given long value to an array of bytes.
+   * @param val The long value to serialize.
+   * @return The serialized long value.
+   */
   public static byte[] serializeLong(long val)
   {
     byte[] bytes = new byte[Type.LONG.getByteSize()];
@@ -987,14 +1097,24 @@ public class GPOUtils
     return bytes;
   }
 
+  /**
+   * Deserializes the given long value.
+   * @param buffer A serialized long value.
+   * @return The deserialized long value.
+   */
   public static long deserializeLong(byte[] buffer)
   {
     Preconditions.checkArgument(buffer.length == Type.LONG.getByteSize());
     return deserializeLong(buffer, new MutableInt(0));
   }
 
-  ////Double
-
+  /**
+   * This method deserializes a double from the given byte array from the given offset,
+   * and increments the offset appropriately.
+   * @param buffer The byte buffer to deserialize from.
+   * @param offset The offset to deserialize from.
+   * @return The deserialized double.
+   */
   public static double deserializeDouble(byte[] buffer,
                                        MutableInt offset)
   {
@@ -1011,6 +1131,13 @@ public class GPOUtils
     return Double.longBitsToDouble(val);
   }
 
+  /**
+   * This method serializes the given double to the given byte buffer to the given offset,
+   * the method also increments the offset appropriately.
+   * @param valD The value to serialize.
+   * @param buffer The byte buffer to serialize to.
+   * @param offset The offset in the buffer to serialize to and also to increment appropriately.
+   */
   public static void serializeDouble(double valD,
                                    byte[] buffer,
                                    MutableInt offset)
@@ -1029,8 +1156,13 @@ public class GPOUtils
     offset.add(Type.DOUBLE.getByteSize());
   }
 
-  ////Int
-
+  /**
+   * This method deserializes an integer from the given byte array from the given offset,
+   * and increments the offset appropriately.
+   * @param buffer The byte buffer to deserialize from.
+   * @param offset The offset to deserialize from.
+   * @return The deserialized integer.
+   */
   public static int deserializeInt(byte[] buffer,
                                    MutableInt offset)
   {
@@ -1043,12 +1175,24 @@ public class GPOUtils
     return val;
   }
 
+  /**
+   * Deserializes the given serialized integer.
+   * @param buffer The integer value to deserialized.
+   * @return The deserialized integer value.
+   */
   public static int deserializeInt(byte[] buffer)
   {
     Preconditions.checkArgument(buffer.length == Type.INTEGER.getByteSize());
     return deserializeInt(buffer, new MutableInt(0));
   }
 
+  /**
+   * This method serializes the given integer to the given byte buffer to the given offset,
+   * the method also increments the offset appropriately.
+   * @param val The value to serialize.
+   * @param buffer The byte buffer to serialize to.
+   * @param offset The offset in the buffer to serialize to and also to increment appropriately.
+   */
   public static void serializeInt(int val,
                                   byte[] buffer,
                                   MutableInt offset)
@@ -1061,14 +1205,24 @@ public class GPOUtils
     offset.add(Type.INTEGER.getByteSize());
   }
 
+  /**
+   * Serializes the given integer value.
+   * @param val The value to serialize.
+   * @return The serialized integer value.
+   */
   public static byte[] serializeInt(int val) {
     byte[] bytes = new byte[Type.INTEGER.getByteSize()];
     serializeInt(val, bytes, new MutableInt(0));
     return bytes;
   }
 
-  ////Float
-
+  /**
+   * This method deserializes a float from the given byte array from the given offset,
+   * and increments the offset appropriately.
+   * @param buffer The byte buffer to deserialize from.
+   * @param offset The offset to deserialize from.
+   * @return The deserialized float.
+   */
   public static float deserializeFloat(byte[] buffer,
                                    MutableInt offset)
   {
@@ -1081,6 +1235,13 @@ public class GPOUtils
     return Float.intBitsToFloat(val);
   }
 
+  /**
+   * This method serializes the given float to the given byte buffer to the given offset,
+   * the method also increments the offset appropriately.
+   * @param valf The value to serialize.
+   * @param buffer The byte buffer to serialize to.
+   * @param offset The offset in the buffer to serialize to and also to increment appropriately.
+   */
   public static void serializeFloat(float valf,
                                   byte[] buffer,
                                   MutableInt offset)
@@ -1095,8 +1256,13 @@ public class GPOUtils
     offset.add(Type.FLOAT.getByteSize());
   }
 
-  ////Short
-
+  /**
+   * This method deserializes a short from the given byte array from the given offset,
+   * and increments the offset appropriately.
+   * @param buffer The byte buffer to deserialize from.
+   * @param offset The offset to deserialize from.
+   * @return The deserialized short.
+   */
   public static short deserializeShort(byte[] buffer,
                                        MutableInt offset)
   {
@@ -1107,6 +1273,13 @@ public class GPOUtils
     return val;
   }
 
+  /**
+   * This method serializes the given short to the given byte buffer to the given offset,
+   * the method also increments the offset appropriately.
+   * @param val The value to serialize.
+   * @param buffer The byte buffer to serialize to.
+   * @param offset The offset in the buffer to serialize to and also to increment appropriately.
+   */
   public static void serializeShort(short val,
                                     byte[] buffer,
                                     MutableInt offset)
@@ -1117,8 +1290,13 @@ public class GPOUtils
     offset.add(Type.SHORT.getByteSize());
   }
 
-  ////Byte
-
+  /**
+   * This method deserializes a byte from the given byte array from the given offset,
+   * and increments the offset appropriately.
+   * @param buffer The byte buffer to deserialize from.
+   * @param offset The offset to deserialize from.
+   * @return The deserialized byte.
+   */
   public static byte deserializeByte(byte[] buffer,
                                      MutableInt offset)
   {
@@ -1128,6 +1306,14 @@ public class GPOUtils
     return val;
   }
 
+
+  /**
+   * This method serializes the given byte to the given byte buffer to the given offset,
+   * the method also increments the offset appropriately.
+   * @param val The value to serialize.
+   * @param buffer The byte buffer to serialize to.
+   * @param offset The offset in the buffer to serialize to and also to increment appropriately.
+   */
   public static void serializeByte(byte val,
                                    byte[] buffer,
                                    MutableInt offset)
@@ -1137,10 +1323,15 @@ public class GPOUtils
     offset.add(Type.BYTE.getByteSize());
   }
 
-  ////Boolean
-
+  /**
+   * This method deserializes a boolean from the given byte array from the given offset,
+   * and increments the offset appropriately.
+   * @param buffer The byte buffer to deserialize from.
+   * @param offset The offset to deserialize from.
+   * @return The deserialized boolean.
+   */
   public static boolean deserializeBoolean(byte[] buffer,
-                                        MutableInt offset)
+                                           MutableInt offset)
   {
     boolean val = buffer[offset.intValue()] != 0;
 
@@ -1148,6 +1339,13 @@ public class GPOUtils
     return val;
   }
 
+  /**
+   * This method serializes the given boolean to the given byte buffer to the given offset,
+   * the method also increments the offset appropriately.
+   * @param val The value to serialize.
+   * @param buffer The byte buffer to serialize to.
+   * @param offset The offset in the buffer to serialize to and also to increment appropriately.
+   */
   public static void serializeBoolean(boolean val,
                                       byte[] buffer,
                                       MutableInt offset)
@@ -1157,8 +1355,13 @@ public class GPOUtils
     offset.add(Type.BOOLEAN.getByteSize());
   }
 
-  ////Char
-
+  /**
+   * This method deserializes a character from the given byte array from the given offset,
+   * and increments the offset appropriately.
+   * @param buffer The byte buffer to deserialize from.
+   * @param offset The offset to deserialize from.
+   * @return The deserialized character.
+   */
   public static char deserializeChar(byte[] buffer,
                                      MutableInt offset)
   {
@@ -1169,9 +1372,16 @@ public class GPOUtils
     return val;
   }
 
+  /**
+   * This method serializes the given character to the given byte buffer to the given offset,
+   * the method also increments the offset appropriately.
+   * @param val The value to serialize.
+   * @param buffer The byte buffer to serialize to.
+   * @param offset The offset in the buffer to serialize to and also to increment appropriately.
+   */
   public static void serializeChar(char val,
-                                    byte[] buffer,
-                                    MutableInt offset)
+                                   byte[] buffer,
+                                   MutableInt offset)
   {
     buffer[0 + offset.intValue()] = (byte) ((val >> 8) & 0xFF);
     buffer[1 + offset.intValue()] = (byte) (val & 0xFF);
@@ -1179,6 +1389,16 @@ public class GPOUtils
     offset.add(Type.CHAR.getByteSize());
   }
 
+  /**
+   * Utility method for creating boolean getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of boolean getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static GetterBoolean<Object>[] createGetterBoolean(List<String> fields,
                                                             Map<String, String> valueToExpression,
@@ -1196,6 +1416,16 @@ public class GPOUtils
     return gettersBoolean;
   }
 
+  /**
+   * Utility method for creating string getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of string getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static Getter<Object, String>[] createGetterString(List<String> fields,
                                                             Map<String, String> valueToExpression,
@@ -1213,6 +1443,16 @@ public class GPOUtils
     return gettersString;
   }
 
+  /**
+   * Utility method for creating char getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of char getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static GetterChar<Object>[] createGetterChar(List<String> fields,
                                                       Map<String, String> valueToExpression,
@@ -1230,6 +1470,16 @@ public class GPOUtils
     return gettersChar;
   }
 
+  /**
+   * Utility method for creating byte getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of byte getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static GetterByte<Object>[] createGetterByte(List<String> fields,
                                                       Map<String, String> valueToExpression,
@@ -1247,6 +1497,16 @@ public class GPOUtils
     return gettersByte;
   }
 
+  /**
+   * Utility method for creating short getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of short getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static GetterShort<Object>[] createGetterShort(List<String> fields,
                                                         Map<String, String> valueToExpression,
@@ -1264,6 +1524,16 @@ public class GPOUtils
     return gettersShort;
   }
 
+  /**
+   * Utility method for creating integer getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of integer getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static GetterInt<Object>[] createGetterInt(List<String> fields,
                                                     Map<String, String> valueToExpression,
@@ -1281,6 +1551,16 @@ public class GPOUtils
     return gettersInt;
   }
 
+  /**
+   * Utility method for creating long getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of long getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static GetterLong<Object>[] createGetterLong(List<String> fields,
                                                       Map<String, String> valueToExpression,
@@ -1298,6 +1578,16 @@ public class GPOUtils
     return gettersLong;
   }
 
+  /**
+   * Utility method for creating float getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of float getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static GetterFloat<Object>[] createGetterFloat(List<String> fields,
                                                         Map<String, String> valueToExpression,
@@ -1315,6 +1605,16 @@ public class GPOUtils
     return gettersFloat;
   }
 
+  /**
+   * Utility method for creating double getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of double getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static GetterDouble<Object>[] createGetterDouble(List<String> fields,
                                                           Map<String, String> valueToExpression,
@@ -1332,6 +1632,16 @@ public class GPOUtils
     return gettersDouble;
   }
 
+  /**
+   * Utility method for creating object getters. This method is useful for creating a {@link GPOGetters} object
+   * which can be used to copy POJOs into GPOMutable objects.
+   * @param fields The fields to create getters for. The order of the fields in this list will be the same order
+   * that the getters will be returned in.
+   * @param valueToExpression A map from field names to the corresponding java expression to be used for getting
+   * the fields.
+   * @param clazz The Class of the POJO to extract values from.
+   * @return An array of object getters for given fields.
+   */
   @SuppressWarnings({"unchecked","rawtypes"})
   public static Getter<Object, Object>[] createGetterObject(List<String> fields,
                                                             Map<String, String> valueToExpression,
@@ -1349,6 +1659,16 @@ public class GPOUtils
     return gettersObject;
   }
 
+  /**
+   * This is a utility method which builds a {@link GPOGetters} object corresponding to the given {@link FieldsDescriptor}.
+   * This utility method is helpful for converting POJOs into GPOMutable objects.
+   * @param fieldToGetter A map whose keys are field names and whose values correspond to java getter expressions. Field names
+   * in this map should be the same as field names in the provided {@link FieldsDescriptor} object.
+   * @param fieldsDescriptor A {@link FieldsDescriptor} object which describes the type name and order of fields.
+   * @param clazz The Class of the POJO that the getters will be applied to.
+   * @return The {@link GPOGetters} object which can be used to convert POJOs into {@link GPOMutable} objects initialized
+   * with the same {@link FieldsDescriptor} object.
+   */
   public static GPOGetters buildGPOGetters(Map<String, String> fieldToGetter,
                                            FieldsDescriptor fieldsDescriptor,
                                            Class<?> clazz)
@@ -1434,6 +1754,16 @@ public class GPOUtils
     return gpoGetters;
   }
 
+  /**
+   * This is a utility method for converting a POJO to a {@link GPOMutable} object. This method assumes that the provided
+   * GPOMutable is initialized with the correct {@link FieldsDescriptor}, and that the given {@link GPOGetters} object has getters
+   * specified in the same order as fields in the {@link GPOMutable} object.
+   * @param mutable The {@link GPOMutable} object to copy POJO values into. It is assumed this object is initialized with
+   * the correct {@link FieldsDescriptor}.
+   * @param getters The getters to use when retrieving values from the provided POJO. It is assumed that the getters are
+   * specified in the same order as their corresponding fields in the {@link GPOMutable} object.
+   * @param object The POJO to extract values from.
+   */
   public static void copyPOJOToGPO(GPOMutable mutable, GPOGetters getters, Object object)
   {
     {
@@ -1553,4 +1883,6 @@ public class GPOUtils
       }
     }
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(GPOUtils.class);
 }

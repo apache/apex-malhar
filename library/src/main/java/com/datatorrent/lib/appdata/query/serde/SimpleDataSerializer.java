@@ -15,20 +15,27 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
+import com.datatorrent.lib.appdata.schemas.Message;
 import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 
+/**
+ * This is a simple message serializer, which serializes messages using Jackson.
+ */
 public class SimpleDataSerializer implements CustomMessageSerializer
 {
   private ObjectMapper om = new ObjectMapper();
 
+  /**
+   * No-arg constructor is requried by {@link CustomMessageSerializer} interface.
+   */
   public SimpleDataSerializer()
   {
   }
 
   @Override
-  public String serialize(Result result, ResultFormatter resultFormatter)
+  public String serialize(Message result, ResultFormatter resultFormatter)
   {
     try {
       return om.writeValueAsString(result);

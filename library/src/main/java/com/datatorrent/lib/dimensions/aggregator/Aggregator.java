@@ -19,6 +19,13 @@ package com.datatorrent.lib.dimensions.aggregator;
 import com.datatorrent.lib.dimensions.AbstractDimensionsComputation.AggregateResult;
 import java.io.Serializable;
 
+/**
+ * This is an interface for an {@link Aggregator}. An {@link Aggregator} is a function
+ * which takes input of events of type EVENT and performs a cumulative function on them to
+ * create a value of type AGGREGATE. 
+ * @param <EVENT> The type of an input event.
+ * @param <AGGREGATE>
+ */
 public interface Aggregator<EVENT, AGGREGATE extends AggregateResult> extends Serializable
 {
   public static final long serialVersionUID = 201505240659L;

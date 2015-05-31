@@ -15,14 +15,21 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
+import com.datatorrent.lib.appdata.schemas.Message;
 import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 
+/**
+ * This is a Message validator which validates deserialized Messages using java validation.
+ */
 public class SimpleDataValidator implements CustomMessageValidator
 {
   private Validator validator;
 
+  /**
+   * No-arg constructor is requried by {@link CustomMessageValidator} interface.
+   */
   public SimpleDataValidator()
   {
     ValidatorFactory factory = Validation.buildDefaultValidatorFactory();

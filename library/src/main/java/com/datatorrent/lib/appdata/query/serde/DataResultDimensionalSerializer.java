@@ -13,12 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package com.datatorrent.lib.appdata.query.serde;
 
+import com.datatorrent.lib.appdata.schemas.Message;
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
-import com.datatorrent.lib.appdata.query.serde.CustomMessageSerializer;
-import com.datatorrent.lib.appdata.query.serde.Result;
+import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
+import com.datatorrent.lib.appdata.schemas.Fields;
+import com.datatorrent.lib.appdata.schemas.FieldsAggregatable;
+import com.datatorrent.lib.appdata.schemas.Result;
+import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
@@ -28,18 +32,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class is used to serialize {@link DataResultDimensional} objects.
+ */
 public class DataResultDimensionalSerializer implements CustomMessageSerializer
 {
   public static final String ALL = "ALL";
 
-  private static final Logger logger = LoggerFactory.getLogger(DataResultDimensionalSerializer.class);
-
+  /**
+   * Constructor used to instantiate deserializer in {@link MessageDeserializerFactory}.
+   */
   public DataResultDimensionalSerializer()
   {
   }
 
   @Override
-  public String serialize(Result result, ResultFormatter resultFormatter)
+  public String serialize(Message result, ResultFormatter resultFormatter)
   {
     try {
       return serializeHelper(result, resultFormatter);
@@ -49,7 +57,7 @@ public class DataResultDimensionalSerializer implements CustomMessageSerializer
     }
   }
 
-  private String serializeHelper(Result result, ResultFormatter resultFormatter) throws Exception
+  private String serializeHelper(Message result, ResultFormatter resultFormatter) throws Exception
   {
     DataResultDimensional dataResult = (DataResultDimensional) result;
 
@@ -121,4 +129,6 @@ public class DataResultDimensionalSerializer implements CustomMessageSerializer
 
     return jo.toString();
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DataResultDimensionalSerializer.class);
 }

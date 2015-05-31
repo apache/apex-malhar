@@ -15,27 +15,33 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
+import com.datatorrent.lib.appdata.schemas.Message;
 import java.io.IOException;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class SimpleDataDeserializer extends CustomMessageDeserializer
+/**
+ * This is a simple Message deserializer which deserializes messages using Jackson.
+ */
+public class SimpleDataDeserializer implements CustomMessageDeserializer
 {
-  private static final Logger logger = LoggerFactory.getLogger(SimpleDataDeserializer.class);
   private ObjectMapper om = new ObjectMapper();
 
+  /**
+   * No-arg constructor is requried by {@link CustomMessageDeserializer} interface.
+   */
   public SimpleDataDeserializer()
   {
   }
 
   @Override
-  public Message deserialize(String json, Object context) throws IOException
+  public Message deserialize(String json, Class<? extends Message> clazz, Object context) throws IOException
   {
     Message data;
 
     try {
-      data = om.readValue(json, this.getDataClazz());
+      data = om.readValue(json, clazz);
     }
     catch(IOException ex) {
       throw ex;
@@ -43,4 +49,6 @@ public class SimpleDataDeserializer extends CustomMessageDeserializer
 
     return data;
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(SimpleDataDeserializer.class);
 }

@@ -13,11 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package com.datatorrent.lib.appdata.query.serde;
 
-import com.datatorrent.lib.appdata.query.serde.CustomMessageDeserializer;
-import com.datatorrent.lib.appdata.query.serde.Message;
-import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.schemas.Message;
+import com.datatorrent.lib.appdata.schemas.DataQueryTabular;
+import com.datatorrent.lib.appdata.schemas.Fields;
+import com.datatorrent.lib.appdata.schemas.QRBase;
+import com.datatorrent.lib.appdata.schemas.Query;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.google.common.collect.Sets;
 import java.io.IOException;
 import org.codehaus.jettison.json.JSONArray;
@@ -28,12 +31,22 @@ import org.slf4j.LoggerFactory;
 import java.util.Map;
 import java.util.Set;
 
-public class DataQueryTabularDeserializer extends CustomMessageDeserializer
+/**
+ * This class is a deserializer for {@link DataQueryTabular} objects.
+ */
+public class DataQueryTabularDeserializer implements CustomMessageDeserializer
 {
-  private static final Logger logger = LoggerFactory.getLogger(DataQueryTabularDeserializer.class);
+  /**
+   * Constructor used to instantiate deserializer in {@link MessageDeserializerFactory}.
+   */
+  public DataQueryTabularDeserializer()
+  {
+  }
 
   @Override
-  public Message deserialize(String json, Object context) throws IOException
+  public Message deserialize(String json,
+                             Class<? extends Message> clazz,
+                             Object context) throws IOException
   {
     try {
       return deserializeHelper(json,
@@ -44,21 +57,28 @@ public class DataQueryTabularDeserializer extends CustomMessageDeserializer
     }
   }
 
+  /**
+   * This is a helper deserializer method.
+   * @param json The JSON to deserialize.
+   * @param context The context information to use when deserializing the query.
+   * @return The deserialized query.
+   * @throws Exception
+   */
   private Message deserializeHelper(String json,
-                                 Object context) throws Exception
+                                    Object context) throws Exception
   {
     JSONObject jo = new JSONObject(json);
 
     //// Query id stuff
-    String id = jo.getString(Query.FIELD_ID);
+    String id = jo.getString(QRBase.FIELD_ID);
     String type = jo.getString(Message.FIELD_TYPE);
 
     /// Countdown
     long countdown = -1L;
-    boolean hasCountdown = jo.has(DataQueryTabular.FIELD_COUNTDOWN);
+    boolean hasCountdown = jo.has(QRBase.FIELD_COUNTDOWN);
 
     if(hasCountdown) {
-      countdown = jo.getLong(DataQueryTabular.FIELD_COUNTDOWN);
+      countdown = jo.getLong(QRBase.FIELD_COUNTDOWN);
     }
 
     ////Data
@@ -82,7 +102,7 @@ public class DataQueryTabularDeserializer extends CustomMessageDeserializer
           String field = jArray.getString(index);
 
           if(!fieldsSet.add(field)) {
-            logger.error("The field {} was listed more than once, this is an invalid query.", field);
+            LOG.error("The field {} was listed more than once, this is an invalid query.", field);
           }
         }
       }
@@ -104,4 +124,6 @@ public class DataQueryTabularDeserializer extends CustomMessageDeserializer
                                   schemaKeys);
     }
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DataQueryTabularDeserializer.class);
 }

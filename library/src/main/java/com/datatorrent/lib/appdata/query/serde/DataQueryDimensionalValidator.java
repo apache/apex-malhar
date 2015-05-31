@@ -15,23 +15,23 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
-import java.util.List;
+import com.datatorrent.lib.appdata.schemas.Message;
 
-public class QueryData
+/**
+ * This is the validator for {@link DataQueryDimensional} objects.
+ */
+public class DataQueryDimensionalValidator implements CustomMessageValidator
 {
-  private List<String> fields;
-
-  public QueryData()
+  /**
+   * Constructor used to instantiate validator in {@link MessageDeserializerFactory}.
+   */
+  public DataQueryDimensionalValidator()
   {
   }
 
-  public void setFields(List<String> fields)
+  @Override
+  public boolean validate(Message query, Object context)
   {
-    this.fields = fields;
-  }
-
-  public List<String> getFields()
-  {
-    return fields;
+    return true;
   }
 }

@@ -26,6 +26,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * This operator accepts a list of Map&lt;String,Object&gt; objects, and serves the data under the {@link TabularSchema}.
+ * Each Map represents a row in the table, and the full list of maps represents a table.
  * @displayName App Data Tabular Map Server
  * @category App Data
  * @tags appdata, tabular, map
@@ -34,8 +36,12 @@ public class AppDataTabularServerMap extends AbstractAppDataTabularServer<Map<St
 {
   private Map<String, String> tableFieldToMapField;
 
+  /**
+   * Create operator.
+   */
   public AppDataTabularServerMap()
   {
+    //Do nothing
   }
 
   @Override
@@ -56,6 +62,12 @@ public class AppDataTabularServerMap extends AbstractAppDataTabularServer<Map<St
     return values;
   }
 
+  /**
+   * This is a helper method which takes the name of a field in the schema and gets the
+   * name of the corresponding key in an input map.
+   * @param field The schema name of a field of interest.
+   * @return The name of the corresponding Map key.
+   */
   private String getMapField(String field)
   {
     if(tableFieldToMapField == null) {
@@ -72,7 +84,8 @@ public class AppDataTabularServerMap extends AbstractAppDataTabularServer<Map<St
   }
 
   /**
-   * @return the tableFieldToMapField
+   * Gets the tableFieldToMap map.
+   * @return The tableFieldToMapField map.
    */
   public Map<String, String> getTableFieldToMapField()
   {
@@ -80,7 +93,12 @@ public class AppDataTabularServerMap extends AbstractAppDataTabularServer<Map<St
   }
 
   /**
-   * @param tableFieldToMapField the tableFieldToMapField to set
+   * Sets the tableFieldToMapField map. This map is used for the case if the name of fields in
+   * the map are different from the name of fields in the schema. In such a case you can specify
+   * the mapping from fields in the schema to the corresponding key names in input maps.
+   * If the name of a field in the schema is the same as the name of a key in the input maps,
+   * then it is not necessary to specify anything in this map for that field.
+   * @param tableFieldToMapField The tableFieldToMapField to set.
    */
   public void setTableFieldToMapField(@NotNull Map<String, String> tableFieldToMapField)
   {

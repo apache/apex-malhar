@@ -24,17 +24,33 @@ import javax.validation.constraints.NotNull;
 
 import java.util.Map;
 
-
+/**
+ * This operator accepts a list of POJOs, and serves the data under the {@link TabularSchema}.
+ * Each POJO represents a row in the table, and the full list of POJOs represents a table.
+ * @displayName App Data Tabular POJO Server
+ * @category App Data
+ * @tags appdata, tabular, pojo
+ */
 public class AppDataTabularServerPOJO extends AbstractAppDataTabularServer<Object>
 {
-  private boolean firstTuple = true;
+  /**
+   * Flag indicating whether or not the first tuple was processed.
+   */
+  private boolean firstTupleProcessed = false;
 
   @NotNull
   private Map<String, String> fieldToGetter;
+  /**
+   * The getters for retrieving values from input POJOs.
+   */
   private GPOGetters getters;
 
+  /**
+   * Create the operator.
+   */
   public AppDataTabularServerPOJO()
   {
+    //Do nothing
   }
 
   @Override
@@ -48,11 +64,17 @@ public class AppDataTabularServerPOJO extends AbstractAppDataTabularServer<Objec
     return convertedResult;
   }
 
+  /**
+   * A helper method which builds the getter methods for retrieving fields from pojos.
+   * @param inputEvent An input POJO.
+   */
   private void firstTuple(Object inputEvent)
   {
-    if(!firstTuple) {
+    if(firstTupleProcessed) {
       return;
     }
+
+    firstTupleProcessed = true;
 
     Class<?> clazz = inputEvent.getClass();
 
@@ -61,11 +83,20 @@ public class AppDataTabularServerPOJO extends AbstractAppDataTabularServer<Objec
                                        clazz);
   }
 
+  /**
+   * This sets the fieldToGetter map. The fieldToGetter map defines how to retrieve a field specified
+   * in the schema from an input POJO.
+   * @param fieldToGetter The map from a field in the schema to its corresponding getter.
+   */
   public void setFieldToGetter(@NotNull Map<String, String> fieldToGetter)
   {
     this.fieldToGetter = Preconditions.checkNotNull(fieldToGetter);
   }
 
+  /**
+   * This gets the fieldToGetter map.
+   * @return The fieldToGetter map.
+   */
   public Map<String, String> getFieldToGetter()
   {
     return fieldToGetter;

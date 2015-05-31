@@ -15,9 +15,20 @@
  */
 package com.datatorrent.lib.appdata.query.serde;
 
+import com.datatorrent.lib.appdata.schemas.Message;
 import com.datatorrent.lib.appdata.schemas.ResultFormatter;
 
+/**
+ * This interface defines a Message serializer, which will be used to convert a result to JSON. Classes
+ * implementing this interface should have a public no-arg constructor.
+ */
 public interface CustomMessageSerializer
 {
-  public abstract String serialize(Result result, ResultFormatter resultFormatter);
+  /**
+   * This message is called to serialize the given result to JSON.
+   * @param message The data to serialize.
+   * @param resultFormatter The formatter which will format primitive data in the result properly.
+   * @return The JSON serialized result.
+   */
+  public abstract String serialize(Message message, ResultFormatter resultFormatter);
 }

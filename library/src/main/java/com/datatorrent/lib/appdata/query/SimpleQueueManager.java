@@ -19,6 +19,13 @@ import com.datatorrent.api.Context.OperatorContext;
 
 import java.util.LinkedList;
 
+/**
+ * This {@link QueueManager} functions like a standard {@link QueueManager}. Queries can be enqueued and when they are dequeued they are
+ * completely removed from the queue.
+ * @param <QUERY_TYPE>
+ * @param <META_QUERY>
+ * @param <QUEUE_CONTEXT>
+ */
 public class SimpleQueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
                       implements QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT>
 {

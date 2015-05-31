@@ -18,7 +18,6 @@ package com.datatorrent.lib.appdata.schemas;
 import com.datatorrent.lib.appdata.query.serde.MessageDeserializerInfo;
 import com.datatorrent.lib.appdata.query.serde.MessageType;
 import com.datatorrent.lib.appdata.query.serde.MessageValidatorInfo;
-import com.datatorrent.lib.appdata.query.serde.Query;
 import com.datatorrent.lib.appdata.query.serde.SimpleDataDeserializer;
 import com.datatorrent.lib.appdata.query.serde.SimpleDataValidator;
 
@@ -31,8 +30,12 @@ public class SchemaQuery extends Query
 {
   public static final String TYPE = "schemaQuery";
 
+  /**
+   * No-arg constructor required for deserialization.
+   */
   public SchemaQuery()
   {
+    //Do nothing
   }
 
   public SchemaQuery(String id)

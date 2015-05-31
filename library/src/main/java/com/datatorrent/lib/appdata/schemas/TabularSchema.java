@@ -25,7 +25,14 @@ import org.codehaus.jettison.json.JSONObject;
 import java.util.Collections;
 import java.util.Map;
 
-public class SchemaTabular implements Schema
+/**
+ * This class represents an AppData point schema. This class allows you to specify your
+ * point schema in json and to load it. An example of a point schema specification is the following:
+ *
+ * {@code
+ * }
+ */
+public class TabularSchema implements Schema
 {
   public static final String SCHEMA_TYPE = "point";
   public static final String SCHEMA_VERSION = "1.0";
@@ -52,7 +59,7 @@ public class SchemaTabular implements Schema
   private JSONObject schema;
   private boolean changed = false;
 
-  public SchemaTabular(String schemaJSON,
+  public TabularSchema(String schemaJSON,
                        Map<String, String> schemaKeys)
   {
     this(schemaJSON,
@@ -61,7 +68,7 @@ public class SchemaTabular implements Schema
   }
 
 
-  public SchemaTabular(int schemaID,
+  public TabularSchema(int schemaID,
                        String schemaJSON,
                        Map<String, String> schemaKeys)
   {
@@ -69,14 +76,14 @@ public class SchemaTabular implements Schema
          schemaKeys);
   }
 
-  public SchemaTabular(String schemaJSON)
+  public TabularSchema(String schemaJSON)
   {
     this(schemaJSON,
          true,
          null);
   }
 
-  public SchemaTabular(int schemaID,
+  public TabularSchema(int schemaID,
                        String schemaJSON)
   {
     this(schemaJSON);
@@ -85,7 +92,7 @@ public class SchemaTabular implements Schema
   }
 
   //This would be needed for more rigorous validation of schemas
-  public SchemaTabular(String schemaJSON,
+  public TabularSchema(String schemaJSON,
                        boolean validate,
                        Map<String, String> schemaKeys)
   {
@@ -100,7 +107,7 @@ public class SchemaTabular implements Schema
     }
   }
 
-  public SchemaTabular(int schemaID,
+  public TabularSchema(int schemaID,
                        String schemaJSON,
                        boolean validate,
                        Map<String, String> schemaKeys)
@@ -112,7 +119,7 @@ public class SchemaTabular implements Schema
     this.schemaID = schemaID;
   }
 
-  public SchemaTabular(String schemaJSON,
+  public TabularSchema(String schemaJSON,
                        boolean validate)
   {
     this(schemaJSON,
@@ -120,7 +127,7 @@ public class SchemaTabular implements Schema
          null);
   }
 
-  public SchemaTabular(int schemaID,
+  public TabularSchema(int schemaID,
                        String schemaJSON,
                        boolean validate)
   {

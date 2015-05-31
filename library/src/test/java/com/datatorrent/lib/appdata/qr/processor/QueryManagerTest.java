@@ -26,8 +26,8 @@ import org.junit.Test;
 
 import com.google.common.collect.Lists;
 
-import com.datatorrent.lib.appdata.query.serde.Query;
-import com.datatorrent.lib.appdata.query.serde.Result;
+import com.datatorrent.lib.appdata.schemas.Query;
+import com.datatorrent.lib.appdata.schemas.Result;
 
 public class QueryManagerTest
 {
@@ -44,7 +44,7 @@ public class QueryManagerTest
     for(int qc = 0;
         qc < numQueries;
         qc++) {
-      Query query = new Query(Integer.toString(qc));
+      Query query = new MockQuery(Integer.toString(qc));
       queryProcessor.enqueue(query, null, null);
     }
 
@@ -77,7 +77,7 @@ public class QueryManagerTest
     @Override
     public Result executeQuery(Query query, Void metaQuery, Void queueContext)
     {
-      return new Result(query);
+      return new MockResult(query);
     }
   }
 }

@@ -19,14 +19,40 @@ import com.datatorrent.api.Component;
 import com.datatorrent.api.Context.OperatorContext;
 
 /**
- * @param <QUERY_TYPE>
- * @param <META_QUERY>
- * @param <QUEUE_CONTEXT>
+ * This is an interface for a manager which manages the queueing of AppData queries.
+ * @param <QUERY_TYPE> The type of the queries being queued.
+ * @param <META_QUERY> The type of any meta data to be queued with the query.
+ * @param <QUEUE_CONTEXT> The type of any additional contextual information that could impact the way in
+ * which a query is queued that is known when the query is queued. This queue context information could
+ * be updated by the queue manager throughout the lifetime of the query to control things like how long
+ * the query has been queued for.
  */
 public interface QueueManager<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> extends Component<OperatorContext>
 {
+  /**
+   * This method enqueues an AppData query.
+   * @param query The query to queue.
+   * @param metaQuery Any additional metadata required by the query.
+   * @param queueContext Any additional contextual information that will impact the way in which the query
+   * is queued and is known when the query is queued.
+   * @return True if the query was successfully queued. False otherwise.
+   */
   public boolean enqueue(QUERY_TYPE query, META_QUERY metaQuery, QUEUE_CONTEXT queueContext);
+  /**
+   * This method dequeues a query, and returns a {@link QueryBundle} which includes the query,
+   * any additional query meta data, and the queue context for the query.
+   * @return The query bundle for a query.
+   */
   public QueryBundle<QUERY_TYPE, META_QUERY, QUEUE_CONTEXT> dequeue();
+  /**
+   * This should be called in beginWindow of an operator so that the {@link QueueManager} can correctly update
+   * its internal state for managing queries.
+   * @param windowId The windowId of the current window.
+   */
   public void beginWindow(long windowId);
+  /**
+   * This should be called in endWindow of an operator so that the {@link QueueManager} can correctly update its
+   * internal state for managing queries.
+   */
   public void endWindow();
 }

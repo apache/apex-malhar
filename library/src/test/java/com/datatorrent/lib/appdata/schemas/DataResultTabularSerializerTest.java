@@ -16,6 +16,7 @@
 
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.appdata.query.serde.DataResultTabularSerializer;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;

@@ -18,6 +18,12 @@ package com.datatorrent.lib.appdata.query;
 import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
 import org.apache.commons.lang3.mutable.MutableBoolean;
 
+/**
+ *
+ * @author tfarkas
+ * @param <QUERY_TYPE>
+ * @param <META_QUERY>
+ */
 public class SimpleDoneQueueManager<QUERY_TYPE, META_QUERY> extends
 AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, MutableBoolean>
 {

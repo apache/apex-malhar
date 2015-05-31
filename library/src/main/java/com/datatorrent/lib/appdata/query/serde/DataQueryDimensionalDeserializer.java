@@ -13,14 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.datatorrent.lib.appdata.schemas;
+package com.datatorrent.lib.appdata.query.serde;
 
 import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
 import com.datatorrent.lib.appdata.gpo.GPOUtils;
-import com.datatorrent.lib.appdata.query.serde.CustomMessageDeserializer;
-import com.datatorrent.lib.appdata.query.serde.Message;
-import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.schemas.Message;
+import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
+import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
+import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
+import com.datatorrent.lib.appdata.schemas.Fields;
+import com.datatorrent.lib.appdata.schemas.FieldsAggregatable;
+import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
+import com.datatorrent.lib.appdata.schemas.QRBase;
+import com.datatorrent.lib.appdata.schemas.Query;
+import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
+import com.datatorrent.lib.appdata.schemas.SchemaUtils;
+import com.datatorrent.lib.appdata.schemas.TimeBucket;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import java.io.IOException;
@@ -33,16 +42,21 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
-public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
+/**
+ * This class is a deserializer for {@link DataQueryDimensional} objects.
+ */
+public class DataQueryDimensionalDeserializer implements CustomMessageDeserializer
 {
-  private static final Logger logger = LoggerFactory.getLogger(DataQueryDimensionalDeserializer.class);
-
+  /**
+   * Constructor used to instantiate deserializer in {@link MessageDeserializerFactory}.
+   */
   public DataQueryDimensionalDeserializer()
   {
+    //Do nothing
   }
 
   @Override
-  public Query deserialize(String json, Object context) throws IOException
+  public Message deserialize(String json, Class<? extends Message> clazz, Object context) throws IOException
   {
     try {
       return deserializeHelper(json, context);
@@ -52,21 +66,28 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
     }
   }
 
-  private Query deserializeHelper(String json, Object context) throws Exception
+  /**
+   * This is a helper message to deserialize queries.
+   * @param json The json to deserialize.
+   * @param context The context to use when deserializing the json.
+   * @return The deserialized query.
+   * @throws Exception
+   */
+  private Message deserializeHelper(String json, Object context) throws Exception
   {
     JSONObject jo;
 
     jo = new JSONObject(json);
 
     //// Message
-    String id = jo.getString(Query.FIELD_ID);
+    String id = jo.getString(QRBase.FIELD_ID);
     String type = jo.getString(Message.FIELD_TYPE);
 
-    boolean oneTime = !jo.has(DataQueryTabular.FIELD_COUNTDOWN);
+    boolean oneTime = !jo.has(QRBase.FIELD_COUNTDOWN);
     long countdown = 1;
 
     if(!oneTime) {
-      countdown = jo.getLong(DataQueryDimensional.FIELD_COUNTDOWN);
+      countdown = jo.getLong(QRBase.FIELD_COUNTDOWN);
     }
 
     boolean incompleteResultOK = jo.getBoolean(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK);
@@ -97,7 +118,7 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
 
       if(time.has(DataQueryDimensional.FIELD_FROM)
          ^ time.has(DataQueryDimensional.FIELD_TO)) {
-        logger.error("Both from and to must be specified, or netiher");
+        LOG.error("Both from and to must be specified, or netiher");
         return null;
       }
 
@@ -124,7 +145,7 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
     while(keyIterator.hasNext()) {
       String key = keyIterator.next();
       if(!keySet.add(key)) {
-        logger.error("Duplicate key: {}", key);
+        LOG.error("Duplicate key: {}", key);
         return null;
       }
     }
@@ -134,7 +155,7 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
     Integer ddID = gsd.getGenericEventSchema().getDimensionsDescriptorToID().get(dimensionDescriptor);
 
     if(ddID == null) {
-      logger.error("The given dimensionDescriptor is not valid: {}", dimensionDescriptor);
+      LOG.error("The given dimensionDescriptor is not valid: {}", dimensionDescriptor);
       return null;
     }
 
@@ -176,7 +197,7 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
           String aggregator = components[DimensionalConfigurationSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
           if(!gsd.getGenericEventSchema().getAggregatorRegistry().isAggregator(aggregator)) {
-            logger.error("{} is not a valid aggregator", aggregator);
+            LOG.error("{} is not a valid aggregator", aggregator);
             return null;
           }
 
@@ -190,12 +211,12 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
           aggregators.add(aggregator);
         }
         else {
-          logger.error("A field selector can have at most one {}.", DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
+          LOG.error("A field selector can have at most one {}.", DimensionalConfigurationSchema.ADDITIONAL_VALUE_SEPERATOR);
         }
       }
     }
     else {
-      logger.info("Has time: {}", hasTime);
+      LOG.info("Has time: {}", hasTime);
       if(hasTime) {
         nonAggregatedFields.add(DimensionsDescriptor.DIMENSION_TIME);
       }
@@ -267,4 +288,6 @@ public class DataQueryDimensionalDeserializer extends CustomMessageDeserializer
       }
     }
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DataQueryDimensionalDeserializer.class);
 }

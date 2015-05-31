@@ -18,6 +18,12 @@ package com.datatorrent.lib.appdata.query;
 import com.datatorrent.lib.appdata.query.QueueList.QueueListNode;
 import org.apache.commons.lang3.mutable.MutableLong;
 
+/**
+ * The WindowEndQueueManager keeps a countdown representing the number of application windows a query should stay alive for. If
+ * a query's countdown reaches 0 it is removed from the queue.
+ * @param <QUERY_TYPE> The type of queries to be queued.
+ * @param <META_QUERY> The type of metadata to be associated with queued queries.
+ */
 public class WindowEndQueueManager<QUERY_TYPE, META_QUERY> extends AbstractWindowEndQueueManager<QUERY_TYPE, META_QUERY, MutableLong>
 {
   public WindowEndQueueManager()

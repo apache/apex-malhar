@@ -16,7 +16,7 @@
 
 package com.datatorrent.lib.appdata.qr.processor;
 
-import com.datatorrent.lib.appdata.query.serde.Query;
+import com.datatorrent.lib.appdata.schemas.Query;
 import com.datatorrent.lib.appdata.query.QueryBundle;
 import com.datatorrent.lib.appdata.query.SimpleQueueManager;
 import org.junit.Assert;
@@ -32,8 +32,7 @@ public class SimpleQueryQueueManagerTest
     sqqm.setup(null);
     sqqm.beginWindow(0);
 
-    Query query = new Query();
-    query.setId("1");
+    Query query = new MockQuery("1");
 
     sqqm.enqueue(query, null, null);
     Query queryD = sqqm.dequeue().getQuery();
