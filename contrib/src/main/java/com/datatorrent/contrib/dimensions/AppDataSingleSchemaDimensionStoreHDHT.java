@@ -104,7 +104,7 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   @Override
   protected SchemaRegistry getSchemaRegistry()
   {
-    eventSchema = new DimensionalConfigurationSchema(eventSchemaJSON, aggregatorInfo);
+    eventSchema = new DimensionalConfigurationSchema(eventSchemaJSON, aggregatorRegistry);
     dimensionalSchema = new DimensionalSchema(schemaID, dimensionalSchemaJSON, eventSchema);
 
     return new SchemaRegistrySingle(dimensionalSchema);

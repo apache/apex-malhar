@@ -33,7 +33,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   @NotNull
   protected ResultFormatter resultFormatter = new ResultFormatter();
   @NotNull
-  protected AggregatorRegistry aggregatorInfo = AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY;
+  protected AggregatorRegistry aggregatorRegistry = AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY;
 
   //Query Processing - Start
   protected transient QueryManager<DataQueryDimensional, QueryMeta, MutableLong, Result> queryProcessor;
@@ -84,7 +84,7 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   @Override
   public void setup(Context.OperatorContext context)
   {
-    aggregatorInfo.setup();
+    aggregatorRegistry.setup();
 
     schemaRegistry = getSchemaRegistry();
 
@@ -146,13 +146,13 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   @Override
   public IncrementalAggregator getAggregator(int aggregatorID)
   {
-    return aggregatorInfo.getIncrementalAggregatorIDToAggregator().get(aggregatorID);
+    return aggregatorRegistry.getIncrementalAggregatorIDToAggregator().get(aggregatorID);
   }
 
   @Override
   protected int getAggregatorID(String aggregatorName)
   {
-    return aggregatorInfo.getIncrementalAggregatorNameToID().get(aggregatorName);
+    return aggregatorRegistry.getIncrementalAggregatorNameToID().get(aggregatorName);
   }
 
   public void setAppDataFormatter(ResultFormatter resultFormatter)
@@ -169,19 +169,19 @@ public abstract class AbstractAppDataDimensionStoreHDHT extends DimensionsStoreH
   }
 
   /**
-   * @return the aggregatorInfo
+   * @return the aggregatorRegistry
    */
-  public AggregatorRegistry getAggregatorInfo()
+  public AggregatorRegistry getAggregatorRegistry()
   {
-    return aggregatorInfo;
+    return aggregatorRegistry;
   }
 
   /**
-   * @param aggregatorInfo the aggregatorInfo to set
+   * @param aggregatorRegistry the aggregatorRegistry to set
    */
-  public void setAggregatorInfo(@NotNull AggregatorRegistry aggregatorInfo)
+  public void setAggregatorRegistry(@NotNull AggregatorRegistry aggregatorRegistry)
   {
-    this.aggregatorInfo = aggregatorInfo;
+    this.aggregatorRegistry = aggregatorRegistry;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(AbstractAppDataDimensionStoreHDHT.class);
