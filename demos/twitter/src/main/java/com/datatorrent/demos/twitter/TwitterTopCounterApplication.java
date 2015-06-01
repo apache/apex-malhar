@@ -155,7 +155,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueURLCounter", new UniqueCounter<String>());
     // Get the aggregated url counts and count them over last 5 mins.
     dag.setAttribute(uniqueCounter, Context.OperatorContext.APPLICATION_WINDOW_COUNT, 600);
-    dag.setAttribute(uniqueCounter, Context.OperatorContext.SLIDING_WINDOW_COUNT, 1);
+    dag.setAttribute(uniqueCounter, Context.OperatorContext.SLIDE_BY_WINDOW_COUNT, 1);
 
 
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
