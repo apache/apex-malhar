@@ -28,7 +28,6 @@ import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Ints;
@@ -383,9 +382,9 @@ public abstract class DimensionsStoreHDHT extends AbstractSinglePortHDHTWriter<A
     super.addQuery(query);
   }
 
-  public ImmutableMap<Slice, HDSQuery> getQueries()
+  public Map<Slice, HDSQuery> getQueries()
   {
-    return ImmutableMap.copyOf(this.queries);
+    return this.queries;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(DimensionsStoreHDHT.class);

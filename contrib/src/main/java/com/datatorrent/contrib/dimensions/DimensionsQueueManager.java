@@ -46,13 +46,11 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
   private final DimensionsStoreHDHT operator;
   @NotNull
   private final SchemaRegistry schemaRegistry;
-  private final Map<Slice, HDSQuery> queries;
 
   public DimensionsQueueManager(@NotNull DimensionsStoreHDHT operator, @NotNull SchemaRegistry schemaRegistry)
   {
     this.operator = Preconditions.checkNotNull(operator);
     this.schemaRegistry = Preconditions.checkNotNull(schemaRegistry);
-    queries = operator.getQueries();
   }
 
   @Override
@@ -104,7 +102,7 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
         String aggregatorName = entry.getKey();
         EventKey eventKey = entry.getValue();
         Slice key = new Slice(operator.getEventKeyBytesGAE(eventKey));
-        HDSQuery hdsQuery = queries.get(key);
+        HDSQuery hdsQuery = operator.getQueries().get(key);
 
         if(hdsQuery == null) {
           hdsQuery = new HDSQuery();
@@ -159,7 +157,7 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
           gpoKey.setField(DimensionsDescriptor.DIMENSION_TIME_BUCKET, query.getTimeBucket().ordinal());
           EventKey queryEventKey = new EventKey(eventKey);
           Slice key = new Slice(operator.getEventKeyBytesGAE(eventKey));
-          HDSQuery hdsQuery = queries.get(key);
+          HDSQuery hdsQuery = operator.getQueries().get(key);
 
           if(hdsQuery == null) {
             hdsQuery = new HDSQuery();
