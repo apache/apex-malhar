@@ -14,10 +14,6 @@ import com.datatorrent.lib.appdata.query.serde.SimpleDataValidator;
 import org.junit.Assert;
 import org.junit.Test;
 
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
 public class SimpleQueryValidatorTest
 {
   @Test
