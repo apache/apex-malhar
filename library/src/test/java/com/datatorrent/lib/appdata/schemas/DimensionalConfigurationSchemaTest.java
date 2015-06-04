@@ -237,10 +237,10 @@ public class DimensionalConfigurationSchemaTest
     Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().size());
     Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().size());
     Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorIDs().size());
-    Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().size());
     Assert.assertEquals(3, des.getDimensionsDescriptorIDToDimensionsDescriptor().size());
     Assert.assertEquals(3, des.getDimensionsDescriptorIDToKeyDescriptor().size());
-    Assert.assertEquals(3, des.getDimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().size());
     Assert.assertEquals(3, des.getDimensionsDescriptorIDToValueToAggregator().size());
     Assert.assertEquals(3, des.getDimensionsDescriptorIDToValueToOTFAggregator().size());
     Assert.assertEquals(1, des.getDimensionsDescriptorIDToFieldToAggregatorAdditionalValues().size());

@@ -15,11 +15,12 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
 import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
-import com.datatorrent.lib.dimensions.DimensionsDescriptor;
 import com.datatorrent.lib.dimensions.aggregator.IncrementalAggregator;
 import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
@@ -135,7 +136,7 @@ public class DimensionalConfigurationSchema
    */
   public static final String FIELD_KEYS_ENUMVALUES = "enumValues";
   /**
-   * A list of valid sets of JSON keys withing a key JSON object. This is used to validate input data.
+   * A list of valid sets of JSON keys within a key JSON object. This is used to validate input data.
    */
   public static final List<Fields> VALID_KEY_FIELDS = ImmutableList.of(new Fields(Sets.newHashSet(FIELD_KEYS_NAME,
                                                                                                   FIELD_KEYS_TYPE,
@@ -192,18 +193,57 @@ public class DimensionalConfigurationSchema
    */
   private List<FieldsDescriptor> dimensionsDescriptorIDToKeyDescriptor;
   /**
-   * This is a map.
+   * This is a map from dimensions descriptor id to {@link DimensionsDescriptor}.
    */
   private List<DimensionsDescriptor> dimensionsDescriptorIDToDimensionsDescriptor;
+  /**
+   * This is a map from a dimensions descriptor id to a value to the set of all aggregations performed
+   * on that value under the dimensions combination corresponding to that dimensions descriptor id.
+   */
   private List<Map<String, Set<String>>> dimensionsDescriptorIDToValueToAggregator;
+  /**
+   * This is a map from a dimensions descriptor id to a value to the set of all on the fly aggregations
+   * performed on that value under the dimensions combination corresponding to that dimensions descriptor
+   * id.
+   */
   private List<Map<String, Set<String>>> dimensionsDescriptorIDToValueToOTFAggregator;
+  /**
+   * This is a map from a dimensions descriptor id to an aggregator to a {@link FieldsDescriptor} object.
+   * This is used internally to build dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor and
+   * dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor in the {@link buildDimensionsDescriptorIDAggregatorIDMaps}
+   */
   private List<Map<String, FieldsDescriptor>> dimensionsDescriptorIDToAggregatorToAggregateDescriptor;
+  /**
+   * This is a map from a dimensions descriptor id to an OTF aggregator to a {@link FieldsDescriptor} object.
+   */
   private List<Map<String, FieldsDescriptor>> dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor;
+  /**
+   * This is a map from a {@link DimensionsDescriptor} to its corresponding dimensions descriptor ID.
+   */
   private Map<DimensionsDescriptor, Integer> dimensionsDescriptorToID;
+  /**
+   * This is a map from a dimensions descriptor id to an aggregator id to a {@link FieldsDescriptor} for the
+   * input aggregates before any aggregation is performed on them.
+   */
   private List<Int2ObjectMap<FieldsDescriptor>> dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor;
+  /**
+   * This is a map from a dimensions descriptor id to an aggregator id to a {@link FieldsDescriptor} for the
+   * input aggregates after an aggregation is performed on them.
+   */
   private List<Int2ObjectMap<FieldsDescriptor>> dimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor;
+  /**
+   * This is a map from the dimensions descriptor id to the list of all aggregations performed on that dimensions
+   * descriptor id.
+   */
   private List<IntArrayList> dimensionsDescriptorIDToAggregatorIDs;
+  /**
+   * This is a map from the dimensions descriptor id to field to all the additional value aggregations
+   * specified for the dimensions combination.
+   */
   private List<Map<String, Set<String>>> dimensionsDescriptorIDToFieldToAggregatorAdditionalValues;
+  /**
+   * This is a map from dimensions descriptor ids to all the keys fields involved in the dimensions combination.
+   */
   private List<Fields> dimensionsDescriptorIDToKeys;
   /**
    * Keys section of the schema.
@@ -595,6 +635,12 @@ public class DimensionalConfigurationSchema
     buildDimensionsDescriptorIDAggregatorIDMaps();
   }
 
+  /**
+   * This is a helper method which initializes the {@link DimensionalConfigurationSchema} with the given
+   * json values.
+   * @param json The json with which to initialize the {@link DimensionalConfigurationSchema}.
+   * @throws Exception
+   */
   private void initialize(String json) throws Exception
   {
     JSONObject jo = new JSONObject(json);
@@ -1060,32 +1106,35 @@ public class DimensionalConfigurationSchema
   }
 
   /**
-   * Returns the keyDescriptor.
-   * @return The keyDescriptor.
+   * Returns the {@link FieldsDescriptor} object for all key fields.
+   * @return The {@link FieldsDescriptor} object for all key fields.
    */
   public FieldsDescriptor getKeyDescriptor()
   {
     return keyDescriptor;
   }
 
+  /**
+   * Returns the {@link FieldsDescriptor} object for all aggregate values.
+   * @return The {@link FieldsDescriptor} object for all aggregate values.
+   */
   public FieldsDescriptor getInputValuesDescriptor()
   {
     return inputValuesDescriptor;
   }
 
+  /**
+   * Returns the key {@link FieldsDescriptor} object corresponding to the given dimensions descriptor ID.
+   * @return The key {@link FieldsDescriptor} object corresponding to the given dimensions descriptor ID.
+   */
   public List<FieldsDescriptor> getDimensionsDescriptorIDToKeyDescriptor()
   {
     return dimensionsDescriptorIDToKeyDescriptor;
   }
 
-  public List<Map<String, FieldsDescriptor>> getDimensionsDescriptorIDToAggregatorToAggregateDescriptor()
-  {
-    return dimensionsDescriptorIDToAggregatorToAggregateDescriptor;
-  }
-
   /**
-   * Returns the dimensionsDescriptorToID.
-   * @return The dimensionsDescriptorToID.
+   * Returns a map from a {@link DimensionsDescriptor} to its corresponding id.
+   * @return A map from a {@link DimensionsDescriptor} to its corresponding id.
    */
   public Map<DimensionsDescriptor, Integer> getDimensionsDescriptorToID()
   {
@@ -1146,15 +1195,6 @@ public class DimensionalConfigurationSchema
   }
 
   /**
-   * Returns the dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor map.
-   * @return The dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor map.
-   */
-  public List<Map<String, FieldsDescriptor>> getDimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor()
-  {
-    return dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor;
-  }
-
-  /**
    * Returns the dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor map.
    * @return The dimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor map.
    */
@@ -1206,6 +1246,26 @@ public class DimensionalConfigurationSchema
   public Map<String, Map<String, Type>> getSchemaAllValueToAggregatorToType()
   {
     return schemaAllValueToAggregatorToType;
+  }
+
+  /**
+   * Gets the dimensionsDescriptorIDToAggregatorToAggregateDescriptor.
+   * @return The dimensionsDescriptorIDToAggregatorToAggregateDescriptor.
+   */
+  @VisibleForTesting
+  protected List<Map<String, FieldsDescriptor>> getDimensionsDescriptorIDToAggregatorToAggregateDescriptor()
+  {
+    return dimensionsDescriptorIDToAggregatorToAggregateDescriptor;
+  }
+
+  /**
+   * Gets the dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor.
+   * @return The dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor.
+   */
+  @VisibleForTesting
+  protected List<Map<String, FieldsDescriptor>> getDimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor()
+  {
+    return dimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor;
   }
 
   @Override

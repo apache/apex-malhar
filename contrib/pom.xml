@@ -528,7 +528,7 @@
     <dependency>
       <groupId>com.aerospike</groupId>
       <artifactId>aerospike-client</artifactId>
-      <version>3.0.26</version>
+      <version>3.0.35</version>
       <optional>true</optional>
     </dependency>
     <dependency>

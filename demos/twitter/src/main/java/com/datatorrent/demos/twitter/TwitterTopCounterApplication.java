@@ -15,13 +15,12 @@
  */
 package com.datatorrent.demos.twitter;
 
+import com.datatorrent.api.Context;
 import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.api.Operator;
 import com.datatorrent.api.StreamingApplication;
 import com.datatorrent.api.annotation.ApplicationAnnotation;
-import com.datatorrent.contrib.twitter.TwitterSampleInput;
-import com.datatorrent.lib.algo.UniqueCounter;
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.appdata.tabular.AppDataTabularServerMap;
 import com.datatorrent.lib.io.PubSubWebSocketAppDataQuery;
@@ -32,6 +31,8 @@ import org.apache.hadoop.conf.Configuration;
 
 import java.util.Map;
 
+import com.datatorrent.contrib.twitter.TwitterSampleInput;
+import com.datatorrent.lib.algo.UniqueCounter;
 
 
 /**
@@ -172,6 +173,10 @@ public class TwitterTopCounterApplication implements StreamingApplication
     // Setup a node to count the unique urls within a window.
     UniqueCounter<String> uniqueCounter = dag.addOperator("UniqueURLCounter", new UniqueCounter<String>());
     // Get the aggregated url counts and count them over last 5 mins.
+    dag.setAttribute(uniqueCounter, Context.OperatorContext.APPLICATION_WINDOW_COUNT, 600);
+    dag.setAttribute(uniqueCounter, Context.OperatorContext.SLIDE_BY_WINDOW_COUNT, 1);
+
+
     WindowedTopCounter<String> topCounts = dag.addOperator("TopCounter", new WindowedTopCounter<String>());
     AppDataTabularServerMap tabularServer = dag.addOperator("Tabular Server", new AppDataTabularServerMap());
 
@@ -183,7 +188,7 @@ public class TwitterTopCounterApplication implements StreamingApplication
     tabularServer.setTableFieldToMapField(conversionMap);
 
     topCounts.setTopCount(10);
-    topCounts.setSlidingWindowWidth(600);
+    topCounts.setSlidingWindowWidth(1);
     topCounts.setDagWindowWidth(1);
 
     // Feed the statuses from feed into the input of the url extractor.

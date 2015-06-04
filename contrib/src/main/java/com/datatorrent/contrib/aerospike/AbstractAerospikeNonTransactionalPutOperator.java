@@ -16,13 +16,14 @@
 
 package com.datatorrent.contrib.aerospike;
 
+import java.util.List;
+
 import com.aerospike.client.AerospikeException;
 import com.aerospike.client.Bin;
 import com.aerospike.client.Key;
-import com.datatorrent.lib.db.AbstractStoreOutputOperator;
-import org.python.google.common.collect.Lists;
+import com.google.common.collect.Lists;
 
-import java.util.List;
+import com.datatorrent.lib.db.AbstractStoreOutputOperator;
 
 
 /**
@@ -32,12 +33,12 @@ import java.util.List;
  * @displayName Abstract Aerospike Non Transactional Put
  * @category Database
  * @tags output operator, put, non transactional
- * @param <T>type of tuple</T>
+ * @param <T> type of tuple
  * @since 1.0.4
  */
 public abstract class AbstractAerospikeNonTransactionalPutOperator<T> extends AbstractStoreOutputOperator<T,AerospikeStore> {
 
-  private transient List<Bin> bins;
+  private transient final List<Bin> bins;
   public AbstractAerospikeNonTransactionalPutOperator() {
     super();
     bins = Lists.newArrayList();
@@ -52,17 +53,17 @@ public abstract class AbstractAerospikeNonTransactionalPutOperator<T> extends Ab
    * @return key for the row to be updated in the database
    * @throws AerospikeException
    */
-  protected abstract Key getUpdatedBins(T tuple,List<Bin> bins) throws AerospikeException;
+  protected abstract Key getUpdatedBins(T tuple, List<Bin> bins) throws AerospikeException;
 
   @Override
   public void processTuple(T tuple) {
 
-    Key key=null;
-    Bin[] binsArray = null;
+    Key key;
+    Bin[] binsArray;
     try {
       key = getUpdatedBins(tuple,bins);
-      binsArray=new Bin[bins.size()];
-      binsArray=bins.toArray(binsArray);
+      binsArray = new Bin[bins.size()];
+      binsArray = bins.toArray(binsArray);
       store.getClient().put(null, key, binsArray);
       bins.clear();
     }

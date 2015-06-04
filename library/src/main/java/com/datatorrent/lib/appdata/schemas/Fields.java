@@ -18,6 +18,8 @@ package com.datatorrent.lib.appdata.schemas;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.List;
@@ -56,7 +58,7 @@ public class Fields
 
     for(String field: fields) {
       Preconditions.checkNotNull(field);
-      if(!fields.add(field)) {
+      if(!this.fields.add(field)) {
         throw new IllegalArgumentException("Duplicate field: " + field);
       }
     }
@@ -112,4 +114,6 @@ public class Fields
     }
     return true;
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(Fields.class);
 }

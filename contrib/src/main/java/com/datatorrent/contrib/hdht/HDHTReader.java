@@ -20,7 +20,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -48,8 +47,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
 
 /**
- * Reader for historical data store.
- * Implements asynchronous read from backing files and query refresh.
+ * Reader for key value based data store.
+ * Supports synchronous read via get and asynchronous read through query with keep alive and refresh option.
  *
  * @displayName HDHT Reader
  * @category Input
@@ -92,7 +91,7 @@ public class HDHTReader implements Operator, HDHT.Reader
   @NotNull
   protected HDHTFileAccess store;
 
-  public BucketMeta loadBucketMeta(long bucketKey)
+  protected BucketMeta loadBucketMeta(long bucketKey)
   {
     BucketMeta bucketMeta = null;
     try {
@@ -228,8 +227,9 @@ public class HDHTReader implements Operator, HDHT.Reader
     return br;
   }
 
-  protected void invalidateReader(long bucketKey, Set<String> fileNames)
+  protected synchronized void invalidateReader(long bucketKey, Set<String> fileNames)
   {
+    // synchronized with get for access to bucket and readers
     BucketReader bucket = this.buckets.get(bucketKey);
     if (bucket != null) {
       bucket.bucketMeta = null; // force index reload

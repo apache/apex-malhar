@@ -26,7 +26,7 @@ public class SimpleQueryValidatorTest
     TestQuery testQuery = new TestQuery("1");
     SimpleDataValidator sqv = new SimpleDataValidator();
 
-    Assert.assertFalse("The query object is not valid.", sqv.validate(testQuery, null));
+    Assert.assertTrue("The query object is not valid.", sqv.validate(testQuery, null));
   }
 
   @MessageType(type = TestQuery.TYPE)
