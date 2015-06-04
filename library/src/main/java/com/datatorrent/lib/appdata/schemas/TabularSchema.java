@@ -26,114 +26,142 @@ import java.util.Collections;
 import java.util.Map;
 
 /**
- * This class represents an AppData point schema. This class allows you to specify your
- * point schema in json and to load it. An example of a point schema specification is the following:
- *
+ * This class represents an AppData snapshot schema. This class allows you to specify your
+ * snapshot schema in json and to load it. An example of a snapshot schema specification is the following:
+ * <br/>
+ * <br/>
  * {@code
+ *  {
+ *    "values": [{"name": "hashtag", "type": "string"},
+ *               {"name": "count", "type": "integer"}]
+ *  }
  * }
+ * <br/>
+ * <br/>
+ * As can be seen above, the snapshot schema defines the name of each field which is served as well as
+ * its type.
  */
 public class TabularSchema implements Schema
 {
+  /**
+   * The type of the schema.
+   */
   public static final String SCHEMA_TYPE = "point";
+  /**
+   * The version of the schema.
+   */
   public static final String SCHEMA_VERSION = "1.0";
-
+  /**
+   * The type of the schema.
+   */
   public static final String FIELD_SCHEMA_TYPE = "schemaType";
+  /**
+   * The version of the schema.
+   */
   public static final String FIELD_SCHEMA_VERSION = "schemaVersion";
-
+  /**
+   * The JSON key string for the values section of the schema.
+   */
   public static final String FIELD_VALUES = "values";
+  /**
+   * The JSON key string for field names.
+   */
   public static final String FIELD_VALUES_NAME = "name";
+  /**
+   * The JSON key string for field types.
+   */
   public static final String FIELD_VALUES_TYPE = "type";
 
   public static final int NUM_KEYS_FIRST_LEVEL = 1;
   public static final int NUM_KEYS_VALUES = 2;
 
+  /**
+   * The JSON for the schema.
+   */
   private String schemaJSON;
-  private String schemaType;
-
+  /**
+   * A map from the field name to its type.
+   */
   private Map<String, Type> valueToType;
+  /**
+   * The fieds descriptor object for the values.
+   */
   private FieldsDescriptor valuesDescriptor;
-
+  /**
+   * The schema keys for this schema. In the case where this is the only schema served by an operator,
+   * these could be null.
+   */
   private Map<String, String> schemaKeys;
+  /**
+   * The schemaID assigned to this schema. In the case where this is the only schema being served by an operator,
+   * then this is not important.
+   */
   private int schemaID = Schema.DEFAULT_SCHEMA_ID;
-
+  /**
+   * The JSONObject representing the schema.
+   */
   private JSONObject schema;
+  /**
+   * Flag indicating whether any items in the schema have been changed.
+   */
   private boolean changed = false;
 
+  /**
+   * This creates a tabular schema from the specified json with the specified schema keys.
+   * @param schemaJSON The JSON defining this schema.
+   * @param schemaKeys The schema keys tied to this schema.
+   */
   public TabularSchema(String schemaJSON,
                        Map<String, String> schemaKeys)
   {
-    this(schemaJSON,
-         true,
-         schemaKeys);
+    this(schemaJSON);
+
+    setSchemaKeys(schemaKeys);
   }
 
-
+  /**
+   * This creates a tabular schema from the specified json with the specified schema keys, and
+   * schemaID.
+   * @param schemaID The ID associated with this schema.
+   * @param schemaJSON The schemaJSON this schema is built from.
+   * @param schemaKeys The schemaKeys associated with this schema.
+   */
   public TabularSchema(int schemaID,
                        String schemaJSON,
                        Map<String, String> schemaKeys)
   {
     this(schemaJSON,
          schemaKeys);
-  }
-
-  public TabularSchema(String schemaJSON)
-  {
-    this(schemaJSON,
-         true,
-         null);
-  }
-
-  public TabularSchema(int schemaID,
-                       String schemaJSON)
-  {
-    this(schemaJSON);
 
     this.schemaID = schemaID;
   }
 
-  //This would be needed for more rigorous validation of schemas
-  public TabularSchema(String schemaJSON,
-                       boolean validate,
-                       Map<String, String> schemaKeys)
+  /**
+   * This creates a tabular schema from the specified json.
+   * @param schemaJSON The JSON specifying the tabular schema.
+   */
+  public TabularSchema(String schemaJSON)
   {
     setSchema(schemaJSON);
-    setSchemaKeys(schemaKeys);
 
     try {
-      initialize(validate);
+      initialize();
     }
     catch(Exception ex) {
       DTThrowable.rethrow(ex);
     }
   }
 
+  /**
+   * This creates a tabular schema from the specified json, and associates the given
+   * schemaID with this schema.
+   * @param schemaID The schemaID associated with this schema.
+   * @param schemaJSON The JSON that this schema is constructed from.
+   */
   public TabularSchema(int schemaID,
-                       String schemaJSON,
-                       boolean validate,
-                       Map<String, String> schemaKeys)
+                       String schemaJSON)
   {
-    this(schemaJSON,
-         validate,
-         schemaKeys);
-
-    this.schemaID = schemaID;
-  }
-
-  public TabularSchema(String schemaJSON,
-                       boolean validate)
-  {
-    this(schemaJSON,
-         validate,
-         null);
-  }
-
-  public TabularSchema(int schemaID,
-                       String schemaJSON,
-                       boolean validate)
-  {
-    this(schemaJSON,
-         validate);
-
+    this(schemaJSON);
     this.schemaID = schemaID;
   }
 
@@ -143,7 +171,7 @@ public class TabularSchema implements Schema
     changed = true;
 
     if(schemaKeys == null) {
-      schemaKeys = null;
+      this.schemaKeys = null;
       return;
     }
 
@@ -155,17 +183,20 @@ public class TabularSchema implements Schema
     this.schemaKeys = Collections.unmodifiableMap(Maps.newHashMap(schemaKeys));
   }
 
-  private void initialize(boolean validate) throws Exception
+  /**
+   * This is a helper method to initialize the schema.
+   * @throws JSONException This exception is thrown if there is an error parsing the JSON
+   * which specified this schema.
+   */
+  private void initialize() throws JSONException
   {
     schema = new JSONObject(schemaJSON);
 
-    if(validate) {
-      Preconditions.checkState(schema.length() == NUM_KEYS_FIRST_LEVEL,
-                               "Expected "
-                               + NUM_KEYS_FIRST_LEVEL
-                               + " keys in the first level but found "
-                               + schema.length());
-    }
+    Preconditions.checkState(schema.length() == NUM_KEYS_FIRST_LEVEL,
+                             "Expected "
+                             + NUM_KEYS_FIRST_LEVEL
+                             + " keys in the first level but found "
+                             + schema.length());
 
     if(schemaKeys != null) {
       schema.put(Schema.FIELD_SCHEMA_KEYS,
@@ -209,6 +240,10 @@ public class TabularSchema implements Schema
     schemaJSON = this.schema.toString();
   }
 
+  /**
+   * This is a helper method which sets the JSON that represents this schema.
+   * @param schemaJSON The JSON that represents this schema.
+   */
   protected final void setSchema(String schemaJSON)
   {
     this.schemaJSON = Preconditions.checkNotNull(schemaJSON);
@@ -250,13 +285,9 @@ public class TabularSchema implements Schema
     return SCHEMA_VERSION;
   }
 
-  public Map<String, Type> getFieldToType()
-  {
-    return valueToType;
-  }
-
   /**
-   * @return the valuesDescriptor
+   * Returns the {@link FieldsDescriptor} object which represents the values in this schema.
+   * @return The {@link FieldsDescriptor} object representing the values in this schema.
    */
   public FieldsDescriptor getValuesDescriptor()
   {
@@ -270,7 +301,9 @@ public class TabularSchema implements Schema
   }
 
   /**
-   * @return the schemaID
+   * Gets the schemaID assigned to this schema. This is only relevant
+   * when an operator is hosting multiple schemas.
+   * @return The schemaID assigned to this schema.
    */
   @Override
   public int getSchemaID()

@@ -557,9 +557,9 @@ public class AppDataSingleSchemaDimensionStoreHDHTTest
     int dimensionDescriptorID = 0;
     int aggregatorID = eventSchema.getAggregatorRegistry().getIncrementalAggregatorNameToID().get(AggregatorIncrementalType.SUM.name());
 
-    FieldsDescriptor fdKey = eventSchema.getDdIDToKeyDescriptor().get(dimensionDescriptorID);
-    FieldsDescriptor fdValue = eventSchema.getDdIDToAggIDToOutputAggDescriptor().get(dimensionDescriptorID).get(aggregatorID);
-    DimensionsDescriptor dd = eventSchema.getDdIDToDD().get(dimensionDescriptorID);
+    FieldsDescriptor fdKey = eventSchema.getDimensionsDescriptorIDToKeyDescriptor().get(dimensionDescriptorID);
+    FieldsDescriptor fdValue = eventSchema.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(dimensionDescriptorID).get(aggregatorID);
+    DimensionsDescriptor dd = eventSchema.getDimensionsDescriptorIDToDimensionsDescriptor().get(dimensionDescriptorID);
 
     GPOMutable key = new GPOMutable(fdKey);
 

@@ -30,24 +30,67 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class manages the storage of fields in app data. It is used in {@link GPOMutable} objects
+ * to map field names to values in order to respond to queries, it also serves as a schema which is
+ * used in the serialization of {@link GPOMutable} objects in order to ensure consistent serialization
+ * and deserialization of data.
+ */
 public class FieldsDescriptor
 {
-  private static final Logger logger = LoggerFactory.getLogger(FieldsDescriptor.class);
-
+  /**
+   * This is a list of all of the fields managed by this {@link FieldsDescriptor} object.
+   */
   private List<String> fieldList;
+  /**
+   * This is a list of all of the types managed by this {@link FieldsDescriptor} object.
+   */
   private List<Type> typesList;
-  private Set<Type> types;
-  private Map<Type, Object2IntLinkedOpenHashMap<String>> typeToFieldToIndex;
-  private Map<Type, List<String>> typeToFields;
-  private Map<String, Type> fieldToType;
-  private Set<Type> compressedTypes;
-  private Object2IntLinkedOpenHashMap<Type> typeToSize;
+  /**
+   * This is a set of all the fields managed by this {@link FieldsDescriptor} object.
+   */
   private Fields fields;
+  /**
+   * This is a set of all of the types managed by this {@link FieldsDescriptor} object.
+   */
+  private Set<Type> types;
 
-  public FieldsDescriptor()
+  private Map<Type, Object2IntLinkedOpenHashMap<String>> typeToFieldToIndex;
+  /**
+   * A Map from the type to the list of fields corresponding to that type. The list of fields
+   * corresponding to a type also represents the order in which the fields are stored in
+   * both a {@link GPOMutable} object and the order of fields when {@link GPOMutable} objects
+   * are serialized.
+   */
+  private Map<Type, List<String>> typeToFields;
+  /**
+   * This is the field to type mapping for this {@link FieldsDesciptor} object.
+   */
+  private Map<String, Type> fieldToType;
+  /**
+   * This is the set of all the compressed types for this {@link FieldsDescriptor} object.
+   */
+  private Set<Type> compressedTypes;
+  /**
+   * This is a map from the type of a field to the number of values to store for fields of
+   * that type. Typically the number of values to store for a type is the same as the number
+   * of fields of that type, but if type compression is enabled for that field then the number
+   * of values stored for that type is 1.
+   */
+  private Object2IntLinkedOpenHashMap<Type> typeToSize;
+
+  /**
+   * This constructor is used for serialization.
+   */
+  private FieldsDescriptor()
   {
+    //For kryo
   }
 
+  /**
+   * This creates a {@link FieldsDescriptor} with the given field to type map.
+   * @param fieldToType A mapping from field names to the type of the field.
+   */
   public FieldsDescriptor(Map<String, Type> fieldToType)
   {
     setFieldToType(fieldToType);
@@ -55,6 +98,11 @@ public class FieldsDescriptor
     initialize();
   }
 
+  /**
+   * This creates a field descriptor with the given field to type map.
+   * @param fieldToType A mapping from field names to the type of the field.
+   * @param compressedTypes The types, which will have compressed values.
+   */
   public FieldsDescriptor(Map<String, Type> fieldToType, Set<Type> compressedTypes)
   {
     setFieldToType(fieldToType);
@@ -63,36 +111,10 @@ public class FieldsDescriptor
     initialize();
   }
 
-  public FieldsDescriptor(FieldsDescriptor fda, FieldsDescriptor fdb)
-  {
-    if(fda.getCompressedTypes().equals(
-       fdb.getCompressedTypes())) {
-      throw new IllegalArgumentException("The two fieldDescriptors have different compressedTypes\n" +
-                                         "fda compressed types: " + fda.getCompressedTypes() + "\n" +
-                                         "fdb compressed types: " + fdb.getCompressedTypes() + "\n");
-    }
-
-    if(!Collections.disjoint(fda.getFields().getFields(),
-                             fdb.getFields().getFields()))
-    {
-      throw new IllegalArgumentException("The two provided field descriptors must have disjoint sets of fields.");
-    }
-
-    fieldToType = Maps.newHashMap();
-
-    for(String field: fda.getFields().getFields()) {
-      fieldToType.put(field, fda.getType(field));
-    }
-
-    for(String field: fdb.getFields().getFields()) {
-      fieldToType.put(field, fdb.getType(field));
-    }
-
-    setFieldToType(fieldToType);
-    setCompressedTypes(fda.getCompressedTypes());
-    initialize();
-  }
-
+  /**
+   * This is a helper method, which initializes all the data structures for a
+   * {@link FieldsDescriptor} object.
+   */
   private void initialize()
   {
     //TODO make this maps immutable
@@ -103,14 +125,14 @@ public class FieldsDescriptor
       String field = entry.getKey();
       Type type = entry.getValue();
 
-      List<String> fields = typeToFields.get(type);
+      List<String> fieldsList = typeToFields.get(type);
 
-      if(fields == null) {
-        fields = Lists.newArrayList();
-        typeToFields.put(type, fields);
+      if(fieldsList == null) {
+        fieldsList = Lists.newArrayList();
+        typeToFields.put(type, fieldsList);
       }
 
-      fields.add(field);
+      fieldsList.add(field);
     }
 
     //ensure consistent ordering of fields
@@ -151,7 +173,6 @@ public class FieldsDescriptor
     typesList.addAll(types);
 
     //Field List
-
     fieldList = Lists.newArrayList();
     getFieldList().addAll(fieldToType.keySet());
     ((ArrayList<String>)getFieldList()).trimToSize();
@@ -172,21 +193,34 @@ public class FieldsDescriptor
     }
   }
 
+  /**
+   * Gets the type to field to index map.
+   * @return The type to field to index map.
+   */
   public Map<Type, Object2IntLinkedOpenHashMap<String>> getTypeToFieldToIndex()
   {
     return typeToFieldToIndex;
   }
 
+  /**
+   * This is a helper method which sets and validates the field to type
+   * map.
+   * @param fieldToType The field to type map to set for this {@link FieldsDescriptor}
+   * object.
+   */
   private void setFieldToType(Map<String, Type> fieldToType) {
     for(Map.Entry<String, Type> entry: fieldToType.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
     }
 
-    //this.fieldToType = Collections.unmodifiableMap(Maps.newHashMap(fieldToType));
     this.fieldToType = Maps.newHashMap(fieldToType);
   }
 
+  /**
+   * This is a helper method to set and validate compressed types.
+   * @param compressedTypes The compressed types to set.
+   */
   private void setCompressedTypes(Set<Type> compressedTypes)
   {
     for(Type type: compressedTypes) {
@@ -196,15 +230,29 @@ public class FieldsDescriptor
     this.compressedTypes = Sets.newHashSet(compressedTypes);
   }
 
+  /**
+   * Gets the field to type map for this {@link FieldsDescriptor} object.
+   * @return The type map for this {@link FieldsDescriptor} object.
+   */
   public Map<String, Type> getFieldToType()
   {
     return fieldToType;
   }
 
-  public Type getType(String field) {
+  /**
+   * The type of the given field.
+   * @param field The field whose type needs to be looked up.
+   * @return The type of the given field.
+   */
+  public Type getType(String field)
+  {
     return fieldToType.get(field);
   }
 
+  /**
+   * Gets the set of fields managed by this {@link FieldsDescriptor} object.
+   * @return The set of fields managed by this {@link FieldsDescriptor object.
+   */
   public Fields getFields()
   {
     if(fields == null) {
@@ -214,6 +262,12 @@ public class FieldsDescriptor
     return fields;
   }
 
+  /**
+   * This method creates a new {@link FieldsDescriptor} object which only includes
+   * the given set of fields.
+   * @param fields The fields to include in the new {@link FieldsDescriptor}.
+   * @return The fields to include in the new {@link FieldsDescriptor}.
+   */
   public FieldsDescriptor getSubset(Fields fields)
   {
     Map<String, Type> newFieldToType = Maps.newHashMap();
@@ -226,9 +280,64 @@ public class FieldsDescriptor
     return new FieldsDescriptor(newFieldToType);
   }
 
+  /**
+   * Returns a map from type to a list of all the fields with that type.
+   * @return A map from type to a list of all the fields with that type.
+   */
   public Map<Type, List<String>> getTypeToFields()
   {
     return typeToFields;
+  }
+
+  /**
+   * Returns set of types of all the fields managed by this {@link FieldsDescriptor} object.
+   * @return The set of types of all the fields managed by this {@link FieldsDescriptor} object.
+   */
+  public Set<Type> getTypes()
+  {
+    return types;
+  }
+
+  /**
+   * Returns the list of types of all the fields managed by this {@link FieldsDescriptor} object.
+   * The content of this list will be the same as the set, this method is provided because iterating
+   * over lists is faster than iterating over sets.
+   * @return
+   */
+  public List<Type> getTypesList()
+  {
+    return typesList;
+  }
+
+  /**
+   * Returns a list of all of the fields represented by the {@link FieldsDescriptor} object.
+   * This method is provided because it is faster to iterate over lists.
+   * @return the fieldList
+   */
+  public List<String> getFieldList()
+  {
+    return fieldList;
+  }
+
+  /**
+   * Gets the types whose corresponding fields will be compressed to share the same value.
+   * @return The types whose corresponding fields will be compressed to share the same value.
+   */
+  public Set<Type> getCompressedTypes()
+  {
+    return compressedTypes;
+  }
+
+  /**
+   * Gets the mapping from the type of a field to the number of values to store for that type.
+   * The number of of values to store for a type is usually the number of fields of that type,
+   * but if there is type compression enabled for a type, the number of values to store for
+   * that type will be 1.
+   * @return A map from a type to the number of values to store for that type.
+   */
+  public Object2IntLinkedOpenHashMap<Type> getTypeToSize()
+  {
+    return typeToSize;
   }
 
   @Override
@@ -265,40 +374,5 @@ public class FieldsDescriptor
     return "FieldsDescriptor{" + "fieldToType=" + fieldToType + ", compressedTypes=" + compressedTypes + '}';
   }
 
-  /**
-   * @return the types
-   */
-  public Set<Type> getTypes()
-  {
-    return types;
-  }
-
-  public List<Type> getTypesList()
-  {
-    return typesList;
-  }
-
-  /**
-   * @return the fieldList
-   */
-  public List<String> getFieldList()
-  {
-    return fieldList;
-  }
-
-  /**
-   * @return the compressedTypes
-   */
-  public Set<Type> getCompressedTypes()
-  {
-    return compressedTypes;
-  }
-
-  /**
-   * @return the typeToSize
-   */
-  public Object2IntLinkedOpenHashMap<Type> getTypeToSize()
-  {
-    return typeToSize;
-  }
+  private static final Logger LOG = LoggerFactory.getLogger(FieldsDescriptor.class);
 }

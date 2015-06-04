@@ -85,14 +85,14 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
 
     this.buckets = Sets.newHashSet(bucketID);
 
-    if(!dimensionalSchema.isFixedFromTo()) {
+    if(!dimensionalSchema.isPredefinedFromTo()) {
       dimensionalSchema.setFrom(System.currentTimeMillis());
     }
 
     if(updateEnumValues) {
     if(seenEnumValues == null) {
       seenEnumValues = Maps.newHashMap();
-      for(String key: eventSchema.getAllKeysDescriptor().getFieldList()) {
+      for(String key: eventSchema.getKeyDescriptor().getFieldList()) {
         @SuppressWarnings("rawtypes")
         Set<Comparable> enumValuesSet= Sets.newHashSet();
         seenEnumValues.put(key, enumValuesSet);
@@ -131,13 +131,13 @@ public class AppDataSingleSchemaDimensionStoreHDHT extends AbstractAppDataDimens
   @Override
   public FieldsDescriptor getKeyDescriptor(int schemaID, int dimensionsDescriptorID)
   {
-    return eventSchema.getDdIDToKeyDescriptor().get(dimensionsDescriptorID);
+    return eventSchema.getDimensionsDescriptorIDToKeyDescriptor().get(dimensionsDescriptorID);
   }
 
   @Override
   public FieldsDescriptor getValueDescriptor(int schemaID, int dimensionsDescriptorID, int aggregatorID)
   {
-    return eventSchema.getDdIDToAggIDToOutputAggDescriptor().get(dimensionsDescriptorID).get(aggregatorID);
+    return eventSchema.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(dimensionsDescriptorID).get(aggregatorID);
   }
 
   @Override

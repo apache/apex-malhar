@@ -34,64 +34,140 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Optional
- * Schema stub
- *{
- *  "time": {
- *    "from":1123455556656,
- *    "to":382390859384
+ * The {@link DimensionalSchema} class represents the App Data dimensions schema. The App Data dimensions
+ * schema is built from two sources: a {@link DimensionalConfigurationSchema} and an optional schema stub. The
+ * {@link DimensionalConfigurationSchema} is responsible for defining the key, values, dimensions combinations,
+ * and the aggregations performed for each dimensions combination. The schema stub defines the from and to
+ * times for the App Data dimensions schema. For details on how to define the {@link DimensionalConfiguration}
+ * schema please the documentation for the {@link DimensionalConfiguration} class. An example of a valid
+ * schema stub which defines the from and to times is below:
+ * <br/>
+ * <br/>
+ * {@code
+ * {
+ *   "time":
+ *   {
+ *     "from":1123455556656,
+ *     "to":382390859384
  *   }
- *}
+ * }
  */
 public class DimensionalSchema implements Schema
 {
-  private static final Logger logger = LoggerFactory.getLogger(DimensionalSchema.class);
-
+  /**
+   * The type of the schema.
+   */
   public static final String SCHEMA_TYPE = "dimensions";
+  /**
+   * The version of the schema.
+   */
   public static final String SCHEMA_VERSION = "1.0";
+  /**
+   * The JSON key string corresponding to the from field.
+   */
   public static final String FIELD_TIME_FROM = "from";
+  /**
+   * The JSON key string corresponding to the time field.
+   */
   public static final String FIELD_TIME = "time";
+  /**
+   * The JSON key string corresponding to the to field.
+   */
   public static final String FIELD_TIME_TO = "to";
+  /**
+   * The JSON key string corresponding to the buckets field.
+   */
   public static final String FIELD_TIME_BUCKETS = "buckets";
 
   public static final List<Fields> VALID_KEYS = ImmutableList.of(new Fields(Sets.newHashSet(FIELD_TIME)));
   public static final List<Fields> VALID_TIME_KEYS = ImmutableList.of(new Fields(Sets.newHashSet(FIELD_TIME_FROM, FIELD_TIME_TO)));
 
+  /**
+   * The from value for the schema. Null if there is no from value.
+   */
   private Long from;
+  /**
+   * The to value for the schema. Null if there is no to value.
+   */
   private Long to;
-
+  /**
+   * boolean flag indicating if any values in the schema have been changed.
+   */
   private boolean changed = false;
+  /**
+   * boolean flag indicating if the from to fields in the schema have been changed.
+   */
   private boolean changedFromTo = false;
+  /**
+   * boolean flag indicating if the schema keys have been updated for the schema.
+   */
   private boolean changedSchemaKeys = false;
-  private String schemaJSON;
-
-  private DimensionalConfigurationSchema eventSchema;
-  private JSONObject schema;
-  private JSONObject time;
-  private JSONArray keys;
-
-  private boolean fixedFromTo = false;
-
-  private Map<String, String> schemaKeys;
-  private Map<String, List<Object>> currentEnumVals;
+  /**
+   * boolean flag indicating if the enum vals are updated.
+   */
   private boolean areEnumsUpdated = false;
-
+  /**
+   * The AppData schema JSON string (which is returned in the schema query).
+   */
+  private String schemaJSON;
+  /**
+   * The {@link DimensionalConfigurationSchema} from which this {@link DimensionalSchema} was constructed.
+   */
+  private DimensionalConfigurationSchema configurationSchema;
+  /**
+   * The {@link JSONObject} representing the AppData dimensions schema.
+   */
+  private JSONObject schema;
+  /**
+   * The {@link JSONObject} representing the time section of the AppData dimensions schema.
+   */
+  private JSONObject time;
+  /**
+   * The {@link JSONObject} representing the keys section of the AppData dimensions schema.
+   */
+  private JSONArray keys;
+  /**
+   * This flag is true if there was a from and to time defined for this schema initially.
+   */
+  private boolean predefinedFromTo = false;
+  /**
+   * The schema keys for this schema.
+   */
+  private Map<String, String> schemaKeys;
+  /**
+   * The current enum vals for this schema.
+   */
+  private Map<String, List<Object>> currentEnumVals;
+  /**
+   * The schemaID assigned to this schema. This schemaID is only needed for operators
+   * which need to host multiple schemas.
+   */
   private int schemaID = Schema.DEFAULT_SCHEMA_ID;
 
+  /**
+   * Constructor for serialization
+   */
   private DimensionalSchema()
   {
     //For kryo
   }
 
+  /**
+   * This creates a {@link DimensionalSchema} object from the given schema stub,
+   * configuration schema, and schema keys.
+   * @param schemaStub The schema stub to use when creating this {@link DimensionalSchema}.
+   * @param configurationSchema The configuration schema to use when creating this {@link DimensionalSchema}.
+   * @param schemaKeys The schemaKeys to use when creating this {@link DimensionalSchema}.
+   */
   public DimensionalSchema(String schemaStub,
-                           DimensionalConfigurationSchema eventSchema,
+                           DimensionalConfigurationSchema configurationSchema,
                            Map<String, String> schemaKeys)
   {
-    this(eventSchema,
+    this(configurationSchema,
          schemaKeys);
 
     if(schemaStub != null) {
-      fixedFromTo = true;
+      predefinedFromTo = true;
       try {
         setSchemaStub(schemaStub);
       }
@@ -101,76 +177,122 @@ public class DimensionalSchema implements Schema
     }
   }
 
+  /**
+   * This creates a {@link DimensionalSchema} object from the given schemaID, schemaStrub,configurationSchema, and schemaKeys.
+   * @param schemaID The schemaID assigned to this schema.
+   * @param schemaStub The schema stub to use when creating this {@link DimensionalSchema}.
+   * @param configurationSchema The configuration schema to use when creating this {@link DimensionalSchema}.
+   * @param schemaKeys The schemaKeys to use when creating this {@link DimensionalSchema}.
+   */
   public DimensionalSchema(int schemaID,
                            String schemaStub,
-                           DimensionalConfigurationSchema eventSchema,
+                           DimensionalConfigurationSchema configurationSchema,
                            Map<String, String> schemaKeys)
   {
     this(schemaStub,
-         eventSchema,
+         configurationSchema,
          schemaKeys);
 
     this.schemaID = schemaID;
   }
 
+  /**
+   * This creates a {@link DimensionalSchema} from the given schemaStub and configuration schema.
+   * @param schemaStub The schema stub to use when creating this {@link DimensionalSchema}.
+   * @param configurationSchema The configuration schema to use when creating this {@link DimensionalSchema}.
+   */
   public DimensionalSchema(String schemaStub,
-                           DimensionalConfigurationSchema eventSchema)
+                           DimensionalConfigurationSchema configurationSchema)
   {
     this(schemaStub,
-         eventSchema,
+         configurationSchema,
          null);
   }
 
+  /**
+   * This creates a {@link DimensionalSchema} from the given schemaID, schemaStub, and
+   * configurationSchema.
+   * @param schemaID The schemaID assigned to this schema.
+   * @param schemaStub The schema stub to use when creating this {@link DimensionalSchema}.
+   * @param configurationSchema The configuration schema to use when creating this {@link DimensionalSchema}.
+   */
   public DimensionalSchema(int schemaID,
                            String schemaStub,
-                           DimensionalConfigurationSchema eventSchema)
+                           DimensionalConfigurationSchema configurationSchema)
   {
     this(schemaStub,
-         eventSchema);
+         configurationSchema);
 
     this.schemaID = schemaID;
   }
 
-  public DimensionalSchema(DimensionalConfigurationSchema eventSchema,
+  /**
+   * Creates a {@link DimensionalSchema} from the given configuration schema and schema keys.
+   * @param configurationSchema The configuration schema from which to construct this {@link DimensionalEventSchema}.
+   * @param schemaKeys The schemaKeys assigned to this schema.
+   */
+  public DimensionalSchema(DimensionalConfigurationSchema configurationSchema,
                            Map<String, String> schemaKeys)
   {
-    setEventSchema(eventSchema);
+    setConfigurationSchema(configurationSchema);
     setSchemaKeys(schemaKeys);
 
     try {
       initialize();
     }
-    catch(Exception e) {
+    catch(JSONException e) {
       throw new RuntimeException(e);
     }
   }
 
+  /**
+   * Creates a {@link DimensionalSchema} object from the given schemaID, configurationSchema,
+   * and schemaKeys.
+   * @param schemaID The schemaID assigned to this schema.
+   * @param configurationSchema The configuration schema from which this schema was constructed.
+   * @param schemaKeys The schema keys assigned to this schema.
+   */
   public DimensionalSchema(int schemaID,
-                           DimensionalConfigurationSchema eventSchema,
+                           DimensionalConfigurationSchema configurationSchema,
                            Map<String, String> schemaKeys)
   {
-    this(eventSchema,
+    this(configurationSchema,
          schemaKeys);
 
     this.schemaID = schemaID;
   }
 
-  public DimensionalSchema(DimensionalConfigurationSchema eventSchema)
+  /**
+   * Creates a {@link DimensionalSchema} object from the given configuration schema.
+   * @param configurationSchema The configuration schema from which to construct this
+   * schema.
+   */
+  public DimensionalSchema(DimensionalConfigurationSchema configurationSchema)
   {
-    this(eventSchema,
+    this(configurationSchema,
          null);
   }
 
+  /**
+   * Creates a {@link DimensionalSchema} object with the given schema ID and
+   * configuration schema.
+   * @param schemaID The schemaID assigned to this schema.
+   * @param configurationSchema The configuration schema from which this schema as constructed.
+   */
   public DimensionalSchema(int schemaID,
-                           DimensionalConfigurationSchema eventSchema)
+                           DimensionalConfigurationSchema configurationSchema)
   {
-    this(eventSchema);
+    this(configurationSchema);
     this.schemaID = schemaID;
   }
 
+  /**
+   * Returns the aggregator registry assigned to this schema object.
+   * @return The aggregator registry.
+   */
   public AggregatorRegistry getAggregatorRegistry()
   {
-    return eventSchema.getAggregatorRegistry();
+    return configurationSchema.getAggregatorRegistry();
   }
 
   @Override
@@ -180,7 +302,7 @@ public class DimensionalSchema implements Schema
     changedSchemaKeys = true;
 
     if(schemaKeys == null) {
-      schemaKeys = null;
+      this.schemaKeys = null;
       return;
     }
 
@@ -192,12 +314,21 @@ public class DimensionalSchema implements Schema
     this.schemaKeys = Maps.newHashMap(schemaKeys);
   }
 
-  private void setEventSchema(DimensionalConfigurationSchema eventSchema)
+  /**
+   * This is a helper method for setting the configuration schema.
+   * @param configurationSchema The configuration schema.
+   */
+  private void setConfigurationSchema(DimensionalConfigurationSchema configurationSchema)
   {
-    this.eventSchema = Preconditions.checkNotNull(eventSchema, "eventSchema");
+    this.configurationSchema = Preconditions.checkNotNull(configurationSchema, "eventSchema");
   }
 
-  private void setSchemaStub(String schemaStub) throws Exception
+  /**
+   * This is a helper method extracts and validates the information contained in the schema stub for this schema.
+   * @param schemaStub The schema stub to extract information from and validate.
+   * @throws JSONException This exception is thrown if there is an error processing the provided JSON schemaStub.
+   */
+  private void setSchemaStub(String schemaStub) throws JSONException
   {
     JSONObject jo = new JSONObject(schemaStub);
     SchemaUtils.checkValidKeysEx(jo, VALID_KEYS);
@@ -209,7 +340,12 @@ public class DimensionalSchema implements Schema
     this.to = tempTime.getLong(FIELD_TIME_TO);
   }
 
-  private void initialize() throws Exception
+  /**
+   * Initializes the schema JSON and schema metadata.
+   * @throws JSONException This exception is thrown when there is an
+   * exception building the schema for the AppData dimensions schema.
+   */
+  private void initialize() throws JSONException
   {
     schema = new JSONObject();
 
@@ -224,19 +360,19 @@ public class DimensionalSchema implements Schema
     //time
     time = new JSONObject();
     schema.put(FIELD_TIME, time);
-    JSONArray bucketsArray = new JSONArray(eventSchema.getBucketsString());
+    JSONArray bucketsArray = new JSONArray(configurationSchema.getBucketsString());
     time.put(FIELD_TIME_BUCKETS, bucketsArray);
 
     //keys
-    keys = new JSONArray(eventSchema.getKeysString());
+    keys = new JSONArray(configurationSchema.getKeysString());
     schema.put(DimensionalConfigurationSchema.FIELD_KEYS, keys);
 
-    //values;
+    //values
     JSONArray values = new JSONArray();
     schema.put(TabularSchema.FIELD_VALUES, values);
 
-    FieldsDescriptor inputValuesDescriptor = eventSchema.getInputValuesDescriptor();
-    Map<String, Map<String, Type>> allValueToAggregator = eventSchema.getSchemaAllValueToAggregatorToType();
+    FieldsDescriptor inputValuesDescriptor = configurationSchema.getInputValuesDescriptor();
+    Map<String, Map<String, Type>> allValueToAggregator = configurationSchema.getSchemaAllValueToAggregatorToType();
 
     for(Map.Entry<String, Map<String, Type>> entry: allValueToAggregator.entrySet()) {
       String valueName = entry.getKey();
@@ -258,12 +394,12 @@ public class DimensionalSchema implements Schema
     JSONArray dimensions = new JSONArray();
 
     for(int combinationID = 0;
-        combinationID < eventSchema.getCombinationIDToKeys().size();
+        combinationID < configurationSchema.getDimensionsDescriptorIDToKeys().size();
         combinationID++) {
 
-      Fields fields = eventSchema.getCombinationIDToKeys().get(combinationID);
+      Fields fields = configurationSchema.getDimensionsDescriptorIDToKeys().get(combinationID);
       Map<String, Set<String>> fieldToAggregatorAdditionalValues =
-      eventSchema.getCombinationIDToFieldToAggregatorAdditionalValues().get(combinationID);
+      configurationSchema.getDimensionsDescriptorIDToFieldToAggregatorAdditionalValues().get(combinationID);
 
       JSONObject combination = new JSONObject();
       JSONArray combinationArray = new JSONArray();
@@ -288,7 +424,7 @@ public class DimensionalSchema implements Schema
             Type inputValueType = inputValuesDescriptor.getType(valueName);
 
             IncrementalAggregator aggregator
-                    = eventSchema.getAggregatorRegistry().getNameToIncrementalAggregator().get(aggregatorName);
+                    = configurationSchema.getAggregatorRegistry().getNameToIncrementalAggregator().get(aggregatorName);
             Type outputValueType = aggregator.getOutputType(inputValueType);
 
             additionalValueObject.put(DimensionalConfigurationSchema.FIELD_VALUES_NAME, combinedName);
@@ -308,6 +444,10 @@ public class DimensionalSchema implements Schema
     this.schemaJSON = this.schema.toString();
   }
 
+  /**
+   * Sets the from time for the schema.
+   * @param from The from time for the schema.
+   */
   public void setFrom(Long from)
   {
     this.from = from;
@@ -315,6 +455,10 @@ public class DimensionalSchema implements Schema
     changedFromTo = true;
   }
 
+  /**
+   * Sets the to time for the schema.
+   * @param to The to time for the schema.
+   */
   public void setTo(Long to)
   {
     this.to = to;
@@ -322,6 +466,10 @@ public class DimensionalSchema implements Schema
     changedFromTo = true;
   }
 
+  /**
+   * Sets the new enum lists for this schema. The sets in the provided maps are converted into lists.
+   * @param enums The new enum sets for this schema.
+   */
   public void setEnumsSet(Map<String, Set<Object>> enums)
   {
     Preconditions.checkNotNull(enums);
@@ -331,9 +479,9 @@ public class DimensionalSchema implements Schema
 
     //Check that all the given keys are valid
     Preconditions.checkArgument(
-            eventSchema.getAllKeysDescriptor().getFields().getFields().containsAll(enums.keySet()),
+            configurationSchema.getKeyDescriptor().getFields().getFields().containsAll(enums.keySet()),
             "The given map doesn't contain valid keys. Valid keys are %s and the provided keys are %s",
-            eventSchema.getAllKeysDescriptor().getFields().getFields(),
+            configurationSchema.getKeyDescriptor().getFields().getFields(),
             enums.keySet());
 
     //Todo check the type of the objects, for now just set them on the enum.
@@ -356,6 +504,11 @@ public class DimensionalSchema implements Schema
     currentEnumVals = Maps.newHashMap(enumsList);
   }
 
+  /**
+   * Sets the new enum lists for this schema. The sets in the provided maps are converted into lists, and
+   * sorted according to their natural ordering.
+   * @param enums The new enum sets for this schema.
+   */
   @SuppressWarnings({"rawtypes","unchecked"})
   public void setEnumsSetComparable(Map<String, Set<Comparable>> enums)
   {
@@ -366,13 +519,12 @@ public class DimensionalSchema implements Schema
 
     //Check that all the given keys are valid
     Preconditions.checkArgument(
-            eventSchema.getAllKeysDescriptor().getFields().getFields().containsAll(enums.keySet()),
+            configurationSchema.getKeyDescriptor().getFields().getFields().containsAll(enums.keySet()),
             "The given map doesn't contain valid keys. Valid keys are %s and the provided keys are %s",
-            eventSchema.getAllKeysDescriptor().getFields().getFields(),
+            configurationSchema.getKeyDescriptor().getFields().getFields(),
             enums.keySet());
 
     //Todo check the type of the objects, for now just set them on the enum.
-
     for(Map.Entry<String, Set<Comparable>> entry: enums.entrySet()) {
       String name = entry.getKey();
       Set<Comparable> vals = entry.getValue();
@@ -393,6 +545,10 @@ public class DimensionalSchema implements Schema
     currentEnumVals = Maps.newHashMap(enumsList);
   }
 
+  /**
+   * Sets the new enum lists for this schema.
+   * @param enums The new enum lists for this schema.
+   */
   public void setEnumsList(Map<String, List<Object>> enums)
   {
     Preconditions.checkNotNull(enums);
@@ -400,13 +556,12 @@ public class DimensionalSchema implements Schema
 
     //Check that all the given keys are valid
     Preconditions.checkArgument(
-            eventSchema.getAllKeysDescriptor().getFields().getFields().containsAll(enums.keySet()),
+            configurationSchema.getKeyDescriptor().getFields().getFields().containsAll(enums.keySet()),
             "The given map doesn't contain valid keys. Valid keys are %s and the provided keys are %s",
-            eventSchema.getAllKeysDescriptor().getFields().getFields(),
+            configurationSchema.getKeyDescriptor().getFields().getFields(),
             enums.keySet());
 
     //Todo check the type of the objects, for now just set them on the enum.
-
     for(Map.Entry<String, List<Object>> entry: enums.entrySet()) {
       Preconditions.checkNotNull(entry.getKey());
       Preconditions.checkNotNull(entry.getValue());
@@ -433,10 +588,12 @@ public class DimensionalSchema implements Schema
   public String getSchemaJSON()
   {
     if(!changed && schemaJSON != null) {
+      //If there are no changes, return the pre computed JSON
       return schemaJSON;
     }
 
     if(changedSchemaKeys) {
+      //If the schema keys change, recompute the schema keys portion of the JSON
       changedSchemaKeys = false;
 
       if(schemaKeys == null) {
@@ -454,6 +611,7 @@ public class DimensionalSchema implements Schema
     }
 
     if(changedFromTo) {
+      //If the from to times have changed then recompute the time portion of the schema.
       changedFromTo = false;
       Preconditions.checkState(!(from == null ^ to == null),
                                "Either both from and to should be set or both should be not set.");
@@ -478,6 +636,7 @@ public class DimensionalSchema implements Schema
     }
 
     if(this.areEnumsUpdated) {
+      //If the enums have been updated, recompute the key portion of the schema.
       for(int keyIndex = 0;
           keyIndex < keys.length();
           keyIndex++) {
@@ -516,13 +675,19 @@ public class DimensionalSchema implements Schema
       this.areEnumsUpdated = false;
     }
 
+    //Rebuild the schema JSON string.
     schemaJSON = schema.toString();
     return schemaJSON;
   }
 
-  public DimensionalConfigurationSchema getGenericEventSchema()
+  /**
+   * Gets the {@link DimensionalConfigurationSchema} from which this {@link DimensionalSchema}.
+   * @return The {@link DimensionalConfigurationSchema} from which this {@link DimensionalSchema} was
+   * constructed.
+   */
+  public DimensionalConfigurationSchema getDimensionalConfigurationSchema()
   {
-    return eventSchema;
+    return configurationSchema;
   }
 
   @Override
@@ -544,15 +709,18 @@ public class DimensionalSchema implements Schema
   }
 
   /**
-   * @return the fixedFromTo
+   *
+   * @return the predefinedFromTo
    */
-  public boolean isFixedFromTo()
+  public boolean isPredefinedFromTo()
   {
-    return fixedFromTo;
+    return predefinedFromTo;
   }
 
   /**
-   * @return the schemaID
+   * Returns the schema ID for this schema. This is only relevant for operators which
+   * host multiple schemas.
+   * @return The schema ID for this schema.
    */
   @Override
   public int getSchemaID()
@@ -561,10 +729,15 @@ public class DimensionalSchema implements Schema
   }
 
   /**
-   * @return the currentEnumVals
+   * Returns the current enum vals for the schema. The current enum vals for the
+   * schema are expressed in a map whose keys are the names of the keys in the schema, and whose
+   * values are a list of possible values for the key.
+   * @return the currentEnumVals The current enum vals for the schema.
    */
   public Map<String, List<Object>> getCurrentEnumVals()
   {
     return currentEnumVals;
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(DimensionalSchema.class);
 }

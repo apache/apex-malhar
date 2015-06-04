@@ -57,7 +57,7 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
   public boolean enqueue(DataQueryDimensional query, QueryMeta queryMeta, MutableLong windowExpireCount)
   {
     DimensionalSchema schemaDimensional = (DimensionalSchema)schemaRegistry.getSchema(query.getSchemaKeys());
-    DimensionalConfigurationSchema eventSchema = schemaDimensional.getGenericEventSchema();
+    DimensionalConfigurationSchema eventSchema = schemaDimensional.getDimensionalConfigurationSchema();
     Integer ddID = eventSchema.getDimensionsDescriptorToID().get(query.getDimensionsDescriptor());
 
     if(ddID == null) {
@@ -66,7 +66,7 @@ public class DimensionsQueueManager extends AppDataWindowEndQueueManager<DataQue
     }
 
     LOG.debug("Current time stamp {}", System.currentTimeMillis());
-    FieldsDescriptor dd = eventSchema.getDdIDToKeyDescriptor().get(ddID);
+    FieldsDescriptor dd = eventSchema.getDimensionsDescriptorIDToKeyDescriptor().get(ddID);
     GPOMutable gpoKey = query.createKeyGPO(dd);
     Map<String, EventKey> aggregatorToEventKey = Maps.newHashMap();
     Set<String> aggregatorNames = Sets.newHashSet();

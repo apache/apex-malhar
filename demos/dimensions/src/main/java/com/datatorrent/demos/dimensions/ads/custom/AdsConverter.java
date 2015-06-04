@@ -56,7 +56,7 @@ public class AdsConverter implements Operator
     public void process(AdInfoAggregateEvent tuple)
     {
       int ddID = prevDdIDToThisDdID.get(tuple.getDimensionsDescriptorID());
-      FieldsDescriptor keyDescriptor = dimensionsConfigurationSchema.getDdIDToKeyDescriptor().get(ddID);
+      FieldsDescriptor keyDescriptor = dimensionsConfigurationSchema.getDimensionsDescriptorIDToKeyDescriptor().get(ddID);
 
       GPOMutable key = new GPOMutable(keyDescriptor);
 
@@ -105,7 +105,7 @@ public class AdsConverter implements Operator
     new DimensionalConfigurationSchema(eventSchemaJSON,
                                        aggregatorRegistry);
 
-    List<DimensionsDescriptor> dimensionsDescriptorList = dimensionsConfigurationSchema.getDdIDToDD();
+    List<DimensionsDescriptor> dimensionsDescriptorList = dimensionsConfigurationSchema.getDimensionsDescriptorIDToDimensionsDescriptor();
 
     for(int ddID = 0;
         ddID < dimensionsDescriptorList.size();
@@ -116,7 +116,7 @@ public class AdsConverter implements Operator
     }
 
     sumAggregatorIndex = aggregatorRegistry.getIncrementalAggregatorNameToID().get("SUM");
-    aggregateFieldsDescriptor = dimensionsConfigurationSchema.getDdIDToAggIDToOutputAggDescriptor().
+    aggregateFieldsDescriptor = dimensionsConfigurationSchema.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().
                                 get(0).get(sumAggregatorIndex);
 
     for(int index = 0;

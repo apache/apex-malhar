@@ -185,7 +185,7 @@ public class DimensionsDescriptor
 
       String fieldName = fieldAndValue[0];
 
-      if(!schema.getGenericEventSchema().getAllKeysDescriptor().getFields().getFields().contains(fieldName)) {
+      if(!schema.getDimensionalConfigurationSchema().getKeyDescriptor().getFields().getFields().contains(fieldName)) {
         logger.error("{} is not a valid field.", fieldName);
         return false;
       }

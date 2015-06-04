@@ -24,73 +24,122 @@ import com.google.common.base.Preconditions;
 
 import java.util.Map;
 
+/**
+ * This object represents queries issued against the {@link TabularSchema}.
+ */
 @MessageType(type=DataQueryTabular.TYPE)
 @MessageDeserializerInfo(clazz=DataQueryTabularDeserializer.class)
 @MessageValidatorInfo(clazz=DataQueryTabularValidator.class)
 public class DataQueryTabular extends Query
 {
+  /**
+   * The type of this query.
+   */
   public static final String TYPE = "dataQuery";
 
+  /**
+   * The JSON key string for the data payload of the query.
+   */
   public static final String FIELD_DATA = "data";
+  /**
+   * The JSON key string for the fields requested in the query.
+   */
   public static final String FIELD_FIELDS = "fields";
+  /**
+   * The JSON string for the schemaKeys in the query.
+   */
   public static final String SCHEMA_KEYS = "schemaKeys";
 
+  /**
+   * The fields requested to be returned in the query.
+   */
   private Fields fields;
 
+  /**
+   * This creates a query with the given id, which requests the given fields. This constructor
+   * assumes that the query is "one time", and that it is issued against a single schema operator.
+   * @param id The id of the query.
+   * @param fields The fields requested by the query.
+   */
   public DataQueryTabular(String id,
-                          String type,
                           Fields fields)
   {
     this(id,
-         type,
          fields,
          null);
   }
 
+  /**
+   * This creates a query with the given id, which requests the given fields,
+   * and is applied against the schema with the given schema keys. This constructor
+   * assumes that the query is "one time".
+   * @param id The id of the query.
+   * @param fields The requested fields in the query.
+   * @param schemaKeys The schema keys corresponding to the schema this query will be directed against.
+   */
   public DataQueryTabular(String id,
-                          String type,
                           Fields fields,
                           Map<String, String> schemaKeys)
   {
     super(id,
-          type,
+          TYPE,
           schemaKeys);
 
     setFields(fields);
   }
 
+  /**
+   * This creates a query with the given id, fields, and countdown. This constructor assumes
+   * that the query is issued against a single schema operator.
+   * @param id The id of the query.
+   * @param fields The requested fields in the query.
+   * @param countdown The countdown for the query.
+   */
   public DataQueryTabular(String id,
-                          String type,
                           Fields fields,
                           long countdown)
   {
     this(id,
-         type,
          fields,
          countdown,
          null);
   }
 
+  /**
+   * This creates a query with the given id, fields, countdown, and schema keys.
+   * @param id The id of the query.
+   * @param fields The requested fields in the query.
+   * @param countdown The countdown for the query.
+   * @param schemaKeys The schemaKeys which identify the schema which the query is
+   * issued against.
+   */
   public DataQueryTabular(String id,
-                          String type,
                           Fields fields,
                           long countdown,
                           Map<String, String> schemaKeys)
   {
     super(id,
-          type,
+          TYPE,
           countdown,
           schemaKeys);
 
     setFields(fields);
   }
 
+  /**
+   * Sets the fields of the query.
+   * @param fields The fields of the query.
+   */
   private void setFields(Fields fields)
   {
     Preconditions.checkNotNull(fields);
     this.fields = fields;
   }
 
+  /**
+   * Gets the fields of the query.
+   * @return The fields of the query.
+   */
   public Fields getFields()
   {
     return fields;

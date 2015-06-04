@@ -56,15 +56,15 @@ public abstract class AbstractDimensionsComputationFlexibleSingleSchema<INPUT> e
   @Override
   public void processInputEvent(INPUT input)
   {
-    List<FieldsDescriptor> keyFieldsDescriptors = eventSchema.getDdIDToKeyDescriptor();
+    List<FieldsDescriptor> keyFieldsDescriptors = eventSchema.getDimensionsDescriptorIDToKeyDescriptor();
 
     for(int ddID = 0;
         ddID < keyFieldsDescriptors.size();
         ddID++) {
       FieldsDescriptor keyFieldsDescriptor = keyFieldsDescriptors.get(ddID);
-      Int2ObjectMap<FieldsDescriptor> map = eventSchema.getDdIDToAggIDToInputAggDescriptor().get(ddID);
-      IntArrayList aggIDList = eventSchema.getDdIDToAggIDs().get(ddID);
-      DimensionsDescriptor dd = eventSchema.getDdIDToDD().get(ddID);
+      Int2ObjectMap<FieldsDescriptor> map = eventSchema.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().get(ddID);
+      IntArrayList aggIDList = eventSchema.getDimensionsDescriptorIDToAggregatorIDs().get(ddID);
+      DimensionsDescriptor dd = eventSchema.getDimensionsDescriptorIDToDimensionsDescriptor().get(ddID);
 
       for(int aggIDIndex = 0;
           aggIDIndex < aggIDList.size();

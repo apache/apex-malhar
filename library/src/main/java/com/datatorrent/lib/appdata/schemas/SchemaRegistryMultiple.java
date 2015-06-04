@@ -22,16 +22,31 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is a schema registry which can hold multiple schemas. It is intended to be
+ * used in operators that serve multiple schemas.
+ */
 public class SchemaRegistryMultiple implements SchemaRegistry, Serializable
 {
   private static final long serialVersionUID = 201505121108L;
+
+  /**
+   * The dimensional table which holds the mapping from schema keys to schemas.
+   */
   private DimensionalTable<Schema> table;
 
+  /**
+   * Constructor for serialization.
+   */
   private SchemaRegistryMultiple()
   {
     //for Kryo
   }
 
+  /**
+   * The names of all the schema keys for all schemas in this registry.
+   * @param schemaKeys The names of all the schema keys for all schemas in this registry.
+   */
   public SchemaRegistryMultiple(List<String> schemaKeys)
   {
     table = new DimensionalTable<Schema>(schemaKeys);

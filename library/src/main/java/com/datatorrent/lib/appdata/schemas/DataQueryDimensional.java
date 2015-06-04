@@ -112,8 +112,13 @@ public class DataQueryDimensional extends Query
    * Whether the query has a from and to time or not.
    */
   private boolean fromTo = false;
-
+  /**
+   * The set of fields that are keys in this query.
+   */
   private Fields keyFields;
+  /**
+   * The dimensions descriptor / dimension combination for this query.
+   */
   private DimensionsDescriptor dimensionsDescriptor;
   private FieldsAggregatable fieldsAggregatable;
 

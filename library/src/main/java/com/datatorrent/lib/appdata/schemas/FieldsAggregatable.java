@@ -25,16 +25,50 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This is a helper class used internally for processing queries issued against the {@link DimensionalSchema}.
+ * It maintains information about which fields do not have any aggregations (time would be an example of such a field).
+ * And it also maintains what aggregations aggregatable fields have applied to them.
+ */
 public class FieldsAggregatable
 {
+  /**
+   * This is a map from a field to the set of all aggregation that are performed on that field.
+   */
   private Map<String, Set<String>> fieldToAggregator;
+  /**
+   * This is a map from an aggregator to the set of all fields which are aggregated using that aggregator.
+   */
   private Map<String, Set<String>> aggregatorToField;
+  /**
+   * This is a map from aggregator to field name to the field names used in {@link DataQueryDimensional} queries.
+   * The field names used in {@link DataQueryDimensional} queries are the name of the field appended with a colon and
+   * the name of the aggregator (FIELD:AGGREGATOR).
+   */
   private Map<String, Map<String, String>> aggregatorToFieldToName;
+  /**
+   * The set of fields which has aggregations applied to them.
+   */
   private Fields aggregatedFields;
+  /**
+   * The set of fields which do not have aggregations applied to them.
+   */
   private Fields nonAggregatedFields;
+  /**
+   * The set of all field names managed by this {@link FieldsAggregatable} object.
+   */
   private Set<String> fieldNames;
+  /**
+   * The set of all aggregators applied on fields managed by this {@link FieldsAggregatable} object.
+   */
   private Set<String> aggregators;
 
+  /**
+   * The is creates a {@link FieldsAggregatable} object.
+   * @param fields The non aggregatable fields managed by this {@link FieldsAggregatable} object.
+   * @param fieldToAggregator The aggregatable fields managed by this object and a set of all the
+   * aggregators applied to each aggregatable fields.
+   */
   public FieldsAggregatable(Set<String> fields,
                             Map<String, Set<String>> fieldToAggregator)
   {
@@ -44,6 +78,10 @@ public class FieldsAggregatable
     initialize();
   }
 
+  /**
+   *
+   * @param fieldToAggregator
+   */
   public FieldsAggregatable(Map<String, Set<String>> fieldToAggregator)
   {
     setFieldToAggregator(fieldToAggregator);
@@ -52,11 +90,21 @@ public class FieldsAggregatable
     initialize();
   }
 
+  /**
+   * This is a helper method for setting the non aggregatable fields.
+   * @param nonAggregatedFields The non aggregatable fields managed by this
+   * {@link FieldsAggregatable} object.
+   */
   private void setNonAggregatedFields(Set<String> nonAggregatedFields)
   {
     this.nonAggregatedFields = new Fields(nonAggregatedFields);
   }
 
+  /**
+   * This is a helper method for setting the map from the field to the set of all
+   * the aggregators managed by this {@link FieldsAggregatable} object.
+   * @param fieldToAggregator A map from the field to the set of all aggregators applied to that field.
+   */
   private void setFieldToAggregator(Map<String, Set<String>> fieldToAggregator)
   {
     this.fieldToAggregator = Maps.newHashMap();
@@ -74,26 +122,46 @@ public class FieldsAggregatable
     }
   }
 
+  /**
+   * Helper method to initialize internal datastructures.
+   */
   private void initialize()
   {
     aggregatedFields = new Fields(fieldToAggregator.keySet());
   }
 
+  /**
+   * Convenience method to get the set of all aggregators applied on a field.
+   * @param field The field to get the set of aggregators for.
+   * @return The set of all aggregators applied to the given field.
+   */
   public Set<String> getAggregators(String field)
   {
     return fieldToAggregator.get(field);
   }
 
+  /**
+   * Returns the set of all aggregated fields.
+   * @return The set of all aggregated fields.
+   */
   public Fields getAggregatedFields()
   {
     return aggregatedFields;
   }
 
+  /**
+   * The set of all non aggregated fields.
+   * @return The set of all non aggregated fields.
+   */
   public Fields getNonAggregatedFields()
   {
     return nonAggregatedFields;
   }
 
+  /**
+   * Gets the set of all aggregators applied to a field managed by this {@link FieldsAggregatable} object.
+   * @return The set of all aggregators applied to a field.
+   */
   public Set<String> getAggregators()
   {
     if(aggregators != null) {
@@ -109,6 +177,10 @@ public class FieldsAggregatable
     return aggregators;
   }
 
+  /**
+   * Gets the set of all fields managed by this {@link FieldsAggregatable} object.
+   * @return The set of all fields managed by this {@link FieldsAggregatable} object.
+   */
   public Set<String> getFieldNames()
   {
     StringBuilder sb = new StringBuilder();
@@ -138,6 +210,12 @@ public class FieldsAggregatable
     return fieldNames;
   }
 
+  /**
+   * Returns a map from aggregator names to a set of all the fields that
+   * that aggregator is applied to.
+   * @return A map from aggregator names to a set of all the fields that
+   * that aggregator is applied to.
+   */
   public Map<String, Set<String>> getAggregatorToFields()
   {
     if(aggregatorToField != null) {
@@ -172,6 +250,10 @@ public class FieldsAggregatable
     return aggregatorToField;
   }
 
+  /**
+   * Returns a map from aggregator to field name to the field name with the aggregator name appended to it.
+   * @return a map from aggregator to field name to the field name with the aggregator name appended to it. 
+   */
   public Map<String, Map<String, String>> getAggregatorToFieldToName()
   {
     if(aggregatorToFieldToName != null) {

@@ -163,10 +163,10 @@ public class JsonSalesGenerator implements InputOperator
     schema = new DimensionalSchema(new DimensionalConfigurationSchema(eventSchemaJSON,
                                                               AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY));
 
-    maxProductId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_PRODUCT).size() - 1;
-    maxCustomerId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_CUSTOMER).size() - 1;
-    maxChannelId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_CHANNEL).size() - 1;
-    maxRegionId = schema.getGenericEventSchema().getKeysToValuesList().get(KEY_REGION).size() - 1;
+    maxProductId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_PRODUCT).size() - 1;
+    maxCustomerId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CUSTOMER).size() - 1;
+    maxChannelId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CHANNEL).size() - 1;
+    maxRegionId = schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_REGION).size() - 1;
 
     tuplesPerCurrentWindow = maxTuplesPerWindow;
     generateDiscounts();
@@ -242,10 +242,10 @@ public class JsonSalesGenerator implements InputOperator
 
     SalesEvent salesEvent = new SalesEvent();
     salesEvent.time = System.currentTimeMillis();
-    salesEvent.product = (String) schema.getGenericEventSchema().getKeysToValuesList().get(KEY_PRODUCT).get(productId);
-    salesEvent.channel = (String) schema.getGenericEventSchema().getKeysToValuesList().get(KEY_CHANNEL).get(channelId);
-    salesEvent.region = (String) schema.getGenericEventSchema().getKeysToValuesList().get(KEY_REGION).get(regionId);
-    salesEvent.customer = (String) schema.getGenericEventSchema().getKeysToValuesList().get(KEY_CUSTOMER).get(customerId);
+    salesEvent.product = (String) schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_PRODUCT).get(productId);
+    salesEvent.channel = (String) schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CHANNEL).get(channelId);
+    salesEvent.region = (String) schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_REGION).get(regionId);
+    salesEvent.customer = (String) schema.getDimensionalConfigurationSchema().getKeysToEnumValuesList().get(KEY_CUSTOMER).get(customerId);
     salesEvent.amount = randomAmount(minAmount, maxAmount);
     salesEvent.tax = calculateTax(salesEvent.amount, regionId);
     salesEvent.discount = calculateDiscount(salesEvent.amount, channelId, regionId);

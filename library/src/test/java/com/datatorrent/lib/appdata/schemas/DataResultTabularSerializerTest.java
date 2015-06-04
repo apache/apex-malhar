@@ -59,8 +59,7 @@ public class DataResultTabularSerializerTest
     values.add(gpoB);
 
     DataQueryTabular gQuery = new DataQueryTabular("1",
-                                                                 DataQueryTabular.TYPE,
-                                                                 new Fields(Sets.newHashSet("a", "b")));
+                                                   new Fields(Sets.newHashSet("a", "b")));
 
     DataResultTabular result = new DataResultTabular(gQuery,
                                                                    values);

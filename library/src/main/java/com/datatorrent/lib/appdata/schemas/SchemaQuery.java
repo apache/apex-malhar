@@ -23,11 +23,17 @@ import com.datatorrent.lib.appdata.query.serde.SimpleDataValidator;
 
 import java.util.Map;
 
+/**
+ * This class represents a schema query.
+ */
 @MessageType(type=SchemaQuery.TYPE)
 @MessageDeserializerInfo(clazz=SimpleDataDeserializer.class)
 @MessageValidatorInfo(clazz=SimpleDataValidator.class)
 public class SchemaQuery extends Query
 {
+  /**
+   * The type of the schemaQuery.
+   */
   public static final String TYPE = "schemaQuery";
 
   /**
@@ -38,11 +44,20 @@ public class SchemaQuery extends Query
     //Do nothing
   }
 
+  /**
+   * Creates a schema query with the given id.
+   * @param id The id of the query.
+   */
   public SchemaQuery(String id)
   {
     super(id, TYPE);
   }
 
+  /**
+   * Creates a schema query with the given id, and the given schema keys.
+   * @param id The id of the query.
+   * @param schemaKeys The schema keys for the requested schema.
+   */
   public SchemaQuery(String id,
                      Map<String, String> schemaKeys)
   {

@@ -21,14 +21,30 @@ import com.google.common.base.Preconditions;
 
 import java.util.List;
 
+/**
+ * This class represents a schema result, which will be serialized into JSON and sent
+ * as a result to a {@link SchemaQuery}.
+ */
 @MessageType(type=SchemaResult.TYPE)
-@MessageSerializerInfo(clazz=SchemaSerializer.class)
+@MessageSerializerInfo(clazz=SchemaResultSerializer.class)
 public class SchemaResult extends Result
 {
+  /**
+   * The type of the result.
+   */
   public static final String TYPE = "schemaResult";
 
+  /**
+   * An array holding of the schemas that will be served in response to a {@link SchemaQuery}.
+   */
   private Schema[] genericSchemas;
 
+  /**
+   * This constructor creates a schema result that is response to the given
+   * schema query, and provides the given schemas in it's payload.
+   * @param schemaQuery
+   * @param genericSchemas
+   */
   public SchemaResult(SchemaQuery schemaQuery,
                       Schema... genericSchemas)
   {
@@ -36,6 +52,12 @@ public class SchemaResult extends Result
     setGenericSchemas(genericSchemas);
   }
 
+  /**
+   * This constructor creates a schema result that is a response to the
+   * given schema query, and provides the given schemas in it's payload.
+   * @param schemaQuery The schema query which this schema result will be a response to.
+   * @param genericSchemas The schemas to return in the schema result payload.
+   */
   public SchemaResult(SchemaQuery schemaQuery,
                       List<Schema> genericSchemas)
   {
@@ -43,6 +65,11 @@ public class SchemaResult extends Result
     setGenericSchemas(genericSchemas);
   }
 
+  /**
+   * This is a helper method which sets and validates the schemas that will be delivered in response
+   * to a schema query.
+   * @param genericSchemas The schemas that are delivered in response to a schema query.
+   */
   private void setGenericSchemas(List<Schema> genericSchemas)
   {
     Preconditions.checkNotNull(genericSchemas);
@@ -51,6 +78,11 @@ public class SchemaResult extends Result
     this.genericSchemas = genericSchemas.toArray(new Schema[0]);
   }
 
+  /**
+   * This is a helper method which sets and validates the schemas that will be delivered in
+   * response to a schema query.
+   * @param genericSchemas The schemas that are delivered in response to a schema query.
+   */
   private void setGenericSchemas(Schema... genericSchemas)
   {
     Preconditions.checkNotNull(genericSchemas);
@@ -59,6 +91,10 @@ public class SchemaResult extends Result
     this.genericSchemas = genericSchemas;
   }
 
+  /**
+   * Gets the schemas which will be delivered in response to the schema query.
+   * @return The schemas which will be delivered in response to the schema query.
+   */
   public Schema[] getGenericSchemas()
   {
     return genericSchemas;

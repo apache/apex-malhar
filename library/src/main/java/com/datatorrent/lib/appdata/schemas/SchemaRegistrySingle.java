@@ -23,17 +23,31 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+/**
+ * This schema registry holds a single schema. It is intended to be used in operators
+ * which serve a single schema.
+ */
 public class SchemaRegistrySingle implements SchemaRegistry, Serializable
 {
   private static final long serialVersionUID = 20150513928L;
   private static final Logger logger = LoggerFactory.getLogger(SchemaRegistrySingle.class);
 
+  /**
+   * The schema held by this schema registry.
+   */
   private Schema schema;
 
+  /**
+   * Creates a schema registry whose schema will be registered later.
+   */
   public SchemaRegistrySingle()
   {
   }
 
+  /**
+   * Creates a schema registry with the given schema.
+   * @param schema
+   */
   public SchemaRegistrySingle(Schema schema)
   {
     setSchema(schema);

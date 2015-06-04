@@ -22,10 +22,15 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-
-public class SchemaSerializer implements CustomMessageSerializer
+/**
+ * This is the serializer class for {@link SchemaResult} objects.
+ */
+public class SchemaResultSerializer implements CustomMessageSerializer
 {
-  public SchemaSerializer()
+  /**
+   * This constructor is required by the {@link CustomMessageSerializer} interface.
+   */
+  public SchemaResultSerializer()
   {
     //Do nothing
   }
@@ -71,5 +76,5 @@ public class SchemaSerializer implements CustomMessageSerializer
     return sb.toString();
   }
 
-  private static final Logger logger = LoggerFactory.getLogger(SchemaSerializer.class);
+  private static final Logger logger = LoggerFactory.getLogger(SchemaResultSerializer.class);
 }

@@ -152,14 +152,16 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
 
     DimensionsDescriptor dimensionDescriptor = new DimensionsDescriptor(bucket,
                                                                         new Fields(keySet));
-    Integer ddID = gsd.getGenericEventSchema().getDimensionsDescriptorToID().get(dimensionDescriptor);
+    LOG.info("Configuration schema: {}", gsd.getDimensionalConfigurationSchema());
+    LOG.debug("DimensionsDescriptorToID: {}", gsd.getDimensionalConfigurationSchema().getDimensionsDescriptorToID());
+    Integer ddID = gsd.getDimensionalConfigurationSchema().getDimensionsDescriptorToID().get(dimensionDescriptor);
 
     if(ddID == null) {
       LOG.error("The given dimensionDescriptor is not valid: {}", dimensionDescriptor);
       return null;
     }
 
-    Map<String, Set<String>> valueToAggregator = gsd.getGenericEventSchema().getDdIDToValueToAggregator().get(ddID);
+    Map<String, Set<String>> valueToAggregator = gsd.getDimensionalConfigurationSchema().getDimensionsDescriptorIDToValueToAggregator().get(ddID);
 
     ////Fields
 
@@ -196,7 +198,7 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
           String value = components[DimensionalConfigurationSchema.ADDITIONAL_VALUE_VALUE_INDEX];
           String aggregator = components[DimensionalConfigurationSchema.ADDITIONAL_VALUE_AGGREGATOR_INDEX];
 
-          if(!gsd.getGenericEventSchema().getAggregatorRegistry().isAggregator(aggregator)) {
+          if(!gsd.getDimensionalConfigurationSchema().getAggregatorRegistry().isAggregator(aggregator)) {
             LOG.error("{} is not a valid aggregator", aggregator);
             return null;
           }
@@ -226,7 +228,7 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
 
     FieldsAggregatable queryFields = new FieldsAggregatable(nonAggregatedFields,
                                                                    fieldToAggregator);
-    FieldsDescriptor keyFieldsDescriptor = gsd.getGenericEventSchema().getAllKeysDescriptor().getSubset(new Fields(keySet));
+    FieldsDescriptor keyFieldsDescriptor = gsd.getDimensionalConfigurationSchema().getKeyDescriptor().getSubset(new Fields(keySet));
     GPOMutable gpoIm = new GPOMutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
 
     if(!hasTime) {

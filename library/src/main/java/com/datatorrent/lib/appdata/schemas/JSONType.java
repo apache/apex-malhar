@@ -15,10 +15,25 @@
  */
 package com.datatorrent.lib.appdata.schemas;
 
+/**
+ * This is an enum type which contains entries for each unique JSONType.
+ */
 public enum JSONType
 {
+  /**
+   * Represents JSON boolean type.
+   */
   BOOLEAN,
+  /**
+   * Represents JSON number type.
+   */
   NUMBER,
+  /**
+   * Represents JSON string type.
+   */
   STRING,
+  /**
+   * Represents a type which cannot be represented in JSON.
+   */
   INVALID;
 }

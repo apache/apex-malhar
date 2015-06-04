@@ -23,25 +23,44 @@ import com.google.common.base.Preconditions;
 
 import java.util.List;
 
+/**
+ * This class represents the result sent in response to a {@link DataQueryTablar}.
+ */
 @MessageType(type=DataQueryDimensional.TYPE)
 @MessageSerializerInfo(clazz=DataResultTabularSerializer.class)
 public class DataResultTabular extends Result
 {
+  /**
+   * The AppData type of the result.
+   */
   public static final String TYPE = "dataResult";
 
   private List<GPOMutable> values;
 
+  /**
+   * This creates a {@link DataResultTabular} object from the given query and
+   * list of values.
+   * @param query The query that this result is a response to.
+   * @param values The result values for the query.
+   */
   public DataResultTabular(Query query,
-                                  List<GPOMutable> values)
+                           List<GPOMutable> values)
   {
     super(query);
 
     setValues(values);
   }
 
+  /**
+   * This creates a {@link DataResultTabular} object from the given query,
+   * list of values, and countdown value.
+   * @param query The query that this result is a response to.
+   * @param values The result values for the query.
+   * @param countdown The countdown value for the result.
+   */
   public DataResultTabular(Query query,
-                                  List<GPOMutable> values,
-                                  long countdown)
+                           List<GPOMutable> values,
+                           long countdown)
   {
     super(query,
           countdown);
@@ -49,6 +68,10 @@ public class DataResultTabular extends Result
     setValues(values);
   }
 
+  /**
+   * This is a helper method that sets and validates the result values.
+   * @param values The result values.
+   */
   private void setValues(List<GPOMutable> values)
   {
     Preconditions.checkNotNull(values);
@@ -61,6 +84,10 @@ public class DataResultTabular extends Result
     return super.getQuery();
   }
 
+  /**
+   *
+   * @return
+   */
   public List<GPOMutable> getValues()
   {
     return values;

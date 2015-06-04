@@ -61,7 +61,8 @@ public class DataQueryTabularDeserializer implements CustomMessageDeserializer
    * This is a helper deserializer method.
    * @param json The JSON to deserialize.
    * @param context The context information to use when deserializing the query.
-   * @return The deserialized query.
+   * @return The deserialized query. If the given json contains some invalid content this
+   * method may return null.
    * @throws Exception
    */
   private Message deserializeHelper(String json,
@@ -72,6 +73,11 @@ public class DataQueryTabularDeserializer implements CustomMessageDeserializer
     //// Query id stuff
     String id = jo.getString(QRBase.FIELD_ID);
     String type = jo.getString(Message.FIELD_TYPE);
+
+    if(!type.equals(DataQueryTabular.TYPE)) {
+      LOG.error("Found type {} in the query json, but expected type {}.", type, DataQueryTabular.TYPE);
+      return null;
+    }
 
     /// Countdown
     long countdown = -1L;
@@ -112,13 +118,11 @@ public class DataQueryTabularDeserializer implements CustomMessageDeserializer
 
     if(!hasCountdown) {
       return new DataQueryTabular(id,
-                                  type,
                                   fields,
                                   schemaKeys);
     }
     else {
       return new DataQueryTabular(id,
-                                  type,
                                   fields,
                                   countdown,
                                   schemaKeys);

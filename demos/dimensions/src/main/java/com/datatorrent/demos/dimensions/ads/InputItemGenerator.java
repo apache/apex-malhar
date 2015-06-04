@@ -1,11 +1,21 @@
 /*
- *  Copyright (c) 2012-2015 Malhar, Inc.
- *  All Rights Reserved.
+ * Copyright (c) 2014 DataTorrent, Inc. ALL Rights Reserved.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 
 package com.datatorrent.demos.dimensions.ads;
 
-import com.datatorrent.demos.dimensions.ads.AdInfo;
 import com.datatorrent.api.Context.OperatorContext;
 import com.datatorrent.api.DefaultOutputPort;
 import com.datatorrent.api.InputOperator;
@@ -18,10 +28,6 @@ import org.slf4j.LoggerFactory;
 import java.util.List;
 import java.util.Random;
 
-/**
- *
- * @author Timothy Farkas: tim@datatorrent.com
- */
 public class InputItemGenerator implements InputOperator
 {
   private String eventSchemaJSON;
@@ -53,7 +59,9 @@ public class InputItemGenerator implements InputOperator
   private final Random random = new Random(0);
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
-  private static final Logger logger = LoggerFactory.getLogger(InputItemGenerator.class);
+  private double[] publisherScaleArray = new double[publisherID];
+  private double[] advertiserScaleArray = new double[advertiserID];
+  private double[] locationScaleArray = new double[locationID];
 
   public double getExpectedClickThruRate()
   {
@@ -94,20 +102,20 @@ public class InputItemGenerator implements InputOperator
     schema = new DimensionalConfigurationSchema(eventSchemaJSON,
                                         AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
-    publisherID = schema.getKeysToValuesList().get(PUBLISHER).size();
+    publisherID = schema.getKeysToEnumValuesList().get(PUBLISHER).size();
     if(advertiserName == null) {
-      advertiserID = schema.getKeysToValuesList().get(ADVERTISER).size();
+      advertiserID = schema.getKeysToEnumValuesList().get(ADVERTISER).size();
     }
     else {
       advertiserID = advertiserName.size();
     }
-    locationID = schema.getKeysToValuesList().get(LOCATION).size();
+    locationID = schema.getKeysToEnumValuesList().get(LOCATION).size();
 
-    publisherName = schema.getKeysToValuesList().get(PUBLISHER);
+    publisherName = schema.getKeysToEnumValuesList().get(PUBLISHER);
     if(advertiserName == null) {
-      advertiserName = schema.getKeysToValuesList().get(ADVERTISER);
+      advertiserName = schema.getKeysToEnumValuesList().get(ADVERTISER);
     }
-    locationName = schema.getKeysToValuesList().get(LOCATION);
+    locationName = schema.getKeysToEnumValuesList().get(LOCATION);
   }
 
   @Override
@@ -122,7 +130,6 @@ public class InputItemGenerator implements InputOperator
       long timestamp;
       for (int i = 0; i < blastCount && windowCount < numTuplesPerWindow; ++i, windowCount++) {
         int advertiserId = random.nextInt(advertiserID);
-        //int publisherId = (advertiserId * 10 / numAdvertisers) * numPublishers / 10 + nextRandomId(numPublishers / 10);
         int publisherId = random.nextInt(publisherID);
         int adUnit = random.nextInt(locationID);
 
@@ -145,7 +152,6 @@ public class InputItemGenerator implements InputOperator
     }
   }
 
-
   public void emitTuple(AdInfo adInfo) {
     this.outputPort.emit(adInfo);
   }
@@ -156,10 +162,6 @@ public class InputItemGenerator implements InputOperator
 
     adInfo.setPublisher((String) publisherName.get(publisherId));
     adInfo.publisherID = publisherId;
-
-    if(publisherId == 0) {
-      logger.info("publisher {}", (String) publisherName.get(publisherId));
-    }
     adInfo.setAdvertiser((String) advertiserName.get(advertiserId));
     adInfo.advertiserID = advertiserId;
     adInfo.setLocation((String) locationName.get(adUnit));
@@ -208,4 +210,6 @@ public class InputItemGenerator implements InputOperator
   {
     this.eventSchemaJSON = eventSchemaJSON;
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(InputItemGenerator.class);
 }

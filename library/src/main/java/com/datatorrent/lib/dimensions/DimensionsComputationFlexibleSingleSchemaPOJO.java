@@ -121,18 +121,18 @@ public class DimensionsComputationFlexibleSingleSchemaPOJO extends AbstractDimen
     Class<?> clazz = inputEvent.getClass();
 
     ddIDToKeyGetters = Lists.newArrayList();
-    List<FieldsDescriptor> keyDescriptors = eventSchema.getDdIDToKeyDescriptor();
+    List<FieldsDescriptor> keyDescriptors = eventSchema.getDimensionsDescriptorIDToKeyDescriptor();
     ddIDToAggIDToGetters = Lists.newArrayList();
 
     for(int ddID = 0;
-        ddID < eventSchema.getDdIDToKeyDescriptor().size();
+        ddID < eventSchema.getDimensionsDescriptorIDToKeyDescriptor().size();
         ddID++) {
-      DimensionsDescriptor dd = eventSchema.getDdIDToDD().get(ddID);
+      DimensionsDescriptor dd = eventSchema.getDimensionsDescriptorIDToDimensionsDescriptor().get(ddID);
       FieldsDescriptor keyDescriptor = keyDescriptors.get(ddID);
       GPOGetters keyGPOGetters = buildGPOGetters(clazz, keyDescriptor, dd, keyToExpression, true);
       ddIDToKeyGetters.add(keyGPOGetters);
-      Int2ObjectMap<FieldsDescriptor> map = eventSchema.getDdIDToAggIDToInputAggDescriptor().get(ddID);
-      IntArrayList aggIDList = eventSchema.getDdIDToAggIDs().get(ddID);
+      Int2ObjectMap<FieldsDescriptor> map = eventSchema.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().get(ddID);
+      IntArrayList aggIDList = eventSchema.getDimensionsDescriptorIDToAggregatorIDs().get(ddID);
       Int2ObjectOpenHashMap<GPOGetters> aggIDToGetters = new Int2ObjectOpenHashMap<GPOGetters>();
       ddIDToAggIDToGetters.add(aggIDToGetters);
 

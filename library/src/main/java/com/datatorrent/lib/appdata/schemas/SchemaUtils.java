@@ -21,8 +21,6 @@ import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import org.apache.commons.io.IOUtils;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
@@ -30,36 +28,29 @@ import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * This class holds utility methods for processing JSON.
+ */
 public class SchemaUtils
 {
-  private static final Logger logger = LoggerFactory.getLogger(SchemaUtils.class);
-  public static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS");
-
+  /**
+   * This constructor should not be used.
+   */
   private SchemaUtils()
   {
+    //Do nothing
   }
 
-  public static String getDateString(long time)
-  {
-    return sdf.format(new Date(time));
-  }
-
-  public static long getLong(String date)
-  {
-    try {
-      return sdf.parse(date).getTime();
-    }
-    catch(ParseException ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
+  /**
+   * This is a utility method which loads the contents of a resource file into a string.
+   * @param resource The resource file whose contents need to be loaded.
+   * @return The contents of the specified resource file.
+   */
   public static String jarResourceFileToString(String resource)
   {
     StringWriter stringWriter = new StringWriter();
@@ -76,6 +67,11 @@ public class SchemaUtils
     return stringWriter.toString();
   }
 
+  /**
+   * This is a utility method that loads the contents of the given input stream into a string.
+   * @param inputStream The input stream to read from.
+   * @return The contents of the given input stream as a String.
+   */
   public static String inputStreamToString(InputStream inputStream)
   {
     StringWriter stringWriter = new StringWriter();
@@ -90,28 +86,12 @@ public class SchemaUtils
     return stringWriter.toString();
   }
 
-  public static void checkDateEx(String date)
-  {
-    try {
-      sdf.parse(date);
-    }
-    catch(ParseException ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
-  public static boolean checkDate(String date)
-  {
-    try {
-      checkDateEx(date);
-    }
-    catch(Exception e) {
-      return false;
-    }
-
-    return true;
-  }
-
+  /**
+   * This is a utility
+   * @param jo
+   * @param fields
+   * @return
+   */
   public static boolean checkValidKeys(JSONObject jo,
                                        Fields fields)
   {
@@ -358,6 +338,12 @@ public class SchemaUtils
     return null;
   }
 
+  /**
+   * This is a utility method which
+   * @param ja
+   * @param key
+   * @return
+   */
   public static JSONObject findFirstKeyJSONObject(JSONArray ja, String key)
   {
     for(int index = 0;
@@ -403,6 +389,11 @@ public class SchemaUtils
     return null;
   }
 
+  /**
+   * Converts the given JSONObject into a {@link Map}.
+   * @param jo The {@link JSONObject} to convert.
+   * @return The converted {@link JSONObject}.
+   */
   public static Map<String, String> extractMap(JSONObject jo)
   {
     Map<String, String> resultMap = Maps.newHashMap();
@@ -426,6 +417,11 @@ public class SchemaUtils
     return resultMap;
   }
 
+  /**
+   * This is a utility method which creates a {@link JSONObject} out of the given map.
+   * @param map The map to convert into a {@link JSONObject}.
+   * @return The converted map.
+   */
   public static JSONObject createJSONObject(Map<String, String> map)
   {
     JSONObject jo = new JSONObject();
@@ -444,4 +440,6 @@ public class SchemaUtils
 
     return jo;
   }
+
+  private static final Logger LOG = LoggerFactory.getLogger(SchemaUtils.class);
 }

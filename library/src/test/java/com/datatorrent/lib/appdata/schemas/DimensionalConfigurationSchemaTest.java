@@ -90,7 +90,7 @@ public class DimensionalConfigurationSchemaTest
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(jsonSchema,
                                                             AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
-    FieldsDescriptor allKeysDescriptor = des.getAllKeysDescriptor();
+    FieldsDescriptor allKeysDescriptor = des.getKeyDescriptor();
 
     Assert.assertEquals("Incorrect number of keys.", 2, allKeysDescriptor.getFields().getFields().size());
     Assert.assertTrue("Doesn't contain required key.", allKeysDescriptor.getFields().getFields().contains(keyName1));
@@ -98,16 +98,16 @@ public class DimensionalConfigurationSchemaTest
     Assert.assertEquals("Key doesn't have correct type.", Type.STRING, allKeysDescriptor.getType(keyName1));
     Assert.assertEquals("Key doesn't have correct type.", Type.STRING, allKeysDescriptor.getType(keyName2));
 
-    Assert.assertTrue("First descriptor must contain this key", des.getDdIDToKeyDescriptor().get(0).getFields().getFields().contains(keyName1));
-    Assert.assertTrue("First descriptor must contain this key", des.getDdIDToKeyDescriptor().get(0).getFields().getFields().contains(keyName2));
+    Assert.assertTrue("First descriptor must contain this key", des.getDimensionsDescriptorIDToKeyDescriptor().get(0).getFields().getFields().contains(keyName1));
+    Assert.assertTrue("First descriptor must contain this key", des.getDimensionsDescriptorIDToKeyDescriptor().get(0).getFields().getFields().contains(keyName2));
 
-    Assert.assertEquals("First descriptor must contain this key", Type.STRING, des.getDdIDToKeyDescriptor().get(0).getType(keyName1));
-    Assert.assertEquals("First descriptor must contain this key", Type.STRING, des.getDdIDToKeyDescriptor().get(0).getType(keyName2));
+    Assert.assertEquals("First descriptor must contain this key", Type.STRING, des.getDimensionsDescriptorIDToKeyDescriptor().get(0).getType(keyName1));
+    Assert.assertEquals("First descriptor must contain this key", Type.STRING, des.getDimensionsDescriptorIDToKeyDescriptor().get(0).getType(keyName2));
 
-    Assert.assertTrue("First descriptor must contain this key", des.getDdIDToKeyDescriptor().get(1).getFields().getFields().contains(keyName1));
-    Assert.assertFalse("First descriptor must contain this key", des.getDdIDToKeyDescriptor().get(1).getFields().getFields().contains(keyName2));
+    Assert.assertTrue("First descriptor must contain this key", des.getDimensionsDescriptorIDToKeyDescriptor().get(1).getFields().getFields().contains(keyName1));
+    Assert.assertFalse("First descriptor must contain this key", des.getDimensionsDescriptorIDToKeyDescriptor().get(1).getFields().getFields().contains(keyName2));
 
-    Assert.assertEquals("First descriptor must contain this key", Type.STRING, des.getDdIDToKeyDescriptor().get(1).getType(keyName1));
+    Assert.assertEquals("First descriptor must contain this key", Type.STRING, des.getDimensionsDescriptorIDToKeyDescriptor().get(1).getType(keyName1));
 
     //Aggregate to dimensions descriptor
 
@@ -119,16 +119,16 @@ public class DimensionalConfigurationSchemaTest
     Set<String> sumAggFields = Sets.newHashSet(valueName2);
     Set<String> countAggFields = Sets.newHashSet(valueName2);
 
-    logger.debug("map: {}", des.getDdIDToAggregatorToAggregateDescriptor().get(0));
+    logger.debug("map: {}", des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0));
 
     Assert.assertTrue("Incorrect aggregate fields.",
-                        des.getDdIDToAggregatorToAggregateDescriptor().get(0).get("MIN").getFields().getFields().equals(minAggFields));
+                        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0).get("MIN").getFields().getFields().equals(minAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
-                        des.getDdIDToAggregatorToAggregateDescriptor().get(0).get("MAX").getFields().getFields().equals(maxAggFields));
+                        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0).get("MAX").getFields().getFields().equals(maxAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
-                        des.getDdIDToAggregatorToAggregateDescriptor().get(1).get("SUM").getFields().getFields().equals(sumAggFields));
+                        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(1).get("SUM").getFields().getFields().equals(sumAggFields));
     Assert.assertTrue("Incorrect aggregate fields.",
-                        des.getDdIDToAggregatorToAggregateDescriptor().get(1).get("COUNT").getFields().getFields().equals(countAggFields));
+                        des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(1).get("COUNT").getFields().getFields().equals(countAggFields));
 
     final Map<String, Integer> aggToId = Maps.newHashMap();
     aggToId.put("min", 0);
@@ -167,7 +167,7 @@ public class DimensionalConfigurationSchemaTest
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(jsonSchema,
                                                             AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
-    FieldsDescriptor fd = des.getDdIDToAggIDToOutputAggDescriptor().get(0).get(AggregatorIncrementalType.NAME_TO_ORDINAL.get("COUNT"));
+    FieldsDescriptor fd = des.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().get(0).get(AggregatorIncrementalType.NAME_TO_ORDINAL.get("COUNT"));
 
     Assert.assertEquals("Indexes for type compress fields should be 0", 0, (int) fd.getTypeToFieldToIndex().get(Type.LONG).get("valueName1"));
   }
@@ -194,7 +194,7 @@ public class DimensionalConfigurationSchemaTest
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(jsonSchema,
                                                             AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
-    Assert.assertEquals(1, des.getDdIDToDD().size());
+    Assert.assertEquals(1, des.getDimensionsDescriptorIDToDimensionsDescriptor().size());
 
     Map<String, Type> keyFieldToType = Maps.newHashMap();
     keyFieldToType.put(keyName1, Type.STRING);
@@ -208,9 +208,9 @@ public class DimensionalConfigurationSchemaTest
     valueFieldToTypeCount.put(valueName1, Type.DOUBLE);
     FieldsDescriptor valueFDCount = new FieldsDescriptor(valueFieldToTypeCount);
 
-    Assert.assertEquals(keyFD, des.getAllKeysDescriptor());
-    Assert.assertEquals(valueFDSum, des.getDdIDToAggregatorToAggregateDescriptor().get(0).get("SUM"));
-    Assert.assertEquals(valueFDCount, des.getDdIDToAggregatorToAggregateDescriptor().get(0).get("COUNT"));
+    Assert.assertEquals(keyFD, des.getKeyDescriptor());
+    Assert.assertEquals(valueFDSum, des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0).get("SUM"));
+    Assert.assertEquals(valueFDCount, des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().get(0).get("COUNT"));
   }
 
   @Test
@@ -221,7 +221,7 @@ public class DimensionalConfigurationSchemaTest
 
     Set<String> keys = Sets.newHashSet("publisher", "advertiser", "location");
 
-    Assert.assertEquals(keys, des.getAllKeysDescriptor().getFields().getFields());
+    Assert.assertEquals(keys, des.getKeyDescriptor().getFields().getFields());
   }
 
   @Test
@@ -232,19 +232,19 @@ public class DimensionalConfigurationSchemaTest
 
     Set<String> keys = Sets.newHashSet();
 
-    Assert.assertEquals(keys, des.getAllKeysDescriptor().getFields().getFields());
+    Assert.assertEquals(keys, des.getKeyDescriptor().getFields().getFields());
 
-    Assert.assertEquals(3, des.getDdIDToAggIDToInputAggDescriptor().size());
-    Assert.assertEquals(3, des.getDdIDToAggIDToOutputAggDescriptor().size());
-    Assert.assertEquals(3, des.getDdIDToAggIDs().size());
-    Assert.assertEquals(3, des.getDdIDToAggregatorToAggregateDescriptor().size());
-    Assert.assertEquals(3, des.getDdIDToDD().size());
-    Assert.assertEquals(3, des.getDdIDToKeyDescriptor().size());
-    Assert.assertEquals(3, des.getDdIDToOTFAggregatorToAggregateDescriptor().size());
-    Assert.assertEquals(3, des.getDdIDToValueToAggregator().size());
-    Assert.assertEquals(3, des.getDdIDToValueToOTFAggregator().size());
-    Assert.assertEquals(1, des.getCombinationIDToFieldToAggregatorAdditionalValues().size());
-    Assert.assertEquals(1, des.getCombinationIDToKeys().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorIDToOutputAggregatorDescriptor().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorIDs().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToAggregatorToAggregateDescriptor().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToDimensionsDescriptor().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToKeyDescriptor().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToOTFAggregatorToAggregateDescriptor().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToValueToAggregator().size());
+    Assert.assertEquals(3, des.getDimensionsDescriptorIDToValueToOTFAggregator().size());
+    Assert.assertEquals(1, des.getDimensionsDescriptorIDToFieldToAggregatorAdditionalValues().size());
+    Assert.assertEquals(1, des.getDimensionsDescriptorIDToKeys().size());
   }
 
   @Test
@@ -253,7 +253,7 @@ public class DimensionalConfigurationSchemaTest
     DimensionalConfigurationSchema des = new DimensionalConfigurationSchema(SchemaUtils.jarResourceFileToString("adsGenericEventSchemaOTF.json"),
                                                             AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
-    Assert.assertEquals(4, des.getDdIDToAggIDs().get(0).size());
+    Assert.assertEquals(4, des.getDimensionsDescriptorIDToAggregatorIDs().get(0).size());
   }
 
   @Test
@@ -318,8 +318,8 @@ public class DimensionalConfigurationSchemaTest
                                                                     dimensionsCombinations,
                                                                     AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
-    logger.debug("expected {}", expectedEventSchema.getDdIDToValueToOTFAggregator());
-    logger.debug("actual   {}", eventSchema.getDdIDToValueToOTFAggregator());
+    logger.debug("expected {}", expectedEventSchema.getDimensionsDescriptorIDToValueToOTFAggregator());
+    logger.debug("actual   {}", eventSchema.getDimensionsDescriptorIDToValueToOTFAggregator());
 
     Assert.assertEquals(expectedEventSchema, eventSchema);
   }

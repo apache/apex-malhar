@@ -28,8 +28,7 @@ public class DataQueryTabularTest
     Fields fields = new Fields(Sets.newHashSet("a", "b"));
 
     DataQueryTabular query = new DataQueryTabular("1",
-                                                               "dataQuery",
-                                                                fields);
+                                                  fields);
 
     Assert.assertEquals("This query should be oneTime.", true, query.isOneTime());
   }
@@ -40,9 +39,8 @@ public class DataQueryTabularTest
     Fields fields = new Fields(Sets.newHashSet("a", "b"));
 
     DataQueryTabular query = new DataQueryTabular("1",
-                                                               "dataQuery",
-                                                                fields,
-                                                                1L);
+                                                  fields,
+                                                  1L);
 
     Assert.assertEquals("This query should be oneTime.", false, query.isOneTime());
   }

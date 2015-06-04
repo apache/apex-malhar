@@ -58,7 +58,7 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
   public Result executeQuery(DataQueryDimensional query, QueryMeta qm, MutableLong queueContext)
   {
     DimensionalSchema schemaDimensional = (DimensionalSchema)schemaRegistry.getSchema(query.getSchemaKeys());
-    DimensionalConfigurationSchema eventSchema = schemaDimensional.getGenericEventSchema();
+    DimensionalConfigurationSchema eventSchema = schemaDimensional.getDimensionalConfigurationSchema();
     LOG.debug("Processing query {} with countdown {}", query.getId(), query.getCountdown());
     List<Map<String, GPOMutable>> keys = Lists.newArrayList();
     List<Map<String, GPOMutable>> results = Lists.newArrayList();

@@ -19,32 +19,94 @@ package com.datatorrent.lib.appdata.schemas;
 import java.io.Serializable;
 import java.text.DecimalFormat;
 
+/**
+ * <p>
+ * The {@link ResultFormatter} applies user specified {@link DecimalFormat} rules
+ * to data. This class is used when serializing query results in order to define
+ * out output data should be formatted before being sent back to the user.
+ * </p>
+ * <p>
+ * Currently the ResultFormatter does not support applying special formatting to individual fields,
+ * it can only support broad formatting rules based on field type. For example all float fields will be
+ * formatted a certain way and all float fields could potentially be formatted in another way. In the
+ * future the result formatter will support formatting data uniquely for each individual field.
+ * </p>
+ */
 public class ResultFormatter implements Serializable
 {
   private static final long serialVersionUID = 201505121109L;
 
+  /**
+   * The {@link DecimalFormat} string for float data.
+   */
   private String floatFormatString;
+  /**
+   * The {@link DecimalFormat} string for double data.
+   */
   private String doubleFormatString;
-
+  /**
+   * The {@link DecimalFormat} string for byte data.
+   */
   private String byteFormatString;
+  /**
+   * The {@link DecimalFomrat} string for short data.
+   */
   private String shortFormatString;
+  /**
+   * The {@link DecimalFormat} string for int data.
+   */
   private String intFormatString;
+  /**
+   * The {@link DecimalFormat} string for long data.
+   */
   private String longFormatString;
-
+  /**
+   * The {@link DecimalFormat} string for discrete data.
+   */
   private String discreteFormatString;
+  /**
+   * The {@link DecimalFormat} string for continuous data.
+   */
   private String continuousFormatString;
 
+  /**
+   * The {@link DecimalFormat} object for floats.
+   */
   private transient DecimalFormat floatFormat;
+  /**
+   * The {@link DecimalFormat} object for doubles.
+   */
   private transient DecimalFormat doubleFormat;
+  /**
+   * The {@link DecimalFormat} object for bytes.
+   */
   private transient DecimalFormat byteFormat;
+  /**
+   * The {@link DecimalFormat} object for shorts.
+   */
   private transient DecimalFormat shortFormat;
+  /**
+   * The {@link DecimalFormat} object for ints.
+   */
   private transient DecimalFormat intFormat;
+  /**
+   * The {@link DecimalFormat} object for longs.
+   */
   private transient DecimalFormat longFormat;
 
+  /**
+   * Constructor for class.
+   */
   public ResultFormatter()
   {
+    //Nothing needs to be done here
   }
 
+  /**
+   * Applies the correct formatting to the given object.
+   * @param object The object to apply formatting to and convert to a String.
+   * @return The formatted object string.
+   */
   public String format(Object object)
   {
     Type type = Type.CLASS_TO_TYPE.get(object.getClass());
@@ -83,6 +145,11 @@ public class ResultFormatter implements Serializable
     }
   }
 
+  /**
+   * Formats the given float value.
+   * @param val The float value to format.
+   * @return The formatted float value.
+   */
   public String format(float val)
   {
     DecimalFormat df = getFloatFormat();
@@ -94,6 +161,11 @@ public class ResultFormatter implements Serializable
     return Float.toString(val);
   }
 
+  /**
+   * Formats the given double values.
+   * @param val The double value to format.
+   * @return The formatted double value.
+   */
   public String format(double val)
   {
     DecimalFormat df = getDoubleFormat();
@@ -105,6 +177,11 @@ public class ResultFormatter implements Serializable
     return Double.toString(val);
   }
 
+  /**
+   * Formats the given byte value.
+   * @param val The byte value to format.
+   * @return The formatted byte value.
+   */
   public String format(byte val)
   {
     DecimalFormat df = getByteFormat();
@@ -116,6 +193,11 @@ public class ResultFormatter implements Serializable
     return Byte.toString(val);
   }
 
+  /**
+   * Formats the given short value.
+   * @param val The short value to format.
+   * @return The formatted short value.
+   */
   public String format(short val)
   {
     DecimalFormat df = getShortFormat();
@@ -127,6 +209,11 @@ public class ResultFormatter implements Serializable
     return Short.toString(val);
   }
 
+  /**
+   * Formats the given int value.
+   * @param val The int value to format.
+   * @return The formatted int value.
+   */
   public String format(int val)
   {
     DecimalFormat df = getIntFormat();
@@ -138,6 +225,11 @@ public class ResultFormatter implements Serializable
     return Integer.toString(val);
   }
 
+  /**
+   * Formats the given long value.
+   * @param val The long value to format.
+   * @return The formatted long value.
+   */
   public String format(long val)
   {
     DecimalFormat df = getLongFormat();
@@ -149,6 +241,10 @@ public class ResultFormatter implements Serializable
     return Long.toString(val);
   }
 
+  /**
+   * Gets the {@link DecimalFormat} object to use for floats.
+   * @return The {@link DecimalFormat} object to use for floats.
+   */
   public DecimalFormat getFloatFormat()
   {
     if(floatFormat == null && floatFormatString != null) {
@@ -159,7 +255,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the doubleFormat
+   * Gets the {@link DecimalFormat} for doubles.
+   * @return The {@link DecimalFormat} object to use for doubles.
    */
   public DecimalFormat getDoubleFormat()
   {
@@ -171,7 +268,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the byteFormat
+   * Gets the {@link DecimalFormat} for bytes.
+   * @return The {@link DecimalFormat} object to use for bytes.
    */
   public DecimalFormat getByteFormat()
   {
@@ -183,7 +281,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the shortFormat
+   * Gets the {@link DecimalFormat} for shorts.
+   * @return The {@link DecimalFormat} object to use for shorts.
    */
   public DecimalFormat getShortFormat()
   {
@@ -194,6 +293,10 @@ public class ResultFormatter implements Serializable
     return shortFormat;
   }
 
+  /**
+   * Gets the {@link DecimalFormat} for ints.
+   * @return The {@link DecimalFormat} object to use for ints.
+   */
   public DecimalFormat getIntFormat()
   {
     if(intFormat == null && intFormatString != null) {
@@ -204,7 +307,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the longFormat
+   * Gets the {@link DecimalFormat} for longs.
+   * @return The {@link DecimalFormat} object to use for longs.
    */
   public DecimalFormat getLongFormat()
   {
@@ -215,11 +319,19 @@ public class ResultFormatter implements Serializable
     return longFormat;
   }
 
+  /**
+   * Gets the {@link DecimalFormat} for discrete values.
+   * @return The {@link DecimalFormat} object to use for discrete values.
+   */
   public String getDiscreteFormatString()
   {
     return discreteFormatString;
   }
 
+  /**
+   * Sets the format string for discrete values.
+   * @param discreteFormatString The format string for discrete values.
+   */
   public void setDiscreteFormatString(String discreteFormatString)
   {
     this.discreteFormatString = discreteFormatString;
@@ -229,11 +341,19 @@ public class ResultFormatter implements Serializable
     this.longFormatString = discreteFormatString;
   }
 
+  /**
+   * Gets the format string for continuous values.
+   * @return The format string for continuous values.
+   */
   public String getContinuousFormatString()
   {
     return continuousFormatString;
   }
 
+  /**
+   * Sets the format string for continuous values.
+   * @param continuousFormatString The format string for continuous values.
+   */
   public void setContinuousFormatString(String continuousFormatString)
   {
     this.continuousFormatString = continuousFormatString;
@@ -242,7 +362,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the decimalFormatString
+   * Gets the float format string.
+   * @return The float format string.
    */
   public String getFloatFormatString()
   {
@@ -250,7 +371,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @param decimalFormatString the decimalFormatString to set
+   * Sets the float format string.
+   * @param decimalFormatString The float format string.
    */
   public void setFloatFormatString(String decimalFormatString)
   {
@@ -258,7 +380,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the doubleFormatString
+   * Gets the double format string.
+   * @return The double format string.
    */
   public String getDoubleFormatString()
   {
@@ -266,7 +389,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @param doubleFormatString the doubleFormatString to set
+   * Sets the double format string.
+   * @param doubleFormatString The double format string.
    */
   public void setDoubleFormatString(String doubleFormatString)
   {
@@ -274,7 +398,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the intFormatString
+   * Gets the int format string.
+   * @return The int format string.
    */
   public String getIntFormatString()
   {
@@ -282,7 +407,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @param intFormatString the intFormatString to set
+   * Sets the int format string.
+   * @param intFormatString The int format string.
    */
   public void setIntFormatString(String intFormatString)
   {
@@ -290,7 +416,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the byteFormatString
+   * Gets the byte format string.
+   * @return The byte format string.
    */
   public String getByteFormatString()
   {
@@ -298,7 +425,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @param byteFormatString the byteFormatString to set
+   * Sets the byte format string.
+   * @param byteFormatString The byte format string to set.
    */
   public void setByteFormatString(String byteFormatString)
   {
@@ -306,7 +434,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the shortFormatString
+   * Gets the short format string.
+   * @return The short format string.
    */
   public String getShortFormatString()
   {
@@ -314,7 +443,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @param shortFormatString the shortFormatString to set
+   * Sets the short format string.
+   * @param shortFormatString The shortFormatString to set.
    */
   public void setShortFormatString(String shortFormatString)
   {
@@ -322,7 +452,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @return the longFormatString
+   * Gets the long format string.
+   * @return The long format string to set.
    */
   public String getLongFormatString()
   {
@@ -330,7 +461,8 @@ public class ResultFormatter implements Serializable
   }
 
   /**
-   * @param longFormatString the longFormatString to set
+   * Sets the long format string.
+   * @param longFormatString The long format string to set.
    */
   public void setLongFormatString(String longFormatString)
   {

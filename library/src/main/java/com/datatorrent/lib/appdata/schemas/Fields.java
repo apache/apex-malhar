@@ -19,60 +19,64 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * This is a somewhat vacuous class for managing field names for AppData schemas and queries.
+ * Its function is to maintain a set of field names with no null values. It also maintains a list
+ * of field names to increase iteration speed.
+ */
 public class Fields
 {
+  /**
+   * Set of field names.
+   */
   private Set<String> fields;
+  /**
+   * List of field names.
+   */
   private List<String> fieldsList;
 
+  /**
+   * Creats an empty set of fields.
+   */
   public Fields()
   {
   }
 
-  public Fields(Set<String> fields)
+  /**
+   * Creates a set of fields from the given collection of fields.
+   * @param fields The collection object to create this {@link Fields} object from.
+   */
+  public Fields(Collection<String> fields)
   {
-    setFields(fields);
-
-    fieldsList = Lists.newArrayList();
-    fieldsList.addAll(fields);
-  }
-
-  public Fields(List<String> fields)
-  {
-    Set<String> fieldsSet = Sets.newHashSet();
+    this.fields = Sets.newHashSet();
 
     for(String field: fields) {
       Preconditions.checkNotNull(field);
-      if(!fieldsSet.add(field)) {
+      if(!fields.add(field)) {
         throw new IllegalArgumentException("Duplicate field: " + field);
       }
     }
 
-    setFields(fieldsSet);
-
     fieldsList = Lists.newArrayList();
     fieldsList.addAll(fields);
   }
 
-  private void setFields(Set<String> fields)
-  {
-    for(String field: fields) {
-      Preconditions.checkNotNull(field);
-    }
-
-    //this.fields = Collections.unmodifiableSet(Sets.newHashSet(fields));
-    this.fields = Sets.newHashSet(fields);
-  }
-
+  /**
+   * This gets the set of fields managed by this {@link Fields} object.
+   * @return The set of fields managed by this {@link Fields} object.
+   */
   public Set<String> getFields()
   {
     return fields;
   }
 
   /**
-   * @return the fieldsList
+   * Gets the list of fields managed by this {@link Fields} object.
+   * @return The list of fields managed by this {@link Fields} object.
    */
   public List<String> getFieldsList()
   {

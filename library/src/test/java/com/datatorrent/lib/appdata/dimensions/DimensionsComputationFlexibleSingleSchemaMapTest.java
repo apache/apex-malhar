@@ -65,8 +65,8 @@ public class DimensionsComputationFlexibleSingleSchemaMapTest
     DimensionalConfigurationSchema schema = new DimensionalConfigurationSchema(eventSchema,
                                                                AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY);
 
-    FieldsDescriptor keyFD = schema.getDdIDToKeyDescriptor().get(0);
-    FieldsDescriptor valueFD = schema.getDdIDToAggIDToInputAggDescriptor().get(0).get(aggregatorID);
+    FieldsDescriptor keyFD = schema.getDimensionsDescriptorIDToKeyDescriptor().get(0);
+    FieldsDescriptor valueFD = schema.getDimensionsDescriptorIDToAggregatorIDToInputAggregatorDescriptor().get(0).get(aggregatorID);
 
     GPOMutable keyGPO = new GPOMutable(keyFD);
     keyGPO.setField("publisher", "google");
