@@ -177,12 +177,12 @@ public class InputItemGenerator implements InputOperator
                            advertiserScaleArray[advertiserId] *
                            locationScaleArray[adUnit];
 
-        double cost = 0.5 + 0.25 * random.nextDouble() * tempScale * minuteScale + dayTimeOffset + dayOffset;
+        double cost = 0.1 + 0.05 * random.nextDouble() * tempScale * minuteScale + dayTimeOffset + dayOffset;
         /* 0 (zero) is used as the invalid value */
         buildAndSend(false, publisherId, advertiserId, adUnit, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
-          double revenue = 0.5 + 0.5 * random.nextDouble() * tempScale * minuteScale + dayTimeOffset + dayOffset;
+          double revenue = 0.1 + 0.1 * random.nextDouble() * tempScale * minuteScale + dayTimeOffset + dayOffset;
           // generate fake click
           buildAndSend(true, publisherId, advertiserId, adUnit, revenue, timestamp);
         }
