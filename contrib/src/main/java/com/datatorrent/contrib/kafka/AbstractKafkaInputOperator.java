@@ -387,7 +387,11 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
     return consumer;
   }
 
-  // add topic as operator property
+  /**
+   * Set the Topic.
+   * @omitFromUI
+   */
+  @Deprecated
   public void setTopic(String topic)
   {
     this.consumer.setTopic(topic);
@@ -396,29 +400,12 @@ public abstract class AbstractKafkaInputOperator<K extends KafkaConsumer> implem
   /**
    * Set the ZooKeeper quorum of the Kafka cluster(s) you want to consume data from.
    * The operator will discover the brokers that it needs to consume messages from.
+   * @omitFromUI
    */
+  @Deprecated
   public void setZookeeper(String zookeeperString)
   {
-    SetMultimap<String, String> theClusters = HashMultimap.create();
-    for (String zk : zookeeperString.split(";")) {
-      String[] parts = zk.split("::");
-      String clusterId = parts.length == 1 ? KafkaPartition.DEFAULT_CLUSTERID : parts[0];
-      String[] hostNames = parts.length == 1 ? parts[0].split(",") : parts[1].split(",");
-      String portId = "";
-      for (int idx = hostNames.length - 1; idx >= 0; idx--) {
-        String[] zkParts = hostNames[idx].split(":");
-        if (zkParts.length == 2) {
-          portId = zkParts[1];
-        }
-        if (!portId.isEmpty() && portId != "") {
-          theClusters.put(clusterId, zkParts[0] + ":" + portId);
-        } else {
-          throw new IllegalArgumentException("Wrong zookeeper string: " + zookeeperString + "\n"
-              + " Expected format should be cluster1::zookeeper1,zookeeper2:port1;cluster2::zookeeper3:port2 or zookeeper1:port1,zookeeper:port2");
-        }
-      }
-    }
-    this.consumer.setZookeeper(theClusters);
+    this.consumer.setZookeeper(zookeeperString);
   }
 
   @Override

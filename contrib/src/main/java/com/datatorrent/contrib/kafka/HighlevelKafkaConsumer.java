@@ -115,11 +115,11 @@ public class HighlevelKafkaConsumer extends KafkaConsumer
   {
     super.start();
     //Share other properties among all connectors but set zookeepers respectively cause different cluster would use different zookeepers
-    for (String cluster : zookeeper.keySet()) {
+    for (String cluster : zookeeperMap.keySet()) {
       // create high level consumer for every cluster
       Properties config = new Properties();
       config.putAll(consumerConfig);
-      config.setProperty("zookeeper.connect", Joiner.on(',').join(zookeeper.get(cluster)));
+      config.setProperty("zookeeper.connect", Joiner.on(',').join(zookeeperMap.get(cluster)));
       // create consumer connector will start a daemon thread to monitor the metadata change 
       // we want to start this thread until the operator is activated 
       standardConsumer.put(cluster, kafka.consumer.Consumer.createJavaConsumerConnector(new ConsumerConfig(config)));
