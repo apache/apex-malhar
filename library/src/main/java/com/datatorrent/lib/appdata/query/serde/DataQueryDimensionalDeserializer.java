@@ -90,7 +90,12 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
       countdown = jo.getLong(QRBase.FIELD_COUNTDOWN);
     }
 
-    boolean incompleteResultOK = jo.getBoolean(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK);
+
+    boolean incompleteResultOK = true;
+
+    if(jo.has(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK)) {
+      incompleteResultOK = jo.getBoolean(DataQueryDimensional.FIELD_INCOMPLETE_RESULT_OK);
+    }
 
     //// Message
     JSONObject data = jo.getJSONObject(DataQueryDimensional.FIELD_DATA);
