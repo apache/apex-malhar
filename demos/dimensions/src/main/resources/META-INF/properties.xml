@@ -83,7 +83,7 @@
 
   <property>
     <name>dt.application.AdsDimensionsDemoGeneric-Customer.operator.InputGenerator.numTuplesPerWindow</name>
-    <value>4000</value>
+    <value>2500</value>
   </property>
   <property>
     <name>dt.application.AdsDimensionsDemoGeneric-Customer.operator.Store.fileStore.basePathPrefix</name>
@@ -118,7 +118,7 @@
 
   <property>
     <name>dt.application.AdsDimensionsDemoGenericManualEntry-Customer.operator.InputGenerator.numTuplesPerWindow</name>
-    <value>4000</value>
+    <value>2500</value>
   </property>
   <property>
     <name>dt.application.AdsDimensionsDemoGenericManualEntry-Customer.operator.Store.fileStore.basePathPrefix</name>
