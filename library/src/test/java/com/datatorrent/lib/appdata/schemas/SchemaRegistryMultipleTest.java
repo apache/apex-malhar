@@ -17,7 +17,8 @@
 package com.datatorrent.lib.appdata.schemas;
 
 import com.datatorrent.lib.dimensions.aggregator.AggregatorRegistry;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
+import com.datatorrent.lib.util.TestUtils;
+import com.esotericsoftware.kryo.Kryo;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import org.junit.Assert;
@@ -46,6 +47,16 @@ public class SchemaRegistryMultipleTest
   public void initialize()
   {
     AggregatorRegistry.DEFAULT_AGGREGATOR_REGISTRY.setup();
+  }
+
+  @Test
+  public void serializationTest() throws Exception
+  {
+    SchemaRegistryMultiple schemaRegistryMultiple = createSchemaRegistry();
+
+    schemaRegistryMultiple = TestUtils.clone(new Kryo(), schemaRegistryMultiple);
+
+    Assert.assertEquals(2, schemaRegistryMultiple.size());
   }
 
   @Test

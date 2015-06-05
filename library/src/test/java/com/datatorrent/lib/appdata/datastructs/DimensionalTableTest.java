@@ -34,11 +34,21 @@ public class DimensionalTableTest
   private static final Logger logger = LoggerFactory.getLogger(DimensionalTableTest.class);
 
   @Test
-  public void serializationTest() throws Exception
+  public void serializabilityTest() throws Exception
   {
     DimensionalTable<Integer> table = createTestTable();
 
     TestUtils.clone(new Kryo(), table);
+  }
+
+  @Test
+  public void serializationRestorationTest() throws Exception
+  {
+    DimensionalTable<Integer> table = createTestTable();
+    int size = table.size();
+
+    table = TestUtils.clone(new Kryo(), table);
+    Assert.assertEquals(size, table.size());
   }
 
   @Test

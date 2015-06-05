@@ -107,7 +107,8 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
       schemaKeys = SchemaUtils.extractMap(data.getJSONObject(Query.FIELD_SCHEMA_KEYS));
     }
 
-    DimensionalSchema gsd = (DimensionalSchema) ((SchemaRegistry) context).getSchema(schemaKeys);
+    SchemaRegistry schemaRegistry = ((SchemaRegistry) context);
+    DimensionalSchema gsd = (DimensionalSchema) schemaRegistry.getSchema(schemaKeys);
 
     boolean hasFromTo = false;
     int latestNumBuckets = -1;
@@ -157,8 +158,6 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
 
     DimensionsDescriptor dimensionDescriptor = new DimensionsDescriptor(bucket,
                                                                         new Fields(keySet));
-    LOG.info("Configuration schema: {}", gsd.getDimensionalConfigurationSchema());
-    LOG.debug("DimensionsDescriptorToID: {}", gsd.getDimensionalConfigurationSchema().getDimensionsDescriptorToID());
     Integer ddID = gsd.getDimensionalConfigurationSchema().getDimensionsDescriptorToID().get(dimensionDescriptor);
 
     if(ddID == null) {
@@ -223,7 +222,6 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
       }
     }
     else {
-      LOG.info("Has time: {}", hasTime);
       if(hasTime) {
         nonAggregatedFields.add(DimensionsDescriptor.DIMENSION_TIME);
       }
@@ -232,65 +230,65 @@ public class DataQueryDimensionalDeserializer implements CustomMessageDeserializ
     }
 
     FieldsAggregatable queryFields = new FieldsAggregatable(nonAggregatedFields,
-                                                                   fieldToAggregator);
+                                                            fieldToAggregator);
     FieldsDescriptor keyFieldsDescriptor = gsd.getDimensionalConfigurationSchema().getKeyDescriptor().getSubset(new Fields(keySet));
     GPOMutable gpoIm = new GPOMutable(GPOUtils.deserialize(keyFieldsDescriptor, keys));
 
     if(!hasTime) {
       return new DataQueryDimensional(id,
-                                  type,
-                                  gpoIm,
-                                  queryFields,
-                                  incompleteResultOK,
-                                  schemaKeys);
+                                      type,
+                                      gpoIm,
+                                      queryFields,
+                                      incompleteResultOK,
+                                      schemaKeys);
     }
     else {
       if(oneTime) {
         if(hasFromTo) {
           return new DataQueryDimensional(id,
-                                      type,
-                                      from,
-                                      to,
-                                      bucket,
-                                      gpoIm,
-                                      queryFields,
-                                      incompleteResultOK,
-                                      schemaKeys);
+                                          type,
+                                          from,
+                                          to,
+                                          bucket,
+                                          gpoIm,
+                                          queryFields,
+                                          incompleteResultOK,
+                                          schemaKeys);
         }
         else {
           return new DataQueryDimensional(id,
-                                      type,
-                                      latestNumBuckets,
-                                      bucket,
-                                      gpoIm,
-                                      queryFields,
-                                      incompleteResultOK,
-                                      schemaKeys);
+                                          type,
+                                          latestNumBuckets,
+                                          bucket,
+                                          gpoIm,
+                                          queryFields,
+                                          incompleteResultOK,
+                                          schemaKeys);
         }
       }
       else {
         if(hasFromTo) {
           return new DataQueryDimensional(id,
-                                      type,
-                                      from,
-                                      to,
-                                      bucket,
-                                      gpoIm,
-                                      queryFields,
-                                      countdown,
-                                      incompleteResultOK,
-                                      schemaKeys);
+                                          type,
+                                          from,
+                                          to,
+                                          bucket,
+                                          gpoIm,
+                                          queryFields,
+                                          countdown,
+                                          incompleteResultOK,
+                                          schemaKeys);
         }
         else {
           return new DataQueryDimensional(id,
-                                      type,
-                                      latestNumBuckets,
-                                      bucket,
-                                      gpoIm,
-                                      queryFields,
-                                      countdown,
-                                      incompleteResultOK,
-                                      schemaKeys);
+                                          type,
+                                          latestNumBuckets,
+                                          bucket,
+                                          gpoIm,
+                                          queryFields,
+                                          countdown,
+                                          incompleteResultOK,
+                                          schemaKeys);
         }
       }
     }

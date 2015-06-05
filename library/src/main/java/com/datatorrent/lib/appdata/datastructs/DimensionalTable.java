@@ -90,22 +90,22 @@ public class DimensionalTable<DATA>
   /**
    * This is a map from the header name to its column index.
    */
-  private final Map<String, Integer> dimensionNameToIndex = Maps.newHashMap();
+  private Map<String, Integer> dimensionNameToIndex = Maps.newHashMap();
 
   /**
    * This is a column which holds the data payload.
    */
-  private final List<DATA> dataColumn = Lists.newArrayList();
+  private List<DATA> dataColumn = Lists.newArrayList();
 
   /**
    * These are the columns which hold each component of the key.
    */
-  private final List<List<Object>> dimensionColumns = Lists.newArrayList();
+  private List<List<Object>> dimensionColumns = Lists.newArrayList();
 
   /**
    * A map from a key row to its data payload.
    */
-  private final Map<List<Object>, DATA> dimensionKeysToData = Maps.newHashMap();
+  private Map<List<Object>, DATA> dimensionKeysToData = Maps.newHashMap();
 
   /**
    * Constructor for Kryo
