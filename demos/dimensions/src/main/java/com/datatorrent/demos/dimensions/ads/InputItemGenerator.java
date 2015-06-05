@@ -64,8 +64,11 @@ public class InputItemGenerator implements InputOperator
   public final transient DefaultOutputPort<AdInfo> outputPort = new DefaultOutputPort<AdInfo>();
 
   private double[] publisherScaleArray;
+  private double[] publisherOffsetArray;
   private double[] advertiserScaleArray;
+  private double[] advertiserOffsetArray;
   private double[] locationScaleArray;
+  private double[] locationOffsetArray;
 
   public double getExpectedClickThruRate()
   {
@@ -127,6 +130,10 @@ public class InputItemGenerator implements InputOperator
     initializeScaleArray(advertiserScaleArray);
     locationScaleArray = new double[locationID];
     initializeScaleArray(locationScaleArray);
+
+    publisherOffsetArray = new double[publisherID];
+    advertiserOffsetArray = new double[advertiserID];
+    locationOffsetArray = new double[locationID];
   }
 
   private void initializeScaleArray(double[] scaleArray)
@@ -135,6 +142,15 @@ public class InputItemGenerator implements InputOperator
         index < scaleArray.length;
         index++) {
       scaleArray[index] = 1.0 + random.nextDouble() * 3;
+    }
+  }
+
+  private void initializeOffsetArray(double[] offsetArray)
+  {
+    for(int index = 0;
+        index < offsetArray.length;
+        index++) {
+      offsetArray[index] = random.nextDouble() * .03;
     }
   }
 
@@ -159,7 +175,12 @@ public class InputItemGenerator implements InputOperator
     if(nextMinute != currentMinute) {
       expectedClickThruRate = random.nextDouble() * .1 + .1;
       currentMinute = nextMinute;
-      minuteOffset = random.nextDouble() * .2;
+
+      initializeOffsetArray(publisherOffsetArray);
+      initializeOffsetArray(advertiserOffsetArray);
+      initializeOffsetArray(locationOffsetArray);
+
+      minuteOffset = random.nextDouble() * .03;
     }
 
     try {
@@ -171,16 +192,21 @@ public class InputItemGenerator implements InputOperator
 
         timestamp = System.currentTimeMillis();
 
+        double tempOffset = publisherOffsetArray[publisherId] +
+                            advertiserOffsetArray[advertiserId] +
+                            locationScaleArray[adUnit];
         double tempScale = publisherScaleArray[publisherId] *
                            advertiserScaleArray[advertiserId] *
                            locationScaleArray[adUnit];
 
-        double cost = 0.1 + 0.05 * random.nextDouble() * tempScale + dayTimeOffset + dayOffset + minuteOffset;
+        double cost = 0.1 + 0.05 * random.nextDouble() * tempScale +
+                      dayTimeOffset + dayOffset + minuteOffset + tempOffset;
         /* 0 (zero) is used as the invalid value */
         buildAndSend(false, publisherId, advertiserId, adUnit, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
-          double revenue = 0.5 + 0.5 * random.nextDouble() * tempScale + dayTimeOffset + dayOffset + minuteOffset;
+          double revenue = 0.5 + 0.5 * random.nextDouble() * tempScale +
+                           dayTimeOffset + dayOffset + minuteOffset + tempOffset;
           // generate fake click
           buildAndSend(true, publisherId, advertiserId, adUnit, revenue, timestamp);
         }
