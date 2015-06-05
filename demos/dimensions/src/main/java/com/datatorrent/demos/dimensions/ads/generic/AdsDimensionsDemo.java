@@ -121,7 +121,7 @@ import java.util.Map;
 @ApplicationAnnotation(name=AdsDimensionsDemo.APP_NAME)
 public class AdsDimensionsDemo implements StreamingApplication
 {
-  public static final String APP_NAME = "AdsDimensionsDemoGeneric";
+  public static final String APP_NAME = "AdsDimensionsDemoGeneric-Customer";
   public static final String EVENT_SCHEMA = "adsGenericEventSchema.json";
 
   public String appName = APP_NAME;
