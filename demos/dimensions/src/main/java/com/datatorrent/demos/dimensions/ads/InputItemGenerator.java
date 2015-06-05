@@ -71,37 +71,6 @@ public class InputItemGenerator implements InputOperator
   private double[] locationScaleArray;
   private double[] locationOffsetArray;
 
-  public double getExpectedClickThruRate()
-  {
-    return expectedClickThruRate;
-  }
-
-  public void setExpectedClickThruRate(double expectedClickThruRate)
-  {
-    this.expectedClickThruRate = expectedClickThruRate;
-  }
-
-  public int getBlastCount()
-  {
-    return blastCount;
-  }
-
-  public void setBlastCount(int blastCount)
-  {
-    this.blastCount = blastCount;
-  }
-
-  @Override
-  public void beginWindow(long windowId)
-  {
-    windowCount = 0;
-  }
-
-  @Override
-  public void endWindow()
-  {
-  }
-
   @Override
   public void setup(OperatorContext context)
   {
@@ -137,47 +106,20 @@ public class InputItemGenerator implements InputOperator
     locationOffsetArray = new double[locationID];
   }
 
-  private void initializeScaleArray(double[] scaleArray)
+  @Override
+  public void beginWindow(long windowId)
   {
-    for(int index = 0;
-        index < scaleArray.length;
-        index++) {
-      scaleArray[index] = 1.0 + random.nextDouble() * 3;
-    }
+    windowCount = 0;
   }
 
-  private void initializeOffsetArray(double[] offsetArray, double[] scaleArray, double total)
+  @Override
+  public void endWindow()
   {
-    double tempTotal = 0;
-
-    for(int index = 0;
-        index < offsetArray.length;
-        index++) {
-      offsetArray[index] = random.nextDouble() * scaleArray[index];
-      tempTotal += offsetArray[index];
-    }
-
-
-    for(int index = 0;
-        index < offsetArray.length;
-        index++) {
-      offsetArray[index] *= total / tempTotal;
-    }
   }
 
   @Override
   public void teardown()
   {
-  }
-
-  private int nextRandomId(int max)
-  {
-    int id;
-    do {
-      id = (int)Math.abs(Math.round(random.nextGaussian() * max / 2));
-    }
-    while (id >= max);
-    return id;
   }
 
   @Override
@@ -219,42 +161,33 @@ public class InputItemGenerator implements InputOperator
       initializeOffsetArray(locationOffsetArray, locationScaleArray, locationCut);
     }
 
-    try {
-      long timestamp;
-      for (int i = 0; i < blastCount && windowCount < numTuplesPerWindow; ++i, windowCount++) {
-        int advertiserId = nextRandomId(advertiserID);
-        int publisherId = nextRandomId(publisherID);
-        int adUnit = nextRandomId(locationID);
+    long timestamp;
+    for(int i = 0; i < blastCount && windowCount < numTuplesPerWindow; ++i, windowCount++) {
+      int advertiserId = nextRandomId(advertiserID);
+      int publisherId = nextRandomId(publisherID);
+      int adUnit = nextRandomId(locationID);
 
-        timestamp = System.currentTimeMillis();
+      timestamp = System.currentTimeMillis();
 
-        double tempOffset = publisherOffsetArray[publisherId] +
-                            advertiserOffsetArray[advertiserId] +
-                            locationScaleArray[adUnit];
-        double tempScale = publisherScaleArray[publisherId] *
-                           advertiserScaleArray[advertiserId] *
-                           locationScaleArray[adUnit];
+      double tempOffset = publisherOffsetArray[publisherId]
+                          + advertiserOffsetArray[advertiserId]
+                          + locationScaleArray[adUnit];
+      double tempScale = publisherScaleArray[publisherId]
+                         * advertiserScaleArray[advertiserId]
+                         * locationScaleArray[adUnit];
 
-        double cost = 0.1 + 0.05 * random.nextDouble() * tempScale +
-                      dayTimeOffset + dayOffset + hourOffset + tempOffset;
-        /* 0 (zero) is used as the invalid value */
-        buildAndSend(false, publisherId, advertiserId, adUnit, cost, timestamp);
+      double cost = 0.1 + 0.05 * random.nextDouble() * tempScale
+                    + dayTimeOffset + dayOffset + hourOffset + tempOffset;
 
-        if (random.nextDouble() < expectedClickThruRate) {
-          double revenue = 0.5 + 0.5 * random.nextDouble() * tempScale +
-                           dayTimeOffset + dayOffset + hourOffset + tempOffset;
-          // generate fake click
-          buildAndSend(true, publisherId, advertiserId, adUnit, revenue, timestamp);
-        }
+      buildAndSend(false, publisherId, advertiserId, adUnit, cost, timestamp);
+
+      if(random.nextDouble() < expectedClickThruRate) {
+        double revenue = 0.5 + 0.5 * random.nextDouble() * tempScale
+                         + dayTimeOffset + dayOffset + hourOffset + tempOffset;
+        // generate fake click
+        buildAndSend(true, publisherId, advertiserId, adUnit, revenue, timestamp);
       }
     }
-    catch (Exception ex) {
-      throw new RuntimeException(ex);
-    }
-  }
-
-  public void emitTuple(AdInfo adInfo) {
-    this.outputPort.emit(adInfo);
   }
 
   private void buildAndSend(boolean click, int publisherId, int advertiserId, int adUnit, double value, long timestamp)
@@ -278,6 +211,48 @@ public class InputItemGenerator implements InputOperator
     }
     adInfo.setTime(timestamp);
     emitTuple(adInfo);
+  }
+
+  public void emitTuple(AdInfo adInfo) {
+    this.outputPort.emit(adInfo);
+  }
+
+  private void initializeScaleArray(double[] scaleArray)
+  {
+    for(int index = 0;
+        index < scaleArray.length;
+        index++) {
+      scaleArray[index] = 1.0 + random.nextDouble() * 3;
+    }
+  }
+
+  private void initializeOffsetArray(double[] offsetArray, double[] scaleArray, double total)
+  {
+    double tempTotal = 0;
+
+    for(int index = 0;
+        index < offsetArray.length;
+        index++) {
+      offsetArray[index] = random.nextDouble() * scaleArray[index];
+      tempTotal += offsetArray[index];
+    }
+
+
+    for(int index = 0;
+        index < offsetArray.length;
+        index++) {
+      offsetArray[index] *= total / tempTotal;
+    }
+  }
+
+  private int nextRandomId(int max)
+  {
+    int id;
+    do {
+      id = (int)Math.abs(Math.round(random.nextGaussian() * max / 2));
+    }
+    while (id >= max);
+    return id;
   }
 
   /**
@@ -310,6 +285,16 @@ public class InputItemGenerator implements InputOperator
   public void setEventSchemaJSON(String eventSchemaJSON)
   {
     this.eventSchemaJSON = eventSchemaJSON;
+  }
+
+  public int getBlastCount()
+  {
+    return blastCount;
+  }
+
+  public void setBlastCount(int blastCount)
+  {
+    this.blastCount = blastCount;
   }
 
   private static final Logger LOG = LoggerFactory.getLogger(InputItemGenerator.class);
