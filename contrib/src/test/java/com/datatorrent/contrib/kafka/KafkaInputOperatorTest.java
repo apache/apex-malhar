@@ -323,11 +323,11 @@ public class KafkaInputOperatorTest extends KafkaOperatorTestBase
     testMeta.operator.setZookeeper("cluster1::node0,node1,node2:2181,node3:2182;cluster2::node4:2181");
     latch.await(500, TimeUnit.MILLISECONDS);
 
-    Assert.assertEquals("Total size of clusters ", 5, testMeta.operator.getConsumer().getZookeeper().size());
-    Assert.assertEquals("Number of nodes in cluster1 ", 4, testMeta.operator.getConsumer().getZookeeper().get("cluster1").size());
-    Assert.assertEquals("Nodes in cluster1 ", "[node0:2181, node2:2181, node3:2182, node1:2181]", testMeta.operator.getConsumer().getZookeeper().get("cluster1").toString());
-    Assert.assertEquals("Number of nodes in cluster2 ", 1, testMeta.operator.getConsumer().getZookeeper().get("cluster2").size());
-    Assert.assertEquals("Nodes in cluster2 ", "[node4:2181]", testMeta.operator.getConsumer().getZookeeper().get("cluster2").toString());
+    Assert.assertEquals("Total size of clusters ", 5, testMeta.operator.getConsumer().zookeeperMap.size());
+    Assert.assertEquals("Number of nodes in cluster1 ", 4, testMeta.operator.getConsumer().zookeeperMap.get("cluster1").size());
+    Assert.assertEquals("Nodes in cluster1 ", "[node0:2181, node2:2181, node3:2182, node1:2181]", testMeta.operator.getConsumer().zookeeperMap.get("cluster1").toString());
+    Assert.assertEquals("Number of nodes in cluster2 ", 1, testMeta.operator.getConsumer().zookeeperMap.get("cluster2").size());
+    Assert.assertEquals("Nodes in cluster2 ", "[node4:2181]", testMeta.operator.getConsumer().zookeeperMap.get("cluster2").toString());
   }
 
 }

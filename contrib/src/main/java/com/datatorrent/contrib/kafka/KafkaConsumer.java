@@ -55,7 +55,7 @@ public abstract class KafkaConsumer implements Closeable
   protected final static String HIGHLEVEL_CONSUMER_ID_SUFFIX = "_stream_";
 
   protected final static String SIMPLE_CONSUMER_ID_SUFFIX = "_partition_";
-
+  private String zookeeper;
 
   public KafkaConsumer()
   {
@@ -67,10 +67,10 @@ public abstract class KafkaConsumer implements Closeable
     this.topic = topic;
   }
 
-  public KafkaConsumer(SetMultimap<String, String> zks, String topic)
+  public KafkaConsumer(String zks, String topic)
   {
     this.topic = topic;
-    this.zookeeper = zks;
+    setZookeeper(zks);
   }
 
   private int cacheSize = 1024;
@@ -91,7 +91,7 @@ public abstract class KafkaConsumer implements Closeable
    */
   @NotNull
   @Bind(JavaSerializer.class)
-  protected SetMultimap<String, String> zookeeper;
+  SetMultimap<String, String> zookeeperMap;
 
   protected transient SetMultimap<String, String> brokers;
 
@@ -124,14 +124,14 @@ public abstract class KafkaConsumer implements Closeable
     if(brokers!=null){
       return ;
     }
-    if(zookeeper!=null){
+    if(zookeeperMap !=null){
       brokers = HashMultimap.create();
-      for (String clusterId: zookeeper.keySet()) {
+      for (String clusterId: zookeeperMap.keySet()) {
         try {
-          brokers.putAll(clusterId, KafkaMetadataUtil.getBrokers(zookeeper.get(clusterId)));
+          brokers.putAll(clusterId, KafkaMetadataUtil.getBrokers(zookeeperMap.get(clusterId)));
         } catch (Exception e) {
           // let the user know where we tried to connect to
-          throw new RuntimeException("Error resolving brokers for cluster " + clusterId + " " + zookeeper.get(clusterId), e);
+          throw new RuntimeException("Error resolving brokers for cluster " + clusterId + " " + zookeeperMap.get(clusterId), e);
         }
       }
     }
@@ -175,6 +175,9 @@ public abstract class KafkaConsumer implements Closeable
     this.isAlive = isAlive;
   }
 
+  /**
+   * Set the Topic.
+   */
   public void setTopic(String topic)
   {
     this.topic = topic;
@@ -193,16 +196,6 @@ public abstract class KafkaConsumer implements Closeable
   public int messageSize()
   {
     return holdingBuffer.size();
-  }
-
-  public void setZookeeper(SetMultimap<String, String> zks)
-  {
-    this.zookeeper = zks;
-  }
-
-  public SetMultimap<String, String> getZookeeper()
-  {
-    return zookeeper;
   }
 
   public void setInitialOffset(String initialOffset)
@@ -243,6 +236,22 @@ public abstract class KafkaConsumer implements Closeable
   }
 
   protected abstract void resetPartitionsAndOffset(Set<KafkaPartition> partitionIds, Map<KafkaPartition, Long> startOffset);
+
+  /**
+   * Set the ZooKeeper quorum of the Kafka cluster(s) you want to consume data from.
+   * The operator will discover the brokers that it needs to consume messages from.
+   */
+  public void setZookeeper(String zookeeper)
+  {
+    this.zookeeper = zookeeper;
+    this.zookeeperMap = parseZookeeperStr(zookeeper);
+  }
+
+  public String getZookeeper()
+  {
+    return zookeeper;
+  }
+
   /**
    * Counter class which gives the statistic value from the consumer
    */
@@ -507,4 +516,27 @@ public abstract class KafkaConsumer implements Closeable
     }
   }
 
+  private SetMultimap<String, String> parseZookeeperStr(String zookeeper)
+  {
+    SetMultimap<String, String> theClusters = HashMultimap.create();
+    for (String zk : zookeeper.split(";")) {
+      String[] parts = zk.split("::");
+      String clusterId = parts.length == 1 ? KafkaPartition.DEFAULT_CLUSTERID : parts[0];
+      String[] hostNames = parts.length == 1 ? parts[0].split(",") : parts[1].split(",");
+      String portId = "";
+      for (int idx = hostNames.length - 1; idx >= 0; idx--) {
+        String[] zkParts = hostNames[idx].split(":");
+        if (zkParts.length == 2) {
+          portId = zkParts[1];
+        }
+        if (!portId.isEmpty() && portId != "") {
+          theClusters.put(clusterId, zkParts[0] + ":" + portId);
+        } else {
+          throw new IllegalArgumentException("Wrong zookeeper string: " + zookeeper + "\n"
+              + " Expected format should be cluster1::zookeeper1,zookeeper2:port1;cluster2::zookeeper3:port2 or zookeeper1:port1,zookeeper:port2");
+        }
+      }
+    }
+    return theClusters;
+  }
 }
