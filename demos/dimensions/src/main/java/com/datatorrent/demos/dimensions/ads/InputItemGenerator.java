@@ -52,7 +52,7 @@ public class InputItemGenerator implements InputOperator
   public List<Object> advertiserName;
   public List<Object> locationName;
 
-  private double minuteScale;
+  private double minuteOffset;
   private double dayOffset;
   private double expectedClickThruRate;
   private long currentMinute;
@@ -161,7 +161,7 @@ public class InputItemGenerator implements InputOperator
     if(nextMinute != currentMinute) {
       expectedClickThruRate = random.nextDouble() * .01 + EXPECTED_CLICK_THROUGH_RATE;
       currentMinute = nextMinute;
-      minuteScale = random.nextDouble();
+      minuteOffset = random.nextDouble() * .2;
     }
 
     try {
@@ -177,12 +177,12 @@ public class InputItemGenerator implements InputOperator
                            advertiserScaleArray[advertiserId] *
                            locationScaleArray[adUnit];
 
-        double cost = 0.1 + 0.05 * random.nextDouble() * tempScale * minuteScale + dayTimeOffset + dayOffset;
+        double cost = 0.1 + 0.05 * random.nextDouble() * tempScale + dayTimeOffset + dayOffset + minuteOffset;
         /* 0 (zero) is used as the invalid value */
         buildAndSend(false, publisherId, advertiserId, adUnit, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
-          double revenue = 0.1 + 0.1 * random.nextDouble() * tempScale * minuteScale + dayTimeOffset + dayOffset;
+          double revenue = 0.1 + 0.1 * random.nextDouble() * tempScale + dayTimeOffset + dayOffset + minuteOffset;
           // generate fake click
           buildAndSend(true, publisherId, advertiserId, adUnit, revenue, timestamp);
         }
