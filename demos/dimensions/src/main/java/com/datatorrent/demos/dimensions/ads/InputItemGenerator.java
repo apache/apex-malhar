@@ -42,8 +42,6 @@ public class InputItemGenerator implements InputOperator
   public static final String COST = "cost";
   public static final String REVENUE = "revenue";
 
-  public static final double EXPECTED_CLICK_THROUGH_RATE = .015;
-
   private int publisherID;
   private int advertiserID;
   private int locationID;
@@ -159,7 +157,7 @@ public class InputItemGenerator implements InputOperator
     }
 
     if(nextMinute != currentMinute) {
-      expectedClickThruRate = random.nextDouble() * .01 + EXPECTED_CLICK_THROUGH_RATE;
+      expectedClickThruRate = random.nextDouble() * .1 + .1;
       currentMinute = nextMinute;
       minuteOffset = random.nextDouble() * .2;
     }
@@ -182,7 +180,7 @@ public class InputItemGenerator implements InputOperator
         buildAndSend(false, publisherId, advertiserId, adUnit, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
-          double revenue = 0.1 + 0.1 * random.nextDouble() * tempScale + dayTimeOffset + dayOffset + minuteOffset;
+          double revenue = 0.5 + 0.5 * random.nextDouble() * tempScale + dayTimeOffset + dayOffset + minuteOffset;
           // generate fake click
           buildAndSend(true, publisherId, advertiserId, adUnit, revenue, timestamp);
         }
