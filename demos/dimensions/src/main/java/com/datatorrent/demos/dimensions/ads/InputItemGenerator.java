@@ -50,11 +50,12 @@ public class InputItemGenerator implements InputOperator
   public List<Object> advertiserName;
   public List<Object> locationName;
 
-  private double minuteOffset;
+  private double hourOffset;
   private double dayOffset;
   private double expectedClickThruRate;
   private long currentMinute;
   private long currentDay;
+  private long currentHour;
   @Min(1)
   private int blastCount = 30000;
   @Min(1)
@@ -145,12 +146,22 @@ public class InputItemGenerator implements InputOperator
     }
   }
 
-  private void initializeOffsetArray(double[] offsetArray)
+  private void initializeOffsetArray(double[] offsetArray, double[] scaleArray, double total)
   {
+    double tempTotal = 0;
+
     for(int index = 0;
         index < offsetArray.length;
         index++) {
-      offsetArray[index] = random.nextDouble() * .03;
+      offsetArray[index] = random.nextDouble() * scaleArray[index];
+      tempTotal += offsetArray[index];
+    }
+
+
+    for(int index = 0;
+        index < offsetArray.length;
+        index++) {
+      offsetArray[index] *= total / tempTotal;
     }
   }
 
@@ -175,6 +186,7 @@ public class InputItemGenerator implements InputOperator
     long time = System.currentTimeMillis();
     long nextMinute = time % 60000;
     long nextDay = time % (24 * 60 * 60 * 1000);
+    long nextHour = time % (60 * 60 * 1000);
     double dayTimeOffset = .2 * (Math.cos(2.0 * Math.PI / (24.0 * 60.0 * 60.0 * 1000.0) * ((double) nextDay)) *.5 + 1.0);
 
     if(nextDay != currentDay) {
@@ -182,15 +194,29 @@ public class InputItemGenerator implements InputOperator
       dayOffset = random.nextDouble() * .05;
     }
 
+    if(nextHour != currentHour) {
+      currentHour = nextHour;
+      hourOffset = random.nextDouble() * .05;
+    }
+
     if(nextMinute != currentMinute) {
       expectedClickThruRate = random.nextDouble() * .1 + .1;
       currentMinute = nextMinute;
 
-      initializeOffsetArray(publisherOffsetArray);
-      initializeOffsetArray(advertiserOffsetArray);
-      initializeOffsetArray(locationOffsetArray);
+      double totalMinuteOffset = random.nextDouble() * .2 + .1;
 
-      minuteOffset = random.nextDouble() * .08;
+      double publisherCut = random.nextDouble();
+      double advertiserCut = random.nextDouble();
+      double locationCut = random.nextDouble();
+
+      double sectionCutTotal = publisherCut + advertiserCut + locationCut;
+      publisherCut *= totalMinuteOffset / sectionCutTotal;
+      advertiserCut *= totalMinuteOffset / sectionCutTotal;
+      locationCut *= totalMinuteOffset / sectionCutTotal;
+
+      initializeOffsetArray(publisherOffsetArray, publisherScaleArray, publisherCut);
+      initializeOffsetArray(advertiserOffsetArray, advertiserScaleArray, advertiserCut);
+      initializeOffsetArray(locationOffsetArray, locationScaleArray, locationCut);
     }
 
     try {
@@ -210,13 +236,13 @@ public class InputItemGenerator implements InputOperator
                            locationScaleArray[adUnit];
 
         double cost = 0.1 + 0.05 * random.nextDouble() * tempScale +
-                      dayTimeOffset + dayOffset + minuteOffset + tempOffset;
+                      dayTimeOffset + dayOffset + hourOffset + tempOffset;
         /* 0 (zero) is used as the invalid value */
         buildAndSend(false, publisherId, advertiserId, adUnit, cost, timestamp);
 
         if (random.nextDouble() < expectedClickThruRate) {
           double revenue = 0.5 + 0.5 * random.nextDouble() * tempScale +
-                           dayTimeOffset + dayOffset + minuteOffset + tempOffset;
+                           dayTimeOffset + dayOffset + hourOffset + tempOffset;
           // generate fake click
           buildAndSend(true, publisherId, advertiserId, adUnit, revenue, timestamp);
         }
