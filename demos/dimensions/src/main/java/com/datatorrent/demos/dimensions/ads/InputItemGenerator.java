@@ -159,6 +159,16 @@ public class InputItemGenerator implements InputOperator
   {
   }
 
+  private int nextRandomId(int max)
+  {
+    int id;
+    do {
+      id = (int)Math.abs(Math.round(random.nextGaussian() * max / 2));
+    }
+    while (id >= max);
+    return id;
+  }
+
   @Override
   public void emitTuples()
   {
@@ -180,15 +190,15 @@ public class InputItemGenerator implements InputOperator
       initializeOffsetArray(advertiserOffsetArray);
       initializeOffsetArray(locationOffsetArray);
 
-      minuteOffset = random.nextDouble() * .03;
+      minuteOffset = random.nextDouble() * .08;
     }
 
     try {
       long timestamp;
       for (int i = 0; i < blastCount && windowCount < numTuplesPerWindow; ++i, windowCount++) {
-        int advertiserId = random.nextInt(advertiserID);
-        int publisherId = random.nextInt(publisherID);
-        int adUnit = random.nextInt(locationID);
+        int advertiserId = nextRandomId(advertiserID);
+        int publisherId = nextRandomId(publisherID);
+        int adUnit = nextRandomId(locationID);
 
         timestamp = System.currentTimeMillis();
 
