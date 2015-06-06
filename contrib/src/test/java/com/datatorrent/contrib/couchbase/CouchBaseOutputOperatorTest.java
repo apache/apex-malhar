@@ -21,19 +21,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-import org.junit.*;
+import org.junit.Assert;
+import org.junit.Test;
 import org.python.google.common.collect.Lists;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.datatorrent.lib.helper.OperatorContextTestHelper;
 
-
 import com.datatorrent.api.Attribute.AttributeMap;
 import com.datatorrent.api.DAG;
 
 import com.datatorrent.common.util.DTThrowable;
-import com.datatorrent.contrib.couchbase.CouchbasePOJOOutputOperator.FIELD_TYPE;
 
 public class CouchBaseOutputOperatorTest
 {
@@ -106,7 +105,7 @@ public class CouchBaseOutputOperatorTest
     }
     store.getInstance().flush();
     store.getMetaInstance().flush();
-    CouchbaseOutputTestOperator outputOperator = new CouchbaseOutputTestOperator();
+    CouchbaseSetTestOperator outputOperator = new CouchbaseSetTestOperator();
     AttributeMap.DefaultAttributeMap attributeMap = new AttributeMap.DefaultAttributeMap();
     attributeMap.put(DAG.APPLICATION_ID, APP_ID);
     OperatorContextTestHelper.TestIdOperatorContext context = new OperatorContextTestHelper.TestIdOperatorContext(OPERATOR_ID, attributeMap);
@@ -118,7 +117,7 @@ public class CouchBaseOutputOperatorTest
     expressions.add("getKey()");
     expressions.add("getValue()");
     outputOperator.setExpressions(expressions);
-    outputOperator.setType(FIELD_TYPE.NUMBER);
+    outputOperator.setValueType(CouchbasePOJOSetOperator.FieldType.NUMBER);
     CouchBaseJSONSerializer serializer = new CouchBaseJSONSerializer();
     outputOperator.setSerializer(serializer);
     List<TestEvent> events = Lists.newArrayList();
@@ -136,12 +135,11 @@ public class CouchBaseOutputOperatorTest
     Map<String, Object> keyValues = store.getInstance().getBulk(keyList);
     logger.info("keyValues is" + keyValues.toString());
     logger.info("size is " + keyValues.size());
-    int k = outputOperator.getNumOfEventsInStore();
     Assert.assertEquals("rows in couchbase", 1000, keyValues.size());
 
   }
 
-  private static class CouchbaseOutputTestOperator extends CouchbasePOJOOutputOperator
+  private static class CouchbaseSetTestOperator extends CouchbasePOJOSetOperator
   {
     public int getNumOfEventsInStore()
     {

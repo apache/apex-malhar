@@ -15,42 +15,44 @@
  */
 package com.datatorrent.contrib.couchbase;
 
-import com.datatorrent.lib.util.PojoUtils;
-import com.datatorrent.lib.util.PojoUtils.Getter;
-import com.datatorrent.lib.util.PojoUtils.GetterBoolean;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+
 import javax.validation.constraints.NotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.datatorrent.lib.util.PojoUtils;
+import com.datatorrent.lib.util.PojoUtils.Getter;
 
 /*
  * An implementation of Couchbase Output Operator which takes a POJO,serializes it into key,value
  * pair and then writes to couchbase.
  */
-public class CouchbasePOJOOutputOperator extends AbstractCouchBaseSetOperator<Object>
+public class CouchbasePOJOSetOperator extends AbstractCouchBaseSetOperator<Object>
 {
   private static final Logger logger = LoggerFactory.getLogger(CouchBaseStore.class);
   //Key stored in couchbase is always a string.
   private transient Getter<Object, String> keyGetter;
   //Value stored in Couchbase can be of these data types: boolean,numeric,string,arrays,object,null.
-  private transient Getter<Object, Object> valueGetter;
+  private transient Getter<Object, ? extends Object> valueGetter;
   @NotNull
   private ArrayList<String> expressions;
   @NotNull
-  private FIELD_TYPE type;
+  private FieldType valueType;
 
-  public FIELD_TYPE getType()
+  public FieldType getValueType()
   {
-    return type;
+    return valueType;
   }
 
-  public void setType(FIELD_TYPE type)
+  public void setValueType(FieldType valueType)
   {
-    this.type = type;
+    this.valueType = valueType;
   }
 
-  public enum FIELD_TYPE
+  public enum FieldType
   {
     BOOLEAN, NUMBER, STRING, ARRAY, OBJECT, NULL
   };
@@ -89,34 +91,31 @@ public class CouchbasePOJOOutputOperator extends AbstractCouchBaseSetOperator<Ob
     if (null == valueGetter) {
       Class<?> tupleClass = tuple.getClass();
       final String getterExpression = expressions.get(1);
-      switch (type) {
+      switch (valueType) {
         case NUMBER:
-          Getter<Object, Number> numberGetter = PojoUtils.createGetter(tupleClass, getterExpression, Number.class);
-          value = numberGetter.get(tuple);
+          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, Number.class);
           break;
         case STRING:
-          Getter<Object, String> stringGetter = PojoUtils.createGetter(tupleClass, getterExpression, String.class);
-          value = stringGetter.get(tuple);
+          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, String.class);
           break;
         case BOOLEAN:
-          GetterBoolean<Object> booleanGetter = PojoUtils.createGetterBoolean(tupleClass, getterExpression);
-          value = booleanGetter.get(tuple);
+          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, Boolean.class);
           break;
         case ARRAY:
-          Getter<Object, Array> getterArray = PojoUtils.createGetter(tupleClass, getterExpression, Array.class);
-          value = getterArray.get(tuple);
+          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, Array.class);
           break;
         case OBJECT:
-          Getter<Object, Object> getterObject = PojoUtils.createGetter(tupleClass, getterExpression, Object.class);
-          value = getterObject.get(tuple);
+          valueGetter = PojoUtils.createGetter(tupleClass, getterExpression, Object.class);
           break;
         case NULL:
-          value = null;
           break;
         default:
-          throw new RuntimeException("unsupported data type " + type);
+          throw new RuntimeException("unsupported data type " + valueType);
       }
 
+    }
+    if (valueGetter != null) {
+      value = valueGetter.get(tuple);
     }
     logger.debug("value is {}", value);
     return value;
