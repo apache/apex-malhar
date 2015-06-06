@@ -25,10 +25,8 @@ import com.datatorrent.lib.appdata.schemas.DataQueryDimensional;
 import com.datatorrent.lib.appdata.schemas.DataResultDimensional;
 import com.datatorrent.lib.appdata.schemas.DimensionalConfigurationSchema;
 import com.datatorrent.lib.appdata.schemas.Fields;
-import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.DimensionalSchema;
 import com.datatorrent.lib.appdata.schemas.SchemaRegistry;
-import com.datatorrent.lib.dimensions.aggregator.AggregatorUtils;
 import com.datatorrent.lib.dimensions.DimensionsEvent;
 import com.datatorrent.lib.dimensions.DimensionsEvent.EventKey;
 import com.datatorrent.lib.dimensions.aggregator.OTFAggregator;
@@ -169,6 +167,9 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
         List<String> childAggregators = eventSchema.getAggregatorRegistry().getOTFAggregatorToStaticAggregators().get(aggregatorName);
         boolean gotAllStaticAggregators = true;
 
+        Set<String> fieldsSet = query.getFieldsAggregatable().getAggregatorToFields().get(aggregatorName);
+        Fields fields = new Fields(fieldsSet);
+
         for(String childAggregator: childAggregators) {
           GPOMutable valueGPO = value.get(childAggregator);
 
@@ -177,21 +178,17 @@ public class DimensionsQueryExecutor implements QueryExecutor<DataQueryDimension
             break;
           }
 
-          mutableResults.add(valueGPO);
+          mutableResults.add(new GPOMutable(valueGPO,
+                                            fields));
         }
 
         if(!gotAllStaticAggregators) {
           continue;
         }
 
-        Set<String> fields = query.getFieldsAggregatable().getAggregatorToFields().get(aggregatorName);
-        FieldsDescriptor fd = eventSchema.getInputValuesDescriptor().getSubset(new Fields(fields));
         OTFAggregator aggregator = eventSchema.getAggregatorRegistry().getNameToOTFAggregators().get(aggregatorName);
-        FieldsDescriptor outputFd = AggregatorUtils.getOutputFieldsDescriptor(fd,
-                                                                              aggregator);
-        GPOMutable result = aggregator.aggregate(fd,
-                                                 outputFd,
-                                                 mutableResults.toArray(new GPOMutable[mutableResults.size()]));
+
+        GPOMutable result = aggregator.aggregate(mutableResults.toArray(new GPOMutable[mutableResults.size()]));
         prunedValue.put(aggregatorName, result);
         prunedKey.put(aggregatorName, singleKey);
       }

@@ -16,7 +16,6 @@
 
 package com.datatorrent.lib.dimensions.aggregator;
 
-import com.datatorrent.lib.dimensions.aggregator.Aggregator;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.datatorrent.lib.dimensions.DimensionsEvent.Aggregate;
 import com.datatorrent.lib.dimensions.DimensionsEvent.InputEvent;

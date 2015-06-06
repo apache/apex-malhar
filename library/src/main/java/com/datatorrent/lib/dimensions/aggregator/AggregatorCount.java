@@ -25,10 +25,23 @@ import com.google.common.collect.Maps;
 import java.util.Collections;
 import java.util.Map;
 
+/**
+ * This aggregator performs a count of the number of times an input is encountered.
+ */
 public class AggregatorCount implements IncrementalAggregator
 {
   private static final long serialVersionUID = 20154301645L;
+
+  /**
+   * This is a map whose keys represent input types and whose values
+   * represent the corresponding output types.
+   */
   public static transient final Map<Type, Type> TYPE_CONVERSION_MAP;
+
+  /**
+   * Singleton
+   */
+  public static final AggregatorCount INSTANCE = new AggregatorCount();
 
   static {
     Map<Type, Type> typeConversionMap = Maps.newHashMap();
@@ -40,8 +53,12 @@ public class AggregatorCount implements IncrementalAggregator
     TYPE_CONVERSION_MAP = Collections.unmodifiableMap(typeConversionMap);
   }
 
-  public AggregatorCount()
+  /**
+   * This constructor is not exposed for singleton pattern.
+   */
+  private AggregatorCount()
   {
+    //Do nothing
   }
 
   @Override
@@ -52,6 +69,7 @@ public class AggregatorCount implements IncrementalAggregator
     for(int index = 0;
         index < fieldsLong.length;
         index++) {
+      //increment count
       fieldsLong[index]++;
     }
   }
@@ -65,6 +83,7 @@ public class AggregatorCount implements IncrementalAggregator
     for(int index = 0;
         index < destLongs.length;
         index++) {
+      //aggregate count
       destLongs[index] += srcLongs[index];
     }
   }

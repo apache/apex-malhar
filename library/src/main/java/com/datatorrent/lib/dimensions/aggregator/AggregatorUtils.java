@@ -15,6 +15,7 @@
  */
 package com.datatorrent.lib.dimensions.aggregator;
 
+import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.collect.Maps;
@@ -77,6 +78,18 @@ public final class AggregatorUtils
       String fieldName = entry.getKey();
       Type outputType = otfAggregator.getOutputType();
       fieldToType.put(fieldName, outputType);
+    }
+
+    return new FieldsDescriptor(fieldToType);
+  }
+
+  public static FieldsDescriptor getOutputFieldsDescriptor(Fields fields,
+                                                           OTFAggregator otfAggregator)
+  {
+    Map<String, Type> fieldToType = Maps.newHashMap();
+
+    for(String field: fields.getFields()) {
+      fieldToType.put(field, otfAggregator.getOutputType());
     }
 
     return new FieldsDescriptor(fieldToType);

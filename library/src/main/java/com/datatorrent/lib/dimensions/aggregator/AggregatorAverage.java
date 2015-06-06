@@ -17,6 +17,7 @@
 package com.datatorrent.lib.dimensions.aggregator;
 
 import com.datatorrent.lib.appdata.gpo.GPOMutable;
+import com.datatorrent.lib.appdata.schemas.Fields;
 import com.datatorrent.lib.appdata.schemas.FieldsDescriptor;
 import com.datatorrent.lib.appdata.schemas.Type;
 import com.google.common.base.Preconditions;
@@ -46,9 +47,7 @@ public class AggregatorAverage implements OTFAggregator
   }
 
   @Override
-  public GPOMutable aggregate(FieldsDescriptor inputDescriptor,
-                              FieldsDescriptor outputDescriptor,
-                              GPOMutable... aggregates)
+  public GPOMutable aggregate(GPOMutable... aggregates)
   {
     Preconditions.checkArgument(aggregates.length == getChildAggregators().size(),
                                 "The number of arguments " + aggregates.length +
@@ -57,12 +56,14 @@ public class AggregatorAverage implements OTFAggregator
     GPOMutable sumAggregation = aggregates[SUM_INDEX];
     GPOMutable countAggregation = aggregates[COUNT_INDEX];
 
-    GPOMutable result = new GPOMutable(outputDescriptor);
+    FieldsDescriptor fieldsDescriptor = sumAggregation.getFieldDescriptor();
+    Fields fields = fieldsDescriptor.getFields();
+    GPOMutable result = new GPOMutable(AggregatorUtils.getOutputFieldsDescriptor(fields, this));
 
     long count = countAggregation.getFieldsLong()[0];
 
-    for(String field: inputDescriptor.getFieldList()) {
-      Type type = inputDescriptor.getType(field);
+    for(String field: fields.getFields()) {
+      Type type = sumAggregation.getFieldDescriptor().getType(field);
 
       switch(type) {
         case BYTE:

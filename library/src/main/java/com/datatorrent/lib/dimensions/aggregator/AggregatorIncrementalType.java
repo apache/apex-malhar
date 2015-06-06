@@ -28,9 +28,9 @@ public enum AggregatorIncrementalType
   SUM(new AggregatorSum()),
   MIN(new AggregatorMin()),
   MAX(new AggregatorMax()),
-  COUNT(new AggregatorCount()),
+  COUNT(AggregatorCount.INSTANCE),
   LAST(new AggregatorLast()),
-  FIRST(new AggregatorFirst());
+  FIRST(AggregatorFirst.INSTANCE);
 
   private static final Logger logger = LoggerFactory.getLogger(AggregatorIncrementalType.class);
 

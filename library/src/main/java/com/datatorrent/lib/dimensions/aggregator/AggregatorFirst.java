@@ -28,7 +28,9 @@ public class AggregatorFirst implements IncrementalAggregator
 {
   private static final long serialVersionUID = 20154301646L;
 
-  public AggregatorFirst()
+  public static final AggregatorFirst INSTANCE = new AggregatorFirst();
+
+  private AggregatorFirst()
   {
   }
 

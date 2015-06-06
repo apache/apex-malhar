@@ -38,6 +38,11 @@ import java.io.ObjectOutputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * This is a base class for dimensions computation.
+ * @param <AGGREGATOR_INPUT>
+ * @param <AGGREGATE>
+ */
 public abstract class AbstractDimensionsComputation<AGGREGATOR_INPUT, AGGREGATE extends UnifiableAggregate> implements Operator
 {
   @VisibleForTesting
